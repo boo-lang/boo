@@ -118,9 +118,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		public bool IsDuckTyped
+		override protected System.Type MemberType
 		{
-			get { return false; }
+			get { return _memberInfo.EventHandlerType;  }
 		}
 	}
 }

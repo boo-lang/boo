@@ -43,35 +43,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		override public bool IsValueType
 		{
-			get
-			{
-				return _typeSystemServices.ValueTypeType == BaseType;
-			}
+			get { return _typeSystemServices.ValueTypeType == BaseType; }
 		}
 		
 		override public IType BaseType
 		{
-			get
-			{
-				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
-				{
-					IType entity = (IType)baseType.Entity;
-					if (null != entity && !entity.IsInterface)
-					{
-						return entity;
-					}
-				}
-				return null;
-			}
+			get { return FindBaseType(); }
 		}
-		
+
+		private IType FindBaseType()
+		{
+			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			{
+				IType entity = (IType)baseType.Entity;
+				if (null != entity && !entity.IsInterface)
+				{
+					return entity;
+				}
+			}
+			return null;
+		}
+
 		override public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			bool found = base.Resolve(targetList, name, flags);
-			IType baseType = this.BaseType;
-			if (null != baseType)
+			if (null != BaseType)
 			{
-				if (baseType.Resolve(targetList, name, flags))
+				if (BaseType.Resolve(targetList, name, flags))
 				{
 					found = true;
 				}

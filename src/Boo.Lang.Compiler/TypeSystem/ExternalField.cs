@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalField : ExternalEntity<System.Reflection.FieldInfo>, IField
@@ -36,103 +38,67 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual IType DeclaringType
 		{
-			get
-			{
-				return _typeSystemServices.Map(_memberInfo.DeclaringType);
-			}
+			get { return _typeSystemServices.Map(_memberInfo.DeclaringType); }
 		}
 		
 		public bool IsPublic
 		{
-			get
-			{
-				return _memberInfo.IsPublic;
-			}
+			get { return _memberInfo.IsPublic; }
 		}
 		
 		public bool IsProtected
 		{
-			get
-			{
-				return _memberInfo.IsFamily || _memberInfo.IsFamilyOrAssembly;
-			}
+			get { return _memberInfo.IsFamily || _memberInfo.IsFamilyOrAssembly; }
 		}
 
 		public bool IsPrivate
 		{
-			get
-			{
-				return _memberInfo.IsPrivate;
-			}
+			get { return _memberInfo.IsPrivate; }
 		}
 
 		public bool IsInternal
 		{
-			get
-			{
-				return _memberInfo.IsAssembly;
-			}
+			get { return _memberInfo.IsAssembly; }
 		}
 		
 		public bool IsStatic
 		{
-			get
-			{
-				return _memberInfo.IsStatic;
-			}
+			get { return _memberInfo.IsStatic; }
 		}
 		
 		public bool IsLiteral
 		{
-			get
-			{
-				return _memberInfo.IsLiteral;
-			}
+			get { return _memberInfo.IsLiteral; }
 		}
 		
 		public bool IsInitOnly
 		{
-			get
-			{
-				return _memberInfo.IsInitOnly;
-			}
+			get { return _memberInfo.IsInitOnly; }
 		}
 		
 		override public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Field;
-			}
+			get { return EntityType.Field; }
 		}
 		
 		public virtual IType Type
 		{
-			get
-			{
-				return _typeSystemServices.Map(_memberInfo.FieldType);
-			}
+			get { return _typeSystemServices.Map(_memberInfo.FieldType); }
 		}
 		
 		public object StaticValue
 		{
-			get
-			{
-				return _memberInfo.GetValue(null);
-			}
+			get { return _memberInfo.GetValue(null); }
 		}
 		
 		public System.Reflection.FieldInfo FieldInfo
 		{
-			get
-			{
-				return _memberInfo;
-			}
+			get { return _memberInfo; }
 		}
 		
-		public bool IsDuckTyped
+		protected override Type MemberType
 		{
-			get { return false; }
+			get { return _memberInfo.FieldType; }
 		}
 	}
 }

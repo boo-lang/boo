@@ -44,8 +44,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public class ExternalProperty : ExternalEntity<System.Reflection.PropertyInfo>, IProperty
 	{
 		private IParameter[] _parameters;
-
-		private int _isDuckTyped = -1;
 		
 		private int _isExtension = -1;
 
@@ -86,21 +84,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return GetAccessor().IsStatic;
-			}
-		}
-
-		public bool IsDuckTyped
-		{
-			get
-			{
-				if (-1 == _isDuckTyped)
-				{
-					_isDuckTyped =
-						!_memberInfo.PropertyType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DuckTypedAttribute)
-						? 1
-						: 0;
-				}
-				return 1 == _isDuckTyped;
 			}
 		}
 		
@@ -167,6 +150,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return false;
 			}
+		}
+
+		protected override Type MemberType
+		{
+			get { return _memberInfo.PropertyType; }
 		}
 		
 		public virtual IParameter[] GetParameters()

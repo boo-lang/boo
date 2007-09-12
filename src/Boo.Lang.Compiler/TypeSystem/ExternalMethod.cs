@@ -38,10 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		ICallableType _type;
 
 		// TODO: replace by bool?
-
 		int _acceptVarArgs = -1;
-
-		int _isDuckTyped = -1;
 
 		int _isExtension = -1;
 		
@@ -78,21 +75,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 						: 0;
 				}
 				return 1 == _isExtension;
-			}
-		}
-
-		public bool IsDuckTyped
-		{
-			get
-			{
-				if (-1 == _isDuckTyped)
-				{
-					_isDuckTyped =
-						!ReturnType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DuckTypedAttribute)
-						? 1
-						: 0;
-				}
-				return 1 == _isDuckTyped;
 			}
 		}
 		
@@ -238,20 +220,17 @@ namespace Boo.Lang.Compiler.TypeSystem
             if (null != _parameters) return _parameters;
             return _parameters = _typeSystemServices.Map(_memberInfo.GetParameters());
 		}
-		
+
 		public virtual IType ReturnType
 		{
 			get
 			{
 				MethodInfo mi = _memberInfo as MethodInfo;
-				if (null != mi)
-				{
-					return _typeSystemServices.Map(mi.ReturnType);
-				}
+				if (null != mi) return _typeSystemServices.Map(mi.ReturnType);
 				return null;
 			}
 		}
-		
+
 		public MethodBase MethodInfo
 		{
 			get { return _memberInfo; }
@@ -305,6 +284,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 					return _genericMethodInfo;
 				}
+				return null;
+			}
+		}
+
+		protected override Type MemberType
+		{
+			get
+			{
+				MethodInfo mi = _memberInfo as MethodInfo;
+				if (null != mi) return mi.ReturnType;
 				return null;
 			}
 		}

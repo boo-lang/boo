@@ -49,6 +49,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected readonly TypeSystemServices _typeSystemServices;
 
+		private bool? _isDuckTyped;
+
 		public ExternalEntity(TypeSystemServices typeSystemServices, T memberInfo)
 		{
 			_typeSystemServices = typeSystemServices;
@@ -86,9 +88,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public abstract EntityType EntityType { get; }
 
+		protected abstract System.Type MemberType { get; }
+
 		public override string ToString()
 		{
 			return FullName;
+		}
+
+		public bool IsDuckTyped
+		{
+			get
+			{
+				if (!_isDuckTyped.HasValue)
+				{
+					_isDuckTyped =
+						!MemberType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DuckTypedAttribute);
+				}
+				return _isDuckTyped.Value;
+			}
 		}
 	}
 }
