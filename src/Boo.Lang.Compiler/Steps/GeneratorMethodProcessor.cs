@@ -372,7 +372,7 @@ namespace Boo.Lang.Compiler.Steps
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
 			
-			_enumerator = CodeBuilder.CreateClass(_enumerable.ClassDefinition.Name + "_Enumerator");
+			_enumerator = CodeBuilder.CreateClass(_enumerable.ClassDefinition.Name + "$e");
 			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
