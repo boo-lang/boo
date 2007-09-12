@@ -322,8 +322,9 @@ class InteractiveInterpreter(AbstractInterpreter):
 				
 		AddRepresenter(Delegate) do (d as Delegate, writer as TextWriter):
 			method = d.Method
-			writer.Write(method.DeclaringType.FullName)
-			writer.Write(".")
+			if method.DeclaringType is not null:
+				writer.Write(method.DeclaringType.FullName)
+				writer.Write(".")
 			writer.Write(method.Name)
 		
 		AddRepresenter(IDictionary) do (value as IDictionary, writer as TextWriter):
