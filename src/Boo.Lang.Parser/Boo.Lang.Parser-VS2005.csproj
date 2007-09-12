@@ -66,6 +66,10 @@
     <Compile Include="BooParsingStep.cs" />
     <Compile Include="BooToken.cs" />
     <Compile Include="BooTokenTypes.cs" />
+    <Compile Include="DocStringFormatter.cs" />
+    <Compile Include="OperatorParser.cs" />
+    <Compile Include="PrimitiveParser.cs" />
+    <Compile Include="SourceLocationFactory.cs" />
     <Compile Include="WSABooExpressionLexer.cs" />
     <Compile Include="WSABooExpressionLexerTokenTypes.cs" />
     <Compile Include="WSABooLexer.cs" />
