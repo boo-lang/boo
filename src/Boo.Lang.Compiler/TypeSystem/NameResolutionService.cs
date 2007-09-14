@@ -49,19 +49,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public NameResolutionService(CompilerContext context)
 		{
-			if (null == context)
-			{
-				throw new ArgumentNullException("context");
-			}
+			if (null == context) throw new ArgumentNullException("context");
 			_context = context;
 		}
 		
 		public INamespace GlobalNamespace
 		{
-			get
-			{
-				return _global;
-			}
+			get { return _global; }
 			
 			set
 			{
@@ -75,19 +69,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void EnterNamespace(INamespace ns)
 		{
-			if (null == ns)
-			{
-				throw new ArgumentNullException("ns");
-			}
+			if (null == ns) throw new ArgumentNullException("ns");
 			_current = ns;
 		}
 		
 		public INamespace CurrentNamespace
 		{
-			get
-			{
-				return _current;
-			}
+			get { return _current; }
 		}
 		
 		public void Reset()
@@ -97,10 +85,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public void Restore(INamespace saved)
 		{
-			if (null == saved)
-			{
-				throw new ArgumentNullException("saved");
-			}
+			if (null == saved) throw new ArgumentNullException("saved");
 			_current = saved;
 		}
 		

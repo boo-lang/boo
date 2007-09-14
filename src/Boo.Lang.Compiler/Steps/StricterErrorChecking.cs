@@ -302,7 +302,7 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity entity = NameResolutionService.Resolve(extendedType, method.Name, EntityType.Method);
 			if (null == entity) return;
 			IMethod conflicting = FindConflictingMember(method, entity);
-			if (null == conflicting) return;
+			if (null == conflicting || !conflicting.IsPublic) return;
 
 			Error(CompilerErrorFactory.MemberNameConflict(node, extendedType.ToString(), TypeSystemServices.GetSignature(conflicting, false)));
 		}

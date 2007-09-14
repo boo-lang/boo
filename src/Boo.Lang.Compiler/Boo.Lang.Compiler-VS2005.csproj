@@ -421,6 +421,7 @@
     <Compile Include="TypeSystem\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\AbstractLocalEntity.cs" />
+    <Compile Include="TypeSystem\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />
     <Compile Include="TypeSystem\AnonymousCallablesManager.cs" />
     <Compile Include="TypeSystem\AnonymousCallableType.cs" />

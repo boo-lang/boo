@@ -2398,7 +2398,16 @@ namespace Boo.Lang.Compiler.Steps
 
 			INamespace ns = GetReferenceNamespace(node);
 			member = NameResolutionService.Resolve(ns, node.Name);
-			if (null != member) return member;
+			if (null != member)
+			{
+				IAccessibleMember accessible = member as IAccessibleMember;
+				if (null != accessible && !IsAccessible(accessible))
+				{
+					IEntity extension = NameResolutionService.ResolveExtension(ns, node.Name);
+					if (null != extension) return extension;
+				}
+				return member;
+			}
 			
 			member = NameResolutionService.ResolveExtension(ns, node.Name);
 			if (null == member) MemberNotFound(node, ns);
@@ -3860,7 +3869,6 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Visit(node.Target);
 			
-			
 			if (ProcessSwitchInvocation(node)) return;
 
 			if (ProcessMetaMethodInvocation(node)) return;
@@ -4066,7 +4074,8 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void ProcessMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
-			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
+			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false)
+				|| !IsAccessible(targetMethod))
 			{
 				if (TryToProcessAsExtensionInvocation(node)) return;
 
@@ -4081,6 +4090,22 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+		}
+
+		private bool IsAccessible(IAccessibleMember method)
+		{
+			return GetAccessibilityChecker().IsAccessible(method);
+		}
+
+		private IAccessibilityChecker GetAccessibilityChecker()
+		{
+			if (null == _currentMethod) return AccessibilityChecker.Global;
+			return new AccessibilityChecker(CurrentTypeDefinition);
+		}
+
+		private TypeDefinition CurrentTypeDefinition
+		{
+			get { return _currentMethod.Method.DeclaringType; }
 		}
 
 		private void NamedArgumentsNotAllowed(MethodInvocationExpression node)

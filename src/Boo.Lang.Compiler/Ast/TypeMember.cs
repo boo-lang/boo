@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
-				return (TypeDefinition)ParentNode;
+				return ParentNode as TypeDefinition;
 			}
 		}
 		

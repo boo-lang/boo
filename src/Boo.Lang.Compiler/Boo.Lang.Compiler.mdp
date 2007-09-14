@@ -378,6 +378,7 @@
     <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Ambiguous.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AnonymousCallablesManager.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />

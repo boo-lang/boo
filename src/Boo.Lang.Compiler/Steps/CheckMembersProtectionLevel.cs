@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System.Collections;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
@@ -37,9 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class CheckMembersProtectionLevel : AbstractVisitorCompilerStep
 	{
-		IType _currentType;
-
-		Stack _classStack = new Stack();
+		private IAccessibilityChecker _checker = AccessibilityChecker.Global;
 
 		override public void Run()
 		{
@@ -47,15 +44,11 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		override public void OnClassDefinition(ClassDefinition node)
-		{	
-			_classStack.Push(node);
-
-			IType saved = _currentType;
-			_currentType = (IType)node.Entity;
+		{
+			IAccessibilityChecker saved = _checker;
+			_checker = new AccessibilityChecker(node);
 			base.OnClassDefinition(node);
-			_currentType = saved;
-
-			_classStack.Pop();
+			_checker = saved;
 		}
 		
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
@@ -67,26 +60,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IAccessibleMember member = node.Entity as IAccessibleMember;
 			if (null == member) return;
-			if (member.IsPublic) return;
 
-			IType declaringType = member.DeclaringType;
-			if (declaringType == _currentType) return;
-			if (member.IsInternal && member is IInternalEntity) return;
-			if (member.IsProtected)
-			{
-				if (_currentType.IsSubclassOf(declaringType)) return;
-			}
-			
-			if (IsDeclaredInside(declaringType)) return;
+			if (_checker.IsAccessible(member)) return;
 			Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
-		}
-
-		bool IsDeclaredInside(IType candidate)
-		{
-			IInternalEntity entity = candidate as IInternalEntity;
-			if (null == entity) return false;
-
-			return _classStack.Contains(entity.Node);
 		}
 	}
 }

@@ -92,18 +92,12 @@ namespace Boo.Lang.Compiler
 		
 		public Hash Properties
 		{
-			get
-			{
-				return _properties;
-			}
+			get { return _properties; }
 		}
 		
 		public string GeneratedAssemblyFileName
 		{
-			get
-			{
-				return _generatedAssemblyFileName;
-			}
+			get { return _generatedAssemblyFileName; }
 			
 			set
 			{
@@ -117,101 +111,62 @@ namespace Boo.Lang.Compiler
 		
 		public object this[object key]
 		{
-			get
-			{
-				return _properties[key];
-			}
+			get { return _properties[key]; }
 			
-			set
-			{
-				_properties[key] = value;
-			}
+			set { _properties[key] = value; }
 		}
 
 		public CompilerParameters Parameters
 		{
-			get
-			{
-				return _parameters;
-			}
+			get { return _parameters; }
 		}
 
 		public AssemblyCollection References
 		{
-			get
-			{
-				return _assemblyReferences;
-			}
+			get { return _assemblyReferences; }
 		}
 
 		public CompilerErrorCollection Errors
 		{
-			get
-			{
-				return _errors;
-			}
+			get { return _errors; }
 		}
 		
 		public CompilerWarningCollection Warnings
 		{
-			get
-			{
-				return _warnings;
-			}
+			get { return _warnings; }
 		}
 
 		public CompileUnit CompileUnit
 		{
-			get
-			{
-				return _unit;
-			}
+			get { return _unit; }
 		}
 		
 		public TypeSystem.TypeSystemServices TypeSystemServices
 		{
-			get
-			{
-				return _typeSystemServices;
-			}
+			get { return _typeSystemServices; }
 			
 			set
 			{
-				if (null == value)
-				{
-					throw new ArgumentNullException("TypeSystemServices");
-				}
+				if (null == value) throw new ArgumentNullException("TypeSystemServices");
 				_typeSystemServices = value;
 			}
 		}		
 		
 		public TypeSystem.BooCodeBuilder CodeBuilder
 		{
-			get
-			{
-				return _typeSystemServices.CodeBuilder;
-			}
+			get { return _typeSystemServices.CodeBuilder; }
 		}
 		
 		public TypeSystem.NameResolutionService NameResolutionService
 		{
-			get
-			{
-				return _nameResolutionService;
-			}
+			get { return _nameResolutionService; }
 		}
 		
 		public Assembly GeneratedAssembly
 		{
-			get
-			{
-				return _generatedAssembly;
-			}
+			get { return _generatedAssembly; }
 			
-			set
-			{
-				_generatedAssembly = value;
-			}
+			set { _generatedAssembly = value; }
 		}
 
 		public int AllocIndex()
