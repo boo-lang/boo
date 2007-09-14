@@ -304,7 +304,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 		return writer.ToString()
 	
 	def repr(value, writer as System.IO.TextWriter):
-		return unless value is not null
+		if value is null: return
 		InitializeRepresenters() if 0 == len(_representers)
 		GetBestRepresenter(value.GetType())(value, writer)
 
