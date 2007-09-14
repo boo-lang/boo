@@ -122,5 +122,20 @@ namespace Boo.Lang.Runtime
 					break;
 			}
 		}
+
+		protected void LoadLocal(LocalBuilder value)
+		{
+			_il.Emit(OpCodes.Ldloc, value);
+		}
+
+		protected void StoreLocal(LocalBuilder value)
+		{
+			_il.Emit(OpCodes.Stloc, value);
+		}
+
+		protected LocalBuilder DeclareLocal(Type type)
+		{
+			return _il.DeclareLocal(type);
+		}
 	}
 }

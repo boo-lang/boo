@@ -62,12 +62,12 @@ namespace Boo.Lang.Runtime
 			EmitMethodCall();
 		}
 
-		private void EmitMethodCall()
+		protected void EmitMethodCall()
 		{
 			_il.Emit(_found.Method.IsStatic ? OpCodes.Call : OpCodes.Callvirt, _found.Method);
 		}
 
-		private void EmitMethodArguments()
+		protected void EmitMethodArguments()
 		{
 			EmitFixedMethodArguments();
 			if (_found.VarArgs) EmitVarArgsMethodArguments();

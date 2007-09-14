@@ -12,13 +12,27 @@ namespace Boo.Lang.Runtime
 
 		protected override void EmitMethodBody()
 		{
-			EmitInvocation();
-			ParameterInfo[] parameters = _found.Parameters;
-			int valueIndex = parameters.Length-1;
-			Type valueType = parameters[valueIndex].ParameterType;
-			EmitMethodArgument(valueIndex, valueType);
+			Type valueType = GetValueType();
+
+			LocalBuilder retVal = DeclareLocal(valueType);
+			EmitLoadTargetObject();
+			EmitMethodArguments();
+
+			// Store last argument in a local variable
+			Dup();
+			StoreLocal(retVal);
+
+			EmitMethodCall();
+
+			LoadLocal(retVal);
 			BoxIfNeeded(valueType);
 			_il.Emit(OpCodes.Ret);
+		}
+
+		private Type GetValueType()
+		{
+			ParameterInfo[] parameters = _found.Parameters;
+			return parameters[parameters.Length-1].ParameterType;
 		}
 	}
 }

@@ -38,21 +38,6 @@ namespace Boo.Lang.Runtime
 			EmitReturn(_field.FieldType);
 		}
 
-		private void LoadLocal(LocalBuilder value)
-		{
-			_il.Emit(OpCodes.Ldloc, value);
-		}
-
-		private void StoreLocal(LocalBuilder value)
-		{
-			_il.Emit(OpCodes.Stloc, value);
-		}
-
-		private LocalBuilder DeclareLocal(Type type)
-		{
-			return _il.DeclareLocal(type);
-		}
-
 		private void EmitLoadValue()
 		{
 			EmitArgArrayElement(0);
