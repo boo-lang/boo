@@ -76,7 +76,7 @@ namespace Boo.Lang.Runtime
 			CandidateMethod found = ResolveMethod(argumentTypes, new MethodInfo[] { accessor });
 			if (null == found) throw MissingField();
 			if (SetOrGet.Get == gos) return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
-			return new SetPropEmitter(_type, found, argumentTypes).Emit();
+			return new SetPropertyEmitter(_type, found, argumentTypes).Emit();
 		}
 	}
 }

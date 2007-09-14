@@ -12,29 +12,28 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		public static readonly IAccessibilityChecker Global = new GlobalAccessibilityChecker();
 		
-		private readonly TypeDefinition _typeDefinition;
+		private readonly TypeDefinition _scope;
 
-		public AccessibilityChecker(TypeDefinition typeDefinition)
+		public AccessibilityChecker(TypeDefinition scope)
 		{
-			_typeDefinition = typeDefinition;
+			_scope = scope;
 		}
 
 		public bool IsAccessible(IAccessibleMember member)
 		{
 			if (member.IsPublic) return true;
 
-			IType type = GetEntity();
 			IType declaringType = member.DeclaringType;
-			if (declaringType == type) return true;
+			if (declaringType == CurrentType()) return true;
 			if (member.IsInternal && member is IInternalEntity) return true;
-			if (member.IsProtected && type.IsSubclassOf(declaringType)) return true;
+			if (member.IsProtected && CurrentType().IsSubclassOf(declaringType)) return true;
 
 			return IsDeclaredInside(declaringType);
 		}
 
-		private IType GetEntity()
+		private IType CurrentType()
 		{
-			return (IType)_typeDefinition.Entity;
+			return (IType)_scope.Entity;
 		}
 
 		private bool IsDeclaredInside(IType candidate)
@@ -42,7 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 			IInternalEntity entity = candidate as IInternalEntity;
 			if (null == entity) return false;
 
-			TypeDefinition type = _typeDefinition.DeclaringType;
+			TypeDefinition type = _scope.DeclaringType;
 			while (type != null)
 			{
 				if (type == entity.Node) return true;

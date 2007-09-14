@@ -4,9 +4,9 @@ using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	class SetPropEmitter : MethodDispatcherEmitter
+	class SetPropertyEmitter : MethodDispatcherEmitter
 	{
-		public SetPropEmitter(Type type, CandidateMethod found, Type[] argumentTypes) : base(type, found, argumentTypes)
+		public SetPropertyEmitter(Type type, CandidateMethod found, Type[] argumentTypes) : base(type, found, argumentTypes)
 		{	
 		}
 
@@ -25,8 +25,7 @@ namespace Boo.Lang.Runtime
 			EmitMethodCall();
 
 			LoadLocal(retVal);
-			BoxIfNeeded(valueType);
-			_il.Emit(OpCodes.Ret);
+			EmitReturn(valueType);
 		}
 
 		private Type GetValueType()
