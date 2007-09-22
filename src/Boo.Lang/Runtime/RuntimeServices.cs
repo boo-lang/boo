@@ -373,8 +373,11 @@ namespace Boo.Lang.Runtime
 
 			Delegate d = target as Delegate;
 			if (null != d) return d.DynamicInvoke(args);
-
-			return Activator.CreateInstance((Type)target, args);
+			
+			Type type = target as Type;
+			if (null != type) return Activator.CreateInstance(type, args);
+			
+			return ((MethodInfo)target).Invoke(null, args);
 		}
 
 		private static bool IsNumeric(TypeCode code)

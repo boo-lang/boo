@@ -66,19 +66,28 @@ namespace Boo.Lang.Compiler.MetaProgramming
 
 		public static Assembly compile(CompileUnit unit, params Assembly[] references)
 		{
-			BooCompiler compiler = CreateLibraryCompiler(references);
+			BooCompiler compiler = CompilerFor(unit, references);
 			CompilerContext result = compiler.Run(unit);
 			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
 			return result.GeneratedAssembly;
 		}
 
-		private static BooCompiler CreateLibraryCompiler(Assembly[] references)
+		private static BooCompiler CompilerFor(CompileUnit unit, Assembly[] references)
 		{
 			BooCompiler compiler = new BooCompiler();
-			compiler.Parameters.OutputType = CompilerOutputType.Library;
+			compiler.Parameters.OutputType = IsApplication(unit) ? CompilerOutputType.ConsoleApplication : CompilerOutputType.Library;
 			compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.CompileToMemory();
 			compiler.Parameters.References.Extend(references);
 			return compiler;
+		}
+
+		private static bool IsApplication(CompileUnit unit)
+		{
+			foreach (Module m in unit.Modules)
+			{
+				if (m.Globals.HasStatements) return true;
+			}
+			return false;
 		}
 
 		private static CompileUnit CreateCompileUnit(ClassDefinition klass)
