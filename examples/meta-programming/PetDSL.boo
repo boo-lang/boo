@@ -1,12 +1,12 @@
 
-import Boo.Lang.Compiler.MetaProgramming
+import Compiler.MetaProgramming
 
 dsl = [|
 
 	namespace PetDSL
 
-	import Boo.Lang.Compiler.MetaProgramming
-	import Boo.Lang.Compiler.Ast
+	import Compiler.MetaProgramming
+	import Compiler.Ast
 	
 	class Pet:
 		public name = "I need a name"
