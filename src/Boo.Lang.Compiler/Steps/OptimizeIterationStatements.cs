@@ -569,6 +569,7 @@ namespace Boo.Lang.Compiler.Steps
 			// __end = __arr.Length
 			body.Add(
 				CodeBuilder.CreateAssignment(
+					node.Iterator.LexicalInfo,
 					endRef,
 					CodeBuilder.CreateMethodInvocation(
 							arrayRef,
