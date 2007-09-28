@@ -52,22 +52,27 @@ namespace Boo.Lang.Compiler.Steps
 				Errors.Add(CompilerErrorFactory.InvalidName(node, name));
 			}
 		}
+
 		private void CheckParameterUniqueness(Method method)
 		{
 			Boo.Lang.List parameters = new Boo.Lang.List();
-			foreach(ParameterDeclaration parameter in method.Parameters)
+			foreach (ParameterDeclaration parameter in method.Parameters)
 			{
-				if(parameters.Contains(parameter.Name))
+				if (parameters.Contains(parameter.Name))
 				{
-					Errors.Add(CompilerErrorFactory.DuplicateParameterName(parameter, parameter.Name, method.Name));
+					Errors.Add(
+						CompilerErrorFactory.DuplicateParameterName(
+							parameter, parameter.Name, GetEntity(method).ToString()));
 				}				
 				parameters.Add(parameter.Name);
 			}
 		}
+
 		override public void OnNamespaceDeclaration(NamespaceDeclaration node)
 		{
 			CheckName(node,node.Name);
 		}
+
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			CheckName(node,node.Name);
@@ -107,15 +112,23 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CheckName(node,node.Name);
 		}
+
+		public override void LeaveConstructor(Constructor node)
+		{
+			CheckParameterUniqueness(node);
+		}
+
 		override public void LeaveMethod(Method node)
 		{
 			CheckParameterUniqueness(node);
 			CheckName(node, node.Name);
 		}
+
 		override public void LeaveParameterDeclaration(ParameterDeclaration node)
 		{
 			CheckName(node,node.Name);
 		}
+
 		override public void LeaveImport(Import node)
 		{
 			if (null != node.Alias)
