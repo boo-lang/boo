@@ -2096,22 +2096,15 @@ namespace Boo.Lang.Compiler.Steps
 		void ReplaceByStaticFieldReference(Expression node, string fieldName, IType type)
 		{
 			Node parent = node.ParentNode;
-			
-			Field field = new Field(node.LexicalInfo);
-			field.Name = fieldName;
-			field.Type = CodeBuilder.CreateTypeReference(type);
-			field.Modifiers = TypeMemberModifiers.Private|TypeMemberModifiers.Static;
+
+			Field field = CodeBuilder.CreateField(fieldName, type);
+			field.Modifiers = TypeMemberModifiers.Internal|TypeMemberModifiers.Static;
 			field.Initializer = node;
 			
 			_currentMethod.Method.DeclaringType.Members.Add(field);
-			InternalField tag = new InternalField(field);
-			Bind(field, tag);
+			parent.Replace(node, CodeBuilder.CreateReference(field));
 			
 			AddFieldInitializerToStaticConstructor(0, field);
-			
-			parent.Replace(node, CodeBuilder.CreateMemberReference(
-				CodeBuilder.CreateReference(node.LexicalInfo, _currentMethod.DeclaringType),
-				tag));
 		}
 		
 		override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)
