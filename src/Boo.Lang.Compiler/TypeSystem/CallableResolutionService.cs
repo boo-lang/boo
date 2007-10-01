@@ -526,12 +526,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool IsWideningPromotion(IType paramType, IType argumentType)
 		{
-			return Boo.Lang.Runtime.NumericTypes.IsWideningPromotion(SystemType(paramType), SystemType(argumentType));
-		}
-
-		private Type SystemType(IType type)
-		{
-			return ((ExternalType) type).ActualType;
+			ExternalType expected = paramType as ExternalType;
+			if (null == expected) return false;
+			ExternalType actual = argumentType as ExternalType;
+			if (null == actual) return false;
+			return Boo.Lang.Runtime.NumericTypes.IsWideningPromotion(expected.ActualType, actual.ActualType);
 		}
 
 		private static int CalculateCallableScore(ICallableType parameterType, ICallableType argType)
