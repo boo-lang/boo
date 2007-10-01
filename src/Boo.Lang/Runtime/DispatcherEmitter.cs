@@ -110,7 +110,8 @@ namespace Boo.Lang.Runtime
 		{
 			switch (score)
 			{
-				case CandidateMethod.PromotionScore:
+				case CandidateMethod.WideningPromotion:
+				case CandidateMethod.NarrowingPromotion:
 					EmitPromotion(expectedType);
 					break;
 				case CandidateMethod.ImplicitConversionScore:

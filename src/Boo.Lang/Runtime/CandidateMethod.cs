@@ -36,9 +36,10 @@ namespace Boo.Lang.Runtime
 	{
 		public const int ExactMatchScore = 7;
 		public const int UpCastScore = 6;
-		public const int ImplicitConversionScore = 5;
-		public const int PromotionScore = 4;
-		public const int DowncastScore = 3;
+		public const int WideningPromotion = 5;
+		public const int ImplicitConversionScore = 4;
+		public const int NarrowingPromotion = 3;
+		public const int DowncastScore = 2;
 
 		public static int CalculateArgumentScore(Type paramType, Type argType)
 		{
@@ -55,7 +56,11 @@ namespace Boo.Lang.Runtime
 
 				if (argType.IsAssignableFrom(paramType)) return CandidateMethod.DowncastScore;
 
-				if (IsNumericPromotion(paramType, argType)) return CandidateMethod.PromotionScore;
+				if (IsNumericPromotion(paramType, argType))
+				{
+					if (NumericTypes.IsWideningPromotion(paramType, argType)) return WideningPromotion;
+					return CandidateMethod.NarrowingPromotion;
+				}
 
 				MethodInfo conversion = RuntimeServices.FindImplicitConversionOperator(argType, paramType);
 				if (null != conversion) return CandidateMethod.ImplicitConversionScore;
@@ -104,12 +109,22 @@ namespace Boo.Lang.Runtime
 			get { return GetParameterType(Parameters.Length-1).GetElementType(); }
 		}
 
+		public bool DoesNotRequireConversions
+		{
+			get { return !Array.Exists(_argumentScores, RequiresConversion); }
+		}
+
+		private static bool RequiresConversion(int score)
+		{
+			return score < WideningPromotion;
+		}
+
 		public Type GetParameterType(int i)
 		{
 			return Parameters[i].ParameterType;
 		}
 
-		private static bool IsNumericPromotion(Type paramType, Type argType)
+		public static bool IsNumericPromotion(Type paramType, Type argType)
 		{
 			return RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(paramType))
 			       && RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(argType));

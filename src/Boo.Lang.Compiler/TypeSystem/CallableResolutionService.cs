@@ -36,13 +36,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// </summary>
 	public class CallableResolutionService : AbstractCompilerComponent
 	{
-		private const int CallableExactMatchScore = 9;
-		private const int CallableUpCastScore = 8;
-		private const int CallableImplicitConversionScore = 7;
-		private const int ExactMatchScore = 7;
-		private const int UpCastScore = 6;
+		private const int CallableExactMatchScore = 10;
+		private const int CallableUpCastScore = 9;
+		private const int CallableImplicitConversionScore = 8;
+		private const int ExactMatchScore = 8;
+		private const int UpCastScore = 7;
+		private const int WideningPromotion = 6;
 		private const int ImplicitConversionScore = 5;
-		private const int PromotionScore = 4;
+		private const int NarrowingPromotion = 4;
 		private const int DowncastScore = 3;
 
 		private List _candidates = new List();
@@ -55,10 +56,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public List ValidCandidates
 		{
-			get
-			{
-				return _candidates;
-			}
+			get { return _candidates; }
 		}
 
 		public override void Dispose()
@@ -202,28 +200,50 @@ namespace Boo.Lang.Compiler.TypeSystem
 			FindApplicableCandidates(candidates);
 			if (ValidCandidates.Count == 0) return null;
 			if (ValidCandidates.Count == 1) return ((Candidate)ValidCandidates[0]).Method;
+
+			List dataPreserving = ValidCandidates.Collect(DoesNotRequireConversions);
+			if (dataPreserving.Count > 0)
+			{
+				if (dataPreserving.Count == 1) return ((Candidate)dataPreserving[0]).Method;
+				IEntity found = BestMethod(dataPreserving);
+				if (null != found) return found;
+			}
 			return BestCandidate();
+		}
+
+		private static bool DoesNotRequireConversions(object candidate)
+		{
+			return !Array.Exists(((Candidate) candidate).ArgumentScores, RequiresConversion);
+		}
+
+		private static bool RequiresConversion(int score)
+		{
+			return score < WideningPromotion;
 		}
 
 		private IEntity BestCandidate()
 		{
-			_candidates.Sort(new Comparer(BetterCandidate));
+			return BestMethod(_candidates);
+		}
 
-			if (BetterCandidate(_candidates[-1], _candidates[-2]) == 0)
+		private IEntity BestMethod(List candidates)
+		{
+			candidates.Sort(new Comparer(BetterCandidate));
+
+			if (BetterCandidate(candidates[-1], candidates[-2]) == 0)
 			{
-				object pivot = _candidates[-2];
+				object pivot = candidates[-2];
 
-				_candidates.RemoveAll(delegate(object item)
-				                      	{	
-				                      		return 0 != BetterCandidate(item, pivot);
-				                      	});
+				candidates.RemoveAll(delegate(object item)
+				                     	{	
+				                     		return 0 != BetterCandidate(item, pivot);
+				                     	});
 				// Ambiguous match
 				return null;
 			}
 
 			// SUCCESS: _candidates[-1] is the winner
-			return ((Candidate)_candidates[-1]).Method;
-
+			return ((Candidate)candidates[-1]).Method;
 		}
 
 		private int BetterCandidate(object lhs, object rhs)
@@ -494,13 +514,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			else if (TypeSystemServices.CanBeReachedByPromotion(parameterType, argumentType))
 			{
-				return PromotionScore;
+				if (IsWideningPromotion(parameterType, argumentType)) return WideningPromotion;
+				return NarrowingPromotion;
 			}
 			else if (TypeSystemServices.CanBeReachedByDowncast(parameterType, argumentType))
 			{
 				return DowncastScore;
 			}
 			return -1;
+		}
+
+		private bool IsWideningPromotion(IType paramType, IType argumentType)
+		{
+			return Boo.Lang.Runtime.NumericTypes.IsWideningPromotion(SystemType(paramType), SystemType(argumentType));
+		}
+
+		private Type SystemType(IType type)
+		{
+			return ((ExternalType) type).ActualType;
 		}
 
 		private static int CalculateCallableScore(ICallableType parameterType, ICallableType argType)

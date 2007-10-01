@@ -65,7 +65,15 @@ namespace Boo.Lang.Runtime
 			List<CandidateMethod> applicable = FindApplicableMethods(candidates);
 			if (applicable.Count == 0) return null;
 			if (applicable.Count == 1) return applicable[0];
+			
+			List<CandidateMethod> dataPreserving = applicable.FindAll(DoesNotRequireConversions);
+			if (dataPreserving.Count > 0) return BestMethod(dataPreserving);
 			return BestMethod(applicable);
+		}
+
+		private static bool DoesNotRequireConversions(CandidateMethod candidate)
+		{
+			return candidate.DoesNotRequireConversions;
 		}
 
 		private CandidateMethod BestMethod(List<CandidateMethod> applicable)

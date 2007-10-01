@@ -83,6 +83,7 @@
     <Compile Include="Runtime\MethodDispatcherEmitter.cs" />
     <Compile Include="Runtime\MethodDispatcherFactory.cs" />
     <Compile Include="Runtime\MethodResolver.cs" />
+    <Compile Include="Runtime\NumericTypes.cs" />
     <Compile Include="Runtime\PromotionEmitter.cs" />
     <Compile Include="Runtime\PropertyDispatcherFactory.cs" />
     <Compile Include="Runtime\RuntimeException.cs" />
