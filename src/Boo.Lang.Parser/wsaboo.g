@@ -1230,7 +1230,7 @@ internal_closure_stmt[Block block]
 			(
 				(declaration COMMA)=>stmt=unpack |
 				{IsValidMacroArgument(LA(2))}? stmt=closure_macro_stmt | 
-				stmt=expression_stmt |
+				stmt=closure_expression_stmt |
 				stmt=raise_stmt |
 				stmt=yield_stmt			
 			)
@@ -1244,7 +1244,17 @@ internal_closure_stmt[Block block]
 		}
 	}
 	;
-	
+
+protected
+closure_expression_stmt returns [Statement s]
+{
+	s = null;
+	Expression e = null;
+}:
+	e=array_or_expression
+	{ s = new ExpressionStatement(e); }
+;	
+
 protected
 closure_expression returns [Expression e]
 	{
