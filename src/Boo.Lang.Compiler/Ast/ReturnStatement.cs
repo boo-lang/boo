@@ -50,6 +50,11 @@ namespace Boo.Lang.Compiler.Ast
 			this.Expression = expression;
 			this.Modifier = modifier;
 		}
+
+		public ReturnStatement(LexicalInfo li, Expression expression) : base(li)
+		{
+			this.Expression = expression;
+		}
 		
 		public ReturnStatement(Expression expression, StatementModifier modifier)
 		{

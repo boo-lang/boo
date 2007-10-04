@@ -697,7 +697,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(method.ReturnType);
 			Visit(method.ReturnTypeAttributes);
 			
-			bool ispinvoke = ((IMethod)GetEntity(method)).IsPInvoke;
+			bool ispinvoke = GetEntity(method).IsPInvoke;
 			if (method.IsRuntime || ispinvoke)
 			{
 				CheckRuntimeMethod(method);
@@ -1097,10 +1097,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessMethodBody(InternalMethod entity, INamespace ns)
 		{
 			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
-			if (entity.IsGenerator)
-			{
-				CreateGeneratorSkeleton(entity);
-			}
+			if (entity.IsGenerator) CreateGeneratorSkeleton(entity);
 		}
 		
 		void ProcessNodeInMethodContext(InternalMethod entity, INamespace ns, Node node)
@@ -1807,6 +1804,13 @@ namespace Boo.Lang.Compiler.Steps
 		void CreateGeneratorSkeleton(InternalMethod entity)
 		{
 			Method method = entity.Method;
+			IType itemType = GetGeneratorItemType(entity);
+			BooClassBuilder builder = CreateGeneratorSkeleton(method, method, itemType);
+			TypeSystemServices.AddCompilerGeneratedType(builder.ClassDefinition);
+		}
+
+		private IType GetGeneratorItemType(InternalMethod entity)
+		{
 			IType itemType = null;
 
 			if (CheckGenericGeneratorReturnType(entity.ReturnType))
@@ -1818,13 +1822,12 @@ namespace Boo.Lang.Compiler.Steps
 				ExpressionCollection yieldExpressions = entity.YieldExpressions;
 					
 				itemType = yieldExpressions.Count > 0
-					? GetMostGenericType(yieldExpressions)
-					: TypeSystemServices.ObjectType;
+				           	? GetMostGenericType(yieldExpressions)
+				           	: TypeSystemServices.ObjectType;
 			}
-			BooClassBuilder builder = CreateGeneratorSkeleton(method, method, itemType);
-			TypeSystemServices.AddCompilerGeneratedType(builder.ClassDefinition);
+			return itemType;
 		}
-		
+
 		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)
 		{
 			BooClassBuilder builder = CreateGeneratorSkeleton(node, _currentMethod.Method, GetConcreteExpressionType(node.Expression));

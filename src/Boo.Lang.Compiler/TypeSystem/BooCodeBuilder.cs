@@ -397,7 +397,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				: (Expression)CreateSelfReference(member.DeclaringType);
 			return CreateMemberReference(target, member);
 		}
-		
+
+		public MemberReferenceExpression CreateMemberReference(LexicalInfo li, Expression target, IMember member)
+		{
+			MemberReferenceExpression expression = CreateMemberReference(target, member);
+			expression.LexicalInfo = li;
+			return expression;
+		}
+
 		public MemberReferenceExpression CreateMemberReference(Expression target, IMember member)
 		{
 			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
@@ -407,12 +414,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			reference.ExpressionType = member.Type;
 			return reference;
 		}
-		
-		public MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod tag)
+
+		public MethodInvocationExpression CreateMethodInvocation(LexicalInfo li, Expression target, IMethod entity)
+		{
+			MethodInvocationExpression expression = CreateMethodInvocation(target, entity);
+			expression.LexicalInfo = li;
+			return expression;
+		}
+
+		public MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod entity)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
-			mie.Target = CreateMemberReference(target, tag);			
-			mie.ExpressionType = tag.ReturnType;
+			mie.Target = CreateMemberReference(target, entity);			
+			mie.ExpressionType = entity.ReturnType;
 			return mie;			
 		}
 		

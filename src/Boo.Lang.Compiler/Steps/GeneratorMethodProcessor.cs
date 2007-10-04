@@ -76,6 +76,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			ReplaceCurrentNode(
 				_context.CodeBuilder.CreateMethodInvocation(
+					node.LexicalInfo,
 					mre.Target,
 					GetFieldSetter((IField)member),
 					node.Right));
@@ -92,6 +93,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				ReplaceCurrentNode(
 					_context.CodeBuilder.CreateMethodInvocation(
+						node.LexicalInfo,
 						node.Target,
 						accessor));
 			}
@@ -282,6 +284,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			body.Add(
 				new ReturnStatement(
+					_generator.Method.LexicalInfo,
 					GeneratorReturnsIEnumerator()
 					? CreateGetEnumeratorInvocation(enumerableConstructorInvocation)
 					: enumerableConstructorInvocation));
@@ -467,6 +470,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				ReplaceCurrentNode(
 					CodeBuilder.CreateMemberReference(
+						node.LexicalInfo,
 						CodeBuilder.CreateSelfReference(_enumerator.Entity),
 						mapped));
 			}
@@ -500,12 +504,14 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		MethodInvocationExpression CreateYieldInvocation(Expression value)
-		{	
-			return CodeBuilder.CreateMethodInvocation(
-					CodeBuilder.CreateSelfReference(_enumerator.Entity),
-					_yield, 
-					CodeBuilder.CreateIntegerLiteral(_labels.Count),
-					value == null ? GetDefaultYieldValue() : value);
+		{
+			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(
+				CodeBuilder.CreateSelfReference(_enumerator.Entity),
+				_yield, 
+				CodeBuilder.CreateIntegerLiteral(_labels.Count),
+				value == null ? GetDefaultYieldValue() : value);
+			if (null != value) invocation.LexicalInfo = value.LexicalInfo;
+			return invocation;
 		}
 
 		private Expression GetDefaultYieldValue()
