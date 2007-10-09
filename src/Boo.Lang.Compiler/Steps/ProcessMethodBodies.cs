@@ -1155,16 +1155,28 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
-		{
-			node.Entity = _currentMethod;
-			node.ExpressionType = _currentMethod.DeclaringType.BaseType;
+		{	
+			if (!AstUtil.IsTargetOfMethodInvocation(node))
+			{
+				node.ExpressionType = _currentMethod.DeclaringType.BaseType;
+				return;
+			}
 
-			if (!AstUtil.IsTargetOfMethodInvocation(node)) return;
-			if (EntityType.Constructor == _currentMethod.EntityType) return;
-			if (null != _currentMethod.Overriden) return;
+			if (EntityType.Constructor == _currentMethod.EntityType)
+			{
+				// TODO: point to super ctor
+				node.Entity = _currentMethod;
+				return;
+			}
 			
-			Error(
-				CompilerErrorFactory.MethodIsNotOverride(node, _currentMethod.ToString()));
+			if (null == _currentMethod.Overriden)
+			{
+				Error(node,
+					CompilerErrorFactory.MethodIsNotOverride(node, _currentMethod.ToString()));
+				return;
+			}
+
+			node.Entity = _currentMethod;
 		}
 		
 		bool CanResolveReturnType(InternalMethod tag)
