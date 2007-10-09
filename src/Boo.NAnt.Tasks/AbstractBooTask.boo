@@ -89,7 +89,7 @@ abstract class AbstractBooTask(Task):
 				path = Path.Combine(baseDir, reference)
 				if not File.Exists(path):
 					print("${path} doesn't exist.")
-					asm = Reflection.Assembly.LoadWithPartialName(Path.GetFileNameWithoutExtension(reference))
+					asm = Reflection.Assembly.Load(Path.GetFileNameWithoutExtension(reference))
 				else:
 					asm = Reflection.Assembly.LoadFrom(path)
 			else:
