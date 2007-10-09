@@ -1050,21 +1050,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteConditionalBlock("while", node.Condition, node.Block);
 		}
 
-		override public void OnIfStatement(IfStatement ifs)
-		{
-			WriteIndented();
-			WriteKeyword("if ");
-			Visit(ifs.Condition);
-			WriteLine(":");
-			Indent();
-			WriteBlockStatements(ifs.TrueBlock);
-			Dedent();
-			if (null != ifs.FalseBlock)
+		override public void OnIfStatement(IfStatement node)
+		{	
+			WriteIfBlock("if ", node);
+			Block elseBlock = WriteElifs(node);
+			if (null != elseBlock)
 			{
 				WriteIndented();
 				WriteKeyword("else:");
 				WriteLine();
-				WriteBlock(ifs.FalseBlock);
+				WriteBlock(elseBlock);
 			}
 			else
 			{
@@ -1074,7 +1069,37 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				}
 			}
 		}
-		
+
+		private Block WriteElifs(IfStatement node)
+		{
+			Block falseBlock = node.FalseBlock;
+			while (IsElif(falseBlock))
+			{
+				IfStatement stmt = (IfStatement) falseBlock.Statements[0];
+				WriteIfBlock("elif ", stmt);
+				falseBlock = stmt.FalseBlock;
+			}
+			return falseBlock;
+		}
+
+		private void WriteIfBlock(string keyword, IfStatement ifs)
+		{
+			WriteIndented();
+			WriteKeyword(keyword);
+			Visit(ifs.Condition);
+			WriteLine(":");
+			Indent();
+			WriteBlockStatements(ifs.TrueBlock);
+			Dedent();
+		}
+
+		private static bool IsElif(Block block)
+		{
+			if (block == null) return false;
+			if (block.Statements.Count != 1) return false;
+			return block.Statements[0] is IfStatement;
+		}
+
 		override public void OnDeclarationStatement(DeclarationStatement d)
 		{
 			WriteIndented();

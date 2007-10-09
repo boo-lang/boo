@@ -76,11 +76,10 @@ class Foo(Bar):
 			print 'foo'
 		if bar:
 			print 'bar'
+		elif foo:
+			print 'foo'
 		else:
-			if foo:
-				print 'foo'
-			else:
-				print 'uops...'
+			print 'uops...'
 		print 'foo again'
 
 	item[key]:
