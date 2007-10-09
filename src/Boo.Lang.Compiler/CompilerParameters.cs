@@ -1,4 +1,5 @@
 #region license
+
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -24,15 +25,15 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Boo.Lang;
 
 namespace Boo.Lang.Compiler
 {
@@ -41,45 +42,45 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerParameters
 	{
-		static private List _validFileExtensions = new List(new string[] { ".dll", ".exe" });
+		private static List _validFileExtensions = new List(new string[] {".dll", ".exe"});
 
-		TextWriter _outputWriter;
+		private TextWriter _outputWriter;
 
-		CompilerPipeline _pipeline;
+		private CompilerPipeline _pipeline;
 
-		CompilerInputCollection _input;
+		private CompilerInputCollection _input;
 
-		CompilerResourceCollection _resources;
+		private CompilerResourceCollection _resources;
 
-		AssemblyCollection _assemblyReferences;
+		private AssemblyCollection _assemblyReferences;
 
-		int _maxAttributeSteps;
+		private int _maxAttributeSteps;
 
-		string _outputAssembly;
+		private string _outputAssembly;
 
-		CompilerOutputType _outputType;
+		private CompilerOutputType _outputType;
 
-		bool _debug;
+		private bool _debug;
 
-		bool _ducky;
+		private bool _ducky;
 
-		bool _checked;
+		private bool _checked;
 
-		bool _generateInMemory;
+		private bool _generateInMemory;
 
-		bool _StdLib;
+		private bool _StdLib;
 
-		string _keyFile;
+		private string _keyFile;
 
-		string _keyContainer;
+		private string _keyContainer;
 
-		bool _delaySign;
+		private bool _delaySign;
 
-		ArrayList _libpaths;
+		private ArrayList _libpaths;
 
-		string _systemDir;
+		private string _systemDir;
 
-		Assembly _booAssembly;
+		private Assembly _booAssembly;
 
 		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
 
@@ -139,10 +140,7 @@ namespace Boo.Lang.Compiler
 
 		public Assembly BooAssembly
 		{
-			get
-			{
-				return _booAssembly;
-			}
+			get { return _booAssembly; }
 			set
 			{
 				if (value != null)
@@ -182,9 +180,8 @@ namespace Boo.Lang.Compiler
 			Assembly a = null;
 			try
 			{
-				if (assembly.IndexOfAny(new char[] { '/', '\\' }) != -1)
+				if (assembly.IndexOfAny(new char[] {'/', '\\'}) != -1)
 				{
-
 					//nant passes full path to gac dlls, which compiler doesn't like:
 					//if (assembly.ToLower().StartsWith(_systemDir.ToLower()))
 					{
@@ -209,8 +206,8 @@ namespace Boo.Lang.Compiler
 				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-						"BooC.BadFormat",
-						e.FusionLog), e);
+					                               	"BooC.BadFormat",
+					                               	e.FusionLog), e);
 				}
 			}
 			catch (FileLoadException e)
@@ -218,8 +215,8 @@ namespace Boo.Lang.Compiler
 				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-						"BooC.UnableToLoadAssembly",
-						e.FusionLog), e);
+					                               	"BooC.UnableToLoadAssembly",
+					                               	e.FusionLog), e);
 				}
 			}
 			catch (ArgumentNullException e)
@@ -227,7 +224,7 @@ namespace Boo.Lang.Compiler
 				if (throwOnError)
 				{
 					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-						"BooC.NullAssembly"), e);
+					                               	"BooC.NullAssembly"), e);
 				}
 			}
 			if (a == null)
@@ -265,8 +262,8 @@ namespace Boo.Lang.Compiler
 			if (throwOnError)
 			{
 				throw new ApplicationException(Boo.Lang.ResourceManager.Format(
-					"BooC.CannotFindAssembly",
-					assembly));
+				                               	"BooC.CannotFindAssembly",
+				                               	assembly));
 				//assembly, total_log)); //total_log contains the fusion log
 			}
 			return a;
@@ -335,54 +332,33 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public int MaxAttributeSteps
 		{
-			get
-			{
-				return _maxAttributeSteps;
-			}
+			get { return _maxAttributeSteps; }
 
-			set
-			{
-				_maxAttributeSteps = value;
-			}
+			set { _maxAttributeSteps = value; }
 		}
 
 		public CompilerInputCollection Input
 		{
-			get
-			{
-				return _input;
-			}
+			get { return _input; }
 		}
 
 		public ArrayList LibPaths
 		{
-			get
-			{
-				return _libpaths;
-			}
+			get { return _libpaths; }
 		}
 
 		public CompilerResourceCollection Resources
 		{
-			get
-			{
-				return _resources;
-			}
+			get { return _resources; }
 		}
 
 		public AssemblyCollection References
 		{
-			get
-			{
-				return _assemblyReferences;
-			}
+			get { return _assemblyReferences; }
 
 			set
 			{
-				if (null == value)
-				{
-					throw new ArgumentNullException("References");
-				}
+				if (null == value) throw new ArgumentNullException("References");
 				_assemblyReferences = value;
 			}
 		}
@@ -392,15 +368,9 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public CompilerPipeline Pipeline
 		{
-			get
-			{
-				return _pipeline;
-			}
+			get { return _pipeline; }
 
-			set
-			{
-				_pipeline = value;
-			}
+			set { _pipeline = value; }
 		}
 
 		/// <summary>
@@ -409,21 +379,11 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public string OutputAssembly
 		{
-			get
-			{
-				return _outputAssembly;
-			}
+			get { return _outputAssembly; }
 
 			set
 			{
-				if (null == value)
-				{
-					throw new ArgumentNullException("OutputAssembly");
-				}
-				if (0 == value.Length)
-				{
-					throw new ArgumentException("OutputAssembly");
-				}
+				if (string.IsNullOrEmpty(value)) throw new ArgumentNullException("OutputAssembly");
 				_outputAssembly = value;
 			}
 		}
@@ -434,49 +394,28 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public CompilerOutputType OutputType
 		{
-			get
-			{
-				return _outputType;
-			}
+			get { return _outputType; }
 
-			set
-			{
-				_outputType = value;
-			}
+			set { _outputType = value; }
 		}
 
 		public bool GenerateInMemory
 		{
-			get
-			{
-				return _generateInMemory;
-			}
+			get { return _generateInMemory; }
 
-			set
-			{
-				_generateInMemory = value;
-			}
+			set { _generateInMemory = value; }
 		}
 
 		public bool StdLib
 		{
-			get
-			{
-				return _StdLib;
-			}
+			get { return _StdLib; }
 
-			set
-			{
-				_StdLib = value;
-			}
+			set { _StdLib = value; }
 		}
 
 		public TextWriter OutputWriter
 		{
-			get
-			{
-				return _outputWriter;
-			}
+			get { return _outputWriter; }
 
 			set
 			{
@@ -490,15 +429,9 @@ namespace Boo.Lang.Compiler
 
 		public bool Debug
 		{
-			get
-			{
-				return _debug;
-			}
+			get { return _debug; }
 
-			set
-			{
-				_debug = value;
-			}
+			set { _debug = value; }
 		}
 
 		/// <summary>
@@ -506,67 +439,37 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public bool Ducky
 		{
-			get
-			{
-				return _ducky;
-			}
+			get { return _ducky; }
 
-			set
-			{
-				_ducky = value;
-			}
+			set { _ducky = value; }
 		}
 
 		public bool Checked
 		{
-			get
-			{
-				return _checked;
-			}
+			get { return _checked; }
 
-			set
-			{
-				_checked = value;
-			}
+			set { _checked = value; }
 		}
 
 		public string KeyFile
 		{
-			get
-			{
-				return _keyFile;
-			}
+			get { return _keyFile; }
 
-			set
-			{
-				_keyFile = value;
-			}
+			set { _keyFile = value; }
 		}
 
 		public string KeyContainer
 		{
-			get
-			{
-				return _keyContainer;
-			}
+			get { return _keyContainer; }
 
-			set
-			{
-				_keyContainer = value;
-			}
+			set { _keyContainer = value; }
 		}
 
 		public bool DelaySign
 		{
-			get
-			{
-				return _delaySign;
-			}
+			get { return _delaySign; }
 
-			set
-			{
-				_delaySign = value;
-			}
+			set { _delaySign = value; }
 		}
 	}
 }

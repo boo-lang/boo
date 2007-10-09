@@ -4705,7 +4705,14 @@ namespace Boo.Lang.Compiler.Steps
 			AssemblyName assemblyName = new AssemblyName();
 			assemblyName.Name = GetAssemblySimpleName(outputFile);
 			assemblyName.Version = GetAssemblyVersion();
-			assemblyName.KeyPair = GetAssemblyKeyPair(outputFile);
+			if (Parameters.DelaySign)
+			{
+				assemblyName.SetPublicKey(GetAssemblyKeyPair(outputFile).PublicKey);
+			}
+			else
+			{
+				assemblyName.KeyPair = GetAssemblyKeyPair(outputFile);
+			}
 			return assemblyName;
 		}
 		
