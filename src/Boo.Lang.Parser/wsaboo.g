@@ -1322,28 +1322,30 @@ protected
 try_stmt returns [TryStatement s]
 	{
 		s = null;		
-		Block sblock = null;
 		Block eblock = null;
+		Block lastBlock = null;
 	}:
-	t:TRY { s = new TryStatement(SourceLocationFactory.ToLexicalInfo(t)); }
-		compound_stmt[s.ProtectedBlock]
+	t:TRY { s = new TryStatement(SourceLocationFactory.ToLexicalInfo(t)); } begin
+		{s.ProtectedBlock = new Block();} block[s.ProtectedBlock.Statements] { lastBlock = s.ProtectedBlock; }
 	(
-		exception_handler[s]
+		lastBlock = exception_handler[s]
 	)*
 	(
-		etoken:ENSURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(etoken)); }
-			compound_stmt[eblock]
-		{ s.EnsureBlock = eblock; }
+		etoken:ENSURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(etoken)); } begin
+			block[eblock.Statements]
+		{ s.EnsureBlock = lastBlock = eblock; }
 	)?
+	end[lastBlock]
 	;
 	
 protected
-exception_handler [TryStatement t]
+exception_handler [TryStatement t] returns [Block lastBlock]
 	{
 		ExceptionHandler eh = null;		
 		TypeReference tr = null;
+		lastBlock = null;
 	}:
-	c:EXCEPT (x:ID (AS tr=type_reference)?)?
+ 	c:EXCEPT (x:ID (AS tr=type_reference)?)? begin
 	{
 		eh = new ExceptionHandler(SourceLocationFactory.ToLexicalInfo(c));
 		
@@ -1353,9 +1355,11 @@ exception_handler [TryStatement t]
 			eh.Declaration.Name = x.getText();		
 			eh.Declaration.Type = tr;
 		}
+		eh.Block = new Block(SourceLocationFactory.ToLexicalInfo(c));
 	}		
-	compound_stmt[eh.Block]
+	block[eh.Block.Statements]
 	{
+		lastBlock = eh.Block;
 		t.ExceptionHandlers.Add(eh);
 	}
 	;
