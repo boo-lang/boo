@@ -4258,6 +4258,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
+							//EnsureRelatedNodeWasVisited(pair.First, setter);
 							eval.Arguments.Add(
 								CodeBuilder.CreateAssignment(
 									pair.First.LexicalInfo,
@@ -4939,6 +4940,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
+			EnsureRelatedNodeWasVisited(name, member);
 			Bind(name, member);
 
 			IType memberType = member.Type;
