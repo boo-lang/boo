@@ -2548,6 +2548,7 @@ slicing_expression returns [Expression e]
 		IToken memberName = null;
 		TypeReference genericArgument = null;
 		TypeReferenceCollection genericArguments = null;
+		Expression nameSplice = null;
 	} :
 	e=atom
 	( options { greedy=true; }:
@@ -2586,13 +2587,28 @@ slicing_expression returns [Expression e]
 		)
 		|
 		(
-			DOT memberName=member
-				{
-					MemberReferenceExpression mre = new MemberReferenceExpression(SourceLocationFactory.ToLexicalInfo(memberName));
-					mre.Target = e;
-					mre.Name = memberName.getText();
-					e = mre;
-				}
+			DOT 
+			(
+				(
+					memberName=member
+					{
+						MemberReferenceExpression mre = new MemberReferenceExpression(SourceLocationFactory.ToLexicalInfo(memberName));
+						mre.Target = e;
+						mre.Name = memberName.getText();
+						e = mre;
+					}
+				)
+				|
+				(
+					begin:SPLICE_BEGIN nameSplice=atom
+					{
+						e = new SpliceMemberReferenceExpression(
+									SourceLocationFactory.ToLexicalInfo(begin),
+									e,
+									nameSplice);
+					}
+				)
+			)
 		)
 		|
 		(

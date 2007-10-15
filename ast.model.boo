@@ -455,6 +455,10 @@ class SpliceExpression(Expression):
 	
 class SpliceTypeReference(TypeReference):
 	Expression as Expression
+	
+class SpliceMemberReferenceExpression(ReferenceExpression):
+	Target as Expression
+	Expression as Expression
 
 class ExpressionInterpolationExpression(Expression):
 	Expressions as ExpressionCollection

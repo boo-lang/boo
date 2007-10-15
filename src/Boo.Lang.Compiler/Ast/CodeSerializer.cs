@@ -114,9 +114,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		private MethodInvocationExpression CreateFromArrayInvocation(Node sourceNode, string typeName)
 		{
-			return new MethodInvocationExpression(
-							sourceNode.LexicalInfo,
-							CreateReference(sourceNode, typeName + ".FromArray"));
+			return CreateInvocation(sourceNode, typeName + ".FromArray");
 		}
 
 		protected Expression SerializeCollection(Node sourceNode, string typeName, System.Collections.IEnumerable items)
@@ -139,6 +137,14 @@ namespace Boo.Lang.Compiler.Ast
 			Push(CreateReference(node, "Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
 		}
 		
+		public override void OnSpliceMemberReferenceExpression(SpliceMemberReferenceExpression node)
+		{
+			MethodInvocationExpression ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression");
+			ctor.Arguments.Add(Serialize(node.Target));
+			ctor.Arguments.Add(LiftMemberName(node.Expression));
+			Push(ctor);
+		}
+		
 		public override void OnSpliceTypeReference(SpliceTypeReference node)
 		{
 			Push(LiftTypeReference(node.Expression));
@@ -153,6 +159,11 @@ namespace Boo.Lang.Compiler.Ast
 			}
 
 			Push(LiftExpression(node.Expression));
+		}
+		
+		private MethodInvocationExpression LiftMemberName(Expression node)
+		{
+			return Lift("Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression.LiftName", node);
 		}
 
 		private MethodInvocationExpression LiftStatement(Expression node)
@@ -179,7 +190,9 @@ namespace Boo.Lang.Compiler.Ast
 
 		private MethodInvocationExpression CreateInvocation(Node sourceNode, string reference)
 		{
-			return new MethodInvocationExpression(sourceNode.LexicalInfo, CreateReference(sourceNode, reference));
+			return new MethodInvocationExpression(
+						sourceNode.LexicalInfo,
+						CreateReference(sourceNode, reference));
 		}
 
 		private static bool IsStatementExpression(SpliceExpression node)
