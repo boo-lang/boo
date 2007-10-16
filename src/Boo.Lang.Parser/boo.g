@@ -642,26 +642,34 @@ method [TypeMemberCollection container]
 		GenericParameterDeclarationCollection genericParameters = null;
 		Block body = null;
 		StatementCollection statements = null;
+		Expression nameSplice = null;
+		TypeMember typeMember = null;
 	}: 
 	t:DEF
 	(		
 		(
-			(emi=explicit_member_info)? id:ID
-			{
-				if (emi != null)
-				{
+			(
+				(emi=explicit_member_info)?
+				(id:ID | spliceBegin:SPLICE_BEGIN nameSplice=atom)
+			) {
+				IToken token = id ?? spliceBegin;
+				if (emi != null) {
 					m = new Method(emi.LexicalInfo);
+				} else {
+					m = new Method(SourceLocationFactory.ToLexicalInfo(token));
 				}
-				else
-				{
-					m = new Method(SourceLocationFactory.ToLexicalInfo(id));
-				}
-				m.Name = id.getText();
+				m.Name = token.getText();
 				m.ExplicitInfo  = emi;
+				
+				if (nameSplice != null) {
+					typeMember = new SpliceTypeMember(m, nameSplice);
+				} else {
+					typeMember = m;
+				}
 			}
 		)
-		| c:CONSTRUCTOR { m = new Constructor(SourceLocationFactory.ToLexicalInfo(c)); }
-		| d:DESTRUCTOR { m = new Destructor(SourceLocationFactory.ToLexicalInfo(d)); }
+		| c:CONSTRUCTOR { typeMember = m = new Constructor(SourceLocationFactory.ToLexicalInfo(c)); }
+		| d:DESTRUCTOR { typeMember = m = new Destructor(SourceLocationFactory.ToLexicalInfo(d)); }
 	)
 	{
 		m.Modifiers = _modifiers;
@@ -687,9 +695,9 @@ method [TypeMemberCollection container]
 		block[statements]
 	end[body]
 	{ 
-		container.Add(m);
+		container.Add(typeMember);
 	}
-	;	
+;
 
 protected
 property_header:	
