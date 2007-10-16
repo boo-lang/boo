@@ -179,6 +179,8 @@
     <Compile Include="Ast\SliceCollection.cs" />
     <Compile Include="Ast\SlicingExpression.cs" />
     <Compile Include="Ast\SpliceExpression.cs" />
+    <Compile Include="Ast\SpliceMemberReferenceExpression.cs" />
+    <Compile Include="Ast\SpliceTypeMember.cs" />
     <Compile Include="Ast\SpliceTypeReference.cs" />
     <Compile Include="Ast\Statement.cs" />
     <Compile Include="Ast\StatementCollection.cs" />
@@ -289,6 +291,8 @@
     <Compile Include="Ast\Impl\SliceImpl.cs" />
     <Compile Include="Ast\Impl\SlicingExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SpliceExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\SpliceMemberReferenceExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\SpliceTypeMemberImpl.cs" />
     <Compile Include="Ast\Impl\SpliceTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\StatementCollectionImpl.cs" />
     <Compile Include="Ast\Impl\StatementImpl.cs" />

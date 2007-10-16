@@ -136,6 +136,8 @@
     <File name="Ast/SliceCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SlicingExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SpliceExpression.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/SpliceMemberReferenceExpression.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/SpliceTypeMember.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SpliceTypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Statement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StatementCollection.cs" buildaction="Compile" subtype="Code" />
@@ -246,6 +248,8 @@
     <File name="Ast/Impl/SliceImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SlicingExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SpliceExpressionImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/SpliceMemberReferenceExpressionImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/SpliceTypeMemberImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SpliceTypeReferenceImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/StatementCollectionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/StatementImpl.cs" buildaction="Compile" subtype="Code" />
