@@ -400,21 +400,31 @@ class_definition [TypeMemberCollection container]
 		TypeReferenceCollection baseTypes = null;
 		TypeMemberCollection members = null;
 		GenericParameterDeclarationCollection genericParameters = null;
+		Expression nameSplice = null;
 	}:
 	(
 		CLASS { td = new ClassDefinition(); } |
 		STRUCT { td = new StructDefinition(); }
 	)
-	id:ID
+	(
+		id:ID
+		| begin:SPLICE_BEGIN nameSplice=atom
+	)				
 	{		
-		td.LexicalInfo = SourceLocationFactory.ToLexicalInfo(id);
-		td.Name = id.getText();
+		IToken token = id ?? begin;
+		td.LexicalInfo = SourceLocationFactory.ToLexicalInfo(token);
+		td.Name = token.getText();
 		td.Modifiers = _modifiers;
 		AddAttributes(td.Attributes);
-		container.Add(td);
 		baseTypes = td.BaseTypes;
 		members = td.Members;
 		genericParameters = td.GenericParameters;
+		
+		if (id != null) {
+			container.Add(td);
+		} else {
+			container.Add(new SpliceTypeMember(td, nameSplice));
+		}
 	}
 	(
 		(LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK) |
@@ -702,6 +712,7 @@ field_or_property [TypeMemberCollection container]
 		ExplicitMemberInfo emi = null;
 		Expression initializer = null;
 		ParameterDeclarationCollection parameters = null;
+		Expression nameSplice = null;
 	}: 
 	(property_header)=>(
 		(emi=explicit_member_info)? (id1:ID {id=id1;}| s:SELF {id=s;})
@@ -732,12 +743,19 @@ field_or_property [TypeMemberCollection container]
 	{ container.Add(tm); }
 	|
 	(
-		id2:ID
+		(id2:ID | begin:SPLICE_BEGIN nameSplice=atom)
 		{
-			tm = field = new Field(SourceLocationFactory.ToLexicalInfo(id2));
-			field.Name = id2.getText();
+			IToken token = id2 ?? begin;
+			field = new Field(SourceLocationFactory.ToLexicalInfo(token));
+			field.Name = token.getText();
 			field.Modifiers = _modifiers;
 			AddAttributes(field.Attributes);
+			
+			if (id2 != null) {
+				tm = field;
+			} else {
+				tm = new SpliceTypeMember(field, nameSplice);
+			}
 		}
 		(		
 			(AS tr=type_reference { field.Type = tr; })?
@@ -1911,7 +1929,7 @@ ast_literal_expression returns [QuasiquoteExpression e]
 type_definition_member_prediction:
 	attributes
 	modifiers
-	(CLASS|INTERFACE|STRUCT|DEF|EVENT|(ID (AS|ASSIGN)))
+	(CLASS|INTERFACE|STRUCT|DEF|EVENT|((ID|(SPLICE_BEGIN atom)) (AS|ASSIGN)))
 ;
 
 ast_literal_module[QuasiquoteExpression e]

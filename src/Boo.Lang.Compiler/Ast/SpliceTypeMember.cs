@@ -30,19 +30,24 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 
-	public partial class SpliceMemberReferenceExpression
+	public partial class SpliceTypeMember
 	{
-		public SpliceMemberReferenceExpression()
+		public SpliceTypeMember()
 		{
 		}
 		
-		public SpliceMemberReferenceExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		public SpliceTypeMember(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
 		
-		public SpliceMemberReferenceExpression(LexicalInfo lexicalInfo, Expression target, Expression nameExpression) : base(lexicalInfo)
+		public SpliceTypeMember(TypeMember typeMember, Expression nameExpression)
+			: this(typeMember.LexicalInfo, typeMember, nameExpression)
 		{
-			this.Target = target;
+		}
+		
+		public SpliceTypeMember(LexicalInfo lexicalInfo, TypeMember typeMember, Expression nameExpression) : base(lexicalInfo)
+		{
+			this.TypeMember = typeMember;
 			this.NameExpression = nameExpression;
 		}
 	}

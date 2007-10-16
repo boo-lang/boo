@@ -34,6 +34,16 @@ namespace Boo.Lang.Compiler.Ast
 {
 	public partial class CodeSerializer : DepthFirstVisitor
 	{
+		public static string LiftName(string value)
+		{
+			return value;
+		}
+		
+		public static string LiftName(ReferenceExpression node)
+		{
+			return node.Name;
+		}
+		
 		private Stack<Expression> _stack = new Stack<Expression>();
 
 		public Expression Serialize(QuasiquoteExpression node)
@@ -141,7 +151,17 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			MethodInvocationExpression ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression");
 			ctor.Arguments.Add(Serialize(node.Target));
-			ctor.Arguments.Add(LiftMemberName(node.Expression));
+			ctor.Arguments.Add(LiftMemberName(node.NameExpression));
+			Push(ctor);
+		}
+		
+		public override void OnSpliceTypeMember(SpliceTypeMember node)
+		{
+			MethodInvocationExpression ctor = (MethodInvocationExpression)Serialize(node.TypeMember);
+			ctor.NamedArguments.Add(
+				new ExpressionPair(
+					new ReferenceExpression(node.NameExpression.LexicalInfo, "Name"),
+					LiftMemberName(node.NameExpression)));
 			Push(ctor);
 		}
 		
@@ -163,7 +183,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		private MethodInvocationExpression LiftMemberName(Expression node)
 		{
-			return Lift("Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression.LiftName", node);
+			return Lift("Boo.Lang.Compiler.Ast.CodeSerializer.LiftName", node);
 		}
 
 		private MethodInvocationExpression LiftStatement(Expression node)
