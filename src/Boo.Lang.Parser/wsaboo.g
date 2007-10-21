@@ -86,7 +86,6 @@ tokens
 	NULL="null";
 	OF="of";
 	OR="or";
-	OTHERWISE="otherwise";
 	OVERRIDE="override";	
 	NAMESPACE="namespace";
 	PUBLIC="public";

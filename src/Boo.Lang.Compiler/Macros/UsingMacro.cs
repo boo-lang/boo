@@ -105,7 +105,7 @@ namespace Boo.Lang
 						"Dispose")
 						)
 					);
-					
+				
 			// __disposable = null
 			stmt.TrueBlock.Add(
 				new BinaryExpression(
