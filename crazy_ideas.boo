@@ -24,11 +24,6 @@ mixin ListMixin(IList):
 class Base:
 	Count as int
 	
-given foo():
-		
-	when 3:
-		return 5
-	
 for line in TextFile("foo"):	
 	given line:
 		when /$foo/:
