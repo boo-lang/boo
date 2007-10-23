@@ -276,21 +276,6 @@ class WhileStatement(Statement):
 	[auto]
 	Block as Block
 
-class GivenStatement(Statement):
-	Expression as Expression
-	WhenClauses as WhenClauseCollection
-	OtherwiseBlock as Block
-
-class WhenClause(Node):
-	Condition as Expression
-	
-	[auto]
-	Block as Block
-
-[collection(WhenClause)]
-class WhenClauseCollection:
-	pass
-
 class BreakStatement(Statement):
 	pass
 

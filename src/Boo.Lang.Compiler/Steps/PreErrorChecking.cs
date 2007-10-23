@@ -107,11 +107,6 @@ namespace Boo.Lang.Compiler.Steps
 			CheckMemberName(node);
 		}
 		
-		override public void LeaveGivenStatement(GivenStatement node)
-		{
-			NotImplemented(node, "given");
-		}
-		
 		override public void LeaveTryStatement(TryStatement node)
 		{
 			if (node.EnsureBlock == null && node.ExceptionHandlers.Count == 0)
@@ -136,7 +131,6 @@ namespace Boo.Lang.Compiler.Steps
 			return (parent.NodeType == NodeType.IfStatement
 				|| parent.NodeType == NodeType.UnlessStatement
 				|| parent.NodeType == NodeType.ConditionalExpression
-				|| parent.NodeType == NodeType.WhenClause
 				|| parent.NodeType == NodeType.StatementModifier
 				|| parent.NodeType == NodeType.ReturnStatement
 				|| parent.NodeType == NodeType.YieldStatement);

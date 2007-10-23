@@ -89,7 +89,6 @@
     <File name="Ast/GenericReferenceExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericTypeDefinitionReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericTypeReference.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/GivenStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GotoStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/HashLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IAstVisitor.cs" buildaction="Compile" subtype="Code" />
@@ -161,8 +160,6 @@
     <File name="Ast/UnaryOperatorType.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnlessStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnpackStatement.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/WhenClause.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/WhenClauseCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/WhileStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/YieldStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ArrayLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
@@ -213,7 +210,6 @@
     <File name="Ast/Impl/GenericReferenceExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/GenericTypeDefinitionReferenceImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/GenericTypeReferenceImpl.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/Impl/GivenStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/GotoStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/HashLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/IfStatementImpl.cs" buildaction="Compile" subtype="Code" />
@@ -270,8 +266,6 @@
     <File name="Ast/Impl/UnaryExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/UnlessStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/UnpackStatementImpl.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/Impl/WhenClauseCollectionImpl.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/Impl/WhenClauseImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/WhileStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/YieldStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/BooPrinterVisitor.cs" buildaction="Compile" subtype="Code" />

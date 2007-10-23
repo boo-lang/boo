@@ -73,7 +73,6 @@ tokens
 	FOR="for";
 	FALSE="false";
 	GET="get";
-	GIVEN="given";
 	GOTO="goto";
 	IMPORT="import";
 	INTERFACE="interface";	
@@ -106,7 +105,6 @@ tokens
 	UNLESS="unless";
 	VIRTUAL="virtual";
 	PARTIAL="partial";
-	WHEN="when";
 	WHILE="while";
 	YIELD="yield";
 }
@@ -1147,7 +1145,6 @@ stmt [StatementCollection container]
 		s=if_stmt |
 		s=unless_stmt |
 		s=try_stmt |
-		s=given_stmt |
 		(atom (NEWLINE)+ DOT)=>(s=expression_stmt eos) |
 		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(slicing_expression (ASSIGN|(COLON|DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
@@ -1531,38 +1528,6 @@ while_stmt returns [WhileStatement ws]
 		ws.Condition = e;
 	}
 	compound_stmt[ws.Block]
-	;
-		
-protected
-given_stmt returns [GivenStatement gs]
-	{
-		gs = null;		
-		Expression e = null;
-		WhenClause wc = null;
-	}:
-	given:GIVEN e=expression
-	{
-		gs = new GivenStatement(SourceLocationFactory.ToLexicalInfo(given));
-		gs.Expression = e;
-	}
-	begin
-		(
-			when:WHEN e=array_or_expression
-			{
-				wc = new WhenClause(SourceLocationFactory.ToLexicalInfo(when));
-				wc.Condition = e;
-				gs.WhenClauses.Add(wc);
-			}				
-				compound_stmt[wc.Block]
-		)+
-		(
-			otherwise:OTHERWISE
-			{
-				gs.OtherwiseBlock = new Block(SourceLocationFactory.ToLexicalInfo(otherwise));
-			}
-			compound_stmt[gs.OtherwiseBlock]
-		)?
-	end[gs]
 	;
 		
 protected

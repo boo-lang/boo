@@ -132,7 +132,6 @@
     <Compile Include="Ast\GenericReferenceExpression.cs" />
     <Compile Include="Ast\GenericTypeDefinitionReference.cs" />
     <Compile Include="Ast\GenericTypeReference.cs" />
-    <Compile Include="Ast\GivenStatement.cs" />
     <Compile Include="Ast\GotoStatement.cs" />
     <Compile Include="Ast\HashLiteralExpression.cs" />
     <Compile Include="Ast\IAstVisitor.cs" />
@@ -204,8 +203,6 @@
     <Compile Include="Ast\UnaryOperatorType.cs" />
     <Compile Include="Ast\UnlessStatement.cs" />
     <Compile Include="Ast\UnpackStatement.cs" />
-    <Compile Include="Ast\WhenClause.cs" />
-    <Compile Include="Ast\WhenClauseCollection.cs" />
     <Compile Include="Ast\WhileStatement.cs" />
     <Compile Include="Ast\YieldStatement.cs" />
     <Compile Include="Ast\Impl\ArrayLiteralExpressionImpl.cs" />
@@ -256,7 +253,6 @@
     <Compile Include="Ast\Impl\GenericReferenceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\GenericTypeDefinitionReferenceImpl.cs" />
     <Compile Include="Ast\Impl\GenericTypeReferenceImpl.cs" />
-    <Compile Include="Ast\Impl\GivenStatementImpl.cs" />
     <Compile Include="Ast\Impl\GotoStatementImpl.cs" />
     <Compile Include="Ast\Impl\HashLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\IfStatementImpl.cs" />
@@ -313,8 +309,6 @@
     <Compile Include="Ast\Impl\UnaryExpressionImpl.cs" />
     <Compile Include="Ast\Impl\UnlessStatementImpl.cs" />
     <Compile Include="Ast\Impl\UnpackStatementImpl.cs" />
-    <Compile Include="Ast\Impl\WhenClauseCollectionImpl.cs" />
-    <Compile Include="Ast\Impl\WhenClauseImpl.cs" />
     <Compile Include="Ast\Impl\WhileStatementImpl.cs" />
     <Compile Include="Ast\Impl\YieldStatementImpl.cs" />
     <Compile Include="Ast\Visitors\BooPrinterVisitor.cs" />
