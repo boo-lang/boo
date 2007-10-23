@@ -3433,11 +3433,13 @@ namespace Boo.Lang.Compiler.Steps
 			IType lhs = GetExpressionType(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			
-			if (IsPrimitiveNumber(lhs) && IsPrimitiveNumber(rhs))
+			if (IsPrimitiveComparison(lhs, rhs))
 			{
 				BindExpressionType(node, TypeSystemServices.BoolType);
+				return;
 			}
-			else if (lhs.IsEnum || rhs.IsEnum || IsChar(lhs) || IsChar(rhs))
+			
+			if (lhs.IsEnum || rhs.IsEnum)
 			{
 				if (lhs == rhs || IsPrimitiveNumber(rhs) || IsPrimitiveNumber(lhs))
 				{
@@ -3450,8 +3452,10 @@ namespace Boo.Lang.Compiler.Steps
 						InvalidOperatorForTypes(node);
 					}
 				}
+				return;
 			}
-			else if (!ResolveOperator(node))
+			
+			if (!ResolveOperator(node))
 			{
 				switch (node.Operator)
 				{
@@ -3490,7 +3494,24 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		private bool IsPrimitiveComparison(IType lhs, IType rhs)
+		{
+			if (IsPrimitiveNumberOrChar(lhs) && IsPrimitiveNumberOrChar(rhs)) return true;
+			if (IsBool(lhs) && IsBool(rhs)) return true;
+			return false;
+		}
+
+		private bool IsPrimitiveNumberOrChar(IType lhs)
+		{
+			return IsPrimitiveNumber(lhs) || IsChar(lhs);
+		}
+
+		private bool IsBool(IType lhs)
+		{
+			return TypeSystemServices.BoolType == lhs;
+		}
+
 		static bool IsNull(Expression node)
 		{
 			return NodeType.NullLiteralExpression == node.NodeType;
