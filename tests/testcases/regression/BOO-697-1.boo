@@ -27,3 +27,4 @@ if ch == 0: print "char is zero"
 
 b as bool
 if b == false: print "bool is false"
+
