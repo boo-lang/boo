@@ -70,12 +70,14 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public bool HasMethods
 		{
-			get
-			{
-				return HasMemberOfType(NodeType.Method);
-			}
+			get { return HasMemberOfType(NodeType.Method); }
 		}
-		
+
+		public bool HasGenericParameters
+		{
+			get { return _genericParameters != null && _genericParameters.Count > 0; }
+		}
+
 		public bool HasMemberOfType(NodeType memberType)
 		{
 			foreach (TypeMember member in _members)

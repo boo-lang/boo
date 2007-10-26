@@ -1,7 +1,7 @@
 """
-a as Foo
-a as Foo.Bar
-a as Foo.Bar
+(a as Foo)
+(a as Foo.Bar)
+(a as Foo.Bar)
 """
 import Boo.Lang.Compiler.Ast
 

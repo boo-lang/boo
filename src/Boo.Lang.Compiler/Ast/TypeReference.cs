@@ -51,6 +51,25 @@ namespace Boo.Lang.Compiler.Ast
 			return typeRef;
 		}
 
+		public static TypeReference Lift(TypeDefinition node)
+		{
+			if (node.HasGenericParameters)
+			{
+				return LiftGenericTypeDefinition(node);
+			}
+			return new SimpleTypeReference(node.FullName);
+		}
+
+		private static TypeReference LiftGenericTypeDefinition(TypeDefinition node)
+		{
+			GenericTypeReference typeRef = new GenericTypeReference(node.LexicalInfo, node.FullName);
+			foreach (GenericParameterDeclaration parameter in node.GenericParameters)
+			{
+				typeRef.GenericArguments.Add(Lift(parameter.Name));
+			}
+			return typeRef;
+		}
+
 		public static TypeReference Lift(Expression e)
 		{
 			switch (e.NodeType)
