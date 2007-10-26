@@ -407,11 +407,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public MemberReferenceExpression CreateMemberReference(Expression target, IMember member)
 		{
+			MemberReferenceExpression reference = MemberReferenceForEntity(target, member);
+			reference.ExpressionType = member.Type;
+			return reference;
+		}
+
+		public MemberReferenceExpression MemberReferenceForEntity(Expression target, IEntity entity)
+		{
 			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
 			reference.Target = target;
-			reference.Name = member.Name;
-			reference.Entity = member;
-			reference.ExpressionType = member.Type;
+			reference.Name = entity.Name;
+			reference.Entity = entity;
 			return reference;
 		}
 

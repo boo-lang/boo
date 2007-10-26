@@ -1732,7 +1732,7 @@ namespace Boo.Lang.Compiler.Steps
 			Expression target = node.Target;
 			MemberReferenceExpression mre = target as MemberReferenceExpression;
 			if (null != mre) return mre.Target;
-			return CodeBuilder.CreateSelfReference(this.CurrentType);
+			return CreateSelfReference();
 		}
 
 		override public void LeaveExpressionInterpolationExpression(ExpressionInterpolationExpression node)
@@ -2185,41 +2185,46 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			if (null != node.ExpressionType)
+			if (AlreadyBound(node)) return;
+			
+			IEntity entity = ResolveName(node, node.Name);
+			if (null == entity)
 			{
+				Error(node);
+				return;
+			}
+
+			// BOO-314 - if we are trying to invoke
+			// something, let's make sure it is
+			// something callable, otherwise, let's
+			// try to find something callable
+			if (AstUtil.IsTargetOfMethodInvocation(node)
+			    && !IsCallableEntity(entity))
+			{
+				IEntity callable = ResolveCallable(node);
+				if (null != callable) entity = callable;
+			}
+
+			IMember member = entity as IMember;
+			if (null != member)
+			{
+				if (IsExtensionMethod(member))
+				{
+					Bind(node, member);
+					return;
+				}
+				ResolveMemberInfo(node, member);
 				return;
 			}
 			
-			IEntity entity = ResolveName(node, node.Name);
-			if (null != entity)
-			{
-				// BOO-314 - if we are trying to invoke
-				// something, let's make sure it is
-				// something callable, otherwise, let's
-				// try to find something callable
-				if (AstUtil.IsTargetOfMethodInvocation(node)
-				    && !IsCallableEntity(entity))
-				{
-					IEntity callable = ResolveCallable(node);
-					if (null != callable) entity = callable;
-				}
+			EnsureRelatedNodeWasVisited(node, entity);
+			node.Entity = entity;
+			PostProcessReferenceExpression(node);
+		}
 
-				IMember member = entity as IMember;
-				if (null != member)
-				{
-					ResolveMemberInfo(node, member);
-				}
-				else
-				{
-					EnsureRelatedNodeWasVisited(node, entity);
-					node.Entity = entity;
-					PostProcessReferenceExpression(node);
-				}
-			}
-			else
-			{
-				Error(node);
-			}
+		private static bool AlreadyBound(ReferenceExpression node)
+		{
+			return null != node.ExpressionType;
 		}
 
 		private IEntity ResolveCallable(ReferenceExpression node)
@@ -4177,11 +4182,33 @@ namespace Boo.Lang.Compiler.Steps
 			node.Target = CodeBuilder.CreateMethodReference(node.Target.LexicalInfo, targetMethod);
 		}
 
-		private static void PreNormalizeExtensionInvocation(MethodInvocationExpression node)
+		private void PreNormalizeExtensionInvocation(MethodInvocationExpression node)
 		{
-			node.Arguments.Insert(0, ((MemberReferenceExpression)node.Target).Target);
+			node.Arguments.Insert(0, EnsureMemberReferenceForExtension(node).Target);
 		}
-		
+
+		private MemberReferenceExpression EnsureMemberReferenceForExtension(MethodInvocationExpression node)
+		{
+			MemberReferenceExpression memberRef = node.Target as MemberReferenceExpression;
+			if (null != memberRef) return memberRef;
+
+			node.Target = memberRef = CreatMemberReference(
+				CreateSelfReference(),
+				(ReferenceExpression)node.Target);
+
+			return memberRef;
+		}
+
+		private MemberReferenceExpression CreatMemberReference(Expression target, ReferenceExpression member)
+		{
+			return CodeBuilder.MemberReferenceForEntity(target, GetEntity(member));
+		}
+
+		private SelfLiteralExpression CreateSelfReference()
+		{
+			return CodeBuilder.CreateSelfReference(CurrentType);
+		}
+
 		protected virtual bool IsDuckTyped(IMember entity)
 		{
 			return entity.IsDuckTyped;
