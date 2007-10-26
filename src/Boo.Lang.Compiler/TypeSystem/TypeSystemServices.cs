@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType TimeSpanType;
 		
-		public ExternalType DateTimeType;
+		private ExternalType DateTimeType;
 		
 		public ExternalType RuntimeServicesType;
 		
@@ -138,13 +138,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public readonly BooCodeBuilder CodeBuilder;
 		
-		StringBuilder _buffer = new StringBuilder();
+		private StringBuilder _buffer = new StringBuilder();
 		
-		Module _compilerGeneratedTypesModule;
+		private Module _compilerGeneratedTypesModule;
 
-		Module _compilerGeneratedExtensionsModule;
+		private Module _compilerGeneratedExtensionsModule;
 
-		ClassDefinition _compilerGeneratedExtensionsClass;
+		private ClassDefinition _compilerGeneratedExtensionsClass;
 		
 		protected readonly CompilerContext _context;
 
@@ -156,10 +156,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public TypeSystemServices(CompilerContext context)
 		{
-			if (null == context)
-			{
-				throw new ArgumentNullException("context");
-			}
+			if (null == context) throw new ArgumentNullException("context");
 			
 			_context = context;
 			_anonymousCallablesManager = new AnonymousCallablesManager(this);
@@ -219,10 +216,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public CompilerContext Context
 		{
-			get
-			{
-				return _context;
-			}
+			get { return _context; }
 		}
 		
 		public IType GetMostGenericType(IType current, IType candidate)
@@ -670,53 +664,41 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
 		{
-			if (lhs == rhs || Null.Default == rhs)
-			{
-				return true;
-			}
+			if (lhs == rhs) return true;
+			if (Null.Default == rhs) return true;
 			
 			ICallableType other = rhs as ICallableType;
-			if (null != other)
+			if (null == other) return false;
+
+			CallableSignature lvalue = lhs.GetSignature();
+			CallableSignature rvalue = other.GetSignature();
+			if (lvalue == rvalue) return true;
+			
+			IParameter[] lparams = lvalue.Parameters;
+			IParameter[] rparams = rvalue.Parameters;
+			if (lparams.Length < rparams.Length) return false;
+
+			for (int i=0; i<rparams.Length; ++i)
 			{
-				CallableSignature lvalue = lhs.GetSignature();
-				CallableSignature rvalue = other.GetSignature();
-				if (lvalue == rvalue)
-				{
-					return true;
-				}
-				
-				IParameter[] lparams = lvalue.Parameters;
-				IParameter[] rparams = rvalue.Parameters;
-				if (lparams.Length >= rparams.Length)
-				{
-					for (int i=0; i<rparams.Length; ++i)
-					{
-						IType lparamType = lparams[i].Type;
-						IType rparamType = rparams[i].Type;
-						if (!AreTypesRelated(lparamType, rparamType))
-						{	
-							return false;
-						}
-					}
-					
-					if (VoidType != lvalue.ReturnType &&
-						VoidType != rvalue.ReturnType)
-					{
-						return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
-					}
-					
-					return true;
-				}
+				if (!AreTypesRelated(lparams[i].Type, rparams[i].Type)) return false;
+			}
+
+			return CompatibleReturnTypes(lvalue, rvalue);
+		}
+
+		private bool CompatibleReturnTypes(CallableSignature lvalue, CallableSignature rvalue)
+		{
+			if (VoidType != lvalue.ReturnType && VoidType != rvalue.ReturnType)
+			{
+				return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
 			}
 			
-			return false;
+			return true;
 		}
-		
+
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
-			IParameter[] implParameters = impl.GetParameters();
-			IParameter[] baseParameters = baseMethod.GetParameters();
-			return CheckOverrideSignature(implParameters, baseParameters);
+			return CheckOverrideSignature(impl.GetParameters(), baseMethod.GetParameters());
 		}
 
 		public static bool CheckOverrideSignature(IParameter[] implParameters, IParameter[] baseParameters)
@@ -886,10 +868,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private static void GetAllMembers(List members, INamespace entity)
 		{
-			if (null == entity)
-			{
-				return;
-			}
+			if (null == entity) return;
 			
 			IType type = entity as IType;
 			if (null != type)
@@ -1353,21 +1332,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static bool IsOpenGenericType(IType type)
 		{
-			if (type is IGenericParameter)
-			{
-				return true;
-			}
-			
-			if (type.ConstructedInfo != null)
-			{
-				return !type.ConstructedInfo.FullyConstructed;
-			}
-			
-			if (type.IsByRef || type.IsArray)
-			{
-				return IsOpenGenericType(type.GetElementType());
-			}
-			
+			if (type is IGenericParameter) return true;
+			if (type.ConstructedInfo != null) return !type.ConstructedInfo.FullyConstructed;
+			if (type.IsByRef || type.IsArray) return IsOpenGenericType(type.GetElementType());
 			return false;
 		}
 						                                         

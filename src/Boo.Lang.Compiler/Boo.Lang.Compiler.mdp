@@ -377,19 +377,24 @@
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AliasedNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Ambiguous.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AnonymousCallablesManager.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ArrayType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AssemblyQualifiedNamespaceEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AssemblyReference.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/BooClassBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/BooCodeBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/BooMethodBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/BuiltinFunction.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/BuiltinFunctionType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/CachedMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/CallableResolutionService.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/CallableSignature.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/CompileUnit.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/DeclarationsNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/EntityType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Error.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ExternalCallableType.cs" buildaction="Compile" subtype="Code" />
@@ -410,7 +415,29 @@
     <File name="TypeSystem/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMapping.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IAccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IAccessibleMember.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IArrayType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ICallableType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IConstructedMethodInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IConstructedTypeInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IConstructor.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IDestructor.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IEntityWithParameters.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IEvent.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IExtensionEnabled.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IExternalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IField.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IGenericMethodInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IGenericParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IGenericTypeInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IInternalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ILocalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IMember.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IMethodBase.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/INameSpace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalCallableType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalClass.cs" buildaction="Compile" subtype="Code" />
@@ -427,11 +454,17 @@
     <File name="TypeSystem/InternalMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalProperty.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IProperty.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ITypedEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/MetadataUtil.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ModuleEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/NameResolutionService.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Namespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/NamespaceDelegator.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/NamespaceEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/SimpleNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />

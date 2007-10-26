@@ -66,10 +66,6 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod Array_TypedConstructor2;
 
 		IMethod MultiDimensionalArray_TypedConstructor;
-		
-		EntityPredicate IsPublicEventPredicate;
-		
-		EntityPredicate IsPublicFieldPropertyEventPredicate;
 
 		protected CallableResolutionService _callableResolution;
 
@@ -77,8 +73,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public ProcessMethodBodies()
 		{
-			IsPublicFieldPropertyEventPredicate = new EntityPredicate(IsPublicFieldPropertyEvent);
-			IsPublicEventPredicate = new EntityPredicate(IsPublicEvent);
 		}
 
 		override public void Run()
@@ -3546,7 +3540,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (EntityType.Ambiguous == tag.EntityType)
 				{
-					IList found = ((Ambiguous)tag).Select(IsPublicEventPredicate);
+					IList found = ((Ambiguous)tag).Select(IsPublicEvent);
 					if (found.Count != 1)
 					{
 						tag = null;
@@ -4923,7 +4917,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (candidate.EntityType != EntityType.Ambiguous) return null;
 			
-			IList found = ((Ambiguous)candidate).Select(IsPublicFieldPropertyEventPredicate);
+			IList found = ((Ambiguous)candidate).Select(IsPublicFieldPropertyEvent);
 			if (found.Count == 0) return null;
 			if (found.Count == 1) return (IMember)found[0];
 			

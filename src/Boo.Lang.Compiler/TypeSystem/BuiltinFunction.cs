@@ -28,17 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public enum BuiltinFunctionType
-	{
-		Len,
-		AddressOf,
-		Eval,
-		Quack, // duck typing support,
-		Switch, // switch IL opcode
-		InitValueType, // initobj IL opcode
-		Custom // custom builtin function
-	}
-	
 	public class BuiltinFunction : IEntity
 	{
 		public static BuiltinFunction Quack = new BuiltinFunction("quack", BuiltinFunctionType.Quack);
@@ -65,34 +54,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public string Name
 		{
-			get
-			{
-				return _name;
-			}
+			get { return _name; }
 		}
 		
 		public string FullName
 		{
-			get
-			{
-				return Name;
-			}
+			get { return Name; }
 		}
 		
 		public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.BuiltinFunction;
-			}
+			get { return EntityType.BuiltinFunction; }
 		}
 		
 		public BuiltinFunctionType FunctionType
 		{
-			get
-			{
-				return _type;
-			}
+			get { return _type; }
 		}
 
 		public override string ToString()

@@ -32,14 +32,6 @@ using System.Reflection;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public interface IExternalEntity : IEntity
-	{
-		System.Reflection.MemberInfo MemberInfo
-		{
-			get;
-		}
-	}
-
 	public abstract class ExternalEntity<T> : IExternalEntity
 		where T: System.Reflection.MemberInfo
 	{

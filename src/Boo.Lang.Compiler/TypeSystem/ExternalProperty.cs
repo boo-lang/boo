@@ -30,17 +30,7 @@ using System;
 using System.Reflection;
 
 namespace Boo.Lang.Compiler.TypeSystem
-{	
-    class CachedMethod
-    {
-        public readonly IMethod Value;
-
-        public CachedMethod(IMethod value)
-        {
-            Value = value;
-        }
-    }
-
+{
 	public class ExternalProperty : ExternalEntity<System.Reflection.PropertyInfo>, IProperty
 	{
 		private IParameter[] _parameters;
