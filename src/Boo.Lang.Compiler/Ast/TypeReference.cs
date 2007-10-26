@@ -50,7 +50,46 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return typeRef;
 		}
-		
+
+		public static TypeReference Lift(Expression e)
+		{
+			switch (e.NodeType)
+			{
+				case NodeType.TypeofExpression:
+					return Lift((TypeofExpression) e);
+				case NodeType.GenericReferenceExpression:
+					return Lift((GenericReferenceExpression) e);
+				case Ast.NodeType.ReferenceExpression:
+					return Lift((ReferenceExpression) e);
+				case Ast.NodeType.MemberReferenceExpression:
+					return Lift((MemberReferenceExpression) e);
+			}
+			throw new NotImplementedException(e.ToCodeString());
+		}
+
+		public static TypeReference Lift(ReferenceExpression e)
+		{
+			return new SimpleTypeReference(e.LexicalInfo, e.ToString());
+		}
+
+		public static TypeReference Lift(TypeofExpression e)
+		{
+			return e.Type;
+		}
+
+		public static TypeReference Lift(GenericReferenceExpression e)
+		{
+			GenericTypeReference typeRef = new GenericTypeReference(e.LexicalInfo);
+			typeRef.Name = TypeNameFor(e.Target);
+			typeRef.GenericArguments.ExtendWithClones(e.GenericArguments);
+			return typeRef;
+		}
+
+		private static string TypeNameFor(Expression target)
+		{
+			return ((ReferenceExpression) target).ToString();
+		}
+
 		public TypeReference()
 		{
  		}
