@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType TimeSpanType;
 		
-		private ExternalType DateTimeType;
+		protected ExternalType DateTimeType;
 		
 		public ExternalType RuntimeServicesType;
 		
