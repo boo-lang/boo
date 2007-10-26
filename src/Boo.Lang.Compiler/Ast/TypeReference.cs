@@ -48,15 +48,12 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static TypeReference Lift(TypeReference typeRef)
 		{
-			return typeRef;
+			return typeRef.CloneNode();
 		}
 
 		public static TypeReference Lift(TypeDefinition node)
 		{
-			if (node.HasGenericParameters)
-			{
-				return LiftGenericTypeDefinition(node);
-			}
+			if (node.HasGenericParameters) return LiftGenericTypeDefinition(node);
 			return new SimpleTypeReference(node.FullName);
 		}
 
@@ -93,7 +90,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static TypeReference Lift(TypeofExpression e)
 		{
-			return e.Type;
+			return e.Type.CloneNode();
 		}
 
 		public static TypeReference Lift(GenericReferenceExpression e)
