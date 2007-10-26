@@ -21,6 +21,7 @@
     <Compile Include="Attributes\AbstractAttributeTestFixture.boo" />
     <Compile Include="Attributes\AutoFlagsAttributeTestFixture.boo" />
     <Compile Include="Attributes\OnceAttributeTestFixture.boo" />
+    <Compile Include="Attributes\SingletonAttributeSerialization.boo" />
     <Compile Include="Attributes\SingletonAttributeTestFixture.boo" />
     <Compile Include="BooTemplate\Globals.boo" />
     <Compile Include="BooTemplate\TemplateCompilerTestFixture.boo" />

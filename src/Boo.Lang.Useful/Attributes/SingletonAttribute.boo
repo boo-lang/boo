@@ -33,61 +33,63 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.TypeSystem
+import System.Runtime.CompilerServices
+import System.Runtime.Serialization
 
 class SingletonAttribute(AbstractAstAttribute):
 """
 Implements the singleton design pattern for a class.
 
-Ensures that the singleton is thread-safe.
-Ensures that singleton instance is not initialized until Instance is called (lazy instantiation).
-Ensures that all constructors are private.
-Ensures that if no constructor exists, a private default constructor is provided.
+Guarantees that accessing the singleton instance is thread-safe.
+Guarantees that singleton instance is not initialized until Instance is called (lazy instantiation).
+Guarantees that all constructors are private.
+Guarantees that a private default constructor exists. (One need not be provided.)
+Guarantees that serializable singletons remain singletons through serialization/deserialization.
+
+Enforces constraint that no parameterized constructors exist on the singleton class.
 Enforces constraint that no static members exist on the singleton class (as a recommendation at the Warning level).
-
-@example
-Before:
-	[Singleton]
-	class OnlyOne:
-		pass
-
-After:
-	final class OnlyOne:
-		private def constructor():
-			pass
-			
-		Instance as OnlyOne:
-			get:
-				return __Nested.instance
-			
-		private class __Nested:
-			internal static final instance = OnlyOne()
 
 @author Marcus Griep (neoeinstein+boo@gmail.com)
 @author Sorin Ionescu (sorin.ionescu@gmail.com)
 @author Rodrigo B. de Oliveira
 """
-	_singletonType as ClassDefinition
-	_nestedInstanceClass as ClassDefinition
 	_suppressStaticWarning as bool
+	_classDef as ClassDefinition
+	
+	[property(AccessorName)]
+	_accessorName = ReferenceExpression(Name: DEFAULT_INSTANCE_PROPERTY_NAME)
+	
+	public static final NESTED_CLASS_NAME = "$Nested"
+	public static final INSTANCE_FIELD_NAME = "instance"
+	public static final SERIALIZATION_OBJECT_CLASS_NAME = "$ObjectForSerialization"
+	public static final DEFAULT_INSTANCE_PROPERTY_NAME = "Instance"
+	
+	public static final ISERIALIZABLE_FULL_NAME = typeof(ISerializable).FullName
+	public static final GETOBJECTDATA_METHOD_NAME = typeof(ISerializable).GetMethods()[0].Name
+	public static final IOBJECTREFERENCE_FULL_NAME = typeof(IObjectReference).FullName
+	public static final STREAMINGCONTEXT_FULL_NAME = typeof(StreamingContext).FullName
+	public static final SERIALIZATIONINFO_FULL_NAME = typeof(SerializationInfo).FullName
+	public static final COMPILERGENERATEDATTRIBUTE_FULL_NAME = typeof(CompilerGeneratedAttribute).FullName
 	
 	override def Apply(node as Node):
 		if not node isa ClassDefinition:
 			InvalidNodeForAttribute("Class");
 			return
 		
-		_singletonType = node
-		
-		MakeClassFinal()
+		_classDef = node as ClassDefinition
+
+		# A singleton class cannot be inherited from, so we make it final here.		
+		_classDef.Modifiers |= TypeMemberModifiers.Final
 		EnforceMemberConstraints()
+		
 		CreateInstanceProperty()
 		CreateNestedClass()
-
-	private def MakeClassFinal():
-	"""
-	A singleton class cannot be inherited from, so we make it final here.
-	"""
-		_singletonType.Modifiers |= TypeMemberModifiers.Final
 		
+		if _classDef.Modifiers & TypeMemberModifiers.Transient == TypeMemberModifiers.None:
+			CreateSerializationObjectReference()
+			CreateDeserializer()
+			_classDef.BaseTypes.Add(SimpleTypeReference(ISERIALIZABLE_FULL_NAME))			
+
 	private def EnforceMemberConstraints():
 	"""
 	Checks all type members to ensure compliance with singleton specification.
@@ -100,54 +102,76 @@ After:
 	constructor.  There may be a static constructor, but we do not factor this
 	in because we warn about it as aforementioned.
 	"""
-		for member as TypeMember in _singletonType.Members:
+		forRemoval = []
+		for member as TypeMember in _classDef.Members:
 			if member.IsStatic and not _suppressStaticWarning:
-				Context.Warnings.Add(CompilerWarningFactory.CustomWarning(member.LexicalInfo, "Static members should not be mixed with the SingletonAttribute pattern (${_singletonType.Name}.${member.Name})."))
+				Context.Warnings.Add(
+					CompilerWarningFactory.CustomWarning(
+						member.LexicalInfo, 
+						"Static members should not be mixed with the SingletonAttribute pattern (${_classDef.Name}.${member.Name})."))
 				_suppressStaticWarning = true
-			ctor = member as Constructor
+
 			
 			// Because we only warn about static members,
 			// we must take care not to override a possible
 			// static constructor.  If a static constructor
 			// is found, it doesn't count toward an instance
 			// constructor, so we don't modify 'foundConstructor'.
+			ctor = member as Constructor
+
 			if ctor is not null and not member.IsStatic:
-				EnforcePrivateInstanceConstructorConstraint(ctor)
-				foundConstructor = true
-				
-		CreatePrivateDefaultConstructor() unless foundConstructor			
-
-	private def EnforcePrivateInstanceConstructorConstraint([required] ctor as Constructor):
-	"""
-	Marks a constructor as private.  ctor cannot be null.
-	"""
-		ctor.Modifiers |= TypeMemberModifiers.Private
+				if ctor.Parameters.Count == 0:
+					ctor.Modifiers |= TypeMemberModifiers.Private
+					ctor.Modifiers &= ~(TypeMemberModifiers.Public)
+					foundDefaultConstructor = true
+				else:
+					Context.Warnings.Add(
+						CompilerWarningFactory.CustomWarning(
+							ctor.LexicalInfo,
+							"SingletonAttribute pattern will never instantiate parameterized constructors.  '${ctor}' has been removed from '${_classDef.Name}'."))
+					forRemoval.Add(ctor)
+					foundParameterizedConstructor = true
 		
-	private def CreatePrivateDefaultConstructor():
-	"""
-	This function creates the default constructor for a class but
-	marks its visibility as private.  The function then adds the
-	constructor to the singleton.
-	"""
-		_singletonType.Members.Add(
-			Constructor(
-				LexicalInfo: self.LexicalInfo,
-				Modifiers: TypeMemberModifiers.Private))
-
+		unless foundDefaultConstructor:
+			defaultConstructor = [|
+				private def constructor():
+					pass
+			|]
+			AddCompilerGeneratedAttribute(defaultConstructor)
+			_classDef.Members.Add(defaultConstructor)
+			if foundParameterizedConstructor:
+				Context.Warnings.Add(
+					CompilerWarningFactory.CustomWarning(
+						_classDef.LexicalInfo,
+						"Default private constructor added to '${_classDef.Name}'."))
+		
+		for member in forRemoval:
+			_classDef.Members.Remove(member)
+		
 	private def CreateInstanceProperty():
 	"""
 	Creates the public, static, read-only property 'Instance' and 
 	adds it to the singleton.  This property accesses
-	'__Nested.instance' to return the actual singleton instance.
+	'$Nested.instance' to return the actual singleton instance.
 	"""
-		instanceProperty = Property(LexicalInfo: self.LexicalInfo,
-								Name: "Instance",
-								Modifiers: TypeMemberModifiers.Public | TypeMemberModifiers.Static)
-		getter = instanceProperty.Getter = Method(LexicalInfo: self.LexicalInfo, Name: "get")
+		classRef = SimpleTypeReference(_classDef.Name)
 		
-		getter.Body.Add(ReturnStatement(MemberReferenceExpression(ReferenceExpression("__Nested"),"instance")))
-			 
-		_singletonType.Members.Add(instanceProperty)
+		instanceProperty = [|
+			static Accessor as $classRef:
+				get:
+					return self.$NESTED_CLASS_NAME.$INSTANCE_FIELD_NAME
+		|]
+		
+		instanceProperty.Name = AccessorName.Name
+		
+		if AccessorName.LexicalInfo == LexicalInfo.Empty:
+			instanceProperty.LexicalInfo = _classDef.LexicalInfo
+		else:
+			instanceProperty.LexicalInfo = AccessorName.LexicalInfo
+		
+		AddCompilerGeneratedAttribute(instanceProperty)
+
+		_classDef.Members.Add(instanceProperty)
 
 	private def CreateNestedClass():
 	"""
@@ -160,48 +184,54 @@ After:
 	instance until it is called for.  This is the most elegant solution
 	I know of for the .Net framework to allow for this functionality.
 	"""
-		_nestedInstanceClass = ClassDefinition(
-							LexicalInfo: self.LexicalInfo,
-							Name: "__Nested",
-							Modifiers: TypeMemberModifiers.Private)
+		classRef = ReferenceExpression(_classDef.Name)
 		
-		//See AddEmptyStaticConstructorToNested() method doc for the 
-		// reason the following line is commented out.
-		//
-		//AddEmptyStaticConstructorToNested() 
+		nestedInstanceClass = [| 
+			private transient final class $NESTED_CLASS_NAME:
+				static def constructor():
+					self.$INSTANCE_FIELD_NAME = $classRef()
+				
+				private def constructor():
+					pass
+				
+				public static final $INSTANCE_FIELD_NAME as $(_classDef.Name)
+		|]
 		
-		AddInstanceFieldToNested()
-		_singletonType.Members.Add(_nestedInstanceClass)
+		AddCompilerGeneratedAttribute(nestedInstanceClass)
+		
+		_classDef.Members.Add(nestedInstanceClass)
 	
-	private def AddEmptyStaticConstructorToNested():
-	"""
-	This function is only needed to evoke functionality similar to C# wherein
-	any class with a static constructor is not emitted to IL with the beforefieldinit
-	modifier.  Boo does not emit this modifier, so this method is unnecessary,
-	but may be needed if Boo ever changes that.  Note that its call is commented
-	out above for this reason.
-	"""
-		emptyStaticConstructor = Constructor(
-								LexicalInfo: self.LexicalInfo,
-								Modifiers: TypeMemberModifiers.Public | TypeMemberModifiers.Static)
-		_nestedInstanceClass.Members.Add(emptyStaticConstructor)
+	private def CreateSerializationObjectReference():
+		classRef = ReferenceExpression(_classDef.Name)
 		
-	private def AddInstanceFieldToNested():
-	"""
-	Creates the 'instance' field which is the actual singleton instance.
-	It is created as a final field with an initializer, meaning that it
-	will be initialized whenever '__Nested's static constructor is called
-	(which happens only on the singleton's 'Instance' property being called.
-	Using final instead of checking for 'instance == null' ensures thread-safety
-	and ensures that the singleton is only initialized with the express
-	consent of the singleton's consumer (the consumer must call 'OnlyOne.Instance'
-	to initialize the singleton)
-	"""
-		instance = Field(
-					LexicalInfo: self.LexicalInfo,
-					Name: "instance",
-					Modifiers: TypeMemberModifiers.Internal | TypeMemberModifiers.Static | TypeMemberModifiers.Final,
-					Type: SimpleTypeReference(_singletonType.Name),
-					Initializer: MethodInvocationExpression(
-						ReferenceExpression(_singletonType.Name)))
-		_nestedInstanceClass.Members.Add(instance)
+		nestedReferenceClass = [|
+			private final class $SERIALIZATION_OBJECT_CLASS_NAME($IOBJECTREFERENCE_FULL_NAME):
+				public def GetRealObject(context as $STREAMINGCONTEXT_FULL_NAME):
+					return $(classRef).$(AccessorName.Name)
+		|]
+		
+		AddCompilerGeneratedAttribute(nestedReferenceClass)
+		
+		_classDef.Members.Add(nestedReferenceClass)
+
+	private def CreateDeserializer():
+		objRef = ReferenceExpression(SERIALIZATION_OBJECT_CLASS_NAME)
+		
+		deserializer = [|
+			def $GETOBJECTDATA_METHOD_NAME(info as $SERIALIZATIONINFO_FULL_NAME, context as $STREAMINGCONTEXT_FULL_NAME):
+				info.SetType($objRef)
+		|]
+		
+		MakeExplicit(deserializer, ISERIALIZABLE_FULL_NAME)
+		
+		AddCompilerGeneratedAttribute(deserializer)
+		
+		_classDef.Members.Add(deserializer)
+		
+	private def AddCompilerGeneratedAttribute(node as TypeMember):
+		node.Attributes.Add(
+			Attribute(COMPILERGENERATEDATTRIBUTE_FULL_NAME))
+
+	private def MakeExplicit(method as Method, interfaceName as string):
+		method.ExplicitInfo = ExplicitMemberInfo(InterfaceType: SimpleTypeReference(interfaceName))
+		
