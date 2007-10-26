@@ -14,7 +14,7 @@ class DemoAttribute(Attribute):
 class DemoClass:
 	def constructor([Demo] arg1):
 		pass
-	def DemoMethod([Demo] demoArg) as int [Demo]:
+	def DemoMethod([Demo] demoArg) [Demo] as int:
 		pass
 			
 print typeof(DemoClass).GetMethod("DemoMethod").GetParameters()[0].GetCustomAttributes(true)[0]

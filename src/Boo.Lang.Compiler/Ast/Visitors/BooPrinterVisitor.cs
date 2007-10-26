@@ -414,12 +414,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteGenericParameterList(node.GenericParameters);
 			}
 			WriteParameterList(node.Parameters);
-			WriteTypeReference(node.ReturnType);
 			if (node.ReturnTypeAttributes.Count > 0)
 			{
 				Write(" ");
 				WriteAttributes(node.ReturnTypeAttributes, false);
 			}
+			WriteTypeReference(node.ReturnType);
 		}
 
 		private void WriteOptionalModifiers(TypeMember node)

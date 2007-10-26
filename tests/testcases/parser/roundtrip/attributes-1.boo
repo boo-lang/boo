@@ -35,7 +35,7 @@ class Person:
 	[memoize]
 	[before((null != _fname))]
 	[before((null != _lname))]
-	def GetName() as string [capitalize] :
+	def GetName() [capitalize]  as string:
 		return "\${_fname} \${_lname}"
 
 	[XmlAttribute]
@@ -89,7 +89,7 @@ class Person:
 		before(null != _fname),
 		before(null != _lname)
 	]
-	def GetName() as string [capitalize]:
+	def GetName() [capitalize] as string:
 		return "${_fname} ${_lname}"
 		
 	[XmlAttribute]

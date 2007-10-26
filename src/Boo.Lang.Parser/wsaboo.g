@@ -263,7 +263,7 @@ callable_definition [TypeMemberCollection container]
 		genericParameters = cd.GenericParameters;
 	}
 	(
-		(LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK) |
+		(LBRACK (OF)? generic_parameter_declaration_list[genericParameters] RBRACK) |
 		(OF generic_parameter_declaration[genericParameters])
 	)?
 	LPAREN parameter_declaration_list[cd.Parameters] RPAREN
@@ -393,7 +393,7 @@ class_definition [TypeMemberCollection container]
 		genericParameters = td.GenericParameters;
 	}
 	(
-		(LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK) |
+		(LBRACK (OF)? generic_parameter_declaration_list[genericParameters] RBRACK) |
 		(OF generic_parameter_declaration[genericParameters])
 	)?
 	(base_types[baseTypes])?
@@ -433,7 +433,7 @@ interface_definition [TypeMemberCollection container]
 		genericParameters = itf.GenericParameters;
 	}
 	(
-		(LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK) |
+		(LBRACK (OF)? generic_parameter_declaration_list[genericParameters] RBRACK) |
 		(OF generic_parameter_declaration[genericParameters])
 	)?
 	(base_types[itf.BaseTypes])?
@@ -628,7 +628,7 @@ method [TypeMemberCollection container]
 	}
 	(
 		(
-			LBRACK OF generic_parameter_declaration_list[genericParameters] RBRACK
+			LBRACK (OF)? generic_parameter_declaration_list[genericParameters] RBRACK
 		)
 		|
 		(
@@ -636,8 +636,8 @@ method [TypeMemberCollection container]
 		)
 	)?
 	LPAREN parameter_declaration_list[parameters] RPAREN
-			(AS rt=type_reference { m.ReturnType = rt; })?
 			attributes { AddAttributes(m.ReturnTypeAttributes); }
+			(AS rt=type_reference { m.ReturnType = rt; })?
 			begin_block_with_doc[m, body]
 				block[statements]
 			end[body]
@@ -972,7 +972,7 @@ type_reference returns [TypeReference tr]
 		id=type_name
 		(
 			(
-				LBRACK OF 
+				LBRACK (OF)? 
 				(
 					(
 						MULTIPLY
