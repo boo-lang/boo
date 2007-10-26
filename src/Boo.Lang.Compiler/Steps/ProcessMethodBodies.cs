@@ -143,7 +143,7 @@ namespace Boo.Lang.Compiler.Steps
 			_List_GetRange2 = null;
 			_ICallable_Call = null;
 			_Activator_CreateInstance = null;
-			_ApplicationException_StringConstructor = null;
+			_Exception_StringConstructor = null;
 			_TextReaderEnumerator_lines = null;
 		}
 
@@ -2838,7 +2838,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Exception = CodeBuilder.CreateConstructorInvocation(
 					node.Exception.LexicalInfo,
-					ApplicationException_StringConstructor,
+					Exception_StringConstructor,
 					node.Exception);
 			}
 			else if (!TypeSystemServices.ExceptionType.IsAssignableFrom(exceptionType))
@@ -6000,19 +6000,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		IConstructor _ApplicationException_StringConstructor;
+		IConstructor _Exception_StringConstructor;
 		
-		IConstructor ApplicationException_StringConstructor
+		IConstructor Exception_StringConstructor
 		{
 			get
 			{
-				if (null == _ApplicationException_StringConstructor)
+				if (null == _Exception_StringConstructor)
 				{
-					_ApplicationException_StringConstructor =
+					_Exception_StringConstructor =
 						TypeSystemServices.Map(
-							Types.ApplicationException.GetConstructor(new Type[] { typeof(string) }));
+							Types.Exception.GetConstructor(new Type[] { typeof(string) }));
 				}
-				return _ApplicationException_StringConstructor;
+				return _Exception_StringConstructor;
 			}
 		}
 		
