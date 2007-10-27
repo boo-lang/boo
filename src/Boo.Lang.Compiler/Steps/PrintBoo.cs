@@ -41,6 +41,10 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{		
 			BooPrinterVisitor visitor = new BooPrinterVisitor(OutputWriter);
+			if(Parameters.WhiteSpaceAgnostic)
+			{
+				visitor.Options |= BooPrinterVisitor.PrintOptions.WSA;
+			}
 			visitor.Print(CompileUnit);
 		}
 	}

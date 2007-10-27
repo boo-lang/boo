@@ -288,7 +288,7 @@ namespace BooC
 					{
 						if (arg == "-wsa")
 						{
-							_whiteSpaceAgnostic = true;
+							_options.WhiteSpaceAgnostic = _whiteSpaceAgnostic = true;
 						}
 						else
 						{

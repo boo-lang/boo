@@ -81,6 +81,8 @@ namespace Boo.Lang.Compiler
 		private string _systemDir;
 
 		private Assembly _booAssembly;
+		
+		private bool _whiteSpaceAgnostic;
 
 		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
 
@@ -470,6 +472,18 @@ namespace Boo.Lang.Compiler
 			get { return _delaySign; }
 
 			set { _delaySign = value; }
+		}
+		
+		public bool WhiteSpaceAgnostic
+		{
+			get
+			{
+				return _whiteSpaceAgnostic;
+			}
+			set
+			{
+				_whiteSpaceAgnostic = value;
+			}
 		}
 	}
 }

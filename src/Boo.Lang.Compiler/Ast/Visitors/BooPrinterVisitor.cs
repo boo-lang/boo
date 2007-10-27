@@ -1015,6 +1015,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteBlockStatements(node.EnsureBlock);
 				Dedent();
 			}
+			
+			if(IsWhiteSpaceAgnostic)
+			{
+				WriteEnd();
+			}
 		}
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
