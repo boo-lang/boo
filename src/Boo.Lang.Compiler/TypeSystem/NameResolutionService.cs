@@ -32,6 +32,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System.Collections;
 	using Boo.Lang.Compiler.Ast;
 	using System.Reflection;
+	using System.Collections.Generic;
 	
 	public class NameResolutionService
 	{
@@ -76,7 +77,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public INamespace CurrentNamespace
 		{
 			get { return _current; }
-		}
+			}
 		
 		public void Reset()
 		{
@@ -257,39 +258,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		private IEntity GetGenericConstructedType(GenericTypeReference node, IType entity)
+		private void ResolveTypeReferenceCollection(TypeReferenceCollection collection)
 		{
-			if (entity.GenericInfo == null)
+			foreach (TypeReference tr in collection)
 			{
-				_context.Errors.Add(CompilerErrorFactory.NotAGenericDefinition(node, node.Name));
-				return TypeSystemServices.ErrorEntity;
+				ResolveTypeReference(tr);
 			}
-			
-			if (entity.GenericInfo.GenericParameters.Length != node.GenericArguments.Count)
-			{
-				return GenericArgumentsCountMismatch(node, entity);
-			}
-
-			IType[] arguments = ResolveGenericArguments(node);
-			return entity.GenericInfo.ConstructType(arguments);
-		}
-
-		private IType[] ResolveGenericArguments(GenericTypeReference node)
-		{
-			IType[] arguments = new IType[node.GenericArguments.Count];
-			
-			for (int i = 0; i < arguments.Length; ++i)
-			{
-				ResolveTypeReference(node.GenericArguments[i]);
-				arguments[i] = (IType)node.GenericArguments[i].Entity;
-			}
-			
-			return arguments;
 		}
 		
 		public void ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
-			
 			if (null != node.Entity) return;
 			
 			IEntity entity = ResolveTypeName(node);
@@ -314,7 +292,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				GenericTypeReference gtr = node as GenericTypeReference;
 				if (null != gtr)
 				{
-					entity = GetGenericConstructedType(gtr, (IType)entity);
+					ResolveTypeReferenceCollection(gtr.GenericArguments);
+					entity = ResolveGenericTypeReference(gtr, entity);
 				}
 				
 				GenericTypeDefinitionReference gtdr = node as GenericTypeDefinitionReference;
@@ -349,6 +328,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Remove from the buffer types that do not match requested generity
 			FilterGenericTypes(_buffer, node);
 			return GetEntityFromBuffer();
+		}
+
+		public IType ResolveGenericTypeReference(GenericTypeReference gtr, IEntity definition)
+		{
+			ResolveTypeReferenceCollection(gtr.GenericArguments);
+
+			return (IType)_context.TypeSystemServices.GenericsServices.ConstructEntity(definition, gtr, gtr.GenericArguments);
+		}
+
+		public IEntity ResolveGenericReferenceExpression(GenericReferenceExpression gre, IEntity definition)
+		{
+			ResolveTypeReferenceCollection(gre.GenericArguments);
+			return _context.TypeSystemServices.GenericsServices.ConstructEntity(definition, gre, gre.GenericArguments);
 		}
 
 		private void FilterGenericTypes(List types, SimpleTypeReference node)		

@@ -1,5 +1,5 @@
 """
-BCE0138-1.boo(7,7): BCE0138: 'Foo' is not a generic definition.
+BCE0138-1.boo(7,11): BCE0138: 'Foo' is not a generic definition.
 """
 class Foo:
 	pass

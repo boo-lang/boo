@@ -148,7 +148,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected readonly CompilerContext _context;
 
-		private readonly AnonymousCallablesManager _anonymousCallablesManager; 
+		private readonly AnonymousCallablesManager _anonymousCallablesManager;
+
+		private readonly GenericsServices _genericsServices;
 		
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -160,6 +162,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			_context = context;
 			_anonymousCallablesManager = new AnonymousCallablesManager(this);
+			_genericsServices = new GenericsServices(context);
 
 			CodeBuilder = new BooCodeBuilder(this);
 			
@@ -212,11 +215,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			PreparePrimitives();
 			PrepareBuiltinFunctions();
+
 		}
 		
 		public CompilerContext Context
 		{
 			get { return _context; }
+			}
+
+		public GenericsServices GenericsServices
+		{
+			get { return _genericsServices; }
 		}
 		
 		public IType GetMostGenericType(IType current, IType candidate)
@@ -444,18 +453,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType GetEnumeratorItemType(IType iteratorType)
 		{
+			// Arrays are enumerators of their element type
 			if (iteratorType.IsArray) return iteratorType.GetElementType();
+
+			// String are enumerators of char
 			if (StringType == iteratorType) return CharType;
 			
+			// Try to use an EnumerableItemType attribute 
 			if (iteratorType.IsClass)
 			{
 				IType enumeratorItemType = GetEnumeratorItemTypeFromAttribute(iteratorType);
 				if (null != enumeratorItemType) return enumeratorItemType;
 			}
 
+			// Try to use a generic IEnumerable interface
 			IType genericItemType = GetGenericEnumerableItemType(iteratorType);
 			if (null != genericItemType) return genericItemType;
 
+			// If none of these work, the type is an enumerator of object
 			return ObjectType;
 		}
 		
@@ -670,32 +685,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ICallableType other = rhs as ICallableType;
 			if (null == other) return false;
 
-			CallableSignature lvalue = lhs.GetSignature();
-			CallableSignature rvalue = other.GetSignature();
+				CallableSignature lvalue = lhs.GetSignature();
+				CallableSignature rvalue = other.GetSignature();
 			if (lvalue == rvalue) return true;
-			
-			IParameter[] lparams = lvalue.Parameters;
-			IParameter[] rparams = rvalue.Parameters;
+				
+				IParameter[] lparams = lvalue.Parameters;
+				IParameter[] rparams = rvalue.Parameters;
 			if (lparams.Length < rparams.Length) return false;
 
-			for (int i=0; i<rparams.Length; ++i)
-			{
+					for (int i=0; i<rparams.Length; ++i)
+					{
 				if (!AreTypesRelated(lparams[i].Type, rparams[i].Type)) return false;
-			}
+						}
 
 			return CompatibleReturnTypes(lvalue, rvalue);
-		}
-
+					}
+					
 		private bool CompatibleReturnTypes(CallableSignature lvalue, CallableSignature rvalue)
-		{
+					{
 			if (VoidType != lvalue.ReturnType && VoidType != rvalue.ReturnType)
 			{
-				return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
-			}
+						return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
+					}
+					
+					return true;
+				}
 			
-			return true;
-		}
-
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
 			return CheckOverrideSignature(impl.GetParameters(), baseMethod.GetParameters());
@@ -1252,7 +1267,7 @@ namespace Boo.Lang.Compiler.TypeSystem
                 return GetExternalEnumeratorItemType(iteratorType);
             }
 
-            // If iterator type is a generic constructed type map its attribute from its definition
+            // If iterator type is a generic constructed type, map its attribute from its definition
             GenericConstructedType constructedType = iteratorType as GenericConstructedType;
             if (constructedType != null)
             {
@@ -1276,18 +1291,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return null;
 		}
-		
 
 		public IType GetGenericEnumerableItemType(IType iteratorType)		
 		{
-			// Arrays implicitly implement IEnumerable<elementType>
+			// Arrays implicitly implement IEnumerable[of element type]
 			if (iteratorType is ArrayType) return iteratorType.GetElementType();
 			
-			// If type is not an array, try to find IEnumerable<T> in its interfaces
-			IType genericEnumerable = IEnumerableGenericType;			
-
+			// If type is not an array, try to find IEnumerable[of some type] in its interfaces
 			IType itemType = null;
-			foreach (IType type in FindConstructedTypes(iteratorType, genericEnumerable))
+			foreach (IType type in GenericsServices.FindConstructedTypes(iteratorType, IEnumerableGenericType))
 			{
 				IType candidateItemType = type.ConstructedInfo.GenericArguments[0];				
 				
@@ -1302,40 +1314,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			
 			return itemType;
-		}
-		
-		public System.Collections.Generic.IEnumerable<IType> FindConstructedTypes(IType type, IType definition)
-		{	
-			while (type != null)
-			{			
-				if (type.ConstructedInfo != null && 
-				    type.ConstructedInfo.GenericDefinition == definition)
-				{
-					yield return type;
-				}
-
-				IType[] interfaces = type.GetInterfaces();
-				if (interfaces != null)
-				{
-					foreach (IType interfaceType in interfaces)
-					{
-						foreach (IType match in FindConstructedTypes(interfaceType, definition))
-						{
-							yield return match;
-						}
-					}
-				}
-								
-				type = type.BaseType;
-			}
-		}
-		
-		public static bool IsOpenGenericType(IType type)
-		{
-			if (type is IGenericParameter) return true;
-			if (type.ConstructedInfo != null) return !type.ConstructedInfo.FullyConstructed;
-			if (type.IsByRef || type.IsArray) return IsOpenGenericType(type.GetElementType());
-			return false;
 		}
 						                                         
 		public IEntity GetMemberEntity(TypeMember member)

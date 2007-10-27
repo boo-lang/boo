@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _typeSystemServices.Map(_type.GetElementType());
 		}
 
-		public bool IsClass
+		public virtual bool IsClass
 		{
 			get { return _type.IsClass; }
 		}
@@ -146,7 +146,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _type.IsEnum; }
 		}
 
-		public bool IsValueType
+		public virtual bool IsValueType
 		{
 			get { return _type.IsValueType; }
 		}

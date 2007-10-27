@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod Array_TypedConstructor2;
 
 		IMethod MultiDimensionalArray_TypedConstructor;
-
+		
 		protected CallableResolutionService _callableResolution;
 
 		protected bool _optimizeNullComparisons = true;
@@ -1092,7 +1092,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
 			if (entity.IsGenerator) CreateGeneratorSkeleton(entity);
-		}
+			}
 		
 		void ProcessNodeInMethodContext(InternalMethod entity, INamespace ns, Node node)
 		{
@@ -1149,10 +1149,10 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
-		{	
+		{
 			if (!AstUtil.IsTargetOfMethodInvocation(node))
 			{
-				node.ExpressionType = _currentMethod.DeclaringType.BaseType;
+			node.ExpressionType = _currentMethod.DeclaringType.BaseType;
 				return;
 			}
 
@@ -1166,10 +1166,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == _currentMethod.Overriden)
 			{
 				Error(node,
-					CompilerErrorFactory.MethodIsNotOverride(node, _currentMethod.ToString()));
+				CompilerErrorFactory.MethodIsNotOverride(node, _currentMethod.ToString()));
 				return;
-			}
-
+		}
+		
 			node.Entity = _currentMethod;
 		}
 		
@@ -1828,12 +1828,12 @@ namespace Boo.Lang.Compiler.Steps
 				ExpressionCollection yieldExpressions = entity.YieldExpressions;
 					
 				itemType = yieldExpressions.Count > 0
-				           	? GetMostGenericType(yieldExpressions)
-				           	: TypeSystemServices.ObjectType;
+					? GetMostGenericType(yieldExpressions)
+					: TypeSystemServices.ObjectType;
 			}
 			return itemType;
 		}
-
+		
 		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)
 		{
 			BooClassBuilder builder = CreateGeneratorSkeleton(node, _currentMethod.Method, GetConcreteExpressionType(node.Expression));
@@ -1858,15 +1858,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (generatorItemType != TypeSystemServices.VoidType)
 			{
 				builder.AddBaseType(
-					GetConstructedType(
-						TypeSystemServices.Map(	typeof(GenericGenerator<>)),
-						generatorItemType));
+					TypeSystemServices.Map(typeof(GenericGenerator<>)).GenericInfo.ConstructType(generatorItemType));
 				
 				getEnumeratorBuilder = builder.AddVirtualMethod(
 					"GetEnumerator",
-					GetConstructedType(
-						TypeSystemServices.IEnumeratorGenericType,
-						generatorItemType));
+					TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(generatorItemType));
 
 				getEnumeratorBuilder.Method.LexicalInfo = sourceNode.LexicalInfo;
 			}
@@ -2105,7 +2101,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ReplaceByStaticFieldReference(Expression node, string fieldName, IType type)
 		{
 			Node parent = node.ParentNode;
-
+			
 			Field field = CodeBuilder.CreateField(fieldName, type);
 			field.Modifiers = TypeMemberModifiers.Internal|TypeMemberModifiers.Static;
 			field.Initializer = node;
@@ -2118,69 +2114,23 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)
 		{
-			CompilerError error = CheckGenericReferenceExpression(node);
-			if (null != error)
-			{
-				Error(node, error);
-				return;
-			}
+			IEntity entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
+			IType entityType = (entity is IType ? (IType)entity : ((IMethod)entity).Type);
 
-			switch (node.Target.Entity.EntityType)
-			{
-				case EntityType.Type:
-					IType genericType = ((IType)node.Target.Entity).GenericInfo.ConstructType(GetGenericArguments(node));
-					Bind(node, genericType);
-					BindTypeReferenceExpressionType(node, genericType);
-					break;
-				
-				case EntityType.Method:
-					IMethod genericMethod = ((IMethod)node.Target.Entity).GenericInfo.ConstructMethod(GetGenericArguments(node));
-					Bind(node, genericMethod);
-					BindExpressionType(node, genericMethod.Type);
-					break;				
-			}
-		}
+			Bind(node, entity);
 
-		private IType[] GetGenericArguments(GenericReferenceExpression node)
-		{
-			IType[] types = new IType[node.GenericArguments.Count];
-			for (int i = 0; i < node.GenericArguments.Count; ++i)
+			if (node.Target.Entity == null || TypeSystemServices.IsError(node.Target.Entity))
 			{
-				IType type = node.GenericArguments[i].Entity as IType;
-				types[i] = type;
+				BindExpressionType(node, TypeSystemServices.ErrorEntity);
 			}
-			return types;
-		}
-
-		CompilerError CheckGenericReferenceExpression(GenericReferenceExpression node)
-		{
-			IEntity entity = node.Target.Entity;
-			IType type = entity as IType;
-			IMethod method = entity as IMethod;
-			IGenericParameter[] parameters = null;
-
-			// Test for a generic type definition			
-			if (type != null && type.GenericInfo != null)
+			else if (node.Target.Entity.EntityType == EntityType.Type)
 			{
-				parameters = type.GenericInfo.GenericParameters;
+				BindTypeReferenceExpressionType(node, entityType);
 			}
-			// Test for a generic method definition
-			else if (method != null && method.GenericInfo != null)
+			else
 			{
-				parameters = method.GenericInfo.GenericParameters;
+				BindExpressionType(node, entityType);
 			}
-		
-			if (parameters == null)
-			{
-				return CompilerErrorFactory.NotAGenericDefinition(AstUtil.GetMemberAnchor(node.Target), entity.FullName);
-			}
-			
-			if (parameters.Length != node.GenericArguments.Count) 
-			{
-				return CompilerErrorFactory.GenericDefinitionArgumentCount(AstUtil.GetMemberAnchor(node.Target), entity.FullName, parameters.Length);
-			}
-			
-			return null; 
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -2193,7 +2143,7 @@ namespace Boo.Lang.Compiler.Steps
 				Error(node);
 				return;
 			}
-
+			
 				// BOO-314 - if we are trying to invoke
 				// something, let's make sure it is
 				// something callable, otherwise, let's
@@ -2426,7 +2376,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity member = ResolveMember(node);
 			if (null == member) return;
-			
+
 			if (EntityType.Ambiguous == member.EntityType)
 			{
 				member = ResolveAmbiguousReference(node, (Ambiguous)member);
@@ -2857,11 +2807,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (untypedException)
 			{
 				// If untyped, set the handler to except System.Exception
-				node.Declaration.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType);
-			}
-			else
-			{
-				Visit(node.Declaration.Type);
+					node.Declaration.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType);
+				}
+				else
+				{
+					Visit(node.Declaration.Type);
 				
 				// Require typed exception handlers to except only
 				// exceptions at least as derived as System.Exception
@@ -2870,13 +2820,13 @@ namespace Boo.Lang.Compiler.Steps
 					Errors.Add(CompilerErrorFactory.InvalidExceptArgument(node.Declaration.Type, GetType(node.Declaration.Type).FullName));
 				}
 			}
-
+			
 			if(!anonymousException)
 			{
 				// If the exception is not anonymous, place it into a 
 				// local variable and enter a new namespace
-				node.Declaration.Entity = DeclareLocal(node.Declaration, node.Declaration.Name, GetType(node.Declaration.Type), true);
-				EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
+			node.Declaration.Entity = DeclareLocal(node.Declaration, node.Declaration.Name, GetType(node.Declaration.Type), true);
+			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
 			}
 
 			try
@@ -2897,9 +2847,9 @@ namespace Boo.Lang.Compiler.Steps
 				// Clean up the namespace if necessary
 				if(!anonymousException)
 				{
-					LeaveNamespace();
-				}
+				LeaveNamespace();
 			}
+		}
 		}
 		
 		protected virtual bool IsValidIncrementDecrementOperand(Expression e)
@@ -3515,7 +3465,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-
+		
 		private bool IsPrimitiveComparison(IType lhs, IType rhs)
 		{
 			if (IsPrimitiveNumberOrChar(lhs) && IsPrimitiveNumberOrChar(rhs)) return true;
@@ -4208,7 +4158,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			node.Arguments.Insert(0, EnsureMemberReferenceForExtension(node).Target);
 		}
-
+		
 		private MemberReferenceExpression EnsureMemberReferenceForExtension(MethodInvocationExpression node)
 		{
 			MemberReferenceExpression memberRef = node.Target as MemberReferenceExpression;

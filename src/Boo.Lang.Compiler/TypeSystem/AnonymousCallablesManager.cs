@@ -63,13 +63,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public AnonymousCallableType GetCallableType(CallableSignature signature)
 		{
-			AnonymousCallableType type;
-			if (!_cache.TryGetValue(signature, out type))
+			AnonymousCallableType type = GetCachedCallableType(signature);
+
+			if (type == null)
 			{
 				type = new AnonymousCallableType(TypeSystemServices, signature);
 				_cache.Add(signature, type);
 			}
 			return type;
+		}
+
+		private AnonymousCallableType GetCachedCallableType(CallableSignature signature)
+		{
+			AnonymousCallableType result = null;
+			_cache.TryGetValue(signature, out result);
+			return result;
 		}
 
 		public IType GetConcreteCallableType(Node sourceNode, CallableSignature signature)

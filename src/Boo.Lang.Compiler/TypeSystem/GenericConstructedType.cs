@@ -65,7 +65,7 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             foreach (IType arg in GenericArguments)
             {
-                if (TypeSystemServices.IsOpenGenericType(arg))
+                if (GenericsServices.IsOpenGenericType(arg))
                 {
                     return false;
                 }

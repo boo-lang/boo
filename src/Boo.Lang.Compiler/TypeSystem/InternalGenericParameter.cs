@@ -73,7 +73,40 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _position;
 			}
 		}
-		
+
+		public bool MustHaveDefaultConstructor
+		{
+			get
+			{
+				// TODO
+				return false;
+			}
+		}
+
+		public Variance Variance
+		{
+			// TODO
+			get { return Variance.Invariant; }
+		}
+
+		public IType[] GetBaseTypeConstraints()
+		{
+			// TODO
+			return null;
+		}
+
+		public bool IsValueType
+		{
+			// TODO: reflect value-type constraint
+			get { return false; }
+		}
+
+		public bool IsClass
+		{
+			// TODO: reflect reference-type constraint
+			get { return false; }
+		}
+
 		public IType DeclaringType
 		{
 		 	get 
@@ -94,12 +127,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ((Node)_declaringMethod ?? (Node)_declaringType).Entity;
 			}
 		}
-		
-		public bool IsClass
-		{
-			get { return false; }
-		}
-		
+
 		bool IType.IsAbstract
 		{
 			get { return false; }
@@ -116,11 +144,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public bool IsByRef
-		{
-			get { return false; }
-		}
-		
-		public bool IsValueType
 		{
 			get { return false; }
 		}

@@ -416,6 +416,7 @@
     <File name="TypeSystem/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMapping.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GenericsServices.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IAccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IAccessibleMember.cs" buildaction="Compile" subtype="Code" />
@@ -468,6 +469,7 @@
     <File name="TypeSystem/SimpleNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Variance.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/MarshalByRefCollectionBase.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/MarshalByRefEnumerator.cs" buildaction="Compile" subtype="Code" />

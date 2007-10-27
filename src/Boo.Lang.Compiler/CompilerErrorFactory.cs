@@ -774,12 +774,32 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0144", SafeLexicalInfo(node), memberName, message);
 		}
-		
+
 		public static CompilerError InvalidExceptArgument(Node node, string exceptionType)
 		{
 			return new CompilerError("BCE0145", SafeLexicalInfo(node), exceptionType);
 		}
 		
+		public static CompilerError GenericArgumentMustBeReferenceType(Node node, IGenericParameter parameter, IType argument)
+		{
+			return new CompilerError("BCE0146", SafeLexicalInfo(node), argument, parameter);
+		}
+
+		public static CompilerError GenericArgumentMustBeValueType(Node node, IGenericParameter parameter, IType argument)
+		{
+			return new CompilerError("BCE0147", SafeLexicalInfo(node), argument, parameter);
+		}
+
+		public static CompilerError GenericArgumentMustHaveDefaultConstructor(Node node, IGenericParameter parameter, IType argument)
+		{
+			return new CompilerError("BCE0148", SafeLexicalInfo(node), argument, parameter);
+		}
+
+		public static CompilerError GenericArgumentMustHaveBaseType(Node node, IGenericParameter parameter, IType argument, IType baseType)
+		{
+			return new CompilerError("BCE0149", SafeLexicalInfo(node), argument, parameter, baseType);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

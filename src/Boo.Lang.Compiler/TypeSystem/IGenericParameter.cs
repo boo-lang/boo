@@ -5,6 +5,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType DeclaringType { get; }
 		IMethod DeclaringMethod { get; } 
 		int GenericParameterPosition { get; }
-		// TODO: Constraints { get; }
+
+		bool MustHaveDefaultConstructor { get; }
+		IType[] GetBaseTypeConstraints();
+		Variance Variance { get; }
 	}
 }

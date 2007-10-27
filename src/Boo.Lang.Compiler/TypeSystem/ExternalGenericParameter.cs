@@ -67,5 +67,58 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _declaringMethod;
 			}
 		}
+
+		public Variance Variance
+		{
+			get
+			{
+				GenericParameterAttributes variance = ActualType.GenericParameterAttributes & GenericParameterAttributes.VarianceMask;
+				switch (variance)
+				{
+					case GenericParameterAttributes.None:
+						return Variance.Invariant;
+
+					case GenericParameterAttributes.Covariant:
+						return Variance.Covariant;
+
+					case GenericParameterAttributes.Contravariant:
+						return Variance.Contravariant;
+
+					default:
+						return Variance.Invariant;
+				}
+			}
+		}
+
+		public IType[] GetBaseTypeConstraints()
+		{
+			return Array.ConvertAll<Type, IType>(
+				ActualType.GetGenericParameterConstraints(), 
+				_typeSystemServices.Map);
+		}
+
+		public bool MustHaveDefaultConstructor
+		{
+			get
+			{
+				return (ActualType.GenericParameterAttributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
+			}
+		}
+
+		public override bool IsClass
+		{
+			get
+			{
+				return (ActualType.GenericParameterAttributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
+			}
+		}
+
+		public override bool IsValueType
+		{
+			get
+			{
+				return (ActualType.GenericParameterAttributes & GenericParameterAttributes.NotNullableValueTypeConstraint) == GenericParameterAttributes.NotNullableValueTypeConstraint;
+			}
+		}
 	}
 }

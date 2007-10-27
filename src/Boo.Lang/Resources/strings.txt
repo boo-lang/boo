@@ -135,7 +135,7 @@ BCE0132=The namespace '{0}' already contains a definition for '{1}'.
 BCE0133=Invalid signature for Main. It should be one of: 'Main() as void', 'Main() as int', 'Main(argv as (string)) as void', 'Main(argv as (string)) as int'.
 BCE0134='{0}' cannot return values.
 BCE0135=Invalid name: '{0}'
-BCE0136=Use a colon(:) instead of equal sign(=) for named parameters.
+BCE0136=Use a colon (:) instead of equal sign (=) for named parameters.
 BCE0137=Property '{0}' is write only.
 BCE0138='{0}' is not a generic definition.
 BCE0139='{0}' requires '{1}' arguments.
@@ -145,6 +145,10 @@ BCE0142=Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.
 BCE0143=Cannot return from an ensure block.
 BCE0144='{0}' is obsolete. {1}
 BCE0145=Cannot catch type '{0}'; 'except' blocks can only catch exceptions derived from 'System.Exception'. To catch non-CLS compliant exceptions, use a default exception handler or catch 'System.Runtime.CompilerServices.RuntimeWrappedException'.
+BCE0146=The type '{0}' must be a reference type in order to substitute the generic parameter '{1}'. 
+BCE0147=The type '{0}' must be a value type in order to substitute the generic parameter '{1}'. 
+BCE0148=The type '{0}' must have a public default constructor in order to substitute the generic parameter '{1}'.
+BCE0149=The type '{0}' must derive from '{2}' in order to substitute the generic parameter '{1}'. 
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
