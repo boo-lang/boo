@@ -74,6 +74,7 @@ tokens
 	ENUM="enum";
 	EVENT="event";
 	EXCEPT="except";
+	FAILURE="failure";
 	FINAL="final";	
 	FROM="from";	
 	FOR="for";
@@ -1443,9 +1444,15 @@ try_stmt returns [TryStatement s]
 	}:
 	t:TRY { s = new TryStatement(SourceLocationFactory.ToLexicalInfo(t)); }
 		compound_stmt[s.ProtectedBlock]
+	(EXCEPT|FAILURE|ENSURE)=>
 	(
 		exception_handler[s]
 	)*
+	(
+		ftoken:FAILURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(ftoken)); }
+			compound_stmt[eblock]
+		{ s.FailureBlock = eblock; }
+	)?
 	(
 		etoken:ENSURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(etoken)); }
 			compound_stmt[eblock]
@@ -1458,16 +1465,48 @@ exception_handler [TryStatement t]
 	{
 		ExceptionHandler eh = null;		
 		TypeReference tr = null;
+		Expression e = null;
 	}:
-	c:EXCEPT (x:ID (AS tr=type_reference)?)?
+	c:EXCEPT (x:ID)? (AS tr=type_reference)? ((IF|u:UNLESS) e=boolean_expression)?
 	{
 		eh = new ExceptionHandler(SourceLocationFactory.ToLexicalInfo(c));
 		
+		eh.Declaration = new Declaration();
+		eh.Declaration.Type = tr;
+		
 		if (x != null)
 		{
-			eh.Declaration = new Declaration(SourceLocationFactory.ToLexicalInfo(x));
+			eh.Declaration.LexicalInfo = SourceLocationFactory.ToLexicalInfo(x);
 			eh.Declaration.Name = x.getText();		
-			eh.Declaration.Type = tr;
+		}
+		else
+		{
+			eh.Declaration.Name = null;
+			eh.Flags |= ExceptionHandlerFlags.Anonymous;
+		}
+		if (tr != null)
+		{
+			eh.Declaration.LexicalInfo = tr.LexicalInfo;
+		}
+		else if (x != null)
+		{
+			eh.Declaration.LexicalInfo = eh.LexicalInfo;
+		}
+		if(tr == null)
+		{
+			eh.Flags |= ExceptionHandlerFlags.Untyped;
+		}
+		if (e != null)
+		{
+			if(u != null)
+			{
+				UnaryExpression not = new UnaryExpression(SourceLocationFactory.ToLexicalInfo(u));
+				not.Operator = UnaryOperatorType.LogicalNot;
+				not.Operand = e;
+				e = not;
+			}
+			eh.FilterCondition = e;
+			eh.Flags |= ExceptionHandlerFlags.Filter;
 		}
 	}		
 	compound_stmt[eh.Block]

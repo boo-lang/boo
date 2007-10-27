@@ -68,6 +68,7 @@ tokens
 	ENUM="enum";
 	EVENT="event";
 	EXCEPT="except";
+	FAILURE="failure";
 	FINAL="final";	
 	FROM="from";	
 	FOR="for";
@@ -1323,9 +1324,15 @@ try_stmt returns [TryStatement s]
 	}:
 	t:TRY { s = new TryStatement(SourceLocationFactory.ToLexicalInfo(t)); } begin
 		{s.ProtectedBlock = new Block();} block[s.ProtectedBlock.Statements] { lastBlock = s.ProtectedBlock; }
+	(EXCEPT|FAILURE|ENSURE)=>
 	(
 		lastBlock = exception_handler[s]
 	)*
+	(
+		ftoken:FAILURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(ftoken)); } begin
+			block[eblock.Statements]
+		{ s.FailureBlock = lastBlock = eblock; }
+	)?
 	(
 		etoken:ENSURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(etoken)); } begin
 			block[eblock.Statements]
@@ -1339,17 +1346,49 @@ exception_handler [TryStatement t] returns [Block lastBlock]
 	{
 		ExceptionHandler eh = null;		
 		TypeReference tr = null;
+		Expression e = null;
 		lastBlock = null;
 	}:
- 	c:EXCEPT (x:ID (AS tr=type_reference)?)? begin
+	c:EXCEPT (x:ID)? (AS tr=type_reference)? ((IF|u:UNLESS) e=expression)? begin
 	{
 		eh = new ExceptionHandler(SourceLocationFactory.ToLexicalInfo(c));
 		
+		eh.Declaration = new Declaration();
+		eh.Declaration.Type = tr;
+		
 		if (x != null)
 		{
-			eh.Declaration = new Declaration(SourceLocationFactory.ToLexicalInfo(x));
+			eh.Declaration.LexicalInfo = SourceLocationFactory.ToLexicalInfo(x);
 			eh.Declaration.Name = x.getText();		
-			eh.Declaration.Type = tr;
+		}
+		else
+		{
+			eh.Declaration.Name = null;
+			eh.Flags |= ExceptionHandlerFlags.Anonymous;
+		}
+		if (tr != null)
+		{
+			eh.Declaration.LexicalInfo = tr.LexicalInfo;
+		}
+		else if (x != null)
+		{
+			eh.Declaration.LexicalInfo = eh.LexicalInfo;
+		}
+		if(tr == null)
+		{
+			eh.Flags |= ExceptionHandlerFlags.Untyped;
+		}
+		if (e != null)
+		{
+			if(u != null)
+			{
+				UnaryExpression not = new UnaryExpression(SourceLocationFactory.ToLexicalInfo(u));
+				not.Operator = UnaryOperatorType.LogicalNot;
+				not.Operand = e;
+				e = not;
+			}
+			eh.FilterCondition = e;
+			eh.Flags |= ExceptionHandlerFlags.Filter;
 		}
 		eh.Block = new Block(SourceLocationFactory.ToLexicalInfo(c));
 	}		

@@ -127,7 +127,7 @@ BCE0124=Invalid field type '{0}'.
 BCE0125=Invalid declaration type '{0}'.
 BCE0126=It is not possible to evaluate an expression of type '{0}'.
 BCE0127=A ref or out argument must be an lvalue: '{0}'
-BCE0128='try' block must be followed by either 'except' or 'ensure'.
+BCE0128='try' block must be followed by at least one 'except' block or either a 'failure' or 'ensure' block.
 BCE0129=Invalid extension definition, only static methods are allowed.
 BCE0130='partial' can only be applied to class definitions.
 BCE0131=Invalid combination of modifiers on '{0}': {1}.
@@ -144,6 +144,7 @@ BCE0141=Duplicate parameter name '{0}' in '{1}'.
 BCE0142=Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.
 BCE0143=Cannot return from an ensure block.
 BCE0144='{0}' is obsolete. {1}
+BCE0145=Cannot catch type '{0}'; 'except' blocks can only catch exceptions derived from 'System.Exception'. To catch non-CLS compliant exceptions, use a default exception handler or catch 'System.Runtime.CompilerServices.RuntimeWrappedException'.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

@@ -115,6 +115,7 @@
     <Compile Include="Ast\Event.cs" />
     <Compile Include="Ast\ExceptionHandler.cs" />
     <Compile Include="Ast\ExceptionHandlerCollection.cs" />
+    <Compile Include="Ast\ExceptionHandlerFlags.cs" />
     <Compile Include="Ast\ExplicitMemberInfo.cs" />
     <Compile Include="Ast\Expression.cs" />
     <Compile Include="Ast\ExpressionCollection.cs" />

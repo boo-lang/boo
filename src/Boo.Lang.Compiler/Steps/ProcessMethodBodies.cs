@@ -2194,38 +2194,38 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			// BOO-314 - if we are trying to invoke
-			// something, let's make sure it is
-			// something callable, otherwise, let's
-			// try to find something callable
-			if (AstUtil.IsTargetOfMethodInvocation(node)
-			    && !IsCallableEntity(entity))
-			{
-				IEntity callable = ResolveCallable(node);
-				if (null != callable) entity = callable;
-			}
+				// BOO-314 - if we are trying to invoke
+				// something, let's make sure it is
+				// something callable, otherwise, let's
+				// try to find something callable
+				if (AstUtil.IsTargetOfMethodInvocation(node)
+				    && !IsCallableEntity(entity))
+				{
+					IEntity callable = ResolveCallable(node);
+					if (null != callable) entity = callable;
+				}
 
-			IMember member = entity as IMember;
-			if (null != member)
-			{
+				IMember member = entity as IMember;
+				if (null != member)
+				{
 				if (IsExtensionMethod(member))
 				{
 					Bind(node, member);
 					return;
 				}
-				ResolveMemberInfo(node, member);
+					ResolveMemberInfo(node, member);
 				return;
-			}
+				}
 			
-			EnsureRelatedNodeWasVisited(node, entity);
-			node.Entity = entity;
-			PostProcessReferenceExpression(node);
-		}
+					EnsureRelatedNodeWasVisited(node, entity);
+					node.Entity = entity;
+					PostProcessReferenceExpression(node);
+				}
 
 		private static bool AlreadyBound(ReferenceExpression node)
-		{
+			{
 			return null != node.ExpressionType;
-		}
+			}
 
 		private IEntity ResolveCallable(ReferenceExpression node)
 		{
@@ -2850,33 +2850,55 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
 		{
-			if (null == node.Declaration)
+			bool untypedException = (node.Flags & ExceptionHandlerFlags.Untyped) == ExceptionHandlerFlags.Untyped;
+			bool anonymousException = (node.Flags & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.Anonymous;
+			bool filterHandler = (node.Flags & ExceptionHandlerFlags.Filter) == ExceptionHandlerFlags.Filter;
+			
+			if (untypedException)
 			{
-				node.Declaration = new Declaration(node.LexicalInfo,
-				                                   "___exception",
-				                                   CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType));
+				// If untyped, set the handler to except System.Exception
+				node.Declaration.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType);
 			}
 			else
 			{
-				if (null == node.Declaration.Type)
+				Visit(node.Declaration.Type);
+				
+				// Require typed exception handlers to except only
+				// exceptions at least as derived as System.Exception
+				if(!TypeSystemServices.ExceptionType.IsAssignableFrom(GetType(node.Declaration.Type)))
 				{
-					node.Declaration.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ExceptionType);
-				}
-				else
-				{
-					Visit(node.Declaration.Type);
+					Errors.Add(CompilerErrorFactory.InvalidExceptArgument(node.Declaration.Type, GetType(node.Declaration.Type).FullName));
 				}
 			}
-			
-			node.Declaration.Entity = DeclareLocal(node.Declaration, node.Declaration.Name, GetType(node.Declaration.Type), true);
-			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
+
+			if(!anonymousException)
+			{
+				// If the exception is not anonymous, place it into a 
+				// local variable and enter a new namespace
+				node.Declaration.Entity = DeclareLocal(node.Declaration, node.Declaration.Name, GetType(node.Declaration.Type), true);
+				EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
+			}
+
 			try
 			{
+				// The filter handler has access to the exception if it
+				// is not anonymous, so it is protected to ensure
+				// any exception in the filter condition (a big no-no)
+				// will still clean up the namespace if necessary
+				if (filterHandler)
+				{
+					Visit(node.FilterCondition);
+				}
+				
 				Visit(node.Block);
 			}
 			finally
 			{
-				LeaveNamespace();
+				// Clean up the namespace if necessary
+				if(!anonymousException)
+				{
+					LeaveNamespace();
+				}
 			}
 		}
 		

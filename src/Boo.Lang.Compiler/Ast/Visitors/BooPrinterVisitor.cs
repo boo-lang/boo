@@ -991,14 +991,29 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented();
 			WriteKeyword("try:");
 			WriteLine();
-			WriteBlock(node.ProtectedBlock);
+			Indent();
+			WriteBlockStatements(node.ProtectedBlock);
+			Dedent();
 			Visit(node.ExceptionHandlers);
+			
+			if (null != node.FailureBlock)
+			{
+				WriteIndented();
+				WriteKeyword("failure:");
+				WriteLine();
+				Indent();
+				WriteBlockStatements(node.FailureBlock);
+				Dedent();
+			}
+			
 			if (null != node.EnsureBlock)
 			{
 				WriteIndented();
 				WriteKeyword("ensure:");
 				WriteLine();
-				WriteBlock(node.EnsureBlock);
+				Indent();
+				WriteBlockStatements(node.EnsureBlock);
+				Dedent();
 			}
 		}
 		
@@ -1006,13 +1021,42 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			WriteKeyword("except");
-			if (null != node.Declaration)
+			if ((node.Flags & ExceptionHandlerFlags.Untyped) == ExceptionHandlerFlags.None)
+			{
+			   if((node.Flags & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.None)
+				{
+					Write(" ");
+					Visit(node.Declaration);
+				}
+				else 
+				{
+					WriteTypeReference(node.Declaration.Type);
+				}
+			}
+			else if((node.Flags & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.None)
 			{
 				Write(" ");
-				Visit(node.Declaration);
+				Write(node.Declaration.Name);
+			}
+
+			if((node.Flags & ExceptionHandlerFlags.Filter) == ExceptionHandlerFlags.Filter)
+			{
+				UnaryExpression unless = node.FilterCondition as UnaryExpression;
+				if(unless != null && unless.Operator == UnaryOperatorType.LogicalNot)
+				{
+					WriteKeyword(" unless ");
+					Visit(unless.Operand);
+				}
+				else
+				{
+					WriteKeyword(" if ");
+					Visit(node.FilterCondition);					
+				}
 			}
 			WriteLine(":");
-			WriteBlock(node.Block);
+			Indent();
+			WriteBlockStatements(node.Block);
+			Dedent();
 		}
 		
 		override public void OnUnlessStatement(UnlessStatement node)

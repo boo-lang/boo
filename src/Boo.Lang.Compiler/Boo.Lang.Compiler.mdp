@@ -72,6 +72,7 @@
     <File name="Ast/Event.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExceptionHandler.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExceptionHandlerCollection.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/ExceptionHandlerFlags.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExplicitMemberInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Expression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExpressionCollection.cs" buildaction="Compile" subtype="Code" />

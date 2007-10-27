@@ -775,6 +775,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0144", SafeLexicalInfo(node), memberName, message);
 		}
 		
+		public static CompilerError InvalidExceptArgument(Node node, string exceptionType)
+		{
+			return new CompilerError("BCE0145", SafeLexicalInfo(node), exceptionType);
+		}
+		
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

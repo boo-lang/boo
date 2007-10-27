@@ -109,7 +109,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveTryStatement(TryStatement node)
 		{
-			if (node.EnsureBlock == null && node.ExceptionHandlers.Count == 0)
+			if (node.EnsureBlock == null && node.FailureBlock == null && node.ExceptionHandlers.Count == 0)
 			{
 				Error(CompilerErrorFactory.InvalidTryStatement(node));
 			}

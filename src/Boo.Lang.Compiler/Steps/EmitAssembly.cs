@@ -64,6 +64,10 @@ namespace Boo.Lang.Compiler.Steps
 	public class EmitAssembly : AbstractVisitorCompilerStep
 	{
 		static ConstructorInfo DebuggableAttribute_Constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
+		
+		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetConstructor(new Type[0]);
+		
+		static PropertyInfo[] RuntimeCompatibilityAttribute_Property = new PropertyInfo[] { typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetProperty("WrapNonExceptionThrows") };
 
 		static ConstructorInfo DuckTypedAttribute_Constructor = Types.DuckTypedAttribute.GetConstructor(new Type[0]);
 		
@@ -744,28 +748,138 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnTryStatement(TryStatement node)
 		{
 			++_tryBlock;
-			_il.BeginExceptionBlock();
+			Label end = _il.BeginExceptionBlock();
+			
+			// The fault handler isn't very well supported by the
+			// the ILGenerator. Thus, when there is a failure block
+			// in the same try as an except or ensure block, we
+			// need to do some special brute forcing with the exception
+			// block context in the ILGenerator.
+			if(null != node.FailureBlock && null != node.EnsureBlock)
+			{
+				++_tryBlock;
+				_il.BeginExceptionBlock();
+			}
+
+			if(null != node.FailureBlock && node.ExceptionHandlers.Count > 0)
+			{
+				++_tryBlock;
+				_il.BeginExceptionBlock();
+			}
+
 			Visit(node.ProtectedBlock);
+						
 			Visit(node.ExceptionHandlers);
-			--_tryBlock;
+
+			if(null != node.FailureBlock)
+			{
+				// Logic to back out of the manually forced blocks
+				if(node.ExceptionHandlers.Count > 0)
+				{
+					_il.EndExceptionBlock();
+					--_tryBlock;
+				}
+				
+				_il.BeginFaultBlock();
+				Visit(node.FailureBlock);
+				
+				// Logic to back out of the manually forced blocks once more
+				if(null != node.EnsureBlock)
+				{
+					_il.EndExceptionBlock();
+					--_tryBlock;
+				}
+			}
 			
 			if (null != node.EnsureBlock)
 			{
 				_il.BeginFinallyBlock();
 				Visit(node.EnsureBlock);
 			}
+
 			_il.EndExceptionBlock();
-			
-			
+			--_tryBlock;
 		}
 		
 		override public void OnExceptionHandler(ExceptionHandler node)
 		{
-			_il.BeginCatchBlock(GetSystemType(node.Declaration));
-			_il.Emit(OpCodes.Stloc, GetLocalBuilder(node.Declaration));
+			if((node.Flags & ExceptionHandlerFlags.Filter) == ExceptionHandlerFlags.Filter)
+			{
+				_il.BeginExceptFilterBlock();
+				
+				Label endLabel = _il.DefineLabel();
+			
+				// If the filter is not untyped, then test the exception type
+				// before testing the filter condition
+				if((node.Flags & ExceptionHandlerFlags.Untyped) == ExceptionHandlerFlags.None)
+				{
+					Label filterCondition = _il.DefineLabel();
+					
+					// Test the type of the exception.
+					_il.Emit(OpCodes.Isinst, GetSystemType(node.Declaration.Type));
+					
+					// Duplicate it.  If it is null, then it will be used to
+					// skip the filter.
+					_il.Emit(OpCodes.Dup);
+
+					// If the exception is of the right type, branch
+					// to test the filter condition.
+					_il.Emit(OpCodes.Brtrue, filterCondition);
+
+					// Otherwise, clean up the stack and prepare the stack
+					// to skip the filter.
+					EmitStoreOrPopException(node);
+					
+					_il.Emit(OpCodes.Ldc_I4_0);
+					_il.Emit(OpCodes.Br, endLabel);
+					_il.MarkLabel(filterCondition);
+
+				}
+				else if((node.Flags & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.None)
+				{
+					// Cast the exception to the default except type
+					_il.Emit(OpCodes.Isinst, GetSystemType(node.Declaration.Type));
+				}
+				
+				EmitStoreOrPopException(node);
+				
+				// Test the condition and convert to boolean if needed.
+				node.FilterCondition.Accept(this);
+				PopType();
+				EmitToBoolIfNeeded(node.FilterCondition);
+				
+				// If the type is right and the condition is true,
+				// proceed with the handler.
+				_il.MarkLabel(endLabel);
+				_il.Emit(OpCodes.Ldc_I4_0);
+				_il.Emit(OpCodes.Cgt_Un);
+			
+				_il.BeginCatchBlock(null);
+			}
+			else
+			{
+				// Begin a normal catch block of the appropriate type.
+				_il.BeginCatchBlock(GetSystemType(node.Declaration.Type));
+				
+				// Clean up the stack or store the exception if not anonymous.
+				EmitStoreOrPopException(node);
+			}
+
 			Visit(node.Block);
 		}
 		
+		private void EmitStoreOrPopException(ExceptionHandler node)
+		{
+			if((node.Flags & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.None)
+			{
+				_il.Emit(OpCodes.Stloc, GetLocalBuilder(node.Declaration));
+			}
+			else
+			{
+				_il.Emit(OpCodes.Pop);
+			}
+		}
+				
 		override public void OnUnpackStatement(UnpackStatement node)
 		{
 			NotImplemented("Unpacking");
@@ -783,7 +897,7 @@ namespace Boo.Lang.Compiler.Steps
 			// void we need to pop its return value to leave
 			// the stack sane
 			DiscardValueOnStack();
-			AssertStackIsEmpty("stack must be empty after a statement!");
+			AssertStackIsEmpty("stack must be empty after a statement! Offending statement: '" + node.ToCodeString() + "'");
 		}
 		
 		void DiscardValueOnStack()
@@ -3590,6 +3704,13 @@ namespace Boo.Lang.Compiler.Steps
 				new object[] { true, true });
 		}
 		
+		CustomAttributeBuilder CreateRuntimeCompatibilityAttribute()
+		{
+			return new CustomAttributeBuilder(
+					RuntimeCompatibilityAttribute_Constructor, new object[0],
+					RuntimeCompatibilityAttribute_Property, new object[] { true });
+		}
+		
 		void DefineEntryPoint()
 		{
 			if (Context.Parameters.GenerateInMemory)
@@ -4688,6 +4809,7 @@ namespace Boo.Lang.Compiler.Steps
 				// picks up the attribute when debugging dynamically generated code.
 				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
 			}
+			_asmBuilder.SetCustomAttribute(CreateRuntimeCompatibilityAttribute());
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), Parameters.Debug);
 			_sreResourceService = new SREResourceService (_asmBuilder, _moduleBuilder);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);

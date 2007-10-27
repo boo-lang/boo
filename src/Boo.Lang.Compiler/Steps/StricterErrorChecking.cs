@@ -128,7 +128,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(node.ProtectedBlock);
 			Visit(node.ExceptionHandlers);
+
 			EnterEnsureBlock();
+			Visit(node.FailureBlock);
 			Visit(node.EnsureBlock);
 			LeaveEnsureBlock();
 		}

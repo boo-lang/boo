@@ -33,6 +33,13 @@ enum ParameterModifiers:
 	Val = 0
 	Ref = 1
 
+[Flags]
+enum ExceptionHandlerFlags:
+	None = 0
+	Anonymous = 1
+	Untyped = 2
+	Filter = 4
+
 abstract class TypeMember(Node, INodeWithAttributes):
 	Modifiers as TypeMemberModifiers
 	Name as string
@@ -240,10 +247,13 @@ class TryStatement(Statement):
 	[auto]
 	ProtectedBlock as Block
 	ExceptionHandlers as ExceptionHandlerCollection
+	FailureBlock as Block
 	EnsureBlock as Block
 	
 class ExceptionHandler(Node):
 	Declaration as Declaration
+	FilterCondition as Expression
+	Flags as ExceptionHandlerFlags
 	
 	[auto]
 	Block as Block
@@ -497,4 +507,5 @@ class CastExpression(Expression):
 	
 class TypeofExpression(Expression):
 	Type as TypeReference
+
 

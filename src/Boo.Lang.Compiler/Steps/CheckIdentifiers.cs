@@ -105,7 +105,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveDeclaration(Declaration node)
 		{
-			CheckName(node,node.Name);
+			// Special exemption made for anonymous exception handlers
+			if(!(node.ParentNode is ExceptionHandler) ||
+			   ((node.ParentNode as ExceptionHandler).Flags 
+			    & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.None)
+			{
+				CheckName(node,node.Name);
+			}
 		}
 		
 		override public void LeaveAttribute(Attribute node)
