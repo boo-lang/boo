@@ -459,14 +459,20 @@ interface_definition [TypeMemberCollection container]
 		InterfaceDefinition itf = null;
 		TypeMemberCollection members = null;
 		GenericParameterDeclarationCollection genericParameters = null;
+		Expression nameSplice = null;
 	} :
-	INTERFACE id:ID
+	INTERFACE (id:ID | (begin:SPLICE_BEGIN nameSplice=atom))
 	{
-		itf = new InterfaceDefinition(SourceLocationFactory.ToLexicalInfo(id));
-		itf.Name = id.getText();
+		IToken token = id ?? begin;
+		itf = new InterfaceDefinition(SourceLocationFactory.ToLexicalInfo(token));
+		itf.Name = token.getText();
 		itf.Modifiers = _modifiers;
 		AddAttributes(itf.Attributes);
-		container.Add(itf);
+		if (id != null) {
+			container.Add(itf);
+		} else {
+			container.Add(new SpliceTypeMember(itf, nameSplice));
+		}
 		members = itf.Members;
 		genericParameters = itf.GenericParameters;
 	}
@@ -508,13 +514,19 @@ interface_method [TypeMemberCollection container]
 	{
 		Method m = null;
 		TypeReference rt = null;
+		Expression nameSplice = null;
 	}: 
-	DEF id:ID
+	DEF (id:ID | (begin:SPLICE_BEGIN nameSplice=atom))
 	{
-		m = new Method(SourceLocationFactory.ToLexicalInfo(id));
-		m.Name = id.getText();
+		IToken token = id ?? begin;
+		m = new Method(SourceLocationFactory.ToLexicalInfo(token));
+		m.Name = token.getText();
 		AddAttributes(m.Attributes);
-		container.Add(m);
+		if (nameSplice != null) {
+			container.Add(new SpliceTypeMember(m, nameSplice));
+		} else {
+			container.Add(m);
+		}
 	}
 	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 	(AS rt=type_reference { m.ReturnType=rt; })?			
