@@ -54,7 +54,21 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public override void OnImport(Boo.Lang.Compiler.Ast.Import import)
 		{
-			IEntity entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+			INamespace oldns = NameResolutionService.CurrentNamespace;
+			try
+			{
+				NameResolutionService.EnterNamespace(NameResolutionService.CurrentNamespace.ParentNamespace);
+				IEntity entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+			}
+			finally
+			{
+				NameResolutionService.EnterNamespace(oldns);
+			}
+			
+			if(null == entity)
+			{
+				entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+			}
 			
 			//if 'import X', try 'import X from X'
 			//comment out next if block if this is not wanted
@@ -117,7 +131,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.Name);
+			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
 			import.Entity = entity;
 		}
 		
