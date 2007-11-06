@@ -55,10 +55,11 @@ namespace Boo.Lang.Compiler.Steps
 		public override void OnImport(Boo.Lang.Compiler.Ast.Import import)
 		{
 			INamespace oldns = NameResolutionService.CurrentNamespace;
+			IEntity entity = null;
 			try
 			{
 				NameResolutionService.EnterNamespace(NameResolutionService.CurrentNamespace.ParentNamespace);
-				IEntity entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+				entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
 			}
 			finally
 			{
