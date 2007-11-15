@@ -52,6 +52,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedPartial(node);
+			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveProperty(Property node)
@@ -61,6 +62,7 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
 			CheckModifierCombination(node);
+			CheckMustBeStatic(node);
 		}
 
 		override public void LeaveConstructor(Constructor node)
@@ -68,6 +70,7 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CannotReturnValue(node);
+			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveMethod(Method node)
@@ -77,6 +80,7 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
 			CheckModifierCombination(node);
+			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveEvent(Event node)
@@ -84,6 +88,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckMemberName(node);
 			CantBeMarkedPartial(node);
 			CheckModifierCombination(node);
+			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
@@ -92,6 +97,7 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
+			CantBeMarkedFinal(node);
 		}
 		
 		override public void LeaveCallableDefinition(CallableDefinition node)
@@ -100,6 +106,7 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
+			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveClassDefinition(ClassDefinition node)
@@ -167,6 +174,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		void CantBeMarkedFinal(TypeMember member)
+		{
+			if (member.IsFinal)
+			{
+				Error(CompilerErrorFactory.CantBeMarkedFinal(member));
+			}
+		}
+
 		void CantBeMarkedTransient(TypeMember member)
 		{
 			if (member.IsTransient)
@@ -185,6 +200,34 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 				}
 			}
+		}
+		
+		void CheckMustBeStatic(TypeMember node)
+		{
+			if(IsAbstractFinal(node.DeclaringType))
+			{
+				if(!node.IsStatic)
+				{
+					if(node is Constructor)
+					{
+						Error(CompilerErrorFactory.AbstractFinalClassCannotHaveInstanceConstructor(node, node.DeclaringType.Name));
+					}
+					else
+					{
+						Error(CompilerErrorFactory.AbstractFinalClassCanOnlyHaveStatics(node, node.DeclaringType.Name, node.Name));
+					}
+				}
+	
+				if(node.IsOverride || node.IsVirtual || node.IsAbstract)
+				{
+					Error(CompilerErrorFactory.AbstractFinalClassCannotUseVirtualOverrideOrAbstract(node, node.DeclaringType.Name, node.Name));
+				}
+			}
+		}
+		
+		bool IsAbstractFinal(TypeDefinition node)
+		{
+			return node.IsFinal && node.IsAbstract;
 		}
 		
 		void CheckExplicitImpl(IExplicitMember member)

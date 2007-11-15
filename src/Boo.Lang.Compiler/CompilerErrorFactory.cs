@@ -799,6 +799,26 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0149", SafeLexicalInfo(node), argument, parameter, baseType);
 		}
+		
+		public static CompilerError AbstractFinalClassCanOnlyHaveStatics(Node node, string typeName, string memberName)
+		{
+			return new CompilerError("BCE0150", SafeLexicalInfo(node), typeName, memberName);
+		}
+
+		public static CompilerError AbstractFinalClassCannotUseVirtualOverrideOrAbstract(Node node, string typeName, string memberName)
+		{
+			return new CompilerError("BCE0151", SafeLexicalInfo(node), typeName, memberName);
+		}
+		
+		public static CompilerError AbstractFinalClassCannotHaveInstanceConstructor(Node node, string typeName)
+		{
+			return new CompilerError("BCE0152", SafeLexicalInfo(node), typeName);
+		}
+
+		public static CompilerError CantBeMarkedFinal(Node node)
+		{
+			return new CompilerError("BCE0153", SafeLexicalInfo(node));
+		}
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
