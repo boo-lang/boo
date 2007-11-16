@@ -167,10 +167,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 					: _typeSystemServices.Map(baseType);
 			}
 		}
-
-		public virtual IEntity GetDefaultMember()
+		
+		protected virtual MemberInfo[] GetDefaultMembers()
 		{
-			return _typeSystemServices.Map(_type.GetDefaultMembers());
+			MemberInfo[] miarr = ActualType.GetDefaultMembers();
+			
+			if(this.IsInterface && GetInterfaces() != null)
+			{
+				System.Collections.Generic.List<MemberInfo> memlist = 
+					new System.Collections.Generic.List<MemberInfo>();
+				if(miarr != null)
+					memlist.AddRange(miarr);
+				foreach(ExternalType type in GetInterfaces())
+				{
+					miarr = type.GetDefaultMembers();
+					if(miarr != null)
+						memlist.AddRange(miarr);
+				}
+				
+				miarr = memlist.ToArray();
+			}
+			
+			return miarr;
+		}
+
+		public IEntity GetDefaultMember()
+		{
+			return _typeSystemServices.Map(GetDefaultMembers());
 		}
 
 		public Type ActualType
