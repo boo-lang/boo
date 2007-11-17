@@ -70,7 +70,9 @@ namespace Boo.Lang.Compiler.Steps
 			MakeStaticIfNeeded(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
+			CantBeMarkedFinal(node);
 			CannotReturnValue(node);
+			ConstructorCannotBePolymorphic(node);
 		}
 		
 		override public void LeaveMethod(Method node)
@@ -172,6 +174,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			CannotReturnValue(node);
+		}
+		
+		void ConstructorCannotBePolymorphic(Constructor node)
+		{
+			if(node.IsAbstract || node.IsOverride || node.IsVirtual)
+			{
+				Error(CompilerErrorFactory.ConstructorCantBePolymorphic(node, node.FullName));
+			}
 		}
 
 		private void CannotReturnValue(Method node)

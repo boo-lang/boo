@@ -1,5 +1,5 @@
 """
-BCE0150-1.boo(4,17): BCE0150: 'final' can not be applied to interface definitions.
+BCE0150-1.boo(4,17): BCE0150: 'final' cannot be applied to interface definitions.
 """
 final interface IFoo:
   def Test()

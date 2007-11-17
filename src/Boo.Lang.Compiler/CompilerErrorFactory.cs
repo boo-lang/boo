@@ -809,6 +809,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0151", SafeLexicalInfo(node));
 		}
+		
+		public static CompilerError ConstructorCantBePolymorphic(Node node, string memberName)
+		{
+			return new CompilerError("BCE0152", SafeLexicalInfo(node), memberName);
+		}
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

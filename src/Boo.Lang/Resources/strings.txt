@@ -149,8 +149,9 @@ BCE0146=The type '{0}' must be a reference type in order to substitute the gener
 BCE0147=The type '{0}' must be a value type in order to substitute the generic parameter '{1}'. 
 BCE0148=The type '{0}' must have a public default constructor in order to substitute the generic parameter '{1}'.
 BCE0149=The type '{0}' must derive from '{2}' in order to substitute the generic parameter '{1}'. 
-BCE0150='final' can not be applied to interface definitions.
-BCE0151='static' can not be applied to interface or struct definitions.
+BCE0150='final' cannot be applied to interface definitions.
+BCE0151='static' cannot be applied to interface or struct definitions.
+BCE0152=Constructors cannot be marked virtual, abstract, or override: '{0}'
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
