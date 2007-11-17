@@ -49,46 +49,46 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveField(Field node)
 		{
+			MakeStaticIfNeeded(node);
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedPartial(node);
-			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveProperty(Property node)
 		{
+			MakeStaticIfNeeded(node);
 			CheckMemberName(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
 			CheckModifierCombination(node);
-			CheckMustBeStatic(node);
 		}
 
 		override public void LeaveConstructor(Constructor node)
 		{
+			MakeStaticIfNeeded(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CannotReturnValue(node);
-			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveMethod(Method node)
 		{
+			MakeStaticIfNeeded(node);
 			CheckMemberName(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
 			CheckModifierCombination(node);
-			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveEvent(Event node)
 		{
+			MakeStaticIfNeeded(node);
 			CheckMemberName(node);
 			CantBeMarkedPartial(node);
 			CheckModifierCombination(node);
-			CheckMustBeStatic(node);
 		}
 		
 		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
@@ -98,20 +98,36 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CantBeMarkedFinal(node);
+			CantBeMarkedStatic(node);
 		}
 		
 		override public void LeaveCallableDefinition(CallableDefinition node)
 		{
+			MakeStaticIfNeeded(node);
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
-			CheckMustBeStatic(node);
+		}
+		
+		public override void LeaveStructDefinition(StructDefinition node)
+		{
+			CheckMemberName(node);
+			CantBeMarkedAbstract(node);
+			CantBeMarkedFinal(node);
+			CantBeMarkedStatic(node);
+			CantBeMarkedPartial(node);
 		}
 		
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
+			CheckModifierCombination(node);
 			CheckMemberName(node);
+			
+			if(node.IsStatic)
+			{
+				node.Modifiers |= TypeMemberModifiers.Abstract | TypeMemberModifiers.Final;
+			}
 		}
 		
 		override public void LeaveTryStatement(TryStatement node)
@@ -202,34 +218,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void CheckMustBeStatic(TypeMember node)
+		void MakeStaticIfNeeded(TypeMember node)
 		{
-			if(IsAbstractFinal(node.DeclaringType))
+			if(node.DeclaringType.IsStatic)
 			{
-				if(!node.IsStatic)
+				if(node.IsStatic)
 				{
-					if(node is Constructor)
-					{
-						Error(CompilerErrorFactory.AbstractFinalClassCannotHaveInstanceConstructor(node, node.DeclaringType.Name));
-					}
-					else
-					{
-						Error(CompilerErrorFactory.AbstractFinalClassCanOnlyHaveStatics(node, node.DeclaringType.Name, node.Name));
-					}
+					Warnings.Add(CompilerWarningFactory.StaticClassMemberRedundantlyMarkedStatic(node, node.DeclaringType.Name, node.Name));
 				}
-	
-				if(node.IsOverride || node.IsVirtual || node.IsAbstract)
-				{
-					Error(CompilerErrorFactory.AbstractFinalClassCannotUseVirtualOverrideOrAbstract(node, node.DeclaringType.Name, node.Name));
-				}
+				
+				node.Modifiers |= TypeMemberModifiers.Static;
 			}
 		}
-		
-		bool IsAbstractFinal(TypeDefinition node)
-		{
-			return node.IsFinal && node.IsAbstract;
-		}
-		
+				
 		void CheckExplicitImpl(IExplicitMember member)
 		{
 			ExplicitMemberInfo ei = member.ExplicitInfo;
@@ -254,6 +255,7 @@ namespace Boo.Lang.Compiler.Steps
 			InvalidCombination(member, TypeMemberModifiers.Static, TypeMemberModifiers.Abstract);
 			InvalidCombination(member, TypeMemberModifiers.Static, TypeMemberModifiers.Virtual);
 			InvalidCombination(member, TypeMemberModifiers.Static, TypeMemberModifiers.Override);
+			InvalidCombination(member, TypeMemberModifiers.Abstract, TypeMemberModifiers.Final);
 			
 			if (member.NodeType != NodeType.Field)
 			{
@@ -277,6 +279,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (member.IsPartial)
 			{
 				Error(CompilerErrorFactory.CantBeMarkedPartial(member));
+			}
+		}
+		
+		void CantBeMarkedStatic(TypeMember member)
+		{
+			if (member.IsStatic)
+			{
+				Error(CompilerErrorFactory.CantBeMarkedStatic(member));
 			}
 		}
 	}

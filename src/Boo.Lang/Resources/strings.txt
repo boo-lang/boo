@@ -149,10 +149,8 @@ BCE0146=The type '{0}' must be a reference type in order to substitute the gener
 BCE0147=The type '{0}' must be a value type in order to substitute the generic parameter '{1}'. 
 BCE0148=The type '{0}' must have a public default constructor in order to substitute the generic parameter '{1}'.
 BCE0149=The type '{0}' must derive from '{2}' in order to substitute the generic parameter '{1}'. 
-BCE0150='{0}' is marked 'abstract final' and cannot contain instance member '{1}'; all members must be marked static.
-BCE0151='{0}' is marked 'abstract final' and cannot contain virtual, overriden, or abstract member '{0}'.
-BCE0152='{0}' is marked 'abstract final' and can only have a static constructor.
-BCE0153='final' can not be applied to interface definitions.
+BCE0150='final' can not be applied to interface definitions.
+BCE0151='static' can not be applied to interface or struct definitions.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
@@ -168,6 +166,7 @@ BCW0009=WARNING: The -keyfile option will override your AssemblyKeyFile attribut
 BCW0010=WARNING: The -keycontainer option will override your AssemblyKeyName attribute.
 BCW0011=WARNING: Type '{0}' does not provide an implementation for '{1}', a stub has been created.
 BCW0012=WARNING: '{0}' is obsolete. {1}
+BCW0013=WARNING: '{1}' on static type '{0}' is redundantly marked static. All members of static types are automatically assumed to be static.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.

@@ -108,5 +108,10 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0012", node.LexicalInfo, memberName, message);
 		}
+		
+		public static CompilerWarning StaticClassMemberRedundantlyMarkedStatic(Node node, string typeName, string memberName)
+		{
+			return new CompilerWarning("BCW0013", node.LexicalInfo, typeName, memberName);
+		}
 	}
 }

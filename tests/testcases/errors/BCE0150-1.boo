@@ -1,10 +1,11 @@
 """
-BCE0150-1.boo(5,7): BCE0150: 'Test' is marked 'abstract final' and cannot contain instance member 'Blah'; all members must be marked static.
+BCE0150-1.boo(4,17): BCE0150: 'final' can not be applied to interface definitions.
 """
-abstract final class Test:
-  def Blah():
-    print "Blah"
-  static def Foo():
-    print "Foo"
+final interface IFoo:
+  def Test()
 
-Test.Foo()
+class Bar(IFoo):
+  def Test():
+    print "Test"
+
+Bar().Test()

@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
 			LeaveTypeDefinition(node);
-			if (!node.HasInstanceConstructor)
+			if (!node.HasInstanceConstructor && !node.IsStatic)
 			{
 				node.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Public));
 			}
