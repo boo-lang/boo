@@ -26,7 +26,7 @@ import System.Windows.Forms
 import ICSharpCode.TextEditor
 import ICSharpCode.TextEditor.Document
 
-partial class MainForm:
+partial class MainForm(Form):
 	def constructor():
 		self.Text = "booish"
 		self.Size = System.Drawing.Size(640, 480)
