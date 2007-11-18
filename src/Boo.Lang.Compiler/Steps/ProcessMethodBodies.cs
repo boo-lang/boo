@@ -4204,7 +4204,12 @@ namespace Boo.Lang.Compiler.Steps
 		void ReplaceTypeInvocationByEval(IType type, MethodInvocationExpression node)
 		{
 			Node parent = node.ParentNode;
-			
+
+			parent.Replace(node, EvalForTypeInvocation(type, node));
+		}
+
+		private MethodInvocationExpression EvalForTypeInvocation(IType type, MethodInvocationExpression node)
+		{
 			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
 			ReferenceExpression local = CreateTempLocal(node.Target.LexicalInfo, type);
 			
@@ -4217,8 +4222,7 @@ namespace Boo.Lang.Compiler.Steps
 			eval.Arguments.Add(local);
 			
 			BindExpressionType(eval, type);
-			
-			parent.Replace(node, eval);
+			return eval;
 		}
 
 		private void AddResolvedNamedArgumentsToEval(MethodInvocationExpression eval, ExpressionPairCollection namedArguments, ReferenceExpression instance)
@@ -4447,6 +4451,27 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessSystemTypeInvocation(MethodInvocationExpression node)
 		{
+			MethodInvocationExpression invocation = CreateInstanceInvocationFor(node);
+			if (invocation.NamedArguments.Count == 0)
+			{
+				node.ParentNode.Replace(node, invocation);
+				return;
+			}
+			ProcessNamedArgumentsForTypeInvocation(invocation);
+			node.ParentNode.Replace(node, EvalForTypeInvocation(TypeSystemServices.ObjectType, invocation));
+		}
+
+		private void ProcessNamedArgumentsForTypeInvocation(MethodInvocationExpression invocation)
+		{
+			foreach (ExpressionPair pair in invocation.NamedArguments)
+			{			
+				if (!ProcessNamedArgument(pair)) continue;
+				NamedArgumentNotFound(TypeSystemServices.ObjectType, (ReferenceExpression)pair.First);
+			}
+		}
+
+		private MethodInvocationExpression CreateInstanceInvocationFor(MethodInvocationExpression node)
+		{
 			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(Activator_CreateInstance, node.Target);
 			if (Activator_CreateInstance.AcceptVarArgs)
 			{
@@ -4456,7 +4481,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				invocation.Arguments.Add(CodeBuilder.CreateObjectArray(node.Arguments));
 			}
-			node.ParentNode.Replace(node, invocation);
+			invocation.NamedArguments = node.NamedArguments;
+			return invocation;
 		}
 
 		protected virtual void ProcessInvocationOnUnknownCallableExpression(MethodInvocationExpression node)
@@ -4930,19 +4956,23 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		void ResolveNamedArguments(IType type, ExpressionPairCollection arguments)
-		{
+		{		
 			foreach (ExpressionPair arg in arguments)
 			{
-				Visit(arg.Second);
-				
-				if (NodeType.ReferenceExpression != arg.First.NodeType)
-				{
-					Error(arg.First, CompilerErrorFactory.NamedParameterMustBeIdentifier(arg));
-					continue;
-				}
-
+				if (!ProcessNamedArgument(arg)) continue;
 				ResolveNamedArgument(type, (ReferenceExpression)arg.First, arg.Second);
 			}
+		}
+
+		private bool ProcessNamedArgument(ExpressionPair arg)
+		{	
+			Visit(arg.Second);
+			if (NodeType.ReferenceExpression != arg.First.NodeType)
+			{
+				Error(arg.First, CompilerErrorFactory.NamedParameterMustBeIdentifier(arg));
+				return false;
+			}
+			return true;
 		}
 
 		void ResolveNamedArgument(IType type, ReferenceExpression name, Expression value)

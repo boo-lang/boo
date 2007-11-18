@@ -80,16 +80,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsMethodReference(Expression node)
 		{
-			return EntityType.Method == node.Entity.EntityType;
+			IEntity entity = GetEntity(node);
+			return EntityType.Method == entity.EntityType;
 		}
 		
 		bool IsNotTargetOfMethodInvocation(Expression node)
 		{
 			MethodInvocationExpression mie = node.ParentNode as MethodInvocationExpression;
-			if (null != mie)
-			{
-				return mie.Target != node;
-			}
+			if (null != mie) return mie.Target != node;
 			return true;
 		}
 		

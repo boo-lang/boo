@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected override void NamedArgumentNotFound(IType type, ReferenceExpression name)
 		{
-			if (!TypeSystemServices.KnowsQuackFu(type))
+			if (!TypeSystemServices.IsDuckType(type))
 			{
 				base.NamedArgumentNotFound(type, name);
 				return;
