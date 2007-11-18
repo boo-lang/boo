@@ -374,6 +374,18 @@ dummy()""")
 		assert array(_interpreter.GetValue("e")) == (0, 2, 4)
 		
 	[Test]
+	def OverflowsFailFast():
+		_interpreter.SetValue("value", int.MaxValue)
+		Eval("""
+try:
+	value += 1
+except x as System.OverflowException:
+	overflow = x
+""")
+		assert _interpreter.GetValue("overflow") is not null
+		
+		
+	[Test]
 	def LoopEval():
 		
 		value = ""

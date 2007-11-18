@@ -580,7 +580,9 @@ class AbstractInterpreter:
 					CreateInterpreterInvocation(
 						AbstractInterpreter_SetValue,
 						cast(ReferenceExpression, node.Left).Name,
-						node.Right))
+						CodeBuilder.CreateCast(
+							node.Left.ExpressionType,
+							node.Right)))
 						
 		def CastIfNeeded(srcNode as Expression, expression as Expression):
 			if NodeType.ExpressionStatement == srcNode.ParentNode.NodeType:
