@@ -44,7 +44,7 @@ class SingletonAttributeSerializationFixture:
 	def SingletonInvariant():
 		a1 = (SingletonObject.Instance, SingletonObject.Instance)
 		
-		TestSingletonInvariant(a1, a1)
+		AssertSingletonInvariant(a1, a1)
 
 	[Test]
 	def SerializableSingleton():
@@ -52,7 +52,7 @@ class SingletonAttributeSerializationFixture:
 		
 		a2 = SerializeAndDeserialize(a1)
 		
-		TestSingletonInvariant(a1, a2)
+		AssertSingletonInvariant(a1, a2)
 
 	[Test]
 	[ExpectedException(typeof(Boo.Lang.Runtime.AssertionFailedException))]
@@ -61,7 +61,7 @@ class SingletonAttributeSerializationFixture:
 		
 		a2 = SerializeAndDeserialize(a1)
 		
-		TestSingletonInvariant(a1, a2)
+		AssertSingletonInvariant(a1, a2)
 		
 		
 		
@@ -77,7 +77,7 @@ class SingletonAttributeSerializationFixture:
 		
 		return a2
 	
-	private def TestSingletonInvariant([required] a1 as (object), [required] a2 as (object)):
+	private def AssertSingletonInvariant([required] a1 as (object), [required] a2 as (object)):
 		assert object.ReferenceEquals(a1[0], a1[1])
 		assert object.ReferenceEquals(a2[0], a2[1])
 		assert object.ReferenceEquals(a1[0], a2[0])

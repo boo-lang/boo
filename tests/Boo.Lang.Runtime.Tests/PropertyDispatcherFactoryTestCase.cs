@@ -96,13 +96,13 @@ class StringExtensions:
 		[Test]
 		public void SetInstanceProperty()
 		{
-			TestSetName("Name");
+			AssertSetName("Name");
 		}
 
 		[Test]
 		public void SetInstanceField()
 		{
-			TestSetName("_name");
+			AssertSetName("_name");
 		}
 		
 		[Test]
@@ -117,7 +117,7 @@ class StringExtensions:
 			Assert.AreEqual(expected, Bar.Zeng);
 		}
 
-		private void TestSetName(string name)
+		private void AssertSetName(string name)
 		{
 			Bar o = new Bar("John Cleese");
 			string expected = "Eric Idle";
