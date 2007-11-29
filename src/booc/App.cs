@@ -245,6 +245,7 @@ namespace BooC
 					" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
 					" -target:TYPE         Set the target type (exe, library or winexe)\n" +
 					" -resource:FILE[,ID]  Embed FILE as a resource\n" +
+					" -pkg:P1[,Pn]         References packages P1..Pn (on supported platforms)\n" +
 					" -utf8                Source file is in utf8 format\n" +
 					" -v, -vv, -vvv        Set verbosity level from warnings to very detailed\n" +
 					" -wsa                 Enable white-space-agnostic builds\n"
