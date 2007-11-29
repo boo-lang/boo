@@ -557,7 +557,7 @@ namespace Boo.Lang.Runtime
 				string s = obj as string;
 				if (null != s) return s.Length;
 			}
-			return 0;
+			throw new ArgumentException();
 		}
 
 		public static string Mid(string s, int begin, int end)
