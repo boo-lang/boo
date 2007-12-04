@@ -603,7 +603,7 @@
 			</items>
 		</in>
 		<do>
-			<exec program="gacutil" userungineengine="false">
+			<exec program="gacutil" useruntimeengine="false">
 				<arg value="/u" />
 				<arg value="${path::get-file-name-without-extension(filename)}" />
 				<arg value="/package" />
