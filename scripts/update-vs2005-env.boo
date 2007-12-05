@@ -123,6 +123,7 @@ fnames = (
 "src/Boo.Lang/Boo.Lang-VS2005.csproj",
 "src/Boo.Lang.Parser/Boo.Lang.Parser-VS2005.csproj",
 "src/Boo.Lang.Compiler/Boo.Lang.Compiler-VS2005.csproj",
+#"src/Boo.Lang.Ast/Boo.Lang.Ast-VS2005.csproj",
 "tests/BooCompiler.Tests/BooCompiler.Tests-VS2005.csproj",
 
 "src/Boo.Lang.Compiler/Boo.Lang.Compiler.mdp",

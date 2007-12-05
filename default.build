@@ -66,10 +66,16 @@
 	</target>
 	
 	<target name="test" depends="all">
+		<!--exec basedir="${nant::get-base-directory()}" program="nant.exe" workingdir="tests">
+			<arg value="run" />
+		</exec-->
 		<nant buildfile="tests/default.build" target="run" />
 	</target>
 	
 	<target name="compile-tests" depends="all">
+		<!--exec basedir="${nant::get-base-directory()}" program="nant.exe" workingdir="tests">
+			<arg value="compile" />
+		</exec-->
 		<nant buildfile="tests/default.build" target="compile" />
 	</target>
 	
@@ -105,6 +111,7 @@
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</booc>
 		
@@ -141,6 +148,7 @@
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</booc>
 		
@@ -152,7 +160,7 @@
 		</copy>
 	</target>
 	
-	<target name="booi" depends="Boo.NAnt.Tasks, Boo.Lang.Useful, Boo.Lang.Parser">
+	<target name="booi" depends="core, Boo.Lang.Useful, Boo.Lang.Parser">
 
 		<booc
 			target="exe"
@@ -162,6 +170,7 @@
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Useful.dll" />
 			</references>
 			
@@ -194,14 +203,14 @@
 		
 	</target>
 	
-	<target name="dump-properties" depends="Boo.NAnt.Tasks">
+	<target name="dump-properties" depends="core">
 		<boo>
 		for p as System.Collections.DictionaryEntry in Project.Properties:
 			print("${p.Key}: ${p.Value}")		
 		</boo>
 	</target>
 	
-	<target name="Boo.Lang.Interpreter" depends="Boo.NAnt.Tasks">
+	<target name="Boo.Lang.Interpreter" depends="core">
 		<booc 
 			target="library"
 			output="${build.dir}/Boo.Lang.Interpreter.dll"
@@ -212,6 +221,9 @@
 				<include name="*.boo" />
 				<exclude name="InteractiveInterpreter2.boo" />
 			</sources>
+			<references basedir="${build.dir}">
+				<include name="Boo.Lang.Compiler.dll" />
+			</references>
 		</booc>
 	</target>
 	
@@ -250,7 +262,7 @@
 		<loadtasks assembly="${build.dir}/Boo.NAnt.Tasks.dll" />
 	</target>
 	
-	<target name="booc" depends="core">
+	<target name="booc" depends="corecs">
 		<csc target="exe" 
 				output="${build.dir}/booc.exe" 
 				debug="${debug}" 
@@ -293,8 +305,10 @@
 		</exec>
 	</target>
 	
-	<target name="core" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser">
+	<target name="corecs" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser">
 	</target>
+	
+	<target name="core" depends="corecs, Boo.Lang.Extensions, Boo.NAnt.Tasks" />
 	
 	<target name="update-bin" depends="all">
 		<mkdir dir="bin" />
@@ -318,7 +332,7 @@
 		</copy>
 	</target>
 	
-	<target name="Boo.Microsoft.Build.Tasks" depends="Boo.NAnt.Tasks">
+	<target name="Boo.Microsoft.Build.Tasks" depends="core">
 		<call target="msbuild" if="${'net-2.0' == framework::get-target-framework()}"/>
 		<!-- MSBuild doesn't appear to be supported in mono-2.0 -->
 	</target>
@@ -345,7 +359,7 @@
 		</copy>
 	</target>
 	
-	<target name="Boo.Lang.Useful" depends="Boo.NAnt.Tasks">
+	<target name="Boo.Lang.Useful" depends="core">
 		<uptodate property="useful-grammars-uptodate">
 			<sourcefiles basedir="src/Boo.Lang.Useful">
 				<include name="**/*.g" />
@@ -376,11 +390,12 @@
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</booc>
 	</target>
 	
-	<target name="Boo.Lang.CodeDom" depends="Boo.NAnt.Tasks">
+	<target name="Boo.Lang.CodeDom" depends="core">
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
@@ -388,16 +403,42 @@
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
-			<references>
+			<references basedir="${build.dir}">
 			<!--
 				<include name="System.Data.dll" />
 				<include name="System.Xml.dll" />
 			-->
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</booc>
 	</target>
 	
-	<target name="Boo.Lang.Compiler" depends="Boo.Lang, generate-ast">
+	<target name="Boo.Lang.Extensions" depends="corecs, Boo.NAnt.Tasks">
+		<uptodate property="skip.Boo.Lang.Extensions">
+			<sourcefiles basedir="src/Boo.Lang.Extensions">
+				<include name="**/*.boo" />
+			</sourcefiles>
+			<targetfiles basedir="${build.dir}">
+				<include name="Boo.Lang.Extensions.*" />
+			</targetfiles>
+		</uptodate>
+		<delete file="${build.dir}/Boo.Lang.Extensions.dll" failonerror="false" unless="${skip.Boo.Lang.Extensions}"/>
+		<booc target="library"
+			output="${build.dir}/Boo.Lang.Extensions.dll"
+			failonerror="true"
+			verbose="${verbose}"
+			debug="${debug}"
+			unless="${skip.Boo.Lang.Extensions}">
+			<sources basedir="src/Boo.Lang.Extensions">
+				<include name="**/*.boo" />
+			</sources>
+			<references basedir="${build.dir}">
+				<include name="Boo.Lang.Compiler.dll" />
+			</references>
+		</booc>
+	</target>
+	
+	<target name="Boo.Lang.Compiler" depends="Boo.Lang, Boo.Lang.Ast">
 		<csc target="library"
 			output="${build.dir}/Boo.Lang.Compiler.dll"
 			debug="${debug}"
@@ -410,10 +451,29 @@
 			
 			<references>
 				<include name="${build.dir}/Boo.Lang.dll" />
+				<!--include name="${build.dir}/Boo.Lang.Ast.dll" /-->
 			</references>
 		</csc>
 	</target>
 
+	<target name="Boo.Lang.Ast" depends="Boo.Lang, generate-ast">
+		<!--csc 
+			target="library"
+			output="${build.dir}/Boo.Lang.Ast.dll"
+			debug="${debug}"
+			optimize="${optimize}"
+			define="${csc.define}">
+			
+			<sources basedir="src/Boo.Lang.Ast">
+				<include name="**/*.cs" />
+			</sources>
+			
+			<references>
+				<include name="${build.dir}/Boo.Lang.dll" />
+			</references>
+		</csc-->
+	</target>
+	
 	<target name="Boo.Lang" depends="resources">
 		<csc
 			target="library"
@@ -650,7 +710,7 @@
 		</csc>
 	</target>
 	
-	<target name="insert-license" depends="Boo.NAnt.Tasks">
+	<target name="insert-license" depends="core">
 		<insertLicense license="notice.txt">
 			<fileset basedir="src">
 				<include name="**/*.cs" />
@@ -679,7 +739,7 @@
 		</boo>
 	</target>
 	
-	<target name="SVNUtil" depends="Boo.NAnt.Tasks">
+	<target name="SVNUtil" depends="core">
 		<booc target="library" output="${build.dir}/SVNUtil.dll">
 			<sources basedir="scripts">
 				<include name="SVNUtil.boo" />
@@ -1034,7 +1094,7 @@
 		</copy>
 	</target>
 	
-	<target name="update-assembly-attributes" depends="Boo.NAnt.Tasks, update-svn-revision-number">	
+	<target name="update-assembly-attributes" depends="core, update-svn-revision-number">	
 		<boo>
 		import System.IO
 		

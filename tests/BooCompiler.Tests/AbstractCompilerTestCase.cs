@@ -71,6 +71,7 @@ namespace BooCompiler.Tests
 			_parameters.Pipeline = SetUpCompilerPipeline();
 			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
+			_parameters.References.Add(typeof(BooCompiler).Assembly);
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
 			CustomizeCompilerParameters();
 			if (VerifyGeneratedAssemblies) CopyDependencies();
@@ -88,7 +89,7 @@ namespace BooCompiler.Tests
 		protected virtual void CopyDependencies()
 		{
 			CopyAssembly(typeof(Boo.Lang.List).Assembly);
-			CopyAssembly(typeof(Boo.Lang.Compiler.BooCompiler).Assembly);
+			CopyAssembly(typeof(Boo.Lang.Extensions.PrintMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
 #if !VISUAL_STUDIO

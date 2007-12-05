@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (-1 == _isMeta)
 				{
-					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, typeof(Boo.Lang.Compiler.MetaProgramming.MetaAttribute))
+					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, typeof(Boo.Lang.MetaAttribute))
 					          	? 1
 					          	: 0;
 				}

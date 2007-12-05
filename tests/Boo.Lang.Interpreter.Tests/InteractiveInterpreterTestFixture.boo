@@ -401,7 +401,7 @@ except x as System.OverflowException:
 		
 	class Customer:
 		
-		[Boo.Lang.Property(FirstName)]
+		[Property(FirstName)]
 		_fname as string
 		
 		public LastName as string

@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,36 +26,20 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang
-{
-	using System;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
+namespace Boo.Lang.Extensions
+
+import System
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Ast
+
+
+public class PrintMacro(AbstractPrintMacro):
+
+	private static final Console_Write = AstUtil.CreateReferenceExpression('System.Console.Write')
 	
-	/// <summary>
-	/// yieldAll range(1, 5)
-	///    expands to
-	/// for ___item in range(1, 5):
-	///    yield ___item
-	/// </summary>
-	public class YieldAllMacro : AbstractAstMacro
-	{
-		override public Statement Expand(MacroStatement macro)
-		{	
-			if (1 != macro.Arguments.Count || 0 != macro.Block.Statements.Count)
-			{
-				Errors.Add(
-					CompilerErrorFactory.CustomError(macro.LexicalInfo, "yieldAll <expression>"));
-				return null;
-			}
-			
-			ForStatement fs = new ForStatement(macro.LexicalInfo);
-			fs.Declarations.Add(new Declaration(macro.LexicalInfo, "___item"));
-			fs.Iterator = macro.Arguments[0];
-			fs.Block.Add(
-				new YieldStatement(macro.LexicalInfo, new ReferenceExpression("___item")));
-			return fs;
-		}
-	}
-}
+	private static final Console_WriteLine = AstUtil.CreateReferenceExpression('System.Console.WriteLine')
+
+	override def Expand(macro as MacroStatement):
+		return Expand(macro, Console_Write, Console_WriteLine)
+
 

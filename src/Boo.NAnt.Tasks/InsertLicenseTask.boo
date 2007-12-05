@@ -68,14 +68,20 @@ class InsertLicenseTask(Task):
 	def InsertLicense(fname as string, license as string):
 		print(fname)
 		contents = read(fname)
-		using writer=StreamWriter(fname, false, System.Text.Encoding.UTF8):
+		try:
+			writer=StreamWriter(fname, false, System.Text.Encoding.UTF8)
 			writer.WriteLine(license)
 			writer.WriteLine()
 			writer.Write(contents)
+		ensure:
+			writer.Dispose() unless writer is null
 			
 	def GetFirstLine(fname as string):
-		using f=File.OpenText(fname):
+		try:
+			f=File.OpenText(fname)
 			return f.ReadLine()
+		ensure:
+			f.Dispose() unless f is null
 			
 	def print(message):
 		self.Log(Level.Info, "${message}")

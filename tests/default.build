@@ -21,6 +21,7 @@
 		<boo src="generate_regression.boo">
 			<references basedir="build">
 				<include name="Boo.Lang.Useful.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</boo>
 
@@ -74,6 +75,7 @@
 				<include name="${nunit.framework.dll}" />
 				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 				<include name="BooModules.dll" />
 			</references>
 		</csc>
@@ -101,6 +103,7 @@
 
 			<references basedir="build">
 				<include name="${nunit.framework.dll}" />
+				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Useful.dll" />
 			</references>
 		</booc>
@@ -113,8 +116,9 @@
 				<include name="**/*.boo" />
 			</sources>
 
-			<references>
+			<references basedir="build">
 				<include name="${nunit.framework.dll}" />
+				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</booc>
 
@@ -141,6 +145,7 @@
 
 			<references basedir="build">
 				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
 				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>

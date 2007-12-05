@@ -130,13 +130,18 @@ namespace Boo.Lang.Compiler
 			//boo.lang.dll
 			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
 			_assemblyReferences.Add(_booAssembly);
-			//boo.lang.compiler.dll
-			_assemblyReferences.Add(GetType().Assembly);
-
+			
+			//boo.lang.extensions.dll
+			Assembly extensionsAssembly = null;
+			extensionsAssembly = LoadAssembly("Boo.Lang.Extensions", false);
+			if(extensionsAssembly != null)
+				_assemblyReferences.Add(extensionsAssembly);
+				
 			if (TraceSwitch.TraceInfo)
 			{
 				Trace.WriteLine("BOO LANG DLL: " + _booAssembly.Location);
-				Trace.WriteLine("BOO COMPILER DLL: " + GetType().Assembly.Location);
+				Trace.WriteLine("BOO COMPILER EXTENSIONS DLL: " + 
+				                (extensionsAssembly != null ? extensionsAssembly.Location : "NOT FOUND!"));
 			}
 		}
 

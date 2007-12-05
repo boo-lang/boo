@@ -150,10 +150,16 @@ abstract class AbstractBooTask(Task):
 		self.Log(Level.Error, "${message}")
 		
 def read(fname as string):
-	using reader=File.OpenText(fname):
+	try:
+		reader=File.OpenText(fname)
 		return reader.ReadToEnd()
+	ensure:
+		reader.Dispose() unless reader is null
 	
 def write(fname as string, contents as string):
-	using writer=StreamWriter(fname, false, System.Text.Encoding.UTF8):
+	try:
+		writer=StreamWriter(fname, false, System.Text.Encoding.UTF8)
 		writer.Write(contents)
+	ensure:
+		writer.Dispose() unless writer is null
 

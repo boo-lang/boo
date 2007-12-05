@@ -49,6 +49,7 @@ class TemplateCompiler:
 		compiler = BooCompiler()
 		compiler.Parameters.Input.Add(input)
 		compiler.Parameters.OutputType = CompilerOutputType.Library
+		compiler.Parameters.References.Add(typeof(Ast.Node).Assembly)
 		
 		pipeline = Pipelines.CompileToMemory()
 		pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()

@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,31 +26,22 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.Steps;
+namespace Boo.Lang.Extensions
 
-namespace Boo.Lang
-{
-	using System.Diagnostics;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
+import System;
+import Boo.Lang.Compiler.Ast
 
-	public class UncheckedMacro : AbstractAstMacro
-	{
-		public override Statement Expand(MacroStatement macro)
-		{
-			Debug.Assert(0 == macro.Arguments.Count);
-			AstAnnotations.MarkUnchecked(macro.Block);
-			return macro.Block;
-		}
-	}
+public class GetterAttribute(PropertyAttribute):
+"""
+Creates a field accessor.
 
-	public class CheckedMacro : AbstractAstMacro
-	{
-		public override Statement Expand(MacroStatement macro)
-		{
-			Debug.Assert(0 == macro.Arguments.Count);
-			AstAnnotations.MarkChecked(macro.Block);
-			return macro.Block;
-		}
-	}
-}
+@example
+class Customer:
+	[getter(FirstName)] _fname as string
+	[getter(LastName)] _lname as string
+"""
+	def constructor(propertyName as ReferenceExpression):
+		super(propertyName)
+
+	override protected def CreateSetter(f as Field):
+		return null

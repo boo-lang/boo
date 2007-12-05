@@ -12,7 +12,6 @@ def code(e as BlockExpression):
 
 module = [|
 	import Boo.Lang.Compiler.Ast
-	import Boo.Lang.Compiler.MetaProgramming
 	
 	[meta] def surround(e as BlockExpression):
 		return code:
@@ -22,7 +21,7 @@ module = [|
 			print("after")
 |]
 
-surroundAssembly = compile(module, System.Reflection.Assembly.GetExecutingAssembly())
+surroundAssembly = compile(module, System.Reflection.Assembly.GetExecutingAssembly(), typeof(Node).Assembly)
 
 typeDef = [|
 	class Test:

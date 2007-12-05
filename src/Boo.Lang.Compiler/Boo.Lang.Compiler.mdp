@@ -20,6 +20,7 @@
     <File name="AssemblyCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="AssemblyInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="BooCompiler.cs" buildaction="Compile" subtype="Code" />
+    <File name="Compilation.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerContext.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerError.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerErrorCollection.cs" buildaction="Compile" subtype="Code" />
@@ -273,24 +274,9 @@
     <File name="Ast/Visitors/PseudoCSharpPrinterVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/TextEmitter.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/TreePrinterVisitor.cs" buildaction="Compile" subtype="Code" />
-    <File name="Attributes/DefaultAttribute.cs" buildaction="Compile" subtype="Code" />
-    <File name="Attributes/GetterAttribute.cs" buildaction="Compile" subtype="Code" />
-    <File name="Attributes/PropertyAttribute.cs" buildaction="Compile" subtype="Code" />
-    <File name="Attributes/RequiredAttribute.cs" buildaction="Compile" subtype="Code" />
     <File name="IO/FileInput.cs" buildaction="Compile" subtype="Code" />
     <File name="IO/ReaderInput.cs" buildaction="Compile" subtype="Code" />
     <File name="IO/StringInput.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/AbstractPrintMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/AssertMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/CheckedMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/DebugMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/LockMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/PrintMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/RawArrayIndexingMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/UsingMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="Macros/YieldAllMacro.cs" buildaction="Compile" subtype="Code" />
-    <File name="MetaProgramming/Compilation.cs" buildaction="Compile" subtype="Code" />
-    <File name="MetaProgramming/MetaAttribute.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/CheckForErrors.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/Compile.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/CompileToBoo.cs" buildaction="Compile" subtype="Code" />

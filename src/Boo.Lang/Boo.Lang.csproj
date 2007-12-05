@@ -58,6 +58,7 @@
     <Compile Include="ICallable.cs" />
     <Compile Include="IQuackFu.cs" />
     <Compile Include="List.cs" />
+    <Compile Include="MetaAttribute.cs" />
     <Compile Include="ModuleAttribute.cs" />
     <Compile Include="ResourceManager.cs" />
     <Compile Include="Runtime\AssertionFailedException.cs" />

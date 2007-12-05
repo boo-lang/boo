@@ -38,6 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.GlobalNamespace = new NamespaceDelegator(
 										NameResolutionService.GlobalNamespace,
 										SafeGetNamespace("Boo.Lang"),
+                                        SafeGetNamespace("Boo.Lang.Extensions"),
 										TypeSystemServices.BuiltinsType);
 		}
 		

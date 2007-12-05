@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,27 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+
 namespace Boo.Lang
 {
-	using System;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	
-	/// <summary>
-	/// print foo, bar
-	/// print
-	/// print "Hello"
-	/// </summary>
-	public class PrintMacro : AbstractPrintMacro
+	public class MetaAttribute : System.Attribute
 	{
-		static Expression Console_Write = AstUtil.CreateReferenceExpression("System.Console.Write");
-		
-		static Expression Console_WriteLine = AstUtil.CreateReferenceExpression("System.Console.WriteLine");
-		
-		override public Statement Expand(MacroStatement macro)
-		{			
-			return Expand(macro, Console_Write, Console_WriteLine);
-		}
 	}
 }
-

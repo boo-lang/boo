@@ -1,0 +1,48 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{48E18542-C08D-4BAF-99D0-BA2882259F40}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Boo.Lang.Extensions</RootNamespace>
+    <AssemblyName>Boo.Lang.Extensions</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="Attributes\DefaultAttribute.boo" />
+    <Compile Include="Attributes\GetterAttribute.boo" />
+    <Compile Include="Attributes\LockAttribute.boo" />
+    <Compile Include="Attributes\PropertyAttribute.boo" />
+    <Compile Include="Attributes\RequiredAttribute.boo" />
+    <Compile Include="Macros\AbstractPrintMacro.boo" />
+    <Compile Include="Macros\AssertMacro.boo" />
+    <Compile Include="Macros\CheckedMacro.boo" />
+    <Compile Include="Macros\DebugMacro.boo" />
+    <Compile Include="Macros\LockMacro.boo" />
+    <Compile Include="Macros\PrintMacro.boo" />
+    <Compile Include="Macros\RawArrayIndexingMacro.boo" />
+    <Compile Include="Macros\UsingMacro.boo" />
+    <Compile Include="Macros\YieldAllMacro.boo" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Attributes" />
+    <Folder Include="Macros" />
+    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
+      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
+      <Name>Boo.Lang.Compiler</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>

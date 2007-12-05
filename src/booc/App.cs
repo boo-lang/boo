@@ -96,6 +96,9 @@ namespace BooC
 				_options = new CompilerParameters(false); //false means no stdlib loading yet
 				_options.GenerateInMemory = false;
 				
+				ArrayList tempLibPaths = _options.LibPaths.Clone() as ArrayList;
+				_options.LibPaths.Clear();
+				
 				BooCompiler compiler = new BooCompiler(_options);
 				
 				ParseOptions(args);
@@ -106,10 +109,8 @@ namespace BooC
 				}
 				
 				//move standard libpaths below any new ones:
-				_options.LibPaths.Add(_options.LibPaths[0]);
-				_options.LibPaths.Add(_options.LibPaths[1]);
-				_options.LibPaths.RemoveAt(0);
-				_options.LibPaths.RemoveAt(0);
+				foreach(object o in tempLibPaths)
+					_options.LibPaths.Add(o);
 				
 				if (_options.StdLib)
 				{
