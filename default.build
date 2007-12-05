@@ -66,17 +66,23 @@
 	</target>
 	
 	<target name="test" depends="all">
-		<!--exec basedir="${nant::get-base-directory()}" program="nant.exe" workingdir="tests">
+		<exec
+			basedir="${nant::get-base-directory()}"
+			program="NAnt.exe"
+			workingdir="tests"
+			useruntimeengine="true">
 			<arg value="run" />
-		</exec-->
-		<nant buildfile="tests/default.build" target="run" />
+		</exec>
 	</target>
 	
 	<target name="compile-tests" depends="all">
-		<!--exec basedir="${nant::get-base-directory()}" program="nant.exe" workingdir="tests">
+		<exec
+			basedir="${nant::get-base-directory()}"
+			program="NAnt.exe"
+			workingdir="tests"
+			useruntimeengine="true">
 			<arg value="compile" />
-		</exec-->
-		<nant buildfile="tests/default.build" target="compile" />
+		</exec>
 	</target>
 	
 	<target name="boo" depends="Boo.Lang.Useful, Boo.Lang.Interpreter">
@@ -299,7 +305,8 @@
 		
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='${build.dir}/Boo.Lang.dll' />
-			<arg file='${build.dir}/Boo.Lang.Compiler.dll' />			
+			<arg file='${build.dir}/Boo.Lang.Compiler.dll' />
+			<arg file='${build.dir}/Boo.Lang.Extensions.dll' />			
 			<arg file='${build.dir}/Boo.Lang.Parser.dll' />
 			<arg file='${build.dir}/booc.exe' />
 		</exec>
