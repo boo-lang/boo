@@ -60,6 +60,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return e.CloneNode();
 		}
+
+		public static Expression Lift(ParameterDeclaration p)
+		{
+			return new ReferenceExpression(p.LexicalInfo, p.Name);
+		}
 		
 		protected Boo.Lang.Compiler.TypeSystem.IType _expressionType;
 		
