@@ -40,6 +40,7 @@
     <File name="ICompilerResource.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerResourceWriter.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerStep.cs" buildaction="Compile" subtype="Code" />
+    <File name="MacroMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayTypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/AstUtil.cs" buildaction="Compile" subtype="Code" />
@@ -138,6 +139,7 @@
     <File name="Ast/SlicingExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SpliceExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SpliceMemberReferenceExpression.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/SpliceParameterDeclaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SpliceTypeMember.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SpliceTypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Statement.cs" buildaction="Compile" subtype="Code" />
@@ -247,6 +249,7 @@
     <File name="Ast/Impl/SlicingExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SpliceExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SpliceMemberReferenceExpressionImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/SpliceParameterDeclarationImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SpliceTypeMemberImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SpliceTypeReferenceImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/StatementCollectionImpl.cs" buildaction="Compile" subtype="Code" />
@@ -331,6 +334,7 @@
     <File name="Steps/InjectCastsAndConversions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/IntroduceGlobalNamespaces.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/IntroduceModuleClasses.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MergePartialClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeIterationStatements.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeStatementModifiers.cs" buildaction="Compile" subtype="Code" />

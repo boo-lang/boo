@@ -64,12 +64,22 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			return compile(new CompileUnit(module), references);
 		}
 
+		public static CompilerContext compile_(Module module, params System.Reflection.Assembly[] references)
+		{
+			return compile_(new CompileUnit(module), references);
+		}
+
 		public static Assembly compile(CompileUnit unit, params Assembly[] references)
 		{
-			BooCompiler compiler = CompilerFor(unit, references);
-			CompilerContext result = compiler.Run(unit);
+			CompilerContext result = compile_(unit, references);
 			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
 			return result.GeneratedAssembly;
+		}
+
+		public static CompilerContext compile_(CompileUnit unit, Assembly[] references)
+		{
+			BooCompiler compiler = CompilerFor(unit, references);
+			return compiler.Run(unit);
 		}
 
 		private static BooCompiler CompilerFor(CompileUnit unit, Assembly[] references)

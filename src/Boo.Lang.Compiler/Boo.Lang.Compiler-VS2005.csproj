@@ -83,6 +83,7 @@
     <Compile Include="ICompilerResource.cs" />
     <Compile Include="ICompilerResourceWriter.cs" />
     <Compile Include="ICompilerStep.cs" />
+    <Compile Include="MacroMacro.cs" />
     <Compile Include="Ast\ArrayLiteralExpression.cs" />
     <Compile Include="Ast\ArrayTypeReference.cs" />
     <Compile Include="Ast\AstUtil.cs" />
@@ -181,6 +182,7 @@
     <Compile Include="Ast\SlicingExpression.cs" />
     <Compile Include="Ast\SpliceExpression.cs" />
     <Compile Include="Ast\SpliceMemberReferenceExpression.cs" />
+    <Compile Include="Ast\SpliceParameterDeclaration.cs" />
     <Compile Include="Ast\SpliceTypeMember.cs" />
     <Compile Include="Ast\SpliceTypeReference.cs" />
     <Compile Include="Ast\Statement.cs" />
@@ -290,6 +292,7 @@
     <Compile Include="Ast\Impl\SlicingExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SpliceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SpliceMemberReferenceExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\SpliceParameterDeclarationImpl.cs" />
     <Compile Include="Ast\Impl\SpliceTypeMemberImpl.cs" />
     <Compile Include="Ast\Impl\SpliceTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\StatementCollectionImpl.cs" />
@@ -374,6 +377,7 @@
     <Compile Include="Steps\InjectCastsAndConversions.cs" />
     <Compile Include="Steps\IntroduceGlobalNamespaces.cs" />
     <Compile Include="Steps\IntroduceModuleClasses.cs" />
+    <Compile Include="Steps\MacroCompiler.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />

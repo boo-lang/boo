@@ -32,15 +32,12 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-public class YieldAllMacro(AbstractAstMacro):
+macro yieldAll:
+	
+	if (1 != len(yieldAll.Arguments)) or (0 != len(yieldAll.Block.Statements)):
+		macroError 'yieldAll <expression>'
 
-	override def Expand(macro as MacroStatement):
-		if (1 != macro.Arguments.Count) or (0 != macro.Block.Statements.Count):
-			Errors.Add(CompilerErrorFactory.CustomError(macro.LexicalInfo, 'yieldAll <expression>'))
-			return null
-		
-		fs = ForStatement(macro.LexicalInfo)
-		fs.Declarations.Add(Declaration(macro.LexicalInfo, '___item'))
-		fs.Iterator = macro.Arguments[0]
-		fs.Block.Add(YieldStatement(macro.LexicalInfo, ReferenceExpression('___item')))
-		return fs
+	return [|
+		for ___item in $(yieldAll.Arguments[0]):
+			yield ___item
+	|]

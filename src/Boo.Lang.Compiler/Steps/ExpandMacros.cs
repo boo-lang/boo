@@ -70,11 +70,27 @@ namespace Boo.Lang.Compiler.Steps
 			ExternalType type = macroType as ExternalType;
 			if (null == type)
 			{
-				Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, macroType.FullName));
+				InternalClass klass = (InternalClass) macroType;
+				ProcessInternalMacro(klass, node);
 				return;
 			}
 
-			Type actualType = type.ActualType;
+			ProcessMacro(type.ActualType, node);
+		}
+
+		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)
+		{
+			Type macroType = new MacroCompiler(Context).Compile(klass);
+			if (null == macroType)
+			{
+				Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
+				return;
+			}
+			ProcessMacro(macroType, node);
+		}
+
+		private void ProcessMacro(Type actualType, MacroStatement node)
+		{
 			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
 			{
 				Errors.Add(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
