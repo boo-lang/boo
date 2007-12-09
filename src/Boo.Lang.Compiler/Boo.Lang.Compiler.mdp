@@ -40,7 +40,7 @@
     <File name="ICompilerResource.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerResourceWriter.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerStep.cs" buildaction="Compile" subtype="Code" />
-    <File name="MacroMacro.cs" buildaction="Compile" subtype="Code" />
+    <File name="LexicalInfoPreservingMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayTypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/AstUtil.cs" buildaction="Compile" subtype="Code" />

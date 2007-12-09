@@ -32,14 +32,11 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-def macroError(message as string):
-	raise ArgumentException(message)
-
 macro assert:
 	
 	argc = len(assert.Arguments)
 	if (argc != 1) and (argc != 2):
-		macroError "assert <condition> [, <message>]"
+		raise "assert <condition> [, <message>]"
 		
 	// figure out the msg for the exception
 	condition = assert.Arguments[0]

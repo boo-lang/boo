@@ -83,7 +83,7 @@
     <Compile Include="ICompilerResource.cs" />
     <Compile Include="ICompilerResourceWriter.cs" />
     <Compile Include="ICompilerStep.cs" />
-    <Compile Include="MacroMacro.cs" />
+    <Compile Include="LexicalInfoPreservingMacro.cs" />
     <Compile Include="Ast\ArrayLiteralExpression.cs" />
     <Compile Include="Ast\ArrayTypeReference.cs" />
     <Compile Include="Ast\AstUtil.cs" />

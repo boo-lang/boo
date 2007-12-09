@@ -35,7 +35,7 @@ import Boo.Lang.Compiler.Ast
 macro yieldAll:
 	
 	if (1 != len(yieldAll.Arguments)) or (0 != len(yieldAll.Block.Statements)):
-		macroError 'yieldAll <expression>'
+		raise 'yieldAll <expression>'
 
 	return [|
 		for ___item in $(yieldAll.Arguments[0]):

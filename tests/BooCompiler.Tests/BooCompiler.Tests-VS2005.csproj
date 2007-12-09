@@ -100,7 +100,6 @@
     <Compile Include="SystemDrawingPoint.cs" />
     <Compile Include="TypesIntegrationTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
-    <Compile Include="Pipeline\AstAttributeProcessorTestCase.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
