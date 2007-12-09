@@ -158,10 +158,22 @@ namespace Boo.Lang.Compiler.Ast
 		public override void OnSpliceTypeMember(SpliceTypeMember node)
 		{
 			MethodInvocationExpression ctor = (MethodInvocationExpression)Serialize(node.TypeMember);
+			SpliceName(ctor, node.NameExpression);
+			Push(ctor);
+		}
+
+		private void SpliceName(MethodInvocationExpression ctor, Expression nameExpression)
+		{
 			ctor.NamedArguments.Add(
 				new ExpressionPair(
-					new ReferenceExpression(node.NameExpression.LexicalInfo, "Name"),
-					LiftMemberName(node.NameExpression)));
+					new ReferenceExpression(nameExpression.LexicalInfo, "Name"),
+					LiftMemberName(nameExpression)));
+		}
+
+		public override void OnSpliceParameterDeclaration(SpliceParameterDeclaration node)
+		{
+			MethodInvocationExpression ctor = (MethodInvocationExpression)Serialize(node.ParameterDeclaration);
+			SpliceName(ctor, node.NameExpression);
 			Push(ctor);
 		}
 		

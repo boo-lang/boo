@@ -907,19 +907,22 @@ parameter_declaration[ParameterDeclarationCollection c]
 		TypeReference tr = null;
 		ParameterModifiers pm = ParameterModifiers.None;
 		variableArguments = false;
+		Expression nameSplice = null;
 	}: 
 	attributes
 	(
 		(
 			MULTIPLY { variableArguments=true; }
-			id1:ID (AS tr=array_type_reference)?
-			{ id = id1; }
+			(id1:ID { id = id1; }
+			| begin1:SPLICE_BEGIN nameSplice=atom { id = begin1; })
+			(AS tr=array_type_reference)?
 		)
 		|
 		(
 			(pm=parameter_modifier)?
-			id2:ID (AS tr=type_reference)?
-			{ id = id2; }
+			(id2:ID { id = id2; }
+			| begin2:SPLICE_BEGIN nameSplice=atom { id = begin2; })
+			(AS tr=type_reference)?
 		)
 	)
 	{
@@ -928,7 +931,11 @@ parameter_declaration[ParameterDeclarationCollection c]
 		pd.Type = tr;
 		pd.Modifiers = pm;
 		AddAttributes(pd.Attributes);
-		c.Add(pd);
+		
+		c.Add(
+			nameSplice != null
+			? new SpliceParameterDeclaration(pd, nameSplice)
+			: pd);
 	} 
 	;
 

@@ -458,6 +458,10 @@ class SpliceMemberReferenceExpression(Expression):
 class SpliceTypeMember(TypeMember):
 	TypeMember as TypeMember
 	NameExpression as Expression
+	
+class SpliceParameterDeclaration(ParameterDeclaration):
+	ParameterDeclaration as ParameterDeclaration
+	NameExpression as Expression
 
 class ExpressionInterpolationExpression(Expression):
 	Expressions as ExpressionCollection
