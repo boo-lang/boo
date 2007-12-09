@@ -32,59 +32,26 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-public class UsingMacro(AbstractAstMacro):
-
-	private static final DisposableLocalName = '__disposable__'
-
+macro using:
 	
-	override def Expand(macro as MacroStatement):
-		// try:
-		//		assignment
-		// 		<the rest>
-		// ensure:
-		//		...			
-		stmt = TryStatement(macro.LexicalInfo)
-		stmt.EnsureBlock = Block(macro.LexicalInfo)
-		
-		for expression as Expression in macro.Arguments:
-			reference as Expression
-			
-			if expression isa ReferenceExpression:
-				reference = expression
-			elif IsAssignmentToReference(expression):
-				reference = cast(BinaryExpression, expression).Left.CloneNode()
-				stmt.ProtectedBlock.Add(expression)
-			else:
-				tempName as string = string.Format('__using{0}__', _context.AllocIndex())
-				reference = ReferenceExpression(expression.LexicalInfo, tempName)
-				stmt.ProtectedBlock.Add(BinaryExpression(expression.LexicalInfo, BinaryOperatorType.Assign, reference.CloneNode(), expression))
-			
-			AugmentEnsureBlock(stmt.EnsureBlock, reference)
-		
-		stmt.ProtectedBlock.Add(macro.Block)
-		return stmt
-
+	stmt = [|
+		try:
+			pass
+		ensure:
+			pass
+	|]
 	
-	private def AugmentEnsureBlock(block as Block, reference as Expression):
-		// if __disposable = <reference> as System.IDisposable:
-		stmt = IfStatement()
-		stmt.Condition = BinaryExpression(BinaryOperatorType.Assign, ReferenceExpression(DisposableLocalName), TryCastExpression(reference, SimpleTypeReference('System.IDisposable')))
+	for expression in using.Arguments:
+		temp = ReferenceExpression("__using${_context.AllocIndex()}__")
+		assignment = [| $temp = $expression as System.IDisposable |]
+		assignment.LexicalInfo = expression.LexicalInfo
+		stmt.ProtectedBlock.Add(assignment)			
+		dispose = [|
+			if $temp is not null:
+				$temp.Dispose()
+				$temp = null
+		|]
+		stmt.EnsureBlock.Add(dispose)
 		
-		stmt.TrueBlock = Block()
-		
-		// __disposable.Dispose()
-		stmt.TrueBlock.Add(MethodInvocationExpression(MemberReferenceExpression(ReferenceExpression(DisposableLocalName), 'Dispose')))
-		
-		// __disposable = null
-		stmt.TrueBlock.Add(BinaryExpression(BinaryOperatorType.Assign, ReferenceExpression(DisposableLocalName), NullLiteralExpression()))
-		
-		block.Add(stmt)
-
-	
-	private def IsAssignmentToReference(expression as Expression):
-		if NodeType.BinaryExpression != expression.NodeType:
-			return false
-		
-		binaryExpression = cast(BinaryExpression, expression)
-		return ((BinaryOperatorType.Assign == binaryExpression.Operator) and (binaryExpression.Left isa ReferenceExpression))
-
+	stmt.ProtectedBlock.Add(using.Block)
+	return stmt

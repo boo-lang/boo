@@ -28,22 +28,19 @@
 
 namespace Boo.Lang.Extensions
 
-import Boo.Lang.Compiler.Steps
-import System.Diagnostics
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.Steps
 
-public class NormalArrayIndexingMacro(AbstractAstMacro):
+def annotateArrayIndexing(macro as MacroStatement, value as bool):
+	assert 0 == len(macro.Arguments)
+	macro.Block[AstAnnotations.RawArrayIndexing] = value
+	return macro.Block
 
-	override def Expand(macro as MacroStatement):
-		Debug.Assert((0 == macro.Arguments.Count))
-		macro.Block[AstAnnotations.RawArrayIndexing] = false
-		return macro.Block
+macro normalArrayIndexing:
+	return annotateArrayIndexing(normalArrayIndexing, false)
 
-public class RawArrayIndexingMacro(AbstractAstMacro):
-
-	override def Expand(macro as MacroStatement):
-		Debug.Assert((0 == macro.Arguments.Count))
-		macro.Block[AstAnnotations.RawArrayIndexing] = true
-		return macro.Block
+macro rawArrayIndexing:
+	return annotateArrayIndexing(rawArrayIndexing, true)
+	
 

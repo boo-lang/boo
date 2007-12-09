@@ -30,23 +30,13 @@
 namespace Boo.Lang.Extensions
 
 import Boo.Lang.Compiler.Steps
-import System.Diagnostics
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
 
+macro unchecked:
+	assert 0 == len(unchecked.Arguments)
+	AstAnnotations.MarkUnchecked(unchecked.Block)
+	return unchecked.Block
 
-public class UncheckedMacro(AbstractAstMacro):
-
-	override def Expand(macro as MacroStatement):
-		Debug.Assert((0 == macro.Arguments.Count))
-		AstAnnotations.MarkUnchecked(macro.Block)
-		return macro.Block
-
-
-public class CheckedMacro(AbstractAstMacro):
-
-	override def Expand(macro as MacroStatement):
-		Debug.Assert((0 == macro.Arguments.Count))
-		AstAnnotations.MarkChecked(macro.Block)
-		return macro.Block
-
+macro checked:
+	assert 0 == len(checked.Arguments)
+	AstAnnotations.MarkChecked(checked.Block)
+	return checked.Block

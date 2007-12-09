@@ -32,7 +32,6 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-
 public abstract class AbstractPrintMacro(AbstractAstMacro):
 
 	abstract def Expand(macro as MacroStatement) as Statement:
