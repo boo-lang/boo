@@ -32,14 +32,28 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-
-public class PrintMacro(AbstractPrintMacro):
-
-	private static final Console_Write = AstUtil.CreateReferenceExpression('System.Console.Write')
+def expandPrintMacro(macro as MacroStatement,
+					write as Expression,
+					writeLine as Expression):
+						
+	if len(macro.Arguments) < 2:
+		mie = [| $writeLine() |]
+		mie.Arguments = macro.Arguments
+		return ExpressionStatement(mie)
 	
-	private static final Console_WriteLine = AstUtil.CreateReferenceExpression('System.Console.WriteLine')
-
-	override def Expand(macro as MacroStatement):
-		return Expand(macro, Console_Write, Console_WriteLine)
-
+	block = Block()
+	
+	last = macro.Arguments[-1]
+	for arg in macro.Arguments:
+		if arg is last: break
+		block.Add([| $write($arg) |].withLexicalInfoFrom(arg))
+		block.Add([| $write(' ') |])
+	block.Add([| $writeLine($last) |])
+	
+	return block
+	
+macro print:	
+	return expandPrintMacro(print,
+				[| System.Console.Write |],
+				[| System.Console.WriteLine |])
 

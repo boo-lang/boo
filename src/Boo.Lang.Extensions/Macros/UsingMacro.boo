@@ -34,24 +34,19 @@ import Boo.Lang.Compiler.Ast
 
 macro using:
 	
-	stmt = [|
-		try:
-			pass
-		ensure:
-			pass
-	|]
-	
-	for expression in using.Arguments:
+	expansion = using.Block
+	for expression as Expression in reversed(using.Arguments):
 		temp = ReferenceExpression("__using${_context.AllocIndex()}__")
-		assignment = [| $temp = $expression as System.IDisposable |]
-		assignment.LexicalInfo = expression.LexicalInfo
-		stmt.ProtectedBlock.Add(assignment)			
-		dispose = [|
-			if $temp is not null:
-				$temp.Dispose()
-				$temp = null
-		|]
-		stmt.EnsureBlock.Add(dispose)
+		assignment = [| $temp = $expression as System.IDisposable |].withLexicalInfoFrom(expression)
 		
-	stmt.ProtectedBlock.Add(using.Block)
-	return stmt
+		expansion = [|
+			$assignment
+			try:
+				$expansion
+			ensure:
+				if $temp is not null:
+					$temp.Dispose()
+					$temp = null
+		|]
+		
+	return expansion

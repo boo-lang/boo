@@ -7,9 +7,7 @@ class MacroMacro(AbstractAstMacro):
 
 	override def Expand(macro as MacroStatement):
 		if macro.Arguments.Count != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
-			Errors.Add(
-				CompilerErrorFactory.CustomError(macro.LexicalInfo, "macro <reference>"))
-			return null
+			raise "macro <reference>"
 		
 		EnclosingModule(macro).Members.Add(CreateMacroType(macro))
 		

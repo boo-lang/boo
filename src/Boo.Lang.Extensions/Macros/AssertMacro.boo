@@ -38,11 +38,11 @@ macro assert:
 	if (argc != 1) and (argc != 2):
 		raise "assert <condition> [, <message>]"
 		
-	// figure out the msg for the exception
-	condition = assert.Arguments[0]
-	message = (
-		StringLiteralExpression(condition.LexicalInfo, condition.ToCodeString())
-		if (argc == 1) else assert.Arguments[1])
+	if 2 == argc:
+		condition, message = assert.Arguments
+	else:
+		condition, = assert.Arguments
+		message = [| $(condition.ToCodeString()) |]
 		
 	return [|
 		unless $condition:

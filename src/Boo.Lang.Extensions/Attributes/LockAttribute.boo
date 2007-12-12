@@ -32,7 +32,7 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-public class LockAttribute(AbstractAstAttribute):
+class LockAttribute(AbstractAstAttribute):
 
 	private _monitor as Expression
 	
@@ -53,13 +53,5 @@ public class LockAttribute(AbstractAstAttribute):
 			_monitor = SelfLiteralExpression(LexicalInfo)
 		
 		method = cast(Method, node)
-		method.Body = CreateLockedBlock(method.Body)
-
+		method.Body = createLockedBlock(Context, _monitor, method.Body)
 	
-	private def CreateLockedBlock(body as Block):
-		try:
-			macro = LockMacro()
-			macro.Initialize(_context)
-			return macro.CreateLockedBlock(_monitor, body)
-		ensure:
-			macro.Dispose() if macro is not null

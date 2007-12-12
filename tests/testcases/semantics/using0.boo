@@ -3,8 +3,8 @@
 public final transient class Using0Module(object):
 
 	private static def Main(argv as (string)) as void:
+		__using1__ = ((f = System.IO.File.OpenText('using0.boo')) as System.IDisposable)
 		try:
-			__using1__ = ((f = System.IO.File.OpenText('using0.boo')) as System.IDisposable)
 			Boo.Lang.Builtins.print(f.ReadLine())
 		ensure:
 			if __using1__ is not null:

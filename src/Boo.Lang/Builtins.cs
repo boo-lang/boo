@@ -342,7 +342,6 @@ namespace Boo.Lang
 				}
 				for (int i = begin; i < end; i += step) yield return i;
 			}
-
 		}
 
 		public static IEnumerable reversed(object enumerable)

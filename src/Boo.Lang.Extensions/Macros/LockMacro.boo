@@ -32,53 +32,29 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
+def createLockedBlock(context as CompilerContext, monitor as Expression, block as Block):
+	temp = ReferenceExpression(monitor.LexicalInfo, "__monitor${context.AllocIndex()}__")
+	assignment = [| $temp = $monitor |].withLexicalInfoFrom(monitor)
+	return [|
+		block:
+			$assignment
+			System.Threading.Monitor.Enter($temp)
+			try:
+				$block
+			ensure:
+				System.Threading.Monitor.Exit($temp)
+	|].Block
 
-public class LockMacro(AbstractAstMacro):
+macro lock:
 
-	public static final MonitorLocalName = '__monitor{0}__'
-	
-	private static final Monitor_Enter as Expression = AstUtil.CreateReferenceExpression('System.Threading.Monitor.Enter')
+	if 0 == len(lock.Arguments):
+		raise CompilerErrorFactory.InvalidLockMacroArguments(lock)
+		
+	expansion = lock.Block
+	for arg in reversed(lock.Arguments):
+		expansion = createLockedBlock(Context, arg, expansion)
+	return expansion
 
-	private static final Monitor_Exit as Expression = AstUtil.CreateReferenceExpression('System.Threading.Monitor.Exit')
 	
-	override def Expand(macro as MacroStatement):
-		if 0 == macro.Arguments.Count:
-			raise Boo.Lang.Compiler.CompilerErrorFactory.InvalidLockMacroArguments(macro)
 		
-		resulting as Block = macro.Block
-		args as ExpressionCollection = macro.Arguments
-		for i in range(args.Count, 0, -1):
-			arg as Expression = args[(i - 1)]
-			
-			resulting = CreateLockedBlock(arg, resulting)
-		
-		return resulting
-	
-	private def CreateMonitorReference(lexicalInfo as LexicalInfo) as ReferenceExpression:
-		localIndex as int = _context.AllocIndex()
-		return ReferenceExpression(lexicalInfo, string.Format(MonitorLocalName, localIndex))
-	
-	internal def CreateLockedBlock(monitor as Expression, body as Block) as Block:
-		monitorReference as ReferenceExpression = CreateMonitorReference(monitor.LexicalInfo)
-		
-		block = Block(body.LexicalInfo)
-		
-		// __monitorN__ = <expression>
-		block.Add(BinaryExpression(BinaryOperatorType.Assign, monitorReference, monitor))
-		
-		// System.Threading.Monitor.Enter(__monitorN__)			
-		block.Add(AstUtil.CreateMethodInvocationExpression(Monitor_Enter, monitorReference))
-		
-		// try:			
-		// 		<the rest>
-		// ensure:
-		//		Monitor.Leave			
-		stmt = TryStatement()
-		stmt.ProtectedBlock = body
-		stmt.EnsureBlock = Block()
-		stmt.EnsureBlock.Add(AstUtil.CreateMethodInvocationExpression(Monitor_Exit, monitorReference))
-		
-		block.Add(stmt)
-		
-		return block
 

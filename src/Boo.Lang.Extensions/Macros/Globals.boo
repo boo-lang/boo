@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,29 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Extensions
-
-import System
-import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-public abstract class AbstractPrintMacro(AbstractAstMacro):
-
-	abstract def Expand(macro as MacroStatement) as Statement:
-		pass
-	
-	protected def Expand(macro as MacroStatement, writePrototype as Expression, writeLinePrototype as Expression):
-		li = macro.LexicalInfo
-		
-		argc = macro.Arguments.Count
-		if argc < 2:
-			mie = MethodInvocationExpression(li, writeLinePrototype.CloneNode())
-			mie.Arguments = macro.Arguments
-			return ExpressionStatement(mie)
-		
-		block = Block()
-		for i in range(0, (argc - 1)):
-			block.Add(AstUtil.CreateMethodInvocationExpression(li, writePrototype.CloneNode(), macro.Arguments[i]))
-			block.Add(AstUtil.CreateMethodInvocationExpression(li, writePrototype.CloneNode(), StringLiteralExpression(' ')))
-		block.Add(AstUtil.CreateMethodInvocationExpression(li, writeLinePrototype.CloneNode(), macro.Arguments[(-1)]))
-		return block
+[extension] def withLexicalInfoFrom(e as Expression, node as Node):
+	e.LexicalInfo = node.LexicalInfo
+	return e

@@ -32,20 +32,15 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-
-public class DebugMacro(AbstractPrintMacro):
-
-	private static final Debug_WriteLine as Expression = AstUtil.CreateReferenceExpression('System.Diagnostics.Debug.WriteLine')
+macro debug:
 	
-	private static final Debug_Write as Expression = AstUtil.CreateReferenceExpression('System.Diagnostics.Debug.Write')
+	if not Context.Parameters.Debug: return null
+
+	writeLine = [| System.Diagnostics.Debug.WriteLine |]
 	
-	override def Expand(macro as MacroStatement):
-		if not Context.Parameters.Debug:
-			return null
+	if 0 == len(debug.Arguments):
+		return ExpressionStatement([| $writeLine('<debug>') |])
 		
-		if 0 == macro.Arguments.Count:
-			return ExpressionStatement(AstUtil.CreateMethodInvocationExpression(Debug_WriteLine.CloneNode(), StringLiteralExpression('<debug>')))
-		
-		return Expand(macro, Debug_Write, Debug_WriteLine)
+	return expandPrintMacro(debug, [| System.Diagnostics.Debug.Write |], writeLine)
 
 

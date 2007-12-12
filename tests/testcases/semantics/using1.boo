@@ -5,10 +5,10 @@ import System.IO
 public final transient class Using1Module(object):
 
 	private static def Main(argv as (string)) as void:
+		__using2__ = ((f1 = File.OpenText('using0.boo')) as System.IDisposable)
 		try:
-			__using2__ = ((f1 = File.OpenText('using0.boo')) as System.IDisposable)
+			__using1__ = ((f2 = File.OpenText('using1.boo')) as System.IDisposable)
 			try:
-				__using1__ = ((f2 = File.OpenText('using1.boo')) as System.IDisposable)
 				Boo.Lang.Builtins.print(f2.ReadLine())
 			ensure:
 				if __using1__ is not null:
