@@ -1010,36 +1010,41 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			PreProcessMethod(node);
 
-			InternalMethod entity = (InternalMethod)GetEntity(node);
+			InternalMethod entity = (InternalMethod) GetEntity(node);
 			ProcessMethodBody(entity);
-			
-			bool parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
-			if (parentIsClass)
-			{
-				if (TypeSystemServices.IsUnknown(entity.ReturnType))
-				{
-					TryToResolveReturnType(entity);
-				}
-				else
-				{
-					if (entity.IsGenerator)
-					{
-						CheckGeneratorReturnType(node, entity.ReturnType);
-						CheckGeneratorYieldType(entity, entity.ReturnType);
-					}
-				}
-				CheckGeneratorCantReturnValues(entity);
-			}
+
+			PostProcessMethod(node);
 		}
-		
+
+		private void PostProcessMethod(Method node)
+		{	
+			bool parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
+			if (!parentIsClass) return;
+
+			InternalMethod entity = (InternalMethod)GetEntity(node);
+			if (TypeSystemServices.IsUnknown(entity.ReturnType))
+			{
+				TryToResolveReturnType(entity);
+			}
+			else
+			{
+				if (entity.IsGenerator)
+				{
+					CheckGeneratorReturnType(node, entity.ReturnType);
+					CheckGeneratorYieldType(entity, entity.ReturnType);
+				}
+			}
+			CheckGeneratorCantReturnValues(entity);
+		}
+
 		void CheckGeneratorCantReturnValues(InternalMethod entity)
 		{
-			if (entity.IsGenerator && null != entity.ReturnExpressions)
+			if (!entity.IsGenerator) return;
+			if (null == entity.ReturnExpressions) return;
+			
+			foreach (Expression e in entity.ReturnExpressions)
 			{
-				foreach (Expression e in entity.ReturnExpressions)
-				{
-					Error(CompilerErrorFactory.GeneratorCantReturnValue(e));
-				}
+				Error(CompilerErrorFactory.GeneratorCantReturnValue(e));
 			}
 		}
 		
@@ -1092,7 +1097,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
 			if (entity.IsGenerator) CreateGeneratorSkeleton(entity);
-			}
+		}
 		
 		void ProcessNodeInMethodContext(InternalMethod entity, INamespace ns, Node node)
 		{
@@ -1812,7 +1817,8 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = entity.Method;
 			IType itemType = GetGeneratorItemType(entity);
 			BooClassBuilder builder = CreateGeneratorSkeleton(method, method, itemType);
-			TypeSystemServices.AddCompilerGeneratedType(builder.ClassDefinition);
+			method.DeclaringType.Members.Add(builder.ClassDefinition);
+//			TypeSystemServices.AddCompilerGeneratedType(builder.ClassDefinition);
 		}
 
 		private IType GetGeneratorItemType(InternalMethod entity)

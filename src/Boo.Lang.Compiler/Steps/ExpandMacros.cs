@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.Steps
 		string BuildMacroTypeName(string name)
 		{
 			_buffer.Length = 0;
-			if (!Char.IsUpper(name[0]))
+			if (!char.IsUpper(name[0]))
 			{
 				_buffer.Append(char.ToUpper(name[0]));
 				_buffer.Append(name.Substring(1));

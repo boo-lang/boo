@@ -34,177 +34,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
-	
-	internal class ExternalMemberReferenceProcessor : DepthFirstTransformer
-	{
-		static readonly object AccessorsKey = new object();
-		
-		static readonly object SettersKey = new object();
-		
-		TypeDefinition _externalType;
-		
-		IType _currentType;
-		
-		CompilerContext _context;
-		
-		public ExternalMemberReferenceProcessor(CompilerContext context, TypeDefinition externalType)
-		{
-			_context = context;
-			_externalType = externalType;
-		}
-		
-		override public bool EnterClassDefinition(ClassDefinition node)
-		{
-			_currentType = (IType)node.Entity;
-			return true;
-		}
-		
-		bool IsCurrentType(IType type)
-		{
-			return type == _currentType || _currentType.IsSubclassOf(type);
-		}
-		
-		override public void LeaveBinaryExpression(BinaryExpression node)
-		{
-			if (node.Operator != BinaryOperatorType.Assign) return;
-			
-			MemberReferenceExpression mre = node.Left as MemberReferenceExpression;
-			if (null == mre) return;
-						
-			IAccessibleMember member = GetAccessibleMemberToReplace(mre);
-			if (null == member) return;
-			
-			ReplaceCurrentNode(
-				_context.CodeBuilder.CreateMethodInvocation(
-					node.LexicalInfo,
-					mre.Target,
-					GetFieldSetter((IField)member),
-					node.Right));
-		}
-		
-		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
-		{
-			if (AstUtil.IsLhsOfAssignment(node)) return;			
-			IAccessibleMember member = GetAccessibleMemberToReplace(node);
-			if (null == member) return;
-			
-			IMethod accessor = GetMemberAccessor(member);
-			if (member.EntityType == EntityType.Field)
-			{
-				ReplaceCurrentNode(
-					_context.CodeBuilder.CreateMethodInvocation(
-						node.LexicalInfo,
-						node.Target,
-						accessor));
-			}
-			else
-			{
-				node.Entity = accessor;
-			}
-		}
-		
-		IAccessibleMember GetAccessibleMemberToReplace(MemberReferenceExpression node)
-		{
-			IAccessibleMember member = node.Entity as IAccessibleMember;
-			if (member == null) return null;			
-			if (member.IsPublic || member.IsInternal) return null;
-			if (IsCurrentType(member.DeclaringType)) return null;
-			return member;		
-		}
-		
-		IDictionary GetDictionary(object key)
-		{		
-			IDictionary d = (IDictionary)_externalType[key];
-			if (null != d) return d;			
-			d = new Hashtable();
-			_externalType[key] = d;
-			return d;
-		}
-		
-		IMethod GetFieldSetter(IField member)
-		{
-			IDictionary setters = GetDictionary(SettersKey);
-			IMethod setter = (IMethod)setters[member];
-			if (null != setter) return setter;
-			
-			return NewAccessor(setters, member, CreateFieldSetter(member));
-		}
-		
-		IMethod GetMemberAccessor(IAccessibleMember member)
-		{
-			IDictionary accessors = GetDictionary(AccessorsKey);
-			IMethod accessor = (IMethod)accessors[member];
-			if (null != accessor) return accessor;
-			
-			return NewAccessor(accessors, member, CreateAccessorFor(member));
-		}
-		
-		IMethod NewAccessor(IDictionary cache, IAccessibleMember member, Method accessor)
-		{
-			_externalType.Members.Add(accessor);			
-			IMethod entity = (IMethod)accessor.Entity;
-			cache.Add(member, entity);
-			return entity;
-		}
-		
-		Method CreateAccessorFor(IAccessibleMember member)
-		{
-			switch (member.EntityType)
-			{
-				case EntityType.Field:
-					return CreateFieldAccessor((IField)member);
-				case EntityType.Method:
-					return CreateMethodAccessor((IMethod)member);
-			}
-			throw new System.ArgumentException("Unsupported member:" + member);
-		}
-		
-		Method CreateFieldSetter(IField member)
-		{
-			BooCodeBuilder builder = _context.CodeBuilder;
-			Method method = builder.CreateMethod("$" + member.Name, member.Type, TypeMemberModifiers.None);
-			ParameterDeclaration value = builder.CreateParameterDeclaration(1, "value", member.Type);
-			method.Parameters.Add(value);					
-			method.Body.Add(
-				new ReturnStatement(
-					builder.CreateFieldAssignmentExpression(
-						member,
-						builder.CreateReference(value))));
-			return method;
-		}
-		
-		Method CreateFieldAccessor(IField member)
-		{
-			BooCodeBuilder builder = _context.CodeBuilder;
-			Method method = builder.CreateMethod("$" + member.Name, member.Type, TypeMemberModifiers.None);
-			method.Body.Add(
-				new ReturnStatement(
-					builder.CreateReference(member)));
-			return method;
-		}
-		
-		Method CreateMethodAccessor(IMethod member)
-		{
-			BooCodeBuilder builder = _context.CodeBuilder;
-			Method method = builder.CreateMethodFromPrototype(LexicalInfo.Empty, member, TypeMemberModifiers.None);			
-			method.Name = "$" + member.Name;
-			MethodInvocationExpression mie = builder.CreateMethodInvocation(member);
-			foreach (ParameterDeclaration p in method.Parameters)
-			{
-				mie.Arguments.Add(builder.CreateReference(p));
-			}
-			if (member.ReturnType == _context.TypeSystemServices.VoidType)
-			{
-				method.Body.Add(mie);
-			}
-			else
-			{
-				method.Body.Add(new ReturnStatement(mie));
-			}
-			return method;
-		}
-	}
-	
+
 	internal class GeneratorMethodProcessor : AbstractTransformerCompilerStep
 	{
 		InternalMethod _generator;
@@ -267,14 +97,7 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInvocationExpression enumeratorConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
 			PropagateReferences(enumerableConstructorInvocation, enumeratorConstructorInvocation);			
 			CreateGetEnumerator(enumeratorConstructorInvocation);			
-			FixGeneratorMethodBody(enumerableConstructorInvocation);			
-			FixExternalMemberReferences();
-		}
-		
-		void FixExternalMemberReferences()
-		{
-			ExternalMemberReferenceProcessor processor = new ExternalMemberReferenceProcessor(_context, _generator.Method.DeclaringType);
-			_enumerator.ClassDefinition.Accept(processor);
+			FixGeneratorMethodBody(enumerableConstructorInvocation);
 		}
 		
 		void FixGeneratorMethodBody(MethodInvocationExpression enumerableConstructorInvocation)
@@ -375,7 +198,7 @@ namespace Boo.Lang.Compiler.Steps
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
 			
-			_enumerator = CodeBuilder.CreateClass(_enumerable.ClassDefinition.Name + "$e");
+			_enumerator = CodeBuilder.CreateClass(_generator.Name + "$");
 			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
@@ -383,8 +206,8 @@ namespace Boo.Lang.Compiler.Steps
 			CreateEnumeratorConstructor();
 			CreateMoveNext();
 			
-			//_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
-			TypeSystemServices.AddCompilerGeneratedType(_enumerator.ClassDefinition);
+			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
+			//TypeSystemServices.AddCompilerGeneratedType(_enumerator.ClassDefinition);
 		}
 		
 		void CreateMoveNext()
