@@ -198,7 +198,7 @@ namespace Boo.Lang.Compiler.Steps
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
 			
-			_enumerator = CodeBuilder.CreateClass(_generator.Name + "$");
+			_enumerator = CodeBuilder.CreateClass("$");
 			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
@@ -207,7 +207,6 @@ namespace Boo.Lang.Compiler.Steps
 			CreateMoveNext();
 			
 			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
-			//TypeSystemServices.AddCompilerGeneratedType(_enumerator.ClassDefinition);
 		}
 		
 		void CreateMoveNext()
