@@ -32,62 +32,50 @@ namespace Boo.Lang.Extensions
 import System
 import Boo.Lang.Compiler.Ast
 
-//[AstAttributeTarget(typeof(ParameterDeclaration))]
-public class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
+class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 
-	protected _condition as Expression
+	_condition as Expression
 	
-	public def constructor():
+	def constructor():
 		pass
 	
-	public def constructor(condition as Expression):
-		if condition is null:
-			raise ArgumentNullException('condition')
+	def constructor(condition as Expression):
+		if condition is null: raise ArgumentNullException('condition')
 		_condition = condition
 	
-	public override def Apply(node as Boo.Lang.Compiler.Ast.Node):
-		name as string
-		parent as Node
-		errorMessage as string = null
+	override def Apply(node as Boo.Lang.Compiler.Ast.Node):
 		
-		pd = (node as ParameterDeclaration)
-		if pd is not null:
-			name = pd.Name
-			parent = pd.ParentNode
-		else:
-			prop = (node as Property)
-			if (prop is not null) and (prop.Setter is not null):
-				name = 'value'
-				parent = prop.Setter
-			else:
-				InvalidNodeForAttribute('ParameterDeclaration or Property')
-				return 
+		parameter = node as ParameterDeclaration
+		if parameter is not null:			
+			method as Method = TargetMethod(parameter)
+			method.Body.Insert(0, BuildAssertion(parameter.Name))
+			return
 		
-		exceptionClass as string = null
-		modifier as StatementModifier = null
+		property = node as Property
+		CheckProperty property
+		property.Setter.Body.Insert(0, BuildAssertion('value'))
+		
+	private def TargetMethod(parameter as ParameterDeclaration):
+		method = parameter.ParentNode as Method
+		return method if method is not null
+		
+		property = parameter.ParentNode as Property
+		CheckProperty property
+		return property.Setter
+		
+	private def CheckProperty(property as Property):
+		if property is null or property.Setter is null:
+			InvalidNodeForAttribute('ParameterDeclaration or Property')
+		
+	private def BuildAssertion(parameterName as string):
+		value = ReferenceExpression(parameterName)
 		if _condition is null:
-			exceptionClass = 'ArgumentNullException'
-			modifier = StatementModifier(StatementModifierType.If, BinaryExpression(BinaryOperatorType.ReferenceEquality, ReferenceExpression(name), NullLiteralExpression()))
-		else:
-			exceptionClass = 'ArgumentException'
-			modifier = StatementModifier(StatementModifierType.Unless, _condition)
-			errorMessage = ('Expected: ' + _condition.ToString())
+			return [|
+				raise System.ArgumentNullException($parameterName) if $value is null
+			|]
 		
-		x = MethodInvocationExpression()
-		x.Target = MemberReferenceExpression(ReferenceExpression('System'), exceptionClass)
-		if errorMessage is not null:
-			x.Arguments.Add(StringLiteralExpression(errorMessage))
-		x.Arguments.Add(StringLiteralExpression(name))
-		
-		rs = RaiseStatement(x, modifier)
-		rs.LexicalInfo = LexicalInfo
-		
-		method = (parent as Method)
-		if method is not null:
-			method.Body.Statements.Insert(0, rs)
-		else:
-			property = cast(Property, parent)
-			if property.Getter is not null:
-				property.Getter.Body.Statements.Insert(0, rs)
-			if property.Setter is not null:
-				property.Setter.Body.Statements.Insert(0, rs.CloneNode())
+		message = "Expected: " + _condition.ToCodeString()
+		return [|
+			raise System.ArgumentException($message, $parameterName) unless $_condition
+		|]
+

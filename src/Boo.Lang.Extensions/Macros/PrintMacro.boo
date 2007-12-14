@@ -48,7 +48,7 @@ def expandPrintMacro(macro as MacroStatement,
 		if arg is last: break
 		block.Add([| $write($arg) |].withLexicalInfoFrom(arg))
 		block.Add([| $write(' ') |])
-	block.Add([| $writeLine($last) |])
+	block.Add([| $writeLine($last) |].withLexicalInfoFrom(last))
 	
 	return block
 	

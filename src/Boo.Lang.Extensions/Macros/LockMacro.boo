@@ -36,14 +36,13 @@ def createLockedBlock(context as CompilerContext, monitor as Expression, block a
 	temp = ReferenceExpression(monitor.LexicalInfo, "__monitor${context.AllocIndex()}__")
 	assignment = [| $temp = $monitor |].withLexicalInfoFrom(monitor)
 	return [|
-		block:
-			$assignment
-			System.Threading.Monitor.Enter($temp)
-			try:
-				$block
-			ensure:
-				System.Threading.Monitor.Exit($temp)
-	|].Block
+		$assignment
+		System.Threading.Monitor.Enter($temp)
+		try:
+			$block
+		ensure:
+			System.Threading.Monitor.Exit($temp)
+	|]
 
 macro lock:
 
