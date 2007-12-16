@@ -150,6 +150,12 @@ tokens
 	{
 		return LPAREN != token && LBRACK != token;
 	}
+	
+	private LexicalInfo ToLexicalInfo(IToken token)
+	{
+		return SourceLocationFactory.ToLexicalInfo(token);
+	}
+	
 }
 
 protected
@@ -208,7 +214,7 @@ import_directive_ returns [Import returnValue]
 }:
 	IMPORT id=identifier
 	{
-		returnValue = new Import(SourceLocationFactory.ToLexicalInfo(id));
+		returnValue = new Import(ToLexicalInfo(id));
 		returnValue.Namespace = id.getText();
 	}
 	(
@@ -219,14 +225,14 @@ import_directive_ returns [Import returnValue]
 					sqs:SINGLE_QUOTED_STRING { id=sqs; }
 			)
 		{
-			returnValue.AssemblyReference = new ReferenceExpression(SourceLocationFactory.ToLexicalInfo(id));
+			returnValue.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id));
 			returnValue.AssemblyReference.Name = id.getText();
 		}				
 	)?
 	(
 		AS alias:ID
 		{
-			returnValue.Alias = new ReferenceExpression(SourceLocationFactory.ToLexicalInfo(alias));
+			returnValue.Alias = new ReferenceExpression(ToLexicalInfo(alias));
 			returnValue.Alias.Name = alias.getText();
 		}
 	)?
@@ -240,7 +246,7 @@ namespace_directive[Module container]
 	}:
 	t:NAMESPACE id=identifier
 	{
-		p = new NamespaceDeclaration(SourceLocationFactory.ToLexicalInfo(t));
+		p = new NamespaceDeclaration(ToLexicalInfo(t));
 		p.Name = id.getText();
 		container.Namespace = p; 
 	}
@@ -277,7 +283,7 @@ callable_definition [TypeMemberCollection container]
 	}:
 	CALLABLE id:ID
 	{
-		cd = new CallableDefinition(SourceLocationFactory.ToLexicalInfo(id));
+		cd = new CallableDefinition(ToLexicalInfo(id));
 		cd.Name = id.getText();
 		cd.Modifiers = _modifiers;
 		AddAttributes(cd.Attributes);
@@ -299,7 +305,7 @@ enum_definition [TypeMemberCollection container]
 	{
 		EnumDefinition ed = null;
 	}:
-	ENUM id:ID { ed = new EnumDefinition(SourceLocationFactory.ToLexicalInfo(id)); }
+	ENUM id:ID { ed = new EnumDefinition(ToLexicalInfo(id)); }
 	begin_with_doc[ed]
 	{
 		ed.Name = id.getText();
@@ -323,7 +329,7 @@ enum_member [EnumDefinition container]
 	attributes
 	id:ID (ASSIGN (SUBTRACT { negative = true; })? initializer=integer_literal)?
 	{
-		em = new EnumMember(SourceLocationFactory.ToLexicalInfo(id));
+		em = new EnumMember(ToLexicalInfo(id));
 		em.Name = id.getText();
 		em.Initializer = initializer;
 		if (negative && null != initializer)
@@ -364,7 +370,7 @@ attribute
 	}:	
 	id=identifier
 	{
-		attr = new Boo.Lang.Compiler.Ast.Attribute(SourceLocationFactory.ToLexicalInfo(id), id.getText());
+		attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText());
 		_attributes.Add(attr);
 	} 
 	(
@@ -381,7 +387,7 @@ assembly_attribute[Module module]
 		Boo.Lang.Compiler.Ast.Attribute attr = null;
 	}:
 	ASSEMBLY_ATTRIBUTE_BEGIN
-	id=identifier { attr = new Boo.Lang.Compiler.Ast.Attribute(SourceLocationFactory.ToLexicalInfo(id), id.getText()); }
+	id=identifier { attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText()); }
 	(
 		LPAREN
 		argument_list[attr]
@@ -410,7 +416,7 @@ class_definition [TypeMemberCollection container]
 	)				
 	{		
 		IToken token = id ?? begin;
-		td.LexicalInfo = SourceLocationFactory.ToLexicalInfo(token);
+		td.LexicalInfo = ToLexicalInfo(token);
 		td.Name = token.getText();
 		td.Modifiers = _modifiers;
 		AddAttributes(td.Attributes);
@@ -464,7 +470,7 @@ interface_definition [TypeMemberCollection container]
 	INTERFACE (id:ID | (begin:SPLICE_BEGIN nameSplice=atom))
 	{
 		IToken token = id ?? begin;
-		itf = new InterfaceDefinition(SourceLocationFactory.ToLexicalInfo(token));
+		itf = new InterfaceDefinition(ToLexicalInfo(token));
 		itf.Name = token.getText();
 		itf.Modifiers = _modifiers;
 		AddAttributes(itf.Attributes);
@@ -519,7 +525,7 @@ interface_method [TypeMemberCollection container]
 	DEF (id:ID | (begin:SPLICE_BEGIN nameSplice=atom))
 	{
 		IToken token = id ?? begin;
-		m = new Method(SourceLocationFactory.ToLexicalInfo(token));
+		m = new Method(ToLexicalInfo(token));
 		m.Name = token.getText();
 		AddAttributes(m.Attributes);
 		if (nameSplice != null) {
@@ -545,7 +551,7 @@ interface_property [TypeMemberCollection container]
         }:
         (id1:ID {id=id1;} | s:SELF {id=s;})
         {
-                p = new Property(SourceLocationFactory.ToLexicalInfo(id));
+                p = new Property(ToLexicalInfo(id));
                 p.Name = id.getText();
                 AddAttributes(p.Attributes);
                 container.Add(p);
@@ -571,12 +577,12 @@ interface_property_accessor[Property p]
 	(
 		{ null == p.Getter }?
 		(
-			gt:GET { m = p.Getter = new Method(SourceLocationFactory.ToLexicalInfo(gt)); m.Name = "get"; }
+			gt:GET { m = p.Getter = new Method(ToLexicalInfo(gt)); m.Name = "get"; }
 		)
 		|
 		{ null == p.Setter }?
 		(
-			st:SET { m = p.Setter = new Method(SourceLocationFactory.ToLexicalInfo(st)); m.Name = "set"; }
+			st:SET { m = p.Setter = new Method(ToLexicalInfo(st)); m.Name = "set"; }
 		)				
 	)
 	(
@@ -603,7 +609,7 @@ event_declaration [TypeMemberCollection container]
 	t:EVENT
 	id:ID AS tr=type_reference eos
 	{
-		e = new Event(SourceLocationFactory.ToLexicalInfo(id), id.getText(), tr);
+		e = new Event(ToLexicalInfo(id), id.getText(), tr);
 		e.Modifiers = _modifiers;
 		AddAttributes(e.Attributes);
 		container.Add(e);
@@ -620,7 +626,7 @@ explicit_member_info returns [ExplicitMemberInfo emi]
 		(
 			(id:ID DOT)
 			{
-				emi = new ExplicitMemberInfo(SourceLocationFactory.ToLexicalInfo(id));
+				emi = new ExplicitMemberInfo(ToLexicalInfo(id));
 				_sbuilder.Append(id.getText());
 			}
 			(
@@ -666,7 +672,7 @@ method [TypeMemberCollection container]
 				if (emi != null) {
 					m = new Method(emi.LexicalInfo);
 				} else {
-					m = new Method(SourceLocationFactory.ToLexicalInfo(token));
+					m = new Method(ToLexicalInfo(token));
 				}
 				m.Name = token.getText();
 				m.ExplicitInfo  = emi;
@@ -678,8 +684,8 @@ method [TypeMemberCollection container]
 				}
 			}
 		)
-		| c:CONSTRUCTOR { typeMember = m = new Constructor(SourceLocationFactory.ToLexicalInfo(c)); }
-		| d:DESTRUCTOR { typeMember = m = new Destructor(SourceLocationFactory.ToLexicalInfo(d)); }
+		| c:CONSTRUCTOR { typeMember = m = new Constructor(ToLexicalInfo(c)); }
+		| d:DESTRUCTOR { typeMember = m = new Destructor(ToLexicalInfo(d)); }
 	)
 	{
 		m.Modifiers = _modifiers;
@@ -740,7 +746,7 @@ field_or_property [TypeMemberCollection container]
 				if (emi != null)
 					p = new Property(emi.LexicalInfo);
 				else
-					p = new Property(SourceLocationFactory.ToLexicalInfo(id));
+					p = new Property(ToLexicalInfo(id));
 				p.Name = id.getText();
 				p.ExplicitInfo = emi;
 				AddAttributes(p.Attributes);
@@ -764,7 +770,7 @@ field_or_property [TypeMemberCollection container]
 		(id2:ID | begin:SPLICE_BEGIN nameSplice=atom)
 		{
 			IToken token = id2 ?? begin;
-			field = new Field(SourceLocationFactory.ToLexicalInfo(token));
+			field = new Field(ToLexicalInfo(token));
 			field.Name = token.getText();
 			field.Modifiers = _modifiers;
 			AddAttributes(field.Attributes);
@@ -820,7 +826,7 @@ property_accessor[Property p]
 		(
 			gt:GET
 			{
-				p.Getter = m = new Method(SourceLocationFactory.ToLexicalInfo(gt));		
+				p.Getter = m = new Method(ToLexicalInfo(gt));		
 				m.Name = "get";
 			}
 		)
@@ -829,7 +835,7 @@ property_accessor[Property p]
 		(
 			st:SET
 			{
-				p.Setter = m = new Method(SourceLocationFactory.ToLexicalInfo(st));
+				p.Setter = m = new Method(ToLexicalInfo(st));
 				m.Name = "set";
 			}
 		)
@@ -926,7 +932,7 @@ parameter_declaration[ParameterDeclarationCollection c]
 		)
 	)
 	{
-		ParameterDeclaration pd = new ParameterDeclaration(SourceLocationFactory.ToLexicalInfo(id));
+		ParameterDeclaration pd = new ParameterDeclaration(ToLexicalInfo(id));
 		pd.Name = id.getText();
 		pd.Type = tr;
 		pd.Modifiers = pm;
@@ -976,7 +982,7 @@ protected
 generic_parameter_declaration[GenericParameterDeclarationCollection c]:
 	id:ID 
 	{
-		GenericParameterDeclaration gpd = new GenericParameterDeclaration(SourceLocationFactory.ToLexicalInfo(id));
+		GenericParameterDeclaration gpd = new GenericParameterDeclaration(ToLexicalInfo(id));
 		gpd.Name = id.getText();
 		c.Add(gpd);
 	}
@@ -991,7 +997,7 @@ callable_type_reference returns [CallableTypeReference ctr]
 	}:	
 	c:CALLABLE LPAREN
 	{
-		ctr = new CallableTypeReference(SourceLocationFactory.ToLexicalInfo(c));
+		ctr = new CallableTypeReference(ToLexicalInfo(c));
 		parameters = ctr.Parameters;
 	}
 	callable_parameter_declaration_list[parameters]
@@ -1011,7 +1017,7 @@ array_type_reference returns [ArrayTypeReference atr]
 	}:
 	lparen:LPAREN
 	{
-		atr = new ArrayTypeReference(SourceLocationFactory.ToLexicalInfo(lparen));
+		atr = new ArrayTypeReference(ToLexicalInfo(lparen));
 	}
 	(
 		tr=type_reference { atr.ElementType = tr; }
@@ -1039,7 +1045,7 @@ splice_type_reference returns [SpliceTypeReference tr]
 }:
 	begin:SPLICE_BEGIN e=atom
 	{
-		tr = new SpliceTypeReference(SourceLocationFactory.ToLexicalInfo(begin), e);
+		tr = new SpliceTypeReference(ToLexicalInfo(begin), e);
 	}
 ;
 
@@ -1066,7 +1072,7 @@ type_reference returns [TypeReference tr]
 					(
 						MULTIPLY
 						{
-							gtdr = new GenericTypeDefinitionReference(SourceLocationFactory.ToLexicalInfo(id));
+							gtdr = new GenericTypeDefinitionReference(ToLexicalInfo(id));
 							gtdr.Name = id.getText();
 							gtdr.GenericPlaceholders = 1;
 							tr = gtdr;										
@@ -1082,7 +1088,7 @@ type_reference returns [TypeReference tr]
 					|
 					(
 						{
-							GenericTypeReference gtr = new GenericTypeReference(SourceLocationFactory.ToLexicalInfo(id), id.getText());
+							GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
 							arguments = gtr.GenericArguments;
 							tr = gtr;
 						}
@@ -1095,7 +1101,7 @@ type_reference returns [TypeReference tr]
 			(
 				OF MULTIPLY
 				{
-					gtdr = new GenericTypeDefinitionReference(SourceLocationFactory.ToLexicalInfo(id));
+					gtdr = new GenericTypeDefinitionReference(ToLexicalInfo(id));
 					gtdr.Name = id.getText();
 					gtdr.GenericPlaceholders = 1;
 					tr = gtdr;
@@ -1105,14 +1111,14 @@ type_reference returns [TypeReference tr]
 			(
 				OF tr=type_reference
 				{
-					GenericTypeReference gtr = new GenericTypeReference(SourceLocationFactory.ToLexicalInfo(id), id.getText());
+					GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
 					gtr.GenericArguments.Add(tr);
 					tr = gtr;
 				}
 			)
 			|
 			{
-				SimpleTypeReference str = new SimpleTypeReference(SourceLocationFactory.ToLexicalInfo(id));
+				SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
 				str.Name = id.getText();
 				tr = str;
 			}
@@ -1139,7 +1145,7 @@ begin_block_with_doc[Node node, Block block]:
 	COLON (eos docstring[node])?
 	begin:INDENT
 	{
-		block.LexicalInfo = SourceLocationFactory.ToLexicalInfo(begin);
+		block.LexicalInfo = ToLexicalInfo(begin);
 	}
 	;
 
@@ -1171,7 +1177,7 @@ compound_stmt[Block b]
 		(
 			COLON begin:INDENT
 			{
-				b.LexicalInfo = SourceLocationFactory.ToLexicalInfo(begin);
+				b.LexicalInfo = ToLexicalInfo(begin);
 			}
 			block[statements]
 			end[b]
@@ -1187,7 +1193,7 @@ closure_macro_stmt returns [MacroStatement returnValue]
 	id:ID expression_list[macro.Arguments]
 	{
 		macro.Name = id.getText();
-		macro.LexicalInfo = SourceLocationFactory.ToLexicalInfo(id);		
+		macro.LexicalInfo = ToLexicalInfo(id);		
 		returnValue = macro;
 	}
 ;
@@ -1208,7 +1214,7 @@ macro_stmt returns [MacroStatement returnValue]
 	)
 	{
 		macro.Name = id.getText();
-		macro.LexicalInfo = SourceLocationFactory.ToLexicalInfo(id);
+		macro.LexicalInfo = ToLexicalInfo(id);
 		
 		returnValue = macro;
 	}
@@ -1221,8 +1227,8 @@ goto_stmt returns [GotoStatement stmt]
 	}:
 	token:GOTO label:ID
 	{
-		stmt = new GotoStatement(SourceLocationFactory.ToLexicalInfo(token),
-					new ReferenceExpression(SourceLocationFactory.ToLexicalInfo(label), label.getText()));
+		stmt = new GotoStatement(ToLexicalInfo(token),
+					new ReferenceExpression(ToLexicalInfo(label), label.getText()));
 	}
 	;
 	
@@ -1233,9 +1239,40 @@ label_stmt returns [LabelStatement stmt]
 	}:
 	token:COLON label:ID
 	{
-		stmt = new LabelStatement(SourceLocationFactory.ToLexicalInfo(token), label.getText());
+		stmt = new LabelStatement(ToLexicalInfo(token), label.getText());
 	}
 	;
+	
+protected
+nested_function returns [Statement stmt]
+{
+	stmt = null;
+	BlockExpression be = null;
+	Block body = null;
+	TypeReference rt = null;
+}:
+	def:DEF id:ID
+	{
+		be = new BlockExpression(ToLexicalInfo(id));
+		body = be.Body;
+	}
+	(
+		LPAREN parameter_declaration_list[be.Parameters] RPAREN
+		(AS rt=type_reference { be.ReturnType = rt; })?
+	)?
+		compound_stmt[body]		
+	{
+		string name = id.getText();
+		stmt = new DeclarationStatement(
+					ToLexicalInfo(def),
+					new Declaration(
+						ToLexicalInfo(id),
+						name),
+					be);
+		be["ClosureName"] = name;
+	}
+;
+	
 
 protected
 stmt [StatementCollection container]
@@ -1244,6 +1281,7 @@ stmt [StatementCollection container]
 		StatementModifier m = null;
 	}:		
 	(
+		s=nested_function |
 		s=for_stmt |
 		s=while_stmt |
 		s=if_stmt |
@@ -1326,7 +1364,7 @@ stmt_modifier returns [StatementModifier m]
 	)
 	e=boolean_expression
 	{
-		m = new StatementModifier(SourceLocationFactory.ToLexicalInfo(t));
+		m = new StatementModifier(ToLexicalInfo(t));
 		m.Type = type;
 		m.Condition = e;
 	}
@@ -1397,7 +1435,7 @@ closure_expression returns [Expression e]
 	}:
 	anchorBegin:LBRACE
 		{
-			e = cbe = new BlockExpression(SourceLocationFactory.ToLexicalInfo(anchorBegin));
+			e = cbe = new BlockExpression(ToLexicalInfo(anchorBegin));
 			cbe.Annotate("inline");
 			parameters = cbe.Parameters;
 			body = cbe.Body;
@@ -1442,7 +1480,7 @@ callable_expression returns [Expression e]
 			(defAnchor:DEF { anchor = defAnchor; })
 		)
 		{
-			e = cbe = new BlockExpression(SourceLocationFactory.ToLexicalInfo(anchor));
+			e = cbe = new BlockExpression(ToLexicalInfo(anchor));
 			body = cbe.Body;
 		}
 		(
@@ -1461,19 +1499,19 @@ try_stmt returns [TryStatement s]
 		Block sblock = null;
 		Block eblock = null;
 	}:
-	t:TRY { s = new TryStatement(SourceLocationFactory.ToLexicalInfo(t)); }
+	t:TRY { s = new TryStatement(ToLexicalInfo(t)); }
 		compound_stmt[s.ProtectedBlock]
 	(EXCEPT|FAILURE|ENSURE)=>
 	(
 		exception_handler[s]
 	)*
 	(
-		ftoken:FAILURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(ftoken)); }
+		ftoken:FAILURE { eblock = new Block(ToLexicalInfo(ftoken)); }
 			compound_stmt[eblock]
 		{ s.FailureBlock = eblock; }
 	)?
 	(
-		etoken:ENSURE { eblock = new Block(SourceLocationFactory.ToLexicalInfo(etoken)); }
+		etoken:ENSURE { eblock = new Block(ToLexicalInfo(etoken)); }
 			compound_stmt[eblock]
 		{ s.EnsureBlock = eblock; }
 	)?
@@ -1488,14 +1526,14 @@ exception_handler [TryStatement t]
 	}:
 	c:EXCEPT (x:ID)? (AS tr=type_reference)? ((IF|u:UNLESS) e=boolean_expression)?
 	{
-		eh = new ExceptionHandler(SourceLocationFactory.ToLexicalInfo(c));
+		eh = new ExceptionHandler(ToLexicalInfo(c));
 		
 		eh.Declaration = new Declaration();
 		eh.Declaration.Type = tr;
 		
 		if (x != null)
 		{
-			eh.Declaration.LexicalInfo = SourceLocationFactory.ToLexicalInfo(x);
+			eh.Declaration.LexicalInfo = ToLexicalInfo(x);
 			eh.Declaration.Name = x.getText();		
 		}
 		else
@@ -1519,7 +1557,7 @@ exception_handler [TryStatement t]
 		{
 			if(u != null)
 			{
-				UnaryExpression not = new UnaryExpression(SourceLocationFactory.ToLexicalInfo(u));
+				UnaryExpression not = new UnaryExpression(ToLexicalInfo(u));
 				not.Operator = UnaryOperatorType.LogicalNot;
 				not.Operand = e;
 				e = not;
@@ -1542,7 +1580,7 @@ raise_stmt returns [RaiseStatement s]
 	}:
 	t:RAISE (e=expression)?
 	{
-		s = new RaiseStatement(SourceLocationFactory.ToLexicalInfo(t));
+		s = new RaiseStatement(ToLexicalInfo(t));
 		s.Exception = e;
 	}
 	;
@@ -1568,7 +1606,7 @@ declaration_stmt returns [DeclarationStatement s]
 		({!_compact}? (m=stmt_modifier)? eos)
 	)
 	{
-		Declaration d = new Declaration(SourceLocationFactory.ToLexicalInfo(id));
+		Declaration d = new Declaration(ToLexicalInfo(id));
 		d.Name = id.getText();
 		d.Type = tr;
 		
@@ -1600,7 +1638,7 @@ return_expression_stmt returns [ReturnStatement s]
 	r:RETURN (e=array_or_expression)?
 	({!_compact}?modifier=stmt_modifier)?
 	{
-		s = new ReturnStatement(SourceLocationFactory.ToLexicalInfo(r));
+		s = new ReturnStatement(ToLexicalInfo(r));
 		s.Modifier = modifier;
 		s.Expression = e;
 	}
@@ -1631,7 +1669,7 @@ return_stmt returns [ReturnStatement s]
 			)
 		)
 	{
-		s = new ReturnStatement(SourceLocationFactory.ToLexicalInfo(r));
+		s = new ReturnStatement(ToLexicalInfo(r));
 		s.Modifier = modifier;
 		s.Expression = e;
 	}
@@ -1645,7 +1683,7 @@ yield_stmt returns [YieldStatement s]
 	}:
 	yt:YIELD (e=array_or_expression)?
 	{
-		s = new YieldStatement(SourceLocationFactory.ToLexicalInfo(yt));
+		s = new YieldStatement(ToLexicalInfo(yt));
 		s.Expression = e;
 	}
 	;
@@ -1654,14 +1692,14 @@ protected
 break_stmt returns [BreakStatement s]
 	{ s = null; }:
 	b:BREAK
-	{ s = new BreakStatement(SourceLocationFactory.ToLexicalInfo(b)); }
+	{ s = new BreakStatement(ToLexicalInfo(b)); }
 	;
 
 protected
 continue_stmt returns [Statement s]
 	{ s = null; }:
 	c:CONTINUE
-	{ s = new ContinueStatement(SourceLocationFactory.ToLexicalInfo(c)); }
+	{ s = new ContinueStatement(ToLexicalInfo(c)); }
 	;
 	
 protected
@@ -1672,7 +1710,7 @@ unless_stmt returns [UnlessStatement us]
 	}:
 	u:UNLESS condition=expression
 	{
-		us = new UnlessStatement(SourceLocationFactory.ToLexicalInfo(u));
+		us = new UnlessStatement(ToLexicalInfo(u));
 		us.Condition = condition;
 	}
 	compound_stmt[us.Block]
@@ -1688,7 +1726,7 @@ for_stmt returns [ForStatement fs]
 	}:
 	f:FOR
 	{
-		fs = new ForStatement(SourceLocationFactory.ToLexicalInfo(f));
+		fs = new ForStatement(ToLexicalInfo(f));
 		declarations = fs.Declarations;
 		body = fs.Block;
 	}
@@ -1705,7 +1743,7 @@ while_stmt returns [WhileStatement ws]
 	}:
 	w:WHILE e=expression
 	{
-		ws = new WhileStatement(SourceLocationFactory.ToLexicalInfo(w));
+		ws = new WhileStatement(ToLexicalInfo(w));
 		ws.Condition = e;
 	}
 	compound_stmt[ws.Block]
@@ -1721,7 +1759,7 @@ if_stmt returns [IfStatement returnValue]
 	}:
 	it:IF e=expression
 	{
-		returnValue = s = new IfStatement(SourceLocationFactory.ToLexicalInfo(it));
+		returnValue = s = new IfStatement(ToLexicalInfo(it));
 		s.Condition = e;
 		s.TrueBlock = new Block();
 	}
@@ -1731,7 +1769,7 @@ if_stmt returns [IfStatement returnValue]
 		{
 			s.FalseBlock = new Block();
 			
-			IfStatement elif = new IfStatement(SourceLocationFactory.ToLexicalInfo(ei));
+			IfStatement elif = new IfStatement(ToLexicalInfo(ei));
 			elif.TrueBlock = new Block();
 			elif.Condition = e;
 			
@@ -1741,7 +1779,7 @@ if_stmt returns [IfStatement returnValue]
 		compound_stmt[s.TrueBlock]
 	)*
 	(
-		et:ELSE { s.FalseBlock = new Block(SourceLocationFactory.ToLexicalInfo(et)); }
+		et:ELSE { s.FalseBlock = new Block(ToLexicalInfo(et)); }
 		compound_stmt[s.FalseBlock]
 	)?
 	;
@@ -1770,7 +1808,7 @@ unpack returns [UnpackStatement s]
 	t:ASSIGN e=array_or_expression
 	{
 		s.Expression = e;
-		s.LexicalInfo = SourceLocationFactory.ToLexicalInfo(t);
+		s.LexicalInfo = ToLexicalInfo(t);
 	}
 ;
 	
@@ -1793,7 +1831,7 @@ declaration returns [Declaration d]
 	}:
 	id:ID (AS tr=type_reference)?
 	{
-		d = new Declaration(SourceLocationFactory.ToLexicalInfo(id));
+		d = new Declaration(ToLexicalInfo(id));
 		d.Name = id.getText();
 		d.Type = tr;
 	}
@@ -1807,7 +1845,7 @@ array_or_expression returns [Expression e]
 	} :
 	(
 		// tupla vazia: , ou (,)
-		c:COMMA { e = new ArrayLiteralExpression(SourceLocationFactory.ToLexicalInfo(c)); }
+		c:COMMA { e = new ArrayLiteralExpression(ToLexicalInfo(c)); }
 	) |
 	(
 		e=expression
@@ -1844,7 +1882,7 @@ expression returns [Expression e]
 	( options { greedy = true; } :
 		f:FOR
 		{
-			ge = new GeneratorExpression(SourceLocationFactory.ToLexicalInfo(f));
+			ge = new GeneratorExpression(ToLexicalInfo(f));
 			ge.Expression = e;
 			e = ge;
 		}
@@ -1854,12 +1892,12 @@ expression returns [Expression e]
 			{
 				if (null == mge)
 				{
-					mge = new ExtendedGeneratorExpression(SourceLocationFactory.ToLexicalInfo(f));
+					mge = new ExtendedGeneratorExpression(ToLexicalInfo(f));
 					mge.Items.Add(ge);
 					e = mge;
 				}
 				
-				ge = new GeneratorExpression(SourceLocationFactory.ToLexicalInfo(f2));
+				ge = new GeneratorExpression(ToLexicalInfo(f2));
 				mge.Items.Add(ge);
 			}
 			generator_expression_body[ge]
@@ -1894,7 +1932,7 @@ boolean_expression returns [Expression e]
 			ot:OR
 			r=boolean_term
 			{
-				BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(ot));
+				BinaryExpression be = new BinaryExpression(ToLexicalInfo(ot));
 				be.Operator = BinaryOperatorType.Or;
 				be.Left = e;
 				be.Right = r;
@@ -1916,7 +1954,7 @@ boolean_term returns [Expression e]
 		at:AND
 		r=not_expression
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(at));
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(at));
 			be.Operator = BinaryOperatorType.And;
 			be.Left = e;
 			be.Right = r; 
@@ -1947,7 +1985,7 @@ ast_literal_expression returns [QuasiquoteExpression e]
 	e = null;
 }:
 	begin:QQ_BEGIN
-	{ e = new QuasiquoteExpression(SourceLocationFactory.ToLexicalInfo(begin)); }
+	{ e = new QuasiquoteExpression(ToLexicalInfo(begin)); }
 	(
 		(INDENT ast_literal_block[e] DEDENT (eos)?)
 		| ast_literal_closure[e]
@@ -2012,7 +2050,7 @@ ast_literal_closure[QuasiquoteExpression e]
 			c:COLON node=expression
 			{
 				e.Node = new ExpressionPair(
-								SourceLocationFactory.ToLexicalInfo(c),
+								ToLexicalInfo(c),
 								(Expression)e.Node,
 								(Expression)node);
 			}
@@ -2075,7 +2113,7 @@ assignment_or_method_invocation_with_block_stmt returns [Statement stmt]
 			)
 			{
 				stmt = new ExpressionStatement(
-						new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token),
+						new BinaryExpression(ToLexicalInfo(token),
 							binaryOperator,
 							lhs, rhs));
 				stmt.Modifier = modifier;
@@ -2101,7 +2139,7 @@ assignment_or_method_invocation returns [Statement stmt]
 	)
 	{
 		stmt = new ExpressionStatement(
-				new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token),
+				new BinaryExpression(ToLexicalInfo(token),
 					binaryOperator,
 					lhs, rhs));
 		stmt.Modifier = modifier;
@@ -2121,7 +2159,7 @@ not_expression returns [Expression e]
 	{
 		if (nt != null)
 		{
-			UnaryExpression ue = new UnaryExpression(SourceLocationFactory.ToLexicalInfo(nt));
+			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(nt));
 			ue.Operator = UnaryOperatorType.LogicalNot;
 			ue.Operand = e;
 			e = ue;
@@ -2175,7 +2213,7 @@ assignment_expression returns [Expression e]
 		)
 		r=assignment_expression
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token));
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
 			be.Operator = binaryOperator;
 			be.Left = e;
 			be.Right = r;
@@ -2219,7 +2257,7 @@ conditional_expression returns [Expression e]
 	  )
 	)
 	{
-		BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token));
+		BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
 		be.Operator = op;
 		be.Left = e;
 		be.Right = r;
@@ -2246,7 +2284,7 @@ sum returns [Expression e]
 		)
 		r=term
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(op));
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(op));
 			be.Operator = bOperator;
 			be.Left = e;
 			be.Right = r;
@@ -2273,7 +2311,7 @@ term returns [Expression e]
 		 )
 		r=factor
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token));
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
 			be.Operator = op;
 			be.Left = e;
 			be.Right = r;
@@ -2298,7 +2336,7 @@ factor returns [Expression e]
 		)
 		r=exponentiation
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token));
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
 			be.Operator = op;
 			be.Left = e;
 			be.Right = r;
@@ -2319,7 +2357,7 @@ exponentiation returns [Expression e]
 		t:AS
 		tr=type_reference
 		{
-			TryCastExpression ae = new TryCastExpression(SourceLocationFactory.ToLexicalInfo(t));
+			TryCastExpression ae = new TryCastExpression(ToLexicalInfo(t));
 			ae.Target = e;
 			ae.Type = tr;
 			e = ae; 
@@ -2330,7 +2368,7 @@ exponentiation returns [Expression e]
 	 	token:EXPONENTIATION
 		r=exponentiation
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token));
+			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
 			be.Operator = BinaryOperatorType.Exponentiation;
 			be.Left = e;
 			be.Right = r;
@@ -2368,7 +2406,7 @@ unary_expression returns [Expression e]
 	{
 		if (null != op)
 		{
-			UnaryExpression ue = new UnaryExpression(SourceLocationFactory.ToLexicalInfo(op));
+			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(op));
 			ue.Operator = uOperator;
 			ue.Operand = e;
 			e = ue; 
@@ -2399,7 +2437,7 @@ splice_expression returns [Expression e]
 }:
 	begin:SPLICE_BEGIN e=atom
 	{
-		e = new SpliceExpression(SourceLocationFactory.ToLexicalInfo(begin), e);
+		e = new SpliceExpression(ToLexicalInfo(begin), e);
 	}
 ;
 	
@@ -2410,7 +2448,7 @@ char_literal returns [Expression e]
 }:
 	CHAR LPAREN t:SINGLE_QUOTED_STRING RPAREN
 	{
-		e = new CharLiteralExpression(SourceLocationFactory.ToLexicalInfo(t), t.getText());
+		e = new CharLiteralExpression(ToLexicalInfo(t), t.getText());
 	}
 ;
 	
@@ -2423,7 +2461,7 @@ cast_expression returns [Expression e]
 	}:
 	t:CAST LPAREN tr=type_reference COMMA target=expression RPAREN
 	{
-		e = new CastExpression(SourceLocationFactory.ToLexicalInfo(t), target, tr);
+		e = new CastExpression(ToLexicalInfo(t), target, tr);
 	}
 	;
 	
@@ -2435,7 +2473,7 @@ typeof_expression returns [Expression e]
 	}:
 	t:TYPEOF LPAREN tr=type_reference RPAREN
 	{
-		e = new TypeofExpression(SourceLocationFactory.ToLexicalInfo(t), tr);
+		e = new TypeofExpression(ToLexicalInfo(t), tr);
 	}
 	;
 	
@@ -2451,7 +2489,7 @@ reference_expression returns [ReferenceExpression e]
 		ch:CHAR { t = ch; }
 	)
 	{
-		e = new ReferenceExpression(SourceLocationFactory.ToLexicalInfo(t));
+		e = new ReferenceExpression(ToLexicalInfo(t));
 		e.Name = t.getText();
 	}	
 ;
@@ -2472,7 +2510,7 @@ paren_expression returns [Expression e]
 			IF condition=boolean_expression
 			ELSE falseValue=array_or_expression
 			{
-				ConditionalExpression ce = new ConditionalExpression(SourceLocationFactory.ToLexicalInfo(lparen));
+				ConditionalExpression ce = new ConditionalExpression(ToLexicalInfo(lparen));
 				ce.Condition = condition;
 				ce.TrueValue = e;
 				ce.FalseValue = falseValue;
@@ -2495,7 +2533,7 @@ typed_array returns [Expression e]
 	t:LPAREN
 	OF tr=type_reference COLON
 	{
-		e = tle = new ArrayLiteralExpression(SourceLocationFactory.ToLexicalInfo(t));
+		e = tle = new ArrayLiteralExpression(ToLexicalInfo(t));
 		tle.Type = new ArrayTypeReference(tr.LexicalInfo, tr);
 	}
 	(
@@ -2606,7 +2644,7 @@ slicing_expression returns [Expression e]
 				(
 					OF
 					{
-						GenericReferenceExpression gre = new GenericReferenceExpression(SourceLocationFactory.ToLexicalInfo(lbrack));
+						GenericReferenceExpression gre = new GenericReferenceExpression(ToLexicalInfo(lbrack));
 						gre.Target = e;
 						e = gre;
 						genericArguments = gre.GenericArguments;
@@ -2615,7 +2653,7 @@ slicing_expression returns [Expression e]
 				)
 				|				
 				{
-					se = new SlicingExpression(SourceLocationFactory.ToLexicalInfo(lbrack));				
+					se = new SlicingExpression(ToLexicalInfo(lbrack));				
 					se.Target = e;
 					e = se;
 				}
@@ -2627,7 +2665,7 @@ slicing_expression returns [Expression e]
 		(
 			oft:OF genericArgument=type_reference
 			{
-				GenericReferenceExpression gre = new GenericReferenceExpression(SourceLocationFactory.ToLexicalInfo(oft));
+				GenericReferenceExpression gre = new GenericReferenceExpression(ToLexicalInfo(oft));
 				gre.Target = e;
 				e = gre;
 				gre.GenericArguments.Add(genericArgument);
@@ -2640,7 +2678,7 @@ slicing_expression returns [Expression e]
 				(
 					memberName=member
 					{
-						MemberReferenceExpression mre = new MemberReferenceExpression(SourceLocationFactory.ToLexicalInfo(memberName));
+						MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(memberName));
 						mre.Target = e;
 						mre.Name = memberName.getText();
 						e = mre;
@@ -2651,7 +2689,7 @@ slicing_expression returns [Expression e]
 					begin:SPLICE_BEGIN nameSplice=atom
 					{
 						e = new SpliceMemberReferenceExpression(
-									SourceLocationFactory.ToLexicalInfo(begin),
+									ToLexicalInfo(begin),
 									e,
 									nameSplice);
 					}
@@ -2662,7 +2700,7 @@ slicing_expression returns [Expression e]
 		(
 			lparen:LPAREN
 				{
-					mce = new MethodInvocationExpression(SourceLocationFactory.ToLexicalInfo(lparen));
+					mce = new MethodInvocationExpression(ToLexicalInfo(lparen));
 					mce.Target = e;
 					e = mce;
 				}
@@ -2690,7 +2728,7 @@ method_invocation_argument[MethodInvocationExpression mie]
 			{
 				mie.Arguments.Add(
 					new UnaryExpression(
-						SourceLocationFactory.ToLexicalInfo(t),
+						ToLexicalInfo(t),
 						UnaryOperatorType.Explode,
 						arg));
 			}
@@ -2723,29 +2761,29 @@ literal returns [Expression e]
 		
 protected
 self_literal returns [SelfLiteralExpression e] { e = null; }:
-	t:SELF { e = new SelfLiteralExpression(SourceLocationFactory.ToLexicalInfo(t)); }
+	t:SELF { e = new SelfLiteralExpression(ToLexicalInfo(t)); }
 	;
 	
 protected
 super_literal returns [SuperLiteralExpression e] { e = null; }:
-	t:SUPER { e = new SuperLiteralExpression(SourceLocationFactory.ToLexicalInfo(t)); }
+	t:SUPER { e = new SuperLiteralExpression(ToLexicalInfo(t)); }
 	;
 		
 protected
 null_literal returns [NullLiteralExpression e] { e = null; }:
-	t:NULL { e = new NullLiteralExpression(SourceLocationFactory.ToLexicalInfo(t)); }
+	t:NULL { e = new NullLiteralExpression(ToLexicalInfo(t)); }
 	;
 		
 protected
 bool_literal returns [BoolLiteralExpression e] { e = null; }:
 	t:TRUE
 	{
-		e = new BoolLiteralExpression(SourceLocationFactory.ToLexicalInfo(t));
+		e = new BoolLiteralExpression(ToLexicalInfo(t));
 		e.Value = true;
 	} |
 	f:FALSE
 	{
-		e = new BoolLiteralExpression(SourceLocationFactory.ToLexicalInfo(f));
+		e = new BoolLiteralExpression(ToLexicalInfo(f));
 		e.Value = false;
 	}
 	;
@@ -2783,15 +2821,15 @@ string_literal returns [Expression e]
 	e=expression_interpolation |	
 	dqs:DOUBLE_QUOTED_STRING
 	{
-		e = new StringLiteralExpression(SourceLocationFactory.ToLexicalInfo(dqs), dqs.getText());
+		e = new StringLiteralExpression(ToLexicalInfo(dqs), dqs.getText());
 	} |
 	sqs:SINGLE_QUOTED_STRING
 	{
-		e = new StringLiteralExpression(SourceLocationFactory.ToLexicalInfo(sqs), sqs.getText());
+		e = new StringLiteralExpression(ToLexicalInfo(sqs), sqs.getText());
 	} |
 	tqs:TRIPLE_QUOTED_STRING
 	{
-		e = new StringLiteralExpression(SourceLocationFactory.ToLexicalInfo(tqs), tqs.getText());
+		e = new StringLiteralExpression(ToLexicalInfo(tqs), tqs.getText());
 	}
 	;
 	
@@ -2808,7 +2846,7 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 		{
 			if (info == null)
 			{
-				info = SourceLocationFactory.ToLexicalInfo(startsep);
+				info = ToLexicalInfo(startsep);
 				e = new ExpressionInterpolationExpression(info);
 			}
 		}
@@ -2832,7 +2870,7 @@ list_literal returns [Expression e]
 			item=expression
 			(
 				{
-					e = lle = new ListLiteralExpression(SourceLocationFactory.ToLexicalInfo(lbrack));
+					e = lle = new ListLiteralExpression(ToLexicalInfo(lbrack));
 					lle.Items.Add(item);
 				}
 				(  options { greedy = true; } :
@@ -2842,7 +2880,7 @@ list_literal returns [Expression e]
 			(COMMA)?
 		)
 		|
-		{ e = new ListLiteralExpression(SourceLocationFactory.ToLexicalInfo(lbrack)); }
+		{ e = new ListLiteralExpression(ToLexicalInfo(lbrack)); }
 	)
 	RBRACK
 	;
@@ -2858,7 +2896,7 @@ hash_literal returns [HashLiteralExpression dle]
 		dle = null;
 		ExpressionPair pair = null;
 	}:
-	lbrace:LBRACE { dle = new HashLiteralExpression(SourceLocationFactory.ToLexicalInfo(lbrace)); }
+	lbrace:LBRACE { dle = new HashLiteralExpression(ToLexicalInfo(lbrace)); }
 	(
 		pair=expression_pair			
 		{ dle.Items.Add(pair); }
@@ -2880,13 +2918,13 @@ expression_pair returns [ExpressionPair ep]
 		Expression value = null;
 	}:
 	key=expression t:COLON value=expression
-	{ ep = new ExpressionPair(SourceLocationFactory.ToLexicalInfo(t), key, value); }
+	{ ep = new ExpressionPair(ToLexicalInfo(t), key, value); }
 	;
 		
 protected
 re_literal returns [RELiteralExpression re] { re = null; }:
 	value:RE_LITERAL
-	{ re = new RELiteralExpression(SourceLocationFactory.ToLexicalInfo(value), value.getText()); }
+	{ re = new RELiteralExpression(ToLexicalInfo(value), value.getText()); }
 	;
 	
 protected
@@ -2900,7 +2938,7 @@ double_literal returns [DoubleLiteralExpression rle]
 	{
 		val = value.getText();
 		if (neg != null) val = neg.getText() + val;
-		rle = new DoubleLiteralExpression(SourceLocationFactory.ToLexicalInfo(value), PrimitiveParser.ParseDouble(val));
+		rle = new DoubleLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseDouble(val));
 	}
 	|
 	single:FLOAT
@@ -2908,7 +2946,7 @@ double_literal returns [DoubleLiteralExpression rle]
 		val = single.getText();
 		val = val.Substring(0, val.Length-1);
 		if (neg != null) val = neg.getText() + val;
-		rle = new DoubleLiteralExpression(SourceLocationFactory.ToLexicalInfo(single), PrimitiveParser.ParseDouble(val, true), true);
+		rle = new DoubleLiteralExpression(ToLexicalInfo(single), PrimitiveParser.ParseDouble(val, true), true);
 	}
 	;
 	
@@ -2919,7 +2957,7 @@ timespan_literal returns [TimeSpanLiteralExpression tsle] { tsle = null; }:
 	{
 		string val = value.getText();
 		if (neg != null) val = neg.getText() + val;
-		tsle = new TimeSpanLiteralExpression(SourceLocationFactory.ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(val)); 
+		tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(val)); 
 	}
 	;
 
@@ -2958,8 +2996,8 @@ argument[INodeWithArguments node]
 		{
 			node.NamedArguments.Add(
 				new ExpressionPair(
-					SourceLocationFactory.ToLexicalInfo(colon),
-					new ReferenceExpression(SourceLocationFactory.ToLexicalInfo(id), id.getText()),
+					ToLexicalInfo(colon),
+					new ReferenceExpression(ToLexicalInfo(id), id.getText()),
 					value));
 		}
 	) |

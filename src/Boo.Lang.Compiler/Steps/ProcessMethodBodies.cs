@@ -622,7 +622,7 @@ namespace Boo.Lang.Compiler.Steps
 			MarkVisited(node);
 
 			Method closure = CodeBuilder.CreateMethod(
-				NewClosureName(),
+				ClosureNameFor(node),
 				Unknown.Default,
 				ClosureModifiers());
 
@@ -665,9 +665,10 @@ namespace Boo.Lang.Compiler.Steps
 			return modifiers;
 		}
 
-		private string NewClosureName()
+		private string ClosureNameFor(BlockExpression block)
 		{
-			return _currentMethod.Name + "$closure$" + _context.AllocIndex();
+			string closureHint = (block["ClosureName"] as string) ?? "closure";
+			return _currentMethod.Name + "$" + closureHint + "$" + _context.AllocIndex();
 		}
 
 		private void AddOptionalReturnStatement(Block body)
@@ -1856,7 +1857,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
-				string.Format("{0}$generator${1}", method.Name, _context.AllocIndex()),
+				string.Format("{0}${1}", method.Name, _context.AllocIndex()),
 				TypeMemberModifiers.Internal|TypeMemberModifiers.Final);
 			builder.LexicalInfo = sourceNode.LexicalInfo;
 			
@@ -1920,20 +1921,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveDeclarationStatement(DeclarationStatement node)
 		{
-			IType type = TypeSystemServices.ObjectType;
-			if (null != node.Declaration.Type)
-			{
-				type = GetType(node.Declaration.Type);
-			}
-			else if (null != node.Initializer)
-			{
-				// The boo syntax does not require this check because
-				// there's no way to create an untyped declaration statement.
-				// This is here to support languages that do allow untyped variable
-				// declarations (unityscript is such an example).
-				type = GetExpressionType(node.Initializer);
-			}
-			
+			IType type = GetDeclarationType(node);
+
 			AssertDeclarationName(node.Declaration);
 			
 			IEntity localInfo = DeclareLocal(node, node.Declaration.Name, type);
@@ -1955,7 +1944,25 @@ namespace Boo.Lang.Compiler.Steps
 						CreateDefaultLocalInitializer(node, localInfo)));
 			}
 		}
-		
+
+		private IType GetDeclarationType(DeclarationStatement node)
+		{
+			if (null != node.Declaration.Type) return GetType(node.Declaration.Type);
+
+			return InferDeclarationType(node);
+		}
+
+		private IType InferDeclarationType(DeclarationStatement node)
+		{
+			if (null == node.Initializer) return TypeSystemServices.ObjectType;
+
+			// The boo syntax does not require this check because
+			// there's no way to create an untyped declaration statement.
+			// This is here to support languages that do allow untyped variable
+			// declarations (unityscript is such an example).
+			return GetConcreteExpressionType(node.Initializer);
+		}
+
 		virtual protected Expression CreateDefaultLocalInitializer(Node sourceNode, IEntity local)
 		{
 			return CodeBuilder.CreateDefaultInitializer(
@@ -2766,7 +2773,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				bool declareNewVariable = d.Type != null;
 				
-				ProcessDeclarationType(defaultDeclarationType, d);
+				GetDeclarationType(defaultDeclarationType, d);
 				if (declareNewVariable)
 				{
 					AssertUniqueLocal(d);
@@ -5585,7 +5592,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		void ProcessDeclarationType(IType defaultDeclarationType, Declaration d)
+		void GetDeclarationType(IType defaultDeclarationType, Declaration d)
 		{
 			if (null != d.Type)
 			{
@@ -5628,7 +5635,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected void ProcessDeclarationForIterator(Declaration d, IType defaultDeclType)
 		{
-			ProcessDeclarationType(defaultDeclType, d);
+			GetDeclarationType(defaultDeclType, d);
 			DeclareLocal(d, true);
 		}
 
