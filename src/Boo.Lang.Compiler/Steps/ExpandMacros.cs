@@ -91,7 +91,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessMacro(Type actualType, MacroStatement node)
 		{
-			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
+            // HACK: workaround for mono
+			if (-1 == Array.IndexOf(actualType.GetInterfaces(), typeof(IAstMacro)))
+//			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
 			{
 				Errors.Add(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
 				return;

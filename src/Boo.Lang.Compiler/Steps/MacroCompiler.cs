@@ -33,18 +33,27 @@ namespace Boo.Lang.Compiler.Steps
 
 		private Type RunCompiler(TypeDefinition node)
 		{
+			TraceInfo("Compiling macro '{0}'", node.FullName);
 			CompilerContext result = Compilation.compile_(ModuleFor(node));
 			if (0 == result.Errors.Count)
+			{
+				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node.FullName, result.GeneratedAssembly);
 				return result.GeneratedAssembly.GetType(node.FullName);
+			}
 			ReportErrors(result.Errors);
 			return null;
+		}
+
+		private void TraceInfo(string format, params object[] args)
+		{
+			Context.TraceInfo(format, args);
 		}
 
 		private Module ModuleFor(TypeDefinition node)
 		{
 			Module m = new Module();
 			m.Namespace = ClearClone(node.EnclosingModule.Namespace);
-			m.Name = node.FullName;
+			m.Name = node.Name;
 			foreach (Import i in node.EnclosingModule.Imports)
 			{
 				m.Imports.Add(ClearClone(i));
