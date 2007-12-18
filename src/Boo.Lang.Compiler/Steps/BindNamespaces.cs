@@ -58,8 +58,11 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity entity = null;
 			try
 			{
-				NameResolutionService.EnterNamespace(NameResolutionService.CurrentNamespace.ParentNamespace);
-				entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+				if(NameResolutionService.CurrentNamespace.ParentNamespace != null)
+				{
+					NameResolutionService.EnterNamespace(NameResolutionService.CurrentNamespace.ParentNamespace);
+					entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
+				}
 			}
 			finally
 			{
