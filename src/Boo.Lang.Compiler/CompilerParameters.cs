@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -85,6 +86,9 @@ namespace Boo.Lang.Compiler
 		private bool _whiteSpaceAgnostic;
 
 		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
+		
+		private Dictionary<string, string> _defines = new Dictionary<string, string>();
+		
 
 		public CompilerParameters()
 			: this(true)
@@ -490,5 +494,14 @@ namespace Boo.Lang.Compiler
 				_whiteSpaceAgnostic = value;
 			}
 		}
+		
+		public Dictionary<string, string> Defines
+		{
+			get
+			{
+				return _defines;
+			}
+		}
+		
 	}
 }

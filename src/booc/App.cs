@@ -230,6 +230,7 @@ namespace BooC
 					"Options:\n" +
 					" -c:CULTURE           Sets the UI culture to be CULTURE\n" +
 					" -debug[+|-]          Generate debugging information (default: +)\n" +
+					" -define:S1[,Sn]      Defines symbols S1..Sn with optional values (=val) (-d:)\n" +
 					" -delaysign           Delay assembly signing\n" +
 					" -ducky               Turns on duck typing by default\n" +
 					" -checked[+|-]        Turns on or off checked operations (default: +)\n" +
@@ -565,7 +566,30 @@ namespace BooC
 							
 							default:
 							{
-								InvalidOption(arg);
+								if (arg.StartsWith("-d:") || arg.StartsWith("-define:"))
+								{
+									int skip = arg.StartsWith("-d:") ? 3 : 7;
+									string[] symbols = arg.Substring(skip).Split(",".ToCharArray());
+									foreach (string symbol in symbols)
+									{
+										string[] s_v = symbol.Split("=".ToCharArray(), 2);
+										if (s_v[0].Length < 1) continue;
+										if (_options.Defines.ContainsKey(s_v[0]))
+										{
+											_options.Defines[s_v[0]] = (s_v.Length > 1) ? s_v[1] : null;
+											Trace.WriteLine("REPLACED DEFINE '"+s_v[0]+"' WITH VALUE '"+((s_v.Length > 1) ? s_v[1] : string.Empty) +"'");
+										}
+										else
+										{
+											_options.Defines.Add(s_v[0], (s_v.Length > 1) ? s_v[1] : null);
+											Trace.WriteLine("ADDED DEFINE '"+s_v[0]+"' WITH VALUE '"+((s_v.Length > 1) ? s_v[1] : string.Empty) +"'");
+										}
+									}
+								}
+								else
+								{							
+									InvalidOption(arg);
+								}
 								break;
 							}
 						}
