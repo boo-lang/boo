@@ -40,8 +40,8 @@ class MainForm(Form):
 	_statusPanel1 as StatusBarPanel
 	_timer as Timer
 	
-	[property(IsClosing)]
-	_isClosing = false
+	[property(IsQuitting)]
+	_isQuitting = false
 	
 	[getter(Settings)]
 	_settings as BooxSettings = LoadSettings()
@@ -384,7 +384,7 @@ class MainForm(Form):
 
 	override protected def OnClosing(args as CancelEventArgs):
 		super(args)
-		if not _isClosing and not args.Cancel:			
+		if not _isQuitting and not args.Cancel:			
 			dirtyDocuments = [
 							editor.GetSafeFileName()
 							for document in _dockPanel.Documents
@@ -399,7 +399,7 @@ class MainForm(Form):
 											"\n\nAre you sure you want to leave and lose all your changes?",
 											"Boo Explorer",
 											MessageBoxButtons.YesNo))
-		_isClosing = not args.Cancel
+		_isQuitting = not args.Cancel
 
 	def FindEditor(fname as string):
 		for document in _dockPanel.Documents:
