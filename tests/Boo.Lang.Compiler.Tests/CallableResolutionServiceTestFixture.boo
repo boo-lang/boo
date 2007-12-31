@@ -57,38 +57,39 @@ class CallableResolutionServiceTestFixture:
 		
 	[Test]
 	def TestResolveAmbiguousCallable():
-		entity = _crs.ResolveCallableReference(
+		entity = ResolveCallableReference(
 			NewExpressionCollection(NewObjectInvocationExpression()),
-			(GetMethod("foo", E), GetMethod("foo", string)))
+			GetMethod("foo", E), GetMethod("foo", string))
 		Assert.AreEqual(2, _crs.ValidCandidates.Count, _crs.ValidCandidates.ToString())
 		assert entity is null, entity.ToString()
 		
 	[Test]
 	def CloserMemberWins():
-		entity = _crs.ResolveCallableReference(
+		entity = ResolveCallableReference(
 			ExpressionCollection(),
-			(intMethod = GetMethod(int, "ToString"),
+			intMethod = GetMethod(int, "ToString"),
 			GetMethod(System.ValueType, "ToString"),
-			GetMethod(object, "ToString")))
+			GetMethod(object, "ToString"))
 		Assert.AreSame(intMethod, entity)
 		
 	[Test]
 	def UpcastPlusMatchBetterThanMatchPlusDowncast():
-		entity = _crs.ResolveCallableReference(
+		entity = ResolveCallableReference(
 			NewExpressionCollection(
 				CodeBuilder.CreateIntegerLiteral(42),
 				NewObjectInvocationExpression()),
-			(objectMethod = GetMethod("bar", object, object),
-			GetMethod("bar", int, int)))
+			objectMethod = GetMethod("bar", object, object),
+			GetMethod("bar", int, int))
 		Assert.AreSame(objectMethod, entity)
+		
+	def ResolveCallableReference(args as ExpressionCollection, *candidates as (IMethod)):
+		return _crs.ResolveCallableReference(args, candidates)
 		
 	def GetLogicalTypeDepth(type as System.Type):
 		return _crs.GetLogicalTypeDepth(TypeSystemServices.Map(type))
 		
 	def NewExpressionCollection(*items as (Expression)):
-		e = ExpressionCollection()
-		e.Extend(items)
-		return e
+		return ExpressionCollection.FromArray(*items)
 		
 	def NewObjectInvocationExpression():
 		return CodeBuilder.CreateConstructorInvocation(
