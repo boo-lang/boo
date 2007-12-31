@@ -717,7 +717,7 @@ method [TypeMemberCollection container]
 
 protected
 property_header:	
-	((ID|SELF) (DOT ID)*)
+	((ID|SELF|(SPLICE_BEGIN atom)) (DOT ID)*)
 	(
 		LBRACK |
 		LPAREN |
@@ -739,7 +739,10 @@ field_or_property [TypeMemberCollection container]
 		Expression nameSplice = null;
 	}: 
 	(property_header)=>(
-		(emi=explicit_member_info)? (id1:ID {id=id1;}| s:SELF {id=s;})
+		(emi=explicit_member_info)?
+		(id1:ID {id=id1;}
+		| begin1:SPLICE_BEGIN nameSplice=atom {id=begin1;}
+		| s:SELF {id=s;})
 		(		
 			
 			{
@@ -756,8 +759,15 @@ field_or_property [TypeMemberCollection container]
 			(AS tr=type_reference)?
 			{							
 				p.Type = tr;
-				tm = p;
-				tm.Modifiers = _modifiers;
+				p.Modifiers = _modifiers;
+				if (null != nameSplice)
+				{
+					tm = new SpliceTypeMember(p, nameSplice);
+				}
+				else 
+				{
+					tm = p;
+				}
 			}		
 			begin_with_doc[p]
 				(property_accessor[p])+
@@ -767,9 +777,9 @@ field_or_property [TypeMemberCollection container]
 	{ container.Add(tm); }
 	|
 	(
-		(id2:ID | begin:SPLICE_BEGIN nameSplice=atom)
+		(id2:ID | begin2:SPLICE_BEGIN nameSplice=atom)
 		{
-			IToken token = id2 ?? begin;
+			IToken token = id2 ?? begin2;
 			field = new Field(ToLexicalInfo(token));
 			field.Name = token.getText();
 			field.Modifiers = _modifiers;
