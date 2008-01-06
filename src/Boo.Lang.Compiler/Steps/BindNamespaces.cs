@@ -145,7 +145,22 @@ namespace Boo.Lang.Compiler.Steps
 			if (asm != null) return false; //name resolution already failed earlier, don't try twice
 			
 			asm = Parameters.LoadAssembly(import.Namespace, false);
-			if (asm == null) return false;
+			if (asm == null) {
+				//try generalized namespaces
+				string[] namespaces = import.Namespace.Split(new char[]{'.',});
+				if (namespaces.Length == 1) {
+					return false;
+				} else {
+					int level = namespaces.Length - 1;
+					while (level > 0) {
+						asm = Parameters.FindAssembly(import.Namespace);
+						if (asm != null) return false; //name resolution already failed earlier, don't try twice
+						asm = Parameters.LoadAssembly(string.Join(".", namespaces, 0, level), false);
+						if (asm != null) break;
+						level--;
+					}
+				}
+			}
 			
 			if (asm != null)
 			{
