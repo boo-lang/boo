@@ -1156,7 +1156,10 @@
 		<mkdir dir="${build.dir}" />
 	</target>
 	
-	<target name="makedeb" depends="all">
+	<target name="makedeb" depends="rebuild">
+		<!-- force rebuild to make sure everything's ok and wrappers
+		     are sync'ed with current install.prefix
+		-->
 		<nant buildfile="extras/makedeb.build" />
 	</target>
 

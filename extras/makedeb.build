@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0"?>
-<project name="boo.makdeb" default="makedeb" basedir="..">
+<project name="boo.makedeb" default="makedeb" basedir="..">
 
 	<target name="makedeb">
-	
+
 		<echo level="Warning">
 		!!!!!!
 
@@ -10,9 +10,13 @@
 		have set 'install.prefix' to '/usr', 'debug' property to false and 
 		'optimize' property to true in default.build
 
+		'install.prefix' is currently set to ${install.prefix}
+		'debug' is currently set to ${debug}
+		'optimize' is currently set to ${optimize}
+
 		!!!!!!
 		</echo>
-	
+
 		<!-- DEBIAN package configuration files -->
 		<mkdir dir="build/deb/DEBIAN" />
 		<copy todir="build/deb/DEBIAN" outputencoding="ASCII">
@@ -30,16 +34,16 @@
 			commandline="755 build/deb/DEBIAN/prerm" />
 
 		<!-- binary files -->
-		<mkdir dir="build/deb/usr/lib/boo" />
-		<copy todir="build/deb/usr/lib/boo">
+		<mkdir dir="build/deb${install.prefix}/lib/boo" />
+		<copy todir="build/deb${install.prefix}/lib/boo">
 		    <fileset basedir="build">
 				<include name="*.exe*" />
 				<include name="*.dll*" />
 				<include name="booc.rsp" />
 		    </fileset>
 		</copy>
-		<mkdir dir="build/deb/usr/lib/pkgconfig" />
-		<copy todir="build/deb/usr/lib/pkgconfig">
+		<mkdir dir="build/deb${install.prefix}/lib/pkgconfig" />
+		<copy todir="build/deb${install.prefix}/lib/pkgconfig">
 		    <fileset basedir="build">
 			<include name="boo.pc" />
 		    </fileset>
@@ -51,8 +55,8 @@
 			commandline="755 build/booi" />
 		<exec program="chmod" useruntimeengine="false"
 			commandline="755 build/booish" />
-		<mkdir dir="build/deb/usr/bin" />
-		<copy todir="build/deb/usr/bin">
+		<mkdir dir="build/deb${install.prefix}/bin" />
+		<copy todir="build/deb${install.prefix}/bin">
 		    <fileset basedir="build">
 		        <include name="booc" />
 		        <include name="booi" />
@@ -61,34 +65,34 @@
 		</copy>
 		
 		<!-- boo nant tasks -->
-		<mkdir dir="build/deb/usr/share/NAnt/bin" />
-		<copy todir="build/deb/usr/share/NAnt/bin">
+		<mkdir dir="build/deb${install.prefix}/share/NAnt/bin" />
+		<copy todir="build/deb${install.prefix}/share/NAnt/bin">
 			<fileset basedir="build">
 				<include name="Boo.NAnt.Tasks.dll" />
 			</fileset>
 		</copy>
 		
 		<!-- documentation -->
-		<mkdir dir="build/deb/usr/share/doc/boo" />
-		<copy todir="build/deb/usr/share/doc/boo">
+		<mkdir dir="build/deb${install.prefix}/share/doc/boo" />
+		<copy todir="build/deb${install.prefix}/share/doc/boo">
 		    <fileset>
 		        <include name="notice.txt" />
 		        <include name="readme.txt" />
 		        <include name="examples/**" />
 		    </fileset>
 		</copy>
-		<mkdir dir="build/deb/usr/share/man/man1" />
-		<zip zipfile="build/deb/usr/share/man/man1/booc.1.gz">
+		<mkdir dir="build/deb${install.prefix}/share/man/man1" />
+		<zip zipfile="build/deb${install.prefix}/share/man/man1/booc.1.gz">
 			<fileset basedir="extras/man">
 				<include name="booc.1" />
 			</fileset>
 		</zip>
-		<zip zipfile="build/deb/usr/share/man/man1/booi.1.gz">
+		<zip zipfile="build/deb${install.prefix}/share/man/man1/booi.1.gz">
 			<fileset basedir="extras/man">
 				<include name="booi.1" />
 			</fileset>
 		</zip>
-		<zip zipfile="build/deb/usr/share/man/man1/booish.1.gz">
+		<zip zipfile="build/deb${install.prefix}/share/man/man1/booish.1.gz">
 			<fileset basedir="extras/man">
 				<include name="booish.1" />
 			</fileset>
@@ -97,6 +101,6 @@
 		<!-- call dpkg-deb to actually build the deb package -->
 		<exec program="dpkg-deb" useruntimeengine="false"
 			commandline="-b build/deb build/boo-${boo.version}-1-all.deb" />
-			
+
 	</target>
 </project>
