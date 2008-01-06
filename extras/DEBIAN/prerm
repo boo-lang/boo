@@ -1,9 +1,9 @@
 #!/bin/sh
-# prerm script for test
+# prerm script for boo
 #
 # see: dh_installdeb(1)
 
-set -e
+#set -e #we want to ignore gacutil errors if user manually removed the libs
 
 # summary of how this script can be called:
 #        * <prerm> `remove'

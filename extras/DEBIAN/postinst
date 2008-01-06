@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for test
+# postinst script for boo
 #
 # see: dh_installdeb(1)
 

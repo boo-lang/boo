@@ -4,11 +4,13 @@
 	<target name="makedeb">
 	
 		<echo level="Warning">
-		!!!
+		!!!!!!
+
 		If you are making a deb for public distribution, please make sure you
-		have set 'debug' property to false and 'optimize' property to true in 
-		default.build
-		!!!
+		have set 'install.prefix' to '/usr', 'debug' property to false and 
+		'optimize' property to true in default.build
+
+		!!!!!!
 		</echo>
 	
 		<!-- DEBIAN package configuration files -->
