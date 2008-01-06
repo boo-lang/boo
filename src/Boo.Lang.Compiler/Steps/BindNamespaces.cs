@@ -151,11 +151,13 @@ namespace Boo.Lang.Compiler.Steps
 				if (namespaces.Length == 1) {
 					return false;
 				} else {
+					string ns;
 					int level = namespaces.Length - 1;
 					while (level > 0) {
-						asm = Parameters.FindAssembly(import.Namespace);
+						ns = string.Join(".", namespaces, 0, level);
+						asm = Parameters.FindAssembly(ns);
 						if (asm != null) return false; //name resolution already failed earlier, don't try twice
-						asm = Parameters.LoadAssembly(string.Join(".", namespaces, 0, level), false);
+						asm = Parameters.LoadAssembly(ns, false);
 						if (asm != null) break;
 						level--;
 					}
