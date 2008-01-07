@@ -73,6 +73,7 @@ namespace BooCompiler.Tests
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
 			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
+			_parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
 			CustomizeCompilerParameters();
 			if (VerifyGeneratedAssemblies) CopyDependencies();
 		}

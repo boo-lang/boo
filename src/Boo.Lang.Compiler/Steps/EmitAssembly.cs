@@ -2057,9 +2057,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return false;
 		}
-		
+
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{
+			// Do not emit call if conditional attributes (if any) do not match defined symbols
+			if (!CheckConditionalAttributes(method, mi))
+			{
+				_il.Emit(OpCodes.Nop);
+				PushType(method.ReturnType); // keep a valid state
+				return;
+			}
+
 			IType targetType = null;
 			Expression target = GetTargetObject(node);
 			if (!mi.IsStatic)
@@ -2067,7 +2075,7 @@ namespace Boo.Lang.Compiler.Steps
 				targetType = target.ExpressionType;
 				PushTargetObject(node, mi);
 			}
-			
+
 			PushArguments(method, node.Arguments);
 
 			// Emit a constrained call if target is a generic parameter
@@ -2076,8 +2084,33 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Constrained, GetSystemType(targetType));  
 			}
 			_il.EmitCall(GetCallOpCode(target, method), mi, null);
-			
+
 			PushType(method.ReturnType);
+		}
+
+		private bool CheckConditionalAttributes(IMethod method, MethodInfo mi)
+		{
+			if (method.ReturnType != TypeSystemServices.VoidType) return true;
+			object[] attrs;
+
+			if (null == (method as InternalMethod))
+			{
+				attrs = mi.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
+			} else {
+				//FIXME: internal conditionalattribute not supported yet
+				return true;
+			}
+
+			if (0 == attrs.Length) return true;
+			foreach (System.Diagnostics.ConditionalAttribute attr in attrs)
+			{
+				if (!Parameters.Defines.ContainsKey(attr.ConditionString)) {
+					_context.TraceInfo("call to method '{0}' not emitted because there is no symbol '{2}' defined.", method.ToString(), attr.ConditionString); 
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		private void PushTargetObject(MethodInvocationExpression node, MethodInfo mi)

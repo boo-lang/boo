@@ -46,6 +46,21 @@ namespace BooCompiler.Tests
 			get { return 42; }
 		}
 	}
+
+	public class ConditionalClass
+	{
+		[System.Diagnostics.Conditional("BOO_COMPILER_TESTS_NOT_DEFINED_CONDITIONAL")]
+		public static void PrintNothing(int i)
+		{
+			Console.WriteLine(i);
+		}
+
+		[System.Diagnostics.Conditional("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL")]
+		public static void PrintSomething(string s)
+		{
+			Console.WriteLine(s);
+		}
+	}
 	
 	public class ReturnDucks
 	{
