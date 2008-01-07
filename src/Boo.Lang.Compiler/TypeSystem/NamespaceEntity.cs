@@ -32,6 +32,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Collections;
+	using System.Collections.Generic;
 	using System.Reflection;
 
 	public class NamespaceEntity : IEntity, INamespace
@@ -41,25 +42,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		INamespace _parent;
 		
 		string _name;
+
+		Dictionary<Assembly, Dictionary<string, List<Type>>> _assemblies;
+
+		Dictionary<string, NamespaceEntity> _childrenNamespaces;
 		
-		Hashtable _assemblies;
+		List<ModuleEntity> _internalModules;
 		
-		Hashtable _childrenNamespaces;
-		
-		List _internalModules;
-		
-		List _externalModules;
+		List<ExternalType> _externalModules;
 		
 		public NamespaceEntity(INamespace parent, TypeSystemServices tagManager, string name)
 		{			
 			_parent = parent;
 			_typeSystemServices = tagManager;
-			_name = name;
-			_assemblies = new Hashtable();
-			_childrenNamespaces = new Hashtable();
-			_assemblies = new Hashtable();
-			_internalModules = new List();
-			_externalModules = new List();
+			_name = name;			_assemblies = new Dictionary<Assembly, Dictionary<string, List<Type>>>();
+			_childrenNamespaces = new Dictionary<string, NamespaceEntity>();
+			_internalModules = new List<ModuleEntity>();
+			_externalModules = new List<ExternalType>();
 		}
 		
 		public string Name
@@ -89,17 +88,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public void Add(Type type)
 		{
 			Assembly assembly = type.Assembly;
-			List types = (List)_assemblies[assembly];
-			if (null == types)
+			string name = TypeUtilities.TypeName(type);
+
+			if (!_assemblies.ContainsKey(assembly))
 			{
-				types = new List();
-				_assemblies[assembly] = types;
+				_assemblies.Add(assembly, new Dictionary<string, List<Type>>());
+				_assemblies[assembly].Add(name, new List<Type>());
+			} else if (!_assemblies[assembly].ContainsKey(name)) {
+				_assemblies[assembly].Add(name, new List<Type>());
 			}
-			types.Add(type);
-			
+
+			_assemblies[assembly][name].Add(type);
+
 			if (_typeSystemServices.IsModule(type))
 			{
-				_externalModules.Add(_typeSystemServices.Map(type));
+				_externalModules.Add((ExternalType) _typeSystemServices.Map(type));
 			}
 		}
 		
@@ -112,11 +115,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			List members = new List();
 			members.Extend(_childrenNamespaces.Values);
-			foreach (List types in _assemblies.Values)
+			foreach (KeyValuePair<Assembly, Dictionary<string, List<Type>>> kv in _assemblies)
 			{
-				foreach (Type type in types)
+				//we do not use _assemblies.Values to keep fifo ordering
+				foreach (List<Type> types in kv.Value.Values)
 				{
-					members.Add(_typeSystemServices.Map(type));
+					foreach (Type type in types) members.Add(_typeSystemServices.Map(type));
 				}
 			}
 			return (IEntity[])members.ToArray(typeof(IEntity));
@@ -124,7 +128,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public NamespaceEntity GetChildNamespace(string name)
 		{
-			NamespaceEntity tag = (NamespaceEntity)_childrenNamespaces[name];
+			NamespaceEntity tag;
+			_childrenNamespaces.TryGetValue(name, out tag);
 			if (null == tag)
 			{				
 				tag = new NamespaceEntity(this, _typeSystemServices, _name + "." + name);
@@ -135,14 +140,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		internal bool Resolve(List targetList, string name, Assembly assembly, EntityType flags)
 		{
-			NamespaceEntity entity = (NamespaceEntity)_childrenNamespaces[name];
+			NamespaceEntity entity;
+			_childrenNamespaces.TryGetValue(name, out entity);
 			if (null != entity)
 			{
 				targetList.Add(new AssemblyQualifiedNamespaceEntity(assembly, entity));
 				return true;
 			}
 			
-			List types = (List)_assemblies[assembly];
+			Dictionary<string, List<Type>> types;
+			_assemblies.TryGetValue(assembly, out types);
 			
 			bool found = false;
 			if (null != types)
@@ -170,10 +177,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool Resolve(List targetList, string name, EntityType flags)
 		{	
-			IEntity tag = (IEntity)_childrenNamespaces[name];
+			NamespaceEntity tag;
+			_childrenNamespaces.TryGetValue(name, out tag);
 			if (null != tag)
 			{
-				targetList.Add(tag);
+				targetList.Add((IEntity) tag);
 				return true;
 			}
 			
@@ -197,27 +205,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool ResolveExternalType(List targetList, string name)
 		{			
-			foreach (List types in _assemblies.Values)
+			foreach (KeyValuePair<Assembly, Dictionary<string, List<Type>>> kv in _assemblies)
 			{
-				if (ResolveType(targetList, name, types)) return true;
+				//we do not use _assemblies.Values to keep fifo ordering
+				if (ResolveType(targetList, name, kv.Value)) return true;
 			}
 			return false;
 		}
 
-		private bool ResolveType(List targetList, string name, IEnumerable types)
+		private bool ResolveType(List targetList, string name, Dictionary<string,List<Type>> types)
 		{
-			bool found = false;
-			foreach (Type type in types)
+			if (types.ContainsKey(name))
 			{
-				if (name == TypeUtilities.TypeName(type))
+				foreach (Type type in types[name])
 				{
 					targetList.Add(_typeSystemServices.Map(type));
-					found = true;
 					// Can't return right away, since we can have several types
 					// with the same name but different number of generic arguments. 
 				}
+				return true;
 			}
-			return found;
+			return false;
 		}
 
 		bool ResolveExternalModules(List targetList, string name, EntityType flags)
