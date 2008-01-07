@@ -727,17 +727,18 @@ property_header:
 	
 protected
 field_or_property [TypeMemberCollection container]
-	{
-		IToken id = null;
-		TypeMember tm = null;
-		TypeReference tr = null;
-		Property p = null;
-		Field field = null;
-		ExplicitMemberInfo emi = null;
-		Expression initializer = null;
-		ParameterDeclarationCollection parameters = null;
-		Expression nameSplice = null;
-	}: 
+{
+	IToken id = null;
+	TypeMember tm = null;
+	TypeReference tr = null;
+	Property p = null;
+	Field field = null;
+	ExplicitMemberInfo emi = null;
+	Expression initializer = null;
+	ParameterDeclarationCollection parameters = null;
+	Expression nameSplice = null;
+}:
+(	
 	(property_header)=>(
 		(emi=explicit_member_info)?
 		(id1:ID {id=id1;}
@@ -754,27 +755,19 @@ field_or_property [TypeMemberCollection container]
 				p.ExplicitInfo = emi;
 				AddAttributes(p.Attributes);
 				parameters = p.Parameters;
+				tm = p;
 			}
 			((LBRACK|LPAREN) parameter_declaration_list[parameters] (RBRACK|RPAREN))?
 			(AS tr=type_reference)?
 			{							
 				p.Type = tr;
 				p.Modifiers = _modifiers;
-				if (null != nameSplice)
-				{
-					tm = new SpliceTypeMember(p, nameSplice);
-				}
-				else 
-				{
-					tm = p;
-				}
 			}		
 			begin_with_doc[p]
 				(property_accessor[p])+
 			end[p]
 		)
 	)
-	{ container.Add(tm); }
 	|
 	(
 		(id2:ID | begin2:SPLICE_BEGIN nameSplice=atom)
@@ -784,12 +777,7 @@ field_or_property [TypeMemberCollection container]
 			field.Name = token.getText();
 			field.Modifiers = _modifiers;
 			AddAttributes(field.Attributes);
-			
-			if (id2 != null) {
-				tm = field;
-			} else {
-				tm = new SpliceTypeMember(field, nameSplice);
-			}
+			tm = field;
 		}
 		(		
 			(AS tr=type_reference { field.Type = tr; })?
@@ -803,7 +791,13 @@ field_or_property [TypeMemberCollection container]
 			docstring[field]
 		)
 	)
-	{ container.Add(tm); }
+)
+{
+	if (null != nameSplice) {
+		tm = new SpliceTypeMember(tm, nameSplice);
+	}
+	container.Add(tm);
+}
 ;
 	
 declaration_initializer returns [Expression e]
