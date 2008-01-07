@@ -2061,12 +2061,12 @@ namespace Boo.Lang.Compiler.Steps
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{
 			// Do not emit call if conditional attributes (if any) do not match defined symbols
-			if (!CheckConditionalAttributes(method, mi))
+			/*if (!CheckConditionalAttributes(method, mi))
 			{
 				_il.Emit(OpCodes.Nop);
 				PushType(method.ReturnType); // keep a valid state
 				return;
-			}
+			}*/
 
 			IType targetType = null;
 			Expression target = GetTargetObject(node);
