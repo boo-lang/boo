@@ -39,7 +39,7 @@ namespace BooCompiler.Tests
 		public static void Foo()
 		{
 		}
-		
+
 		[Obsolete("We said so.")]
 		public static int Baz
 		{
@@ -57,6 +57,18 @@ namespace BooCompiler.Tests
 
 		[System.Diagnostics.Conditional("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL")]
 		public static void PrintSomething(string s)
+		{
+			Console.WriteLine(s);
+		}
+
+		[System.Diagnostics.Conditional("BOO_COMPILER_TESTS_NOT_DEFINED_CONDITIONAL")]
+		public static void PrintNoT<T>(T s)
+		{
+			Console.WriteLine(s);
+		}
+
+		[System.Diagnostics.Conditional("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL")]
+		public static void PrintSomeT<T>(T s)
 		{
 			Console.WriteLine(s);
 		}

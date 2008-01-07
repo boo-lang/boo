@@ -81,10 +81,12 @@ namespace Boo.Lang.Compiler
 			if (null == unit) throw new ArgumentNullException("unit");
 
 			_unit = unit;
-			_errors = new CompilerErrorCollection();			
+			_errors = new CompilerErrorCollection();
 			_warnings = new CompilerWarningCollection();
 			_assemblyReferences = options.References;
 			_parameters = options;
+			if (_parameters.Debug && !_parameters.Defines.ContainsKey("DEBUG"))
+				_parameters.Defines.Add("DEBUG", null);
 			_nameResolutionService = new TypeSystem.NameResolutionService(this); 
 			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();

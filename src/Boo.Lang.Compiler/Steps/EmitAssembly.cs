@@ -2061,12 +2061,12 @@ namespace Boo.Lang.Compiler.Steps
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{
 			// Do not emit call if conditional attributes (if any) do not match defined symbols
-			/*if (!CheckConditionalAttributes(method, mi))
+			if (!CheckConditionalAttributes(method, mi))
 			{
 				_il.Emit(OpCodes.Nop);
 				PushType(method.ReturnType); // keep a valid state
 				return;
-			}*/
+			}
 
 			IType targetType = null;
 			Expression target = GetTargetObject(node);
@@ -2081,7 +2081,7 @@ namespace Boo.Lang.Compiler.Steps
 			// Emit a constrained call if target is a generic parameter
 			if (targetType != null && targetType is IGenericParameter)
 			{
-				_il.Emit(OpCodes.Constrained, GetSystemType(targetType));  
+				_il.Emit(OpCodes.Constrained, GetSystemType(targetType));
 			}
 			_il.EmitCall(GetCallOpCode(target, method), mi, null);
 
@@ -2091,21 +2091,16 @@ namespace Boo.Lang.Compiler.Steps
 		private bool CheckConditionalAttributes(IMethod method, MethodInfo mi)
 		{
 			if (method.ReturnType != TypeSystemServices.VoidType) return true;
-			object[] attrs;
+			//FIXME: we handle the attribute only on external methods (non-dynamic modules)
+			if (mi.Module.GetType() != typeof(System.Reflection.Module)) return true;
 
-			if (null == (method as InternalMethod))
-			{
-				attrs = mi.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
-			} else {
-				//FIXME: internal conditionalattribute not supported yet
-				return true;
-			}
-
+			object[] attrs = mi.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
 			if (0 == attrs.Length) return true;
 			foreach (System.Diagnostics.ConditionalAttribute attr in attrs)
 			{
-				if (!Parameters.Defines.ContainsKey(attr.ConditionString)) {
-					_context.TraceInfo("call to method '{0}' not emitted because there is no symbol '{2}' defined.", method.ToString(), attr.ConditionString); 
+				if (!Parameters.Defines.ContainsKey(attr.ConditionString))
+				{
+					_context.TraceInfo("call to method '{0}' not emitted because the symbol '{2}' is not defined.", method.ToString(), attr.ConditionString);
 					return false;
 				}
 			}
@@ -2117,7 +2112,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Expression target = GetTargetObject(node);
 			IType targetType = target.ExpressionType;
-			
+
 			// If target is a generic parameter, its address must be loaded
 			// to allow a constrained method call
 			if (targetType is IGenericParameter)
