@@ -5,7 +5,7 @@ Installed-Size: 3800
 Maintainer: Cedric Vivier <cedricv@neonux.com>
 Architecture: all
 Version: @VERSION@-1
-Depends: mono,mono-gac,libmono-system2.0-cil,libmono-corlib2.0-cil
+Depends: mono,mono-gac,libmono-system2.0-cil,libmono-corlib2.0-cil,libmono-peapi2.0-cil,libmono2.0-cil
 Suggests: monodevelop-boo,specter-framework
 Description: Boo Programming Language
  Boo is an object-oriented statically-typed programming language
