@@ -2808,7 +2808,7 @@ namespace Boo.Lang.Compiler.Steps
 						node.Target.Accept(this);
 						break;
 					}
-					
+
 				default:
 					{
 						NotImplemented(node, tag.ToString());
@@ -2822,6 +2822,7 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity tag = TypeSystem.TypeSystemServices.GetEntity(node);
 			switch (tag.EntityType)
 			{
+				case EntityType.Ambiguous:
 				case EntityType.Method:
 					{
 						node.Target.Accept(this);
@@ -4478,7 +4479,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null != entity && entity.IsValueType;
 		}
 		
-		TypeBuilder CreateTypeBuilder(TypeMember type)
+		TypeBuilder CreateTypeBuilder(TypeDefinition type)
 		{
 			Type baseType = null;
 			if (IsEnumDefinition(type))
@@ -4491,18 +4492,21 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			TypeBuilder typeBuilder = null;
-			ClassDefinition  enclosingType = type.ParentNode as ClassDefinition;
+			ClassDefinition enclosingType = type.ParentNode as ClassDefinition;
+
 			if (null == enclosingType)
 			{
-				typeBuilder = _moduleBuilder.DefineType(type.FullName,
-				                                        GetTypeAttributes(type),
-				                                        baseType);
+				typeBuilder = _moduleBuilder.DefineType(
+					AnnotateGenericTypeName(type, type.QualifiedName),
+					GetTypeAttributes(type), 
+					baseType); 
 			}
 			else
 			{
-				typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(type.Name,
-				                                                             GetNestedTypeAttributes(type),
-				                                                             baseType);
+				typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(
+					AnnotateGenericTypeName(type, type.Name), 
+					GetNestedTypeAttributes(type), 
+					baseType);
 			}
 			
 			if (IsEnumDefinition(type))
@@ -4512,6 +4516,15 @@ namespace Boo.Lang.Compiler.Steps
 				DefineEnumField(typeBuilder);
 			}
 			return typeBuilder;
+		}
+		
+		private string AnnotateGenericTypeName(TypeDefinition typeDef, string name)
+		{
+			if (typeDef.HasGenericParameters)
+			{
+				return name + "`" + typeDef.GenericParameters.Count;
+			}
+			return name;
 		}
 		
 		void DefineEnumField(TypeBuilder builder)

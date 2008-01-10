@@ -30,6 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Collections;
+	using System.Collections.Generic;
 
 	public delegate bool EntityPredicate(IEntity entity);
 	
@@ -70,9 +71,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _entities; }
 		}
 		
-		public List Select(EntityPredicate predicate)
-		{	
-			List found = new List();
+		public List<IEntity> Select(EntityPredicate predicate)
+		{
+			List<IEntity> found = new List<IEntity>();
 			foreach (IEntity entity in _entities)
 			{
 				if (predicate(entity)) found.Add(entity);

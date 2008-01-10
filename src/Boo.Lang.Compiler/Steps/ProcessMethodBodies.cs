@@ -2128,8 +2128,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)
 		{
 			IEntity entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
-			IType entityType = (entity is IType ? (IType)entity : ((IMethod)entity).Type);
-
 			Bind(node, entity);
 
 			if (node.Target.Entity == null || TypeSystemServices.IsError(node.Target.Entity))
@@ -2138,11 +2136,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (node.Target.Entity.EntityType == EntityType.Type)
 			{
-				BindTypeReferenceExpressionType(node, entityType);
+				BindTypeReferenceExpressionType(node, (IType)entity);
 			}
-			else
+			else if (node.Target.Entity.EntityType == EntityType.Method)
 			{
-				BindExpressionType(node, entityType);
+				BindExpressionType(node, ((IMethod)entity).Type);
 			}
 		}
 
@@ -2517,14 +2515,14 @@ namespace Boo.Lang.Compiler.Steps
 				else if (candidates.AllEntitiesAre(EntityType.Method))
 				{
 					return ResolveAmbiguousMethodReference(node, candidates, EmptyExpressionCollection);
-				}
+					}
 				else if (candidates.AllEntitiesAre(EntityType.Type))
 				{
 					return ResolveAmbiguousTypeReference(node, candidates);
 				}
 			}
-
-            return ResolveAmbiguousReferenceByAccessibility(candidates);
+			
+			return ResolveAmbiguousReferenceByAccessibility(candidates);
 		}
 
         private IEntity ResolveAmbiguousMethodReference(ReferenceExpression node, Ambiguous candidates, ExpressionCollection args)
@@ -2538,7 +2536,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return candidates;
 		}
-		
+
 		private IEntity ResolveAmbiguousPropertyReference(ReferenceExpression node, Ambiguous candidates, ExpressionCollection args)
 		{
 			IEntity[] entities = candidates.Entities;
@@ -2558,11 +2556,11 @@ namespace Boo.Lang.Compiler.Steps
 			bool isGenericReference = (node.ParentNode is GenericReferenceExpression);
 
 		    List matches = new List();
-			
+
 			foreach (IEntity candidate in candidates.Entities)
 			{
 				IType type = candidate as IType;
-			    bool isGenericType = (type != null && type.GenericInfo != null);
+				bool isGenericType = (type != null && type.GenericInfo != null);
 				if (isGenericType == isGenericReference)
 				{
 					matches.Add(candidate);

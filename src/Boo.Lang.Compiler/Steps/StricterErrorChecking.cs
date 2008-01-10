@@ -97,13 +97,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void LeaveTypeDefinition(TypeDefinition node)
 		{
-			string fullName = node.FullName;
-			if (_types.Contains(fullName))
+			string qualifiedName = node.QualifiedName;
+			if (node.HasGenericParameters)
+			{
+				qualifiedName += "`" + node.GenericParameters.Count;
+			}
+
+			if (_types.Contains(qualifiedName))
 			{
 				Errors.Add(CompilerErrorFactory.NamespaceAlreadyContainsMember(node, GetNamespace(node), node.Name));
 				return;
 			}
-			_types.Add(fullName, node); 
+			_types.Add(qualifiedName, node); 
 		}
 		
 		string GetNamespace(TypeDefinition node)

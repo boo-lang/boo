@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Text;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -35,7 +36,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(InterfaceDefinition))]
 	[System.Xml.Serialization.XmlInclude(typeof(EnumDefinition))]
 	public abstract partial class TypeDefinition
-	{		
+	{
 		protected TypeDefinition()
 		{
  		}	
@@ -48,23 +49,46 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
-				Node parent = ParentNode;
-				if (null != parent)
+				if (HasGenericParameters)
 				{
-					if (NodeType.Module == parent.NodeType)
+					string[] parameterNames = Array.ConvertAll<GenericParameterDeclaration, string>(
+						GenericParameters.ToArray(),
+						delegate(GenericParameterDeclaration gpd) { return gpd.Name; });
+
+					return string.Format(
+						"{0}[of {1}]",
+						QualifiedName,
+						string.Join(", ", parameterNames));
+				}
+				else
+				{
+					return QualifiedName;
+				}
+			}
+		}
+
+		public string QualifiedName
+		{
+			get
+			{
+				StringBuilder qualifiedName = new StringBuilder();
+
+				TypeDefinition parentType = ParentNode as TypeDefinition;
+
+				if (ParentNode != null && ParentNode.NodeType == NodeType.Module)
+				{
+					if (EnclosingNamespace != null)
 					{
-						NamespaceDeclaration ns = EnclosingNamespace;
-						if (null != ns)
-						{
-							return ns.Name + "." + Name;
-						}
-					}
-					else
-					{
-						return ((TypeDefinition)parent).FullName + "." + Name;
+						qualifiedName.Append(EnclosingNamespace.Name).Append(".");
 					}
 				}
-				return Name;
+				else if (parentType != null)
+				{
+					qualifiedName.Append(parentType.QualifiedName).Append(".");
+				}
+
+				qualifiedName.Append(Name);
+				return qualifiedName.ToString();
 			}
 		}
 		
