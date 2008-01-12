@@ -29,6 +29,7 @@
 
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
@@ -52,6 +53,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (constructor.DeclaringType == attributeType) return true;
 			}
 			return false;
+		}
+
+		public static Boo.Lang.Compiler.Ast.Attribute[] GetCustomAttributes(TypeMember member, IType attributeType)
+		{
+			List<Boo.Lang.Compiler.Ast.Attribute> attrs = new List<Boo.Lang.Compiler.Ast.Attribute>();
+			foreach (Boo.Lang.Compiler.Ast.Attribute attr in member.Attributes)
+			{
+				IEntity entity = TypeSystemServices.GetEntity(attr);
+				if (entity == attributeType) { // pre bound attribute
+					attrs.Add(attr);
+					continue;
+				}
+				IConstructor constructor = entity as IConstructor;
+				if (null == constructor) continue;
+				if (constructor.DeclaringType == attributeType) {
+					attrs.Add(attr);
+					continue;
+				}
+			}
+			return attrs.ToArray();
 		}
 
 		public static bool IsAttributeDefined(MemberInfo member, Type attributeType)

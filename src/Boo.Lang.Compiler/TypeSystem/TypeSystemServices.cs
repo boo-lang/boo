@@ -128,6 +128,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ExternalType SystemAttribute;
 		
+		public ExternalType ConditionalAttribute;
+		
 		protected Hashtable _primitives = new Hashtable();
 		
 		protected Hashtable _entityCache = new Hashtable();
@@ -207,7 +209,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(UIntPtrType = new ExternalType(this, Types.UIntPtr));
 			Cache(MulticastDelegateType = new ExternalType(this, Types.MulticastDelegate));
 			Cache(DelegateType = new ExternalType(this, Types.Delegate));
-			Cache(SystemAttribute = new ExternalType(this, typeof(System.Attribute)));			
+			Cache(SystemAttribute = new ExternalType(this, typeof(System.Attribute)));
+			Cache(ConditionalAttribute = new ExternalType(this, typeof(System.Diagnostics.ConditionalAttribute)));
 			Cache(IEnumerableGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerable<>)));
 			Cache(IEnumeratorGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerator<>)));
 

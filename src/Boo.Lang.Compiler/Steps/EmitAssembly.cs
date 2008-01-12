@@ -2088,21 +2088,45 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(method.ReturnType);
 		}
 
+		//returns true if no conditional attribute match the defined symbols
+		//else return false (which means the method won't get emitted)
 		private bool CheckConditionalAttributes(IMethod method, MethodInfo mi)
 		{
-			if (method.ReturnType != TypeSystemServices.VoidType) return true;
-			//FIXME: we handle the attribute only on external methods (non-dynamic modules)
-			if (mi.Module.GetType() != typeof(System.Reflection.Module)) return true;
+			if (method.ReturnType != TypeSystemServices.VoidType
+				|| null != (method as GenericMappedMethod)) return true;
 
-			object[] attrs = mi.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
-			if (0 == attrs.Length) return true;
-			foreach (System.Diagnostics.ConditionalAttribute attr in attrs)
-			{
-				if (!Parameters.Defines.ContainsKey(attr.ConditionString))
+			object[] attrs;
+
+			if (null != (method as InternalMethod) || null != (method as GenericConstructedMethod)) {
+
+				//internal methods
+				InternalMethod im = (method as InternalMethod) ?? ((method as GenericConstructedMethod).GenericDefinition as InternalMethod);
+				attrs = MetadataUtil.GetCustomAttributes(im.Method, TypeSystemServices.ConditionalAttribute);
+
+				if (0 == attrs.Length) return true;
+				foreach (Boo.Lang.Compiler.Ast.Attribute attr in attrs)
 				{
-					_context.TraceInfo("call to method '{0}' not emitted because the symbol '{2}' is not defined.", method.ToString(), attr.ConditionString);
-					return false;
+					if (1 != attr.Arguments.Count || null == (attr.Arguments[0] as StringLiteralExpression)) continue;
+					string conditionString = (attr.Arguments[0] as StringLiteralExpression).Value;
+					if (!Parameters.Defines.ContainsKey(conditionString)) {
+						_context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), conditionString);
+						return false;
+					}
 				}
+
+			} else {
+
+				//external methods
+				attrs = mi.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
+				if (0 == attrs.Length) return true;
+				foreach (System.Diagnostics.ConditionalAttribute attr in attrs)
+				{
+					if (!Parameters.Defines.ContainsKey(attr.ConditionString)) {
+						_context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), attr.ConditionString);
+						return false;
+					}
+				}
+
 			}
 
 			return true;
@@ -3712,7 +3736,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(opcode);
 			}
 		}
-		
+
 		bool IsStobj(OpCode code)
 		{
 			return OpCodes.Stobj.Value == code.Value;
