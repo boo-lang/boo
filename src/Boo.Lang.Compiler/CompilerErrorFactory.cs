@@ -815,6 +815,17 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0152", SafeLexicalInfo(node), memberName);
 		}
 
+		public static CompilerError InvalidAttributeTarget(Node node, Type attrType, AttributeTargets validOn)
+		{
+			return new CompilerError("BCE0153", SafeLexicalInfo(node), attrType, validOn);
+		}
+
+		public static CompilerError MultipleAttributeUsage(Node node, Type attrType)
+		{
+			return new CompilerError("BCE0154", SafeLexicalInfo(node), attrType);
+		}
+
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

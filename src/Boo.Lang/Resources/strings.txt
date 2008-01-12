@@ -151,7 +151,9 @@ BCE0148=The type '{0}' must have a public default constructor in order to substi
 BCE0149=The type '{0}' must derive from '{2}' in order to substitute the generic parameter '{1}'. 
 BCE0150='final' cannot be applied to interface definitions.
 BCE0151='static' cannot be applied to interface or struct definitions.
-BCE0152=Constructors cannot be marked virtual, abstract, or override: '{0}'
+BCE0152=Constructors cannot be marked virtual, abstract, or override: '{0}'.
+BCE0153='{0}' can be applied on one of these targets only : {1}.
+BCE0154='{0}' cannot be applied multiple times on the same target.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
