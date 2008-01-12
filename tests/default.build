@@ -5,14 +5,43 @@
 
 	<target name="run" depends="compile" if="${nant.tasks.nunit2}">
 
-		<nunit2>
-			<formatter type="Plain" />
-			<test>
-				<assemblies basedir="build">
+		<copy todir="${path::get-temp-path()}" file="build/BooCompiler.Tests.dll" overwrite="true" />
+
+		<property name="num-tests" value="0" />
+		<property name="current-test" value="1" />
+		<property name="succeeded-tests" value="0" />
+		<foreach item="File" property="filename" failonerror="true">
+			<in>
+				<items basedir="build">
 					<include name="*.Tests.dll" />
-				</assemblies>
-			</test>
-		</nunit2>
+				</items>
+			</in>
+			<do>
+				<property name="num-tests" value="${int::parse(num-tests)+1}" />
+			</do>
+		</foreach>
+		<foreach item="File" property="filename">
+			<in>
+				<items basedir="build">
+					<include name="*.Tests.dll" />
+				</items>
+			</in>
+			<do failonerror="false">
+				<echo message="[${current-test}/${num-tests}] ${path::get-file-name(filename)}" />
+				<property name="current-test" value="${int::parse(current-test)+1}" />
+				<nunit2>
+					<formatter type="Plain" />
+					<test>
+						<assemblies basedir="build">
+							<include name="${path::get-file-name(filename)}" />
+						</assemblies>
+					</test>
+				</nunit2>
+				<property name="succeeded-tests" value="${int::parse(succeeded-tests)+1}" />
+			</do>
+		</foreach>
+		<fail message="${int::parse(num-tests) - int::parse(succeeded-tests) } TEST FIXTURES HAVE FAILED"
+			if="${int::parse(succeeded-tests) &lt; int::parse(num-tests)}" />
 
 	</target>
 
@@ -44,7 +73,7 @@
 			</sources>
 		</booc>
 		-->
-		
+
 		<csc
 			target="library"
 			output="build/Boo.Lang.Runtime.Tests.dll"
@@ -67,8 +96,9 @@
 			output="build/BooCompiler.Tests.dll"
 			unsafe="true">
 
-			<sources>
-				<include name="BooCompiler.Tests/**/*.cs" />
+			<sources basedir="BooCompiler.Tests">
+				<include name="**/*.cs" />
+				<exclude name="*TestFixture.cs" />
 			</sources>
 
 			<references basedir="build">
@@ -79,6 +109,36 @@
 				<include name="BooModules.dll" />
 			</references>
 		</csc>
+
+		<foreach item="File" property="filename">
+			<in>
+				<items basedir="BooCompiler.Tests">
+					<include name="*TestFixture.cs" />
+					<exclude name="AbstractCompilerErrorsTestFixture.cs" />
+				</items>
+			</in>
+			<do>
+				<csc
+					target="library"
+					output="build/BooCompiler.${string::replace(path::get-file-name(filename),'TestFixture.cs','')}.Tests.dll"
+					unsafe="true">
+
+					<sources basedir="BooCompiler.Tests">
+						<include name="${path::get-file-name(filename)}" />
+						<include name="AbstractCompilerErrorsTestFixture.cs" />
+					</sources>
+
+					<references basedir="build">
+						<include name="${nunit.framework.dll}" />
+						<include name="Boo.Lang.dll" />
+						<include name="Boo.Lang.Compiler.dll" />
+						<include name="Boo.Lang.Extensions.dll" />
+						<include name="BooModules.dll" />
+						<include name="BooCompiler.Tests.dll" />
+					</references>
+				</csc>
+			</do>
+		</foreach>
 
 		<booc
 			target="library"
@@ -186,7 +246,17 @@
 	<target name="init">
 		<delete dir="build" if="${directory::exists('build')}" />
 		<mkdir dir="build" />
-		<copy todir="build">
+		<copy todir="build" overwrite="true">
+			<fileset basedir="../build">
+				<include name="*.dll" />
+				<include name="*.pdb" />
+				<include name="boo*.exe" />
+				<include name="*.config" />
+				<include name="*.targets" />
+				<include name="pt/*.dll" />
+			</fileset>
+		</copy>
+		<copy todir="${path::get-temp-path()}" overwrite="true">
 			<fileset basedir="../build">
 				<include name="*.dll" />
 				<include name="*.pdb" />
