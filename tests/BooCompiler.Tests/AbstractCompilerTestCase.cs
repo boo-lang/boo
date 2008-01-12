@@ -64,6 +64,8 @@ namespace BooCompiler.Tests
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
+			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
 			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, GetRelativeTestCasesPath());
 			_compiler = new BooCompiler();
 			_parameters = _compiler.Parameters;
