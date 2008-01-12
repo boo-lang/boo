@@ -52,6 +52,8 @@ public class BoocTask(CompilerBase):
 	private _nostdlib = false
 	private _wsa = false
 	private _ducky = false
+	private _defineSymbols as string = null
+	
 	private _pipeline as string
 	
 	#endregion Private Instance Fields
@@ -141,7 +143,14 @@ public class BoocTask(CompilerBase):
 			return _ducky
 		set:
 			_ducky = value
-	
+
+	[TaskAttribute('define')]
+	public DefineSymbols as string:
+		get:
+			return _defineSymbols
+		set:
+			_defineSymbols = value
+
 	private def FindBooc() as string:
 		path as string
 		dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
@@ -183,6 +192,8 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "wsa")
 		if Ducky:
 			WriteOption(writer, "ducky")
+		if DefineSymbols is not null:
+			WriteOption(writer, "define", DefineSymbols)
 		if Pipeline:
 			WriteOption(writer, "p", _pipeline)
 	

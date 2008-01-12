@@ -568,8 +568,8 @@ namespace BooC
 							{
 								if (arg.StartsWith("-d:") || arg.StartsWith("-define:"))
 								{
-									int skip = arg.StartsWith("-d:") ? 3 : 7;
-									string[] symbols = arg.Substring(skip).Split(",".ToCharArray());
+									int skip = arg.StartsWith("-d:") ? 3 : 8;
+									string[] symbols = StripQuotes(arg.Substring(skip)).Split(",".ToCharArray());
 									foreach (string symbol in symbols)
 									{
 										string[] s_v = symbol.Split("=".ToCharArray(), 2);
