@@ -88,10 +88,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			// handle special compiler-supported attributes
-			if (typeof(System.Diagnostics.ConditionalAttribute) == attrType
-				&& null != (node.Arguments[0] as StringLiteralExpression)) {
-				AddStringToNodeAnnotation(node.ParentNode, "ConditionalSymbols", (node.Arguments[0] as StringLiteralExpression).Value);
-			}
 			//TODO: ObsoleteAttribute
 		}
 
@@ -119,14 +115,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 		}
 
-
-		private static void AddStringToNodeAnnotation(Node node, string annotation, string value)
-		{
-			if (!node.ContainsAnnotation(annotation))
-				node.Annotate(annotation, new List<string>());
-			(node[annotation] as List<string>).Add(value);
-		}
-
 		private static Dictionary<Type, AttributeTargets> _nodesUsageTargets = null;
 
 		private static void SetupNodesUsageTargetsDictionary()
@@ -151,3 +139,4 @@ namespace Boo.Lang.Compiler.Steps
 
 	}
 }
+
