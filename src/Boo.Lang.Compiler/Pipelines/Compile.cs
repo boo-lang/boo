@@ -63,6 +63,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			
 			Add(new InjectCallableConversions());
 			Add(new ImplementICallableOnCallableDefinitions());
+		
+			Add(new CheckNeverUsedMembers());
 
 			// TODO:
 			//Add(new InjectCastsAndConversions());

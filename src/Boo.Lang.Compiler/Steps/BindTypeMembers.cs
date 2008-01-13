@@ -60,6 +60,10 @@ namespace Boo.Lang.Compiler.Steps
 				TypeMember member = (TypeMember)node;
 				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
 				CodeBuilder.BindParameterDeclarations(member.IsStatic, node);
+				if (member.IsPrivate && !member.IsSynthetic)
+				{
+					member.Annotate("PrivateMemberNeverUsed", null);
+				}
 			}
 		}
 		
@@ -77,6 +81,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Entity)
 			{
 				node.Entity = new InternalField(node);
+				if (node.IsPrivate && !node.IsSynthetic)
+				{
+					node.Annotate("PrivateMemberNeverUsed", null);
+				}
 			}
 		}
 		
@@ -91,7 +99,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Getter);
 			Visit(node.Setter);
 			Visit(node.ExplicitInfo);
-		}	
+		}
 
 		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
 		{
