@@ -171,6 +171,7 @@ BCW0011=WARNING: Type '{0}' does not provide an implementation for '{1}', a stub
 BCW0012=WARNING: '{0}' is obsolete. {1}
 BCW0013=WARNING: '{1}' on static type '{0}' is redundantly marked static. All members of static types are automatically assumed to be static.
 BCW0014=WARNING: Private {0} '{1}' is never used.
+BCW0015=WARNING: Unreachable code detected.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.

@@ -119,5 +119,10 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0014", node.LexicalInfo, node.NodeType.ToString().ToLower(), (node as TypeMember).FullName);
 		}
 
+		public static CompilerWarning UnreachableCodeDetected(Node node)
+		{
+			return new CompilerWarning("BCW0015", node.LexicalInfo);
+		}
+
 	}
 }

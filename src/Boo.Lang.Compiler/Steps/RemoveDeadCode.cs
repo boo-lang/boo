@@ -30,12 +30,88 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
+	using System.Collections.Generic;
 
 	public class RemoveDeadCode : AbstractTransformerCompilerStep
 	{
 		override public void Run()
 		{
 			Visit(CompileUnit);
+		}
+
+		override public bool EnterRaiseStatement(RaiseStatement node)
+		{
+			RemoveUnreachableCode(node);
+			return false;
+		}
+
+		public override void OnReturnStatement(ReturnStatement node)
+		{
+			RemoveUnreachableCode(node);
+		}
+
+		override public bool EnterBreakStatement(BreakStatement node)
+		{
+			RemoveUnreachableCode(node);
+			return false;
+		}
+
+		override public bool EnterContinueStatement(ContinueStatement node)
+		{
+			RemoveUnreachableCode(node);
+			return false;
+		}
+
+		override public bool EnterMethodInvocationExpression(Boo.Lang.Compiler.Ast.MethodInvocationExpression node)
+		{
+			return false;
+		}
+
+		private void RemoveUnreachableCode(Statement node)
+		{
+			Block block = node.ParentNode as Block;			
+			if (null == block) return;
+
+			int from = DetectUnreachableCode(block, node);
+			if (-1 != from) RemoveStatements(block, from);
+		}
+		
+		//this method returns -1 if it doesn't detect unreachable code
+		//else it returns the index of the first unreachable in block.Statements 
+		private int DetectUnreachableCode(Block block, Statement limit)
+		{
+			bool unreachable = false;
+			int idx = 0;
+			foreach (Statement stmt in block.Statements)
+			{
+				//HACK: __switch__ builtin function is hard to detect/handle
+				//		within this context, let's ignore whatever is after __switch__
+				if (stmt is ExpressionStatement)
+				{
+					MethodInvocationExpression mie = (stmt as ExpressionStatement).Expression as MethodInvocationExpression;
+					if (null != mie && TypeSystem.BuiltinFunction.Switch == mie.Target.Entity)
+						return -1;//ignore followings
+				}
+
+				if (stmt == limit)
+				{
+					unreachable = true;
+				}
+				else if (unreachable)
+				{
+					Warnings.Add(
+						CompilerWarningFactory.UnreachableCodeDetected(stmt) );
+					return idx;
+				}
+				idx++;
+			}
+			return -1;
+		}
+
+		private static void RemoveStatements(Block block, int fromIndex)
+		{
+			for (int idx = block.Statements.Count-1; idx >= fromIndex; idx--)
+				block.Statements.RemoveAt(idx);
 		}
 
 		override public void OnTryStatement(TryStatement node)
