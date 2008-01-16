@@ -5,7 +5,6 @@ PROFIT is the 3rd step
 """
 
 import System
-import System.Threading
 import Coroutine
 
 [coroutine]
