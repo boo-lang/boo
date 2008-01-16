@@ -6,15 +6,15 @@
 #
 # Look at tests/testcases/attributes/coroutine-*.boo for usage examples.
 #
-# Attribute options/arguments:
+# OPTIONS:
 #
 #   Looping: bool   - Does the coroutine loop? (default: true)
 #
 #   Default: expression
-#                   The value to return when the coroutine is terminated (with 
-#                   Looping false) or when it is blocking (with Blocking false)
+#                   The value to return whenever the coroutine is terminated 
+#                   (Looping:false) or when Timeout has expired.
 #                   If Default has not been set the coroutine will raise
-#                   a CoroutineTerminatedException if invoked after termination.
+#                   the corresponding exception (see 'Exceptions' below)
 #
 #   DefaultLastValue: bool
 #                   When true default value is the last value. (default :false)
@@ -32,6 +32,17 @@
 #
 #   Parallel: int	- Number of futures to compute in parallel (default: 1)
 #                   UNSUPPORTED		TODO:
+#
+#
+# EXCEPTIONS:
+#
+#   CoroutineTerminatedException:
+#                   This exception is raised whenever the coroutine has finished
+#                   processing and Looping is false
+#
+#   CoroutineFutureNotReadyException
+#                  This exception is raised whenever a Timeout is set and the 
+#                  result of the coroutine is not yet available.
 #
 
 namespace Coroutine
