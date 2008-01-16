@@ -48,8 +48,10 @@
 namespace Coroutine
 
 import System
+import System.Collections.Generic
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.TypeSystem
 
 
 [AttributeUsage(AttributeTargets.Method)]
@@ -102,7 +104,7 @@ public class CoroutineAttribute(AbstractAstAttribute):
 
 	public override def Apply(node as Node):
 		_m = node as Method
-		SanityCheck()
+		return if not SanityCheck()
 
 		_generatorName = "__"+_m.Name
 
@@ -272,6 +274,9 @@ public class CoroutineAttribute(AbstractAstAttribute):
 			else:
 				facade.Body.Add(b)
 			facade.Body.Add([| return future |])
+		
+		#annotate the facade as a coroutine
+		facade.Annotate("boo.coroutine", null)
 
 		#hide the generator implementation
 		_m.Name = _generatorName
@@ -299,22 +304,39 @@ public class CoroutineAttribute(AbstractAstAttribute):
 		return ReferenceExpression(f.Name)		
 
 
-	private def SanityCheck():
+	private def SanityCheck() as bool:
 		if _m is null:
 			InvalidNodeForAttribute('Method')
-			return
-		if _looping and _defaultSet:
-			Errors.Add(CompilerErrorFactory.CustomError(self.LexicalInfo, "Looping and Default are mutually exclusive"))
-			return
+			return false
+		
+		#check arguments
+		if _looping and _defaultSet and not _future:
+			Errors.Add(CompilerErrorFactory.CustomError(self.LexicalInfo, "Looping and Default are mutually exclusive in a non-future context"))
+			return false
 		if _defaultSet and _defaultLastValue:
 			Errors.Add(CompilerErrorFactory.CustomError(self.LexicalInfo, "DefaultLastValue and Default are mutually exclusive"))
-			return
+			return false
 		if -1L != _timeout and not _future:
 			Errors.Add(CompilerErrorFactory.CustomError(self.LexicalInfo, "Timeout requires Future:true"))
-			return
+			return false
 		if 1 != _parallel and not _future:
 			Errors.Add(CompilerErrorFactory.CustomError(self.LexicalInfo, "Parallel requires Future:true"))
-			return
+			return false
+		
+		#check if there is at least one yield in the method
+		finder = YieldFinder()
+		finder.Visit(_m)
+		if not finder.Found:
+			Errors.Add(CompilerErrorFactory.CustomError(self.LexicalInfo, "There is no yield statement in the coroutine"))
+			return false
+
+		return true
+		
+
+	#HACK: should be a simple way to restart the bind attribute step (?)
+	public def SetCompilerContext(context as CompilerContext):
+		_context = context
+
 
 
 class CoroutineTerminatedException(System.Exception):
@@ -322,3 +344,163 @@ class CoroutineTerminatedException(System.Exception):
 
 class CoroutineFutureNotReadyException(System.Exception):
 	pass
+
+
+#
+#	SPAWN
+#
+#	FIXME: move into their own files blablabla...
+#
+#
+
+interface ISpawnable:
+	def Execute() as bool
+
+
+static class CoroutineSchedulerManager:
+
+	Coroutines:
+		get:
+			#FIXME: synchronized dictionary(?)
+			return _coroutines
+	_coroutines = List[of ISpawnable]()
+	Slices:
+		get:
+			return _slices
+	_slices = Dictionary[of ISpawnable, int]()
+
+	Scheduler as ICoroutineScheduler:
+		get:
+			if _scheduler is null:
+				_scheduler = DeadlineCoroutineScheduler()
+			return _scheduler
+		set:
+			if _scheduler and _scheduler.IsRunning:
+				raise InvalidOperationException("Cannot change the scheduler while it is running.")
+			_scheduler = value
+	_scheduler as ICoroutineScheduler = null
+
+
+interface ICoroutineScheduler:
+	IsRunning as bool:
+		get
+	def JoinStart():
+		pass
+
+
+class DeadlineCoroutineScheduler(ICoroutineScheduler):
+
+	_lock_IsRunning = object()
+
+	IsRunning as bool:
+		get:
+			lock _lock_IsRunning:
+				return _isRunning
+	_isRunning = false
+
+	def JoinStart():
+		lock _lock_IsRunning:
+			if _isRunning:
+				raise InvalidOperationException("Scheduler is already running.")
+			_isRunning = true
+		coroutines = CoroutineSchedulerManager.Coroutines #FIXME: sync copy
+		slices = CoroutineSchedulerManager.Slices
+		try:
+			:runSlices
+			toRemove as List[of ISpawnable] = null
+			while 0 != coroutines.Count:
+				for c in coroutines:
+					s = slices[c]
+					try:
+						if 1 == s:
+							c.Execute()
+						else:
+							for i in range(0, s):
+								c.Execute()
+					except e as CoroutineTerminatedException:
+						if toRemove is null:
+							toRemove = List[of ISpawnable]()
+						toRemove.Add(c)
+					except e as CoroutineFutureNotReadyException:
+						pass
+				if toRemove is not null:
+					for c in toRemove:
+						coroutines.Remove(c)
+					goto runSlices
+		ensure:
+			lock _lock_IsRunning:
+				_isRunning = false
+
+
+
+def GetSpawnable(spawnable as MethodInvocationExpression, nss as NameResolutionService, context as CompilerContext):
+	if spawnable is null:
+		raise ArgumentException("first argument must be a ISpawnable instance")
+
+	spawnClass = nss.Resolve((spawnable.Target as ReferenceExpression).Name, EntityType.Type) as InternalClass
+	if spawnClass is null:
+		raise ArgumentException("spawn is supported on internal types only")
+
+	ifaces = spawnClass.GetInterfaces()
+	foundISpawnable = false
+	for iface in ifaces:
+		if "Coroutine.ISpawnable" == iface.FullName:
+			foundISpawnable = true
+			break
+	if not foundISpawnable:
+		raise ArgumentException("spawn first argument must implement ISpawnable")
+
+	classDef = spawnClass.Node as ClassDefinition
+	execute = classDef.Members["Execute"] as Method
+	if not execute.ContainsAnnotation("boo.coroutine"):
+		YieldInserter().Visit(execute)
+		execute.ToCodeString()
+		astAttr = CoroutineAttribute(Looping: BoolLiteralExpression(false))
+		astAttr.SetCompilerContext(context)#HACK: should restart the step somehow
+		astAttr.Apply(execute)
+
+	return spawnable
+
+
+
+
+internal class YieldFinder(DepthFirstVisitor):
+	[property(Found)]
+	_found = false
+	override def OnYieldStatement(node as YieldStatement):
+		_found = true
+
+internal class YieldInserter(DepthFirstVisitor):
+	[property(Inserted)]
+	_inserted = 0
+	override def LeaveBlock(node as Block):
+		node.Add(YieldStatement())
+
+
+#
+# spawn macro
+# Usage: spawn [ISpawnable_instance[, slices]]	(slices=1 by default)
+# Use spawn with no argument to launch execution of your spawnables.
+#
+macro spawn:
+	slices = 1
+	if 0 == len(spawn.Arguments):
+		return [|
+					block:
+						CoroutineSchedulerManager.Scheduler.JoinStart()
+				|].Block
+	if 1 <= len(spawn.Arguments):
+		spawnable = GetSpawnable(spawn.Arguments[0], NameResolutionService, Context)
+	if 2 <= len(spawn.Arguments):
+		if not spawn.Arguments[1] isa IntegerLiteralExpression:
+			raise ArgumentException("second argument 'slices' must be an integer literal")
+		slices = (spawn.Arguments[1] as IntegerLiteralExpression).Value
+	if 3 <= len(spawn.Arguments):
+		raise ArgumentException("Usage is:  spawn [ISpawnable instance, [slices]]")
+	return [|
+				block:
+					tmp = $spawnable
+					CoroutineSchedulerManager.Coroutines.Add(tmp)
+					CoroutineSchedulerManager.Slices.Add(tmp, $slices)
+			|].Block
+
