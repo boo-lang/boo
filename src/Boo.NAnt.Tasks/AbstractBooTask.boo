@@ -30,7 +30,6 @@ namespace Boo.NAnt
 
 import System
 import System.Text
-import System.Diagnostics
 import System.IO
 import NAnt.Core
 import NAnt.Core.Attributes

@@ -31,7 +31,6 @@
 // Ian MacLean (original C# version)
 
 import System.Reflection;
-import System.Runtime.CompilerServices;
 import System.Security.Permissions;
 
 [assembly: ReflectionPermission(SecurityAction.RequestMinimum,

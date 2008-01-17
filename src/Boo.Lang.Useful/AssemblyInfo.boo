@@ -27,7 +27,6 @@
 #endregion
 
 import System.Reflection
-import System.Runtime.CompilerServices
 
 [assembly: AssemblyTitle("Boo Language Useful Library")]
 [assembly: AssemblyDescription("")]

@@ -31,12 +31,9 @@ namespace booi
 import System
 import System.IO
 import System.Reflection
-import System.Threading
-import Boo.Lang.Parser
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
-import Boo.Lang.Compiler.Steps
 import Useful.Attributes
 
 class Program:

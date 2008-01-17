@@ -32,14 +32,12 @@
 
 namespace Boo.Lang.CodeDom
 
-import System
-import System.Reflection
 import System.CodeDom
 import System.CodeDom.Compiler
 import System.IO
+import Boo.Lang.Parser
 import Boo.Lang.Compiler
 import System.Text
-import Boo.Lang.Parser
 
 #This class is *NOT* meant to be consumed direclty; use BooCodeProvider for that.
 internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):

@@ -29,10 +29,8 @@
 
 namespace Boo.Lang.Useful.BooTemplate
 
-import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.TypeSystem
 
 class ApplyTemplateSemantics(AbstractCompilerStep):
 	

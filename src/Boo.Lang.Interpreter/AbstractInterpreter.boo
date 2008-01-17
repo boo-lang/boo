@@ -29,8 +29,6 @@
 namespace Boo.Lang.Interpreter
 
 import System
-import System.Collections
-import System.IO
 import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast

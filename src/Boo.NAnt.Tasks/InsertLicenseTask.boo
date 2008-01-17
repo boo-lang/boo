@@ -32,7 +32,6 @@ with the license notice.
 
 namespace Boo.NAnt
 
-import System.Diagnostics
 import System.IO
 import NAnt.Core
 import NAnt.Core.Attributes

@@ -31,7 +31,6 @@ namespace Boo.Lang.Useful.Attributes
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Steps
 
 class NoTrace(AbstractAstAttribute):

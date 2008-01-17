@@ -32,7 +32,6 @@ import System.Threading
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Steps
-import Boo.Lang.Compiler.TypeSystem
 
 class OnceAttribute(AbstractAstAttribute):
 """

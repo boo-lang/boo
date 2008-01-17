@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Extensions
 
-import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Steps
 

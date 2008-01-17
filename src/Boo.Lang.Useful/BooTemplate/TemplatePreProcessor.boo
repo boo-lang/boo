@@ -29,7 +29,6 @@
 
 namespace Boo.Lang.Useful.BooTemplate
 
-import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Steps
 

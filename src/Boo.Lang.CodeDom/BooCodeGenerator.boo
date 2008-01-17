@@ -36,10 +36,8 @@
 
 namespace Boo.Lang.CodeDom
 
-import System
 import System.CodeDom
 import System.CodeDom.Compiler
-import System.IO
 import System.Reflection
 import System.Collections
 import System.Text.RegularExpressions

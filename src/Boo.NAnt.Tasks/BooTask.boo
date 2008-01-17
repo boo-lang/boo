@@ -29,11 +29,9 @@
 namespace Boo.NAnt
 
 import System
-import System.Diagnostics
 import System.IO
 import NAnt.Core
 import NAnt.Core.Attributes
-import NAnt.Core.Types
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Ast

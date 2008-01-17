@@ -28,8 +28,6 @@
 
 namespace Boo.NAnt
 
-import System.Diagnostics
-import System.IO
 import System.Text.RegularExpressions
 import NAnt.Core
 import NAnt.Core.Attributes

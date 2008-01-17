@@ -26,7 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System.IO
 import Boo.Lang.Useful.CommandLine
 
 enum BooCommandLineStyle:

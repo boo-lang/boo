@@ -33,7 +33,6 @@ import System.Collections
 import System.IO
 import System.Text
 import System.Text.RegularExpressions
-import System.Reflection
 import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast

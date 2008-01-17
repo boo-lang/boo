@@ -27,7 +27,6 @@
 #endregion
 
 import System.Reflection
-import System.Runtime.CompilerServices
 import System.Security.Permissions
 
 [assembly: AssemblyTitle("boo interpreter")]
@@ -44,6 +43,4 @@ import System.Security.Permissions
 [assembly: SecurityPermission(
 						SecurityAction.RequestMinimum,
 						ControlAppDomain: true)] 
-	
-
 

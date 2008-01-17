@@ -29,13 +29,10 @@
 namespace Boo.NAnt
 
 import System
-import System.Globalization
 import System.IO
 import System.Text.RegularExpressions
-import NAnt.Core
 import NAnt.Core.Attributes
 import NAnt.Core.Types
-import NAnt.Core.Util
 import NAnt.DotNet.Types
 
 import NAnt.DotNet.Tasks
