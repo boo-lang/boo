@@ -39,10 +39,23 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit);
 		}
 
-		private ClassDefinition _currentClass = null;
+		public override void LeaveModule(Boo.Lang.Compiler.Ast.Module module)
+		{
+			foreach (Import import in module.Imports)
+			{
+				//do not be pedantic about System, the corlib is to be ref'ed anyway
+				if (import.NamespaceUsed || import.Namespace == "System") continue;
+				if (null == module.EnclosingNamespace
+					|| module.EnclosingNamespace.Name != import.Namespace)
+				{
+					Warnings.Add(
+						CompilerWarningFactory.NamespaceNeverUsed(import) );
+				}
+			}
+		}
+
 		override public bool EnterClassDefinition(ClassDefinition node)
 		{
-			_currentClass = node;
 			CheckPrivateMembersNeverUsed(node);
 			return false;
 		}

@@ -55,6 +55,8 @@ namespace Boo.Lang.Compiler.Steps
 		protected Stack _memberStack;
 		// for accurate error reporting during type inference
 		
+		protected Module _currentModule;
+		
 		protected InternalMethod _currentMethod;
 
 		IMethod Array_EnumerableConstructor;
@@ -79,6 +81,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NameResolutionService.Reset();
 			
+			_currentModule = null;
 			_currentMethod = null;
 			_methodStack = new Stack();
 			_memberStack = new Stack();
@@ -120,6 +123,7 @@ namespace Boo.Lang.Compiler.Steps
 				_callableResolution = null;
 			}
 
+			_currentModule = null;
 			_currentMethod = null;
 			_methodStack = null;
 			_memberStack = null;
@@ -151,6 +155,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (WasVisited(module)) return;
 			MarkVisited(module);
+			_currentModule = module;
 			
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
 			
@@ -2392,9 +2397,24 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				member = ResolveAmbiguousReference(node, (Ambiguous)member);
 			}
-			
+
 			EnsureRelatedNodeWasVisited(node, member);
-			
+
+			if (EntityType.Namespace == member.EntityType)
+			{
+				string ns = null;
+				foreach (Import import in _currentModule.Imports)
+				{
+					if (import.NamespaceUsed) continue;
+					if (null == ns) ns = node.ToCodeString();
+					if (import.Namespace == ns)
+					{
+						import.NamespaceUsed = true;
+						break;
+					}
+				}
+			}
+
 			IMember memberInfo = member as IMember;
 			if (null != memberInfo)
 			{

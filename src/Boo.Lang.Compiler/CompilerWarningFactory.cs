@@ -124,5 +124,10 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0015", node.LexicalInfo);
 		}
 
+		public static CompilerWarning NamespaceNeverUsed(Import node)
+		{
+			return new CompilerWarning("BCW0016", node.LexicalInfo, node.Namespace);
+		}
+
 	}
 }

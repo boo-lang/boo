@@ -56,5 +56,19 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return _namespace;
 		}
+
+		public bool NamespaceUsed
+		{
+			get
+			{
+				return _namespaceUsed;
+			}
+			set
+			{
+				_namespaceUsed = value;
+			}
+		}
+		protected bool _namespaceUsed = false;
+
 	}
 }
