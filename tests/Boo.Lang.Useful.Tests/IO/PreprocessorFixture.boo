@@ -29,8 +29,6 @@
 namespace Boo.Lang.Useful.IO.Tests
 
 import NUnit.Framework
-import System.IO
-import System.Text
 import Boo.Lang.Useful.IO
 
 [TestFixture]

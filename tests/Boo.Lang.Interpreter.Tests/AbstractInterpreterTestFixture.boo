@@ -28,10 +28,8 @@
 namespace Boo.Lang.Interpreter.Tests
 
 import System
-import System.IO
 import NUnit.Framework
 import Boo.Lang.Interpreter
-import Boo.Lang.Compiler.TypeSystem
 
 class MockInterpreter(AbstractInterpreter):
 	

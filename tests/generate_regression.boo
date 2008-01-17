@@ -29,8 +29,6 @@
 
 import System
 import System.IO
-import Boo.Lang.Useful.IO from Boo.Lang.Useful
-import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast.Visitors
 import Boo.Lang.Parser
 

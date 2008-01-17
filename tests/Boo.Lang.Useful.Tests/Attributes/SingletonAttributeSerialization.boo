@@ -29,7 +29,6 @@
 namespace Boo.Lang.Useful.Tests.Attributes
 
 import NUnit.Framework
-import Boo.Lang.Compiler
 import System.IO
 import Useful.Attributes
 import System.Runtime.Serialization

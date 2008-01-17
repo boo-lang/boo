@@ -8,7 +8,6 @@ import System.Resources
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Resources
 import Boo.Lang.Compiler.Pipelines
-import Boo.Lang.Compiler.Steps
 
 class TestResource(ICompilerResource):
 	def WriteResource(service as IResourceService):		

@@ -33,7 +33,6 @@ import System.IO
 import System.Reflection
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.Pipelines
 import NUnit.Framework
 
