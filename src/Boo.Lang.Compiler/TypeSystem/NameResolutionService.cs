@@ -113,17 +113,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public bool Resolve(List targetList, string name, EntityType flags)
-		{			
+		{
 			IEntity entity = _context.TypeSystemServices.ResolvePrimitive(name);
 			if (null != entity)
-			{ 
+			{
 				targetList.Add(entity);
 				return true;
 			}
 
 			INamespace ns = _current;
 			while (null != ns)
-			{					
+			{
 				if (ns.Resolve(targetList, name, flags))
 				{
 					return true;
@@ -177,7 +177,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 		
 		public IEntity ResolveQualifiedName(string name)
-		{			
+		{
 			_buffer.Clear();
 			ResolveQualifiedName(_buffer, name);
 			return GetEntityFromBuffer();
@@ -379,22 +379,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeSystemServices.ErrorEntity; 
 		}
 		
-		public IField ResolveField(IType type, string name)
+		public static IField ResolveField(IType type, string name)
 		{
 			return (IField)ResolveMember(type, name, EntityType.Field);
 		}
 		
-		public IMethod ResolveMethod(IType type, string name)
+		public static IMethod ResolveMethod(IType type, string name)
 		{
 			return (IMethod)ResolveMember(type, name, EntityType.Method);
 		}
 		
-		public IProperty ResolveProperty(IType type, string name)
+		public static IProperty ResolveProperty(IType type, string name)
 		{
 			return (IProperty)ResolveMember(type, name, EntityType.Property);
 		}
 		
-		public IEntity ResolveMember(IType type, string name, EntityType elementType)
+		public static IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
 			foreach (IEntity member in type.GetMembers())
 			{				
@@ -458,18 +458,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void CatalogPublicTypes(Type[] types)
 		{
+			string lastNs = "!!not a namespace!!";
+			NamespaceEntity lastNsEntity = null;
+			string ns;
+
 			foreach (Type type in types)
 			{
-				if (type.IsPublic) CatalogType(type);
+				if (!type.IsPublic) continue;
+
+				ns = type.Namespace ?? string.Empty;
+				//retrieve the namespace only if we don't have it handy already
+				//usually we'll have it since GetExportedTypes() seems to export
+				//types in a sorted fashion.
+				if (ns != lastNs)
+				{
+					lastNs = ns;
+					lastNsEntity = GetNamespace(ns);
+					lastNsEntity.Add(type);
+				}
+				else
+				{
+					lastNsEntity.Add(type);
+				}
 			}
-		}
-
-		private void CatalogType(Type type)
-		{
-			string ns = type.Namespace ?? string.Empty;
-			GetNamespace(ns).Add(type);
-		}
-
+		}
 		public NamespaceEntity GetNamespace(string ns)
 		{
 			string[] namespaceHierarchy = ns.Split('.');
