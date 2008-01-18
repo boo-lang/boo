@@ -4409,7 +4409,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			builder.SetParameters(GetParameterTypes(parameters));
-			builder.SetReturnType(GetSystemType(method.ReturnType));			
+
+			IType returnType = GetType(method.ReturnType);
+			if (IsPInvoke(method) && returnType is TypeSystem.Unknown)
+			{
+				returnType = TypeSystemServices.VoidType;
+			}
+			builder.SetReturnType(GetSystemType(returnType));
 
 			builder.SetImplementationFlags(GetImplementationFlags(method));
 			
