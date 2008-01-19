@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				if (!usage.AllowMultiple)
 				{
-					TypeMember m = node.ParentNode as TypeMember;
+					INodeWithAttributes m = node.ParentNode as INodeWithAttributes;
 					foreach (Boo.Lang.Compiler.Ast.Attribute mAttr in m.Attributes) {
 						if (mAttr == node) continue;
 						IExternalEntity mAttrEnt = TypeSystemServices.GetOptionalEntity(mAttr) as IExternalEntity;
