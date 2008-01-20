@@ -221,6 +221,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			return false;
 		}
+
+		/// <summary>
+		/// Gets the generic parameters associated with a generic type or generic method definition.
+		/// </summary>
+		/// <returns>An array of IGenericParameter objects, or null if the specified entity isn't a generic definition.</returns>
+		public static IGenericParameter[] GetGenericParameters(IEntity definition)
+		{
+			if (GenericsServices.IsGenericType(definition))
+			{
+				return ((IType)definition).GenericInfo.GenericParameters;
+			}
+			if (GenericsServices.IsGenericMethod(definition))
+			{
+				return ((IMethod)definition).GenericInfo.GenericParameters;
+			}
+			return null;
+		}
+
 	}
 
 	/// <summary>
@@ -275,7 +293,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		public bool IncorrectGenerity(IEntity definition)
 		{
-			int parametersCount = GetGenericParameters(definition).Length;
+			int parametersCount = GenericsServices.GetGenericParameters(definition).Length;
 			if (parametersCount != ArgumentNodes.Count)
 			{
 				Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(ConstructionNode, definition.FullName, parametersCount));
@@ -290,7 +308,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		public bool ViolatesParameterConstraints(IEntity definition)
 		{
-			IGenericParameter[] parameters = GetGenericParameters(definition);
+			IGenericParameter[] parameters = GenericsServices.GetGenericParameters(definition);
 
 			bool valid = true;
 			for (int i = 0; i < parameters.Length; i++)
@@ -385,21 +403,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 
-		/// <summary>
-		/// Gets the generic parameters associated with a generic type or generic method definition.
-		/// </summary>
-		/// <returns>An array of IGenericParameter objects, or null if the specified entity isn't a generic definition.</returns>
-		private static IGenericParameter[] GetGenericParameters(IEntity definition)
-		{
-			if (GenericsServices.IsGenericType(definition))
-			{
-				return ((IType)definition).GenericInfo.GenericParameters;
-			}
-			if (GenericsServices.IsGenericMethod(definition))
-			{
-				return ((IMethod)definition).GenericInfo.GenericParameters;
-			}
-			return null;
-		}
 	}
 }

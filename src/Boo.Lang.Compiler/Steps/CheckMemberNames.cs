@@ -132,7 +132,8 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						if (AreParametersTheSame(existingMember, member)
 							&& !AreDifferentInterfaceMembers((IExplicitMember)existingMember, (IExplicitMember)member)
-							&& !AreDifferentConversionOperators(existingMember, member))
+							&& !AreDifferentConversionOperators(existingMember, member)
+							&& IsGenericityTheSame(existingMember, member))
 						{
 							MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters)member.Entity, false));
 						}
@@ -151,6 +152,13 @@ namespace Boo.Lang.Compiler.Steps
 		private static IParameter[] GetParameters(IEntity entity)
 		{
 			return ((IEntityWithParameters)entity).GetParameters();
+		}
+
+		bool IsGenericityTheSame(TypeMember lhs, TypeMember rhs)
+		{
+			IGenericParameter[] lgp = GenericsServices.GetGenericParameters(lhs.Entity);
+			IGenericParameter[] rgp = GenericsServices.GetGenericParameters(rhs.Entity);
+			return (lgp == rgp || (null != lgp && null != rgp && lgp.Length == rgp.Length));
 		}
 
 		bool AreDifferentInterfaceMembers(IExplicitMember lhs, IExplicitMember rhs)
