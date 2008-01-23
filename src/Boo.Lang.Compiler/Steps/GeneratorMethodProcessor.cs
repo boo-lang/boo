@@ -30,6 +30,7 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System.Collections;
+	using System.Collections.Generic;
 	using System.Diagnostics;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
@@ -51,11 +52,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IField _state;
 		
-		IMethod _yield;		
+		IMethod _yield;
 		
 		Field _externalEnumeratorSelf;
 		
 		List _labels;
+		List<TryStatementInfo> _tryStatementInfoForLabels = new List<TryStatementInfo>();
 		
 		Hashtable _mapping;
 		
@@ -90,13 +92,13 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void Run()
-		{	
+		{
 			CreateEnumerableConstructor();
-			CreateEnumerator();			
+			CreateEnumerator();
 			MethodInvocationExpression enumerableConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerable.ClassDefinition);
 			MethodInvocationExpression enumeratorConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
-			PropagateReferences(enumerableConstructorInvocation, enumeratorConstructorInvocation);			
-			CreateGetEnumerator(enumeratorConstructorInvocation);			
+			PropagateReferences(enumerableConstructorInvocation, enumeratorConstructorInvocation);
+			CreateGetEnumerator(enumeratorConstructorInvocation);
 			FixGeneratorMethodBody(enumerableConstructorInvocation);
 		}
 		
@@ -114,7 +116,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void PropagateReferences(MethodInvocationExpression enumerableConstructorInvocation,
-								MethodInvocationExpression enumeratorConstructorInvocation)
+		                         MethodInvocationExpression enumeratorConstructorInvocation)
 		{
 			// propagate the necessary parameters from
 			// the enumerable to the enumerator
@@ -125,10 +127,10 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					enumerableConstructorInvocation.Arguments.Add(
 						CodeBuilder.CreateReference(parameter));
-						
+					
 					PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
-														entity.Name,
-														entity.Type);
+					                                    entity.Name,
+					                                    entity.Type);
 				}
 			}
 			
@@ -138,12 +140,12 @@ namespace Boo.Lang.Compiler.Steps
 				IType type = (IType)_externalEnumeratorSelf.Type.Entity;
 				enumerableConstructorInvocation.Arguments.Add(
 					CodeBuilder.CreateSelfReference(type));
-					
+				
 				PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
-														"self_",
-														type);
+				                                    "self_",
+				                                    type);
 			}
-		
+			
 		}
 
 		private MethodInvocationExpression CreateGetEnumeratorInvocation(MethodInvocationExpression enumerableConstructorInvocation)
@@ -191,14 +193,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateEnumerator()
 		{
-			IType abstractEnumeratorType = 
+			IType abstractEnumeratorType =
 				TypeSystemServices.Map(typeof(Boo.Lang.GenericGeneratorEnumerator<>)).
-					GenericInfo.ConstructType(new IType[] {_generatorItemType});
+				GenericInfo.ConstructType(new IType[] {_generatorItemType});
 			
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
 			
 			_enumerator = CodeBuilder.CreateClass("$");
+			_enumerator.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
+			_enumerator.Modifiers |= TypeMemberModifiers.Final;
 			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
@@ -207,6 +211,7 @@ namespace Boo.Lang.Compiler.Steps
 			CreateMoveNext();
 			
 			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
+			//new Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor(System.Console.Out).Visit(_enumerator.ClassDefinition);
 		}
 		
 		void CreateMoveNext()
@@ -232,41 +237,108 @@ namespace Boo.Lang.Compiler.Steps
 				if (entity.IsUsed)
 				{
 					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
-												entity.Name,
-												entity.Type);
+					                                                              entity.Name,
+					                                                              entity.Type);
 					_mapping[entity] = field.Entity;
 				}
 			}
 			
 			mn.Body.Add(CreateLabel(generator));
+			// Visit() needs to know the number of the finished state
+			_finishedStateNumber = _labels.Count;
+			LabelStatement finishedLabel = CreateLabel(generator);
 			mn.Body.Add(generator.Body);
 			generator.Body.Clear();
 			
 			Visit(mn.Body);
 			
-			mn.Body.Add(CreateYieldInvocation(null));
-			mn.Body.Add(CreateLabel(generator));
+			mn.Body.Add(CreateYieldInvocation(null, _finishedStateNumber));
+			mn.Body.Add(finishedLabel);
 			
 			mn.Body.Insert(0,
-				CodeBuilder.CreateSwitch(
-					this.LexicalInfo,
-					CodeBuilder.CreateMemberReference(_state),
-					_labels));
+			               CodeBuilder.CreateSwitch(
+			               	this.LexicalInfo,
+			               	CodeBuilder.CreateMemberReference(_state),
+			               	_labels));
+			
+			// if the method contains converted try statements, put it in a try/failure block
+			if (_convertedTryStatements.Count > 0) {
+				IMethod dispose = CreateDisposeMethod();
+				
+				TryStatement tryFailure = new TryStatement();
+				foreach (Statement stmt in mn.Body.Statements)
+					tryFailure.ProtectedBlock.Add(stmt);
+				tryFailure.FailureBlock = new Block();
+				tryFailure.FailureBlock.Add(CallMethodOnSelf(dispose));
+				mn.Body.Clear();
+				mn.Body.Add(tryFailure);
+			}
+		}
+		
+		MethodInvocationExpression CallMethodOnSelf(IMethod method)
+		{
+			return CodeBuilder.CreateMethodInvocation(
+				CodeBuilder.CreateSelfReference(_enumerator.Entity),
+				method);
+		}
+		
+		IMethod CreateDisposeMethod()
+		{
+			BooMethodBuilder mn = _enumerator.AddVirtualMethod("Dispose", TypeSystemServices.VoidType);
+			mn.Method.LexicalInfo = this.LexicalInfo;
+			
+			LabelStatement noEnsure = CodeBuilder.CreateLabel(_generator.Method, "noEnsure").LabelStatement;
+			mn.Body.Add(noEnsure);
+			mn.Body.Add(SetStateTo(_finishedStateNumber));
+			mn.Body.Add(new ReturnStatement());
+			
+			// Create a section calling all ensure methods for each converted try block
+			LabelStatement[] disposeLabels = new LabelStatement[_labels.Count];
+			for (int i = 0; i < _convertedTryStatements.Count; i++) {
+				TryStatementInfo info = _convertedTryStatements[i];
+				disposeLabels[info._stateNumber] = CodeBuilder.CreateLabel(_generator.Method, "$ensure_" + info._stateNumber).LabelStatement;
+				mn.Body.Add(disposeLabels[info._stateNumber]);
+				mn.Body.Add(SetStateTo(_finishedStateNumber));
+				Block block = mn.Body;
+				while (info._parent != null) {
+					TryStatement ts = new TryStatement();
+					block.Add(ts);
+					ts.ProtectedBlock.Add(CallMethodOnSelf(info._ensureMethod));
+					block = ts.EnsureBlock = new Block();
+					info = info._parent;
+				}
+				block.Add(CallMethodOnSelf(info._ensureMethod));
+				mn.Body.Add(new ReturnStatement());
+			}
+			
+			// now map the labels of the suspended states to the labels we just created
+			for (int i = 0; i < _labels.Count; i++) {
+				if (_tryStatementInfoForLabels[i] == null)
+					disposeLabels[i] = noEnsure;
+				else
+					disposeLabels[i] = disposeLabels[_tryStatementInfoForLabels[i]._stateNumber];
+			}
+			
+			mn.Body.Insert(0, CodeBuilder.CreateSwitch(
+				this.LexicalInfo,
+				CodeBuilder.CreateMemberReference(_state),
+				disposeLabels));
+			return mn.Entity;
 		}
 		
 		void PropagateFromEnumerableToEnumerator(MethodInvocationExpression enumeratorConstructorInvocation,
-												string parameterName,
-												IType parameterType)
+		                                         string parameterName,
+		                                         IType parameterType)
 		{
 			Field field = DeclareFieldInitializedFromConstructorParameter(_enumerable, _enumerableConstructor, parameterName, parameterType);
 			enumeratorConstructorInvocation.Arguments.Add(
-					CodeBuilder.CreateReference(field));
+				CodeBuilder.CreateReference(field));
 		}
 		
 		Field DeclareFieldInitializedFromConstructorParameter(BooClassBuilder type,
-													BooMethodBuilder constructor,
-													string parameterName,
-													IType parameterType)
+		                                                      BooMethodBuilder constructor,
+		                                                      string parameterName,
+		                                                      IType parameterType)
 		{
 			Field field = type.AddInternalField("$" + parameterName + _context.AllocIndex(), parameterType);
 			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
@@ -274,9 +346,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void InitializeFieldFromConstructorParameter(BooMethodBuilder constructor,
-											Field field,
-											string parameterName,
-											IType parameterType)
+		                                             Field field,
+		                                             string parameterName,
+		                                             IType parameterType)
 		{
 			ParameterDeclaration parameter = constructor.AddParameter(parameterName, parameterType);
 			constructor.Body.Add(
@@ -304,40 +376,119 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				IType type = node.ExpressionType;
 				_externalEnumeratorSelf = DeclareFieldInitializedFromConstructorParameter(
-													_enumerator,
-													_enumeratorConstructor,
-													"self_",
-													type);
+					_enumerator,
+					_enumeratorConstructor,
+					"self_",
+					type);
 			}
 			
 			ReplaceCurrentNode(CodeBuilder.CreateReference(_externalEnumeratorSelf));
 		}
 		
+		class TryStatementInfo
+		{
+			internal TryStatement _statement;
+			internal TryStatementInfo _parent;
+			
+			internal bool _containsYield;
+			internal int _stateNumber = -1;
+			internal Block _replacement;
+			
+			internal IMethod _ensureMethod;
+		}
+		
+		List<TryStatementInfo> _convertedTryStatements = new List<TryStatementInfo>();
+		Stack<TryStatementInfo> _tryStatementStack = new Stack<TryStatementInfo>();
+		int _finishedStateNumber;
+		
+		public override bool EnterTryStatement(TryStatement node)
+		{
+			TryStatementInfo info = new TryStatementInfo();
+			info._statement = node;
+			if (_tryStatementStack.Count > 0)
+				info._parent = _tryStatementStack.Peek();
+			_tryStatementStack.Push(info);
+			return true;
+		}
+		
+		BinaryExpression SetStateTo(int num)
+		{
+			return CodeBuilder.CreateAssignment(CodeBuilder.CreateMemberReference(_state),
+			                                    CodeBuilder.CreateIntegerLiteral(num));
+		}
+		
+		public override void LeaveTryStatement(TryStatement node)
+		{
+			TryStatementInfo info = _tryStatementStack.Pop();
+			if (info._containsYield) {
+				ReplaceCurrentNode(info._replacement);
+				TryStatementInfo currentTry = (_tryStatementStack.Count > 0) ? _tryStatementStack.Peek() : null;
+				info._replacement.Add(node.ProtectedBlock);
+				if (currentTry != null) {
+					ConvertTryStatement(currentTry);
+					info._replacement.Add(SetStateTo(currentTry._stateNumber));
+				} else {
+					// leave try block, reset state to prevent ensure block from being called again
+					info._replacement.Add(SetStateTo(_finishedStateNumber));
+				}
+				BooMethodBuilder ensureMethod = _enumerator.AddMethod("$ensure" + info._stateNumber, TypeSystemServices.VoidType, TypeMemberModifiers.Private);
+				ensureMethod.Body.Add(info._statement.EnsureBlock);
+				info._ensureMethod = ensureMethod.Entity;
+				info._replacement.Add(CallMethodOnSelf(ensureMethod.Entity));
+				_convertedTryStatements.Add(info);
+			}
+		}
+		
+		void ConvertTryStatement(TryStatementInfo currentTry)
+		{
+			if (currentTry._containsYield)
+				return;
+			currentTry._containsYield = true;
+			currentTry._stateNumber = _labels.Count;
+			Block tryReplacement = new Block();
+			//tryReplacement.Add(CreateLabel(tryReplacement));
+			// when the MoveNext() is called while the enumerator is still in running state, don't jump to the
+			// try block, but handle it like MoveNext() calls when the enumerator is in the finished state.
+			_labels.Add(_labels[_finishedStateNumber]);
+			_tryStatementInfoForLabels.Add(currentTry);
+			tryReplacement.Add(SetStateTo(currentTry._stateNumber));
+			currentTry._replacement = tryReplacement;
+		}
+		
 		override public void LeaveYieldStatement(YieldStatement node)
 		{
+			TryStatementInfo currentTry = (_tryStatementStack.Count > 0) ? _tryStatementStack.Peek() : null;
+			if (currentTry != null) {
+				ConvertTryStatement(currentTry);
+			}
 			Block block = new Block();
 			block.Add(
 				new ReturnStatement(
 					node.LexicalInfo,
-					CreateYieldInvocation(node.Expression), 
+					CreateYieldInvocation(node.Expression, _labels.Count),
 					null));
 			block.Add(CreateLabel(node));
+			// setting the state back to the "running" state not required, as that state has the same ensure blocks
+			// as the state we are currently in.
+//			if (currentTry != null) {
+//				block.Add(SetStateTo(currentTry._stateNumber));
+//			}
 			ReplaceCurrentNode(block);
 		}
 		
-		MethodInvocationExpression CreateYieldInvocation(Expression value)
+		MethodInvocationExpression CreateYieldInvocation(Expression value, int newState)
 		{
 			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateSelfReference(_enumerator.Entity),
-				_yield, 
-				CodeBuilder.CreateIntegerLiteral(_labels.Count),
+				_yield,
+				CodeBuilder.CreateIntegerLiteral(newState),
 				value == null ? GetDefaultYieldValue() : value);
 			if (null != value) invocation.LexicalInfo = value.LexicalInfo;
 			return invocation;
 		}
 
 		private Expression GetDefaultYieldValue()
-		{	
+		{
 			if (_generatorItemType.IsValueType)
 			{
 				if (null == _nullValueField)
@@ -353,6 +504,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			InternalLabel label = CodeBuilder.CreateLabel(sourceNode, "$state$" + _labels.Count);
 			_labels.Add(label.LabelStatement);
+			_tryStatementInfoForLabels.Add(_tryStatementStack.Count > 0 ? _tryStatementStack.Peek() : null);
 			return label.LabelStatement;
 		}
 		

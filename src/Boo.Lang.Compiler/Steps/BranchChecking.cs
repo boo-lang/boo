@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
@@ -38,9 +39,10 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		private int _loopDepth;
 
+		private int _protectedBlockDepth;
 		private int _exceptionHandlerDepth;
 
-		private int _tryBlockDepth;
+		private Stack<TryStatement> _tryBlocks = new Stack<TryStatement>();
 
 		private List _labelReferences = new List();
 		
@@ -50,7 +52,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_loopDepth = 0;
 			_exceptionHandlerDepth = 0;
-			_tryBlockDepth = 0;
+			_tryBlocks.Clear();
 			_labelReferences.Clear();
 			_labels.Clear();
 		}
@@ -65,19 +67,36 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _labelReferences; }
 		}
 
-		public void EnterTryBlock()
+		public void EnterTryBlock(TryStatement tryBlock)
 		{
-			++_tryBlockDepth;
+			_tryBlocks.Push(tryBlock);
 		}
-
+		
 		public void LeaveTryBlock()
 		{
-			--_tryBlockDepth;
+			_tryBlocks.Pop();
 		}
-
-		public int CurrentTryBlockDepth
+		
+		public void EnterProtectedBlock()
 		{
-			get { return _tryBlockDepth; }
+			++_protectedBlockDepth;
+		}
+		
+		public void LeaveProtectedBlock()
+		{
+			--_protectedBlockDepth;
+		}
+		
+		public int TryBlockDepth {
+			get { return _tryBlocks.Count; }
+		}
+		
+		public IEnumerable<TryStatement> TryBlocks {
+			get { return _tryBlocks; }
+		}
+		
+		public int ProtectedBlockDepth {
+			get { return _protectedBlockDepth; }
 		}
 
 		public void EnterExceptionHandler()
@@ -134,17 +153,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnTryStatement(TryStatement node)
 		{
-			_state.EnterTryBlock();
+			_state.EnterTryBlock(node);
+			_state.EnterProtectedBlock();
 			Visit(node.ProtectedBlock);
+			_state.LeaveProtectedBlock();
 
-			_state.EnterTryBlock();
 			Visit(node.ExceptionHandlers);
 
-			_state.EnterTryBlock();
-			Visit(node.EnsureBlock);
-			_state.LeaveTryBlock();
+			Visit(node.FailureBlock);
 
-			_state.LeaveTryBlock();
+			Visit(node.EnsureBlock);
 			_state.LeaveTryBlock();
 		}
 
@@ -215,7 +233,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnLabelStatement(LabelStatement node)
 		{
-			AstAnnotations.SetTryBlockDepth(node, _state.CurrentTryBlockDepth);
+			AstAnnotations.SetTryBlockDepth(node, _state.TryBlockDepth);
 
 			if (null == _state.ResolveLabel(node.Name))
 			{
@@ -232,9 +250,17 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnYieldStatement(YieldStatement node)
 		{
-			if (_state.CurrentTryBlockDepth > 0)
-			{
-				Error(CompilerErrorFactory.YieldInsideTryBlock(node));
+			if (_state.TryBlockDepth == _state.ProtectedBlockDepth) {
+				// we are currently only in the protected blocks, not in any "except" or "ensure" blocks.
+				foreach (TryStatement tryBlock in _state.TryBlocks) {
+					// only allow yield in the try part of try-ensure blocks, fail if it is a try-except block
+					if (tryBlock.FailureBlock != null || tryBlock.ExceptionHandlers.Count > 0) {
+						Error(CompilerErrorFactory.YieldInsideTryExceptOrEnsureBlock(node));
+						break;
+					}
+				}
+			} else {
+				Error(CompilerErrorFactory.YieldInsideTryExceptOrEnsureBlock(node));
 			}
 		}
 
@@ -251,7 +277,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnGotoStatement(GotoStatement node)
 		{
-			AstAnnotations.SetTryBlockDepth(node, _state.CurrentTryBlockDepth);
+			AstAnnotations.SetTryBlockDepth(node, _state.TryBlockDepth);
 
 			_state.AddLabelReference(node.Label);
 		}

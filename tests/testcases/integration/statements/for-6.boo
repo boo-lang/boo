@@ -2,6 +2,7 @@
 before
 GetEnumerator
 MoveNext
+Dispose
 after
 """
 import System

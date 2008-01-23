@@ -544,7 +544,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0098", SafeLexicalInfo(node));
 		}
 		
-		public static CompilerError YieldInsideTryBlock(Node node)
+		public static CompilerError YieldInsideTryExceptOrEnsureBlock(Node node)
 		{
 			return new CompilerError("BCE0099", SafeLexicalInfo(node));
 		}

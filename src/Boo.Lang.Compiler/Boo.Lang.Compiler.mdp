@@ -311,10 +311,11 @@
     <File name="Steps/BindTypeDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindTypeMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BranchChecking.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/CheckAttributesUsage.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckIdentifiers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMemberNames.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMembersProtectionLevel.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/CheckObsoleteUsage.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/CheckNeverUsedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ContextAnnotations.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/DumpReferences.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/EmitAssembly.cs" buildaction="Compile" subtype="Code" />

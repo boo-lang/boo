@@ -354,10 +354,11 @@
     <Compile Include="Steps\BindTypeDefinitions.cs" />
     <Compile Include="Steps\BindTypeMembers.cs" />
     <Compile Include="Steps\BranchChecking.cs" />
+    <Compile Include="Steps\CheckAttributesUsage.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
     <Compile Include="Steps\CheckMemberNames.cs" />
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
-    <Compile Include="Steps\CheckObsoleteUsage.cs" />
+    <Compile Include="Steps\CheckNeverUsedMembers.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
     <Compile Include="Steps\DumpReferences.cs" />
     <Compile Include="Steps\EmitAssembly.cs" />

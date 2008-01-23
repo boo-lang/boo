@@ -1865,6 +1865,7 @@ namespace Boo.Lang.Compiler.Steps
 				string.Format("{0}${1}", method.Name, _context.AllocIndex()),
 				TypeMemberModifiers.Internal|TypeMemberModifiers.Final);
 			builder.LexicalInfo = sourceNode.LexicalInfo;
+			builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
 			
 			BooMethodBuilder getEnumeratorBuilder = null;
 			if (generatorItemType != TypeSystemServices.VoidType)

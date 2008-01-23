@@ -35,10 +35,10 @@ namespace Boo.Lang.Compiler.Steps
 	/// AST semantic evaluation.
 	/// </summary>
 	public class NormalizeIterationStatements : AbstractTransformerCompilerStep
-	{		
+	{
 		static System.Reflection.MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
 		
-		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");		
+		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
 		
 		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
 		
@@ -46,6 +46,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static System.Reflection.MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
 
+		static System.Reflection.MethodInfo IDisposable_Dispose = typeof(System.IDisposable).GetMethod("Dispose");
+		
 		Method _current;
 		
 		override public void Run()
@@ -79,20 +81,20 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Block body = new Block(node.LexicalInfo);
 			UnpackExpression(body, node.Expression, node.Declarations);
-			ReplaceCurrentNode(body);			
+			ReplaceCurrentNode(body);
 		}
 		
 		override public void LeaveForStatement(ForStatement node)
-		{						
+		{
 			IType enumeratorType = GetExpressionType(node.Iterator);
 			IType enumeratorItemType = TypeSystemServices.GetEnumeratorItemType(enumeratorType);
 			DeclarationCollection declarations = node.Declarations;
 			Block body = new Block(node.LexicalInfo);
 			
 			InternalLocal iterator = CodeBuilder.DeclareLocal(
-										_current,
-										"___iterator" + _context.AllocIndex(),
-										TypeSystemServices.IEnumeratorType);
+				_current,
+				"___iterator" + _context.AllocIndex(),
+				TypeSystemServices.IEnumeratorType);
 			
 			if (TypeSystemServices.IEnumeratorType.IsAssignableFrom(enumeratorType))
 			{
@@ -113,16 +115,16 @@ namespace Boo.Lang.Compiler.Steps
 							node.Iterator,
 							IEnumerable_GetEnumerator)));
 			}
-					
+			
 			// while __iterator.MoveNext():
 			WhileStatement ws = new WhileStatement(node.LexicalInfo);
 			ws.Condition = CodeBuilder.CreateMethodInvocation(
-							CodeBuilder.CreateReference(iterator),
-							IEnumerator_MoveNext);			
+				CodeBuilder.CreateReference(iterator),
+				IEnumerator_MoveNext);
 			
 			Expression current = CodeBuilder.CreateMethodInvocation(
-							CodeBuilder.CreateReference(iterator),
-							IEnumerator_get_Current);							
+				CodeBuilder.CreateReference(iterator),
+				IEnumerator_get_Current);
 			
 			if (1 == declarations.Count)
 			{
@@ -136,15 +138,44 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				UnpackExpression(ws.Block,
-								CodeBuilder.CreateCast(
-									enumeratorItemType,
-									current),
-								node.Declarations);						
+				                 CodeBuilder.CreateCast(
+				                 	enumeratorItemType,
+				                 	current),
+				                 node.Declarations);
 			}
 			
 			ws.Block.Add(node.Block);
 			
-			body.Add(ws);
+			// try:
+			//   while...
+			// ensure:
+			//   d = iterator as IDisposable
+			//   d.Dispose() unless d is null
+			
+			InternalLocal iteratorDisposable = CodeBuilder.DeclareLocal(
+				_current,
+				"___disposable" + _context.AllocIndex(),
+				TypeSystemServices.Map(typeof(System.IDisposable)));
+			TryStatement tryStatement = new TryStatement();
+			tryStatement.ProtectedBlock.Add(ws);
+			tryStatement.EnsureBlock = new Block();
+			
+			TryCastExpression tryCastExpression = new TryCastExpression();
+			tryCastExpression.Type = CodeBuilder.CreateTypeReference(iteratorDisposable.Type);
+			tryCastExpression.Target = CodeBuilder.CreateReference(iterator);
+			tryCastExpression.ExpressionType = iteratorDisposable.Type;
+			
+			tryStatement.EnsureBlock.Add(CodeBuilder.CreateAssignment(
+				CodeBuilder.CreateReference(iteratorDisposable),
+				tryCastExpression
+			));
+			IfStatement ifStatement = new IfStatement();
+			ifStatement.Condition = CodeBuilder.CreateNotNullTest(CodeBuilder.CreateReference(iteratorDisposable));
+			ifStatement.TrueBlock = new Block();
+			ifStatement.TrueBlock.Add(CodeBuilder.CreateMethodInvocation(CodeBuilder.CreateReference(iteratorDisposable), IDisposable_Dispose));
+			tryStatement.EnsureBlock.Add(ifStatement);
+			
+			body.Add(tryStatement);
 			
 			ReplaceCurrentNode(body);
 		}
@@ -155,7 +186,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		public static void UnpackExpression(BooCodeBuilder codeBuilder, Method method, Block block, Expression expression, DeclarationCollection declarations)
-		{		
+		{
 			if (expression.ExpressionType.IsArray)
 			{
 				UnpackArray(codeBuilder, method, block, expression, declarations);
@@ -171,8 +202,8 @@ namespace Boo.Lang.Compiler.Steps
 			TypeSystemServices tss = codeBuilder.TypeSystemServices;
 			
 			InternalLocal local = codeBuilder.DeclareTempLocal(method,
-												tss.IEnumeratorType);
-												
+			                                                   tss.IEnumeratorType);
+			
 			IType expressionType = expression.ExpressionType;
 			
 			if (expressionType.IsSubclassOf(codeBuilder.TypeSystemServices.IEnumeratorType))
@@ -187,7 +218,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (!expressionType.IsSubclassOf(codeBuilder.TypeSystemServices.IEnumerableType))
 				{
 					expression = codeBuilder.CreateMethodInvocation(
-						RuntimeServices_GetEnumerable, expression);								
+						RuntimeServices_GetEnumerable, expression);
 				}
 				
 				block.Add(
@@ -197,7 +228,7 @@ namespace Boo.Lang.Compiler.Steps
 						codeBuilder.CreateMethodInvocation(
 							expression, IEnumerable_GetEnumerator)));
 			}
-						
+			
 			for (int i=0; i<declarations.Count; ++i)
 			{
 				Declaration declaration = declarations[i];
@@ -206,7 +237,7 @@ namespace Boo.Lang.Compiler.Steps
 					codeBuilder.CreateAssignment(
 						codeBuilder.CreateReference(declaration.Entity),
 						codeBuilder.CreateMethodInvocation(RuntimeServices_MoveNext,
-							codeBuilder.CreateReference(local))));
+						                                   codeBuilder.CreateReference(local))));
 			}
 		}
 		
@@ -216,7 +247,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == local)
 			{
 				local = codeBuilder.DeclareTempLocal(method,
-											expression.ExpressionType);
+				                                     expression.ExpressionType);
 				block.Add(
 					codeBuilder.CreateAssignment(
 						codeBuilder.CreateReference(local),
@@ -235,5 +266,5 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 	}
-}	
+}
 

@@ -59,13 +59,15 @@ namespace Boo.Lang
 			get { return _current; }
 		}
 
-		void IDisposable.Dispose()
+		public virtual void Dispose()
 		{
 		}
 
 		public void Reset()
 		{
-			_state = 0;
+			// We cannot reset the local variables of the generator method,
+			// so let's do it like C# and throw a NotSupportedException
+			throw new NotSupportedException();
 		}
 
 		public abstract bool MoveNext();

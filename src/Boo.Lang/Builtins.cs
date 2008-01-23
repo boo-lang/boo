@@ -73,13 +73,16 @@ namespace Boo.Lang
 		{
 			StringBuilder sb = new StringBuilder();
 			IEnumerator enumerator = enumerable.GetEnumerator();
-			if (enumerator.MoveNext())
+			using (enumerator as IDisposable)
 			{
-				sb.Append(enumerator.Current);
-				while (enumerator.MoveNext())
+				if (enumerator.MoveNext())
 				{
-					sb.Append(separator);
 					sb.Append(enumerator.Current);
+					while (enumerator.MoveNext())
+					{
+						sb.Append(separator);
+						sb.Append(enumerator.Current);
+					}
 				}
 			}
 			return sb.ToString();
@@ -89,13 +92,16 @@ namespace Boo.Lang
 		{
 			StringBuilder sb = new StringBuilder();
 			IEnumerator enumerator = enumerable.GetEnumerator();
-			if (enumerator.MoveNext())
+			using (enumerator as IDisposable)
 			{
-				sb.Append(enumerator.Current);
-				while (enumerator.MoveNext())
+				if (enumerator.MoveNext())
 				{
-					sb.Append(separator);
 					sb.Append(enumerator.Current);
+					while (enumerator.MoveNext())
+					{
+						sb.Append(separator);
+						sb.Append(enumerator.Current);
+					}
 				}
 			}
 			return sb.ToString();
@@ -371,7 +377,7 @@ namespace Boo.Lang
 		}
 
 		[EnumeratorItemType(typeof(object[]))]
-		public class ZipEnumerator : IEnumerator, IEnumerable
+		public class ZipEnumerator : IEnumerator, IEnumerable, IDisposable
 		{
 			IEnumerator[] _enumerators;
 
@@ -380,6 +386,16 @@ namespace Boo.Lang
 				_enumerators = enumerators;
 			}
 
+			public void Dispose()
+			{
+				for (int i=0; i<_enumerators.Length; ++i)
+				{
+					IDisposable d = _enumerators[i] as IDisposable;
+					if (d != null)
+						d.Dispose();
+				}
+			}
+			
 			public void Reset()
 			{
 				for (int i=0; i<_enumerators.Length; ++i)
