@@ -528,12 +528,6 @@ namespace Boo.Lang.Compiler.Steps
 				CompilerWarning warning = null;				
 				if (null != m)
 				{
-					//FIXME: cannot reorder upstream? => base before derived
-					foreach (TypeMember existing in node.Members) {
-						if (existing.Name == m.Name) {
-							return true;
-						}
-					}
 					warning = CompilerWarningFactory.AbstractMemberNotImplementedStubCreated(baseTypeRef,
 										node.FullName, GetAbstractMemberSignature(member));
 					node.Members.Add(m);
