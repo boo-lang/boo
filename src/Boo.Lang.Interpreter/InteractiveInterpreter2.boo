@@ -43,40 +43,44 @@ import Boo.Lang.Compiler.IO
 class InteractiveInterpreter2(AbstractInterpreter):
 
 	_values = {}
-	
+
 	_declarations = {}
-	
+
 	_representers = []
-	
+
 	[property(ShowWarnings)]
 	_showWarnings = false
-	
+
 	[property(BlockStarters, value is not null)]
 	_blockStarters = (char(':'), char('\\'),)
-	
+
 	[getter(LastValue)]
 	_lastValue
-	
+
 	[property(Print, value is not null)]
 	_print as callable(object) = print
-	
+
+
 	def constructor():
 		super()
+		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_NOCOLORS") is not null
 		InitializeStandardReferences()
 		LoadHistory()
-		
+
 	def constructor(parser as ICompilerStep):
 		super(parser)
+		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_NOCOLORS") is not null
 		InitializeStandardReferences()
 		LoadHistory()
-		
+
+
 	def Reset():
 		_values.Clear()
 		_declarations.Clear()
 		_lastValue = null
 		_indent = 0
 		InitializeStandardReferences()
-	
+
 
 	public final static HISTORY_FILENAME = "booish_history"
 	public final static HISTORY_CAPACITY = 100	
@@ -84,30 +88,33 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	protected _historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
 	protected _historyIndex = 0
 	protected _session = System.Collections.Generic.List of string()
-		
+
 	private _buffer = StringBuilder()	#buffer to be executed
 	private _line = StringBuilder()		#line being edited
 
-	
+
 	CurrentPrompt as string:
 		get:
 			if _indent > 0:
 				return BlockPrompt
 			return DefaultPrompt
-	
-	
+
+
 	[property(DefaultPrompt)]
 	_defaultPrompt = ">>>"
 
 	[property(BlockPrompt)]
 	_blockPrompt = "..."
 
+	[property(DisableColors)]
+	_disableColors = false
+
 	[property(InterpreterColor)] # messages from the interpreter (not from user code)
 	_interpreterColor = ConsoleColor.Gray
-	
+
 	[property(PromptColor)]
 	_promptColor = ConsoleColor.Green
-	
+
 	[property(ExceptionColor)]
 	_exceptionColor = ConsoleColor.Red
 
@@ -119,75 +126,75 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	[property(SelectedSuggestionIndex)]
 	_selectedSuggestionIndex = -1
-	
+
 	[property(Suggestions)]
 	_suggestions as (object)
-	
+
 	CanAutoComplete as bool:
 		get:
 			return _selectedSuggestionIndex >= 0 and _suggestions is not null
-	
-	
+
+
 	private _builtins as (IEntity)
 	private _filter as string
 
 
 	private def ConsolePrintPrompt():
-		Console.ForegroundColor = _promptColor
+		Console.ForegroundColor = _promptColor if not _disableColors
 		Console.Write(CurrentPrompt)
 		#TODO: automatic indentation option ?
 		#for i in range(_indent):
 		#	_line.Append("\t")
 		#	Console.Write("\t")
-		Console.ResetColor()
+		Console.ResetColor() if not _disableColors
 
 	private def ConsolePrintMessage(msg as string):
-		Console.ForegroundColor = _interpreterColor
+		Console.ForegroundColor = _interpreterColor if not _disableColors
 		print msg
-		Console.ResetColor()
+		Console.ResetColor() if not _disableColors
 
 	private def ConsolePrintException(e as Exception):
-		Console.ForegroundColor = _exceptionColor
+		Console.ForegroundColor = _exceptionColor if not _disableColors
 		print e
-		Console.ResetColor()
+		Console.ResetColor() if not _disableColors
 
 	private def ConsolePrintError(msg as string):
-		Console.ForegroundColor = _exceptionColor
+		Console.ForegroundColor = _exceptionColor if not _disableColors
 		print msg
-		Console.ResetColor()
+		Console.ResetColor() if not _disableColors
 
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
 		#cursorTop = Console.CursorTop
 		Console.Write(Environment.NewLine)
-		
+
 		i = 0
 
 		if _suggestions isa (string):
 			for l in _suggestions as (string):
-				Console.ForegroundColor = _suggestionsColor
+				Console.ForegroundColor = _suggestionsColor if not _disableColors
 				Console.Write(", ") if i > 0
 				if i > 20: #TODO: maxcandidates pref + paging?
 					Console.Write("... (too much candidates)")
 					break
 				if i == _selectedSuggestionIndex:
-					Console.ForegroundColor = _selectedSuggestionColor			
+					Console.ForegroundColor = _selectedSuggestionColor if not _disableColors
 				Console.Write(l)
 				i++	
 
 		elif _suggestions isa (IEntity):
 			for e in _suggestions as (IEntity):
-				Console.ForegroundColor = _suggestionsColor
+				Console.ForegroundColor = _suggestionsColor if not _disableColors
 				Console.Write(", ") if i > 0
 				if i > 20: #TODO: maxcandidates pref + paging?
 					Console.Write("... (too much candidates)")
 					break
 				if i == _selectedSuggestionIndex:
-					Console.ForegroundColor = _selectedSuggestionColor			
+					Console.ForegroundColor = _selectedSuggestionColor if not _disableColors			
 				Console.Write(DescribeEntity(e))
 				i++
-		
-		Console.ResetColor()
+
+		Console.ResetColor() if not _disableColors
 		#Console.CursorTop = cursorTop
 		Console.Write(Environment.NewLine)
 		ConsolePrintPrompt()
@@ -217,7 +224,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			_filter = query
 			_suggestions = array(var.ToString() for var in _values.Keys
 									unless not var.ToString().StartsWith(_filter))
-			
+
 		if not _suggestions or 0 == len(_suggestions):
 			_selectedSuggestionIndex = -1
 			#Console.Beep() #TODO: flash background?
@@ -226,11 +233,11 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		else:
 			ConsolePrintSuggestions()
 
-	
+
 	def AutoComplete():
 		if not _suggestions:
 			raise InvalidOperationException("no suggestions")
-		
+
 		s = _suggestions[_selectedSuggestionIndex] as IEntity
 		if s:
 			if s.EntityType == EntityType.Method:
@@ -244,7 +251,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				else:
 					Console.Write('(') #FIXME: insert at cursor!
 					_line.Append('(')
-			
+
 			else: # not a Method
 				completion = s.Name[len(_filter):]
 				Console.Write(completion) #FIXME: insert at cursor!
@@ -253,13 +260,13 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			completion = (_suggestions[_selectedSuggestionIndex] as string)[len(_filter):]
 			Console.Write(completion) #FIXME: insert at cursor!
 			_line.Append(completion)
-			
+
 		_selectedSuggestionIndex = -1
 		_suggestions = null
-	
-	
+
+
 	private _beforeHistory = string.Empty
-	
+
 	def DisplayHistory():
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
@@ -270,20 +277,20 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		_line.Append(line)
 		Console.CursorLeft = len(CurrentPrompt)
 		Console.Write(line)
-		
-	
+
+
 	def ConsoleLoopEval():
 		Console.CursorVisible = true
 		ConsolePrintPrompt()
-		
+
 		lastChar = char('0')
 		key = ConsoleKey.LeftArrow
-		while key != ConsoleKey.Escape and not _quit:						
+		while not _quit:						
 			cki = Console.ReadKey(true) #TODO: fix mono different behavior when ()
 			key = cki.Key
 			keyChar = cki.KeyChar
 			control = false
-			
+
 			newLine = keyChar in Environment.NewLine
 
 			if char.IsControl(keyChar):
@@ -297,7 +304,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 					else:
 						_line.Append("    ") #TODO: _tabWidth pref
 						Console.Write("    ")
-						
+
 				#line-editing support
 				if key == ConsoleKey.Backspace:
 					if Console.CursorLeft > len(CurrentPrompt) and _line.Length > 0:
@@ -306,7 +313,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 						cx2 = --Console.CursorLeft
 						Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
 						Console.CursorLeft = cx2
-				if key == ConsoleKey.Delete:
+				elif key == ConsoleKey.Delete:
 					if Console.CursorLeft >= len(CurrentPrompt) and _line.Length > 0:
 						cx = Console.CursorLeft-len(CurrentPrompt)
 						if cx < _line.Length:
@@ -314,15 +321,15 @@ class InteractiveInterpreter2(AbstractInterpreter):
 							cx2 = Console.CursorLeft
 							Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
 							Console.CursorLeft = cx2
-				if key == ConsoleKey.LeftArrow:
+				elif key == ConsoleKey.LeftArrow:
 					if Console.CursorLeft > len(CurrentPrompt) and _line.Length > 0:
 						Console.CursorLeft--
-				if key == ConsoleKey.RightArrow:
+				elif key == ConsoleKey.RightArrow:
 					if Console.CursorLeft < (len(CurrentPrompt)+_line.Length):
 						Console.CursorLeft++
-				if key == ConsoleKey.Home:
+				elif key == ConsoleKey.Home:
 					Console.CursorLeft = len(CurrentPrompt)
-				if key == ConsoleKey.End:
+				elif key == ConsoleKey.End:
 					Console.CursorLeft = len(CurrentPrompt) + _line.Length
 
 				#history support
@@ -354,12 +361,12 @@ class InteractiveInterpreter2(AbstractInterpreter):
 						continue
 				if not newLine:
 					continue
-			
+
 			_selectedSuggestionIndex = -1
-			
+
 			cx = Console.CursorLeft-len(CurrentPrompt)			
 			line = _line.ToString()
-			
+
 			if not newLine:
 				if cx < len(line):	#line-editing support
 					_line.Insert(cx, keyChar) if not control
@@ -370,15 +377,15 @@ class InteractiveInterpreter2(AbstractInterpreter):
 					Console.Write(keyChar)
 			
 			line = _line.ToString()
-			
+
 			if newLine:
 				Console.Write(Environment.NewLine)
-								
+
 				if not TryRunCommand(line):
 					_buffer.Append(line)
 					_buffer.Append(Environment.NewLine)
 					AddToHistory(line)
-					
+
 					try:
 						if len(line) > 0:
 							_indent++ if line[len(line)-1] in _blockStarters
@@ -392,10 +399,10 @@ class InteractiveInterpreter2(AbstractInterpreter):
 						ConsolePrintException(x.InnerException)
 					except x:
 						ConsolePrintException(x)
-					
+
 					_line.Length = 0
 					ConsolePrintPrompt()
-			
+
 			lastChar = keyChar
 
 		SaveHistory()
@@ -406,9 +413,9 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	def TryRunCommand(line as string):
 		if not line.StartsWith("/"):
 			return false
-		
+
 		cmd = line.Split()
-		
+
 		if len(cmd) == 1:
 			if cmd[0] == "/q" or cmd[0] == "/quit":						
 				quit()
@@ -421,7 +428,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				globals()
 			else:
 				return false
-			
+
 		elif len(cmd) == 2:
 			if cmd[0] == "/l" or cmd[0] == "/load":
 				load(cmd[1])
@@ -433,21 +440,21 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				ConsolePrintPrompt()
 			else:
 				return false
-		
+
 		else:
 			return false
 		return true
 
-	
+
 	private _indent as int = 0
-		
+
 	def LoopEval(code as string):
 		using console = ConsoleCapture():
 			result = InternalLoopEval(code)
 			for line in System.IO.StringReader(console.ToString()):
 				_print(line)
 		return result
-			
+
 	private def InternalLoopEval(code as string):
 		result = self.Eval(code)
 		if ShowWarnings:
@@ -456,51 +463,50 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			ProcessLastValue()
 			_session.Add(code)
 		return result
-		
+
 	private def ProcessLastValue():
 		_ = self.LastValue
 		if _ is not null:
 			_print(repr(_))
 			SetValue("_", _)
-	
+
 	override def Declare([required] name as string,
 				[required] type as System.Type):
 		_declarations.Add(name, type)
-		
+
 	override def SetLastValue(value):
 		_lastValue = value
-		
+
 	override def SetValue(name as string, value):
 		_values[name] = value
 		return value
 
 	override def GetValue(name as string):
 		return _values[name]
-		
+
 	override def Lookup([required] name as string):
 		type as System.Type = _declarations[name]
 		return type if type is not null
-		
+
 		value = GetValue(name)
 		return value.GetType() if value is not null
-	
+
 	def DisplayProblems(problems as ICollection):
 		return if problems is null or problems.Count == 0
-		Console.ForegroundColor = _exceptionColor
+		Console.ForegroundColor = _exceptionColor if not _disableColors
 		for problem as duck in problems:
 			markLocation(problem.LexicalInfo)
 			type = ("WARNING", "ERROR")[problem isa CompilerError]
 			_print("${type}: ${problem.Message}")
-		Console.ResetColor()
+		Console.ResetColor() if not _disableColors
 		if problems.Count > 0:
 			return true
 		return false
-	
+
 	private def markLocation(location as LexicalInfo):
 		pos = location.Column
 		_print("---" + "-" * pos + "^") if pos > 0
-		
-		
+
 	private def InitializeStandardReferences():
 		SetValue("interpreter", self)
 		SetValue("dir", dir)
@@ -512,7 +518,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 
 	def DisplayHelp():
-		Console.ForegroundColor = _interpreterColor		
+		Console.ForegroundColor = _interpreterColor	if not _disableColors
 		print """Welcome to booish, an interpreter for the boo programming language.
 Running boo ${BooVersion} in CLR v${Environment.Version}.
 
@@ -523,17 +529,17 @@ The following builtin functions are available:
     /s[ave] file : writes your current booish session into file
     /g[lobals] : returns names of all variables known to interpreter
     /n[ames] : namespace navigation
-    /q[uit] : exits the interpreter (or just press the damn escape key!)
+    /q[uit] : exits the interpreter
 
 Enter boo code in the prompt below."""
-		Console.ResetColor()
-		
+		Console.ResetColor() if not _disableColors
+
 
 	def DisplayGoodbye():	// booish is friendly
-		Console.ForegroundColor = _interpreterColor
+		Console.ForegroundColor = _interpreterColor if not _disableColors
 		print ""
 		print "All your boo are belong to us!"
-		Console.ResetColor()
+		Console.ResetColor() if not _disableColors
 
 
 	def LoadHistory():
@@ -550,7 +556,7 @@ Enter boo code in the prompt below."""
 		line = line.Replace(Environment.NewLine, "")
 		_history.Enqueue(line)
 		_historyIndex = _history.Count
-		
+
 	def SaveHistory():
 		try:
 			using sw = System.IO.File.CreateText(_historyFile):
@@ -558,17 +564,17 @@ Enter boo code in the prompt below."""
 					sw.WriteLine(line)
 		except:
 			ConsolePrintError("Cannot save history to '${_historyFile}'.")
-		
+
 
 	def globals():
 		return array(string, _values.Keys)		
-					
+
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
 		return array(member for member in type.GetMembers()
 						unless (method=(member as System.Reflection.MethodInfo))
 							and method.IsSpecialName)
-	
+
 	def load([required] path as string):
 		if path.EndsWith(".boo"):
 			result = EvalCompilerInput(FileInput(path))
@@ -581,7 +587,7 @@ Enter boo code in the prompt below."""
 				References.Add(System.Reflection.Assembly.LoadFrom(path))
 			except e:				
 				print e.Message
-	
+
 	def save([required] path as string):
 		if path is string.Empty:
 			path = "booish_session.boo"
@@ -594,7 +600,7 @@ Enter boo code in the prompt below."""
 			ConsolePrintMessage("Session saved to '${path}'.")
 		except:
 			ConsolePrintError("Cannot save to '${path}'. Check if path is valid and has correct permissions.")
-	
+
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()
 		DescribeType("    ", type)
@@ -603,7 +609,7 @@ Enter boo code in the prompt below."""
 	def quit():
 		_quit = true
 
-	
+
 	def DescribeType(indent as string, type as Type):		
 		if type.IsInterface:
 			typeDef = "interface"
@@ -611,36 +617,36 @@ Enter boo code in the prompt below."""
 		else:
 			typeDef = "class"
 			baseTypes = (GetBooTypeName(type.BaseType),) + array(GetBooTypeName(t) for t in type.GetInterfaces())
-			
+
 		_print("${typeDef} ${type.Name}(${join(baseTypes, ', ')}):")
 		_print("")
-		
+
 		for ctor in type.GetConstructors():
 			_print("${indent}def constructor(${DescribeParameters(ctor.GetParameters())})")
 			_print("")
-			
+
 		sortByName = def (lhs as Reflection.MemberInfo, rhs as Reflection.MemberInfo):
 			return lhs.Name.CompareTo(rhs.Name)
-			
+
 		for f as Reflection.FieldInfo in List(type.GetFields()).Sort(sortByName):
 			_print("${indent}public ${DescribeField(f)}")
 			_print("")
-			
+
 		for p as Reflection.PropertyInfo in List(type.GetProperties()).Sort(sortByName):
 			_print("${indent}${DescribeProperty(p)}:")
 			_print("${indent}${indent}get") if p.GetGetMethod() is not null
 			_print("${indent}${indent}set") if p.GetSetMethod() is not null
 			_print("")		
-		
+
 		for m as Reflection.MethodInfo in List(type.GetMethods()).Sort(sortByName):
 			continue if m.IsSpecialName
 			_print("${indent}${DescribeMethod(m)}")
 			_print("")
-			
+
 		for e as Reflection.EventInfo in List(type.GetEvents()).Sort(sortByName):
 			_print("${indent}${DescribeEvent(e)}")
 			_print("")
-			
+
 	static def DescribeEntity(entity as IEntity):
 		method = entity as ExternalMethod
 		if method is not null:
@@ -655,48 +661,48 @@ Enter boo code in the prompt below."""
 		if e is not null:
 			return InteractiveInterpreter.DescribeEvent(e.EventInfo)
 		return entity.ToString()
-			
+
 	static def DescribeEvent(e as Reflection.EventInfo):
 		return "${DescribeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}"
-			
+
 	static def DescribeProperty(p as Reflection.PropertyInfo):
 		modifiers = DescribeModifiers(p)
 		params = DescribePropertyParameters(p.GetIndexParameters())
 		return "${modifiers}${p.Name}${params} as ${GetBooTypeName(p.PropertyType)}"
-			
+
 	static def DescribeField(f as Reflection.FieldInfo):
 		return "${DescribeModifiers(f)}${f.Name} as ${GetBooTypeName(f.FieldType)}"
-			
+
 	static def DescribeMethod(m as Reflection.MethodInfo):
 		returnType = GetBooTypeName(m.ReturnType)
 		modifiers = DescribeModifiers(m)
 		return "${modifiers}def ${m.Name}(${DescribeParameters(m.GetParameters())}) as ${returnType}"
-			
+
 	static def DescribeModifiers(f as Reflection.FieldInfo):
 		return "static " if f.IsStatic
 		return ""
-			
+
 	static def DescribeModifiers(m as Reflection.MethodBase):
 		return "static " if m.IsStatic
 		return ""
-		
+
 	static def DescribeModifiers(e as Reflection.EventInfo):
 		return DescribeModifiers(e.GetAddMethod(true) or e.GetRemoveMethod(true))
-		
+
 	static def DescribeModifiers(p as Reflection.PropertyInfo):
 		accessor = p.GetGetMethod(true) or p.GetSetMethod(true)
 		return DescribeModifiers(accessor)
-			
+
 	static def DescribePropertyParameters(parameters as (Reflection.ParameterInfo)):
 		return "" if 0 == len(parameters)
 		return "(${DescribeParameters(parameters)})"
-			
+
 	static def DescribeParameters(parameters as (Reflection.ParameterInfo)):
 		return join(DescribeParameter(p) for p in parameters, ", ")
-		
+
 	static def DescribeParameter(p as Reflection.ParameterInfo):
 		return "${p.Name} as ${GetBooTypeName(p.ParameterType)}"
-		
+
 	static def GetBooTypeName(type as System.Type) as string:
 		return "(${GetBooTypeName(type.GetElementType())})" if type.IsArray
 		return "object" if object is type
@@ -718,12 +724,12 @@ Enter boo code in the prompt below."""
 		return "timespan" if timespan is type
 		return "regex" if regex is type
 		return type.FullName
-		
+
 	def repr(value):
 		writer = System.IO.StringWriter()
 		repr(value, writer)
 		return writer.ToString()
-	
+
 	def repr(value, writer as System.IO.TextWriter):
 		return unless value is not null
 		InitializeRepresenters() if 0 == len(_representers)
@@ -732,21 +738,21 @@ Enter boo code in the prompt below."""
 	private def InitializeRepresenters():
 		AddRepresenter(string) do (value as string, writer as TextWriter):
 			Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
-			
+
 		AddRepresenter(bool) do (value as bool, writer as TextWriter):
 			writer.Write(("false", "true")[value])
-			
+
 		AddRepresenter(Array) do (a as Array, writer as TextWriter):
 			writer.Write("(")
 			RepresentItems(a, writer)
 			writer.Write(")")
-				
+
 		AddRepresenter(Delegate) do (d as Delegate, writer as TextWriter):
 			method = d.Method
 			writer.Write(method.DeclaringType.FullName)
 			writer.Write(".")
 			writer.Write(method.Name)
-		
+
 		AddRepresenter(IDictionary) do (value as IDictionary, writer as TextWriter):
 			writer.Write("{")
 			i = 0
@@ -757,27 +763,27 @@ Enter boo code in the prompt below."""
 				repr(value[key], writer)
 				++i
 			writer.Write("}")
-			
+
 		AddRepresenter(IList) do (value as IList, writer as TextWriter):
 			writer.Write("[")
 			RepresentItems(value, writer)
 			writer.Write("]")
-				
+
 		AddRepresenter(object) do (value, writer as TextWriter):
 			writer.Write(value)
-			
+
 	private def RepresentItems(items, writer as TextWriter):
 		i = 0
 		for item in items:
 			writer.Write(", ") if i > 0				
 			repr(item, writer)
 			++i
-			
+
 	callable Representer(value, writer as TextWriter)
-	
+
 	private def AddRepresenter(type as Type, value as Representer):
 		_representers.Add((type, value))
-		
+
 	def GetBestRepresenter(type as Type) as Representer:
 		for key as Type, value in _representers:
 			return value if key.IsAssignableFrom(type)

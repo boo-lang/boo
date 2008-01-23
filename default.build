@@ -2,7 +2,7 @@
 <project name="boo" default="all">
 
 	<property name="boo.major.minor.release.version" value="0.8.0" />
-	<property name="boo.svn.revision" value="2778" />
+	<property name="boo.svn.revision" value="2820" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="2.0.0.0" />
 	
@@ -112,22 +112,22 @@
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
-				<exclude name="booish2.boo" />
+				<exclude name="booish.boo" /><!-- old booish -->
 			</sources>
-			
+
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</booc>
-		
+
 		<copy file="extras/template.config.in" tofile="${build.dir}/booish.exe.config">
 			<filterchain>
 				<replacestring from="@SUPPORTEDVERSIONS@" 
 					to="${supported.runtimes}" />
 			</filterchain>
 		</copy>
-		
+
 		<if test="${not(platform::is-win32())}">
 			<copy file="extras/booish.in" tofile="${build.dir}/booish" inputencoding="ASCII">
 				<filterchain>
@@ -138,34 +138,6 @@
 		</if>
 	</target>
 
-	<!-- TEMP: -->
-	<target name="booish2" depends="Boo.Lang.Interpreter">
-		<booc
-			target="exe"
-			output="${build.dir}/booish2.exe"
-			verbose="${verbose}"
-			debug="${debug}">
-			
-			<sources basedir="src">
-				<include name="booish/*.boo" />
-				<exclude name="booish/booish.boo" />
-				<include name="Boo.Lang.Interpreter/InteractiveInterpreter2.boo" />
-			</sources>
-			
-			<references basedir="${build.dir}">
-				<include name="Boo.Lang.Interpreter.dll" />
-				<include name="Boo.Lang.Compiler.dll" />
-			</references>
-		</booc>
-		
-		<copy file="extras/template.config.in" tofile="${build.dir}/booish2.exe.config">
-			<filterchain>
-				<replacestring from="@SUPPORTEDVERSIONS@" 
-					to="${supported.runtimes}" />
-			</filterchain>
-		</copy>
-	</target>
-	
 	<target name="booi" depends="core, Boo.Lang.Useful, Boo.Lang.Parser">
 
 		<booc
@@ -200,13 +172,12 @@
 				</filterchain>
 			</copy>
 		</if>
-		
 
 		<boo>
 		print("Hello from boo task!")		
 		print("Framework directory: ${Project.TargetFramework.FrameworkAssemblyDirectory}")
 		</boo>
-		
+
 	</target>
 	
 	<target name="dump-properties" depends="core">
@@ -215,24 +186,21 @@
 			print("${p.Key}: ${p.Value}")		
 		</boo>
 	</target>
-	
+
 	<target name="Boo.Lang.Interpreter" depends="core">
-		<booc 
-			target="library"
-			output="${build.dir}/Boo.Lang.Interpreter.dll"
-			verbose="${verbose}"
-			debug="${debug}">
-			
+		<booc target="library"
+		      output="${build.dir}/Boo.Lang.Interpreter.dll"
+		      verbose="${verbose}"
+		      debug="${debug}">
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
-				<exclude name="InteractiveInterpreter2.boo" />
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
 			</references>
 		</booc>
 	</target>
-	
+
 	<target name="Boo.NAnt.Tasks" depends="booc">
 		<uptodate property="Boo.NAnt.Tasks-is-uptodate">
 			<sourcefiles basedir="src/Boo.NAnt.Tasks">
