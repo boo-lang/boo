@@ -35,10 +35,12 @@ namespace Boo.Lang.Runtime
 	{
 		public static IEnumerable<string> lines(TextReader reader)
 		{
-			string line;
-			while (null != (line = reader.ReadLine()))
-			{
-				yield return line;
+			using (reader) {
+				string line;
+				while (null != (line = reader.ReadLine()))
+				{
+					yield return line;
+				}
 			}
 		}
 	}
