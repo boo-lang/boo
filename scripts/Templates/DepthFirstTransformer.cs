@@ -2,7 +2,7 @@ ${header}
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	
+
 	public partial class DepthFirstTransformer : IAstVisitor
 	{
 <%
@@ -12,6 +12,7 @@ namespace Boo.Lang.Compiler.Ast
 		resultingNodeType = model.GetResultingTransformerNode(item)
 			
 %>
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void On${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{	
 <%
@@ -50,11 +51,13 @@ namespace Boo.Lang.Compiler.Ast
 		if len(visitableFields):
 		
 %>
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual bool Enter${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{
 			return true;
 		}
-		
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void Leave${item.Name}(Boo.Lang.Compiler.Ast.${item.Name} node)
 		{
 		}

@@ -22,21 +22,25 @@ end
 
 <%
 	end
-%>	
+%>
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		new public ${node.Name} CloneNode()
 		{
 			return Clone() as ${node.Name};
 		}
 <%
 	unless model.IsAbstract(node):
-%>		override public NodeType NodeType
+%>
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public NodeType NodeType
 		{
 			get
 			{
 				return NodeType.${node.Name};
 			}
 		}
-		
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public void Accept(IAstVisitor visitor)
 		{
 			visitor.On${node.Name}(this);
@@ -44,7 +48,9 @@ end
 <%
 	end
 
-%>		override public bool Matches(Node node)
+%>
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public bool Matches(Node node)
 		{	
 			${node.Name} other = node as ${node.Name};
 			if (null == other) return false;
@@ -65,7 +71,8 @@ end
 	end
 %>			return true;
 		}
-	
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Replace(Node existing, Node newNode)
 		{
 			if (base.Replace(existing, newNode))
@@ -108,7 +115,8 @@ end
 
 %>			return false;
 		}
-		
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public object Clone()
 		{
 			${node.Name} clone = (${node.Name})FormatterServices.GetUninitializedObject(typeof(${node.Name}));
@@ -145,7 +153,8 @@ end
 
 %>			return clone;
 		}
-		
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override internal void ClearTypeSystemBindings()
 		{
 			_annotations = null;
@@ -184,7 +193,8 @@ end
 		[System.Xml.Serialization.XmlElement]""")
 		end
 		
-%>		public ${field.Type} ${field.Name}
+%>		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public ${field.Type} ${field.Name}
 		{
 			get
 			{

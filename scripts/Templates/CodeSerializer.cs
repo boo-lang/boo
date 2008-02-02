@@ -5,11 +5,13 @@ namespace Boo.Lang.Compiler.Ast
 	{
 <%
 for item in model.GetEnums():
-%>		public bool ShouldSerialize(${item.Name} value)
+%>		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public bool ShouldSerialize(${item.Name} value)
 		{
 			return value != ${item.Name}.None;
 		}
-		
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Serialize(${item.Name} value)
 		{
 			return SerializeEnum("${item.Name}", (long)value);
@@ -25,7 +27,8 @@ for item in model.GetConcreteAstNodes():
 	
 	fields = model.GetAllFields(item)
 	itemType = "Boo.Lang.Compiler.Ast.${item.Name}"
-%>		override public void On${item.Name}(${itemType} node)
+%>		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void On${item.Name}(${itemType} node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
