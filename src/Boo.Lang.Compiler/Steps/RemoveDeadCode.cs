@@ -50,11 +50,6 @@ namespace Boo.Lang.Compiler.Steps
 			RemoveUnreachableCode(node);
 		}
 
-		public override void OnGotoStatement(GotoStatement node)
-		{
-			RemoveUnreachableCode(node);
-		}
-
 		override public bool EnterBreakStatement(BreakStatement node)
 		{
 			RemoveUnreachableCode(node);
