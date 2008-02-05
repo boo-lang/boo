@@ -154,7 +154,7 @@ BCE0151='static' cannot be applied to interface or struct definitions.
 BCE0152=Constructors cannot be marked virtual, abstract, or override: '{0}'.
 BCE0153='{0}' can be applied on one of these targets only : {1}.
 BCE0154='{0}' cannot be applied multiple times on the same target.
-BCE0155=Cannot create an instance of the variable type '{0}' because it doesn't have a default constructor constraint.
+BCE0155=Cannot create an instance of the variable type '{0}' because it doesn't have a default constructor constraint. Constructor constraints are not yet supported though.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
