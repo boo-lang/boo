@@ -5202,7 +5202,7 @@ namespace Boo.Lang.Compiler.Steps
 		IConstructor GetCorrectConstructor(Node sourceNode, IType type, ExpressionCollection arguments)
 		{
 			IConstructor[] constructors = type.GetConstructors();
-			if (constructors.Length > 0)
+			if (null != constructors && constructors.Length > 0)
 			{
 				return (IConstructor)GetCorrectCallableReference(sourceNode, arguments, constructors);
 			}
@@ -5210,7 +5210,14 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (!TypeSystemServices.IsError(type))
 				{
-					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type.ToString(), GetSignature(arguments)));
+					if (null == (type as IGenericParameter))
+					{
+						Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type.ToString(), GetSignature(arguments)));
+					}
+					else
+					{
+						Error(CompilerErrorFactory.CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(sourceNode, type.ToString()));
+					}
 				}
 			}
 			return null;

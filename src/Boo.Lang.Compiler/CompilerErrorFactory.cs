@@ -825,6 +825,10 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0154", SafeLexicalInfo(node), attrType);
 		}
 
+		public static CompilerError CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(Node node, string type)
+		{
+			return new CompilerError("BCE0155", SafeLexicalInfo(node), type);
+		}
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
