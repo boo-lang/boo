@@ -50,6 +50,11 @@ namespace Boo.Lang.Compiler.Steps
 			RemoveUnreachableCode(node);
 		}
 
+		public override void OnGotoStatement(GotoStatement node)
+		{
+			RemoveUnreachableCode(node);
+		}
+
 		override public bool EnterBreakStatement(BreakStatement node)
 		{
 			RemoveUnreachableCode(node);
@@ -92,6 +97,9 @@ namespace Boo.Lang.Compiler.Steps
 					if (null != mie && TypeSystem.BuiltinFunction.Switch == mie.Target.Entity)
 						return -1;//ignore followings
 				}
+
+				if (unreachable && stmt is LabelStatement)
+					return -1;
 
 				if (stmt == limit)
 				{
