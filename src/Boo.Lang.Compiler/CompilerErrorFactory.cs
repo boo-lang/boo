@@ -153,9 +153,13 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0018", SafeLexicalInfo(node), name);
 		}
 		
-		public static CompilerError MemberNotFound(MemberReferenceExpression node, string namespace_)
+		public static CompilerError MemberNotFound(MemberReferenceExpression node, string namespace_, string suggestion)
 		{
-			return new CompilerError("BCE0019", SafeLexicalInfo(node), node.Name, namespace_);
+			if (null != suggestion)
+			{
+				suggestion = ResourceManager.Format("BooC.DidYouMean", suggestion);
+			}
+			return new CompilerError("BCE0019", SafeLexicalInfo(node), node.Name, namespace_, suggestion);
 		}
 
 		public static CompilerError InstanceRequired(Node node, string typeName, string memberName)

@@ -417,7 +417,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return Resolve(ns, name, EntityType.Any);
 		}
-		
+
 		IEntity GetEntityFromBuffer()
 		{
 			return GetEntityFromList(_buffer);
@@ -520,6 +520,56 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return globals;
 		}
-		
+
+		public string GetMostSimilarMemberName(INamespace type, string name, EntityType elementType)
+		{
+			string expectedSoundex = ToSoundex(name);
+			string lastMemberName = null;
+			foreach (IEntity member in type.GetMembers())
+			{
+				if (EntityType.Any != elementType && elementType != member.EntityType)
+					continue;
+				if (lastMemberName == member.Name)
+					continue;//no need to check this name again
+				//TODO: try Levenshtein distance instead of Soundex.
+				if (expectedSoundex == ToSoundex(member.Name))
+				{
+					return member.Name;
+				}
+				lastMemberName = member.Name;
+			}
+			return null;
+		}
+
+		//TODO: try using Levenshtein distance instead of soundex and pick the best one.
+		private static string ToSoundex(string s)
+		{
+			char[] code = "?0000".ToCharArray();
+			string ws = s.ToLowerInvariant();
+			int wsLen = ws.Length;
+			char lastChar = ' ';
+			int lastCharPos = 1;
+
+			code[0] = ws[0];
+			for (int i = 1; i < wsLen; i++)
+			{
+				char wsc = ws[i];
+				char c = ' ';
+				if (wsc == 'b' || wsc == 'f' || wsc == 'p' || wsc == 'v') c = '1';
+				if (wsc == 'c' || wsc == 'g' || wsc == 'j' || wsc == 'k' || wsc == 'q' || wsc == 's' || wsc == 'x' || wsc == 'z') c = '2';
+				if (wsc == 'd' || wsc == 't') c = '3';
+				if (wsc == 'l') c = '4';
+				if (wsc == 'm' || wsc == 'n') c = '5';
+				if (wsc == 'r') c = '6';
+				if (c == lastChar) continue;
+				lastChar = c;
+				if (c == ' ') continue;
+				code[lastCharPos] = c;
+				lastCharPos++;
+				if (lastCharPos > 4) break;
+			}
+			return new string(code);
+        }
+
 	}
 }

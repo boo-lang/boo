@@ -2354,10 +2354,14 @@ namespace Boo.Lang.Compiler.Steps
 				ProcessMemberReferenceExpression(node);
 			}
 		}
-		
+
 		virtual protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
-			Error(node, CompilerErrorFactory.MemberNotFound(node, ((IEntity)ns).ToString()));
+			EntityType et = (!AstUtil.IsTargetOfMethodInvocation(node)) ? EntityType.Any : EntityType.Method;
+			Error(node,
+				CompilerErrorFactory.MemberNotFound(node,
+										(((IEntity)ns).ToString()),
+										NameResolutionService.GetMostSimilarMemberName(ns, node.Name, et)));
 		}
 
 		virtual protected bool ShouldRebindMember(IEntity entity)

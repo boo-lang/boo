@@ -18,7 +18,7 @@ BCE0015=Node '{0}' has not been correctly processed.
 BCE0016=No overload of the method '{0}' takes '{1}' parameter(s).
 BCE0017=The best overload for the method '{0}' is not compatible with the argument list '{1}'.
 BCE0018=The name '{0}' does not denote a valid type.
-BCE0019='{0}' is not a member of '{1}'.
+BCE0019='{0}' is not a member of '{1}'. {2}
 BCE0020=An instance of type '{0}' is required to access non static member '{1}'.
 BCE0021=Namespace '{0}' not found, maybe you forgot to add an assembly reference?
 BCE0022=Cannot convert '{1}' to '{0}'.
@@ -206,6 +206,7 @@ BooC.NoSystemPath=Cannot find path to mscorlib.
 BooC.BadLibPath=Not a valid directory for -lib argument: '{0}'
 BooC.PkgConfigNotFound=Cannot execute pkg-config, is it in your PATH ?
 BooC.PkgConfigReportedErrors=pkg-config returned errors: {0}
+BooC.DidYouMean=Did you mean '{0}' ?
 
 ;Boo.Lang
 ListWasModified=The list was modified. 
