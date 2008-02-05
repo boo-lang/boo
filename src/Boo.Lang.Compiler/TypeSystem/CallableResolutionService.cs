@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
@@ -341,21 +342,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return result;
 			}
 
-//			Console.WriteLine("{0} tied to {1}", c1, c2);
-
 			// --- Tie breaking mode! ---
 
 			// Non-generic methods are better than generic ones
-//			IGenericMethodInfo generic1 = c1.Method.GenericMethodInfo;
-//			IGenericMethodInfo generic2 = c2.Method.GenericMethodInfo;
-//			if (generic1 == null && generic2 != null)
-//			{
-//				return 1;
-//			}
-//			else if (generic1 != null && generic2 == null)
-//			{
-//				return -1;
-//			}
+
+			// Commented out since current syntax distinguishes between invoking
+			// a generic method and a non generic one
+			/*
+			IGenericMethodInfo generic1 = c1.Method.GenericMethodInfo;
+			IGenericMethodInfo generic2 = c2.Method.GenericMethodInfo;
+			if (generic1 == null && generic2 != null)
+			{
+				return 1;
+			}
+			else if (generic1 != null && generic2 == null)
+			{
+				return -1;
+			}
+			*/
 
 			// Non-expanded methods are better than expanded ones
 			if (!c1.Expanded && c2.Expanded)
@@ -384,12 +388,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (c1.ArgumentScores[i] <= DowncastScore) continue;
 
 				int better = MoreSpecific(c1.Parameters[i].Type, c2.Parameters[i].Type);
-				if (better == 0) continue;
 
+				// Skip parameters that are the same for both candidates
+				if (better == 0)
+				{
+					continue;
+				}
+
+				// Keep the first result that is not a tie
 				if (result == 0)
 				{
 					result = better;
 				}
+				// If a further result contradicts the initial result, neither candidate is more specific					
 				else if (result != better)
 				{
 					return 0;
@@ -406,11 +417,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return GetLogicalTypeDepth(t1) - GetLogicalTypeDepth(t2);
 
-			// TODO: if one of the types was once a generic parameter, the other
-			// one is the more specific
+			// TODO: if one of the types was once a generic parameter, the other one is the more specific
+			// ** This will solve BOO-960 **
 
-			// TODO: recursively examine constructed types
-
+			// TODO: recursively examine constructed types 
+			
 			// Neither type is more specific
 			// return 0;
 		}

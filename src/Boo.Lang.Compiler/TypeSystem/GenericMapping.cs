@@ -181,6 +181,10 @@ namespace Boo.Lang.Compiler.TypeSystem
             IEntity mapped = null;
             switch (source.EntityType)
             {
+				case EntityType.Ambiguous:
+            		mapped = MapAmbiguousEntity((Ambiguous)source);
+            		break;
+
                 case EntityType.Method:
                     mapped = new GenericMappedMethod(_tss, ((IMethod)source), this);
                     break;
@@ -270,17 +274,24 @@ namespace Boo.Lang.Compiler.TypeSystem
         /// <summary>
         /// Maps a parameter in a generic, constructed or mapped method to its constructed counterpart.
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public IParameter Map(IParameter source)
         {
             return (IParameter)Map((IEntity)source);
         }
 
+		/// <summary>
+		/// Maps an array of parameters in a generic, constructed or mapped method to their constructed counterparts.
+		/// </summary>
         public IParameter[] Map(IParameter[] sources) 
         {
             return Array.ConvertAll<IParameter, IParameter>(sources, Map);
         }
+
+		private IEntity MapAmbiguousEntity(Ambiguous source)
+		{
+			// Map each individual entity in the ambiguous list 
+			return new Ambiguous(Array.ConvertAll<IEntity, IEntity>(source.Entities, Map));
+		}
 	}
 }
 
