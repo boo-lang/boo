@@ -2450,10 +2450,19 @@ char_literal returns [Expression e]
 {
 	e = null;
 }:
-	CHAR LPAREN t:SINGLE_QUOTED_STRING RPAREN
-	{
-		e = new CharLiteralExpression(ToLexicalInfo(t), t.getText());
-	}
+	CHAR LPAREN
+	( 
+		t:SINGLE_QUOTED_STRING 
+		{
+			e = new CharLiteralExpression(ToLexicalInfo(t), t.getText());
+		}
+		|
+		i:INT
+		{
+			e = new CharLiteralExpression(ToLexicalInfo(i), (char) PrimitiveParser.ParseInt(i));
+		}
+	)
+	RPAREN
 ;
 	
 protected

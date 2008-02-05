@@ -100,5 +100,10 @@ namespace Boo.Lang.Parser
 			return new IntegerLiteralExpression(SourceLocationFactory.ToLexicalInfo(token), value, asLong || (value > int.MaxValue || value < int.MinValue));
 		}
 
+		public static int ParseInt(antlr.IToken token)
+		{
+			return (int) ParseIntegerLiteralExpression(token, token.getText(), false).Value;
+		}
+
 	}
 }
