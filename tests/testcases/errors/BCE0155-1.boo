@@ -1,7 +1,8 @@
 """
-BCE0155-1.boo(7,14): BCE0155: Cannot create an instance of the variable type 'Foo[of T]`1.T' because it doesn't have a default constructor constraint. Constructor constraints are not yet supported though.
+BCE0155-1.boo(7,14): BCE0155: Instantiating generic parameters is not yet supported.
 """
 
 class Foo[of T]:
 	def Bar(ref i as T):
 		i = T()
+
