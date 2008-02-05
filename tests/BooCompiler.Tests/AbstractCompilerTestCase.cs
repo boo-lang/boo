@@ -92,7 +92,7 @@ namespace BooCompiler.Tests
 		protected virtual void CopyDependencies()
 		{
 			CopyAssembly(typeof(Boo.Lang.List).Assembly);
-			CopyAssembly(typeof(Boo.Lang.Extensions.PrintMacro).Assembly);
+			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
 #if !VISUAL_STUDIO

@@ -138,8 +138,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != _externalEnumeratorSelf)
 			{
 				IType type = (IType)_externalEnumeratorSelf.Type.Entity;
-				enumerableConstructorInvocation.Arguments.Add(
-					CodeBuilder.CreateSelfReference(type));
+				enumerableConstructorInvocation.Arguments.Add(CodeBuilder.CreateSelfReference(type));
 				
 				PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
 				                                    "self_",
@@ -218,9 +217,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Method generator = _generator.Method;
 			
-			BooMethodBuilder mn = _enumerator.AddVirtualMethod("MoveNext", TypeSystemServices.BoolType);
-			mn.Method.LexicalInfo = this.LexicalInfo;
-			_moveNext = mn.Entity;
+			BooMethodBuilder methodBuilder = _enumerator.AddVirtualMethod("MoveNext", TypeSystemServices.BoolType);
+			methodBuilder.Method.LexicalInfo = generator.LexicalInfo;
+			_moveNext = methodBuilder.Entity;
 			
 			foreach (Local local in generator.Locals)
 			{
@@ -243,35 +242,35 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			
-			mn.Body.Add(CreateLabel(generator));
+			methodBuilder.Body.Add(CreateLabel(generator));
 			// Visit() needs to know the number of the finished state
 			_finishedStateNumber = _labels.Count;
 			LabelStatement finishedLabel = CreateLabel(generator);
-			mn.Body.Add(generator.Body);
+			methodBuilder.Body.Add(generator.Body);
 			generator.Body.Clear();
 			
-			Visit(mn.Body);
+			Visit(methodBuilder.Body);
 			
-			mn.Body.Add(CreateYieldInvocation(null, _finishedStateNumber));
-			mn.Body.Add(finishedLabel);
+			methodBuilder.Body.Add(CreateYieldInvocation(null, _finishedStateNumber));
+			methodBuilder.Body.Add(finishedLabel);
 			
-			mn.Body.Insert(0,
+			methodBuilder.Body.Insert(0,
 			               CodeBuilder.CreateSwitch(
 			               	this.LexicalInfo,
 			               	CodeBuilder.CreateMemberReference(_state),
 			               	_labels));
 			
 			// if the method contains converted try statements, put it in a try/failure block
-			if (_convertedTryStatements.Count > 0) {
+			if (_convertedTryStatements.Count > 0)
+			{
 				IMethod dispose = CreateDisposeMethod();
 				
 				TryStatement tryFailure = new TryStatement();
-				foreach (Statement stmt in mn.Body.Statements)
-					tryFailure.ProtectedBlock.Add(stmt);
+				tryFailure.ProtectedBlock.Add(methodBuilder.Body);
 				tryFailure.FailureBlock = new Block();
 				tryFailure.FailureBlock.Add(CallMethodOnSelf(dispose));
-				mn.Body.Clear();
-				mn.Body.Add(tryFailure);
+				methodBuilder.Body.Clear();
+				methodBuilder.Body.Add(tryFailure);
 			}
 		}
 		
@@ -382,7 +381,7 @@ namespace Boo.Lang.Compiler.Steps
 					type);
 			}
 			
-			ReplaceCurrentNode(CodeBuilder.CreateReference(_externalEnumeratorSelf));
+			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, _externalEnumeratorSelf));
 		}
 		
 		class TryStatementInfo

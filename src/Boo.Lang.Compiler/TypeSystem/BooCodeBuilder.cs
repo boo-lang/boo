@@ -370,7 +370,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return CreateLocalReference(local.Name, local);
 		}
-		
+
+		public MemberReferenceExpression CreateReference(LexicalInfo li, Field field)
+		{
+			MemberReferenceExpression e = CreateReference(field);
+			e.LexicalInfo = li;
+			return e;
+		}
+
 		public MemberReferenceExpression CreateReference(Field field)
 		{
 			return CreateReference((IField)field.Entity);

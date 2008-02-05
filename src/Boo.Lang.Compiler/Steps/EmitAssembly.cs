@@ -2063,7 +2063,7 @@ namespace Boo.Lang.Compiler.Steps
 			// Do not emit call if conditional attributes (if any) do not match defined symbols
 			if (!CheckConditionalAttributes(method, mi))
 			{
-				_il.Emit(OpCodes.Nop);
+				EmitNop();
 				PushType(method.ReturnType); // keep a valid state
 				return;
 			}
@@ -3214,8 +3214,12 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.InternalError(startNode, x));
 				return false;
 			}
-
 			return true;
+		}
+
+		private void EmitNop()
+		{
+			_il.Emit(OpCodes.Nop);
 		}
 
 		private ISymbolDocumentWriter GetDocumentWriter(string fname)
