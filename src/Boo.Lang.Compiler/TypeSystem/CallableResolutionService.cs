@@ -387,7 +387,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (c1.ArgumentScores[i] <= DowncastScore) continue;
 
-				int better = MoreSpecific(c1.Parameters[i].Type, c2.Parameters[i].Type);
+				// Select the most specific of the parameters' types, 
+				// taking into account generic mapped parameters
+				int better = MoreSpecific(
+					GetParameterTypeTemplate(c1, i), 
+					GetParameterTypeTemplate(c2, i));
 
 				// Skip parameters that are the same for both candidates
 				if (better == 0)
@@ -409,21 +413,40 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return result;
 		}
 
+		private IType GetParameterTypeTemplate(Candidate candidate, int position)
+		{
+			// Get the method this candidate represents, or its generic template
+			IMethod method = candidate.Method;
+			if (candidate.Method.DeclaringType.ConstructedInfo != null)
+			{
+				method = candidate.Method.DeclaringType.ConstructedInfo.GetMethodTemplate(method);
+			}
+
+			// If the parameter is the varargs parameter, use its element type
+			IParameter[] parameters = method.GetParameters();
+			if (candidate.Expanded && position >= parameters.Length)
+			{
+				return parameters[parameters.Length - 1].Type.GetElementType();
+			}
+			
+			// Otherwise use the parameter's original type
+			return parameters[position].Type;
+		}
+
 		private int MoreSpecific(IType t1, IType t2)
 		{
-			if (t1.IsArray && t2.IsArray)
+			// Dive into array types and ref types
+			if (t1.IsArray && t2.IsArray || t1.IsByRef && t2.IsByRef)
 			{
 				return MoreSpecific(t1.GetElementType(), t2.GetElementType());
 			}
+
+			// The less-generic type is more specific
+			int result = GenericsServices.GetTypeGenerity(t2) - GenericsServices.GetTypeGenerity(t1);
+			if (result != 0) return result;
+
+			// If both types have the same genrity, the deeper-nested type is more specific
 			return GetLogicalTypeDepth(t1) - GetLogicalTypeDepth(t2);
-
-			// TODO: if one of the types was once a generic parameter, the other one is the more specific
-			// ** This will solve BOO-960 **
-
-			// TODO: recursively examine constructed types 
-			
-			// Neither type is more specific
-			// return 0;
 		}
 
 		private void FindApplicableCandidates(IEntity[] candidates)

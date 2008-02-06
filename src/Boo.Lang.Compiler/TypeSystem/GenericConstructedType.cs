@@ -57,20 +57,13 @@ namespace Boo.Lang.Compiler.TypeSystem
             _tss = tss;
             _definition = definition;
             _arguments = arguments;
-            _fullyConstructed = IsFullyConstructed();
             _genericMapping = new GenericMapping(tss, this, arguments);
+        	_fullyConstructed = IsFullyConstructed();
         }
 
         protected bool IsFullyConstructed()
         {
-            foreach (IType arg in GenericArguments)
-            {
-                if (GenericsServices.IsOpenGenericType(arg))
-                {
-                    return false;
-                }
-            }
-            return true;
+        	return GenericsServices.GetTypeGenerity(this) == 0;
         }
 
         protected string BuildFullName()
@@ -266,7 +259,12 @@ namespace Boo.Lang.Compiler.TypeSystem
             get { return _fullyConstructed; }
         }
 
-		public override string ToString()
+    	public IMethod GetMethodTemplate(IMethod method)
+    	{
+    		return _genericMapping.UnMap(method);
+    	}
+
+    	public override string ToString()
 		{
 			return FullName;
 		}

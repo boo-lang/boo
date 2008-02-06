@@ -292,6 +292,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Map each individual entity in the ambiguous list 
 			return new Ambiguous(Array.ConvertAll<IEntity, IEntity>(source.Entities, Map));
 		}
+
+		/// <summary>
+		/// Gets the method from which the specified method was mapped.
+		/// </summary>
+		public IMethod UnMap(IMethod method)
+		{
+			GenericMappedMethod mapped = method as GenericMappedMethod;
+			if (mapped == null)
+			{
+				return null;
+			}
+			return mapped.Source;
+		}
 	}
 }
 

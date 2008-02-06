@@ -68,5 +68,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get { return !_type.ActualType.ContainsGenericParameters; }
 		}
+
+		public IMethod GetMethodTemplate(IMethod method)
+		{
+			// HACK: There is no way to find the method from which the specified
+			// method was mapped; we'll use the fact that the two methods share
+			// the same metadata token
+
+			int token = ((ExternalMethod)method).MethodInfo.MetadataToken;
+
+			return _tss.Map(Array.Find(
+				_type.ActualType.GetGenericTypeDefinition().GetMethods(),
+				delegate(System.Reflection.MethodInfo mi)
+				{
+					return mi.MetadataToken == token;
+				}));
+		}
 	}	
 }

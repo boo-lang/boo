@@ -201,25 +201,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		public static bool IsOpenGenericType(IType type)
 		{
-			// A generic parameter is itself open
-			if (type is IGenericParameter)
-			{
-				return true;
-			}
-
-			// A partially constructed type is open
-			if (type.ConstructedInfo != null)
-			{
-				return !type.ConstructedInfo.FullyConstructed;
-			}
-
-			// An array of open types, or a reference to an open type, is itself open
-			if (type.IsByRef || type.IsArray)
-			{
-				return IsOpenGenericType(type.GetElementType());
-			}
-
-			return false;
+			return (GetTypeGenerity(type) != 0);
 		}
 
 		/// <summary>
@@ -228,17 +210,55 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// <returns>An array of IGenericParameter objects, or null if the specified entity isn't a generic definition.</returns>
 		public static IGenericParameter[] GetGenericParameters(IEntity definition)
 		{
-			if (GenericsServices.IsGenericType(definition))
+			if (IsGenericType(definition))
 			{
 				return ((IType)definition).GenericInfo.GenericParameters;
 			}
-			if (GenericsServices.IsGenericMethod(definition))
+			if (IsGenericMethod(definition))
 			{
 				return ((IMethod)definition).GenericInfo.GenericParameters;
 			}
 			return null;
 		}
 
+		/// <summary>
+		/// Determines the number of open generic parameters in the specified type.
+		/// </summary>
+		public static int GetTypeGenerity(IType type)
+		{
+			// Dive into arrays and refs
+			if (type.IsByRef || type.IsArray)
+			{
+				return GetTypeGenerity(type.GetElementType());
+			}
+
+			// A generic parameter has a generity of one
+			if (type is IGenericParameter)
+			{
+				return 1;
+			}
+
+			// Generic parameters and generic arguments both contribute 
+			// to a types genrity
+			int generity = 0;
+
+			// A generic type gets a generity equals to the number its type parameters
+			if (type.GenericInfo != null)
+			{
+				generity += type.GenericInfo.GenericParameters.Length;
+			}
+
+			// A constructed type gets the accumulated generity of its type arguments
+			if (type.ConstructedInfo != null)
+			{
+				foreach (IType typeArg in type.ConstructedInfo.GenericArguments)
+				{
+					generity += GetTypeGenerity(typeArg);
+				}
+			}
+
+			return generity;
+		}
 	}
 
 	/// <summary>
