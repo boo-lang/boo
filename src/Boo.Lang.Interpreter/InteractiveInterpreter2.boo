@@ -577,6 +577,7 @@ Enter boo code in the prompt below."""
 
 	def load([required] path as string):
 		if path.EndsWith(".boo"):
+			ConsolePrintMessage("Evaluating '${path}' ...")
 			result = EvalCompilerInput(FileInput(path))
 			if ShowWarnings:
 				DisplayProblems(result.Warnings)
@@ -584,9 +585,10 @@ Enter boo code in the prompt below."""
 				ProcessLastValue()
 		else:
 			try:
+				ConsolePrintMessage("Adding reference to '${path}'")
 				References.Add(System.Reflection.Assembly.LoadFrom(path))
-			except e:				
-				print e.Message
+			except e:
+				ConsolePrintError(e.Message)
 
 	def save([required] path as string):
 		if path is string.Empty:

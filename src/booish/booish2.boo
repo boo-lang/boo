@@ -33,14 +33,23 @@ import Boo.Lang.Interpreter
 
 interpreter = InteractiveInterpreter2(RememberLastValue: true)
 
-if "--print-modules" in argv:
-	interpreter.Pipeline.Add(PrintBoo())
-	
-if "--debug" in argv:
-	Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
-if "-w" in argv:
-	interpreter.ShowWarnings = true
-	
+loadRequests = System.Collections.Generic.List[of string]()
+
+for arg in argv:
+	if arg == "--print-modules" or arg == "-print-modules":
+		interpreter.Pipeline.Add(PrintBoo())
+	if arg == "--debug" or arg == "-debug":
+		Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
+	if arg == "-w":
+		interpreter.ShowWarnings = true
+	if arg.StartsWith("-r:"):
+		loadRequests.Add(arg.Substring(3))
+	if not arg.StartsWith("-"):
+		loadRequests.Add(arg)
+
 interpreter.DisplayHelp()
+
+for req in loadRequests:
+	interpreter.load(req)
 
 interpreter.ConsoleLoopEval()
