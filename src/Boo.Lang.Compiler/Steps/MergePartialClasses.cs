@@ -84,6 +84,13 @@ namespace Boo.Lang.Compiler.Steps
 			// annotate so we remember not to merge the imports
 			// again in the future
 			toModule.Annotate(fromModule);
+
+			//annotate so that we know these modules have been merged
+			//this is used by checkneverusedmembers step
+			if (!fromModule.ContainsAnnotation("merged-module"))
+				fromModule.Annotate("merged-module");
+			if (!toModule.ContainsAnnotation("merged-module"))
+				toModule.Annotate("merged-module");
 		}
 		
 		override public void LeaveClassDefinition(ClassDefinition node)

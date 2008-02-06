@@ -36,11 +36,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void Run()
 		{
-			Visit(CompileUnit);
+			Visit(CompileUnit.Modules);
 		}
 
 		public override void LeaveModule(Boo.Lang.Compiler.Ast.Module module)
 		{
+			if (module.ContainsAnnotation("merged-module"))
+				return;
+
 			foreach (Import import in module.Imports)
 			{
 				//do not be pedantic about System, the corlib is to be ref'ed anyway
@@ -61,6 +64,11 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		override public bool EnterInterfaceDefinition(InterfaceDefinition node)
+		{
+			return false;
+		}
+
+		override public bool EnterStructDefinition(StructDefinition node)
 		{
 			return false;
 		}
