@@ -231,26 +231,26 @@ namespace BooC
 					" -c:CULTURE           Sets the UI culture to be CULTURE\n" +
 					" -debug[+|-]          Generate debugging information (default: +)\n" +
 					" -define:S1[,Sn]      Defines symbols S1..Sn with optional values (=val) (-d:)\n" +
-					" -delaysign           Delay assembly signing\n" +
+					" -delaysign           Delays assembly signing\n" +
 					" -ducky               Turns on duck typing by default\n" +
 					" -checked[+|-]        Turns on or off checked operations (default: +)\n" +
 					" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n"+
 					" -lib:DIRS            Adds the comma-separated DIRS to the assembly search path\n" +
-					" -noconfig            Do not load the standard configuration\n" +
-					" -nostdlib            Do not reference any of the default libraries\n" +
-					" -nologo              Do not display the compiler logo\n" +
+					" -noconfig            Does not load the standard configuration\n" +
+					" -nostdlib            Does not reference any of the default libraries\n" +
+					" -nologo              Does not display the compiler logo\n" +
 					" -p:PIPELINE          Sets the pipeline to PIPELINE\n" +
-					" -o:FILE              Set the output file name to FILE\n" +
+					" -o:FILE              Sets the output file name to FILE\n" +
 					" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
 					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
 					" -reference:ASS       References the specified assembly (-r:ASS)\n" +
 					" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
-					" -target:TYPE         Set the target type (exe, library or winexe)\n" +
-					" -resource:FILE[,ID]  Embed FILE as a resource\n" +
+					" -target:TYPE         Sets the target type (exe, library or winexe)\n" +
+					" -resource:FILE[,ID]  Embeds FILE as a resource\n" +
 					" -pkg:P1[,Pn]         References packages P1..Pn (on supported platforms)\n" +
-					" -utf8                Source file is in utf8 format\n" +
-					" -v, -vv, -vvv        Set verbosity level from warnings to very detailed\n" +
-					" -wsa                 Enable white-space-agnostic builds\n"
+					" -utf8                Source file(s) are in utf8 format\n" +
+					" -v, -vv, -vvv        Sets verbosity level from warnings to very detailed\n" +
+					" -wsa                 Enables white-space-agnostic build\n"
 					);
 		}
 
@@ -622,7 +622,14 @@ namespace BooC
 					
 					default:
 					{
-						InvalidOption(arg);
+						if (arg == "--help")
+						{
+							Help();
+						}
+						else
+						{
+							InvalidOption(arg);
+						}
 						break;
 					}
 				}
