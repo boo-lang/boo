@@ -50,7 +50,9 @@
 			
 	<property name="csc.noconfig" value="false" />	
 	<property name="csc.define" value="NET_2_0;TRACE;DEBUG" />
-	
+
+	<property name="fixture" value="" dynamic="true" />
+
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
 	</target>
 	
@@ -71,6 +73,7 @@
 			program="NAnt.exe"
 			workingdir="tests"
 			useruntimeengine="true">
+			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
 			<arg value="run" />
 		</exec>
 	</target>

@@ -7,23 +7,31 @@
 
 		<copy todir="${path::get-temp-path()}" file="build/BooCompiler.Tests.dll" overwrite="true" />
 
+		<property name="fixture" value="" dynamic="true" />
 		<property name="num-tests" value="0" />
 		<property name="current-test" value="1" />
 		<property name="succeeded-tests" value="0" />
 		<foreach item="File" property="filename" failonerror="true">
 			<in>
 				<items basedir="build">
-					<include name="*.Tests.dll" />
+					<include name="*.Tests.dll" if="${fixture == ''}" />
+					<include name="${fixture}.Tests.dll" if="${fixture != ''}" />
 				</items>
 			</in>
 			<do>
 				<property name="num-tests" value="${int::parse(num-tests)+1}" />
 			</do>
 		</foreach>
+
+		<fail if="${int::parse(num-tests) == 0}">
+		There is no test to run!
+		</fail>
+	
 		<foreach item="File" property="filename">
 			<in>
 				<items basedir="build">
-					<include name="*.Tests.dll" />
+					<include name="*.Tests.dll" if="${fixture == ''}" />
+					<include name="${fixture}.Tests.dll" if="${fixture != ''}" />
 				</items>
 			</in>
 			<do failonerror="false">
@@ -271,3 +279,4 @@
 		<echo message="Starting boo tests.  Running in framework: ${nant.settings.currentframework}" />
 	</target>
 </project>
+
