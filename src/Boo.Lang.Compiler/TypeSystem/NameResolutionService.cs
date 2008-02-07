@@ -358,15 +358,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 					types.RemoveAt(i);
 					i--;
 				}
-			}			
+			}
 		}
 
 		private IEntity NameNotType(SimpleTypeReference node)
 		{
-			_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.ToCodeString()));
+			string suggestion = GetMostSimilarTypeName(node.Name);
+			_context.Errors.Add(CompilerErrorFactory.NameNotType(node, node.ToCodeString(), suggestion));
 			return TypeSystemServices.ErrorEntity;
 		}
-		
+
 		private IEntity AmbiguousReference(SimpleTypeReference node, Ambiguous entity)
 		{
 			_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(node, node.Name, entity.Entities));
@@ -521,8 +522,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return globals;
 		}
 
+		public string GetMostSimilarTypeName(string name)
+		{
+			string[] nsHierarchy = name.Split('.');
+			int nshLen = nsHierarchy.Length;
+			if (nshLen == 1)
+				return GetMostSimilarMemberName(GetGlobalNamespace(), nsHierarchy[0], EntityType.Type);
+
+			INamespace ns = null;
+			INamespace prevNs = null;
+			for (int i = 1; i < nshLen; i++)
+			{
+				string currentNsName = string.Join(".", nsHierarchy, 0, i);
+				ns = ResolveQualifiedName(currentNsName) as INamespace;
+				if (null == ns)
+				{
+					nsHierarchy[i-1] = GetMostSimilarMemberName(prevNs, nsHierarchy[i-1], EntityType.Namespace);
+					if (null == nsHierarchy[i-1]) return null;
+					i--; continue; //reloop to resolve step
+				}
+				prevNs = ns;
+			}
+			nsHierarchy[nshLen-1] = GetMostSimilarMemberName(ns, nsHierarchy[nshLen-1], EntityType.Type);
+			if (null == nsHierarchy[nshLen-1]) return null;
+			return string.Join(".", nsHierarchy);
+		}
+
 		public string GetMostSimilarMemberName(INamespace type, string name, EntityType elementType)
 		{
+			if (null == type) return null;
+
 			string expectedSoundex = ToSoundex(name);
 			string lastMemberName = null;
 			foreach (IEntity member in type.GetMembers())
@@ -531,7 +560,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					continue;
 				if (lastMemberName == member.Name)
 					continue;//no need to check this name again
-				//TODO: try Levenshtein distance instead of Soundex.
+				//TODO: try Levenshtein distance or Metaphone instead of Soundex.
 				if (expectedSoundex == ToSoundex(member.Name))
 				{
 					return member.Name;
@@ -541,9 +570,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		//TODO: try using Levenshtein distance instead of soundex and pick the best one.
 		private static string ToSoundex(string s)
 		{
+			if (s.Length < 2) return null;
 			char[] code = "?0000".ToCharArray();
 			string ws = s.ToLowerInvariant();
 			int wsLen = ws.Length;

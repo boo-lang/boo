@@ -148,18 +148,14 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0017", SafeLexicalInfo(node), expectedSignature, actualSignature);
 		}
 		
-		public static CompilerError NameNotType(Node node, string name)
+		public static CompilerError NameNotType(Node node, string name, string suggestion)
 		{
-			return new CompilerError("BCE0018", SafeLexicalInfo(node), name);
+			return new CompilerError("BCE0018", SafeLexicalInfo(node), name, DidYouMeanOrNull(suggestion));
 		}
 		
 		public static CompilerError MemberNotFound(MemberReferenceExpression node, string namespace_, string suggestion)
 		{
-			if (null != suggestion)
-			{
-				suggestion = ResourceManager.Format("BooC.DidYouMean", suggestion);
-			}
-			return new CompilerError("BCE0019", SafeLexicalInfo(node), node.Name, namespace_, suggestion);
+			return new CompilerError("BCE0019", SafeLexicalInfo(node), node.Name, namespace_, DidYouMeanOrNull(suggestion));
 		}
 
 		public static CompilerError InstanceRequired(Node node, string typeName, string memberName)
@@ -373,9 +369,9 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0063", SafeLexicalInfo(node));
 		}
 		
-		public static CompilerError UnknownAttribute(Node node, string attributeName)
+		public static CompilerError UnknownAttribute(Node node, string attributeName, string suggestion)
 		{
-			return new CompilerError("BCE0064", SafeLexicalInfo(node), attributeName);
+			return new CompilerError("BCE0064", SafeLexicalInfo(node), attributeName, DidYouMeanOrNull(suggestion));
 		}
 		
 		public static CompilerError InvalidIteratorType(Node node, string typeName)
@@ -902,6 +898,13 @@ namespace Boo.Lang.Compiler
 			LexicalInfo info = node.LexicalInfo;
 			if (info.IsValid) return info;
 			return SafeLexicalInfo(node.ParentNode);
+		}
+
+		private static string DidYouMeanOrNull(string suggestion)
+		{
+			return (null != suggestion)
+				? ResourceManager.Format("BooC.DidYouMean", suggestion)
+				: null;
 		}
 
 	}

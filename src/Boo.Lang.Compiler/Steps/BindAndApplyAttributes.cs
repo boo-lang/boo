@@ -276,7 +276,11 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (_elements.Count == 0)
 			{
-				Error(attribute, CompilerErrorFactory.UnknownAttribute(attribute, attribute.Name));
+				string suggestion = NameResolutionService.GetMostSimilarTypeName(BuildAttributeName(attribute.Name, true));
+				if (null == suggestion)
+					suggestion = NameResolutionService.GetMostSimilarTypeName(BuildAttributeName(attribute.Name, false));
+
+				Error(attribute, CompilerErrorFactory.UnknownAttribute(attribute, attribute.Name, suggestion));
 				return;
 			}
 						
@@ -293,7 +297,7 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity tag = (IEntity)_elements[0];
 			if (EntityType.Type != tag.EntityType)
 			{
-				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name));
+				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name, null));
 				return;
 			}
 			
