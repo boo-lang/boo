@@ -30,6 +30,7 @@ namespace Boo.Lang.Interpreter
 
 import System
 import System.Collections
+import System.Collections.Generic
 import System.IO
 import System.Text
 import System.Text.RegularExpressions
@@ -59,6 +60,8 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	[property(Print, value is not null)]
 	_print as callable(object) = print
+
+	_entityNameComparer = EntityNameComparer()
 
 
 	def constructor():
@@ -170,29 +173,22 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 		i = 0
 
-		if _suggestions isa (string):
-			for l in _suggestions as (string):
-				Console.ForegroundColor = _suggestionsColor if not _disableColors
-				Console.Write(", ") if i > 0
-				if i > 20: #TODO: maxcandidates pref + paging?
-					Console.Write("... (too much candidates)")
-					break
-				if i == _selectedSuggestionIndex:
-					Console.ForegroundColor = _selectedSuggestionColor if not _disableColors
-				Console.Write(l)
-				i++	
+		Array.Sort(_suggestions) if _suggestions isa (string)
+		Array.Sort[of IEntity](_suggestions, _entityNameComparer) if _suggestions isa (IEntity)
 
-		elif _suggestions isa (IEntity):
-			for e in _suggestions as (IEntity):
-				Console.ForegroundColor = _suggestionsColor if not _disableColors
-				Console.Write(", ") if i > 0
-				if i > 20: #TODO: maxcandidates pref + paging?
-					Console.Write("... (too much candidates)")
-					break
-				if i == _selectedSuggestionIndex:
-					Console.ForegroundColor = _selectedSuggestionColor if not _disableColors			
-				Console.Write(DescribeEntity(e))
-				i++
+		for s in _suggestions as (object):
+			Console.ForegroundColor = _suggestionsColor if not _disableColors
+			Console.Write(", ") if i > 0
+			if i > 20: #TODO: maxcandidates pref + paging?
+				Console.Write("... (too much candidates)")
+				break
+			if i == _selectedSuggestionIndex:
+				Console.ForegroundColor = _selectedSuggestionColor if not _disableColors
+			if s isa IEntity:
+				Console.Write(DescribeEntity(s as IEntity))
+			else:
+				Console.Write(s)
+			i++	
 
 		Console.ResetColor() if not _disableColors
 		#Console.CursorTop = cursorTop
@@ -790,4 +786,9 @@ Enter boo code in the prompt below."""
 		for key as Type, value in _representers:
 			return value if key.IsAssignableFrom(type)
 		assert false, "An appropriate representer could not be found!"
+
+
+class EntityNameComparer(IComparer of IEntity):
+	def Compare(a as IEntity, b as IEntity) as int:
+		return string.Compare(a.Name, b.Name)
 
