@@ -4329,7 +4329,8 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessEventInvocation(IEvent ev, MethodInvocationExpression node)
 		{
 			NamedArgumentsNotAllowed(node);
-			
+			if (!EnsureInternalEventInvocation(ev, node)) return;
+
 			IMethod method = ev.GetRaiseMethod();
 			if (AssertParameters(node, method, node.Arguments))
 			{
@@ -4339,7 +4340,16 @@ namespace Boo.Lang.Compiler.Steps
 				BindExpressionType(node, method.ReturnType);
 			}
 		}
-		
+
+		public bool EnsureInternalEventInvocation(IEvent ev, MethodInvocationExpression node)
+		{
+			if (ev.IsAbstract || ev.IsVirtual || ev.DeclaringType == CurrentType)
+				return true;
+
+			Error(CompilerErrorFactory.EventCanOnlyBeInvokedFromWithinDeclaringClass(node, ev));
+			return false;
+		}
+
 		void ProcessCallableTypeInvocation(MethodInvocationExpression node, ICallableType type)
 		{
 			NamedArgumentsNotAllowed(node);

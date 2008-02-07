@@ -156,6 +156,7 @@ BCE0153='{0}' can be applied on one of these targets only : {1}.
 BCE0154='{0}' cannot be applied multiple times on the same target.
 BCE0155=Instantiating generic parameters is not yet supported.
 ;BCE0155=Cannot create an instance of the variable type '{0}' because it doesn't have a default constructor constraint.
+BCE0156=Event '{0}' can only be invoked from within the class it was declared ('{1}').
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

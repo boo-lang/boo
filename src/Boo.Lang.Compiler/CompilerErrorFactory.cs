@@ -834,6 +834,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0155", SafeLexicalInfo(node), type);
 		}
 
+		public static CompilerError EventCanOnlyBeInvokedFromWithinDeclaringClass(Node node, IEvent ev)
+		{
+			return new CompilerError("BCE0156", SafeLexicalInfo(node), ev.Name, ev.DeclaringType);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
