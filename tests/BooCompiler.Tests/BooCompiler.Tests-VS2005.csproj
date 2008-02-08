@@ -73,6 +73,7 @@
     <Compile Include="BooTestCaseUtil.cs" />
     <Compile Include="CallablesIntegrationTestFixture.cs" />
     <Compile Include="ClosuresIntegrationTestFixture.cs" />
+    <Compile Include="ClrExtensionsIntegrationTestFixture.cs" />
     <Compile Include="ClrIntegrationTestFixture.cs" />
     <Compile Include="CompilationTestFixture.cs" />
     <Compile Include="CompilerErrorsTestFixture.cs" />

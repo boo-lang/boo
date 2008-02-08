@@ -115,15 +115,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			List members = new List();
 			members.Extend(_childrenNamespaces.Values);
-			foreach (KeyValuePair<Assembly, Dictionary<string, List<Type>>> kv in _assemblies)
+			foreach (Type type in EnumerateTypes())
 			{
-				//we do not use _assemblies.Values to keep fifo ordering
-				foreach (List<Type> types in kv.Value.Values)
-				{
-					foreach (Type type in types) members.Add(_typeSystemServices.Map(type));
-				}
+				members.Add(_typeSystemServices.Map(type));
 			}
 			return (IEntity[])members.ToArray(typeof(IEntity));
+		}
+
+		private IEnumerable<Type> EnumerateTypes()
+		{
+			foreach (KeyValuePair<Assembly, Dictionary<string, List<Type>>> kv in _assemblies)
+			{
+				foreach (List<Type> types in kv.Value.Values)
+				{
+					foreach (Type type in types) yield return type;
+				}
+			}
 		}
 		
 		public NamespaceEntity GetChildNamespace(string name)
@@ -169,10 +176,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public INamespace ParentNamespace
 		{
-			get
-			{
-				return _parent;
-			}
+			get { return _parent; }
 		}
 		
 		public bool Resolve(List targetList, string name, EntityType flags)
@@ -185,14 +189,45 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			}
 			
-			bool found = ResolveInternalType(targetList, name, flags);
-			if (found) return true;
-			
-			found = ResolveExternalType(targetList, name);
+			if (ResolveInternalType(targetList, name, flags)) return true;
+
+			bool found = ResolveExternalType(targetList, name);
 			if (ResolveExternalModules(targetList, name, flags)) found = true;
+			if (ResolveClrExtensions(targetList, name, flags)) found = true;
 			return found;
 		}
-		
+
+		private bool ResolveClrExtensions(List list, string name, EntityType flags)
+		{
+			if (!MetadataUtil.HasClrExtensions()) return false;
+
+			if (!IsFlagSet(flags, EntityType.Method)) return false;
+
+			bool found = false;
+			foreach (Type type in EnumerateTypes())
+			{
+				if (ResolveClrExtensions(list, type, name)) found = true;
+			}
+			return found;
+		}
+
+		private bool ResolveClrExtensions(List list, Type type, string name)
+		{
+			MemberInfo[] members = MetadataUtil.GetClrExtensions(type, name);
+			if (0 == members.Length) return false;
+					
+			foreach (MethodInfo method in members)
+			{
+				list.Add(_typeSystemServices.Map(method));
+			}
+			return true;
+		}
+
+		private static bool IsFlagSet(EntityType flags, EntityType flag)
+		{
+			return flag != (flag & flags);
+		}
+
 		bool ResolveInternalType(List targetList, string name, EntityType flags)
 		{
 			bool found = false;
@@ -220,6 +255,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				foreach (Type type in types[name])
 				{
 					targetList.Add(_typeSystemServices.Map(type));
+					
 					// Can't return right away, since we can have several types
 					// with the same name but different number of generic arguments. 
 				}

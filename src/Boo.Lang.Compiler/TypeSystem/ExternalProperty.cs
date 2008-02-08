@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (-1 == _isExtension)
 				{
-					_isExtension = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.ExtensionAttribute)
+					_isExtension = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.BooExtensionAttribute)
 						? 1
 						: 0;
 				}

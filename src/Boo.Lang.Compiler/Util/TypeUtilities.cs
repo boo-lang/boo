@@ -57,10 +57,14 @@ namespace Boo.Lang.Compiler.Util
 	    public static string TypeName(Type type)
 		{
 			if (!type.IsGenericTypeDefinition) return type.Name;
-			string name = type.Name;
-			int index = name.LastIndexOf('`');
-			if (index < 0) return name;
-			return name.Substring(0, index);
+	    return TypeName(type.Name);
+		}
+
+		public static string TypeName(string typeName)
+		{
+			int index = typeName.LastIndexOf('`');
+			if (index < 0) return typeName;
+			return typeName.Substring(0, index);
 		}
 	}
 }

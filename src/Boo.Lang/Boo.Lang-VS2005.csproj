@@ -66,9 +66,12 @@
     <Compile Include="Hash.cs" />
     <Compile Include="ICallable.cs" />
     <Compile Include="IQuackFu.cs" />
+    <Compile Include="IQuackFuMember.cs" />
+    <Compile Include="IReflectiveQuackFu.cs" />
     <Compile Include="List.cs" />
     <Compile Include="MetaAttribute.cs" />
     <Compile Include="ModuleAttribute.cs" />
+    <Compile Include="QuackFuMember.cs" />
     <Compile Include="ResourceManager.cs" />
     <Compile Include="Runtime\AbstractDispatcherFactory.cs" />
     <Compile Include="Runtime\AssertionFailedException.cs" />

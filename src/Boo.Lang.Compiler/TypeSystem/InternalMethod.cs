@@ -69,7 +69,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return IsAttributeDefined(Types.ExtensionAttribute);
+				bool defined = IsAttributeDefined(Types.BooExtensionAttribute);
+				if( defined == false && Types.ClrExtensionAttribute != null )
+				{
+					defined = IsAttributeDefined(Types.ClrExtensionAttribute);
+				}
+				return defined;
 			}
 		}
 

@@ -70,7 +70,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (-1 == _isExtension)
 				{
-					_isExtension = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.ExtensionAttribute)
+					bool defined = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
+					if( defined == false && Types.ClrExtensionAttribute != null )
+					{
+						defined = MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute);
+					}
+					_isExtension = IsStatic && defined
 						? 1
 						: 0;
 				}

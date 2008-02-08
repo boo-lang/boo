@@ -143,7 +143,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			Method extension = CodeBuilder.CreateMethod("BeginInvoke", TypeSystemServices.Map(typeof(IAsyncResult)),
 										TypeMemberModifiers.Public | TypeMemberModifiers.Static);
-			extension.Attributes.Add(CodeBuilder.CreateAttribute(Types.ExtensionAttribute));
+			extension.Attributes.Add(CodeBuilder.CreateAttribute(Types.BooExtensionAttribute));
+			extension.Attributes.Add(CodeBuilder.CreateAttribute(Types.ClrExtensionAttribute));
 
 			ParameterDeclaration self = CodeBuilder.CreateParameterDeclaration(0, "self", beginInvokeEntity.DeclaringType);
 

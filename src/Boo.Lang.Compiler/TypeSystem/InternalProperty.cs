@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(Types.ExtensionAttribute));
+				return MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(Types.BooExtensionAttribute));
 			}
 		}
 		
