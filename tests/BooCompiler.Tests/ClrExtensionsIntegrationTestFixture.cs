@@ -9,6 +9,7 @@ namespace BooCompiler.Tests
 		[Test]
 		public void clrextensions_1()
 		{
+			if (System.Environment.Version < new System.Version(3, 5)) return;
 			RunCompilerTestCase(@"clrextensions-1.boo");
 		}
 		
