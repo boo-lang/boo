@@ -522,39 +522,64 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return globals;
 		}
 
+		private static void FlattenChildNamespaces(List<INamespace> list, INamespace ns)
+		{
+			foreach (IEntity ent in ns.GetMembers())
+			{
+				if (EntityType.Namespace != ent.EntityType) continue;
+				list.Add((INamespace) ent);
+				FlattenChildNamespaces(list, (INamespace) ent);
+			}
+		}
+
 		public string GetMostSimilarTypeName(string name)
 		{
 			string[] nsHierarchy = name.Split('.');
 			int nshLen = nsHierarchy.Length;
-			if (nshLen == 1)
-				return GetMostSimilarMemberName(GetGlobalNamespace(), nsHierarchy[0], EntityType.Type);
+			string suggestion = null;
 
-			INamespace ns = null;
-			INamespace prevNs = null;
-			for (int i = 1; i < nshLen; i++)
+			if (nshLen > 1)
 			{
-				string currentNsName = string.Join(".", nsHierarchy, 0, i);
-				ns = ResolveQualifiedName(currentNsName) as INamespace;
-				if (null == ns)
+				INamespace ns = null;
+				INamespace prevNs = null;
+				for (int i = 1; i < nshLen; i++)
 				{
-					nsHierarchy[i-1] = GetMostSimilarMemberName(prevNs, nsHierarchy[i-1], EntityType.Namespace);
-					if (null == nsHierarchy[i-1]) return null;
-					i--; continue; //reloop to resolve step
+					string currentNsName = string.Join(".", nsHierarchy, 0, i);
+					ns = ResolveQualifiedName(currentNsName) as INamespace;
+					if (null == ns)
+					{
+						nsHierarchy[i-1] = GetMostSimilarMemberName(prevNs, nsHierarchy[i-1], EntityType.Namespace);
+						if (null == nsHierarchy[i-1]) break;
+						i--; continue; //reloop to resolve step
+					}
+					prevNs = ns;
 				}
-				prevNs = ns;
+				suggestion = GetMostSimilarMemberName(ns, nsHierarchy[nshLen-1], EntityType.Type);
+				if (null != suggestion)
+				{
+					nsHierarchy[nshLen-1] = suggestion;
+					return string.Join(".", nsHierarchy);
+				}
 			}
-			nsHierarchy[nshLen-1] = GetMostSimilarMemberName(ns, nsHierarchy[nshLen-1], EntityType.Type);
-			if (null == nsHierarchy[nshLen-1]) return null;
-			return string.Join(".", nsHierarchy);
+		
+			List<INamespace> nsList = new List<INamespace>();
+			FlattenChildNamespaces(nsList, GetGlobalNamespace());
+			nsList.Reverse();//most recently added namespaces first
+			foreach (INamespace nse in nsList)
+			{
+				suggestion = GetMostSimilarMemberName(nse, nsHierarchy[nshLen-1], EntityType.Type);
+				if (null != suggestion) return nse.ToString()+"."+suggestion;
+			}
+			return GetMostSimilarMemberName(GetGlobalNamespace(), nsHierarchy[nshLen-1], EntityType.Type);
 		}
 
-		public string GetMostSimilarMemberName(INamespace type, string name, EntityType elementType)
+		public string GetMostSimilarMemberName(INamespace ns, string name, EntityType elementType)
 		{
-			if (null == type) return null;
+			if (null == ns) return null;
 
 			string expectedSoundex = ToSoundex(name);
 			string lastMemberName = null;
-			foreach (IEntity member in type.GetMembers())
+			foreach (IEntity member in ns.GetMembers())
 			{
 				if (EntityType.Any != elementType && elementType != member.EntityType)
 					continue;
