@@ -107,6 +107,15 @@ Authors:
 		set:
 			Bag['Source Directory'] = value
 	
+	DefineSymbols:
+	"""
+	Gets/sets the conditional compilation symbols.
+	"""
+		get:
+			return Bag['DefineSymbols'] as string
+		set:
+			Bag['DefineSymbols'] = value
+	
 	ToolName:
 	"""
 	Gets the tool name.
@@ -309,6 +318,7 @@ Authors:
 		commandLine.AppendSwitchIfNotNull('-keyfile:', KeyFile)
 		commandLine.AppendSwitchIfNotNull('-keycontainer:', KeyContainer)
 		commandLine.AppendSwitchIfNotNull('-p:', Pipeline)
+		commandLine.AppendSwitchIfNotNull('-define:', DefineSymbols)
 		commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
 		
 		if NoLogo:
