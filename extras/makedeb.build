@@ -3,6 +3,8 @@
 
 	<target name="makedeb">
 
+		<property name="install.nant.task" value="true" />
+
 		<echo level="Warning">
 		!!!!!!
 
@@ -13,6 +15,7 @@
 		'install.prefix' is currently set to ${install.prefix}
 		'debug' is currently set to ${debug}
 		'optimize' is currently set to ${optimize}
+		'install.nant.task' is currently set to ${install.nant.task}
 
 		!!!!!!
 		</echo>
@@ -65,12 +68,14 @@
 		</copy>
 		
 		<!-- boo nant tasks -->
-		<mkdir dir="build/deb${install.prefix}/share/NAnt/bin" />
-		<copy todir="build/deb${install.prefix}/share/NAnt/bin">
-			<fileset basedir="build">
-				<include name="Boo.NAnt.Tasks.dll" />
-			</fileset>
-		</copy>
+		<if test="${bool::parse(install.nant.task) == true}">
+			<mkdir dir="build/deb${install.prefix}/lib/NAnt" />
+			<copy todir="build/deb${install.prefix}/lib/NAnt">
+				<fileset basedir="build">
+					<include name="Boo.NAnt.Tasks.dll" />
+				</fileset>
+			</copy>
+		</if>
 		
 		<!-- documentation -->
 		<mkdir dir="build/deb${install.prefix}/share/doc/boo" />
