@@ -35,6 +35,7 @@ import Boo.Lang.Compiler.Ast
 class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 
 	_condition as Expression
+	_message as Expression
 	
 	def constructor():
 		pass
@@ -42,6 +43,10 @@ class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 	def constructor(condition as Expression):
 		if condition is null: raise ArgumentNullException('condition')
 		_condition = condition
+	
+	def constructor(condition as Expression, message as Expression):
+		self(condition)
+		_message = message
 	
 	override def Apply(node as Boo.Lang.Compiler.Ast.Node):
 		
@@ -74,8 +79,14 @@ class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 				raise System.ArgumentNullException($parameterName) if $value is null
 			|]
 		
-		message = "Expected: " + _condition.ToCodeString()
-		return [|
-			raise System.ArgumentException($message, $parameterName) unless $_condition
-		|]
-
+		if _message is null:
+			_message = StringLiteralExpression("Expected: " + _condition.ToCodeString())
+			
+		if _message isa StringLiteralExpression:
+			return [|
+				raise System.ArgumentException($_message, $parameterName) unless $_condition
+			|]
+		else:
+			return [|
+				raise System.ArgumentException(($_message).ToString(), $parameterName) unless $_condition
+			|]
