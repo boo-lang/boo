@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (-1 == _isExtension)
 				{
 					bool defined = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
-					if( defined == false && Types.ClrExtensionAttribute != null )
+					if( defined == false && MetadataUtil.HasClrExtensions())
 					{
 						defined = MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute);
 					}

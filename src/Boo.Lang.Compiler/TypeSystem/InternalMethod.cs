@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				bool defined = IsAttributeDefined(Types.BooExtensionAttribute);
-				if( defined == false && Types.ClrExtensionAttribute != null )
+				if( defined == false && MetadataUtil.HasClrExtensions())
 				{
 					defined = IsAttributeDefined(Types.ClrExtensionAttribute);
 				}
