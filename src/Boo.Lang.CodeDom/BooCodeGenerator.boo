@@ -56,7 +56,9 @@ class BooCodeGenerator(CodeGenerator):
 						"System.Char" : "char",
 						"System.String" : "string",
 						"System.Object" : "object",
-						"System.Void" : "void"}
+						"System.Void" : "void",
+						"System.DateTime" : "date",
+						"System.TimeSpan" : "timespan" }
 						
 	protected NullToken as string:
 		get:
