@@ -462,6 +462,9 @@ class BooCodeGenerator(CodeGenerator):
 
 	protected override def CreateValidIdentifier(value as string) as string:
 		return value
+		
+	def NonGenericName(typeName as string):
+		return typeName[:typeName.IndexOf(char('`'))]
 
 	protected override def GetTypeOutput(typeRef as CodeTypeReference) as string:
 		if typeRef.ArrayElementType:
@@ -471,7 +474,10 @@ class BooCodeGenerator(CodeGenerator):
 		else:
 			// BaseType uses .NET syntax for inner classes, so we have to replace '+' with '.'
 			out = typeRef.BaseType.Replace('+', '.')
-		
+			typeArgs = typeRef.TypeArguments
+			if len(typeArgs) > 0:
+				out = "${NonGenericName(out)}[of ${join(GetTypeOutput(arg) for arg in typeArgs, ', ')}]"
+			
 		if typeRef.ArrayRank == 0:
 			return out
 		elif typeRef.ArrayRank == 1:
@@ -492,11 +498,11 @@ class BooCodeGenerator(CodeGenerator):
 		Output.Write("def ${name}(")
 		OutputParameters(method.Parameters)		
 		Output.Write(")")
+		if method.ReturnTypeCustomAttributes:
+			OutputAttributes(method.ReturnTypeCustomAttributes, null, true)
 		unless GetTypeOutput(method.ReturnType) == "void":
 			Output.Write(" as ")
 			OutputType(method.ReturnType)
-		if method.ReturnTypeCustomAttributes:
-			OutputAttributes(method.ReturnTypeCustomAttributes, null, true)
 		BeginBlock()
 		ctor = method as CodeConstructor
 		do_pass = true

@@ -47,19 +47,31 @@ class CodeGeneratorTestFixture:
 
 	[Test]
 	def TestNestedTypeReference():
-		buffer = StringWriter()
-		_generator.GenerateCodeFromExpression(CodeTypeReferenceExpression(System.Environment.SpecialFolder), buffer, CodeGeneratorOptions())
-		Assert.AreEqual("System.Environment.SpecialFolder", buffer.ToString().Trim())
+		AssertExpression "System.Environment.SpecialFolder", CodeTypeReferenceExpression(System.Environment.SpecialFolder)
+		
+	[Test]
+	def TestNullableType():
+		AssertType "System.Nullable[of int]", System.Nullable of int
+		
+	def AssertType(expected as string, type as System.Type):
+		stmt = CodeVariableDeclarationStatement(Name: "foo", Type: CodeTypeReference(type))
+		AssertStatement "foo as ${expected}", stmt
+		
+	[Test]
+	def TestArrayOfGenericType():
+		AssertType(
+			"(System.Collections.Generic.Dictionary[of string, int])",
+			typeof((System.Collections.Generic.Dictionary[of string, int])))
 
-	
 	[Test]
 	def TestArrayType():
-		stmt = CodeVariableDeclarationStatement()
-		stmt.Name = "anArray"
-		stmt.Type = CodeTypeReference(typeof((int)))
+		stmt = CodeVariableDeclarationStatement(
+					Name: "anArray",
+					Type: CodeTypeReference(typeof((int))))
+					
+		AssertStatement "anArray as (int)", stmt
 		
-		expected = "anArray as (int)"
-		
+	def AssertStatement(expected as string, stmt as CodeStatement):
 		buffer = StringWriter()
 		_generator.GenerateCodeFromStatement(stmt, buffer, CodeGeneratorOptions())
 		Assert.AreEqual(expected, buffer.ToString().Trim())
@@ -68,8 +80,9 @@ class CodeGeneratorTestFixture:
 	def TestArrayCreateSize():
 		e = CodeArrayCreateExpression(CodeTypeReference(int), 10)
 		
-		expected = "array(int, 10)"
+		AssertExpression "array(int, 10)", e
 		
+	def AssertExpression(expected as string, e as CodeExpression):
 		buffer = StringWriter()
 		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
 		Assert.AreEqual(expected, buffer.ToString().Trim())
@@ -79,41 +92,25 @@ class CodeGeneratorTestFixture:
 		e = CodeArrayCreateExpression(CodeTypeReference(int), 
 			CodeVariableReferenceExpression("sz"))
 		
-		expected = "array(int, sz)"
-		
-		buffer = StringWriter()
-		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
-		Assert.AreEqual(expected, buffer.ToString().Trim())
+		AssertExpression "array(int, sz)", e
 		
 	[Test]
 	def TestArrayCreateSingle():
 		e = CodeArrayCreateExpression(CodeTypeReference(int), *(CodePrimitiveExpression(2),))
 		
-		expected = "(of int: 2)"
-		
-		buffer = StringWriter()
-		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
-		Assert.AreEqual(expected, buffer.ToString().Trim())
+		AssertExpression "(of int: 2)", e
 		
 	[Test]
 	def TestArrayCreateMultiple():
 		e = CodeArrayCreateExpression(CodeTypeReference(int), CodePrimitiveExpression(2),
 			CodePrimitiveExpression(3), CodePrimitiveExpression(4))
 		
-		expected = "(of int: 2, 3, 4)"
-		
-		buffer = StringWriter()
-		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
-		Assert.AreEqual(expected, buffer.ToString().Trim())
+		AssertExpression "(of int: 2, 3, 4)", e
 	
 	[Test]
 	def TestCharType():
 		e = CodePrimitiveExpression(char('a'))
-		expected = "char('a')"
-		
-		buffer = StringWriter()
-		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
-		Assert.AreEqual(expected, buffer.ToString().Trim())
+		AssertExpression "char('a')", e
 	
 	[Test]
 	def TestFixIndent1():
