@@ -51,44 +51,75 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
 		{
-			IExternalEntity attr = TypeSystemServices.GetOptionalEntity(node) as IExternalEntity;
-			if (attr == null) return;
-			Type attrType = attr.MemberInfo.DeclaringType;
+			Type attrType = AttributeType(node);
+			if (attrType == null) return;
 
 			// check allowed attribute usage(s)
 			System.Attribute[] usages = System.Attribute.GetCustomAttributes(attrType, typeof(AttributeUsageAttribute));
-			if (usages.Length > 0)
-			{
-				//only one AttributeUsage is allowed anyway
-				AttributeUsageAttribute usage = usages[0] as AttributeUsageAttribute;
-				
-				if (AttributeTargets.All != usage.ValidOn)
-				{
-					if (null == _nodesUsageTargets) SetupNodesUsageTargetsDictionary();
+			if (usages.Length == 0) return;
 
-					Type nodeType = node.ParentNode.GetType();
-					if (_nodesUsageTargets.ContainsKey(nodeType))
-						if (( nodeType != typeof(Ast.Module) && _nodesUsageTargets[nodeType] != (usage.ValidOn & _nodesUsageTargets[nodeType]) )
-							|| (_nodesUsageTargets[nodeType] != (usage.ValidOn & _nodesUsageTargets[nodeType])
-								&& _nodesUsageTargets[typeof(Assembly)] != (usage.ValidOn & _nodesUsageTargets[typeof(Assembly)]) ) )
-							Errors.Add(
-								CompilerErrorFactory.InvalidAttributeTarget(node, attrType, usage.ValidOn));
-				}
-				if (!usage.AllowMultiple)
+			//only one AttributeUsage is allowed anyway
+			AttributeUsageAttribute usage = (AttributeUsageAttribute)usages[0];
+			if (AttributeTargets.All != usage.ValidOn)
+			{
+				AttributeTargets? target = TargetFor(node);
+				if (target.HasValue && !IsValid(usage, target.Value))
 				{
-					INodeWithAttributes m = node.ParentNode as INodeWithAttributes;
-					foreach (Boo.Lang.Compiler.Ast.Attribute mAttr in m.Attributes) {
-						if (mAttr == node) continue;
-						IExternalEntity mAttrEnt = TypeSystemServices.GetOptionalEntity(mAttr) as IExternalEntity;
-						if (null != mAttrEnt && mAttrEnt.MemberInfo.DeclaringType == attrType)
-							Errors.Add(
-								CompilerErrorFactory.MultipleAttributeUsage(node, attrType));
-					}
+					Errors.Add(
+						CompilerErrorFactory.InvalidAttributeTarget(node, attrType, usage.ValidOn));
+				}
+			}
+			if (!usage.AllowMultiple)
+			{
+				INodeWithAttributes m = node.ParentNode as INodeWithAttributes;
+				foreach (Boo.Lang.Compiler.Ast.Attribute mAttr in m.Attributes)
+				{
+					if (mAttr == node) continue;
+					IExternalEntity mAttrEnt = TypeSystemServices.GetOptionalEntity(mAttr) as IExternalEntity;
+					if (null != mAttrEnt && mAttrEnt.MemberInfo.DeclaringType == attrType)
+						Errors.Add(
+							CompilerErrorFactory.MultipleAttributeUsage(node, attrType));
 				}
 			}
 
 			// handle special compiler-supported attributes
 			//TODO: ObsoleteAttribute
+		}
+
+		private static AttributeTargets? TargetFor(Ast.Attribute node)
+		{	
+			if (node.ParentNode is Method)
+			{
+				AttributeCollection returnTypeAttributes = ((Method)node.ParentNode).ReturnTypeAttributes;
+				if (returnTypeAttributes.ContainsNode(node))
+				{
+					return AttributeTargets.ReturnValue;
+				}
+			}
+			AttributeTargets target;
+			if (NodeUsageTargets().TryGetValue(node.ParentNode.GetType(), out target))
+			{
+				return target;
+			}
+			return null;
+		}
+
+		private static Dictionary<Type, AttributeTargets> NodeUsageTargets()
+		{
+			if (null == _nodesUsageTargets) SetupNodesUsageTargetsDictionary();
+			return _nodesUsageTargets;
+		}
+
+		private static bool IsValid(AttributeUsageAttribute usage, AttributeTargets target)
+		{
+			return target == (usage.ValidOn & target);
+		}
+
+		private static Type AttributeType(Ast.Attribute node)
+		{
+			IExternalEntity attr = TypeSystemServices.GetOptionalEntity(node) as IExternalEntity;
+			if (null == attr) return null;
+			return attr.MemberInfo.DeclaringType;
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -121,7 +152,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_nodesUsageTargets = new Dictionary<Type, AttributeTargets>();
 			_nodesUsageTargets.Add(typeof(Assembly), AttributeTargets.Assembly);
-			_nodesUsageTargets.Add(typeof(Ast.Module), AttributeTargets.Module);
+			_nodesUsageTargets.Add(typeof(Ast.Module), AttributeTargets.Assembly);
 			_nodesUsageTargets.Add(typeof(ClassDefinition), AttributeTargets.Class);
 			_nodesUsageTargets.Add(typeof(StructDefinition), AttributeTargets.Struct);
 			_nodesUsageTargets.Add(typeof(EnumDefinition), AttributeTargets.Enum);
@@ -133,7 +164,6 @@ namespace Boo.Lang.Compiler.Steps
 			_nodesUsageTargets.Add(typeof(InterfaceDefinition), AttributeTargets.Interface);
 			_nodesUsageTargets.Add(typeof(ParameterDeclaration), AttributeTargets.Parameter);
 			_nodesUsageTargets.Add(typeof(CallableDefinition), AttributeTargets.Delegate);
-			_nodesUsageTargets.Add(typeof(ReturnStatement), AttributeTargets.ReturnValue);
 			_nodesUsageTargets.Add(typeof(GenericParameterDeclaration), AttributeTargets.GenericParameter);
 		}
 
