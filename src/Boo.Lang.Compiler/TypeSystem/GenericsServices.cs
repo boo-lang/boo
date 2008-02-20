@@ -371,7 +371,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				valid = false;
 			}
 
-			// Check for default constructor
 			if (parameter.MustHaveDefaultConstructor && !HasDefaultConstructor(argument))
 			{
 				Errors.Add(CompilerErrorFactory.GenericArgumentMustHaveDefaultConstructor(argumentNode, parameter, argument));
@@ -405,13 +404,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		private static bool HasDefaultConstructor(IType argument)
 		{
-			IConstructor[] constructors = argument.GetConstructors();
-
-			if (constructors == null || constructors.Length == 0)
+			if (argument.IsValueType)
 			{
 				return true;
 			}
 
+			IConstructor[] constructors = argument.GetConstructors();
 			foreach (IConstructor ctor in constructors)
 			{
 				if (ctor.GetParameters().Length == 0)
