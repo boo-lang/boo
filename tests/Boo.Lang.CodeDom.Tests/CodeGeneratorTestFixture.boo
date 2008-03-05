@@ -74,7 +74,7 @@ class CodeGeneratorTestFixture:
 	def AssertStatement(expected as string, stmt as CodeStatement):
 		buffer = StringWriter()
 		_generator.GenerateCodeFromStatement(stmt, buffer, CodeGeneratorOptions())
-		Assert.AreEqual(expected, buffer.ToString().Trim())
+		AssertWriter expected, buffer
 		
 	[Test]
 	def TestArrayCreateSize():
@@ -84,7 +84,10 @@ class CodeGeneratorTestFixture:
 		
 	def AssertExpression(expected as string, e as CodeExpression):
 		buffer = StringWriter()
-		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())
+		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())		
+		AssertWriter expected, buffer
+		
+	def AssertWriter(expected as string, buffer as StringWriter):
 		Assert.AreEqual(expected, buffer.ToString().Trim())
 		
 	[Test]
@@ -106,6 +109,14 @@ class CodeGeneratorTestFixture:
 			CodePrimitiveExpression(3), CodePrimitiveExpression(4))
 		
 		AssertExpression "(of int: 2, 3, 4)", e
+
+	[Test]
+	def TestPartial():
+		td = CodeTypeDeclaration("PartialType")
+		td.IsPartial = true
+		buffer = StringWriter()
+		_generator.GenerateCodeFromType(td, buffer,  CodeGeneratorOptions())
+		Assert.AreEqual("partial class PartialType():\r\n    pass\r\n", buffer.ToString())
 	
 	[Test]
 	def TestCharType():

@@ -401,6 +401,9 @@ class BooCodeGenerator(CodeGenerator):
 		elif visibility == TypeAttributes.NestedFamORAssem:
 			//FIXME: BOO-666
 			Output.Write("internal ")
+
+		if e.IsPartial:
+			Output.Write("partial ")
 			
 		//super OutputTypeAttributes ignores TypeAttributes.NotPublic (internal)
 		//FIXME: when boo enum processing fixed
