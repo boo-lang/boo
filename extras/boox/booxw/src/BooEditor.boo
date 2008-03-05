@@ -195,6 +195,7 @@ class BooEditor(DockContent):
 			_compiler.Parameters.References.Add(typeof(Form).Assembly)
 			_compiler.Parameters.References.Add(typeof(System.Drawing.Size).Assembly)
 			_compiler.Parameters.References.Add(System.Reflection.Assembly.GetExecutingAssembly())
+			_compiler.Parameters.References.Add(typeof(Boo.Lang.Extensions.MacroMacro).Assembly)
 			
 		_compiler.Parameters.Input.Add(StringInput(GetSafeFileName(), self.TextContent))
 

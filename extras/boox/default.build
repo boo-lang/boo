@@ -78,6 +78,7 @@
 		<copy todir="build">
 			<fileset basedir="${boo.dir}">
 				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 				<include name="Boo.Lang.Useful.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
