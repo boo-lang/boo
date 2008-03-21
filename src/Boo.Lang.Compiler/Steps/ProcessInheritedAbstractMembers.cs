@@ -193,6 +193,16 @@ namespace Boo.Lang.Compiler.Steps
 						string actualName = temp[temp.Length - 1];
 						if( actualName == entity.Name)
 						{
+                            if (null != inheritedImpl)
+                            {
+                                //Events and their corresponding Delegate Fields can have the same name
+                                //In such cases, we want the Event...
+                                if (inheritedImpl is ExternalEvent && oddjob is ExternalField && 
+                                    ((ExternalField)oddjob).Type.IsSubclassOf(TypeSystemServices.MulticastDelegateType))
+                                {
+                                    continue;
+                                }
+                            }
 							inheritedImpl = oddjob;
 						}
 					}

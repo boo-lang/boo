@@ -134,6 +134,20 @@ namespace Boo.Lang.Compiler.Steps
 
 			visited.Add(node);
 
+            Boo.Lang.List visitedNonInterfaces = null;
+            Boo.Lang.List visitedInterfaces = null;
+
+			if (node is InterfaceDefinition)
+            {
+                visitedInterfaces = visited;
+                // interfaces won't have noninterface base types so visitedNonInterfaces not necessary here
+            }
+            else
+            {
+                visitedNonInterfaces = visited;
+                visitedInterfaces = new Boo.Lang.List();
+            }
+            
 			int removed = 0;
 			int index = 0;
 			foreach (SimpleTypeReference baseType in node.BaseTypes.ToArray())
@@ -143,7 +157,22 @@ namespace Boo.Lang.Compiler.Steps
 				AbstractInternalType internalType = baseType.Entity as AbstractInternalType;
 				if (null != internalType)
 				{
-					if (visited.Contains(internalType.TypeDefinition))
+                    if (internalType is InternalInterface)
+                    {
+                        if (visitedInterfaces.Contains(internalType.TypeDefinition))
+                        {
+                            Error(CompilerErrorFactory.InheritanceCycle(baseType, internalType.FullName));
+                            node.BaseTypes.RemoveAt(index - removed);
+                            ++removed;
+                        }
+                        else
+                        {
+                            ResolveBaseTypes(visitedInterfaces, internalType.TypeDefinition);
+                        }
+                    }
+                    else
+                    {
+                        if (visitedNonInterfaces.Contains(internalType.TypeDefinition))
 					{
 						Error(CompilerErrorFactory.InheritanceCycle(baseType, internalType.FullName));
 						node.BaseTypes.RemoveAt(index - removed);
@@ -151,7 +180,8 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						ResolveBaseTypes(visited, internalType.TypeDefinition);
+                            ResolveBaseTypes(visitedNonInterfaces, internalType.TypeDefinition);
+                        }
 					}
 				}
 				++index;
