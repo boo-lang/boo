@@ -418,6 +418,7 @@
     <Compile Include="TypeSystem\AnonymousCallableType.cs" />
     <Compile Include="TypeSystem\ArrayEqualityComparer.cs" />
     <Compile Include="TypeSystem\ArrayType.cs" />
+    <Compile Include="TypeSystem\AssemblyEqualityComparer.cs" />
     <Compile Include="TypeSystem\AssemblyQualifiedNamespaceEntity.cs" />
     <Compile Include="TypeSystem\AssemblyReference.cs" />
     <Compile Include="TypeSystem\BooClassBuilder.cs" />

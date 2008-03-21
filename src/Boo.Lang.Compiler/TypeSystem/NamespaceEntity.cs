@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{			
 			_parent = parent;
 			_typeSystemServices = tagManager;
-			_name = name;			_assemblies = new Dictionary<Assembly, Dictionary<string, List<Type>>>();
+			_name = name;			_assemblies = new Dictionary<Assembly, Dictionary<string, List<Type>>>(AssemblyEqualityComparer.Default);
 			_childrenNamespaces = new Dictionary<string, NamespaceEntity>();
 			_internalModules = new List<ModuleEntity>();
 			_externalModules = new List<ExternalType>();
@@ -148,27 +148,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 		internal bool Resolve(List targetList, string name, Assembly assembly, EntityType flags)
 		{
 			NamespaceEntity entity;
-			_childrenNamespaces.TryGetValue(name, out entity);
-			if (null != entity)
+			if (_childrenNamespaces.TryGetValue(name, out entity))
 			{
 				targetList.Add(new AssemblyQualifiedNamespaceEntity(assembly, entity));
 				return true;
 			}
-			
-			Dictionary<string, List<Type>> types;
-			_assemblies.TryGetValue(assembly, out types);
-			
+
 			bool found = false;
-			if (null != types)
+			Dictionary<string, List<Type>> types;
+			if (_assemblies.TryGetValue(assembly, out types))
 			{
 				found = ResolveType(targetList, name, types);
-				
-				foreach (ExternalType external in _externalModules)
+			}
+
+			foreach (ExternalType external in _externalModules)
+			{
+				if (AssemblyEqualityComparer.Default.Equals(external.ActualType.Assembly, assembly))
 				{
-					if (external.ActualType.Assembly == assembly)
-					{
-						if (external.Resolve(targetList, name, flags)) found = true; 
-					}
+					if (external.Resolve(targetList, name, flags)) found = true; 
 				}
 			}
 			return found;

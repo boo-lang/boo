@@ -1,13 +1,20 @@
 """
 drawrof
 """
-namespace ClrExtensions
-
+import System
 import Boo.Lang.Compiler.MetaProgramming
 
-[System.Runtime.CompilerServices.ExtensionAttribute]
-def Reverse(this as string):
-	return join(reversed(this))
+if Type.GetType("System.Runtime.CompilerServices.ExtensionAttribute") is null:
+	print "drawrof"
+	return
+
+library = [|
+	namespace ClrExtensions
+	
+	[System.Runtime.CompilerServices.ExtensionAttribute]
+	def Reverse(this as string):
+		return join(reversed(this))
+|]
 
 code = [|
 	import ClrExtensions
@@ -17,4 +24,4 @@ code = [|
 
 	print reverse
 |]
-compile(code).EntryPoint.Invoke(null, (null,))
+compile(code, compile(library)).EntryPoint.Invoke(null, (null,))

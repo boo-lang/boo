@@ -48,6 +48,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected ExpressionCollection _returnExpressions;
 
 		protected List _yieldStatements;
+
+		private bool? _isExtension;
 				
 		internal InternalMethod(TypeSystemServices typeSystemServices, Method method)
 		{
@@ -69,13 +71,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				bool defined = IsAttributeDefined(Types.BooExtensionAttribute);
-				if( defined == false && MetadataUtil.HasClrExtensions())
+				if (!_isExtension.HasValue)
 				{
-					defined = IsAttributeDefined(Types.ClrExtensionAttribute);
+					_isExtension = CheckIsExtension();
 				}
-				return defined;
+				return _isExtension.Value;
 			}
+		}
+
+		private bool CheckIsExtension()
+		{
+			if (IsAttributeDefined(Types.BooExtensionAttribute))
+			{
+				return true;
+			}
+			if (MetadataUtil.HasClrExtensions())
+			{
+				return IsAttributeDefined(Types.ClrExtensionAttribute);
+			}
+			return false;
 		}
 
 		public bool IsDuckTyped
@@ -94,10 +108,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		bool IsAttributeDefined(System.Type attributeType)
+		private bool IsAttributeDefined(System.Type attributeType)
 		{
-			IType entity = _typeSystemServices.Map(attributeType);
-			return MetadataUtil.IsAttributeDefined(_method, entity);
+			return MetadataUtil.IsAttributeDefined(_method, _typeSystemServices.Map(attributeType));
 		}
 		
 		public IType DeclaringType

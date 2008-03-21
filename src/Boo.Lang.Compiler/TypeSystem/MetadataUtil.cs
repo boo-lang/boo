@@ -37,12 +37,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	/// <summary>
 	/// </summary>
-	public class MetadataUtil
+	public static class MetadataUtil
 	{
-		private MetadataUtil()
-		{
-		}
-		
 		public static bool IsAttributeDefined(TypeMember member, IType attributeType)
 		{
 			foreach (Boo.Lang.Compiler.Ast.Attribute attr in member.Attributes)

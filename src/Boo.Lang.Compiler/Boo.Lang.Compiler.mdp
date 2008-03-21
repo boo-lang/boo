@@ -375,6 +375,7 @@
     <File name="TypeSystem/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ArrayType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AssemblyEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AssemblyQualifiedNamespaceEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AssemblyReference.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/BooClassBuilder.cs" buildaction="Compile" subtype="Code" />

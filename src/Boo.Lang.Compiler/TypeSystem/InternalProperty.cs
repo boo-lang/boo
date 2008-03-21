@@ -32,17 +32,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class InternalProperty : IInternalEntity, IProperty
 	{
-		TypeSystemServices _typeSystemServices;
+		private TypeSystemServices _typeSystemServices;
 		
-		Property _property;
+		private Property _property;
 		
-		IParameter[] _parameters;
+		private IParameter[] _parameters;
 		
-		IProperty _override;
+		private IProperty _override;
+
+		private bool? _isExtension;
 		
-		public InternalProperty(TypeSystemServices tagManager, Property property)
+		public InternalProperty(TypeSystemServices typeSystemServices, Property property)
 		{
-			_typeSystemServices = tagManager;
+			_typeSystemServices = typeSystemServices;
 			_property = property;
 		}
 		
@@ -50,7 +52,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(Types.BooExtensionAttribute));
+				if (!_isExtension.HasValue)
+				{
+					_isExtension = MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(Types.BooExtensionAttribute));
+				}
+				return _isExtension.Value;
 			}
 		}
 		

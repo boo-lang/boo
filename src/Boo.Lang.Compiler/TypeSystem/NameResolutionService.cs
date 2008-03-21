@@ -461,13 +461,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			string lastNs = "!!not a namespace!!";
 			NamespaceEntity lastNsEntity = null;
-			string ns;
 
 			foreach (Type type in types)
 			{
-				if (!type.IsPublic) continue;
+				if (type.IsNotPublic) continue;
 
-				ns = type.Namespace ?? string.Empty;
+				string ns = type.Namespace ?? string.Empty;
 				//retrieve the namespace only if we don't have it handy already
 				//usually we'll have it since GetExportedTypes() seems to export
 				//types in a sorted fashion.
