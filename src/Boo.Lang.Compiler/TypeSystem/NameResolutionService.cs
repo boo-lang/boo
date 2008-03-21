@@ -464,7 +464,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			foreach (Type type in types)
 			{
-				if (type.IsNotPublic) continue;
+				if (!type.IsPublic) continue;
 
 				string ns = type.Namespace ?? string.Empty;
 				//retrieve the namespace only if we don't have it handy already

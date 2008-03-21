@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using Boo.Lang.Compiler.TypeSystem;
 using Assembly = System.Reflection.Assembly;
 
 namespace Boo.Lang.Compiler
@@ -44,11 +45,7 @@ namespace Boo.Lang.Compiler
 	
 		public void Add(Assembly assembly)
 		{
-			if (null == assembly)
-			{
-				throw new ArgumentNullException("assembly");
-			}
-			if (!InnerList.Contains(assembly))
+			if (!Contains(assembly))
 			{
 				InnerList.Add(assembly);
 			}
@@ -64,11 +61,16 @@ namespace Boo.Lang.Compiler
 		
 		public bool Contains(Assembly assembly)
 		{
-			if (null == assembly)
+			AssertNotNull(assembly);
+
+			foreach (Assembly existing in InnerList)
 			{
-				throw new ArgumentNullException("assembly");
+				if (AssemblyEqualityComparer.Default.Equals(existing, assembly))
+				{
+					return true;
+				}
 			}
-			return InnerList.Contains(assembly);
+			return false;
 		}
 		
 		public Assembly Find(string simpleName)
@@ -82,6 +84,11 @@ namespace Boo.Lang.Compiler
 			}
 			
 			return null;
+		}
+
+		private static void AssertNotNull(Assembly assembly)
+		{
+			if (null == assembly) throw new ArgumentNullException("assembly");
 		}
 	}
 }

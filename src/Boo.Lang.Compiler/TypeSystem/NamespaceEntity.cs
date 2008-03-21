@@ -154,18 +154,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			}
 
-			bool found = false;
+			
 			Dictionary<string, List<Type>> types;
-			if (_assemblies.TryGetValue(assembly, out types))
+			if (!_assemblies.TryGetValue(assembly, out types))
 			{
-				found = ResolveType(targetList, name, types);
+				return false;
 			}
 
+
+			bool found = ResolveType(targetList, name, types);
 			foreach (ExternalType external in _externalModules)
 			{
 				if (AssemblyEqualityComparer.Default.Equals(external.ActualType.Assembly, assembly))
 				{
-					if (external.Resolve(targetList, name, flags)) found = true; 
+					if (external.Resolve(targetList, name, flags)) found = true;
 				}
 			}
 			return found;
@@ -264,7 +266,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool ResolveExternalModules(List targetList, string name, EntityType flags)
 		{
 			bool found = false;
-			foreach (INamespace ns in _externalModules)
+			foreach (ExternalType ns in _externalModules)
 			{
 				if (ns.Resolve(targetList, name, flags)) found = true;
 			}
