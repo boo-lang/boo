@@ -72,7 +72,7 @@ class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 		if property is null or property.Setter is null:
 			InvalidNodeForAttribute('ParameterDeclaration or Property')
 		
-	private def BuildAssertion(parameterName as string):
+	protected virtual def BuildAssertion(parameterName as string):
 		value = ReferenceExpression(parameterName)
 		if _condition is null:
 			return [|
