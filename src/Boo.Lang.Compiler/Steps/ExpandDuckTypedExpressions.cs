@@ -129,7 +129,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			base.OnMethodInvocationExpression(node);
-			ExpandCallableInvocation(node);
+			
+			if(node.GetAncestor(NodeType.Constructor) == null 
+				|| (node.Target.NodeType != NodeType.SelfLiteralExpression
+			    	&& node.Target.NodeType != NodeType.SuperLiteralExpression)
+				|| TypeSystemServices.GetOptionalEntity(node.Target) as IConstructor == null)
+				ExpandCallableInvocation(node);
 		}
 
 		private void ExpandCallableInvocation(MethodInvocationExpression node)
