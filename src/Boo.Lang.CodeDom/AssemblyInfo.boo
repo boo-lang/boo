@@ -44,7 +44,4 @@ import System.Security.Permissions;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
-
-[assembly: AssemblyKeyName("")]
 

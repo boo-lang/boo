@@ -41,7 +41,4 @@ using System.Security.Permissions;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.0.0")]
 [assembly: AssemblyDelaySign(false)]
-#if !IGNOREKEYFILE
-[assembly: AssemblyKeyFile("../src/boo.snk")]
-#endif
-[assembly: AssemblyKeyName("")]
+

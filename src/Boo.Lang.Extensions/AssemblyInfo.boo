@@ -40,4 +40,4 @@ import System.Security.Permissions;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyKeyFile("../src/boo.snk")]
+

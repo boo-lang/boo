@@ -359,6 +359,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Local local in node.Locals)
 			{
+				// _ is a commonly accepted dummy variable for unused items
+				if (local.Name == "_")
+					continue;
+				
 				InternalLocal entity = (InternalLocal)local.Entity;
 				if (!entity.IsPrivateScope && !entity.IsUsed)
 				{

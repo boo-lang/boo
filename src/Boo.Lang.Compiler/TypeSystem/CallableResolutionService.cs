@@ -308,6 +308,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
 //			int result = 0;
+			/*
 			if (false)
 			{
 				for (int i = 0; i < _arguments.Count; i++)
@@ -330,6 +331,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 			}
+			*/
 			
 			if (result != 0)
 			{

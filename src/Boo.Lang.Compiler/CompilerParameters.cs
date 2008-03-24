@@ -283,7 +283,11 @@ namespace Boo.Lang.Compiler
 		private Assembly LoadAssemblyFromGac(string assemblyName)
 		{
 			assemblyName = NormalizeAssemblyName(assemblyName);
+			// This is an intentional attempt to load an assembly with partial name
+			// so ignore the compiler warning
+			#pragma warning disable 618	
 			Assembly assembly = Assembly.LoadWithPartialName(assemblyName);
+			#pragma warning restore 618
 			if (assembly != null) return assembly;
 			return Assembly.Load(assemblyName);
 		}

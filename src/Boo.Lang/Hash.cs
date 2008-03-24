@@ -40,7 +40,7 @@ namespace Boo.Lang
 	[EnumeratorItemType(typeof(DictionaryEntry))]
 	public class Hash : Hashtable
 	{
-		public Hash() : base(BooHashCodeProvider.Default, BooComparer.Default)
+		public Hash() : base(BooHashCodeProvider.Default)
 		{
 		}
 
@@ -69,7 +69,7 @@ namespace Boo.Lang
 			}
 		}
 
-		public Hash(bool caseInsensitive) : base(CaseInsensitiveHashCodeProvider.Default, CaseInsensitiveComparer.Default)
+		public Hash(bool caseInsensitive) : base(StringComparer.InvariantCultureIgnoreCase)
 		{
 		}
 
@@ -97,6 +97,18 @@ namespace Boo.Lang
 				if (!RuntimeServices.EqualityOperator(entry.Value, this[entry.Key])) return false;
 			}
 			return true;
+		}
+		
+		public override int GetHashCode()
+		{
+			int hashCode = 0;
+			
+			foreach (object item in this)
+			{
+				hashCode ^= GetHash(item);
+			}
+			
+			return hashCode;
 		}
 	}
 }

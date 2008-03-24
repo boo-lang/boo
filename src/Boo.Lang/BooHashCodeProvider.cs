@@ -32,9 +32,9 @@ namespace Boo.Lang
 	using System.Collections;
 
 	[Serializable]
-	public class BooHashCodeProvider : IHashCodeProvider
+	public class BooHashCodeProvider : IEqualityComparer
 	{
-		public static readonly IHashCodeProvider Default = new BooHashCodeProvider();
+		public static readonly IEqualityComparer Default = new BooHashCodeProvider();
 
 		private BooHashCodeProvider()
 		{
@@ -53,7 +53,12 @@ namespace Boo.Lang
 			}
 			return 0;
 		}
-
+		
+		public new bool Equals(object lhs, object rhs)
+		{
+			return BooComparer.Default.Compare(lhs, rhs) == 0;
+		}
+		
 		public int GetArrayHashCode(Array array)
 		{
 			int code = 1;

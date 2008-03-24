@@ -130,7 +130,7 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 	def CompileAssemblyFromSourceBatch(params as System.CodeDom.Compiler.CompilerParameters, src as (string)):
 		return HeavyLifter(params, (src), true)
 		
-	//unused at the moment:
+	/*unused at the moment:
 	static private def BuildArgs(options as System.CodeDom.Compiler.CompilerParameters, 
 				files as (string)) as string:
 		args = StringBuilder()
@@ -172,4 +172,4 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 			args.AppendFormat("\"{0}\" ",f)
 		
 		return args.ToString()
-
+	*/

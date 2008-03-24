@@ -52,6 +52,8 @@
 	<property name="csc.define" value="NET_2_0;TRACE;DEBUG" />
 
 	<property name="fixture" value="" dynamic="true" />
+	
+	<property name="keyfile.path" value="src/boo.snk" overwrite="false" />
 
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
 	</target>
@@ -104,7 +106,8 @@
 			target="exe"
 			output="${build.dir}/boo.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="${keyfile.path}">
 			
 			<sources basedir="src/boo">
 				<include name="*.boo" />
@@ -122,7 +125,8 @@
 			target="exe"
 			output="${build.dir}/booish.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="${keyfile.path}">
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
@@ -158,7 +162,8 @@
 			target="exe"
 			output="${build.dir}/booi.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="${keyfile.path}">
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
@@ -205,7 +210,8 @@
 		<booc target="library"
 		      output="${build.dir}/Boo.Lang.Interpreter.dll"
 		      verbose="${verbose}"
-		      debug="${debug}">
+		      debug="${debug}"
+			  keyfile="${keyfile.path}">
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
 			</sources>
@@ -238,13 +244,15 @@
 			<arg value="${debugflag}" />
 			<arg value="-out:${build.dir}/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
-			<arg value="-r:${nant::get-base-directory()}/NAnt.Core.dll" />
-			<arg value="-r:${nant::get-base-directory()}/NAnt.DotNetTasks.dll" />
+			<!--arg value="-keyfile:${keyfile.path}" /-->
+			<arg value="-lib:${nant::get-base-directory()}" />
+			<arg value="-r:NAnt.Core.dll" />
+			<arg value="-r:NAnt.DotNetTasks.dll" />
 			<arg value="src/Boo.NAnt.Tasks/UpdateAssemblyVersionTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/InsertLicenseTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BoocTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BooTask.boo" />
-			<arg value="src/Boo.NAnt.Tasks/AbstractBooTask.boo" />			
+			<arg value="src/Boo.NAnt.Tasks/AbstractBooTask.boo" />
 		</exec>
 		
 		<loadtasks assembly="${build.dir}/Boo.NAnt.Tasks.dll" />
@@ -255,7 +263,8 @@
 				output="${build.dir}/booc.exe" 
 				debug="${debug}" 
 				optimize="${optimize}"
-				define="${csc.define}">
+				define="${csc.define}"
+				keyfile="${keyfile.path}">
 			<sources basedir="src/booc">
 				<include name="*.cs" />
 			</sources>
@@ -331,7 +340,8 @@
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="false" 
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="${keyfile.path}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
@@ -373,7 +383,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="${keyfile.path}">
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>
@@ -388,7 +399,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			keyfile="${keyfile.path}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
@@ -417,7 +429,8 @@
 			failonerror="true"
 			verbose="${verbose}"
 			debug="${debug}"
-			unless="${skip.Boo.Lang.Extensions}">
+			unless="${skip.Boo.Lang.Extensions}"
+			keyfile="${keyfile.path}">
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
 			</sources>
@@ -432,7 +445,8 @@
 			output="${build.dir}/Boo.Lang.Compiler.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-			define="${csc.define}">
+			define="${csc.define}"
+			keyfile="${keyfile.path}">
 			
 			<sources basedir="src/Boo.Lang.Compiler">
 				<include name="**/*.cs" />
@@ -688,7 +702,8 @@
 			output="${build.dir}/Boo.Lang.Parser.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-			define="${csc.define}">
+			define="${csc.define}"
+			keyfile="${keyfile.path}">
 			<sources basedir="src/Boo.Lang.Parser">
 				<include name="**/*.cs" />
 			</sources>
@@ -696,6 +711,9 @@
 				<include name="${build.dir}/Boo.Lang.dll" />
 				<include name="${build.dir}/Boo.Lang.Compiler.dll" />
 			</references>
+			<nowarn>
+				<warning number="618,219,162" />
+			</nowarn>
 		</csc>
 	</target>
 	
@@ -848,7 +866,7 @@
 				<include name="bin/Makefile.am" />
 				<include name="extras/Makefile.am" />
 				
-				<include name="src/boo.snk" />
+				<include name="${keyfile.path}" />
 				<include name="src/**/*.cs" />
 				<include name="src/**/*.boo" />
 				<include name="src/**/*.rsp" />
