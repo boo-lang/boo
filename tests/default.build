@@ -2,11 +2,21 @@
 <project name="tests" default="run">
 
 	<include buildfile="nunit.inc" />
+	
+	<property name="test-bin-dir" value="../build" overwrite="false" />
+	
+	<target name="run-vs-bin" depends="set-test-boo-bin,run" />
 
-	<target name="run" depends="compile" if="${nant.tasks.nunit2}">
+	<target name="set-test-boo-bin">
+		<property name="test-bin-dir" value="../bin" overwrite="true" />
+	</target>
+
+	<target name="run" depends="compile" if="${task::exists('nunit2')}">
+
+		<echo message="Testing against ${path::get-full-path(test-bin-dir)}" />
 
 		<copy todir="${path::get-temp-path()}" file="build/BooCompiler.Tests.dll" overwrite="true" />
-
+		
 		<property name="fixture" value="" dynamic="true" />
 		<property name="num-tests" value="0" />
 		<property name="current-test" value="1" />
@@ -255,7 +265,7 @@
 		<delete dir="build" if="${directory::exists('build')}" />
 		<mkdir dir="build" />
 		<copy todir="build" overwrite="true">
-			<fileset basedir="../build">
+			<fileset basedir="${test-bin-dir}">
 				<include name="*.dll" />
 				<include name="*.pdb" />
 				<include name="boo*.exe" />
@@ -265,7 +275,7 @@
 			</fileset>
 		</copy>
 		<copy todir="${path::get-temp-path()}" overwrite="true">
-			<fileset basedir="../build">
+			<fileset basedir="${test-bin-dir}">
 				<include name="*.dll" />
 				<include name="*.pdb" />
 				<include name="boo*.exe" />

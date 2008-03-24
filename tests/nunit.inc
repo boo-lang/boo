@@ -17,7 +17,4 @@
 	<property name="nunit.framework.dll"
 			value="${path::combine(lib.framework.dir, 'nunit.framework.dll')}" />
 
-	<property name="nant.tasks.nunit2"
-			value="${task::exists('nunit2')}" />
-
 </project>

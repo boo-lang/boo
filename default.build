@@ -78,6 +78,17 @@
 		</exec>
 	</target>
 	
+	<target name="test-vs-bin">
+		<exec
+			basedir="${nant::get-base-directory()}"
+			program="NAnt.exe"
+			workingdir="tests"
+			useruntimeengine="true">
+			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
+			<arg value="run-vs-bin" />
+		</exec>
+	</target>
+	
 	<target name="compile-tests" depends="all">
 		<exec
 			basedir="${nant::get-base-directory()}"

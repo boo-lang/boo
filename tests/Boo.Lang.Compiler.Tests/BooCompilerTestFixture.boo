@@ -93,7 +93,7 @@ class CompilerTestFixture:
 		references = _compiler.Parameters.References
 		Assert.AreEqual(4, references.Count)
 		Assert.IsTrue(references.Contains(typeof(string).Assembly), "(ms)corlib.dll must be referenced by default!")
-		Assert.IsTrue(references.Contains(Assembly.LoadWithPartialName("System")), "System.dll must be referenced by default!")
+		Assert.IsTrue(references.Contains(Assembly.Load("System")), "System.dll must be referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Builtins).Assembly), "Boo.dll must referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Extensions.PrintMacro).Assembly), "Boo.Lang.Extensions.dll must be referenced by default!")
 		

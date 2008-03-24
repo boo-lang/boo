@@ -201,6 +201,18 @@ namespace BooCompiler.Tests
 			}
 			return false;
 		}
+		
+		// Just to remove the warnings; non-functional
+		public override bool Equals(object obj)
+		{
+			throw new NotImplementedException("This override is for testing purposes only.");
+		}
+		
+		// Just to remove the warnings; non-functional
+		public override int GetHashCode()
+		{
+			throw new NotImplementedException("This override is for testing purposes only.");
+		}
 	}
 	
 	public class AmbiguousBase

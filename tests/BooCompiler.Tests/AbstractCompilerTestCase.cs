@@ -96,7 +96,7 @@ namespace BooCompiler.Tests
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
 #if !VISUAL_STUDIO
-			CopyAssembly(System.Reflection.Assembly.LoadWithPartialName("BooModules"));
+			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
 #endif
 		}
 		
