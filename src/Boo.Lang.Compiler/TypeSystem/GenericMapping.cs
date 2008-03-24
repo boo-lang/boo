@@ -139,7 +139,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			// Map callable types
 			ICallableType callable = sourceType as ICallableType;
-			if (callable != null)
+			if (callable != null && EntityNeedsMapping(callable))
 			{
 				CallableSignature signature = callable.GetSignature();
 
@@ -154,6 +154,38 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			// If source type doesn't require mapping, return it as is
 			return sourceType;
+		}
+		
+		public bool EntityNeedsMapping(IEntity entity)
+		{
+			if (entity is ICallableType)
+			{
+				if (entity is ExternalCallableType)
+				{
+					return false;
+				}
+				
+				ICallableType callable = entity as ICallableType;
+				
+				if (callable.BaseType == _tss.MulticastDelegateType
+					|| callable.BaseType.IsSubclassOf(_tss.MulticastDelegateType))
+				{
+					return callable.ConstructedInfo != null
+						|| callable.GenericInfo != null;
+				}
+				return true;
+			}
+			if (entity is IMember)
+			{
+				IMember member = entity as IMember;
+				return member.DeclaringType.ConstructedInfo != null
+					|| member.DeclaringType.GenericInfo != null;
+			}
+			if (entity is IConstructedTypeInfo)
+			{
+				return true;
+			}
+			return false;
 		}
 
         /// <summary>

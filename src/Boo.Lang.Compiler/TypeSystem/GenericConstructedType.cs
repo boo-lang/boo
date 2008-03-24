@@ -217,7 +217,14 @@ namespace Boo.Lang.Compiler.TypeSystem
             {
                 foreach (IEntity match in definitionMatches)
                 {
-                    targetList.AddUnique(GenericMapping.Map(match));
+                	if(GenericMapping.EntityNeedsMapping(match))
+                	{
+                    	targetList.AddUnique(GenericMapping.Map(match));
+                	}
+                	else
+                	{
+                		targetList.AddUnique(match);
+                	}
                 }
                 return true;
             }
