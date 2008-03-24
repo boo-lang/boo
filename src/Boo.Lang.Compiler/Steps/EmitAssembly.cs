@@ -430,11 +430,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							IType baseType = _emitter.GetType(baseTypeRef);
 							
-							AbstractInternalType tag = baseType as AbstractInternalType;
-							if (null != tag)
-							{
-								CreateType(tag.TypeDefinition);
-							}
+							EnsureInternalDependency(baseType);
 
 							// If base type is a constructed generic type, create any internal 
                             // parameters it might have
@@ -442,11 +438,7 @@ namespace Boo.Lang.Compiler.Steps
 							{
 								foreach (IType argument in baseType.ConstructedInfo.GenericArguments)
 								{
-									tag = argument as AbstractInternalType;
-									if (null != tag)
-									{
-										CreateType(tag.TypeDefinition);
-									}
+									EnsureInternalDependency(argument);
 								}
 							}
 						}
@@ -457,6 +449,23 @@ namespace Boo.Lang.Compiler.Steps
 					Trace("type '{0}' successfully created", type);
 					
 					_current = saved;
+				}
+			}
+			
+			private void EnsureInternalDependency(IType type)
+			{
+				AbstractInternalType tag = type as AbstractInternalType;
+				if (null != tag)
+				{
+					CreateType(tag.TypeDefinition);
+				}
+				else
+				{
+					GenericConstructedType gtag = type as GenericConstructedType;
+					if(null != gtag)
+					{
+						EnsureInternalDependency(gtag.GenericDefinition);
+					}
 				}
 			}
 			
