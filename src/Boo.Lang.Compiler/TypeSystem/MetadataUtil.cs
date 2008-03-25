@@ -91,9 +91,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeUtilities.TypeName(member.Name).Equals(memberName) && IsAttributeDefined(member, Types.ClrExtensionAttribute);
 		}
 
+		private static readonly Dictionary<Type, Dictionary<MemberInfo, bool>> _attributeChecks = new Dictionary<Type, Dictionary<MemberInfo, bool>>();
+
 		public static bool IsAttributeDefined(MemberInfo member, Type attributeType)
 		{
-			return System.Attribute.IsDefined(member, attributeType);
+			bool isDefined;
+			Dictionary<MemberInfo, bool> memberInfoDict;
+			
+			if (!_attributeChecks.TryGetValue(attributeType, out memberInfoDict))
+			{
+				memberInfoDict = new Dictionary<MemberInfo, bool>();
+				_attributeChecks.Add(attributeType, memberInfoDict);
+			}
+			if (!memberInfoDict.TryGetValue(member, out isDefined))
+			{
+				isDefined = System.Attribute.IsDefined(member, attributeType);
+				memberInfoDict.Add(member, isDefined);
+			}
+			
+			return isDefined;
 #if CHECK_ATTRIBUTES_BY_NAME
 			// check attribute by name to account for different 
 			// loaded modules (and thus different type identities)
