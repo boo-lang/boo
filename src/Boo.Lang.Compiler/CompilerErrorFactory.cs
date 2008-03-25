@@ -834,6 +834,11 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0156", SafeLexicalInfo(node), ev.Name, ev.DeclaringType);
 		}
+		
+		public static CompilerError GenericTypesMustBeConstructedToBeInstantiated(Node node)
+		{
+			return new CompilerError("BCE0157", SafeLexicalInfo(node));
+		}
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

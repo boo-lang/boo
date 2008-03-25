@@ -4094,7 +4094,7 @@ namespace Boo.Lang.Compiler.Steps
 				constructorInfo.HasSelfCall = true;
 				targetType = constructorInfo.DeclaringType;
 			}
-
+			
 			IConstructor targetConstructorInfo = GetCorrectConstructor(node, targetType, node.Arguments);
 			if (null != targetConstructorInfo)
 			{
@@ -5619,6 +5619,17 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.CantCreateInstanceOfAbstractType(sourceNode, type.ToString()));
 				return false;
 			}
+            if (!(type is GenericConstructedType) 
+                &&
+                  ((type.GenericInfo != null 
+                   && type.GenericInfo.GenericParameters.Length > 0)
+               || (type.ConstructedInfo != null 
+                   && !type.ConstructedInfo.FullyConstructed))
+               )
+            {
+                Error(CompilerErrorFactory.GenericTypesMustBeConstructedToBeInstantiated(sourceNode));
+                return false;
+            }
 			return true;
 		}
 		
