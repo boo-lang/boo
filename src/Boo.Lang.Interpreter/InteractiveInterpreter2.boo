@@ -66,13 +66,16 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	def constructor():
 		super()
-		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_NOCOLORS") is not null
-		InitializeStandardReferences()
-		LoadHistory()
+		Initialize()
 
 	def constructor(parser as ICompilerStep):
 		super(parser)
-		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_NOCOLORS") is not null
+		Initialize()
+
+
+	def Initialize():
+		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS") is not null
+		_disableAutocompletion = true if Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION") is not null
 		InitializeStandardReferences()
 		LoadHistory()
 
@@ -111,6 +114,9 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	[property(DisableColors)]
 	_disableColors = false
+
+	[property(DisableAutocompletion)]
+	_disableAutocompletion = false
 
 	[property(InterpreterColor)] # messages from the interpreter (not from user code)
 	_interpreterColor = ConsoleColor.Gray
@@ -202,6 +208,8 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	private static re_close = Regex("\\)", RegexOptions.Singleline)
 
 	def DisplaySuggestions(query as string):
+		return if DisableAutocompletion
+
 		#TODO: FIXME: refactor to one regex?
 		p_open = re_open.Matches(query).Count
 		p_close = re_close.Matches(query).Count
