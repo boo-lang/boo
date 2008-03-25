@@ -73,12 +73,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		private static readonly MemberInfo[] NoExtensions = new MemberInfo[0];
+		private static Dictionary<Type, MemberInfo[]> _clrExtensionsMembers = new Dictionary<Type, MemberInfo[]>();
 
 		public static MemberInfo[] GetClrExtensions(Type type, string memberName)
-		{	
+		{
 			if (!HasClrExtensions()) return NoExtensions;
-			if (!IsAttributeDefined(type, Types.ClrExtensionAttribute)) return NoExtensions;
-			return type.FindMembers(MemberTypes.Method, BindingFlags.Public | BindingFlags.Static, ClrExtensionFilter, memberName);
+
+			MemberInfo[] members = null;
+			if (!_clrExtensionsMembers.TryGetValue(type, out members))
+			{
+				if (!IsAttributeDefined(type, Types.ClrExtensionAttribute))
+				{
+					_clrExtensionsMembers.Add(type, NoExtensions);
+				}
+				else
+				{
+					members = type.FindMembers(MemberTypes.Method, BindingFlags.Public | BindingFlags.Static, ClrExtensionFilter, memberName);
+					_clrExtensionsMembers.Add(type, members);
+				}
+			}
+			return members ?? NoExtensions;
 		}
 
 		public static bool HasClrExtensions()
@@ -91,25 +105,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeUtilities.TypeName(member.Name).Equals(memberName) && IsAttributeDefined(member, Types.ClrExtensionAttribute);
 		}
 
-		private static readonly Dictionary<Type, Dictionary<MemberInfo, bool>> _attributeChecks = new Dictionary<Type, Dictionary<MemberInfo, bool>>();
-
 		public static bool IsAttributeDefined(MemberInfo member, Type attributeType)
 		{
-			bool isDefined;
-			Dictionary<MemberInfo, bool> memberInfoDict;
-			
-			if (!_attributeChecks.TryGetValue(attributeType, out memberInfoDict))
+			if (Types.ClrExtensionAttribute == attributeType && null != member.DeclaringType)
 			{
-				memberInfoDict = new Dictionary<MemberInfo, bool>();
-				_attributeChecks.Add(attributeType, memberInfoDict);
+				MemberInfo[] members;
+				if (_clrExtensionsMembers.TryGetValue(member.DeclaringType, out members))
+				{
+					return ((ICollection<MemberInfo>) members).Contains(member);
+				}
 			}
-			if (!memberInfoDict.TryGetValue(member, out isDefined))
-			{
-				isDefined = System.Attribute.IsDefined(member, attributeType);
-				memberInfoDict.Add(member, isDefined);
-			}
-			
-			return isDefined;
+			return System.Attribute.IsDefined(member, attributeType);
+
 #if CHECK_ATTRIBUTES_BY_NAME
 			// check attribute by name to account for different 
 			// loaded modules (and thus different type identities)
@@ -124,3 +131,4 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 	}
 }
+

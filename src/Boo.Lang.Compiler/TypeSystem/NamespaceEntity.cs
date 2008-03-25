@@ -214,7 +214,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			MemberInfo[] members = MetadataUtil.GetClrExtensions(type, name);
 			if (0 == members.Length) return false;
-					
+
 			foreach (MethodInfo method in members)
 			{
 				list.Add(_typeSystemServices.Map(method));
