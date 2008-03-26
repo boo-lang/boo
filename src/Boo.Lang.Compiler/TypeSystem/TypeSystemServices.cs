@@ -1187,13 +1187,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			AddPrimitiveType("duck", DuckType);
 			AddPrimitiveType("void", VoidType);
-			AddPrimitiveType("bool", BoolType);
-			AddPrimitiveType("char", CharType);
-			AddPrimitiveType("date", DateTimeType);
-			AddPrimitiveType("timespan", TimeSpanType);
-			AddPrimitiveType("string", StringType);
 			AddPrimitiveType("object", ObjectType);
-			AddPrimitiveType("regex", RegexType);
+			AddPrimitiveType("bool", BoolType);
 			AddPrimitiveType("sbyte", SByteType);
 			AddPrimitiveType("byte", ByteType);
 			AddPrimitiveType("short", ShortType);
@@ -1205,6 +1200,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("single", SingleType);
 			AddPrimitiveType("double", DoubleType);
 			AddPrimitiveType("decimal", DecimalType);
+			AddPrimitiveType("char", CharType);
+			AddPrimitiveType("string", StringType);
+			AddPrimitiveType("regex", RegexType);
+			AddPrimitiveType("date", DateTimeType);
+			AddPrimitiveType("timespan", TimeSpanType);
 			AddPrimitiveType("callable", ICallableType);
 		}
 		
