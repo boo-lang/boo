@@ -29,19 +29,19 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 
-	public class Error : AbstractType
+	public class Unknown : AbstractType
 	{
-		public static Error Default = new Error();
+		public static Unknown Default = new Unknown();
 
-		private Error()
-		{			
-		}	
+		private Unknown()
+		{
+		}
 
 		override public string Name
 		{
 			get
 			{
-				return "error";
+				return "unknown";
 			}
 		}
 
@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return EntityType.Error;
+				return EntityType.Unknown;
 			}
 		}
 	}
