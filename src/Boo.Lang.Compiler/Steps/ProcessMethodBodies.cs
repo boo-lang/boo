@@ -4847,10 +4847,15 @@ namespace Boo.Lang.Compiler.Steps
 				node.Operator = BinaryOperatorType.Inequality;
 			}
 
-			IType lhs;
+			IType lhs, rhs;
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
 				lhs = GetExpressionType(node.Left);
+				rhs = GetExpressionType(node.Right);
+				if (lhs.IsNullable && rhs.IsNullable)
+				{
+					return false;
+				}
 				if (lhs.IsNullable)
 				{
 					BindNullableInitializer(node, node.Right, lhs);
@@ -4880,7 +4885,7 @@ namespace Boo.Lang.Compiler.Steps
 					node.Replace(node.Left, val);
 					Visit(val);
 				}
-				IType rhs = GetExpressionType(node.Right);
+				rhs = GetExpressionType(node.Right);
 				if (rhs.IsNullable)
 				{
 					Expression val = new MemberReferenceExpression(node.Right, "Value");
