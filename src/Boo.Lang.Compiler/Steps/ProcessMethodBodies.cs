@@ -3341,6 +3341,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool IsNullableOperation(BinaryExpression node)
 		{
+			if (null == node.Left.ExpressionType || null == node.Right.ExpressionType)
+			{
+				return false;
+			}
+
 			IType lhs = GetExpressionType(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			return (lhs.IsNullable && !rhs.IsNullable) || (!lhs.IsNullable && rhs.IsNullable);
@@ -4845,7 +4850,7 @@ namespace Boo.Lang.Compiler.Steps
 					node.Replace(node.Right, val);
 					Visit(val);
 				}
-				return true;
+				return false;
 			}
 
 			if (IsNull(node.Left) || IsNull(node.Right))
