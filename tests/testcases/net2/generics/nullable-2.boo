@@ -9,8 +9,10 @@ import System
 class TestNullableFieldInitializer:
 	def constructor():
 		assert n == 1
+		assert o is null
 
 	protected n as int? = 1
+	protected o as int?
 
 
 i = 69
