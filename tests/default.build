@@ -13,11 +13,22 @@
 
 	<target name="run" depends="compile" if="${task::exists('nunit2')}">
 
-		<echo message="Testing against ${path::get-full-path(test-bin-dir)}" />
+		<property name="fixture" value="" dynamic="true" />
+
+		<echo>
+
+		Testing against ${path::get-full-path(test-bin-dir)}"
+
+		</echo>
+		<echo if="${fixture == ''}">
+
+		Tip of the day:
+		You can use -D:fixture=SomeFixture (without .Tests.dll) to test just one fixture.
+
+		</echo>
 
 		<copy todir="${path::get-temp-path()}" file="build/BooCompiler.Tests.dll" overwrite="true" />
-		
-		<property name="fixture" value="" dynamic="true" />
+
 		<property name="num-tests" value="0" />
 		<property name="current-test" value="1" />
 		<property name="succeeded-tests" value="0" />
