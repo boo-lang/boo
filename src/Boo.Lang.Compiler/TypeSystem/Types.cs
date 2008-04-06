@@ -129,5 +129,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static readonly Type DefaultMemberAttribute = typeof(System.Reflection.DefaultMemberAttribute);
 
+		public static readonly Type Nullable = typeof(Nullable<>);
+
 	}
 }
+

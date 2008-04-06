@@ -60,7 +60,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
-		
+
+		bool IsNullable
+		{
+			get;
+		}
+
 		bool IsFinal
 		{
 			get;

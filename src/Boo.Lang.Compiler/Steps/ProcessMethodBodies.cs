@@ -3223,6 +3223,7 @@ namespace Boo.Lang.Compiler.Steps
 				BindEnumOperation(node);
 				return;
 			}
+
 			switch (node.Operator)
 			{
 				case BinaryOperatorType.Assign:
@@ -3308,7 +3309,7 @@ namespace Boo.Lang.Compiler.Steps
 					BindInPlaceArithmeticOperator(node);
 					break;
 				}
-				
+
 				case BinaryOperatorType.GreaterThan:
 				case BinaryOperatorType.GreaterThanOrEqual:
 				case BinaryOperatorType.LessThan:
@@ -3319,7 +3320,7 @@ namespace Boo.Lang.Compiler.Steps
 						BindCmpOperator(node);
 						break;
 					}
-					
+
 				default:
 					{
 						if (!ResolveOperator(node))
@@ -3337,7 +3338,14 @@ namespace Boo.Lang.Compiler.Steps
 				GetExpressionType(node.Left),
 				GetExpressionType(node.Right));
 		}
-		
+
+		bool IsNullableOperation(BinaryExpression node)
+		{
+			IType lhs = GetExpressionType(node.Left);
+			IType rhs = GetExpressionType(node.Right);
+			return (lhs.IsNullable && !rhs.IsNullable) || (!lhs.IsNullable && rhs.IsNullable);
+		}
+
 		bool IsEnumOperation(BinaryExpression node)
 		{
 			switch (node.Operator)
@@ -3437,6 +3445,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindCmpOperator(BinaryExpression node)
 		{
+			if (BindNullableOperation(node))
+			{
+				return;
+			}
+
 			IType lhs = GetExpressionType(node.Left);
 			IType rhs = GetExpressionType(node.Right);
 			
@@ -3461,14 +3474,15 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				return;
 			}
-			
+
 			if (!ResolveOperator(node))
 			{
 				switch (node.Operator)
 				{
 					case BinaryOperatorType.Equality:
 						{
-							if (OptimizeNullComparisons && (IsNull(node.Left) || IsNull(node.Right)))
+							if (OptimizeNullComparisons
+								&& (IsNull(node.Left) || IsNull(node.Right)))
 							{
 								node.Operator = BinaryOperatorType.ReferenceEquality;
 								BindReferenceEquality(node);
@@ -3481,7 +3495,8 @@ namespace Boo.Lang.Compiler.Steps
 						
 					case BinaryOperatorType.Inequality:
 						{
-							if (OptimizeNullComparisons && (IsNull(node.Left) || IsNull(node.Right)))
+							if (OptimizeNullComparisons
+								&& (IsNull(node.Left) || IsNull(node.Right)))
 							{
 								node.Operator = BinaryOperatorType.ReferenceInequality;
 								BindReferenceEquality(node);
@@ -3523,7 +3538,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return NodeType.NullLiteralExpression == node.NodeType;
 		}
-		
+
 		void BindLogicalOperator(BinaryExpression node)
 		{
 			node.Left = AssertBoolContext(node.Left);
@@ -4546,7 +4561,7 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 		
-		bool CheckIsNotValueType(BinaryExpression node, Expression expression)
+		private bool CheckIsNotValueType(BinaryExpression node, Expression expression)
 		{
 			IType tag = GetExpressionType(expression);
 			if (tag.IsValueType)
@@ -4732,6 +4747,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindAssignment(BinaryExpression node)
 		{
+			BindNullableOperation(node);
+
 			if (NodeType.SlicingExpression == node.Left.NodeType)
 			{
 				BindAssignmentToSlice(node);
@@ -4797,7 +4814,64 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return true;
 		}
-		
+
+		bool BindNullableOperation(BinaryExpression node)
+		{
+			if (!IsNullableOperation(node))
+			{
+				return false;
+			}
+
+			if (BinaryOperatorType.Assign == node.Operator)
+			{
+				IType lhs = GetExpressionType(node.Left);
+				if (lhs.IsNullable)
+				{
+					MethodInvocationExpression mie = new MethodInvocationExpression();
+					GenericReferenceExpression gre = new GenericReferenceExpression();
+					gre.Target = new MemberReferenceExpression(new ReferenceExpression("System"), "Nullable");
+					gre.GenericArguments.Add(TypeReference.Lift(Nullable.GetUnderlyingType(((ExternalType) lhs).ActualType)));
+					mie.Target = gre;
+					if (!IsNull(node.Right))
+					{
+						mie.Arguments.Add(node.Right);
+					}
+					node.Replace(node.Right, mie);
+					Visit(mie);
+				}
+				else
+				{
+					Expression val = new MemberReferenceExpression(node.Right, "Value");
+					node.Replace(node.Right, val);
+					Visit(val);
+				}
+				return true;
+			}
+
+			if (IsNull(node.Left) || IsNull(node.Right))
+			{
+				Expression nullable = IsNull(node.Left) ? node.Right : node.Left;
+				Expression val = new MemberReferenceExpression(nullable, "HasValue");
+				node.Replace(node.Left, val);
+				Visit(val);
+				Expression nil = new BoolLiteralExpression(false);
+				node.Replace(node.Right, nil);
+				Visit(nil);
+				if (node.Operator == BinaryOperatorType.ReferenceEquality)
+				{
+					node.Operator = BinaryOperatorType.Equality;
+				}
+				else if (node.Operator == BinaryOperatorType.ReferenceInequality)
+				{
+					node.Operator = BinaryOperatorType.Inequality;
+				}
+				BindExpressionType(node, TypeSystemServices.BoolType);
+				return true;
+			}
+
+			return false;
+		}
+
 		void BindTypeTest(BinaryExpression node)
 		{
 			if (CheckIsNotValueType(node, node.Left) &&
@@ -4813,6 +4887,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindReferenceEquality(BinaryExpression node)
 		{
+			if (BindNullableOperation(node))
+			{
+				return;
+			}
+
 			if (CheckIsNotValueType(node, node.Left) &&
 			    CheckIsNotValueType(node, node.Right))
 			{

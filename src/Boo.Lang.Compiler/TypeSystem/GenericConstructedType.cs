@@ -110,6 +110,11 @@ namespace Boo.Lang.Compiler.TypeSystem
             get { return _definition.IsValueType; }
         }
 
+        public bool IsNullable
+        {
+            get { return false; }
+        }
+
         public bool IsFinal
         {
             get { return _definition.IsFinal; }

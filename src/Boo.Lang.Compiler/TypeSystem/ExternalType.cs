@@ -151,6 +151,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _type.IsValueType; }
 		}
 
+		public virtual bool IsNullable
+		{
+			get { return _type.IsGenericType && _type.GetGenericTypeDefinition() == Types.Nullable; }
+		}
+
 		public bool IsArray
 		{
 			get { return false; }

@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Util
 	    public static string TypeName(Type type)
 		{
 			if (!type.IsGenericTypeDefinition) return type.Name;
-	    return TypeName(type.Name);
+			return TypeName(type.Name);
 		}
 
 		public static string TypeName(string typeName)

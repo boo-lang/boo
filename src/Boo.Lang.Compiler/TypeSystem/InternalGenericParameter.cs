@@ -101,6 +101,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return false; }
 		}
 
+		public bool IsNullable
+		{
+			get { return false; }
+		}
+
 		public bool IsClass
 		{
 			// TODO: reflect reference-type constraint
