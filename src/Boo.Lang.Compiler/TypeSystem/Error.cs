@@ -112,14 +112,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		public virtual bool IsNullable
-		{
-			get
-			{
-				return false;
-			}
-		}
-
 		public virtual bool IsArray
 		{
 			get

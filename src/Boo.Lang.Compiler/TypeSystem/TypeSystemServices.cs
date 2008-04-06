@@ -812,7 +812,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 				type == this.DoubleType ||
 				type == this.SingleType;
 		}
-		
+
+		public static bool IsNullable(IType type)
+		{
+			ExternalType et = type as ExternalType;
+			return (null != et && et.ActualType.IsGenericType && et.ActualType.GetGenericTypeDefinition() == Types.Nullable);
+		}
+
 		public static bool IsUnknown(Expression node)
 		{
 			IType type = node.ExpressionType;
@@ -827,7 +833,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return EntityType.Unknown == tag.EntityType;
 		}
-		
+
 		public static bool IsError(Expression node)
 		{
 			IType type = node.ExpressionType;
@@ -857,8 +863,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return BuiltinsType == ((IMethod)tag).DeclaringType;
 			}
 			return false;
-		}
-		
+		}
 		public static bool IsError(IEntity tag)
 		{
 			return EntityType.Error == tag.EntityType;

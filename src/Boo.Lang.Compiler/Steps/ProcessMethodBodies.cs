@@ -304,7 +304,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != node.Initializer)
 			{
 				IType type = (null != node.Type) ? GetType(node.Type) : null;
-				if (null != type && type.IsNullable)
+				if (null != type && TypeSystemServices.IsNullable(type))
 				{
 					BindNullableInitializer(node, node.Initializer, type);
 				}
@@ -1942,7 +1942,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType itype = GetExpressionType(node.Initializer);
 				AssertTypeCompatibility(node.Initializer, type, itype);
 
-				if (type.IsNullable && !itype.IsNullable)
+				if (TypeSystemServices.IsNullable(type) && !TypeSystemServices.IsNullable(itype))
 				{
 					BindNullableInitializer(node, node.Initializer, type);
 				}
@@ -3357,9 +3357,8 @@ namespace Boo.Lang.Compiler.Steps
 				return false;
 			}
 
-			IType lhs = GetExpressionType(node.Left);
-			IType rhs = GetExpressionType(node.Right);
-			return (lhs.IsNullable || rhs.IsNullable);
+			return TypeSystemServices.IsNullable(GetExpressionType(node.Left))
+				|| TypeSystemServices.IsNullable(GetExpressionType(node.Right));
 		}
 
 		bool IsEnumOperation(BinaryExpression node)
@@ -4852,11 +4851,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				lhs = GetExpressionType(node.Left);
 				rhs = GetExpressionType(node.Right);
-				if (lhs.IsNullable && rhs.IsNullable)
+				bool lhsIsNullable = TypeSystemServices.IsNullable(lhs);
+				if (lhsIsNullable && TypeSystemServices.IsNullable(rhs))
 				{
 					return false;
 				}
-				if (lhs.IsNullable)
+				if (lhsIsNullable)
 				{
 					BindNullableInitializer(node, node.Right, lhs);
 					return false;
@@ -4879,14 +4879,14 @@ namespace Boo.Lang.Compiler.Steps
 				&& BinaryOperatorType.Inequality != node.Operator)
 			{
 				lhs = GetExpressionType(node.Left);
-				if (lhs.IsNullable)
+				if (TypeSystemServices.IsNullable(lhs))
 				{
 					Expression val = new MemberReferenceExpression(node.Left, "Value");
 					node.Replace(node.Left, val);
 					Visit(val);
 				}
 				rhs = GetExpressionType(node.Right);
-				if (rhs.IsNullable)
+				if (TypeSystemServices.IsNullable(rhs))
 				{
 					Expression val = new MemberReferenceExpression(node.Right, "Value");
 					node.Replace(node.Right, val);
