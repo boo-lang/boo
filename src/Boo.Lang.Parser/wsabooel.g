@@ -283,3 +283,6 @@ DIGIT : '0'..'9';
 
 protected
 HEXDIGIT : ('a'..'f' | 'A'..'F' | '0'..'9');
+
+NULLABLE_SUFFIX: '?';
+
