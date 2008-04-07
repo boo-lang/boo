@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Booc.boo" />
+    <Compile Include="ExecBoo.boo" />
     <Compile Include="Properties\AssemblyInfo.boo" />
     <Compile Include="CreateBooManifestResourceName.boo" />
     <None Include="Boo.Microsoft.Build.targets">

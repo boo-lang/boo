@@ -8,6 +8,10 @@
 		TaskName="Boo.Microsoft.Build.Tasks.Booc"
 		AssemblyFile="Boo.Microsoft.Build.Tasks.dll"/>
 	
+	<UsingTask
+		TaskName="Boo.Microsoft.Build.Tasks.ExecBoo"
+		AssemblyFile="Boo.Microsoft.Build.Tasks.dll"/>
+	
 	<PropertyGroup>
 		<MSBuildAllProjects Condition="'$(BooBinPath)' != ''">
 		$(MSBuildAllProjects);$(BooBinPath)\Boo.Microsoft.Build.targets
