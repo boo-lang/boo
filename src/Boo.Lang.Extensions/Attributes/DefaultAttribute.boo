@@ -54,13 +54,19 @@ public class DefaultAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 		if pd is not null:
 			name = pd.Name
 			parent = pd.ParentNode
-			type = (NameResolutionService.Resolve(pd.Type.ToString(), EntityType.Type) as IType)
+			if pd.Type:
+				type = (NameResolutionService.Resolve(pd.Type.ToString(), EntityType.Type) as IType)
+			else:
+				type = TypeSystemServices.ObjectType
 		else:
 			prop = (node as Property)
 			if (prop is not null) and (prop.Setter is not null):
 				name = 'value'
 				parent = prop.Setter
-				type = (NameResolutionService.Resolve(prop.Type.ToString(), EntityType.Type) as IType)
+				if prop.Type:
+					type = (NameResolutionService.Resolve(prop.Type.ToString(), EntityType.Type) as IType)
+				else:
+					type = TypeSystemServices.ObjectType
 			else:
 				InvalidNodeForAttribute('ParameterDeclaration or Property')
 				return 
