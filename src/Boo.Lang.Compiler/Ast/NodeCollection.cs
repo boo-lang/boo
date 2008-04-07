@@ -274,7 +274,7 @@ namespace Boo.Lang.Compiler.Ast
 			AssertNotNull("existing", existing);
 			for (int i = 0; i < _list.Count; ++i)
 			{
-				if (_list[i] == existing)
+				if (this[i] == existing)
 				{
 					if (null == newItem)
 					{
