@@ -508,6 +508,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			//	<block>
 			ws.Block.Add(node.Block);
+			
+			ws.ElseBlock = node.ElseBlock;
 
 			body.Add(ws);
 
@@ -616,6 +618,7 @@ namespace Boo.Lang.Compiler.Steps
 			AstAnnotations.MarkUnchecked(assignment);
 			
 			ws.Block.Add(assignment);
+			ws.ElseBlock = node.ElseBlock;
 			body.Add(ws);
 			ReplaceCurrentNode(body);
 		}

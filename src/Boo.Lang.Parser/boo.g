@@ -1743,6 +1743,10 @@ for_stmt returns [ForStatement fs]
 		declaration_list[declarations] IN iterator=array_or_expression
 		{ fs.Iterator = iterator; }
 		compound_stmt[body]
+	(
+		et:ELSE { fs.ElseBlock = new Block(ToLexicalInfo(et)); }
+		compound_stmt[fs.ElseBlock]
+	)?
 	;
 		
 protected
@@ -1757,6 +1761,10 @@ while_stmt returns [WhileStatement ws]
 		ws.Condition = e;
 	}
 	compound_stmt[ws.Block]
+	(
+		et:ELSE { ws.ElseBlock = new Block(ToLexicalInfo(et)); }
+		compound_stmt[ws.ElseBlock]
+	)?
 	;
 		
 protected

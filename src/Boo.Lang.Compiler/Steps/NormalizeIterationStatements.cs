@@ -145,6 +145,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			ws.Block.Add(node.Block);
+			ws.ElseBlock = node.ElseBlock;
 			
 			// try:
 			//   while...

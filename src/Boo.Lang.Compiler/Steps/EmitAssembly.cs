@@ -1368,6 +1368,10 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(conditionLabel);
 			EmitDebugInfo(node);
 			EmitBranchTrue(node.Condition, bodyLabel);
+			if(node.ElseBlock != null)
+			{
+				node.ElseBlock.Accept(this);
+			}
 			_il.MarkLabel(endLabel);
 		}
 		

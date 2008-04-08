@@ -984,6 +984,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Visit(fs.Iterator);
 			WriteLine(":");
 			WriteBlock(fs.Block);
+			if(fs.ElseBlock != null)
+			{
+				WriteIndented();
+				WriteKeyword("else:");
+				WriteLine();
+				WriteBlock(fs.ElseBlock);
+			}
 		}
 		
 		override public void OnTryStatement(TryStatement node)
@@ -1097,6 +1104,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnWhileStatement(WhileStatement node)
 		{
 			WriteConditionalBlock("while", node.Condition, node.Block);
+			if(node.ElseBlock != null)
+			{
+				WriteIndented();
+				WriteKeyword("else:");
+				WriteLine();
+				WriteBlock(node.ElseBlock);
+			}
+
 		}
 
 		override public void OnIfStatement(IfStatement node)
