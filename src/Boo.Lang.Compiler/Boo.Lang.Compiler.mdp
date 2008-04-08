@@ -368,6 +368,7 @@
     <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AbstractType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AliasedNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Ambiguous.cs" buildaction="Compile" subtype="Code" />
@@ -458,9 +459,11 @@
     <File name="TypeSystem/Namespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/NamespaceDelegator.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/NamespaceEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Null.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/SimpleNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Unknown.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Variance.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/MarshalByRefCollectionBase.cs" buildaction="Compile" subtype="Code" />

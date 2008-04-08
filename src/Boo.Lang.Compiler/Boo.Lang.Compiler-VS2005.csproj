@@ -14,10 +14,12 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <StartArguments>-p:boo BCE0157-1.boo</StartArguments>
+    <StartWorkingDirectory>..\..\tests\testcases\errors\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>Full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0</DefineConstants>
@@ -50,6 +52,11 @@
     <BaseAddress>4194304</BaseAddress>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Boo\build\booc.exe</StartProgram>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -411,6 +418,7 @@
     <Compile Include="TypeSystem\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\AbstractLocalEntity.cs" />
+    <Compile Include="TypeSystem\AbstractType.cs" />
     <Compile Include="TypeSystem\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\AliasedNamespace.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />
@@ -501,9 +509,11 @@
     <Compile Include="TypeSystem\Namespace.cs" />
     <Compile Include="TypeSystem\NamespaceDelegator.cs" />
     <Compile Include="TypeSystem\NamespaceEntity.cs" />
+    <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\SimpleNamespace.cs" />
     <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\TypeSystemServices.cs" />
+    <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />
     <Compile Include="Util\ITask.cs" />
     <Compile Include="Util\MarshalByRefCollectionBase.cs" />

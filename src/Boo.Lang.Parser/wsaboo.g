@@ -1549,16 +1549,22 @@ for_stmt returns [ForStatement fs]
 		Expression iterator = null;
 		DeclarationCollection declarations = null;
 		Block body = null;
+		Block lastBlock = null;
 	}:
 	f:FOR
 	{
 		fs = new ForStatement(SourceLocationFactory.ToLexicalInfo(f));
 		declarations = fs.Declarations;
-		body = fs.Block;
+		lastBlock = body = fs.Block;
 	}
 		declaration_list[declarations] IN iterator=array_or_expression
 		{ fs.Iterator = iterator; }
-		compound_stmt[body]
+		begin block[body.Statements]
+	(
+		et:ELSE { lastBlock = fs.ElseBlock = new Block(SourceLocationFactory.ToLexicalInfo(et)); }
+		begin block[fs.ElseBlock.Statements]
+	)?
+	end[lastBlock]
 	;
 		
 protected
@@ -1566,13 +1572,20 @@ while_stmt returns [WhileStatement ws]
 	{
 		ws = null;
 		Expression e = null;
+		Block lastBlock = null;
 	}:
 	w:WHILE e=expression
 	{
 		ws = new WhileStatement(SourceLocationFactory.ToLexicalInfo(w));
 		ws.Condition = e;
+		lastBlock = ws.Block;
 	}
-	compound_stmt[ws.Block]
+		begin block[ws.Block.Statements]
+	(
+		et:ELSE { lastBlock = ws.ElseBlock = new Block(SourceLocationFactory.ToLexicalInfo(et)); }
+		begin block[ws.ElseBlock.Statements]
+	)?
+	end[lastBlock]
 	;
 		
 protected

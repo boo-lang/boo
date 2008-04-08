@@ -67,7 +67,6 @@
     <Compile Include="AbstractCompilerErrorsTestFixture.cs" />
     <Compile Include="AbstractCompilerTestCase.cs" />
     <Compile Include="ArraysIntegrationTestFixture.cs" />
-    <Compile Include="AstIntegrationTestFixture.cs" />
     <Compile Include="AttributesIntegrationTestFixture.cs" />
     <Compile Include="AttributesTestFixture.cs" />
     <Compile Include="BooTestCaseUtil.cs" />
