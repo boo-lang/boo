@@ -78,6 +78,7 @@ class ExecBoo(Task):
 			script.Task = self
 			WithWorkingDir(Path.GetDirectoryName(script.Task.BuildEngine.ProjectFileOfTaskNode)) do:
 				script.Run()
+			_buildSuccess = script.Success
 		except x:
 			Log.LogErrorFromException(x, true, true, _src)
 			_buildSuccess = false

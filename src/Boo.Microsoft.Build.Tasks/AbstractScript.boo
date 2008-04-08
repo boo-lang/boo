@@ -3,6 +3,7 @@ namespace Boo.Microsoft.Build.Tasks
 abstract class AbstractScript:
 	[property(Task)]    _task as ExecBoo
 	[property(Arguments)] _args = System.Collections.Generic.Dictionary[of string,string]()
+	[property(Success)] _success = true
 	Output:
 		get:
 			return Task.ScriptResult
@@ -33,12 +34,15 @@ abstract class AbstractScript:
 
 	def error([default(string.Empty)] msg as string):
 		_task.Log.LogError(msg)
+		_success = false
 	
 	def error([default(string.Empty)] obj):
 		error(obj.ToString())
+		_success = false
 	
 	def error([required] ex as System.Exception):
 		_task.Log.LogErrorFromException(ex)
+		_success = false
 
 	abstract def Run():
 		pass
