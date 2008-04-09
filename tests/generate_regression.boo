@@ -32,6 +32,9 @@ import System.IO
 import Boo.Lang.Compiler.Ast.Visitors
 import Boo.Lang.Parser
 
+class Util:
+	public static argv as (string)
+
 def PortParserTestCases():
 """
 Generates WSA parser test cases from
@@ -69,20 +72,31 @@ def MapPath(path):
 	return Path.GetFullPath(path)
 
 def WriteTestCases(writer as TextWriter, baseDir as string):
-	count = 0
+	count, ignored = 0, 0
 	for fname as string in Directory.GetFiles(MapPath("testcases/${baseDir}")):
 		continue unless fname.EndsWith(".boo")
-		++count
+		ignore = false
+		message = ''
+		using file = File.OpenText(fname):
+			while firstLine = file.ReadLine().Trim():
+				break unless firstLine.StartsWith('#')
+				if firstLine.StartsWith('#ignore', StringComparison.InvariantCultureIgnoreCase):
+					message += ' ' + (firstLine[8:] if len(firstLine) > 9 else '').Trim()
+					ignore = true
+		++count unless ignore
+		++ignored if ignore
+		attribute = ("[Ignore(\"${message}\")]" if ignore else '')
 		writer.Write("""
-		[Test]
+		${attribute}[Test]
 		public void ${GetTestCaseName(fname)}()
 		{
 			RunCompilerTestCase(@"${NormalizePath(Path.GetFileName(fname))}");
 		}
 		""")
-	print("${count} test cases found in ${baseDir}.")
+	print("{0,5} {1,7}  {2}" % (count, ignored, baseDir))
 
-def GenerateTestFixture(srcDir as string, targetFile as string, header as string):
+def GenerateTestFixture(srcDir as string, targetFile as string, fixtureAssembly as string, header as string):
+	return if Util.argv and len(Util.argv) and Util.argv[0] == fixtureAssembly
 	using writer=StreamWriter(MapPath(targetFile)):
 		writer.Write(header)
 		WriteTestCases(writer, srcDir)
@@ -121,11 +135,15 @@ def GenerateIntegrationTestFixture(dir as string):
 	public class ${fixtureName} : AbstractCompilerTestCase
 	{
 	"""
-	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.cs", header)
+	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.cs", "BooCompiler.${fixtureName.Replace('TestFixture', '')}", header)
+
+#Util.argv = argv
+
+print("{0,-5} {1,-7}  {2}" % ('tests', 'ignored', 'directory'))
 
 GenerateIntegrationTestFixtures()
 
-GenerateTestFixture("regression", "BooCompiler.Tests/RegressionTestFixture.cs", """
+GenerateTestFixture("regression", "BooCompiler.Tests/RegressionTestFixture.cs", "BooCompiler.Regression", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -135,7 +153,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("errors", "BooCompiler.Tests/CompilerErrorsTestFixture.cs", """
+GenerateTestFixture("errors", "BooCompiler.Tests/CompilerErrorsTestFixture.cs", "BooCompiler.CompilerErrors", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -146,7 +164,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.cs", """
+GenerateTestFixture("warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.cs", "BooCompiler.CompilerWarnings", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -163,7 +181,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("macros", "BooCompiler.Tests/MacrosTestFixture.cs", """
+GenerateTestFixture("macros", "BooCompiler.Tests/MacrosTestFixture.cs", "BooCompiler.Macros", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -173,7 +191,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("stdlib", "BooCompiler.Tests/StdlibTestFixture.cs", """
+GenerateTestFixture("stdlib", "BooCompiler.Tests/StdlibTestFixture.cs", "BooCompiler.Stdlib", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -183,7 +201,7 @@ namespace BooCompiler.Tests
 	{
 """)
 
-GenerateTestFixture("attributes", "BooCompiler.Tests/AttributesTestFixture.cs", """
+GenerateTestFixture("attributes", "BooCompiler.Tests/AttributesTestFixture.cs", "BooCompiler.Attributes", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -206,7 +224,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("parser/roundtrip", "build/ParserRoundtripTestFixture.cs", """
+GenerateTestFixture("parser/roundtrip", "build/ParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
 namespace Boo.Lang.Parser.Tests
 {
 	using NUnit.Framework;
@@ -221,7 +239,7 @@ namespace Boo.Lang.Parser.Tests
 """)
 
 PortParserTestCases()
-GenerateTestFixture("parser/wsa", "build/WSAParserRoundtripTestFixture.cs", """
+GenerateTestFixture("parser/wsa", "build/WSAParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
 namespace Boo.Lang.Parser.Tests
 {
 	using NUnit.Framework;
@@ -235,7 +253,7 @@ namespace Boo.Lang.Parser.Tests
 		}
 """)
 
-GenerateTestFixture("semantics", "BooCompiler.Tests/SemanticsTestFixture.cs", """
+GenerateTestFixture("semantics", "BooCompiler.Tests/SemanticsTestFixture.cs", "BooCompiler.Semantics", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -251,7 +269,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("ducky", "BooCompiler.Tests/DuckyTestFixture.cs", """
+GenerateTestFixture("ducky", "BooCompiler.Tests/DuckyTestFixture.cs", "BooCompiler.Ducky", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -267,7 +285,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("net2/generics", "BooCompiler.Tests/GenericsTestFixture.cs", """
+GenerateTestFixture("net2/generics", "BooCompiler.Tests/GenericsTestFixture.cs", "BooCompiler.Generics", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
@@ -295,7 +313,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.cs", """
+GenerateTestFixture("net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.cs", "BooCompiler.Net2Errors", """
 namespace BooCompiler.Tests
 {
 	using NUnit.Framework;
