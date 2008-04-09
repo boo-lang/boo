@@ -2110,7 +2110,9 @@ namespace Boo.Lang.Compiler.Steps
 
 			object[] attrs;
 
-			if (null != (method as InternalMethod) || null != (method as GenericConstructedMethod)) {
+			if (null != (method as InternalMethod) || (null != (method as GenericConstructedMethod) && 
+ 				null == (((GenericConstructedMethod)method).GenericDefinition as ExternalMethod)))
+			{
 
 				//internal methods
 				InternalMethod im = (method as InternalMethod) ?? ((method as GenericConstructedMethod).GenericDefinition as InternalMethod);
