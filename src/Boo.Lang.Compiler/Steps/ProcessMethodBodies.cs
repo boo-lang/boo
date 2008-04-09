@@ -2144,14 +2144,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)
 		{
-			IEntity entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
-			Bind(node, entity);
-
 			if (node.Target.Entity == null || TypeSystemServices.IsError(node.Target.Entity))
 			{
 				BindExpressionType(node, TypeSystemServices.ErrorEntity);
+				return;
 			}
-			else if (node.Target.Entity.EntityType == EntityType.Type)
+
+			IEntity entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
+			Bind(node, entity);
+
+			if (node.Target.Entity.EntityType == EntityType.Type)
 			{
 				BindTypeReferenceExpressionType(node, (IType)entity);
 			}
