@@ -259,6 +259,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			return generity;
 		}
+
+		public static int GetMethodGenerity(IMethod method)
+		{
+			int generity = 0;
+
+			IConstructedMethodInfo constructedInfo = method.ConstructedInfo;
+			if (constructedInfo != null)
+			{
+				generity += constructedInfo.GenericArguments.Length;
+			}
+
+			IGenericMethodInfo genericInfo = method.GenericInfo;
+			if (genericInfo != null)
+			{
+				generity += genericInfo.GenericParameters.Length;
+			}
+
+			return generity;
+		}
 	}
 
 	/// <summary>

@@ -338,30 +338,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return result;
 			}
 
-			result = c1.Method.DeclaringType.GetTypeDepth() - c2.Method.DeclaringType.GetTypeDepth();
-			if (result != 0)
-			{
-				return result;
-			}
+			// Prefer methods declared on deeper types
+			result = 
+				c1.Method.DeclaringType.GetTypeDepth() - 
+				c2.Method.DeclaringType.GetTypeDepth();
+			
+			if (result != 0) return result;
+
+			// Prefer methods with less generic parameters
+			result = 
+				GenericsServices.GetMethodGenerity(c2.Method) - 
+				GenericsServices.GetMethodGenerity(c1.Method);
+			
+			if (result != 0) return result;
 
 			// --- Tie breaking mode! ---
-
-			// Non-generic methods are better than generic ones
-
-			// Commented out since current syntax distinguishes between invoking
-			// a generic method and a non generic one
-			/*
-			IGenericMethodInfo generic1 = c1.Method.GenericMethodInfo;
-			IGenericMethodInfo generic2 = c2.Method.GenericMethodInfo;
-			if (generic1 == null && generic2 != null)
-			{
-				return 1;
-			}
-			else if (generic1 != null && generic2 == null)
-			{
-				return -1;
-			}
-			*/
 
 			// Non-expanded methods are better than expanded ones
 			if (!c1.Expanded && c2.Expanded)
@@ -385,6 +376,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private int MoreSpecific(Candidate c1, Candidate c2)
 		{
 			int result = 0;
+		
 			for (int i = 0; i < _arguments.Count && i < c1.Parameters.Length; ++i)
 			{
 				if (c1.ArgumentScores[i] <= DowncastScore) continue;
