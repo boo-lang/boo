@@ -29,8 +29,13 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
+
 	public interface IExtensionEnabled : IEntityWithParameters
 	{
 		bool IsExtension { get; }
+		bool IsBooExtension { get; }
+		bool IsClrExtension { get; }
 	}
+
 }
+

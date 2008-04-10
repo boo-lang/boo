@@ -147,7 +147,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool IsExtension 
 		{ 
 			get { return _definition.IsExtension; } 
-		}		
+		}
+
+		public bool IsBooExtension
+		{
+			get { return _definition.IsBooExtension; }
+		}
+
+		public bool IsClrExtension
+		{
+			get { return _definition.IsClrExtension; }
+		}
 
 		public bool IsProtected
 		{

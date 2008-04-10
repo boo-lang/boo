@@ -35,7 +35,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		private IParameter[] _parameters;
 		
-		private int _isExtension = -1;
+		private bool? _isBooExtension;
+		private bool? _isClrExtension;
 
 	    private System.Reflection.MethodInfo _accessor = null;
 
@@ -46,21 +47,41 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ExternalProperty(TypeSystemServices typeSystemServices, System.Reflection.PropertyInfo property) : base(typeSystemServices, property)
 		{
 		}
-		
+
 		public bool IsExtension
 		{
 			get
 			{
-				if (-1 == _isExtension)
-				{
-					_isExtension = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.BooExtensionAttribute)
-						? 1
-						: 0;
-				}
-				return 1 == _isExtension;
+				return IsBooExtension || IsClrExtension;
 			}
 		}
-		
+
+		public bool IsBooExtension
+		{
+			get
+			{
+				if (null == _isBooExtension)
+				{
+					_isBooExtension = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
+				}
+				return _isBooExtension.Value;
+			}
+		}
+
+		public bool IsClrExtension
+		{
+			get
+			{
+				if (null == _isClrExtension)
+				{
+					_isClrExtension = MetadataUtil.HasClrExtensions()
+							&& IsStatic
+							&& MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute);
+				}
+				return _isClrExtension.Value;
+			}
+		}
+
 		public virtual IType DeclaringType
 		{
 			get

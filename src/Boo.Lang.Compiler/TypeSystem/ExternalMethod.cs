@@ -33,19 +33,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class ExternalMethod : ExternalEntity<MethodBase>, IMethod
 	{
-		IParameter[] _parameters;
+		protected IParameter[] _parameters;
 		
-		ICallableType _type;
+		protected ICallableType _type;
 
-		// TODO: replace by bool?
-		int _acceptVarArgs = -1;
+		private bool? _acceptVarArgs;
 
-		int _isExtension = -1;
-		
-		int _isPInvoke = -1;
+		private bool? _isBooExtension;
+		private bool? _isClrExtension;
 
-		private int _isMeta = -1;
-		
+		private bool? _isPInvoke;
+		private bool? _isMeta;
+
+
 		internal ExternalMethod(TypeSystemServices manager, MethodBase mi) : base(manager, mi)
 		{
 		}
@@ -54,46 +54,57 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (-1 == _isMeta)
+				if (null == _isMeta)
 				{
-					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, typeof(Boo.Lang.MetaAttribute))
-					          	? 1
-					          	: 0;
+					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, typeof(Boo.Lang.MetaAttribute));
 				}
-				return _isMeta == 1;
+				return _isMeta.Value;
 			}
 		}
-		
+
 		public bool IsExtension
 		{
 			get
 			{
-				if (-1 == _isExtension)
-				{
-					bool defined = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
-					if( defined == false && MetadataUtil.HasClrExtensions())
-					{
-						defined = MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute);
-					}
-					_isExtension = IsStatic && defined
-						? 1
-						: 0;
-				}
-				return 1 == _isExtension;
+				return IsBooExtension || IsClrExtension;
 			}
 		}
-		
+
+		public bool IsBooExtension
+		{
+			get
+			{
+				if (null == _isBooExtension)
+				{
+					_isBooExtension = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
+				}
+				return _isBooExtension.Value;
+			}
+		}
+
+		public bool IsClrExtension
+		{
+			get
+			{
+				if (null == _isClrExtension)
+				{
+					_isClrExtension = MetadataUtil.HasClrExtensions()
+							&& IsStatic
+							&& MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute);
+				}
+				return _isClrExtension.Value;
+			}
+		}
+
 		public bool IsPInvoke
 		{
 			get
 			{
-				if (-1 == _isPInvoke)
+				if (null == _isPInvoke)
 				{
-					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.DllImportAttribute)
-						? 1
-						: 0;
+					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.DllImportAttribute);
 				}
-				return 1 == _isPInvoke;
+				return _isPInvoke.Value;
 			}
 		}
 		
@@ -173,14 +184,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (_acceptVarArgs == -1)
+				if (null == _acceptVarArgs)
 				{
 					ParameterInfo[] parameters = _memberInfo.GetParameters();
-
 					_acceptVarArgs =
-						parameters.Length > 0 && IsParamArray(parameters[parameters.Length-1]) ? 1 : 0;
+						parameters.Length > 0 && IsParamArray(parameters[parameters.Length-1]);
 				}
-				return _acceptVarArgs == 1;
+				return _acceptVarArgs.Value;
 			}
 		}
 

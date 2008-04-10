@@ -49,8 +49,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected List _yieldStatements;
 
-		private bool? _isExtension;
-				
+		private bool? _isBooExtension;
+		private bool? _isClrExtension;
+
 		internal InternalMethod(TypeSystemServices typeSystemServices, Method method)
 		{
 			_typeSystemServices = typeSystemServices;
@@ -71,25 +72,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (!_isExtension.HasValue)
-				{
-					_isExtension = CheckIsExtension();
-				}
-				return _isExtension.Value;
+				return IsBooExtension || IsClrExtension;
 			}
 		}
 
-		private bool CheckIsExtension()
+		public bool IsBooExtension
 		{
-			if (IsAttributeDefined(Types.BooExtensionAttribute))
+			get
 			{
-				return true;
+				if (null == _isBooExtension)
+				{
+					_isBooExtension = IsAttributeDefined(Types.BooExtensionAttribute);
+				}
+				return _isBooExtension.Value;
 			}
-			if (MetadataUtil.HasClrExtensions())
+		}
+
+		public bool IsClrExtension
+		{
+			get
 			{
-				return IsAttributeDefined(Types.ClrExtensionAttribute);
+				if (null == _isClrExtension)
+				{
+					_isClrExtension = MetadataUtil.HasClrExtensions()
+							&& IsAttributeDefined(Types.ClrExtensionAttribute);
+				}
+				return _isClrExtension.Value;
 			}
-			return false;
 		}
 
 		public bool IsDuckTyped

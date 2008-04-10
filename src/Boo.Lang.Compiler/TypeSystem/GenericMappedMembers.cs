@@ -210,6 +210,16 @@ namespace Boo.Lang.Compiler.TypeSystem
             get { return Source.IsExtension; }
         }
 
+		public bool IsBooExtension 
+		{ 
+			get { return Source.IsBooExtension; } 
+		}
+
+		public bool IsClrExtension 
+		{ 
+			get { return Source.IsClrExtension; } 
+		}
+
         public IType ReturnType
         {
             get { return GenericMapping.Map(Source.ReturnType); }
@@ -281,6 +291,17 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             get { return Source.IsExtension; }
         }
+
+		public bool IsBooExtension 
+		{ 
+			get { return Source.IsBooExtension; } 
+		}
+
+		public bool IsClrExtension 
+		{ 
+			get { return Source.IsClrExtension; } 
+		}
+
     }
 
     #endregion

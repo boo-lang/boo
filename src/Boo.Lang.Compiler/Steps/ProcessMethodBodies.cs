@@ -2174,38 +2174,38 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-				// BOO-314 - if we are trying to invoke
-				// something, let's make sure it is
-				// something callable, otherwise, let's
-				// try to find something callable
-				if (AstUtil.IsTargetOfMethodInvocation(node)
-				    && !IsCallableEntity(entity))
-				{
-					IEntity callable = ResolveCallable(node);
-					if (null != callable) entity = callable;
-				}
+			// BOO-314 - if we are trying to invoke
+			// something, let's make sure it is
+			// something callable, otherwise, let's
+			// try to find something callable
+			if (AstUtil.IsTargetOfMethodInvocation(node)
+			    && !IsCallableEntity(entity))
+			{
+				IEntity callable = ResolveCallable(node);
+				if (null != callable) entity = callable;
+			}
 
-				IMember member = entity as IMember;
-				if (null != member)
-				{
+			IMember member = entity as IMember;
+			if (null != member)
+			{
 				if (IsExtensionMethod(member))
 				{
 					Bind(node, member);
 					return;
 				}
-					ResolveMemberInfo(node, member);
+				ResolveMemberInfo(node, member);
 				return;
-				}
+			}
 			
-					EnsureRelatedNodeWasVisited(node, entity);
-					node.Entity = entity;
-					PostProcessReferenceExpression(node);
-				}
+			EnsureRelatedNodeWasVisited(node, entity);
+			node.Entity = entity;
+			PostProcessReferenceExpression(node);
+		}
 
 		private static bool AlreadyBound(ReferenceExpression node)
-			{
+		{
 			return null != node.ExpressionType;
-			}
+		}
 
 		private IEntity ResolveCallable(ReferenceExpression node)
 		{
@@ -3958,7 +3958,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			if (IsOrContainsExtensionMethod(targetEntity))
+			if (IsOrContainsBooExtensionMethod(targetEntity))
 			{
 				ProcessExtensionMethodInvocation(node, targetEntity);
 				return;
@@ -4206,16 +4206,22 @@ namespace Boo.Lang.Compiler.Steps
 			return CantResolveAmbiguousMethodInvocation(node, ambiguous.Entities);
 		}
 
-		private bool IsOrContainsExtensionMethod(IEntity entity)
-		{
-			if (entity.EntityType == EntityType.Ambiguous) return IsExtensionMethod(((Ambiguous)entity).Entities[0]);
-			return IsExtensionMethod(entity);
-		}
-
 		private bool IsExtensionMethod(IEntity entity)
 		{
 			if (EntityType.Method != entity.EntityType) return false;
 			return ((IMethod)entity).IsExtension;
+		}
+
+		private bool IsOrContainsBooExtensionMethod(IEntity entity)
+		{
+			if (entity.EntityType == EntityType.Ambiguous) return IsBooExtensionMethod(((Ambiguous)entity).Entities[0]);
+			return IsBooExtensionMethod(entity);
+		}
+
+		private bool IsBooExtensionMethod(IEntity entity)
+		{
+			if (EntityType.Method != entity.EntityType) return false;
+			return ((IMethod)entity).IsBooExtension;
 		}
 
 		private void PostNormalizationExtensionInvocation(MethodInvocationExpression node, IMethod targetMethod)
@@ -4233,16 +4239,11 @@ namespace Boo.Lang.Compiler.Steps
 			MemberReferenceExpression memberRef = node.Target as MemberReferenceExpression;
 			if (null != memberRef) return memberRef;
 
-			node.Target = memberRef = CreatMemberReference(
+			node.Target = memberRef = CodeBuilder.MemberReferenceForEntity(
 				CreateSelfReference(),
-				(ReferenceExpression)node.Target);
+				GetEntity(node.Target));
 
 			return memberRef;
-		}
-
-		private MemberReferenceExpression CreatMemberReference(Expression target, ReferenceExpression member)
-		{
-			return CodeBuilder.MemberReferenceForEntity(target, GetEntity(member));
 		}
 
 		private SelfLiteralExpression CreateSelfReference()

@@ -40,26 +40,54 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private IProperty _override;
 
-		private bool? _isExtension;
-		
+		private bool? _isBooExtension;
+		private bool? _isClrExtension;
+
 		public InternalProperty(TypeSystemServices typeSystemServices, Property property)
 		{
 			_typeSystemServices = typeSystemServices;
 			_property = property;
 		}
-		
+
 		public bool IsExtension
 		{
 			get
 			{
-				if (!_isExtension.HasValue)
-				{
-					_isExtension = MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(Types.BooExtensionAttribute));
-				}
-				return _isExtension.Value;
+				return IsBooExtension || IsClrExtension;
 			}
 		}
-		
+
+		public bool IsBooExtension
+		{
+			get
+			{
+				if (null == _isBooExtension)
+				{
+					_isBooExtension = IsAttributeDefined(Types.BooExtensionAttribute);
+				}
+				return _isBooExtension.Value;
+			}
+		}
+
+		public bool IsClrExtension
+		{
+			get
+			{
+				if (null == _isClrExtension)
+				{
+					_isClrExtension = MetadataUtil.HasClrExtensions()
+							&& IsStatic
+							&& IsAttributeDefined(Types.ClrExtensionAttribute);
+				}
+				return _isClrExtension.Value;
+			}
+		}
+
+		private bool IsAttributeDefined(System.Type attributeType)
+		{
+			return MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(attributeType));
+		}
+
 		public IType DeclaringType
 		{
 			get
