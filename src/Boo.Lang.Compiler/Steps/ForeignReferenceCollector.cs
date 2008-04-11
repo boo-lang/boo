@@ -167,10 +167,11 @@ namespace Boo.Lang.Compiler.Steps
 			_referencedEntities.Clear();
 		}
 		
-		public BooClassBuilder CreateSkeletonClass(string name)
+		public BooClassBuilder CreateSkeletonClass(string name, LexicalInfo lexicalInfo)
 		{
 			BooClassBuilder builder = CodeBuilder.CreateClass(name);
 			builder.Modifiers |= TypeMemberModifiers.Internal;
+			builder.LexicalInfo = lexicalInfo;
 			
 			builder.AddBaseType(CodeBuilder.TypeSystemServices.ObjectType);
 			DeclareFieldsAndConstructor(builder);

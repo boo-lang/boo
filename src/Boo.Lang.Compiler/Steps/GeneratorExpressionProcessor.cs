@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler.Steps
 			_resultItemType = (IType)_generator["GeneratorItemType"];
 			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(_resultItemType);
 			
-			_enumerator = _collector.CreateSkeletonClass("Enumerator");
+			_enumerator = _collector.CreateSkeletonClass("Enumerator",_generator.LexicalInfo);
 
 			// use a generic enumerator for the source type if possible
 			_sourceItemType = TypeSystemServices.GetGenericEnumerableItemType(_generator.Iterator.ExpressionType);			

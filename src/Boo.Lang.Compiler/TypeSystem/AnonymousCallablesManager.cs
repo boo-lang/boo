@@ -98,8 +98,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
 			Module module = TypeSystemServices.GetCompilerGeneratedTypesModule();
-
-			string name = string.Format("___callable{0}", module.Members.Count);
+			
+			TypeMember enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
+			string prefix = "__$";
+			string postfix = "$__";
+			if(enclosing != null)
+			{
+				prefix += enclosing.Name + "$";
+			}
+			else if (!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
+			{
+				prefix += System.IO.Path.GetFileNameWithoutExtension(sourceNode.LexicalInfo.FileName) + "$";
+			}
+			if(!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
+			{
+				postfix = "$" + sourceNode.LexicalInfo.Line + "_" + sourceNode.LexicalInfo.Column + postfix;
+			}
+			string name = prefix + "callable" + module.Members.Count + postfix;
 			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(name);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;

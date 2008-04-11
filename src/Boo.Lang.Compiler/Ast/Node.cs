@@ -208,7 +208,11 @@ namespace Boo.Lang.Compiler.Ast
 		public LexicalInfo LexicalInfo
 		{
 			get
-			{	
+			{
+				if(_lexicalInfo.Equals(LexicalInfo.Empty) && null != ParentNode && null != ParentNode.LexicalInfo)
+				{
+					_lexicalInfo = ParentNode.LexicalInfo;
+				}
 				return _lexicalInfo;
 			}
 

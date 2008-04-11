@@ -30,7 +30,7 @@ using System;
 
 namespace Boo.Lang.Compiler.Ast
 {	 
-	public class SourceLocation
+	public class SourceLocation : IComparable<SourceLocation>, IEquatable<SourceLocation>
 	{
 		protected int _line;
 
@@ -70,9 +70,29 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return string.Format("({0},{1})", _line, _column);
 		}
+		
+		public int CompareTo(SourceLocation other)
+		{
+			int comp = _line.CompareTo(other._line);
+			if(comp != 0) 
+			{
+				return comp;
+			}
+			comp = _column.CompareTo(other._column);
+			if(comp != 0)
+			{
+				return comp;
+			}
+			return 0;
+		}
+		
+		public bool Equals(SourceLocation other)
+		{
+			return CompareTo(other) == 0;
+		}
 	}
 	
-	public class LexicalInfo : SourceLocation
+	public class LexicalInfo : SourceLocation, IEquatable<LexicalInfo>, IComparable<LexicalInfo>
 	{
 		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1);
 		
@@ -131,6 +151,26 @@ namespace Boo.Lang.Compiler.Ast
 			{
 			}
 			return fname;
+		}
+		
+		public int CompareTo(LexicalInfo other)
+		{
+			int comp = base.CompareTo(other);
+			if(comp != 0) 
+			{
+				return comp;
+			}
+			comp = string.Compare(_filename, other._filename);
+			if(comp != 0)
+			{
+				return comp;
+			}
+			return 0;
+		}
+		
+		public bool Equals(LexicalInfo other)
+		{
+			return CompareTo(other) == 0;
 		}
 	}
 }

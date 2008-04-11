@@ -52,6 +52,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (collector.ContainsForeignLocalReferences)
 				{
 					BooClassBuilder closureClass = CreateClosureClass(collector, closureEntity);
+					closureClass.ClassDefinition.LexicalInfo = node.LexicalInfo;
 					collector.AdjustReferences();
 					
 					ReplaceCurrentNode(
@@ -63,6 +64,7 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					Expression expression = CodeBuilder.CreateMemberReference(closureEntity);
+					expression.LexicalInfo = node.LexicalInfo;
 					TypeSystemServices.GetConcreteExpressionType(expression);
 					ReplaceCurrentNode(expression);
 				}
@@ -75,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			TypeDefinition parent = method.DeclaringType;
 			parent.Members.Remove(method);
 			
-			BooClassBuilder builder = collector.CreateSkeletonClass(closure.Name);
+			BooClassBuilder builder = collector.CreateSkeletonClass(closure.Name, method.LexicalInfo);
 			parent.Members.Add(builder.ClassDefinition);
 			builder.ClassDefinition.Members.Add(method);
 			method.Name = "Invoke";
