@@ -99,12 +99,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			Module module = TypeSystemServices.GetCompilerGeneratedTypesModule();
 			
-			TypeMember enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
-			string prefix = "__$";
-			string postfix = "$__";
+			TypeMember enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.InterfaceDefinition) ?? sourceNode.GetAncestor(NodeType.EnumDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
+			string prefix = "";
+			string postfix = "";
 			if(enclosing != null)
 			{
-				prefix += enclosing.Name + "$";
+				prefix += enclosing.Name;
+				enclosing = (sourceNode.GetAncestor(NodeType.Method) 
+						?? sourceNode.GetAncestor(NodeType.Property) 
+						?? sourceNode.GetAncestor(NodeType.Event) 
+						?? sourceNode.GetAncestor(NodeType.Field)) as TypeMember;
+				if(enclosing != null)
+				{
+					prefix += "_" + enclosing.Name;
+				}
+				prefix += "$";
 			}
 			else if (!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
 			{
@@ -114,7 +123,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				postfix = "$" + sourceNode.LexicalInfo.Line + "_" + sourceNode.LexicalInfo.Column + postfix;
 			}
-			string name = prefix + "callable" + module.Members.Count + postfix;
+			string name = "__" + prefix + "callable" + module.Members.Count + postfix + "__";
 			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(name);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
