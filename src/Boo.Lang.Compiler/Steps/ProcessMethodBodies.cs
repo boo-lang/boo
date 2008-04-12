@@ -2790,7 +2790,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EnterForNamespace(node);
 			Visit(node.Block);
-			Visit(node.ElseBlock);
+			Visit(node.OrBlock);
+			Visit(node.ThenBlock);
 			LeaveNamespace();
 		}
 
