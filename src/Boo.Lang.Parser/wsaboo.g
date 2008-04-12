@@ -99,6 +99,7 @@ tokens
 	SUPER="super";
 	STATIC="static";
 	STRUCT="struct";
+	THEN="then";
 	TRY="try";
 	TRANSIENT="transient";
 	TRUE="true";
@@ -1561,8 +1562,12 @@ for_stmt returns [ForStatement fs]
 		{ fs.Iterator = iterator; }
 		begin block[body.Statements]
 	(
-		et:ELSE { lastBlock = fs.ElseBlock = new Block(SourceLocationFactory.ToLexicalInfo(et)); }
-		begin block[fs.ElseBlock.Statements]
+		or:OR { lastBlock = fs.OrBlock = new Block(SourceLocationFactory.ToLexicalInfo(or)); }
+		begin block[fs.OrBlock.Statements]
+	)?
+	(
+		et:THEN { lastBlock = fs.ThenBlock = new Block(SourceLocationFactory.ToLexicalInfo(et)); }
+		begin block[fs.ThenBlock.Statements]
 	)?
 	end[lastBlock]
 	;
@@ -1582,8 +1587,12 @@ while_stmt returns [WhileStatement ws]
 	}
 		begin block[ws.Block.Statements]
 	(
-		et:ELSE { lastBlock = ws.ElseBlock = new Block(SourceLocationFactory.ToLexicalInfo(et)); }
-		begin block[ws.ElseBlock.Statements]
+		or:OR { lastBlock = ws.OrBlock = new Block(SourceLocationFactory.ToLexicalInfo(or)); }
+		begin block[ws.OrBlock.Statements]
+	)?
+	(
+		et:THEN { lastBlock = ws.ThenBlock = new Block(SourceLocationFactory.ToLexicalInfo(et)); }
+		begin block[ws.ThenBlock.Statements]
 	)?
 	end[lastBlock]
 	;

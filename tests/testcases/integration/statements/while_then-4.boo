@@ -3,4 +3,4 @@ Exactly.
 """
 
 while false: print 'Say what?' ; break
-else: print 'Exactly.'
+then: print 'Exactly.'

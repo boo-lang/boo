@@ -984,12 +984,19 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			Visit(fs.Iterator);
 			WriteLine(":");
 			WriteBlock(fs.Block);
-			if(fs.ElseBlock != null)
+			if(fs.OrBlock != null)
 			{
 				WriteIndented();
-				WriteKeyword("else:");
+				WriteKeyword("or:");
 				WriteLine();
-				WriteBlock(fs.ElseBlock);
+				WriteBlock(fs.OrBlock);
+			}
+			if(fs.ThenBlock != null)
+			{
+				WriteIndented();
+				WriteKeyword("then:");
+				WriteLine();
+				WriteBlock(fs.ThenBlock);
 			}
 		}
 		
@@ -1104,14 +1111,20 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnWhileStatement(WhileStatement node)
 		{
 			WriteConditionalBlock("while", node.Condition, node.Block);
-			if(node.ElseBlock != null)
+			if(node.OrBlock != null)
 			{
 				WriteIndented();
-				WriteKeyword("else:");
+				WriteKeyword("or:");
 				WriteLine();
-				WriteBlock(node.ElseBlock);
+				WriteBlock(node.OrBlock);
 			}
-
+			if(node.ThenBlock != null)
+			{
+				WriteIndented();
+				WriteKeyword("then:");
+				WriteLine();
+				WriteBlock(node.ThenBlock);
+			}
 		}
 
 		override public void OnIfStatement(IfStatement node)

@@ -509,7 +509,8 @@ namespace Boo.Lang.Compiler.Steps
 			//	<block>
 			ws.Block.Add(node.Block);
 			
-			ws.ElseBlock = node.ElseBlock;
+			ws.OrBlock = node.OrBlock;
+			ws.ThenBlock = node.ThenBlock;
 
 			body.Add(ws);
 
@@ -618,7 +619,8 @@ namespace Boo.Lang.Compiler.Steps
 			AstAnnotations.MarkUnchecked(assignment);
 			
 			ws.Block.Add(assignment);
-			ws.ElseBlock = node.ElseBlock;
+			ws.OrBlock = node.OrBlock;
+			ws.ThenBlock = node.ThenBlock;
 			body.Add(ws);
 			ReplaceCurrentNode(body);
 		}

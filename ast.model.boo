@@ -279,14 +279,16 @@ class ForStatement(Statement):
 	
 	[auto]
 	Block as Block
-	ElseBlock as Block
+	OrBlock as Block
+	ThenBlock as Block
 
 class WhileStatement(Statement):
 	Condition as Expression
 	
 	[auto]
 	Block as Block
-	ElseBlock as Block
+	OrBlock as Block
+	ThenBlock as Block
 
 class BreakStatement(Statement):
 	pass

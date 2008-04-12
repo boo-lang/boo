@@ -13,8 +13,8 @@ t = ("boo", "bar", "baz", "foo")
 for item in t:
 	print item
 	for i in range(5): print i
-	else: break
-else:
+	then: break
+then:
 	print "We shouldn't be here!"
 	
 print "Did we make it?"

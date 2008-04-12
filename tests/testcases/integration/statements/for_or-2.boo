@@ -1,17 +1,14 @@
 """
-We made it!
-foo
+No items!
 """
 
 breaker = "none"
 
-t = ("boo", "bar", "baz", "foo")
+t = []
 
 for item in t:
 	found = item
 	if item.Equals(breaker):
 		break
-else:
-	print "We made it!"
-	
-print found
+or:
+	print "No items!"

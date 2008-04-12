@@ -1,11 +1,11 @@
 """
 for item in []:
-	pass 
-else:
+	pass
+then:
 	return 1
 """
 for item in []:
 	pass
-else:
+then:
 	return 1
-end
+	

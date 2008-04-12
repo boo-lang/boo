@@ -1,11 +1,11 @@
 """
 while true:
-	pass 
-else:
+	pass
+then:
 	return 1
 """
 while true:
 	pass
-else:
+then:
 	return 1
-end
+	

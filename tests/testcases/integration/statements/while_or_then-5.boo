@@ -1,19 +1,17 @@
 """
-adding item: 0
-adding item: 1
-adding item: 2
-adding item: 3
 adding item: 4
-We finished!
 Did we make it?
 """
 
-list = []
+list = [1, 2, 3, 4]
 
 while len(list) < 5:
 	print 'adding item:', len(list)
 	list.Add(len(list))
-else:
-	print "We finished!"
+	break if list.Contains(3)
+or:
+	print "List already big!"
+then:
+	print "We made it!"
 	
 print "Did we make it?"

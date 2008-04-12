@@ -107,6 +107,7 @@ tokens
 	SUPER="super";
 	STATIC="static";
 	STRUCT="struct";
+	THEN="then";
 	TRY="try";
 	TRANSIENT="transient";
 	TRUE="true";
@@ -1744,8 +1745,12 @@ for_stmt returns [ForStatement fs]
 		{ fs.Iterator = iterator; }
 		compound_stmt[body]
 	(
-		et:ELSE { fs.ElseBlock = new Block(ToLexicalInfo(et)); }
-		compound_stmt[fs.ElseBlock]
+		or:OR { fs.OrBlock = new Block(ToLexicalInfo(or)); }
+		compound_stmt[fs.OrBlock]
+	)?
+	(
+		et:THEN { fs.ThenBlock = new Block(ToLexicalInfo(et)); }
+		compound_stmt[fs.ThenBlock]
 	)?
 	;
 		
@@ -1762,8 +1767,12 @@ while_stmt returns [WhileStatement ws]
 	}
 	compound_stmt[ws.Block]
 	(
-		et:ELSE { ws.ElseBlock = new Block(ToLexicalInfo(et)); }
-		compound_stmt[ws.ElseBlock]
+		or:OR { ws.OrBlock = new Block(ToLexicalInfo(or)); }
+		compound_stmt[ws.OrBlock]
+	)?
+	(
+		et:THEN { ws.ThenBlock = new Block(ToLexicalInfo(et)); }
+		compound_stmt[ws.ThenBlock]
 	)?
 	;
 		

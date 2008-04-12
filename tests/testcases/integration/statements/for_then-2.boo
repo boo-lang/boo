@@ -10,7 +10,7 @@ for item in t:
 	found = item
 	if item.Equals(breaker):
 		break
-else:
+then:
 	print "We shouldn't be here!"
 	
 print found

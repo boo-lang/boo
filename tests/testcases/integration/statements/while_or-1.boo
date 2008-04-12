@@ -1,24 +1,18 @@
 """
-I have no item
 adding item: 0
-I have an item!
 adding item: 1
-I have an item!
 adding item: 2
-I have an item!
 adding item: 3
+adding item: 4
 Did we make it?
 """
 
 list = []
 
 while len(list) < 5:
-	for i in list: print 'I have an item!' ; break
-	else: print 'I have no item'
 	print 'adding item:', len(list)
 	list.Add(len(list))
-	break if list.Contains(3)
-else:
-	print "We finished!"
+or:
+	print "List already big!"
 	
 print "Did we make it?"
