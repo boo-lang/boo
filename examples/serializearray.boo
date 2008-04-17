@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -34,10 +34,10 @@ def serialize(obj):
 	stream = MemoryStream()
 	BinaryFormatter().Serialize(stream, obj)
 	return stream.ToArray()
-	
+
 def deserialize(buffer as (byte)):
 	return BinaryFormatter().Deserialize(MemoryStream(buffer))
 
-array = (1, 2, 3)
-array = deserialize(serialize(array))
-print(join(array))
+arr = (1, 2, 3,)
+arr = deserialize(serialize(arr))
+print(join(arr))
