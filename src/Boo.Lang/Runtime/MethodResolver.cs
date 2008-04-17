@@ -82,7 +82,7 @@ namespace Boo.Lang.Runtime
 			return applicable[applicable.Count - 1];
 		}
 
-		private int TotalScore(CandidateMethod c1)
+		private static int TotalScore(CandidateMethod c1)
 		{
 			int total = 0;
 			foreach (int score in c1.ArgumentScores)
@@ -96,9 +96,84 @@ namespace Boo.Lang.Runtime
 		{
 			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
 			if (result != 0) return result;
+			if (c1.VarArgs && !c2.VarArgs) return -1;
+			if (c2.VarArgs && !c1.VarArgs) return 1;
 
-			if (c1.VarArgs) return c2.VarArgs ? 0 : -1;
-			return c2.VarArgs ? 1 : 0;
+			int minArgumentCount = Math.Min(c1.MinimumArgumentCount, c2.MinimumArgumentCount);
+			for (int i = 0; i < minArgumentCount; ++i)
+			{
+				result += MoreSpecificType(c1.GetParameterType(i), c2.GetParameterType(i));
+			}
+			if (result != 0) return result;
+
+			if (c1.VarArgs && c2.VarArgs)
+			{
+				return MoreSpecificType(c1.VarArgsParameterType, c2.VarArgsParameterType);
+			}
+			return 0;
+		}
+
+		private static int MoreSpecificType(Type t1, Type t2)
+		{
+			// The less-generic type is more specific
+			int result = GetTypeGenerity(t2) - GetTypeGenerity(t1);
+			if (result != 0) return result;
+
+			// If both types have the same generity, the deeper-nested type is more specific
+			return GetLogicalTypeDepth(t1) - GetLogicalTypeDepth(t2);
+		}
+
+		private static int GetTypeGenerity(Type type)
+		{
+			if (!type.ContainsGenericParameters) return 0;
+			return type.GetGenericArguments().Length;
+		}
+
+		private static int GetLogicalTypeDepth(Type type)
+		{
+			int depth = GetTypeDepth(type);
+			return (type.IsValueType) ? depth - 1 : depth;
+		}
+
+		private static int GetTypeDepth(Type type)
+		{
+			if (type.IsByRef)
+			{
+				return GetTypeDepth(type.GetElementType());
+			}
+			else if (type.IsInterface)
+			{
+				return GetInterfaceDepth(type);
+			}
+			return GetClassDepth(type);
+		}
+
+		private static int GetClassDepth(Type type)
+		{
+			int depth = 0;
+			Type objectType = typeof(object);
+			while (type != objectType)
+			{
+				type = type.BaseType;
+				++depth;
+			}
+			return depth;
+		}
+
+		private static int GetInterfaceDepth(Type type)
+		{
+			Type[] interfaces = type.GetInterfaces();
+			if (interfaces.Length > 0)
+			{
+				int current = 0;
+				foreach (Type i in interfaces)
+				{
+					int depth = GetInterfaceDepth(i);
+					if (depth > current) current = depth;
+				}
+				return 1+current;
+			}
+			return 1;
 		}
 
 		private List<CandidateMethod> FindApplicableMethods(IEnumerable<MethodInfo> candidates)
