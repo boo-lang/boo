@@ -2105,9 +2105,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IType targetType = null;
-			Expression target = GetTargetObject(node);
+			Expression target = null;
 			if (!mi.IsStatic)
 			{
+				target = GetTargetObject(node);
 				targetType = target.ExpressionType;
 				PushTargetObject(node, mi);
 			}

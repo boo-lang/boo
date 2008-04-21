@@ -2153,12 +2153,20 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
 			Bind(node, entity);
 
-			if (node.Target.Entity.EntityType == EntityType.Type)
+			if (entity.EntityType == EntityType.Type)
 			{
 				BindTypeReferenceExpressionType(node, (IType)entity);
 			}
-			else if (node.Target.Entity.EntityType == EntityType.Method)
+			else if (entity.EntityType == EntityType.Method)
 			{
+				if (null == (node.Target as MemberReferenceExpression)) //no self.
+				{
+					MemberReferenceExpression target =
+						CodeBuilder.MemberReferenceForEntity(
+							CreateSelfReference(),
+							entity);
+					node.Replace(node.Target, target);
+				}
 				BindExpressionType(node, ((IMethod)entity).Type);
 			}
 		}
