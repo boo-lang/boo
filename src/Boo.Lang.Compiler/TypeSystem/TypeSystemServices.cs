@@ -819,6 +819,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (null != et && et.ActualType.IsGenericType && et.ActualType.GetGenericTypeDefinition() == Types.Nullable);
 		}
 
+		public IType GetNullableUnderlyingType(IType type)
+		{
+			ExternalType et = type as ExternalType;
+			return Map(Nullable.GetUnderlyingType(et.ActualType));
+		}
+
 		public static bool IsUnknown(Expression node)
 		{
 			IType type = node.ExpressionType;

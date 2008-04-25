@@ -15,6 +15,9 @@ try:
 except InvalidOperationException:
 	print "a nullable arithmetic with one operand without value cannot be cast to a non-nullable"
 
+na++
+na--
+
 na *= 2
 assert 60 == na
 
@@ -23,3 +26,4 @@ assert na == 720
 
 #na *= nn
 #assert na is null
+

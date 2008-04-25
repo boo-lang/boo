@@ -2914,6 +2914,10 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual bool IsValidIncrementDecrementOperand(Expression e)
 		{
 			IType type = GetExpressionType(e);
+			if (TypeSystemServices.IsNullable(type))
+			{
+				type = TypeSystemServices.GetNullableUnderlyingType(type);
+			}
 			return IsNumber(type) || TypeSystemServices.IsDuckType(type);
 		}
 		
