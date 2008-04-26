@@ -1,0 +1,18 @@
+## Boo syntax file
+##
+syntax "boo" "\.boo$"
+
+color brightblue "import"
+color magenta "\<(char|byte|int|uint|long|ulong|single|double|decimal|date|timespan)\>[\*\?]?"
+color magenta "\<(string|object|duck|regex)\>\*?"
+color brightblue "def [0-9a-zA-Z_]*"
+color brightwhite "\<(and|as|assert|break|class|continue|def|elif|else|except|enum|ensure|for|from|if|import|in|interface|is|isa|not|of|or|pass|raise|return|struct|try|while|yield|public|protected|private|internal|sealed|static|abstract|override|virtual|transient|partial|array|enumerate|gets|iterator|join|map|matrix|print|range|reversed|shell|shellm|shellp|zip|typeof)\>"
+color green "['][^']*[^\\][']" "[']{3}.*[^\\][']{3}"
+color green "["][^"]*[^\\]["]" "["]{3}.*[^\\]["]{3}"
+color green start=""""[^"]" end=""""" start="'''[^']" end="'''"
+color green "\<[0-9\.]*\>"
+color red "\<(true|false|null)\>"
+color yellow "#.*$|//.*$"
+
+## trailing-whitespace warning ala git
+color ,red "[[:space:]]+$"
