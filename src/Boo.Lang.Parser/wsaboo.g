@@ -1036,6 +1036,12 @@ type_reference returns [TypeReference tr]
 				tr = ntr;
 			}
 		)?
+		(MULTIPLY {
+				GenericTypeReference etr = new GenericTypeReference(tr.LexicalInfo, "System.Collections.Generic.IEnumerable");
+				etr.GenericArguments.Add(tr);
+				tr = etr;
+			}
+		)?
 	)
 	;
 
