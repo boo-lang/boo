@@ -112,20 +112,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual bool Resolve(List targetList, string name, EntityType flags)
 		{
-			bool found = false;
+			if (ResolveGenericParameter(targetList, name, flags)) return true;
 
-			// Try to resolve name as a generic parameter
-			if (NameResolutionService.IsFlagSet(flags, EntityType.Type))
-			{
-				foreach (GenericParameterDeclaration gpd in _typeDefinition.GenericParameters)
-				{
-					if (gpd.Name == name)
-					{
-						targetList.AddUnique(gpd.Entity);
-						return true;
-					}
-				}
-			}
+			return ResolveMember(targetList, name, flags);
+		}
+
+		protected bool ResolveMember(List targetList, string name, EntityType flags)
+		{
+			bool found = false;
 
 			// Try to resolve name as a member
 			foreach (IEntity entity in GetMembers())
@@ -138,6 +132,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			return found;
+		}
+
+		protected bool ResolveGenericParameter(List targetList, string name, EntityType flags)
+		{
+			// Try to resolve name as a generic parameter
+			if (NameResolutionService.IsFlagSet(flags, EntityType.Type))
+			{
+				foreach (GenericParameterDeclaration gpd in _typeDefinition.GenericParameters)
+				{
+					if (gpd.Name == name)
+					{
+						targetList.AddUnique(gpd.Entity);
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 		public virtual IType BaseType
