@@ -3153,17 +3153,16 @@ namespace Boo.Lang.Compiler.Steps
 			
 			value.Accept(this);
 			EmitCastIfNeeded(field.Type, PopType());
-			
-			FieldInfo fi = GetFieldInfo(field);
+
 			LocalBuilder local = null;
 			if (leaveValueOnStack)
 			{
 				_il.Emit(OpCodes.Dup);
-				local = _il.DeclareLocal(fi.FieldType);
+				local = _il.DeclareLocal(GetSystemType(field.Type));
 				_il.Emit(OpCodes.Stloc, local);
 			}
 			
-			_il.Emit(opSetField, fi);
+			_il.Emit(opSetField, GetFieldInfo(field));
 			
 			if (leaveValueOnStack)
 			{
