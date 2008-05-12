@@ -309,18 +309,17 @@ namespace Boo.Lang.Compiler.Steps
 			TypeReference baseTypeRef,
 			IProperty entity)
 		{			
-			
+			bool resolved = false;
+
 			foreach (TypeMember member in node.Members)
 			{
 				if (entity.Name != member.Name
 					|| NodeType.Property != member.NodeType
 					|| !IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, entity)
 					|| !TypeSystemServices.CheckOverrideSignature(entity.GetParameters(), GetPropertyEntity(member).GetParameters()))
-				{
 					continue;
-				}
 
-				Property p = (Property)member;
+				Property p = (Property) member;
 				ProcessPropertyAccessor(p, p.Getter, entity.GetGetMethod());
 				ProcessPropertyAccessor(p, p.Setter, entity.GetSetMethod());
 				if (null == p.Type)
@@ -330,12 +329,14 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					if (entity.Type != p.Type.Entity)
-					{
 						Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, entity.FullName));
-					}
 				}
-				return;
+				resolved = true;
 			}
+
+			if (resolved)
+				return;
+
 			foreach(SimpleTypeReference parent in node.BaseTypes)
 			{
 				if(_classDefinitionList.Contains(parent.Name))
@@ -345,10 +346,10 @@ namespace Boo.Lang.Compiler.Steps
 					depth--;
 				}
 			}
+
 			if(CheckInheritsInterfaceImplementation(node, entity))
-			{
 				return;
-			}
+
 			if(depth == 0)
 			{
 				node.Members.Add(CreateAbstractProperty(baseTypeRef, entity));
