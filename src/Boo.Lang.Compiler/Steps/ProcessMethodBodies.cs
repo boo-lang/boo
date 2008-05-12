@@ -2012,7 +2012,7 @@ namespace Boo.Lang.Compiler.Steps
 						// if we are inside a MemberReferenceExpression
 						// let the MemberReferenceExpression deal with it
 						// as it can provide a better message
-						Error(CompilerErrorFactory.ObjectRequired(node));
+						Error(CompilerErrorFactory.SelfIsNotValidInStaticMember(node));
 					}
 				}
 				node.Entity = _currentMethod;

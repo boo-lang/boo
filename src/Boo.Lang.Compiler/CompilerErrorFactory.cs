@@ -339,7 +339,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0057", SafeLexicalInfo(node), name);
 		}
 
-		public static CompilerError ObjectRequired(Node node)
+		public static CompilerError SelfIsNotValidInStaticMember(Node node)
 		{
 			return new CompilerError("BCE0058", SafeLexicalInfo(node));
 		}
