@@ -445,10 +445,10 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod entity)
 		{
 			if (entity.IsSpecialName)
-			{
 				return;
-			}
-			
+
+			bool resolved = false;
+
 			foreach (TypeMember member in node.Members)
 			{
 				if (entity.Name == member.Name
@@ -465,26 +465,24 @@ namespace Boo.Lang.Compiler.Steps
 						else
 						{
 							if (entity.ReturnType != method.ReturnType.Entity)
-							{
 								Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, entity.FullName));
-							}
 						}
 
 						if (null != method.ExplicitInfo)
-						{
 							method.ExplicitInfo.Entity = entity;
-						}
 
 						if (!method.IsOverride && !method.IsVirtual)
-						{
 							method.Modifiers |= TypeMemberModifiers.Virtual;
-						}
-						
+
 						_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, entity);
-						return;
+						resolved = true;
 					}
 				}
 			}
+
+			if (resolved)
+				return;
+
 			foreach(SimpleTypeReference parent in node.BaseTypes)
 			{
 				if(_classDefinitionList.Contains(parent.Name))
@@ -494,10 +492,10 @@ namespace Boo.Lang.Compiler.Steps
 					depth--;
 				}
 			}
+
 			if(CheckInheritsInterfaceImplementation(node, entity))
-			{
 				return;
-			}	
+
 			if(depth == 0)
 			{			
 				if (!AbstractMemberNotImplemented(node, baseTypeRef, entity))
