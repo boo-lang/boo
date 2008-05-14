@@ -134,13 +134,16 @@ namespace Boo.Lang.Compiler
 			//boo.lang.dll
 			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
 			_assemblyReferences.Add(_booAssembly);
-			
+
 			//boo.lang.extensions.dll
-			Assembly extensionsAssembly = null;
-			extensionsAssembly = LoadAssembly("Boo.Lang.Extensions", false);
+			//try loading extensions next to Boo.Lang (in the same directory)
+			string tentative = Path.Combine(Path.GetDirectoryName(_booAssembly.Location) , "Boo.Lang.Extensions.dll");
+			Assembly extensionsAssembly = LoadAssembly(tentative, false);
+			if(extensionsAssembly == null)//if failed, try loading from the gac
+				extensionsAssembly = LoadAssembly("Boo.Lang.Extensions", false);
 			if(extensionsAssembly != null)
 				_assemblyReferences.Add(extensionsAssembly);
-				
+
 			if (TraceSwitch.TraceInfo)
 			{
 				Trace.WriteLine("BOO LANG DLL: " + _booAssembly.Location);
