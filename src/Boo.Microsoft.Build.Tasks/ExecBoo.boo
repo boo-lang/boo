@@ -80,7 +80,8 @@ class ExecBoo(Task):
 				script.Run()
 			_buildSuccess = script.Success
 		except x:
-			Log.LogErrorFromException(x, true, true, _src)
+#			Log.LogErrorFromException(x, true, true, _src)
+			Log.LogErrorFromException(x, true)
 			_buildSuccess = false
 
 		return _buildSuccess
@@ -116,7 +117,8 @@ class ExecBoo(Task):
 				//TODO: rationalize above call to parameters.References.Add(parameters.LoadAssembly(reference)) ?
 				//      move basedir into CompilerParameters ?
 			except x:
-				Log.LogErrorFromException(x, true, true, path)
+#				Log.LogErrorFromException(x, true, true, path)
+				Log.LogErrorFromException(x, true)
 					
 	protected def CheckCompilationResult(context as CompilerContext):
 		errors = context.Errors
