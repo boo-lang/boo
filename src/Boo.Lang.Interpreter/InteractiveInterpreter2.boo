@@ -121,19 +121,19 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	_disableAutocompletion = false
 
 	[property(InterpreterColor)] # messages from the interpreter (not from user code)
-	_interpreterColor = ConsoleColor.Gray
+	_interpreterColor = ConsoleColor.DarkGray
 
 	[property(PromptColor)]
-	_promptColor = ConsoleColor.Green
+	_promptColor = ConsoleColor.DarkGreen
 
 	[property(ExceptionColor)]
-	_exceptionColor = ConsoleColor.Red
+	_exceptionColor = ConsoleColor.DarkRed
 
 	[property(SuggestionsColor)]
-	_suggestionsColor = ConsoleColor.Yellow
+	_suggestionsColor = ConsoleColor.DarkYellow
 
 	[property(SelectedSuggestionColor)]
-	_selectedSuggestionColor = ConsoleColor.Magenta
+	_selectedSuggestionColor = ConsoleColor.DarkMagenta
 
 	[property(SelectedSuggestionIndex)]
 	_selectedSuggIdx as int?
