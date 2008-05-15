@@ -44,10 +44,12 @@ for arg in argv:
 		interpreter.ShowWarnings = true
 	if arg.StartsWith("-r:"):
 		loadRequests.Add(arg.Substring(3))
+	if arg == "--nologo" or arg == "-nologo":
+	    nologo = true
 	if not arg.StartsWith("-"):
 		loadRequests.Add(arg)
 
-interpreter.DisplayHelp()
+interpreter.DisplayHelp() unless nologo
 
 for req in loadRequests:
 	interpreter.load(req)
