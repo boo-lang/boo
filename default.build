@@ -53,7 +53,18 @@
 
 	<property name="fixture" value="" dynamic="true" />
 	
-	<property name="keyfile.path" value="src/boo.snk" overwrite="false" />
+	<property name="nosign" value="false" />
+	
+	<property name="nant-csc-keyfile-bug" value="${version::get-minor(assemblyname::get-version(assembly::get-name(nant::get-assembly()))) &lt; 86}" />
+	
+	<target name="sign">
+		<property name="keyfile.path" value="src/boo.snk" overwrite="false" />
+	</target>
+
+	<target name="nosign">
+		<property name="keyfile.path" value="" overwrite="false" />
+		<property name="nosign" value="true" overwrite="true" />
+	</target>
 
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
 	</target>
@@ -106,8 +117,7 @@
 			target="exe"
 			output="${build.dir}/boo.exe"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="${keyfile.path}">
+			debug="${debug}">
 			
 			<sources basedir="src/boo">
 				<include name="*.boo" />
@@ -117,6 +127,7 @@
 				<include name="Boo.Lang.Useful.dll" />
 				<include name="Boo.Lang.Interpreter.dll" /> 
 			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
 	
@@ -125,18 +136,17 @@
 			target="exe"
 			output="${build.dir}/booish.exe"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="${keyfile.path}">
+			debug="${debug}">
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
-				<exclude name="booish.boo" /><!-- old booish -->
-			</sources>
+				<exclude name="booish.boo" /><!-- old booish --></sources>
 
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 
 		<copy file="extras/template.config.in" tofile="${build.dir}/booish.exe.config">
@@ -162,8 +172,7 @@
 			target="exe"
 			output="${build.dir}/booi.exe"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="${keyfile.path}">
+			debug="${debug}">
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
@@ -174,6 +183,7 @@
 			<sources basedir="src/booi">
 				<include name="*.boo" />
 			</sources>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>		
 		
 		<copy file="extras/template.config.in" tofile="${build.dir}/booi.exe.config">
@@ -210,14 +220,14 @@
 		<booc target="library"
 		      output="${build.dir}/Boo.Lang.Interpreter.dll"
 		      verbose="${verbose}"
-		      debug="${debug}"
-			  keyfile="${keyfile.path}">
+		      debug="${debug}">
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="*.boo" />
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
 			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
 
@@ -244,7 +254,7 @@
 			<arg value="${debugflag}" />
 			<arg value="-out:${build.dir}/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
-			<!--arg value="-keyfile:${keyfile.path}" /-->
+			<!--arg value="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" /-->
 			<arg value="-lib:${nant::get-base-directory()}" />
 			<arg value="-r:NAnt.Core.dll" />
 			<arg value="-r:NAnt.DotNetTasks.dll" />
@@ -263,8 +273,7 @@
 				output="${build.dir}/booc.exe" 
 				debug="${debug}" 
 				optimize="${optimize}"
-				define="${csc.define}"
-				keyfile="${keyfile.path}">
+				define="${csc.define}">
 			<sources basedir="src/booc">
 				<include name="*.cs" />
 			</sources>
@@ -274,6 +283,7 @@
 				<include name="${build.dir}/Boo.Lang.Compiler.dll" />
 				<include name="${build.dir}/Boo.Lang.Parser.dll" />
 			</references>
+			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</csc>
 
 		<if test="${not(platform::is-win32())}">
@@ -340,8 +350,7 @@
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="false" 
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="${keyfile.path}">
+			debug="${debug}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
@@ -350,6 +359,7 @@
 				<include name="Microsoft.Build.Tasks.dll" />
 				<include name="Microsoft.Build.Framework.dll" />
 			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 		<copy todir="${build.dir}">
 			<fileset basedir="src/Boo.Microsoft.Build.Tasks">
@@ -383,8 +393,7 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="${keyfile.path}">
+			debug="${debug}">
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>
@@ -392,6 +401,7 @@
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
 	
@@ -399,8 +409,7 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
-			debug="${debug}"
-			keyfile="${keyfile.path}">
+			debug="${debug}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
@@ -411,6 +420,7 @@
 			-->
 				<include name="Boo.Lang.Compiler.dll" />
 			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
 	
@@ -429,14 +439,14 @@
 			failonerror="true"
 			verbose="${verbose}"
 			debug="${debug}"
-			unless="${skip.Boo.Lang.Extensions}"
-			keyfile="${keyfile.path}">
+			unless="${skip.Boo.Lang.Extensions}">
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
 			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
 	
@@ -445,8 +455,7 @@
 			output="${build.dir}/Boo.Lang.Compiler.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-			define="${csc.define}"
-			keyfile="${keyfile.path}">
+			define="${csc.define}">
 			
 			<sources basedir="src/Boo.Lang.Compiler">
 				<include name="**/*.cs" />
@@ -456,6 +465,7 @@
 				<include name="${build.dir}/Boo.Lang.dll" />
 				<!--include name="${build.dir}/Boo.Lang.Ast.dll" /-->
 			</references>
+			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</csc>
 	</target>
 
@@ -500,6 +510,10 @@
 			<resources basedir="${build.dir}/it">
 				<include name="strings.it.resources" />
 			</resources>
+			<nowarn>
+				<warning if="${nant-csc-keyfile-bug}" number="1699"/>
+			</nowarn>
+			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == '' or nant-csc-keyfile-bug}" />
 		</csc>
 		
 		<csc
@@ -518,7 +532,15 @@
 			<resources basedir="${build.dir}">
 				<include name="strings.resources" />
 			</resources>
+			<nowarn>
+				<warning if="${nant-csc-keyfile-bug}" number="1699"/>
+			</nowarn>
+			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == '' or nant-csc-keyfile-bug}" />
 		</csc>
+		<!-- The below commented out echo was fixed using a workaround -->
+		<!--echo level="Warning" if="${keyfile.path != '' and nant-csc-keyfile-bug}">
+			The Boo.Lang satelite resource assemblies may NOT have been signed due to a bug in NAnt 0.85 and lower.
+		</echo-->
 	</target>
 	
 	<target name="boo-pkgconfig">
@@ -702,8 +724,7 @@
 			output="${build.dir}/Boo.Lang.Parser.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-			define="${csc.define}"
-			keyfile="${keyfile.path}">
+			define="${csc.define}">
 			<sources basedir="src/Boo.Lang.Parser">
 				<include name="**/*.cs" />
 			</sources>
@@ -714,6 +735,7 @@
 			<nowarn>
 				<warning number="618,219,162" />
 			</nowarn>
+			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</csc>
 	</target>
 	
@@ -1153,6 +1175,9 @@
 	</target>
 
 	<target name="init">
+		<call target="sign" unless="${nosign}" />
+		<!-- This property define is a way to get around the 0.85 NAnt bug regarding signing satelite resource assemblies. -->
+		<property name="csc.define" value="${csc.define};IGNOREKEYFILE" unless="${nant-csc-keyfile-bug and not nosign}" />
 		<mkdir dir="${build.dir}" />
 	</target>
 	
