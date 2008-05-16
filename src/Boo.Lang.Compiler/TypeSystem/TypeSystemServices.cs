@@ -716,7 +716,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
-			return CheckOverrideSignature(impl.GetParameters(), baseMethod.GetParameters());
+			return GenericsServices.AreOfSameGenerity(impl, baseMethod)
+				&& CheckOverrideSignature(impl.GetParameters(), baseMethod.GetParameters());
 		}
 
 		public static bool CheckOverrideSignature(IParameter[] implParameters, IParameter[] baseParameters)

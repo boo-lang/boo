@@ -433,8 +433,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Method method = (Method)member;
 
-					if (GenericsServices.AreOfSameGenerity(GetEntity(method), entity)
-						&& TypeSystemServices.CheckOverrideSignature(GetEntity(method), entity))
+					if (TypeSystemServices.CheckOverrideSignature(GetEntity(method), entity))
 					{
 						if (IsUnknown(method.ReturnType))
 						{
