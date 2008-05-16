@@ -224,25 +224,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return false;
 		}
-		
+
 		public void ResolveTypeReference(TypeReference node)
 		{
-			if (NodeType.ArrayTypeReference == node.NodeType)
+			if (null != node.Entity) return;
+
+			switch (node.NodeType)
 			{
-				ResolveArrayTypeReference((ArrayTypeReference)node);
-			}
-			else
-			{
-				ResolveSimpleTypeReference((SimpleTypeReference)node);
+				case NodeType.ArrayTypeReference:
+					ResolveArrayTypeReference((ArrayTypeReference) node);
+					break;
+
+				case NodeType.CallableTypeReference:
+					//not needed? (late resolution)
+					//ResolveCallableTypeReference((CallableTypeReference) node);
+					break;
+
+				default:
+					ResolveSimpleTypeReference((SimpleTypeReference) node);
+					break;
 			}
 		}
-		
+
 		public void ResolveArrayTypeReference(ArrayTypeReference node)
 		{
-			if (node.Entity != null)
-			{
-				return;
-			}
+			if (null != node.Entity) return;
 
 			ResolveTypeReference(node.ElementType);
 			
@@ -257,7 +263,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				node.Entity = _context.TypeSystemServices.GetArrayType(elementType, rank);
 			}
 		}
-		
+
 		private void ResolveTypeReferenceCollection(TypeReferenceCollection collection)
 		{
 			foreach (TypeReference tr in collection)

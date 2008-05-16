@@ -106,11 +106,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			CallableSignature rhs = other as CallableSignature;
 			if (null == rhs
-				|| _returnType != rhs._returnType
+				|| !_returnType.Equals(rhs._returnType)
 				|| _acceptVarArgs != rhs._acceptVarArgs)
-			{
 				return false;
-			}
+
 			return AreSameParameters(_parameters, rhs._parameters);
 		}
 		
@@ -158,5 +157,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			_hashCode ^= _returnType.GetHashCode();
 		}
+
 	}
+
 }
+
