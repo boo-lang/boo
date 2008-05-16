@@ -645,7 +645,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return CreateParameterDeclaration(index, name, type, false);
 		}
-		
+
+		//TODO: >=0.9, support constraints here
+		public GenericParameterDeclaration CreateGenericParameterDeclaration(int index, string name)
+		{
+			GenericParameterDeclaration p = new GenericParameterDeclaration(name);
+			p.Entity = new InternalGenericParameter(_tss, p, index);
+			return p;
+		}
+
 		public Constructor CreateConstructor(TypeMemberModifiers modifiers)
 		{
 			Constructor constructor = new Constructor();
@@ -786,46 +794,73 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters, bool variableArguments)
 		{
 			Method method = CreateRuntimeMethod(name, returnType);
-			DeclareParameters(method, 0, parameters);
+			DeclareParameters(method, parameters);
 			method.Parameters.VariableNumber = variableArguments;
 			return method;
 		}
-		
-		public void DeclareParameters(Method method, int parameterIndexDelta, IParameter[] parameters)
+
+		public void DeclareParameters(Method method, IParameter[] parameters)
 		{
-			for (int i=0; i<parameters.Length; ++i)
+			DeclareParameters(method, parameters, 0);
+		}
+
+		public void DeclareParameters(Method method, IParameter[] parameters, int parameterIndexDelta)
+		{
+			for (int i=0; i < parameters.Length; ++i)
 			{
 				IParameter p = parameters[i];
+				int pIndex = parameterIndexDelta + i;
 				method.Parameters.Add(
-					CreateParameterDeclaration(parameterIndexDelta + i,
-						p.Name,
+					CreateParameterDeclaration(pIndex,
+						string.IsNullOrEmpty(p.Name) ? "arg"+pIndex : p.Name,
 						p.Type,
 						p.IsByRef));
 			}
 		}
-		
+
+		public void DeclareGenericParameters(Method method, IGenericParameter[] parameters)
+		{
+			DeclareGenericParameters(method, parameters, 0);
+		}
+
+		public void DeclareGenericParameters(Method method, IGenericParameter[] parameters, int parameterIndexDelta)
+		{
+			for (int i=0; i < parameters.Length; ++i)
+			{
+				IGenericParameter p = parameters[i];
+				method.GenericParameters.Add(
+					CreateGenericParameterDeclaration(parameterIndexDelta + i,
+						p.Name));
+			}
+		}
+
 		public Method CreateAbstractMethod(LexicalInfo lexicalInfo, IMethod baseMethod)
 		{
 			return CreateMethodFromPrototype(lexicalInfo, baseMethod, TypeMemberModifiers.Public | TypeMemberModifiers.Abstract);
 		}
-		
+
+		public Method CreateMethodFromPrototype(IMethod baseMethod, TypeMemberModifiers newModifiers)
+		{
+			return CreateMethodFromPrototype(LexicalInfo.Empty, baseMethod, newModifiers);
+		}
+
 		public Method CreateMethodFromPrototype(LexicalInfo lexicalInfo, IMethod baseMethod, TypeMemberModifiers newModifiers)
 		{
 			Method method = new Method(lexicalInfo);
 			method.Name = baseMethod.Name;
 			method.Modifiers = newModifiers;
 			method.IsSynthetic = true;
-			
-			IParameter[] parameters = baseMethod.GetParameters();
-			for (int i=0; i<parameters.Length; ++i)
-			{
-				method.Parameters.Add(CreateParameterDeclaration(i + 1, 
-								"arg" + i, 
-								parameters[i].Type,
-								parameters[i].IsByRef));
-			}
+
+			if (null != baseMethod.GenericInfo)
+				DeclareGenericParameters(method, baseMethod.GenericInfo.GenericParameters);
+
+			DeclareParameters(method, baseMethod.GetParameters());
+
 			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);			
-			method.Entity = new InternalMethod(_tss, method);
+			method.Entity = (null != baseMethod.GenericInfo)
+							? new InternalGenericMethod(_tss, method)
+							: new InternalMethod(_tss, method);
+
 			return method;
 		}
 
@@ -905,34 +940,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
 		}
-		
-		
+
 		public TypeMember CreateStub(IMember member)
 		{
-			IMethod md = (member as IMethod);
-			if (null == md) return null;				
-				
-			Method m = CreateVirtualMethod(md.Name, md.ReturnType);
-			int idx = 0;
-			foreach (IParameter param in md.GetParameters()) {
-				m.Parameters.Add(
-					CreateParameterDeclaration(idx,
-											param.Name,
-											param.Type,
-											param.IsByRef));
-				idx++;
-			}
-			
+			IMethod baseMethod = (member as IMethod);
+			if (null == baseMethod) return null;
+
+			Method stub = CreateMethodFromPrototype(baseMethod, TypeMemberModifiers.Public | TypeMemberModifiers.Virtual);
+
 			MethodInvocationExpression x = new MethodInvocationExpression();
 			x.Target = new MemberReferenceExpression(
 								new ReferenceExpression("System"),
 								"NotImplementedException");
 			RaiseStatement rs = new RaiseStatement(x);
-			rs.LexicalInfo = LexicalInfo.Empty;			
-			m.Body.Statements.Insert(0, rs);
-			
-			return m;
+			rs.LexicalInfo = LexicalInfo.Empty;
+			stub.Body.Statements.Insert(0, rs);
+
+			return stub;
 		}
-		
+
 	}
+
 }

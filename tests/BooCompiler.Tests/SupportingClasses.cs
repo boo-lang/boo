@@ -560,4 +560,10 @@ namespace BooCompiler.Tests
 			return "Bar";
 		}
 	}
+
+	public abstract class AbstractFoo
+	{
+		public abstract T Bar<T>(T x);
+	}
+
 }

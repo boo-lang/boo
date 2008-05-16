@@ -32,13 +32,21 @@ namespace Boo.Lang.Compiler.Ast
 	
 	public partial class GenericParameterDeclaration
 	{
+
 		public GenericParameterDeclaration()
 		{
 		}
-		
+
 		public GenericParameterDeclaration(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
+
+		public GenericParameterDeclaration(string name)
+		{
+			this.Name = name;
+		}
+
 	}
+
 }
 

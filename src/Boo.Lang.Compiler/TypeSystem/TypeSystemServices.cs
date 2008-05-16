@@ -721,26 +721,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static bool CheckOverrideSignature(IParameter[] implParameters, IParameter[] baseParameters)
 		{	
-			if (implParameters.Length != baseParameters.Length) return false;
-			
-			for (int i=0; i<implParameters.Length; ++i)
-			{
-				IParameter implParameter = implParameters[i];
-				IParameter baseParameter = baseParameters[i];
-				IType implType = implParameter.Type;
-				IType baseType = baseParameter.Type;
-				
-				if (baseType.IsByRef)
-				{
-					if (!implParameter.IsByRef) return false;
-					if (baseType.GetElementType() != implType) return false;
-				}
-				else
-				{
-					if (implType != baseType) return false;
-				}
-			}
-			return true;
+			return CallableSignature.AreSameParameters(implParameters, baseParameters);
 		}
 		
 		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)

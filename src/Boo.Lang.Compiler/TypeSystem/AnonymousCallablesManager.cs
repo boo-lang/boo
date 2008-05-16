@@ -176,7 +176,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ParameterDeclaration self = CodeBuilder.CreateParameterDeclaration(0, "self", beginInvokeEntity.DeclaringType);
 
 			extension.Parameters.Add(self);
-			CodeBuilder.DeclareParameters(extension, 1, anonymousType.GetSignature().Parameters);
+			CodeBuilder.DeclareParameters(extension, anonymousType.GetSignature().Parameters, 1);
 
 			mie = CodeBuilder.CreateMethodInvocation(
 						CodeBuilder.CreateReference(self),

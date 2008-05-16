@@ -128,27 +128,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 			buffer.Append(_returnType.ToString());
 			return buffer.ToString();
 		}
-		
+
 		static public bool AreSameParameters(IParameter[] lhs, IParameter[] rhs)
 		{
-			if (lhs.Length != rhs.Length)
-			{
+			int len = lhs.Length;
+			if (len != rhs.Length)
 				return false;
-			}
-			for (int i=0; i<lhs.Length; ++i)
+
+			for (int i=0; i < len; ++i)
 			{
-				if (lhs[i].Type != rhs[i].Type)
-				{
+				IParameter lp = lhs[i];
+				IParameter rp = rhs[i];
+				if (!lp.Type.Equals(rp.Type))
 					return false;
-				}
-				if (lhs[i].IsByRef != rhs[i].IsByRef)
-				{
+				if (lp.IsByRef != rp.IsByRef)
 					return false;
-				}
 			}
+
 			return true;
 		}
-		
+
 		void InitializeHashCode()
 		{
 			_hashCode = _acceptVarArgs ? 1 : 2;

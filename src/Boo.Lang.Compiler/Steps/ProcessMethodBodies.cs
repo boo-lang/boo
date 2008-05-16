@@ -832,7 +832,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (baseMethod.ReturnType != entity.ReturnType)
+				if (!baseMethod.ReturnType.Equals(entity.ReturnType))
 				{
 					Error(CompilerErrorFactory.InvalidOverrideReturnType(
 						entity.Method.ReturnType,
