@@ -139,9 +139,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				IParameter lp = lhs[i];
 				IParameter rp = rhs[i];
-				if (!lp.Type.Equals(rp.Type))
-					return false;
 				if (lp.IsByRef != rp.IsByRef)
+					return false;
+				IType rpType = rp.IsByRef ? rp.Type.GetElementType() : rp.Type;
+				if (!lp.Type.Equals(rpType))
 					return false;
 			}
 

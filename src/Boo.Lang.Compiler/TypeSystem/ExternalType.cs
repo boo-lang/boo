@@ -123,7 +123,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual IType GetElementType()
 		{
-			return _typeSystemServices.Map(_type.GetElementType());
+			return _typeSystemServices.Map(_type.GetElementType() ?? _type);
 		}
 
 		public virtual bool IsClass
