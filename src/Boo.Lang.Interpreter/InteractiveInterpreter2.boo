@@ -75,7 +75,11 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	def Initialize():
 		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS") is not null
-		_disableColors = true if Environment.GetEnvironmentVariable("INSIDE_EMACS") is not null
+		if not _disableColors: #make sure setting color does not throw an exception
+			try:
+				Console.ForegroundColor = ConsoleColor.DarkGray
+			except:
+				_disableColors = true
 		_disableAutocompletion = true if Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION") is not null
 		InitializeStandardReferences()
 		LoadHistory()
