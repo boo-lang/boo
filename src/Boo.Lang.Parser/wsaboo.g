@@ -477,6 +477,15 @@ interface_method [TypeMemberCollection container]
 		AddAttributes(m.Attributes);
 		container.Add(m);
 	}
+	(
+		(
+			LBRACK (OF)? generic_parameter_declaration_list[m.GenericParameters] RBRACK
+		)
+		|
+		(
+			OF generic_parameter_declaration[m.GenericParameters]
+		)
+	)?
 	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 	(AS rt=type_reference { m.ReturnType=rt; })?			
 	(

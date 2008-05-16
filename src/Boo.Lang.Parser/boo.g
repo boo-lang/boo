@@ -515,7 +515,7 @@ base_types[TypeReferenceCollection container]
 	)?
 	RPAREN
 	;
-			
+
 protected
 interface_method [TypeMemberCollection container]
 	{
@@ -535,13 +535,22 @@ interface_method [TypeMemberCollection container]
 			container.Add(m);
 		}
 	}
+	(
+		(
+			LBRACK (OF)? generic_parameter_declaration_list[m.GenericParameters] RBRACK
+		)
+		|
+		(
+			OF generic_parameter_declaration[m.GenericParameters]
+		)
+	)?
 	LPAREN parameter_declaration_list[m.Parameters] RPAREN
 	(AS rt=type_reference { m.ReturnType=rt; })?			
 	(
 		(eos docstring[m]) | (empty_block[m] (eos)?)
 	)
 	;
-			
+
 protected
 interface_property [TypeMemberCollection container]
         {
