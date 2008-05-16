@@ -433,13 +433,15 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Method method = (Method)member;
 
-					if (TypeSystemServices.CheckOverrideSignature(GetEntity(method), entity))
+					if (GenericsServices.AreOfSameGenerity(GetEntity(method), entity)
+						&& TypeSystemServices.CheckOverrideSignature(GetEntity(method), entity))
 					{
 						if (IsUnknown(method.ReturnType))
 						{
 							method.ReturnType = CodeBuilder.CreateTypeReference(entity.ReturnType);
 						}
-						else
+						else if (GenericsServices.IsGenericParameter(method.ReturnType.Entity)
+									== GenericsServices.IsGenericParameter(entity.ReturnType))
 						{
 							if (!entity.ReturnType.Equals(method.ReturnType.Entity))
 								Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, entity.FullName));

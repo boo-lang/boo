@@ -778,7 +778,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (EntityType.Method == candidates.EntityType)
 				{
 					IMethod candidate = (IMethod)candidates;
-					if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
+					if (GenericsServices.AreOfSameGenerity(entity, candidate)
+						&& TypeSystemServices.CheckOverrideSignature(entity, candidate))
 					{
 						baseMethod = candidate;
 					}
@@ -788,7 +789,8 @@ namespace Boo.Lang.Compiler.Steps
 					IEntity[] entities = ((Ambiguous)candidates).Entities;
 					foreach (IMethod candidate in entities)
 					{
-						if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
+						if (GenericsServices.AreOfSameGenerity(entity, candidate)
+							&& TypeSystemServices.CheckOverrideSignature(entity, candidate))
 						{
 							baseMethod = candidate;
 							break;
@@ -830,7 +832,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				entity.Method.ReturnType = CodeBuilder.CreateTypeReference(entity.Method.LexicalInfo, baseMethod.ReturnType);
 			}
-			else
+			else if (GenericsServices.IsGenericParameter(entity.ReturnType)
+						== GenericsServices.IsGenericParameter(baseMethod.ReturnType))
 			{
 				if (!baseMethod.ReturnType.Equals(entity.ReturnType))
 				{

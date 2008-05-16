@@ -160,6 +160,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (type != null && type.GenericInfo != null);
 		}
 
+		public static bool IsGenericParameter(IEntity entity)
+		{
+			return (entity is IGenericParameter);
+		}
+
+		public static bool AreOfSameGenerity(IMethod lhs, IMethod rhs)
+		{
+			return (GetMethodGenerity(lhs) == GetMethodGenerity(rhs));
+		}
+
 		/// <summary>
 		/// Finds types constructed from the specified definition in the specified type's interfaces and base types.
 		/// </summary>
@@ -262,22 +272,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static int GetMethodGenerity(IMethod method)
 		{
-			int generity = 0;
-
 			IConstructedMethodInfo constructedInfo = method.ConstructedInfo;
 			if (constructedInfo != null)
-			{
-				generity += constructedInfo.GenericArguments.Length;
-			}
+				return constructedInfo.GenericArguments.Length;
 
 			IGenericMethodInfo genericInfo = method.GenericInfo;
 			if (genericInfo != null)
-			{
-				generity += genericInfo.GenericParameters.Length;
-			}
+				return genericInfo.GenericParameters.Length;
 
-			return generity;
+			return 0;
 		}
+
 	}
 
 	/// <summary>
