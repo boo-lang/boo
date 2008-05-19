@@ -51,3 +51,4 @@ assert a != 42
 TestNullableFieldInitializer()
 
 print "okthxbye"
+

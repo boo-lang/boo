@@ -10,6 +10,7 @@ c = 42
 assert 42 == na+12
 assert c == na+nb
 #assert null == na+nn
+
 try:
 	c = na+nn
 except InvalidOperationException:

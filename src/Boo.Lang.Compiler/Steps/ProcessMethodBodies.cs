@@ -3477,7 +3477,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindCmpOperator(BinaryExpression node)
 		{
-			if (BindNullableOperation(node))
+			if (BindNullableComparison(node))
 			{
 				return;
 			}
@@ -4851,36 +4851,57 @@ namespace Boo.Lang.Compiler.Steps
 		bool BindNullableOperation(BinaryExpression node)
 		{
 			if (!IsNullableOperation(node))
-			{
 				return false;
-			}
 
 			if (BinaryOperatorType.ReferenceEquality == node.Operator)
 			{
 				node.Operator = BinaryOperatorType.Equality;
+				return BindNullableComparison(node);
 			}
 			else if (BinaryOperatorType.ReferenceInequality == node.Operator)
 			{
 				node.Operator = BinaryOperatorType.Inequality;
+				return BindNullableComparison(node);
 			}
 
-			IType lhs, rhs;
+			IType lhs = GetExpressionType(node.Left);
+			IType rhs = GetExpressionType(node.Right);
+			bool lhsIsNullable = TypeSystemServices.IsNullable(lhs);
+			bool rhsIsNullable = TypeSystemServices.IsNullable(rhs);
+
 			if (BinaryOperatorType.Assign == node.Operator)
 			{
-				lhs = GetExpressionType(node.Left);
-				rhs = GetExpressionType(node.Right);
-				bool lhsIsNullable = TypeSystemServices.IsNullable(lhs);
-				if (lhsIsNullable && TypeSystemServices.IsNullable(rhs))
-				{
-					return false;
-				}
 				if (lhsIsNullable)
 				{
+					if (rhsIsNullable)
+						return false;
 					BindNullableInitializer(node, node.Right, lhs);
 					return false;
 				}
 			}
-			else if (IsNull(node.Left) || IsNull(node.Right))
+
+			if (lhsIsNullable)
+			{
+				Expression val = new MemberReferenceExpression(node.Left, "Value");
+				node.Replace(node.Left, val);
+				Visit(val);
+			}
+			if (rhsIsNullable)
+			{
+				Expression val = new MemberReferenceExpression(node.Right, "Value");
+				node.Replace(node.Right, val);
+				Visit(val);
+			}
+
+			return false;
+		}
+
+		bool BindNullableComparison(BinaryExpression node)
+		{
+			if (!IsNullableOperation(node))
+				return false;
+
+			if (IsNull(node.Left) || IsNull(node.Right))
 			{
 				Expression nullable = IsNull(node.Left) ? node.Right : node.Left;
 				Expression val = new MemberReferenceExpression(nullable, "HasValue");
@@ -4893,26 +4914,22 @@ namespace Boo.Lang.Compiler.Steps
 				return true;
 			}
 
-			if (BinaryOperatorType.Equality != node.Operator
-				&& BinaryOperatorType.Inequality != node.Operator)
-			{
-				lhs = GetExpressionType(node.Left);
-				if (TypeSystemServices.IsNullable(lhs))
-				{
-					Expression val = new MemberReferenceExpression(node.Left, "Value");
-					node.Replace(node.Left, val);
-					Visit(val);
-				}
-				rhs = GetExpressionType(node.Right);
-				if (TypeSystemServices.IsNullable(rhs))
-				{
-					Expression val = new MemberReferenceExpression(node.Right, "Value");
-					node.Replace(node.Right, val);
-					Visit(val);
-				}
-			}
-
-			return false;
+			BinaryExpression valueCheck = new BinaryExpression(
+				BinaryOperatorType.BitwiseOr,
+				new BinaryExpression(
+					node.Operator,
+					CreateNullableHasValueOrTrueExpression(node.Left),
+					CreateNullableHasValueOrTrueExpression(node.Right)
+				),
+				new BinaryExpression(
+					node.Operator,
+					CreateNullableGetValueOrDefaultExpression(node.Left),
+					CreateNullableGetValueOrDefaultExpression(node.Right)
+				)
+			);
+			node.ParentNode.Replace(node, valueCheck);
+			Visit(valueCheck);
+			return true;
 		}
 
 		void BindNullableInitializer(Node node, Expression val, IType type)
@@ -4928,6 +4945,24 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			node.Replace(val, mie);
 			Visit(mie);
+		}
+
+		private Expression CreateNullableHasValueOrTrueExpression(Expression target)
+		{
+			if (!TypeSystemServices.IsNullable(GetExpressionType(target)))
+				return new BoolLiteralExpression(true);
+
+			return new MemberReferenceExpression(target, "HasValue");
+		}
+
+		private Expression CreateNullableGetValueOrDefaultExpression(Expression target)
+		{
+			if (!TypeSystemServices.IsNullable(GetExpressionType(target)))
+				return target;
+
+			MethodInvocationExpression mie = new MethodInvocationExpression();
+			mie.Target = new MemberReferenceExpression(target, "GetValueOrDefault");
+			return mie;
 		}
 
 		void BindTypeTest(BinaryExpression node)
