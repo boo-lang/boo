@@ -5648,6 +5648,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsNumber(type)) return expression;
 			if (type.IsEnum) return expression;
 
+			// nullable types can be used in bool context
+			if (TypeSystemServices.IsNullable(type))
+			{
+				MemberReferenceExpression mre = new MemberReferenceExpression(expression, "HasValue");
+				Visit(mre);
+				return mre;
+			}
+
 			IMethod method = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
 			if (null != method) return CodeBuilder.CreateMethodInvocation(method, expression);
 
