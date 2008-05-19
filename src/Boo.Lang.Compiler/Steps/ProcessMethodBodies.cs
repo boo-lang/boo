@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -4882,15 +4883,17 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (lhsIsNullable)
 			{
-				Expression val = new MemberReferenceExpression(node.Left, "Value");
-				node.Replace(node.Left, val);
-				Visit(val);
+				MemberReferenceExpression mre = new MemberReferenceExpression(node.Left, "Value");
+				node.Replace(node.Left, mre);
+				Visit(mre);
+				mre.Annotate("nullableTarget", true);
 			}
 			if (rhsIsNullable)
 			{
-				Expression val = new MemberReferenceExpression(node.Right, "Value");
-				node.Replace(node.Right, val);
-				Visit(val);
+				MemberReferenceExpression mre = new MemberReferenceExpression(node.Right, "Value");
+				node.Replace(node.Right, mre);
+				Visit(mre);
+				mre.Annotate("nullableTarget", true);
 			}
 
 			return false;
@@ -4932,24 +4935,104 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 
-		void BindNullableInitializer(Node node, Expression val, IType type)
+		private IEnumerable<Expression> FindNullableExpressions(Expression exp)
+		{
+			if (exp.ContainsAnnotation("nullableTarget"))
+			{
+				yield return ((MemberReferenceExpression) exp).Target;
+			}
+			else
+			{
+				BinaryExpression bex = exp as BinaryExpression;
+				if (null != bex)
+				{
+					foreach (Expression inner in FindNullableExpressions(bex.Left))
+						yield return inner;
+					foreach (Expression inner in FindNullableExpressions(bex.Right))
+						yield return inner;
+				}
+			}
+		}
+
+		private Expression BuildNullableCoalescingConditional(Expression exp)
+		{
+			if (IsNull(exp)) return null;
+
+			IEnumerator<Expression> enumerator = FindNullableExpressions(exp).GetEnumerator();
+			Expression root = null;
+			BinaryExpression and = null;
+			Expression lookahead = null;
+
+			while (enumerator.MoveNext())
+			{
+				Expression cur = enumerator.Current;
+				lookahead = enumerator.MoveNext() ? enumerator.Current : null;
+				if (null != and)
+				{
+					and.Right = new BinaryExpression(
+										BinaryOperatorType.BitwiseAnd,
+										and.Right,
+										new BinaryExpression(
+											BinaryOperatorType.BitwiseAnd,
+											CreateNullableHasValueOrTrueExpression(cur),
+											CreateNullableHasValueOrTrueExpression(lookahead)
+										)
+									);
+				}
+				else
+				{
+					if (null == lookahead)
+						return CreateNullableHasValueOrTrueExpression(cur);
+					root = and = new BinaryExpression(
+									BinaryOperatorType.BitwiseAnd,
+									CreateNullableHasValueOrTrueExpression(cur),
+									CreateNullableHasValueOrTrueExpression(lookahead)
+								);
+				}
+			}
+
+			return root;
+		}
+
+		void BindNullableInitializer(Node node, Expression rhs, IType type)
+		{
+			Expression instantiation = CreateNullableInstantiation(rhs, type);
+			node.Replace(rhs, instantiation);
+			Visit(instantiation);
+
+			Expression coalescing = BuildNullableCoalescingConditional(rhs);
+			if (null != coalescing) //rhs contains at least one nullable
+			{
+				ConditionalExpression cond = new ConditionalExpression();
+				cond.Condition = coalescing;
+				cond.TrueValue = instantiation;
+				cond.FalseValue = CreateNullableInstantiation(type);
+
+				node.Replace(instantiation, cond);
+				Visit(cond);
+			}
+		}
+
+		private Expression CreateNullableInstantiation(IType type)
+		{
+			return CreateNullableInstantiation(null, type);
+		}
+
+		private Expression CreateNullableInstantiation(Expression val, IType type)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression();
 			GenericReferenceExpression gre = new GenericReferenceExpression();
 			gre.Target = new MemberReferenceExpression(new ReferenceExpression("System"), "Nullable");
 			gre.GenericArguments.Add(TypeReference.Lift(Nullable.GetUnderlyingType(((ExternalType) type).ActualType)));
 			mie.Target = gre;
-			if (!IsNull(val))
-			{
+			if (null != val && !IsNull(val))
 				mie.Arguments.Add(val);
-			}
-			node.Replace(val, mie);
-			Visit(mie);
+			return mie;
 		}
 
 		private Expression CreateNullableHasValueOrTrueExpression(Expression target)
 		{
-			if (!TypeSystemServices.IsNullable(GetExpressionType(target)))
+			if (null == target || !TypeSystemServices.IsNullable(GetExpressionType(target)))
 				return new BoolLiteralExpression(true);
 
 			return new MemberReferenceExpression(target, "HasValue");
@@ -4957,7 +5040,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private Expression CreateNullableGetValueOrDefaultExpression(Expression target)
 		{
-			if (!TypeSystemServices.IsNullable(GetExpressionType(target)))
+			if (null == target || !TypeSystemServices.IsNullable(GetExpressionType(target)))
 				return target;
 
 			MethodInvocationExpression mie = new MethodInvocationExpression();

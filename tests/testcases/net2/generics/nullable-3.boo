@@ -25,6 +25,17 @@ assert 60 == na
 na *= nb
 assert na == 720
 
-#na *= nn
-#assert na is null
+na *= nn
+assert na is null
+
+na = 30
+na += nn
+assert na is null
+
+na = 30
+nd as int? = na + nb + c + 64
+assert nd == 30 + 12 + 42 + 64
+
+nd = na + nb + nn + c + 64 #since nn is null the whole expression is null
+assert nd is null
 
