@@ -1121,7 +1121,7 @@ macro_stmt returns [MacroStatement returnValue]
 	}:
 	id:ID expression_list[macro.Arguments]
 	(
-		compound_stmt[macro.Block] |
+		compound_stmt[macro.Block] { macro.Annotate("compound"); } |
 		eos |
 		modifier=stmt_modifier eos { macro.Modifier = modifier; }
 	)

@@ -120,7 +120,8 @@ namespace Boo.Lang.Compiler.Steps
 				node.LexicalInfo,
 				new ReferenceExpression(node.LexicalInfo, node.Name));
 			invocation.Arguments = node.Arguments;
-			if (node.Block != null && node.Block.Statements.Count > 0)
+			if (node.ContainsAnnotation("compound")
+				|| (node.Block != null && node.Block.Statements.Count > 0))
 			{
 				invocation.Arguments.Add(new BlockExpression(node.Block));
 			}
