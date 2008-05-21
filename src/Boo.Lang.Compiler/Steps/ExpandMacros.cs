@@ -125,7 +125,7 @@ namespace Boo.Lang.Compiler.Steps
 				invocation.Arguments.Add(new BlockExpression(node.Block));
 			}
 
-			ReplaceCurrentNode(new ExpressionStatement(invocation));
+			ReplaceCurrentNode(new ExpressionStatement(node.LexicalInfo, invocation, node.Modifier));
 		}
 
 		private Statement ExpandMacro(Type macroType, MacroStatement node)

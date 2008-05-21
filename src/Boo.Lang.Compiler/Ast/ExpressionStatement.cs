@@ -50,5 +50,12 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Expression = expression;
 		}
+
+		public ExpressionStatement(LexicalInfo lexicalInfo, Expression expression, StatementModifier modifier)
+			: base(lexicalInfo)
+		{
+			this.Expression = expression;
+			this.Modifier = modifier;
+		}
 	}
 }
