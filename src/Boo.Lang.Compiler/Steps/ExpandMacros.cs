@@ -121,12 +121,17 @@ namespace Boo.Lang.Compiler.Steps
 				new ReferenceExpression(node.LexicalInfo, node.Name));
 			invocation.Arguments = node.Arguments;
 			if (node.ContainsAnnotation("compound")
-				|| (node.Block != null && node.Block.Statements.Count > 0))
+				|| !IsNullOrEmpty(node.Block))
 			{
 				invocation.Arguments.Add(new BlockExpression(node.Block));
 			}
 
 			ReplaceCurrentNode(new ExpressionStatement(node.LexicalInfo, invocation, node.Modifier));
+		}
+		
+		private bool IsNullOrEmpty(Block block)
+		{
+			return block == null || block.Statements.Count == 0;
 		}
 
 		private Statement ExpandMacro(Type macroType, MacroStatement node)
