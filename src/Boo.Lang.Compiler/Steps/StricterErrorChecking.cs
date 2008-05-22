@@ -375,9 +375,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.IsStatic)
 			{
-				if (!node.IsPublic)
+				if (!node.IsPrivate)
 				{
-					Error(CompilerErrorFactory.StaticConstructorMustBePublic(node));
+					Error(CompilerErrorFactory.StaticConstructorMustBePrivate(node));
 				}
 				if (node.Parameters.Count != 0)
 				{

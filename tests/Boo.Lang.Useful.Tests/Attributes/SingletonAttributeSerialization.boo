@@ -105,7 +105,7 @@ class SingletonAttributeSerializationFixture:
 				return Nested.instance
 		
 		private final transient class Nested:
-			public static def constructor():
+			static def constructor():
 				self.instance = BadSingletonObject()
 	
 			private def constructor():

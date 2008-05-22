@@ -668,7 +668,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Constructor constructor = new Constructor();
 			constructor.IsSynthetic = true;
 			constructor.Entity = new InternalConstructor(TypeSystemServices, constructor);
-			constructor.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Static;
+			constructor.Modifiers = TypeMemberModifiers.Private | TypeMemberModifiers.Static;
 			type.Members.Add(constructor);
 			return constructor;
 		}

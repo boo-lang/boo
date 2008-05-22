@@ -210,10 +210,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveConstructor(Constructor node)
 		{
-			if (!node.IsVisibilitySet)
-			{
+			if (node.IsVisibilitySet) return;
+
+			if (!node.IsStatic)
 				node.Modifiers |= TypeMemberModifiers.Public;
-			}
+			else
+				node.Modifiers |= TypeMemberModifiers.Private;
 		}
 
 	}

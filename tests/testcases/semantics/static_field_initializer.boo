@@ -7,7 +7,7 @@ public class Person(object):
 		super()
 		Person.InstanceCount = (Person.InstanceCount + 1)
 
-	public static def constructor():
+	private static def constructor():
 		Person.InstanceCount = 0
 """
 class Person:

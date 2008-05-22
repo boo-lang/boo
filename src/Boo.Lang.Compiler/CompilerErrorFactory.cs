@@ -464,7 +464,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0082", SafeLexicalInfo(node), typeName);
 		}
 		
-		public static CompilerError StaticConstructorMustBePublic(Node node)
+		public static CompilerError StaticConstructorMustBePrivate(Node node)
 		{
 			return new CompilerError("BCE0083", SafeLexicalInfo(node));
 		}

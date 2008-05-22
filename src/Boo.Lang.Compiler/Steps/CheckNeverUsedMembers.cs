@@ -83,6 +83,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected void WarnIfPrivateMemberNeverUsed(TypeMember node)
 		{
+			if (NodeType.Constructor == node.NodeType && node.IsStatic) return;
+
 			if (node.IsPrivate && node.ContainsAnnotation("PrivateMemberNeverUsed"))
 			{
 				Warnings.Add(

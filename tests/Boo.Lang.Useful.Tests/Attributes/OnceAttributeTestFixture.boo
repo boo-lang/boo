@@ -97,7 +97,7 @@ public final transient class CodeModule(object):
 	private def constructor():
 		super()
 
-	public static def constructor():
+	private static def constructor():
 		CodeModule.___foo_lock = object()
 
 	private static ___foo_returnValue as int

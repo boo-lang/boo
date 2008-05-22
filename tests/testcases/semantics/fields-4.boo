@@ -9,7 +9,7 @@ public class Foo(object):
 		super()
 		self.$initializer$()
 
-	public static def constructor():
+	private static def constructor():
 		Foo.FinalSolution = '42'
 
 	def $initializer$() as void:

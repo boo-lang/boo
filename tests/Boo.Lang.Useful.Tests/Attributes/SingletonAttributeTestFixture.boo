@@ -68,7 +68,7 @@ public final transient class ${SINGLETON_CLASS_NAME}(object):
 	[${CUT.COMPILERGENERATEDATTRIBUTE_FULL_NAME}]
 	private final transient class ${CUT.NESTED_CLASS_NAME}(object):
 
-		public static def constructor():
+		private static def constructor():
 			self.${CUT.INSTANCE_FIELD_NAME} = ${SINGLETON_CLASS_NAME}()
 
 		private def constructor():
@@ -104,7 +104,7 @@ public final class ${SINGLETON_CLASS_NAME}(object, ${CUT.ISERIALIZABLE_FULL_NAME
 	[${CUT.COMPILERGENERATEDATTRIBUTE_FULL_NAME}]
 	private final transient class ${CUT.NESTED_CLASS_NAME}(object):
 
-		public static def constructor():
+		private static def constructor():
 			self.${CUT.INSTANCE_FIELD_NAME} = ${SINGLETON_CLASS_NAME}()
 
 		private def constructor():
@@ -155,7 +155,7 @@ public final transient class ${SINGLETON_CLASS_NAME}(object):
 	[${CUT.COMPILERGENERATEDATTRIBUTE_FULL_NAME}]
 	private final transient class ${CUT.NESTED_CLASS_NAME}(object):
 
-		public static def constructor():
+		private static def constructor():
 			self.${CUT.INSTANCE_FIELD_NAME} = ${SINGLETON_CLASS_NAME}()
 
 		private def constructor():
@@ -192,7 +192,7 @@ public final transient class ${SINGLETON_CLASS_NAME}(object):
 	[${CUT.COMPILERGENERATEDATTRIBUTE_FULL_NAME}]
 	private final transient class ${CUT.NESTED_CLASS_NAME}(object):
 
-		public static def constructor():
+		private static def constructor():
 			self.${CUT.INSTANCE_FIELD_NAME} = ${SINGLETON_CLASS_NAME}()
 
 		private def constructor():
