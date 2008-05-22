@@ -5124,6 +5124,9 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.InPlaceBitwiseOr:
 					return BinaryOperatorType.BitwiseOr;
 
+				case BinaryOperatorType.InPlaceExclusiveOr:
+					return BinaryOperatorType.ExclusiveOr;
+
 				case BinaryOperatorType.InPlaceShiftLeft:
 					return BinaryOperatorType.ShiftLeft;
 
