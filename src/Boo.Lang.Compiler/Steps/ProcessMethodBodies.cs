@@ -445,7 +445,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (node.IsStatic)
 				{
-					if (!node.DeclaringType.HasStaticConstructor)
+					if (!type.HasStaticConstructor)
 					{
 						// when the class doesnt have a static constructor
 						// yet, create one and use it as the static
