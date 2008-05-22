@@ -75,6 +75,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Modifiers |= TypeMemberModifiers.Protected;
 			}
+
+			LeaveMember(node);
 		}
 		
 		override public void LeaveProperty(Property node)
@@ -200,6 +202,17 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					node.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
 				}
+			}
+
+			//protected in a sealed type == private, so let the compiler mark
+			//them private in order to get unused members warnings free
+			//(and to make IL analysis tools happy as a bonus)
+			if (node.IsProtected && node.DeclaringType.IsFinal)
+			{
+				node.Modifiers ^= TypeMemberModifiers.Protected;
+				node.Modifiers |= TypeMemberModifiers.Private;
+				if (node.IsProtected && node.IsPrivate)
+					throw new System.Exception("foo");
 			}
 		}
 
