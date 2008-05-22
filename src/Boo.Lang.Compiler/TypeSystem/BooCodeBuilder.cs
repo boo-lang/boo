@@ -663,6 +663,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return constructor;
 		}
 
+		public Constructor CreateStaticConstructor(TypeDefinition type)
+		{
+			Constructor constructor = new Constructor();
+			constructor.IsSynthetic = true;
+			constructor.Entity = new InternalConstructor(TypeSystemServices, constructor);
+			constructor.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Static;
+			type.Members.Add(constructor);
+			return constructor;
+		}
+
 		public MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
 		{
 			IConstructor constructor = ((IType)cd.Entity).GetConstructors()[0];

@@ -425,6 +425,7 @@ namespace Boo.Lang.Compiler.Steps
 		Method CreateInitializerMethod(TypeDefinition type, string name, TypeMemberModifiers modifiers)
 		{
 			Method method = new Method(name);
+			method.IsSynthetic = true;
 			method.Modifiers |= modifiers;
 			method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 
@@ -444,12 +445,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (node.IsStatic)
 				{
-					if (null == FindStaticConstructor(type))
+					if (!node.DeclaringType.HasStaticConstructor)
 					{
 						// when the class doesnt have a static constructor
 						// yet, create one and use it as the static
 						// field initializer method
-						method = CreateStaticConstructor(type);
+						method = CodeBuilder.CreateStaticConstructor(type);
 					}
 					else
 					{
@@ -510,35 +511,13 @@ namespace Boo.Lang.Compiler.Steps
 			return 0;
 		}
 
-		Constructor FindStaticConstructor(TypeDefinition type)
-		{
-			foreach (TypeMember member in type.Members)
-			{
-				if (member.IsStatic && NodeType.Constructor == member.NodeType)
-				{
-					return (Constructor)member;
-				}
-			}
-			return null;
-		}
-
 		Constructor GetStaticConstructor(TypeDefinition type)
 		{
-			Constructor constructor = FindStaticConstructor(type);
+			Constructor constructor = type.GetStaticConstructor();
 			if (null == constructor)
 			{
-				constructor = CreateStaticConstructor(type);
+				constructor = CodeBuilder.CreateStaticConstructor(type);
 			}
-			return constructor;
-		}
-
-		Constructor CreateStaticConstructor(TypeDefinition type)
-		{
-			Constructor constructor = new Constructor();
-			constructor.Entity = new InternalConstructor(TypeSystemServices, constructor);
-			constructor.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Static;
-			type.Members.Add(constructor);
-			MarkVisited(constructor);
 			return constructor;
 		}
 

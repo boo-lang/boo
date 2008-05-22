@@ -110,5 +110,70 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return false;
 		}
+
+
+		public bool HasInstanceConstructor
+		{
+			get
+			{
+				return null != GetConstructor(0, false, null);
+			}
+		}
+
+		public bool HasDeclaredInstanceConstructor
+		{
+			get
+			{
+				return null != GetConstructor(0, false, false);
+			}
+		}
+
+		public bool HasStaticConstructor
+		{
+			get
+			{
+				return null != GetConstructor(0, true, null);
+			}
+		}
+
+		public bool HasDeclaredStaticConstructor
+		{
+			get
+			{
+				return null != GetConstructor(0, true, false);
+			}
+		}
+
+		public Constructor GetConstructor(int index)
+		{
+			return GetConstructor(index, null, null);
+		}
+
+		public Constructor GetStaticConstructor()
+		{
+			return GetConstructor(0, true, null);
+		}
+
+		protected Constructor GetConstructor(int index, bool? isStatic, bool? isSynthetic)
+		{
+			int current = 0;
+			foreach (TypeMember member in _members)
+			{
+				if (NodeType.Constructor == member.NodeType)
+				{
+					bool match = (null == isStatic || member.IsStatic == isStatic)
+						& (null == isSynthetic || member.IsSynthetic == isSynthetic);
+					if (match)
+					{
+						if (current == index)
+							return (Constructor) member;
+						current++;
+					}
+				}
+			}
+			return null;
+		}
+
 	}
+
 }

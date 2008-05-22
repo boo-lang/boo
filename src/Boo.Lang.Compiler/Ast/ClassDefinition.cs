@@ -39,37 +39,7 @@ namespace Boo.Lang.Compiler.Ast
 		public ClassDefinition(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
-		
-		public bool HasInstanceConstructor
-		{
-			get
-			{
-				foreach (TypeMember member in _members)
-				{
-					if (NodeType.Constructor == member.NodeType
-						&& !member.IsStatic)
-					{
-						return true;
-					}
-				}
-				return false;
-			}
-		}
-		
-		public Constructor GetConstructor(int index)
-		{
-			int current = 0;
-			foreach (TypeMember member in _members)
-			{
-				if (member.NodeType == NodeType.Constructor)
-				{
-					if (current == index) return (Constructor)member;
-					++current;
-				}
-			}
-			throw new ArgumentException("index");
-		}
-		
+
 		public void Merge(ClassDefinition node)
 		{
 			if (null == node) throw new ArgumentNullException("node");

@@ -4127,8 +4127,11 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
 						attributes |= TypeAttributes.Class;
-						attributes |= TypeAttributes.BeforeFieldInit;
-						
+
+						if (!((ClassDefinition) type).HasDeclaredStaticConstructor)
+						{
+							attributes |= TypeAttributes.BeforeFieldInit;
+						}
 						if (!type.IsTransient)
 						{
 							attributes |= TypeAttributes.Serializable;
