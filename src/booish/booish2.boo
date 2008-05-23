@@ -49,7 +49,7 @@ for arg in argv:
 	if not arg.StartsWith("-"):
 		loadRequests.Add(arg)
 
-interpreter.DisplayHelp() unless nologo
+interpreter.DisplayLogo() unless nologo
 
 for req in loadRequests:
 	interpreter.load(req)

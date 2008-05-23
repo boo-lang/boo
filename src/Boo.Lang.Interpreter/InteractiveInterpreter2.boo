@@ -155,6 +155,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 
 	private def ConsolePrintPrompt():
+		return if _quit
 		Console.ForegroundColor = _promptColor if not _disableColors
 		Console.Write(CurrentPrompt)
 		#TODO: automatic indentation option ?
@@ -162,6 +163,9 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		#	_line.Append("\t")
 		#	Console.Write("\t")
 		Console.ResetColor() if not _disableColors
+		_selectedSuggIdx = null
+		_line.Length = 0
+		_buffer.Length = 0
 
 	private def ConsolePrintMessage(msg as string):
 		Console.ForegroundColor = _interpreterColor if not _disableColors
@@ -423,22 +427,19 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				quit()
 			elif cmd[0] == "/?" or cmd[0] == "/h" or cmd[0] == "/help":
 				DisplayHelp()
-				_selectedSuggIdx = null
-				_buffer.Length = 0
 				ConsolePrintPrompt()
 			elif cmd[0] == "/g" or cmd[0] == "/globals":
-				globals()
+				InternalLoopEval("globals()")
+				ConsolePrintPrompt()
 			else:
 				return false
 
 		elif len(cmd) == 2:
 			if cmd[0] == "/l" or cmd[0] == "/load":
 				load(cmd[1])
-				_line.Length = 0
 				ConsolePrintPrompt()
 			elif cmd[0] == "/s" or cmd[0] == "/save":
 				save(cmd[1])
-				_line.Length = 0
 				ConsolePrintPrompt()
 			else:
 				return false
@@ -512,28 +513,32 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	private def InitializeStandardReferences():
 		SetValue("interpreter", self)
 		SetValue("dir", dir)
-		SetValue("help", help)
+		SetValue("describe", describe)
 		SetValue("print", { value | _print(value) })
 		SetValue("load", load)
 		SetValue("globals", globals)
+		SetValue("quit", quit)
 		SetValue("getRootNamespace", Namespace.GetRootNamespace)
 
 
-	def DisplayHelp():
+	def DisplayLogo():
 		Console.ForegroundColor = _interpreterColor	if not _disableColors
 		print """Welcome to booish, an interpreter for the boo programming language.
 Running boo ${BooVersion} in CLR v${Environment.Version}.
 
-The following builtin functions are available:
-    /d[ir] type : lists the members of a type
-    /h[elp] type : prints detailed information about a type 
-    /l[oad] file : evals an external boo file
-    /s[ave] file : writes your current booish session into file
-    /g[lobals] : returns names of all variables known to interpreter
-    /n[ames] : namespace navigation
-    /q[uit] : exits the interpreter
+Enter boo code in the prompt below (or type /help)."""
+		Console.ResetColor() if not _disableColors
 
-Enter boo code in the prompt below."""
+
+	def DisplayHelp():
+		Console.ForegroundColor = _interpreterColor	if not _disableColors
+		print """The following builtin functions are available :
+    dir(type) : returns the members of a type
+    describe(type) : describe a type as boo code
+    globals() or /g : returns names of all variables known to interpreter
+    load(file) or /l file : evals an external boo file
+    save(file) or /s file : writes your current booish session into file
+    quit() or /q : exits the interpreter"""
 		Console.ResetColor() if not _disableColors
 
 
@@ -605,7 +610,7 @@ Enter boo code in the prompt below."""
 		except:
 			ConsolePrintError("Cannot save to '${path}'. Check if path is valid and has correct permissions.")
 
-	def help(obj):		
+	def describe(obj):
 		type = (obj as Type) or obj.GetType()
 		DescribeType("    ", type)
 
