@@ -122,6 +122,16 @@ Authors:
 	"""
 		get:
 			return "booc.exe"
+			
+	GenerateFullPaths:
+	"""
+	If set to true the task will output warnings and errors with full file paths
+	"""
+		get:
+			return GetBoolParameterWithDefault("GenerateFullPaths", false)
+		set:
+			Bag["GenerateFullPaths"] = value
+		
 	
 	override def Execute():
 	"""
@@ -197,7 +207,7 @@ Authors:
 					null,
 					warningPatternMatch.Groups['code'].Value,
 					null,
-					warningPatternMatch.Groups['file'].Value,
+					GetFilePathToWarningOrError(warningPatternMatch.Groups['file'].Value),
 					lineOut,
 					columnOut,
 					0,
@@ -207,7 +217,7 @@ Authors:
 			elif errorPatternMatch.Success:					
 				code = errorPatternMatch.Groups['code'].Value
 				code = 'BCE0000' if string.IsNullOrEmpty(code)
-				file = errorPatternMatch.Groups['file'].Value
+				file = GetFilePathToWarningOrError(errorPatternMatch.Groups['file'].Value)
 				file = 'BOOC' if string.IsNullOrEmpty(file)
 				
 				try:
@@ -421,3 +431,9 @@ Authors:
 		path = "booc"
 						
 		return path
+	
+	private def GetFilePathToWarningOrError(file as string):
+		if GenerateFullPaths:
+			return Path.GetFullPath(file)
+		else:
+			return file

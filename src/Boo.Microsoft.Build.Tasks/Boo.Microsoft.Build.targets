@@ -209,6 +209,7 @@
 			DelaySign="$(DelaySign)"
 			NoStandardLib="$(NoStdLib)"
 			DefineSymbols="$(DefineConstants)"
+			GenerateFullPaths="$(GenerateFullPaths)"
 		/>
 		
 		<Copy
