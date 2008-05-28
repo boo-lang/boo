@@ -105,6 +105,25 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	private _multiline = false			#is the current line a multi-line?
 
 
+	Line as string:
+		get:
+			return _line.ToString()
+
+	LineLastChar as char:
+		get:
+			return _line.Chars[LineLen-1] if LineLen != 0
+			return char('\0')
+
+	LineLen as int:
+		get:
+			return _line.Length
+		set:
+			_line.Length = value
+
+	LineIndentLen as int:
+		get:
+			return IndentChars.Length * _indent
+
 	CurrentPrompt as string:
 		get:
 			if _indent > 0:
@@ -117,6 +136,9 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	[property(BlockPrompt)]
 	_blockPrompt = "..."
+
+	[property(IndentChars)]
+	_indentChars = "    "
 
 	[property(DisableColors)]
 	_disableColors = false
@@ -155,17 +177,16 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 
 	private def ConsolePrintPrompt():
+		ConsolePrintPrompt(true)
+
+	private def ConsolePrintPrompt(autoIndent as bool):
 		return if _quit
 		Console.ForegroundColor = _promptColor if not _disableColors
 		Console.Write(CurrentPrompt)
-		#TODO: automatic indentation option ?
-		#for i in range(_indent):
-		#	_line.Append("\t")
-		#	Console.Write("\t")
 		Console.ResetColor() if not _disableColors
-		_selectedSuggIdx = null
-		_line.Length = 0
-		_buffer.Length = 0
+		if autoIndent and CurrentPrompt == BlockPrompt:
+			for i in range(_indent):
+				WriteIndent()
 
 	private def ConsolePrintMessage(msg as string):
 		Console.ForegroundColor = _interpreterColor if not _disableColors
@@ -196,7 +217,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			Console.ForegroundColor = _suggestionsColor if not _disableColors
 			Console.Write(", ") if i > 0
 			if i > 20: #TODO: maxcandidates pref + paging?
-				Console.Write("... (too much candidates)")
+				Console.Write("... (too many candidates)")
 				break
 			if i == _selectedSuggIdx:
 				Console.ForegroundColor = _selectedSuggestionColor if not _disableColors
@@ -204,22 +225,47 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				Console.Write(DescribeEntity(s as IEntity))
 			else:
 				Console.Write(s)
-			i++	
+			i++
 
 		Console.ResetColor() if not _disableColors
 		#Console.CursorTop = cursorTop
 		Console.Write(Environment.NewLine)
-		ConsolePrintPrompt()
-		Console.Write(_line.ToString())
+		ConsolePrintPrompt(false)
+		Console.Write(Line)
 		Console.CursorLeft = cursorLeft
 
 	protected def Write(s as string):
 		Console.Write(s)
 		_line.Append(s)
 
+	protected def WriteIndent():
+		Write(IndentChars)
+
+	protected def Indent():
+		WriteIndent()
+		_indent++
+
+	protected def Unindent():
+		return if _indent == 0
+		Delete(IndentChars.Length)
+		_indent--
+
+	protected def Delete(count as int): #if count is 0, forward-delete
+		cx = Console.CursorLeft-len(CurrentPrompt)-count
+		return if cx < LineLen and count == 0
+		dcount = (count if count != 0 else 1)
+		_line.Remove(cx, dcount)
+		curX = Console.CursorLeft - dcount
+		Console.CursorLeft = curX
+		Console.Write("${_line.ToString(cx, LineLen-cx)} ")
+		Console.CursorLeft = curX
+
 
 	private static re_open = Regex("\\(", RegexOptions.Singleline)
 	private static re_close = Regex("\\)", RegexOptions.Singleline)
+
+	def DisplaySuggestions():
+		DisplaySuggestions(Line)
 
 	def DisplaySuggestions(query as string):
 		return if DisableAutocompletion
@@ -273,9 +319,9 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
 		Console.CursorLeft = len(CurrentPrompt)
-		Console.Write(string.Empty.PadLeft(_line.Length, char(' ')))
+		Console.Write(string.Empty.PadLeft(LineLen, char(' ')))
 		line = _history.ToArray()[_historyIndex]
-		_line.Length = 0
+		LineLen = 0
 		Console.CursorLeft = len(CurrentPrompt)
 		Write(line)
 
@@ -297,41 +343,31 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			if char.IsControl(keyChar):
 				control = true
 				if keyChar == char('\t'):
-					test = char(' ')
-					test = _line.ToString()[_line.Length-1] if _line.Length > 0
-					if char.IsLetterOrDigit(test) or test == char('.'):
+					if LineLen > 0 and (char.IsLetterOrDigit(LineLastChar) or LineLastChar == char('.')):
 						_selectedSuggIdx = 0
-						DisplaySuggestions(_line.ToString())					
+						DisplaySuggestions()
 					else:
-						Write("    ")
+						Indent()
 
 				#line-editing support
-				if not _multiline:
-					if key == ConsoleKey.Backspace:
-						if Console.CursorLeft > len(CurrentPrompt) and _line.Length > 0:
-							cx = Console.CursorLeft-len(CurrentPrompt)-1
-							_line.Remove(cx, 1)
-							cx2 = --Console.CursorLeft
-							Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
-							Console.CursorLeft = cx2
-					elif key == ConsoleKey.Delete:
-						if Console.CursorLeft >= len(CurrentPrompt) and _line.Length > 0:
-							cx = Console.CursorLeft-len(CurrentPrompt)
-							if cx < _line.Length:
-								_line.Remove(cx, 1)
-								cx2 = Console.CursorLeft
-								Console.Write("${_line.ToString(cx, _line.Length-cx)} ")
-								Console.CursorLeft = cx2
-					elif key == ConsoleKey.LeftArrow:
-						if Console.CursorLeft > len(CurrentPrompt) and _line.Length > 0:
+				if not _multiline and LineLen > 0:
+					if Console.CursorLeft > len(CurrentPrompt):
+						if key == ConsoleKey.Backspace:
+							if _indent > 0 and LineLen == LineIndentLen:
+								Unindent()
+							else:
+								Delete(1)
+						elif key == ConsoleKey.LeftArrow:
 							Console.CursorLeft--
+					if key == ConsoleKey.Delete:
+						Delete(0)
 					elif key == ConsoleKey.RightArrow:
-						if Console.CursorLeft < (len(CurrentPrompt)+_line.Length):
+						if Console.CursorLeft < (len(CurrentPrompt)+LineLen):
 							Console.CursorLeft++
 					elif key == ConsoleKey.Home:
 						Console.CursorLeft = len(CurrentPrompt)
 					elif key == ConsoleKey.End:
-						Console.CursorLeft = len(CurrentPrompt) + _line.Length
+						Console.CursorLeft = len(CurrentPrompt) + LineLen
 
 				#history support
 				if key == ConsoleKey.UpArrow:
@@ -342,7 +378,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 					if _historyIndex < _history.Count-1:
 						_historyIndex++
 						DisplayHistory()
-					
+
 				#auto-completion support
 				if CanAutoComplete:
 					if key == ConsoleKey.LeftArrow:
@@ -350,13 +386,13 @@ class InteractiveInterpreter2(AbstractInterpreter):
 							_selectedSuggIdx--
 						else:
 							_selectedSuggIdx = len(_suggestions)
-						DisplaySuggestions(_line.ToString())
+						DisplaySuggestions()
 					elif key == ConsoleKey.RightArrow:
 						if _selectedSuggIdx <= len(_suggestions):
 							_selectedSuggIdx++
 						else:
 							_selectedSuggIdx = 0
-						DisplaySuggestions(_line.ToString())
+						DisplaySuggestions()
 					if newLine:
 						AutoComplete()
 						continue
@@ -367,15 +403,15 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 			cx = Console.CursorLeft-len(CurrentPrompt)
 			#multi-line?
-			if cx < 0 or _line.Length >= Console.WindowWidth-len(CurrentPrompt):
-				cx = _line.Length
+			if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
+				cx = LineLen
 				_multiline = true
 
 			if not newLine:
 				#line-editing support
-				if cx < _line.Length and not _multiline:
+				if cx < LineLen and not _multiline:
 					_line.Insert(cx, keyChar) if not control
-					Console.Write(_line.ToString(cx, _line.Length-cx))
+					Console.Write(_line.ToString(cx, LineLen-cx))
 					Console.CursorLeft = len(CurrentPrompt)+cx+1
 				else:
 					_line.Append(keyChar) if not control
@@ -385,29 +421,25 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				_multiline = false
 				Console.Write(Environment.NewLine)
 
-				line = _line.ToString()
-
-				if not TryRunCommand(line):
-					_buffer.Append(line)
+				if not TryRunCommand(Line):
+					_buffer.Append(Line)
 					_buffer.Append(Environment.NewLine)
-					AddToHistory(line)
+					AddToHistory(Line)
 
-					try:
-						if len(line) > 0:
-							_indent++ if line[len(line)-1] in _blockStarters
-							_indent-- if line.EndsWith(keyChar.ToString()) and _indent > 0
-						elif _indent > 0:
-							_indent--
-						if _indent == 0:
+					_indent++ if LineLastChar in _blockStarters
+					_indent-- if Line.EndsWith(IndentChars+"pass")
+
+					if _indent == 0:
+						try:
 							InternalLoopEval(_buffer.ToString())
 							_buffer.Length = 0 #truncate buffer
-					except x as System.Reflection.TargetInvocationException:
-						ConsolePrintException(x.InnerException)
-					except x:
-						ConsolePrintException(x)
+						except x as System.Reflection.TargetInvocationException:
+							ConsolePrintException(x.InnerException)
+						except x:
+							ConsolePrintException(x)
 
-					_line.Length = 0 #truncate line
-					ConsolePrintPrompt()
+				LineLen = 0 #truncate line
+				ConsolePrintPrompt()
 
 			lastChar = keyChar
 
