@@ -3546,7 +3546,7 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.BoolType == lhs;
 		}
 
-		static bool IsNull(Expression node)
+		private static bool IsNull(Expression node)
 		{
 			return NodeType.NullLiteralExpression == node.NodeType;
 		}
@@ -4897,9 +4897,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			BinaryExpression valueCheck = new BinaryExpression(
-				BinaryOperatorType.BitwiseOr,
+				(node.Operator == BinaryOperatorType.Inequality)
+					? BinaryOperatorType.BitwiseOr
+					: BinaryOperatorType.BitwiseAnd,
 				new BinaryExpression(
-					node.Operator,
+					GetCorrespondingHasValueOperator(node.Operator),
 					CreateNullableHasValueOrTrueExpression(node.Left),
 					CreateNullableHasValueOrTrueExpression(node.Right)
 				),
@@ -4912,6 +4914,15 @@ namespace Boo.Lang.Compiler.Steps
 			node.ParentNode.Replace(node, valueCheck);
 			Visit(valueCheck);
 			return true;
+		}
+
+		private BinaryOperatorType GetCorrespondingHasValueOperator(BinaryOperatorType op)
+		{
+			if (BinaryOperatorType.Equality == op || BinaryOperatorType.Inequality == op)
+				return op;
+			//when there is at least one non-value operand then any other comparison
+			//than equality/inequality is undefined/false (as in C#)
+			return BinaryOperatorType.BitwiseAnd;
 		}
 
 		private IEnumerable<Expression> FindNullableExpressions(Expression exp)
@@ -5295,7 +5306,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return false;
 			}
-
+			if (TypeSystemServices.IsNullable(expectedType) && EntityType.Null == actualType.EntityType)
+			{
+				return true;
+			}
 			if (!TypeSystemServices.AreTypesRelated(expectedType, actualType))
 			{
 				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.ToString(), actualType.ToString()));
