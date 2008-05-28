@@ -37,20 +37,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// </summary>
 	public class CallableResolutionService : AbstractCompilerComponent
 	{
-		private const int CallableExactMatchScore = 10;
-		private const int CallableUpCastScore = 9;
-		private const int CallableImplicitConversionScore = 8;
-		private const int ExactMatchScore = 8;
-		private const int UpCastScore = 7;
-		private const int WideningPromotion = 6;
-		private const int ImplicitConversionScore = 5;
-		private const int NarrowingPromotion = 4;
-		private const int DowncastScore = 3;
+		protected const int CallableExactMatchScore = 10;
+		protected const int CallableUpCastScore = 9;
+		protected const int CallableImplicitConversionScore = 8;
+		protected const int ExactMatchScore = 8;
+		protected const int UpCastScore = 7;
+		protected const int WideningPromotion = 6;
+		protected const int ImplicitConversionScore = 5;
+		protected const int NarrowingPromotion = 4;
+		protected const int DowncastScore = 3;
 
-		private List _candidates = new List();
-		private ExpressionCollection _arguments;
+		protected List _candidates = new List();
+		protected ExpressionCollection _arguments;
 
-		private Expression GetArgument(int index)
+		protected Expression GetArgument(int index)
 		{
 			return _arguments[index];
 		}
@@ -146,7 +146,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return depth;
 		}
 		
-		IType GetExpressionTypeOrEntityType(Node node)
+		protected IType ArgumentType(Node node)
 		{
 			Expression e = node as Expression;
 			return null != e
@@ -255,10 +255,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private bool ApplicableCandidate(Candidate candidate)
 		{
 			// Figure out whether method should be varargs-expanded
-			bool expand =
-				candidate.Method.AcceptVarArgs &&
-				(_arguments.Count == 0 || (_arguments.Count > 0 && 
-				!AstUtil.IsExplodeExpression(_arguments[-1])));
+			bool expand = ShouldExpandVarArgs(candidate);
 
 			// Determine number of fixed (non-varargs) parameters
 			int fixedParams =
@@ -292,6 +289,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			return true;
+		}
+
+		private bool ShouldExpandVarArgs(Candidate candidate)
+		{
+			IMethod method = candidate.Method;
+			if (!method.AcceptVarArgs) return false;
+			if (_arguments.Count == 0) return true;
+			return ShouldExpandArgs(method, _arguments);
+		}
+
+		protected virtual bool ShouldExpandArgs(IMethod method, ExpressionCollection args)
+		{
+			return args.Count > 0 && !AstUtil.IsExplodeExpression(args[-1]);
 		}
 
 		private int TotalScore(Candidate c1)
@@ -467,29 +477,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool IsValidVargsInvocation(IParameter[] parameters, ExpressionCollection args)
 		{
 			int lastIndex = parameters.Length - 1;
+
 			if (args.Count < lastIndex) return false;
 
-			IType lastParameterType = parameters[lastIndex].Type;
-			if (!lastParameterType.IsArray) return false;
+			if (!parameters[lastIndex].Type.IsArray) return false;
 
 			if (!IsValidInvocation(parameters, args, lastIndex)) return false;
 
-			if (args.Count > 0)
+			if (args.Count > 0) return CheckVarArgsParameter(parameters, args);
+
+			return true;
+		}
+
+		protected virtual bool CheckVarArgsParameter(IParameter[] parameters, ExpressionCollection args)
+		{
+			int lastIndex = parameters.Length - 1;
+			Node lastArg = args[-1];
+			if (AstUtil.IsExplodeExpression(lastArg))
 			{
-				Node lastArg = args[-1];
-				if (AstUtil.IsExplodeExpression(lastArg))
-				{
-					return CalculateArgumentScore(parameters[lastIndex], lastParameterType, lastArg) > 0;
-				}
-				else
-				{
-					IType varArgType = lastParameterType.GetElementType();
-					for (int i = lastIndex; i < args.Count; ++i)
-					{
-						int argumentScore = CalculateArgumentScore(parameters[lastIndex], varArgType, args[i]);
-						if (argumentScore < 0) return false;
-					}
-				}
+				return CalculateArgumentScore(parameters[lastIndex], parameters[lastIndex].Type, lastArg) > 0;
+			}
+
+			IType varArgType = parameters[lastIndex].Type.GetElementType();
+			for (int i = lastIndex; i < args.Count; ++i)
+			{
+				int argumentScore = CalculateArgumentScore(parameters[lastIndex], varArgType, args[i]);
+				if (argumentScore < 0) return false;
 			}
 			return true;
 		}
@@ -505,11 +518,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return true;
 		}
-
 		
-		private int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
+		protected int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
 		{
-			IType argumentType = GetExpressionTypeOrEntityType(arg);
+			IType argumentType = ArgumentType(arg);
 			if (param.IsByRef)
 			{
 				if (IsValidByRefArg(param, parameterType, argumentType, arg))

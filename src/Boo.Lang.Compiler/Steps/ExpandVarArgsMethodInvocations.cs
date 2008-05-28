@@ -60,20 +60,19 @@ namespace Boo.Lang.Compiler.Steps
 			ExpandInvocation(node, method.GetParameters());
 		}
 		
-		private void ExpandInvocation(MethodInvocationExpression node, IParameter[] parameters)
+		protected virtual void ExpandInvocation(MethodInvocationExpression node, IParameter[] parameters)
 		{
-			if (node.Arguments.Count > 0 &&
-				AstUtil.IsExplodeExpression(node.Arguments[-1]))
+			if (node.Arguments.Count > 0 && AstUtil.IsExplodeExpression(node.Arguments[-1]))
 			{
 				// explode the arguments
 				node.Arguments.ReplaceAt(-1, ((UnaryExpression)node.Arguments[-1]).Operand);
 				return;
 			}
 
-			int lenMinusOne = parameters.Length-1;
-			IType varArgType = parameters[lenMinusOne].Type;
+			int lastParameterIndex = parameters.Length-1;
+			IType varArgType = parameters[lastParameterIndex].Type;
 
-			ExpressionCollection varArgs = node.Arguments.PopRange(lenMinusOne);
+			ExpressionCollection varArgs = node.Arguments.PopRange(lastParameterIndex);
 			node.Arguments.Add(CodeBuilder.CreateArray(varArgType, varArgs));
 		}
 	}
