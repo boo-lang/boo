@@ -28,6 +28,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Boo.Lang.Runtime
@@ -40,83 +41,110 @@ namespace Boo.Lang.Runtime
 
 		public Dispatcher CreateGetter()
 		{
-			MemberInfo member = ResolveMember();
+			MemberInfo[] candidates = ResolveMember();
+			if (candidates.Length == 1) return CreateGetter(candidates[0]);
+			return EmitMethodDispatcher(Getters(candidates));
+		}
+
+		private IEnumerable<MethodInfo> Getters(MemberInfo[] candidates)
+		{
+			foreach (MemberInfo info in candidates)
+			{
+				PropertyInfo p = info as PropertyInfo;
+				if (null == p) continue;
+				MethodInfo getter = p.GetGetMethod(true);
+				if (null == getter) continue;
+				yield return getter;
+			}
+		}
+
+		private Dispatcher CreateGetter(MemberInfo member)
+		{
 			switch (member.MemberType)
 			{
 				case MemberTypes.Field:
-				{	
-					FieldInfo field = (FieldInfo)member;
-					return
-						delegate(object o, object[] arguments) { return RuntimeServices.GetSlice(field.GetValue(o), "", arguments); };
-				}
+					{	
+						FieldInfo field = (FieldInfo)member;
+						return
+							delegate(object o, object[] arguments) { return RuntimeServices.GetSlice(field.GetValue(o), "", arguments); };
+					}
 				case MemberTypes.Property:
-				{
-					MethodInfo getter = ((PropertyInfo) member).GetGetMethod(true);
-					if (null == getter) throw MissingField();
+					{
+						MethodInfo getter = ((PropertyInfo) member).GetGetMethod(true);
+						if (null == getter) throw MissingField();
 
-					if (getter.GetParameters().Length > 0) return EmitMethodDispatcher(getter);
+						if (getter.GetParameters().Length > 0) return EmitMethodDispatcher(getter);
 
-					// TODO: remove the reflection invocation getter.Invoke from the path
+						// TODO: remove the reflection invocation getter.Invoke from the path
 
-					// otherwise its a simple property and the slice
-					// should be applied to the return value
-					return
-						delegate(object o, object[] arguments) { return RuntimeServices.GetSlice(getter.Invoke(o, null), "", arguments); };
-				}
+						// otherwise its a simple property and the slice
+						// should be applied to the return value
+						return
+							delegate(object o, object[] arguments) { return RuntimeServices.GetSlice(getter.Invoke(o, null), "", arguments); };
+					}
 				default:
-				{
-					throw MissingField();
-				}
+					{
+						throw MissingField();
+					}
 			}
 		}
 
 		private Dispatcher EmitMethodDispatcher(MethodInfo candidate)
 		{
-			CandidateMethod method = ResolveMethod(GetArgumentTypes(), new MethodInfo[] { candidate });
+			return EmitMethodDispatcher(new MethodInfo[] { candidate });
+		}
+
+		private Dispatcher EmitMethodDispatcher(IEnumerable<MethodInfo> candidates)
+		{
+			CandidateMethod method = ResolveMethod(GetArgumentTypes(), candidates);
 			if (null == method) throw MissingField();
 
 			return new MethodDispatcherEmitter(_type, method, GetArgumentTypes()).Emit();
 		}
 
-		private MemberInfo ResolveMember()
+		private MemberInfo[] ResolveMember()
 		{
 			MemberInfo[] candidates = _type.GetMember(_name, MemberTypes.Property | MemberTypes.Field, RuntimeServices.DefaultBindingFlags);
 			if (candidates.Length == 0) throw MissingField();
-			if (candidates.Length > 1) throw new AmbiguousMatchException(Builtins.join(candidates, ", "));
-
-			return candidates[0];
+			return candidates;
 		}
 
 		public Dispatcher CreateSetter()
 		{
-			MemberInfo member = ResolveMember();
+			MemberInfo[] candidates = ResolveMember();
+			if (candidates.Length > 1) throw new AmbiguousMatchException(Builtins.join(candidates, ", "));
+			return CreateSetter(candidates[0]);
+		}
+
+		private Dispatcher CreateSetter(MemberInfo member)
+		{
 			switch (member.MemberType)
 			{
 				case MemberTypes.Field:
-				{
-					FieldInfo field = (FieldInfo)member;
-					return
-						delegate(object o, object[] arguments) { return RuntimeServices.SetSlice(field.GetValue(o), "", arguments); };
-				}
-				case MemberTypes.Property:
-				{
-					PropertyInfo property = (PropertyInfo)member;
-					if (property.GetIndexParameters().Length > 0)
 					{
-						MethodInfo setter = property.GetSetMethod(true);
-						if (null == setter) throw MissingField();
-						return EmitMethodDispatcher(setter);
+						FieldInfo field = (FieldInfo)member;
+						return
+							delegate(object o, object[] arguments) { return RuntimeServices.SetSlice(field.GetValue(o), "", arguments); };
 					}
+				case MemberTypes.Property:
+					{
+						PropertyInfo property = (PropertyInfo)member;
+						if (property.GetIndexParameters().Length > 0)
+						{
+							MethodInfo setter = property.GetSetMethod(true);
+							if (null == setter) throw MissingField();
+							return EmitMethodDispatcher(setter);
+						}
 
-					return delegate(object o, object[] arguments)
-			       	{
-			       		return RuntimeServices.SetSlice(RuntimeServices.GetProperty(o, _name), "", arguments);
-			       	};
-				}
+						return delegate(object o, object[] arguments)
+						       	{
+						       		return RuntimeServices.SetSlice(RuntimeServices.GetProperty(o, _name), "", arguments);
+						       	};
+					}
 				default:
-				{
-					throw MissingField();
-				}
+					{
+						throw MissingField();
+					}
 			}
 		}
 	}
