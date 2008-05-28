@@ -35,6 +35,7 @@ namespace Boo.Lang
 	/// inference purposes.
 	/// </summary>
 	[Serializable]
+	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field)]
 	public class DuckTypedAttribute : Attribute
 	{
 		public DuckTypedAttribute()
@@ -42,3 +43,4 @@ namespace Boo.Lang
 		}
 	}
 }
+

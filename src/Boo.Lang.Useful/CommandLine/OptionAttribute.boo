@@ -30,6 +30,7 @@ namespace Boo.Lang.Useful.CommandLine
 
 import System
 
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field)]
 class OptionAttribute(Attribute):
 """
 Describes a command line option.
@@ -73,5 +74,4 @@ Describes a command line option.
 		++_occurred
 		if _occurred > _maxOccurs:
 			raise CommandLineException("${_long or _short} cannot be used more than ${_maxOccurs} time(s)")
-
 

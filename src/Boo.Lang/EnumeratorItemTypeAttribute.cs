@@ -31,6 +31,7 @@ namespace Boo.Lang
 	using System;
 
 	[Serializable]
+	[AttributeUsage(AttributeTargets.Class)]
 	public class EnumeratorItemTypeAttribute : Attribute
 	{
 		protected Type _itemType;

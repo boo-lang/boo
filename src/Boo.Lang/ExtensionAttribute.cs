@@ -34,6 +34,7 @@ namespace Boo.Lang
 	/// Marks a member as an extension for an existing type.
 	/// </summary>
 	[Serializable]
+	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
 	public class ExtensionAttribute : Attribute
 	{
 		public ExtensionAttribute()
@@ -41,3 +42,4 @@ namespace Boo.Lang
 		}
 	}
 }
+

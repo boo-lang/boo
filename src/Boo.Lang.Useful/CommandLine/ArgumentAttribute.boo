@@ -30,6 +30,7 @@ namespace Boo.Lang.Useful.CommandLine
 
 import System
 
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Field)]
 class ArgumentAttribute(Attribute):
 	
 	[property(Description)]
@@ -40,3 +41,4 @@ class ArgumentAttribute(Attribute):
 		
 	def constructor(description as string):
 		_description = description
+

@@ -29,7 +29,11 @@
 
 namespace Boo.Lang
 {
-	public class MetaAttribute : System.Attribute
+	using System;
+
+	[Serializable]
+	[AttributeUsage(AttributeTargets.Method)]
+	public class MetaAttribute : Attribute
 	{
 	}
 }
