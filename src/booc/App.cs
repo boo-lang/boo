@@ -91,8 +91,8 @@ namespace BooC
 			
 			try
 			{
-				DateTime start = DateTime.Now;
-				
+				Stopwatch setupTime = Stopwatch.StartNew();
+
 				_options = new CompilerParameters(false); //false means no stdlib loading yet
 				_options.GenerateInMemory = false;
 				
@@ -124,17 +124,17 @@ namespace BooC
 				LoadReferences();
 				ConfigurePipeline();
 				
-				if (_options.TraceSwitch.TraceInfo)
+				if (_options.TraceInfo)
 				{
 					compiler.Parameters.Pipeline.BeforeStep += new CompilerStepEventHandler(OnBeforeStep);
 					compiler.Parameters.Pipeline.AfterStep += new CompilerStepEventHandler(OnAfterStep);
 				}
-				
-				TimeSpan setupTime = DateTime.Now - start;
-				
-				start = DateTime.Now;
+
+				setupTime.Stop();
+
+				Stopwatch processingTime = Stopwatch.StartNew();
 				CompilerContext context = compiler.Run();
-				TimeSpan processingTime = DateTime.Now - start;
+				processingTime.Stop();
 
 				if (context.Warnings.Count > 0)
 				{
@@ -146,7 +146,7 @@ namespace BooC
 				{
 					foreach (CompilerError error in context.Errors)
 					{
-						Console.Error.WriteLine(error.ToString(_options.TraceSwitch.TraceInfo));
+						Console.Error.WriteLine(error.ToString(_options.TraceInfo));
 					}
 					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Errors", context.Errors.Count));
 				}
@@ -155,14 +155,15 @@ namespace BooC
 					resultCode = 0;
 				}
 				
-				if (_options.TraceSwitch.TraceWarning)
+				if (_options.TraceWarning)
 				{
-					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.ProcessingTime", _options.Input.Count, processingTime.TotalMilliseconds, setupTime.TotalMilliseconds));
+					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.ProcessingTime", _options.Input.Count, processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds));
 				}
 			}
 			catch (Exception x)
 			{
-				object message = _options.TraceSwitch.TraceWarning ? (object)x : (object)x.Message;
+				object message = (_options.TraceWarning)
+									? (object)x : (object)x.Message;
 				Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.FatalError", message));
 			}
 			return resultCode;
@@ -302,7 +303,8 @@ namespace BooC
 					
 					case 'v':
 					{
-						_options.TraceSwitch.Level = TraceLevel.Warning;
+						_options.EnableTraceSwitch();
+						_options.TraceLevel = TraceLevel.Warning;
 						Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
 						if (arg.Length > 2)
 						{
@@ -310,21 +312,21 @@ namespace BooC
 							{
 								case "vv":
 								{
-									_options.TraceSwitch.Level = TraceLevel.Info;
+									_options.TraceLevel = TraceLevel.Info;
 									MonitorAppDomain();
 									break;
 								}
 								
 								case "vvv":
 								{
-									_options.TraceSwitch.Level = TraceLevel.Verbose;
+									_options.TraceLevel = TraceLevel.Verbose;
 									break;
 								}
 							}
 						}
 						else
 						{
-							_options.TraceSwitch.Level = TraceLevel.Warning;
+							_options.TraceLevel = TraceLevel.Warning;
 						}
 						break;
 					}
@@ -856,7 +858,7 @@ namespace BooC
 		
 		void MonitorAppDomain()
 		{
-			if (_options.TraceSwitch.TraceInfo)
+			if (_options.TraceInfo)
 			{
 				AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(OnAssemblyLoad);
 				foreach(Assembly a in AppDomain.CurrentDomain.GetAssemblies())

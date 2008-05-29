@@ -85,8 +85,8 @@ namespace Boo.Lang.Compiler
 		
 		private bool _whiteSpaceAgnostic;
 
-		public readonly TraceSwitch TraceSwitch = new TraceSwitch("booc", "boo compiler");
-		
+		private TraceSwitch _traceSwitch;
+
 		private Dictionary<string, string> _defines = new Dictionary<string, string>();
 		
 
@@ -116,6 +116,9 @@ namespace Boo.Lang.Compiler
 			_generateInMemory = true;
 			_StdLib = true;
 
+			if (null != Environment.GetEnvironmentVariable("TRACE"))
+				EnableTraceSwitch();
+
 			_delaySign = false;
 
 			if (loadDefaultReferences) LoadDefaultReferences();
@@ -144,7 +147,7 @@ namespace Boo.Lang.Compiler
 			if(extensionsAssembly != null)
 				_assemblyReferences.Add(extensionsAssembly);
 
-			if (TraceSwitch.TraceInfo)
+			if (TraceInfo)
 			{
 				Trace.WriteLine("BOO LANG DLL: " + _booAssembly.Location);
 				Trace.WriteLine("BOO COMPILER EXTENSIONS DLL: " + 
@@ -186,7 +189,7 @@ namespace Boo.Lang.Compiler
 
 		public Assembly LoadAssembly(string assembly, bool throwOnError)
 		{
-			if (TraceSwitch.TraceInfo)
+			if (TraceInfo)
 			{
 				Trace.WriteLine("ATTEMPTING LOADASSEMBLY: " + assembly);
 			}
@@ -501,7 +504,7 @@ namespace Boo.Lang.Compiler
 				_whiteSpaceAgnostic = value;
 			}
 		}
-		
+
 		public Dictionary<string, string> Defines
 		{
 			get
@@ -509,6 +512,58 @@ namespace Boo.Lang.Compiler
 				return _defines;
 			}
 		}
-		
+
+		internal TraceSwitch TraceSwitch
+		{
+			get
+			{
+				return _traceSwitch;
+			}
+			set
+			{
+				if (null == _traceSwitch)
+					_traceSwitch = value;
+			}
+		}
+
+		public bool TraceInfo
+		{
+			get { return (null != _traceSwitch && _traceSwitch.TraceInfo); }
+		}
+
+		public bool TraceWarning
+		{
+			get { return (null != _traceSwitch && _traceSwitch.TraceWarning); }
+		}
+
+		public bool TraceError
+		{
+			get { return (null != _traceSwitch && _traceSwitch.TraceError); }
+		}
+
+		public bool TraceVerbose
+		{
+			get { return (null != _traceSwitch && _traceSwitch.TraceVerbose); }
+		}
+
+		public TraceLevel TraceLevel
+		{
+			get {
+				return (null != _traceSwitch)
+							? _traceSwitch.Level : TraceLevel.Off;
+			}
+			set {
+				EnableTraceSwitch();
+				_traceSwitch.Level = value;
+			}
+		}
+
+		public void EnableTraceSwitch()
+		{
+			if (null == _traceSwitch)
+				_traceSwitch = new TraceSwitch("booc", "boo compiler");
+		}
+
 	}
+
 }

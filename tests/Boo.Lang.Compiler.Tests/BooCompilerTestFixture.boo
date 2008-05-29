@@ -130,7 +130,6 @@ class CompilerTestFixture:
 
 	[Test]
 	def VerboseCompile():
-		_compiler.Parameters.TraceSwitch.Level = System.Diagnostics.TraceLevel.Verbose; 
+		_compiler.Parameters.TraceLevel = System.Diagnostics.TraceLevel.Verbose;
 		CompileOnlyToFile()
-		
-		
+

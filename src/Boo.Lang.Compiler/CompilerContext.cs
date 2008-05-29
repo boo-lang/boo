@@ -88,7 +88,6 @@ namespace Boo.Lang.Compiler
 			if (_parameters.Debug && !_parameters.Defines.ContainsKey("DEBUG"))
 				_parameters.Defines.Add("DEBUG", null);
 			_nameResolutionService = new TypeSystem.NameResolutionService(this); 
-			_traceSwitch = _parameters.TraceSwitch;
 			_properties = new Hash();
 		}
 		
@@ -179,7 +178,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceEnter(string format, object param)
 		{
-			if (_traceSwitch.TraceInfo)
+			if (_parameters.TraceInfo)
 			{
 				Trace.WriteLine(string.Format(format, param));
 				++Trace.IndentLevel;
@@ -189,7 +188,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceLeave(string format, object param)
 		{
-			if (_traceSwitch.TraceInfo)
+			if (_parameters.TraceInfo)
 			{
 				--Trace.IndentLevel;
 				Trace.WriteLine(string.Format(format, param));
@@ -199,7 +198,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceInfo(string format, params object[] args)
 		{			
-			if (_traceSwitch.TraceInfo)
+			if (_parameters.TraceInfo)
 			{
 				Trace.WriteLine(string.Format(format, args));
 			}			
@@ -208,7 +207,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceInfo(string message)
 		{
-			if (_traceSwitch.TraceInfo)
+			if (_parameters.TraceInfo)
 			{
 				Trace.WriteLine(message);
 			}
@@ -217,7 +216,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceWarning(string message)
 		{
-			if (_traceSwitch.TraceWarning)
+			if (_parameters.TraceWarning)
 			{
 				Trace.WriteLine(message);
 			}
@@ -226,7 +225,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceWarning(string message, params object[] args)
 		{
-			if (_traceSwitch.TraceWarning)
+			if (_parameters.TraceWarning)
 			{
 				Trace.WriteLine(string.Format(message, args));
 			}
@@ -234,8 +233,8 @@ namespace Boo.Lang.Compiler
 		
 		[Conditional("TRACE")]
 		public void TraceVerbose(string format, params object[] args)
-		{			
-			if (_traceSwitch.TraceVerbose)
+		{
+			if (_parameters.TraceVerbose)
 			{
 				Trace.WriteLine(string.Format(format, args));
 			}			
@@ -244,7 +243,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceVerbose(string format, object param1, object param2)
 		{
-			if (_traceSwitch.TraceVerbose)
+			if (_parameters.TraceVerbose)
 			{
 				Trace.WriteLine(string.Format(format, param1, param2));
 			}
@@ -253,7 +252,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceVerbose(string format, object param1, object param2, object param3)
 		{
-			if (_traceSwitch.TraceVerbose)
+			if (_parameters.TraceVerbose)
 			{
 				Trace.WriteLine(string.Format(format, param1, param2, param3));
 			}
@@ -262,7 +261,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceVerbose(string format, object param)
 		{
-			if (_traceSwitch.TraceVerbose)			
+			if (_parameters.TraceVerbose)
 			{
 				Trace.WriteLine(string.Format(format, param));
 			}
@@ -271,7 +270,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceVerbose(string message)
 		{
-			if (_traceSwitch.TraceVerbose)
+			if (_parameters.TraceVerbose)
 			{
 				Trace.WriteLine(message);
 			}
@@ -280,7 +279,7 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceError(string message, params object[] args)
 		{
-			if (_traceSwitch.TraceError)
+			if (_parameters.TraceError)
 			{
 				Trace.WriteLine(string.Format(message, args));
 			}
@@ -289,10 +288,13 @@ namespace Boo.Lang.Compiler
 		[Conditional("TRACE")]
 		public void TraceError(Exception x)
 		{
-			if (_traceSwitch.TraceError)
+			if (_parameters.TraceError)
 			{
 				Trace.WriteLine(x);
 			}
 		}
+
 	}
+
 }
+

@@ -122,7 +122,7 @@ class ExecBoo(Task):
 					
 	protected def CheckCompilationResult(context as CompilerContext):
 		errors = context.Errors
-		verbose = context.Parameters.TraceSwitch.TraceInfo
+		verbose = context.Parameters.TraceInfo
 		for error in errors:
 			Log.LogError(error.ToString(verbose))
 		for warning in context.Warnings:
