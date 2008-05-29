@@ -49,6 +49,5 @@ if [ "$BOOC_EXITCODE" != "0" ]; then
 	exit 1
 fi
 echo "!!! good"
->>>>>>> Stashed changes:bisect.sh
 exit 0
 
