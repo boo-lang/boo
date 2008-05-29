@@ -83,8 +83,8 @@ namespace BooC
 		
 		public int Run(string[] args)
 		{
-			int resultCode = -1;
-			
+			int resultCode = 127;
+
 			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
 			
 			CheckBooCompiler();

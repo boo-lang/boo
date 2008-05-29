@@ -38,7 +38,7 @@ import Useful.Attributes
 
 class Program:
 	
-	public static final DefaultErrorCode = 255
+	public static final DefaultErrorCode = 127
 	public static final DefaultSuccessCode = 0
 	
 	_cmdLine as (string)
