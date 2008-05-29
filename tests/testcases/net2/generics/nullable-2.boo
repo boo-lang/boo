@@ -19,6 +19,15 @@ i = 69
 
 a as int?
 b as int? = i
+c as int? = 2
+n as int?
+
+assert not (a and b)
+assert a or b
+assert not (c and n)
+assert not (a or n)
+assert b and c
+assert b or c
 
 assert a is null
 assert b is not null
