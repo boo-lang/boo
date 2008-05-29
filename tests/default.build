@@ -13,14 +13,8 @@
 
 	<target name="run" depends="compile" if="${task::exists('nunit2')}">
 
-		<property name="fixture" value="" dynamic="true" overwrite="false" />
-
 		<echo>
 		Testing against ${path::get-full-path(test-bin-dir)}"
-		</echo>
-		<echo if="${fixture == ''}">
-		Tip of the day:
-		You can use -D:fixture=SomeFixture (without .Tests.dll) to test just one fixture.
 		</echo>
 
 		<copy todir="${path::get-temp-path()}" file="build/BooCompiler.Tests.dll" overwrite="true" />
@@ -72,6 +66,13 @@
 
 	<target name="compile" depends="init">
 
+		<property name="fixture" value="" dynamic="true" overwrite="false" />
+
+		<echo if="${fixture == ''}">
+		Tip of the day:
+		You can use -D:fixture=SomeFixture (without .Tests.dll) to test just one fixture.
+		</echo>
+
 		<boo src="generate_regression.boo">
 			<references basedir="build">
 				<include name="Boo.Lang.Useful.dll" />
@@ -102,7 +103,7 @@
 		<csc
 			target="library"
 			output="build/Boo.Lang.Runtime.Tests.dll"
-			unsafe="true">
+			unsafe="true" if="${fixture == '' or fixture == 'Boo.Lang.Runtime'}">
 
 			<sources basedir="Boo.Lang.Runtime.Tests">
 				<include name="**/*.cs" />
@@ -120,6 +121,7 @@
 			target="library"
 			output="build/BooCompiler.Tests.dll"
 			unsafe="true">
+			<!-- always compile this one, it is referenced by tests below -->
 
 			<sources basedir="BooCompiler.Tests">
 				<include name="**/*.cs" />
@@ -143,10 +145,15 @@
 				</items>
 			</in>
 			<do>
+				<property 	name="currentSubFixture"
+							value="${string::replace(path::get-file-name(filename),'TestFixture.cs','')}" />
+				<property	name="currentFixture"
+							value="BooCompiler.${currentSubFixture}" />
 				<csc
 					target="library"
-					output="build/BooCompiler.${string::replace(path::get-file-name(filename),'TestFixture.cs','')}.Tests.dll"
-					unsafe="true">
+					output="build/${currentFixture}.Tests.dll"
+					unsafe="true"
+					if="${fixture == '' or fixture == currentFixture}">
 
 					<sources basedir="BooCompiler.Tests">
 						<include name="${path::get-file-name(filename)}" />
@@ -167,7 +174,8 @@
 
 		<booc
 			target="library"
-			output="build/Boo.Lang.Tests.dll">
+			output="build/Boo.Lang.Tests.dll"
+			if="${fixture == '' or fixture == 'Boo.Lang'}">
 
 			<sources basedir="Boo.Lang.Tests">
 				<include name="**/*.boo" />
@@ -180,7 +188,8 @@
 
 		<booc
 			target="library"
-			output="build/Boo.Lang.Useful.Tests.dll">
+			output="build/Boo.Lang.Useful.Tests.dll"
+			if="${fixture == '' or fixture == 'Boo.Lang.Useful'}">
 
 			<sources basedir="Boo.Lang.Useful.Tests">
 				<include name="**/*.boo" />
@@ -195,7 +204,8 @@
 
 		<booc
 			target="library"
-			output="build/Boo.Lang.Compiler.Tests.dll">
+			output="build/Boo.Lang.Compiler.Tests.dll"
+			if="${fixture == '' or fixture == 'Boo.Lang.Compiler'}">
 
 			<sources basedir="Boo.Lang.Compiler.Tests">
 				<include name="**/*.boo" />
@@ -209,7 +219,8 @@
 
 		<booc
 			target="library"
-			output="build/BooCompilerResources.Tests.dll">
+			output="build/BooCompilerResources.Tests.dll"
+			if="${fixture == '' or fixture == 'BooCompilerResources'}">
 
 			<sources basedir="BooCompilerResources.Tests">
 				<include name="**/*.boo" />
@@ -222,7 +233,8 @@
 
 		<booc
 			target="library"
-			output="build/Boo.Lang.Interpreter.Tests.dll">
+			output="build/Boo.Lang.Interpreter.Tests.dll"
+			if="${fixture == '' or fixture == 'Boo.Lang.Interpreter'}">
 
 			<sources basedir="Boo.Lang.Interpreter.Tests">
 				<include name="**/*.boo" />
@@ -237,7 +249,8 @@
 
 		<booc
 			target="library"
-			output="build/Boo.Lang.CodeDom.Tests.dll">
+			output="build/Boo.Lang.CodeDom.Tests.dll"
+			if="${fixture == '' or fixture == 'Boo.Lang.CodeDom'}">
 
 			<sources basedir="Boo.Lang.CodeDom.Tests">
 				<include name="**/*.boo" />
@@ -251,7 +264,8 @@
 
 		<csc
 			target="library"
-			output="build/Boo.Lang.Parser.Tests.dll">
+			output="build/Boo.Lang.Parser.Tests.dll"
+			if="${fixture == '' or fixture == 'Boo.Lang.Parser'}">
 
 			<sources>
 				<include name="Boo.Lang.Parser.Tests/**/*.cs" />
@@ -295,5 +309,6 @@
 		<loadtasks assembly="build/Boo.NAnt.Tasks.dll" />
 		<echo message="Starting boo tests.  Running in framework: ${nant.settings.currentframework}" />
 	</target>
+
 </project>
 
