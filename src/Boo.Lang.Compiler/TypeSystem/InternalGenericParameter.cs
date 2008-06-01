@@ -40,8 +40,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		TypeSystemServices _tss;
 		int _position = -1;
-		TypeDefinition _declaringType;
-		Method _declaringMethod;
 		GenericParameterDeclaration _declaration;
 
 		IType[] _emptyTypeArray = new IType[0];
@@ -50,12 +48,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			_tss = tss;
 			_declaration = declaration;
-
-			// Determine and remember declaring type and declaring method (if applicable)
-			_declaringMethod = declaration.ParentNode as Method;
-			_declaringType = (
-				_declaringMethod == null ? 
-				declaration.ParentNode as TypeDefinition : _declaringMethod.DeclaringType);
 		}
 
 		public InternalGenericParameter(TypeSystemServices tss, GenericParameterDeclaration declaration, int position)
@@ -71,7 +63,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (_position == -1)
 				{
 					IGenericParameter[] parameters = 
-						DeclaringMethod == null ? DeclaringMethod.GenericInfo.GenericParameters : DeclaringType.GenericInfo.GenericParameters;
+						DeclaringMethod != null ? DeclaringMethod.GenericInfo.GenericParameters : DeclaringType.GenericInfo.GenericParameters;
 					
 					_position = Array.IndexOf(parameters, this);
 				}
@@ -116,8 +108,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType DeclaringType
 		{
 		 	get 
-		 	{ 
-		 		return (IType)_declaringType.Entity; 
+		 	{
+		 		return DeclaringEntity as IType ??
+					((IMethod)DeclaringEntity).DeclaringType;
 		 	}
 		}
 		
@@ -130,7 +123,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get 
 			{
-				return ((Node)_declaringMethod ?? (Node)_declaringType).Entity;
+				return TypeSystemServices.GetEntity(_declaration.ParentNode);
 			}
 		}
 

@@ -4148,8 +4148,15 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void ProcessMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
-			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false)
-				|| !IsAccessible(targetMethod))
+			if (targetMethod.GenericInfo != null)
+			{
+				targetMethod = InferGenericMethodInvocation(node, targetMethod);
+				if (targetMethod == null) return;
+			}
+
+			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false) ||
+				!CheckGenericMethodInvocation(node, targetMethod) ||
+				!IsAccessible(targetMethod))
 			{
 				if (TryToProcessAsExtensionInvocation(node)) return;
 
@@ -4164,6 +4171,44 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+		}
+
+		private IMethod InferGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
+		{
+			IType[] inferredArguments =
+				TypeSystemServices.GenericsServices.InferMethodGenericArguments(targetMethod, node.Arguments);
+
+			if (inferredArguments == null)
+			{
+				// TODO: "generic type inference failed"
+				Error(node, CompilerErrorFactory.GenericDefinitionArgumentCount(
+					node, targetMethod.Name,
+					targetMethod.GenericInfo.GenericParameters.Length));
+
+				return null;
+			}
+
+			IMethod constructedMethod = targetMethod.GenericInfo.ConstructMethod(inferredArguments);
+			Bind(node.Target, constructedMethod);
+			BindExpressionType(node, GetInferredType(constructedMethod));
+			
+			return constructedMethod;
+		}
+
+		private bool CheckGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
+		{
+			// Ensure that a constructed method (whether explicit or inferred) 
+			// satisfies its generic constraints
+			if (targetMethod.ConstructedInfo != null)
+			{
+				return TypeSystemServices.GenericsServices.CheckGenericConstruction(
+					node,
+					targetMethod.ConstructedInfo.GenericDefinition,
+					targetMethod.ConstructedInfo.GenericArguments,
+					Errors); 
+			}
+
+			return true;
 		}
 
 		private bool IsAccessible(IAccessibleMember method)

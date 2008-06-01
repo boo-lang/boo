@@ -409,6 +409,7 @@
     <File name="TypeSystem/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMapping.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GenericParameterInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericsServices.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IAccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
@@ -434,6 +435,7 @@
     <File name="TypeSystem/IMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IMethodBase.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/INameSpace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/InferredType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalCallableType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalClass.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalConstructor.cs" buildaction="Compile" subtype="Code" />

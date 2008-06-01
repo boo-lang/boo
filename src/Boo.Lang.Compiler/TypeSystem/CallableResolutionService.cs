@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 using Boo.Lang.Compiler.Ast;
 
@@ -47,7 +48,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected const int NarrowingPromotion = 4;
 		protected const int DowncastScore = 3;
 
-		protected List _candidates = new List();
+		protected List<Candidate> _candidates = new List<Candidate>();
 		protected ExpressionCollection _arguments;
 
 		protected Expression GetArgument(int index)
@@ -55,7 +56,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _arguments[index];
 		}
 
-		public List ValidCandidates
+		public IList<Candidate> ValidCandidates
 		{
 			get { return _candidates; }
 		}
@@ -194,27 +195,37 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return false;
 		}
-		
+
 		public IEntity ResolveCallableReference(ExpressionCollection args, IEntity[] candidates)
 		{
-			Reset(args);
-			FindApplicableCandidates(candidates);
-			if (ValidCandidates.Count == 0) return null;
-			if (ValidCandidates.Count == 1) return ((Candidate)ValidCandidates[0]).Method;
+			Reset(args, candidates);
+			
+			InferGenericMethods();
+			FindApplicableCandidates();
 
-			List dataPreserving = ValidCandidates.Collect(DoesNotRequireConversions);
+			if (ValidCandidates.Count == 0) return null;
+			if (ValidCandidates.Count == 1) return (ValidCandidates[0]).Method;
+
+			List<Candidate> dataPreserving = FindDataPreservingCandidates();
 			if (dataPreserving.Count > 0)
 			{
-				if (dataPreserving.Count == 1) return ((Candidate)dataPreserving[0]).Method;
-				IEntity found = BestMethod(dataPreserving);
-				if (null != found) return found;
+				FindBestMethod(dataPreserving);
+				if (dataPreserving.Count == 1) return (dataPreserving[0]).Method;
 			}
-			return BestCandidate();
+
+			FindBestMethod(_candidates);
+			if (ValidCandidates.Count == 1) return (ValidCandidates[0].Method);
+			return null;
 		}
 
-		private static bool DoesNotRequireConversions(object candidate)
+		private List<Candidate> FindDataPreservingCandidates()
 		{
-			return !Array.Exists(((Candidate) candidate).ArgumentScores, RequiresConversion);
+			return _candidates.FindAll(DoesNotRequireConversions);
+		}
+
+		private static bool DoesNotRequireConversions(Candidate candidate)
+		{
+			return !Array.Exists(candidate.ArgumentScores, RequiresConversion);
 		}
 
 		private static bool RequiresConversion(int score)
@@ -222,34 +233,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return score < WideningPromotion;
 		}
 
-		private IEntity BestCandidate()
+		private void FindBestMethod(List<Candidate> candidates)
 		{
-			return BestMethod(_candidates);
-		}
+			candidates.Sort(BetterCandidate);
 
-		private IEntity BestMethod(List candidates)
-		{
-			candidates.Sort(new Comparer(BetterCandidate));
-
-			if (BetterCandidate(candidates[-1], candidates[-2]) == 0)
-			{
-				object pivot = candidates[-2];
-
-				candidates.RemoveAll(delegate(object item)
-				                     	{	
-				                     		return 0 != BetterCandidate(item, pivot);
-				                     	});
-				// Ambiguous match
-				return null;
-			}
-
-			// SUCCESS: _candidates[-1] is the winner
-			return ((Candidate)candidates[-1]).Method;
-		}
-
-		private int BetterCandidate(object lhs, object rhs)
-		{
-			return BetterCandidate((Candidate) lhs, (Candidate) rhs);
+			Candidate pivot = candidates[candidates.Count - 1];
+			candidates.RemoveAll(delegate(Candidate candidate)
+          		{
+          			return 0 != BetterCandidate(candidate, pivot);
+          		});
 		}
 
 		private bool ApplicableCandidate(Candidate candidate)
@@ -316,6 +308,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private int BetterCandidate(Candidate c1, Candidate c2)
 		{
+			if (c1 == c2) return 0;
+
 			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
 //			int result = 0;
 			/*
@@ -378,7 +372,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			result = c1.Parameters.Length - c2.Parameters.Length;
 			if (result != 0) return result;
 
-			// As a last means of breaking this desparate tie, we select the
+			// As a last means of breaking this desperate tie, we select the
 			// "more specific" candidate, if one exists
 			return MoreSpecific(c1, c2);
 		}
@@ -426,6 +420,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				method = candidate.Method.DeclaringType.ConstructedInfo.GetMethodTemplate(method);
 			}
 
+			if (candidate.Method.ConstructedInfo != null)
+			{
+				method = candidate.Method.ConstructedInfo.GenericDefinition;
+			}
+
 			// If the parameter is the varargs parameter, use its element type
 			IParameter[] parameters = method.GetParameters();
 			if (candidate.Expanded && position >= parameters.Length)
@@ -453,25 +452,47 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return GetLogicalTypeDepth(t1) - GetLogicalTypeDepth(t2);
 		}
 
-		private void FindApplicableCandidates(IEntity[] candidates)
+		private void InferGenericMethods()
 		{
-			foreach (IEntity entity in candidates)
+			foreach (Candidate candidate in _candidates)
+			{
+				if (candidate.Method.GenericInfo != null)
+				{
+					IType[] inferredTypeParameters =
+						TypeSystemServices.GenericsServices.InferMethodGenericArguments(candidate.Method, _arguments);
+
+					if (inferredTypeParameters != null)
+					{
+						candidate.Method = candidate.Method.GenericInfo.ConstructMethod(inferredTypeParameters);
+					}
+				}
+			}
+		}
+
+		private void FindApplicableCandidates()
+		{
+			_candidates = _candidates.FindAll(ApplicableCandidate);
+		}
+
+		private void Reset(ExpressionCollection arguments, IEnumerable<IEntity> candidateEntities)
+		{
+			_arguments = arguments;
+
+			InitializeCandidates(candidateEntities);
+		}
+
+		private void InitializeCandidates(IEnumerable<IEntity> candidateEntities)
+		{
+			_candidates.Clear();
+			foreach (IEntity entity in candidateEntities)
 			{
 				IMethod method = entity as IMethod;
 				if (null == method) continue;
 
 				Candidate candidate = new Candidate(this, method);
 
-				if (!ApplicableCandidate(candidate)) continue;
-
 				_candidates.Add(candidate);
-			}
-		}
-
-		private void Reset(ExpressionCollection arguments)
-		{
-			_arguments = arguments;
-			_candidates.Clear();
+			}			
 		}
 
 		public bool IsValidVargsInvocation(IParameter[] parameters, ExpressionCollection args)

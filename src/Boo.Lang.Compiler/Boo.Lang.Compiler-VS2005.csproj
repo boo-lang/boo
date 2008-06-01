@@ -452,6 +452,7 @@
     <Compile Include="TypeSystem\GenericConstructedType.cs" />
     <Compile Include="TypeSystem\GenericMappedMembers.cs" />
     <Compile Include="TypeSystem\GenericMapping.cs" />
+    <Compile Include="TypeSystem\GenericParameterInferrer.cs" />
     <Compile Include="TypeSystem\GenericsServices.cs" />
     <Compile Include="TypeSystem\GlobalNamespace.cs" />
     <Compile Include="TypeSystem\IAccessibilityChecker.cs" />
@@ -477,6 +478,7 @@
     <Compile Include="TypeSystem\IMethod.cs" />
     <Compile Include="TypeSystem\IMethodBase.cs" />
     <Compile Include="TypeSystem\INameSpace.cs" />
+    <Compile Include="TypeSystem\InferredType.cs" />
     <Compile Include="TypeSystem\InternalCallableType.cs" />
     <Compile Include="TypeSystem\InternalClass.cs" />
     <Compile Include="TypeSystem\InternalConstructor.cs" />
