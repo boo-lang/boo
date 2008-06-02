@@ -432,11 +432,12 @@ class InteractiveInterpreter2(AbstractInterpreter):
 					if _indent == 0:
 						try:
 							InternalLoopEval(_buffer.ToString())
-							_buffer.Length = 0 #truncate buffer
 						except x as System.Reflection.TargetInvocationException:
 							ConsolePrintException(x.InnerException)
 						except x:
 							ConsolePrintException(x)
+						ensure:
+							_buffer.Length = 0 #truncate buffer
 
 				LineLen = 0 #truncate line
 				ConsolePrintPrompt()
