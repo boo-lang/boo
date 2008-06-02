@@ -34,24 +34,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// A collection of <see cref="CompilerResource"/> objects.
 	/// </summary>
-	[EnumeratorItemType(typeof(ICompilerResource))]
-	public class CompilerResourceCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
+	public class CompilerResourceCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<ICompilerResource>
 	{
-		public ICompilerResource this[int index]
-		{
-			get
-			{
-				return (ICompilerResource)InnerList[index];
-			}
-		}
-
-		public void Add(ICompilerResource resource)
-		{			
-			if (null == resource)
-			{
-				throw new ArgumentNullException("resource");
-			}
-			InnerList.Add(resource);
-		}
 	}
 }

@@ -36,29 +36,11 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
-	[EnumeratorItemType(typeof(CompilerError))]
-	public class CompilerErrorCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
+	public class CompilerErrorCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<CompilerError>
 	{
 		public CompilerErrorCollection()
 		{
 		}
-
-		public CompilerError this[int index]
-		{
-			get
-			{
-				return (CompilerError)InnerList[index];
-			}
-		}
-
-		public void Add(CompilerError error)
-		{
-			if (null == error)
-			{
-				throw new ArgumentNullException("error");
-			}
-			InnerList.Add(error);
-		}		
 		
 		override public string ToString()
 		{
@@ -68,7 +50,7 @@ namespace Boo.Lang.Compiler
 		public string ToString(bool verbose)
 		{
 			System.IO.StringWriter writer = new System.IO.StringWriter();
-			foreach (CompilerError error in InnerList)
+			foreach (CompilerError error in this)
 			{
 				writer.WriteLine(error.ToString(verbose));
 			}

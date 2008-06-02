@@ -36,33 +36,15 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
-	[EnumeratorItemType(typeof(CompilerWarning))]
-	public class CompilerWarningCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
+	public class CompilerWarningCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<CompilerWarning>
 	{
 		public CompilerWarningCollection()
 		{
 		}
 
-		public CompilerWarning this[int index]
-		{
-			get
-			{
-				return (CompilerWarning)InnerList[index];
-			}
-		}
-
-		public void Add(CompilerWarning error)
-		{
-			if (null == error)
-			{
-				throw new ArgumentNullException("error");
-			}
-			InnerList.Add(error);
-		}		
-		
 		override public string ToString()
 		{
-			return Boo.Lang.Builtins.join(InnerList, "\n");
+			return Boo.Lang.Builtins.join(this, "\n");
 		}		
 	}
 }

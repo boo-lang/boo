@@ -33,24 +33,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// A collection of <see cref="ICompilerInput"/> objects.
 	/// </summary>
-	[EnumeratorItemType(typeof(ICompilerInput))]
-	public class CompilerInputCollection : Boo.Lang.Compiler.Util.MarshalByRefCollectionBase
+	public class CompilerInputCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<ICompilerInput>
 	{
-		public ICompilerInput this[int index]
-		{
-			get
-			{
-				return (ICompilerInput)InnerList[index];
-			}
-		}
-
-		public void Add(ICompilerInput input)
-		{
-			if (null == input)
-			{
-				throw new ArgumentNullException("input");
-			}
-			InnerList.Add(input);
-		}
 	}
 }

@@ -26,60 +26,107 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections.Generic;
+using Boo.Lang.Runtime;
+
 namespace Boo.Lang.Compiler.Util
 {
 	using System;
 	using System.Collections;
 	
-	public class MarshalByRefCollectionBase : ICollection
+	public class CompilerCollectionBase<T> : ICollection<T>, ICollection
 	{
-		protected ArrayList _items = new ArrayList();
-		
-		public bool IsSynchronized
+		private readonly List<T> _items = new List<T>();
+
+		public CompilerCollectionBase()
+		{	
+		}
+
+		public T this[int index]
 		{
 			get
 			{
-				return _items.IsSynchronized;
+				return index < 0
+				       	? _items[RuntimeServices.NormalizeIndex(_items.Count, index)]
+				       	: _items[index];
 			}
 		}
 		
-		public object SyncRoot
+		#region ICollection Members
+		
+		bool ICollection.IsSynchronized
 		{
-			get
-			{
-				return _items.SyncRoot;
-			}
+			get { return false; }
 		}
-		
+
+		object ICollection.SyncRoot
+		{
+			get { return this; }
+		}
+
+		void ICollection.CopyTo(Array array, int index)
+		{
+			((ICollection)_items).CopyTo(array, index);
+		}
+
+		#endregion
+
 		public int Count
 		{
-			get
-			{
-				return _items.Count;
-			}
+			get { return _items.Count; }
 		}
-		
-		protected ArrayList InnerList
+
+		#region ICollection<T> Members
+
+		public bool IsReadOnly
 		{
-			get
-			{
-				return _items;
-			}
+			get { return false; }
 		}
-		
+
+		#endregion
+
+		public void Add(T item)
+		{
+			if (null == item) throw new ArgumentNullException("item");
+			_items.Add(item);
+		}
+
 		public void Clear()
 		{
 			_items.Clear();
 		}
-		
-		public void CopyTo(System.Array array, int arrayIndex)
+
+		public bool Contains(T item)
+		{
+			return _items.Contains(item);
+		}
+
+		public void CopyTo(T[] array, int arrayIndex)
 		{
 			_items.CopyTo(array, arrayIndex);
 		}
-		
+
+		public bool Remove(T item)
+		{
+			return _items.Remove(item);
+		}
+
+		#region IEnumerable<T> Members
+
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
+		{
+			return _items.GetEnumerator();
+		}
+
+		#endregion
+
+		#region IEnumerable Members
+
 		public IEnumerator GetEnumerator()
 		{
 			return _items.GetEnumerator();
 		}
+
+		#endregion
 	}
 }
