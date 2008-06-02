@@ -76,6 +76,7 @@
     <Compile Include="ClrIntegrationTestFixture.cs" />
     <Compile Include="CompilationTestFixture.cs" />
     <Compile Include="CompilerErrorsTestFixture.cs" />
+    <Compile Include="CompilerWarningCollectionTestCase.cs" />
     <Compile Include="CompilerWarningsTestFixture.cs" />
     <Compile Include="DuckTypingIntegrationTestFixture.cs" />
     <Compile Include="DuckyTestFixture.cs" />

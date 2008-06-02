@@ -26,11 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang;
+
 namespace BooCompiler.Tests
 {
 	using System;
-	using System.IO;
-	using System.Xml;
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 
@@ -72,6 +72,44 @@ namespace BooCompiler.Tests
 	{
 	}
 
+	public class ActionStep : ICompilerStep
+	{
+		private readonly Action<CompilerContext> _action;
+		private CompilerContext _context;
+
+		public ActionStep(Action<CompilerContext> action)
+		{
+			_action = action;
+		}
+
+		#region ICompilerStep Members
+
+		public void Run()
+		{
+			_action(_context);
+		}
+
+		#endregion
+
+		#region ICompilerComponent Members
+
+		public void Initialize(CompilerContext context)
+		{
+			_context = context;
+		}
+
+		#endregion
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			_context = null;
+		}
+
+		#endregion
+	}
+
 	/// <summary>	
 	/// </summary>
 	[TestFixture]
@@ -83,6 +121,21 @@ namespace BooCompiler.Tests
 		public void SetUp()
 		{
 			_pipeline = new CompilerPipeline();			
+		}
+
+		[Test]
+		public void TestEventSequence()
+		{
+			List calls = new List();
+			_pipeline.Before += delegate { calls.Add("before"); };
+			_pipeline.BeforeStep += delegate { calls.Add("before step"); };
+			_pipeline.Add(new ActionStep(delegate { calls.Add("step"); }));
+			_pipeline.AfterStep += delegate { calls.Add("after step"); };
+			_pipeline.After += delegate { calls.Add("after"); };
+			_pipeline.Run(new CompilerContext());
+			Assert.AreEqual(
+				new List(new string[] {"before", "before step", "step", "after step", "after"}),
+				calls);
 		}
 
 		[Test]

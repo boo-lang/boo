@@ -63,6 +63,7 @@
     <Compile Include="AssemblyCollection.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="BooCompiler.cs" />
+    <Compile Include="CancellableEventArgs.cs" />
     <Compile Include="Compilation.cs" />
     <Compile Include="CompilerContext.cs" />
     <Compile Include="CompilerError.cs" />

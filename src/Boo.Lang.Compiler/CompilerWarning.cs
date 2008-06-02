@@ -38,64 +38,47 @@ namespace Boo.Lang.Compiler
 	[Serializable]
 	public class CompilerWarning
 	{
-		string _code;
+		private readonly string _code;
 		
-		string _message;
+		private readonly string _message;
 		
-		LexicalInfo _lexicalInfo;
+		private readonly LexicalInfo _lexicalInfo;
 		
 		public CompilerWarning(LexicalInfo lexicalInfo, string message)
+			: this("BCW0000", lexicalInfo, message)
 		{
-			if (null == message)
-			{
-				throw new ArgumentNullException("message");
-			}
-			
-			_code = "BCW0000";
+		}
+
+		public CompilerWarning(LexicalInfo lexicalInfo, string message, string code)
+		{
+			if (null == message) throw new ArgumentNullException("message");
+			if (null == code) throw new ArgumentNullException("code");
 			_lexicalInfo = lexicalInfo;
-			_message = Boo.Lang.ResourceManager.Format(_code, message);
+			_message = message;
+			_code = code;
 		}
 		
 		public CompilerWarning(string message) : this(LexicalInfo.Empty, message)
 		{
 		}		
 		public CompilerWarning(string code, LexicalInfo lexicalInfo,  params object[] args)
+			: this(lexicalInfo, Boo.Lang.ResourceManager.Format(code, args), code)
 		{
-			if (null == code)
-			{
-				throw new ArgumentNullException("code");
-			}
-			if (null == lexicalInfo)
-			{
-				throw new ArgumentNullException("lexicalInfo");
-			}
-			_code = code;
-			_lexicalInfo = lexicalInfo;
-			_message = Boo.Lang.ResourceManager.Format(code, args);
 		}
 		
 		public string Message
 		{
-			get
-			{
-				return _message;
-			}
+			get { return _message; }
 		}
 		
 		public LexicalInfo LexicalInfo
 		{
-			get
-			{
-				return _lexicalInfo;
-			}
+			get { return _lexicalInfo; }
 		}
 		
 		public string Code
 		{
-			get
-			{
-				return _code;
-			}
+			get { return _code; }
 		}
 		
 		override public string ToString()

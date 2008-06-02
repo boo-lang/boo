@@ -20,6 +20,7 @@
     <File name="AssemblyCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="AssemblyInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="BooCompiler.cs" buildaction="Compile" subtype="Code" />
+    <File name="CancellableEventArgs.cs" buildaction="Compile" subtype="Code" />
     <File name="Compilation.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerContext.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerError.cs" buildaction="Compile" subtype="Code" />

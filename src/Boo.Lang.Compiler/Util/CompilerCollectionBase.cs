@@ -85,7 +85,7 @@ namespace Boo.Lang.Compiler.Util
 
 		#endregion
 
-		public void Add(T item)
+		public virtual void Add(T item)
 		{
 			if (null == item) throw new ArgumentNullException("item");
 			_items.Add(item);

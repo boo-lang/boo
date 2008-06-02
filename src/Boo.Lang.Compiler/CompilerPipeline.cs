@@ -30,15 +30,23 @@ namespace Boo.Lang.Compiler
 {
 	using System;
     using System.Reflection;
-	
-	public class CompilerStepEventArgs : EventArgs
+
+	public class CompilerPipelineEventArgs : EventArgs
 	{
-		public CompilerContext Context;
-		public ICompilerStep Step;
-		
-		public CompilerStepEventArgs(CompilerContext context, ICompilerStep step)
+		public readonly CompilerContext Context;
+
+		public CompilerPipelineEventArgs(CompilerContext context)
 		{
 			this.Context = context;
+		}
+	}
+
+	public class CompilerStepEventArgs : CompilerPipelineEventArgs
+	{
+		public readonly ICompilerStep Step;
+		
+		public CompilerStepEventArgs(CompilerContext context, ICompilerStep step) : base(context)
+		{
 			this.Step = step;
 		}
 	}
@@ -51,6 +59,10 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerPipeline
 	{
+		public event EventHandler<CompilerPipelineEventArgs> Before;
+
+		public event EventHandler<CompilerPipelineEventArgs> After;
+
 		public event CompilerStepEventHandler BeforeStep;
 		
 		public event CompilerStepEventHandler AfterStep;
@@ -125,24 +137,13 @@ namespace Boo.Lang.Compiler
 		
 		public bool BreakOnErrors
 		{
-			get
-			{
-				return _breakOnErrors;
-			}
-			
-			set
-			{
-				_breakOnErrors = value;
-			}
+			get { return _breakOnErrors; }
+			set { _breakOnErrors = value; }
 		}
 		
 		public CompilerPipeline Add(ICompilerStep step)
 		{
-			if (null == step)
-			{
-				throw new ArgumentNullException("step");
-			}
-			
+			if (null == step) throw new ArgumentNullException("step");
 			_items.Add(step);
 			return this;
 		}
@@ -155,11 +156,7 @@ namespace Boo.Lang.Compiler
 		
 		public CompilerPipeline Insert(int index, ICompilerStep step)
 		{
-			if (null == step)
-			{
-				throw new ArgumentNullException("step");
-			}
-			
+			if (null == step) throw new ArgumentNullException("step");
 			_items.Insert(index, step);
 			return this;
 		}
@@ -176,26 +173,19 @@ namespace Boo.Lang.Compiler
 		
 		public CompilerPipeline Replace(Type stepExactType, ICompilerStep step)
 		{
-			if (null == step)
-			{
-				throw new ArgumentNullException("step");
-			}
+			if (null == step) throw new ArgumentNullException("step");
 			
 			int index = Find(stepExactType);
-			if (-1 == index)
-			{
-				throw new ArgumentException("stepExactType");
-			}
+			if (-1 == index) throw new ArgumentException("stepExactType");
+
 			_items[index] = step;
 			return this;
 		}
 		
 		public int Find(Type stepExactType)
 		{
-			if (null == stepExactType)
-			{
-				throw new ArgumentNullException("stepExactType");
-			}
+			if (null == stepExactType) throw new ArgumentNullException("stepExactType");
+
 			for (int i=0; i<_items.Count; ++i)
 			{
 				if (_items[i].GetType() == stepExactType)
@@ -215,25 +205,16 @@ namespace Boo.Lang.Compiler
 
 		public int Count
 		{
-			get
-			{
-				return _items.Count;
-			}
+			get { return _items.Count; }
 		}
 
 		public ICompilerStep this[int index]
 		{
-			get
-			{
-				return (ICompilerStep)_items[index];
-			}
+			get { return (ICompilerStep)_items[index]; }
 			
 			set
 			{
-				if (null == value)
-				{
-					throw new ArgumentNullException("value");
-				}
+				if (null == value) throw new ArgumentNullException("value");
 				_items[index] = value;
 			}
 		}
@@ -241,6 +222,22 @@ namespace Boo.Lang.Compiler
 		virtual public void Clear()
 		{
 			_items.Clear();
+		}
+
+		virtual protected void OnBefore(CompilerContext context)
+		{
+			if (null != Before)
+			{
+				Before(this, new CompilerPipelineEventArgs(context));
+			}
+		}
+
+		virtual protected void OnAfter(CompilerContext context)
+		{
+			if (null != After)
+			{
+				After(this, new CompilerPipelineEventArgs(context));
+			}
 		}
 		
 		virtual protected void OnBeforeStep(CompilerContext context, ICompilerStep step)
@@ -265,8 +262,27 @@ namespace Boo.Lang.Compiler
 
 		virtual public void Run(CompilerContext context)
 		{
-			Prepare(context);
-			
+			OnBefore(context);
+			try
+			{
+				Prepare(context);
+				RunSteps(context);
+				DisposeSteps();
+			}			finally			{
+				OnAfter(context);
+			}
+		}
+
+		private void DisposeSteps()
+		{
+			foreach (ICompilerStep step in _items)
+			{
+				step.Dispose();
+			}
+		}
+
+		private void RunSteps(CompilerContext context)
+		{
 			foreach (ICompilerStep step in _items)
 			{
 				RunStep(context, step);
@@ -276,13 +292,8 @@ namespace Boo.Lang.Compiler
 					break;
 				}
 			}
-			
-			foreach (ICompilerStep step in _items)
-			{
-				step.Dispose();
-			}
 		}
-		
+
 		protected void RunStep(CompilerContext context, ICompilerStep step)
 		{
 			OnBeforeStep(context, step);

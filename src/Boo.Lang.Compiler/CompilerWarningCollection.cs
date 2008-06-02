@@ -27,19 +27,49 @@
 #endregion
 
 using System;
-using System.Text;
-using Boo.Lang;
-using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler
 {
+	public class CompilerWarningEventArgs : CancellableEventArgs
+	{
+		private readonly CompilerWarning _warning;
+
+		public CompilerWarningEventArgs(CompilerWarning warning)
+		{
+			_warning = warning;
+		}
+
+		public CompilerWarning Warning
+		{
+			get { return _warning;  }
+		}
+	}
+
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
 	public class CompilerWarningCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<CompilerWarning>
 	{
+		public event EventHandler<CompilerWarningEventArgs> Adding;
+
 		public CompilerWarningCollection()
 		{
+		}
+
+		override public void Add(CompilerWarning warning)
+		{
+			if (OnAdding(warning))
+			{
+				base.Add(warning);
+			}
+		}
+
+		protected bool OnAdding(CompilerWarning warning)
+		{
+			if (null == Adding) return true;
+			CompilerWarningEventArgs args = new CompilerWarningEventArgs(warning);
+			Adding(this, args);
+			return !args.IsCancelled;
 		}
 
 		override public string ToString()
