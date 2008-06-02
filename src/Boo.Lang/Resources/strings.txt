@@ -177,6 +177,7 @@ BCW0013=WARNING: '{1}' on static type '{0}' is redundantly marked static. All me
 BCW0014=WARNING: Private {0} '{1}' is never used.
 BCW0015=WARNING: Unreachable code detected.
 BCW0016=WARNING: Namespace '{0}' is never used.
+BCW0017=WARNING: New protected {0} '{1}' declared in sealed class '{2}'.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.

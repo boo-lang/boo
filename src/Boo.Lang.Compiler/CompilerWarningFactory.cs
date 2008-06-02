@@ -114,9 +114,9 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0013", node.LexicalInfo, typeName, memberName);
 		}
 
-		public static CompilerWarning PrivateMemberNeverUsed(Node node)
+		public static CompilerWarning PrivateMemberNeverUsed(TypeMember member)
 		{
-			return new CompilerWarning("BCW0014", node.LexicalInfo, node.NodeType.ToString().ToLower(), (node as TypeMember).FullName);
+			return new CompilerWarning("BCW0014", member.LexicalInfo, NodeTypeString(member), member.FullName);
 		}
 
 		public static CompilerWarning UnreachableCodeDetected(Node node)
@@ -129,5 +129,17 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0016", node.LexicalInfo, node.Namespace);
 		}
 
+		public static CompilerWarning NewProtectedMemberInSealedType(TypeMember member)
+		{
+			return new CompilerWarning("BCW0017", member.LexicalInfo, NodeTypeString(member), member.Name, member.DeclaringType.Name);
+		}
+
+
+		private static string NodeTypeString(Node node)
+		{
+			return node.NodeType.ToString().ToLower();
+		}
+
 	}
+
 }

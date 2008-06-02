@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public bool EnterClassDefinition(ClassDefinition node)
 		{
-			CheckPrivateMembersNeverUsed(node);
+			CheckMembers(node);
 			return false;
 		}
 
@@ -73,11 +73,12 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		protected void CheckPrivateMembersNeverUsed(ClassDefinition node)
+		protected void CheckMembers(ClassDefinition node)
 		{
 			foreach (TypeMember member in node.Members)
 			{
 				WarnIfPrivateMemberNeverUsed(member);
+				WarnIfProtectedMemberInSealedClass(member);
 			}
 		}
 
@@ -92,5 +93,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		protected void WarnIfProtectedMemberInSealedClass(TypeMember member)
+		{
+			if (member.IsProtected && !member.IsSynthetic && !member.IsOverride && member.DeclaringType.IsFinal)
+			{
+				Warnings.Add(CompilerWarningFactory.NewProtectedMemberInSealedType(member));
+			}
+		}
+
 	}
+
 }
