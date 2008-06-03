@@ -548,6 +548,34 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		//ECMA-335 Partition III Section 1.8.1.4
+		//cannot call an instance method before super/self.
+		void CheckInstanceMethodInvocationsWithinConstructor(Constructor ctor)
+		{
+			if (ctor.Body.Statements.Count == 0) return;
+			foreach (Statement st in ctor.Body.Statements)
+			{
+				if (!(st is ExpressionStatement)) continue;
+
+				MethodInvocationExpression mie = ((ExpressionStatement) st).Expression as MethodInvocationExpression;
+				if (null == mie) continue;
+
+				if (mie.Target is SelfLiteralExpression
+					|| mie.Target is SuperLiteralExpression)
+					break;//okay we're done checking
+
+				if (mie.Target is MemberReferenceExpression)
+				{
+					MemberReferenceExpression mre = (MemberReferenceExpression) mie.Target;
+					if (mre.Target is SelfLiteralExpression
+						|| mre.Target is SuperLiteralExpression)
+					{
+						Error(CompilerErrorFactory.InstanceMethodInvocationBeforeInitialization(ctor, mre));
+					}
+				}
+			}
+		}
+
 		override public void OnConstructor(Constructor node)
 		{
 			if (WasVisited(node))
@@ -589,6 +617,10 @@ namespace Boo.Lang.Compiler.Steps
 						node.Body.Statements.Insert(0,
 													CodeBuilder.CreateSuperConstructorInvocation(super));
 					}
+				}
+				else if (!entity.IsStatic)
+				{
+					CheckInstanceMethodInvocationsWithinConstructor(node);
 				}
 			}
 		}

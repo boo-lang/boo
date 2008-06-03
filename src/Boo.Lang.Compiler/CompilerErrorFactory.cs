@@ -840,6 +840,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0157", SafeLexicalInfo(node));
 		}
 
+		public static CompilerError InstanceMethodInvocationBeforeInitialization(Constructor ctor, MemberReferenceExpression mre)
+		{
+			return new CompilerError("BCE0158", SafeLexicalInfo(mre), mre.Name);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

@@ -158,6 +158,7 @@ BCE0155=Instantiating generic parameters is not yet supported.
 ;BCE0155=Cannot create an instance of the variable type '{0}' because it doesn't have a default constructor constraint.
 BCE0156=Event '{0}' can only be invoked from within the class it was declared ('{1}').
 BCE0157=Generic types without all generic parameters defined cannot be instantiated.
+BCE0158=Cannot invoke instance method '{0}' before object initialization. Move your call after 'self' or 'super'.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}
