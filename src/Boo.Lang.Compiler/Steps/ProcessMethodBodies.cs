@@ -221,6 +221,13 @@ namespace Boo.Lang.Compiler.Steps
 					ProcessFieldInitializer((Field) member);
 				}
 			}
+
+			Method initializer = (Method) node["$initializer$"];
+			if (null != initializer)
+			{
+				AddInitializerToInstanceConstructors(node, initializer);
+				node.Members.Remove(initializer);
+			}
 		}
 
 		override public void OnAttribute(Attribute node)
@@ -444,7 +451,23 @@ namespace Boo.Lang.Compiler.Steps
 			method.Entity = entity;
 			type.Members.Add(method);
 			MarkVisited(method);
+
 			return method;
+		}
+
+		private Field GetFieldsInitializerInitializedField(TypeDefinition type)
+		{
+			string name = AstUtil.BuildUniqueTypeMemberName(type, "initialized");
+			Field field= (Field) type.Members[name];
+
+			if (null == field)
+			{
+				field = CodeBuilder.CreateField(name, TypeSystemServices.BoolType);
+				field.Visibility = TypeMemberModifiers.Private;
+				type.Members.Add(field);
+				MarkVisited(field);
+			}
+			return field;
 		}
 
 		Method GetFieldsInitializerMethod(Field node)
@@ -472,9 +495,7 @@ namespace Boo.Lang.Compiler.Steps
 				else
 				{
 					method = CreateInitializerMethod(type, methodName, TypeMemberModifiers.None);
-					AddInitializerToInstanceConstructors(type, (InternalMethod)method.Entity);
 				}
-
 				type[methodName] = method;
 			}
 			return method;
@@ -486,19 +507,59 @@ namespace Boo.Lang.Compiler.Steps
 												   CodeBuilder.CreateMethodInvocation(initializer));
 		}
 
-		void AddInitializerToInstanceConstructors(TypeDefinition type, InternalMethod initializer)
+		void AddInitializerToInstanceConstructors(TypeDefinition type, Method initializer)
 		{
+			int n = 0;
+
+			//count number of non-static constructors
+			foreach (TypeMember node in type.Members)
+			{
+				if (NodeType.Constructor == node.NodeType && !node.IsStatic)
+					n++;
+			}
+
+			//if there is more than one we need $initialized$ guard check
+			if (n > 1)
+				AddInitializedGuardToInitializer(type, initializer);
+
 			foreach (TypeMember node in type.Members)
 			{
 				if (NodeType.Constructor == node.NodeType && !node.IsStatic)
 				{
-					Constructor constructor = (Constructor)node;
-					constructor.Body.Insert(GetIndexAfterSuperInvocation(constructor.Body),
-											CodeBuilder.CreateMethodInvocation(
-												CodeBuilder.CreateSelfReference((IType)type.Entity),
-												initializer));
+					Constructor constructor = (Constructor) node;
+					n = GetIndexAfterSuperInvocation(constructor.Body);
+					foreach (Statement st in initializer.Body.Statements)
+					{
+						constructor.Body.Insert(n, (Statement) st.Clone());
+						n++;
+					}
+					foreach (Local loc in initializer.Locals)
+					{
+						constructor.Locals.Add(loc);
+					}
 				}
 			}
+		}
+
+		void AddInitializedGuardToInitializer(TypeDefinition type, Method initializer)
+		{
+			Field field = GetFieldsInitializerInitializedField(type);
+
+			//run initializer code only if $initialized$ is false
+			//hmm quasi-notation would be lovely here
+			Block trueBlock = new Block();
+			trueBlock.Add(new GotoStatement(LexicalInfo.Empty, new ReferenceExpression("___initialized___")));
+			IfStatement cond = new IfStatement(CodeBuilder.CreateReference(field),
+				trueBlock, null);
+			initializer.Body.Insert(0, cond);
+
+			//set $initialized$ field to true
+			initializer.Body.Add(
+				CodeBuilder.CreateFieldAssignment(field, new BoolLiteralExpression(true)));
+
+			//label we're past the initializer
+			initializer.Body.Add(
+				new LabelStatement(LexicalInfo.Empty, "___initialized___"));
 		}
 
 		int GetIndexAfterSuperInvocation(Block body)
@@ -618,10 +679,8 @@ namespace Boo.Lang.Compiler.Steps
 													CodeBuilder.CreateSuperConstructorInvocation(super));
 					}
 				}
-				else if (!entity.IsStatic)
-				{
+				if (!entity.IsStatic)
 					CheckInstanceMethodInvocationsWithinConstructor(node);
-				}
 			}
 		}
 
@@ -6461,4 +6520,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		#endregion
 	}
+
 }
+

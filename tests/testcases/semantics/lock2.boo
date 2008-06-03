@@ -15,9 +15,6 @@ public class LockedList(object):
 
 	public def constructor():
 		super()
-		self.$initializer$()
-
-	def $initializer$() as void:
 		self._list = []
 """
 class LockedList:

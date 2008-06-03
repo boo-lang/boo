@@ -5,12 +5,9 @@ public class ClassWithField(object):
 
 	public def constructor():
 		super()
-		self.$initializer$()
-
-	def $initializer$() as void:
 		self._name = ''
 """
 
 class ClassWithField:
 	_name = ""
-	
+

@@ -30,6 +30,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	using System;
 	using System.IO;
+	using System.Text;
 	using System.Xml.Serialization;
 	
 	public class AstUtil
@@ -357,5 +358,35 @@ namespace Boo.Lang.Compiler.Ast
 				return "<unavailable>";
 			}
 		}
+
+		//use this to build a type member name unique in the inheritance hierarchy.
+		public static string BuildUniqueTypeMemberName(TypeDefinition type, string name)
+		{
+			if (string.IsNullOrEmpty(name))
+				throw new ArgumentNullException("name");
+
+			StringBuilder nameBuilder = new StringBuilder("$");
+			nameBuilder.Append(name);
+			nameBuilder.Append("__");
+			nameBuilder.Append(type.QualifiedName);
+			if (type.HasGenericParameters)
+			{
+				nameBuilder.Append("_");
+				string[] parameterNames = Array.ConvertAll<GenericParameterDeclaration, string>(
+					type.GenericParameters.ToArray(),
+					delegate(GenericParameterDeclaration gpd) { return gpd.Name; });
+				foreach (string parameterName in parameterNames)
+				{
+					nameBuilder.Append("_");
+					nameBuilder.Append(parameterName);
+				}
+			}
+			nameBuilder.Replace('.', '_');
+			nameBuilder.Append("$");
+			return nameBuilder.ToString();
+		}
+
 	}
+
 }
+

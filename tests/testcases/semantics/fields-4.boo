@@ -7,14 +7,12 @@ public class Foo(object):
 
 	public def constructor():
 		super()
-		self.$initializer$()
+		self._some = 3
 
 	private static def constructor():
 		Foo.FinalSolution = '42'
-
-	def $initializer$() as void:
-		self._some = 3
 """
+
 class Foo:
 	static FinalSolution = "42"
 	_some = 3
