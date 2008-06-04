@@ -134,6 +134,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0017", member.LexicalInfo, NodeTypeString(member), member.Name, member.DeclaringType.Name);
 		}
 
+		public static CompilerWarning OverridingFinalizeIsBadPractice(TypeMember member)
+		{
+			return new CompilerWarning("BCW0018", member.LexicalInfo);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{

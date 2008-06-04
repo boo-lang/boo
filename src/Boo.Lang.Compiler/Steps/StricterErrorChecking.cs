@@ -294,10 +294,24 @@ namespace Boo.Lang.Compiler.Steps
 								superAccess));
 				}
 			}
-			
+
 			CheckUnusedLocals(node);
 			CheckAbstractMethodCantHaveBody(node);
 			CheckValidExtension(node);
+			CheckNotFinalizer(node);
+		}
+
+		private void CheckNotFinalizer(Method node)
+		{
+			if (node.Name == "Finalize"
+				&& !node.IsSynthetic
+				&& node.IsOverride
+				&& 0 == node.Parameters.Count
+				&& 0 == node.GenericParameters.Count)
+			{
+				Warnings.Add(
+					CompilerWarningFactory.OverridingFinalizeIsBadPractice(node));
+			}
 		}
 
 		private void CheckValidExtension(Method node)
