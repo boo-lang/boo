@@ -44,15 +44,18 @@ namespace Boo.Lang.Compiler.Pipelines
 			}
 			return (ICompilerStep)Activator.CreateInstance(_defaultParserStepType);
 		}
-		
+
 		static Assembly FindParserAssembly()
 		{
 			Assembly thisAssembly = typeof(Parse).Assembly;
 			string thisLocation = thisAssembly.Location;
-			string parserLocation = thisLocation.Substring(0, thisLocation.Length-"Boo.Lang.Compiler.dll".Length) + "Boo.Lang.Parser.dll";
+			string parserLocation = thisLocation.EndsWith("Boo.Lang.Compiler.dll")
+                	? thisLocation.Substring(0, thisLocation.Length - "Boo.Lang.Compiler.dll".Length) + "Boo.Lang.Parser.dll"
+                	: "";
+
 			return File.Exists(parserLocation)
-				? Assembly.LoadFrom(parserLocation)
-				: Assembly.Load(thisAssembly.FullName.Replace("Boo.Lang.Compiler", "Boo.Lang.Parser"));
+					? Assembly.LoadFrom(parserLocation)
+					: Assembly.Load(thisAssembly.FullName.Replace("Boo.Lang.Compiler", "Boo.Lang.Parser"));
 		}
 		
 		public Parse()
