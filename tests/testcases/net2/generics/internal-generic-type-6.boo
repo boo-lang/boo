@@ -2,7 +2,7 @@
 42
 """
 
-public class GenericType of T: 
+public class GenericType[of T]: 
 	public Field as T
 
 a = GenericType[of int]()

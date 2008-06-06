@@ -1,4 +1,4 @@
-class Test of T:
+class Test[of T]:
 	pass
 class Test[of T,U]:
 	pass

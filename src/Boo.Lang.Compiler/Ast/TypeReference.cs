@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Ast
 		public static TypeReference Lift(TypeDefinition node)
 		{
 			if (node.HasGenericParameters) return LiftGenericTypeDefinition(node);
-			return new SimpleTypeReference(node.QualifiedName);
+			return new SimpleTypeReference(node.FullName);
 		}
 
 		private static TypeReference LiftGenericTypeDefinition(TypeDefinition node)

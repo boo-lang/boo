@@ -14,7 +14,7 @@ def test(e as TypeDefinition):
 	print code.ToCodeString()
 
 typeDef = [|
-	class Foo of T:
+	class Foo[of T]:
 		pass
 |]
 test(typeDef)

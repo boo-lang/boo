@@ -1,4 +1,4 @@
-public interface GenericInterface of T:
+public interface GenericInterface[of T]:
 	Property as T: 
 		get
 		set

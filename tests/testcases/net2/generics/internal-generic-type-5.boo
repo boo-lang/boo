@@ -2,7 +2,7 @@
 42
 """
 
-public class GenericType of T: 
+public class GenericType[of T]:
 	def Method(argument as T) as T:
 		return argument
 

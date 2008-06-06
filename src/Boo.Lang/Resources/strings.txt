@@ -159,6 +159,11 @@ BCE0155=Instantiating generic parameters is not yet supported.
 BCE0156=Event '{0}' can only be invoked from within the class it was declared ('{1}').
 BCE0157=Generic types without all generic parameters defined cannot be instantiated.
 BCE0158=Cannot invoke instance method '{0}' before object initialization. Move your call after 'self' or 'super'.
+BCE0159=Generic parameter '{0}' cannot have both a reference type constraint and a value type constraint.
+BCE0160=Generic parameter '{0}' cannot have both a value type constraint and a default constructor constraint.
+BCE0161=Type constraint '{1}' cannot be used together with the '{2}' constraint on generic parameter '{0}'.
+BCE0162=Type '{1}' must be an interface type or a non-final class type to be used as a type constraint on generic parameter '{0}'.
+BCE0163=Type constraint '{1}' on generic parameter '{0}' conflicts with type constraint '{2}'. At most one non-interface type constraint can be specified for a generic parameter.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

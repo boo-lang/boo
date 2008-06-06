@@ -7,7 +7,7 @@
 
 import System
 
-public struct GenericStruct of T:
+public struct GenericStruct[of T]:
 	public def constructor(argument as T):
 		Field = argument
 

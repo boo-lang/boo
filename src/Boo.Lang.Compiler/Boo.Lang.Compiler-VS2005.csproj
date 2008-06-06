@@ -131,6 +131,7 @@
     <Compile Include="Ast\ForStatement.cs" />
     <Compile Include="Ast\GeneratorExpression.cs" />
     <Compile Include="Ast\GeneratorExpressionCollection.cs" />
+    <Compile Include="Ast\GenericParameterConstraints.cs" />
     <Compile Include="Ast\GenericParameterDeclaration.cs" />
     <Compile Include="Ast\GenericParameterDeclarationCollection.cs" />
     <Compile Include="Ast\GenericReferenceExpression.cs" />
@@ -356,6 +357,7 @@
     <Compile Include="Steps\BindTypeMembers.cs" />
     <Compile Include="Steps\BranchChecking.cs" />
     <Compile Include="Steps\CheckAttributesUsage.cs" />
+    <Compile Include="Steps\CheckGenericConstraints.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
     <Compile Include="Steps\CheckMemberNames.cs" />
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
@@ -371,6 +373,7 @@
     <Compile Include="Steps\ForeignReferenceCollector.cs" />
     <Compile Include="Steps\GeneratorExpressionProcessor.cs" />
     <Compile Include="Steps\GeneratorMethodProcessor.cs" />
+    <Compile Include="Steps\GenericConstraintsValidator.cs" />
     <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\InitializeNameResolutionService.cs" />

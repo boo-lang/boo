@@ -27,9 +27,8 @@
 #endregion
 
 using System;
-using System.Reflection;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
+using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -38,11 +37,11 @@ namespace Boo.Lang.Compiler.TypeSystem
     /// </summary>
 	public class InternalGenericParameter : IType, IInternalEntity, IGenericParameter
 	{
-		TypeSystemServices _tss;
 		int _position = -1;
 		GenericParameterDeclaration _declaration;
+		TypeSystemServices _tss;
 
-		IType[] _emptyTypeArray = new IType[0];
+		IType[] _baseTypes = null;
 		
 		public InternalGenericParameter(TypeSystemServices tss, GenericParameterDeclaration declaration)
 		{
@@ -76,33 +75,55 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				// TODO
-				return false;
+				return HasConstraint(GenericParameterConstraints.Constructable);
 			}
 		}
 
 		public Variance Variance
 		{
-			// TODO
-			get { return Variance.Invariant; }
+			get 
+			{
+				if (HasConstraint(GenericParameterConstraints.Covariant))
+				{
+					return Variance.Covariant;
+				}
+				else if (HasConstraint(GenericParameterConstraints.Contravariant))
+				{
+					return Variance.Contravariant;
+				}
+				return Variance.Invariant;
+			}
 		}
 
-		public IType[] GetBaseTypeConstraints()
+		public IType[] GetTypeConstraints()
 		{
-			// TODO
-			return null;
+			if (_baseTypes == null)
+			{
+				List<IType> baseTypes = new List<IType>();
+
+				foreach (TypeReference baseTypeReference in _declaration.BaseTypes)
+				{
+					IType baseType = (IType)baseTypeReference.Entity;
+					if (baseType != null)
+					{
+						baseTypes.Add(baseType);
+					}
+				}
+
+				_baseTypes = baseTypes.ToArray();
+			}
+			
+			return _baseTypes;			
 		}
 
 		public bool IsValueType
 		{
-			// TODO: reflect value-type constraint
-			get { return false; }
+			get { return HasConstraint(GenericParameterConstraints.ValueType); }
 		}
 
 		public bool IsClass
 		{
-			// TODO: reflect reference-type constraint
-			get { return false; }
+			get { return HasConstraint(GenericParameterConstraints.ReferenceType); }
 		}
 
 		public IType DeclaringType
@@ -169,8 +190,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType BaseType
 		{
-			// TODO: Return base constraint or system.object
-			get { return _tss.ObjectType; }
+			get { return FindBaseType(); }
 		}
 		
 		public IEntity GetDefaultMember()
@@ -180,15 +200,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IConstructor[] GetConstructors()
 		{
+			if (MustHaveDefaultConstructor)
+			{
+				// TODO: return a something implementing IConstructor...?
+			}
 			return null;
 		}
 		
 		public IType[] GetInterfaces()
 		{
-			// TODO: return interface constraints and inherited interfaces
-			return _emptyTypeArray;
-		}
+			List<IType> interfaces = new List<IType>();
+
+			foreach (IType type in GetTypeConstraints())
+			{
+				if (type.IsInterface)
+				{
+					interfaces.Add(type);
+				}
+			}
 		
+			return interfaces.ToArray();
+		}
+
 		public bool IsSubclassOf(IType other)
 		{
 			return (other == BaseType || BaseType.IsSubclassOf(other));
@@ -196,7 +229,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsAssignableFrom(IType other)
 		{
-			return (other == this);
+			if (other == this)
+			{
+				return true;
+			}
+		
+			if (other == Null.Default)
+			{
+				return IsClass;
+			}
+
+			return false;
 		}
 		
 		IGenericTypeInfo IType.GenericInfo 
@@ -244,25 +287,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		bool INamespace.Resolve(List targetList, string name, EntityType flags)
 		{
-			// Resolve using base type constraint
-			if (BaseType != null)
+			bool resolved = false;
+			
+			// Resolve using base type constraints
+			foreach (IType type in GetTypeConstraints())
 			{
-				if (BaseType.Resolve(targetList, name, flags))
-				{
-					return true;
-				}
+				resolved |= type.Resolve(targetList, name, flags);
 			}
 			
-			// Resolve using interface constraints
-			foreach (IType type in GetInterfaces())
-			{
-				if (type.Resolve(targetList, name, flags))
-				{
-					return true;
-				}
-			}
-			
-			return false;
+			// Resolve using System.Object
+			resolved |= _tss.ObjectType.Resolve(targetList, name, flags);
+
+			return resolved;
 		}
 		
 		public Node Node
@@ -273,6 +309,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		override public string ToString()
 		{
 			return FullName;
+		}
+				
+		private bool HasConstraint(GenericParameterConstraints flag)
+		{
+			return (_declaration.Constraints & flag) == flag;
+		}
+
+		private IType FindBaseType()
+		{
+			foreach (IType type in GetTypeConstraints())
+			{
+				if (!type.IsInterface)
+				{
+					return type;
+				}
+			}
+			return _tss.ObjectType;
 		}
 
 		override public bool Equals(object rhs)
@@ -287,13 +340,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				&& IsClass == p.IsClass
 				&& IsValueType == p.IsValueType;
 		}
-
+		
 		override public int GetHashCode()
 		{
 			return base.GetHashCode();
 		}
-
 	}
-
 }
-

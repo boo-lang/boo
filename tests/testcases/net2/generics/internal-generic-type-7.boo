@@ -2,7 +2,7 @@
 42
 """
 
-public class GenericType of T: 
+public class GenericType[of T]: 
 	public def Method(argument as T):
 		local as T = argument
 		return local

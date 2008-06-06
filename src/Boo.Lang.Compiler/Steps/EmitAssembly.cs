@@ -4488,13 +4488,37 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineGenericParameters(GenericTypeParameterBuilder[] builders, GenericParameterDeclaration[] declarations)
 		{
-			// Set builders
 			for (int i = 0; i < builders.Length; i++)
 			{
 				SetBuilder(declarations[i], builders[i]);
+				DefineGenericParameter(((InternalGenericParameter)declarations[i].Entity), builders[i]);
 			}
+		}
 
-			// TODO: Set constraints
+		private void DefineGenericParameter(InternalGenericParameter parameter, GenericTypeParameterBuilder builder)
+		{
+			// Set base type constraint
+			if (parameter.BaseType != TypeSystemServices.ObjectType)
+			{
+				builder.SetBaseTypeConstraint(GetSystemType(parameter.BaseType));
+		}
+
+			// Set interface constraints
+			Type[] interfaceTypes = Array.ConvertAll<IType, Type>(
+				parameter.GetInterfaces(), GetSystemType);
+
+			builder.SetInterfaceConstraints(interfaceTypes);
+
+			// Set special attributes
+			GenericParameterAttributes attributes = GenericParameterAttributes.None;
+			if (parameter.IsClass)
+				attributes |= GenericParameterAttributes.ReferenceTypeConstraint;
+			if (parameter.IsValueType)
+				attributes |= GenericParameterAttributes.NotNullableValueTypeConstraint;
+			if (parameter.MustHaveDefaultConstructor)
+				attributes |= GenericParameterAttributes.DefaultConstructorConstraint;
+
+			builder.SetGenericParameterAttributes(attributes);
 		}
 
 		private CustomAttributeBuilder CreateDuckTypedCustomAttribute()

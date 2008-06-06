@@ -2,10 +2,10 @@
 42
 """
 
-public interface GenericInterface of T:
+public interface GenericInterface[of T]:
 	def Method(arg as T) as T
 
-public class GenericType of T (GenericInterface of T):
+public class GenericType[of T] (GenericInterface of T):
 	def Method(arg as T):
 		return arg
 

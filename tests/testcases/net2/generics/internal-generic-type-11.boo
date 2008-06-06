@@ -4,7 +4,7 @@
 3
 """
 
-public class GenericClass of T:
+public class GenericClass[of T]:
 	public def constructor(argument as T):
 		Field = argument
 

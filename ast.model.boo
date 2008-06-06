@@ -40,6 +40,15 @@ enum ExceptionHandlerFlags:
 	Untyped = 2
 	Filter = 4
 
+[Flags]
+enum GenericParameterConstraints:
+	None = 0
+	ValueType = 1
+	ReferenceType = 2
+	Constructable = 4
+	Covariant = 8
+	Contravariant = 16
+	
 abstract class TypeMember(Node, INodeWithAttributes):
 	Modifiers as TypeMemberModifiers
 	Name as string
@@ -184,6 +193,8 @@ class ParameterDeclarationCollection:
 
 class GenericParameterDeclaration(Node):
 	Name as string
+	BaseTypes as TypeReferenceCollection
+	Constraints as GenericParameterConstraints
 
 [collection(GenericParameterDeclaration)]
 class GenericParameterDeclarationCollection:

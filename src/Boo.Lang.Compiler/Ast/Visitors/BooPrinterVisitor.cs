@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO;
 using Boo.Lang.Compiler.Ast;
+using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Ast.Visitors
 {
@@ -506,8 +507,50 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnGenericParameterDeclaration(GenericParameterDeclaration gp)
 		{
 			Write(gp.Name);
+			if (gp.BaseTypes.Count > 0 || gp.Constraints != GenericParameterConstraints.None)
+			{
+				Write("(");
+				
+				WriteCommaSeparatedList(gp.BaseTypes);
+				
+				if (gp.Constraints != GenericParameterConstraints.None)
+				{
+					if (gp.BaseTypes.Count != 0)
+					{
+						Write(", ");
+					}
+					WriteGenericParameterConstraints(gp.Constraints);
+				}
+
+				Write(")");
+			}
 		}
-		
+
+		private void WriteGenericParameterConstraints(GenericParameterConstraints constraints)
+		{
+			List<string> constraintStrings = new List<string>();
+
+			if ((constraints & GenericParameterConstraints.ReferenceType) != GenericParameterConstraints.None)
+			{
+				constraintStrings.Add("class");
+			}
+			if ((constraints & GenericParameterConstraints.ValueType) != GenericParameterConstraints.None)
+			{
+				constraintStrings.Add("struct");
+			}
+			if ((constraints & GenericParameterConstraints.Constructable) != GenericParameterConstraints.None)
+			{
+				constraintStrings.Add("constructor");
+			}
+
+			Write(string.Join(", ", constraintStrings.ToArray()));
+		}
+
+		private KeyValuePair<T, string> CreateTranslation<T>(T value, string translation)
+		{
+			return new KeyValuePair<T, string>(value, translation);
+		}
+
 		override public void OnTypeofExpression(TypeofExpression node)
 		{
 			Write("typeof(");

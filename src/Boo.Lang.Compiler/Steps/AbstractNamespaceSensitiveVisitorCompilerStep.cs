@@ -90,6 +90,7 @@ namespace Boo.Lang.Compiler.Steps
 		void VisitTypeDefinitionBody(TypeDefinition node)
 		{
 			Visit(node.Attributes);
+			Visit(node.GenericParameters);
 			Visit(node.Members);
 		}
 	}

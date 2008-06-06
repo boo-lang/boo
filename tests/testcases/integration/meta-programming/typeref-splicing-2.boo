@@ -28,17 +28,17 @@ typeDef3 = [|
 |]
 
 typeDef4 = [|
-	class Foo of T:
+	class Foo[of T]:
 		pass
 |]
 
 typeDef5 = [|
-	class IFoo of T:
+	class IFoo[of T]:
 		pass
 |]
 
 typeDef6 = [|
-	struct SFoo of T:
+	struct SFoo[of T]:
 		pass
 |]
 

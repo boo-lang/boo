@@ -90,7 +90,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		public IType[] GetBaseTypeConstraints()
+		public IType[] GetTypeConstraints()
 		{
 			return Array.ConvertAll<Type, IType>(
 				ActualType.GetGenericParameterConstraints(), 

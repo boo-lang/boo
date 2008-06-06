@@ -48,6 +48,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// <returns>The constructed entity.</returns>
 		public IEntity ConstructEntity(Node constructionNode, IEntity definition, IType[] typeArguments)
 		{
+			// Ensure definition is a valid entity
+			if (definition == null || TypeSystemServices.IsError(definition))
+			{
+				return TypeSystemServices.ErrorEntity;
+			}
+
 			// Ambiguous generic constructions are handled separately
 			if (definition.EntityType == EntityType.Ambiguous)
 			{
@@ -128,13 +134,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		public bool CheckGenericConstruction(Node node, IEntity definition, IType[] argumentTypes, CompilerErrorCollection errors)
 		{
-			// Ensure definition is a valid entity
-			if (definition == null || TypeSystemServices.IsError(definition))
-			{
-				return false;
-			}
-
-			// Ensure definition really is a generic definition
 			GenericConstructionChecker checker = new GenericConstructionChecker(
 				TypeSystemServices, node, argumentTypes, Errors);
 
@@ -436,7 +435,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			// Check base type constraints
-			IType[] baseTypes = parameter.GetBaseTypeConstraints();
+			IType[] baseTypes = parameter.GetTypeConstraints();
 			if (baseTypes != null)
 			{
 				foreach (IType baseType in baseTypes)

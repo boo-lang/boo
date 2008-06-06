@@ -88,6 +88,7 @@
     <File name="Ast/ForStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GeneratorExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GeneratorExpressionCollection.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/GenericParameterConstraints.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericParameterDeclaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericParameterDeclarationCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericReferenceExpression.cs" buildaction="Compile" subtype="Code" />
@@ -313,6 +314,7 @@
     <File name="Steps/BindTypeMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BranchChecking.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckAttributesUsage.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/CheckGenericConstraints.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckIdentifiers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMemberNames.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMembersProtectionLevel.cs" buildaction="Compile" subtype="Code" />
@@ -328,6 +330,7 @@
     <File name="Steps/ForeignReferenceCollector.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/GeneratorExpressionProcessor.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/GeneratorMethodProcessor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/GenericConstraintsValidator.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/GotoOnTopLevelContinue.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ImplementICallableOnCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/InitializeNameResolutionService.cs" buildaction="Compile" subtype="Code" />
