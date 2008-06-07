@@ -1,5 +1,5 @@
 """
-BCW0011-10.boo(9,12): BCW0011: WARNING: Type 'Test' does not provide an implementation for 'ITest.Do`1()', a stub has been created.
+BCW0011-10.boo(9,12): BCW0011: WARNING: Type 'Test' does not provide an implementation for 'ITest.Do[of T]()', a stub has been created.
 """
 
 interface ITest:

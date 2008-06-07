@@ -4239,6 +4239,8 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void ProcessMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
+
+			// Infer generic arguments if this is a generic, non-constructed method 
 			if (targetMethod.GenericInfo != null)
 			{
 				targetMethod = InferGenericMethodInvocation(node, targetMethod);
@@ -4271,10 +4273,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (inferredArguments == null)
 			{
-				// TODO: "generic type inference failed"
-				Error(node, CompilerErrorFactory.GenericDefinitionArgumentCount(
-					node, targetMethod.Name,
-					targetMethod.GenericInfo.GenericParameters.Length));
+				Error(node, CompilerErrorFactory.CannotInferGenericMethodArguments(
+					node, targetMethod));
 
 				return null;
 			}

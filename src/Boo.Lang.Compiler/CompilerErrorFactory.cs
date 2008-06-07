@@ -870,6 +870,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0163", SafeLexicalInfo(type), gpd.Name, type, other);
 		}
 
+		public static CompilerError CannotInferGenericMethodArguments(MethodInvocationExpression node, IMethod method)
+		{
+			return new CompilerError("BCE0164", SafeLexicalInfo(node), method);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

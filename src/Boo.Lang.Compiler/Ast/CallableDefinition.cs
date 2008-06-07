@@ -53,6 +53,13 @@ namespace Boo.Lang.Compiler.Ast
 					}
 					return Name;
 				}
+				else if (GenericParameters.Count > 0)
+				{
+					return string.Format(
+						"{0}[of {1}]",
+						base.FullName,
+						GenericParameters.ToCodeString());
+				}
 				return base.FullName;
 			}
 		}

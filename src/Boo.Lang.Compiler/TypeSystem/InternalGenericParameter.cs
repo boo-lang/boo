@@ -308,7 +308,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string ToString()
 		{
-			return FullName;
+			return Name;
 		}
 				
 		private bool HasConstraint(GenericParameterConstraints flag)

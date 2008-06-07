@@ -39,6 +39,15 @@ namespace Boo.Lang.Compiler.Ast
 		public GenericParameterDeclarationCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
+
+		public string ToCodeString()
+		{
+			string[] names = Array.ConvertAll<GenericParameterDeclaration, string>(
+				ToArray(),
+				delegate(GenericParameterDeclaration gpd) { return gpd.Name; });
+
+			return string.Join(", ", names);
+		}
 	}
 }
 

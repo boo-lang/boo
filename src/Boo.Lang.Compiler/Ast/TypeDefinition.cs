@@ -51,14 +51,10 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				if (HasGenericParameters)
 				{
-					string[] parameterNames = Array.ConvertAll<GenericParameterDeclaration, string>(
-						GenericParameters.ToArray(),
-						delegate(GenericParameterDeclaration gpd) { return gpd.Name; });
-
 					return string.Format(
-						"{0}[of {1}]",
-						QualifiedName,
-						string.Join(", ", parameterNames));
+						"{0}[of {1}]", 
+						QualifiedName, 
+						GenericParameters.ToCodeString());
 				}
 				else
 				{
@@ -84,7 +80,7 @@ namespace Boo.Lang.Compiler.Ast
 				}
 				else if (parentType != null)
 				{
-					qualifiedName.Append(parentType.QualifiedName).Append(".");
+					qualifiedName.Append(parentType.FullName).Append(".");
 				}
 
 				qualifiedName.Append(Name);

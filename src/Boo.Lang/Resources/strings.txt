@@ -164,6 +164,7 @@ BCE0160=Generic parameter '{0}' cannot have both a value type constraint and a d
 BCE0161=Type constraint '{1}' cannot be used together with the '{2}' constraint on generic parameter '{0}'.
 BCE0162=Type '{1}' must be an interface type or a non-final class type to be used as a type constraint on generic parameter '{0}'.
 BCE0163=Type constraint '{1}' on generic parameter '{0}' conflicts with type constraint '{2}'. At most one non-interface type constraint can be specified for a generic parameter.
+BCE0164=Cannot infer generic arguments for method '{0}'. Provide stronger type information through arguments, or explicitly state the generic arguments.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

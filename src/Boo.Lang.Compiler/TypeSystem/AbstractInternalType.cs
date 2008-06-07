@@ -59,14 +59,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected virtual string BuildFullName()
 		{
-			string fullName = _typeDefinition.FullName;
-
-			if (GenericInfo != null)
-			{
-				fullName = string.Format("{0}`{1}", fullName, GenericInfo.GenericParameters.Length);
-			}
-
-			return fullName;
+			return _typeDefinition.FullName;
 		}
 
 		public string FullName

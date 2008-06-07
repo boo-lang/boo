@@ -51,7 +51,17 @@ namespace Boo.Lang.Compiler.Util
 					string.Join(", ", argumentNames));
 				
 			}
-			return type.FullName;
+			string name = TypeName(type.FullName);
+			if (type.IsGenericTypeDefinition)
+			{
+				name = string.Format(
+					"{0}[of {1}]", 
+					name, 
+					string.Join(", ", Array.ConvertAll<Type, string>(
+						type.GetGenericArguments(), 
+						TypeName)));
+			}
+			return name;
 		}
 
 	    public static string TypeName(Type type)

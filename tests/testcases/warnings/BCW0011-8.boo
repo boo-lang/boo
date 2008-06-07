@@ -1,5 +1,5 @@
 """
-BCW0011-8.boo(8,11): BCW0011: WARNING: Type 'Foo' does not provide an implementation for 'AbstractFoo.Bar`1(AbstractFoo.Bar`1.T)', a stub has been created.
+BCW0011-8.boo(8,11): BCW0011: WARNING: Type 'Foo' does not provide an implementation for 'AbstractFoo.Bar[of T](T)', a stub has been created.
 """
 abstract class AbstractFoo:
 	abstract def Bar[of T](x as T) as T:

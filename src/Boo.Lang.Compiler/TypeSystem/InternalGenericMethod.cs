@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get 
 			{
-				return string.Format("{0}`{1}", base.FullName, GenericParameters.Length);
+				return _method.FullName;
 			}
 		}
 		
