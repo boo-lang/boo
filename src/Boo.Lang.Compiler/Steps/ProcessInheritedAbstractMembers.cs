@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -427,45 +428,35 @@ namespace Boo.Lang.Compiler.Steps
 			if (baseMethod.IsSpecialName)
 				return;
 
-			bool resolved = false;
-
-			foreach (TypeMember member in node.Members)
+			foreach (Method method in GetAbstractMethodImplementationCandidates(node, baseMethod))
 			{
-				if (baseMethod.Name == member.Name
-					&& NodeType.Method == member.NodeType
-					&& IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, baseMethod))
+				IMethod methodEntity = GetEntity(method);
+
+				if (TypeSystemServices.CheckOverrideSignature(methodEntity, baseMethod))
 				{
-					Method method = (Method)member;
-					IMethod methodEntity = GetEntity(method);
-
-					if (TypeSystemServices.CheckOverrideSignature(methodEntity, baseMethod))
+					CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
+					if (IsUnknown(method.ReturnType))
 					{
-						CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
-						if (IsUnknown(method.ReturnType))
-						{
-							method.ReturnType = CodeBuilder.CreateTypeReference(baseSignature.ReturnType);
-						}
-
-						else if (!baseSignature.ReturnType.Equals(method.ReturnType.Entity))
-						{
-							Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, baseMethod.FullName));
-						}
-
-						if (null != method.ExplicitInfo)
-							method.ExplicitInfo.Entity = baseMethod;
-
-						if (!method.IsOverride && !method.IsVirtual)
-							method.Modifiers |= TypeMemberModifiers.Virtual;
-
-						_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, baseMethod);
-						resolved = true;
+						method.ReturnType = CodeBuilder.CreateTypeReference(baseSignature.ReturnType);
 					}
+
+					else if (baseSignature.ReturnType != method.ReturnType.Entity)
+					{
+						Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, baseMethod.FullName));
+					}
+
+					if (null != method.ExplicitInfo)
+						method.ExplicitInfo.Entity = baseMethod;
+
+					if (!method.IsOverride && !method.IsVirtual)
+						method.Modifiers |= TypeMemberModifiers.Virtual;
+
+					_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, baseMethod);
+					return;
 				}
 			}
 
-			if (resolved)
-				return;
-
+			// FIXME: this will fail with InvalidCastException on a base type that's a GenericTypeReference!
 			foreach(SimpleTypeReference parent in node.BaseTypes)
 			{
 				if(_classDefinitionList.Contains(parent.Name))
@@ -487,6 +478,32 @@ namespace Boo.Lang.Compiler.Steps
 					node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, baseMethod));
 				}				
 			}
+		}
+
+		private IEnumerable<Method> GetAbstractMethodImplementationCandidates(TypeDefinition node, IMethod baseMethod)
+		{
+			List<Method> candidates = new List<Method>();
+			foreach (TypeMember member in node.Members)
+			{
+				if (member.NodeType == NodeType.Method && 
+					member.Name == baseMethod.Name && 
+					IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, baseMethod))
+				{
+					candidates.Add((Method)member);
+				}
+			}
+
+			// BOO-1031: Move explicitly implemented candidates to top of list so that
+			// they're used for resolution before non-explicit ones, if possible.		
+			candidates.Sort(ExplicitMethodsFirst);
+			return candidates;
+		}
+
+		private int ExplicitMethodsFirst(Method lhs, Method rhs)
+		{
+			if (lhs.ExplicitInfo != null && rhs.ExplicitInfo == null) return -1;
+			if (lhs.ExplicitInfo == null && rhs.ExplicitInfo != null) return 1;
+			return 0;
 		}
 
 		private bool IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(TypeMember member, IMember entity)

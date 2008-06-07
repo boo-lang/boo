@@ -1,4 +1,3 @@
-#ignore BOO-1031 may require extensive refactoring of ProcessInheritedAbstractMembers
 """
 Success::System.Collections.IEnumerable.GetEnumerator
 Success2::System.Collections.IEnumerable.GetEnumerator
@@ -50,7 +49,7 @@ class Success3(B*,IGimmeEnumerator,IEnumeratorOuLaVie):
 	def GetEnumerator():
 		return null
 	def IEnumerable.GetEnumerator():
-		print "Success2::System.Collections.IEnumerable.GetEnumerator"
+		print "Success3::System.Collections.IEnumerable.GetEnumerator"
 		return null
 
 e as IEnumerable = Success()

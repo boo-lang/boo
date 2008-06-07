@@ -1,4 +1,3 @@
-#ignore BOO-1031 may require extensive refactoring of ProcessInheritedAbstractMembers
 """
 Success::System.Collections.IEnumerable.GetEnumerator
 Success2::System.Collections.IEnumerable.GetEnumerator
