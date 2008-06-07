@@ -908,21 +908,19 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessMethodOverride(InternalMethod entity, IMethod baseMethod)
 		{
+			CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, entity);
+
 			if (TypeSystemServices.IsUnknown(entity.ReturnType))
 			{
-				entity.Method.ReturnType = CodeBuilder.CreateTypeReference(entity.Method.LexicalInfo, baseMethod.ReturnType);
+				entity.Method.ReturnType = CodeBuilder.CreateTypeReference(entity.Method.LexicalInfo, baseSignature.ReturnType);
 			}
-			else if (GenericsServices.IsGenericParameter(entity.ReturnType)
-						== GenericsServices.IsGenericParameter(baseMethod.ReturnType))
+			else if (baseSignature.ReturnType != entity.ReturnType)
 			{
-				if (!baseMethod.ReturnType.Equals(entity.ReturnType))
-				{
-					Error(CompilerErrorFactory.InvalidOverrideReturnType(
-						entity.Method.ReturnType,
-						baseMethod.FullName,
-						baseMethod.ReturnType.ToString(),
-						entity.ReturnType.ToString()));
-				}
+				Error(CompilerErrorFactory.InvalidOverrideReturnType(
+					entity.Method.ReturnType,
+					baseMethod.FullName,
+					baseMethod.ReturnType.ToString(),
+					entity.ReturnType.ToString()));
 			}
 			SetOverride(entity, baseMethod);
 		}

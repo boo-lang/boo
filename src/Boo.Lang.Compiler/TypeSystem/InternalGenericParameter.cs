@@ -327,23 +327,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return _tss.ObjectType;
 		}
-
-		override public bool Equals(object rhs)
-		{
-			IGenericParameter p = rhs as IGenericParameter;
-			if (null == p) return false;
-
-			//TODO: >=0.9 : check base type constraints
-			return Name == p.Name //FIXME: should be GenericParameterPosition but crashes on internal g. params(?!!)
-				&& Variance == p.Variance
-				&& MustHaveDefaultConstructor  == p.MustHaveDefaultConstructor
-				&& IsClass == p.IsClass
-				&& IsValueType == p.IsValueType;
-		}
-		
-		override public int GetHashCode()
-		{
-			return base.GetHashCode();
-		}
 	}
 }

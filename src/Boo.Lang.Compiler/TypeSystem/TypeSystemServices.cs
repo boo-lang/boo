@@ -699,24 +699,38 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 
 		private bool CompatibleReturnTypes(CallableSignature lvalue, CallableSignature rvalue)
-					{
+		{
 			if (VoidType != lvalue.ReturnType && VoidType != rvalue.ReturnType)
 			{
-						return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
-					}
+				return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
+			}
 
-					return true;
-				}
+			return true;
+		}
 
 		public static bool CheckOverrideSignature(IMethod impl, IMethod baseMethod)
 		{
-			return GenericsServices.AreOfSameGenerity(impl, baseMethod)
-				&& CheckOverrideSignature(impl.GetParameters(), baseMethod.GetParameters());
+			if (!GenericsServices.AreOfSameGenerity(impl, baseMethod))
+			{
+				return false;
+			}
+
+			CallableSignature baseSignature = GetOverriddenSignature(baseMethod, impl);
+			return CheckOverrideSignature(impl.GetParameters(), baseSignature.Parameters);
 		}
 
 		public static bool CheckOverrideSignature(IParameter[] implParameters, IParameter[] baseParameters)
 		{
 			return CallableSignature.AreSameParameters(implParameters, baseParameters);
+		}
+
+		public static CallableSignature GetOverriddenSignature(IMethod baseMethod, IMethod impl)
+		{
+			if (baseMethod.GenericInfo != null && TypeSystem.GenericsServices.AreOfSameGenerity(baseMethod, impl))
+			{
+				return baseMethod.GenericInfo.ConstructMethod(impl.GenericInfo.GenericParameters).CallableType.GetSignature();
+			}
+			return baseMethod.CallableType.GetSignature();
 		}
 
 		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)

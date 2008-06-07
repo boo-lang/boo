@@ -202,10 +202,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool CheckInheritedMethodImpl(IMethod impl, IMethod baseMethod)
 		{
-			if(TypeSystemServices.CheckOverrideSignature(impl, baseMethod))
+			if (TypeSystemServices.CheckOverrideSignature(impl, baseMethod))
 			{
-				if(impl.ReturnType == baseMethod.ReturnType)
+				IType baseReturnType = TypeSystemServices.GetOverriddenSignature(baseMethod, impl).ReturnType;
+				if (impl.ReturnType == baseReturnType)
+				{
 					return true;
+				}
+				
 				//TODO: Oh snap! No reusable error messages for this!
 				//Errors(CompilerErrorFactory.ConflictWithInheritedMember());
 			}
@@ -418,41 +422,42 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ResolveAbstractMethod(ClassDefinition node,
 			TypeReference baseTypeRef,
-			IMethod entity)
+			IMethod baseMethod)
 		{
-			if (entity.IsSpecialName)
+			if (baseMethod.IsSpecialName)
 				return;
 
 			bool resolved = false;
 
 			foreach (TypeMember member in node.Members)
 			{
-				if (entity.Name == member.Name
+				if (baseMethod.Name == member.Name
 					&& NodeType.Method == member.NodeType
-					&& IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, entity))
+					&& IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, baseMethod))
 				{
 					Method method = (Method)member;
+					IMethod methodEntity = GetEntity(method);
 
-					if (TypeSystemServices.CheckOverrideSignature(GetEntity(method), entity))
+					if (TypeSystemServices.CheckOverrideSignature(methodEntity, baseMethod))
 					{
+						CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
 						if (IsUnknown(method.ReturnType))
 						{
-							method.ReturnType = CodeBuilder.CreateTypeReference(entity.ReturnType);
+							method.ReturnType = CodeBuilder.CreateTypeReference(baseSignature.ReturnType);
 						}
-						else if (GenericsServices.IsGenericParameter(method.ReturnType.Entity)
-									== GenericsServices.IsGenericParameter(entity.ReturnType))
+
+						else if (!baseSignature.ReturnType.Equals(method.ReturnType.Entity))
 						{
-							if (!entity.ReturnType.Equals(method.ReturnType.Entity))
-								Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, entity.FullName));
+							Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, baseMethod.FullName));
 						}
 
 						if (null != method.ExplicitInfo)
-							method.ExplicitInfo.Entity = entity;
+							method.ExplicitInfo.Entity = baseMethod;
 
 						if (!method.IsOverride && !method.IsVirtual)
 							method.Modifiers |= TypeMemberModifiers.Virtual;
 
-						_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, entity);
+						_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, baseMethod);
 						resolved = true;
 					}
 				}
@@ -466,20 +471,20 @@ namespace Boo.Lang.Compiler.Steps
 				if(_classDefinitionList.Contains(parent.Name))
 				{
 					depth++;
-					ResolveAbstractMethod(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, entity);
+					ResolveAbstractMethod(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, baseMethod);
 					depth--;
 				}
 			}
 
-			if(CheckInheritsInterfaceImplementation(node, entity))
+			if(CheckInheritsInterfaceImplementation(node, baseMethod))
 				return;
 
 			if(depth == 0)
 			{			
-				if (!AbstractMemberNotImplemented(node, baseTypeRef, entity))
+				if (!AbstractMemberNotImplemented(node, baseTypeRef, baseMethod))
 				{
 					//BEHAVIOR < 0.7.7: no stub, mark class as abstract
-					node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, entity));
+					node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, baseMethod));
 				}				
 			}
 		}
@@ -648,6 +653,16 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
+		}
+
+		IMethod GetCorrectBaseMethod(IMethod baseMethod, IMethod implMethod)
+		{
+			if (baseMethod.GenericInfo != null && 
+				GenericsServices.AreOfSameGenerity(baseMethod, implMethod))
+			{
+				return baseMethod.GenericInfo.ConstructMethod(implMethod.GenericInfo.GenericParameters);
+			}
+			return baseMethod;
 		}
 	}
 }
