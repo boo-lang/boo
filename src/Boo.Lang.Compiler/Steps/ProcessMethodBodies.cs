@@ -2632,24 +2632,28 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveAmbiguousReference(ReferenceExpression node, Ambiguous candidates)
 		{
-			if (!AstUtil.IsTargetOfSlicing(node)
-				&& !AstUtil.IsLhsOfAssignment(node))
+			IEntity resolved = ResolveAmbiguousReferenceByAccessibility(candidates);
+			Ambiguous accessibleCandidates = resolved as Ambiguous;
+
+			if (accessibleCandidates != null && 
+				!AstUtil.IsTargetOfSlicing(node) && 
+				!AstUtil.IsLhsOfAssignment(node))
 			{
-				if (candidates.AllEntitiesAre(EntityType.Property))
+				if (accessibleCandidates.AllEntitiesAre(EntityType.Property))
 				{
-					return ResolveAmbiguousPropertyReference(node, candidates, EmptyExpressionCollection);
+					return ResolveAmbiguousPropertyReference(node, accessibleCandidates, EmptyExpressionCollection);
 				}
-				else if (candidates.AllEntitiesAre(EntityType.Method))
+				else if (accessibleCandidates.AllEntitiesAre(EntityType.Method))
 				{
-					return ResolveAmbiguousMethodReference(node, candidates, EmptyExpressionCollection);
+					return ResolveAmbiguousMethodReference(node, accessibleCandidates, EmptyExpressionCollection);
 					}
-				else if (candidates.AllEntitiesAre(EntityType.Type))
+				else if (accessibleCandidates.AllEntitiesAre(EntityType.Type))
 				{
-					return ResolveAmbiguousTypeReference(node, candidates);
+					return ResolveAmbiguousTypeReference(node, accessibleCandidates);
 				}
 			}
 
-			return ResolveAmbiguousReferenceByAccessibility(candidates);
+			return resolved;
 		}
 
 		private IEntity ResolveAmbiguousMethodReference(ReferenceExpression node, Ambiguous candidates, ExpressionCollection args)
@@ -2675,6 +2679,7 @@ namespace Boo.Lang.Compiler.Steps
 				BindProperty(node, property);
 				return property;
 			}
+
 			return candidates;
 		}
 
@@ -2712,11 +2717,15 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (IEntity entity in candidates.Entities)
 			{
 				if (!IsInaccessible(entity))
-				{ newEntities.Add(entity); }
+				{
+					newEntities.Add(entity);
+				}
 			}
 
 			if (newEntities.Count == 1)
-			{ return (IEntity)newEntities[0]; }
+			{
+				return (IEntity)newEntities[0];
+			}
 
 			return new Ambiguous(newEntities);
 		}
