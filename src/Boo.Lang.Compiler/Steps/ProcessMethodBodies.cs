@@ -4102,11 +4102,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ReplaceMetaMethodInvocationSite(MethodInvocationExpression node, Node replacement)
 		{
-			if (replacement is Statement)
+			if (replacement == null || replacement is Statement)
 			{
 				if (node.ParentNode.NodeType != NodeType.ExpressionStatement)
+				{
 					NotImplemented(node, "Cant use an statement where an expression is expected.");
-				node.ParentNode.ParentNode.Replace(node.ParentNode, replacement);
+				}
+				Node statementParent = node.ParentNode.ParentNode;
+				statementParent.Replace(node.ParentNode, replacement);
 			}
 			else
 			{
