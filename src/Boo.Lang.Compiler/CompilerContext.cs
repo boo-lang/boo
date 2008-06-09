@@ -41,10 +41,10 @@ namespace Boo.Lang.Compiler
 	{				
 		public static CompilerContext Current
 		{
-			get { return _current.Value; }
+			get { return _current != null ? _current.Value : null; }
 		}
 
-		[ThreadStatic] private static DynamicVariable<CompilerContext> _current = new DynamicVariable<CompilerContext>();
+		[ThreadStatic] private static DynamicVariable<CompilerContext> _current;
 
 		protected CompilerParameters _parameters;
 
@@ -308,7 +308,13 @@ namespace Boo.Lang.Compiler
 		/// <param name="action"></param>
 		public void Run(System.Action<CompilerContext> action)
 		{
-			_current.With(this, action);
+			CurrentVariable().With(this, action);
+		}
+
+		private static DynamicVariable<CompilerContext> CurrentVariable()
+		{
+			if (null == _current) _current = new DynamicVariable<CompilerContext>();
+			return _current;
 		}
 	}
 
