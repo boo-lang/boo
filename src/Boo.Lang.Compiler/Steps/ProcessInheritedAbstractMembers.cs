@@ -280,60 +280,48 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		private IProperty GetPropertyEntity(TypeMember member)
-		{
-			return (IProperty)GetEntity(member);
-		}
-		
-		void ResolveClassAbstractProperty(ClassDefinition node,
+		void ResolveAbstractProperty(ClassDefinition node,
 			TypeReference baseTypeRef,
-			IProperty entity)
+			IProperty baseProperty)
 		{			
-			bool resolved = false;
-
-			foreach (TypeMember member in node.Members)
+			foreach (Property p in GetAbstractPropertyImplementationCandidates(node, baseProperty))
 			{
-				if (entity.Name != member.Name
-					|| NodeType.Property != member.NodeType
-					|| !IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, entity)
-					|| !TypeSystemServices.CheckOverrideSignature(entity.GetParameters(), GetPropertyEntity(member).GetParameters()))
+				if (!TypeSystemServices.CheckOverrideSignature(GetEntity(p).GetParameters(), baseProperty.GetParameters()))
+				{
 					continue;
+				}
 
-				Property p = (Property) member;
-				ProcessPropertyAccessor(p, p.Getter, entity.GetGetMethod());
-				ProcessPropertyAccessor(p, p.Setter, entity.GetSetMethod());
+				ProcessPropertyAccessor(p, p.Getter, baseProperty.GetGetMethod());
+				ProcessPropertyAccessor(p, p.Setter, baseProperty.GetSetMethod());
 				if (null == p.Type)
 				{
-					p.Type = CodeBuilder.CreateTypeReference(entity.Type);
+					p.Type = CodeBuilder.CreateTypeReference(baseProperty.Type);
 				}
 				else
 				{
-					if (entity.Type != p.Type.Entity)
-						Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, entity.FullName));
+					if (baseProperty.Type != p.Type.Entity)
+						Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, baseProperty.FullName));
 				}
-				resolved = true;
-			}
-
-			if (resolved)
 				return;
+			}
 
 			foreach(SimpleTypeReference parent in node.BaseTypes)
 			{
 				if(_classDefinitionList.Contains(parent.Name))
 				{
 					depth++;
-					ResolveClassAbstractProperty(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, entity);
+					ResolveAbstractProperty(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, baseProperty);
 					depth--;
 				}
 			}
 
-			if(CheckInheritsInterfaceImplementation(node, entity))
+			if(CheckInheritsInterfaceImplementation(node, baseProperty))
 				return;
 
 			if(depth == 0)
 			{
-				node.Members.Add(CreateAbstractProperty(baseTypeRef, entity));
-				AbstractMemberNotImplemented(node, baseTypeRef, entity);
+				node.Members.Add(CreateAbstractProperty(baseTypeRef, baseProperty));
+				AbstractMemberNotImplemented(node, baseTypeRef, baseProperty);
 			}
 		}
 
@@ -374,7 +362,9 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveAbstractEvent(ClassDefinition node,
 			TypeReference baseTypeRef,
 			IEvent entity)
-		{			
+		{	
+			// FIXME: this will produce an internal compiler error if the class implements 
+			// a non-event member by the same name
 			TypeMember member = node.Members[entity.Name];
 			if (null != member)
 			{
@@ -432,28 +422,29 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				IMethod methodEntity = GetEntity(method);
 
-				if (TypeSystemServices.CheckOverrideSignature(methodEntity, baseMethod))
+				if (!TypeSystemServices.CheckOverrideSignature(methodEntity, baseMethod))
 				{
-					CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
-					if (IsUnknown(method.ReturnType))
-					{
-						method.ReturnType = CodeBuilder.CreateTypeReference(baseSignature.ReturnType);
-					}
-
-					else if (baseSignature.ReturnType != method.ReturnType.Entity)
-					{
-						Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, baseMethod.FullName));
-					}
-
-					if (null != method.ExplicitInfo)
-						method.ExplicitInfo.Entity = baseMethod;
-
-					if (!method.IsOverride && !method.IsVirtual)
-						method.Modifiers |= TypeMemberModifiers.Virtual;
-
-					_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, baseMethod);
-					return;
+					continue;
 				}
+
+				CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
+				if (IsUnknown(method.ReturnType))
+				{
+					method.ReturnType = CodeBuilder.CreateTypeReference(baseSignature.ReturnType);
+				}
+				else if (baseSignature.ReturnType != method.ReturnType.Entity)
+				{
+					Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, baseMethod.FullName));
+				}
+
+				if (null != method.ExplicitInfo)
+					method.ExplicitInfo.Entity = baseMethod;
+
+				if (!method.IsOverride && !method.IsVirtual)
+					method.Modifiers |= TypeMemberModifiers.Virtual;
+
+				_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, baseMethod);
+				return;
 			}
 
 			// FIXME: this will fail with InvalidCastException on a base type that's a GenericTypeReference!
@@ -482,24 +473,38 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEnumerable<Method> GetAbstractMethodImplementationCandidates(TypeDefinition node, IMethod baseMethod)
 		{
-			List<Method> candidates = new List<Method>();
-			foreach (TypeMember member in node.Members)
+			return GetAbstractMemberImplementationCandidates<Method, IMethod>(node, baseMethod);
+		}
+
+		private IEnumerable<Property> GetAbstractPropertyImplementationCandidates(TypeDefinition node, IProperty baseProperty)
+		{
+			return GetAbstractMemberImplementationCandidates<Property, IProperty>(node, baseProperty);
+		}
+
+		private IEnumerable<TMember> GetAbstractMemberImplementationCandidates<TMember, TEntity>(
+			TypeDefinition node, TEntity baseEntity)
+			where TEntity : IEntityWithParameters, IMember
+			where TMember : TypeMember, IExplicitMember		
+		{
+			List<TMember> candidates = new List<TMember>();
+			foreach (TypeMember m in node.Members)
 			{
-				if (member.NodeType == NodeType.Method && 
-					member.Name == baseMethod.Name && 
-					IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, baseMethod))
+				TMember member = m as TMember;
+				if (member != null &&
+					member.Name == baseEntity.Name &&
+					IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, baseEntity))
 				{
-					candidates.Add((Method)member);
+					candidates.Add(member);
 				}
 			}
 
 			// BOO-1031: Move explicitly implemented candidates to top of list so that
 			// they're used for resolution before non-explicit ones, if possible.		
-			candidates.Sort(ExplicitMethodsFirst);
+			candidates.Sort(ExplicitMembersFirst);
 			return candidates;
 		}
 
-		private int ExplicitMethodsFirst(Method lhs, Method rhs)
+		private int ExplicitMembersFirst(IExplicitMember lhs, IExplicitMember rhs)
 		{
 			if (lhs.ExplicitInfo != null && rhs.ExplicitInfo == null) return -1;
 			if (lhs.ExplicitInfo == null && rhs.ExplicitInfo != null) return 1;
@@ -604,7 +609,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (IsAbstractAccessor(property.GetGetMethod()) ||
 							IsAbstractAccessor(property.GetSetMethod()))
 						{
-							ResolveClassAbstractProperty(node, baseTypeRef, property);
+							ResolveAbstractProperty(node, baseTypeRef, property);
 						}
 						break;
 					}
@@ -646,7 +651,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				case EntityType.Property:
 				{
-					ResolveClassAbstractProperty(node, baseTypeRef, (IProperty)member);
+					ResolveAbstractProperty(node, baseTypeRef, (IProperty)member);
 					break;
 				}
 
@@ -670,16 +675,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
-		}
-
-		IMethod GetCorrectBaseMethod(IMethod baseMethod, IMethod implMethod)
-		{
-			if (baseMethod.GenericInfo != null && 
-				GenericsServices.AreOfSameGenerity(baseMethod, implMethod))
-			{
-				return baseMethod.GenericInfo.ConstructMethod(implMethod.GenericInfo.GenericParameters);
-			}
-			return baseMethod;
 		}
 	}
 }
