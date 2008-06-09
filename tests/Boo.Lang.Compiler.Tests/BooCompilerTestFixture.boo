@@ -49,6 +49,11 @@ class CaptureContext(ICompilerStep):
 	
 	def Dispose():
 		pass
+		
+class AssertCurrentContext(Boo.Lang.Compiler.Steps.AbstractCompilerStep):
+	override def Run():
+		Assert.IsNotNull(_context)
+		Assert.AreSame(_context, CompilerContext.Current)
 
 [TestFixture]
 class CompilerTestFixture:
@@ -58,6 +63,12 @@ class CompilerTestFixture:
 	[SetUp]
 	def SetUp():
 		_compiler = Boo.Lang.Compiler.BooCompiler()
+		
+	[Test]
+	def CurrentContext():
+		_compiler.Parameters.Pipeline = NewPipeline(AssertCurrentContext())
+		errors = _compiler.Run().Errors
+		Assert.AreEqual(0, len(errors), errors.ToString(true))
 	
 	[Test]
 	def DefaultDebugSetting():
@@ -76,12 +87,16 @@ class CompilerTestFixture:
 	def RunWithPipeline():
 		capture = CaptureContext()
 		
-		_compiler.Parameters.Pipeline = CompilerPipeline()
-		_compiler.Parameters.Pipeline.Add(capture)
+		_compiler.Parameters.Pipeline = NewPipeline(capture)
 		
 		context = _compiler.Run()
 		Assert.IsNotNull(context)
 		Assert.AreSame(context, capture.CompilerContext)
+		
+	def NewPipeline(*steps as (ICompilerStep)):
+		pipeline = CompilerPipeline()
+		for step in steps: pipeline.Add(step)
+		return pipeline
 	
 	[Test]
 	def DefaultOutputType():

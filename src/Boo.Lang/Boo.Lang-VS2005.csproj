@@ -59,6 +59,7 @@
     <Compile Include="BooHashCodeProvider.cs" />
     <Compile Include="Builtins.cs" />
     <Compile Include="DuckTypedAttribute.cs" />
+    <Compile Include="DynamicVariable.cs" />
     <Compile Include="EnumeratorItemTypeAttribute.cs" />
     <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="GenericGenerator.cs" />

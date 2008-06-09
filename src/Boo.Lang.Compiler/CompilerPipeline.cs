@@ -262,6 +262,11 @@ namespace Boo.Lang.Compiler
 
 		virtual public void Run(CompilerContext context)
 		{
+			context.Run(DoRun);
+		}
+
+		protected void DoRun(CompilerContext context)
+		{
 			OnBefore(context);
 			try
 			{

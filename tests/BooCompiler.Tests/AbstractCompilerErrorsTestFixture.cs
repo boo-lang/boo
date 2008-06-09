@@ -6,9 +6,8 @@ namespace BooCompiler.Tests
 	{			
 		public class PrintErrors : Boo.Lang.Compiler.Pipelines.Compile
 		{
-			override public void Run(CompilerContext context)
+			protected override void OnAfter(CompilerContext context)
 			{
-				base.Run(context);
 				RunStep(context, new Boo.Lang.Compiler.Steps.PrintErrors());
 			}
 		}
@@ -20,10 +19,7 @@ namespace BooCompiler.Tests
 		
 		protected override bool IgnoreErrors
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 	}
 }

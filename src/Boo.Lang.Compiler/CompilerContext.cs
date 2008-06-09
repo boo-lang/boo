@@ -39,6 +39,13 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerContext
 	{				
+		public static CompilerContext Current
+		{
+			get { return _current.Value; }
+		}
+
+		[ThreadStatic] private static DynamicVariable<CompilerContext> _current = new DynamicVariable<CompilerContext>();
+
 		protected CompilerParameters _parameters;
 
 		protected CompileUnit _unit;
@@ -294,6 +301,15 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
+		/// <summary>
+		/// Runs the given action with this context ensuring CompilerContext.Current
+		/// returns the right context.
+		/// </summary>
+		/// <param name="action"></param>
+		public void Run(System.Action<CompilerContext> action)
+		{
+			_current.With(this, action);
+		}
 	}
 
 }
