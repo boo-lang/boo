@@ -221,15 +221,14 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod method = TypeSystemServices.GetOptionalEntity(parent.Target) as IMethod;
 			return null != method && method.AcceptVarArgs;
 		}
-		
+
 		bool IsTypeReference(Expression node)
 		{
-			return (NodeType.TypeofExpression == node.NodeType) ||
-				(
-					node is ReferenceExpression &&
-					node.Entity is IType);
+			if (NodeType.TypeofExpression == node.NodeType) return true;
+			return node.Entity is IType
+				&& (node is ReferenceExpression || node is GenericReferenceExpression);
 		}
-		
+
 		override public void OnGotoStatement(GotoStatement node)
 		{			
 			LabelStatement target = ((InternalLabel)node.Label.Entity).LabelStatement; 

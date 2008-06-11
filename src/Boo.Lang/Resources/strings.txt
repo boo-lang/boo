@@ -171,7 +171,7 @@ BCW0000=WARNING: {0}
 BCW0001=WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.
 BCW0002=WARNING: Statement modifiers have no effect in labels.
 BCW0003=WARNING: Unused local variable '{0}'.
-BCW0004=WARNING: right hand side of 'is' operator is a type reference, are you sure you don't want to use 'isa' instead?
+BCW0004=WARNING: Right hand side of 'is' operator is a type reference, are you sure you do not want to use 'isa' instead?
 BCW0005=WARNING: Unsubscribing from event '{0}' with an adapted method reference. Either change the signature of the method to '{1}' or use a cached reference of the correct type.
 BCW0006=WARNING: Assignment to temporary.
 BCW0007=WARNING: Assignment inside a conditional. Did you mean '==' instead of '=' here: '{0}'?
