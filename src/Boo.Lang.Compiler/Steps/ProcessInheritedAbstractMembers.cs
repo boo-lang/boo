@@ -499,16 +499,22 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			// BOO-1031: Move explicitly implemented candidates to top of list so that
-			// they're used for resolution before non-explicit ones, if possible.		
-			candidates.Sort(ExplicitMembersFirst);
+			// they're used for resolution before non-explicit ones, if possible.
+			// HACK: using IComparer<T> instead of Comparison<T> to workaround
+			//       mono bug #399214.
+			candidates.Sort(new ExplicitMembersFirstComparer<TMember>());
 			return candidates;
 		}
 
-		private int ExplicitMembersFirst(IExplicitMember lhs, IExplicitMember rhs)
+		private class ExplicitMembersFirstComparer<T> : IComparer<T>
+			where T : IExplicitMember
 		{
-			if (lhs.ExplicitInfo != null && rhs.ExplicitInfo == null) return -1;
-			if (lhs.ExplicitInfo == null && rhs.ExplicitInfo != null) return 1;
-			return 0;
+			public int Compare(T lhs, T rhs)
+			{
+				if (lhs.ExplicitInfo != null && rhs.ExplicitInfo == null) return -1;
+				if (lhs.ExplicitInfo == null && rhs.ExplicitInfo != null) return 1;
+				return 0;
+			}
 		}
 
 		private bool IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(TypeMember member, IMember entity)
