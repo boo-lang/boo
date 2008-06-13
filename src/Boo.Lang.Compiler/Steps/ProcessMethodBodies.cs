@@ -854,35 +854,42 @@ namespace Boo.Lang.Compiler.Steps
 
 			IType baseType = entity.DeclaringType.BaseType;
 			IEntity candidates = NameResolutionService.Resolve(baseType, entity.Name, EntityType.Method);
-			if (null != candidates)
+			if (null == candidates)
 			{
-				IMethod baseMethod = null;
-				if (EntityType.Method == candidates.EntityType)
+				return null;
+			}
+
+			IMethod baseMethod = FindMethodOverride(entity, candidates);
+			if (null != baseMethod) 
+			{
+				EnsureRelatedNodeWasVisited(method, baseMethod);
+			}
+			return baseMethod;
+		}
+
+		private static IMethod FindMethodOverride(InternalMethod entity, IEntity candidates)
+		{
+			if (EntityType.Method == candidates.EntityType)
+			{
+				IMethod candidate = (IMethod)candidates;
+				if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
 				{
-					IMethod candidate = (IMethod)candidates;
+					return candidate;
+				}
+			}
+			
+			if (EntityType.Ambiguous == candidates.EntityType)
+			{
+				IEntity[] entities = ((Ambiguous)candidates).Entities;
+				foreach (IMethod candidate in entities)
+				{
 					if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
 					{
-						baseMethod = candidate;
+						return candidate;
 					}
 				}
-				else if (EntityType.Ambiguous == candidates.EntityType)
-				{
-					IEntity[] entities = ((Ambiguous)candidates).Entities;
-					foreach (IMethod candidate in entities)
-					{
-						if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
-						{
-							baseMethod = candidate;
-							break;
-						}
-					}
-				}
-				if (null != baseMethod)
-				{
-					EnsureRelatedNodeWasVisited(method, baseMethod);
-				}
-				return baseMethod;
 			}
+
 			return null;
 		}
 
