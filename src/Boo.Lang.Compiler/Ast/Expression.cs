@@ -66,6 +66,11 @@ namespace Boo.Lang.Compiler.Ast
 			return new ReferenceExpression(p.LexicalInfo, p.Name);
 		}
 		
+		public static Expression Lift(TypeDefinition type)
+		{
+			return new TypeofExpression(type.LexicalInfo, TypeReference.Lift(type));
+		}
+		
 		protected Boo.Lang.Compiler.TypeSystem.IType _expressionType;
 		
 		public Expression()
