@@ -26,6 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using Boo.Lang.Compiler.TypeSystem;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
@@ -88,8 +91,60 @@ namespace Boo.Lang.Compiler.Steps
 
 			LeaveMember(node);
 		}
-		
+
 		override public void LeaveProperty(Property node)
+		{
+			NormalizeDefaultItemProperty(node);
+			NormalizePropertyModifiers(node);
+			LeaveMember(node);
+		}
+
+		private void NormalizeDefaultItemProperty(Property node)
+		{
+			if (!IsDefaultItemProperty(node)) return;
+
+			node.Name = "Item";
+			TypeDefinition declaringType = node.DeclaringType;
+			if (declaringType != null) AddDefaultMemberAttribute(declaringType, node);
+		}
+
+		private void AddDefaultMemberAttribute(TypeDefinition type, Property node)
+		{
+			if (!ContainsDefaultMemberAttribute(type))
+			{
+				Ast.Attribute attribute = CodeBuilder.CreateAttribute(
+					DefaultMemberAttributeStringConstructor(), 
+					new StringLiteralExpression(node.Name));
+				attribute.LexicalInfo = node.LexicalInfo;
+				type.Attributes.Add(attribute);
+			}
+		}
+
+		private IConstructor DefaultMemberAttributeStringConstructor()
+		{
+			return TypeSystemServices.Map(Types.DefaultMemberAttribute.GetConstructor(new System.Type[] {Types.String }));
+		}
+
+		private static bool ContainsDefaultMemberAttribute(TypeDefinition t)
+		{
+			foreach (Attribute a in t.Attributes)
+			{
+				if (a.Name.IndexOf("DefaultMember") >= 0)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private static bool IsDefaultItemProperty(Property node)
+		{
+			return (node.Name == "Item" || node.Name == "self")
+				&& node.Parameters.Count > 0
+				&& !node.IsStatic;
+		}
+
+		private void NormalizePropertyModifiers(Property node)
 		{
 			if (!node.IsVisibilitySet && null == node.ExplicitInfo)
 			{
@@ -110,8 +165,6 @@ namespace Boo.Lang.Compiler.Steps
 				SetPropertyAccessorModifiers(node, node.Setter);
 				node.Setter.Name = "set_" + node.Name;
 			}
-			
-			LeaveMember(node);
 		}
 
 		void SetPropertyAccessorModifiers(Property property, Method accessor)

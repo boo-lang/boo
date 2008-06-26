@@ -345,38 +345,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void LeaveProperty(Property node)
-		{
-			if (node.Name == "self")
-			{
-				node.Name = "Item";
-			}
-			if (node.Name == "Item" && node.Parameters.Count > 0 && !node.IsStatic)
-			{
-				TypeDefinition t = node.ParentNode as TypeDefinition;
-				if (t != null)
-				{
-					bool already_has_attribute = false;
-					foreach(Boo.Lang.Compiler.Ast.Attribute a in t.Attributes)
-					{
-						if (a.Name.IndexOf("DefaultMember") >= 0)
-						{
-							already_has_attribute = true;
-							break;
-						}
-					}
-					if (!already_has_attribute)
-					{
-						Boo.Lang.Compiler.Ast.Attribute att = new Boo.Lang.Compiler.Ast.Attribute(t.LexicalInfo);
-						att.Name = Types.DefaultMemberAttribute.FullName;
-						att.Arguments.Add(new StringLiteralExpression(node.Name));
-						t.Attributes.Add(att);
-						Visit(att);
-					}
-				}
-			}
-		}
-		
 		void Error(Boo.Lang.Compiler.Ast.Attribute node, CompilerError error)
 		{
 			node.Entity = TypeSystemServices.ErrorEntity;
