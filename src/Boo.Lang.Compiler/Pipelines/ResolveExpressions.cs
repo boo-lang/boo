@@ -49,9 +49,11 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindGenericParameters());
 			Add(new BindNamespaces());
 			Add(new BindBaseTypes());
-			Add(new BindAndApplyAttributes());
 			
-			Add(new ExpandMacros());
+//			Add(new BindAndApplyAttributes());
+//			Add(new ExpandMacros());
+			Add(new MacroAndAttributeExpansion());
+
 			Add(new IntroduceModuleClasses());
 			Add(new NormalizeStatementModifiers());
 			Add(new NormalizeTypeAndMemberDefinitions());

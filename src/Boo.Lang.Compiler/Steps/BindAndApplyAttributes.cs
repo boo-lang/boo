@@ -178,8 +178,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// Step 2. Processes AST attributes.
 	/// </summary>
 	public class BindAndApplyAttributes : AbstractNamespaceSensitiveTransformerCompilerStep
-	{
-		
+	{	
 		TaskList _tasks;
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
@@ -193,23 +192,36 @@ namespace Boo.Lang.Compiler.Steps
 			_tasks = new TaskList();
 		}
 
-		override public void Run()
+		public override void Initialize(CompilerContext context)
 		{
+			base.Initialize(context);
 			_astAttributeInterface = TypeSystemServices.Map(typeof(IAstAttribute));
-			
-			int step = 0;
-			while (step < Parameters.MaxAttributeSteps)
+		}
+
+		override public void Run()
+		{	
+			int iteration = 0;
+			while (iteration < Parameters.MaxAttributeSteps)
 			{
-				Visit(CompileUnit);
-				if (0 == _tasks.Count)
+				if (!BindAndApply())
 				{
 					break;
 				}
-				_tasks.Flush();
-				++step;
+				++iteration;
 			}
 		}
-		
+
+		public bool BindAndApply()
+		{
+			Visit(CompileUnit);
+			if (_tasks.Count == 0)
+			{
+				return false;
+			}
+			_tasks.Flush();
+			return true;
+		}
+
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));

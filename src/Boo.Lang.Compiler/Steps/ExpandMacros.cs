@@ -36,7 +36,16 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ExpandMacros : AbstractNamespaceSensitiveTransformerCompilerStep
 	{
-		StringBuilder _buffer = new StringBuilder();
+		private StringBuilder _buffer = new StringBuilder();
+
+		private int _expanded;
+
+		public bool ExpandAll()
+		{
+			_expanded = 0;
+			Run();
+			return _expanded > 0;
+		}
 		
 		override public void Run()
 		{
@@ -83,10 +92,16 @@ namespace Boo.Lang.Compiler.Steps
 			Type macroType = new MacroCompiler(Context).Compile(klass);
 			if (null == macroType)
 			{
-				Errors.Add(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
+				ProcessingError(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
 				return;
 			}
 			ProcessMacro(macroType, node);
+		}
+
+		private void ProcessingError(CompilerError error)
+		{
+			Errors.Add(error);
+			RemoveCurrentNode();
 		}
 
 		private void ProcessMacro(Type actualType, MacroStatement node)
@@ -95,7 +110,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (-1 == Array.IndexOf(actualType.GetInterfaces(), typeof(IAstMacro)))
 //			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
 			{
-				Errors.Add(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
+				ProcessingError(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
 				return;
 			}
 			
@@ -107,10 +122,12 @@ namespace Boo.Lang.Compiler.Steps
 					replacement = NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, replacement);
 				}
 				ReplaceCurrentNode(replacement);
+
+				++_expanded;
 			}
 			catch (Exception error)
 			{
-				Errors.Add(CompilerErrorFactory.MacroExpansionError(node, error));
+				ProcessingError(CompilerErrorFactory.MacroExpansionError(node, error));
 			}
 		}
 

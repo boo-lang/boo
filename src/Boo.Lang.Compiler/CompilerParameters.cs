@@ -89,7 +89,6 @@ namespace Boo.Lang.Compiler
 
 		private Dictionary<string, string> _defines = new Dictionary<string, string>();
 		
-
 		public CompilerParameters()
 			: this(true)
 		{
@@ -107,7 +106,7 @@ namespace Boo.Lang.Compiler
 			_resources = new CompilerResourceCollection();
 			_assemblyReferences = new AssemblyCollection();
 
-			_maxAttributeSteps = 2;
+			_maxAttributeSteps = 4;
 			_outputAssembly = string.Empty;
 			_outputType = CompilerOutputType.ConsoleApplication;
 			_outputWriter = System.Console.Out;

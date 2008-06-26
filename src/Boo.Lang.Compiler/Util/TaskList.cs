@@ -27,27 +27,22 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Util
 {
 	public class TaskList
 	{
-		System.Collections.ArrayList _tasks = new System.Collections.ArrayList();
+		private List<ITask> _tasks = new List<ITask>();
 
 		public int Count
 		{
-			get
-			{
-				return _tasks.Count;
-			}
+			get { return _tasks.Count; }
 		}
 
 		public void Add(ITask task)
 		{
-			if (null == task)
-			{
-				throw new ArgumentNullException("task");
-			}
+			if (null == task) throw new ArgumentNullException("task");
 			_tasks.Add(task);
 		}
 
