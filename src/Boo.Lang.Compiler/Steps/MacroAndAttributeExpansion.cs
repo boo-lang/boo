@@ -17,7 +17,7 @@ namespace Boo.Lang.Compiler.Steps
 		public override void Run()
 		{
 			int iteration = 0;
-			while (iteration < Parameters.MaxAttributeSteps)
+			while (iteration < Parameters.MaxExpansionIterations)
 			{
 				bool attributesApplied = _attributes.BindAndApply();
 				bool macrosExpanded = _macros.ExpandAll();

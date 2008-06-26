@@ -339,6 +339,7 @@
     <File name="Steps/InjectCastsAndConversions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/IntroduceGlobalNamespaces.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/IntroduceModuleClasses.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroAndAttributeExpansion.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MergePartialClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeIterationStatements.cs" buildaction="Compile" subtype="Code" />

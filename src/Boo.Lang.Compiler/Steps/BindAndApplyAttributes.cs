@@ -201,7 +201,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{	
 			int iteration = 0;
-			while (iteration < Parameters.MaxAttributeSteps)
+			while (iteration < Parameters.MaxExpansionIterations)
 			{
 				if (!BindAndApply())
 				{

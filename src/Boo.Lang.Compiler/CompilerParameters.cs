@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler
 
 		private AssemblyCollection _assemblyReferences;
 
-		private int _maxAttributeSteps;
+		private int _maxExpansionIterations;
 
 		private string _outputAssembly;
 
@@ -106,7 +106,7 @@ namespace Boo.Lang.Compiler
 			_resources = new CompilerResourceCollection();
 			_assemblyReferences = new AssemblyCollection();
 
-			_maxAttributeSteps = 4;
+			_maxExpansionIterations = 4;
 			_outputAssembly = string.Empty;
 			_outputType = CompilerOutputType.ConsoleApplication;
 			_outputWriter = System.Console.Out;
@@ -348,13 +348,14 @@ namespace Boo.Lang.Compiler
 		}
 
 		/// <summary>
-		/// Max number of steps for the resolution of AST attributes.		
+		/// Max number of iterations for the application of AST attributes and the
+		/// expansion of macros.		
 		/// </summary>
-		public int MaxAttributeSteps
+		public int MaxExpansionIterations
 		{
-			get { return _maxAttributeSteps; }
+			get { return _maxExpansionIterations; }
 
-			set { _maxAttributeSteps = value; }
+			set { _maxExpansionIterations = value; }
 		}
 
 		public CompilerInputCollection Input

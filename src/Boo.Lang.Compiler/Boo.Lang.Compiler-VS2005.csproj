@@ -382,6 +382,7 @@
     <Compile Include="Steps\InjectCastsAndConversions.cs" />
     <Compile Include="Steps\IntroduceGlobalNamespaces.cs" />
     <Compile Include="Steps\IntroduceModuleClasses.cs" />
+    <Compile Include="Steps\MacroAndAttributeExpansion.cs" />
     <Compile Include="Steps\MacroCompiler.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
