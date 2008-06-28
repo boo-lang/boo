@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+# SharpDevelop 3.0.0.3105
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Interpreter.Tests", "Boo.Lang.Interpreter.Tests.booproj", "{6B5F795B-0317-4C25-9115-115965CC78BE}"
+EndProject
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Interpreter", "..\..\src\Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj", "{5AB9F617-B157-4BFC-B251-EB64C4697FC0}"
+EndProject
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Extensions", "..\..\src\Boo.Lang.Extensions\Boo.Lang.Extensions.booproj", "{48E18542-C08D-4BAF-99D0-BA2882259F40}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B5F795B-0317-4C25-9115-115965CC78BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48E18542-C08D-4BAF-99D0-BA2882259F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48E18542-C08D-4BAF-99D0-BA2882259F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48E18542-C08D-4BAF-99D0-BA2882259F40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48E18542-C08D-4BAF-99D0-BA2882259F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+EndGlobal
