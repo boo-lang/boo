@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IType FindBaseType()
 		{
-			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			foreach (TypeReference baseType in _node.BaseTypes)
 			{
 				IType entity = (IType)baseType.Entity;
 				if (null != entity && !entity.IsInterface)
@@ -90,7 +90,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public bool IsSubclassOf(IType type)
 		{
-			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
+			foreach (TypeReference baseTypeReference in _node.BaseTypes)
 			{
 				IType baseType = TypeSystemServices.GetType(baseTypeReference);
 				if (type == baseType || baseType.IsSubclassOf(type))
@@ -106,7 +106,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == _constructors)
 			{
 				List constructors = new List();
-				foreach (TypeMember member in _typeDefinition.Members)
+				foreach (TypeMember member in _node.Members)
 				{
 					if (member.NodeType == NodeType.Constructor && !member.IsStatic)
 					{

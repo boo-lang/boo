@@ -78,10 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public override string FullName 
 		{
-			get 
-			{
-				return _method.FullName;
-			}
+			get { return _node.FullName; }
 		}
 		
 		public override bool Resolve(List targetList, string name, EntityType flags)

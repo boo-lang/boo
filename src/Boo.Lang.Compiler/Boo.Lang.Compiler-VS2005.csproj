@@ -469,6 +469,7 @@
     <Compile Include="TypeSystem\IConstructor.cs" />
     <Compile Include="TypeSystem\IDestructor.cs" />
     <Compile Include="TypeSystem\IEntity.cs" />
+    <Compile Include="TypeSystem\IEntityWithAttributes.cs" />
     <Compile Include="TypeSystem\IEntityWithParameters.cs" />
     <Compile Include="TypeSystem\IEvent.cs" />
     <Compile Include="TypeSystem\IExtensionEnabled.cs" />
@@ -487,6 +488,7 @@
     <Compile Include="TypeSystem\InternalCallableType.cs" />
     <Compile Include="TypeSystem\InternalClass.cs" />
     <Compile Include="TypeSystem\InternalConstructor.cs" />
+    <Compile Include="TypeSystem\InternalEntity.cs" />
     <Compile Include="TypeSystem\InternalEnum.cs" />
     <Compile Include="TypeSystem\InternalEnumMember.cs" />
     <Compile Include="TypeSystem\InternalEvent.cs" />

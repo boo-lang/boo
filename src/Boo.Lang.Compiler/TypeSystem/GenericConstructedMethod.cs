@@ -236,6 +236,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _fullyConstructed;
 			}
 		}
+
+		public bool IsDefined(IType attributeType)
+		{
+			return _definition.IsDefined(attributeType);
+		}
 		
 		public override string ToString()
 		{

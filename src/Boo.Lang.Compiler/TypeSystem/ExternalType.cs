@@ -121,6 +121,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		public bool IsDefined(IType attributeType)
+		{
+			ExternalType type = attributeType as ExternalType;
+			if (null == type) return false;
+			return MetadataUtil.IsAttributeDefined(_type, type.ActualType);
+		}
+
 		public virtual IType GetElementType()
 		{
 			return _typeSystemServices.Map(_type.GetElementType() ?? _type);

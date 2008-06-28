@@ -29,7 +29,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public interface IType : ITypedEntity, INamespace
+	public interface IType : ITypedEntity, INamespace, IEntityWithAttributes
 	{	
 		bool IsClass
 		{

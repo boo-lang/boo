@@ -99,5 +99,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _isDuckTyped.Value;
 			}
 		}
+
+
+		public bool IsDefined(IType attributeType)
+		{
+			ExternalType type = attributeType as ExternalType;
+			if (null == type) return false;
+			return MetadataUtil.IsAttributeDefined(_memberInfo, type.ActualType);
+		}
 	}
 }

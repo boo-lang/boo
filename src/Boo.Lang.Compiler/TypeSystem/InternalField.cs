@@ -30,95 +30,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using Boo.Lang.Compiler.Ast;
 
-	public class InternalField : IInternalEntity, IField
+	public class InternalField : InternalEntity<Field>, IField
 	{
-		Field _field;
-		object _staticValue;
+		private object _staticValue;
 		
-		public InternalField(Field field)
+		public InternalField(Field field) : base(field)
 		{
-			_field = field;
 		}
 		
-		public string Name
+		override public EntityType EntityType
 		{
-			get
-			{
-				return _field.Name;
-			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return _field.DeclaringType.FullName + "." + _field.Name;
-			}
-		}
-		
-		public bool IsStatic
-		{
-			get
-			{
-				return _field.IsStatic;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _field.IsPublic;
-			}
-		}
-		
-		public bool IsProtected
-		{
-			get
-			{
-				return _field.IsProtected;
-			}
-		}
-
-		public bool IsPrivate
-		{
-			get
-			{
-				return _field.IsPrivate;
-			}
-		}
-
-		public bool IsInternal
-		{
-			get
-			{
-				return _field.IsInternal;
-			}
-		}
-		
-		public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Field;
-			}
+			get { return EntityType.Field; }
 		}
 		
 		public IType Type
 		{
 			get
 			{
-				return null != _field.Type 
-					? TypeSystemServices.GetType(_field.Type)
+				return null != _node.Type 
+					? TypeSystemServices.GetType(_node.Type)
 					: Unknown.Default;
-			}
-		}
-		
-		public IType DeclaringType
-		{
-			get
-			{
-				return (IType)TypeSystemServices.GetEntity(_field.ParentNode);
 			}
 		}
 		
@@ -135,7 +66,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _field.IsFinal;
+				return _node.IsFinal;
 			}
 		}
 		
@@ -152,19 +83,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public Node Node
-		{
-			get
-			{
-				return _field;
-			}
-		}
-		
 		public Field Field
 		{
 			get
 			{
-				return _field;
+				return _node;
 			}
 		}
 		

@@ -31,16 +31,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using Boo.Lang.Compiler.Ast;
 
-	public class InternalMethod : IInternalEntity, IMethod, INamespace
+	public class InternalMethod : InternalEntity<Method>, IMethod, INamespace
 	{	
 		protected TypeSystemServices _typeSystemServices;
-		
-		protected Method _method;
-		
+
 		protected IMethod _override;
-		
-		protected IType _declaringType;
-		
+
 		protected IParameter[] _parameters;
 		
 		protected ExpressionCollection _returnExpressions;
@@ -50,18 +46,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private bool? _isBooExtension;
 		private bool? _isClrExtension;
 
-		internal InternalMethod(TypeSystemServices typeSystemServices, Method method)
+		internal InternalMethod(TypeSystemServices typeSystemServices, Method method) : base(method)
 		{
 			_typeSystemServices = typeSystemServices;
-			_method = method;
 			if (method.NodeType != NodeType.Constructor && method.NodeType != NodeType.Destructor)
 			{
-				if (null == _method.ReturnType)
+				if (null == _node.ReturnType)
 				{
-					IType returnType = _method.DeclaringType.NodeType == NodeType.ClassDefinition
+					IType returnType = _node.DeclaringType.NodeType == NodeType.ClassDefinition
 						? Unknown.Default
 						: (IType)_typeSystemServices.VoidType;
-					_method.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(method.LexicalInfo, returnType);
+					_node.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(method.LexicalInfo, returnType);
 				}
 			}
 		}
@@ -117,66 +112,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private bool IsAttributeDefined(System.Type attributeType)
 		{
-			return MetadataUtil.IsAttributeDefined(_method, _typeSystemServices.Map(attributeType));
-		}
-		
-		public IType DeclaringType
-		{
-			get
-			{
-				if (null == _declaringType)
-				{
-					_declaringType = (IType)TypeSystemServices.GetEntity(_method.DeclaringType);
-				}
-				return _declaringType;
-			}
-		}
-		
-		public bool IsStatic
-		{
-			get
-			{
-				return _method.IsStatic;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _method.IsPublic;
-			}
-		}
-		
-		public bool IsProtected
-		{
-			get
-			{
-				return _method.IsProtected;
-			}
+			return IsDefined(_typeSystemServices.Map(attributeType));
 		}
 
-		public bool IsPrivate
-		{
-			get
-			{
-				return _method.IsPrivate;
-			}
-		}
-
-		public bool IsInternal
-		{
-			get
-			{
-				return _method.IsInternal;
-			}
-		}
-		
 		public bool IsAbstract
 		{
 			get
 			{
-				return _method.IsAbstract;
+				return _node.IsAbstract;
 			}
 		}
 		
@@ -184,9 +127,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _method.IsVirtual
-					|| _method.IsAbstract
-					|| _method.IsOverride;
+				return _node.IsVirtual
+					|| _node.IsAbstract
+					|| _node.IsOverride;
 			}
 		}
 		
@@ -198,36 +141,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public string Name
-		{
-			get
-			{	
-				return _method.Name;
-			}
-		}
-
 		public bool AcceptVarArgs
 		{
 			get
 			{
-				return _method.Parameters.VariableNumber;
+				return _node.Parameters.VariableNumber;
 			}
 		}
 		
-		public virtual string FullName
+		override public EntityType EntityType
 		{
-			get
-			{
-				return _method.DeclaringType.FullName + "." + _method.Name;
-			}
-		}
-		
-		public virtual EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Method;
-			}
+			get { return EntityType.Method; }
 		}
 		
 		public ICallableType CallableType
@@ -250,15 +174,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _method;
-			}
-		}
-		
-		public Node Node
-		{
-			get
-			{
-				return _method;
+				return _node;
 			}
 		}
 		
@@ -279,7 +195,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _parameters)
 			{
-				_parameters = _typeSystemServices.Map(_method.Parameters);
+				_parameters = _typeSystemServices.Map(_node.Parameters);
 			}
 			return _parameters;
 		}
@@ -288,7 +204,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return TypeSystemServices.GetType(_method.ReturnType);
+				return TypeSystemServices.GetType(_node.ReturnType);
 			}
 		}
 		
@@ -357,7 +273,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				LabelCollector collector = new LabelCollector();
-				_method.Accept(collector);
+				_node.Accept(collector);
 				return collector.Labels;
 			}
 		}
@@ -376,7 +292,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Local ResolveLocal(string name)
 		{
-			foreach (Local local in _method.Locals)
+			foreach (Local local in _node.Locals)
 			{
 				if (local.PrivateScope) continue;
 				if (name == local.Name) return local;
@@ -386,7 +302,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public ParameterDeclaration ResolveParameter(string name)
 		{
-			foreach (ParameterDeclaration parameter in _method.Parameters)
+			foreach (ParameterDeclaration parameter in _node.Parameters)
 			{
 				if (name == parameter.Name) return parameter;
 			}

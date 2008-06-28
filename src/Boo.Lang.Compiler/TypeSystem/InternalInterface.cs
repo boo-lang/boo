@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			bool found = base.Resolve(targetList, name, flags);
 			
-			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			foreach (TypeReference baseType in _node.BaseTypes)
 			{	
 				if (TypeSystemServices.GetType(baseType).Resolve(targetList, name, flags))
 				{
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public bool IsSubclassOf(IType type)
 		{				
-			foreach (TypeReference baseTypeReference in _typeDefinition.BaseTypes)
+			foreach (TypeReference baseTypeReference in _node.BaseTypes)
 			{
 				IType baseType = TypeSystemServices.GetType(baseTypeReference);
 				if (type == baseType || baseType.IsSubclassOf(type))
@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		int GetMaxBaseInterfaceDepth()
 		{
 			int max = 0;
-			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			foreach (TypeReference baseType in _node.BaseTypes)
 			{
 				IType tag = TypeSystemServices.GetType(baseType);
 				int depth = tag.GetTypeDepth();

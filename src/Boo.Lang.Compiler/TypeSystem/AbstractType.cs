@@ -196,6 +196,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get { return null; }
 		}
+
+		public bool IsDefined(IType attributeType)
+		{
+			return false;
+		}
 	}
 
 }

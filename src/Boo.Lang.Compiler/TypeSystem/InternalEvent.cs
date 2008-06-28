@@ -30,109 +30,49 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using Boo.Lang.Compiler.Ast;
 
-	public class InternalEvent : IEvent, IInternalEntity
+	public class InternalEvent : InternalEntity<Event>, IEvent
 	{	
-		Event _event;
+		private InternalField _backingField;
 		
-		InternalField _backingField;
-		
-		public InternalEvent(TypeSystemServices tagManager, Event event_)
+		public InternalEvent(TypeSystemServices tagManager, Event event_) : base(event_)
 		{
-			_event = event_;
-		}
-		
-		public IType DeclaringType
-		{
-			get
-			{
-				return (IType)TypeSystemServices.GetEntity(_event.DeclaringType);
-			}
 		}
 		
 		public IMethod GetAddMethod()
 		{
-			return (IMethod)TypeSystemServices.GetEntity(_event.Add);
+			return (IMethod)TypeSystemServices.GetEntity(_node.Add);
 		}
 		
 		public IMethod GetRemoveMethod()
 		{
-			return (IMethod)TypeSystemServices.GetEntity(_event.Remove);
+			return (IMethod)TypeSystemServices.GetEntity(_node.Remove);
 		}
 		
 		public IMethod GetRaiseMethod()
 		{
-			return (IMethod)TypeSystemServices.GetEntity(_event.Raise);
+			return (IMethod)TypeSystemServices.GetEntity(_node.Raise);
 		}
 		
 		public Event Event
 		{
-			get
-			{
-				return _event;
-			}
+			get { return _node; }
 		}
-		
-		public Node Node
+
+		override public EntityType EntityType
 		{
-			get
-			{
-				return _event;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _event.IsPublic;
-			}
-		}
-		
-		public string Name
-		{
-			get
-			{
-				return _event.Name;
-			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return _event.DeclaringType.FullName + "." + _event.Name;
-			}
-		}
-		
-		public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Event;
-			}
+			get { return EntityType.Event; }
 		}
 		
 		public IType Type
 		{
-			get
-			{
-				return (IType)TypeSystemServices.GetEntity(_event.Type);
-			}
+			get { return (IType)TypeSystemServices.GetEntity(_node.Type); }
 		}
 		
-		public bool IsStatic
-		{
-			get
-			{
-				return _event.IsStatic;
-			}
-		}
-
 		public bool IsVirtual
 		{
 			get
 			{
-				return _event.IsVirtual;
+				return _node.IsVirtual;
 			}
 		}
 
@@ -140,7 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _event.IsAbstract;
+				return _node.IsAbstract;
 			}
 		}
 

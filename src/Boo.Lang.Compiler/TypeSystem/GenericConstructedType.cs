@@ -271,6 +271,11 @@ namespace Boo.Lang.Compiler.TypeSystem
     		return _genericMapping.UnMap(method);
     	}
 
+		public bool IsDefined(IType attributeType)
+		{
+			return _definition.IsDefined(attributeType);
+		}
+
     	public override string ToString()
 		{
 			return FullName;

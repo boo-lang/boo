@@ -35,13 +35,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 	using System.Collections.Generic;
 
-	public abstract class AbstractInternalType : IInternalEntity, IType, INamespace, IGenericTypeInfo
+	public abstract class AbstractInternalType : InternalEntity<TypeDefinition>, IType, INamespace, IGenericTypeInfo
 	{
 		public static readonly IConstructor[] NoConstructors = new IConstructor[0];
 
 		protected TypeSystemServices _typeSystemServices;
-
-		protected TypeDefinition _typeDefinition;
 
 		protected INamespace _parentNamespace;
 
@@ -51,44 +49,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private Dictionary<IType[], IType> _constructedTypes = new Dictionary<IType[], IType>(ArrayEqualityComparer<IType>.Default);
 
-		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition)
+		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition) : base(typeDefinition)
 		{
 			_typeSystemServices = typeSystemServices;
-			_typeDefinition = typeDefinition;
 		}
 
 		protected virtual string BuildFullName()
 		{
-			return _typeDefinition.FullName;
+			return _node.FullName;
 		}
 
-		public string FullName
+		override public string FullName
 		{
 			get { return _fullName ?? (_fullName = BuildFullName());  }
 		}
 
-		public string Name
-		{
-			get
-			{
-				return _typeDefinition.Name;
-			}
-		}
-
-		public Node Node
-		{
-			get
-			{
-				return _typeDefinition;
-			}
-		}
-
 		public IType NestingType
 		{
-			get
-			{
-				return _typeDefinition.ParentNode.Entity as IType;
-			}
+			get { return _node.ParentNode.Entity as IType; }
 		}
 
 		public virtual INamespace ParentNamespace
@@ -97,7 +75,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (null == _parentNamespace)
 				{
-					_parentNamespace = (INamespace)TypeSystemServices.GetEntity(_typeDefinition.ParentNode);
+					_parentNamespace = (INamespace)TypeSystemServices.GetEntity(_node.ParentNode);
 				}
 				return _parentNamespace;
 			}
@@ -132,7 +110,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Try to resolve name as a generic parameter
 			if (NameResolutionService.IsFlagSet(flags, EntityType.Type))
 			{
-				foreach (GenericParameterDeclaration gpd in _typeDefinition.GenericParameters)
+				foreach (GenericParameterDeclaration gpd in _node.GenericParameters)
 				{
 					if (gpd.Name == name)
 					{
@@ -156,7 +134,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _typeDefinition;
+				return _node;
 			}
 		}
 
@@ -185,7 +163,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return NodeType.ClassDefinition == _typeDefinition.NodeType;
+				return NodeType.ClassDefinition == _node.NodeType;
 			}
 		}
 
@@ -193,7 +171,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _typeDefinition.IsAbstract;
+				return _node.IsAbstract;
 			}
 		}
 
@@ -201,7 +179,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return _typeDefinition.IsFinal || IsValueType;
+				return _node.IsFinal || IsValueType;
 			}
 		}
 
@@ -209,7 +187,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return NodeType.InterfaceDefinition == _typeDefinition.NodeType;
+				return NodeType.InterfaceDefinition == _node.NodeType;
 			}
 		}
 
@@ -217,7 +195,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return NodeType.EnumDefinition == _typeDefinition.NodeType;
+				return NodeType.EnumDefinition == _node.NodeType;
 			}
 		}
 
@@ -245,7 +223,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IEntity GetDefaultMember()
 		{
 			IType defaultMemberAttribute = _typeSystemServices.Map(Types.DefaultMemberAttribute);
-			foreach (Attribute attribute in _typeDefinition.Attributes)
+			foreach (Attribute attribute in _node.Attributes)
 			{
 				IConstructor tag = TypeSystemServices.GetEntity(attribute) as IConstructor;
 				if (null != tag)
@@ -262,11 +240,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 			}
-			if (_typeDefinition.BaseTypes.Count > 0)
+			if (_node.BaseTypes.Count > 0)
 			{
 				List buffer = new List();
 
-				foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+				foreach (TypeReference baseType in _node.BaseTypes)
 				{
 					IType tag = TypeSystemServices.GetType(baseType);
 					IEntity defaultMember = tag.GetDefaultMember();
@@ -287,7 +265,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		public virtual EntityType EntityType
+		override public EntityType EntityType
 		{
 			get
 			{
@@ -314,8 +292,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType[] GetInterfaces()
 		{
-			List buffer = new List(_typeDefinition.BaseTypes.Count);
-			foreach (TypeReference baseType in _typeDefinition.BaseTypes)
+			List buffer = new List(_node.BaseTypes.Count);
+			foreach (TypeReference baseType in _node.BaseTypes)
 			{
 				IType type = TypeSystemServices.GetType(baseType);
 				if (type.IsInterface) buffer.AddUnique(type);
@@ -325,7 +303,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual IEntity[] GetMembers()
 		{
-			return GetMemberEntities(_typeDefinition.Members);
+			return GetMemberEntities(_node.Members);
 		}
 
 		private IEntity[] GetMemberEntities(TypeMemberCollection members)
@@ -368,7 +346,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (_genericParameters == null)
 				{
 					_genericParameters = Array.ConvertAll<GenericParameterDeclaration, IGenericParameter>(
-						_typeDefinition.GenericParameters.ToArray(),
+						_node.GenericParameters.ToArray(),
 						delegate(GenericParameterDeclaration gpd) { return (IGenericParameter)gpd.Entity; } );
 				}
 

@@ -57,12 +57,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IMethod GetInvokeMethod()
 		{
-			return (IMethod)_typeDefinition.Members["Invoke"].Entity;
+			return (IMethod)_node.Members["Invoke"].Entity;
 		}
 		
 		public IMethod GetEndInvokeMethod()
 		{
-			return (IMethod)_typeDefinition.Members["EndInvoke"].Entity;
+			return (IMethod)_node.Members["EndInvoke"].Entity;
 		}
 		
 		override public bool IsAssignableFrom(IType other)

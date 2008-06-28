@@ -29,7 +29,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public interface IMember : ITypedEntity
+	public interface IMember : ITypedEntity, IEntityWithAttributes
 	{
 		bool IsDuckTyped
 		{

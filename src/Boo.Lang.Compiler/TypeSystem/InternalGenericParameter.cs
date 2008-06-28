@@ -310,6 +310,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return Name;
 		}
+
+		bool IEntityWithAttributes.IsDefined(IType attributeType)
+		{
+			throw new NotImplementedException();
+		}
 				
 		private bool HasConstraint(GenericParameterConstraints flag)
 		{

@@ -426,6 +426,7 @@
     <File name="TypeSystem/IConstructor.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IDestructor.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/IEntityWithAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IEntityWithParameters.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IEvent.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IExtensionEnabled.cs" buildaction="Compile" subtype="Code" />
@@ -444,6 +445,7 @@
     <File name="TypeSystem/InternalCallableType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalClass.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalConstructor.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/InternalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalEnum.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalEnumMember.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalEvent.cs" buildaction="Compile" subtype="Code" />

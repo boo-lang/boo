@@ -30,11 +30,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using Boo.Lang.Compiler.Ast;
 
-	public class InternalProperty : IInternalEntity, IProperty
+	public class InternalProperty : InternalEntity<Property>, IProperty
 	{
 		private TypeSystemServices _typeSystemServices;
-		
-		private Property _property;
 		
 		private IParameter[] _parameters;
 		
@@ -43,10 +41,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private bool? _isBooExtension;
 		private bool? _isClrExtension;
 
-		public InternalProperty(TypeSystemServices typeSystemServices, Property property)
+		public InternalProperty(TypeSystemServices typeSystemServices, Property property) : base(property)
 		{
 			_typeSystemServices = typeSystemServices;
-			_property = property;
 		}
 
 		public bool IsExtension
@@ -85,75 +82,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool IsAttributeDefined(System.Type attributeType)
 		{
-			return MetadataUtil.IsAttributeDefined(_property, _typeSystemServices.Map(attributeType));
-		}
-
-		public IType DeclaringType
-		{
-			get
-			{
-				return (IType)TypeSystemServices.GetEntity(_property.DeclaringType);
-			}
+			return MetadataUtil.IsAttributeDefined(_node, _typeSystemServices.Map(attributeType));
 		}
 		
-		public bool IsStatic
-		{
-			get
-			{				
-				return _property.IsStatic;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return _property.IsPublic;
-			}
-		}
-		
-		
-		public bool IsProtected
-		{
-			get
-			{
-				return _property.IsProtected;
-			}
-		}
-		
-		public bool IsInternal
-		{
-			get
-			{
-				return _property.IsInternal;
-			}
-		}
-		
-		public bool IsPrivate
-		{
-			get
-			{
-				return _property.IsPrivate;
-			}
-		}
-		
-		public string Name
-		{
-			get
-			{
-				return _property.Name;
-			}
-		}
-		
-		public string FullName
-		{
-			get
-			{
-				return _property.DeclaringType.FullName + "." + _property.Name;
-			}
-		}
-		
-		public EntityType EntityType
+		override public EntityType EntityType
 		{
 			get
 			{
@@ -165,8 +97,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return null != _property.Type 
-					? TypeSystemServices.GetType(_property.Type)
+				return null != _node.Type 
+					? TypeSystemServices.GetType(_node.Type)
 					: Unknown.Default;
 			}
 		}
@@ -183,7 +115,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _parameters)
 			{
-				_parameters = _typeSystemServices.Map(_property.Parameters);				
+				_parameters = _typeSystemServices.Map(_node.Parameters);				
 			}
 			return _parameters;
 		}
@@ -203,9 +135,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IMethod GetGetMethod()
 		{
-			if (null != _property.Getter)
+			if (null != _node.Getter)
 			{
-				return (IMethod)TypeSystemServices.GetEntity(_property.Getter);
+				return (IMethod)TypeSystemServices.GetEntity(_node.Getter);
 			}
 			if (null != _override)
 			{
@@ -216,9 +148,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IMethod GetSetMethod()
 		{
-			if (null != _property.Setter)
+			if (null != _node.Setter)
 			{
-				return (IMethod)TypeSystemServices.GetEntity(_property.Setter);
+				return (IMethod)TypeSystemServices.GetEntity(_node.Setter);
 			}
 			if (null != _override)
 			{
@@ -226,20 +158,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return null;
 		}
-		
-		public Node Node
-		{
-			get
-			{
-				return _property;
-			}
-		}
-		
+
 		public Property Property
 		{
 			get
 			{
-				return _property;
+				return _node;
 			}
 		}
 		
@@ -253,7 +177,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				return this.Type == _typeSystemServices.DuckType 
-				|| _property.Attributes.Contains("Boo.Lang.DuckTypedAttribute");
+				|| _node.Attributes.Contains("Boo.Lang.DuckTypedAttribute");
 			}
 		}
 	}

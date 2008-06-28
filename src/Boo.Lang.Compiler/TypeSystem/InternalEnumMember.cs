@@ -30,125 +30,60 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using Boo.Lang.Compiler.Ast;
 
-	public class InternalEnumMember : IInternalEntity, IField
-	{
-		EnumMember _member;
-		
-		public InternalEnumMember(TypeSystemServices tagManager, EnumMember member)
+	public class InternalEnumMember : InternalEntity<EnumMember>, IField
+	{	
+		public InternalEnumMember(TypeSystemServices tagManager, EnumMember member) : base(member)
 		{
-			_member = member;
 		}
 		
-		public string Name
+		override public bool IsStatic
 		{
-			get
-			{
-				return _member.Name;
-			}
+			get { return true; }
 		}
 		
-		public string FullName
+		override public bool IsPublic
 		{
-			get
-			{
-				return _member.DeclaringType.FullName + "." + _member.Name;
-			}
+			get { return true; }
 		}
 		
-		public bool IsStatic
+		override public bool IsProtected
 		{
-			get
-			{
-				return true;
-			}
-		}
-		
-		public bool IsPublic
-		{
-			get
-			{
-				return true;
-			}
-		}
-		
-		public bool IsProtected
-		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool IsLiteral
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
-		public bool IsInternal
+		override public bool IsInternal
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
-		public bool IsPrivate
+		override public bool IsPrivate
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool IsInitOnly
 		{
-			get
-			{
-				return false;
-			}
+			get { return false;  }
 		}
 		
-		public EntityType EntityType
+		override public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Field;
-			}
+			get { return EntityType.Field; }
 		}
 		
 		public IType Type
 		{
-			get
-			{
-				return DeclaringType;
-			}
-		}
-		
-		public IType DeclaringType
-		{
-			get
-			{
-				return (IType)TypeSystemServices.GetEntity(_member.ParentNode);
-			}
+			get { return DeclaringType; }
 		}
 		
 		public object StaticValue
 		{
-			get
-			{
-				return (int)_member.Initializer.Value;
-			}
-		}
-		
-		public Node Node
-		{
-			get
-			{
-				return _member;
-			}
+			get { return (int)_node.Initializer.Value; }
 		}
 
 		public bool IsDuckTyped

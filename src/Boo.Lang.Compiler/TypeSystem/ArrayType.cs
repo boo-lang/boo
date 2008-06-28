@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	public class ArrayType : IArrayType
@@ -262,5 +264,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get { return null; }
 		}
+
+		#region IEntityWithAttributes Members
+
+		public bool IsDefined(IType attributeType)
+		{
+			return false;
+		}
+
+		#endregion
 	}
 }
