@@ -163,9 +163,20 @@ parse_module[Module module]
 	(eos)?
 	(namespace_directive[module])?
 	(import_directive[module])*
-	(type_member[module.Members])*	
+	(
+		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? module_macro[module]
+		| type_member[module.Members]
+	)*	
 	globals[module]
 	(assembly_attribute[module] eos)*
+;
+
+protected
+module_macro[Module module]
+{
+	Statement s = null;
+}:
+	s=macro_stmt { module.Globals.Add(s); }
 ;
 			
 protected docstring[Node node]:
