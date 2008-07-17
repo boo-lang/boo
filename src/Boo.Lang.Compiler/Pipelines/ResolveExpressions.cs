@@ -37,8 +37,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new InitializeTypeSystemServices());
 			Add(new PreErrorChecking());
 
-			Add(new ExpandAstLiterals());
-			
 			Add(new MergePartialClasses());
 			
 			Add(new InitializeNameResolutionService());
@@ -49,11 +47,11 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindGenericParameters());
 			Add(new BindNamespaces());
 			Add(new BindBaseTypes());
-			
-//			Add(new BindAndApplyAttributes());
-//			Add(new ExpandMacros());
-			Add(new MacroAndAttributeExpansion());
 
+			Add(new MacroAndAttributeExpansion());
+			Add(new ExpandAstLiterals());
+			
+			
 			Add(new IntroduceModuleClasses());
 			Add(new NormalizeStatementModifiers());
 			Add(new NormalizeTypeAndMemberDefinitions());

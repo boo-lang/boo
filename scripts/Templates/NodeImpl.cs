@@ -134,9 +134,8 @@ end
 	
 	
 	for field in allFields:
-		fieldType = model.ResolveFieldType(field)
 		fieldName = GetPrivateName(field)
-		if fieldType is not null and not model.IsEnum(fieldType):
+		if model.IsNodeField(field):
 		
 %>			if (null != ${fieldName})
 			{

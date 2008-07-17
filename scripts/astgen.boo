@@ -51,6 +51,11 @@ class Model:
 	def GetEnums():
 		for member as TypeDefinition in Members:
 			yield member if IsEnum(member)
+			
+	def IsNodeField(field as Field):
+		if field.Type.ToString() == "Node": return true
+		fieldType = ResolveFieldType(field)
+		return fieldType is not null and not IsEnum(fieldType)
 
 	def IsConcreteAstNode(member as TypeMember):
 		return not (IsCollection(member) or IsEnum(member) or IsAbstract(member))
