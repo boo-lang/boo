@@ -30,10 +30,16 @@ namespace Boo.Lang
 {
 	public class DynamicVariable<T>
 	{
-		private T _current = default(T);
+		private T _current;
 
 		public DynamicVariable()
 		{	
+			_current = default(T);
+		}
+		
+		public DynamicVariable(T initialValue)
+		{
+			_current = initialValue;
 		}
 
 		public T Value
