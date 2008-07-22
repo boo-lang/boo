@@ -140,6 +140,14 @@ namespace Boo.Lang.Compiler.Ast
 		public override void OnExpressionStatement(ExpressionStatement node)
 		{
 			Visit(node.Expression);
+			if (null != node.Modifier)
+			{
+				Visit(node.Modifier);
+				MethodInvocationExpression ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.ExpressionStatement");
+				ctor.NamedArguments.Add(Pair("Modifier", Pop()));
+				ctor.NamedArguments.Add(Pair("Expression", Pop()));
+				Push(ctor);
+			}
 		}
 
 		public override void OnOmittedExpression(OmittedExpression node)
@@ -164,10 +172,14 @@ namespace Boo.Lang.Compiler.Ast
 
 		private void SpliceName(MethodInvocationExpression ctor, Expression nameExpression)
 		{
-			ctor.NamedArguments.Add(
-				new ExpressionPair(
-					new ReferenceExpression(nameExpression.LexicalInfo, "Name"),
-					LiftMemberName(nameExpression)));
+			ctor.NamedArguments.Add(Pair("Name", LiftMemberName(nameExpression)));
+		}
+		
+		private ExpressionPair Pair(string name, Expression e)
+		{
+			return new ExpressionPair(
+					new ReferenceExpression(e.LexicalInfo, name),
+					e);
 		}
 
 		public override void OnSpliceParameterDeclaration(SpliceParameterDeclaration node)
