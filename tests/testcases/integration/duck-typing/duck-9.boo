@@ -48,6 +48,8 @@ assert d_int == d_short
 assert false == (d_int != d_short)
 assert 2.Equals(d_short & (d_byte + 4))
 assert 6L.Equals(d_short | (d_long + 4))
+assert 3.Equals(d_short ^ (d_int >> 1))
+assert cast(ulong, 6).Equals(d_byte | (d_ulong << 1))
 try:
 	assert d_double | d_int
 	print "uh-oh"

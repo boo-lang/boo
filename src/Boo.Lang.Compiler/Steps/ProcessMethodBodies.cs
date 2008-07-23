@@ -3426,6 +3426,7 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.InPlaceShiftRight:
 				case BinaryOperatorType.InPlaceDivision:
 				case BinaryOperatorType.InPlaceMultiply:
+				case BinaryOperatorType.InPlaceModulus:
 				case BinaryOperatorType.InPlaceBitwiseOr:
 				case BinaryOperatorType.InPlaceBitwiseAnd:
 				case BinaryOperatorType.InPlaceExclusiveOr:
@@ -5292,6 +5293,9 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.InPlaceDivision:
 					return BinaryOperatorType.Division;
+					
+				case BinaryOperatorType.InPlaceModulus:
+					return BinaryOperatorType.Modulus;
 
 				case BinaryOperatorType.InPlaceBitwiseAnd:
 					return BinaryOperatorType.BitwiseAnd;

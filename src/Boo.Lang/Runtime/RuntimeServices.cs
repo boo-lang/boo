@@ -436,6 +436,12 @@ namespace Boo.Lang.Runtime
 						return op_BitwiseOr(lhs, lhsTypeCode, rhs, rhsTypeCode);
 					case ((int)'B' << 8) + (int)'d':			// op_BitwiseAnd
 						return op_BitwiseAnd(lhs, lhsTypeCode, rhs, rhsTypeCode);
+					case ((int)'E' << 8) + (int)'r':			// op_ExclusiveOr
+						return op_ExclusiveOr(lhs, lhsTypeCode, rhs, rhsTypeCode);
+					case ((int)'S' << 8) + (int)'t':			// op_ShiftLeft/Right
+						return operatorName[8] == 'L' ?
+							op_ShiftLeft(lhs, lhsTypeCode, rhs, rhsTypeCode) :
+							op_ShiftRight(lhs, lhsTypeCode, rhs, rhsTypeCode);
 					case ((int)'M' << 8) + (int)'h':			// op_Match
 					case ((int)'N' << 8) + (int)'h':			// op_NotMatch
 					case ((int)'M' << 8) + (int)'r':			// op_Member
@@ -890,6 +896,11 @@ namespace Boo.Lang.Runtime
 			return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
 		}
 
+		public static bool op_NotMatch(string input, System.Text.RegularExpressions.Regex pattern)
+		{
+			return !op_Match(input, pattern);
+		}
+	
 		public static bool op_NotMatch(string input, string pattern)
 		{
 			return !op_Match(input, pattern);
@@ -1424,6 +1435,98 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
+		private static object op_ExclusiveOr(object lhs, TypeCode lhsTypeCode,
+										  object rhs, TypeCode rhsTypeCode)
+		{
+			IConvertible lhsConvertible = (IConvertible)lhs;
+			IConvertible rhsConvertible = (IConvertible)rhs;
+
+			switch (GetConvertTypeCode(lhsTypeCode, rhsTypeCode))
+			{
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					throw new ArgumentException(lhsTypeCode + " ^ " + rhsTypeCode);
+				case TypeCode.UInt64:
+					return lhsConvertible.ToUInt64(null) ^ rhsConvertible.ToUInt64(null);
+				case TypeCode.Int64:
+					return lhsConvertible.ToInt64(null) ^ rhsConvertible.ToInt64(null);
+				case TypeCode.UInt32:
+					return lhsConvertible.ToUInt32(null) ^ rhsConvertible.ToUInt32(null);
+				case TypeCode.Int32:
+				default:
+					return lhsConvertible.ToInt32(null) ^ rhsConvertible.ToInt32(null);
+			}
+		}
+
+		private static object op_ShiftLeft(object lhs, TypeCode lhsTypeCode,
+										  object rhs, TypeCode rhsTypeCode)
+		{
+			IConvertible lhsConvertible = (IConvertible)lhs;
+			IConvertible rhsConvertible = (IConvertible)rhs;
+
+			switch(rhsTypeCode)
+			{
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					throw new ArgumentException(lhsTypeCode + " << " + rhsTypeCode);
+				default:
+					break;
+			}
+
+			switch (lhsTypeCode)
+			{
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					throw new ArgumentException(lhsTypeCode + " << " + rhsTypeCode);
+				case TypeCode.UInt64:
+					return lhsConvertible.ToUInt64(null) << rhsConvertible.ToInt32(null);
+				case TypeCode.Int64:
+					return lhsConvertible.ToInt64(null) << rhsConvertible.ToInt32(null);
+				case TypeCode.UInt32:
+					return lhsConvertible.ToUInt32(null) << rhsConvertible.ToInt32(null);
+				case TypeCode.Int32:
+				default:
+					return lhsConvertible.ToInt32(null) << rhsConvertible.ToInt32(null);
+			}
+		}
+		
+		private static object op_ShiftRight(object lhs, TypeCode lhsTypeCode,
+										  object rhs, TypeCode rhsTypeCode)
+		{
+			IConvertible lhsConvertible = (IConvertible)lhs;
+			IConvertible rhsConvertible = (IConvertible)rhs;
+			
+			switch(rhsTypeCode)
+			{
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					throw new ArgumentException(lhsTypeCode + " >> " + rhsTypeCode);
+				default:
+					break;
+			}
+
+			switch (lhsTypeCode)
+			{
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					throw new ArgumentException(lhsTypeCode + " >> " + rhsTypeCode);
+				case TypeCode.UInt64:
+					return lhsConvertible.ToUInt64(null) >> rhsConvertible.ToInt32(null);
+				case TypeCode.Int64:
+					return lhsConvertible.ToInt64(null) >> rhsConvertible.ToInt32(null);
+				case TypeCode.UInt32:
+					return lhsConvertible.ToUInt32(null) >> rhsConvertible.ToInt32(null);
+				case TypeCode.Int32:
+				default:
+					return lhsConvertible.ToInt32(null) >> rhsConvertible.ToInt32(null);
+			}
+		}
+		
 		private static object op_UnaryNegation(object operand, TypeCode operandTypeCode)
 		{
 			IConvertible operandConvertible = (IConvertible)operand;

@@ -55,6 +55,9 @@ namespace Boo.Lang.Compiler.Ast
 				case BinaryOperatorType.NotMember:
 				case BinaryOperatorType.BitwiseOr:
 				case BinaryOperatorType.BitwiseAnd:
+				case BinaryOperatorType.ExclusiveOr:
+				case BinaryOperatorType.ShiftLeft:
+				case BinaryOperatorType.ShiftRight:
 				{
 					return true;
 				}
@@ -268,8 +271,10 @@ namespace Boo.Lang.Compiler.Ast
 					BinaryOperatorType.InPlaceSubtraction == op ||
 					BinaryOperatorType.InPlaceMultiply == op ||
 					BinaryOperatorType.InPlaceDivision == op ||
+					BinaryOperatorType.InPlaceModulus == op ||
 					BinaryOperatorType.InPlaceBitwiseAnd == op ||
 					BinaryOperatorType.InPlaceBitwiseOr == op ||
+					BinaryOperatorType.InPlaceExclusiveOr == op ||
 					BinaryOperatorType.InPlaceShiftLeft == op ||
 					BinaryOperatorType.InPlaceShiftRight == op;
 		}

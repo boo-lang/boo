@@ -57,7 +57,7 @@ namespace Boo.Lang.Parser
 				case "-=": return BinaryOperatorType.InPlaceSubtraction;
 				case "/=": return BinaryOperatorType.InPlaceDivision;
 				case "*=": return BinaryOperatorType.InPlaceMultiply;
-				case "^=": return BinaryOperatorType.InPlaceExclusiveOr;
+				case "%=": return BinaryOperatorType.InPlaceModulus;
 			}
 			throw new ArgumentException(op, "op");
 		}

@@ -1318,6 +1318,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					return "=~";
 				}
 				
+				case BinaryOperatorType.NotMatch:
+				{
+					return "!~";
+				}
+
 				case BinaryOperatorType.Equality:
 				{
 					return "==";
@@ -1363,6 +1368,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					return "*=";
 				}
 				
+				case BinaryOperatorType.InPlaceModulus:
+				{
+					return "*=";
+				}
+
 				case BinaryOperatorType.InPlaceExclusiveOr:
 				{
 					return "^=";

@@ -2264,6 +2264,12 @@ assignment_expression returns [Expression e]
 				}
 			) |
 			(
+				ipxo:INPLACE_EXCLUSIVE_OR	{
+					token = ipxo;
+					binaryOperator = BinaryOperatorType.InPlaceExclusiveOr;
+				}
+			) |
+			(
 				ipba:INPLACE_BITWISE_AND {
 					token = ipba;
 					binaryOperator = BinaryOperatorType.InPlaceBitwiseAnd;
@@ -3231,7 +3237,7 @@ BITWISE_OR: '|' ('=' { $setType(INPLACE_BITWISE_OR); })?;
 
 BITWISE_AND: '&' ('=' { $setType(INPLACE_BITWISE_AND); })?;
 
-EXCLUSIVE_OR: '^' ('=' { $setType(ASSIGN); })?;
+EXCLUSIVE_OR: '^' ('=' { $setType(INPLACE_EXCLUSIVE_OR); })?;
 
 LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	
@@ -3266,7 +3272,7 @@ ADD: ('+') ('=' { $setType(ASSIGN); })?;
 
 SUBTRACT: ('-') ('=' { $setType(ASSIGN); })?;
 
-MODULUS: '%';
+MODULUS: '%' ('=' { $setType(ASSIGN); })?;
 
 MULTIPLY: '*' ('=' { $setType(ASSIGN); })?;
 

@@ -369,6 +369,7 @@ enum BinaryOperatorType:
 	InPlaceSubtraction
 	InPlaceMultiply
 	InPlaceDivision
+	InPlaceModulus
 	InPlaceBitwiseAnd
 	InPlaceBitwiseOr
 	ReferenceEquality
