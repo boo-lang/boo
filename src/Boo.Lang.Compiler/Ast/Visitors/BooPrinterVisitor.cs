@@ -1370,7 +1370,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				
 				case BinaryOperatorType.InPlaceModulus:
 				{
-					return "*=";
+					return "%=";
 				}
 
 				case BinaryOperatorType.InPlaceExclusiveOr:
