@@ -140,6 +140,11 @@ tokens
 	{
 		return LPAREN != token && LBRACK != token;
 	} 
+	
+	private LexicalInfo ToLexicalInfo(IToken token)
+	{
+		return SourceLocationFactory.ToLexicalInfo(token);
+	}
 }
 
 protected
@@ -2267,7 +2272,7 @@ char_literal returns [Expression e]
 {
 	e = null;
 }:
-	CHAR LPAREN
+	charToken:CHAR LPAREN
 	( 
 		t:SINGLE_QUOTED_STRING 
 		{
@@ -2277,6 +2282,12 @@ char_literal returns [Expression e]
 		i:INT
 		{
 			e = new CharLiteralExpression(SourceLocationFactory.ToLexicalInfo(i), (char) PrimitiveParser.ParseInt(i));
+		}
+		|
+		{
+			e = new MethodInvocationExpression(
+						ToLexicalInfo(charToken),
+						new ReferenceExpression(ToLexicalInfo(charToken), charToken.getText()));
 		}
 	)
 	RPAREN

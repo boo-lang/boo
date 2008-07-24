@@ -2523,7 +2523,7 @@ char_literal returns [Expression e]
 {
 	e = null;
 }:
-	CHAR LPAREN
+	charToken:CHAR LPAREN
 	( 
 		t:SINGLE_QUOTED_STRING 
 		{
@@ -2533,6 +2533,12 @@ char_literal returns [Expression e]
 		i:INT
 		{
 			e = new CharLiteralExpression(ToLexicalInfo(i), (char) PrimitiveParser.ParseInt(i));
+		}
+		|
+		{
+			e = new MethodInvocationExpression(
+						ToLexicalInfo(charToken),
+						new ReferenceExpression(ToLexicalInfo(charToken), charToken.getText()));
 		}
 	)
 	RPAREN
@@ -2575,8 +2581,7 @@ reference_expression returns [ReferenceExpression e]
 		ch:CHAR { t = ch; }
 	)
 	{
-		e = new ReferenceExpression(ToLexicalInfo(t));
-		e.Name = t.getText();
+		e = new ReferenceExpression(ToLexicalInfo(t), t.getText());
 	}	
 ;
 	
