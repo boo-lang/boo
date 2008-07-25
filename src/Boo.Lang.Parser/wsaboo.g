@@ -1144,7 +1144,6 @@ closure_macro_stmt returns [MacroStatement returnValue]
 	}
 ;
 
-		
 protected
 macro_stmt returns [MacroStatement returnValue]
 	{
@@ -1154,18 +1153,23 @@ macro_stmt returns [MacroStatement returnValue]
 	}:
 	id:ID expression_list[macro.Arguments]
 	(
+		(
+			begin_with_doc[macro] 
+				block[macro.Block.Statements]
+			end[macro.Block] { macro.Annotate("compound" ); }
+		) | 
 		compound_stmt[macro.Block] { macro.Annotate("compound"); } |
 		eos |
 		modifier=stmt_modifier eos { macro.Modifier = modifier; }
 	)
 	{
 		macro.Name = id.getText();
-		macro.LexicalInfo = SourceLocationFactory.ToLexicalInfo(id);
+		macro.LexicalInfo = ToLexicalInfo(id);
 		
 		returnValue = macro;
 	}
 ;
-
+		
 protected
 goto_stmt returns [GotoStatement stmt]
 	{
