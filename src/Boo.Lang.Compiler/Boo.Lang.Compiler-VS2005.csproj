@@ -517,7 +517,6 @@
     <Compile Include="TypeSystem\TypeSystemServices.cs" />
     <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />
-    <Compile Include="Util\CompilerCollectionBase.cs" />
     <Compile Include="Util\ITask.cs" />
     <Compile Include="Util\TaskList.cs" />
     <Compile Include="Util\TypeUtilities.cs" />

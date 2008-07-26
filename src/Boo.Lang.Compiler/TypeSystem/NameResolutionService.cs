@@ -172,7 +172,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			_buffer.Clear();
 			if (!ns.Resolve(_buffer, name, EntityType.Method|EntityType.Property)) return null;
-			_buffer.RemoveAll(new Predicate(new IsNotExtensionOf(type).Match));
+			_buffer.RemoveAll(new IsNotExtensionOf(type).Match);
 			return GetEntityFromBuffer();
 		}
 		

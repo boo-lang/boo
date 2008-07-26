@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// A collection of <see cref="CompilerResource"/> objects.
 	/// </summary>
-	public class CompilerResourceCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<ICompilerResource>
+	public class CompilerResourceCollection : List<ICompilerResource>
 	{
 	}
 }

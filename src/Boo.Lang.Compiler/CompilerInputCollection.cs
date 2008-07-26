@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// A collection of <see cref="ICompilerInput"/> objects.
 	/// </summary>
-	public class CompilerInputCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<ICompilerInput>
+	public class CompilerInputCollection : List<ICompilerInput>
 	{
 	}
 }

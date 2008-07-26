@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
-	public class CompilerWarningCollection : Boo.Lang.Compiler.Util.CompilerCollectionBase<CompilerWarning>
+	public class CompilerWarningCollection : List<CompilerWarning>
 	{
 		public event EventHandler<CompilerWarningEventArgs> Adding;
 
@@ -56,12 +56,13 @@ namespace Boo.Lang.Compiler
 		{
 		}
 
-		override public void Add(CompilerWarning warning)
+		override public List<CompilerWarning> Add(CompilerWarning warning)
 		{
 			if (OnAdding(warning))
 			{
-				base.Add(warning);
+				return base.Add(warning);
 			}
+			return this;
 		}
 
 		protected bool OnAdding(CompilerWarning warning)

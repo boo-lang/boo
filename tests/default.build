@@ -276,6 +276,7 @@
 			<references basedir="build">
 				<include name="${nunit.framework.dll}" />
 				<include name="BooCompiler.Tests.dll" />
+				<include name="Boo.Lang.dll"  />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 			</references>

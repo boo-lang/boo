@@ -42,17 +42,17 @@ namespace Boo.Lang.Compiler.Ast
 	{
 		protected Node _parent;
 
-		protected List _list;
+		protected List<T> _list;
 
 		protected NodeCollection()
 		{
-			_list = new List();
+			_list = new List<T>();
 		}
 
 		protected NodeCollection(Node parent)
 		{
 			_parent = parent;
-			_list = new List();
+			_list = new List<T>();
 		}
 
 		protected NodeCollection(Node parent, IEnumerable<T> list)
@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (null == list) throw new ArgumentNullException("list");
 
 			_parent = parent;
-			_list = new List(list);
+			_list = new List<T>(list);
 		}
 
 		public T this[int index]
@@ -91,7 +91,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public void CopyTo(Array array, int index)
 		{
-			_list.CopyTo(array, index);
+			((ICollection)_list).CopyTo(array, index);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
@@ -136,17 +136,21 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool ContainsNode(T node)
 		{
-			return _list.ContainsReference(node);
+			foreach (T n in _list)
+			{
+				if (n == node) return true;
+			}
+			return false;
 		}
 
-		public bool Contains(Predicate condition)
+		public bool Contains(System.Predicate<T> condition)
 		{
 			return _list.Contains(condition);
 		}
 
 		public bool ContainsEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
 		{
-			foreach (Node node in _list)
+			foreach (T node in _list)
 			{
 				if (entity == node.Entity)
 				{
@@ -177,23 +181,23 @@ namespace Boo.Lang.Compiler.Ast
 		public object Clone()
 		{
 			NodeCollection<T> clone = (NodeCollection<T>)Activator.CreateInstance(GetType());
-			List cloneList = clone._list;
-			foreach (Node node in _list)
+			List<T> cloneList = clone._list;
+			foreach (T node in _list)
 			{
-				cloneList.Add(node.Clone());
+				cloneList.Add((T)node.CloneNode());
 			}
 			return clone;
 		}
 
 		public void ClearTypeSystemBindings()
 		{
-			foreach (Node node in _list)
+			foreach (T node in _list)
 			{
 				node.ClearTypeSystemBindings();
 			}
 		}
 
-		protected List InnerList
+		protected List<T> InnerList
 		{
 			get
 			{
@@ -204,13 +208,13 @@ namespace Boo.Lang.Compiler.Ast
 		internal void InitializeParent(Node parent)
 		{
 			_parent = parent;
-			foreach (Node node in _list)
+			foreach (T node in _list)
 			{
 				node.InitializeParent(_parent);
 			}
 		}
 
-		public void Reject(Predicate condition)
+		public void Reject(System.Predicate<T> condition)
 		{
 			if (null == condition)
 			{
@@ -218,7 +222,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 
 			int index = 0;
-			foreach (Node node in ToArray())
+			foreach (T node in ToArray())
 			{
 				if (condition(node))
 				{
@@ -242,7 +246,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			foreach (T item in items)
 			{
-				InnerList.Add(item.CloneNode());
+				InnerList.Add((T)item.CloneNode());
 			}
 		}
 
@@ -296,7 +300,7 @@ namespace Boo.Lang.Compiler.Ast
 			InnerList.Insert(index, item);
 		}
 
-		public void Remove(Node item)
+		public void Remove(T item)
 		{
 			InnerList.Remove(item);
 		}

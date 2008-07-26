@@ -33,10 +33,54 @@ namespace Boo.Lang
 	using Boo.Lang.Runtime;
 
 	// callable Predicate(item) as bool
-	public delegate bool Predicate(object item);
+	//public delegate bool Predicate(object item);
 
 	public delegate int Comparer(object lhs, object rhs);
 
+	[Serializable]
+	public class List : List<object>, IList
+	{
+		public static string operator%(string format, List rhs)
+		{
+			return string.Format(format, rhs.ToArray());
+		}
+		
+		public List()
+		{
+		}
+
+		public List(IEnumerable enumerable) : base(enumerable)
+		{
+		}
+
+		public List(int initialCapacity) : base(initialCapacity)
+		{
+		}
+
+		public List(object[] items, bool takeOwnership) : base(items, takeOwnership)
+		{
+		}
+
+		public object Find(System.Predicate<object> predicate)
+		{
+			object found;
+			return Find(predicate, out found) ? found : null;
+		}
+
+		protected override List<object> NewConcreteList(object[] items, bool takeOwnership)
+		{
+			return new List(items, takeOwnership);
+		}
+
+		public Array ToArray(Type targetType)
+		{
+			Array target = Array.CreateInstance(targetType, _count);
+			Array.Copy(_items, 0, target, 0, _count);
+			return target;
+		}
+	}
+
+#if OldList
 	/// <summary>
 	/// List.
 	/// </summary>
@@ -106,7 +150,7 @@ namespace Boo.Lang
 
 		public static string operator%(string format, List rhs)
 		{
-			return string.Format(format, rhs.ToArray());
+			return string.Format(format, rhs.ToArray(typeof(object)));
 		}
 
 		public List Multiply(int count)
@@ -704,4 +748,5 @@ namespace Boo.Lang
 			}
 		}
 	}
+#endif
 }
