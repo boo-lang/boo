@@ -78,7 +78,7 @@ namespace Boo.Lang.Runtime
 
 		private CandidateMethod BestMethod(List<CandidateMethod> applicable)
 		{
-			applicable.Sort(BetterCandidate);
+			applicable.Sort(new System.Comparison<CandidateMethod>(BetterCandidate));
 			return applicable[applicable.Count - 1];
 		}
 

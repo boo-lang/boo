@@ -235,7 +235,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void FindBestMethod(List<Candidate> candidates)
 		{
-			candidates.Sort(BetterCandidate);
+			candidates.Sort(new System.Comparison<Candidate>(BetterCandidate));
 
 			Candidate pivot = candidates[candidates.Count - 1];
 			candidates.RemoveAll(delegate(Candidate candidate)
