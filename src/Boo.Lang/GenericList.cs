@@ -92,7 +92,7 @@ namespace Boo.Lang
 
 		public static List<T> operator+(List<T> lhs, System.Collections.IEnumerable rhs)
 		{
-			List<T> result = lhs.NewConcreteList(lhs._items, false);
+			List<T> result = lhs.NewConcreteList(lhs.ToArray(), true);
 			result.Extend(rhs);
 			return result;
 		}
