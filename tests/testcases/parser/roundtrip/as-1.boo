@@ -17,7 +17,7 @@ l = List()
 if z=l as object:
 	pass
 
-if not z = l as object:
+if not (z = l as object):
 	pass
 
 q = l as object
