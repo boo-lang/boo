@@ -55,8 +55,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
-			Visit(module.Members);
 			Visit(module.Globals);
+			Visit(module.Members);
 			LeaveNamespace();
 		}
 		
