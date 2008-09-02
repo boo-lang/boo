@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <project name="boo.makedeb" default="makedeb" basedir="..">
 
 	<target name="makedeb">
@@ -48,7 +48,7 @@
 		<mkdir dir="build/deb${install.prefix}/lib/pkgconfig" />
 		<copy todir="build/deb${install.prefix}/lib/pkgconfig">
 		    <fileset basedir="build">
-			<include name="boo.pc" />
+				<include name="boo.pc" />
 		    </fileset>
 		</copy>
 		<!-- chmod them just to make sure -->
@@ -66,7 +66,15 @@
 		        <include name="booish" />
 		    </fileset>
 		</copy>
-		
+
+		<mkdir dir="build/deb/etc" />
+		<mkdir dir="build/deb/etc/bash_completion.d" />
+		<copy todir="build/deb/etc/bash_completion.d">
+			<fileset basedir="extras">
+				<include name="boo-completion.bash" />
+			</fileset>
+		</copy>
+
 		<!-- boo nant tasks -->
 		<if test="${bool::parse(install.nant.task) == true}">
 			<mkdir dir="build/deb${install.prefix}/lib/NAnt" />
@@ -76,7 +84,7 @@
 				</fileset>
 			</copy>
 		</if>
-		
+
 		<!-- documentation -->
 		<mkdir dir="build/deb${install.prefix}/share/doc/boo" />
 		<copy todir="build/deb${install.prefix}/share/doc/boo">
@@ -109,3 +117,4 @@
 
 	</target>
 </project>
+
