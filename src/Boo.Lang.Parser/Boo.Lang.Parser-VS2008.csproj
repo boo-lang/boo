@@ -1,0 +1,248 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Boo.Lang.Parser</RootNamespace>
+    <AssemblyName>Boo.Lang.Parser</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../boo.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Net-1.1|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug Net-1.1' ">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BooExpressionLexer.cs" />
+    <Compile Include="BooExpressionLexerTokenTypes.cs" />
+    <Compile Include="BooLexer.cs" />
+    <Compile Include="BooParser.cs" />
+    <Compile Include="BooParserBase.cs" />
+    <Compile Include="BooParsingStep.cs" />
+    <Compile Include="BooToken.cs" />
+    <Compile Include="BooTokenTypes.cs" />
+    <Compile Include="DocStringFormatter.cs" />
+    <Compile Include="OperatorParser.cs" />
+    <Compile Include="PrimitiveParser.cs" />
+    <Compile Include="SourceLocationFactory.cs" />
+    <Compile Include="WSABooExpressionLexer.cs" />
+    <Compile Include="WSABooExpressionLexerTokenTypes.cs" />
+    <Compile Include="WSABooLexer.cs" />
+    <Compile Include="WSABooParser.cs" />
+    <Compile Include="WSABooParserBase.cs" />
+    <Compile Include="WSABooParsingStep.cs" />
+    <Compile Include="WSABooTokenTypes.cs" />
+    <Compile Include="antlr\SupportClass.cs" />
+    <Compile Include="antlr\antlr\ANTLRException.cs" />
+    <Compile Include="antlr\antlr\ANTLRPanicException.cs" />
+    <Compile Include="antlr\antlr\ASTFactory.cs" />
+    <Compile Include="antlr\antlr\ASTNodeCreator.cs" />
+    <Compile Include="antlr\antlr\ASTNULLType.cs" />
+    <Compile Include="antlr\antlr\ASTPair.cs" />
+    <Compile Include="antlr\antlr\ASTVisitor.cs" />
+    <Compile Include="antlr\antlr\BaseAST.cs" />
+    <Compile Include="antlr\antlr\ByteBuffer.cs" />
+    <Compile Include="antlr\antlr\CharBuffer.cs" />
+    <Compile Include="antlr\antlr\CharQueue.cs" />
+    <Compile Include="antlr\antlr\CharScanner.cs" />
+    <Compile Include="antlr\antlr\CharStreamException.cs" />
+    <Compile Include="antlr\antlr\CharStreamIOException.cs" />
+    <Compile Include="antlr\antlr\CommonAST.cs" />
+    <Compile Include="antlr\antlr\CommonASTWithHiddenTokens.cs" />
+    <Compile Include="antlr\antlr\CommonHiddenStreamToken.cs" />
+    <Compile Include="antlr\antlr\CommonToken.cs" />
+    <Compile Include="antlr\antlr\DefaultFileLineFormatter.cs" />
+    <Compile Include="antlr\antlr\DumpASTVisitor.cs" />
+    <Compile Include="antlr\antlr\FileLineFormatter.cs" />
+    <Compile Include="antlr\antlr\IHiddenStreamToken.cs" />
+    <Compile Include="antlr\antlr\InputBuffer.cs" />
+    <Compile Include="antlr\antlr\IToken.cs" />
+    <Compile Include="antlr\antlr\LexerSharedInputState.cs" />
+    <Compile Include="antlr\antlr\LLkParser.cs" />
+    <Compile Include="antlr\antlr\MismatchedCharException.cs" />
+    <Compile Include="antlr\antlr\MismatchedTokenException.cs" />
+    <Compile Include="antlr\antlr\NoViableAltException.cs" />
+    <Compile Include="antlr\antlr\NoViableAltForCharException.cs" />
+    <Compile Include="antlr\antlr\Parser.cs" />
+    <Compile Include="antlr\antlr\ParserSharedInputState.cs" />
+    <Compile Include="antlr\antlr\ParseTree.cs" />
+    <Compile Include="antlr\antlr\ParseTreeRule.cs" />
+    <Compile Include="antlr\antlr\ParseTreeToken.cs" />
+    <Compile Include="antlr\antlr\RecognitionException.cs" />
+    <Compile Include="antlr\antlr\SemanticException.cs" />
+    <Compile Include="antlr\antlr\StringUtils.cs" />
+    <Compile Include="antlr\antlr\Token.cs" />
+    <Compile Include="antlr\antlr\TokenBuffer.cs" />
+    <Compile Include="antlr\antlr\TokenCreator.cs" />
+    <Compile Include="antlr\antlr\TokenQueue.cs" />
+    <Compile Include="antlr\antlr\TokenStream.cs" />
+    <Compile Include="antlr\antlr\TokenStreamBasicFilter.cs" />
+    <Compile Include="antlr\antlr\TokenStreamException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamHiddenTokenFilter.cs" />
+    <Compile Include="antlr\antlr\TokenStreamIOException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamRecognitionException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamRetryException.cs" />
+    <Compile Include="antlr\antlr\TokenStreamRewriteEngine.cs" />
+    <Compile Include="antlr\antlr\TokenStreamSelector.cs" />
+    <Compile Include="antlr\antlr\TokenWithIndex.cs" />
+    <Compile Include="antlr\antlr\TreeParser.cs" />
+    <Compile Include="antlr\antlr\TreeParserSharedInputState.cs" />
+    <Compile Include="antlr\antlr.collections\AST.cs" />
+    <Compile Include="antlr\antlr.collections.impl\ASTArray.cs" />
+    <Compile Include="antlr\antlr.collections.impl\BitSet.cs" />
+    <Compile Include="antlr\antlr.debug\ANTLREventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\DebuggingCharScanner.cs" />
+    <Compile Include="antlr\antlr.debug\DebuggingInputBuffer.cs" />
+    <Compile Include="antlr\antlr.debug\DebuggingParser.cs" />
+    <Compile Include="antlr\antlr.debug\GuessingEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\ICharScannerDebugSubject.cs" />
+    <Compile Include="antlr\antlr.debug\IDebugSubject.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferEventSupport.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferListener.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\InputBufferReporter.cs" />
+    <Compile Include="antlr\antlr.debug\IParserDebugSubject.cs" />
+    <Compile Include="antlr\antlr.debug\Listener.cs" />
+    <Compile Include="antlr\antlr.debug\LLkDebuggingParser.cs" />
+    <Compile Include="antlr\antlr.debug\MessageEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\MessageListener.cs" />
+    <Compile Include="antlr\antlr.debug\MessageListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\NewLineEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\NewLineListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserController.cs" />
+    <Compile Include="antlr\antlr.debug\ParserEventSupport.cs" />
+    <Compile Include="antlr\antlr.debug\ParserListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\ParserMatchEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\ParserMatchListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserMatchListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\ParserReporter.cs" />
+    <Compile Include="antlr\antlr.debug\ParserTokenEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\ParserTokenListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParserTokenListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\ParseTreeDebugParser.cs" />
+    <Compile Include="antlr\antlr.debug\ScannerEventSupport.cs" />
+    <Compile Include="antlr\antlr.debug\SemanticPredicateEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\SemanticPredicateListener.cs" />
+    <Compile Include="antlr\antlr.debug\SemanticPredicateListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\SyntacticPredicateEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\SyntacticPredicateListener.cs" />
+    <Compile Include="antlr\antlr.debug\SyntacticPredicateListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\TraceEventArgs.cs" />
+    <Compile Include="antlr\antlr.debug\TraceListener.cs" />
+    <Compile Include="antlr\antlr.debug\TraceListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\Tracer.cs" />
+    <Compile Include="Util\IndentTokenStreamFilter.cs" />
+    <Compile Include="Util\TokenStreamRecorder.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2005.csproj">
+      <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
+      <Name>Boo.Lang.Compiler-VS2005</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang-VS2005.csproj">
+      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
+      <Name>Boo.Lang-VS2005</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="boo.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

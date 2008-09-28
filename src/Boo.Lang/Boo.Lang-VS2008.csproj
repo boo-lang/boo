@@ -1,0 +1,167 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Boo.Lang</RootNamespace>
+    <AssemblyName>Boo.Lang</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../boo.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,VISUAL_STUDIO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Net-1.1|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,VISUAL_STUDIO,NET_2_0</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug Net-1.1' ">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AbstractGenerator.cs" />
+    <Compile Include="AbstractGeneratorEnumerator.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BooComparer.cs" />
+    <Compile Include="BooHashCodeProvider.cs" />
+    <Compile Include="Builtins.cs" />
+    <Compile Include="DuckTypedAttribute.cs" />
+    <Compile Include="DynamicVariable.cs" />
+    <Compile Include="EnumeratorItemTypeAttribute.cs" />
+    <Compile Include="ExtensionAttribute.cs" />
+    <Compile Include="GenericGenerator.cs" />
+    <Compile Include="GenericGeneratorEnumerator.cs" />
+    <Compile Include="GenericList.cs" />
+    <Compile Include="Hash.cs" />
+    <Compile Include="ICallable.cs" />
+    <Compile Include="IQuackFu.cs" />
+    <Compile Include="IQuackFuMember.cs" />
+    <Compile Include="IReflectiveQuackFu.cs" />
+    <Compile Include="List.cs" />
+    <Compile Include="MetaAttribute.cs" />
+    <Compile Include="ModuleAttribute.cs" />
+    <Compile Include="QuackFuMember.cs" />
+    <Compile Include="ResourceManager.cs" />
+    <Compile Include="Runtime\AbstractDispatcherFactory.cs" />
+    <Compile Include="Runtime\AssertionFailedException.cs" />
+    <Compile Include="Runtime\CandidateMethod.cs" />
+    <Compile Include="Runtime\DispatcherCache.cs" />
+    <Compile Include="Runtime\DispatcherEmitter.cs" />
+    <Compile Include="Runtime\DispatcherKey.cs" />
+    <Compile Include="Runtime\ExtensionMethodDispatcherEmitter.cs" />
+    <Compile Include="Runtime\ExtensionRegistry.cs" />
+    <Compile Include="Runtime\GetFieldEmitter.cs" />
+    <Compile Include="Runtime\ICoercible.cs" />
+    <Compile Include="Runtime\ImplicitConversionEmitter.cs" />
+    <Compile Include="Runtime\MethodDispatcherEmitter.cs" />
+    <Compile Include="Runtime\MethodDispatcherFactory.cs" />
+    <Compile Include="Runtime\MethodResolver.cs" />
+    <Compile Include="Runtime\NumericTypes.cs" />
+    <Compile Include="Runtime\PromotionEmitter.cs" />
+    <Compile Include="Runtime\PropertyDispatcherFactory.cs" />
+    <Compile Include="Runtime\RuntimeException.cs" />
+    <Compile Include="Runtime\RuntimeServices.cs" />
+    <Compile Include="Runtime\SetFieldEmitter.cs" />
+    <Compile Include="Runtime\SetOrGet.cs" />
+    <Compile Include="Runtime\SetPropertyEmitter.cs" />
+    <Compile Include="Runtime\SliceDispatcherFactory.cs" />
+    <Compile Include="Runtime\TextReaderEnumerator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\strings.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="boo.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
