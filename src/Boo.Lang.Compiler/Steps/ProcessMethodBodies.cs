@@ -843,7 +843,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IMethod baseMethod = FindMethodOverride(entity, candidates);
-			if (null != baseMethod) 
+			if (null != baseMethod)
 			{
 				EnsureRelatedNodeWasVisited(method, baseMethod);
 			}
@@ -860,7 +860,7 @@ namespace Boo.Lang.Compiler.Steps
 					return candidate;
 				}
 			}
-			
+
 			if (EntityType.Ambiguous == candidates.EntityType)
 			{
 				IEntity[] entities = ((Ambiguous)candidates).Entities;
@@ -1198,24 +1198,30 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ResolveGeneratorReturnType(InternalMethod entity)
 		{
-			Method method = entity.Method;
+			IType returnType = GetGeneratorReturnType(entity);
+			entity.Method.ReturnType = CodeBuilder.CreateTypeReference(returnType);
+		}
 
+		private IType GeneratorItemTypeFor(InternalMethod entity)
+		{
+			return (IType)entity.Method["GeneratorItemType"];
+		}
+
+		/// <summary>
+		/// Allows a different language to use custom rules for generator
+		/// return types.
+		/// </summary>
+		/// <param name="entity"></param>
+		/// <returns></returns>
+		protected virtual IType GetGeneratorReturnType(InternalMethod entity)
+		{
 			// Make method return a generic IEnumerable
-			IType itemType = (IType)method["GeneratorItemType"];
+			IType itemType = GeneratorItemTypeFor(entity);
 			if (TypeSystemServices.VoidType == itemType)
 			{
 				// circunvent exception in MakeGenericType
-				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.ErrorEntity);
-				return;
+				return TypeSystemServices.ErrorEntity;
 			}
-
-			IType returnType = GetGeneratorReturnType(itemType);
-			method.ReturnType = CodeBuilder.CreateTypeReference(returnType);
-		}
-
-
-		protected virtual IType GetGeneratorReturnType(IType itemType)
-		{
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
 			return enumerableType.GenericInfo.ConstructType(itemType);
 		}
@@ -2625,8 +2631,8 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity resolved = ResolveAmbiguousReferenceByAccessibility(candidates);
 			Ambiguous accessibleCandidates = resolved as Ambiguous;
 
-			if (accessibleCandidates != null && 
-				!AstUtil.IsTargetOfSlicing(node) && 
+			if (accessibleCandidates != null &&
+				!AstUtil.IsTargetOfSlicing(node) &&
 				!AstUtil.IsLhsOfAssignment(node))
 			{
 				if (accessibleCandidates.AllEntitiesAre(EntityType.Property))
@@ -4241,7 +4247,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
 
-			// Infer generic arguments if this is a generic, non-constructed method 
+			// Infer generic arguments if this is a generic, non-constructed method
 			if (targetMethod.GenericInfo != null)
 			{
 				targetMethod = InferGenericMethodInvocation(node, targetMethod);
@@ -4285,13 +4291,13 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod constructedMethod = targetMethod.GenericInfo.ConstructMethod(inferredArguments);
 			Bind(node.Target, constructedMethod);
 			BindExpressionType(node, GetInferredType(constructedMethod));
-			
+
 			return constructedMethod;
 		}
 
 		private bool CheckGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
 		{
-			// Ensure that a constructed method (whether explicit or inferred) 
+			// Ensure that a constructed method (whether explicit or inferred)
 			// satisfies its generic constraints
 			if (targetMethod.ConstructedInfo != null)
 			{
@@ -4299,7 +4305,7 @@ namespace Boo.Lang.Compiler.Steps
 					node,
 					targetMethod.ConstructedInfo.GenericDefinition,
 					targetMethod.ConstructedInfo.GenericArguments,
-					Errors); 
+					Errors);
 			}
 
 			return true;
@@ -5278,7 +5284,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.InPlaceDivision:
 					return BinaryOperatorType.Division;
-					
+
 				case BinaryOperatorType.InPlaceModulus:
 					return BinaryOperatorType.Modulus;
 
