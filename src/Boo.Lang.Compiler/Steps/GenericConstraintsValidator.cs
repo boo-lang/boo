@@ -5,13 +5,13 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class GenericConstraintsValidator
 	{
-		private readonly CompilerContext _ctx;
+		private readonly CompilerContext _context;
 		private readonly Node _node;
 		private readonly GenericParameterDeclarationCollection _parameters;
 
 		public GenericConstraintsValidator(CompilerContext ctx, Node node, GenericParameterDeclarationCollection parameters)
 		{
-			_ctx = ctx;
+			_context = ctx;
 			_node = node;
 			_parameters = parameters;
 		}
@@ -20,14 +20,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (GenericParameterDeclaration parameter in _parameters)
 			{
-				new GenericConstraintValidator(_ctx, parameter).Validate();
+				new GenericConstraintValidator(_context, parameter).Validate();
 			}
 		}
 	}
 
 	public class GenericConstraintValidator
 	{
-		private readonly CompilerContext _ctx;
+		private readonly CompilerContext _context;
 		private readonly GenericParameterDeclaration _gpd;
 
 		private bool? _hasClassConstraint = null;
@@ -35,10 +35,15 @@ namespace Boo.Lang.Compiler.Steps
 		private bool? _hasConstructorConstraint = null;
 		private TypeReference _baseType = null;
 
-		public GenericConstraintValidator(CompilerContext ctx, GenericParameterDeclaration gpd)
+		public GenericConstraintValidator(CompilerContext context, GenericParameterDeclaration gpd)
 		{
-			_ctx = ctx;
+			_context = context;
 			_gpd = gpd;
+		}
+
+		protected CompilerContext Context
+		{
+			get { return _context; }
 		}
 
 		protected bool HasClassConstraint
@@ -79,12 +84,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected TypeSystemServices TypeSystemServices
 		{
-			get { return _ctx.TypeSystemServices; }
+			get { return Context.TypeSystemServices; }
 		}
 
 		protected void Error(CompilerError error)
 		{
-			_ctx.Errors.Add(error);
+			Context.Errors.Add(error);
 		}
 
 		public void Validate()

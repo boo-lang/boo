@@ -148,8 +148,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private readonly AnonymousCallablesManager _anonymousCallablesManager;
 
-		private readonly GenericsServices _genericsServices;
-
 		public TypeSystemServices() : this(new CompilerContext())
 		{
 		}
@@ -160,7 +158,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			_context = context;
 			_anonymousCallablesManager = new AnonymousCallablesManager(this);
-			_genericsServices = new GenericsServices(context);
 
 			CodeBuilder = new BooCodeBuilder(this);
 
@@ -218,11 +215,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public CompilerContext Context
 		{
 			get { return _context; }
-			}
-
-		public GenericsServices GenericsServices
-		{
-			get { return _genericsServices; }
 		}
 
 		public IType GetMostGenericType(IType current, IType candidate)
@@ -558,7 +550,7 @@ namespace Boo.Lang.Compiler.TypeSystem
             Module module = new Module();
 		    module.Name = moduleName;
 			if (null != nameSpace) module.Namespace = new NamespaceDeclaration(nameSpace);
-			module.Entity = new ModuleEntity(_context.NameResolutionService, this, module);
+			module.Entity = new ModuleEntity(Context.NameResolutionService, this, module);
 			_context.CompileUnit.Modules.Add(module);
 			return module;
 		}
@@ -647,7 +639,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IEntity[] FindExtension(IType fromType, string name)
 		{
-			IEntity extension = _context.NameResolutionService.ResolveExtension(fromType, name);
+			IEntity extension = Context.NameResolutionService.ResolveExtension(fromType, name);
 			if (null == extension) return Ambiguous.NoEntities;
 
 			Ambiguous a = extension as Ambiguous;
@@ -726,7 +718,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static CallableSignature GetOverriddenSignature(IMethod baseMethod, IMethod impl)
 		{
-			if (baseMethod.GenericInfo != null && TypeSystem.GenericsServices.AreOfSameGenerity(baseMethod, impl))
+			if (baseMethod.GenericInfo != null && GenericsServices.AreOfSameGenerity(baseMethod, impl))
 			{
 				return baseMethod.GenericInfo.ConstructMethod(impl.GenericInfo.GenericParameters).CallableType.GetSignature();
 			}

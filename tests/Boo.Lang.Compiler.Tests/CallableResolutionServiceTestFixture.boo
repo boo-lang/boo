@@ -42,10 +42,9 @@ class CallableResolutionServiceTestFixture:
 	
 	[SetUp]
 	def SetUp():
-		_context = CompilerContext(
-			TypeSystemServices: Boo.Lang.Compiler.TypeSystem.TypeSystemServices())
-		_crs = CallableResolutionService()
-		_crs.Initialize(_context)
+		_context = CompilerContext()
+		_context.RegisterService[of TypeSystemServices](Boo.Lang.Compiler.TypeSystem.TypeSystemServices())
+		_crs = CallableResolutionService(_context)
 		
 	[Test]
 	def TestGetLogicalTypeDepth():

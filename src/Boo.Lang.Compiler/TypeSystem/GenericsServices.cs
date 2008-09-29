@@ -106,7 +106,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				matches.RemoveAll(filter);
 
 				// If no matches pass the filter, record the first error only
-				// (providing all the distinct errors that occured would be superfluous)
+				// (assuming all the distinct errors that occured would be superfluous)
 				if (matches.Count == 0)
 				{
 					Errors.Add(checker.Errors[0]);
@@ -272,29 +272,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		public static int GetTypeGenerity(IType type)
 		{
-			// Dive into arrays and refs
 			if (type.IsByRef || type.IsArray)
 			{
 				return GetTypeGenerity(type.GetElementType());
 			}
 
-			// A generic parameter has a generity of one
 			if (type is IGenericParameter)
 			{
 				return 1;
 			}
 
 			// Generic parameters and generic arguments both contribute 
-			// to a types genrity
+			// to a types genrity. Note that a nested type can be both a generic definition 
+			// and a constructed type: Outer[of int].Inner[of T]
 			int generity = 0;
 
-			// A generic type gets a generity equals to the number its type parameters
 			if (type.GenericInfo != null)
 			{
 				generity += type.GenericInfo.GenericParameters.Length;
 			}
 
-			// A constructed type gets the accumulated generity of its type arguments
 			if (type.ConstructedInfo != null)
 			{
 				foreach (IType typeArg in type.ConstructedInfo.GenericArguments)

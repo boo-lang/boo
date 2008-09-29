@@ -51,6 +51,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected List<Candidate> _candidates = new List<Candidate>();
 		protected ExpressionCollection _arguments;
 
+		public CallableResolutionService(CompilerContext context)
+		{
+			Initialize(context);
+		}
+
 		protected Expression GetArgument(int index)
 		{
 			return _arguments[index];
@@ -427,7 +432,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			// If the parameter is the varargs parameter, use its element type
 			IParameter[] parameters = method.GetParameters();
-			if (candidate.Expanded && position >= parameters.Length)
+			if (candidate.Expanded && position >= parameters.Length - 1)
 			{
 				return parameters[parameters.Length - 1].Type.GetElementType();
 			}
@@ -459,10 +464,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (candidate.Method.GenericInfo != null)
 				{
 					IType[] inferredTypeParameters =
-						TypeSystemServices.GenericsServices.InferMethodGenericArguments(candidate.Method, _arguments);
+						Context.GetService<GenericsServices>().InferMethodGenericArguments(candidate.Method, _arguments);
 
 					if (inferredTypeParameters != null)
 					{
+						// FIXME: This causes a bug when trying to construct external types that
+						// violate generic constraints
 						candidate.Method = candidate.Method.GenericInfo.ConstructMethod(inferredTypeParameters);
 					}
 				}

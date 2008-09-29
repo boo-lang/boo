@@ -70,8 +70,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod MultiDimensionalArray_TypedConstructor;
 
-		protected CallableResolutionService _callableResolution;
-
 		protected bool _optimizeNullComparisons = true;
 
 		public ProcessMethodBodies()
@@ -87,23 +85,14 @@ namespace Boo.Lang.Compiler.Steps
 			_methodStack = new Stack();
 			_memberStack = new Stack();
 
-			_callableResolution = InitializeCallableResolutionService();
-
 			InitializeMemberCache();
 
 			Visit(CompileUnit);
 		}
 
-		protected CallableResolutionService InitializeCallableResolutionService()
+		protected CallableResolutionService CallableResolutionService
 		{
-			CallableResolutionService service = CreateCallableResolutionService();
-			service.Initialize(_context);
-			return service;
-		}
-
-		protected virtual CallableResolutionService CreateCallableResolutionService()
-		{
-			return new CallableResolutionService();
+			get { return Context.GetService<CallableResolutionService>(); }
 		}
 
 		protected IMethod ResolveMethod(IType type, string name)
@@ -128,12 +117,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Dispose()
 		{
 			base.Dispose();
-
-			if (null != _callableResolution)
-			{
-				_callableResolution.Dispose();
-				_callableResolution = null;
-			}
 
 			_currentModule = null;
 			_currentMethod = null;
@@ -3999,7 +3982,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
 		{
-			IEntity resolved = _callableResolution.ResolveCallableReference(node.Arguments, entity.Entities);
+			IEntity resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, entity.Entities);
 			if (null == resolved) return null;
 
 			IMember member = (IMember)resolved;
@@ -4287,7 +4270,7 @@ namespace Boo.Lang.Compiler.Steps
 		private IMethod InferGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
 		{
 			IType[] inferredArguments =
-				TypeSystemServices.GenericsServices.InferMethodGenericArguments(targetMethod, node.Arguments);
+				Context.GetService<GenericsServices>().InferMethodGenericArguments(targetMethod, node.Arguments);
 
 			if (inferredArguments == null)
 			{
@@ -4297,6 +4280,8 @@ namespace Boo.Lang.Compiler.Steps
 				return null;
 			}
 
+			// FIXME: the inferred types might be in violation of the method's generic constraints.
+			// for an external generic method, this will result in an internal compiler error.
 			IMethod constructedMethod = targetMethod.GenericInfo.ConstructMethod(inferredArguments);
 			Bind(node.Target, constructedMethod);
 			BindExpressionType(node, GetInferredType(constructedMethod));
@@ -4310,7 +4295,7 @@ namespace Boo.Lang.Compiler.Steps
 			// satisfies its generic constraints
 			if (targetMethod.ConstructedInfo != null)
 			{
-				return TypeSystemServices.GenericsServices.CheckGenericConstruction(
+				return Context.GetService<GenericsServices>().CheckGenericConstruction(
 					node,
 					targetMethod.ConstructedInfo.GenericDefinition,
 					targetMethod.ConstructedInfo.GenericArguments,
@@ -5529,7 +5514,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (reportErrors) Error(CompilerErrorFactory.RefArgTakesLValue(args[i]));
 						return false;
 					}
-					if (!_callableResolution.IsValidByRefArg(param, parameterType, argumentType, args[i]))
+					if (!CallableResolutionService.IsValidByRefArg(param, parameterType, argumentType, args[i]))
 					{
 						return false;
 					}
@@ -5572,7 +5557,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected bool CheckVarArgsParameters(ICallableType method, ExpressionCollection args)
 		{
-			return _callableResolution.IsValidVargsInvocation(method.GetSignature().Parameters, args);
+			return CallableResolutionService.IsValidVargsInvocation(method.GetSignature().Parameters, args);
 		}
 
 		protected bool CheckExactArgsParameters(ICallableType method, ExpressionCollection args, bool reportErrors)
@@ -5666,16 +5651,16 @@ namespace Boo.Lang.Compiler.Steps
 				EnsureRelatedNodeWasVisited(sourceNode, candidate);
 			}
 
-			IEntity found = _callableResolution.ResolveCallableReference(args, candidates);
+			IEntity found = CallableResolutionService.ResolveCallableReference(args, candidates);
 			if (null == found) EmitCallableResolutionError(sourceNode, candidates, args);
 			return found;
 		}
 
 		private void EmitCallableResolutionError(Node sourceNode, IEntity[] candidates, ExpressionCollection args)
 		{
-			if (_callableResolution.ValidCandidates.Count > 1)
+			if (CallableResolutionService.ValidCandidates.Count > 1)
 			{
-				Error(CompilerErrorFactory.AmbiguousReference(sourceNode, candidates[0].Name, _callableResolution.ValidCandidates));
+				Error(CompilerErrorFactory.AmbiguousReference(sourceNode, candidates[0].Name, CallableResolutionService.ValidCandidates));
 			}
 			else
 			{

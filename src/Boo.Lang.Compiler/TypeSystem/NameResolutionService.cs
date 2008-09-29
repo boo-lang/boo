@@ -341,7 +341,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ResolveTypeReferenceCollection(gtr.GenericArguments);
 			IType[] typeArguments = GetTypes(gtr.GenericArguments);
 			
-			return (IType)_context.TypeSystemServices.GenericsServices.ConstructEntity(
+			return (IType)_context.GetService<GenericsServices>().ConstructEntity(
 				gtr, definition, typeArguments);
 		}
 
@@ -350,7 +350,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ResolveTypeReferenceCollection(gre.GenericArguments);
 			IType[] typeArguments = GetTypes(gre.GenericArguments);
 			
-			return _context.TypeSystemServices.GenericsServices.ConstructEntity(
+			return _context.GetService<GenericsServices>().ConstructEntity(
 				gre, definition, typeArguments);
 		}
 

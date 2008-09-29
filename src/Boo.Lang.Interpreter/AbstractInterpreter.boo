@@ -384,11 +384,12 @@ class AbstractInterpreter:
 				if signature == cached.GetSignature():
 					return cached
 			
-	class InitializeTypeSystemServices(Steps.AbstractCompilerStep):
+	class InitializeTypeSystemServices(Steps.InitializeTypeSystemServices):
 		
 		_cachedCallableTypes = []
 		
-		override def Run():			
+		override def Run():
+			super.Run()
 			Context.TypeSystemServices = InterpreterTypeSystemServices(Context, _cachedCallableTypes)
 			
 	class CacheCallableTypes(Steps.AbstractCompilerStep):

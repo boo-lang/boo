@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
 		{
-			if (!DuckyMode || _callableResolution.ValidCandidates.Count == 0)
+			if (!DuckyMode || CallableResolutionService.ValidCandidates.Count == 0)
 			{				
 				return base.CantResolveAmbiguousMethodInvocation(node, entities);
 			}
@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Target = MemberReferenceFromReference(
 							(ReferenceExpression)node.Target,
-							((CallableResolutionService.Candidate)_callableResolution.ValidCandidates[0]).Method);
+							((CallableResolutionService.Candidate)CallableResolutionService.ValidCandidates[0]).Method);
 		}
 		
 		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)

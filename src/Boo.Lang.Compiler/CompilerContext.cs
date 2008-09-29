@@ -31,6 +31,9 @@ using System.Diagnostics;
 using Boo.Lang;
 using Boo.Lang.Compiler.Ast;
 using Assembly = System.Reflection.Assembly;
+using System.Collections;
+using System.Collections.Generic;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler
 {
@@ -55,10 +58,8 @@ namespace Boo.Lang.Compiler
 		protected CompilerErrorCollection _errors;
 		
 		protected CompilerWarningCollection _warnings;
-		
-		protected TypeSystem.TypeSystemServices _typeSystemServices;
-		
-		protected readonly TypeSystem.NameResolutionService _nameResolutionService;
+
+		protected IDictionary<Type, object> _services = new Dictionary<Type, object>();
 		
 		protected TraceSwitch _traceSwitch;
 
@@ -84,6 +85,8 @@ namespace Boo.Lang.Compiler
 		
 		public CompilerContext(CompilerParameters options, CompileUnit unit)
 		{
+			RegisterService<NameResolutionService>(new NameResolutionService(this));
+
 			if (null == options) throw new ArgumentNullException("options");
 			if (null == unit) throw new ArgumentNullException("unit");
 
@@ -94,7 +97,6 @@ namespace Boo.Lang.Compiler
 			_parameters = options;
 			if (_parameters.Debug && !_parameters.Defines.ContainsKey("DEBUG"))
 				_parameters.Defines.Add("DEBUG", null);
-			_nameResolutionService = new TypeSystem.NameResolutionService(this); 
 			_properties = new Hash();
 		}
 		
@@ -148,26 +150,21 @@ namespace Boo.Lang.Compiler
 		{
 			get { return _unit; }
 		}
-		
-		public TypeSystem.TypeSystemServices TypeSystemServices
+
+		public TypeSystemServices TypeSystemServices
 		{
-			get { return _typeSystemServices; }
-			
-			set
-			{
-				if (null == value) throw new ArgumentNullException("TypeSystemServices");
-				_typeSystemServices = value;
-			}
-		}		
-		
+			get { return GetService<TypeSystemServices>(); }
+			set { RegisterService<TypeSystemServices>(value); }
+		}
+
+		public NameResolutionService NameResolutionService
+		{
+			get { return GetService<NameResolutionService>(); }
+		}
+
 		public TypeSystem.BooCodeBuilder CodeBuilder
 		{
-			get { return _typeSystemServices.CodeBuilder; }
-		}
-		
-		public TypeSystem.NameResolutionService NameResolutionService
-		{
-			get { return _nameResolutionService; }
+			get { return TypeSystemServices.CodeBuilder; }
 		}
 		
 		public Assembly GeneratedAssembly
@@ -315,6 +312,16 @@ namespace Boo.Lang.Compiler
 		{
 			if (null == _current) _current = new DynamicVariable<CompilerContext>();
 			return _current;
+		}
+
+		public void RegisterService<T>(T service)
+		{
+			_services[typeof(T)] = service;
+		}
+
+		public T GetService<T>()
+		{
+			return (T)_services[typeof(T)];
 		}
 	}
 

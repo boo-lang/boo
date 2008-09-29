@@ -26,13 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem;
 namespace Boo.Lang.Compiler.Steps
 {
 	public class InitializeTypeSystemServices : AbstractCompilerStep
 	{
 		override public void Run()
 		{
-			Context.TypeSystemServices = new TypeSystem.TypeSystemServices(Context);
+			Context.RegisterService<TypeSystemServices>(new TypeSystem.TypeSystemServices(Context));
+			Context.RegisterService<CallableResolutionService>(new CallableResolutionService(Context));
+			Context.RegisterService<GenericsServices>(new GenericsServices(Context));
 		}
 	}
 }
