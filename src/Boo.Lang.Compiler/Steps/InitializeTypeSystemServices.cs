@@ -33,9 +33,19 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			Context.RegisterService<TypeSystemServices>(new TypeSystem.TypeSystemServices(Context));
-			Context.RegisterService<CallableResolutionService>(new CallableResolutionService(Context));
+			Context.RegisterService<TypeSystemServices>(CreateTypeSystemServices());
+			Context.RegisterService<CallableResolutionService>(CreateCallableResolutionService());
 			Context.RegisterService<GenericsServices>(new GenericsServices(Context));
+		}
+
+		protected virtual CallableResolutionService CreateCallableResolutionService()
+		{
+			return new CallableResolutionService(Context);
+		}
+
+		protected virtual TypeSystemServices CreateTypeSystemServices()
+		{
+			return new TypeSystem.TypeSystemServices(Context);
 		}
 	}
 }
