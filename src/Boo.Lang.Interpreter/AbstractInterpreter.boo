@@ -388,9 +388,8 @@ class AbstractInterpreter:
 		
 		_cachedCallableTypes = []
 		
-		override def Run():
-			super.Run()
-			Context.TypeSystemServices = InterpreterTypeSystemServices(Context, _cachedCallableTypes)
+		override def CreateTypeSystemServices():
+			return InterpreterTypeSystemServices(Context, _cachedCallableTypes)
 			
 	class CacheCallableTypes(Steps.AbstractCompilerStep):
 		

@@ -459,19 +459,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void InferGenericMethods()
 		{
+			GenericsServices gs = Context.GetService<GenericsServices>();
+
 			foreach (Candidate candidate in _candidates)
 			{
 				if (candidate.Method.GenericInfo != null)
 				{
-					IType[] inferredTypeParameters =
-						Context.GetService<GenericsServices>().InferMethodGenericArguments(candidate.Method, _arguments);
+					IType[] inferredTypeParameters = gs.InferMethodGenericArguments(candidate.Method, _arguments);
 
-					if (inferredTypeParameters != null)
-					{
-						// FIXME: This causes a bug when trying to construct external types that
-						// violate generic constraints
-						candidate.Method = candidate.Method.GenericInfo.ConstructMethod(inferredTypeParameters);
-					}
+					if (inferredTypeParameters == null || 
+						!gs.CheckGenericConstruction(candidate.Method, inferredTypeParameters)) continue;
+
+					candidate.Method = candidate.Method.GenericInfo.ConstructMethod(inferredTypeParameters);
 				}
 			}
 		}

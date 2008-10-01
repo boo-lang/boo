@@ -4247,7 +4247,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
 
-			// Infer generic arguments if this is a generic, non-constructed method
+			// Try to infer generic arguments if applicable
 			if (targetMethod.GenericInfo != null)
 			{
 				targetMethod = InferGenericMethodInvocation(node, targetMethod);
@@ -4255,7 +4255,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false) ||
-				!CheckGenericMethodInvocation(node, targetMethod) ||
 				!IsAccessible(targetMethod))
 			{
 				if (TryToProcessAsExtensionInvocation(node)) return;
@@ -4275,40 +4274,21 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IMethod InferGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
 		{
-			IType[] inferredArguments =
-				Context.GetService<GenericsServices>().InferMethodGenericArguments(targetMethod, node.Arguments);
+			GenericsServices genericsServices = Context.GetService<GenericsServices>();
 
-			if (inferredArguments == null)
+			IType[] inferredArguments = genericsServices.InferMethodGenericArguments(targetMethod, node.Arguments);
+			if (inferredArguments == null || 
+				!genericsServices.CheckGenericConstruction(node.Target, targetMethod, inferredArguments, false))
 			{
-				Error(node, CompilerErrorFactory.CannotInferGenericMethodArguments(
-					node, targetMethod));
-
+				Error(node, CompilerErrorFactory.CannotInferGenericMethodArguments(node, targetMethod));
 				return null;
 			}
 
-			// FIXME: the inferred types might be in violation of the method's generic constraints.
-			// for an external generic method, this will result in an internal compiler error.
 			IMethod constructedMethod = targetMethod.GenericInfo.ConstructMethod(inferredArguments);
 			Bind(node.Target, constructedMethod);
 			BindExpressionType(node, GetInferredType(constructedMethod));
 
 			return constructedMethod;
-		}
-
-		private bool CheckGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
-		{
-			// Ensure that a constructed method (whether explicit or inferred)
-			// satisfies its generic constraints
-			if (targetMethod.ConstructedInfo != null)
-			{
-				return Context.GetService<GenericsServices>().CheckGenericConstruction(
-					node,
-					targetMethod.ConstructedInfo.GenericDefinition,
-					targetMethod.ConstructedInfo.GenericArguments,
-					Errors);
-			}
-
-			return true;
 		}
 
 		private bool IsAccessible(IAccessibleMember method)

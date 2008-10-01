@@ -61,86 +61,96 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			// Check that the construction is valid
-			if (!CheckGenericConstruction(constructionNode, definition, typeArguments, Errors))
+			if (!CheckGenericConstruction(constructionNode, definition, typeArguments, true))
 			{
 				return TypeSystemServices.ErrorEntity;
 			}
 
-			// Construct a type or a method according to the definition
+			return MakeGenericEntity(definition, typeArguments);
+		}
+
+		/// <summary>
+		/// Validates and constructs generic entities out of an ambiguous generic definition entity.
+		/// </summary>
+		private IEntity ConstructAmbiguousEntity(Node constructionNode, Ambiguous ambiguousDefinition, IType[] typeArguments)
+		{
+			GenericConstructionChecker checker = new GenericConstructionChecker(typeArguments, constructionNode); 
+
+			List<IEntity> matches = new List<IEntity>(ambiguousDefinition.Entities);
+			bool reportErrors = false;
+
+			foreach (Predicate<IEntity> check in checker.Checks)
+			{
+				matches = matches.Collect(check);
+
+				if (matches.Count == 0)
+				{
+					Errors.Add(checker.Errors[0]); // only report first error, assuming the rest are superfluous
+					return TypeSystemServices.ErrorEntity;
+				}
+
+				if (reportErrors)
+				{
+					checker.ReportErrors(Errors);
+				}
+				checker.DiscardErrors();
+
+				// We only want full error reporting once we get down to a single candidate
+				if (matches.Count == 1)
+				{
+					reportErrors = true;
+				}			
+			}
+
+			IEntity[] constructedMatches = Array.ConvertAll<IEntity, IEntity>(
+				matches.ToArray(),
+				delegate(IEntity def) { return MakeGenericEntity(def, typeArguments); });
+
+			return constructedMatches.Length == 1 ? 
+				constructedMatches[0] : 
+				new Ambiguous(constructedMatches);
+		}
+
+		private IEntity MakeGenericEntity(IEntity definition, IType[] typeArguments)
+		{
 			if (IsGenericType(definition))
 			{
 				return ((IType)definition).GenericInfo.ConstructType(typeArguments);
 			}
+
 			if (IsGenericMethod(definition))
 			{
 				return ((IMethod)definition).GenericInfo.ConstructMethod(typeArguments);
 			}
 
-			// Should never be reached - if definition is neither a generic type nor a generic method,
-			// CheckGenericConstruction would've indicated this
+			// Should never be reached
 			return TypeSystemServices.ErrorEntity;
-		}
-
-		/// <summary>
-		/// Constructs generic entities out of an ambiguous definition.
-		/// </summary>
-		private IEntity ConstructAmbiguousEntity(Node constructionNode, Ambiguous ambiguousDefinition, IType[] typeArguments)
-		{
-			GenericConstructionChecker checker = new GenericConstructionChecker(
-				TypeSystemServices, 
-				constructionNode,
-				typeArguments, 
-				new CompilerErrorCollection()); 
-
-			List<IEntity> matches = new List<IEntity>(ambiguousDefinition.Entities);
-
-			// Filter matches by genericness, generity and constraints
-			Predicate<IEntity>[] filters = new Predicate<IEntity>[] { 
-				checker.NotGenericDefinition,
-				checker.IncorrectGenerity,
-				checker.ViolatesParameterConstraints };
-
-			foreach (Predicate<IEntity> filter in filters)
-			{
-				checker.Errors.Clear();
-				matches.RemoveAll(filter);
-
-				// If no matches pass the filter, record the first error only
-				// (assuming all the distinct errors that occured would be superfluous)
-				if (matches.Count == 0)
-				{
-					Errors.Add(checker.Errors[0]);
-					return TypeSystemServices.ErrorEntity;
-				}
-
-				// If only one match passes the filter, continue construction normally
-				if (matches.Count == 1)
-				{
-					return ConstructEntity(constructionNode, matches[0], typeArguments);
-				}
-			}
-
-			// Several matches have passed the filter - 
-			// construct all of them and return another Ambiguous entity
-			IEntity[] constructed = Array.ConvertAll<IEntity, IEntity>(
-				matches.ToArray(),
-				delegate(IEntity def) { return ConstructEntity(constructionNode, def, typeArguments); });
-
-			return new Ambiguous(constructed);
 		}
 
 		/// <summary>
 		/// Checks whether a given set of arguments can be used to construct a generic type or method from a specified definition.
 		/// </summary>
-		public bool CheckGenericConstruction(Node node, IEntity definition, IType[] argumentTypes, CompilerErrorCollection errors)
+		public bool CheckGenericConstruction(IEntity definition, IType[] typeArguments)
 		{
-			GenericConstructionChecker checker = new GenericConstructionChecker(
-				TypeSystemServices, node, argumentTypes, Errors);
+			return CheckGenericConstruction(null, definition, typeArguments, false);
+		}
 
-			return !(
-				checker.NotGenericDefinition(definition) ||
-				checker.IncorrectGenerity(definition) ||
-				checker.ViolatesParameterConstraints(definition));			
+		/// <summary>
+		/// Checks whether a given set of arguments can be used to construct a generic type or method from a specified definition.
+		/// </summary>
+		public bool CheckGenericConstruction(Node node, IEntity definition, IType[] typeArguments, bool reportErrors)
+		{
+			GenericConstructionChecker checker = new GenericConstructionChecker(typeArguments, node);
+
+			foreach (Predicate<IEntity> check in checker.Checks)
+			{
+				if (check(definition)) continue;
+				
+				if (reportErrors) checker.ReportErrors(Errors);
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>
@@ -194,14 +204,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			while (type != null)
 			{
-				// Check if type itself is constructed from the definition
 				if (type.ConstructedInfo != null &&
 					type.ConstructedInfo.GenericDefinition == definition)
 				{
 					yield return type;
 				}
 
-				// Look in type's immediate interfaces
 				IType[] interfaces = type.GetInterfaces();
 				if (interfaces != null)
 				{
@@ -214,7 +222,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 					}
 				}
 
-				// Move on to the type's base type
 				type = type.BaseType;
 			}
 		}
@@ -224,8 +231,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// Finds a single constructed occurance of a specified generic definition
 		/// in the specified type's inheritence hierarchy.
 		/// </summary>
-		/// <param name="type"></param>
-		/// <param name="definition"></param>
+		/// <param name="type">The type in whose hierarchy to search for constructed types.</param>
+		/// <param name="definition">The generic type definition whose constructed versions to search for.</param>
 		/// <returns>
 		/// The single constructed occurance of the generic definition in the
 		/// specified type, or null if there are none or more than one.
@@ -324,15 +331,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		Node _constructionNode;
 		IType[] _typeArguments;
-		CompilerErrorCollection _errors;
-		TypeSystemServices _tss;
+		CompilerErrorCollection _errors = new CompilerErrorCollection();
 
-		public GenericConstructionChecker(TypeSystemServices tss, Node constructionNode, IType[] typeArguments, CompilerErrorCollection errorCollection)
+		public GenericConstructionChecker(IType[] typeArguments, Node constructionNode)
 		{
-			_tss = tss;
 			_constructionNode = constructionNode;
 			_typeArguments = typeArguments;
-			_errors = errorCollection;
 		}
 
 		public IType[] TypeArguments
@@ -343,6 +347,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public Node ConstructionNode
 		{
 			get { return _constructionNode; }
+			set { _constructionNode = value; }
 		}
 
 		public CompilerErrorCollection Errors
@@ -350,64 +355,62 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _errors; }
 		}
 
-		/// <summary>
-		/// Checks if a specified entity is not a generic definition.
-		/// </summary>
-		public bool NotGenericDefinition(IEntity entity)
+		public IEnumerable<Predicate<IEntity>> Checks
 		{
-			if (!(GenericsServices.IsGenericType(entity) || GenericsServices.IsGenericMethod(entity)))
+			get
 			{
-				Errors.Add(CompilerErrorFactory.NotAGenericDefinition(ConstructionNode, entity.FullName));
+				yield return IsGenericDefinition;
+				yield return HasCorrectGenerity;
+				yield return MaintainsParameterConstraints;
+			}
+		}
+
+		protected CompilerContext Context
+		{
+			get { return CompilerContext.Current; }
+		}
+
+		private bool IsGenericDefinition(IEntity definition)
+		{
+			if (GenericsServices.IsGenericMethod(definition) || GenericsServices.IsGenericType(definition))
+			{
 				return true;
 			}
+
+			Errors.Add(CompilerErrorFactory.NotAGenericDefinition(ConstructionNode, definition.FullName));
 			return false;
 		}
 
-		/// <summary>
-		/// Checks if the number of generic parameters on a specified definition 
-		/// does not match the number of supplied type arguments.
-		/// </summary>
-		public bool IncorrectGenerity(IEntity definition)
+		private bool HasCorrectGenerity(IEntity definition)
 		{
-			int parametersCount = GenericsServices.GetGenericParameters(definition).Length;
-			if (parametersCount != TypeArguments.Length)
+			IGenericParameter[] typeParameters = GenericsServices.GetGenericParameters(definition);
+
+			if (typeParameters.Length != TypeArguments.Length)
 			{
-				Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(ConstructionNode, definition.FullName, parametersCount));
-				return true;
+				Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(ConstructionNode, definition.FullName, typeParameters.Length));
+				return false;
 			}
-			return false;
+			return true;
 		}
 
-		/// <summary>
-		/// Checks if the given type arguments violate any constraints 
-		/// declared on the type parameters of a specified generic definition.
-		/// </summary>
-		public bool ViolatesParameterConstraints(IEntity definition)
+		private bool MaintainsParameterConstraints(IEntity definition)
 		{
 			IGenericParameter[] parameters = GenericsServices.GetGenericParameters(definition);
 
 			bool valid = true;
 			for (int i = 0; i < parameters.Length; i++)
 			{
-				if (ViolatesParameterConstraints(parameters[i], TypeArguments[i]))
-				{
-					valid = false;
-				}
+				valid &= MaintainsParameterConstraints(parameters[i], TypeArguments[i]);
 			}
 
-			return !valid;
+			return valid;
 		}
 
-		/// <summary>
-		/// Checks if a specified type argument violates the constraints 
-		/// declared on a specified type paramter.
-		/// </summary>
-		public bool ViolatesParameterConstraints(IGenericParameter parameter, IType argument)
+		private bool MaintainsParameterConstraints(IGenericParameter parameter, IType argument)
 		{
-			// Ensure argument is a valid type
 			if (argument == null || TypeSystemServices.IsError(argument))
 			{
-				return false;
+				return true;
 			}
 
 			bool valid = true;
@@ -439,7 +442,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					// Don't check for System.ValueType supertype constraint 
 					// if parameter also has explicit value type constraint
-					if (baseType == _tss.ValueTypeType && parameter.IsValueType)
+					if (baseType == Context.TypeSystemServices.ValueTypeType && parameter.IsValueType)
 						continue;
 
 					if (!baseType.IsAssignableFrom(argument))
@@ -450,30 +453,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 
-			return !valid;
+			return valid;
 		}
 
-		/// <summary>
-		/// Checks whether a given type has a default (parameterless) consructor.
-		/// </summary>
-		private static bool HasDefaultConstructor(IType argument)
+		private bool HasDefaultConstructor(IType argument)
 		{
 			if (argument.IsValueType)
 			{
 				return true;
 			}
 
-			IConstructor[] constructors = argument.GetConstructors();
-			foreach (IConstructor ctor in constructors)
-			{
-				if (ctor.GetParameters().Length == 0)
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return Array.Exists(
+				argument.GetConstructors(), 
+				delegate(IConstructor ctor) { return ctor.GetParameters().Length == 0; });
 		}
 
+		public void ReportErrors(CompilerErrorCollection targetErrorCollection)
+		{
+			targetErrorCollection.Extend(Errors);
+		}
+
+		public void DiscardErrors()
+		{
+			Errors.Clear();
+		}
 	}
 }
