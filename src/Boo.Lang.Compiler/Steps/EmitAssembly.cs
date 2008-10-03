@@ -42,6 +42,7 @@ using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module = Boo.Lang.Compiler.Ast.Module;
+using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -2129,46 +2130,69 @@ namespace Boo.Lang.Compiler.Steps
 		//else return false (which means the method won't get emitted)
 		private bool CheckConditionalAttributes(IMethod method, MethodInfo mi)
 		{
-			if (method.ReturnType != TypeSystemServices.VoidType
-				|| null != (method as GenericMappedMethod)) return true;
-
-			object[] attrs;
-
-			if (null != (method as InternalMethod) || (null != (method as GenericConstructedMethod) && 
- 				null == (((GenericConstructedMethod)method).GenericDefinition as ExternalMethod)))
+			foreach (string conditionalSymbol in GetConditionalSymbols(method))
 			{
-
-				//internal methods
-				InternalMethod im = (method as InternalMethod) ?? ((method as GenericConstructedMethod).GenericDefinition as InternalMethod);
-				attrs = MetadataUtil.GetCustomAttributes(im.Method, TypeSystemServices.ConditionalAttribute);
-
-				if (0 == attrs.Length) return true;
-				foreach (Boo.Lang.Compiler.Ast.Attribute attr in attrs)
+				if (!Parameters.Defines.ContainsKey(conditionalSymbol))
 				{
-					if (1 != attr.Arguments.Count || null == (attr.Arguments[0] as StringLiteralExpression)) continue;
-					string conditionString = (attr.Arguments[0] as StringLiteralExpression).Value;
-					if (!Parameters.Defines.ContainsKey(conditionString)) {
-						_context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), conditionString);
-						return false;
-					}
+					_context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), conditionalSymbol);
+					return false;
 				}
+			}
+			return true;
+		}
 
-			} else {
-
-				//external methods
-				attrs = mi.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
-				if (0 == attrs.Length) return true;
-				foreach (System.Diagnostics.ConditionalAttribute attr in attrs)
-				{
-					if (!Parameters.Defines.ContainsKey(attr.ConditionString)) {
-						_context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), attr.ConditionString);
-						return false;
-					}
-				}
-
+		private IEnumerable<string> GetConditionalSymbols(IMethod method)
+		{
+			GenericMappedMethod mappedMethod = method as GenericMappedMethod;
+			if (mappedMethod != null)
+			{
+				return GetConditionalSymbols(mappedMethod.Source);
 			}
 
-			return true;
+			GenericConstructedMethod constructedMethod = method as GenericConstructedMethod;
+			if (constructedMethod != null)
+			{
+				return GetConditionalSymbols(constructedMethod.GenericDefinition);
+			}
+
+			ExternalMethod externalMethod = method as ExternalMethod;
+			if (externalMethod != null)
+			{
+				return GetConditionalSymbols(externalMethod);
+			}
+
+			InternalMethod internalMethod = method as InternalMethod;
+			if (internalMethod != null)
+			{
+				return GetConditionalSymbols(internalMethod);
+			}
+
+			return new string[0];
+		}
+
+		private IEnumerable<string> GetConditionalSymbols(ExternalMethod method)
+		{
+			object[] attrs = method.MethodInfo.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
+			foreach (System.Diagnostics.ConditionalAttribute attr in attrs)
+			{
+				yield return attr.ConditionString;
+			}
+			yield break;
+		}
+
+		private IEnumerable<string> GetConditionalSymbols(InternalMethod method)
+		{
+			Attribute[] attrs = MetadataUtil.GetCustomAttributes(method.Method, TypeSystemServices.ConditionalAttribute);
+			foreach (Attribute attr in attrs)
+			{
+				if (1 != attr.Arguments.Count) continue;
+
+				StringLiteralExpression sle = attr.Arguments[0] as StringLiteralExpression;
+				if (sle == null) continue;
+
+				yield return sle.Value;
+			}
+			yield break;
 		}
 
 		private void PushTargetObject(MethodInvocationExpression node, MethodInfo mi)

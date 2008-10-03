@@ -151,10 +151,11 @@ namespace Boo.Lang.Compiler.TypeSystem
     /// <summary>
     /// A method on a generic constructed type.
     /// </summary>
-    public class GenericMappedMethod : GenericMappedAccessibleMember<IMethod>, IMethod
+    public class GenericMappedMethod : GenericMappedAccessibleMember<IMethod>, IMethod, IGenericMethodInfo
     {
         IParameter[] _parameters = null;
         ICallableType _callableType = null;
+		IDictionary<IType[], IMethod> _constructedMethods = new Dictionary<IType[], IMethod>();
 
         public GenericMappedMethod(TypeSystemServices tss, IMethod source, GenericMapping genericMapping)
             : base(tss, source, genericMapping)
@@ -183,14 +184,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public virtual IConstructedMethodInfo ConstructedInfo
         {
-            // Generic mapped methods are not generic methods - those are InternalGenericMethods
+            // Generic mapped methods are not constructed methods, rather they're methods on constructed types.
             get { return null; }
         }
 
         public IGenericMethodInfo GenericInfo
         {
-            // TODO: Generic mapped methods can be generic definitions!
-            get { return null; }
+            get 
+			{
+				if (Source.GenericInfo == null)
+				{
+					return null;
+				}
+				return this; 
+			}
         }
 
         public ICallableType CallableType
@@ -234,7 +241,27 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             return _parameters ?? (_parameters = GenericMapping.Map(Source.GetParameters()));
         }
-    }
+
+		IGenericParameter[] IGenericMethodInfo.GenericParameters
+		{
+			// FIXME: generic parameters on the source method should be mapped as well, so that
+			// their type constraints are mapped accordingly.
+			// GenericType[of T].GenericMethod[of U (T)] should be mapped to
+			// GenericType[of SomeType].GenericMethod[of SomeOtherType (SomeType)]
+			get { return Source.GenericInfo.GenericParameters; }
+		}
+
+		IMethod IGenericMethodInfo.ConstructMethod(params IType[] arguments)
+		{
+			IMethod constructedMethod = null;
+			if (!_constructedMethods.TryGetValue(arguments, out constructedMethod))
+			{
+				constructedMethod = new GenericConstructedMethod(_tss, this, arguments);
+				_constructedMethods.Add(arguments, constructedMethod);
+			}
+			return constructedMethod;
+		}
+	}
 
     #endregion
 
