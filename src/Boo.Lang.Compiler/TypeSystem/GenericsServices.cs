@@ -416,7 +416,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			bool valid = true;
 
 			// Check type semantics constraints
-			if (parameter.IsClass && !argument.IsClass)
+			if (parameter.IsClass && !(argument.IsClass || argument.IsInterface))
 			{
 				Errors.Add(CompilerErrorFactory.GenericArgumentMustBeReferenceType(ConstructionNode, parameter, argument));
 				valid = false;

@@ -325,7 +325,7 @@ namespace Boo.Lang.Compiler
 			{
 				return (T)_services[typeof(T)];
 			}
-			catch (KeyNotFoundException ex)
+			catch (KeyNotFoundException)
 			{
 				throw new ArgumentException(string.Format("Requested compiler service not found: '{0}'.", typeof(T)));
 			}

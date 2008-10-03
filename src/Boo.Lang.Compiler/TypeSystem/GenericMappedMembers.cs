@@ -154,6 +154,7 @@ namespace Boo.Lang.Compiler.TypeSystem
     public class GenericMappedMethod : GenericMappedAccessibleMember<IMethod>, IMethod, IGenericMethodInfo
     {
         IParameter[] _parameters = null;
+		IGenericParameter[] _typeParameters = null; 
         ICallableType _callableType = null;
 		IDictionary<IType[], IMethod> _constructedMethods = new Dictionary<IType[], IMethod>();
 
@@ -244,11 +245,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		IGenericParameter[] IGenericMethodInfo.GenericParameters
 		{
-			// FIXME: generic parameters on the source method should be mapped as well, so that
-			// their type constraints are mapped accordingly.
-			// GenericType[of T].GenericMethod[of U (T)] should be mapped to
-			// GenericType[of SomeType].GenericMethod[of SomeOtherType (SomeType)]
-			get { return Source.GenericInfo.GenericParameters; }
+			get 
+			{
+				if (_typeParameters == null)
+				{
+					_typeParameters = Array.ConvertAll<IGenericParameter, IGenericParameter>(
+						Source.GenericInfo.GenericParameters,
+						GenericMapping.Map);
+				}
+				return _typeParameters;
+			}
 		}
 
 		IMethod IGenericMethodInfo.ConstructMethod(params IType[] arguments)

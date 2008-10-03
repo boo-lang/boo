@@ -102,9 +102,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			// Map generic parameter to corresponding argument
 			IGenericParameter gp = sourceType as IGenericParameter;
-			if (null != gp && _map.ContainsKey(gp))
+			if (gp != null)	
 			{
-				return _map[gp];
+				if (_map.ContainsKey(gp)) return _map[gp];
+				if (_cache.ContainsKey(gp.DeclaringMethod)) return new GenericMappedTypeParameter(_tss, gp, this);
 			}
 
 			// Map open constructed type using generic parameters to closed constructed type
@@ -302,6 +303,11 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             return (IType)Map((IEntity)source);
         }
+
+		public IGenericParameter Map(IGenericParameter source)
+		{
+			return (IGenericParameter)Map((IEntity)source);
+		}
 
         /// <summary>
         /// Maps a parameter in a generic, constructed or mapped method to its constructed counterpart.

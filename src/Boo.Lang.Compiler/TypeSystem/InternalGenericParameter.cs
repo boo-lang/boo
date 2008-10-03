@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.TypeSystem
     /// <summary>
     /// A generic type parameter of an internal generic type or method.
     /// </summary>
-	public class InternalGenericParameter : IType, IInternalEntity, IGenericParameter
+	public class InternalGenericParameter : AbstractGenericParameter, IInternalEntity
 	{
 		int _position = -1;
 		GenericParameterDeclaration _declaration;
@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		IType[] _baseTypes = null;
 		
-		public InternalGenericParameter(TypeSystemServices tss, GenericParameterDeclaration declaration)
+		public InternalGenericParameter(TypeSystemServices tss, GenericParameterDeclaration declaration) : base(tss)
 		{
 			_tss = tss;
 			_declaration = declaration;
@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_position = position;
 		}
 
-		public int GenericParameterPosition
+		public override int GenericParameterPosition
 		{
 			get 
 			{
@@ -71,36 +71,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		public bool MustHaveDefaultConstructor
-		{
-			get
-			{
-				return HasConstraint(GenericParameterConstraints.Constructable);
-			}
-		}
-
-		public Variance Variance
-		{
-			get 
-			{
-				if (HasConstraint(GenericParameterConstraints.Covariant))
-				{
-					return Variance.Covariant;
-				}
-				else if (HasConstraint(GenericParameterConstraints.Contravariant))
-				{
-					return Variance.Contravariant;
-				}
-				return Variance.Invariant;
-			}
-		}
-
-		public IType[] GetTypeConstraints()
+		public override IType[] GetTypeConstraints()
 		{
 			if (_baseTypes == null)
 			{
 				List<IType> baseTypes = new List<IType>();
-
 				foreach (TypeReference baseTypeReference in _declaration.BaseTypes)
 				{
 					IType baseType = (IType)baseTypeReference.Entity;
@@ -116,221 +91,61 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _baseTypes;			
 		}
 
-		public bool IsValueType
-		{
-			get { return HasConstraint(GenericParameterConstraints.ValueType); }
-		}
-
-		public bool IsClass
-		{
-			get { return HasConstraint(GenericParameterConstraints.ReferenceType); }
-		}
-
-		public IType DeclaringType
-		{
-		 	get 
-		 	{
-		 		return DeclaringEntity as IType ??
-					((IMethod)DeclaringEntity).DeclaringType;
-		 	}
-		}
-		
-		public IMethod DeclaringMethod
-		{
-			get { return DeclaringEntity as IMethod; } 
-		}
-		
-		public IEntity DeclaringEntity
+		public override IEntity DeclaringEntity
 		{
 			get 
 			{
 				return TypeSystemServices.GetEntity(_declaration.ParentNode);
 			}
 		}
-
-		bool IType.IsAbstract
-		{
-			get { return false; }
-		}
 		
-		bool IType.IsInterface
-		{
-			get { return false; }
-		}
-		
-		bool IType.IsEnum
-		{
-			get { return false; }
-		}
-		
-		public bool IsByRef
-		{
-			get { return false; }
-		}
-		
-		bool IType.IsFinal
-		{
-			get { return true; }
-		}
-		
-		bool IType.IsArray
-		{
-			get { return false; }
-		}
-		
-		public int GetTypeDepth()
-		{
-			return DeclaringType.GetTypeDepth() + 1;			
-		}
-		
-		IType IType.GetElementType()
-		{
-			return null;
-		}
-		
-		public IType BaseType
-		{
-			get { return FindBaseType(); }
-		}
-		
-		public IEntity GetDefaultMember()
-		{
-			return null;
-		}
-		
-		public IConstructor[] GetConstructors()
-		{
-			if (MustHaveDefaultConstructor)
-			{
-				// TODO: return a something implementing IConstructor...?
-			}
-			return null;
-		}
-		
-		public IType[] GetInterfaces()
-		{
-			List<IType> interfaces = new List<IType>();
-
-			foreach (IType type in GetTypeConstraints())
-			{
-				if (type.IsInterface)
-				{
-					interfaces.Add(type);
-				}
-			}
-		
-			return interfaces.ToArray();
-		}
-
-		public bool IsSubclassOf(IType other)
-		{
-			return (other == BaseType || BaseType.IsSubclassOf(other));
-		}
-		
-		public bool IsAssignableFrom(IType other)
-		{
-			if (other == this)
-			{
-				return true;
-			}
-		
-			if (other == Null.Default)
-			{
-				return IsClass;
-			}
-
-			return false;
-		}
-		
-		IGenericTypeInfo IType.GenericInfo 
-		{ 
-			get { return null; } 
-		}
-		
-		IConstructedTypeInfo IType.ConstructedInfo 
-		{ 
-			get { return null; } 
-		}
-
-		public string Name
+		public override string Name
 		{
 			get { return _declaration.Name; }
 		}
 
-		public string FullName 
-		{
-			get 
-			{
-				return string.Format("{0}.{1}", DeclaringEntity.FullName, Name);
-			}
-		}
-		
-		public EntityType EntityType
-		{
-			get { return EntityType.Type; }
-		}
-		
-		public IType Type
-		{
-			get { return this; }
-		}
-		
-		INamespace INamespace.ParentNamespace
-		{
-			get { return (INamespace)DeclaringEntity; }
-		}
-		
-		IEntity[] INamespace.GetMembers()
-		{
-			return NullNamespace.EmptyEntityArray;
-		}
-		
-		bool INamespace.Resolve(List targetList, string name, EntityType flags)
-		{
-			bool resolved = false;
-			
-			// Resolve using base type constraints
-			foreach (IType type in GetTypeConstraints())
-			{
-				resolved |= type.Resolve(targetList, name, flags);
-			}
-			
-			// Resolve using System.Object
-			resolved |= _tss.ObjectType.Resolve(targetList, name, flags);
-
-			return resolved;
-		}
-		
 		public Node Node
 		{
 			get { return _declaration; }
 		}
-		
-		override public string ToString()
+
+		override public bool IsValueType
 		{
-			return Name;
+			get { return HasConstraint(GenericParameterConstraints.ValueType); }
 		}
 
-		bool IEntityWithAttributes.IsDefined(IType attributeType)
+		override public bool IsClass
 		{
-			throw new NotImplementedException();
+			get { return HasConstraint(GenericParameterConstraints.ReferenceType); }
 		}
-				
-		private bool HasConstraint(GenericParameterConstraints flag)
+
+		override public bool MustHaveDefaultConstructor
+		{
+			get
+			{
+				return HasConstraint(GenericParameterConstraints.Constructable);
+			}
+		}
+
+		override public Variance Variance
+		{
+			get
+			{
+				if (HasConstraint(GenericParameterConstraints.Covariant))
+				{
+					return Variance.Covariant;
+				}
+				else if (HasConstraint(GenericParameterConstraints.Contravariant))
+				{
+					return Variance.Contravariant;
+				}
+				return Variance.Invariant;
+			}
+		}
+
+		bool HasConstraint(GenericParameterConstraints flag)
 		{
 			return (_declaration.Constraints & flag) == flag;
-		}
-
-		private IType FindBaseType()
-		{
-			foreach (IType type in GetTypeConstraints())
-			{
-				if (!type.IsInterface)
-				{
-					return type;
-				}
-			}
-			return _tss.ObjectType;
 		}
 	}
 }

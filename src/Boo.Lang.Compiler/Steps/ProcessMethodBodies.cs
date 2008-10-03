@@ -4277,10 +4277,14 @@ namespace Boo.Lang.Compiler.Steps
 			GenericsServices genericsServices = Context.GetService<GenericsServices>();
 
 			IType[] inferredArguments = genericsServices.InferMethodGenericArguments(targetMethod, node.Arguments);
-			if (inferredArguments == null || 
-				!genericsServices.CheckGenericConstruction(node.Target, targetMethod, inferredArguments, false))
+			if (inferredArguments == null)
 			{
 				Error(node, CompilerErrorFactory.CannotInferGenericMethodArguments(node, targetMethod));
+				return null;
+			}
+
+			if (!genericsServices.CheckGenericConstruction(node, targetMethod, inferredArguments, true))
+			{
 				return null;
 			}
 

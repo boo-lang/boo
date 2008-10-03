@@ -82,8 +82,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				delegate(IType t) { return t.FullName; });
 			
 			return string.Format(
-				"{0}[{1}]", 
-				_definition.FullName, 
+				"{0}.{1}[of {2}]", 
+				DeclaringType.FullName, 
+				Name,
 				string.Join(", ", argumentNames));
 		}
 

@@ -68,11 +68,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         protected string BuildFullName()
         {
-            string[] argumentNames = Array.ConvertAll<IType, string>(
-                GenericArguments, 
-                delegate(IType t) { return t.FullName; });
+			string baseName = _definition.FullName;
+			int typeParametersPosition = baseName.LastIndexOf("[");
+			if (typeParametersPosition >= 0) baseName = baseName.Remove(typeParametersPosition);
 
-            return string.Format("{0}[{1}]", _definition.FullName, string.Join(", ", argumentNames));
+			string[] argumentNames = Array.ConvertAll<IType, string>(
+				GenericArguments,
+				delegate(IType t) { return t.FullName; });
+
+			return string.Format("{0}[of {1}]", baseName, string.Join(", ", argumentNames));
         }
 
         public GenericMapping GenericMapping
