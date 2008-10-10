@@ -90,7 +90,7 @@ public class BoocTask(CompilerBase):
 			return _debugOutput
 		set:
 			_debugOutput = value
-			
+
 	[TaskAttribute('pipeline')]
 	public Pipeline:
 		get:
@@ -141,12 +141,24 @@ public class BoocTask(CompilerBase):
 		set:
 			_ducky = value
 
+
 	[TaskAttribute('define')]
 	public DefineSymbols as string:
 		get:
 			return _defineSymbols
 		set:
 			_defineSymbols = value
+
+
+	[BuildElement("embed")]
+	Embed:
+		get:
+			return _embed
+		set:
+			_embed = value
+
+	_embed = FileSet()
+
 
 	private def FindBooc() as string:
 		path as string
@@ -166,12 +178,14 @@ public class BoocTask(CompilerBase):
 			return path
 		_useruntime = false
 		return "booc" //try booc in PATH
-		
+
+
 	protected override def ExecuteTask():
 		if not ExeName or ExeName == string.Empty:
 			ExeName = FindBooc()
 		super()
-		
+
+
 	#endregion Public Instance Properties
 	#region Override implementation of CompilerBase
 	protected override def WriteOptions(writer as TextWriter):
@@ -193,7 +207,9 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "define", DefineSymbols)
 		if Pipeline:
 			WriteOption(writer, "p", _pipeline)
-	
+		for embed in _embed.FileNames:
+			WriteOption(writer, "embedres", embed)
+
 	protected override def WriteOption(writer as TextWriter, name as string):
 		writer.WriteLine("-{0}", name)
 		
