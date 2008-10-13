@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class BindTypeMembers : AbstractVisitorCompilerStep
+	public class BindTypeMembers : BindMethods
 	{
 		Boo.Lang.List _parameters = new Boo.Lang.List();
 		Boo.Lang.List _events = new Boo.Lang.List();
@@ -47,10 +47,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnMethod(Method node)
 		{
-			// The method itself has been bound earlier during BindMethods, so
-			// we just have to remember to bind its parameters 
 			_parameters.Add(node);
-			Visit(node.ExplicitInfo);
+			base.OnMethod(node);
 		}
 		
 		void BindAllParameters()
@@ -69,11 +67,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnConstructor(Constructor node)
 		{
-			if (null == node.Entity)
-			{
-				node.Entity = new InternalConstructor(TypeSystemServices, node);
-			}
 			_parameters.Add(node);
+			base.OnConstructor(node);
 		}
 		
 		override public void OnField(Field node)
@@ -101,11 +96,6 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.ExplicitInfo);
 		}
 
-		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
-		{
-			Visit(node.InterfaceType);
-		}
-		
 		override public void OnEvent(Event node)
 		{
 			_events.Add(node);
@@ -200,20 +190,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void OnClassDefinition(ClassDefinition node)
-		{
-			Visit(node.Members);
-		}
-		
-		override public void OnModule(Module node)
-		{
-			Visit(node.Members);
-		}
-		
 		override public void Run()
-		{			
-			NameResolutionService.Reset();
-			Visit(CompileUnit.Modules);
+		{
+			base.Run();
 			BindAllParameters();
 			BindAllEvents();
 		}

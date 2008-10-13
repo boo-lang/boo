@@ -34,6 +34,10 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
+	/// <summary>
+	/// Pre-binds methods and constructors before resolving type references, 
+	/// to enable correct resolution of generic type references.
+	/// </summary>
 	public class BindMethods : AbstractVisitorCompilerStep
 	{
 		public BindMethods()
@@ -54,6 +58,14 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			Visit(node.ExplicitInfo);
+		}
+
+		public override void OnConstructor(Constructor node)
+		{
+			if (null == node.Entity)
+			{
+				node.Entity = new InternalConstructor(TypeSystemServices, node);
+			}
 		}
 		
 		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
