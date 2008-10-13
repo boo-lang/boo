@@ -424,7 +424,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (ActualType.IsGenericType)
+				if (ActualType.IsGenericType && !ActualType.IsGenericTypeDefinition)
 				{
 					if (_genericTypeInfo == null)
 					{

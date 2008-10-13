@@ -371,6 +371,7 @@
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/UnfoldConstants.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/AbstractGenericParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractType.cs" buildaction="Compile" subtype="Code" />
@@ -413,6 +414,7 @@
     <File name="TypeSystem/GenericConstructedMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/GenericMappedTypeParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericMapping.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericParameterInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/GenericsServices.cs" buildaction="Compile" subtype="Code" />

@@ -414,6 +414,7 @@
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
     <Compile Include="Steps\UnfoldConstants.cs" />
     <Compile Include="TypeSystem\AbstractExternalGenericInfo.cs" />
+    <Compile Include="TypeSystem\AbstractGenericParameter.cs" />
     <Compile Include="TypeSystem\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\AbstractLocalEntity.cs" />
     <Compile Include="TypeSystem\AbstractType.cs" />
@@ -456,6 +457,7 @@
     <Compile Include="TypeSystem\GenericConstructedMethod.cs" />
     <Compile Include="TypeSystem\GenericConstructedType.cs" />
     <Compile Include="TypeSystem\GenericMappedMembers.cs" />
+    <Compile Include="TypeSystem\GenericMappedTypeParameter.cs" />
     <Compile Include="TypeSystem\GenericMapping.cs" />
     <Compile Include="TypeSystem\GenericParameterInferrer.cs" />
     <Compile Include="TypeSystem\GenericsServices.cs" />

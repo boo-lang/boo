@@ -221,6 +221,7 @@ namespace Boo.Lang.Compiler.Steps
 				
 				foreach (TypeDefinition type in types)
 				{
+					DefineGenericParameters(type);
 					DefineTypeMembers(type);
 				}
 				
@@ -228,7 +229,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					OnModule(module);
 				}
-				
+
 				EmitAttributes();
 				CreateTypes(types);
 			}
@@ -427,22 +428,7 @@ namespace Boo.Lang.Compiler.Steps
 					TypeDefinition typedef = type as TypeDefinition;
 					if (null != typedef)
 					{
-						foreach (TypeReference baseTypeRef in typedef.BaseTypes)
-						{
-							IType baseType = _emitter.GetType(baseTypeRef);
-							
-							EnsureInternalDependency(baseType);
-
-							// If base type is a constructed generic type, create any internal 
-                            // parameters it might have
-							if (baseType.ConstructedInfo != null)
-							{
-								foreach (IType argument in baseType.ConstructedInfo.GenericArguments)
-								{
-									EnsureInternalDependency(argument);
-								}
-							}
-						}
+						CreateRelatedTypes(typedef);
 					}
 					
 					_emitter.GetTypeBuilder(type).CreateType();
@@ -452,20 +438,41 @@ namespace Boo.Lang.Compiler.Steps
 					_current = saved;
 				}
 			}
+
+			private void CreateRelatedTypes(TypeDefinition typedef)
+			{
+				CreateRelatedTypes(typedef.BaseTypes);
+				
+				foreach (GenericParameterDeclaration gpd in typedef.GenericParameters)
+				{
+					CreateRelatedTypes(gpd.BaseTypes);
+				}
+			}
+
+			private void CreateRelatedTypes(TypeReferenceCollection typerefs)
+			{
+				foreach (TypeReference typeref in typerefs)
+				{
+					IType type = _emitter.GetType(typeref);
+					EnsureInternalDependency(type);
+				}
+			}
 			
 			private void EnsureInternalDependency(IType type)
 			{
-				AbstractInternalType tag = type as AbstractInternalType;
-				if (null != tag)
+				AbstractInternalType internalType = type as AbstractInternalType;
+				if (null != internalType)
 				{
-					CreateType(tag.TypeDefinition);
+					CreateType(internalType.TypeDefinition);
+					return;
 				}
-				else
+
+				if (type.ConstructedInfo != null)
 				{
-					GenericConstructedType gtag = type as GenericConstructedType;
-					if(null != gtag)
+					EnsureInternalDependency(type.ConstructedInfo.GenericDefinition);
+					foreach (IType typeArg in type.ConstructedInfo.GenericArguments)
 					{
-						EnsureInternalDependency(gtag.GenericDefinition);
+						EnsureInternalDependency(typeArg);
 					}
 				}
 			}
@@ -4482,6 +4489,14 @@ namespace Boo.Lang.Compiler.Steps
 			return builder;
 		}
 
+		void DefineGenericParameters(TypeDefinition typeDefinition)
+		{
+			if (typeDefinition.GenericParameters.Count > 0)
+			{
+				DefineGenericParameters(GetTypeBuilder(typeDefinition), typeDefinition.GenericParameters.ToArray());
+			}
+		}
+
 		/// <summary>
 		/// Defines the generic parameters of an internal generic type.
 		/// </summary>
@@ -4525,7 +4540,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (parameter.BaseType != TypeSystemServices.ObjectType)
 			{
 				builder.SetBaseTypeConstraint(GetSystemType(parameter.BaseType));
-		}
+			}
 
 			// Set interface constraints
 			Type[] interfaceTypes = Array.ConvertAll<IType, Type>(
@@ -4571,11 +4586,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			TypeBuilder typeBuilder = CreateTypeBuilder(typeDefinition);
 			SetBuilder(typeDefinition, typeBuilder);
-
-			if (typeDefinition.GenericParameters.Count > 0)
-			{
-				DefineGenericParameters(typeBuilder, typeDefinition.GenericParameters.ToArray());
-			}
 		}
 		
 		bool IsValueType(TypeMember type)
@@ -4868,7 +4878,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
 		string GetAssemblySimpleName(string fname)
 		{
 			return Path.GetFileNameWithoutExtension(fname);
