@@ -89,10 +89,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)
 		{
+			bool firstTry = ! MacroCompiler.AlreadyCompiled(klass.TypeDefinition);
 			Type macroType = new MacroCompiler(Context).Compile(klass);
 			if (null == macroType)
 			{
-				ProcessingError(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
+				if (firstTry)
+				{
+					ProcessingError(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
+				}
+				else
+				{
+					RemoveCurrentNode();
+				}
 				return;
 			}
 			ProcessMacro(macroType, node);

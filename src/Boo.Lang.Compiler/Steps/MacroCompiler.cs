@@ -63,7 +63,9 @@ namespace Boo.Lang.Compiler.Steps
 		private Type RunCompiler(TypeDefinition node)
 		{
 			TraceInfo("Compiling macro '{0}'", node.FullName);
-			CompilerContext result = Compilation.compile_(ModuleFor(node));
+			System.Reflection.Assembly[] references = new System.Reflection.Assembly[Context.Parameters.References.Count];
+			(Context.Parameters.References as System.Collections.ICollection).CopyTo(references, 0);
+			CompilerContext result = Compilation.compile_(CompileUnitFor(node), references);
 			if (0 == result.Errors.Count)
 			{
 				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node.FullName, result.GeneratedAssembly);
@@ -76,6 +78,31 @@ namespace Boo.Lang.Compiler.Steps
 		private void TraceInfo(string format, params object[] args)
 		{
 			Context.TraceInfo(format, args);
+		}
+		
+		private CompileUnit CompileUnitFor(TypeDefinition node)
+		{
+			CompileUnit unit = new CompileUnit();
+			GetModuleFor(unit, node);
+			return unit;
+		}
+		
+		private void GetModuleFor(CompileUnit unit, TypeDefinition node)
+		{
+			unit.Modules.Add(ModuleFor(node));
+			foreach (TypeReference typeRef in node.BaseTypes)
+			{
+				InternalClass ait = null;
+				try
+				{
+					ait = TypeSystemServices.GetType(typeRef) as InternalClass;
+				}
+				catch (CompilerError)
+				{
+				}
+				if(ait != null)
+					GetModuleFor(unit, ait.TypeDefinition);
+			}
 		}
 
 		private Module ModuleFor(TypeDefinition node)
@@ -117,7 +144,7 @@ namespace Boo.Lang.Compiler.Steps
 			return node[CachedTypeAnnotation] as System.Type;
 		}
 
-		private static bool AlreadyCompiled(TypeDefinition node)
+		public static bool AlreadyCompiled(TypeDefinition node)
 		{
 			return node.ContainsAnnotation(CachedTypeAnnotation);
 		}
