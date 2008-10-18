@@ -35,16 +35,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		INamespace _parent;
 		
-		INamespace[] _namespaces;
+		List<INamespace> _namespaces = new List<INamespace>();
 		
 		public NamespaceDelegator(INamespace parent, params INamespace[] namespaces)
 		{
-			if (null == namespaces)
-			{
-				throw new ArgumentNullException("namespaces");
-			}
 			_parent = parent;
-			_namespaces = namespaces;
+			_namespaces.ExtendUnique(namespaces);
 		}
 		
 		public INamespace ParentNamespace
@@ -54,7 +50,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _parent;
 			}
 		}
-		
+
+		public void DelegateTo(INamespace ns)
+		{
+			_namespaces.AddUnique(ns);
+		}
+
 		public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			bool found = false;

@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Steps
 		Method _currentMethod;
 		
 		List _references;
+
+		List _recursiveReferences;
 		
 		Hash _referencedEntities;
 		
@@ -53,6 +55,7 @@ namespace Boo.Lang.Compiler.Steps
 		public ForeignReferenceCollector()
 		{
 			_references = new List();
+			_recursiveReferences = new List();
 			_referencedEntities = new Hash();
 		}
 		
@@ -186,7 +189,7 @@ namespace Boo.Lang.Compiler.Steps
 				Field field = builder.AddInternalField("__" + entity.Name + _context.AllocIndex(), entity.Type);
 				_referencedEntities[entity] = field.Entity;
 			}
-			
+
 			// single constructor taking all referenced entities
 			BooMethodBuilder constructor = builder.AddConstructor();
 			constructor.Modifiers = TypeMemberModifiers.Public;			
@@ -212,6 +215,15 @@ namespace Boo.Lang.Compiler.Steps
 							CodeBuilder.CreateReference(entity));
 				}
 			}
+
+			foreach (ReferenceExpression reference in _recursiveReferences)
+			{
+				reference.ParentNode.Replace(
+					reference,
+					CodeBuilder.MemberReferenceForEntity(
+						CodeBuilder.CreateSelfReference((IType)CurrentMethod.DeclaringType.Entity), 
+						CurrentMethod.Entity));
+			}
 		}
 		
 		public MethodInvocationExpression CreateConstructorInvocationWithReferencedEntities(IType type)
@@ -235,7 +247,19 @@ namespace Boo.Lang.Compiler.Steps
 				return CodeBuilder.CreateReference(entity);
 			}
 		}
-		
+
+		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			if (IsRecursiveReference(node))
+			{
+				_recursiveReferences.Add(node);
+			}
+			else
+			{
+				Visit(node.Target);
+			}
+		}
+
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			if (IsForeignReference(node))
@@ -251,6 +275,11 @@ namespace Boo.Lang.Compiler.Steps
 			node.Entity = entity;
 			_references.Add(node);
 			_referencedEntities[entity] = null;
+		}
+
+		private bool IsRecursiveReference(Node node)
+		{
+			return (CurrentMethod != null && node.Entity == CurrentMethod.Entity);
 		}
 		
 		bool IsForeignReference(ReferenceExpression node)

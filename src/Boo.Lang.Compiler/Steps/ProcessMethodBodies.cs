@@ -696,9 +696,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (WasVisited(node)) return;
 			MarkVisited(node);
 
+			string explicitClosureName = node["ClosureName"] as string;
+
 			Method closure = CodeBuilder.CreateMethod(
-				ClosureNameFor(node),
-				Unknown.Default,
+				ClosureName(explicitClosureName),
+				node.ReturnType ?? CodeBuilder.CreateTypeReference(Unknown.Default),
 				ClosureModifiers());
 
 			MarkVisited(closure);
@@ -721,10 +723,21 @@ namespace Boo.Lang.Compiler.Steps
 				AddOptionalReturnStatement(node.Body);
 			}
 
-			// Connects the closure method namespace with the current
+			// Inside the closure, connect the closure method namespace with the current namespace 
 			NamespaceDelegator ns = new NamespaceDelegator(CurrentNamespace, closureEntity);
+
+			// Allow closure body to reference itself using its explicit name (BOO-1085)
+			if (explicitClosureName != null)
+			{
+				ns.DelegateTo(new AliasedNamespace(explicitClosureName, closureEntity));
+			}
+
 			ProcessMethodBody(closureEntity, ns);
-			TryToResolveReturnType(closureEntity);
+
+			if (closureEntity.ReturnType is Unknown)
+			{
+				TryToResolveReturnType(closureEntity);
+			}
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
@@ -740,9 +753,9 @@ namespace Boo.Lang.Compiler.Steps
 			return modifiers;
 		}
 
-		private string ClosureNameFor(BlockExpression block)
+		private string ClosureName(string explicitName)
 		{
-			string closureHint = (block["ClosureName"] as string) ?? "closure";
+			string closureHint = explicitName ?? "closure";
 			return _currentMethod.Name + "$" + closureHint + "$" + _context.AllocIndex();
 		}
 
