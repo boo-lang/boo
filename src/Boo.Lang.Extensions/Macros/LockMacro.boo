@@ -32,28 +32,43 @@ import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
+
+
 def createLockedBlock(context as CompilerContext, monitor as Expression, block as Block):
 	temp = ReferenceExpression(monitor.LexicalInfo, "__monitor${context.AllocIndex()}__")
+
+	expireString as string = null
+	expire as int = 5000 #expiration time in ms (default 5s)
+	if context.Parameters.Defines.TryGetValue("DEADLOCK_DETECTOR", expireString):
+		expire = int.Parse(expireString) if expireString
+		monitorEntry = [|
+			block:
+				acquired = System.Threading.Monitor.TryEnter($temp, $expire)
+				raise System.ApplicationException("DEADLOCK DETECTED") unless acquired
+		|].Block
+	else:
+		monitorEntry = [|
+			block:
+				System.Threading.Monitor.Enter($temp)
+		|].Block
+
 	assignment = [| $temp = $monitor |].withLexicalInfoFrom(monitor)
 	return [|
 		$assignment
-		System.Threading.Monitor.Enter($temp)
+		$monitorEntry
 		try:
 			$block
 		ensure:
 			System.Threading.Monitor.Exit($temp)
 	|]
 
-macro lock:
 
+macro lock:
 	if 0 == len(lock.Arguments):
 		raise CompilerErrorFactory.InvalidLockMacroArguments(lock)
-		
+
 	expansion = lock.Block
 	for arg in reversed(lock.Arguments):
 		expansion = createLockedBlock(Context, arg, expansion)
 	return expansion
-
-	
-		
 
