@@ -3,6 +3,7 @@ foo
 DEADLOCK DETECTED
 """
 
+import System
 import Boo.Lang.Compiler
 
 
@@ -17,7 +18,7 @@ class Deadlocker:
 
 
 macro enableDeadLockDetectorToKickInAt200ms:
-	Context.Parameters.Defines.Add("DEADLOCK_DETECTOR", "200")
+	Context.Parameters.Defines.Add("LOCK_TIMEOUT", "200")
 
 
 enableDeadLockDetectorToKickInAt200ms
@@ -27,6 +28,6 @@ try:
 	lock d.DaLock:
 		res = d.Foo.BeginInvoke()
 		d.Foo.EndInvoke(res)
-except ApplicationException:
+except TimeoutException:
 	print "DEADLOCK DETECTED"
 

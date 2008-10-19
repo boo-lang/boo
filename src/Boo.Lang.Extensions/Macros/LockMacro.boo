@@ -39,12 +39,14 @@ def createLockedBlock(context as CompilerContext, monitor as Expression, block a
 
 	expireString as string = null
 	expire as int = 5000 #expiration time in ms (default 5s)
-	if context.Parameters.Defines.TryGetValue("DEADLOCK_DETECTOR", expireString):
+	if context.Parameters.Defines.TryGetValue("LOCK_TIMEOUT", expireString):
 		expire = int.Parse(expireString) if expireString
 		monitorEntry = [|
 			block:
 				acquired = System.Threading.Monitor.TryEnter($temp, $expire)
-				raise System.ApplicationException("DEADLOCK DETECTED") unless acquired
+				if not acquired:
+					msg = string.Format("Lock at '{0}' could not be acquired within LOCK_TIMEOUT({1}ms) - possible deadlock", $(monitor.LexicalInfo.ToString()), $expire)
+					raise System.TimeoutException(msg)
 		|].Block
 	else:
 		monitorEntry = [|
