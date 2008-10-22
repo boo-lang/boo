@@ -55,6 +55,9 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	[property(BlockStarters, value is not null)]
 	_blockStarters = (char(':'), char('\\'),)
 
+	QQBegin = "[|"
+	QQEnd= "|]"
+
 	[getter(LastValue)]
 	_lastValue
 
@@ -426,10 +429,14 @@ class InteractiveInterpreter2(AbstractInterpreter):
 					_buffer.Append(Environment.NewLine)
 					AddToHistory(Line)
 
-					_indent++ if LineLastChar in _blockStarters
+					_indent++ if LineLastChar in _blockStarters or Line.EndsWith(QQBegin)
 					_indent-- if Line.EndsWith(IndentChars+"pass")
+					if Line.EndsWith(QQEnd):
+						CheckBooLangCompilerReferenced()
+						_indent--
 
-					if _indent == 0:
+					if _indent <= 0:
+						_indent = 0
 						try:
 							InternalLoopEval(_buffer.ToString())
 						except x as System.Reflection.TargetInvocationException:
@@ -830,6 +837,19 @@ Enter boo code in the prompt below (or type /help)."""
 		for key as Type, value in _representers:
 			return value if key.IsAssignableFrom(type)
 		assert false, "An appropriate representer could not be found!"
+
+
+	private def CheckBooLangCompilerReferenced():
+		return if _blcReferenced
+		blcAssembly = typeof(Boo.Lang.Compiler.CompilerContext).Assembly
+		referenced = false
+		for refr in _compiler.Parameters.References:
+			referenced |= (refr == blcAssembly)
+		if not referenced:
+			_compiler.Parameters.AddAssembly(blcAssembly)
+		_blcReferenced = true
+
+	_blcReferenced = false
 
 
 class EntityNameComparer(IComparer of IEntity):
