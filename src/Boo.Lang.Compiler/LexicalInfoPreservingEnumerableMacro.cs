@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -27,45 +27,37 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.Ast
+namespace Boo.Lang.Compiler
 {
-	public partial class TryCastExpression
-	{		
-		public TryCastExpression()
+
+	public abstract class LexicalInfoPreservingEnumerableMacro : AbstractAstEnumerableMacro
+	{
+
+		public override Statement Expand(MacroStatement macro)
 		{
- 		}
-		
-		public TryCastExpression(Expression target, TypeReference type) : this(LexicalInfo.Empty, target, type)
-		{
-		}
-		
-		public TryCastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo)
-		{
-			this.Target = target;
-			this.Type = type;
-		}
-		
-		public TryCastExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
-		{
+			return ExpandImpl(macro);
 		}
 
-		//helper to convert a BinaryExpression into a Field declaration
-		//useful with QQ/macros (ie. testcases/macros/enumerable-macro-4.boo)
-		public static explicit operator Field (TryCastExpression tce)
-		{
-			BinaryExpression be = tce.Target as BinaryExpression;
-			if (be == null || be.Operator != BinaryOperatorType.Assign)
-				throw new InvalidCastException("Only an assignment can be converted to a Field.");
+		protected abstract Statement ExpandImpl(MacroStatement macro);
 
-			Field f = new Field();
-			f.LexicalInfo = be.LexicalInfo;
-			f.Modifiers = TypeMemberModifiers.Protected;
-			f.Name = ((ReferenceExpression) be.Left).Name;
-			f.Type = tce.Type;
-			f.Initializer = be;
-			return f;
+		public override IEnumerable<Node> EnumerableExpand(MacroStatement macro)
+		{
+			IEnumerable<Node> nodes = EnumerableExpandImpl(macro);
+			if (null != nodes)
+			{
+				foreach (Node n in nodes)
+				{
+					if (null != n)
+						n.LexicalInfo = macro.LexicalInfo;
+					yield return n;
+				}
+			}
 		}
 
+		protected abstract IEnumerable<Node> EnumerableExpandImpl(MacroStatement macro);
 	}
+
 }

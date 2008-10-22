@@ -26,46 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
-namespace Boo.Lang.Compiler.Ast
+namespace Boo.Lang.Compiler
 {
-	public partial class TryCastExpression
-	{		
-		public TryCastExpression()
-		{
- 		}
-		
-		public TryCastExpression(Expression target, TypeReference type) : this(LexicalInfo.Empty, target, type)
-		{
-		}
-		
-		public TryCastExpression(LexicalInfo lexicalInfo, Expression target, TypeReference type) : base(lexicalInfo)
-		{
-			this.Target = target;
-			this.Type = type;
-		}
-		
-		public TryCastExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
-		{
-		}
+	using System.Collections.Generic;
 
-		//helper to convert a BinaryExpression into a Field declaration
-		//useful with QQ/macros (ie. testcases/macros/enumerable-macro-4.boo)
-		public static explicit operator Field (TryCastExpression tce)
-		{
-			BinaryExpression be = tce.Target as BinaryExpression;
-			if (be == null || be.Operator != BinaryOperatorType.Assign)
-				throw new InvalidCastException("Only an assignment can be converted to a Field.");
-
-			Field f = new Field();
-			f.LexicalInfo = be.LexicalInfo;
-			f.Modifiers = TypeMemberModifiers.Protected;
-			f.Name = ((ReferenceExpression) be.Left).Name;
-			f.Type = tce.Type;
-			f.Initializer = be;
-			return f;
-		}
-
+	public interface IAstEnumerableMacro : ICompilerComponent
+	{
+		IEnumerable<Ast.Node> EnumerableExpand(Ast.MacroStatement statement);
 	}
+
 }

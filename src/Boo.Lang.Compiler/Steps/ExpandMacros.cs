@@ -30,6 +30,7 @@ namespace Boo.Lang.Compiler.Steps
 {
 	using System;
 	using System.Text;
+	using System.Collections.Generic;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.TypeSystem;
@@ -154,18 +155,67 @@ namespace Boo.Lang.Compiler.Steps
 			ReplaceCurrentNode(new ExpressionStatement(node.LexicalInfo, invocation, node.Modifier));
 		}
 		
-		private bool IsNullOrEmpty(Block block)
+		private static bool IsNullOrEmpty(Block block)
 		{
 			return block == null || block.Statements.Count == 0;
 		}
 
 		private Statement ExpandMacro(Type macroType, MacroStatement node)
-		{	
-			using (IAstMacro macro = (IAstMacro)Activator.CreateInstance(macroType))
+		{
+			using (IAstMacro macro = (IAstMacro) Activator.CreateInstance(macroType))
 			{
 				macro.Initialize(_context);
+
+				//use new-style BOO-1077 macro interface if available
+				if (null != (macro as IAstEnumerableMacro))
+					return ExpandEnumerableMacro((IAstEnumerableMacro) macro, node);
+
 				return macro.Expand(node);
 			}
+		}
+
+		private Statement ExpandEnumerableMacro(IAstEnumerableMacro macroType, MacroStatement node)
+		{
+			IEnumerable<Node> nodes = macroType.EnumerableExpand(node);
+			if (null == nodes)
+				return null;
+
+			Block block = null;
+			TypeDefinition enclosingType = null;
+
+			foreach (Node n in nodes)
+			{
+				if (null == n) continue; //nop
+
+				TypeMember member = n as TypeMember;
+				if (null != member)
+				{
+					if (null == enclosingType)
+						enclosingType = GetEnclosingTypeOrModule(node);
+					enclosingType.Members.Add(member);
+				}
+				else
+				{
+					if (null == block)
+						block = new Block();
+					if (null != (n as Statement))
+						block.Add((Statement) n);
+					else
+						block.Add((Expression) n);
+				}
+			}
+
+			return block;
+		}
+
+		private static TypeDefinition GetEnclosingTypeOrModule(Node node)
+		{
+			while (null != node) {
+				if (null != (node as TypeDefinition))
+					return (TypeDefinition) node;
+				node = node.ParentNode;
+			}
+			throw new ArgumentException("node");
 		}
 
 		private IEntity ResolveMacroName(MacroStatement node)
@@ -175,7 +225,7 @@ namespace Boo.Lang.Compiler.Steps
 			return NameResolutionService.ResolveQualifiedName(node.Name);
 		}
 
-		string BuildMacroTypeName(string name)
+		private string BuildMacroTypeName(string name)
 		{
 			_buffer.Length = 0;
 			if (!char.IsUpper(name[0]))
@@ -192,4 +242,6 @@ namespace Boo.Lang.Compiler.Steps
 			return _buffer.ToString();
 		}
 	}
+
 }
+
