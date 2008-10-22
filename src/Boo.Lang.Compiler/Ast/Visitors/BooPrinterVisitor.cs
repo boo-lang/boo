@@ -912,7 +912,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		override public void OnStringLiteralExpression(StringLiteralExpression e)
 		{
-			WriteStringLiteral(e.Value);
+			if (e != null && e.Value != null)
+				WriteStringLiteral(e.Value);
+			else
+				WriteKeyword("null");
 		}
 		
 		override public void OnCharLiteralExpression(CharLiteralExpression e)

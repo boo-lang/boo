@@ -2575,7 +2575,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnStringLiteralExpression(StringLiteralExpression node)
 		{
-			if (0 != node.Value.Length)
+			if (null == node.Value)
+			{
+				_il.Emit(OpCodes.Ldnull);
+			}
+			else if (0 != node.Value.Length)
 			{ 
 				_il.Emit(OpCodes.Ldstr, node.Value);
 			}
