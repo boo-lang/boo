@@ -554,9 +554,9 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0100", SafeLexicalInfo(node));
 		}
 		
-		public static CompilerError InvalidGeneratorReturnType(Node node)
+		public static CompilerError InvalidGeneratorReturnType(TypeReference type)
 		{
-			return new CompilerError("BCE0101", SafeLexicalInfo(node));
+			return new CompilerError("BCE0101", SafeLexicalInfo(type), type);
 		}
 
 		public static CompilerError GeneratorCantReturnValue(Node node)

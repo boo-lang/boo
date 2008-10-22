@@ -1,5 +1,5 @@
 """
-BCE0101-2.boo(9,9): BCE0101: The return type of a generator must be either 'System.Collections.IEnumerable' or 'object'.
+BCE0101-2.boo(9,9): BCE0101: Return type 'void' cannot be used on a generator. Did you mean 'void*' ? Or use a 'System.Collections.IEnumerable' or 'object'.
 """
 class A:
 	virtual def SpawnBalls():

@@ -1,5 +1,5 @@
 """
-BCE0101-1.boo(12,16): BCE0101: The return type of a generator must be either 'System.Collections.IEnumerable' or 'object'.
+BCE0101-1.boo(12,16): BCE0101: Return type 'int' cannot be used on a generator. Did you mean 'int*' ? Or use a 'System.Collections.IEnumerable' or 'object'.
 """
 import System.Collections
 
