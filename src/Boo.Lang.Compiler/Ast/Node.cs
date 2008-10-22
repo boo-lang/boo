@@ -349,17 +349,21 @@ namespace Boo.Lang.Compiler.Ast
 			new Visitors.BooPrinterVisitor(writer).Visit(this);
 			return writer.ToString();
 		}
-		
+
 		public Node GetAncestor(NodeType ancestorType)
 		{
+			return GetAncestor(ancestorType, 0xffffff);
+		}
+
+		public Node GetAncestor(NodeType ancestorType, int limitDepth)
+		{
 			Node parent = this.ParentNode;
-			while (null != parent)
+			while (null != parent && limitDepth > 0)
 			{
 				if (ancestorType == parent.NodeType)
-				{
 					return parent;
-				}
 				parent = parent.ParentNode;
+				limitDepth--;
 			}
 			return null;
 		}
