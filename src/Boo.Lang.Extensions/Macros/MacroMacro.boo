@@ -37,7 +37,7 @@ class MacroMacro(AbstractAstMacro):
 
 	override def Expand(macro as MacroStatement) as Statement:
 		if len(macro.Arguments) != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
-			raise "macro <reference>"
+			raise System.ArgumentException("Usage: macro <reference>", "reference")
 		klass = CreateMacroType(macro)
 		klass.LexicalInfo = macro.LexicalInfo
 		#TODO: create macro as a nested class of the current type
@@ -64,7 +64,7 @@ class MacroMacro(AbstractAstMacro):
 					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
 						$(macro.Block)
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
-						raise "Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info."
+						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
 			|]
 
 
