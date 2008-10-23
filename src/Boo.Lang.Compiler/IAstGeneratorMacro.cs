@@ -30,9 +30,9 @@ namespace Boo.Lang.Compiler
 {
 	using System.Collections.Generic;
 
-	public abstract class AbstractAstEnumerableMacro : AbstractCompilerComponent, IAstMacro, IAstEnumerableMacro
+	public interface IAstGeneratorMacro : ICompilerComponent
 	{
-		public abstract Ast.Statement Expand(Ast.MacroStatement macro);
-		public abstract IEnumerable<Ast.Node> EnumerableExpand(Ast.MacroStatement macro);
+		IEnumerable<Ast.Node> ExpandGenerator(Ast.MacroStatement statement);
 	}
+
 }

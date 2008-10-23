@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,13 +26,38 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
+
 namespace Boo.Lang.Compiler
 {
-	using System.Collections.Generic;
 
-	public interface IAstEnumerableMacro : ICompilerComponent
+	public abstract class LexicalInfoPreservingGeneratorMacro : AbstractAstGeneratorMacro
 	{
-		IEnumerable<Ast.Node> EnumerableExpand(Ast.MacroStatement statement);
+
+		public override Statement Expand(MacroStatement macro)
+		{
+			return ExpandImpl(macro);
+		}
+
+		protected abstract Statement ExpandImpl(MacroStatement macro);
+
+		public override IEnumerable<Node> ExpandGenerator(MacroStatement macro)
+		{
+			IEnumerable<Node> nodes = ExpandGeneratorImpl(macro);
+			if (null != nodes)
+			{
+				foreach (Node n in nodes)
+				{
+					if (null != n)
+						n.LexicalInfo = macro.LexicalInfo;
+					yield return n;
+				}
+			}
+		}
+
+		protected abstract IEnumerable<Node> ExpandGeneratorImpl(MacroStatement macro);
 	}
 
 }

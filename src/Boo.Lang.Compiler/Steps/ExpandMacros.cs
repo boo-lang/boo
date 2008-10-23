@@ -166,17 +166,17 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				macro.Initialize(_context);
 
-				//use new-style BOO-1077 macro interface if available
-				if (null != (macro as IAstEnumerableMacro))
-					return ExpandEnumerableMacro((IAstEnumerableMacro) macro, node);
+				//use new-style BOO-1077 generator macro interface if available
+				if (null != (macro as IAstGeneratorMacro))
+					return ExpandGeneratorMacro((IAstGeneratorMacro) macro, node);
 
 				return macro.Expand(node);
 			}
 		}
 
-		private Statement ExpandEnumerableMacro(IAstEnumerableMacro macroType, MacroStatement node)
+		private Statement ExpandGeneratorMacro(IAstGeneratorMacro macroType, MacroStatement node)
 		{
-			IEnumerable<Node> nodes = macroType.EnumerableExpand(node);
+			IEnumerable<Node> nodes = macroType.ExpandGenerator(node);
 			if (null == nodes)
 				return null;
 

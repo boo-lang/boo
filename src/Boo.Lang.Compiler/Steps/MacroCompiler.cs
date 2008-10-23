@@ -72,6 +72,7 @@ namespace Boo.Lang.Compiler.Steps
 				return result.GeneratedAssembly.GetType(node.FullName);
 			}
 			ReportErrors(result.Errors);
+			ReportWarnings(result.Warnings);
 			return null;
 		}
 
@@ -130,7 +131,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (CompilerError e in errors)
 			{
-				this.Errors.Add(e);
+				Errors.Add(e);
+			}
+		}
+
+		private void ReportWarnings(CompilerWarningCollection warnings)
+		{
+			foreach (CompilerWarning w in warnings)
+			{
+				Warnings.Add(w);
 			}
 		}
 

@@ -60,8 +60,8 @@ class MacroMacro(AbstractAstMacro):
 	#BOO-1077 style
 	private def CreateNewStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
 		return [|
-				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingEnumerableMacro):
-					override protected def EnumerableExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
+				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
+					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
 						$(macro.Block)
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise "Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info."
