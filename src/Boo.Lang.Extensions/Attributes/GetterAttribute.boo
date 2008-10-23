@@ -43,5 +43,8 @@ class Customer:
 	def constructor(propertyName as ReferenceExpression):
 		super(propertyName)
 
+	def constructor(propertyNameAndType as TryCastExpression):
+		super(propertyNameAndType)
+
 	override protected def CreateSetter(f as Field):
 		return null

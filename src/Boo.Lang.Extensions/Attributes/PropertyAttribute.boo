@@ -35,7 +35,9 @@ import Boo.Lang.Compiler.Ast
 public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 
 	protected _propertyName as ReferenceExpression
-	
+
+	protected _propertyType as TypeReference
+
 	protected _setPreCondition as Expression
 	
 	protected _protected as BoolLiteralExpression
@@ -46,7 +48,14 @@ public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 	
 	public def constructor(propertyName as ReferenceExpression):
 		self(propertyName, null)
-	
+
+	public def constructor(propertyNameAndType as TryCastExpression):
+		re = propertyNameAndType.Target as ReferenceExpression
+		if not re:
+			raise ArgumentException('Left-side must be a ReferenceExpression (ie. name of the property)', 'propertyNameAndType')
+		_propertyType = propertyNameAndType.Type
+		self(re, null)
+
 	public def constructor(propertyName as ReferenceExpression, setPreCondition as Expression):
 		if propertyName is null:
 			raise ArgumentNullException('propertyName')
@@ -99,7 +108,10 @@ public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 		if IsProtected:
 			p.Modifiers |= TypeMemberModifiers.Protected
 		p.Name = _propertyName.Name
-		p.Type = f.Type
+		if not _propertyType:
+			p.Type = f.Type
+		else:
+			p.Type = _propertyType
 		p.Getter = CreateGetter(f)
 		p.Setter = CreateSetter(f)
 		p.LexicalInfo = LexicalInfo
