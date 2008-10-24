@@ -219,6 +219,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType GetMostGenericType(IType current, IType candidate)
 		{
+			if (null == current && null == candidate)
+				throw new ArgumentNullException("current", "Both 'current' and 'candidate' are null");
+
+			if (null == current)
+				return candidate;
+			else if (null == candidate)
+				return current;
+
 			if (current.IsAssignableFrom(candidate))
 			{
 				return current;

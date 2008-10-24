@@ -2762,8 +2762,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			node.Condition = AssertBoolContext(node.Condition);
 
-			IType trueType = GetExpressionType(node.TrueValue);
-			IType falseType = GetExpressionType(node.FalseValue);
+			IType trueType = null;
+			IType falseType = null;
+			if (null != node.TrueValue)
+				trueType = GetExpressionType(node.TrueValue);
+			if (null != node.FalseValue)
+				falseType = GetExpressionType(node.FalseValue);
 
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
 		}
