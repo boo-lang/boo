@@ -36,6 +36,9 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
+using Boo.Lang.Compiler.Ast;
+
+
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
@@ -88,7 +91,16 @@ namespace Boo.Lang.Compiler
 		private TraceSwitch _traceSwitch;
 
 		private Dictionary<string, string> _defines = new Dictionary<string, string>();
-		
+
+
+		private TypeMemberModifiers _defaultTypeVisibility = TypeMemberModifiers.Public;
+		private TypeMemberModifiers _defaultMethodVisibility = TypeMemberModifiers.Public;
+		private TypeMemberModifiers _defaultPropertyVisibility = TypeMemberModifiers.Public;
+		private TypeMemberModifiers _defaultEventVisibility = TypeMemberModifiers.Public;
+		private TypeMemberModifiers _defaultFieldVisibility = TypeMemberModifiers.Protected;
+		private bool _defaultVisibilitySettingsRead = false;
+
+
 		public CompilerParameters()
 			: this(true)
 		{
@@ -513,6 +525,78 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
+
+		public TypeMemberModifiers DefaultTypeVisibility
+		{
+			get
+			{
+				if (!_defaultVisibilitySettingsRead)
+					ReadDefaultVisibilitySettings();
+				return _defaultTypeVisibility;
+			}
+			set
+			{
+				_defaultTypeVisibility = value & TypeMemberModifiers.VisibilityMask;
+			}
+		}
+
+		public TypeMemberModifiers DefaultMethodVisibility
+		{
+			get
+			{
+				if (!_defaultVisibilitySettingsRead)
+					ReadDefaultVisibilitySettings();
+				return _defaultMethodVisibility;
+			}
+			set
+			{
+				_defaultMethodVisibility = value & TypeMemberModifiers.VisibilityMask;
+			}
+		}
+
+		public TypeMemberModifiers DefaultPropertyVisibility
+		{
+			get
+			{
+				if (!_defaultVisibilitySettingsRead)
+					ReadDefaultVisibilitySettings();
+				return _defaultPropertyVisibility;
+			}
+			set
+			{
+				_defaultPropertyVisibility = value & TypeMemberModifiers.VisibilityMask;
+			}
+		}
+
+		public TypeMemberModifiers DefaultEventVisibility
+		{
+			get
+			{
+				if (!_defaultVisibilitySettingsRead)
+					ReadDefaultVisibilitySettings();
+				return _defaultEventVisibility;
+			}
+			set
+			{
+				_defaultEventVisibility = value & TypeMemberModifiers.VisibilityMask;
+			}
+		}
+
+		public TypeMemberModifiers DefaultFieldVisibility
+		{
+			get
+			{
+				if (!_defaultVisibilitySettingsRead)
+					ReadDefaultVisibilitySettings();
+				return _defaultFieldVisibility;
+			}
+			set
+			{
+				_defaultFieldVisibility = value & TypeMemberModifiers.VisibilityMask;
+			}
+		}
+
+
 		internal TraceSwitch TraceSwitch
 		{
 			get
@@ -562,6 +646,49 @@ namespace Boo.Lang.Compiler
 		{
 			if (null == _traceSwitch)
 				_traceSwitch = new TraceSwitch("booc", "boo compiler");
+		}
+
+
+		private void ReadDefaultVisibilitySettings()
+		{
+			string visibility = null;
+
+			if (_defines.TryGetValue("DEFAULT_TYPE_VISIBILITY", out visibility))
+				DefaultTypeVisibility = ParseVisibility(visibility);
+
+			if (_defines.TryGetValue("DEFAULT_METHOD_VISIBILITY", out visibility))
+				DefaultMethodVisibility = ParseVisibility(visibility);
+
+			if (_defines.TryGetValue("DEFAULT_PROPERTY_VISIBILITY", out visibility))
+				DefaultPropertyVisibility = ParseVisibility(visibility);
+
+			if (_defines.TryGetValue("DEFAULT_EVENT_VISIBILITY", out visibility))
+				DefaultEventVisibility = ParseVisibility(visibility);
+
+			if (_defines.TryGetValue("DEFAULT_FIELD_VISIBILITY", out visibility))
+				DefaultFieldVisibility = ParseVisibility(visibility);
+
+			_defaultVisibilitySettingsRead = true;
+		}
+
+		private static TypeMemberModifiers ParseVisibility(string visibility)
+		{
+			if (string.IsNullOrEmpty(visibility))
+				throw new ArgumentNullException("visibility");
+
+			visibility = visibility.ToLower();
+			switch (visibility)
+			{
+				case "public":
+					return TypeMemberModifiers.Public;
+				case "protected":
+					return TypeMemberModifiers.Protected;
+				case "internal":
+					return TypeMemberModifiers.Internal;
+				case "private":
+					return TypeMemberModifiers.Private;
+			}
+			throw new ArgumentException("visibility", string.Format("Invalid visibility: '{0}'", visibility));
 		}
 
 	}

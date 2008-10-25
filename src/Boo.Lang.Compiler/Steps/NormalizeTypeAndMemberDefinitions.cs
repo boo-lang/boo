@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!node.IsVisibilitySet)
 			{
-				node.Modifiers |= TypeMemberModifiers.Public;
+				node.Modifiers |= Context.Parameters.DefaultTypeVisibility;
 			}
 		}
 		
@@ -85,7 +85,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					node.Modifiers |= TypeMemberModifiers.Protected;
+					node.Modifiers |= Context.Parameters.DefaultFieldVisibility;
 				}
 			}
 
@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!node.IsVisibilitySet && null == node.ExplicitInfo)
 			{
-				node.Modifiers |= TypeMemberModifiers.Public;
+				node.Modifiers |= Context.Parameters.DefaultPropertyVisibility;
 			}
 			if (IsInterface(node.DeclaringType))
 			{
@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!node.IsVisibilitySet)
 			{
-				node.Modifiers |= TypeMemberModifiers.Public;
+				node.Modifiers |= Context.Parameters.DefaultEventVisibility;
 			}
 			if (IsInterface(node.DeclaringType))
 			{
@@ -220,7 +220,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!node.IsVisibilitySet && null == node.ExplicitInfo
 				&& !(node.ParentNode.NodeType == NodeType.Property))
 			{
-				node.Modifiers |= TypeMemberModifiers.Public;
+				node.Modifiers |= Context.Parameters.DefaultMethodVisibility;
 			}
 			if (IsInterface(node.DeclaringType))
 			{
