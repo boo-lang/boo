@@ -61,6 +61,10 @@ class MacroMacro(AbstractAstMacro):
 	private def CreateNewStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
 		return [|
 				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
+					def constructor():
+						super()
+					def constructor(context as Boo.Lang.Compiler.CompilerContext):
+						super(context)
 					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
 						$(macro.Block)
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
@@ -71,6 +75,10 @@ class MacroMacro(AbstractAstMacro):
 	private def CreateOldStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
 		return [|
 				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
+					def constructor():
+						super()
+					def constructor(context as Boo.Lang.Compiler.CompilerContext):
+						super(context)
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						$(macro.Block)
 			|]

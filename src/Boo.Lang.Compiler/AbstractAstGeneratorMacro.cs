@@ -32,6 +32,15 @@ namespace Boo.Lang.Compiler
 
 	public abstract class AbstractAstGeneratorMacro : AbstractCompilerComponent, IAstMacro, IAstGeneratorMacro
 	{
+
+		protected AbstractAstGeneratorMacro() : base ()
+		{
+		}
+
+		protected AbstractAstGeneratorMacro(CompilerContext context) : base (context)
+		{
+		}
+
 		public abstract Ast.Statement Expand(Ast.MacroStatement macro);
 		public abstract IEnumerable<Ast.Node> ExpandGenerator(Ast.MacroStatement macro);
 	}

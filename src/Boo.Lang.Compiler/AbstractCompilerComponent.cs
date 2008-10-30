@@ -36,12 +36,20 @@ namespace Boo.Lang.Compiler
 {
 	public abstract class AbstractCompilerComponent : ICompilerComponent
 	{
-		protected CompilerContext _context;		
-		
+		protected CompilerContext _context;
+
 		protected AbstractCompilerComponent()
-		{			
+		{
 		}
-		
+
+		protected AbstractCompilerComponent(CompilerContext context)
+		{
+			if (null == context)
+				throw new ArgumentNullException("context");
+			_context = context;
+		}
+
+
 		protected CompilerContext Context
 		{
 			get

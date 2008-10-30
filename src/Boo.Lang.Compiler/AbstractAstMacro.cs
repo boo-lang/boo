@@ -31,7 +31,17 @@ namespace Boo.Lang.Compiler
 	using System;
 	
 	public abstract class AbstractAstMacro : AbstractCompilerComponent, IAstMacro
-	{		
+	{
+
+		protected AbstractAstMacro() : base ()
+		{
+		}
+
+		protected AbstractAstMacro(CompilerContext context) : base (context)
+		{
+		}
+
 		public abstract Boo.Lang.Compiler.Ast.Statement Expand(Boo.Lang.Compiler.Ast.MacroStatement macro);
+
 	}
 }

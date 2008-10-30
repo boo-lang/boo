@@ -33,6 +33,16 @@ namespace Boo.Lang.Compiler
 {
 	public abstract class LexicalInfoPreservingMacro : AbstractAstMacro
 	{
+
+		protected LexicalInfoPreservingMacro () : base ()
+		{
+		}
+
+		protected LexicalInfoPreservingMacro (CompilerContext context) : base (context)
+		{
+		}
+
+
 		public override Statement Expand(MacroStatement macro)
 		{
 			Statement code = ExpandImpl(macro);
