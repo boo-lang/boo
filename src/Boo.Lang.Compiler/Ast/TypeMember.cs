@@ -111,7 +111,7 @@ namespace Boo.Lang.Compiler.Ast
 				_modifiers |= value;
 			}
 		}
-		
+
 		public bool IsVisibilitySet
 		{
 			get
@@ -119,7 +119,15 @@ namespace Boo.Lang.Compiler.Ast
 				return IsPublic | IsInternal | IsPrivate | IsProtected;
 			}
 		}
-		
+
+		public bool IsVisible
+		{
+			get
+			{
+				return IsPublic | IsProtected;
+			}
+		}
+
 		public bool IsAbstract
 		{
 			get

@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler.Steps
 				TypeMember member = (TypeMember)node;
 				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
 				CodeBuilder.BindParameterDeclarations(member.IsStatic, node);
-				if (member.IsPrivate && !member.IsSynthetic)
+				if (!member.IsVisible && !member.IsSynthetic)
 				{
 					member.Annotate("PrivateMemberNeverUsed", null);
 				}
@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Entity)
 			{
 				node.Entity = new InternalField(node);
-				if (node.IsPrivate && !node.IsSynthetic)
+				if (!node.IsVisible && !node.IsSynthetic)
 				{
 					node.Annotate("PrivateMemberNeverUsed", null);
 				}

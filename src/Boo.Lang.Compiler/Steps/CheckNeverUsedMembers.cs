@@ -30,6 +30,7 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.TypeSystem;
 
 	public class CheckNeverUsedMembers : AbstractTransformerCompilerStep
 	{
@@ -86,7 +87,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (NodeType.Constructor == node.NodeType && node.IsStatic) return;
 
-			if (node.IsPrivate && node.ContainsAnnotation("PrivateMemberNeverUsed"))
+			if (!IsVisible(node) && node.ContainsAnnotation("PrivateMemberNeverUsed"))
 			{
 				Warnings.Add(
 					CompilerWarningFactory.PrivateMemberNeverUsed(node) );
@@ -100,6 +101,37 @@ namespace Boo.Lang.Compiler.Steps
 				Warnings.Add(CompilerWarningFactory.NewProtectedMemberInSealedType(member));
 			}
 		}
+
+		private bool IsVisible(TypeMember member)
+		{
+			return HasInternalsVisibleToAttribute
+						? !member.IsPrivate : member.IsVisible;
+		}
+
+		private bool HasInternalsVisibleToAttribute
+		{
+			get {
+				if (null == hasInternalsVisibleToAttribute)
+				{
+					//we don't know yet if we have that attribute
+					foreach (Module module in CompileUnit.Modules)
+					{
+						foreach (Attribute attribute in module.AssemblyAttributes)
+						{
+							IType attrType = ((IMethod) attribute.Entity).DeclaringType;
+							if (attrType.FullName == "System.Runtime.CompilerServices.InternalsVisibleToAttribute")
+							{
+								hasInternalsVisibleToAttribute = true;
+								return true;
+							}
+						}
+					}
+					hasInternalsVisibleToAttribute = false;
+				}
+				return hasInternalsVisibleToAttribute.Value;
+			}
+		}
+		bool? hasInternalsVisibleToAttribute;
 
 	}
 

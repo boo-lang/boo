@@ -5701,7 +5701,7 @@ namespace Boo.Lang.Compiler.Steps
 			//member has been used so remove private member unused annotation
 			TypeMember member = node as TypeMember;
 			if (null != member
-				&& member.IsPrivate
+				&& !member.IsVisible
 				&& member.ContainsAnnotation("PrivateMemberNeverUsed"))
 			{
 				node.RemoveAnnotation("PrivateMemberNeverUsed");

@@ -116,7 +116,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerWarning PrivateMemberNeverUsed(TypeMember member)
 		{
-			return new CompilerWarning("BCW0014", member.LexicalInfo, NodeTypeString(member), member.FullName);
+			return new CompilerWarning("BCW0014", member.LexicalInfo, MemberVisibilityString(member), NodeTypeString(member), member.FullName);
 		}
 
 		public static CompilerWarning UnreachableCodeDetected(Node node)
@@ -143,6 +143,20 @@ namespace Boo.Lang.Compiler
 		private static string NodeTypeString(Node node)
 		{
 			return node.NodeType.ToString().ToLower();
+		}
+
+		private static string MemberVisibilityString(TypeMember member)
+		{
+			switch (member.Modifiers & TypeMemberModifiers.VisibilityMask)
+			{
+				case TypeMemberModifiers.Private:
+					return "Private";
+				case TypeMemberModifiers.Internal:
+					return "Internal";
+				case TypeMemberModifiers.Protected:
+					return "Protected";
+			}
+			return "Public";
 		}
 
 	}
