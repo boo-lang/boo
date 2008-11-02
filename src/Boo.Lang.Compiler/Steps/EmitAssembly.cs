@@ -4179,6 +4179,10 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							attributes |= TypeAttributes.Sealed;
 						}
+						if (type.IsStatic) //static type is Sealed+Abstract in SRE
+						{
+							attributes |= TypeAttributes.Sealed | TypeAttributes.Abstract;
+						}
 						if (((IType)type.Entity).IsValueType)
 						{
 							attributes |= TypeAttributes.SequentialLayout;

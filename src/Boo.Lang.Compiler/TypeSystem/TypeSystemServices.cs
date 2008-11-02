@@ -507,13 +507,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == _compilerGeneratedExtensionsClass)
 			{
 				BooClassBuilder builder = CodeBuilder.CreateClass("CompilerGeneratedExtensions");
-				builder.Modifiers = TypeMemberModifiers.Final|TypeMemberModifiers.Transient|TypeMemberModifiers.Public;
-				builder.AddBaseType(ObjectType);
-
-				BooMethodBuilder ctor = builder.AddConstructor();
-				ctor.Modifiers = TypeMemberModifiers.Private;
-				ctor.Body.Add(
-					CodeBuilder.CreateSuperConstructorInvocation(ObjectType));
+				builder.Modifiers = TypeMemberModifiers.Private | TypeMemberModifiers.Static | TypeMemberModifiers.Transient;
+				builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
 
 				ClassDefinition cd = builder.ClassDefinition;
 				Module module = GetCompilerGeneratedExtensionsModule();
