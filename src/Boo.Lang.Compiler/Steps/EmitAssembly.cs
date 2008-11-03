@@ -4374,18 +4374,23 @@ namespace Boo.Lang.Compiler.Steps
 			                                                     GetParameterTypes(property.Parameters));
 			Method getter = property.Getter;
 			Method setter = property.Setter;
-			
-			MethodAttributes attribs = GetPropertyMethodAttributes(property);
+
 			if (null != getter)
 			{
+				if (!getter.IsVisibilitySet)
+					getter.Visibility = property.Visibility;
+
 				MethodBuilder getterBuilder =
-					DefineMethod(typeBuilder, getter, attribs);
+					DefineMethod(typeBuilder, getter, GetPropertyMethodAttributes(getter));
 				builder.SetGetMethod(getterBuilder);
 			}
 			if (null != setter)
 			{
+				if (!setter.IsVisibilitySet)
+					setter.Visibility = property.Visibility;
+
 				MethodBuilder setterBuilder =
-					DefineMethod(typeBuilder, setter, attribs);
+					DefineMethod(typeBuilder, setter, GetPropertyMethodAttributes(setter));
 				builder.SetSetMethod(setterBuilder);
 			}
 			bool isDuckTyped = GetEntity(property).IsDuckTyped;

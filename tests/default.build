@@ -89,6 +89,15 @@
 			</sources>
 		</booc>
 
+		<booc
+			target="library"
+			output="build/BooSupportingClasses.dll">
+
+			<sources basedir="BooSupportingClasses">
+				<include name="*.boo" />
+			</sources>
+		</booc>
+
 		<!--
 		<booc
 			target="library"
@@ -134,6 +143,7 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 				<include name="BooModules.dll" />
+				<include name="BooSupportingClasses.dll" />
 			</references>
 		</csc>
 

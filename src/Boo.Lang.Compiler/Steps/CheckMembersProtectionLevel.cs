@@ -61,8 +61,27 @@ namespace Boo.Lang.Compiler.Steps
 			IAccessibleMember member = node.Entity as IAccessibleMember;
 			if (null == member) return;
 
-			if (_checker.IsAccessible(member)) return;
-			Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
+			if (!_checker.IsAccessible(member))
+			{
+				Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
+				return;
+			}
+
+			//if member is a property we also want to check the accessor specifically
+			IProperty property = member as IProperty;
+			if (null != property)
+			{
+				if (null != node.ParentNode
+					&& node.ParentNode.NodeType == NodeType.BinaryExpression
+					&& ((BinaryExpression) node.ParentNode).Operator == BinaryOperatorType.Assign)
+					member = property.GetSetMethod();
+				else
+					member = property.GetGetMethod();
+
+				if (!_checker.IsAccessible(member))
+					Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
+			}
 		}
+
 	}
 }

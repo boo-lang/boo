@@ -48,3 +48,7 @@ class Customer:
 
 	override protected def CreateSetter(f as Field):
 		return null
+	override HasSetter as bool:
+		get:
+			return false
+

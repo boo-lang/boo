@@ -41,7 +41,9 @@ public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 	protected _setPreCondition as Expression
 	
 	protected _protected as BoolLiteralExpression
-	
+
+	protected _protectedSetter as BoolLiteralExpression
+
 	protected _observable as BoolLiteralExpression
 	
 	protected _attributes as ListLiteralExpression
@@ -61,19 +63,37 @@ public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 			raise ArgumentNullException('propertyName')
 		_propertyName = propertyName
 		_setPreCondition = setPreCondition
-	
+
+	virtual HasSetter as bool:
+		get:
+			return true
+
 	Protected:
 		get:
 			return _protected
 		set:
 			_protected = value
 
+	ProtectedSetter:
+		get:
+			return _protectedSetter
+		set:
+			if not HasSetter:
+				raise ArgumentException("ProtectedSetter", "ProtectedSetter can not be set on a getter.")
+			_protectedSetter = value
+
 	protected IsProtected:
 		get:
 			if _protected is null:
 				return false
 			return _protected.Value
-	
+
+	protected IsProtectedSetter:
+		get:
+			if _protectedSetter is null:
+				return false
+			return _protectedSetter.Value
+
 	Observable:
 		get:
 			return _observable
@@ -149,7 +169,10 @@ public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 	protected virtual def CreateSetter(f as Field) as Method:
 		setter = Method()
 		setter.Name = 'set'
-		
+
+		if IsProtectedSetter:
+			setter.Visibility = TypeMemberModifiers.Protected
+
 		if _setPreCondition is not null:
 			setter.Body.Add(RaiseStatement(_setPreCondition.LexicalInfo, AstUtil.CreateMethodInvocationExpression(AstUtil.CreateReferenceExpression('System.ArgumentException'), StringLiteralExpression((('precondition \'' + _setPreCondition.ToString()) + '\' failed:'))), StatementModifier(StatementModifierType.Unless, _setPreCondition)))
 		setter.Body.Add(BinaryExpression(super.LexicalInfo, BinaryOperatorType.Assign, MemberReferenceExpression(CreateRefTarget(f), f.Name), ReferenceExpression('value')))
