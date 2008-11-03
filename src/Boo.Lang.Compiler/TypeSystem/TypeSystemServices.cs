@@ -569,6 +569,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			cd.Members.Add(CreateCallableConstructor());
 			cd.Members.Add(CreateCallMethod());
 			cd.Entity = new InternalCallableType(this, cd);
+			cd.Attributes.Add(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
 			return cd;
 		}
 
