@@ -782,22 +782,22 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError GenericArgumentMustBeReferenceType(Node node, IGenericParameter parameter, IType argument)
 		{
-			return new CompilerError("BCE0146", SafeLexicalInfo(node), argument, parameter);
+			return new CompilerError("BCE0146", SafeLexicalInfo(node), argument, parameter, parameter.DeclaringEntity);
 		}
 
 		public static CompilerError GenericArgumentMustBeValueType(Node node, IGenericParameter parameter, IType argument)
 		{
-			return new CompilerError("BCE0147", SafeLexicalInfo(node), argument, parameter);
+			return new CompilerError("BCE0147", SafeLexicalInfo(node), argument, parameter, parameter.DeclaringEntity);
 		}
 
 		public static CompilerError GenericArgumentMustHaveDefaultConstructor(Node node, IGenericParameter parameter, IType argument)
 		{
-			return new CompilerError("BCE0148", SafeLexicalInfo(node), argument, parameter);
+			return new CompilerError("BCE0148", SafeLexicalInfo(node), argument, parameter, parameter.DeclaringEntity);
 		}
 
 		public static CompilerError GenericArgumentMustHaveBaseType(Node node, IGenericParameter parameter, IType argument, IType baseType)
 		{
-			return new CompilerError("BCE0149", SafeLexicalInfo(node), argument, parameter, baseType);
+			return new CompilerError("BCE0149", SafeLexicalInfo(node), argument, baseType, parameter, parameter.DeclaringEntity);
 		}
 		
 		public static CompilerError CantBeMarkedFinal(Node node)

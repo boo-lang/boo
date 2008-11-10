@@ -195,6 +195,46 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		/// <summary>
+		/// Yields the generic parameters used in a (bound) type.
+		/// </summary>
+		public static IEnumerable<IGenericParameter> FindGenericParameters(IType type)
+		{
+			IGenericParameter genericParameter = type as IGenericParameter;
+			if (genericParameter != null)
+			{
+				yield return genericParameter;
+				yield break;
+			}
+
+			if (type is IArrayType)
+			{
+				foreach (IGenericParameter gp in FindGenericParameters(type.GetElementType())) yield return gp;
+				yield break;
+			}
+
+			if (type.ConstructedInfo != null)
+			{
+				foreach (IType typeArgument in type.ConstructedInfo.GenericArguments)
+				{
+					foreach (IGenericParameter gp in FindGenericParameters(typeArgument)) yield return gp;
+				}
+				yield break;
+			}
+
+			ICallableType callableType = type as ICallableType;
+			if (callableType != null)
+			{
+				CallableSignature signature = callableType.GetSignature();
+				foreach (IGenericParameter gp in FindGenericParameters(signature.ReturnType)) yield return gp;
+				foreach (IParameter parameter in signature.Parameters)
+				{
+					foreach (IGenericParameter gp in FindGenericParameters(parameter.Type)) yield return gp;
+				}
+				yield break;
+			}
+		}
+
+		/// <summary>
 		/// Finds types constructed from the specified definition in the specified type's interfaces and base types.
 		/// </summary>
 		/// <param name="type">The type in whose hierarchy to search for constructed types.</param>

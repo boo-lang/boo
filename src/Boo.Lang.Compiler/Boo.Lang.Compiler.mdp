@@ -15,6 +15,7 @@
   </Configurations>
   <Contents>
     <File name="AbstractAstAttribute.cs" buildaction="Compile" subtype="Code" />
+    <File name="AbstractAstGeneratorMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="AbstractAstMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="AbstractCompilerComponent.cs" buildaction="Compile" subtype="Code" />
     <File name="AssemblyCollection.cs" buildaction="Compile" subtype="Code" />
@@ -35,12 +36,14 @@
     <File name="CompilerWarningCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerWarningFactory.cs" buildaction="Compile" subtype="Code" />
     <File name="IAstAttribute.cs" buildaction="Compile" subtype="Code" />
+    <File name="IAstGeneratorMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="IAstMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerComponent.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerInput.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerResource.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerResourceWriter.cs" buildaction="Compile" subtype="Code" />
     <File name="ICompilerStep.cs" buildaction="Compile" subtype="Code" />
+    <File name="LexicalInfoPreservingGeneratorMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="LexicalInfoPreservingMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayTypeReference.cs" buildaction="Compile" subtype="Code" />
@@ -472,6 +475,7 @@
     <File name="TypeSystem/NamespaceEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Null.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/SimpleNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/TypeInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Unknown.cs" buildaction="Compile" subtype="Code" />

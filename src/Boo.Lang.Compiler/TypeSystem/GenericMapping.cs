@@ -105,7 +105,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (gp != null)	
 			{
 				if (_map.ContainsKey(gp)) return _map[gp];
-				if (_cache.ContainsKey(gp.DeclaringMethod)) return new GenericMappedTypeParameter(_tss, gp, this);
+				if (_cache.ContainsKey(gp.DeclaringEntity)) return new GenericMappedTypeParameter(_tss, gp, this);
 			}
 
 			// Map open constructed type using generic parameters to closed constructed type

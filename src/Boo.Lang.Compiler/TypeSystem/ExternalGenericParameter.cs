@@ -53,18 +53,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get 
 			{
-				IEntity declaringEntity = 
-					(DeclaringMethod == null ? (IEntity)DeclaringType : (IEntity)DeclaringMethod);
-					
-				return string.Format("{0}.{1}", declaringEntity.FullName, Name);
+				return string.Format("{0}.{1}", DeclaringEntity.FullName, Name);
 			}
 		}
 		
-		public IMethod DeclaringMethod
+		public IEntity DeclaringEntity
 		{
 			get 
 			{
-				return _declaringMethod;
+				return (IEntity)_declaringMethod ?? DeclaringType;
 			}
 		}
 

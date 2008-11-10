@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractAstAttribute.cs" />
+    <Compile Include="AbstractAstGeneratorMacro.cs" />
     <Compile Include="AbstractAstMacro.cs" />
     <Compile Include="AbstractCompilerComponent.cs" />
     <Compile Include="AssemblyCollection.cs" />
@@ -99,12 +100,14 @@
     <Compile Include="CompilerWarningCollection.cs" />
     <Compile Include="CompilerWarningFactory.cs" />
     <Compile Include="IAstAttribute.cs" />
+    <Compile Include="IAstGeneratorMacro.cs" />
     <Compile Include="IAstMacro.cs" />
     <Compile Include="ICompilerComponent.cs" />
     <Compile Include="ICompilerInput.cs" />
     <Compile Include="ICompilerResource.cs" />
     <Compile Include="ICompilerResourceWriter.cs" />
     <Compile Include="ICompilerStep.cs" />
+    <Compile Include="LexicalInfoPreservingGeneratorMacro.cs" />
     <Compile Include="LexicalInfoPreservingMacro.cs" />
     <Compile Include="Ast\ArrayLiteralExpression.cs" />
     <Compile Include="Ast\ArrayTypeReference.cs" />
@@ -536,6 +539,7 @@
     <Compile Include="TypeSystem\NamespaceEntity.cs" />
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\SimpleNamespace.cs" />
+    <Compile Include="TypeSystem\TypeInferrer.cs" />
     <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\TypeSystemServices.cs" />
     <Compile Include="TypeSystem\Unknown.cs" />

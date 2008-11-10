@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public override IEntity DeclaringEntity
 		{
-			get { return _mapping.Map((IEntity)Source.DeclaringMethod ?? (IEntity)Source.DeclaringType); }
+			get { return _mapping.Map(Source.DeclaringEntity); }
 		}
 
 		public override string Name

@@ -27,8 +27,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		abstract public IType[] GetTypeConstraints();
 
 		abstract public IEntity DeclaringEntity { get; }
-		
-		public IType DeclaringType
+
+		protected IType DeclaringType
 		{
 			get
 			{
@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					return (IType)DeclaringEntity;
 				}
-				
+
 				if (DeclaringEntity is IMethod)
 				{
 					return ((IMethod)DeclaringEntity).DeclaringType;
@@ -45,8 +45,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return null;
 			}
 		}
-		
-		public IMethod DeclaringMethod 
+
+		protected IMethod DeclaringMethod 
 		{
 			get
 			{
@@ -176,7 +176,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		INamespace INamespace.ParentNamespace
 		{
-			get { return (INamespace)DeclaringEntity; }
+			get { return DeclaringType; }
 		}
 		
 		IEntity[] INamespace.GetMembers()

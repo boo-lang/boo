@@ -12,6 +12,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"clrextensions-1.boo");
 		}
 		
+		[Test]
+		public void clrextensions_2()
+		{
+			RunCompilerTestCase(@"clrextensions-2.boo");
+		}
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{

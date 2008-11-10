@@ -51,6 +51,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		static readonly object OptionalReturnStatementAnnotation = new object();
 
+		static readonly object ResolvedAsExtensionAnnotation = new object();
+
 		protected Stack _methodStack;
 
 		protected Stack _memberStack;
@@ -2487,21 +2489,27 @@ namespace Boo.Lang.Compiler.Steps
 
 			INamespace ns = GetReferenceNamespace(node);
 			member = NameResolutionService.Resolve(ns, node.Name);
-			if (null != member)
+			
+			if (null == member || !IsAccessible(member))
 			{
-				IAccessibleMember accessible = member as IAccessibleMember;
-				if (null != accessible && !IsAccessible(accessible))
-				{
-					IEntity extension = NameResolutionService.ResolveExtension(ns, node.Name);
-					if (null != extension) return extension;
-				}
-				return member;
+				IEntity extension = TryToResolveMemberAsExtension(node);
+				if (extension != null) return extension;
 			}
 
-			member = NameResolutionService.ResolveExtension(ns, node.Name);
 			if (null == member) MemberNotFound(node, ns);
 
 			return member;
+		}
+
+		private IEntity TryToResolveMemberAsExtension(MemberReferenceExpression node)
+		{
+			IEntity extension = NameResolutionService.ResolveExtension(GetReferenceNamespace(node), node.Name);
+			if (null != extension)
+			{
+				node.Annotate(ResolvedAsExtensionAnnotation);
+			}
+
+			return extension;
 		}
 
 		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
@@ -3991,16 +3999,24 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		protected virtual IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, Ambiguous entity)
+		protected virtual IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity entity)
 		{
+			Ambiguous ambiguous = entity as Ambiguous;
+			if (ambiguous == null) return entity;
+
 			_context.TraceVerbose("{0}: resolving ambigous method invocation: {1}", node.LexicalInfo, entity);
 
-			IEntity resolved = ResolveCallableReference(node, entity);
+			IEntity resolved = ResolveCallableReference(node, ambiguous);
+
 			if (null != resolved) return resolved;
 
-			if (TryToProcessAsExtensionInvocation(node)) return null;
+			// If resolution fails, try to resolve target as an extension method (but no more than once)
+			if (!ResolvedAsExtension(node) && TryToProcessAsExtensionInvocation(node))
+			{
+				return null;
+			}
 
-			return CantResolveAmbiguousMethodInvocation(node, entity.Entities);
+			return CantResolveAmbiguousMethodInvocation(node, ambiguous.Entities);
 		}
 
 		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
@@ -4026,16 +4042,28 @@ namespace Boo.Lang.Compiler.Steps
 			IEntity extension = ResolveExtension(node);
 			if (null == extension) return false;
 
-			ProcessExtensionMethodInvocation(node, extension);
+			node.Annotate(ResolvedAsExtensionAnnotation);
+			
+			ProcessMethodInvocationExpression(node, extension);
 			return true;
 		}
 
 		private IEntity ResolveExtension(MethodInvocationExpression node)
 		{
-			MemberReferenceExpression mre = node.Target as MemberReferenceExpression;
-			if (mre == null) return null;
+			ReferenceExpression targetReference = node.Target as ReferenceExpression;
+			if (targetReference == null) return null;
 
-			return NameResolutionService.ResolveExtension(GetReferenceNamespace(mre), mre.Name);
+			MemberReferenceExpression mre = targetReference as MemberReferenceExpression;
+			INamespace extensionNamespace = (mre != null) ? GetReferenceNamespace(mre) : CurrentType;
+			
+			return NameResolutionService.ResolveExtension(extensionNamespace, targetReference.Name);
+		}
+
+		private bool ResolvedAsExtension(MethodInvocationExpression node)
+		{
+			return 
+				node.ContainsAnnotation(ResolvedAsExtensionAnnotation) || 
+				node.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation);
 		}
 
 		protected virtual IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
@@ -4074,13 +4102,7 @@ namespace Boo.Lang.Compiler.Steps
 				ProcessGenericMethodInvocation(node);
 				return;
 			}
-
-			if (IsOrContainsBooExtensionMethod(targetEntity))
-			{
-				ProcessExtensionMethodInvocation(node, targetEntity);
-				return;
-			}
-
+			
 			ProcessMethodInvocationExpression(node, targetEntity);
 		}
 
@@ -4173,13 +4195,17 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessMethodInvocationExpression(MethodInvocationExpression node, IEntity targetEntity)
 		{
+			if (ResolvedAsExtension(node))
+			{
+				PreNormalizeExtensionInvocation(node);
+			}
+
+			targetEntity = ResolveAmbiguousMethodInvocation(node, targetEntity);
+
+			if (targetEntity == null) return;
+
 			switch (targetEntity.EntityType)
 			{
-				case EntityType.Ambiguous:
-					{
-						ProcessAmbiguousMethodInvocation(node, targetEntity);
-						break;
-					}
 				case EntityType.BuiltinFunction:
 					{
 						ProcessBuiltinInvocation((BuiltinFunction)targetEntity, node);
@@ -4223,13 +4249,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		protected virtual void ProcessAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
-		{
-			targetEntity = ResolveAmbiguousMethodInvocation(node, (Ambiguous)targetEntity);
-			if (null == targetEntity) return;
-			ProcessMethodInvocationExpression(node, targetEntity);
-		}
-
 		private void ProcessConstructorInvocation(MethodInvocationExpression node, IEntity targetEntity)
 		{
 			NamedArgumentsNotAllowed(node);
@@ -4264,18 +4283,18 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IMethod targetMethod = (IMethod)targetEntity;
 
-			// Try to infer generic arguments if applicable
-			if (targetMethod.GenericInfo != null)
+			if (ResolvedAsExtension(node))
 			{
-				targetMethod = InferGenericMethodInvocation(node, targetMethod);
-				if (targetMethod == null) return;
+				PostNormalizeExtensionInvocation(node, targetMethod);
 			}
 
-			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false) ||
-				!IsAccessible(targetMethod))
+			targetMethod = InferGenericMethodInvocation(node, targetMethod);
+			if (targetMethod == null) return;
+			
+			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false)) 
 			{
-				if (TryToProcessAsExtensionInvocation(node)) return;
-
+				if (!ResolvedAsExtension(node) && TryToProcessAsExtensionInvocation(node)) return;
+				
 				if (ProcessMethodInvocationWithInvalidParameters(node, targetMethod)) return;
 
 				AssertParameters(node, targetMethod, node.Arguments);
@@ -4291,6 +4310,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IMethod InferGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
 		{
+			if (targetMethod.GenericInfo == null) return targetMethod;
+
 			GenericsServices genericsServices = Context.GetService<GenericsServices>();
 
 			IType[] inferredArguments = genericsServices.InferMethodGenericArguments(targetMethod, node.Arguments);
@@ -4302,6 +4323,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!genericsServices.CheckGenericConstruction(node, targetMethod, inferredArguments, true))
 			{
+				Error(node);
 				return null;
 			}
 
@@ -4312,9 +4334,11 @@ namespace Boo.Lang.Compiler.Steps
 			return constructedMethod;
 		}
 
-		private bool IsAccessible(IAccessibleMember method)
+		private bool IsAccessible(IEntity member)
 		{
-			return GetAccessibilityChecker().IsAccessible(method);
+			IAccessibleMember accessible = member as IAccessibleMember;
+			if (accessible == null) return true;
+			return GetAccessibilityChecker().IsAccessible(accessible);
 		}
 
 		private IAccessibilityChecker GetAccessibilityChecker()
@@ -4334,39 +4358,20 @@ namespace Boo.Lang.Compiler.Steps
 			Error(CompilerErrorFactory.NamedArgumentsNotAllowed(node.NamedArguments[0]));
 		}
 
-		private void ProcessExtensionMethodInvocation(MethodInvocationExpression node, IEntity targetEntity)
-		{
-			PreNormalizeExtensionInvocation(node);
-			if (EntityType.Ambiguous == targetEntity.EntityType)
-			{
-				targetEntity = ResolveAmbiguousExtension(node, (Ambiguous)targetEntity);
-				if (null == targetEntity) return;
-			}
-			IMethod targetMethod = (IMethod)targetEntity;
-			PostNormalizationExtensionInvocation(node, targetMethod);
-			NamedArgumentsNotAllowed(node);
-			AssertParameters(node, targetMethod, node.Arguments);
-			BindExpressionType(node, targetMethod.ReturnType);
-		}
-
-		private IEntity ResolveAmbiguousExtension(MethodInvocationExpression node, Ambiguous ambiguous)
-		{
-			IEntity resolved = ResolveCallableReference(node, ambiguous);
-			if (null != resolved) return resolved;
-
-			return CantResolveAmbiguousMethodInvocation(node, ambiguous.Entities);
-		}
-
 		private bool IsExtensionMethod(IEntity entity)
 		{
 			if (EntityType.Method != entity.EntityType) return false;
 			return ((IMethod)entity).IsExtension;
 		}
 
-		private bool IsOrContainsBooExtensionMethod(IEntity entity)
+		private bool IsOrContainsExtensionMethod(IEntity entity)
 		{
-			if (entity.EntityType == EntityType.Ambiguous) return IsBooExtensionMethod(((Ambiguous)entity).Entities[0]);
-			return IsBooExtensionMethod(entity);
+			if (entity == null) return false;
+			
+			Ambiguous ambiguous = entity as Ambiguous;
+			if (ambiguous != null) return ambiguous.Any(IsExtensionMethod);
+
+			return IsExtensionMethod(entity);
 		}
 
 		private bool IsBooExtensionMethod(IEntity entity)
@@ -4375,7 +4380,7 @@ namespace Boo.Lang.Compiler.Steps
 			return ((IMethod)entity).IsBooExtension;
 		}
 
-		private void PostNormalizationExtensionInvocation(MethodInvocationExpression node, IMethod targetMethod)
+		private void PostNormalizeExtensionInvocation(MethodInvocationExpression node, IMethod targetMethod)
 		{
 			node.Target = CodeBuilder.CreateMethodReference(node.Target.LexicalInfo, targetMethod);
 		}

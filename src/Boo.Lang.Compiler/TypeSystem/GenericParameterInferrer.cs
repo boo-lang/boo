@@ -33,12 +33,10 @@ using System.IO;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	class GenericParameterInferrer
+	class GenericParameterInferrer : TypeInferrer
 	{
-		CompilerContext _context;
 		IMethod _genericMethod;
 		ExpressionCollection _arguments;
-		Dictionary<IGenericParameter, InferredType> _inferredTypes = new Dictionary<IGenericParameter, InferredType>();
 
 		public GenericParameterInferrer(CompilerContext context, IMethod genericMethod, ExpressionCollection arguments)
 		{
@@ -46,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_genericMethod = genericMethod;
 			_arguments = arguments;
 
-			InitializeInferredTypes(GenericMethod.GenericInfo.GenericParameters);
+			InitializeTypeParameters(GenericMethod.GenericInfo.GenericParameters);
 			InitializeDependencies(
 				GenericMethod.GenericInfo.GenericParameters,
 				GenericMethod.CallableType.GetSignature());
@@ -100,7 +98,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				Infer(
 					definitionSignature.Parameters[i].Type, 
 					Arguments[i].ExpressionType,
-					Inference.AllowCovariance);
+					TypeInference.AllowCovariance);
 			}
 		}
 
@@ -115,138 +113,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// TODO
 		}
 
-		/// <summary>
-		/// Attempts to infer the type of generic parameters that occur in a formal parameter type
-		/// according to its actual argument type. 
-		/// </summary>
-		/// <returns>False if inference failed; otherwise, true. </returns>
-		private bool Infer(IType formalType, IType actualType, Inference inference)
-		{
-			// Skip unspecified actual types
-			if (actualType == null) return true;
-
-			if (formalType is IGenericParameter)
-			{
-				return InferGenericParameter((IGenericParameter)formalType, actualType, inference);
-			}
-
-			if (formalType is ICallableType)
-			{
-				return InferCallableType((ICallableType)formalType, actualType, inference);
-			}
-
-			if (formalType.ConstructedInfo != null)
-			{
-				return InferConstructedType(formalType, actualType, inference);
-			}
-
-			if (formalType is IArrayType)
-			{
-				return InferArrayType((IArrayType)formalType, actualType, inference);
-			}
-
-			return InferSimpleType(formalType, actualType, inference);
-		}
-
-		private bool InferGenericParameter(IGenericParameter formalType, IType actualType, Inference inference)
-		{
-			if (_inferredTypes.ContainsKey(formalType))
-			{
-				InferredType inferredType = _inferredTypes[formalType];
-				if ((inference & Inference.AllowContravariance) != Inference.AllowContravariance)
-				{
-					inferredType.ApplyLowerBound(actualType);
-				}
-				if ((inference & Inference.AllowCovariance) != Inference.AllowCovariance)
-				{
-					inferredType.ApplyUpperBound(actualType);
-				}
-			}
-
-			return true;
-		}
-
-		private bool InferCallableType(ICallableType formalType, IType actualType, Inference inference)
-		{
-			ICallableType callableActualType = actualType as ICallableType;
-			if (callableActualType == null) return false;
-
-			CallableSignature formalSignature = formalType.GetSignature();
-			CallableSignature actualSignature = callableActualType.GetSignature();
-
-			// TODO: expand actual signature when it involves varargs?
-			if (formalSignature.Parameters.Length != actualSignature.Parameters.Length) return false;
-
-			// Infer return type, maintaining inference direction
-			if (!Infer(formalSignature.ReturnType, actualSignature.ReturnType, inference))
-			{
-				return false;
-			}
-
-			// Infer parameter types, inverting inference direction
-			for (int i = 0; i < formalSignature.Parameters.Length; ++i)
-			{
-				bool inferenceSuccessful = Infer(
-					formalSignature.Parameters[i].Type,
-					actualSignature.Parameters[i].Type,
-					Invert(inference));
-
-				if (!inferenceSuccessful) return false;
-			}
-			return true;
-		}
-
-		private bool InferConstructedType(IType formalType, IType actualType, Inference inference)
-		{
-			// look for a single occurance of the formal 
-			// constructed type in the actual type's hierarchy 
-			IType constructedActualType = GenericsServices.FindConstructedType(
-				actualType,
-				formalType.ConstructedInfo.GenericDefinition);
-
-			if (constructedActualType == null)
-			{
-				return false;
-			}
-
-			// Exact inference requires the constructed occurance to be
-			// the actual type itself
-			if (inference == Inference.Exact && actualType != constructedActualType)
-			{
-				return false;
-			}
-
-			for (int i = 0; i < formalType.ConstructedInfo.GenericArguments.Length; ++i)
-			{
-				bool inferenceSuccessful = Infer(
-					formalType.ConstructedInfo.GenericArguments[i],
-					constructedActualType.ConstructedInfo.GenericArguments[i],
-					Inference.Exact); // Generic arguments must match exactly, no variance allowed
-
-				if (!inferenceSuccessful) return false;
-			}
-			return true;
-		}
-
-		private bool InferArrayType(IArrayType formalType, IType actualType, Inference inference)
-		{
-			IArrayType actualArrayType = actualType as IArrayType;
-			return	
-				(actualArrayType != null) && 
-				(actualArrayType.GetArrayRank() == formalType.GetArrayRank()) &&
-				(Infer(formalType.GetElementType(), actualType.GetElementType(), inference));
-		}
-
-		private bool InferSimpleType(IType formalType, IType actualType, Inference inference)
-		{
-			// Inference has no effect on formal parameter types that are not generic parameters
-			return true;
-		}
-
 		private bool FixAll(Predicate<InferredType> predicate)
 		{
 			bool wasFixed = false;
-			foreach (KeyValuePair<IGenericParameter, InferredType> kvp in _inferredTypes)
+			foreach (KeyValuePair<IGenericParameter, InferredType> kvp in InferredTypes)
 			{
 				IGenericParameter gp = kvp.Key;
 				InferredType inferredType = kvp.Value;
@@ -271,7 +141,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool HasUnfixedTypes()
 		{
-			foreach (InferredType inferredType in _inferredTypes.Values)
+			foreach (InferredType inferredType in InferredTypes.Values)
 			{
 				if (!inferredType.Fixed) return true;
 			}
@@ -288,31 +158,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return inferredType.HasDependants && inferredType.HasBounds;
 		}
 
-		private IType GetInferredType(IGenericParameter gp)
-		{
-			if (_inferredTypes.ContainsKey(gp))
-			{
-				return _inferredTypes[gp].ResultingType;
-			}
-			else
-			{
-				return null;
-			}
-		}
-
 		public IType[] GetInferredTypes()
 		{
 			return Array.ConvertAll<IGenericParameter, IType>(
 				GenericMethod.GenericInfo.GenericParameters,
 				GetInferredType);
-		}
-
-		private void InitializeInferredTypes(IEnumerable<IGenericParameter> parameters)
-		{
-			foreach (IGenericParameter gp in parameters)
-			{
-				_inferredTypes[gp] = new InferredType();
-			}
 		}
 
 		private void InitializeDependencies(IGenericParameter[] genericParameters, CallableSignature signature)
@@ -348,43 +198,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IEnumerable<IGenericParameter> FindGenericParameters(IType type)
 		{
-			IGenericParameter genericParameter = type as IGenericParameter;
-			if (genericParameter != null && _inferredTypes.ContainsKey(genericParameter))
+			foreach (IGenericParameter gp in GenericsServices.FindGenericParameters(type))
 			{
-				yield return genericParameter;
-			}
-
-			if (type is IArrayType)
-			{
-				foreach (IGenericParameter gp in FindGenericParameters(type.GetElementType())) yield return gp;
-				yield break;
-			}
-
-			if (type.ConstructedInfo != null)
-			{
-				foreach (IType typeArgument in type.ConstructedInfo.GenericArguments)
-				{
-					foreach (IGenericParameter gp in FindGenericParameters(typeArgument)) yield return gp;
-				}
-				yield break;
-			}
-
-			ICallableType callableType = type as ICallableType;
-			if (callableType != null)
-			{
-				CallableSignature signature = callableType.GetSignature();
-				foreach (IGenericParameter gp in FindGenericParameters(signature.ReturnType)) yield return gp;
-				foreach (IParameter parameter in signature.Parameters)
-				{
-					foreach (IGenericParameter gp in FindGenericParameters(parameter.Type)) yield return gp;
-				}
-				yield break;
+				if (!InferredTypes.ContainsKey(gp)) continue;
+				yield return gp;
 			}
 		}
 
 		private void SetDependency(IGenericParameter dependant, IGenericParameter dependee)
 		{
-			_inferredTypes[dependant].SetDependencyOn(_inferredTypes[dependee]);
+			InferredTypes[dependant].SetDependencyOn(InferredTypes[dependee]);
 		}
 
 		private IType[] GetParameterTypes(CallableSignature signature)
@@ -412,39 +235,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 				successfully ? "succeeded" : "failed");
 
 			return successfully;
-		}
-
-		private Inference Invert(Inference inference)
-		{
-			switch (inference)
-			{
-				case Inference.AllowCovariance:
-					return Inference.AllowContravariance;
-
-				case Inference.AllowContravariance:
-					return Inference.AllowCovariance;
-
-				default:
-					return Inference.Exact;
-			}
-		}
-
-		enum Inference
-		{
-			/// <summary>
-			/// The type parameter must be set to the exact actual type.
-			/// </summary>
-			Exact = 0,
-
-			/// <summary>
-			/// The type parameter can be set to a supertype of the actual type.
-			/// </summary>
-			AllowCovariance = 1,
-
-			/// <summary>
-			/// The type parameter is allowed to be set to a type derived from the actual type.
-			/// </summary>
-			AllowContravariance = 2
 		}
 	}
 }

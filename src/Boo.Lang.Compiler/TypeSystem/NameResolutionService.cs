@@ -148,34 +148,48 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		class IsNotExtensionOf
-		{
-			private IType _type;
-
-			public IsNotExtensionOf(IType type)
-			{
-				_type = type;
-			}
-
-			public bool Match(object item)
-			{
-				IExtensionEnabled e = item as IExtensionEnabled;
-				if (e == null) return true;
-				if (!e.IsExtension) return true;
-				IParameter[] parameters = e.GetParameters();
-				if (parameters.Length == 0) return true;
-				return !parameters[0].Type.IsAssignableFrom(_type);
-			}
-		}
 
 		private IEntity ResolveExtensionForType(INamespace ns, IType type, string name)
 		{
 			_buffer.Clear();
-			if (!ns.Resolve(_buffer, name, EntityType.Method|EntityType.Property)) return null;
-			_buffer.RemoveAll(new IsNotExtensionOf(type).Match);
+			if (!ns.Resolve(_buffer, name, EntityType.Method | EntityType.Property)) return null;
+
+			Predicate<object> notExtensionPredicate = delegate(object item)
+			{
+				return !IsExtensionOf(type, item as IExtensionEnabled);
+			};
+
+			_buffer.RemoveAll(notExtensionPredicate);
 			return GetEntityFromBuffer();
 		}
-		
+
+		private bool IsExtensionOf(IType type, IExtensionEnabled entity)
+		{
+			if (entity == null || !entity.IsExtension) return false;
+
+			IParameter[] parameters = entity.GetParameters();
+			if (parameters.Length == 0) return false;
+
+			IType extensionType = parameters[0].Type;
+			return IsValidExtensionType(type, extensionType, entity);
+		}
+
+		private bool IsValidExtensionType(IType actualType, IType extensionType, IExtensionEnabled extension)
+		{
+			if (extensionType.IsAssignableFrom(actualType)) return true;
+
+			// Check for a valid generic extension
+			IMethod method = extension as IMethod;
+			if (method == null || method.GenericInfo == null) return false;
+
+			List<IGenericParameter> genericParameters = new List<IGenericParameter>(GenericsServices.FindGenericParameters(extensionType));
+			if (genericParameters.Count == 0) return false;
+
+			TypeInferrer inferrer = new TypeInferrer(genericParameters);
+			inferrer.Infer(extensionType, actualType);
+			return inferrer.FinalizeInference();
+		}
+
 		public IEntity ResolveQualifiedName(string name)
 		{
 			_buffer.Clear();
@@ -510,7 +524,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				current = current.GetChildNamespace(namespaceHierarchy[i]);
 			}
-			return current;
+			return current;	
 		}
 		
 		NamespaceEntity GetTopLevelNamespace(string topLevelName)

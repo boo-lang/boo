@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem
             get { return _source; }
         }
 
-        private string BuildFullName()
+        protected virtual string BuildFullName()
         {
             return DeclaringType.FullName + "." + Name;
         }
@@ -266,6 +266,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 				_constructedMethods.Add(arguments, constructedMethod);
 			}
 			return constructedMethod;
+		}
+
+		protected override string BuildFullName()
+		{
+			// TODO: pull all name-building logic for types and methods together somewhere
+			// instead of repeating it every time with slight variations (BOO-1097)
+			System.Text.StringBuilder sb = new System.Text.StringBuilder(base.BuildFullName());
+			
+			if (GenericInfo != null)
+			{
+				sb.Append("[of ");
+
+				string[] genericParameterNames = Array.ConvertAll<IGenericParameter, string>(
+					GenericInfo.GenericParameters,
+					delegate(IGenericParameter gp) { return gp.Name; });
+
+				sb.Append(string.Join(", ", genericParameterNames));
+				sb.Append("]");
+			}
+
+			sb.Append("(");
+
+			string[] parameterTypeNames = Array.ConvertAll<IParameter, string>(
+				GetParameters(),
+				delegate(IParameter p) { return p.Type.Name; });
+
+			sb.Append(string.Join(", ", parameterTypeNames));
+			sb.Append(")");
+
+			return sb.ToString();
 		}
 	}
 
