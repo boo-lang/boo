@@ -49,6 +49,7 @@ public class BoocTask(CompilerBase):
 	private _nostdlib = false
 	private _wsa = false
 	private _ducky = false
+	private _checked = true
 	private _defineSymbols as string = null
 	
 	private _pipeline as string
@@ -141,6 +142,13 @@ public class BoocTask(CompilerBase):
 		set:
 			_ducky = value
 
+	[TaskAttribute('checked')]
+	[BooleanValidator]
+	public Checked as bool:
+		get:
+			return _checked
+		set:
+			_checked = value
 
 	[TaskAttribute('define')]
 	public DefineSymbols as string:
@@ -203,6 +211,8 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "wsa")
 		if Ducky:
 			WriteOption(writer, "ducky")
+		if not Checked:
+			WriteOption(writer, "checked-")
 		if DefineSymbols is not null:
 			WriteOption(writer, "define", DefineSymbols)
 		if Pipeline:
