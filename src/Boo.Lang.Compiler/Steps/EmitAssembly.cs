@@ -2700,7 +2700,8 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Newobj, constructor);
 				arg0 = null; /* arg0 is not a string so we want it to be appended below */
 			}
-			
+
+			string formatString;
 			foreach (Expression arg in node.Expressions)
 			{
 				/* we do not need to append literal string.Empty
@@ -2712,10 +2713,20 @@ namespace Boo.Lang.Compiler.Steps
 					continue;
 				}
 
+				formatString = arg["formatString"] as string; //annotation
+				if (!string.IsNullOrEmpty(formatString))
+					_il.Emit(OpCodes.Ldstr, string.Format("{{0:{0}}}", formatString));
+
 				Visit(arg);
-				
 				argType = PopType();
-				if (TypeSystemServices.StringType == argType)
+
+				if (!string.IsNullOrEmpty(formatString))
+				{
+					EmitCastIfNeeded(TypeSystemServices.ObjectType, argType);
+					_il.EmitCall(OpCodes.Call, typeof(string).GetMethod("Format", new Type[] { typeof(string), typeof(object) }), null);
+				}
+
+				if (TypeSystemServices.StringType == argType || !string.IsNullOrEmpty(formatString))
 				{
 					_il.EmitCall(OpCodes.Call, appendString, null);
 				}

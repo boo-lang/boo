@@ -2947,7 +2947,17 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 			}
 		}
 		param=expression
-		{ if (null != param) { e.Expressions.Add(param); } }
+		((format_sep:COLON)?
+			formatString:ID
+		)?
+		{
+			if (null != param)
+			{
+				e.Expressions.Add(param);
+				if (null != formatString)
+					param.Annotate("formatString", formatString.getText());
+			}
+		}
 		endsep:ESEPARATOR
 	)+
 	(lastseparator:ESEPARATOR)?
