@@ -57,10 +57,24 @@ namespace Boo.Lang.Compiler.Steps
 			cd.BaseTypes.Insert(0, CodeBuilder.CreateTypeReference(TypeSystemServices.ValueTypeType));
 			foreach (TypeMember member in cd.Members)
 			{
-				if (!member.IsVisibilitySet)
+				if (member.IsVisibilitySet)
+					continue;
+
+				switch (member.NodeType)
 				{
-					member.Modifiers |= TypeMemberModifiers.Public;
+					case NodeType.Field:
+						member.Visibility = Context.Parameters.DefaultFieldVisibility;
+						break;
+					case NodeType.Property:
+						member.Visibility = Context.Parameters.DefaultPropertyVisibility;
+						break;
+					case NodeType.Method:
+						member.Visibility = Context.Parameters.DefaultMethodVisibility;
+						break;
 				}
+
+				if (member.IsProtected)
+					member.Visibility = TypeMemberModifiers.Public;
 			}
 			OnClassDefinition(cd);
 			ReplaceCurrentNode(cd);

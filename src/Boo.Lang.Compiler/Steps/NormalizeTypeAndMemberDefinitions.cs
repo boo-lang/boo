@@ -71,21 +71,24 @@ namespace Boo.Lang.Compiler.Steps
 				node.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Public));
 			}
 		}
-		
+
+		override public void LeaveStructDefinition(StructDefinition node)
+		{
+			LeaveTypeDefinition(node);
+		}
+
 		override public void LeaveField(Field node)
 		{
 			if (!node.IsVisibilitySet)
 			{
-				//protected field (their default visibility) in a sealed type == private,
+				node.Visibility = Context.Parameters.DefaultFieldVisibility;
+
+				//protected field in a sealed type == private,
 				//so let the compiler mark them private automatically in order to get 
 				//unused members warnings for free (and to make IL analysis tools happy as a bonus)
-				if (node.DeclaringType.IsFinal)
+				if (node.IsProtected && node.DeclaringType.IsFinal)
 				{
-					node.Modifiers |= TypeMemberModifiers.Private;
-				}
-				else
-				{
-					node.Modifiers |= Context.Parameters.DefaultFieldVisibility;
+					node.Visibility = TypeMemberModifiers.Private;
 				}
 			}
 
