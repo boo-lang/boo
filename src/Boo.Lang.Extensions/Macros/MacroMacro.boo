@@ -64,11 +64,14 @@ class MacroMacro(AbstractAstMacro):
 					def constructor():
 						super()
 					def constructor(context as Boo.Lang.Compiler.CompilerContext):
+						raise System.ArgumentNullException("context") if not context
 						super(context)
 					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
+						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						$(macro.Block)
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
+						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
 			|]
 
@@ -79,8 +82,10 @@ class MacroMacro(AbstractAstMacro):
 					def constructor():
 						super()
 					def constructor(context as Boo.Lang.Compiler.CompilerContext):
+						raise System.ArgumentNullException("context") if not context
 						super(context)
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
+						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						$(macro.Block)
 			|]
 
