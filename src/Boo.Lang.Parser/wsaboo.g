@@ -2689,8 +2689,19 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 	}
 	(  options { greedy = true; } :
 		
-		ESEPARATOR		
-		param=expression { if (null != param) { e.Expressions.Add(param); } }
+		ESEPARATOR
+		param=expression
+		((format_sep:COLON)?
+			formatString:ID
+		)?
+		{
+			if (null != param)
+			{
+				e.Expressions.Add(param);
+				if (null != formatString)
+					param.Annotate("formatString", formatString.getText());
+			}
+		}
 		ESEPARATOR
 	)*
 	;

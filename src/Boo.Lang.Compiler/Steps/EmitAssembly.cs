@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.Steps
 		static ConstructorInfo TimeSpan_LongConstructor = Types.TimeSpan.GetConstructor(new Type[] { typeof(long) });
 		
 		static MethodInfo Type_GetTypeFromHandle = Types.Type.GetMethod("GetTypeFromHandle");
-		
+
 		AssemblyBuilder _asmBuilder;
 		
 		ModuleBuilder _moduleBuilder;
@@ -2723,7 +2723,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (!string.IsNullOrEmpty(formatString))
 				{
 					EmitCastIfNeeded(TypeSystemServices.ObjectType, argType);
-					_il.EmitCall(OpCodes.Call, typeof(string).GetMethod("Format", new Type[] { typeof(string), typeof(object) }), null);
+					_il.EmitCall(OpCodes.Call, StringFormat, null);
 				}
 
 				if (TypeSystemServices.StringType == argType || !string.IsNullOrEmpty(formatString))
@@ -5164,5 +5164,17 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IsUnknown(type)) throw CompilerErrorFactory.InvalidNode(node);
 			return type;
 		}
+
+
+		static private MethodInfo StringFormat
+		{
+			get {
+				if (null != stringFormat)
+					return stringFormat;
+				stringFormat = Types.String.GetMethod("Format", new Type[] { typeof(string), typeof(object) });
+				return stringFormat;
+			}
+		}
+		static MethodInfo stringFormat;
 	}
 }
