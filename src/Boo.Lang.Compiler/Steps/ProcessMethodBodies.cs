@@ -397,6 +397,7 @@ namespace Boo.Lang.Compiler.Steps
 			InternalMethod entity = (InternalMethod)method.Entity;
 
 			ReferenceExpression temp = new ReferenceExpression("___temp_initializer");
+
 			BinaryExpression assignment = new BinaryExpression(
 				node.LexicalInfo,
 				BinaryOperatorType.Assign,
@@ -696,8 +697,20 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnBlockExpression(BlockExpression node)
 		{
 			if (WasVisited(node)) return;
-			MarkVisited(node);
 
+			ClosureSignatureInferrer inferrer = new ClosureSignatureInferrer(node);
+			if (inferrer.HasUntypedInputParameters())
+			{
+				inferrer.InferInputTypes();
+				inferrer.AddMissingParameterTypes();
+			}
+
+			MarkVisited(node);
+			ProcessClosureBody(node);
+		}
+
+		void ProcessClosureBody(BlockExpression node)
+		{
 			string explicitClosureName = node["ClosureName"] as string;
 
 			Method closure = CodeBuilder.CreateMethod(

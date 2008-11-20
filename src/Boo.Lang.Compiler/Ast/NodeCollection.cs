@@ -79,6 +79,11 @@ namespace Boo.Lang.Compiler.Ast
 			get { return _list.Count; }
 		}
 
+		public int IndexOf(T item)
+		{
+			return InnerList.IndexOf(item);
+		}
+
 		public bool IsSynchronized
 		{
 			get { return false; }
