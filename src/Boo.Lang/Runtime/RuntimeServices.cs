@@ -763,21 +763,21 @@ namespace Boo.Lang.Runtime
 		public static int NormalizeIndex(int len, int index)
 		{
 			if (index < 0)
-				return Math.Max(0, Math.Max(index, index + len));
+				return Math.Max(0, index + len);
 			return Math.Min(index, len);
 		}
 
 		public static int NormalizeArrayIndex(Array array, int index)
 		{
 			if (index < 0)
-				return Math.Max(0, Math.Max(index, index + array.Length));
+				return Math.Max(0, index + array.Length);
 			return Math.Min(index, array.Length);
 		}
 
 		public static int NormalizeStringIndex(string s, int index)
 		{
 			if (index < 0)
-				return Math.Max(0, Math.Max(index, index + s.Length));
+				return Math.Max(0, index + s.Length);
 			return Math.Min(index, s.Length);
 		}
 
