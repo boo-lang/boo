@@ -754,27 +754,31 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
+		/*
+		 * Since index normalization is quite performance-sensitive, the
+		 * method body is duplicated on Normalize* methods to increase
+		 * likelihood that the JIT will inline the call in the caller.
+		 * On Mono it gives ~30% improvement since it triggers inlining On.
+		 */
 		public static int NormalizeIndex(int len, int index)
 		{
 			if (index < 0)
-			{
-				index += len;
-				if (index < 0) return 0;
-			}
-
-			if (index > len) return len;
-
-			return index;
+				return Math.Max(0, Math.Max(index, index + len));
+			return Math.Min(index, len);
 		}
 
 		public static int NormalizeArrayIndex(Array array, int index)
 		{
-			return NormalizeIndex(array.Length, index);
+			if (index < 0)
+				return Math.Max(0, Math.Max(index, index + array.Length));
+			return Math.Min(index, array.Length);
 		}
 
 		public static int NormalizeStringIndex(string s, int index)
 		{
-			return NormalizeIndex(s.Length, index);
+			if (index < 0)
+				return Math.Max(0, Math.Max(index, index + s.Length));
+			return Math.Min(index, s.Length);
 		}
 
 		public static IEnumerable GetEnumerable(object enumerable)
