@@ -619,6 +619,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				//TODO: try Levenshtein distance or Metaphone instead of Soundex.
 				if (expectedSoundex == ToSoundex(member.Name))
 				{
+					//return properties without get_/set_ prefix
+					if (member is IMethod && ((IMethod) member).IsSpecialName)
+						return member.Name.Substring(4);
 					return member.Name;
 				}
 				lastMemberName = member.Name;
