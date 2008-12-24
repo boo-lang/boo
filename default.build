@@ -222,6 +222,7 @@
 			<sources basedir="src/Boo.Lang.PatternMatching">
 				<include name="*.boo" />
 			</sources>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 		
 	</target>
