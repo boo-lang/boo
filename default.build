@@ -66,7 +66,7 @@
 		<property name="nosign" value="true" overwrite="true" />
 	</target>
 
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env, Boo.Lang.PatternMatching">	
 	</target>
 	
 	<target name="set-release-configuration">
@@ -214,6 +214,16 @@
 		for p as System.Collections.DictionaryEntry in Project.Properties:
 			print("${p.Key}: ${p.Value}")		
 		</boo>
+	</target>
+	
+	<target name="Boo.Lang.PatternMatching" depends="core">
+	
+		<booc target="library" output="${build.dir}/Boo.Lang.PatternMatching.dll">
+			<sources basedir="src/Boo.Lang.PatternMatching">
+				<include name="*.boo" />
+			</sources>
+		</booc>
+		
 	</target>
 
 	<target name="Boo.Lang.Interpreter" depends="core">

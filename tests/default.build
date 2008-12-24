@@ -108,6 +108,16 @@
 			</sources>
 		</booc>
 		-->
+		
+		<booc target="library" output="build/Boo.Lang.PatternMatching.Tests.dll">
+			<sources basedir="Boo.Lang.PatternMatching.Tests">
+				<include name="*.boo" />
+			</sources>
+			<references basedir="build">
+				<include name="${nunit.framework.dll}" />
+				<include name="Boo.Lang.PatternMatching.dll" />
+			</references>
+		</booc>
 
 		<csc
 			target="library"
@@ -291,6 +301,8 @@
 				<include name="Boo.Lang.Parser.dll" />
 			</references>
 		</csc>
+		
+		
 	</target>
 
 	<target name="init">
