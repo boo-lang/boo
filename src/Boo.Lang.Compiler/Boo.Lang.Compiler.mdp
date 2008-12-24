@@ -322,6 +322,7 @@
     <File name="Steps/CheckMemberNames.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMembersProtectionLevel.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckNeverUsedMembers.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/ClosureSignatureInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ContextAnnotations.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/DumpReferences.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/EmitAssembly.cs" buildaction="Compile" subtype="Code" />
