@@ -56,6 +56,11 @@ namespace Boo.Lang.Compiler.Ast
 			return new IntegerLiteralExpression(i);
 		}
 		
+		public static Expression Lift(Block block)
+		{
+			return new BlockExpression(block);
+		}
+		
 		public static Expression Lift(Expression e)
 		{
 			return e.CloneNode();
