@@ -251,7 +251,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			foreach (T item in items)
 			{
-				InnerList.Add((T)item.CloneNode());
+				Add((T)item.CloneNode());
 			}
 		}
 
