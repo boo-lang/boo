@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _fullName ?? (_fullName = BuildFullName());  }
 		}
 
-		public IType NestingType
+		public IEntity DeclaringEntity
 		{
 			get { return _node.ParentNode.Entity as IType; }
 		}

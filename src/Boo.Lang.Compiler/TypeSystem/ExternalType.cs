@@ -110,6 +110,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _type.IsByRef; }
 		}
 
+		public IEntity DeclaringEntity
+		{
+			get { return DeclaringType;  }
+		}
+
 		public IType DeclaringType
 		{
 			get

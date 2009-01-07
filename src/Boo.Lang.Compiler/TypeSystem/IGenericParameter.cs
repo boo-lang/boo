@@ -30,8 +30,7 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IGenericParameter: IType
-	{
-		IEntity DeclaringEntity { get; }
+	{	
 		int GenericParameterPosition { get; }
 
 		bool MustHaveDefaultConstructor { get; }

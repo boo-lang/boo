@@ -70,6 +70,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
+
+		IEntity DeclaringEntity { get; }
 		
 		int GetTypeDepth();
 		

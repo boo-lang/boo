@@ -52,7 +52,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_enumerable = tagManager.IEnumerableGenericType;
 		}
 
-		
+		public IEntity DeclaringEntity
+		{
+			get { return null;  }
+		}
+
 		public string Name
 		{
 			get

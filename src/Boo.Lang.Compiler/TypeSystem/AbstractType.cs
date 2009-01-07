@@ -49,6 +49,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		public virtual IEntity DeclaringEntity
+		{
+			get
+			{
+				return null;
+			}
+		}
+
 		public virtual IType Type
 		{
 			get

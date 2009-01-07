@@ -52,16 +52,16 @@ namespace Boo.Lang.Compiler.TypeSystem
         
         string _fullName = null;
 
-        public GenericConstructedType(TypeSystemServices tss, IType definition, IType[] arguments)
-        {
-            _tss = tss;
-            _definition = definition;
-            _arguments = arguments;
-            _genericMapping = new GenericMapping(tss, this, arguments);
-        	_fullyConstructed = IsFullyConstructed();
-        }
+		public GenericConstructedType(TypeSystemServices tss, IType definition, IType[] arguments)
+		{
+			_tss = tss;
+			_definition = definition;
+			_arguments = arguments;
+			_genericMapping = new GenericMapping(tss, this, arguments);
+			_fullyConstructed = IsFullyConstructed();
+		}
 
-        protected bool IsFullyConstructed()
+    	protected bool IsFullyConstructed()
         {
         	return GenericsServices.GetTypeGenerity(this) == 0;
         }
@@ -83,6 +83,11 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             get { return _genericMapping; }
         }
+
+    	public IEntity DeclaringEntity
+    	{
+			get { return _definition.DeclaringEntity;  }
+    	}
 
         public bool IsClass
         {
