@@ -125,8 +125,14 @@ class PatternExpander:
 			push node, [| TryCastExpression(Target: $(expand(node.Target)), Type: $(expand(node.Type))) |]
 			
 		override def OnMethodInvocationExpression(node as MethodInvocationExpression):
-			assert 0 == len(node.Arguments), "Unsupported pattern '${node}'"
-			push node, [| MethodInvocationExpression(Target: $(expand(node.Target))) |]
+			if len(node.Arguments) > 0:
+				pattern = [| MethodInvocationExpression(Target: $(expand(node.Target)), Arguments: $(expandFixedSize(node.Arguments))) |]
+			else:
+				pattern = [| MethodInvocationExpression(Target: $(expand(node.Target))) |]
+			push node, pattern
+			
+		override def OnNullLiteralExpression(node as NullLiteralExpression):
+			push node, [| NullLiteralExpression() |]
 			
 		override def OnUnaryExpression(node as UnaryExpression):
 			push node, [| UnaryExpression(Operator: UnaryOperatorType.$(node.Operator.ToString()), Operand: $(expand(node.Operand))) |]

@@ -36,6 +36,30 @@ class CodeMatchingTest:
 			case [| $name as $type |]:
 				assert name.ToString() == "a"
 				assert type.ToString() == "int"
+				
+	[Test]
+	def TestNoArgInvocationPatternMatchesAnyInvocation():
+		assert methodName([| foo() |]) == "foo"
+		assert methodName([| bar(42) |]) == "bar"
+		
+	[Test]
+	def TestInvocationPatternWithArguments():
+		assert delegateMethod([| ThreadStart(null, __addressof__(foo)) |]) == "foo"
+	
+	[Test]
+	[ExpectedException(MatchError)]
+	def TestInvocationPatternWithArgumentsMismatch():
+		delegateMethod([| ThreadStart(null) |])
+		
+	def delegateMethod(code as Expression):
+		match code:
+			case [| $type(null, __addressof__($method)) |]:
+				return method.ToString()
+		
+	def methodName(code as Expression):
+		match code:
+			case [| $name() |]:
+				return name.ToString()
 		
 	def variableName(code as Expression):
 		match code:
