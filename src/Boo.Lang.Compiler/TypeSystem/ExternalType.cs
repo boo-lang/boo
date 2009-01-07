@@ -110,7 +110,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _type.IsByRef; }
 		}
 
-		public IEntity DeclaringEntity
+		public virtual IEntity DeclaringEntity
 		{
 			get { return DeclaringType;  }
 		}

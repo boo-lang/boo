@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 		
-		public IEntity DeclaringEntity
+		public override IEntity DeclaringEntity
 		{
 			get 
 			{
