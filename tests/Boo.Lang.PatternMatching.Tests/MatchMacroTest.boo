@@ -91,6 +91,19 @@ class MatchMacroTest:
 		Assert.AreEqual("int", matchIntOtherwise(42))
 		Assert.AreEqual("otherwise", matchIntOtherwise("42"))
 		
+	[Test]
+	def TestEitherPattern():
+		Assert.AreEqual("yes", either(42))
+		Assert.AreEqual("yes", either(-1))
+		Assert.AreEqual("no", either(0))
+		
+	def either(value as int):
+		match value:
+			case 42 | -1:
+				return "yes"
+			otherwise:
+				return "no"
+		
 	enum Foo:
 		None
 		Bar

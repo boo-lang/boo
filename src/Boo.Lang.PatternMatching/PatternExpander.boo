@@ -22,9 +22,9 @@ class PatternExpander:
 		if quasiquote is not null:
 			return expandQuasiquotePattern(matchValue, quasiquote)
 			
-		capture = pattern as BinaryExpression
-		if isCapture(capture):
-			return expandCapturePattern(matchValue, capture)
+		binary = pattern as BinaryExpression
+		if binary is not null:
+			return expandBinaryExpression(matchValue, binary)
 			
 		fixedSize = pattern as ArrayLiteralExpression
 		if fixedSize is not null:
@@ -32,8 +32,21 @@ class PatternExpander:
 			
 		return expandValuePattern(matchValue, pattern)
 		
+	def expandBinaryExpression(matchValue as Expression, node as BinaryExpression):
+		if isCapture(node):
+			return expandCapturePattern(matchValue, node)
+			
+		if node.Operator == BinaryOperatorType.BitwiseOr:
+			return expandEitherPattern(matchValue, node)
+			
+		assert false, "Unsupported pattern: ${node}"
+		
+	def expandEitherPattern(matchValue as Expression, node as BinaryExpression) as Expression:
+		l = expand(matchValue, node.Left)
+		r = expand(matchValue, node.Right)
+		return [| $l or $r |]
+		
 	def isCapture(node as BinaryExpression):
-		if node is null: return false
 		if node.Operator != BinaryOperatorType.Assign: return false
 		return node.Left isa ReferenceExpression and node.Right isa MethodInvocationExpression
 		
