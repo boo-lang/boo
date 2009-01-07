@@ -864,7 +864,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null != baseMethod.GenericInfo)
 				DeclareGenericParameters(method, baseMethod.GenericInfo.GenericParameters);
 
-			DeclareParameters(method, baseMethod.GetParameters());
+			DeclareParameters(method, baseMethod.GetParameters(), baseMethod.IsStatic ? 0 : 1);
 
 			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);
 			method.Entity = (null != baseMethod.GenericInfo)
