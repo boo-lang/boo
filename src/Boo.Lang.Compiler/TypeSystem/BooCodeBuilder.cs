@@ -714,7 +714,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ExpressionStatement CreateSuperConstructorInvocation(IType baseType)
 		{
 			IConstructor defaultConstructor = _tss.GetDefaultConstructor(baseType);
-			Debug.Assert(null != defaultConstructor);
+			if (null == defaultConstructor)
+				throw new ArgumentException("No default constructor for type '" + baseType + "'.");
 			return CreateSuperConstructorInvocation(defaultConstructor);
 		}
 

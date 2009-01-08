@@ -40,13 +40,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		internal AnonymousCallableType(TypeSystemServices services, CallableSignature signature)
 		{
 			if (null == services)
-			{
 				throw new ArgumentNullException("services");
-			}
 			if (null == signature)
-			{
 				throw new ArgumentNullException("signature");
-			}
 			_typeSystemServices = services;
 			_signature = signature;
 		}

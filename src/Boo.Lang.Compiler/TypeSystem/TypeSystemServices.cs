@@ -1237,15 +1237,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IConstructor GetDefaultConstructor(IType type)
 		{
-			IConstructor[] constructors = type.GetConstructors();
-			for (int i=0; i<constructors.Length; ++i)
-			{
-				IConstructor constructor = constructors[i];
+			foreach (IConstructor constructor in type.GetConstructors())
 				if (0 == constructor.GetParameters().Length)
-				{
 					return constructor;
-				}
-			}
 			return null;
 		}
 

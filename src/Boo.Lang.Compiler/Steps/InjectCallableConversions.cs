@@ -319,9 +319,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ClassDefinition adaptor = FindAdaptor(to, from);
 			if (null == adaptor)
-			{
 				adaptor = CreateAdaptor(to, from);
-			}
 			return adaptor;
 		}
 		

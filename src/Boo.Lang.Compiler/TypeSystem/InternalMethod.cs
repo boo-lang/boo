@@ -37,8 +37,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected IMethod _override;
 
-		protected IParameter[] _parameters;
-		
 		protected ExpressionCollection _returnExpressions;
 
 		protected List _yieldStatements;
@@ -193,11 +191,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IParameter[] GetParameters()
 		{
-			if (null == _parameters)
-			{
-				_parameters = _typeSystemServices.Map(_node.Parameters);
-			}
-			return _parameters;
+			return _typeSystemServices.Map(_node.Parameters);
 		}
 		
 		public virtual IType ReturnType
