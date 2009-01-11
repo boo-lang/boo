@@ -51,6 +51,22 @@ class CodeMatchingTest:
 	def TestInvocationPatternWithArgumentsMismatch():
 		delegateMethod([| ThreadStart(null) |])
 		
+		
+	[Test]
+	def BoolLiteral():
+		assert "false" == boolLiteral([| false |])
+		assert "true" == boolLiteral([| true |])
+		assert "42" == boolLiteral([| true or 42 |])
+		
+	def boolLiteral(code as Expression):
+		match code:
+			case [| true |]:
+				return "true"
+			case [| false |]:
+				return "false"
+			case [| true or $e |]:
+				return e.ToString()
+		
 	def delegateMethod(code as Expression):
 		match code:
 			case [| $type(null, __addressof__($method)) |]:

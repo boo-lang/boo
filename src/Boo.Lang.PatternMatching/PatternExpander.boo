@@ -144,6 +144,9 @@ class PatternExpander:
 				pattern = [| MethodInvocationExpression(Target: $(expand(node.Target))) |]
 			push node, pattern
 			
+		override def OnBoolLiteralExpression(node as BoolLiteralExpression):
+			push node, [| BoolLiteralExpression(Value: $node) |]
+			
 		override def OnNullLiteralExpression(node as NullLiteralExpression):
 			push node, [| NullLiteralExpression() |]
 			
