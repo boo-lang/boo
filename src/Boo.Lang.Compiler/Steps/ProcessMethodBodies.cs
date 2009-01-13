@@ -6126,6 +6126,17 @@ namespace Boo.Lang.Compiler.Steps
 				// will enumerate (unpack) each item
 				defaultDeclType = GetEnumeratorItemType(defaultDeclType);
 			}
+			else if (declarations.Count == 1) //local reuse (BOO-1111)
+			{
+				Declaration d = declarations[0];
+				Local local = AstUtil.GetLocalByName(_currentMethod.Method, d.Name);
+				if (null != local) {
+					GetDeclarationType(defaultDeclType, d);
+					AssertTypeCompatibility(d, GetType(d.Type), ((InternalLocal) local.Entity).Type);
+					d.Entity = local.Entity;
+					return; //okay we reuse a previously declared local
+				}
+			}
 
 			foreach (Declaration d in declarations)
 			{

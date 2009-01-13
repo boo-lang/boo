@@ -391,6 +391,17 @@ namespace Boo.Lang.Compiler.Ast
 			return nameBuilder.ToString();
 		}
 
+		internal static Local GetLocalByName(Method method, string name)
+		{
+			if (method.Locals.Count == 0)
+				return null;
+
+			foreach (Local local in method.Locals) {
+				if (!local.PrivateScope && local.Name == name)
+					return local;
+			}
+			return null;
+		}
 	}
 
 }

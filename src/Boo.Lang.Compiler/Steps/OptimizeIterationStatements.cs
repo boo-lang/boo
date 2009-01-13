@@ -97,6 +97,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveForStatement(ForStatement node)
 		{
+			//do not optimize local-reusing loops (BOO-1111)
+			//TODO: optimize anyway (modify end value to match generator model vs optimized model)
+			if (node.Declarations.Count == 1
+				&& null != AstUtil.GetLocalByName(_currentMethod, node.Declarations[0].Name))
+				return;
+
 			CheckForItemInRangeLoop(node);
 			CheckForItemInArrayLoop(node);
 		}
