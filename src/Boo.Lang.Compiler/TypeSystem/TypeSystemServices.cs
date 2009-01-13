@@ -742,6 +742,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
 		{
+			if (IsNullable(expectedType) && Null.Default == actualType)
+				return true;
 			return (expectedType.IsValueType
 			        && IsNumber(expectedType)
 			        && IsNumber(actualType));

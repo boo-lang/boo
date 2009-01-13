@@ -4240,7 +4240,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			targetEntity = ResolveAmbiguousMethodInvocation(node, targetEntity);
-
 			if (targetEntity == null) return;
 
 			switch (targetEntity.EntityType)
@@ -5204,6 +5203,22 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		void BindNullableParameters(ExpressionCollection args, ICallableType target)
+		{
+			if (null == target)
+				return;
+
+			IParameter[] parameters = target.GetSignature().Parameters;
+			for (int i = 0; i < parameters.Length; ++i) {
+				if (!TypeSystemServices.IsNullable(parameters[i].Type))
+					continue;
+				if (TypeSystemServices.IsNullable(GetExpressionType(args[i])))
+					continue; //already nullable
+				args.Replace(args[i], CreateNullableInstantiation(args[i], parameters[i].Type));
+				Visit(args[i]);
+			}
+		}
+
 		private Expression CreateNullableInstantiation(IType type)
 		{
 			return CreateNullableInstantiation(null, type);
@@ -5593,7 +5608,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool AssertParameters(Node sourceNode, IEntity sourceEntity, ICallableType method, ExpressionCollection args)
 		{
-			if (CheckParameters(method, args, true)) return true;
+			if (CheckParameters(method, args, true))
+				return true;
 
 			Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
 			return false;
@@ -5601,6 +5617,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected virtual bool CheckParameters(ICallableType method, ExpressionCollection args, bool reportErrors)
 		{
+			BindNullableParameters(args, method);
 			return AcceptVarArgs(method)
 				? CheckVarArgsParameters(method, args)
 				: CheckExactArgsParameters(method, args, reportErrors);
@@ -5703,7 +5720,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IEntity found = CallableResolutionService.ResolveCallableReference(args, candidates);
-			if (null == found) EmitCallableResolutionError(sourceNode, candidates, args);
+			if (null == found)
+				EmitCallableResolutionError(sourceNode, candidates, args);
+			else
+				BindNullableParameters(args, ((IMethodBase) found).CallableType);
+
 			return found;
 		}
 
