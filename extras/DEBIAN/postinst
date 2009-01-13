@@ -34,6 +34,7 @@ case "$1" in
     $GACUTIL -i /usr/lib/boo/Boo.Lang.Parser.dll
     $GACUTIL -i /usr/lib/boo/Boo.Lang.Useful.dll
     $GACUTIL -i /usr/lib/boo/Boo.Lang.Extensions.dll
+    $GACUTIL -i /usr/lib/boo/Boo.Lang.PatternMatching.dll
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

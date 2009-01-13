@@ -32,6 +32,7 @@ case "$1" in
     env $GACUTIL -u Boo.Lang.Parser
     env $GACUTIL -u Boo.Lang.Useful
     env $GACUTIL -u Boo.Lang.Extensions
+    env $GACUTIL -u Boo.Lang.PatternMatching
     ;;
 
     upgrade)
