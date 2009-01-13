@@ -33,7 +33,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using Boo.Lang.Compiler.Ast;
 	using System.Reflection;
 	using System.Collections.Generic;
-	
+
+	public delegate bool EntityNameMatcher(IEntity candidate, string name);
+
 	public class NameResolutionService
 	{
 		public static readonly char[] DotArray = new char[] { '.' };
@@ -47,11 +49,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected List _buffer = new List();
 		
 		protected List _innerBuffer = new List();
+
+		private EntityNameMatcher _entityNameMatcher = Matches;
 		
 		public NameResolutionService(CompilerContext context)
 		{
 			if (null == context) throw new ArgumentNullException("context");
 			_context = context;
+		}
+
+		public EntityNameMatcher EntityNameMatcher
+		{
+			get { return _entityNameMatcher; }
+			set
+			{
+				if (null == value) throw new ArgumentNullException();
+				_entityNameMatcher = value;
+			}
 		}
 		
 		public INamespace GlobalNamespace
@@ -126,11 +140,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return found;
 		}
 
-		protected virtual bool Matches(IEntity entity, string name)
+		private static bool Matches(IEntity entity, string name)
 		{
 			return entity.Name == name;
 		}
-
 
 		public bool Resolve(List targetList, string name, EntityType flags)
 		{

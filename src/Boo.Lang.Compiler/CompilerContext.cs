@@ -96,11 +96,6 @@ namespace Boo.Lang.Compiler
 			if (_parameters.Debug && !_parameters.Defines.ContainsKey("DEBUG"))
 				_parameters.Defines.Add("DEBUG", null);
 			_properties = new Hash();
-			RegisterNameResolutionService();
-		}
-
-		protected virtual void RegisterNameResolutionService()
-		{
 			RegisterService<NameResolutionService>(new NameResolutionService(this));
 		}
 
