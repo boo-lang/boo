@@ -46,10 +46,25 @@ class AbstractParser:
 
 	virtual def Parse(args as (string)):
 		for arg in args:
-			if IsOption(arg):
-				ParseOption(arg)
-			else:
-				OnArgument(arg)
+			ParseArg arg
+			
+	def ParseArg(arg as string):
+		if arg.StartsWith("@"):
+			ParseResponseFile(arg[1:])
+		elif IsOption(arg):
+			ParseOption(arg)
+		else:
+			OnArgument(arg)
+			
+	def ParseResponseFile(responseFile as string):
+		for line in System.IO.File.ReadAllLines(responseFile):
+			arg = line.Trim()
+			if len(arg) == 0 or IsComment(arg):
+				continue
+			ParseArg(arg)
+			
+	def IsComment(arg as string):
+		return arg.StartsWith("#")
 				
 	abstract protected def OnArgument(argument as string):
 		pass
