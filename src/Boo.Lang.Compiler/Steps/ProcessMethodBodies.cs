@@ -417,6 +417,32 @@ namespace Boo.Lang.Compiler.Steps
 			Expression initializer = node.Initializer;
 			if (null == initializer) return;
 
+			//do not unnecessarily assign fields to default values
+			switch (initializer.NodeType)
+			{
+				case NodeType.NullLiteralExpression:
+					node.Initializer = null;
+					return;
+				case NodeType.IntegerLiteralExpression:
+					if (0 == ((IntegerLiteralExpression) initializer).Value) {
+						node.Initializer = null;
+						return;
+					}
+					break;
+				case NodeType.BoolLiteralExpression:
+					if (false == ((BoolLiteralExpression) initializer).Value) {
+						node.Initializer = null;
+						return;
+					}
+					break;
+				case NodeType.DoubleLiteralExpression:
+					if (0.0f == ((DoubleLiteralExpression) initializer).Value) {
+						node.Initializer = null;
+						return;
+					}
+					break;
+			}
+
 			Method method = GetFieldsInitializerMethod(node);
 			method.Body.Add(
 				CodeBuilder.CreateAssignment(

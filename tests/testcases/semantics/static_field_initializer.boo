@@ -8,11 +8,11 @@ public class Person(object):
 		Person.InstanceCount = (Person.InstanceCount + 1)
 
 	private static def constructor():
-		Person.InstanceCount = 0
+		Person.InstanceCount = 1
 """
 class Person:
 
-	public static InstanceCount = 0
+	public static InstanceCount = 1
 
 	def constructor():
 		++InstanceCount
