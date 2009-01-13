@@ -111,7 +111,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return Resolve(targetList, name, EntityType.Any);
 		}
-		
+
+		public bool Resolve(string name, IEnumerable<IEntity> candidates, EntityType typesToConsider, List resolvedSet)
+		{
+			bool found = false;
+			foreach (IEntity entity in candidates)
+			{
+				if (Matches(entity, name) && IsFlagSet(typesToConsider, entity.EntityType))
+				{
+					resolvedSet.AddUnique(entity);
+					found = true;
+				}
+			}
+			return found;
+		}
+
+		protected virtual bool Matches(IEntity entity, string name)
+		{
+			return entity.Name == name;
+		}
+
+
 		public bool Resolve(List targetList, string name, EntityType flags)
 		{
 			IEntity entity = _context.TypeSystemServices.ResolvePrimitive(name);

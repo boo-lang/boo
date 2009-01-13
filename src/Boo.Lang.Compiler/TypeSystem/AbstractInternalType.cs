@@ -48,10 +48,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private IGenericParameter[] _genericParameters = null;
 
 		private Dictionary<IType[], IType> _constructedTypes = new Dictionary<IType[], IType>(ArrayEqualityComparer<IType>.Default);
+		
+		private NameResolutionService _nameResolutionService;
 
 		protected AbstractInternalType(TypeSystemServices typeSystemServices, TypeDefinition typeDefinition) : base(typeDefinition)
 		{
 			_typeSystemServices = typeSystemServices;
+			_nameResolutionService = typeSystemServices.Context.NameResolutionService;
 		}
 
 		protected virtual string BuildFullName()
@@ -88,21 +91,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return ResolveMember(targetList, name, flags);
 		}
 
-		protected bool ResolveMember(List targetList, string name, EntityType flags)
+		protected bool ResolveMember(List resolvedSet, string name, EntityType typesToConsider)
 		{
-			bool found = false;
-
-			// Try to resolve name as a member
-			foreach (IEntity entity in GetMembers())
-			{
-				if (entity.Name == name && NameResolutionService.IsFlagSet(flags, entity.EntityType))
-				{
-					targetList.AddUnique(entity);
-					found = true;
-				}
-			}
-
-			return found;
+			return _nameResolutionService.Resolve(name, GetMembers(), typesToConsider, resolvedSet);
 		}
 
 		protected bool ResolveGenericParameter(List targetList, string name, EntityType flags)

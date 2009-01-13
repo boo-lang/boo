@@ -85,8 +85,6 @@ namespace Boo.Lang.Compiler
 		
 		public CompilerContext(CompilerParameters options, CompileUnit unit)
 		{
-			RegisterService<NameResolutionService>(new NameResolutionService(this));
-
 			if (null == options) throw new ArgumentNullException("options");
 			if (null == unit) throw new ArgumentNullException("unit");
 
@@ -98,8 +96,14 @@ namespace Boo.Lang.Compiler
 			if (_parameters.Debug && !_parameters.Defines.ContainsKey("DEBUG"))
 				_parameters.Defines.Add("DEBUG", null);
 			_properties = new Hash();
+			RegisterNameResolutionService();
 		}
-		
+
+		protected virtual void RegisterNameResolutionService()
+		{
+			RegisterService<NameResolutionService>(new NameResolutionService(this));
+		}
+
 		public Hash Properties
 		{
 			get { return _properties; }

@@ -37,6 +37,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		protected TypeSystemServices _typeSystemServices;
 
+		private NameResolutionService _nameResolutionService;
+
 		private readonly Type _type;
 
 		IConstructor[] _constructors;
@@ -58,6 +60,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == type) throw new ArgumentException("type");
 			_typeSystemServices = tss;
 			_type = type;
+			_nameResolutionService = _typeSystemServices.Context.NameResolutionService;
 		}
 
 		public virtual string FullName
@@ -310,29 +313,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual bool Resolve(List targetList, string name, EntityType flags)
 		{
-			bool found = false;
-			foreach (IEntity member in GetMembers())
-			{
-				if (!NameResolutionService.IsFlagSet(flags, member.EntityType)) continue;
-
-				if (member.Name == name)
-				{
-					targetList.AddUnique(member);
-					found = true;
-				}
-			}
+			bool found = _nameResolutionService.Resolve(name, GetMembers(), flags, targetList);
 
 			if (IsInterface)
 			{
 				if (_typeSystemServices.ObjectType.Resolve(targetList, name, flags))
-				{
 					found = true;
-				}
-
 				foreach (IType baseInterface in GetInterfaces())
-				{
 					found |= baseInterface.Resolve(targetList, name, flags);
-				}
 			}
 			else
 			{
@@ -340,9 +328,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					IType baseType = BaseType;
 					if (null != baseType)
-					{
 						found |= baseType.Resolve(targetList, name, flags);
-					}
 				}
 			}
 			return found;
