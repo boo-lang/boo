@@ -126,18 +126,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return Resolve(targetList, name, EntityType.Any);
 		}
 
+		public IEnumerable<EntityOut> Select<EntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
+		{
+			foreach (IEntity entity in candidates)
+				if (Matches(entity, name, typesToConsider))
+					yield return (EntityOut) entity;
+		}
+
 		public bool Resolve(string name, IEnumerable<IEntity> candidates, EntityType typesToConsider, List resolvedSet)
 		{
 			bool found = false;
-			foreach (IEntity entity in candidates)
+			foreach (IEntity entity in Select<IEntity>(candidates, name, typesToConsider))
 			{
-				if (Matches(entity, name) && IsFlagSet(typesToConsider, entity.EntityType))
-				{
-					resolvedSet.AddUnique(entity);
-					found = true;
-				}
+				resolvedSet.AddUnique(entity);
+				found = true;
 			}
 			return found;
+		}
+
+		private bool Matches(IEntity entity, string name, EntityType typesToConsider)
+		{
+			return _entityNameMatcher(entity, name) && IsFlagSet(typesToConsider, entity.EntityType);
 		}
 
 		private static bool Matches(IEntity entity, string name)
@@ -445,26 +454,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeSystemServices.ErrorEntity; 
 		}
 		
-		public static IField ResolveField(IType type, string name)
+		public IField ResolveField(IType type, string name)
 		{
 			return (IField)ResolveMember(type, name, EntityType.Field);
 		}
 		
-		public static IMethod ResolveMethod(IType type, string name)
+		public IMethod ResolveMethod(IType type, string name)
 		{
 			return (IMethod)ResolveMember(type, name, EntityType.Method);
 		}
 		
-		public static IProperty ResolveProperty(IType type, string name)
+		public IProperty ResolveProperty(IType type, string name)
 		{
 			return (IProperty)ResolveMember(type, name, EntityType.Property);
 		}
 		
-		public static IEntity ResolveMember(IType type, string name, EntityType elementType)
+		public IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
 			foreach (IEntity member in type.GetMembers())
 			{				
-				if (elementType == member.EntityType && name == member.Name)
+				if (elementType == member.EntityType && _entityNameMatcher(member, name))
 				{
 					return member;
 				}

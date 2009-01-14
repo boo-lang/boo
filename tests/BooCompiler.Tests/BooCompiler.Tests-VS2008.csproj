@@ -108,6 +108,7 @@
     <Compile Include="MacrosTestFixture.cs" />
     <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />
     <Compile Include="ModulesIntegrationTestFixture.cs" />
+    <Compile Include="NameResolutionServiceTestFixture.cs" />
     <Compile Include="Net2ErrorsTestFixture.cs" />
     <Compile Include="OperatorsIntegrationTestFixture.cs" />
     <Compile Include="PipelineTestCase.cs" />

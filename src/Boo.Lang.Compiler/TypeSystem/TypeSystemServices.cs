@@ -653,12 +653,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		IMethod FindConversionOperator(string name, IType fromType, IType toType, IEntity[] candidates)
 		{
-			foreach (IEntity entity in candidates)
-			{
-				if (EntityType.Method != entity.EntityType || name != entity.Name) continue;
-				IMethod method = (IMethod)entity;
+			foreach (IMethod method in _context.NameResolutionService.Select<IMethod>(candidates, name, EntityType.Method))
 				if (IsConversionOperator(method, fromType, toType)) return method;
-			}
 			return null;
 		}
 

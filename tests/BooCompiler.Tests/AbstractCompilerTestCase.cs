@@ -116,7 +116,15 @@ namespace BooCompiler.Tests
 		
 		public void CopyAssembly(string location)
 		{
-			File.Copy(location, Path.Combine(Path.GetTempPath(), Path.GetFileName(location)), true);
+			string destFileName = Path.Combine(Path.GetTempPath(), Path.GetFileName(location));
+			if (File.Exists(destFileName) && !IsNewer(location, destFileName))
+				return;
+			File.Copy(location, destFileName, true);
+		}
+
+		private bool IsNewer(string fileName, string thanFileName)
+		{
+			return File.GetLastWriteTime(fileName) > File.GetLastWriteTime(thanFileName);
 		}
 
 		[TestFixtureTearDown]
