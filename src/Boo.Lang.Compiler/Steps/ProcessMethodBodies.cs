@@ -1960,7 +1960,6 @@ namespace Boo.Lang.Compiler.Steps
 			IType itemType = GetGeneratorItemType(entity);
 			BooClassBuilder builder = CreateGeneratorSkeleton(method, method, itemType);
 			method.DeclaringType.Members.Add(builder.ClassDefinition);
-//			TypeSystemServices.AddCompilerGeneratedType(builder.ClassDefinition);
 		}
 
 		private IType GetGeneratorItemType(InternalMethod entity)
@@ -3034,8 +3033,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				// If the exception is not anonymous, place it into a
 				// local variable and enter a new namespace
-			node.Declaration.Entity = DeclareLocal(node.Declaration, node.Declaration.Name, GetType(node.Declaration.Type), true);
-			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
+				DeclareLocal(node.Declaration, true);
+				EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
 			}
 
 			try
@@ -3056,9 +3055,9 @@ namespace Boo.Lang.Compiler.Steps
 				// Clean up the namespace if necessary
 				if(!anonymousException)
 				{
-				LeaveNamespace();
+					LeaveNamespace();
+				}
 			}
-		}
 		}
 
 		protected virtual bool IsValidIncrementDecrementOperand(Expression e)
@@ -6152,12 +6151,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void DeclareLocal(Declaration d, bool privateScope)
+		IEntity DeclareLocal(Declaration d, bool privateScope)
 		{
-			if (AssertIdentifierName(d, d.Name))
-			{
-				d.Entity = DeclareLocal(d, d.Name, GetType(d.Type), privateScope);
-			}
+			AssertIdentifierName(d, d.Name);
+			
+			IEntity local = DeclareLocal(d, d.Name, GetType(d.Type), privateScope);
+			d.Entity = local;
+			
+			InternalLocal internalLocal = local as InternalLocal;
+			if (null != internalLocal) internalLocal.OriginalDeclaration = d;
+
+			return local;
 		}
 
 		protected IType GetEnumeratorItemType(IType iteratorType)

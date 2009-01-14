@@ -638,19 +638,24 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsPInvoke(method)) return;
 			
 			MethodBuilder methodBuilder = GetMethodBuilder(method);
-			if (null != method.ExplicitInfo)
-			{
-				IMethod ifaceMethod = (IMethod)method.ExplicitInfo.Entity;
-				MethodInfo ifaceInfo = GetMethodInfo(ifaceMethod);
-				MethodInfo implInfo = GetMethodInfo((IMethod)method.Entity);
-
-				TypeBuilder typeBuilder = GetTypeBuilder(method.DeclaringType);
-				typeBuilder.DefineMethodOverride(implInfo, ifaceInfo);
-			}
+			DefineExplicitImplementationInfo(method);
 
 			EmitMethod(method, methodBuilder.GetILGenerator());
 		}
-		
+
+		private void DefineExplicitImplementationInfo(Method method)
+		{
+			if (null == method.ExplicitInfo)
+				return;
+
+			IMethod ifaceMethod = (IMethod)method.ExplicitInfo.Entity;
+			MethodInfo ifaceInfo = GetMethodInfo(ifaceMethod);
+			MethodInfo implInfo = GetMethodInfo((IMethod)method.Entity);
+
+			TypeBuilder typeBuilder = GetTypeBuilder(method.DeclaringType);
+			typeBuilder.DefineMethodOverride(implInfo, ifaceInfo);
+		}
+
 		void EmitMethod(Method method, ILGenerator generator)
 		{
 			_il = generator;

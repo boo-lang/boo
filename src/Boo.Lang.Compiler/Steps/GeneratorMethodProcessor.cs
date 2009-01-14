@@ -221,28 +221,12 @@ namespace Boo.Lang.Compiler.Steps
 			methodBuilder.Method.LexicalInfo = generator.LexicalInfo;
 			_moveNext = methodBuilder.Entity;
 			
-			foreach (Local local in generator.Locals)
-			{
-				InternalLocal entity = (InternalLocal)local.Entity;
-				
-				Field field = _enumerator.AddInternalField("$" + entity.Name + "$" + _context.AllocIndex(), entity.Type);
-				_mapping[entity] = field.Entity;
-			}
-			generator.Locals.Clear();
-			
-			foreach (ParameterDeclaration parameter in generator.Parameters)
-			{
-				InternalParameter entity = (InternalParameter)parameter.Entity;
-				if (entity.IsUsed)
-				{
-					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
-					                                                              entity.Name,
-					                                                              entity.Type);
-					_mapping[entity] = field.Entity;
-				}
-			}
+			TransformLocalsIntoFields(generator);
+
+			TransformParametersIntoFieldsInitializedByConstructor(generator);
 			
 			methodBuilder.Body.Add(CreateLabel(generator));
+
 			// Visit() needs to know the number of the finished state
 			_finishedStateNumber = _labels.Count;
 			LabelStatement finishedLabel = CreateLabel(generator);
@@ -273,7 +257,56 @@ namespace Boo.Lang.Compiler.Steps
 				methodBuilder.Body.Add(tryFailure);
 			}
 		}
-		
+
+		private void TransformParametersIntoFieldsInitializedByConstructor(Method generator)
+		{
+			foreach (ParameterDeclaration parameter in generator.Parameters)
+			{
+				InternalParameter entity = (InternalParameter)parameter.Entity;
+				if (entity.IsUsed)
+				{
+					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
+					                                                              entity.Name,
+					                                                              entity.Type);
+					_mapping[entity] = field.Entity;
+				}
+			}
+		}
+
+		private void TransformLocalsIntoFields(Method generator)
+		{
+			foreach (Local local in generator.Locals)
+			{
+				InternalLocal entity = (InternalLocal)local.Entity;
+				if (IsExceptionHandlerVariable(entity))
+				{
+					AddToMoveNextMethod(local);
+					continue;
+				}
+
+				AddInternalFieldFor(entity);
+			}
+			generator.Locals.Clear();
+		}
+
+		private void AddToMoveNextMethod(Local local)
+		{
+			_moveNext.Method.Locals.Add(local);
+		}
+
+		private void AddInternalFieldFor(InternalLocal entity)
+		{
+			Field field = _enumerator.AddInternalField("$" + entity.Name + "$" + _context.AllocIndex(), entity.Type);
+			_mapping[entity] = field.Entity;
+		}
+
+		private bool IsExceptionHandlerVariable(InternalLocal local)
+		{
+			Declaration originalDeclaration = local.OriginalDeclaration;
+			if (originalDeclaration == null) return false;
+			return originalDeclaration.ParentNode is ExceptionHandler;
+		}
+
 		MethodInvocationExpression CallMethodOnSelf(IMethod method)
 		{
 			return CodeBuilder.CreateMethodInvocation(

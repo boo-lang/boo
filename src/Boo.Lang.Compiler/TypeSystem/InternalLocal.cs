@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Ast;
+
 namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class InternalLocal : AbstractLocalEntity, ITypedEntity, ILocalEntity, IInternalEntity
@@ -35,7 +37,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType _type;
 		
 		System.Reflection.Emit.LocalBuilder _builder;
-		
+
+		private Declaration _originalDeclaration;
+
 		public InternalLocal(Boo.Lang.Compiler.Ast.Local local, IType type)
 		{			
 			_local = local;
@@ -86,7 +90,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			set { _builder = value; }
 		}
-		
+
+		public Declaration OriginalDeclaration
+		{
+			get { return _originalDeclaration;  }
+			set { _originalDeclaration = value; }
+		}
+
 		override public string ToString()
 		{
 			return string.Format("Local({0}, {1})", Name, Type);

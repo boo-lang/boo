@@ -65,15 +65,9 @@ namespace Boo.Lang.Compiler.Ast
  		
  		public bool PrivateScope
  		{
- 			get
- 			{
- 				return _privateScope;
- 			}
+ 			get { return _privateScope; }
 			
-			set
-			{
-				_privateScope = true;
-			}
+			set { _privateScope = true; }
  		}
 	}
 }
