@@ -192,7 +192,11 @@ namespace Boo.Lang.Compiler.Steps
 			switch (operand.NodeType)
 			{
 				case NodeType.IntegerLiteralExpression:
-					(operand as IntegerLiteralExpression).Value *= -1;
+					(operand as IntegerLiteralExpression).Value = -(operand as IntegerLiteralExpression).Value;
+					ReplaceCurrentNode(operand);
+					break;
+				case NodeType.DoubleLiteralExpression:
+					(operand as DoubleLiteralExpression).Value = -(operand as DoubleLiteralExpression).Value;
 					ReplaceCurrentNode(operand);
 					break;
 			}

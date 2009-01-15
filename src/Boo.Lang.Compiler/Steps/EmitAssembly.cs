@@ -1485,12 +1485,24 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void EmitUnaryNegation(UnaryExpression node)
 		{
-			node.Operand.Accept(this);
-			IType type = PopType();
-			_il.Emit(OpCodes.Ldc_I4, -1);
-			EmitCastIfNeeded(type, TypeSystemServices.IntType);
-			_il.Emit(OpCodes.Mul);
-			PushType(type);
+			IType operandType = GetExpressionType(node.Operand);
+			if (!_checked || !TypeSystemServices.IsIntegerNumber(operandType))
+			{
+				//a single/double unary negation never overflow
+				node.Operand.Accept(this);
+				_il.Emit(OpCodes.Neg);
+			}
+			else
+			{
+				_il.Emit(OpCodes.Ldc_I4_0);
+				if (operandType == TypeSystemServices.LongType || operandType == TypeSystemServices.ULongType)
+					_il.Emit(OpCodes.Conv_I8);
+				node.Operand.Accept(this);
+				_il.Emit(TypeSystemServices.IsSignedNumber(operandType)
+				         ? OpCodes.Sub_Ovf : OpCodes.Sub_Ovf_Un);
+				if (operandType != TypeSystemServices.LongType && operandType != TypeSystemServices.ULongType)
+					EmitCastIfNeeded(operandType, TypeSystemServices.IntType);
+			}
 		}
 
 		bool ShouldLeaveValueOnStack(Expression node)

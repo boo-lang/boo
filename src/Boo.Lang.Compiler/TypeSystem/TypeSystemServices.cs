@@ -797,6 +797,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				type == this.SingleType;
 		}
 
+		public bool IsSignedNumber(IType type)
+		{
+			return IsNumber(type)
+				&& type != this.UShortType
+				&& type != this.UIntType
+				&& type != this.ULongType
+				&& type != this.ByteType;
+		}
+
 		public static bool IsNullable(IType type)
 		{
 			ExternalType et = type as ExternalType;
