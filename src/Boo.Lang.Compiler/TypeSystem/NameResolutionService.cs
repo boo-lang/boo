@@ -374,7 +374,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			node.Entity = entity;		
 		}
 
-		private IEntity ResolveTypeName(SimpleTypeReference node)
+		internal IEntity ResolveTypeName(SimpleTypeReference node)
 		{	
 			_buffer.Clear();
 			if (IsQualifiedName(node.Name))

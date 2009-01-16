@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class StricterErrorChecking : AbstractVisitorCompilerStep
+	public class StricterErrorChecking : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
 		Hashtable _types = new Hashtable();
 		
@@ -80,23 +80,11 @@ namespace Boo.Lang.Compiler.Steps
 				|| type == TypeSystemServices.IntType;
 		}
 
-		override public void LeaveClassDefinition(ClassDefinition node)
+		override public void LeaveTypeDefinition(TypeDefinition node)
 		{
-			LeaveTypeDefinition(node);
-		}
-		
-		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
-		{
-			LeaveTypeDefinition(node);
-		}
-		
-		override public void LeaveEnumDefinition(EnumDefinition node)
-		{
-			LeaveTypeDefinition(node);
-		}
-		
-		void LeaveTypeDefinition(TypeDefinition node)
-		{
+			if (node.NodeType == NodeType.Module)
+				return;
+
 			string qualifiedName = node.QualifiedName;
 			if (node.HasGenericParameters)
 			{
@@ -416,7 +404,18 @@ namespace Boo.Lang.Compiler.Steps
 			CheckExpressionType(node.TrueValue);
 			CheckExpressionType(node.FalseValue);
 		}
-		
+
+		override public void LeaveExceptionHandler(ExceptionHandler node)
+		{
+			if (null != node.Declaration.Type.Entity
+			    && ((IType)node.Declaration.Type.Entity).FullName == "System.Exception"
+			    && !string.IsNullOrEmpty(node.Declaration.Name))
+			{
+				if (null != NameResolutionService.ResolveTypeName(new SimpleTypeReference(node.Declaration.Name)))
+					Warnings.Add(CompilerWarningFactory.AmbiguousExceptionName(node));
+			}
+		}
+
 		bool IsSecondArgumentOfDelegateConstructor(Expression node)
 		{                 
 			MethodInvocationExpression mie = node.ParentNode as MethodInvocationExpression;

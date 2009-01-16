@@ -86,12 +86,24 @@ namespace Boo.Lang.Compiler.Steps
 			VisitTypeDefinitionBody(node);
 			LeaveNamespace();
 		}
-		
+
+		public override void OnEnumDefinition(EnumDefinition node)
+		{
+			EnterNamespace((INamespace)GetEntity(node));
+			VisitTypeDefinitionBody(node);
+			LeaveNamespace();
+		}
+
 		void VisitTypeDefinitionBody(TypeDefinition node)
 		{
 			Visit(node.Attributes);
 			Visit(node.GenericParameters);
 			Visit(node.Members);
+			LeaveTypeDefinition(node);
+		}
+
+		virtual public void LeaveTypeDefinition(TypeDefinition node)
+		{
 		}
 	}
 }

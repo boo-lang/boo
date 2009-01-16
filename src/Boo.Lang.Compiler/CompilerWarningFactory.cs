@@ -139,6 +139,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0018", member.LexicalInfo);
 		}
 
+		public static CompilerWarning AmbiguousExceptionName(ExceptionHandler node)
+		{
+			return new CompilerWarning("BCW0019", node.LexicalInfo, node.Declaration.Name);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{
