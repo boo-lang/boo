@@ -810,12 +810,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 
-		public void DeclareParameters(Method method, IParameter[] parameters)
+		public void DeclareParameters(INodeWithParameters method, IParameter[] parameters)
 		{
 			DeclareParameters(method, parameters, 0);
 		}
 
-		public void DeclareParameters(Method method, IParameter[] parameters, int parameterIndexDelta)
+		public void DeclareParameters(INodeWithParameters method, IParameter[] parameters, int parameterIndexDelta)
 		{
 			for (int i=0; i < parameters.Length; ++i)
 			{
@@ -952,11 +952,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
 		}
 
-		public TypeMember CreateStub(IMember member)
+		public TypeMember CreateStub(ClassDefinition node, IMember member)
 		{
-			IMethod baseMethod = (member as IMethod);
-			if (null == baseMethod) return null;
+			IMethod baseMethod = member as IMethod;
+			if (null != baseMethod)
+				return CreateMethodStub(baseMethod);
 
+			IProperty property = member as IProperty;
+			if (null != property)
+				return CreatePropertyStub(node, property);
+
+			return null;
+		}
+
+		Method CreateMethodStub(IMethod baseMethod)
+		{
 			Method stub = CreateMethodFromPrototype(baseMethod, TypeMemberModifiers.Public | TypeMemberModifiers.Virtual);
 
 			MethodInvocationExpression x = new MethodInvocationExpression();
@@ -970,6 +980,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return stub;
 		}
 
+		Property CreatePropertyStub(ClassDefinition node, IProperty baseProperty)
+		{
+			//try to complete partial implementation if any
+			Property property = node.Members[baseProperty.Name] as Property;
+			if (null == property) {
+				property = new Property(LexicalInfo.Empty);
+				property.Name = baseProperty.Name;
+				property.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Virtual;
+				property.IsSynthetic = true;
+				DeclareParameters(property, baseProperty.GetParameters(), baseProperty.IsStatic ? 0 : 1);
+				property.Type = CreateTypeReference(baseProperty.Type);
+			}
+
+			if (property.Getter == null && null != baseProperty.GetGetMethod())
+				property.Getter = CreateMethodStub(baseProperty.GetGetMethod());
+
+			if (property.Setter == null && null != baseProperty.GetSetMethod())
+				property.Setter = CreateMethodStub(baseProperty.GetSetMethod());
+
+			property.Entity = new InternalProperty(_tss, property);
+			return property;
+		}
 	}
 
 }

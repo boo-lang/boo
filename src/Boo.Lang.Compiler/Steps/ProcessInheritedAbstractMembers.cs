@@ -302,7 +302,11 @@ namespace Boo.Lang.Compiler.Steps
 					if (baseProperty.Type != p.Type.Entity)
 						Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, baseProperty.FullName));
 				}
-				return;
+
+				//fully-implemented?
+				if (((p.Getter != null) == HasGetter(baseProperty))
+				    && ((p.Setter != null) == HasSetter(baseProperty)))
+					return;
 			}
 
 			foreach(SimpleTypeReference parent in node.BaseTypes)
@@ -319,10 +323,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			if(depth == 0)
-			{
-				node.Members.Add(CreateAbstractProperty(baseTypeRef, baseProperty));
 				AbstractMemberNotImplemented(node, baseTypeRef, baseProperty);
-			}
 		}
 
 		private static void ProcessPropertyAccessor(Property p, Method accessor, IMethod method)
@@ -339,26 +340,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		Property CreateAbstractProperty(TypeReference reference, IProperty property)
-		{
-			Debug.Assert(0 == property.GetParameters().Length);
-			Property p = CodeBuilder.CreateProperty(property.Name, property.Type);
-			p.Modifiers |= TypeMemberModifiers.Abstract;
-			
-			IMethod getter = property.GetGetMethod();
-			if (getter != null)
-			{
-				p.Getter = CodeBuilder.CreateAbstractMethod(reference.LexicalInfo, getter);
-			}
-			
-			IMethod setter = property.GetSetMethod();
-			if (setter != null)
-			{
-				p.Setter = CodeBuilder.CreateAbstractMethod(reference.LexicalInfo, setter);
-			}
-			return p;
-		}
-		
 		void ResolveAbstractEvent(ClassDefinition node,
 			TypeReference baseTypeRef,
 			IEvent entity)
@@ -543,13 +524,14 @@ namespace Boo.Lang.Compiler.Steps
 				//BEHAVIOR >= 0.7.7:	(see BOO-789 for details)
 				//create a stub for this not implemented member
 				//it will raise a NotImplementedException if called at runtime
-				TypeMember m = CodeBuilder.CreateStub(member);
-				CompilerWarning warning = null;				
+				TypeMember m = CodeBuilder.CreateStub(node, member);
+				CompilerWarning warning = null;
 				if (null != m)
 				{
 					warning = CompilerWarningFactory.AbstractMemberNotImplementedStubCreated(baseTypeRef,
 										node.FullName, GetAbstractMemberSignature(member));
-					node.Members.Add(m);
+					if (m.NodeType != NodeType.Property || null == node.Members[m.Name])
+						node.Members.Add(m);
 				}
 				else
 				{

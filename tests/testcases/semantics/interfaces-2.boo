@@ -11,7 +11,7 @@ public interface IFoo:
 		get
 		set
 
-public abstract class Foo(object, IFoo):
+public class Foo(object, IFoo):
 
 	public event Zeng as System.EventHandler
 
@@ -26,11 +26,11 @@ public abstract class Foo(object, IFoo):
 	public virtual def Baz() as object:
 		raise System.NotImplementedException()
 
-	public abstract Ding as string:
-		public abstract get:
-			pass
-		public abstract set:
-			pass
+	public virtual Ding as string:
+		public virtual get:
+			raise System.NotImplementedException()
+		public virtual set:
+			raise System.NotImplementedException()
 """
 interface IFoo:
 	def Bar() as object
