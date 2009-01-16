@@ -875,6 +875,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0164", SafeLexicalInfo(node), method);
 		}
 
+		public static CompilerError ExceptionAlreadyHandled(ExceptionHandler dupe, ExceptionHandler previous)
+		{
+			return new CompilerError("BCE0165", SafeLexicalInfo(dupe.Declaration), dupe.Declaration.Type, previous.Declaration.Type, SafePositionOnlyLexicalInfo(previous.Declaration));
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
@@ -938,6 +943,12 @@ namespace Boo.Lang.Compiler
 			LexicalInfo info = node.LexicalInfo;
 			if (info.IsValid) return info;
 			return SafeLexicalInfo(node.ParentNode);
+		}
+
+		private static string SafePositionOnlyLexicalInfo(Node node)
+		{
+			LexicalInfo info = SafeLexicalInfo(node);
+			return string.Format("({0},{1})", info.Line, info.Column);
 		}
 
 		private static string DidYouMeanOrNull(string suggestion)

@@ -159,6 +159,7 @@ namespace Boo.Lang.Compiler.Steps
 			_state.LeaveProtectedBlock();
 
 			Visit(node.ExceptionHandlers);
+			CheckExceptionHandlers(node.ExceptionHandlers);
 
 			Visit(node.FailureBlock);
 
@@ -304,5 +305,29 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.NoEnclosingLoop(node));
 			}
 		}
+
+		void CheckExceptionHandlers(ExceptionHandlerCollection handlers)
+		{
+			for (int i = 1; i < handlers.Count; ++i) {
+				ExceptionHandler handler = handlers[i];
+				for (int j = i - 1; j >= 0; --j) {
+					ExceptionHandler previous = handlers[j];
+					IType handlerType = handler.Declaration.Type.Entity as IType;
+					IType previousType = previous.Declaration.Type.Entity as IType;
+
+					if (null == handlerType || null == previousType)
+						continue;
+
+					if ((handlerType == previousType && null == previous.FilterCondition)
+						|| handlerType.IsSubclassOf(previousType)) {
+						Error(CompilerErrorFactory.ExceptionAlreadyHandled(
+							handler, previous));
+						break;
+					}
+				}
+			}
+		}
+
 	}
 }
+
