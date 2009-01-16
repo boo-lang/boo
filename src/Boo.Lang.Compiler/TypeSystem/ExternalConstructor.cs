@@ -35,7 +35,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ExternalConstructor(TypeSystemServices manager, ConstructorInfo ci) : base(manager, ci)
 		{			
 		}
-		
+
+		public override string Name
+		{
+			get
+			{
+				return "constructor";
+			}
+		}
+
 		override public EntityType EntityType
 		{
 			get

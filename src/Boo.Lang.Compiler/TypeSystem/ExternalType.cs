@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private string _name;
 
-		internal ExternalType(TypeSystemServices tss, Type type)
+		public ExternalType(TypeSystemServices tss, Type type)
 		{
 			if (null == type) throw new ArgumentException("type");
 			_typeSystemServices = tss;
@@ -250,16 +250,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual IConstructor[] GetConstructors()
 		{
 			if (null == _constructors)
-			{
-				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-				ConstructorInfo[] ctors = _type.GetConstructors(flags);
-				_constructors = new IConstructor[ctors.Length];
-				for (int i=0; i<_constructors.Length; ++i)
-				{
-					_constructors[i] = new ExternalConstructor(_typeSystemServices, ctors[i]);
-				}
-			}
+				_constructors = CreateConstructors();
 			return _constructors;
+		}
+
+		protected virtual IConstructor[] CreateConstructors()
+		{
+			ConstructorInfo[] source = _type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+			IConstructor[] constructors = new IConstructor[source.Length];
+			for (int i=0; i<constructors.Length; ++i)
+			{
+				constructors[i] = new ExternalConstructor(_typeSystemServices, source[i]);
+			}
+			return constructors;
 		}
 
 		public virtual IType[] GetInterfaces()
@@ -280,21 +283,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == _members)
 			{
-				BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;// | BindingFlags.FlattenHierarchy;
-				MemberInfo[] members = _type.GetMembers(flags);
-				Type[] nested = _type.GetNestedTypes();
-				_members = new IEntity[members.Length+nested.Length];
-				int i = 0;
-				for (i=0; i<members.Length; ++i)
-				{
-					_members[i] = _typeSystemServices.Map(members[i]);
-				}
-				for (int j=0; j<nested.Length; ++j)
-				{
-					_members[i++] = _typeSystemServices.Map(nested[j]);
-				}
+				IEntity[] members = CreateMembers();
+				_members = members;
 			}
 			return _members;
+		}
+
+		protected virtual IEntity[] CreateMembers()
+		{
+			List<IEntity> result = new List<IEntity>();
+			foreach (MemberInfo member in DeclaredMembers())
+				result.Add(_typeSystemServices.Map(member));
+			foreach (Type nested in _type.GetNestedTypes())
+				result.Add(_typeSystemServices.Map(nested));
+			return result.ToArray();
+		}
+
+		private MemberInfo[] DeclaredMembers()
+		{
+			return _type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 		}
 
 		public int GetTypeDepth()

@@ -965,21 +965,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType Map(Type type)
 		{
-			ExternalType entity = (ExternalType)_entityCache[type];
+			IType entity = (IType)_entityCache[type];
 			if (null == entity)
 			{
 				if (type.IsArray) return GetArrayType(Map(type.GetElementType()), type.GetArrayRank());
 				entity = CreateEntityForType(type);
-				Cache(entity);
+				Cache(type, entity);
 			}
 			return entity;
 		}
 
-		private ExternalType CreateEntityForType(Type type)
+		private IType CreateEntityForType(Type type)
 		{
 			if (type.IsGenericParameter) return new ExternalGenericParameter(this, type);
-			if (type.IsSubclassOf(Types.MulticastDelegate)) return new ExternalCallableType(this, type);
+			if (type.IsSubclassOf(Types.MulticastDelegate)) return CreateEntityForCallableType(type);
+			return CreateEntityForRegularType(type);
+		}
+
+		protected virtual IType CreateEntityForRegularType(Type type)
+		{
 			return new ExternalType(this, type);
+		}
+
+		protected virtual IType CreateEntityForCallableType(Type type)
+		{
+			return new ExternalCallableType(this, type);
 		}
 
 		public IArrayType GetArrayType(IType elementType, int rank)
@@ -1080,8 +1090,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IEntity Map(MemberInfo mi)
 		{
-			IEntity tag = (IEntity)_entityCache[GetCacheKey(mi)];
-			if (null == tag)
+			IEntity cached = (IEntity)_entityCache[GetCacheKey(mi)];
+			if (null == cached)
 			{
 				switch (mi.MemberType)
 				{
@@ -1097,19 +1107,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 					case MemberTypes.Field:
 					{
-						tag = new ExternalField(this, (FieldInfo)mi);
+						cached = new ExternalField(this, (FieldInfo)mi);
 						break;
 					}
 
 					case MemberTypes.Property:
 					{
-						tag = new ExternalProperty(this, (PropertyInfo)mi);
+						cached = new ExternalProperty(this, (PropertyInfo)mi);
 						break;
 					}
 
 					case MemberTypes.Event:
 					{
-						tag = new ExternalEvent(this, (EventInfo)mi);
+						cached = new ExternalEvent(this, (EventInfo)mi);
 						break;
 					}
 
@@ -1123,9 +1133,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 						throw new NotImplementedException(mi.ToString());
 					}
 				}
-				_entityCache.Add(GetCacheKey(mi), tag);
+				_entityCache.Add(GetCacheKey(mi), cached);
 			}
-			return tag;
+			return cached;
 		}
 
 		public string GetSignature(IEntityWithParameters method)

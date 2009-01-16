@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _memberInfo;  }
 		}
 
-		public string Name
+		public virtual string Name
 		{
 			get { return _memberInfo.Name; }
 		}
@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected virtual string BuildFullName()
 		{
-			return Map(_memberInfo.DeclaringType).FullName + "." + _memberInfo.Name;
+			return Map(_memberInfo.DeclaringType).FullName + "." + Name;
 		}
 
 		protected IType Map(Type type)

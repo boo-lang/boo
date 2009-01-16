@@ -87,7 +87,6 @@
     <Compile Include="MacrosTestFixture.cs" />
     <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />
     <Compile Include="ModulesIntegrationTestFixture.cs" />
-    <Compile Include="NameResolutionServiceTestFixture.cs" />
     <Compile Include="Net2ErrorsTestFixture.cs" />
     <Compile Include="OperatorsIntegrationTestFixture.cs" />
     <Compile Include="PipelineTestCase.cs" />
@@ -101,6 +100,9 @@
     <Compile Include="TypesIntegrationTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
+    <Compile Include="TypeSystem\BeanPropertyFinder.cs" />
+    <Compile Include="TypeSystem\NameResolutionServiceTestFixture.cs" />
+    <Compile Include="TypeSystem\TypeSystemServicesTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2005.csproj">

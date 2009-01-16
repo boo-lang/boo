@@ -32,9 +32,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class ExternalCallableType : ExternalType, ICallableType
 	{
-		IMethod _invoke;
+		private readonly IMethod _invoke;
 		
-		internal ExternalCallableType(TypeSystemServices typeSystemServices, Type type) : base(typeSystemServices, type)
+		public ExternalCallableType(TypeSystemServices typeSystemServices, Type type) : base(typeSystemServices, type)
 		{
 			_invoke = typeSystemServices.Map(type.GetMethod("Invoke"));
 		}

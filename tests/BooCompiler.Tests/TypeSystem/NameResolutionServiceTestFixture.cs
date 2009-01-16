@@ -1,9 +1,8 @@
 using Boo.Lang.Compiler.TypeSystem;
 using NUnit.Framework;
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.MetaProgramming;
 
-namespace BooCompiler.Tests
+namespace BooCompiler.Tests.TypeSystem
 {
 	[TestFixture]
 	public class NameResolutionServiceTestFixture
@@ -21,9 +20,9 @@ print JOIN(l, "", "")
 			parameters.Input.Add(new Boo.Lang.Compiler.IO.StringInput("code", code));
 			parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.ResolveExpressions();
 			parameters.Pipeline.Insert(0, new ActionStep(delegate(CompilerContext context)
-			{
-				context.NameResolutionService.EntityNameMatcher = MatchIgnoringCase;
-			}));
+			                                             	{
+			                                             		context.NameResolutionService.EntityNameMatcher = MatchIgnoringCase;
+			                                             	}));
 			CompilerContext result = new Boo.Lang.Compiler.BooCompiler(parameters).Run();
 			Assert.AreEqual(0, result.Errors.Count, result.Errors.ToString());
 		}
