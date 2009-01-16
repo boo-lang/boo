@@ -90,8 +90,7 @@ namespace Boo.Lang.Compiler.Steps
 			CreateSharedLocalsClass();
 			if (null != _sharedLocalsClass)
 			{
-				//node.DeclaringType.Members.Add(_sharedLocalsClass);
-				TypeSystemServices.AddCompilerGeneratedType(_sharedLocalsClass);
+				node.DeclaringType.Members.Add(_sharedLocalsClass);
 				Map();
 			}
 		}
@@ -130,7 +129,7 @@ namespace Boo.Lang.Compiler.Steps
 		void Map()
 		{
 			IType type = (IType)_sharedLocalsClass.Entity;
-			InternalLocal locals = CodeBuilder.DeclareLocal(_currentMethod, "___locals", type);
+			InternalLocal locals = CodeBuilder.DeclareLocal(_currentMethod, "$locals", type);
 			
 			foreach (ReferenceExpression reference in _references)
 			{
@@ -184,7 +183,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (_shared.Count > 0)
 			{
 				BooClassBuilder builder = CodeBuilder.CreateClass(
-											string.Format("___locals{0}", _context.AllocIndex()));
+											string.Format("{0}$locals${1}", _currentMethod.Name, _context.AllocIndex()));
 				builder.Modifiers |= TypeMemberModifiers.Internal;
 				builder.AddBaseType(TypeSystemServices.ObjectType);
 				
@@ -192,7 +191,7 @@ namespace Boo.Lang.Compiler.Steps
 				foreach (ILocalEntity local in _shared)
 				{
 					Field field = builder.AddInternalField(
-									string.Format("___{0}_{1}", local.Name, i),
+									string.Format("${0}", local.Name),
 									local.Type);
 					++i;
 					
