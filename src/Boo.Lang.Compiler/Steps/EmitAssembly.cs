@@ -1637,7 +1637,16 @@ namespace Boo.Lang.Compiler.Steps
 						SetProperty(node, (IProperty)tag, node.Left, node.Right, leaveValueOnStack);
 						break;
 					}
-					
+
+				case EntityType.Event: //event=null (always internal in this context)
+					{
+						InternalEvent e = (InternalEvent) tag;
+						OpCode opcode = e.IsStatic ? OpCodes.Stsfld : OpCodes.Stfld;
+						_il.Emit(OpCodes.Ldnull);
+						_il.Emit(opcode, GetFieldBuilder(e.BackingField.Field));
+						break;
+					}
+
 				default:
 					{
 						NotImplemented(node, tag.ToString());

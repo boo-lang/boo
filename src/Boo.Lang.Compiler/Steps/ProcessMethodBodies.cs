@@ -2630,11 +2630,16 @@ namespace Boo.Lang.Compiler.Steps
 						BindExpressionType(node, ev.BackingField.Type);
 						return;
 					}
-					else
+					else if (!AstUtil.IsLhsOfAssignment(node)
+					         || !IsNull(((BinaryExpression)node.ParentNode).Right))
 					{
 						Error(node,
 							  CompilerErrorFactory.EventIsNotAnExpression(node,
 																		  member.FullName));
+					}
+					else //event=null
+					{
+						EnsureInternalEventInvocation((IEvent) member, node);
 					}
 				}
 			}
@@ -4568,7 +4573,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		public bool EnsureInternalEventInvocation(IEvent ev, MethodInvocationExpression node)
+		public bool EnsureInternalEventInvocation(IEvent ev, Expression node)
 		{
 			if (ev.IsAbstract || ev.IsVirtual || ev.DeclaringType == CurrentType)
 				return true;
@@ -6219,6 +6224,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case EntityType.Parameter:
 					case EntityType.Local:
+					case EntityType.Event: //for Event=null case (other => EventIsNotAnExpression)
 						{
 							return true;
 						}

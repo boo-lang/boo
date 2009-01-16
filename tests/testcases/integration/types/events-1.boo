@@ -17,7 +17,7 @@ def CheckEventMethod(expectedName, method as MethodInfo):
 	Assert.IsTrue(method.IsPublic, "IsPublic")
 	
 def CheckEventField(field as FieldInfo, serializable as bool, eventType as Type):
-	assert field.IsFamily
+	assert field.IsPrivate
 	assert serializable != field.IsNotSerialized
 	assert field.FieldType is eventType
 	

@@ -147,6 +147,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void BindClassEvent(Event node, IType type, bool typeIsCallable)
 		{
 			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
+			backingField.Modifiers = TypeMemberModifiers.Private;
 			if (node.IsTransient)
 			{
 				backingField.Modifiers |= TypeMemberModifiers.Transient;
