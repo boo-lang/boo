@@ -28,7 +28,9 @@
 
 namespace Boo.Microsoft.Build.Tasks
 
+import Microsoft.Build.Framework
 import Microsoft.Build.Tasks
+import Microsoft.Build.Utilities
 
 class CreateBooManifestResourceName(CreateCSharpManifestResourceName):
 """
@@ -37,6 +39,23 @@ Creates the manifest resource name.
 Authors:
 	Sorin Ionescu (sorin.ionescu@gmail.com)
 """
-	def constructor():
-		super()
+	
+	[property(ResourceFilesWithManifestResourceNames, Attributes: [OutputAttribute])]
+	private resourceFilesWithManifestResourceNames as (ITaskItem);
+	
+	def Execute() as bool:
+		if super():
+			// Provide ResourceFilesWithManifestResourceNames to make the task
+			// compatible with both MSBuild 2.0 and MSBuild 3.5
+			resourceFilesWithManifestResourceNames = array(ITaskItem, self.ResourceFiles.Length)
+			for i in range(0, self.ResourceFiles.Length):
+				resourceName = self.ManifestResourceNames[i].ItemSpec
+				newItem = TaskItem(self.ResourceFiles[i])
+				newItem.SetMetadata("ManifestResourceName", resourceName)
+				if string.IsNullOrEmpty(newItem.GetMetadata("LogicalName")):
+					newItem.SetMetadata("ManifestResourceName", resourceName)
+				resourceFilesWithManifestResourceNames[i] = newItem
+			return true
+		else:
+			return false
 

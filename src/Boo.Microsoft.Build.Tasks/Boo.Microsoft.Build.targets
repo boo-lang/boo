@@ -75,15 +75,20 @@
 	
 	<Target
 		Name="CreateManifestResourceNames"
+		DependsOnTargets="$(CreateManifestResourceNamesDependsOn)"
+	>
+		<CallTarget Targets="CreateManifestResourceNames_35" Condition="'$(MSBuildToolsVersion)' == '3.5'"/>
+		<CallTarget Targets="CreateManifestResourceNames_20" Condition="'$(MSBuildToolsVersion)' != '3.5'"/>
+	</Target>
+	
+	<Target
+		Name="CreateManifestResourceNames_20"
 		Condition="'
 		@(ResxWithNoCulture)
 		@(ResxWithCulture)
 		@(NonResxWithNoCulture)
 		@(NonResxWithCulture)'!=''"
-		
-		DependsOnTargets="$(CreateManifestResourceNamesDependsOn)"
 	>
-		
 		<!-- Create the target resource names for non-culture resx files -->
 		<CreateBooManifestResourceName
 			Condition="'@(ResxWithNoCulture)'!=''"
@@ -132,6 +137,31 @@
 		
 		</CreateBooManifestResourceName>
 	</Target>
+	
+	<Target
+		Name="CreateManifestResourceNames_35"
+		Condition="'@(EmbeddedResource)' != ''"
+	>
+		<ItemGroup>
+			<_Temporary Remove="@(_Temporary)" />
+		</ItemGroup>
+		
+		<CreateBooManifestResourceName
+			ResourceFiles="@(EmbeddedResource)"
+			RootNamespace="$(RootNamespace)"
+			Condition="'%(EmbeddedResource.ManifestResourceName)' == ''">
+			
+			<Output TaskParameter="ResourceFilesWithManifestResourceNames" ItemName="_Temporary" />
+		
+		</CreateBooManifestResourceName>
+		
+		<ItemGroup>
+			<EmbeddedResource Remove="@(EmbeddedResource)" Condition="'%(EmbeddedResource.ManifestResourceName)' == ''"/>
+			<EmbeddedResource Include="@(_Temporary)" />
+			<_Temporary Remove="@(_Temporary)" />
+		</ItemGroup>
+	</Target>
+	
 	
 	<PropertyGroup>
 		
