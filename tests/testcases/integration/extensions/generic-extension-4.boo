@@ -5,7 +5,7 @@
 import System
 import System.Collections.Generic
 
-callable Transformation[of TIn, TOut](TIn) as TOut
+callable Transformation[of TIn, TOut](arg as TIn) as TOut
 
 [Extension]
 def Map[of TIn, TOut](source as IEnumerable[of TIn], transform as Transformation[of TIn, TOut]) as IEnumerable[of TOut]:

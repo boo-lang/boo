@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_tss = tss;
 			_definition = definition;
 			_arguments = arguments;
-			_genericMapping = new GenericMapping(tss, this, arguments);
+			_genericMapping = new InternalGenericMapping(tss, this, arguments);
 			_fullyConstructed = IsFullyConstructed();
 		}
 
@@ -73,18 +73,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (typeParametersPosition >= 0) baseName = baseName.Remove(typeParametersPosition);
 
 			string[] argumentNames = Array.ConvertAll<IType, string>(
-				GenericArguments,
+				ConstructedInfo.GenericArguments,
 				delegate(IType t) { return t.FullName; });
 
 			return string.Format("{0}[of {1}]", baseName, string.Join(", ", argumentNames));
         }
 
-        public GenericMapping GenericMapping
+        protected GenericMapping GenericMapping
         {
             get { return _genericMapping; }
         }
 
-    	public IEntity DeclaringEntity
+	   	public IEntity DeclaringEntity
     	{
 			get { return _definition.DeclaringEntity;  }
     	}
@@ -136,17 +136,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IType GetElementType()
         {
-            return GenericMapping.Map(_definition.GetElementType());
+            return GenericMapping.MapType(_definition.GetElementType());
         }
 
         public IType BaseType
         {
-            get { return GenericMapping.Map(_definition.BaseType); }
+            get { return GenericMapping.MapType(_definition.BaseType); }
         }
 
         public IEntity GetDefaultMember()
         {
-            return GenericMapping.Map(_definition.GetDefaultMember());
+			IEntity definitionDefaultMember = _definition.GetDefaultMember();
+			if (definitionDefaultMember != null) return GenericMapping.Map(definitionDefaultMember);
+			return null;
         }
 
         public IConstructor[] GetConstructors()
@@ -160,7 +162,7 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             return Array.ConvertAll<IType, IType>(
                 _definition.GetInterfaces(), 
-                GenericMapping.Map);
+                GenericMapping.MapType);
         }
 
         public bool IsSubclassOf(IType other)
@@ -220,24 +222,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool Resolve(List targetList, string name, EntityType filter)
         {
-            // Resolve name using definition, and then map the matching members
-            List definitionMatches = new List();
-            if (_definition.Resolve(definitionMatches, name, filter))
-            {
-                foreach (IEntity match in definitionMatches)
-                {
-                	if(GenericMapping.EntityNeedsMapping(match))
-                	{
-                    	targetList.AddUnique(GenericMapping.Map(match));
-                	}
-                	else
-                	{
-                		targetList.AddUnique(match);
-                	}
-                }
-                return true;
-            }
-            return false;
+			List definitionMatches = new List();
+			if (!_definition.Resolve(definitionMatches, name, filter)) return false;
+
+			foreach (IEntity match in definitionMatches)
+			{
+				targetList.AddUnique(GenericMapping.Map(match));
+			}
+			return true;
         }
 
         public IEntity[] GetMembers()
@@ -260,29 +252,39 @@ namespace Boo.Lang.Compiler.TypeSystem
             get { return EntityType.Type; }
         }
 
-        public IType[] GenericArguments
+		IType[] IConstructedTypeInfo.GenericArguments
         {
             get { return _arguments; }
         }
 
-        public IType GenericDefinition
+		IType IConstructedTypeInfo.GenericDefinition
         {
             get { return _definition; }
         }
 
-        public bool FullyConstructed
+        bool IConstructedTypeInfo.FullyConstructed
         {
             get { return _fullyConstructed; }
         }
 
-    	public IMethod GetMethodTemplate(IMethod method)
-    	{
-    		return _genericMapping.UnMap(method);
-    	}
+		IType IConstructedTypeInfo.Map(IType type)
+		{
+			return GenericMapping.MapType(type);
+		}
+
+		IMember IConstructedTypeInfo.Map(IMember member)
+		{
+			return (IMember)GenericMapping.Map(member);
+		}
+
+		IMember IConstructedTypeInfo.UnMap(IMember mapped)
+		{
+			return GenericMapping.UnMap(mapped);
+		}
 
 		public bool IsDefined(IType attributeType)
 		{
-			return _definition.IsDefined(attributeType);
+			return _definition.IsDefined(GenericMapping.MapType(attributeType));
 		}
 
     	public override string ToString()
@@ -306,8 +308,8 @@ namespace Boo.Lang.Compiler.TypeSystem
             {
                 CallableSignature definitionSignature = ((ICallableType)_definition).GetSignature();
                 
-                IParameter[] parameters = GenericMapping.Map(definitionSignature.Parameters);
-                IType returnType = GenericMapping.Map(definitionSignature.ReturnType);
+                IParameter[] parameters = GenericMapping.MapParameters(definitionSignature.Parameters);
+                IType returnType = GenericMapping.MapType(definitionSignature.ReturnType);
                 
                 _signature = new CallableSignature(parameters, returnType);
             }

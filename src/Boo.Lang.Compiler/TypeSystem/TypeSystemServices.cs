@@ -502,6 +502,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		public IEntity GetDefaultMember(IType type)
+		{
+			// Search for a default member on this type or any of its non-interface basetypes
+			for (IType t = type; t != null; t = t.BaseType)
+			{
+				IEntity member = t.GetDefaultMember();
+				if (member != null) return member;
+			}
+
+			// Search for default members on the type's interfaces
+			List buffer = new List();
+			foreach (IType interfaceType in type.GetInterfaces())
+			{
+				IEntity member = GetDefaultMember(interfaceType);
+				if (member != null) buffer.AddUnique(member);
+			}
+			return NameResolutionService.GetEntityFromList(buffer);
+		}
+
 		public ClassDefinition GetCompilerGeneratedExtensionsClass()
 		{
 			if (null == _compilerGeneratedExtensionsClass)
@@ -1283,13 +1302,13 @@ namespace Boo.Lang.Compiler.TypeSystem
                 return GetExternalEnumeratorItemType(iteratorType);
             }
 
-            // If iterator type is a generic constructed type, map its attribute from its definition
-            GenericConstructedType constructedType = iteratorType as GenericConstructedType;
-            if (constructedType != null)
-            {
-                return constructedType.GenericMapping.Map(
-                    GetEnumeratorItemTypeFromAttribute(constructedType.GenericDefinition));
-            }
+            // If iterator type is a generic constructed type, get its attribute from its definition
+			// and map generic parameters 
+			if (iteratorType.ConstructedInfo != null)
+			{
+				IType definitionItemType = GetEnumeratorItemType(iteratorType.ConstructedInfo.GenericDefinition);
+				return iteratorType.ConstructedInfo.Map(definitionItemType);
+			}
 
             // If iterator type is internal get its attributes from its type definition
 			AbstractInternalType internalType = (AbstractInternalType)iteratorType;

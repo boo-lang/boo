@@ -30,24 +30,59 @@ using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using System.IO;
+using Boo.Lang.Compiler.Steps;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	class GenericParameterInferrer : TypeInferrer
 	{
-		IMethod _genericMethod;
-		ExpressionCollection _arguments;
+		IMethod _genericMethod; 
+		TypedArgument[] _typedArguments;
+		
+		IDictionary<BlockExpression, List<InferredType>> _closureDependencies = new Dictionary<BlockExpression, List<InferredType>>();
+		BlockExpression _currentClosure = null;
+		
+		public delegate void ResolveClosureEventHandler(GenericParameterInferrer inferrer, BlockExpression closure, ICallableType formalType);
+		public event ResolveClosureEventHandler ResolveClosure;
 
 		public GenericParameterInferrer(CompilerContext context, IMethod genericMethod, ExpressionCollection arguments)
 		{
-			_context = context;
 			_genericMethod = genericMethod;
-			_arguments = arguments;
 
+			Initialize(context);
+			InitializeArguments(arguments);
 			InitializeTypeParameters(GenericMethod.GenericInfo.GenericParameters);
 			InitializeDependencies(
 				GenericMethod.GenericInfo.GenericParameters,
 				GenericMethod.CallableType.GetSignature());
+			InitializeClosureDependencies();
+		}
+
+		private void InitializeClosureDependencies()
+		{
+			foreach (TypedArgument argument in Arguments)
+			{
+				BlockExpression closure = argument.Expression as BlockExpression;
+				if (closure == null) continue;
+
+				// ICallableType callableType = closure.ExpressionType as ICallableType;
+				ICallableType callableType = argument.FormalType as ICallableType;
+				TypeCollector collector = new TypeCollector(delegate(IType t) 
+					{
+						IGenericParameter gp = t as IGenericParameter;
+						return gp != null & InferredTypes.ContainsKey(gp); 
+					});
+
+				foreach (IType inputType in GetParameterTypes(callableType.GetSignature()))
+				{
+					collector.Visit(inputType);
+				}
+
+				foreach (IGenericParameter gp in collector.Matches)
+				{
+					RecordClosureDependency(closure, gp);
+				}
+			}
 		}
 
 		public IMethod GenericMethod
@@ -55,16 +90,37 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _genericMethod; }
 		}
 
-		public ExpressionCollection Arguments
+		private TypedArgument[] Arguments
 		{
-			get { return _arguments;  }
+			get { return _typedArguments; }
+		}
+
+		private void InitializeArguments(ExpressionCollection arguments)
+		{
+			// TODO: account for varargs
+
+			_typedArguments = new TypedArgument[arguments.Count];
+			CallableSignature methodSignature = GenericMethod.CallableType.GetSignature();
+			int count = Math.Min(arguments.Count, methodSignature.Parameters.Length);
+
+			for (int i = 0; i < count; i++)
+			{
+				IType formalType = methodSignature.Parameters[i].Type;		
+				_typedArguments[i] = new TypedArgument(arguments[i], formalType);
+			}
+
+			for (int i = count; i < arguments.Count; i++)
+			{
+				_typedArguments[i] = new TypedArgument(arguments[i], null);
+			}
 		}
 
 		public bool Run()
 		{
 			InferenceStart();
 
-			if (Arguments.Count != GenericMethod.GetParameters().Length)
+			// TODO: account for varargs
+			if (Arguments.Length != GenericMethod.GetParameters().Length)
 			{
 				return InferenceComplete(false);
 			}
@@ -92,14 +148,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </remarks>
 		private void InferExplicits()
 		{
-			CallableSignature definitionSignature = GenericMethod.CallableType.GetSignature();
-			for (int i = 0; i < Arguments.Count; i++)
+			foreach (TypedArgument typedArgument in Arguments)
 			{
+				_currentClosure = typedArgument.Expression as BlockExpression;
+
 				Infer(
-					definitionSignature.Parameters[i].Type, 
-					Arguments[i].ExpressionType,
+					typedArgument.FormalType,
+					typedArgument.Expression.ExpressionType,
 					TypeInference.AllowCovariance);
 			}
+		}
+
+		protected override bool InferGenericParameter(IGenericParameter formalType, IType actualType, TypeInference inference)
+		{
+			// Generic parameters occuring in closures are a result of untyped input types and should be skipped
+			if (_currentClosure != null && actualType == formalType) return true;
+
+			return base.InferGenericParameter(formalType, actualType, inference);
+		}
+
+		private void RecordClosureDependency(BlockExpression closure, IGenericParameter genericParameter)
+		{
+			if (!_closureDependencies.ContainsKey(closure))
+			{
+				_closureDependencies.Add(closure, new List<InferredType>());
+			}
+
+			_closureDependencies[closure].AddUnique(InferredTypes[genericParameter]);
 		}
 
 		/// <summary>
@@ -110,7 +185,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </remarks>
 		private void InferCallables()
 		{
-			// TODO
+			foreach (TypedArgument argument in Arguments)
+			{
+				BlockExpression closure = argument.Expression as BlockExpression;
+				if (closure == null) continue;
+
+				if (CanResolveClosure(closure))
+				{
+					ResolveClosure(this, closure, argument.FormalType as ICallableType);
+					_closureDependencies.Remove(closure);
+					Infer(argument.FormalType, closure.ExpressionType);
+				}
+			}
+		}
+
+		private bool CanResolveClosure(BlockExpression closure)
+		{
+			if (ResolveClosure == null) return false; 
+
+			// Only resolve closures that depend on generic parameters, where all the dependencies are fixed
+			if (!_closureDependencies.ContainsKey(closure)) return false;
+
+			foreach (InferredType dependency in _closureDependencies[closure])
+			{
+				if (!dependency.Fixed) return false;
+			}
+			return true;
 		}
 
 		private bool FixAll(Predicate<InferredType> predicate)
@@ -220,9 +320,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private void InferenceStart()
 		{
 			string argumentsString = string.Join(
-				", ", Array.ConvertAll<Expression, string>(
-				      	_arguments.ToArray(),
-				      	delegate(Expression e) { return e.ToString(); }));
+				", ", Array.ConvertAll<TypedArgument, string>(
+				      	Arguments,
+				      	delegate(TypedArgument arg) { return arg.Expression.ToString(); }));
 
 			_context.TraceVerbose("Attempting to infer generic type arguments for {0} from argument list ({1}).", _genericMethod, argumentsString);
 		}
@@ -235,6 +335,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 				successfully ? "succeeded" : "failed");
 
 			return successfully;
+		}
+
+		private struct TypedArgument
+		{
+			public TypedArgument(Expression expression, IType formalType)
+			{
+				Expression = expression;
+				FormalType = formalType;
+			}
+
+			public Expression Expression;
+			public IType FormalType;
 		}
 	}
 }

@@ -70,15 +70,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		override public bool Resolve(List targetList, string name, EntityType flags)
 		{
-			if (ResolveGenericParameter(targetList, name, flags)) return true;
-
-			bool found = ResolveMember(targetList, name, flags);
+			bool found = base.Resolve(targetList, name, flags);
 			if (null != BaseType)
 			{
-				if (BaseType.Resolve(targetList, name, flags))
-				{
-					found = true;
-				}
+				found |= BaseType.Resolve(targetList, name, flags);
 			}
 			return found;
 		}

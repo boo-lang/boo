@@ -1,5 +1,3 @@
-#ignore anonymous callables parameter type inference is not implemented yet.
-
 """
 Int32
 String

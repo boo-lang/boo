@@ -7,7 +7,7 @@
 import System
 import System.Collections.Generic
 
-callable Transform[of TIn, TOut](TIn) as TOut
+callable Transform[of TIn, TOut](arg as TIn) as TOut
 
 [Extension]
 def ToHash[of T, U](keys as IList[of T], values as IList[of U]):

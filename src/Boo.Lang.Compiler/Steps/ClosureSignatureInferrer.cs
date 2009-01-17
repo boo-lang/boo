@@ -50,7 +50,7 @@ namespace Boo.Lang.Compiler.Steps
 				delegate(ParameterDeclaration pd) { return pd.Type == null ? null : pd.Type.Entity as IType; });
 		}
 
-		public void InferInputTypes()
+		public ICallableType InferCallableType()
 		{
 			ICallableType contextType = (
 				GetTypeFromMethodInvocationContext() ??
@@ -58,10 +58,7 @@ namespace Boo.Lang.Compiler.Steps
 				GetTypeFromBinaryExpressionContext() ??
 				GetTypeFromCastContext()) as ICallableType;
 
-			if (contextType != null)
-			{
-				InferInputTypesFromContextType(contextType);
-			}
+			return contextType;
 		}
 
 		private IType GetTypeFromBinaryExpressionContext()
@@ -86,7 +83,6 @@ namespace Boo.Lang.Compiler.Steps
 			if (method == null) return null;
 
 			int argumentIndex = MethodInvocationContext.Arguments.IndexOf(Closure);
-			
 			IParameter[] parameters = method.GetParameters();
 			
 			if (argumentIndex < parameters.Length) return parameters[argumentIndex].Type;
@@ -118,19 +114,6 @@ namespace Boo.Lang.Compiler.Steps
 		public bool HasUntypedInputParameters()
 		{
 			return Array.IndexOf(ParameterTypes, null) != -1;
-		}
-
-		public void AddMissingParameterTypes()
-		{
-			for (int i = 0; i < ParameterTypes.Length; i++)
-			{
-				ParameterDeclaration parameter = Closure.Parameters[i];
-
-				if (parameter.Type == null && ParameterTypes[i] != null)
-				{
-					parameter.Type = CodeBuilder.CreateTypeReference(ParameterTypes[i]);
-				}
-			}
 		}
 	}
 }

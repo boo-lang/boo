@@ -451,6 +451,7 @@
     <Compile Include="TypeSystem\ExternalEntity.cs" />
     <Compile Include="TypeSystem\ExternalEvent.cs" />
     <Compile Include="TypeSystem\ExternalField.cs" />
+    <Compile Include="TypeSystem\ExternalGenericMapping.cs" />
     <Compile Include="TypeSystem\ExternalGenericMethodInfo.cs" />
     <Compile Include="TypeSystem\ExternalGenericParameter.cs" />
     <Compile Include="TypeSystem\ExternalGenericTypeInfo.cs" />
@@ -499,6 +500,7 @@
     <Compile Include="TypeSystem\InternalEnumMember.cs" />
     <Compile Include="TypeSystem\InternalEvent.cs" />
     <Compile Include="TypeSystem\InternalField.cs" />
+    <Compile Include="TypeSystem\InternalGenericMapping.cs" />
     <Compile Include="TypeSystem\InternalGenericMethod.cs" />
     <Compile Include="TypeSystem\InternalGenericParameter.cs" />
     <Compile Include="TypeSystem\InternalInterface.cs" />
@@ -511,6 +513,7 @@
     <Compile Include="TypeSystem\IProperty.cs" />
     <Compile Include="TypeSystem\IType.cs" />
     <Compile Include="TypeSystem\ITypedEntity.cs" />
+    <Compile Include="TypeSystem\MappedParameter.cs" />
     <Compile Include="TypeSystem\MetadataUtil.cs" />
     <Compile Include="TypeSystem\ModuleEntity.cs" />
     <Compile Include="TypeSystem\NameResolutionService.cs" />
@@ -519,9 +522,12 @@
     <Compile Include="TypeSystem\NamespaceEntity.cs" />
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\SimpleNamespace.cs" />
+    <Compile Include="TypeSystem\TypeCollector.cs" />
     <Compile Include="TypeSystem\TypeInferrer.cs" />
+    <Compile Include="TypeSystem\TypeMapper.cs" />
     <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\TypeSystemServices.cs" />
+    <Compile Include="TypeSystem\TypeVisitor.cs" />
     <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />
     <Compile Include="Util\ITask.cs" />

@@ -35,6 +35,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IType GenericDefinition { get; }
 		bool FullyConstructed { get; }
 
-		IMethod GetMethodTemplate(IMethod method);
+		IType Map(IType type);
+		IMember Map(IMember source);
+		IMember UnMap(IMember mapped);
 	}
 }

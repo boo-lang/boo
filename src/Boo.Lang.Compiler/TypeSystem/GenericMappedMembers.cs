@@ -33,27 +33,37 @@ namespace Boo.Lang.Compiler.TypeSystem
     using Boo.Lang.Compiler.TypeSystem;
     using Boo.Lang.Compiler.Ast;
 
+	public interface IGenericMappedMember : IMember
+	{
+		IMember SourceMember { get; }
+	}
+
 	/// <summary>
 	/// A base class for a member mapped from a generic type onto a constructed type.
 	/// </summary>
-    public abstract class GenericMappedMember<T> : IMember where T : IMember
+    public abstract class GenericMappedMember<T> : IGenericMappedMember where T : IMember
     {
         protected readonly TypeSystemServices _tss;
-        readonly T _source;
+        readonly T _sourceMember;
         readonly GenericMapping _genericMapping;
         string _fullName = null;
 
-        protected GenericMappedMember(TypeSystemServices tss, T source, GenericMapping genericMapping)
+        protected GenericMappedMember(TypeSystemServices tss, T sourceMember, GenericMapping genericMapping)
         {
             _tss = tss;
-            _source = source;
+            _sourceMember = sourceMember;
             _genericMapping = genericMapping;
         }
 
-        public T Source
+        public T SourceMember
         {
-            get { return _source; }
+            get { return _sourceMember; }
         }
+
+		IMember IGenericMappedMember.SourceMember
+		{
+			get { return SourceMember; }
+		}
 
         protected virtual string BuildFullName()
         {
@@ -67,34 +77,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool IsDuckTyped
         {
-            get { return Source.IsDuckTyped; }
+            get { return SourceMember.IsDuckTyped; }
         }
 
         public IType DeclaringType
         {
-            get { return GenericMapping.Map(Source.DeclaringType); }
+            get { return GenericMapping.MapType(SourceMember.DeclaringType); }
         }
 
         public bool IsStatic
         {
-            get { return Source.IsStatic; }
+            get { return SourceMember.IsStatic; }
         }
 
         public IType Type
         {
-            get { return GenericMapping.Map(Source.Type); }
+            get { return GenericMapping.MapType(SourceMember.Type); }
         }
 
         public EntityType EntityType
         {
-            get { return Source.EntityType; }
+            get { return SourceMember.EntityType; }
         }
 
         public string Name
         {
             get
             {
-                return Source.Name;
+                return SourceMember.Name;
             }
         }
 
@@ -105,7 +115,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool IsPublic
         {
-            get { return Source.IsPublic; }
+            get { return SourceMember.IsPublic; }
         }
 
 		public override string ToString()
@@ -115,7 +125,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsDefined(IType attributeType)
 		{
-			return _source.IsDefined(attributeType);
+			return _sourceMember.IsDefined(attributeType);
 		}
     }
 
@@ -132,17 +142,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool IsProtected
         {
-            get { return Source.IsProtected; }
+            get { return SourceMember.IsProtected; }
         }
 
         public bool IsInternal
         {
-            get { return Source.IsInternal; }
+            get { return SourceMember.IsInternal; }
         }
 
         public bool IsPrivate
         {
-            get { return Source.IsPrivate; }
+            get { return SourceMember.IsPrivate; }
         }
     }
 
@@ -161,26 +171,26 @@ namespace Boo.Lang.Compiler.TypeSystem
         public GenericMappedMethod(TypeSystemServices tss, IMethod source, GenericMapping genericMapping)
             : base(tss, source, genericMapping)
         {
-        }
+		}
 
         public bool IsAbstract
         {
-            get { return Source.IsAbstract; }
+            get { return SourceMember.IsAbstract; }
         }
 
         public bool IsVirtual
         {
-            get { return Source.IsVirtual; }
+            get { return SourceMember.IsVirtual; }
         }
 
         public bool IsSpecialName
         {
-            get { return Source.IsSpecialName; }
+            get { return SourceMember.IsSpecialName; }
         }
 
         public bool IsPInvoke
         {
-            get { return Source.IsPInvoke; }
+            get { return SourceMember.IsPInvoke; }
         }
 
         public virtual IConstructedMethodInfo ConstructedInfo
@@ -193,7 +203,7 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             get 
 			{
-				if (Source.GenericInfo == null)
+				if (SourceMember.GenericInfo == null)
 				{
 					return null;
 				}
@@ -215,32 +225,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool AcceptVarArgs
         {
-            get { return Source.AcceptVarArgs; }
+            get { return SourceMember.AcceptVarArgs; }
         }
 
         public bool IsExtension
         {
-            get { return Source.IsExtension; }
+            get { return SourceMember.IsExtension; }
         }
 
 		public bool IsBooExtension 
 		{ 
-			get { return Source.IsBooExtension; } 
+			get { return SourceMember.IsBooExtension; } 
 		}
 
 		public bool IsClrExtension 
 		{ 
-			get { return Source.IsClrExtension; } 
+			get { return SourceMember.IsClrExtension; } 
 		}
 
         public IType ReturnType
         {
-            get { return GenericMapping.Map(Source.ReturnType); }
+            get { return GenericMapping.MapType(SourceMember.ReturnType); }
         }
 
         public IParameter[] GetParameters()
         {
-            return _parameters ?? (_parameters = GenericMapping.Map(Source.GetParameters()));
+			if (_parameters == null)
+			{
+				_parameters = GenericMapping.MapParameters(SourceMember.GetParameters());
+			}
+			return _parameters;
         }
 
 		IGenericParameter[] IGenericMethodInfo.GenericParameters
@@ -250,8 +264,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (_typeParameters == null)
 				{
 					_typeParameters = Array.ConvertAll<IGenericParameter, IGenericParameter>(
-						Source.GenericInfo.GenericParameters,
-						GenericMapping.Map);
+						SourceMember.GenericInfo.GenericParameters,
+						GenericMapping.MapGenericParameter);
 				}
 				return _typeParameters;
 			}
@@ -332,17 +346,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IParameter[] GetParameters()
         {
-            return _parameters ?? (_parameters = GenericMapping.Map(Source.GetParameters()));
+            return _parameters ?? (_parameters = GenericMapping.MapParameters(SourceMember.GetParameters()));
         }
 
         public IMethod GetGetMethod()
         {
-            return GenericMapping.Map(Source.GetGetMethod());
+            return GenericMapping.Map(SourceMember.GetGetMethod());
         }
 
         public IMethod GetSetMethod()
         {
-            return GenericMapping.Map(Source.GetSetMethod());
+            return GenericMapping.Map(SourceMember.GetSetMethod());
         }
 
         public override string ToString()
@@ -352,22 +366,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool AcceptVarArgs
         {
-            get { return Source.AcceptVarArgs; }
+            get { return SourceMember.AcceptVarArgs; }
         }
 
         public bool IsExtension
         {
-            get { return Source.IsExtension; }
+            get { return SourceMember.IsExtension; }
         }
 
 		public bool IsBooExtension 
 		{ 
-			get { return Source.IsBooExtension; } 
+			get { return SourceMember.IsBooExtension; } 
 		}
 
 		public bool IsClrExtension 
 		{ 
-			get { return Source.IsClrExtension; } 
+			get { return SourceMember.IsClrExtension; } 
 		}
 
     }
@@ -388,27 +402,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public IMethod GetAddMethod()
         {
-            return GenericMapping.Map(Source.GetAddMethod());
+            return GenericMapping.Map(SourceMember.GetAddMethod());
         }
 
         public IMethod GetRemoveMethod()
         {
-            return GenericMapping.Map(Source.GetRemoveMethod());
+            return GenericMapping.Map(SourceMember.GetRemoveMethod());
         }
 
         public IMethod GetRaiseMethod()
         {
-            return GenericMapping.Map(Source.GetRemoveMethod());
+            return GenericMapping.Map(SourceMember.GetRemoveMethod());
         }
 
         public bool IsAbstract
         {
-            get { return Source.IsAbstract; }
+            get { return SourceMember.IsAbstract; }
         }
 
         public bool IsVirtual
         {
-            get { return Source.IsVirtual; }
+            get { return SourceMember.IsVirtual; }
         }
     }
 
@@ -428,64 +442,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool IsInitOnly
         {
-            get { return Source.IsInitOnly; }
+            get { return SourceMember.IsInitOnly; }
         }
 
         public bool IsLiteral
         {
-            get { return Source.IsLiteral; }
+            get { return SourceMember.IsLiteral; }
         }
 
         public object StaticValue
         {
-            get { return Source.StaticValue; }
+            get { return SourceMember.StaticValue; }
         }
     }
 
-    #endregion
-
-    #region class GenericMappedParameter
-	
-    /// <summary>
-    /// A parameter in a method constructed from a generic method, or a mapped onto a type constructed 
-	/// from a generic type.
-	/// </summary>
-	public class GenericMappedParameter : IParameter
-	{
-		private GenericMapping _genericMapping;
-		private IParameter _baseParameter;
-		
-		public GenericMappedParameter(IParameter parameter, GenericMapping genericMapping)
-		{
-			_genericMapping = genericMapping;
-			_baseParameter = parameter;
-		}
-		
-		public bool IsByRef
-		{
-			get { return _baseParameter.IsByRef; }
-		}
-		
-		public IType Type
-		{
-			get { return _genericMapping.Map(_baseParameter.Type); }
-		}
-		
-		public string Name
-		{
-			get { return _baseParameter.Name; }
-		}
-		
-		public string FullName
-		{
-			get { return _baseParameter.FullName; }
-		}
-		
-		public EntityType EntityType
-		{
-			get { return EntityType.Parameter; }
-		}
-	}
-    
     #endregion
 }

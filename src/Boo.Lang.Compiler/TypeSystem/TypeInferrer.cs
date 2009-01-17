@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return InferSimpleType(formalType, actualType, inference);
 		}
 
-		private bool InferGenericParameter(IGenericParameter formalType, IType actualType, TypeInference inference)
+		protected virtual bool InferGenericParameter(IGenericParameter formalType, IType actualType, TypeInference inference)
 		{
 			if (InferredTypes.ContainsKey(formalType))
 			{

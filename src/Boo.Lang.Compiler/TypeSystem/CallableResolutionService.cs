@@ -422,7 +422,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IMethod method = candidate.Method;
 			if (candidate.Method.DeclaringType.ConstructedInfo != null)
 			{
-				method = candidate.Method.DeclaringType.ConstructedInfo.GetMethodTemplate(method);
+				method = (IMethod)candidate.Method.DeclaringType.ConstructedInfo.UnMap(method);
 			}
 
 			if (candidate.Method.ConstructedInfo != null)

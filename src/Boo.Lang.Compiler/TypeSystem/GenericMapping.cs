@@ -30,17 +30,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Text;
-	using System.Reflection;
 	using System.Collections.Generic;
 
 	/// <summary>
 	/// Maps entities onto their constructed counterparts, substituting type arguments for generic parameters.
 	/// </summary>
-	public class GenericMapping
+	public abstract class GenericMapping : TypeMapper
 	{
-		TypeSystemServices _tss;
 		IDictionary<IGenericParameter, IType> _map = new Dictionary<IGenericParameter, IType>();
-        IDictionary<IEntity, IEntity> _cache = new Dictionary<IEntity, IEntity>();
+		IDictionary<IMember, IMember> _memberCache = new Dictionary<IMember, IMember>();
+
 		IEntity _constructedOwner = null;
 		IEntity _genericSource = null;
 
@@ -64,14 +63,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_genericSource = constructedMethod.ConstructedInfo.GenericDefinition;
 		}
 
-        /// <summary>
+		/// <summary>
 		/// Constrcuts a new GenericMapping for a specific mapping of generic parameters to type arguments.
-        /// </summary>
-        /// <param name="parameters">The generic parameters that should be mapped.</param>
-        /// <param name="arguments">The type arguments to map generic parameters to.</param>
+		/// </summary>
+		/// <param name="parameters">The generic parameters that should be mapped.</param>
+		/// <param name="arguments">The type arguments to map generic parameters to.</param>
 		protected GenericMapping(TypeSystemServices tss, IGenericParameter[] parameters, IType[] arguments)
+			: base(tss)
 		{
-			_tss = tss;
 			for (int i = 0; i < parameters.Length; i++)
 			{
 				_map.Add(parameters[i], arguments[i]);
@@ -87,243 +86,107 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// If the source type is an open generic type using any of the specified generic parameters, it 
 		/// is mapped to a closed constructed type based on the specified arguments.
 		/// </remarks>
-		protected virtual IType MapType(IType sourceType)
+		override public IType MapType(IType sourceType)
 		{
-			if (sourceType == null)
-			{
-				return null;
-			}
+			if (sourceType == _genericSource) return _constructedOwner as IType;
 
-			// Strip reference types
-			if (sourceType.IsByRef)
-			{
-				return MapType(sourceType.GetElementType());
-			}
-
-			// Map generic parameter to corresponding argument
 			IGenericParameter gp = sourceType as IGenericParameter;
-			if (gp != null)	
+			if (gp != null)
 			{
+				// Map type parameters declared on our source
 				if (_map.ContainsKey(gp)) return _map[gp];
-				if (_cache.ContainsKey(gp.DeclaringEntity)) return new GenericMappedTypeParameter(_tss, gp, this);
-			}
 
-			// Map open constructed type using generic parameters to closed constructed type
-			// using corresponding arguments
-			if (null != sourceType.ConstructedInfo)
-			{
-				IType[] mappedArguments = Array.ConvertAll<IType, IType>(
-					sourceType.ConstructedInfo.GenericArguments,
-					MapType);
-				
-				IType mapped = sourceType.ConstructedInfo.
-					GenericDefinition.GenericInfo.
-					ConstructType(mappedArguments);
-				
-				return mapped;
+				// Map type parameters declared on members of our source (methods / nested types)
+				return GenericsServices.GetGenericParameters(Map(gp.DeclaringEntity))[gp.GenericParameterPosition];
 			}
 
 			// TODO: Map nested types
 			// GenericType[of T].NestedType => GenericType[of int].NestedType
 
-			// Map array types
-			IArrayType array = (sourceType as IArrayType);
-			if (array != null)
-			{
-				IType elementType = array.GetElementType();
-				IType mappedElementType = MapType(elementType);
-				if (mappedElementType != elementType)
-				{
-					return _tss.GetArrayType(mappedElementType, array.GetArrayRank());
-				}
-			}
-			
-			// Map callable types
-			ICallableType callable = sourceType as ICallableType;
-			if (callable != null && EntityNeedsMapping(callable))
-			{
-				CallableSignature signature = callable.GetSignature();
-
-				IType returnType = MapType(signature.ReturnType);
-                IParameter[] parameters = Map(signature.Parameters);
-					
-				CallableSignature mappedSignature = new CallableSignature(
-					parameters, returnType, signature.AcceptVarArgs);
-					
-				return _tss.GetCallableType(mappedSignature);
-			}
-			
-			// If source type doesn't require mapping, return it as is
-			return sourceType;
+			return base.MapType(sourceType);
 		}
-		
-		public bool EntityNeedsMapping(IEntity entity)
-		{
-			if (entity is ICallableType)
-			{
-				if (entity is ExternalCallableType)
-				{
-					return false;
-				}
-				
-				ICallableType callable = entity as ICallableType;
-				
-				if (callable.BaseType == _tss.MulticastDelegateType
-					|| callable.BaseType.IsSubclassOf(_tss.MulticastDelegateType))
-				{
-					return callable.ConstructedInfo != null
-						|| callable.GenericInfo != null;
-				}
-				return true;
-			}
-			if (entity is IMember)
-			{
-				IMember member = entity as IMember;
-				return member.DeclaringType.ConstructedInfo != null
-					|| member.DeclaringType.GenericInfo != null;
-			}
-			if (entity is IConstructedTypeInfo)
-			{
-				return true;
-			}
-			return false;
-		}
-
-        /// <summary>
-        /// Maps a type member involving generic arguments to its constructed counterpart, after substituting 
-        /// concrete types for generic arguments.
-        /// </summary>
-        public IEntity Map(IEntity source)
-        {
-            if (source == null)
-                return null;
-
-			// Map generic source to the constructed owner of this mapping
-			if (source == _genericSource)
-			{
-				return _constructedOwner;
-			}
-
-			// Use cache if possible
-            if (_cache.ContainsKey(source))
-            {
-                return _cache[source];
-            }
-
-			// Map entity based on its entity type
-            IEntity mapped = null;
-            switch (source.EntityType)
-            {
-				case EntityType.Ambiguous:
-            		mapped = MapAmbiguousEntity((Ambiguous)source);
-            		break;
-
-                case EntityType.Method:
-                    mapped = new GenericMappedMethod(_tss, ((IMethod)source), this);
-                    break;
-
-                case EntityType.Constructor:
-                    mapped = new GenericMappedConstructor(_tss, ((IConstructor)source), this);
-                    break;
-
-                case EntityType.Field:
-                    mapped = new GenericMappedField(_tss, ((IField)source), this);
-                    break;
-
-                case EntityType.Property:
-                    mapped = new GenericMappedProperty(_tss, ((IProperty)source), this);
-                    break;
-
-                case EntityType.Event:
-                    mapped = new GenericMappedEvent(_tss, ((IEvent)source), this);
-                    break;
-
-                case EntityType.Parameter:
-                    mapped = new GenericMappedParameter((IParameter)source, this);
-                    break;
-
-                case EntityType.Array:
-                case EntityType.Type:
-                    mapped = MapType((IType)source);
-                    break;
-
-                default:
-                    return source;
-            }
-
-			// Cache mapped result and return it
-            _cache[source] = mapped;
-            return mapped;
-        }
-
-        /// <summary>
-        /// Maps a method on a generic type definition to its constructed counterpart.
-        /// </summary>
-        public IMethod Map(IMethod source)
-        {
-            return (IMethod)Map((IEntity)source);
-        }
-
-        /// <summary>
-        /// Maps a constructor on a generic type definition to its constructed counterpart.
-        /// </summary>
-        public IConstructor Map(IConstructor source)
-        {
-            return (IConstructor)Map((IEntity)source);
-        }
-
-        /// <summary>
-        /// Maps a field on a generic type definition to its constructed counterpart.
-        /// </summary>
-        public IField Map(IField source)
-        {
-            return (IField)Map((IEntity)source);
-        }
-
-        /// <summary>
-        /// Maps a property on a generic type definition to its constructed counterpart.
-        /// </summary>
-        public IProperty Map(IProperty source)
-        {
-            return (IProperty)Map((IEntity)source);
-        }
-
-        /// <summary>
-        /// Maps an event on a generic type definition to its constructed counterpart.
-        /// </summary>
-        public IEvent Map(IEvent source)
-        {
-            return (IEvent)Map((IEvent)source);
-        }
-
-        /// <summary>
-        /// Maps a type involving generic parameters to its constructed counterpart.
-        /// </summary>
-        public IType Map(IType source)
-        {
-            return (IType)Map((IEntity)source);
-        }
-
-		public IGenericParameter Map(IGenericParameter source)
-		{
-			return (IGenericParameter)Map((IEntity)source);
-		}
-
-        /// <summary>
-        /// Maps a parameter in a generic, constructed or mapped method to its constructed counterpart.
-        /// </summary>
-        public IParameter Map(IParameter source)
-        {
-            return (IParameter)Map((IEntity)source);
-        }
 
 		/// <summary>
-		/// Maps an array of parameters in a generic, constructed or mapped method to their constructed counterparts.
+		/// Maps a type member involving generic arguments to its constructed counterpart, after substituting 
+		/// concrete types for generic arguments.
 		/// </summary>
-        public IParameter[] Map(IParameter[] sources) 
-        {
-            return Array.ConvertAll<IParameter, IParameter>(sources, Map);
-        }
+		public IEntity Map(IEntity source)
+		{
+			if (source == null) return null;
+
+			// Map generic source to the constructed owner of this mapping
+			if (source == _genericSource) return _constructedOwner;
+
+			Ambiguous ambiguous = source as Ambiguous;
+			if (ambiguous != null) return MapAmbiguousEntity(ambiguous);
+
+			IMember member = source as IMember;
+			if (member != null) return MapMember(member);
+
+			IType type = source as IType;
+			if (type != null) return MapType(type);
+
+			return source;
+		}
+
+		private IMember MapMember(IMember source)
+		{
+			// Use cached mapped member if available
+			if (_memberCache.ContainsKey(source)) return _memberCache[source];
+
+			// Map members declared on our source
+			if (source.DeclaringType == _genericSource)
+			{
+				return CacheMember(source, CreateMappedMember(source));
+			}
+
+			// If member is declared on a basetype of our source, that is itself constructed, let its own mapper map it
+			IType declaringType = source.DeclaringType;
+			if (declaringType.ConstructedInfo != null)
+			{
+				source = declaringType.ConstructedInfo.UnMap(source);
+			}
+
+			IType mappedDeclaringType = MapType(declaringType);
+			if (mappedDeclaringType.ConstructedInfo != null)
+			{
+				return mappedDeclaringType.ConstructedInfo.Map(source);
+			}
+
+			return source;
+		}
+
+		abstract protected IMember CreateMappedMember(IMember source);
+
+		public IConstructor Map(IConstructor source)
+		{
+			return (IConstructor)Map((IEntity)source);
+		}
+
+		public IMethod Map(IMethod source)
+		{
+			return (IMethod)Map((IEntity)source);
+		}
+
+		public IField Map(IField source)
+		{
+			return (IField)Map((IEntity)source);
+		}
+
+		public IProperty Map(IProperty source)
+		{
+			return (IProperty)Map((IEntity)source);
+		}
+
+		public IEvent Map(IEvent source)
+		{
+			return (IEvent)Map((IEntity)source);
+		}
+
+		internal IGenericParameter MapGenericParameter(IGenericParameter source)
+		{
+			return Cache<IGenericParameter>(source, new GenericMappedTypeParameter(TypeSystemServices, source, this));
+		}
 
 		private IEntity MapAmbiguousEntity(Ambiguous source)
 		{
@@ -334,14 +197,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// <summary>
 		/// Gets the method from which the specified method was mapped.
 		/// </summary>
-		public IMethod UnMap(IMethod method)
+		public virtual IMember UnMap(IMember mapped)
 		{
-			GenericMappedMethod mapped = method as GenericMappedMethod;
-			if (mapped == null)
+			foreach (KeyValuePair<IMember, IMember> kvp in _memberCache)
 			{
-				return null;
+				if (kvp.Value == mapped) return kvp.Key;
 			}
-			return mapped.Source;
+			return null;
+		}
+
+		private IMember CacheMember(IMember source, IMember mapped)
+		{
+			_memberCache[source] = mapped;
+			return mapped;
 		}
 	}
 }

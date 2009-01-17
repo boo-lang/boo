@@ -2179,7 +2179,7 @@ namespace Boo.Lang.Compiler.Steps
 			GenericMappedMethod mappedMethod = method as GenericMappedMethod;
 			if (mappedMethod != null)
 			{
-				return GetConditionalSymbols(mappedMethod.Source);
+				return GetConditionalSymbols(mappedMethod.SourceMember);
 			}
 
 			GenericConstructedMethod constructedMethod = method as GenericConstructedMethod;
@@ -3518,7 +3518,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetStoreEntityOpCode(IType tag)
 		{
-			if (tag.IsValueType)
+			if (tag.IsValueType || tag is IGenericParameter)
 			{
 				if (TypeSystemServices.IntType == tag ||
 				    tag.IsEnum)
@@ -3549,6 +3549,7 @@ namespace Boo.Lang.Compiler.Steps
 				//NotImplemented("GetStoreEntityOpCode(" + tag + ")");
 				return OpCodes.Stobj;
 			}
+			
 			return OpCodes.Stelem_Ref;
 		}
 		
@@ -3974,20 +3975,20 @@ namespace Boo.Lang.Compiler.Steps
 		
 		FieldInfo GetFieldInfo(IField tag)
 		{
-			// If field is mapped from a generic type, get its mapped FieldInfo
-			// on the constructed type
-            GenericMappedField mapped = tag as GenericMappedField;
-            if (mapped != null)
-            {
-                return GetMappedFieldInfo(mapped.DeclaringType, mapped.Source);
-            }
-
-            // If field is external, get its existing FieldInfo
+			// If field is external, get its existing FieldInfo
 			ExternalField external = tag as ExternalField;
 			if (null != external)
 			{
 				return external.FieldInfo;
 			}
+
+			// If field is mapped from a generic type, get its mapped FieldInfo
+			// on the constructed type
+            GenericMappedField mapped = tag as GenericMappedField;
+            if (mapped != null)
+            {
+                return GetMappedFieldInfo(mapped.DeclaringType, mapped.SourceMember);
+            }
 
             // If field is internal, get its FieldBuilder
 			return GetFieldBuilder(((InternalField)tag).Field);
@@ -3995,27 +3996,27 @@ namespace Boo.Lang.Compiler.Steps
 		
 		MethodInfo GetMethodInfo(IMethod entity)
 		{
-			// If method is mapped from a generic type, get its MethodInfo on the constructed type
-            GenericMappedMethod mapped = entity as GenericMappedMethod;
-            if (mapped != null)
-            {
-                return GetMappedMethodInfo(mapped.DeclaringType, mapped.Source);
-            }
-			
-			// If method is a constructed generic method, get its MethodInfo from its definition
-			if (entity is GenericConstructedMethod)
-			{
-				return GetConstructedMethodInfo(entity.ConstructedInfo);
-			}			
-
-            // If method is external, get its existing MethodInfo
-            ExternalMethod external = entity as ExternalMethod;
+			// If method is external, get its existing MethodInfo
+			ExternalMethod external = entity as ExternalMethod;
 			if (null != external)
 			{
 				return (MethodInfo)external.MethodInfo;
 			}
-			
-            // If method is internal, get its MethodBuilder
+
+			// If method is a constructed generic method, get its MethodInfo from its definition
+			if (entity is GenericConstructedMethod)
+			{
+				return GetConstructedMethodInfo(entity.ConstructedInfo);
+			}
+
+			// If method is mapped from a generic type, get its MethodInfo on the constructed type
+			GenericMappedMethod mapped = entity as GenericMappedMethod;
+			if (mapped != null)
+			{
+				return GetMappedMethodInfo(mapped.DeclaringType, mapped.SourceMember);
+			}
+
+			// If method is internal, get its MethodBuilder
 			return GetMethodBuilder(((InternalMethod)entity).Method);
 		}
 
@@ -4032,7 +4033,7 @@ namespace Boo.Lang.Compiler.Steps
             GenericMappedConstructor mapped = entity as GenericMappedConstructor;
             if (mapped != null)
             {
-                return TypeBuilder.GetConstructor(GetSystemType(mapped.DeclaringType), GetConstructorInfo((IConstructor)mapped.Source));
+                return TypeBuilder.GetConstructor(GetSystemType(mapped.DeclaringType), GetConstructorInfo((IConstructor)mapped.SourceMember));
             }
 
             // If constructor is internal, get its MethodBuilder

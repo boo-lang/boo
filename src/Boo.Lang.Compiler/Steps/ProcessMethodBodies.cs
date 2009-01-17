@@ -725,18 +725,57 @@ namespace Boo.Lang.Compiler.Steps
 			if (WasVisited(node)) return;
 
 			ClosureSignatureInferrer inferrer = new ClosureSignatureInferrer(node);
-			if (inferrer.HasUntypedInputParameters())
-			{
-				inferrer.InferInputTypes();
-				inferrer.AddMissingParameterTypes();
-			}
 
-			MarkVisited(node);
+			if (ShouldDeferClosureProcessing(inferrer.MethodInvocationContext)) return;
+
+			ICallableType inferredCallableType = inferrer.InferCallableType();
+			BindExpressionType(node, inferredCallableType);
+
+			AddInferredClosureParameterTypes(node, inferredCallableType);
 			ProcessClosureBody(node);
+		}
+
+		private bool ShouldDeferClosureProcessing(MethodInvocationExpression methodInvocationContext)
+		{
+			if (methodInvocationContext == null) return false;
+
+			IMethod target = methodInvocationContext.Target.Entity as IMethod;
+			if (target == null) return false;
+			if (!GenericsServices.IsGenericMethod(target)) return false;
+			
+			return true;
+		}
+
+		private void AddInferredClosureParameterTypes(BlockExpression node, ICallableType callableType)
+		{
+			IParameter[] parameters = (callableType == null ? null : callableType.GetSignature().Parameters);
+			for (int i = 0; i < node.Parameters.Count; i++)
+			{
+				ParameterDeclaration pd = node.Parameters[i];
+				if (pd.Type != null) continue;
+
+				IType inferredType;
+				if (parameters != null && i < parameters.Length)
+				{
+					inferredType = parameters[i].Type;
+				}
+				else if (node.Parameters.VariableNumber && i == node.Parameters.Count - 1)
+				{
+					inferredType = TypeSystemServices.ObjectArrayType;
+				}
+				else
+				{
+					inferredType = TypeSystemServices.ObjectType;
+				}
+
+				pd.Type = CodeBuilder.CreateTypeReference(inferredType);
+			}
 		}
 
 		void ProcessClosureBody(BlockExpression node)
 		{
+			MarkVisited(node);
+
 			string explicitClosureName = node["ClosureName"] as string;
 
 			Method closure = CodeBuilder.CreateMethod(
@@ -782,6 +821,38 @@ namespace Boo.Lang.Compiler.Steps
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+		}
+
+		private void ProcessClosureInMethodInvocation(GenericParameterInferrer inferrer, BlockExpression closure, ICallableType formalType)
+		{
+			CallableSignature sig = formalType.GetSignature();
+
+			TypeReplacer replacer = new TypeReplacer(TypeSystemServices);
+			TypeCollector collector = new TypeCollector(delegate(IType t) 
+			{ 
+				IGenericParameter gp = t as IGenericParameter;
+				if (gp == null) return false;
+				return gp.DeclaringEntity == inferrer.GenericMethod;
+			});
+			
+			collector.Visit(formalType);
+			foreach (IType typeParameter in collector.Matches)
+			{
+				IType inferredType = inferrer.GetInferredType((IGenericParameter)typeParameter);
+				if (inferredType != null)
+				{
+					replacer.Replace(typeParameter, inferredType);
+				}
+			}
+
+			for (int i = 0; i < sig.Parameters.Length; i++)
+			{
+				ParameterDeclaration pd = closure.Parameters[i];
+				if (pd.Type != null) continue;
+				pd.Type = CodeBuilder.CreateTypeReference(replacer.MapType(sig.Parameters[i].Type));
+			}
+
+			ProcessClosureBody(closure);
 		}
 
 		private TypeMemberModifiers ClosureModifiers()
@@ -1760,7 +1831,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						IEntity member = targetType.GetDefaultMember();
+						IEntity member = TypeSystemServices.GetDefaultMember(targetType);
 						if (null == member)
 						{
 							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType.ToString()));
@@ -4354,22 +4425,22 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (targetMethod.GenericInfo == null) return targetMethod;
 
-			GenericsServices genericsServices = Context.GetService<GenericsServices>();
-
-			IType[] inferredArguments = genericsServices.InferMethodGenericArguments(targetMethod, node.Arguments);
-			if (inferredArguments == null)
+			GenericParameterInferrer inferrer = new GenericParameterInferrer(Context, targetMethod, node.Arguments);
+			inferrer.ResolveClosure += ProcessClosureInMethodInvocation;
+			if (!inferrer.Run())
 			{
 				Error(node, CompilerErrorFactory.CannotInferGenericMethodArguments(node, targetMethod));
 				return null;
 			}
 
-			if (!genericsServices.CheckGenericConstruction(node, targetMethod, inferredArguments, true))
+			IType[] inferredTypeArguments = inferrer.GetInferredTypes();
+			if (!Context.GetService<GenericsServices>().CheckGenericConstruction(node, targetMethod, inferredTypeArguments, true))
 			{
 				Error(node);
 				return null;
 			}
 
-			IMethod constructedMethod = targetMethod.GenericInfo.ConstructMethod(inferredArguments);
+			IMethod constructedMethod = targetMethod.GenericInfo.ConstructMethod(inferredTypeArguments);
 			Bind(node.Target, constructedMethod);
 			BindExpressionType(node, GetInferredType(constructedMethod));
 

@@ -58,7 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_definition = definition;
 			_genericArguments = arguments;
 			
-			_genericMapping = new GenericMapping(tss, this, arguments);
+			_genericMapping = new InternalGenericMapping(tss, this, arguments);
 				
 			_fullyConstructed = IsFullyConstructed();
 		}
@@ -95,12 +95,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IParameter[] GetParameters()
 		{
-            return _parameters ?? (_parameters = GenericMapping.Map(_definition.GetParameters()));
+            return _parameters ?? (_parameters = GenericMapping.MapParameters(_definition.GetParameters()));
 		}
 
 		public IType ReturnType
 		{
-			get { return GenericMapping.Map(_definition.ReturnType); }
+			get { return GenericMapping.MapType(_definition.ReturnType); }
 		}
 		
 		public bool IsAbstract

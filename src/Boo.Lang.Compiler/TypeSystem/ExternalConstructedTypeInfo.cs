@@ -35,12 +35,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 		ExternalType _type;
 		TypeSystemServices _tss;
 		IType[] _arguments = null;
+		GenericMapping _mapping = null;
 		
 		public ExternalConstructedTypeInfo(TypeSystemServices tss, ExternalType type)
 		{
 			_type = type;
 			_tss = tss;
-		}		
+		}
+
+		protected GenericMapping GenericMapping
+		{
+			get
+			{
+				if (_mapping == null) _mapping = new ExternalGenericMapping(_tss, _type, GenericArguments);
+				return _mapping;
+			}
+		}
 
 		public IType GenericDefinition
 		{
@@ -69,20 +79,20 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return !_type.ActualType.ContainsGenericParameters; }
 		}
 
-		public IMethod GetMethodTemplate(IMethod method)
+		public IMember UnMap(IMember mapped)
 		{
-			// HACK: There is no way to find the method from which the specified
-			// method was mapped; we'll use the fact that the two methods share
-			// the same metadata token
+			return GenericMapping.UnMap(mapped);
+		}
 
-			int token = ((ExternalMethod)method).MethodInfo.MetadataToken;
+		public IType Map(IType type)
+		{
+			if (type == GenericDefinition) return _type;
+			return GenericMapping.MapType(type);
+		}
 
-			return _tss.Map(Array.Find(
-				_type.ActualType.GetGenericTypeDefinition().GetMethods(),
-				delegate(System.Reflection.MethodInfo mi)
-				{
-					return mi.MetadataToken == token;
-				}));
+		public IMember Map(IMember member)
+		{
+			return (IMember)_mapping.Map(member);
 		}
 	}	
 }

@@ -186,23 +186,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected virtual MemberInfo[] GetDefaultMembers()
 		{
 			MemberInfo[] miarr = ActualType.GetDefaultMembers();
-			
-			if(this.IsInterface && GetInterfaces() != null)
-			{
-				System.Collections.Generic.List<MemberInfo> memlist = 
-					new System.Collections.Generic.List<MemberInfo>();
-				if(miarr != null)
-					memlist.AddRange(miarr);
-				foreach(ExternalType type in GetInterfaces())
-				{
-					miarr = type.GetDefaultMembers();
-					if(miarr != null)
-						memlist.AddRange(miarr);
-				}
-				
-				miarr = memlist.ToArray();
-			}
-			
 			return miarr;
 		}
 
