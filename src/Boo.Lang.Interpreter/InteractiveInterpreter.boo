@@ -36,6 +36,7 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Compiler.IO
+import Boo.Lang.PatternMatching
 
 class InteractiveInterpreter(AbstractInterpreter):
 
@@ -221,19 +222,17 @@ class InteractiveInterpreter(AbstractInterpreter):
 			_print("")
 			
 	static def DescribeEntity(entity as IEntity):
-		method = entity as ExternalMethod
-		if method is not null:
-			return InteractiveInterpreter.DescribeMethod(method.MethodInfo)
-		field = entity as ExternalField
-		if field is not null:
-			return InteractiveInterpreter.DescribeField(field.FieldInfo)
-		property = entity as ExternalProperty
-		if property is not null:
-			return InteractiveInterpreter.DescribeProperty(property.PropertyInfo)
-		e = entity as ExternalEvent
-		if e is not null:
-			return InteractiveInterpreter.DescribeEvent(e.EventInfo)
-		return entity.ToString()
+		match entity:
+			case method = ExternalMethod(MethodInfo: Reflection.MethodInfo()):
+				return InteractiveInterpreter.DescribeMethod(method.MethodInfo)
+			case field = ExternalField():
+				return InteractiveInterpreter.DescribeField(field.FieldInfo)
+			case property = ExternalProperty():
+				return InteractiveInterpreter.DescribeProperty(property.PropertyInfo)
+			case e = ExternalEvent():
+				return InteractiveInterpreter.DescribeEvent(e.EventInfo)
+			otherwise:
+				entity.ToString()
 			
 	static def DescribeEvent(e as Reflection.EventInfo):
 		return "${DescribeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}"
