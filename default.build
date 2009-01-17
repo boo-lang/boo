@@ -227,7 +227,7 @@
 		
 	</target>
 
-	<target name="Boo.Lang.Interpreter" depends="core">
+	<target name="Boo.Lang.Interpreter" depends="Boo.Lang.PatternMatching, core">
 		<booc target="library"
 		      output="${build.dir}/Boo.Lang.Interpreter.dll"
 		      verbose="${verbose}"
@@ -237,6 +237,7 @@
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.PatternMatching.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>

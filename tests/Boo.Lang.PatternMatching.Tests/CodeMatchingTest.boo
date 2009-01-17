@@ -70,6 +70,7 @@ class CodeMatchingTest:
 	def delegateMethod(code as Expression):
 		match code:
 			case [| $type(null, __addressof__($method)) |]:
+				assert type is not null
 				return method.ToString()
 		
 	def methodName(code as Expression):
