@@ -879,6 +879,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				return TypeMemberModifiers.Protected;
 			}
+			else if (member.IsInternal)
+			{
+				return TypeMemberModifiers.Internal;
+			}
 			return TypeMemberModifiers.Private;
 		}
 
