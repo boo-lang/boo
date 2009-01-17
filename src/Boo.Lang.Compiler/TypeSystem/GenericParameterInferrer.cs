@@ -67,6 +67,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 				// ICallableType callableType = closure.ExpressionType as ICallableType;
 				ICallableType callableType = argument.FormalType as ICallableType;
+				if (callableType == null) continue;
+				
 				TypeCollector collector = new TypeCollector(delegate(IType t) 
 					{
 						IGenericParameter gp = t as IGenericParameter;

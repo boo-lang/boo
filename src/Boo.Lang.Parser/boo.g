@@ -152,6 +152,12 @@ tokens
 		return LPAREN != token && LBRACK != token;
 	}
 	
+	protected bool IsValidClosureMacroArgument(int token)
+	{
+		if (!IsValidMacroArgument(token)) return false;
+		return SUBTRACT != token;
+	}
+	
 	private LexicalInfo ToLexicalInfo(IToken token)
 	{
 		return SourceLocationFactory.ToLexicalInfo(token);
@@ -1459,7 +1465,7 @@ internal_closure_stmt[Block block]
 		(
 			(
 				(declaration COMMA)=>stmt=unpack |
-				{IsValidMacroArgument(LA(2))}? stmt=closure_macro_stmt | 
+				{IsValidClosureMacroArgument(LA(2))}? stmt=closure_macro_stmt | 
 				stmt=closure_expression_stmt |
 				stmt=raise_stmt |
 				stmt=yield_stmt			
