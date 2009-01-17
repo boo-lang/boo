@@ -393,6 +393,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
+			BlockExpression closure = node.Initializer as BlockExpression;
+			if (closure != null)
+			{
+				InferClosureSignature(closure);
+			}
+
 			Method method = GetFieldsInitializerMethod(node);
 			InternalMethod entity = (InternalMethod)method.Entity;
 
@@ -723,27 +729,29 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnBlockExpression(BlockExpression node)
 		{
 			if (WasVisited(node)) return;
+			if (ShouldDeferClosureProcessing(node)) return;
 
-			ClosureSignatureInferrer inferrer = new ClosureSignatureInferrer(node);
-
-			if (ShouldDeferClosureProcessing(inferrer.MethodInvocationContext)) return;
-
-			ICallableType inferredCallableType = inferrer.InferCallableType();
-			BindExpressionType(node, inferredCallableType);
-
-			AddInferredClosureParameterTypes(node, inferredCallableType);
+			InferClosureSignature(node);
 			ProcessClosureBody(node);
 		}
 
-		private bool ShouldDeferClosureProcessing(MethodInvocationExpression methodInvocationContext)
+		private void InferClosureSignature(BlockExpression node)
 		{
-			if (methodInvocationContext == null) return false;
+			ClosureSignatureInferrer inferrer = new ClosureSignatureInferrer(node);
+			ICallableType inferredCallableType = inferrer.InferCallableType();
+			BindExpressionType(node, inferredCallableType);
+			AddInferredClosureParameterTypes(node, inferredCallableType);
+		}
 
+		private bool ShouldDeferClosureProcessing(BlockExpression node)
+		{
+			// Defer closure processing if it's an argument in a generic method invocation
+			MethodInvocationExpression methodInvocationContext = node.ParentNode as MethodInvocationExpression;
+			if (methodInvocationContext == null) return false;
+			if (!methodInvocationContext.Arguments.ContainsNode(node)) return false;
+		
 			IMethod target = methodInvocationContext.Target.Entity as IMethod;
-			if (target == null) return false;
-			if (!GenericsServices.IsGenericMethod(target)) return false;
-			
-			return true;
+			return (target != null && GenericsServices.IsGenericMethod(target));
 		}
 
 		private void AddInferredClosureParameterTypes(BlockExpression node, ICallableType callableType)

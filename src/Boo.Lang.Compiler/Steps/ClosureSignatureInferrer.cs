@@ -70,9 +70,21 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IType GetTypeFromDeclarationContext()
 		{
+			TypeReference tr = null;
 			DeclarationStatement ds = Closure.ParentNode as DeclarationStatement;
-			if (ds == null || ds.Declaration.Type == null) return null;
-			return ds.Declaration.Type.Entity as IType;
+			if (ds != null)
+			{
+				tr = ds.Declaration.Type;
+			}
+			
+			Field fd = Closure.ParentNode as Field;
+			if (fd != null)
+			{
+				tr = fd.Type;
+			}
+
+			if (tr != null) return tr.Entity as IType;
+			return null;
 		}
 
 		private IType GetTypeFromMethodInvocationContext()

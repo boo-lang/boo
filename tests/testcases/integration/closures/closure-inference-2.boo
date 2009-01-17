@@ -1,4 +1,3 @@
-#ignore Closure inference in field declarations is not yet supported
 """
 007
 """
