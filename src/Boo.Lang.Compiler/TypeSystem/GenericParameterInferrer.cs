@@ -70,7 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				TypeCollector collector = new TypeCollector(delegate(IType t) 
 					{
 						IGenericParameter gp = t as IGenericParameter;
-						return gp != null & InferredTypes.ContainsKey(gp); 
+						return gp != null && InferredTypes.ContainsKey(gp); 
 					});
 
 				foreach (IType inputType in GetParameterTypes(callableType.GetSignature()))
