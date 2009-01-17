@@ -33,10 +33,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public class InternalEnum : AbstractInternalType
 	{
 		internal InternalEnum(TypeSystemServices tagManager, EnumDefinition enumDefinition) :
-			base(tagManager, enumDefinition)
+			this(tagManager, enumDefinition, false)
 		{
 		}
-		
+
+		internal InternalEnum(TypeSystemServices tagManager, TypeDefinition enumDefinition, bool isByRef) :
+			base(tagManager, enumDefinition)
+		{
+			_isByRef = isByRef;
+		}
+
 		override public bool IsFinal
 		{
 			get
@@ -78,6 +84,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return type == _typeSystemServices.EnumType ||
 				_typeSystemServices.EnumType.IsSubclassOf(type);
+		}
+
+		override protected IType CreateElementType()
+		{
+			return new InternalEnum(_typeSystemServices, _node, true);
 		}
 	}
 }

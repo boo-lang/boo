@@ -35,10 +35,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		int _typeDepth = -1;
 		
 		internal InternalInterface(TypeSystemServices manager, TypeDefinition typeDefinition) :
+			this(manager, typeDefinition, false)
+		{
+		}
+
+		internal InternalInterface(TypeSystemServices manager, TypeDefinition typeDefinition, bool isByRef) :
 			base(manager, typeDefinition)
 		{
-		}		
-		
+			_isByRef = isByRef;
+		}
+
 		override public IType BaseType
 		{
 			get
@@ -105,6 +111,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 			}
 			return max;
+		}
+
+		override protected IType CreateElementType()
+		{
+			return new InternalInterface(_typeSystemServices, _node, true);
 		}
 	}
 }

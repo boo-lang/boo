@@ -35,8 +35,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		int _typeDepth = -1;
 		
 		internal InternalClass(TypeSystemServices manager, TypeDefinition typeDefinition) :
+			this(manager, typeDefinition, false)
+		{
+		}
+
+		internal InternalClass(TypeSystemServices manager, TypeDefinition typeDefinition, bool isByRef) :
 			base(manager, typeDefinition)
 		{
+			_isByRef = isByRef;
 		}
 
 		override public bool IsValueType
@@ -111,6 +117,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 					constructors.Add(TypeSystemServices.GetEntity(member));
 			return (IConstructor[])constructors.ToArray(new IConstructor[constructors.Count]);
 			
+		}
+
+		override protected IType CreateElementType()
+		{
+			return new InternalClass(_typeSystemServices, _node, true);
 		}
 	}
 }

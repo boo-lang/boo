@@ -137,15 +137,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		protected bool _isByRef;
+
 		public bool IsByRef
 		{
 			get
 			{
-				return false;
+				return _isByRef;
 			}
 		}
 
+		IType _elementType;
+
 		public IType GetElementType()
+		{
+			if (null == _elementType)
+				_elementType = CreateElementType();
+			return _elementType;
+		}
+
+		protected virtual IType CreateElementType()
 		{
 			return null;
 		}
