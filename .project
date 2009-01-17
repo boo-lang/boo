@@ -10,8 +10,14 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>monolipse.core.booBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>booclipse.core.booNature</nature>
+		<nature>monolipse.core.booNature</nature>
 	</natures>
 </projectDescription>

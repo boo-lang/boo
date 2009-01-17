@@ -1,0 +1,7 @@
+<settings>
+  <language>boo</language>
+  <outputType>library</outputType>
+  <references/>
+  <outputFolder>/boo/bin</outputFolder>
+  <additionalOptions></additionalOptions>
+</settings>
