@@ -220,7 +220,7 @@
 	
 		<booc target="library" output="${build.dir}/Boo.Lang.PatternMatching.dll">
 			<sources basedir="src/Boo.Lang.PatternMatching">
-				<include name="*.boo" />
+				<include name="**/*.boo" />
 			</sources>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
