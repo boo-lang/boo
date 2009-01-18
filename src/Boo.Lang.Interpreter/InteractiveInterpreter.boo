@@ -56,7 +56,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 	_lastValue
 	
 	[property(Print, value is not null)]
-	_print as callable(object) = print
+	_print as Action[of object] = print
 	
 	def constructor():
 		super()
@@ -181,121 +181,8 @@ class InteractiveInterpreter(AbstractInterpreter):
 		
 	def help(obj):		
 		type = (obj as Type) or obj.GetType()
-		DescribeType("    ", type)
-		
-	def DescribeType(indent as string, type as Type):
-		
-		if type.IsInterface:
-			typeDef = "interface"
-			baseTypes = array(GetBooTypeName(t) for t in type.GetInterfaces())
-		else:
-			typeDef = "class"
-			baseTypes = (GetBooTypeName(type.BaseType),) + array(GetBooTypeName(t) for t in type.GetInterfaces())
-			
-		_print("${typeDef} ${type.Name}(${join(baseTypes, ', ')}):")
-		_print("")
-		
-		for ctor in type.GetConstructors():
-			_print("${indent}def constructor(${DescribeParameters(ctor.GetParameters())})")
-			_print("")
-			
-		sortByName = def (lhs as Reflection.MemberInfo, rhs as Reflection.MemberInfo):
-			return lhs.Name.CompareTo(rhs.Name)
-			
-		for f as Reflection.FieldInfo in List(type.GetFields()).Sort(sortByName):
-			_print("${indent}public ${DescribeField(f)}")
-			_print("")
-			
-		for p as Reflection.PropertyInfo in List(type.GetProperties()).Sort(sortByName):
-			_print("${indent}${DescribeProperty(p)}:")
-			_print("${indent}${indent}get") if p.GetGetMethod() is not null
-			_print("${indent}${indent}set") if p.GetSetMethod() is not null
-			_print("")		
-		
-		for m as Reflection.MethodInfo in List(type.GetMethods()).Sort(sortByName):
-			continue if m.IsSpecialName
-			_print("${indent}${DescribeMethod(m)}")
-			_print("")
-			
-		for e as Reflection.EventInfo in List(type.GetEvents()).Sort(sortByName):
-			_print("${indent}${DescribeEvent(e)}")
-			_print("")
-			
-	static def DescribeEntity(entity as IEntity):
-		match entity:
-			case method = ExternalMethod(MethodInfo: Reflection.MethodInfo()):
-				return InteractiveInterpreter.DescribeMethod(method.MethodInfo)
-			case field = ExternalField():
-				return InteractiveInterpreter.DescribeField(field.FieldInfo)
-			case property = ExternalProperty():
-				return InteractiveInterpreter.DescribeProperty(property.PropertyInfo)
-			case e = ExternalEvent():
-				return InteractiveInterpreter.DescribeEvent(e.EventInfo)
-			otherwise:
-				entity.ToString()
-			
-	static def DescribeEvent(e as Reflection.EventInfo):
-		return "${DescribeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}"
-			
-	static def DescribeProperty(p as Reflection.PropertyInfo):
-		modifiers = DescribeModifiers(p)
-		params = DescribePropertyParameters(p.GetIndexParameters())
-		return "${modifiers}${p.Name}${params} as ${GetBooTypeName(p.PropertyType)}"
-			
-	static def DescribeField(f as Reflection.FieldInfo):
-		return "${DescribeModifiers(f)}${f.Name} as ${GetBooTypeName(f.FieldType)}"
-			
-	static def DescribeMethod(m as Reflection.MethodInfo):
-		returnType = GetBooTypeName(m.ReturnType)
-		modifiers = DescribeModifiers(m)
-		return "${modifiers}def ${m.Name}(${DescribeParameters(m.GetParameters())}) as ${returnType}"
-			
-	static def DescribeModifiers(f as Reflection.FieldInfo):
-		return "static " if f.IsStatic
-		return ""
-			
-	static def DescribeModifiers(m as Reflection.MethodBase):
-		return "static " if m.IsStatic
-		return ""
-		
-	static def DescribeModifiers(e as Reflection.EventInfo):
-		return DescribeModifiers(e.GetAddMethod(true) or e.GetRemoveMethod(true))
-		
-	static def DescribeModifiers(p as Reflection.PropertyInfo):
-		accessor = p.GetGetMethod(true) or p.GetSetMethod(true)
-		return DescribeModifiers(accessor)
-			
-	static def DescribePropertyParameters(parameters as (Reflection.ParameterInfo)):
-		return "" if 0 == len(parameters)
-		return "(${DescribeParameters(parameters)})"
-			
-	static def DescribeParameters(parameters as (Reflection.ParameterInfo)):
-		return join(DescribeParameter(p) for p in parameters, ", ")
-		
-	static def DescribeParameter(p as Reflection.ParameterInfo):
-		return "${p.Name} as ${GetBooTypeName(p.ParameterType)}"
-		
-	static def GetBooTypeName(type as System.Type) as string:
-		return "(${GetBooTypeName(type.GetElementType())})" if type.IsArray
-		return "object" if object is type
-		return "string" if string is type
-		return "void" if void is type
-		return "bool" if bool is type		
-		return "byte" if byte is type
-		return "char" if char is type
-		return "sbyte" if sbyte is type
-		return "short" if short is type
-		return "ushort" if ushort is type
-		return "int" if int is type
-		return "uint" if uint is type
-		return "long" if long is type
-		return "ulong" if ulong is type
-		return "single" if single is type
-		return "double" if double is type
-		return "date" if date is type
-		return "timespan" if timespan is type
-		return "regex" if regex is type
-		return type.FullName
+		for line in Help.HelpFormatter("    ").GenerateFormattedLinesFor(type):
+			_print(line)
 		
 	def repr(value):
 		writer = System.IO.StringWriter()
