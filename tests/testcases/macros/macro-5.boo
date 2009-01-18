@@ -3,6 +3,7 @@ aye! compiled!
 """
 
 import Boo.Lang.Compiler
+
 macro sub:
 	print "aye" if Context is not null
 

@@ -4519,8 +4519,8 @@ namespace Boo.Lang.Compiler.Steps
 			
 			builder.SetParameters(GetParameterTypes(parameters));
 
-			IType returnType = GetType(method.ReturnType);
-			if (IsPInvoke(method) && returnType is TypeSystem.Unknown)
+			IType returnType = GetEntity(method).ReturnType;
+			if (IsPInvoke(method) && TypeSystemServices.IsUnknown(returnType))
 			{
 				returnType = TypeSystemServices.VoidType;
 			}

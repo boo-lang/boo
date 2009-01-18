@@ -268,7 +268,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null != getter)
 				{
-					typeInfo = GetType(node.Getter.ReturnType);
+					typeInfo = GetEntity(node.Getter).ReturnType;
 					if (typeInfo == TypeSystemServices.VoidType)
 					{
 						typeInfo = TypeSystemServices.ObjectType;

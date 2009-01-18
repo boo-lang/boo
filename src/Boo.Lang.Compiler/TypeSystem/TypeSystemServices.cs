@@ -847,9 +847,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return false;
 		}
 
-		public static bool IsUnknown(IType tag)
+		public static bool IsUnknown(IType type)
 		{
-			return EntityType.Unknown == tag.EntityType;
+			return EntityType.Unknown == type.EntityType;
 		}
 
 		public static bool IsError(Expression node)

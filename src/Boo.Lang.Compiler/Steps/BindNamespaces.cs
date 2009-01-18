@@ -182,7 +182,7 @@ namespace Boo.Lang.Compiler.Steps
 					return false;
 				}
 				Parameters.AddAssembly(asm);
-				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, import.Namespace);
+				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, asm.FullName);
 				import.AssemblyReference.Entity = new AssemblyReference(asm);
 				return true;
 			}

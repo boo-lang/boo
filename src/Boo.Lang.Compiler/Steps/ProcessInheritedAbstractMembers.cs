@@ -409,11 +409,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 
 				CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
-				if (IsUnknown(method.ReturnType))
+				if (IsUnknown(methodEntity.ReturnType))
 				{
 					method.ReturnType = CodeBuilder.CreateTypeReference(baseSignature.ReturnType);
 				}
-				else if (baseSignature.ReturnType != method.ReturnType.Entity)
+				else if (baseSignature.ReturnType != methodEntity.ReturnType)
 				{
 					Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, baseMethod.FullName));
 				}
@@ -450,6 +450,11 @@ namespace Boo.Lang.Compiler.Steps
 					node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, baseMethod));
 				}				
 			}
+		}
+
+		private bool IsUnknown(IType type)
+		{
+			return TypeSystem.TypeSystemServices.IsUnknown(type);
 		}
 
 		private IEnumerable<Method> GetAbstractMethodImplementationCandidates(TypeDefinition node, IMethod baseMethod)

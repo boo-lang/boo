@@ -42,6 +42,11 @@ namespace Boo.Lang.Compiler
 		public AssemblyCollection()
 		{
 		}
+
+		public AssemblyCollection(IEnumerable assemblies)
+		{
+			Extend(assemblies);
+		}
 	
 		public void Add(Assembly assembly)
 		{
@@ -89,6 +94,18 @@ namespace Boo.Lang.Compiler
 		private static void AssertNotNull(Assembly assembly)
 		{
 			if (null == assembly) throw new ArgumentNullException("assembly");
+		}
+
+		public Assembly[] ToArray()
+		{
+			return (Assembly[]) InnerList.ToArray(typeof(Assembly));
+		}
+
+		public AssemblyCollection Clone()
+		{
+			AssemblyCollection clone = new AssemblyCollection();
+			clone.InnerList.AddRange(InnerList);
+			return clone;
 		}
 	}
 }

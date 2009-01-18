@@ -82,20 +82,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public virtual Module EnclosingModule
 		{
-			get
-			{
-				Node parent = _parent;
-				while (parent != null)
-				{
-					Module module = parent as Module;
-					if (null != module)
-					{
-						return module;
-					}
-					parent = parent.ParentNode;
-				}
-				return null;
-			}
+			get { return GetAncestor<Module>(); }
 		}
 
 		public TypeMemberModifiers Visibility

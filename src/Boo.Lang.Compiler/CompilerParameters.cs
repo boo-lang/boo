@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler
 			_resources = new CompilerResourceCollection();
 			_assemblyReferences = new AssemblyCollection();
 
-			_maxExpansionIterations = 4;
+			_maxExpansionIterations = 12;
 			_outputAssembly = string.Empty;
 			_outputType = CompilerOutputType.ConsoleApplication;
 			_outputWriter = System.Console.Out;

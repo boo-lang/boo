@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-
 	public class Unknown : AbstractType
 	{
 		public static Unknown Default = new Unknown();
@@ -53,6 +52,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 	}
-
 }
 

@@ -32,7 +32,6 @@ namespace Boo.Lang.Extensions
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-
 class MacroMacro(AbstractAstMacro):
 
 	override def Expand(macro as MacroStatement) as Statement:
@@ -40,22 +39,17 @@ class MacroMacro(AbstractAstMacro):
 			raise System.ArgumentException("Usage: macro <reference>", "reference")
 		klass = CreateMacroType(macro)
 		klass.LexicalInfo = macro.LexicalInfo
-		#TODO: create macro as a nested class of the current type
-		#      if not at module-level ? (=> macro namespaces)
-		EnclosingModule(macro).Members.Add(klass)
+		EnclosingType(macro).Members.Add(klass)
 		return null
-
 
 	private def PascalCase(name as string) as string:
 		return char.ToUpper(name[0]) + name[1:]
-
-
+		
 	private def CreateMacroType(macro as MacroStatement) as ClassDefinition:
 		name = (macro.Arguments[0] as ReferenceExpression).Name
 		newStyle = YieldFinder(macro).Found
 		return CreateNewStyleMacroType(name, macro) if newStyle
 		return CreateOldStyleMacroType(name, macro)
-
 
 	#BOO-1077 style
 	private def CreateNewStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
@@ -75,7 +69,6 @@ class MacroMacro(AbstractAstMacro):
 						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
 			|]
 
-
 	private def CreateOldStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
 		return [|
 				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
@@ -89,9 +82,8 @@ class MacroMacro(AbstractAstMacro):
 						$(macro.Block)
 			|]
 
-
-	private def EnclosingModule(macro as Node) as Module:
-		return macro.GetAncestor(NodeType.Module)
+	private def EnclosingType(macro as Node) as TypeDefinition:
+		return macro.GetAncestor[of TypeDefinition]()
 
 	private class YieldFinder(DepthFirstVisitor):
 		Found as bool:

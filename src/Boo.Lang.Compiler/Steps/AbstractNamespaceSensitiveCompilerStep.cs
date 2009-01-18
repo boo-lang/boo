@@ -46,10 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected INamespace CurrentNamespace
 		{
-			get
-			{
-				return NameResolutionService.CurrentNamespace;
-			}
+			get { return NameResolutionService.CurrentNamespace; }
 		}
 		
 		protected void LeaveNamespace()

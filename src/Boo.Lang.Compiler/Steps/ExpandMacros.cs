@@ -41,10 +41,21 @@ namespace Boo.Lang.Compiler.Steps
 
 		private int _expanded;
 
+		private class RestartExpansionException : System.Exception
+		{	
+		}
+
 		public bool ExpandAll()
 		{
 			_expanded = 0;
-			Run();
+			try
+			{
+				Run();
+			}
+			catch (RestartExpansionException)
+			{
+				return true;
+			}
 			return _expanded > 0;
 		}
 		
@@ -52,27 +63,80 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(CompileUnit);
 		}
+
+		protected override void OnError(Node node, Exception error)
+		{
+			if (error is RestartExpansionException)
+				throw error;
+			base.OnError(node, error);
+		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
-			Visit(module.Globals);
-			Visit(module.Members);
-			LeaveNamespace();
+			try
+			{
+				Visit(module.Globals);
+				Visit(module.Members);
+			}
+			finally
+			{
+				LeaveNamespace();
+			}
 		}
 		
 		override public void OnMacroStatement(MacroStatement node)
 		{
-			Visit(node.Block);
-			Visit(node.Arguments);
-
-			IType entity = ResolveMacroName(node) as IType;
-			if (null != entity)
+			IType macroType = ResolveMacroName(node) as IType;
+			if (null == macroType)
 			{
-				ProcessMacro(entity, node);
+				ExpandUnknownMacro(node);
 				return;
 			}
+			ExpandKnownMacro(node, macroType);
+		}
+
+		private void ExpandKnownMacro(MacroStatement node, IType macroType)
+		{
+			if (node.Name == "macro")
+			{
+				ProcessMacro(macroType, node);
+				node.ParentNode.Replace(node, _resultingNode);
+				throw new RestartExpansionException();
+			}
+
+			EnsureVisitedRelatedNode(macroType);
+			EnterNamespace(new NamespaceDelegator(CurrentNamespace, macroType));
+			try
+			{	
+				ExpandChildrenOf(node);
+			}
+			finally
+			{
+				LeaveNamespace();
+			}
+
+			ProcessMacro(macroType, node);
+		}
+
+		private void EnsureVisitedRelatedNode(IType macroType)
+		{
+			AbstractInternalType internalType = macroType as AbstractInternalType;
+			if (null == internalType)
+				return;
+			EnsureVisited(internalType.TypeDefinition);
+		}
+
+		private void ExpandUnknownMacro(MacroStatement node)
+		{
+			ExpandChildrenOf(node);
 			TreatMacroAsMethodInvocation(node);
+		}
+
+		private void ExpandChildrenOf(MacroStatement node)
+		{
+			Visit(node.Block);
+			Visit(node.Arguments);
 		}
 
 		private void ProcessMacro(IType macroType, MacroStatement node)
@@ -90,8 +154,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)
 		{
-			bool firstTry = ! MacroCompiler.AlreadyCompiled(klass.TypeDefinition);
-			Type macroType = new MacroCompiler(Context).Compile(klass);
+			TypeDefinition macroDefinition = klass.TypeDefinition;
+			bool firstTry = ! MacroCompiler.AlreadyCompiled(macroDefinition);
+			Type macroType = new MacroCompiler(Context).Compile(macroDefinition);
 			if (null == macroType)
 			{
 				if (firstTry)
@@ -107,6 +172,16 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMacro(macroType, node);
 		}
 
+		private static readonly object VisitedAnnotation = new object();
+
+		private void EnsureVisited(TypeDefinition node)
+		{
+			if (node.ContainsAnnotation(VisitedAnnotation))
+				return;
+			node.Accept(this);
+			node.Annotate(VisitedAnnotation);
+		}
+		
 		private void ProcessingError(CompilerError error)
 		{
 			Errors.Add(error);
@@ -115,9 +190,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessMacro(Type actualType, MacroStatement node)
 		{
-            // HACK: workaround for mono
-			if (-1 == Array.IndexOf(actualType.GetInterfaces(), typeof(IAstMacro)))
-//			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
+            if (!typeof(IAstMacro).IsAssignableFrom(actualType))
 			{
 				ProcessingError(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
 				return;
@@ -167,7 +240,7 @@ namespace Boo.Lang.Compiler.Steps
 				macro.Initialize(_context);
 
 				//use new-style BOO-1077 generator macro interface if available
-				if (null != (macro as IAstGeneratorMacro))
+				if (macro is IAstGeneratorMacro)
 					return ExpandGeneratorMacro((IAstGeneratorMacro) macro, node);
 
 				return macro.Expand(node);
@@ -210,17 +283,17 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static TypeDefinition GetEnclosingTypeOrModule(Node node)
 		{
-			while (null != node) {
-				if (null != (node as TypeDefinition))
-					return (TypeDefinition) node;
-				node = node.ParentNode;
-			}
+			TypeDefinition enclosingType = node.GetAncestor<TypeDefinition>();
+			if (null != enclosingType)
+				return enclosingType;
+
 			throw new ArgumentException("node");
 		}
 
 		private IEntity ResolveMacroName(MacroStatement node)
 		{
-			IEntity entity = NameResolutionService.ResolveQualifiedName(BuildMacroTypeName(node.Name));
+			string macroTypeName = BuildMacroTypeName(node.Name);
+			IEntity entity = NameResolutionService.ResolveQualifiedName(macroTypeName);
 			if (null != entity) return entity;
 			return NameResolutionService.ResolveQualifiedName(node.Name);
 		}

@@ -47,24 +47,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		internal InternalMethod(TypeSystemServices typeSystemServices, Method method) : base(method)
 		{
 			_typeSystemServices = typeSystemServices;
-			if (method.NodeType != NodeType.Constructor && method.NodeType != NodeType.Destructor)
-			{
-				if (null == _node.ReturnType)
-				{
-					IType returnType = _node.DeclaringType.NodeType == NodeType.ClassDefinition
-						? Unknown.Default
-						: (IType)_typeSystemServices.VoidType;
-					_node.ReturnType = _typeSystemServices.CodeBuilder.CreateTypeReference(method.LexicalInfo, returnType);
-				}
-			}
 		}
 
 		public bool IsExtension
 		{
-			get
-			{
-				return IsBooExtension || IsClrExtension;
-			}
+			get { return IsBooExtension || IsClrExtension; }
 		}
 
 		public bool IsBooExtension
@@ -96,7 +83,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return this.ReturnType == _typeSystemServices.DuckType;
+				return _typeSystemServices.IsDuckType(ReturnType);
 			}
 		}
 		
@@ -198,6 +185,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
+				if (null == _node.ReturnType)
+					return _node.DeclaringType.NodeType == NodeType.ClassDefinition
+						? Unknown.Default
+						: (IType)_typeSystemServices.VoidType;
 				return TypeSystemServices.GetType(_node.ReturnType);
 			}
 		}

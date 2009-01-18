@@ -37,19 +37,19 @@ namespace Boo.Lang.Compiler.Steps
 	class MacroCompiler : AbstractCompilerComponent
 	{
 		private static readonly object CachedTypeAnnotation = new object();
+		private AssemblyCollection _references;
 
 		public MacroCompiler(CompilerContext context)
 		{
+			_references = context.Parameters.References.Clone();
 			Initialize(context);
 		}
 
-		public Type Compile(InternalClass macro)
+		public Type Compile(TypeDefinition node)
 		{
-			return Compile(macro.TypeDefinition);
-		}
+			if (node.DeclaringType is ClassDefinition)
+				return CompileNestedMacro(node);
 
-		private Type Compile(TypeDefinition node)
-		{
 			Type type = CachedType(node);
 			if (type != null) return type;
 
@@ -60,11 +60,20 @@ namespace Boo.Lang.Compiler.Steps
 			return compiledType;
 		}
 
+		private Type CompileNestedMacro(TypeDefinition node)
+		{
+			Type enclosingType = Compile(node.DeclaringType);
+			if (null == enclosingType)
+				return null;
+			Type nestedType = enclosingType.GetNestedType(node.Name);
+			CacheType(node, nestedType);
+			return nestedType;
+		}
+
 		private Type RunCompiler(TypeDefinition node)
 		{
 			TraceInfo("Compiling macro '{0}'", node.FullName);
-			System.Reflection.Assembly[] references = new System.Reflection.Assembly[Context.Parameters.References.Count];
-			(Context.Parameters.References as System.Collections.ICollection).CopyTo(references, 0);
+			System.Reflection.Assembly[] references = _references.ToArray();
 			CompilerContext result = Compilation.compile_(CompileUnitFor(node), references);
 			if (0 == result.Errors.Count)
 			{
@@ -91,35 +100,34 @@ namespace Boo.Lang.Compiler.Steps
 		private void GetModuleFor(CompileUnit unit, TypeDefinition node)
 		{
 			unit.Modules.Add(ModuleFor(node));
-			foreach (TypeReference typeRef in node.BaseTypes)
+			CollectModulesForBaseTypes(unit, node);
+		}
+
+		private void CollectModulesForBaseTypes(CompileUnit unit, TypeDefinition node)
+		{
+			foreach (TypeReference baseType in node.BaseTypes)
 			{
-				InternalClass ait = null;
-				try
-				{
-					ait = TypeSystemServices.GetType(typeRef) as InternalClass;
-				}
-				catch (CompilerError)
-				{
-				}
-				if(ait != null)
-					GetModuleFor(unit, ait.TypeDefinition);
+				InternalClass internalClass = TypeSystemServices.GetOptionalEntity(baseType) as InternalClass;
+				if (internalClass == null)
+					continue;
+				GetModuleFor(unit, internalClass.TypeDefinition);
 			}
 		}
 
 		private Module ModuleFor(TypeDefinition node)
 		{
 			Module m = new Module();
-			m.Namespace = ClearClone(node.EnclosingModule.Namespace);
+			m.Namespace = CleanClone(node.EnclosingModule.Namespace);
 			m.Name = node.Name;
 			foreach (Import i in node.EnclosingModule.Imports)
 			{
-				m.Imports.Add(ClearClone(i));
+				m.Imports.Add(CleanClone(i));
 			}
-			m.Members.Add(ClearClone(node));
+			m.Members.Add(CleanClone(node));
 			return m;
 		}
 
-		private T ClearClone<T>(T node) where T: Node
+		private T CleanClone<T>(T node) where T: Node
 		{
 			if (node == null) return null;
 			T clone = (T)node.CloneNode();

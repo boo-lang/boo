@@ -17,15 +17,15 @@ namespace Boo.Lang.Compiler.Steps
 		public override void Run()
 		{
 			int iteration = 0;
-			while (iteration < Parameters.MaxExpansionIterations)
+			while (true)
 			{
 				bool attributesApplied = _attributes.BindAndApply();
 				bool macrosExpanded = _macros.ExpandAll();
 				if (!attributesApplied && !macrosExpanded)
-				{
 					break;
-				}
 				++iteration;
+				if (iteration > Parameters.MaxExpansionIterations)
+					throw new CompilerError("Too many expansions.");
 			}
 		}
 	}

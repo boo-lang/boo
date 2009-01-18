@@ -367,6 +367,19 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return null;
 		}
+
+		public TAncestor GetAncestor<TAncestor>() where TAncestor : Node
+		{
+			Node parent = this.ParentNode;
+			while (parent != null)
+			{
+				TAncestor ancestor = parent as TAncestor;
+				if (null != ancestor)
+					return ancestor;
+				parent = parent.ParentNode;
+			}
+			return null;
+		}
 	}
 
 }
