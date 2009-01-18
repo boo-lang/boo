@@ -44,10 +44,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			foreach (Boo.Lang.Compiler.Ast.Attribute attr in member.Attributes)
 			{
 				IEntity entity = TypeSystemServices.GetEntity(attr);
-				if (entity == attributeType) return true; // pre bound attribute
+				if (entity == attributeType)
+					return true; // pre bound attribute
 				IConstructor constructor = entity as IConstructor;
-				if (null == constructor) continue;				
-				if (constructor.DeclaringType == attributeType) return true;
+				if (null == constructor)
+					continue;
+				if (constructor.DeclaringType == attributeType)
+					return true;
 			}
 			return false;
 		}
@@ -63,7 +66,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 					continue;
 				}
 				IConstructor constructor = entity as IConstructor;
-				if (null == constructor) continue;
+				if (null == constructor)
+					continue;
 				if (constructor.DeclaringType == attributeType) {
 					attrs.Add(attr);
 					continue;
@@ -115,16 +119,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return ((ICollection<MemberInfo>) members).Contains(member);
 				}
 			}
+#if CHECK_ATTRIBUTES_BY_ISDEFINED
 			return System.Attribute.IsDefined(member, attributeType);
-
-#if CHECK_ATTRIBUTES_BY_NAME
+#else
 			// check attribute by name to account for different 
 			// loaded modules (and thus different type identities)
 			string attributeName = attributeType.FullName;
 			System.Attribute[] attributes = System.Attribute.GetCustomAttributes(member);
 			foreach (System.Attribute a in attributes)
 			{
-				if (a.GetType().FullName == attributeName) return true;
+				if (a.GetType().FullName == attributeName)
+					return true;
 			}
 			return false;
 #endif
