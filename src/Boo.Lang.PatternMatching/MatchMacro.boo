@@ -23,6 +23,7 @@ The following patterns are supported:
     Type() -- type test pattern
     Type(Property1: Pattern1, ...) -- object pattern
     Pattern1 | Pattern2 -- either pattern
+	Pattern1 & Pattern2 -- both pattern (NOT IMPLEMENTED)
     Pattern1 and condition -- constrained pattern  (NOT IMPLEMENTED)
     Pattern1 or condition -- constrained pattern  (NOT IMPLEMENTED)
     (Pattern1, Pattern2) -- fixed size iteration pattern

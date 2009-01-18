@@ -104,7 +104,7 @@ namespace Boo.Lang.Compiler.Steps
 				++removed;
 			}
 			
-			if (node.Globals.Statements.Count > 0)
+			if (node.Globals.HasStatements)
 			{
 				Method method = new Method(node.Globals.LexicalInfo);
 				method.IsSynthetic = true;
@@ -119,10 +119,7 @@ namespace Boo.Lang.Compiler.Steps
 				entryPoint = method;
 			}
 			
-			if (null != entryPoint)
-			{
-				ContextAnnotations.SetEntryPoint(Context, entryPoint);
-			}
+			SetEntryPointIfNecessary(entryPoint);
 			
 			if (hasModuleClass || _forceModuleClass || (moduleClass.Members.Count > 0))
 			{
@@ -141,7 +138,15 @@ namespace Boo.Lang.Compiler.Steps
 				((ModuleEntity)node.Entity).InitializeModuleClass(moduleClass);
 			}
 		}
-		
+
+		private void SetEntryPointIfNecessary(Method entryPoint)
+		{
+			if (null != entryPoint && Parameters.OutputType != CompilerOutputType.Library)
+			{
+				ContextAnnotations.SetEntryPoint(Context, entryPoint);
+			}
+		}
+
 		ClassDefinition FindModuleClass(Module node)
 		{
 			ClassDefinition found = null;

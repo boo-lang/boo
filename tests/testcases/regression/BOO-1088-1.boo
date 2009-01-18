@@ -1,3 +1,4 @@
+#ignore Cannot depend on immediate side effect of macro application
 """
 foo
 DEADLOCK DETECTED
@@ -5,7 +6,6 @@ DEADLOCK DETECTED
 
 import System
 import Boo.Lang.Compiler
-
 
 class Deadlocker:
 
@@ -16,10 +16,8 @@ class Deadlocker:
 		lock _daLock:
 			print "foo"
 
-
 macro enableDeadLockDetectorToKickInAt200ms:
 	Context.Parameters.Defines.Add("LOCK_TIMEOUT", "200")
-
 
 enableDeadLockDetectorToKickInAt200ms
 try:

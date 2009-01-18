@@ -328,7 +328,6 @@
     <File name="Steps/EmitAssembly.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandAstLiterals.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandDuckTypedExpressions.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/ExpandMacros.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandProperties.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandVarArgsMethodInvocations.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ForeignReferenceCollector.cs" buildaction="Compile" subtype="Code" />
@@ -345,6 +344,7 @@
     <File name="Steps/IntroduceModuleClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroAndAttributeExpansion.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroExpander.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MergePartialClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeIterationStatements.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeStatementModifiers.cs" buildaction="Compile" subtype="Code" />
@@ -374,6 +374,8 @@
     <File name="Steps/StricterErrorChecking.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/UnfoldConstants.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/Internal/ITypeMemberStatementVisitor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/Internal/TypeMemberStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractGenericParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />

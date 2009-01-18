@@ -31,16 +31,17 @@ namespace Boo.Lang.Extensions
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.Steps.Internal
 
-class MacroMacro(AbstractAstMacro):
+class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
-	override def Expand(macro as MacroStatement) as Statement:
+	override protected def ExpandGeneratorImpl(macro as MacroStatement) as Node*:
 		if len(macro.Arguments) != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
 			raise System.ArgumentException("Usage: macro <reference>", "reference")
-		klass = CreateMacroType(macro)
-		klass.LexicalInfo = macro.LexicalInfo
-		EnclosingType(macro).Members.Add(klass)
-		return null
+		yield CreateMacroType(macro)
+		
+	override protected def ExpandImpl(macro as MacroStatement):
+		raise System.NotImplementedException()
 
 	private def PascalCase(name as string) as string:
 		return char.ToUpper(name[0]) + name[1:]
@@ -65,7 +66,6 @@ class MacroMacro(AbstractAstMacro):
 						$(macro.Block)
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
-						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
 			|]
 
@@ -81,18 +81,19 @@ class MacroMacro(AbstractAstMacro):
 						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						$(macro.Block)
 			|]
-
-	private def EnclosingType(macro as Node) as TypeDefinition:
-		return macro.GetAncestor[of TypeDefinition]()
-
-	private class YieldFinder(DepthFirstVisitor):
-		Found as bool:
-			get:
-				return _found
+			
+	private class YieldFinder(DepthFirstVisitor, ITypeMemberStatementVisitor):
+		
 		_found = false
-
+		
 		def constructor(macro as MacroStatement):
 			super.OnMacroStatement(macro)
+			
+		Found:
+			get: return _found
+			
+		def OnTypeMemberStatement(node as TypeMemberStatement):
+			pass
 
 		override def OnYieldStatement(node as YieldStatement):
 			_found = true if _macroDepth == 1

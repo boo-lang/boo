@@ -49,5 +49,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return _name;
 		}
+		
+		public Block Body
+		{
+			get { return Block; }
+			set { Block = value; }
+		}
 	}
 }

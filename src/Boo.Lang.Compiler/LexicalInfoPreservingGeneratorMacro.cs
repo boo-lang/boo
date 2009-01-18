@@ -43,8 +43,7 @@ namespace Boo.Lang.Compiler
 		protected LexicalInfoPreservingGeneratorMacro (CompilerContext context) : base (context)
 		{
 		}
-
-
+		
 		public override Statement Expand(MacroStatement macro)
 		{
 			return ExpandImpl(macro);
@@ -59,11 +58,21 @@ namespace Boo.Lang.Compiler
 			{
 				foreach (Node n in nodes)
 				{
+					if (IsEmptyBlock(n))
+						continue;
 					if (null != n)
 						n.LexicalInfo = macro.LexicalInfo;
 					yield return n;
 				}
 			}
+		}
+		
+		private bool IsEmptyBlock(Node node)
+		{
+			Block block = node as Block;
+			if (null == block)
+				return false;
+			return block.IsEmpty;
 		}
 
 		protected abstract IEnumerable<Node> ExpandGeneratorImpl(MacroStatement macro);

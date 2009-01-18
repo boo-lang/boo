@@ -371,7 +371,6 @@
     <Compile Include="Steps\EmitAssembly.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />
     <Compile Include="Steps\ExpandDuckTypedExpressions.cs" />
-    <Compile Include="Steps\ExpandMacros.cs" />
     <Compile Include="Steps\ExpandProperties.cs" />
     <Compile Include="Steps\ExpandVarArgsMethodInvocations.cs" />
     <Compile Include="Steps\ForeignReferenceCollector.cs" />
@@ -388,6 +387,7 @@
     <Compile Include="Steps\IntroduceModuleClasses.cs" />
     <Compile Include="Steps\MacroAndAttributeExpansion.cs" />
     <Compile Include="Steps\MacroCompiler.cs" />
+    <Compile Include="Steps\MacroExpander.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
@@ -417,6 +417,8 @@
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
     <Compile Include="Steps\UnfoldConstants.cs" />
+    <Compile Include="Steps\Internal\ITypeMemberStatementVisitor.cs" />
+    <Compile Include="Steps\Internal\TypeMemberStatement.cs" />
     <Compile Include="TypeSystem\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\AbstractGenericParameter.cs" />
     <Compile Include="TypeSystem\AbstractInternalType.cs" />

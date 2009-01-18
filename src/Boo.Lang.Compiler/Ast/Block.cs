@@ -45,6 +45,11 @@ namespace Boo.Lang.Compiler.Ast
 			if (null != _statements) _statements = null;
 		}
 		
+		public bool IsEmpty
+		{
+			get { return !HasStatements; }
+		}
+		
 		public bool HasStatements
 		{
 			get

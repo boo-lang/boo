@@ -34,9 +34,9 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class ContextAnnotations
 	{		
-		static object EntryPointKey = new object();
+		private static readonly object EntryPointKey = new object();
 		
-		static object AssemblyBuilderKey = new object();
+		private static readonly object AssemblyBuilderKey = new object();
 
 		public static Method GetEntryPoint(CompilerContext context)
 		{
