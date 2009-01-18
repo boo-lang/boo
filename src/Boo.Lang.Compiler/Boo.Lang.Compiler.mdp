@@ -291,6 +291,7 @@
     <File name="Pipelines/CompileToFile.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/CompileToFileAndVerify.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/CompileToMemory.cs" buildaction="Compile" subtype="Code" />
+    <File name="Pipelines/ExpandMacros.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/Parse.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/ParseAndPrint.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/ParseAndPrintAst.cs" buildaction="Compile" subtype="Code" />
@@ -307,7 +308,6 @@
     <File name="Steps/AbstractTransformerCompilerStep.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/AbstractVisitorCompilerStep.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/AstAnnotations.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/BindAndApplyAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindBaseTypes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindEnumMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/BindGenericParameters.cs" buildaction="Compile" subtype="Code" />
@@ -343,8 +343,6 @@
     <File name="Steps/IntroduceGlobalNamespaces.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/IntroduceModuleClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroAndAttributeExpansion.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/MacroExpander.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MergePartialClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeIterationStatements.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeStatementModifiers.cs" buildaction="Compile" subtype="Code" />
@@ -374,8 +372,11 @@
     <File name="Steps/StricterErrorChecking.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/UnfoldConstants.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/Internal/ITypeMemberStatementVisitor.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/Internal/TypeMemberStatement.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroProcessing/BindAndApplyAttributes.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroProcessing/ITypeMemberStatementVisitor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroProcessing/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroProcessing/MacroExpander.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroProcessing/TypeMemberStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractGenericParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />

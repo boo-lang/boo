@@ -1,6 +1,6 @@
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.Steps.Internal
+namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
 	public class TypeMemberStatement : Statement
 	{

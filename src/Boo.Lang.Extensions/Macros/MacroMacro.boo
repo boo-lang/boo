@@ -31,7 +31,7 @@ namespace Boo.Lang.Extensions
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Steps.Internal
+import Boo.Lang.Compiler.Steps.MacroProcessing
 
 class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 

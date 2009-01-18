@@ -1,6 +1,6 @@
 using System;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.Steps.Internal;
+using Boo.Lang.Compiler.Steps.MacroProcessing;
 
 namespace Boo.Lang.Compiler.Steps
 {

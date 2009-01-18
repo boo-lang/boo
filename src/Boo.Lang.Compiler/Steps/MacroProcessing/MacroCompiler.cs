@@ -28,20 +28,22 @@
 
 
 using System;
+using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.MetaProgramming;
 using Boo.Lang.Compiler.TypeSystem;
+using Module=Boo.Lang.Compiler.Ast.Module;
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
 	class MacroCompiler : AbstractCompilerComponent
 	{
 		private static readonly object CachedTypeAnnotation = new object();
-		private AssemblyCollection _references;
+		private Assembly[] _references;
 
 		public MacroCompiler(CompilerContext context)
 		{
-			_references = context.Parameters.References.Clone();
+			_references = context.Parameters.References.ToArray();
 			Initialize(context);
 		}
 
@@ -73,8 +75,7 @@ namespace Boo.Lang.Compiler.Steps
 		private Type RunCompiler(TypeDefinition node)
 		{
 			TraceInfo("Compiling macro '{0}'", node.FullName);
-			System.Reflection.Assembly[] references = _references.ToArray();
-			CompilerContext result = Compilation.compile_(CompileUnitFor(node), references);
+			CompilerContext result = Compilation.compile_(CompileUnitFor(node), _references);
 			if (0 == result.Errors.Count)
 			{
 				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node.FullName, result.GeneratedAssembly);

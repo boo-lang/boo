@@ -30,27 +30,11 @@ namespace Boo.Lang.Compiler.Pipelines
 {
 	using Boo.Lang.Compiler.Steps;
 	
-	public class ResolveExpressions : Parse 
+	public class ResolveExpressions : ExpandMacros 
 	{
 		public ResolveExpressions()
 		{
-			Add(new InitializeTypeSystemServices());
-			Add(new PreErrorChecking());
-
-			Add(new MergePartialClasses());
-			
-			Add(new InitializeNameResolutionService());
-			Add(new IntroduceGlobalNamespaces());
-			Add(new TransformCallableDefinitions());
-
-			Add(new BindTypeDefinitions());
-			Add(new BindGenericParameters());
-			Add(new BindNamespaces());
-			Add(new BindBaseTypes());
-
-			Add(new MacroAndAttributeExpansion());
 			Add(new ExpandAstLiterals());
-			
 			
 			Add(new IntroduceModuleClasses());
 			Add(new NormalizeStatementModifiers());

@@ -26,15 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
-{
-	using System;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.TypeSystem;
-	using Boo.Lang.Compiler.Util;
-	using Reflection = System.Reflection;
+using System;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.Util;
 
+namespace Boo.Lang.Compiler.Steps.MacroProcessing
+{
 	class ApplyAttributeTask : ITask
 	{
 		CompilerContext _context;
@@ -131,9 +129,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				Reflection.MemberInfo[] members = _type.FindMembers(
-					Reflection.MemberTypes.Property | Reflection.MemberTypes.Field,
-					Reflection.BindingFlags.Instance | Reflection.BindingFlags.Public,
+				System.Reflection.MemberInfo[] members = _type.FindMembers(
+					System.Reflection.MemberTypes.Property | System.Reflection.MemberTypes.Field,
+					System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
 					Type.FilterName, name.Name);
 				if (members.Length > 0)
 				{
@@ -144,15 +142,15 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						Reflection.MemberInfo m = members[0];
-						Reflection.PropertyInfo property = m as Reflection.PropertyInfo;
+						System.Reflection.MemberInfo m = members[0];
+						System.Reflection.PropertyInfo property = m as System.Reflection.PropertyInfo;
 						if (null != property)
 						{
 							property.SetValue(aa, p.Second, null);
 						}
 						else
 						{
-							Reflection.FieldInfo field = m as Reflection.FieldInfo;
+							System.Reflection.FieldInfo field = m as System.Reflection.FieldInfo;
 							if (null != field)
 							{
 								field.SetValue(aa, p.Second);
@@ -299,9 +297,9 @@ namespace Boo.Lang.Compiler.Steps
 			if (_elements.Count > 1)
 			{
 				Error(attribute, CompilerErrorFactory.AmbiguousReference(
-								attribute,
-								attribute.Name,
-								_elements));
+				                 	attribute,
+				                 	attribute.Name,
+				                 	_elements));
 				return;
 			}
 
@@ -350,7 +348,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach(Expression e in node.Arguments)
 			{
 				if (e.NodeType == NodeType.BinaryExpression
-					&& ((BinaryExpression)e).Operator == BinaryOperatorType.Assign)
+				    && ((BinaryExpression)e).Operator == BinaryOperatorType.Assign)
 				{
 					Error(node, CompilerErrorFactory.ColonInsteadOfEquals(node));
 				}

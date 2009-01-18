@@ -355,6 +355,7 @@
     <Compile Include="Pipelines\CompileToFile.cs" />
     <Compile Include="Pipelines\CompileToFileAndVerify.cs" />
     <Compile Include="Pipelines\CompileToMemory.cs" />
+    <Compile Include="Pipelines\ExpandMacros.cs" />
     <Compile Include="Pipelines\Parse.cs" />
     <Compile Include="Pipelines\ParseAndPrint.cs" />
     <Compile Include="Pipelines\ParseAndPrintAst.cs" />
@@ -371,7 +372,6 @@
     <Compile Include="Steps\AbstractTransformerCompilerStep.cs" />
     <Compile Include="Steps\AbstractVisitorCompilerStep.cs" />
     <Compile Include="Steps\AstAnnotations.cs" />
-    <Compile Include="Steps\BindAndApplyAttributes.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
     <Compile Include="Steps\BindEnumMembers.cs" />
     <Compile Include="Steps\BindGenericParameters.cs" />
@@ -407,8 +407,6 @@
     <Compile Include="Steps\IntroduceGlobalNamespaces.cs" />
     <Compile Include="Steps\IntroduceModuleClasses.cs" />
     <Compile Include="Steps\MacroAndAttributeExpansion.cs" />
-    <Compile Include="Steps\MacroCompiler.cs" />
-    <Compile Include="Steps\MacroExpander.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
@@ -438,8 +436,11 @@
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
     <Compile Include="Steps\UnfoldConstants.cs" />
-    <Compile Include="Steps\Internal\ITypeMemberStatementVisitor.cs" />
-    <Compile Include="Steps\Internal\TypeMemberStatement.cs" />
+    <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
+    <Compile Include="Steps\MacroProcessing\ITypeMemberStatementVisitor.cs" />
+    <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
+    <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
+    <Compile Include="Steps\MacroProcessing\TypeMemberStatement.cs" />
     <Compile Include="TypeSystem\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\AbstractGenericParameter.cs" />
     <Compile Include="TypeSystem\AbstractInternalType.cs" />

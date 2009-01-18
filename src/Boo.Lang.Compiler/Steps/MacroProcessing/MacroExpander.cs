@@ -26,17 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.Steps.Internal;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	using System;
-	using System.Text;
-	using System.Collections.Generic;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.TypeSystem;
-	
 	internal class MacroExpander : AbstractNamespaceSensitiveTransformerCompilerStep
 	{
 		private int _expanded;
@@ -199,7 +196,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessMacro(Type actualType, MacroStatement node)
 		{
-            if (!typeof(IAstMacro).IsAssignableFrom(actualType))
+			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
 			{
 				ProcessingError(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
 				return;
@@ -229,7 +226,7 @@ namespace Boo.Lang.Compiler.Steps
 				new ReferenceExpression(node.LexicalInfo, node.Name));
 			invocation.Arguments = node.Arguments;
 			if (node.ContainsAnnotation("compound")
-				|| !IsNullOrEmpty(node.Block))
+			    || !IsNullOrEmpty(node.Block))
 			{
 				invocation.Arguments.Add(new BlockExpression(node.Block));
 			}
@@ -327,4 +324,3 @@ namespace Boo.Lang.Compiler.Steps
 		}
 	}
 }
-
