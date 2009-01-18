@@ -225,7 +225,7 @@ Authors:
 						errorPatternMatch.Groups['line'].Value,
 						NumberStyles.Integer)
 						
-				except FormatException:
+				except as FormatException:
 					lineNumber = 0
 
 				try:
@@ -233,7 +233,7 @@ Authors:
 						errorPatternMatch.Groups['column'].Value,
 						NumberStyles.Integer)
 						
-				except FormatException:
+				except as FormatException:
 					columnNumber = 0
 
 				Log.LogError(
