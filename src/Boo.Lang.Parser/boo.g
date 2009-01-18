@@ -2079,7 +2079,7 @@ ast_literal_expression returns [QuasiquoteExpression e]
 type_definition_member_prediction:
 	attributes
 	modifiers
-	(CLASS|INTERFACE|STRUCT|DEF|EVENT|((ID|(SPLICE_BEGIN atom)) (AS|ASSIGN)))
+	(CLASS|INTERFACE|STRUCT|DEF|EVENT|((ID|(SPLICE_BEGIN atom)) (AS|ASSIGN|(COLON INDENT (GET|SET)))))
 ;
 
 ast_literal_module[QuasiquoteExpression e]

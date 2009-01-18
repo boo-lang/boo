@@ -27,10 +27,16 @@ literal = [|
 	event Foo as Bar
 |]
 
-litera = [|
+literal = [|
 	[once]
 	def bar():
 		return foo()
+|]
+
+literal = [|
+	protected Property:
+		get:
+			return null
 |]
 """
 literal = [|
@@ -61,8 +67,13 @@ literal = [|
 	event Foo as Bar
 |]
 
-litera = [|
+literal = [|
 	[once]
 	def bar():
 		return foo()
+|]
+
+literal = [|
+	protected Property:
+		get: return null
 |]
