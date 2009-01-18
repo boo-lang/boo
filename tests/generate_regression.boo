@@ -207,18 +207,14 @@ namespace BooCompiler.Tests
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
+	using Boo.Lang.Compiler.Steps.MacroProcessing;
 
 	[TestFixture]
 	public class AttributesTestFixture : AbstractCompilerTestCase
 	{
 		override protected CompilerPipeline SetUpCompilerPipeline()
 		{
-			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
-			pipeline.Add(new InitializeTypeSystemServices());
-			pipeline.Add(new InitializeNameResolutionService());
-			pipeline.Add(new IntroduceGlobalNamespaces());
-			pipeline.Add(new BindNamespaces());
-			pipeline.Add(new BindAndApplyAttributes());
+			CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.ExpandMacros();
 			pipeline.Add(new PrintBoo());
 			return pipeline;
 		}

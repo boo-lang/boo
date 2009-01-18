@@ -1,7 +1,7 @@
 """
 import BooCompiler.Tests from BooCompiler.Tests
 
-class Control:
+class Control(object):
 
 	Width as int:
 		get:

@@ -1,5 +1,5 @@
 """
-class A:
+class A(object):
 
 	_fld1 = 'abc'
 

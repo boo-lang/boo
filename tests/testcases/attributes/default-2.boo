@@ -1,5 +1,5 @@
 """
-class Test:
+class Test(object):
 
 	Foo as string:
 		set:

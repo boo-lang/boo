@@ -1,5 +1,5 @@
 """
-class Customer:
+class Customer(object):
 
 	_fname as string
 

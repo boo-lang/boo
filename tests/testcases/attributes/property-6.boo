@@ -1,5 +1,5 @@
 """
-class Customer:
+class Customer(object):
 
 	_friends as System.Collections.ArrayList
 
