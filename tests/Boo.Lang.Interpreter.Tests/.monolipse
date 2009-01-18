@@ -1,0 +1,11 @@
+<settings>
+  <language>boo</language>
+  <outputType>library</outputType>
+  <references>
+    <monolipse.core.internal.AssemblySourceReference-Remembrance>
+      <path>/boo/src/Boo.Lang.Interpreter</path>
+    </monolipse.core.internal.AssemblySourceReference-Remembrance>
+  </references>
+  <outputFolder>/boo/build</outputFolder>
+  <additionalOptions></additionalOptions>
+</settings>

@@ -233,7 +233,7 @@
 		      verbose="${verbose}"
 		      debug="${debug}">
 			<sources basedir="src/Boo.Lang.Interpreter">
-				<include name="*.boo" />
+				<include name="**/*.boo" />
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
