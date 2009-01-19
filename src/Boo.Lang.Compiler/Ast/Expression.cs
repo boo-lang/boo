@@ -50,12 +50,47 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return new StringLiteralExpression(s);
 		}
-		
+
+		public static Expression Lift(char b)
+		{
+			return new CharLiteralExpression(b);
+		}
+
+		public static Expression Lift(byte b)
+		{
+			return new IntegerLiteralExpression(b);
+		}
+
+		public static Expression Lift(bool b)
+		{
+			return new BoolLiteralExpression(b);
+		}
+
+		public static Expression Lift(short s)
+		{
+			return new IntegerLiteralExpression(s);
+		}
+
 		public static Expression Lift(int i)
 		{
 			return new IntegerLiteralExpression(i);
 		}
-		
+
+		public static Expression Lift(long l)
+		{
+			return new IntegerLiteralExpression(l);
+		}
+
+		public static Expression Lift(float f)
+		{
+			return new DoubleLiteralExpression(f, true);
+		}
+
+		public static Expression Lift(double d)
+		{
+			return new DoubleLiteralExpression(d);
+		}
+
 		public static Expression Lift(Block block)
 		{
 			return new BlockExpression(block);

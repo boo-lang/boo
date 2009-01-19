@@ -39,7 +39,11 @@ namespace Boo.Lang.Compiler.Ast
 		public CharLiteralExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
-		
+
+		public CharLiteralExpression(char value) : this(LexicalInfo.Empty, value)
+		{
+		}
+
 		public CharLiteralExpression(LexicalInfo lexicalInfo, string value) : base(lexicalInfo)
 		{
 			_value = value;
