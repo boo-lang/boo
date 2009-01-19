@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -54,6 +55,20 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get { return Block; }
 			set { Block = value; }
+		}
+
+		public MacroStatement GetParentMacroByName(string name)
+		{
+			MacroStatement parent = GetAncestor<MacroStatement>();
+			while (null != parent) {
+				if (parent.Name == name)
+					return parent;
+				else if (parent.Name == "macro") //macro macro
+					if (name == (parent.Arguments[0] as ReferenceExpression).Name)
+						return parent;
+				parent = parent.GetAncestor<MacroStatement>();
+			}
+			return null;
 		}
 	}
 }

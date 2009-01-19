@@ -39,23 +39,42 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		if len(macro.Arguments) != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
 			raise System.ArgumentException("Usage: macro <reference>", "reference")
 		yield CreateMacroType(macro)
-		
+
+
 	override protected def ExpandImpl(macro as MacroStatement):
 		raise System.NotImplementedException()
 
-	private def PascalCase(name as string) as string:
+
+	private static def PascalCase(name as string) as string:
 		return char.ToUpper(name[0]) + name[1:]
-		
-	private def CreateMacroType(macro as MacroStatement) as ClassDefinition:
+
+
+	private static def CreateMacroType(macro as MacroStatement) as ClassDefinition:
 		name = (macro.Arguments[0] as ReferenceExpression).Name
-		newStyle = YieldFinder(macro).Found
-		return CreateNewStyleMacroType(name, macro) if newStyle
-		return CreateOldStyleMacroType(name, macro)
+		if YieldFinder(macro).Found:
+			macroType = CreateNewStyleMacroType(name, macro)
+		else:
+			macroType = CreateOldStyleMacroType(name, macro)
+
+		#add parent macro(s) accessor(s)
+		parent = macro.GetAncestor[of MacroStatement]()
+		while parent is not null:
+			continue if macro.Name != "macro"
+			name = (parent.Arguments[0] as ReferenceExpression).Name
+			if not macroType.Members[name]:
+				for accessor in CreateParentMacroAccessor(parent, name):
+					macroType.Members.Add(accessor)
+			parent = parent.GetAncestor[of MacroStatement]()
+
+		return macroType
+
 
 	#BOO-1077 style
-	private def CreateNewStyleMacroType(name as string, macro as MacroStatement):
+	private static def CreateNewStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
+		arg = ReferenceExpression(name)
 		return [|
-				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
+				final class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
+					private __macro as Boo.Lang.Compiler.Ast.MacroStatement
 					def constructor():
 						super()
 					def constructor(context as Boo.Lang.Compiler.CompilerContext):
@@ -63,15 +82,18 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						super(context)
 					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
 						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
+						self.__macro = $arg
 						$(macro.Block)
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
 			|]
 
-	private def CreateOldStyleMacroType(name as string, macro as MacroStatement):
+	private static def CreateOldStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
+		arg = ReferenceExpression(name)
 		return [|
-				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
+				final class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
+					private __macro as Boo.Lang.Compiler.Ast.MacroStatement
 					def constructor():
 						super()
 					def constructor(context as Boo.Lang.Compiler.CompilerContext):
@@ -79,12 +101,31 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						super(context)
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
+						self.__macro = $arg
 						$(macro.Block)
 			|]
-			
-	private class YieldFinder(DepthFirstVisitor, ITypeMemberStatementVisitor):
-		_found = false
-		
+
+
+	private static def CreateParentMacroAccessor(macro as MacroStatement, name as string):
+		cache = Field(SimpleTypeReference("Boo.Lang.Compiler.Ast.MacroStatement"), null)
+		cache.Name = "__"+name
+		cache.Modifiers = TypeMemberModifiers.Private
+		cacheRef = ReferenceExpression(cache.Name)
+
+		yield [|
+			[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+			private $(name) as Boo.Lang.Compiler.Ast.MacroStatement:
+				get:
+					$cacheRef = __macro.GetParentMacroByName($name) unless $cacheRef
+					return $cacheRef
+		|]
+		yield cache
+
+
+	private final class YieldFinder(DepthFirstVisitor, ITypeMemberStatementVisitor):
+		private _found = false
+		private _macroDepth = 0
+
 		def constructor(macro as MacroStatement):
 			macro.Accept(self)
 			
@@ -103,6 +144,4 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 		override def LeaveMacroStatement(node as MacroStatement):
 			_macroDepth--
-
-		_macroDepth = 0
 
