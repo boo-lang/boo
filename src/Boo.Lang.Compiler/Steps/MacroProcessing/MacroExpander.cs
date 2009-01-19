@@ -273,18 +273,34 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 						node.GetAncestor<TypeDefinition>().Members.Add(member);
 					continue;
 				}
+				
+				Block block = generatedNode as Block;
+				if (null != block)
+				{
+					resultingBlock.Add(block);
+					continue;
+				}
 
 				Statement statement = generatedNode as Statement;
 				if (null != statement)
 				{
-					resultingBlock.Add((Statement) generatedNode);
+					resultingBlock.Add(statement);
 					continue;
 				}
 
-				resultingBlock.Add((Expression) generatedNode);
+				Expression expression = generatedNode as Expression;
+				if (null != expression)
+				{
+					resultingBlock.Add(expression);
+					continue;
+				}
+				
+				throw new CompilerError(node, "Unsupported expansion: " + generatedNode);
 			}
 
-			return resultingBlock;
+			return resultingBlock.IsEmpty
+					? null
+					: resultingBlock;
 		}
 
 		private static TypeDefinition GetEnclosingTypeOrModule(Node node)
