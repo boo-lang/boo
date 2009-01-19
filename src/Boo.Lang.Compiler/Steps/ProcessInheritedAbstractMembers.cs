@@ -304,9 +304,9 @@ namespace Boo.Lang.Compiler.Steps
 				}
 
 				//fully-implemented?
-				if (((p.Getter != null) == HasGetter(baseProperty))
-				    && ((p.Setter != null) == HasSetter(baseProperty)))
-					return;
+				if (!HasGetter(baseProperty) || (HasGetter(baseProperty) && null != p.Getter))
+					if (!HasSetter(baseProperty) || (HasSetter(baseProperty) && null != p.Setter))
+						return;
 			}
 
 			foreach(SimpleTypeReference parent in node.BaseTypes)
