@@ -2680,6 +2680,7 @@ member returns [IToken name]
 	t1:INTERNAL { name=t1; } |
 	t2:PUBLIC { name=t2; } |
 	t3:PROTECTED { name=t3; } |
+	ev:EVENT { name=ev; } |
 	r:REF { name=r; }
 	;
 	
