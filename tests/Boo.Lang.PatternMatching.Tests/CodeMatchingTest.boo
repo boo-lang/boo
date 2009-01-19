@@ -9,16 +9,27 @@ import Boo.Lang.Compiler.Ast
 class CodeMatchingTest:
 	
 	[Test]
+	def MacroApplication():
+		Assert.AreEqual("42", firstPrintArgument([| print 42 |]).ToString())
+		
+	[Test]
+	[ExpectedException(MatchError)]
+	def MacroApplicationWithMismatchedArguments():
+		firstPrintArgument([| print "arg1", "arg2" |])
+		
+	[Test]
+	[ExpectedException(MatchError)]
+	def WrongMacroApplicationNae():
+		firstPrintArgument([| print_ "arg" |])
+		
+	[Test]
 	def TestAssignment():
-		
 		code = [| a = 21*2 |]
-		
 		Assert.AreEqual("a", variableName(code))
 		Assert.AreEqual(code.Right, rvalue(code))
 		
 	[Test]
 	def TestSlicing():
-		
 		code = [| a[b] |]
 		match code:
 			case [| $target[$arg] |]:
@@ -87,3 +98,8 @@ class CodeMatchingTest:
 		match code:
 			case [| $_ = $r |]:
 				return r
+	
+	def firstPrintArgument(code as Node):
+		match code:
+			case [| print $arg |]:
+				return arg 

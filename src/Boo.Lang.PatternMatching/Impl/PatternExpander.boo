@@ -2,53 +2,33 @@ namespace Boo.Lang.PatternMatching.Impl
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.PatternMatching from Boo.Lang.PatternMatching
 
 class PatternExpander:
 	
 	def expand(matchValue as Expression, pattern as Expression) as Expression:
-		mie = pattern as MethodInvocationExpression
-		if mie is not null:
-			return expandObjectPattern(matchValue, mie)
-			
-		memberRef = pattern as MemberReferenceExpression
-		if memberRef is not null:
-			return expandValuePattern(matchValue, memberRef)
-			
-		reference = pattern as ReferenceExpression
-		if reference is not null:
-			return expandBindPattern(matchValue, reference)
-			
-		quasiquote = pattern as QuasiquoteExpression
-		if quasiquote is not null:
-			return expandQuasiquotePattern(matchValue, quasiquote)
-			
-		binary = pattern as BinaryExpression
-		if binary is not null:
-			return expandBinaryExpression(matchValue, binary)
-			
-		fixedSize = pattern as ArrayLiteralExpression
-		if fixedSize is not null:
-			return expandFixedSizePattern(matchValue, fixedSize)
-			
-		return expandValuePattern(matchValue, pattern)
-		
-	def expandBinaryExpression(matchValue as Expression, node as BinaryExpression):
-		if isCapture(node):
-			return expandCapturePattern(matchValue, node)
-			
-		if node.Operator == BinaryOperatorType.BitwiseOr:
-			return expandEitherPattern(matchValue, node)
-			
-		assert false, "Unsupported pattern: ${node}"
+		match pattern:
+			case MethodInvocationExpression():
+				return expandObjectPattern(matchValue, pattern)
+			case MemberReferenceExpression():
+				return expandValuePattern(matchValue, pattern)
+			case ReferenceExpression():
+				return expandBindPattern(matchValue, pattern)
+			case QuasiquoteExpression():
+				return expandQuasiquotePattern(matchValue, pattern)
+			case [| $l = $r |]:
+				return expandCapturePattern(matchValue, pattern)
+			case [| $l | $r |]:
+				return expandEitherPattern(matchValue, pattern)
+			case ArrayLiteralExpression():
+				return expandFixedSizePattern(matchValue, pattern)
+			otherwise:
+				return expandValuePattern(matchValue, pattern)
 		
 	def expandEitherPattern(matchValue as Expression, node as BinaryExpression) as Expression:
 		l = expand(matchValue, node.Left)
 		r = expand(matchValue, node.Right)
 		return [| $l or $r |]
-		
-	def isCapture(node as BinaryExpression):
-		if node.Operator != BinaryOperatorType.Assign: return false
-		return node.Left isa ReferenceExpression and node.Right isa MethodInvocationExpression
 		
 	def expandBindPattern(matchValue as Expression, node as ReferenceExpression):
 		return [| __eval__($node = $matchValue, true) |]
@@ -131,6 +111,12 @@ class PatternExpander:
 			if value is null: return
 			ctor.NamedArguments.Add(ExpressionPair(First: ReferenceExpression(name), Second: expand(value)))
 			
+		override def OnMacroStatement(node as MacroStatement):
+			if len(node.Arguments) > 0:
+				push node, [| MacroStatement(Name: $(node.Name), Arguments: $(expandFixedSize(node.Arguments))) |]
+			else:
+				push node, [| MacroStatement(Name: $(node.Name)) |]
+			
 		override def OnSlicingExpression(node as SlicingExpression):
 			push node, [| SlicingExpression(Target: $(expand(node.Target)), Indices: $(expandFixedSize(node.Indices))) |]
 			
@@ -188,4 +174,4 @@ class PatternExpander:
 def newTemp(e as Expression):
 	return ReferenceExpression(
 			LexicalInfo: e.LexicalInfo,
-			Name: "$match$${CompilerContext.Current.AllocIndex()}")
+			Name: "$match${CompilerContext.Current.AllocIndex()}")

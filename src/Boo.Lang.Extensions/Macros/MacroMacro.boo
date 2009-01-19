@@ -53,7 +53,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		return CreateOldStyleMacroType(name, macro)
 
 	#BOO-1077 style
-	private def CreateNewStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
+	private def CreateNewStyleMacroType(name as string, macro as MacroStatement):
 		return [|
 				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
 					def constructor():
@@ -69,7 +69,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
 			|]
 
-	private def CreateOldStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
+	private def CreateOldStyleMacroType(name as string, macro as MacroStatement):
 		return [|
 				class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
 					def constructor():
@@ -83,11 +83,10 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			|]
 			
 	private class YieldFinder(DepthFirstVisitor, ITypeMemberStatementVisitor):
-		
 		_found = false
 		
 		def constructor(macro as MacroStatement):
-			super.OnMacroStatement(macro)
+			macro.Accept(self)
 			
 		Found:
 			get: return _found

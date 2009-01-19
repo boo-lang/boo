@@ -34,9 +34,7 @@ import System.IO
 import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Compiler.IO
-import Boo.Lang.PatternMatching
 
 class InteractiveInterpreter(AbstractInterpreter):
 
@@ -134,19 +132,11 @@ class InteractiveInterpreter(AbstractInterpreter):
 		if problems.Count > 0:
 			return true
 		return false
-	/*def DisplayWarnings(warnings as CompilerWarningCollection):
-		for warning in warnings:
-			markLocation(warning.LexicalInfo)
-			_print("WARNING: ${warning.Message}")
-			
-	def DisplayErrors(errors as CompilerErrorCollection):
-		for error in errors:			
-			markLocation(error.LexicalInfo)
-			_print("ERROR: ${error.Message}")
-	*/		
+
 	private def markLocation(location as LexicalInfo):
 		pos = location.Column
 		_print("---" + "-" * pos + "^") if pos > 0
+		
 	private def InitializeStandardReferences():
 		SetValue("interpreter", self)
 		SetValue("dir", dir)
