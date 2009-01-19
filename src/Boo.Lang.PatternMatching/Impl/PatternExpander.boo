@@ -2,6 +2,8 @@ namespace Boo.Lang.PatternMatching.Impl
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+
+# import the pre compiled version of the match macro
 import Boo.Lang.PatternMatching from Boo.Lang.PatternMatching
 
 class PatternExpander:
