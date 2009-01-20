@@ -1,12 +1,6 @@
 """
 1
 1
-2
-1
-2
-3
-1
-1
 0
 1
 0
@@ -35,10 +29,11 @@ macro one:
 
 	yield one.Block
 
-one 1:
-	two 1, 2:
-		three 1, 2, 3:
-			four 1, 2, 3, 4
+# not supported currently
+#one 1:
+#	two 1, 2:
+#		three 1, 2, 3:
+#			four 1, 2, 3, 4
 
 code = [|
 	import NestedMacros3

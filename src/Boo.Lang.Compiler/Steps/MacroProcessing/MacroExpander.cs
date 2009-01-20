@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
@@ -38,21 +39,21 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 	{
 		private int _expanded;
 
-		private bool _expandingInternalMacros;
-
-		public bool ExpandingInternalMacros
-		{
-			get { return _expandingInternalMacros;  }
-			set { _expandingInternalMacros = value;  }
-		}
+		private Set<Node> _visited = new Set<Node>();
 
 		public bool ExpandAll()
 		{
-			_expanded = 0;
+			Reset();
 			Run();
 			return _expanded > 0;
 		}
-		
+
+		private void Reset()
+		{
+			_visited.Clear();
+			_expanded = 0;
+		}
+
 		override public void Run()
 		{
 			Visit(CompileUnit);
@@ -71,6 +72,14 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				LeaveNamespace();
 			}
 		}
+
+		public override bool EnterClassDefinition(ClassDefinition node)
+		{
+			if (WasVisited(node))
+				return false;
+			_visited.Add(node);
+			return true;
+		}
 		
 		override public void OnMacroStatement(MacroStatement node)
 		{
@@ -80,10 +89,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				ExpandKnownMacro(node, macroType);
 				return;
 			}
-
-			if (!ExpandingInternalMacros) // internal macros might appear later
-				return;
-
 			ExpandUnknownMacro(node);
 		}
 
@@ -155,9 +160,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)
 		{
-			if (!ExpandingInternalMacros)
-				return;
-
 			TypeDefinition macroDefinition = klass.TypeDefinition;
 			bool firstTry = ! MacroCompiler.AlreadyCompiled(macroDefinition);
 			Type macroType = new MacroCompiler(Context).Compile(macroDefinition);
@@ -176,18 +178,20 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			ProcessMacro(macroType, node);
 		}
 
-		private static readonly object VisitedAnnotation = new object();
-
 		private int _expansionDepth;
 
 		private void EnsureVisited(TypeDefinition node)
 		{
-			if (node.ContainsAnnotation(VisitedAnnotation))
+			if (WasVisited(node))
 				return;
 			node.Accept(this);
-			node.Annotate(VisitedAnnotation);
 		}
-		
+
+		private bool WasVisited(TypeDefinition node)
+		{
+			return _visited.Contains(node);
+		}
+
 		private void ProcessingError(CompilerError error)
 		{
 			Errors.Add(error);
@@ -201,6 +205,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				ProcessingError(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
 				return;
 			}
+
+			++_expanded;
 			
 			try
 			{
@@ -209,9 +215,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				{
 					replacement = NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, replacement);
 				}
-				ReplaceCurrentNode(replacement);
-
-				++_expanded;
+				ReplaceCurrentNode(Visit(replacement));
 			}
 			catch (Exception error)
 			{

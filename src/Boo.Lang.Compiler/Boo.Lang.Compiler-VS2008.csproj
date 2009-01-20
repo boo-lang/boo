@@ -555,6 +555,7 @@
     <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />
     <Compile Include="Util\ITask.cs" />
+    <Compile Include="Util\Set.cs" />
     <Compile Include="Util\TaskList.cs" />
     <Compile Include="Util\TypeUtilities.cs" />
   </ItemGroup>

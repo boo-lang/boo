@@ -491,6 +491,7 @@
     <File name="TypeSystem/Unknown.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Variance.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />
+    <File name="Util/Set.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/TaskList.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/TypeUtilities.cs" buildaction="Compile" subtype="Code" />
   </Contents>

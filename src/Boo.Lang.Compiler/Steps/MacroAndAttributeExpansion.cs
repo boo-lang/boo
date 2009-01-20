@@ -45,21 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		public override void Run()
-		{
-			ExpandExternalMacros();
-			ExpandInternalMacros();
-		}
-
-		private void ExpandInternalMacros()
-		{
-			_macroExpander.ExpandingInternalMacros = true;
-			RunExpansionIterations();
-			
-		}
-
-		private void ExpandExternalMacros()
-		{
-			_macroExpander.ExpandingInternalMacros = false;
+		{	
 			RunExpansionIterations();
 		}
 
