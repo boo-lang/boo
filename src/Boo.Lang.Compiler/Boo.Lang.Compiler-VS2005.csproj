@@ -420,6 +420,7 @@
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatement.cs" />
+    <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
     <Compile Include="TypeSystem\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\AbstractGenericParameter.cs" />
     <Compile Include="TypeSystem\AbstractInternalType.cs" />

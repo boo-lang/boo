@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.MacroProcessing;
 
 namespace Boo.Lang.Compiler.Steps
@@ -57,55 +56,11 @@ namespace Boo.Lang.Compiler.Steps
 				bool expanded = ApplyAttributesAndExpandMacros();
 				if (!expanded)
 					break;
-				
-				BubbleResultingTypeMemberStatementsUp();
 
 				++iteration;
 				if (iteration > Parameters.MaxExpansionIterations)
 					throw new CompilerError("Too many expansions.");
 			}
-		}
-
-		private void BubbleResultingTypeMemberStatementsUp()
-		{
-			CompileUnit.Accept(new TypeMemberStatementBubbler());
-		}
-
-		class TypeMemberStatementBubbler : DepthFirstTransformer, ITypeMemberStatementVisitor
-		{
-			private TypeDefinition _current = null;
-
-			protected override void OnNode(Node node)
-			{
-				TypeDefinition typeDefinition = node as TypeDefinition;
-				if (null == typeDefinition)
-				{
-					base.OnNode(node);
-					return;
-				}
-
-				TypeDefinition previous = _current;
-				try
-				{
-					_current = typeDefinition;
-					base.OnNode(node);
-				}
-				finally
-				{
-					_current = previous;
-				}
-			}
-
-			#region Implementation of ITypeMemberStatementVisitor
-
-			public void OnTypeMemberStatement(TypeMemberStatement node)
-			{
-				_current.Members.Add(node.TypeMember);
-				Visit(node.TypeMember);
-				RemoveCurrentNode();
-			}
-
-			#endregion
 		}
 
 		private bool ApplyAttributesAndExpandMacros()

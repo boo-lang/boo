@@ -1,6 +1,8 @@
 """
 foo.bar
 yummy
+foo.bar
+yummy
 yummy
 """
 namespace NestedMacros
@@ -19,11 +21,10 @@ macro choco:
 			yield [| print "yummy" |]
 	yield choco.Block
 
-# currently not supported
-#foo:
-#	bar # foo.bar
-#choco:
-#	bar # yummy
+foo:
+	bar # foo.bar
+choco:
+	bar # yummy
 
 code = [|
 	import NestedMacros

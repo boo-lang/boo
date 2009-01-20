@@ -377,6 +377,7 @@
     <File name="Steps/MacroProcessing/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroExpander.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/TypeMemberStatement.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/MacroProcessing/TypeMemberStatementBubbler.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractGenericParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />

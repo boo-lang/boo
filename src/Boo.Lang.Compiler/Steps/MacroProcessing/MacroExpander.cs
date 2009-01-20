@@ -87,9 +87,16 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null != macroType)
 			{
 				ExpandKnownMacro(node, macroType);
+				if (_expansionDepth == 0)
+					BubbleResultingTypeMemberStatementsUp();
 				return;
 			}
 			ExpandUnknownMacro(node);
+		}
+
+		private void BubbleResultingTypeMemberStatementsUp()
+		{
+			CompileUnit.Accept(new TypeMemberStatementBubbler());
 		}
 
 		private void ExpandKnownMacro(MacroStatement node, IType macroType)
@@ -210,17 +217,30 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			
 			try
 			{
-				Statement replacement = ExpandMacro(actualType, node);
-				if (null != node.Modifier)
-				{
-					replacement = NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, replacement);
-				}
-				ReplaceCurrentNode(Visit(replacement));
+				Statement expansion = ExpandMacro(actualType, node);
+				ReplaceCurrentNode(ExpandMacroExpansion(node, expansion));
 			}
 			catch (Exception error)
 			{
 				ProcessingError(CompilerErrorFactory.MacroExpansionError(node, error));
 			}
+		}
+
+		private Statement ExpandMacroExpansion(MacroStatement node, Statement expansion)
+		{
+			if (null == expansion)
+				return null;
+
+			Statement modifiedExpansion = ApplyMacroModifierToExpansion(node, expansion);
+			modifiedExpansion.InitializeParent(node.ParentNode);
+			return Visit(modifiedExpansion);
+		}
+
+		private Statement ApplyMacroModifierToExpansion(MacroStatement node, Statement expansion)
+		{
+			if (null == node.Modifier)
+				return expansion;
+			return NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, expansion);
 		}
 
 		private void TreatMacroAsMethodInvocation(MacroStatement node)
