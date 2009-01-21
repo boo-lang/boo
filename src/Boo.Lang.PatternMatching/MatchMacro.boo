@@ -38,13 +38,11 @@ The following patterns are supported:
 If no pattern matches MatchError is raised.
 """
 	macro case:
-		parent = parentMatch(case)
-		caseListFor(parent).Add(case)
+		caseListFor(match).Add(case)
 		
 	macro otherwise:
-		parent = parentMatch(otherwise)
-		assert parent["otherwise"] is null
-		parent["otherwise"] = otherwise
+		assert match["otherwise"] is null
+		match["otherwise"] = otherwise
 		
 	assert 0 == len(match.Block.Statements)
 	return MatchExpansion(Context, match).value
