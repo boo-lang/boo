@@ -104,7 +104,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 	private static def CreateParentMacroAccessor(macro as MacroStatement, name as string):
 		cacheField = [|
-			private $("__" + name) as Boo.Lang.Compiler.AstMacroStatement
+			private $("__" + name) as Boo.Lang.Compiler.Ast.MacroStatement
 		|]
 		yield cacheField
 		
