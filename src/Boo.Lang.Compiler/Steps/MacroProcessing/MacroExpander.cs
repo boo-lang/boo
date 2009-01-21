@@ -284,9 +284,12 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				return null;
 
 			Block resultingBlock = new Block();
-			foreach (Node generatedNode in generatedNodes)
+			foreach (Node gn in generatedNodes)
 			{
-				if (null == generatedNode) continue;
+				//'yield' (ie. implicit 'yield null') means 'yield `macro`.Block'
+				Node generatedNode = gn ?? node.Block;
+				if (null == generatedNode)
+					continue;
 
 				TypeMember member = generatedNode as TypeMember;
 				if (null != member)
