@@ -12,18 +12,25 @@ class PatternExpander:
 		match pattern:
 			case MethodInvocationExpression():
 				return expandObjectPattern(matchValue, pattern)
+				
 			case MemberReferenceExpression():
 				return expandValuePattern(matchValue, pattern)
+				
 			case ReferenceExpression():
 				return expandBindPattern(matchValue, pattern)
+				
 			case QuasiquoteExpression():
 				return expandQuasiquotePattern(matchValue, pattern)
+				
 			case [| $l = $r |]:
 				return expandCapturePattern(matchValue, pattern)
+				
 			case [| $l | $r |]:
 				return expandEitherPattern(matchValue, pattern)
+				
 			case ArrayLiteralExpression():
 				return expandFixedSizePattern(matchValue, pattern)
+				
 			otherwise:
 				return expandValuePattern(matchValue, pattern)
 		
