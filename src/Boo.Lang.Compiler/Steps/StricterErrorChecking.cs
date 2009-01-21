@@ -188,6 +188,18 @@ namespace Boo.Lang.Compiler.Steps
 						CompilerWarningFactory.IsInsteadOfIsa(node));
 				}
 			}
+
+			//check that the assignment or comparison is meaningful
+			if (BinaryOperatorType.Assign == node.Operator
+			    || AstUtil.GetBinaryOperatorKind(node.Operator) == BinaryOperatorKind.Comparison)
+			{
+				if (AreSameExpressions(node.Left, node.Right))
+					Warnings.Add(
+						(BinaryOperatorType.Assign == node.Operator)
+						? CompilerWarningFactory.AssignmentToSameVariable(node)
+						: CompilerWarningFactory.ComparisonWithSameVariable(node)
+					);
+			}
 		}
 
 		protected virtual void LeaveExplodeExpression(UnaryExpression node)
@@ -196,6 +208,36 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
 			}
+		}
+
+		bool AreSameExpressions(Expression a, Expression b)
+		{
+			if (a.NodeType != b.NodeType)
+				return false;
+
+			switch (a.NodeType)
+			{
+				case NodeType.ReferenceExpression:
+					ReferenceExpression are = (ReferenceExpression) a;
+					ReferenceExpression bre = (ReferenceExpression) b;
+					if (are.Name != bre.Name)
+						return false;
+					return true;
+
+				case NodeType.MemberReferenceExpression:
+					MemberReferenceExpression amre = (MemberReferenceExpression) a;
+					MemberReferenceExpression bmre = (MemberReferenceExpression) b;
+					if (amre.Name != bmre.Name)
+						return false;
+					if (!AreSameExpressions(amre.Target, bmre.Target))
+						return false;
+					return true;
+
+				case NodeType.SelfLiteralExpression:
+				case NodeType.SuperLiteralExpression:
+					return true;
+			}
+			return false;
 		}
 
 		private bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)

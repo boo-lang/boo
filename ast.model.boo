@@ -9,6 +9,7 @@ namespace Boo.Ast
 class CompileUnit(Node):
 	Modules as ModuleCollection	
 
+[Flags]
 enum TypeMemberModifiers:
 	None = 0
 	Private = 1
@@ -387,6 +388,17 @@ enum BinaryOperatorType:
 	InPlaceShiftLeft
 	ShiftRight
 	InPlaceShiftRight
+
+#values are ready to be used as mask if/when BinaryOperatorType
+#is changed as in patch attached to BOO-1123 (breaking change)
+enum BinaryOperatorKind:
+	Arithmetic = 0xF
+	Comparison = 0xFF0
+	TypeComparison = 0xF00
+	Assignment = 0xFF000
+	InPlaceAssignment = 0xF0000
+	Logical = 0x0F00000
+	Bitwise = 0xF000000
 
 enum UnaryOperatorType:
 	None

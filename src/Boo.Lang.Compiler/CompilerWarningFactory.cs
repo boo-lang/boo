@@ -144,6 +144,16 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0019", node.LexicalInfo, node.Declaration.Name);
 		}
 
+		public static CompilerWarning AssignmentToSameVariable(BinaryExpression node)
+		{
+			return new CompilerWarning("BCW0020", node.LexicalInfo);
+		}
+
+		public static CompilerWarning ComparisonWithSameVariable(BinaryExpression node)
+		{
+			return new CompilerWarning("BCW0021", node.LexicalInfo);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{

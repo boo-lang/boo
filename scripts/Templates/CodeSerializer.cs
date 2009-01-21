@@ -8,7 +8,7 @@ for item in model.GetEnums():
 %>		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public bool ShouldSerialize(${item.Name} value)
 		{
-			return value != ${item.Name}.None;
+			return (long)value != 0;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]

@@ -119,16 +119,88 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
+		public static BinaryOperatorKind GetBinaryOperatorKind(BinaryExpression expression)
+		{
+			return GetBinaryOperatorKind(expression.Operator, false);
+		}
+
+		public static BinaryOperatorKind GetBinaryOperatorKind(BinaryExpression expression, bool exact)
+		{
+			return GetBinaryOperatorKind(expression.Operator, exact);
+		}
+
+		public static BinaryOperatorKind GetBinaryOperatorKind(BinaryOperatorType op)
+		{
+			return GetBinaryOperatorKind(op, false);
+		}
+
+		public static BinaryOperatorKind GetBinaryOperatorKind(BinaryOperatorType op, bool exact)
+		{
+			switch (op) {
+				case BinaryOperatorType.Addition:
+				case BinaryOperatorType.Subtraction:
+				case BinaryOperatorType.Multiply:
+				case BinaryOperatorType.Division:
+				case BinaryOperatorType.Modulus:
+				case BinaryOperatorType.Exponentiation:
+					return BinaryOperatorKind.Arithmetic;
+
+				case BinaryOperatorType.LessThan:
+				case BinaryOperatorType.LessThanOrEqual:
+				case BinaryOperatorType.GreaterThan:
+				case BinaryOperatorType.GreaterThanOrEqual:
+				case BinaryOperatorType.Equality:
+				case BinaryOperatorType.Inequality:
+				case BinaryOperatorType.Match:
+				case BinaryOperatorType.NotMatch:
+				case BinaryOperatorType.ReferenceEquality:
+				case BinaryOperatorType.ReferenceInequality:
+					return BinaryOperatorKind.Comparison;
+
+				case BinaryOperatorType.TypeTest:
+				case BinaryOperatorType.Member:
+				case BinaryOperatorType.NotMember:
+					return exact
+						? BinaryOperatorKind.TypeComparison
+						: BinaryOperatorKind.Comparison;
+
+				case BinaryOperatorType.Assign:
+					return BinaryOperatorKind.Assignment;
+
+				case BinaryOperatorType.InPlaceAddition:
+				case BinaryOperatorType.InPlaceSubtraction:
+				case BinaryOperatorType.InPlaceMultiply:
+				case BinaryOperatorType.InPlaceDivision:
+				case BinaryOperatorType.InPlaceModulus:
+				case BinaryOperatorType.InPlaceBitwiseAnd:
+				case BinaryOperatorType.InPlaceBitwiseOr:
+				case BinaryOperatorType.InPlaceExclusiveOr:
+				case BinaryOperatorType.InPlaceShiftLeft:
+				case BinaryOperatorType.InPlaceShiftRight:
+					return exact
+						? BinaryOperatorKind.InPlaceAssignment
+						: BinaryOperatorKind.Assignment;
+
+				case BinaryOperatorType.Or:
+				case BinaryOperatorType.And:
+					return BinaryOperatorKind.Logical;
+
+				case BinaryOperatorType.BitwiseOr:
+				case BinaryOperatorType.BitwiseAnd:
+				case BinaryOperatorType.ExclusiveOr:
+				case BinaryOperatorType.ShiftLeft:
+				case BinaryOperatorType.ShiftRight:
+					return BinaryOperatorKind.Bitwise;
+			}
+			throw new NotSupportedException(string.Format("unknown operator: {0}", op));
+		}
+
 		public static bool IsAssignment(Expression node)
 		{
 			if (node.NodeType == NodeType.BinaryExpression)
-			{
-				BinaryOperatorType binaryOperator = ((BinaryExpression)node).Operator;
-				return IsAssignmentOperator(binaryOperator);
-			}
+				return GetBinaryOperatorKind((BinaryExpression) node) == BinaryOperatorKind.Assignment;
 			return false;
 		}
-
 
 		public static ClassDefinition GetParentClass(Node node)
 		{
@@ -242,9 +314,7 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				BinaryExpression be = (BinaryExpression)node.ParentNode;
 				if (node == be.Left)
-				{
-					return IsAssignmentOperator(be.Operator);
-				}
+					return IsAssignment(be);
 			}
 			return false;
 		}
@@ -263,22 +333,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return false;
 		}
-		
-		public static bool IsAssignmentOperator(BinaryOperatorType op)
-		{
-			return BinaryOperatorType.Assign == op ||
-					BinaryOperatorType.InPlaceAddition == op ||
-					BinaryOperatorType.InPlaceSubtraction == op ||
-					BinaryOperatorType.InPlaceMultiply == op ||
-					BinaryOperatorType.InPlaceDivision == op ||
-					BinaryOperatorType.InPlaceModulus == op ||
-					BinaryOperatorType.InPlaceBitwiseAnd == op ||
-					BinaryOperatorType.InPlaceBitwiseOr == op ||
-					BinaryOperatorType.InPlaceExclusiveOr == op ||
-					BinaryOperatorType.InPlaceShiftLeft == op ||
-					BinaryOperatorType.InPlaceShiftRight == op;
-		}
-		
+
 		public static Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)
 		{
 			Constructor constructor = new Constructor(lexicalInfoProvider.LexicalInfo);
