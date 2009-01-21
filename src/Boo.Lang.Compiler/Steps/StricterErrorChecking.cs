@@ -191,15 +191,32 @@ namespace Boo.Lang.Compiler.Steps
 
 			//check that the assignment or comparison is meaningful
 			if (BinaryOperatorType.Assign == node.Operator
-			    || AstUtil.GetBinaryOperatorKind(node.Operator) == BinaryOperatorKind.Comparison)
+			    || AstUtil.GetBinaryOperatorKind(node) == BinaryOperatorKind.Comparison)
 			{
 				if (AreSameExpressions(node.Left, node.Right))
+				{
 					Warnings.Add(
 						(BinaryOperatorType.Assign == node.Operator)
 						? CompilerWarningFactory.AssignmentToSameVariable(node)
 						: CompilerWarningFactory.ComparisonWithSameVariable(node)
 					);
+				}
+				else if (BinaryOperatorType.Assign != node.Operator
+				         && AreConstantExpressions(node.Left, node.Right))
+				{
+					Warnings.Add(
+						CompilerWarningFactory.ConstantExpression(node)
+					);
+				}
 			}
+		}
+
+		public override void LeaveIfStatement(IfStatement node)
+		{
+			if (IsConstant(node.Condition))
+				Warnings.Add(
+					CompilerWarningFactory.ConstantExpression(node.Condition)
+				);
 		}
 
 		protected virtual void LeaveExplodeExpression(UnaryExpression node)
@@ -210,7 +227,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		bool AreSameExpressions(Expression a, Expression b)
+		static bool AreSameExpressions(Expression a, Expression b)
 		{
 			if (a.NodeType != b.NodeType)
 				return false;
@@ -240,7 +257,51 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		private bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)
+		static bool AreConstantExpressions(Expression a, Expression b)
+		{
+			return IsConstant(a) && IsConstant(b);
+		}
+
+		static bool IsConstant(Expression e)
+		{
+			if (e.NodeType == NodeType.UnaryExpression)
+				return IsConstant(((UnaryExpression)e).Operand);
+			if (e.NodeType == NodeType.BinaryExpression) {
+				BinaryExpression be = (BinaryExpression)e;
+				if (AstUtil.GetBinaryOperatorKind(be) == BinaryOperatorKind.Logical)
+					return IsConstant(be.Left) && IsConstant(be.Right);
+			}
+
+			if ((e as LiteralExpression) != null)
+				return true;
+
+			if (IsImplicitCallable(e))
+				return true;
+
+			if (IsConstantInternalField(e.Entity as IField, e))
+				return true;
+
+			return false;
+		}
+
+		static bool IsConstantInternalField(IField f, Expression e)
+		{
+			if (null == f)
+				return false;
+
+			InternalField field = e.Entity as InternalField;
+			if (field != null && field.Field.IsStatic && field.IsLiteral)
+				return true; //static 'literal' final
+
+			return false;
+		}
+
+		static bool IsImplicitCallable(Expression e)
+		{
+			return e is ReferenceExpression && (null != (e.Entity as InternalMethod));
+		}
+
+		static bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)
 		{
 			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
 			if (null == parent) return false;
@@ -252,7 +313,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null != method && method.AcceptVarArgs;
 		}
 
-		bool IsTypeReference(Expression node)
+		static bool IsTypeReference(Expression node)
 		{
 			if (NodeType.TypeofExpression == node.NodeType) return true;
 			return node.Entity is IType
@@ -458,7 +519,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		bool IsSecondArgumentOfDelegateConstructor(Expression node)
+		static bool IsSecondArgumentOfDelegateConstructor(Expression node)
 		{                 
 			MethodInvocationExpression mie = node.ParentNode as MethodInvocationExpression;
 			if (null != mie)
@@ -471,7 +532,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
-		bool IsDelegateConstructorInvocation(MethodInvocationExpression node)
+		static bool IsDelegateConstructorInvocation(MethodInvocationExpression node)
 		{
 			IConstructor constructor = node.Target.Entity as IConstructor;
 			if (null != constructor)

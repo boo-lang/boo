@@ -154,6 +154,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0021", node.LexicalInfo);
 		}
 
+		public static CompilerWarning ConstantExpression(Expression node)
+		{
+			return new CompilerWarning("BCW0022", node.LexicalInfo);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{
