@@ -540,4 +540,7 @@ class CastExpression(Expression):
 class TypeofExpression(Expression):
 	Type as TypeReference
 
+class CustomStatement(Statement):
+	pass
+	
 

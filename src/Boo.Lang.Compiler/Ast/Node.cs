@@ -154,6 +154,13 @@ namespace Boo.Lang.Compiler.Ast
 				_annotations[key] = value;
 			}
 		}
+
+
+
+		public bool HasAnnotations
+		{
+			get { return _annotations != null && _annotations.Count > 0; }
+		}
 		
 		public void Annotate(object key)
 		{

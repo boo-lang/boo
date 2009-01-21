@@ -2,37 +2,18 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	class TypeMemberStatementBubbler : DepthFirstTransformer, ITypeMemberStatementVisitor
+	class TypeMemberStatementBubbler : DepthFirstTransformer
 	{
-		private TypeDefinition _current = null;
-
-		protected override void OnNode(Node node)
-		{
-			TypeDefinition typeDefinition = node as TypeDefinition;
-			if (null == typeDefinition)
-			{
-				base.OnNode(node);
-				return;
-			}
-
-			TypeDefinition previous = _current;
-			try
-			{
-				_current = typeDefinition;
-				base.OnNode(node);
-			}
-			finally
-			{
-				_current = previous;
-			}
-		}
-
 		#region Implementation of ITypeMemberStatementVisitor
 
-		public void OnTypeMemberStatement(TypeMemberStatement node)
+		override public void OnCustomStatement(CustomStatement node)
 		{
-			_current.Members.Add(node.TypeMember);
-			Visit(node.TypeMember);
+			TypeMemberStatement typeMemberStmt = node as TypeMemberStatement;
+			if (null == typeMemberStmt)
+				return;
+			TypeMember typeMember = typeMemberStmt.TypeMember;
+			node.GetAncestor<TypeDefinition>().Members.Add(typeMember);
+			Visit(typeMember);
 			RemoveCurrentNode();
 		}
 

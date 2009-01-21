@@ -137,6 +137,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			--_ensureBlock;
 		}
+		
+		public override void OnCustomStatement(CustomStatement node)
+		{
+		}
 
 		public override void LeaveReturnStatement(ReturnStatement node)
 		{

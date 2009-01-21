@@ -48,7 +48,9 @@ namespace Boo.Lang.Compiler.Ast
 		
 		override public string ToString()
 		{
-			return _name;
+			if (Arguments.Count == 0)
+				return _name;
+			return _name + " " + Builtins.join(Arguments, ", ");
 		}
 		
 		public Block Body

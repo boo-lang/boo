@@ -260,7 +260,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		
 		private static bool IsNullOrEmpty(Block block)
 		{
-			return block == null || block.Statements.Count == 0;
+			return block == null || block.IsEmpty;
 		}
 
 		private Statement ExpandMacro(Type macroType, MacroStatement node)
@@ -324,19 +324,17 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				
 				throw new CompilerError(node, "Unsupported expansion: " + generatedNode);
 			}
-
+			
 			return resultingBlock.IsEmpty
-					? null
-					: resultingBlock;
+				? null
+				: Simplify(resultingBlock);
 		}
 
-		private static TypeDefinition GetEnclosingTypeOrModule(Node node)
+		private Statement Simplify(Block resultingBlock)
 		{
-			TypeDefinition enclosingType = node.GetAncestor<TypeDefinition>();
-			if (null != enclosingType)
-				return enclosingType;
-
-			throw new ArgumentException("node");
+			return (resultingBlock.Statements.Count > 1 || resultingBlock.HasAnnotations)
+			       	? resultingBlock
+			       	: resultingBlock.Statements[0];
 		}
 
 		private IEntity ResolveMacroName(MacroStatement node)

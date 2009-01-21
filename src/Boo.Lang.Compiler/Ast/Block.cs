@@ -71,6 +71,11 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public void Add(Block block)
 		{
+			if (block.HasAnnotations)
+			{
+				this.Statements.Add(block);
+				return;
+			}
 			this.Statements.Extend(block.Statements);
 		}
 		

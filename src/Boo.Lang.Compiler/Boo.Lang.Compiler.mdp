@@ -51,6 +51,7 @@
     <File name="Ast/Attribute.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/AttributeCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/BinaryExpression.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/BinaryOperatorKind.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/BinaryOperatorType.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Block.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/BlockExpression.cs" buildaction="Compile" subtype="Code" />
@@ -66,6 +67,7 @@
     <File name="Ast/ConditionalExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Constructor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ContinueStatement.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/CustomStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Declaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/DeclarationCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/DeclarationStatement.cs" buildaction="Compile" subtype="Code" />
@@ -190,6 +192,7 @@
     <File name="Ast/Impl/ConditionalExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ConstructorImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ContinueStatementImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/CustomStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/DeclarationCollectionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/DeclarationImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/DeclarationStatementImpl.cs" buildaction="Compile" subtype="Code" />
@@ -373,7 +376,6 @@
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/UnfoldConstants.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/BindAndApplyAttributes.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/MacroProcessing/ITypeMemberStatementVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroExpander.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/TypeMemberStatement.cs" buildaction="Compile" subtype="Code" />

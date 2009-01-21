@@ -115,6 +115,7 @@
     <Compile Include="Ast\Attribute.cs" />
     <Compile Include="Ast\AttributeCollection.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />
+    <Compile Include="Ast\BinaryOperatorKind.cs" />
     <Compile Include="Ast\BinaryOperatorType.cs" />
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\BlockExpression.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Ast\ConditionalExpression.cs" />
     <Compile Include="Ast\Constructor.cs" />
     <Compile Include="Ast\ContinueStatement.cs" />
+    <Compile Include="Ast\CustomStatement.cs" />
     <Compile Include="Ast\Declaration.cs" />
     <Compile Include="Ast\DeclarationCollection.cs" />
     <Compile Include="Ast\DeclarationStatement.cs" />
@@ -254,6 +256,7 @@
     <Compile Include="Ast\Impl\ConditionalExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ConstructorImpl.cs" />
     <Compile Include="Ast\Impl\ContinueStatementImpl.cs" />
+    <Compile Include="Ast\Impl\CustomStatementImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationCollectionImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationStatementImpl.cs" />
@@ -437,7 +440,6 @@
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
     <Compile Include="Steps\UnfoldConstants.cs" />
     <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
-    <Compile Include="Steps\MacroProcessing\ITypeMemberStatementVisitor.cs" />
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatement.cs" />

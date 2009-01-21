@@ -49,7 +49,10 @@ namespace Boo.Lang.Compiler
 			return ExpandImpl(macro);
 		}
 
-		protected abstract Statement ExpandImpl(MacroStatement macro);
+		protected virtual Statement ExpandImpl(MacroStatement macro)
+		{
+			throw new NotImplementedException();
+		}
 
 		public override IEnumerable<Node> ExpandGenerator(MacroStatement macro)
 		{

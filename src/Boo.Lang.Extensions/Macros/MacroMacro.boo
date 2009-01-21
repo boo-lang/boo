@@ -34,14 +34,22 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Steps.MacroProcessing
 
 class MacroMacro(LexicalInfoPreservingGeneratorMacro):
+	
+	private class CaseStatement(CustomStatement):
+		public Pattern as Expression
+		public Body as Block
+	
+	class CaseMacro(LexicalInfoPreservingGeneratorMacro):
+		override protected def ExpandGeneratorImpl(case as MacroStatement):
+			if len(case.Arguments) != 1:
+				raise "Usage: case <pattern>"
+			pattern, = case.Arguments
+			yield CaseStatement(Pattern: pattern, Body: case.Body)
 
-	override protected def ExpandGeneratorImpl(macro as MacroStatement) as Node*:
+	override protected def ExpandGeneratorImpl(macro as MacroStatement):
 		if len(macro.Arguments) != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
-			raise System.ArgumentException("Usage: macro <reference>", "reference")
+			raise "Usage: macro <reference>"
 		yield CreateMacroType(macro)
-
-	override protected def ExpandImpl(macro as MacroStatement):
-		raise System.NotImplementedException()
 
 	private static def PascalCase(name as string) as string:
 		return char.ToUpper(name[0]) + name[1:]
@@ -80,7 +88,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
 						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						self.__macro = $arg
-						$(macro.Body)
+						$(ExpandBody(name, macro.Body))
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
@@ -99,8 +107,43 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						self.__macro = $arg
-						$(macro.Body)
+						$(ExpandBody(name, macro.Body))
 			|]
+			
+	private static def ExpandBody(name as string, body as Block):
+		if ContainsCase(body):
+			return ExpandWithPatternMatching(name, body)
+		return body
+		
+	private static def ContainsCase(body as Block):
+		for stmt in body.Statements:
+			return true if stmt isa CaseStatement
+			
+	private static def ExpandWithPatternMatching(name as string, body as Block):
+		matchBlock = [|
+			match $(ReferenceExpression(name)):
+				pass
+		|]
+		statementsEnumerator = body.Statements.GetEnumerator()
+		while statementsEnumerator.MoveNext():
+			stmt as Statement = statementsEnumerator.Current
+			if stmt isa CaseStatement:
+				case as CaseStatement = stmt
+				caseBlock = [|
+					case $(case.Pattern):
+						$(case.Body)
+				|]
+				matchBlock.Body.Add(caseBlock)
+			else:
+				// contains statements after the case
+				enclosingBlock = Block()
+				enclosingBlock.Add(matchBlock)
+				enclosingBlock.Add(stmt)
+				for remaining as Statement in statementsEnumerator:
+					enclosingBlock.Add(remaining)
+				return enclosingBlock
+				
+		return matchBlock
 
 	private static def CreateParentMacroAccessor(macro as MacroStatement, name as string):
 		cacheField = [|
@@ -117,26 +160,27 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 					return $cacheFieldRef
 		|]
 
-	private final class YieldFinder(DepthFirstVisitor, ITypeMemberStatementVisitor):
+	private final class YieldFinder(DepthFirstVisitor):
 		private _found = false
-		private _macroDepth = 0
 
 		def constructor(macro as MacroStatement):
-			macro.Accept(self)
+			macro.Body.Accept(self)
 			
 		Found:
 			get: return _found
 			
-		def OnTypeMemberStatement(node as TypeMemberStatement):
+		override def OnMethod(node as Method):
 			pass
+			
+		override def OnCustomStatement(node as CustomStatement):
+			caseStatement = node as CaseStatement
+			if caseStatement is null:
+				super(node)
+			else:
+				caseStatement.Body.Accept(self)
 
 		override def OnYieldStatement(node as YieldStatement):
-			_found = true if _macroDepth == 1
+			_found = true
 
 		override def EnterMacroStatement(node as MacroStatement) as bool:
-			_macroDepth++
-			return true
-
-		override def LeaveMacroStatement(node as MacroStatement):
-			_macroDepth--
-
+			return false
