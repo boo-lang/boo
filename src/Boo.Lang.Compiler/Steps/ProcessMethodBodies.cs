@@ -6321,13 +6321,21 @@ namespace Boo.Lang.Compiler.Steps
 					case EntityType.Field:
 						{
 							IField fld = (IField)entity;
-							if (TypeSystemServices.IsReadOnlyField(fld)
-								&& !(EntityType.Constructor == _currentMethod.EntityType
-									 && _currentMethod.DeclaringType == fld.DeclaringType
-									 && fld.IsStatic == _currentMethod.IsStatic))
+							if (TypeSystemServices.IsReadOnlyField(fld))
 							{
-								Error(CompilerErrorFactory.FieldIsReadonly(AstUtil.GetMemberAnchor(node), entity.FullName));
-								return false;
+								if (EntityType.Constructor == _currentMethod.EntityType
+									&& _currentMethod.DeclaringType == fld.DeclaringType
+									&& fld.IsStatic == _currentMethod.IsStatic)
+								{
+									InternalField ifld = entity as InternalField;
+									if (null != ifld && ifld.IsStatic)
+										ifld.StaticValue = null; //downgrade 'literal' to 'init-only'
+								}
+								else
+								{
+									Error(CompilerErrorFactory.FieldIsReadonly(AstUtil.GetMemberAnchor(node), entity.FullName));
+									return false;
+								}
 							}
 							return true;
 						}
