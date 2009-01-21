@@ -40,14 +40,11 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			raise System.ArgumentException("Usage: macro <reference>", "reference")
 		yield CreateMacroType(macro)
 
-
 	override protected def ExpandImpl(macro as MacroStatement):
 		raise System.NotImplementedException()
 
-
 	private static def PascalCase(name as string) as string:
 		return char.ToUpper(name[0]) + name[1:]
-
 
 	private static def CreateMacroType(macro as MacroStatement) as ClassDefinition:
 		name = (macro.Arguments[0] as ReferenceExpression).Name
@@ -83,7 +80,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
 						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						self.__macro = $arg
-						$(macro.Block)
+						$(macro.Body)
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(name)}' uses. Read BOO-1077 for more info.")
@@ -102,25 +99,23 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
 						self.__macro = $arg
-						$(macro.Block)
+						$(macro.Body)
 			|]
 
-
 	private static def CreateParentMacroAccessor(macro as MacroStatement, name as string):
-		cache = Field(SimpleTypeReference("Boo.Lang.Compiler.Ast.MacroStatement"), null)
-		cache.Name = "__"+name
-		cache.Modifiers = TypeMemberModifiers.Private
-		cacheRef = ReferenceExpression(cache.Name)
-
+		cacheField = [|
+			private $("__" + name) as Boo.Lang.Compiler.AstMacroStatement
+		|]
+		yield cacheField
+		
+		cacheFieldRef = ReferenceExpression(cacheField.Name)
 		yield [|
 			[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-			private $(name) as Boo.Lang.Compiler.Ast.MacroStatement:
+			private $name:
 				get:
-					$cacheRef = __macro.GetParentMacroByName($name) unless $cacheRef
-					return $cacheRef
+					$cacheFieldRef = __macro.GetParentMacroByName($name) unless $cacheFieldRef
+					return $cacheFieldRef
 		|]
-		yield cache
-
 
 	private final class YieldFinder(DepthFirstVisitor, ITypeMemberStatementVisitor):
 		private _found = false
