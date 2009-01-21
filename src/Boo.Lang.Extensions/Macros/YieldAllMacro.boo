@@ -33,11 +33,14 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
 macro yieldAll:
-	
-	if (1 != len(yieldAll.Arguments)) or (0 != len(yieldAll.Block.Statements)):
-		raise 'yieldAll <expression>'
+"""yieldAll <enumerable>[,<enumerable>,...]"""
 
-	return [|
-		for ___item in $(yieldAll.Arguments[0]):
-			yield ___item
-	|]
+	if len(yieldAll.Arguments) < 1 or len(yieldAll.Block.Statements) != 0:
+		raise 'yieldAll <enumerable>[,<enumerable>,...]'
+
+	for enumerable in yieldAll.Arguments:
+		yield [|
+			for ___item in $enumerable:
+				yield ___item
+		|]
+
