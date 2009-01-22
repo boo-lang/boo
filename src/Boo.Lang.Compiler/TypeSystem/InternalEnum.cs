@@ -28,6 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
+	using System;
 	using Boo.Lang.Compiler.Ast;
 
 	public class InternalEnum : AbstractInternalType
@@ -41,6 +42,35 @@ namespace Boo.Lang.Compiler.TypeSystem
 			base(tagManager, enumDefinition)
 		{
 			_isByRef = isByRef;
+		}
+
+		public EnumDefinition EnumDefinition
+		{
+			get { return (EnumDefinition) _node; }
+		}
+
+		Type _underlyingType;
+		IType _mappedUnderlyingType;
+
+		public Type UnderlyingType
+		{
+			get {
+				if (null == _underlyingType)
+				{
+					_underlyingType = typeof(int);
+					//check there is no long member
+					foreach (EnumMember member in EnumDefinition.Members)
+					{
+						if (member.Initializer.IsLong)
+						{
+							_underlyingType = typeof(long);
+							break;
+						}
+					}
+					_mappedUnderlyingType = _typeSystemServices.Map(_underlyingType);
+				}
+				return _underlyingType;
+			}
 		}
 
 		override public bool IsFinal

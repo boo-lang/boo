@@ -28,6 +28,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
+	using System;
 	using Boo.Lang.Compiler.Ast;
 
 	public class InternalEnumMember : InternalEntity<EnumMember>, IField
@@ -83,7 +84,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public object StaticValue
 		{
-			get { return (int)_node.Initializer.Value; }
+			get {
+				return Convert.ChangeType(_node.Initializer.Value,
+						((InternalEnum) DeclaringType).UnderlyingType);
+			}
 		}
 
 		public bool IsDuckTyped

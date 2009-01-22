@@ -606,8 +606,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				foreach (EnumMember member in node.Members)
 				{
-					//FIXME: BOO-1130
-					FieldBuilder field = builder.DefineLiteral(member.Name, (int) member.Initializer.Value);
+					FieldBuilder field = builder.DefineLiteral(member.Name,
+						Convert.ChangeType(member.Initializer.Value, GetEnumUnderlyingType(node)));
 					SetBuilder(member, field);
 				}
 			}
@@ -620,7 +620,7 @@ namespace Boo.Lang.Compiler.Steps
 														FieldAttributes.Public |
 														FieldAttributes.Static |
 														FieldAttributes.Literal);
-					field.SetConstant((int) member.Initializer.Value); //FIXME: BOO-1130
+					field.SetConstant(Convert.ChangeType(member.Initializer.Value, GetEnumUnderlyingType(node)));
 					SetBuilder(member, field);
 				}
 			}
@@ -3509,11 +3509,15 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return type is IGenericParameter
 					? OpCodes.Ldelem
-					: OpCodes.Ldelem_Ref;	
+					: OpCodes.Ldelem_Ref;
 			}
 
-			if (TypeSystemServices.IntType == type ||
-			    type.IsEnum)
+			if (type.IsEnum)
+			{
+				type = TypeSystemServices.Map(GetEnumUnderlyingType(type));
+			}
+
+			if (TypeSystemServices.IntType == type)
 			{
 				return OpCodes.Ldelem_I4;
 			}
@@ -3558,8 +3562,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsValueType || tag is IGenericParameter)
 			{
-				if (TypeSystemServices.IntType == tag ||
-				    tag.IsEnum)
+				if (tag.IsEnum)
+				{
+					tag = TypeSystemServices.Map(GetEnumUnderlyingType(tag));
+				}
+
+				if (TypeSystemServices.IntType == tag)
 				{
 					return OpCodes.Stelem_I4;
 				}
@@ -3595,8 +3603,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsValueType)
 			{
-				if (TypeSystemServices.IntType == tag ||
-				    tag.IsEnum)
+				if (tag.IsEnum)
+				{
+					tag = TypeSystemServices.Map(GetEnumUnderlyingType(tag));
+				}
+				if (TypeSystemServices.IntType == tag)
 				{
 					return OpCodes.Ldind_I4;
 				}
@@ -3639,8 +3650,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (tag.IsValueType)
 			{
-				if (TypeSystemServices.IntType == tag ||
-				    tag.IsEnum)
+				if (tag.IsEnum)
+				{
+					tag = TypeSystemServices.Map(GetEnumUnderlyingType(tag));
+				}
+				if (TypeSystemServices.IntType == tag)
 				{
 					return OpCodes.Stind_I4;
 				}
@@ -3689,7 +3703,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return;
 			}
-			
+
 			if (!IsAssignableFrom(expectedType, actualType))
 			{
 				IMethod method = TypeSystemServices.FindImplicitConversionOperator(actualType,expectedType);
@@ -3722,7 +3736,15 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							_il.Emit(GetNumericPromotionOpCode(expectedType));
+							//we need to get the real underlying type here and no earlier
+							//(because cause enum casting from int can occur [e.g enums-13])
+							if (actualType.IsEnum)
+								actualType = TypeSystemServices.Map(GetEnumUnderlyingType(actualType));
+							if (expectedType.IsEnum)
+								expectedType = TypeSystemServices.Map(GetEnumUnderlyingType(expectedType));
+
+							if (actualType != expectedType) //do we really need conv?
+								_il.Emit(GetNumericPromotionOpCode(expectedType));
 						}
 					}
 					else
@@ -3820,7 +3842,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetNumericPromotionOpCode(IType type)
 		{
-			if (type == TypeSystemServices.SByteType)
+			if (type.IsEnum)
+			{
+				type = TypeSystemServices.Map(GetEnumUnderlyingType(type));
+			}
+			else if (type == TypeSystemServices.SByteType)
 			{
 				return _checked ? OpCodes.Conv_Ovf_I1 : OpCodes.Conv_I1;
 			}
@@ -3837,8 +3863,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return _checked ? OpCodes.Conv_Ovf_U2 : OpCodes.Conv_U2;
 			}
-			if (type == TypeSystemServices.IntType ||
-			    type.IsEnum)
+			if (type == TypeSystemServices.IntType)
 			{
 				return _checked ? OpCodes.Conv_Ovf_I4 : OpCodes.Conv_I4;
 			}
@@ -4677,7 +4702,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return NodeType.EnumDefinition == type.NodeType;
 		}
-		
+
 		void DefineType(TypeDefinition typeDefinition)
 		{
 			SetBuilder(typeDefinition, CreateTypeBuilder(typeDefinition));
@@ -4715,7 +4740,7 @@ namespace Boo.Lang.Compiler.Steps
 					EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(
 						type.QualifiedName,
 						typeAttrs,
-						typeof(int)); //FIXME: BOO-1130
+						GetEnumUnderlyingType((EnumDefinition) type));
 					enumBuilder.SetCustomAttribute(CreateSerializableAttribute());
 					return enumBuilder;
 				}
@@ -4739,7 +4764,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				// Mono cant construct enum array types unless
 				// the fields is already defined
-				DefineEnumField(typeBuilder);
+				typeBuilder.DefineField("value__",
+								GetEnumUnderlyingType((EnumDefinition) type),
+								FieldAttributes.Public |
+								FieldAttributes.SpecialName |
+								FieldAttributes.RTSpecialName);
 			}
 
 			return typeBuilder;
@@ -4752,15 +4781,6 @@ namespace Boo.Lang.Compiler.Steps
 				return name + "`" + typeDef.GenericParameters.Count;
 			}
 			return name;
-		}
-
-		void DefineEnumField(TypeBuilder builder)
-		{
-			Type baseType = typeof(int); //FIXME: BOO-1130
-			builder.DefineField("value__", baseType,
-								FieldAttributes.Public |
-								FieldAttributes.SpecialName |
-								FieldAttributes.RTSpecialName);
 		}
 
 		void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, TypeBuilder typeBuilder)
@@ -4934,16 +4954,21 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (expectedType.IsEnum)
 			{
-				return Convert.ChangeType(value, GetUnderlyingEnumType(expectedType));
+				return Convert.ChangeType(value, GetEnumUnderlyingType(expectedType));
 			}
 			return Convert.ChangeType(value, GetSystemType(expectedType));
 		}
 
-		private Type GetUnderlyingEnumType(IType expectedType)
+		private Type GetEnumUnderlyingType(EnumDefinition node)
 		{
-			return expectedType is IInternalEntity
-				? Types.Int
-				: Enum.GetUnderlyingType(GetSystemType(expectedType));
+			return ((InternalEnum) node.Entity).UnderlyingType;
+		}
+
+		private Type GetEnumUnderlyingType(IType enumType)
+		{
+			return enumType is IInternalEntity
+				? ((InternalEnum) enumType).UnderlyingType
+				: Enum.GetUnderlyingType(GetSystemType(enumType));
 		}
 
 		void DefineTypeMembers(TypeDefinition typeDefinition)
