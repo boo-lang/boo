@@ -1,22 +1,22 @@
 """
-BCW0022-1.boo(55,26): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(56,18): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(57,18): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(64,26): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(65,26): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(66,18): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(67,18): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(78,54): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(78,26): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(79,19): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(81,15): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(94,9): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(95,12): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(96,12): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(97,18): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(98,18): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(99,15): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-1.boo(100,18): BCW0022: WARNING: Expression is constant (always true or always false).
+BCW0022-1.boo(55,26): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(56,18): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(57,18): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(64,26): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(65,26): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(66,18): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(67,18): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(78,54): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(78,26): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(79,19): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(81,15): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(94,9): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(95,12): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(96,12): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(97,18): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(98,18): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(99,15): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(100,18): BCW0022: WARNING: Boolean expression will always have the same value.
 """
 
 enum Enum:

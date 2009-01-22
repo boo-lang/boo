@@ -1,20 +1,20 @@
 """
-BCW0022-2.boo(31,23): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(32,38): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(44,4): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(46,4): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(48,4): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(50,12): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(52,12): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(54,24): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(56,4): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(58,13): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(60,4): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(62,4): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(64,4): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(66,14): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(70,15): BCW0022: WARNING: Expression is constant (always true or always false).
-BCW0022-2.boo(72,15): BCW0022: WARNING: Expression is constant (always true or always false).
+BCW0022-2.boo(31,23): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(32,38): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(44,4): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(46,4): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(48,4): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(50,12): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(52,12): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(54,24): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(56,4): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(58,13): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(60,4): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(62,4): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(64,4): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(66,14): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(70,15): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(72,15): BCW0022: WARNING: Boolean expression will always have the same value.
 """
 class Constant:
 	public static x = 0

@@ -190,7 +190,7 @@ BCW0018=WARNING: Overriding 'object.Finalize()' is bad practice. You should use 
 BCW0019=WARNING: 'except {0}:' is ambiguous. Did you mean 'except as {0}:'?
 BCW0020=WARNING: Assignment made to same expression. Did you mean to assign to something else?
 BCW0021=WARNING: Comparison made with same expression. Did you mean to compare with something else?
-BCW0022=WARNING: Expression is constant (always true or always false).
+BCW0022=WARNING: Boolean expression will always have the same value.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.
