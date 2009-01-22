@@ -8,22 +8,22 @@ internal class MatchExpansion:
 	node as MacroStatement
 	expression as Expression
 	context as CompilerContext
-	public final value as Statement
+	[getter(Value)] final value as Statement
 	
 	def constructor(context as CompilerContext, node as MacroStatement):
 		self.context = context
 		self.node = node
 		self.expression = node.Arguments[0]
-		self.value = expand(newTemp(expression))
+		self.value = Expand(newTemp(expression))
 		
-	def expand(matchValue as Expression):
+	def Expand(matchValue as Expression):
 		
-		topLevel = expanded = expandCase(matchValue, caseListFor(node)[0])
+		topLevel = expanded = ExpandCase(matchValue, caseListFor(node)[0])
 		for case in caseListFor(node)[1:]:
-			caseExpansion = expandCase(matchValue, case)
+			caseExpansion = ExpandCase(matchValue, case)
 			expanded.FalseBlock = caseExpansion.ToBlock()
 			expanded = caseExpansion		
-		expanded.FalseBlock = expandOtherwise(matchValue)
+		expanded.FalseBlock = ExpandOtherwise(matchValue)
 		
 		return [|
 			block:
@@ -31,30 +31,30 @@ internal class MatchExpansion:
 				$topLevel
 		|].Block
 		
-	def expandOtherwise(matchValue as Expression):
+	def ExpandOtherwise(matchValue as Expression):
 		otherwise as MacroStatement = node["otherwise"]
-		if otherwise is null: return defaultOtherwise(matchValue)
-		return expandOtherwise(otherwise)
+		if otherwise is null: return DefaultOtherwise(matchValue)
+		return ExpandOtherwise(otherwise)
 		
-	def expandOtherwise(node as MacroStatement):
+	def ExpandOtherwise(node as MacroStatement):
 		assert 0 == len(node.Arguments)
 		return node.Block
 		
-	def defaultOtherwise(matchValue as Expression):
+	def DefaultOtherwise(matchValue as Expression):
 		matchError = [| raise MatchError("'" + $(expression.ToCodeString()) + "' failed to match '" + $matchValue + "'") |]
 		matchError.LexicalInfo = node.LexicalInfo
 		return matchError.ToBlock()
 		
-	def expandCase(matchValue as Expression, node as MacroStatement):
+	def ExpandCase(matchValue as Expression, node as MacroStatement):
 		assert 1 == len(node.Arguments)
 		pattern = node.Arguments[0]
-		condition = expandPattern(matchValue, pattern)
+		condition = ExpandPattern(matchValue, pattern)
 		return [| 
 			if $condition:
 				$(node.Block)
 		|]
 		
-	def expandPattern(matchValue as Expression, pattern as Expression) as Expression:
-		return PatternExpander().expand(matchValue, pattern)
+	def ExpandPattern(matchValue as Expression, pattern as Expression) as Expression:
+		return PatternExpander().Expand(matchValue, pattern)
 		
 	

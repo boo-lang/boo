@@ -45,6 +45,6 @@ If no pattern matches MatchError is raised.
 		match["otherwise"] = otherwise
 		
 	assert 0 == len(match.Block.Statements)
-	return MatchExpansion(Context, match).value
+	return MatchExpansion(Context, match).Value
 
 

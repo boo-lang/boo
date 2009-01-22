@@ -8,54 +8,54 @@ import Boo.Lang.PatternMatching from Boo.Lang.PatternMatching
 
 class PatternExpander:
 	
-	def expand(matchValue as Expression, pattern as Expression) as Expression:
+	def Expand(matchValue as Expression, pattern as Expression) as Expression:
 		match pattern:
 			case MethodInvocationExpression():
-				return expandObjectPattern(matchValue, pattern)
+				return ExpandObjectPattern(matchValue, pattern)
 				
 			case MemberReferenceExpression():
-				return expandValuePattern(matchValue, pattern)
+				return ExpandValuePattern(matchValue, pattern)
 				
 			case ReferenceExpression():
-				return expandBindPattern(matchValue, pattern)
+				return ExpandBindPattern(matchValue, pattern)
 				
 			case QuasiquoteExpression():
-				return expandQuasiquotePattern(matchValue, pattern)
+				return ExpandQuasiquotePattern(matchValue, pattern)
 				
 			case [| $l = $r |]:
-				return expandCapturePattern(matchValue, pattern)
+				return ExpandCapturePattern(matchValue, pattern)
 				
 			case [| $l | $r |]:
-				return expandEitherPattern(matchValue, pattern)
+				return ExpandEitherPattern(matchValue, pattern)
 				
 			case ArrayLiteralExpression():
-				return expandFixedSizePattern(matchValue, pattern)
+				return ExpandFixedSizePattern(matchValue, pattern)
 				
 			otherwise:
-				return expandValuePattern(matchValue, pattern)
+				return ExpandValuePattern(matchValue, pattern)
 		
-	def expandEitherPattern(matchValue as Expression, node as BinaryExpression) as Expression:
-		l = expand(matchValue, node.Left)
-		r = expand(matchValue, node.Right)
+	def ExpandEitherPattern(matchValue as Expression, node as BinaryExpression) as Expression:
+		l = Expand(matchValue, node.Left)
+		r = Expand(matchValue, node.Right)
 		return [| $l or $r |]
 		
-	def expandBindPattern(matchValue as Expression, node as ReferenceExpression):
+	def ExpandBindPattern(matchValue as Expression, node as ReferenceExpression):
 		return [| __eval__($node = $matchValue, true) |]
 		
-	def expandValuePattern(matchValue as Expression, node as Expression):
+	def ExpandValuePattern(matchValue as Expression, node as Expression):
 		return [| $matchValue == $node |]
 		
-	def expandCapturePattern(matchValue as Expression, node as BinaryExpression):
-		return expandObjectPattern(matchValue, node.Left, node.Right)
+	def ExpandCapturePattern(matchValue as Expression, node as BinaryExpression):
+		return ExpandObjectPattern(matchValue, node.Left, node.Right)
 		
-	def expandObjectPattern(matchValue as Expression, node as MethodInvocationExpression) as Expression:
+	def ExpandObjectPattern(matchValue as Expression, node as MethodInvocationExpression) as Expression:
 	
 		if len(node.NamedArguments) == 0 and len(node.Arguments) == 0:
 			return [| $matchValue isa $(typeRef(node)) |]
 			 
-		return expandObjectPattern(matchValue, newTemp(node), node)
+		return ExpandObjectPattern(matchValue, newTemp(node), node)
 		
-	def expandObjectPattern(matchValue as Expression, temp as ReferenceExpression, node as MethodInvocationExpression) as Expression:
+	def ExpandObjectPattern(matchValue as Expression, temp as ReferenceExpression, node as MethodInvocationExpression) as Expression:
 		
 		condition = [| ($matchValue isa $(typeRef(node))) and __eval__($temp = cast($(typeRef(node)), $matchValue), true) |]
 		condition.LexicalInfo = node.LexicalInfo
@@ -66,7 +66,7 @@ class PatternExpander:
 			condition = [| $condition and __eval__($member = $memberRef, true) |]  
 			
 		for member in node.NamedArguments:
-			namedArgCondition = expandMemberPattern(temp.CloneNode(), member)
+			namedArgCondition = ExpandMemberPattern(temp.CloneNode(), member)
 			condition = [| $condition and $namedArgCondition |]
 			
 		return condition
@@ -82,9 +82,9 @@ class PatternExpander:
 			_parent = parent
 		
 		def build(node as QuasiquoteExpression):
-			return expand(node.Node)
+			return Expand(node.Node)
 			
-		def expand(node as Node):
+		def Expand(node as Node):
 			node.Accept(self)
 			expansion = _pattern
 			_pattern = null
@@ -102,10 +102,10 @@ class PatternExpander:
 		override def OnSpliceTypeReference(node as SpliceTypeReference):
 			_pattern = node.Expression
 			
-		def expandFixedSize(items):
+		def ExpandFixedSize(items):
 			a = [| (,) |]
 			for item in items:
-				a.Items.Add(expand(item))
+				a.Items.Add(Expand(item))
 			return a
 			
 		override def OnOmittedExpression(node as OmittedExpression):
@@ -113,32 +113,32 @@ class PatternExpander:
 			
 		override def OnSlice(node as Slice):
 			ctor = [| $Ast.Slice() |]
-			expandProperty ctor, "Begin", node.Begin
-			expandProperty ctor, "End", node.End
-			expandProperty ctor, "Step", node.Step
+			ExpandProperty ctor, "Begin", node.Begin
+			ExpandProperty ctor, "End", node.End
+			ExpandProperty ctor, "Step", node.Step
 			push node, ctor
 			
-		def expandProperty(ctor as MethodInvocationExpression, name as string, value as Expression):
+		def ExpandProperty(ctor as MethodInvocationExpression, name as string, value as Expression):
 			if value is null: return
-			ctor.NamedArguments.Add(ExpressionPair(First: ReferenceExpression(name), Second: expand(value)))
+			ctor.NamedArguments.Add(ExpressionPair(First: ReferenceExpression(name), Second: Expand(value)))
 			
 		override def OnMacroStatement(node as MacroStatement):
 			if len(node.Arguments) > 0:
-				push node, [| $Ast.MacroStatement(Name: $(node.Name), Arguments: $(expandFixedSize(node.Arguments))) |]
+				push node, [| $Ast.MacroStatement(Name: $(node.Name), Arguments: $(ExpandFixedSize(node.Arguments))) |]
 			else:
 				push node, [| $Ast.MacroStatement(Name: $(node.Name)) |]
 			
 		override def OnSlicingExpression(node as SlicingExpression):
-			push node, [| $Ast.SlicingExpression(Target: $(expand(node.Target)), Indices: $(expandFixedSize(node.Indices))) |]
+			push node, [| $Ast.SlicingExpression(Target: $(Expand(node.Target)), Indices: $(ExpandFixedSize(node.Indices))) |]
 			
 		override def OnTryCastExpression(node as TryCastExpression):
-			push node, [| $Ast.TryCastExpression(Target: $(expand(node.Target)), Type: $(expand(node.Type))) |]
+			push node, [| $Ast.TryCastExpression(Target: $(Expand(node.Target)), Type: $(Expand(node.Type))) |]
 			
 		override def OnMethodInvocationExpression(node as MethodInvocationExpression):
 			if len(node.Arguments) > 0:
-				pattern = [| $Ast.MethodInvocationExpression(Target: $(expand(node.Target)), Arguments: $(expandFixedSize(node.Arguments))) |]
+				pattern = [| $Ast.MethodInvocationExpression(Target: $(Expand(node.Target)), Arguments: $(ExpandFixedSize(node.Arguments))) |]
 			else:
-				pattern = [| $Ast.MethodInvocationExpression(Target: $(expand(node.Target))) |]
+				pattern = [| $Ast.MethodInvocationExpression(Target: $(Expand(node.Target))) |]
 			push node, pattern
 			
 		override def OnBoolLiteralExpression(node as BoolLiteralExpression):
@@ -148,10 +148,10 @@ class PatternExpander:
 			push node, [| $Ast.NullLiteralExpression() |]
 			
 		override def OnUnaryExpression(node as UnaryExpression):
-			push node, [| $Ast.UnaryExpression(Operator: UnaryOperatorType.$(node.Operator.ToString()), Operand: $(expand(node.Operand))) |]
+			push node, [| $Ast.UnaryExpression(Operator: UnaryOperatorType.$(node.Operator.ToString()), Operand: $(Expand(node.Operand))) |]
 			
 		override def OnBinaryExpression(node as BinaryExpression):
-			push node, [| $Ast.BinaryExpression(Operator: BinaryOperatorType.$(node.Operator.ToString()), Left: $(expand(node.Left)), Right: $(expand(node.Right))) |]
+			push node, [| $Ast.BinaryExpression(Operator: BinaryOperatorType.$(node.Operator.ToString()), Left: $(Expand(node.Left)), Right: $(Expand(node.Right))) |]
 		
 		override def OnReferenceExpression(node as ReferenceExpression):
 			push node, [| $Ast.ReferenceExpression(Name: $(node.Name)) |]
@@ -162,19 +162,19 @@ class PatternExpander:
 	def objectPatternFor(node as QuasiquoteExpression):
 		return QuasiquotePatternBuilder(self).build(node)
 		
-	def expandQuasiquotePattern(matchValue as Expression, node as QuasiquoteExpression) as Expression:
-		return expandObjectPattern(matchValue, objectPatternFor(node))
+	def ExpandQuasiquotePattern(matchValue as Expression, node as QuasiquoteExpression) as Expression:
+		return ExpandObjectPattern(matchValue, objectPatternFor(node))
 		
-	def expandMemberPattern(matchValue as Expression, member as ExpressionPair):
+	def ExpandMemberPattern(matchValue as Expression, member as ExpressionPair):
 		memberRef = MemberReferenceExpression(member.First.LexicalInfo, matchValue, member.First.ToString())	
-		return expand(memberRef, member.Second)
+		return Expand(memberRef, member.Second)
 		
-	def expandFixedSizePattern(matchValue as Expression, pattern as ArrayLiteralExpression):
+	def ExpandFixedSizePattern(matchValue as Expression, pattern as ArrayLiteralExpression):
 		condition = [| $(len(pattern.Items)) == len($matchValue) |]
 		i = 0
 		for item in pattern.Items:
 			itemValue = [| $matchValue[$i] |]
-			itemPattern = expand(itemValue, item)
+			itemPattern = Expand(itemValue, item)
 			condition = [| $condition and $itemPattern |]
 			++i
 		return condition
