@@ -14,7 +14,7 @@ internal class MatchExpansion:
 		self.context = context
 		self.node = node
 		self.expression = node.Arguments[0]
-		self.value = Expand(newTemp(expression))
+		self.value = Expand(NewTemp(expression))
 		
 	def Expand(matchValue as Expression):
 		
@@ -56,5 +56,3 @@ internal class MatchExpansion:
 		
 	def ExpandPattern(matchValue as Expression, pattern as Expression) as Expression:
 		return PatternExpander().Expand(matchValue, pattern)
-		
-	
