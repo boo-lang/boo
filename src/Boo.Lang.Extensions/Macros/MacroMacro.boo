@@ -31,13 +31,17 @@ namespace Boo.Lang.Extensions
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.Steps.MacroProcessing
 
 class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	
-	private class CaseStatement(CustomStatement):
-		public Pattern as Expression
+	private class CustomBlockStatement(CustomStatement):
 		public Body as Block
+		
+	private class CaseStatement(CustomBlockStatement):
+		public Pattern as Expression
+		
+	private class OtherwiseStatement(CustomBlockStatement):
+		pass
 	
 	class CaseMacro(LexicalInfoPreservingGeneratorMacro):
 		override protected def ExpandGeneratorImpl(case as MacroStatement):
@@ -45,6 +49,12 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				raise "Usage: case <pattern>"
 			pattern, = case.Arguments
 			yield CaseStatement(Pattern: pattern, Body: case.Body)
+			
+	class OtherwiseMacro(LexicalInfoPreservingGeneratorMacro):
+		override protected def ExpandGeneratorImpl(case as MacroStatement):
+			if len(case.Arguments) != 0:
+				raise "Usage: otherwise: <block>"
+			yield OtherwiseStatement(Body: case.Body)
 
 	override protected def ExpandGeneratorImpl(macro as MacroStatement):
 		if len(macro.Arguments) != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
@@ -134,14 +144,29 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						$(case.Body)
 				|]
 				matchBlock.Body.Add(caseBlock)
-			else:
-				// contains statements after the case
-				enclosingBlock = Block()
-				enclosingBlock.Add(matchBlock)
-				enclosingBlock.Add(stmt)
+			elif stmt isa OtherwiseStatement:
+				otherwise as OtherwiseStatement = stmt
+				otherwiseBlock = [|
+					otherwise:
+						$(otherwise.Body)
+				|]
+				matchBlock.Body.Add(otherwiseBlock)
+				
+				// otherwise marks the end of the match block
+				resultingBlock = Block()
+				resultingBlock.Add(matchBlock)
 				for remaining as Statement in statementsEnumerator:
-					enclosingBlock.Add(remaining)
-				return enclosingBlock
+					resultingBlock.Add(remaining)
+				return resultingBlock
+			else:
+				// statements after a sequence of 'case <pattern>' macros
+				// also mark the end of a match block
+				resultingBlock = Block()
+				resultingBlock.Add(matchBlock)
+				resultingBlock.Add(stmt)
+				for remaining as Statement in statementsEnumerator:
+					resultingBlock.Add(remaining)
+				return resultingBlock
 				
 		return matchBlock
 
@@ -173,11 +198,11 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			pass
 			
 		override def OnCustomStatement(node as CustomStatement):
-			caseStatement = node as CaseStatement
-			if caseStatement is null:
+			customBlock = node as CustomBlockStatement
+			if customBlock is null:
 				super(node)
 			else:
-				caseStatement.Body.Accept(self)
+				customBlock.Body.Accept(self)
 
 		override def OnYieldStatement(node as YieldStatement):
 			_found = true

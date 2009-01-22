@@ -34,9 +34,9 @@ import Boo.Lang.Compiler.Steps
 macro unchecked:
 	assert 0 == len(unchecked.Arguments)
 	AstAnnotations.MarkUnchecked(unchecked.Block)
-	yield unchecked.Block
+	yield
 
 macro checked:
 	assert 0 == len(checked.Arguments)
 	AstAnnotations.MarkChecked(checked.Block)
-	yield checked.Block
+	yield

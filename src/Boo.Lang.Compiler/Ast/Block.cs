@@ -93,5 +93,14 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Statements.Insert(index, stmt);
 		}
+
+		public Statement Simplify()
+		{
+			if (IsEmpty)
+				return this;
+			if (Statements.Count > 1 || HasAnnotations)
+				return this;
+			return Statements[0];
+		}
 	}
 }

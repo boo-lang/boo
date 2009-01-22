@@ -324,17 +324,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				
 				throw new CompilerError(node, "Unsupported expansion: " + generatedNode);
 			}
-			
-			return resultingBlock.IsEmpty
-				? null
-				: Simplify(resultingBlock);
-		}
 
-		private Statement Simplify(Block resultingBlock)
-		{
-			return (resultingBlock.Statements.Count > 1 || resultingBlock.HasAnnotations)
-			       	? resultingBlock
-			       	: resultingBlock.Statements[0];
+			return resultingBlock.IsEmpty
+			       	? null
+			       	: resultingBlock.Simplify();
 		}
 
 		private IEntity ResolveMacroName(MacroStatement node)
