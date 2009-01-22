@@ -120,7 +120,16 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedStatic(node);
 			CantBeMarkedPartial(node);
 		}
-		
+
+		public override void LeaveEnumDefinition(EnumDefinition node)
+		{
+			CheckMemberName(node);
+			CantBeMarkedAbstract(node);
+			CantBeMarkedFinal(node);
+			CantBeMarkedStatic(node);
+			CantBeMarkedPartial(node);
+		}
+
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
 			CheckModifierCombination(node);
