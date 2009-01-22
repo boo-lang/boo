@@ -73,6 +73,8 @@ class PatternExpander:
 	
 	class QuasiquotePatternBuilder(DepthFirstVisitor):
 		
+		static final Ast = [| Boo.Lang.Compiler.Ast |]
+		
 		_parent as PatternExpander
 		_pattern as Expression
 		
@@ -107,10 +109,10 @@ class PatternExpander:
 			return a
 			
 		override def OnOmittedExpression(node as OmittedExpression):
-			_pattern = [| OmittedExpression.Instance |]
+			_pattern = [| $Ast.OmittedExpression.Instance |]
 			
 		override def OnSlice(node as Slice):
-			ctor = [| Slice() |]
+			ctor = [| $Ast.Slice() |]
 			expandProperty ctor, "Begin", node.Begin
 			expandProperty ctor, "End", node.End
 			expandProperty ctor, "Step", node.Step
@@ -122,40 +124,40 @@ class PatternExpander:
 			
 		override def OnMacroStatement(node as MacroStatement):
 			if len(node.Arguments) > 0:
-				push node, [| MacroStatement(Name: $(node.Name), Arguments: $(expandFixedSize(node.Arguments))) |]
+				push node, [| $Ast.MacroStatement(Name: $(node.Name), Arguments: $(expandFixedSize(node.Arguments))) |]
 			else:
-				push node, [| MacroStatement(Name: $(node.Name)) |]
+				push node, [| $Ast.MacroStatement(Name: $(node.Name)) |]
 			
 		override def OnSlicingExpression(node as SlicingExpression):
-			push node, [| SlicingExpression(Target: $(expand(node.Target)), Indices: $(expandFixedSize(node.Indices))) |]
+			push node, [| $Ast.SlicingExpression(Target: $(expand(node.Target)), Indices: $(expandFixedSize(node.Indices))) |]
 			
 		override def OnTryCastExpression(node as TryCastExpression):
-			push node, [| TryCastExpression(Target: $(expand(node.Target)), Type: $(expand(node.Type))) |]
+			push node, [| $Ast.TryCastExpression(Target: $(expand(node.Target)), Type: $(expand(node.Type))) |]
 			
 		override def OnMethodInvocationExpression(node as MethodInvocationExpression):
 			if len(node.Arguments) > 0:
-				pattern = [| MethodInvocationExpression(Target: $(expand(node.Target)), Arguments: $(expandFixedSize(node.Arguments))) |]
+				pattern = [| $Ast.MethodInvocationExpression(Target: $(expand(node.Target)), Arguments: $(expandFixedSize(node.Arguments))) |]
 			else:
-				pattern = [| MethodInvocationExpression(Target: $(expand(node.Target))) |]
+				pattern = [| $Ast.MethodInvocationExpression(Target: $(expand(node.Target))) |]
 			push node, pattern
 			
 		override def OnBoolLiteralExpression(node as BoolLiteralExpression):
-			push node, [| BoolLiteralExpression(Value: $node) |]
+			push node, [| $Ast.BoolLiteralExpression(Value: $node) |]
 			
 		override def OnNullLiteralExpression(node as NullLiteralExpression):
-			push node, [| NullLiteralExpression() |]
+			push node, [| $Ast.NullLiteralExpression() |]
 			
 		override def OnUnaryExpression(node as UnaryExpression):
-			push node, [| UnaryExpression(Operator: UnaryOperatorType.$(node.Operator.ToString()), Operand: $(expand(node.Operand))) |]
+			push node, [| $Ast.UnaryExpression(Operator: UnaryOperatorType.$(node.Operator.ToString()), Operand: $(expand(node.Operand))) |]
 			
 		override def OnBinaryExpression(node as BinaryExpression):
-			push node, [| BinaryExpression(Operator: BinaryOperatorType.$(node.Operator.ToString()), Left: $(expand(node.Left)), Right: $(expand(node.Right))) |]
+			push node, [| $Ast.BinaryExpression(Operator: BinaryOperatorType.$(node.Operator.ToString()), Left: $(expand(node.Left)), Right: $(expand(node.Right))) |]
 		
 		override def OnReferenceExpression(node as ReferenceExpression):
-			push node, [| ReferenceExpression(Name: $(node.Name)) |]
+			push node, [| $Ast.ReferenceExpression(Name: $(node.Name)) |]
 			
 		override def OnSuperLiteralExpression(node as SuperLiteralExpression):
-			push node, [| SuperLiteralExpression() |]
+			push node, [| $Ast.SuperLiteralExpression() |]
 			
 	def objectPatternFor(node as QuasiquoteExpression):
 		return QuasiquotePatternBuilder(self).build(node)

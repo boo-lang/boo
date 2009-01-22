@@ -4,7 +4,6 @@ yeah
 BCE0045: Macro expansion error: ''_assert' failed to match '_assert 'invalid', 'number', 'of', 'arguments'''.
 """
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.MetaProgramming
 import Boo.Lang.PatternMatching
 

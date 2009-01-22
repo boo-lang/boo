@@ -140,6 +140,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public override void OnCustomStatement(CustomStatement node)
 		{
+			Error(CompilerErrorFactory.InvalidNode(node));
 		}
 
 		public override void LeaveReturnStatement(ReturnStatement node)

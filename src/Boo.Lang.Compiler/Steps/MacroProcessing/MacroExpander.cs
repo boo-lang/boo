@@ -283,51 +283,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null == generatedNodes)
 				return null;
 
-			Block resultingBlock = new Block();
-			foreach (Node gn in generatedNodes)
-			{
-				//'yield' (ie. implicit 'yield null') means 'yield `macro`.Block'
-				Node generatedNode = gn ?? node.Block;
-				if (null == generatedNode)
-					continue;
-
-				TypeMember member = generatedNode as TypeMember;
-				if (null != member)
-				{
-					if (_expansionDepth > 0)
-						resultingBlock.Add(new TypeMemberStatement(member));
-					else
-						node.GetAncestor<TypeDefinition>().Members.Add(member);
-					continue;
-				}
-				
-				Block block = generatedNode as Block;
-				if (null != block)
-				{
-					resultingBlock.Add(block);
-					continue;
-				}
-
-				Statement statement = generatedNode as Statement;
-				if (null != statement)
-				{
-					resultingBlock.Add(statement);
-					continue;
-				}
-
-				Expression expression = generatedNode as Expression;
-				if (null != expression)
-				{
-					resultingBlock.Add(expression);
-					continue;
-				}
-				
-				throw new CompilerError(node, "Unsupported expansion: " + generatedNode);
-			}
-
-			return resultingBlock.IsEmpty
-			       	? null
-			       	: resultingBlock.Simplify();
+			return new NodeGeneratorExpander(node, _expansionDepth == 0).Expand(generatedNodes);
 		}
 
 		private IEntity ResolveMacroName(MacroStatement node)

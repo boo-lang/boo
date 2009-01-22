@@ -4,8 +4,6 @@ yeah
 NO SOUP FOR YOU!
 """
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.MetaProgramming
 import Boo.Lang.PatternMatching
 
 macro _assert:

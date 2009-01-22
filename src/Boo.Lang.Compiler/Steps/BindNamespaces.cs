@@ -54,6 +54,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public override void OnImport(Boo.Lang.Compiler.Ast.Import import)
 		{
+			if (IsAlreadyBound(import))
+				return;
+
 			IEntity entity = ResolveImport(import);
 
 			//if 'import X', try 'import X from X'
@@ -119,6 +122,11 @@ namespace Boo.Lang.Compiler.Steps
 			
 			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
 			import.Entity = entity;
+		}
+
+		private bool IsAlreadyBound(Import import)
+		{
+			return TypeSystemServices.GetOptionalEntity(import) != null;
 		}
 
 		private IEntity ResolveImport(Import import)
