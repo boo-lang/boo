@@ -303,7 +303,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static bool IsImplicitCallable(Expression e)
 		{
-			return e is ReferenceExpression && (null != (e.Entity as InternalMethod));
+			return e is ReferenceExpression && (null != (e.Entity as IMethod));
 		}
 
 		static bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)
