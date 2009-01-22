@@ -51,13 +51,13 @@ class PatternExpander:
 	def ExpandObjectPattern(matchValue as Expression, node as MethodInvocationExpression) as Expression:
 	
 		if len(node.NamedArguments) == 0 and len(node.Arguments) == 0:
-			return [| $matchValue isa $(typeRef(node)) |]
+			return [| $matchValue isa $(TypeRefFrom(node)) |]
 			 
 		return ExpandObjectPattern(matchValue, NewTemp(node), node)
 		
 	def ExpandObjectPattern(matchValue as Expression, temp as ReferenceExpression, node as MethodInvocationExpression) as Expression:
 		
-		condition = [| ($matchValue isa $(typeRef(node))) and __eval__($temp = cast($(typeRef(node)), $matchValue), true) |]
+		condition = [| ($matchValue isa $(TypeRefFrom(node))) and __eval__($temp = cast($(TypeRefFrom(node)), $matchValue), true) |]
 		condition.LexicalInfo = node.LexicalInfo
 		
 		for member in node.Arguments:
@@ -179,7 +179,7 @@ class PatternExpander:
 			++i
 		return condition
 		
-	def typeRef(node as MethodInvocationExpression):
+	def TypeRefFrom(node as MethodInvocationExpression):
 		return node.Target
 		
 internal def NewTemp(e as Expression):
