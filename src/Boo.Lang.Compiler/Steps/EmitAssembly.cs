@@ -67,7 +67,9 @@ namespace Boo.Lang.Compiler.Steps
 		static ConstructorInfo DebuggableAttribute_Constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
 		
 		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetConstructor(new Type[0]);
-		
+
+		static ConstructorInfo SerializableAttribute_Constructor = typeof(SerializableAttribute).GetConstructor(new Type[0]);
+
 		static PropertyInfo[] RuntimeCompatibilityAttribute_Property = new PropertyInfo[] { typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetProperty("WrapNonExceptionThrows") };
 
 		static ConstructorInfo DuckTypedAttribute_Constructor = Types.DuckTypedAttribute.GetConstructor(new Type[0]);
@@ -344,7 +346,21 @@ namespace Boo.Lang.Compiler.Steps
 			TypeBuilder builder = GetTypeBuilder(node);
 			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
 		}
-		
+
+		void EmitTypeAttributes(EnumDefinition node)
+		{
+			EnumBuilder builder = GetBuilder(node) as EnumBuilder;
+			if (null != builder)
+			{
+				EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			}
+			else //nested enum
+			{
+				TypeBuilder typeBuilder = GetTypeBuilder(node);
+				EmitAttributes(node, new CustomAttributeSetter(typeBuilder.SetCustomAttribute));
+			}
+		}
+
 		void EmitFieldAttributes(TypeMember node)
 		{
 			FieldBuilder builder = GetFieldBuilder(node);
@@ -430,9 +446,18 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						CreateRelatedTypes(typedef);
 					}
-					
-					_emitter.GetTypeBuilder(type).CreateType();
-					
+
+					TypeBuilder typeBuilder = _emitter.GetBuilder(type) as TypeBuilder;
+					if (null != typeBuilder)
+					{
+						typeBuilder.CreateType();
+					}
+					else
+					{
+						EnumBuilder enumBuilder = (EnumBuilder) _emitter.GetBuilder(type);
+						enumBuilder.CreateType();
+					}
+
 					Trace("type '{0}' successfully created", type);
 					
 					_current = saved;
@@ -576,15 +601,28 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			TypeBuilder builder = GetTypeBuilder(node);			
-			foreach (EnumMember member in node.Members)
+			EnumBuilder builder = GetBuilder(node) as EnumBuilder;
+			if (null != builder)
 			{
-				FieldBuilder field = builder.DefineField(member.Name, builder,
-				                                         FieldAttributes.Public |
-				                                         FieldAttributes.Static |
-				                                         FieldAttributes.Literal);
-				field.SetConstant((int)member.Initializer.Value);
-				SetBuilder(member, field);
+				foreach (EnumMember member in node.Members)
+				{
+					//FIXME: BOO-1130
+					FieldBuilder field = builder.DefineLiteral(member.Name, (int) member.Initializer.Value);
+					SetBuilder(member, field);
+				}
+			}
+			else //nested enum (have to go through regular TypeBuilder
+			{    //since there is no DefineNestedEnum in SRE :-/
+				TypeBuilder typeBuilder = GetTypeBuilder(node);
+				foreach (EnumMember member in node.Members)
+				{
+					FieldBuilder field = typeBuilder.DefineField(member.Name, typeBuilder,
+														FieldAttributes.Public |
+														FieldAttributes.Static |
+														FieldAttributes.Literal);
+					field.SetConstant((int) member.Initializer.Value); //FIXME: BOO-1130
+					SetBuilder(member, field);
+				}
 			}
 		}
 		
@@ -3878,7 +3916,14 @@ namespace Boo.Lang.Compiler.Steps
 					RuntimeCompatibilityAttribute_Constructor, new object[0],
 					RuntimeCompatibilityAttribute_Property, new object[] { true });
 		}
-		
+
+		CustomAttributeBuilder CreateSerializableAttribute()
+		{
+			return new CustomAttributeBuilder(
+				SerializableAttribute_Constructor,
+				new object[0]);
+		}
+
 		void DefineEntryPoint()
 		{
 			if (Context.Parameters.GenerateInMemory)
@@ -4635,8 +4680,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefineType(TypeDefinition typeDefinition)
 		{
-			TypeBuilder typeBuilder = CreateTypeBuilder(typeDefinition);
-			SetBuilder(typeDefinition, typeBuilder);
+			SetBuilder(typeDefinition, CreateTypeBuilder(typeDefinition));
 		}
 		
 		bool IsValueType(TypeMember type)
@@ -4644,8 +4688,8 @@ namespace Boo.Lang.Compiler.Steps
 			IType entity = type.Entity as IType;
 			return null != entity && entity.IsValueType;
 		}
-		
-		TypeBuilder CreateTypeBuilder(TypeDefinition type)
+
+		object CreateTypeBuilder(TypeDefinition type)
 		{
 			Type baseType = null;
 			if (IsEnumDefinition(type))
@@ -4662,10 +4706,26 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (null == enclosingType)
 			{
-				typeBuilder = _moduleBuilder.DefineType(
-					AnnotateGenericTypeName(type, type.QualifiedName),
-					GetTypeAttributes(type), 
-					baseType); 
+				if (IsEnumDefinition(type))
+				{
+					//have to normalize TypeAttributes for EnumBuilder only
+					TypeAttributes typeAttrs = GetTypeAttributes(type)
+													& TypeAttributes.Sealed
+													& TypeAttributes.Serializable;
+					EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(
+						type.QualifiedName,
+						typeAttrs,
+						typeof(int)); //FIXME: BOO-1130
+					enumBuilder.SetCustomAttribute(CreateSerializableAttribute());
+					return enumBuilder;
+				}
+				else
+				{
+					typeBuilder = _moduleBuilder.DefineType(
+						AnnotateGenericTypeName(type, type.QualifiedName),
+						GetTypeAttributes(type),
+						baseType);
+				}
 			}
 			else
 			{
@@ -4674,13 +4734,14 @@ namespace Boo.Lang.Compiler.Steps
 					GetNestedTypeAttributes(type), 
 					baseType);
 			}
-			
+
 			if (IsEnumDefinition(type))
 			{
 				// Mono cant construct enum array types unless
 				// the fields is already defined
 				DefineEnumField(typeBuilder);
 			}
+
 			return typeBuilder;
 		}
 		
@@ -4692,16 +4753,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return name;
 		}
-		
+
 		void DefineEnumField(TypeBuilder builder)
 		{
-			Type baseType = typeof(int);			
+			Type baseType = typeof(int); //FIXME: BOO-1130
 			builder.DefineField("value__", baseType,
-			                    FieldAttributes.Public |
-			                    FieldAttributes.SpecialName |
-			                    FieldAttributes.RTSpecialName);
+								FieldAttributes.Public |
+								FieldAttributes.SpecialName |
+								FieldAttributes.RTSpecialName);
 		}
-		
+
 		void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, TypeBuilder typeBuilder)
 		{
 			foreach (TypeReference baseType in typeDefinition.BaseTypes)
