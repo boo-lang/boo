@@ -50,7 +50,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		Type _underlyingType;
-		IType _mappedUnderlyingType;
 
 		public Type UnderlyingType
 		{
@@ -67,7 +66,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 							break;
 						}
 					}
-					_mappedUnderlyingType = _typeSystemServices.Map(_underlyingType);
 				}
 				return _underlyingType;
 			}
