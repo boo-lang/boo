@@ -91,10 +91,14 @@ namespace Boo.Lang.Compiler
 			_unit = unit;
 			_errors = new CompilerErrorCollection();
 			_warnings = new CompilerWarningCollection();
+			_warnings.Adding += new EventHandler<CompilerWarningEventArgs>(OnCompilerWarning);
+
 			_assemblyReferences = options.References;
 			_parameters = options;
+
 			if (_parameters.Debug && !_parameters.Defines.ContainsKey("DEBUG"))
 				_parameters.Defines.Add("DEBUG", null);
+
 			_properties = new Hash();
 			RegisterService<NameResolutionService>(new NameResolutionService(this));
 		}
@@ -329,7 +333,17 @@ namespace Boo.Lang.Compiler
 				throw new ArgumentException(string.Format("Requested compiler service not found: '{0}'.", typeof(T)));
 			}
 		}
-	}
 
+		void OnCompilerWarning(object o, CompilerWarningEventArgs args)
+		{
+			CompilerWarning warning = args.Warning;
+			if (Parameters.NoWarn || Parameters.SuppressedWarnings.Contains(warning.Code))
+				args.Cancel();
+			if (Parameters.WarnAsError || Parameters.PromotedWarnings.Contains(warning.Code)) {
+				Errors.Add(new CompilerError(warning.Code, warning.LexicalInfo, warning.Message, null));
+				args.Cancel();
+			}
+		}
+	}
 }
 

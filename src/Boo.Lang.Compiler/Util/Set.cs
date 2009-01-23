@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Util
 {
-	public class Set<T> : IEnumerable<T>
+	public class Set<T> : IEnumerable<T>, ICollection<T>
 	{
 		private readonly Dictionary<T, bool> _elements = new Dictionary<T, bool>();
 
@@ -12,14 +12,28 @@ namespace Boo.Lang.Compiler.Util
 			_elements[element] = true;
 		}
 
+		public void Clear()
+		{
+			_elements.Clear();
+		}
+
 		public bool Contains(T element)
 		{
 			bool value;
 			return _elements.TryGetValue(element, out value);
 		}
 
-		#region Implementation of IEnumerable
+		public void CopyTo(T[] array, int arrayIndex)
+		{
+			throw new System.NotImplementedException();
+		}
 
+		public int Count
+		{
+			get { return _elements.Count; }
+		}
+
+		#region Implementation of IEnumerable
 		public IEnumerator<T> GetEnumerator()
 		{
 			return _elements.Keys.GetEnumerator();
@@ -29,12 +43,16 @@ namespace Boo.Lang.Compiler.Util
 		{
 			return GetEnumerator();
 		}
-
 		#endregion
 
-		public void Clear()
+		public bool IsReadOnly
 		{
-			_elements.Clear();
+			get { return false; }
+		}
+
+		public bool Remove(T element)
+		{
+			return _elements.Remove(element);
 		}
 	}
 }

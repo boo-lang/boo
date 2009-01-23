@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler
 		public CompilerError(string message) : this(LexicalInfo.Empty, message, null)
 		{
 		}
-		
+
 		/// <summary>
 		/// Error code.
 		/// </summary>

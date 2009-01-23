@@ -30,6 +30,7 @@ namespace Boo.NAnt
 
 import System
 import System.IO
+import System.Text
 import System.Text.RegularExpressions
 import NAnt.Core.Attributes
 import NAnt.Core.Types
@@ -51,6 +52,9 @@ public class BoocTask(CompilerBase):
 	private _ducky = false
 	private _checked = true
 	private _defineSymbols as string = null
+	private _noWarn as string = null
+	private _warnAsError as string = null
+	private _embed = FileSet()
 	
 	private _pipeline as string
 	
@@ -157,7 +161,6 @@ public class BoocTask(CompilerBase):
 		set:
 			_defineSymbols = value
 
-
 	[BuildElement("embed")]
 	Embed:
 		get:
@@ -165,7 +168,25 @@ public class BoocTask(CompilerBase):
 		set:
 			_embed = value
 
-	_embed = FileSet()
+	[TaskAttribute('nowarn')]
+	public NoWarn as string:
+		get:
+			return _noWarn
+		set:
+			_noWarn = value
+
+
+	override public SupportsNoWarnList as bool:
+		get:
+			return true
+		set:
+			pass
+
+	override public SupportsWarnAsErrorList as bool:
+		get:
+			return true
+		set:
+			pass
 
 
 	private def FindBooc() as string:
@@ -220,6 +241,7 @@ public class BoocTask(CompilerBase):
 		for embed in _embed.FileNames:
 			WriteOption(writer, "embedres", embed)
 
+
 	protected override def WriteOption(writer as TextWriter, name as string):
 		writer.WriteLine("-{0}", name)
 		
@@ -228,7 +250,32 @@ public class BoocTask(CompilerBase):
 			writer.WriteLine("-{0}:\"{1}\"", name, value)
 		else:
 			writer.WriteLine("-{0}:{1}", name, value)
-			
+
+	protected override def WriteNoWarnList(writer as TextWriter):
+		if not NoWarn:
+			return
+		if NoWarn == "true" and SuppressWarnings.Count == 0:
+			WriteOption(writer, "nowarn")
+			return
+		sb = StringBuilder()
+		for warning as CompilerWarning in SuppressWarnings:
+			if warning.IfDefined and not warning.UnlessDefined:
+				sb.Append(warning.Number)
+				WriteOption(writer, "nowarn", sb.ToString())
+
+	protected override def WriteWarningsAsError(writer as TextWriter):
+		if not WarnAsError:
+			return
+		if WarningAsError.Includes.Count == 0:
+			WriteOption(writer, "warnaserror")
+			return
+		sb = StringBuilder()
+		for warning as CompilerWarning in WarningAsError.Includes:
+			if warning.IfDefined and not warning.UnlessDefined:
+				sb.Append(warning.Number)
+		WriteOption(writer, "warnaserror", sb.ToString())
+
+
 	def IsQuoted(value as string):
 		return value.StartsWith("\"") and value.EndsWith("\"")
 	

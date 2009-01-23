@@ -691,6 +691,65 @@ namespace Boo.Lang.Compiler
 			throw new ArgumentException("visibility", string.Format("Invalid visibility: '{0}'", visibility));
 		}
 
-	}
+		bool _noWarn = false;
+		bool _warnAsError = false;
+		Util.Set<string> _suppressedWarnings = new Util.Set<string>();
+		Util.Set<string> _promotedWarnings = new Util.Set<string>();
 
+		public bool NoWarn
+		{
+			get { return _noWarn; }
+			set { _noWarn = value; }
+		}
+
+		public bool WarnAsError
+		{
+			get { return _warnAsError; }
+			set { _warnAsError = value; }
+		}
+
+		public ICollection<string> SuppressedWarnings
+		{
+			get { return _suppressedWarnings; }
+		}
+
+		public ICollection<string> PromotedWarnings
+		{
+			get { return _promotedWarnings; }
+		}
+
+		public void SuppressWarning(string code)
+		{
+			_suppressedWarnings.Add(code);
+		}
+
+		public void RestoreWarning(string code)
+		{
+			if (_suppressedWarnings.Contains(code))
+				_suppressedWarnings.Remove(code);
+		}
+
+		public void RestoreWarnings()
+		{
+			_suppressedWarnings.Clear();
+			_noWarn = false;
+		}
+
+		public void PromoteWarningAsError(string code)
+		{
+			_promotedWarnings.Add(code);
+		}
+
+		public void RevokeWarningAsError(string code)
+		{
+			if (_promotedWarnings.Contains(code))
+				_promotedWarnings.Remove(code);
+		}
+
+		public void RevokeWarningsAsErrors()
+		{
+			_promotedWarnings.Clear();
+			_warnAsError = false;
+		}
+	}
 }

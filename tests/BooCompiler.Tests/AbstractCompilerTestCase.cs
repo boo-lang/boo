@@ -139,6 +139,8 @@ namespace BooCompiler.Tests
 			System.Threading.Thread current = System.Threading.Thread.CurrentThread;
 
 			_parameters.Input.Clear();
+			_parameters.RestoreWarnings();
+			_parameters.RevokeWarningsAsErrors();
 
 			current.CurrentCulture = current.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 		}
