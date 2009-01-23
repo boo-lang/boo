@@ -80,9 +80,25 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			_visited.Add(node);
 			return true;
 		}
-		
+
+		static bool _referenced = false;
+
+		internal static void EnsureCompilerAssemblyReference(CompilerContext context)
+		{
+			//automatically import Boo.Lang.Compiler if needed
+			if (!_referenced && null == context.References.Find("Boo.Lang.Compiler"))
+			{
+				System.Reflection.Assembly asm = typeof(CompilerContext).Assembly;
+				context.References.Add(asm);
+				context.NameResolutionService.OrganizeAssemblyTypes(asm);
+			}
+			_referenced = true;
+		}
+
 		override public void OnMacroStatement(MacroStatement node)
 		{
+			EnsureCompilerAssemblyReference(Context);
+
 			IType macroType = ResolveMacroName(node) as IType;
 			if (null != macroType)
 			{

@@ -314,6 +314,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			IType attributeType = ((ITypedEntity)tag).Type;
 			if (IsAstAttribute(attributeType))
 			{
+				MacroExpander.EnsureCompilerAssemblyReference(Context);
+
 				ExternalType externalType = attributeType as ExternalType;
 				if (null == externalType)
 				{
