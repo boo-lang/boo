@@ -202,7 +202,7 @@ def applyTemplate(node as TypeDefinition,
 
 	fname = GetPath(targetFile)
 	if not overwriteExistingFile:
-		return if File.Exists(fname)
+		return if File.Exists(fname) or File.Exists(fname.Replace(".Generated", ""))
 
 	print targetFile
 	using writer=StreamWriter(fname):
@@ -235,13 +235,14 @@ for member in model.Members:
 	continue if member.Attributes.Contains("ignore")
 
 	if model.IsEnum(member):
-		applyTemplate(member, enumTemplate, "${member.Name}.cs", true)
+		applyTemplate(member, enumTemplate, "${member.Name}.Generated.cs", true)
 	elif model.IsCollection(member):
-		applyTemplate(member, collectionTemplate, "${member.Name}.cs", false)
+		applyTemplate(member, collectionTemplate, "${member.Name}.Generated.cs", false)
 		applyTemplate(member, collectionImplTemplate, "Impl/${member.Name}Impl.cs", true)
 	else:
-		applyTemplate(member, nodeTemplate, "${member.Name}.cs", false)
+		applyTemplate(member, nodeTemplate, "${member.Name}.Generated.cs", false)
 		applyTemplate(member, nodeImplTemplate, "Impl/${member.Name}Impl.cs", true)
 
 stop = date.Now
 print "ast classes generated in ${stop-start}."
+
