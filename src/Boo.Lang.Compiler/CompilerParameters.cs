@@ -773,6 +773,7 @@ namespace Boo.Lang.Compiler
 					_defaultFieldVisibility = TypeMemberModifiers.Private;
 
 					EnableWarning("BCW0023");
+					EnableWarning("BCW0024");
 				}
 				else
 				{
@@ -784,6 +785,7 @@ namespace Boo.Lang.Compiler
 					_defaultFieldVisibility = TypeMemberModifiers.Protected;
 
 					DisableWarning("BCW0023");
+					DisableWarning("BCW0024");
 				}
 			}
 		}

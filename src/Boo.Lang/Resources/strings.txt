@@ -192,6 +192,7 @@ BCW0020=WARNING: Assignment made to same expression. Did you mean to assign to s
 BCW0021=WARNING: Comparison made with same expression. Did you mean to compare with something else?
 BCW0022=WARNING: Boolean expression will always have the same value.
 BCW0023=WARNING: This method could return default value implicitly.
+BCW0024=WARNING: Visible {0} does not declare {1} type explicitely.
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.
@@ -224,6 +225,8 @@ BooC.BadLibPath=Not a valid directory for -lib argument: '{0}'
 BooC.PkgConfigNotFound=Cannot execute pkg-config, is it in your PATH ?
 BooC.PkgConfigReportedErrors=pkg-config returned errors: {0}
 BooC.DidYouMean=Did you mean '{0}' ?
+BooC.Return=return
+BooC.NamedArgument='{0}' argument
 
 ;Boo.Lang
 ListWasModified=The list was modified. 

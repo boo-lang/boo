@@ -268,6 +268,7 @@ namespace Boo.Lang.Compiler.Steps
 					node.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
 				}
 			}
+			CheckExplicitTypeForVisibleMember(node);
 		}
 
 		bool IsInterface(TypeDefinition node)
@@ -285,5 +286,43 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers |= TypeMemberModifiers.Private;
 		}
 
+		void CheckExplicitTypeForVisibleMember(TypeMember node)
+		{
+			if (!node.IsVisible)
+				return;
+			if (Parameters.DisabledWarnings.Contains("BCW0024"))
+				return;
+
+			switch (node.NodeType) //TODO: introduce INodeWithType?
+			{
+				case NodeType.Method:
+					Method method = (Method)node;
+					if (null != method.ParentNode && method.ParentNode.NodeType == NodeType.Property)
+						return; //ignore accessors
+					foreach (ParameterDeclaration p in method.Parameters)
+					{
+						if (null == p.Type)
+							Warnings.Add(CompilerWarningFactory.VisibleMemberDoesNotDeclareTypeExplicitely(node, p.Name));
+					}
+					if (null != method.ReturnType)
+						return;
+					if (method.Entity != null
+						&& ((IMethod)method.Entity).ReturnType == TypeSystemServices.VoidType)
+						return;
+					break;
+				case NodeType.Property:
+					if (null != ((Property)node).Type)
+						return;
+					break;
+				case NodeType.Event:
+					if (null != ((Event)node).Type)
+						return;
+					break;
+				default:
+					return; //fields, nested types etc...
+			}
+
+			Warnings.Add(CompilerWarningFactory.VisibleMemberDoesNotDeclareTypeExplicitely(node));
+		}
 	}
 }

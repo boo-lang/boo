@@ -164,6 +164,19 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0023", node.LexicalInfo);
 		}
 
+		public static CompilerWarning VisibleMemberDoesNotDeclareTypeExplicitely(TypeMember node)
+		{
+			return VisibleMemberDoesNotDeclareTypeExplicitely(node, null);
+		}
+
+		public static CompilerWarning VisibleMemberDoesNotDeclareTypeExplicitely(TypeMember node, string argument)
+		{
+			string details = (null == argument)
+				? ResourceManager.Format("BooC.Return")
+				: ResourceManager.Format("BooC.NamedArgument", argument);
+			return new CompilerWarning("BCW0024", node.LexicalInfo, NodeTypeString(node), details);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{
