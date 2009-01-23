@@ -1269,13 +1269,13 @@ macro_stmt returns [MacroStatement returnValue]
 	}:
 	id:ID expression_list[macro.Arguments]
 	(
-		compound_stmt[macro.Block] { macro.Annotate("compound"); } |
+		compound_stmt[macro.Body] { macro.Annotate("compound"); } |
 		eos |
 		modifier=stmt_modifier eos { macro.Modifier = modifier; } |
 		(
 			begin_with_doc[macro] 
-				block[macro.Block.Statements]
-			end[macro.Block] { macro.Annotate("compound" ); }
+				block[macro.Body.Statements]
+			end[macro.Body] { macro.Annotate("compound" ); }
 		) 
 	)
 	{

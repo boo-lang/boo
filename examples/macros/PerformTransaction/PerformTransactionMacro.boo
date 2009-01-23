@@ -64,7 +64,7 @@ ensure:
 						"BeginTransaction"))))
 					
 		stmt = TryStatement()
-		stmt.ProtectedBlock = macro.Block
+		stmt.ProtectedBlock = macro.Body
 		stmt.ProtectedBlock.Add(
 			MethodInvocationExpression(
 				MemberReferenceExpression(

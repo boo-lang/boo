@@ -285,7 +285,7 @@ class AbstractInterpreter:
 		if 1 == len(m.Globals.Statements):
 			macro = m.Globals.Statements[0] as MacroStatement
 			if macro is not null:
-				return 0 == len(macro.Arguments) and 0 == len(macro.Block.Statements)
+				return 0 == len(macro.Arguments) and 0 == len(macro.Body.Statements)
 		
 	class InterpreterEntity(ITypedEntity):
 

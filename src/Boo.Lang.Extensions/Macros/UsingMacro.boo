@@ -33,8 +33,7 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
 macro using:
-	
-	expansion = using.Block
+	expansion = using.Body
 	for expression as Expression in reversed(using.Arguments):
 		temp = ReferenceExpression("__using${_context.AllocIndex()}__")
 		assignment = [| $temp = $expression as System.IDisposable |].withLexicalInfoFrom(expression)

@@ -163,13 +163,13 @@ class Local(Node):
 class LocalCollection:
 	pass
 	
-class BlockExpression(Expression, INodeWithParameters):
+class BlockExpression(Expression, INodeWithParameters, INodeWithBody):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
 	[auto]
 	Body as Block
 
-class Method(CallableDefinition, IExplicitMember):
+class Method(CallableDefinition, IExplicitMember, INodeWithBody):
 	[auto]
 	Body as Block
 	Locals as LocalCollection
@@ -248,12 +248,11 @@ class DeclarationStatement(Statement):
 	Declaration as Declaration
 	Initializer as Expression
 
-class MacroStatement(Statement):
+class MacroStatement(Statement, INodeWithBody):
 	Name as string
 	Arguments as ExpressionCollection
-	
 	[auto]
-	Block as Block
+	Body as Block
 
 class TryStatement(Statement):
 	[auto]

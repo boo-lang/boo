@@ -7,7 +7,7 @@ a bientot!
 import Boo.Lang.Compiler
 
 macro speak:
-	for statement in speak.Block.Statements:
+	for statement in speak.Body.Statements:
 		s = cast(Ast.ExpressionStatement, statement).Expression as Ast.StringLiteralExpression
 		if s.Value == "hello":
 			yield [| print "bonjour" |]

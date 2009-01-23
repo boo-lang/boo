@@ -24,16 +24,16 @@ macro one:
 				yield [| print $(one.Arguments.Count) |]
 				yield [| print $(two.Arguments.Count) |]
 				yield [| print $(three.Arguments.Count) |]
-				yield four.Block
+				yield# four.Body
 
 			yield [| print $(one.Arguments.Count) |]
 			yield [| print $(two.Arguments.Count) |]
-			yield three.Block
+			yield# three.Body
 
 		yield [| print $(one.Arguments.Count) |]
-		yield two.Block
+		yield# two.Body
 
-	yield one.Block
+	yield# one.Body
 
 one 1:
 	two 1, 2:
@@ -50,3 +50,4 @@ code = [|
 |]
 result = compile(code, typeof(OneMacro).Assembly)
 result.EntryPoint.Invoke(null, (null,))
+

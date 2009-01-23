@@ -6,8 +6,8 @@ import Boo.Lang.Compiler
 
 macro twice:
 	return [|
-		$(twice.Block)
-		$(twice.Block)
+		$(twice.Body)
+		$(twice.Body)
 	|]
 	
 def foo():

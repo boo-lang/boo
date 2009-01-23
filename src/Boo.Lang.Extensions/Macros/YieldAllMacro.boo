@@ -35,7 +35,7 @@ import Boo.Lang.Compiler.Ast
 macro yieldAll:
 """yieldAll <enumerable>[,<enumerable>,...]"""
 
-	if len(yieldAll.Arguments) < 1 or len(yieldAll.Block.Statements) != 0:
+	if len(yieldAll.Arguments) < 1 or len(yieldAll.Body.Statements) != 0:
 		raise 'yieldAll <enumerable>[,<enumerable>,...]'
 
 	for enumerable in yieldAll.Arguments:

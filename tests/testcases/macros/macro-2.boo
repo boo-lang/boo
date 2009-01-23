@@ -4,11 +4,11 @@
 import Boo.Lang.Compiler
 
 macro printcode:
-	first, = printcode.Block.Statements
+	first, = printcode.Body.Statements
 	return [|
 		block:
 			print $(first.ToCodeString())
-	|].Block
+	|].Body
 	
 printcode:
 	[| 3 + 2 |]

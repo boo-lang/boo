@@ -21,8 +21,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			Block resultingBlock = new Block();
 			foreach (Node node in generator)
 			{
-				//'yield' (ie. implicit 'yield null') means 'yield `macro`.Block'
-				Node generatedNode = node ?? _node.Block;
+				//'yield' (ie. implicit 'yield null') means 'yield `macro`.Body'
+				Node generatedNode = node ?? _node.Body;
 				if (null == generatedNode)
 					continue;
 

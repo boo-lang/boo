@@ -29,7 +29,7 @@ internal class MatchExpansion:
 			block:
 				$matchValue = $expression
 				$topLevel
-		|].Block
+		|].Body
 		
 	def ExpandOtherwise(matchValue as Expression):
 		otherwise as MacroStatement = node["otherwise"]
@@ -38,7 +38,7 @@ internal class MatchExpansion:
 		
 	def ExpandOtherwise(node as MacroStatement):
 		assert 0 == len(node.Arguments)
-		return node.Block
+		return node.Body
 		
 	def DefaultOtherwise(matchValue as Expression):
 		matchError = [| raise MatchError("'" + $(expression.ToCodeString()) + "' failed to match '" + $matchValue + "'") |]
@@ -51,7 +51,7 @@ internal class MatchExpansion:
 		condition = ExpandPattern(matchValue, pattern)
 		return [| 
 			if $condition:
-				$(node.Block)
+				$(node.Body)
 		|]
 		
 	def ExpandPattern(matchValue as Expression, pattern as Expression) as Expression:

@@ -1005,10 +1005,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented(node.Name);
 			Write(" ");
 			WriteCommaSeparatedList(node.Arguments);
-			if (node.Block.Statements.Count > 0)
+			if (node.Body.Statements.Count > 0)
 			{
 				WriteLine(":");
-				WriteBlock(node.Block);
+				WriteBlock(node.Body);
 			}
 			else
 			{

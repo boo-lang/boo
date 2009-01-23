@@ -33,8 +33,8 @@ import Boo.Lang.Compiler.Steps
 
 def annotateArrayIndexing(macro as MacroStatement, value as bool):
 	assert 0 == len(macro.Arguments)
-	macro.Block[AstAnnotations.RawArrayIndexing] = value
-	return macro.Block
+	macro.Body[AstAnnotations.RawArrayIndexing] = value
+	return macro.Body
 
 macro normalArrayIndexing:
 	return annotateArrayIndexing(normalArrayIndexing, false)

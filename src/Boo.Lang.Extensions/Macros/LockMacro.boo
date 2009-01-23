@@ -47,12 +47,12 @@ def createLockedBlock(context as CompilerContext, monitor as Expression, block a
 				if not acquired:
 					msg = string.Format("Lock at '{0}' could not be acquired within LOCK_TIMEOUT({1}ms) - possible deadlock", $(monitor.LexicalInfo.ToString()), $expire)
 					raise System.TimeoutException(msg)
-		|].Block
+		|].Body
 	else:
 		monitorEntry = [|
 			block:
 				System.Threading.Monitor.Enter($temp)
-		|].Block
+		|].Body
 
 	assignment = [| $temp = $monitor |].withLexicalInfoFrom(monitor)
 	return [|
@@ -69,7 +69,7 @@ macro lock:
 	if 0 == len(lock.Arguments):
 		raise CompilerErrorFactory.InvalidLockMacroArguments(lock)
 
-	expansion = lock.Block
+	expansion = lock.Body
 	for arg in reversed(lock.Arguments):
 		expansion = createLockedBlock(Context, arg, expansion)
 	return expansion

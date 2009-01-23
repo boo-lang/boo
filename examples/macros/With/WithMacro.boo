@@ -61,7 +61,7 @@ class WithMacro(AbstractAstMacro):
 		inst = macro.Arguments[0] as ReferenceExpression
 		
 		// convert all _<ref> to inst.<ref>
-		block = macro.Block		
+		block = macro.Body
 		ne = NameExpander(inst)
 		ne.Visit(block)
 		return block

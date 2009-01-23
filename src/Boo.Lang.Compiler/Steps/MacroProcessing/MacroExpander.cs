@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			EnterExpansion();
 			try
 			{
-				Visit(node.Block);
+				Visit(node.Body);
 				Visit(node.Arguments);
 			}
 			finally
@@ -250,9 +250,9 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				new ReferenceExpression(node.LexicalInfo, node.Name));
 			invocation.Arguments = node.Arguments;
 			if (node.ContainsAnnotation("compound")
-			    || !IsNullOrEmpty(node.Block))
+			    || !IsNullOrEmpty(node.Body))
 			{
-				invocation.Arguments.Add(new BlockExpression(node.Block));
+				invocation.Arguments.Add(new BlockExpression(node.Body));
 			}
 
 			ReplaceCurrentNode(new ExpressionStatement(node.LexicalInfo, invocation, node.Modifier));

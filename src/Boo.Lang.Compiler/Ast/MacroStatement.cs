@@ -52,11 +52,13 @@ namespace Boo.Lang.Compiler.Ast
 				return _name;
 			return _name + " " + Builtins.join(Arguments, ", ");
 		}
-		
-		public Block Body
+
+		[Obsolete("Use Body property instead of Block.")]
+		[System.Xml.Serialization.XmlIgnoreAttribute] //do not duplicate Body
+		public Block Block
 		{
-			get { return Block; }
-			set { Block = value; }
+			get { return Body; }
+			set { Body = value; }
 		}
 
 		public MacroStatement GetParentMacroByName(string name)

@@ -12,8 +12,8 @@ import Boo.Lang.Compiler.Ast
 abstract class MacroBase(AbstractAstMacro):
 	override def Expand(macro as MacroStatement):
 		return [|
-			print $(macro.Block.ToCodeString())
-			$(macro.Block)
+			print $(macro.Body.ToCodeString())
+			$(macro.Body)
 		|]
 
 class TwiceMacro(MacroBase):
@@ -25,7 +25,7 @@ class TwiceMacro(MacroBase):
 
 macro test:
 	return [|
-		$(test.Block)
+		$(test.Body)
 	|]
 
 def foo():
