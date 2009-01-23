@@ -250,6 +250,7 @@ namespace BooC
 					" -target:TYPE         Sets the target type (exe, library or winexe)\n" +
 					" -resource:FILE[,ID]  Embeds FILE as a resource\n" +
 					" -pkg:P1[,Pn]         References packages P1..Pn (on supported platforms)\n" +
+					" -strict              Turns on strict mode.\n" +
 					" -utf8                Source file(s) are in utf8 format\n" +
 					" -v, -vv, -vvv        Sets verbosity level from warnings to very detailed\n" +
 					" -warnaserror[:W1,Wn] Treats all or a list of warnings as errors\n" +
@@ -257,7 +258,6 @@ namespace BooC
 					);
 		}
 
-		
 		void ParseOptions(string[] args)
 		{
 			bool noLogo = false;		
@@ -528,6 +528,16 @@ namespace BooC
 							{
 								string path = StripQuotes(arg.Substring(8));
 								AddFilesForPath(path, _options);
+								break;
+							}
+
+							case "strict-":
+								break;
+
+							case "strict":
+							case "strict+":
+							{
+								_options.Strict = true;
 								break;
 							}
 

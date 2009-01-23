@@ -149,15 +149,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void NormalizePropertyModifiers(Property node)
 		{
-			if (!node.IsVisibilitySet && null == node.ExplicitInfo)
-			{
-				node.Modifiers |= Context.Parameters.DefaultPropertyVisibility;
-			}
 			if (IsInterface(node.DeclaringType))
 			{
-				node.Modifiers |= TypeMemberModifiers.Abstract;
+				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
 			}
-
+			else if (!node.IsVisibilitySet && null == node.ExplicitInfo)
+			{
+				node.Modifiers |= Context.Parameters.DefaultPropertyVisibility;
+			}
 			if (null != node.Getter)
 			{
 				SetPropertyAccessorModifiers(node, node.Getter);
@@ -207,27 +206,27 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveEvent(Event node)
 		{
-			if (!node.IsVisibilitySet)
-			{
-				node.Modifiers |= Context.Parameters.DefaultEventVisibility;
-			}
 			if (IsInterface(node.DeclaringType))
 			{
-				node.Modifiers |= TypeMemberModifiers.Abstract;
+				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
+			}
+			else if (!node.IsVisibilitySet)
+			{
+				node.Modifiers |= Context.Parameters.DefaultEventVisibility;
 			}
 			LeaveMember(node);
 		}
 		
 		override public void LeaveMethod(Method node)
 		{
-			if (!node.IsVisibilitySet && null == node.ExplicitInfo
+			if (IsInterface(node.DeclaringType))
+			{
+				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
+			}
+			else if (!node.IsVisibilitySet && null == node.ExplicitInfo
 				&& !(node.ParentNode.NodeType == NodeType.Property))
 			{
 				node.Modifiers |= Context.Parameters.DefaultMethodVisibility;
-			}
-			if (IsInterface(node.DeclaringType))
-			{
-				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
 			if (node.Name != null && node.Name.StartsWith("op_"))
 			{

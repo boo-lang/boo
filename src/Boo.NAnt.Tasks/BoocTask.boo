@@ -55,8 +55,8 @@ public class BoocTask(CompilerBase):
 	private _noWarn as string = null
 	private _warnAsError as string = null
 	private _embed = FileSet()
-	
 	private _pipeline as string
+	private _strict = false
 	
 	#endregion Private Instance Fields
 	#region Private Static Fields
@@ -175,6 +175,14 @@ public class BoocTask(CompilerBase):
 		set:
 			_noWarn = value
 
+	[TaskAttribute('strict')]
+	[BooleanValidator]
+	public Strict as bool:
+		get:
+			return _strict
+		set:
+			_strict = value
+
 
 	override public SupportsNoWarnList as bool:
 		get:
@@ -234,6 +242,8 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "ducky")
 		if not Checked:
 			WriteOption(writer, "checked-")
+		if Strict:
+			WriteOption(writer, "strict")
 		if DefineSymbols is not null:
 			WriteOption(writer, "define", DefineSymbols)
 		if Pipeline:

@@ -70,6 +70,8 @@ namespace Boo.Lang.Compiler
 
 		private bool _checked;
 
+		private bool _strict;
+
 		private bool _generateInMemory;
 
 		private bool _StdLib;
@@ -132,7 +134,10 @@ namespace Boo.Lang.Compiler
 
 			_delaySign = false;
 
-			if (loadDefaultReferences) LoadDefaultReferences();
+			Strict = false;
+
+			if (loadDefaultReferences)
+				LoadDefaultReferences();
 		}
 
 		public void LoadDefaultReferences()
@@ -751,5 +756,30 @@ namespace Boo.Lang.Compiler
 			_promotedWarnings.Clear();
 			_warnAsError = false;
 		}
+
+		public bool Strict
+		{
+			get { return _strict; }
+			set {
+				_strict = value;
+				if (_strict)
+				{
+					_defaultTypeVisibility = TypeMemberModifiers.Private;
+					_defaultMethodVisibility = TypeMemberModifiers.Private;
+					_defaultPropertyVisibility = TypeMemberModifiers.Private;
+					_defaultEventVisibility = TypeMemberModifiers.Private;
+					_defaultFieldVisibility = TypeMemberModifiers.Private;
+				}
+				else
+				{
+					_defaultTypeVisibility = TypeMemberModifiers.Public;
+					_defaultMethodVisibility = TypeMemberModifiers.Public;
+					_defaultPropertyVisibility = TypeMemberModifiers.Public;
+					_defaultEventVisibility = TypeMemberModifiers.Public;
+					_defaultFieldVisibility = TypeMemberModifiers.Protected;
+				}
+			}
+		}
+
 	}
 }
