@@ -4,7 +4,7 @@ namespace Boo.Lang.Compiler.Ast
 	using System;
 
 	[Serializable]
-<% if node.Name.EndsWith("Modifiers"):
+<% if node.Attributes.Contains("Flags"):
 %>	[Flags]
 <% end
 %>	public enum ${node.Name}
