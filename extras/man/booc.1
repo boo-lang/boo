@@ -50,7 +50,7 @@ Adds the step pipeline to the compile process.
 CultureInfo to use.
 .TP
 .B \-srcdir:dir
-Specifies where to look for souce files.
+Specifies where to look for source files.
 .TP
 .B \-resource:<file>[,<name>]
 Specify a resource file.
@@ -72,6 +72,17 @@ occurs. (On by default)
 Does not check arithmetic operations. Use this to get the best 
 performance if you are confident that it won't affect negatively your 
 code.
+.TP
+.B \-strict
+Turns on strict mode (off by default). This changes default visibility to
+private for all members (as in C#), requires explicitely declaring return type
+and parameter types of public methods (API) and enables a few warnings.
+.TP
+.B \-nowarn[:W1,Wn]
+Suppress all or a list of compiler warnings.
+.TP
+.B \-warnaserror[:W1,Wn]
+Treats all or a list of warnings as errors.
 .SH SEE ALSO
 .BR booi (1),
 .BR booish (1).
