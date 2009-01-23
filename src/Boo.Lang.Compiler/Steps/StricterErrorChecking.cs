@@ -29,14 +29,15 @@
 namespace Boo.Lang.Compiler.Steps
 {	
 	using System;
-	using System.Collections;
+	using System.Collections.Generic;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
+	using Boo.Lang.Compiler.Util;
 	
 	public class StricterErrorChecking : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
-		Hashtable _types = new Hashtable();
+		Dictionary<string,TypeDefinition> _types = new Dictionary<string,TypeDefinition>();
 		
 		int _ensureBlock;
 		
@@ -82,6 +83,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveTypeDefinition(TypeDefinition node)
 		{
+			_safeVars.Clear(); //clear type var cache (CheckAmbiguousVariableNames)
+
 			if (node.NodeType == NodeType.Module)
 				return;
 
@@ -91,7 +94,7 @@ namespace Boo.Lang.Compiler.Steps
 				qualifiedName += "`" + node.GenericParameters.Count;
 			}
 
-			if (_types.Contains(qualifiedName))
+			if (_types.ContainsKey(qualifiedName))
 			{
 				Errors.Add(CompilerErrorFactory.NamespaceAlreadyContainsMember(node, GetNamespace(node), node.Name));
 				return;
@@ -395,6 +398,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckValidExtension(node);
 			CheckNotFinalizer(node);
 			CheckImplicitReturn(node);
+			CheckAmbiguousVariableNames(node);
 		}
 
 		private void CheckNotFinalizer(Method node)
@@ -478,6 +482,47 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Warnings.Add(CompilerWarningFactory.UnusedLocalVariable(local, local.Name));
 				}
+			}
+		}
+
+		Set<string> _safeVars = new Set<string>();
+
+		void CheckAmbiguousVariableNames(Method node)
+		{
+			if (null == node.DeclaringType || null == node.DeclaringType.Entity)
+				return;
+			InternalClass klass = node.DeclaringType.Entity as InternalClass;
+			if (null == klass || null == klass.BaseType)
+				return;
+
+			if (Parameters.DisabledWarnings.Contains("BCW0025"))
+				return;
+
+			klass = klass.BaseType as InternalClass;
+			foreach (Local local in node.Locals)
+			{
+				if (null == local.Entity || ((InternalLocal) local.Entity).IsExplicit)
+					continue;
+
+				//check in the cache if variable is safe (the frequent case)
+				if (_safeVars.Contains(local.Name))
+					return;
+
+				//navigate down the base types
+				bool safe = true;
+				while (null != klass)
+				{
+					Field field = klass.TypeDefinition.Members[local.Name] as Field;
+					if (null != field && field.IsPrivate) {
+						safe = false;
+						Warnings.Add(CompilerWarningFactory.AmbiguousVariableName(local, local.Name, klass.Name));
+						break; //no need to go further down
+					}
+					klass = klass.BaseType as InternalClass;
+				}
+
+				if (safe) //this var is safe for all methods of the current type
+					_safeVars.Add(local.Name);
 			}
 		}
 

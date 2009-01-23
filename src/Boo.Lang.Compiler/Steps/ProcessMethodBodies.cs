@@ -2146,6 +2146,9 @@ namespace Boo.Lang.Compiler.Steps
 			AssertDeclarationName(node.Declaration);
 
 			IEntity localInfo = DeclareLocal(node, node.Declaration.Name, type);
+			if (localInfo is InternalLocal)
+				((InternalLocal)localInfo).OriginalDeclaration = node.Declaration;
+
 			if (null != node.Initializer)
 			{
 				IType itype = GetExpressionType(node.Initializer);
@@ -6243,7 +6246,8 @@ namespace Boo.Lang.Compiler.Steps
 			d.Entity = local;
 			
 			InternalLocal internalLocal = local as InternalLocal;
-			if (null != internalLocal) internalLocal.OriginalDeclaration = d;
+			if (null != internalLocal)
+				internalLocal.OriginalDeclaration = d;
 
 			return local;
 		}

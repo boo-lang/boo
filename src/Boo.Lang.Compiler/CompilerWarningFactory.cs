@@ -177,6 +177,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0024", node.LexicalInfo, NodeTypeString(node), details);
 		}
 
+		public static CompilerWarning AmbiguousVariableName(Local node, string localName, string baseName)
+		{
+			return new CompilerWarning("BCW0025", node.LexicalInfo, localName, baseName);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{

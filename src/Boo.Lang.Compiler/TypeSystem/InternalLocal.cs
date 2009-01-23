@@ -97,6 +97,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			set { _originalDeclaration = value; }
 		}
 
+		public bool IsExplicit
+		{
+			get { return null != _originalDeclaration; }
+		}
+
 		override public string ToString()
 		{
 			return string.Format("Local({0}, {1})", Name, Type);
