@@ -671,7 +671,7 @@ namespace BooC
 
 		private bool IsMono
 		{
-			get { return Type.GetType("System.MonoType", false) != null;  }
+			get { return Type.GetType("Mono.Runtime") != null;  }
 		}
 
 		private void EmbedResource(string resourceFile)

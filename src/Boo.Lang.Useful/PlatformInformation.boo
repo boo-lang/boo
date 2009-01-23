@@ -35,7 +35,7 @@ class PlatformInformation:
 
 	static IsMono as bool:
 		get:
-			return Type.GetType("System.MonoType", false) is not null
+			return Type.GetType("Mono.Runtime") is not null
 			
 	static IsWindows as bool:
 		get:
@@ -46,3 +46,4 @@ class PlatformInformation:
 	static IsLinux as bool:
 		get:
 			return cast(int, Environment.OSVersion.Platform) in (4, 128)
+
