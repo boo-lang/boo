@@ -37,6 +37,7 @@ namespace Boo.Lang.Compiler.Ast
 	using System;
 
 	[Serializable]
+	[Flags]
 	public enum GenericParameterConstraints
 	{
 		None = 0,

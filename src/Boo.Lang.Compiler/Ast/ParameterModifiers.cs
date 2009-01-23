@@ -37,7 +37,6 @@ namespace Boo.Lang.Compiler.Ast
 	using System;
 
 	[Serializable]
-	[Flags]
 	public enum ParameterModifiers
 	{
 		None = 0,
