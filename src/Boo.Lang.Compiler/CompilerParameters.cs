@@ -698,7 +698,7 @@ namespace Boo.Lang.Compiler
 
 		bool _noWarn = false;
 		bool _warnAsError = false;
-		Util.Set<string> _suppressedWarnings = new Util.Set<string>();
+		Util.Set<string> _disabledWarnings = new Util.Set<string>();
 		Util.Set<string> _promotedWarnings = new Util.Set<string>();
 
 		public bool NoWarn
@@ -713,48 +713,49 @@ namespace Boo.Lang.Compiler
 			set { _warnAsError = value; }
 		}
 
-		public ICollection<string> SuppressedWarnings
+		public ICollection<string> DisabledWarnings
 		{
-			get { return _suppressedWarnings; }
+			get { return _disabledWarnings; }
 		}
 
-		public ICollection<string> PromotedWarnings
+		public ICollection<string> WarningsAsErrors
 		{
 			get { return _promotedWarnings; }
 		}
 
-		public void SuppressWarning(string code)
+		public void EnableWarning(string code)
 		{
-			_suppressedWarnings.Add(code);
+			if (_disabledWarnings.Contains(code))
+				_disabledWarnings.Remove(code);
 		}
 
-		public void RestoreWarning(string code)
+		public void DisableWarning(string code)
 		{
-			if (_suppressedWarnings.Contains(code))
-				_suppressedWarnings.Remove(code);
+			_disabledWarnings.Add(code);
 		}
 
-		public void RestoreWarnings()
+		public void ResetWarnings()
 		{
-			_suppressedWarnings.Clear();
 			_noWarn = false;
+			_disabledWarnings.Clear();
+			Strict = _strict;
 		}
 
-		public void PromoteWarningAsError(string code)
+		public void EnableWarningAsError(string code)
 		{
 			_promotedWarnings.Add(code);
 		}
 
-		public void RevokeWarningAsError(string code)
+		public void DisableWarningAsError(string code)
 		{
 			if (_promotedWarnings.Contains(code))
 				_promotedWarnings.Remove(code);
 		}
 
-		public void RevokeWarningsAsErrors()
+		public void ResetWarningsAsErrors()
 		{
-			_promotedWarnings.Clear();
 			_warnAsError = false;
+			_promotedWarnings.Clear();
 		}
 
 		public bool Strict

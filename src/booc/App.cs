@@ -305,7 +305,7 @@ namespace BooC
 							string warnings = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
 							foreach (string warning in warnings.Split(','))
 							{
-								_options.PromoteWarningAsError(warning);
+								_options.EnableWarningAsError(warning);
 							}
 						}
 						else
@@ -432,7 +432,7 @@ namespace BooC
 							string warnings = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
 							foreach (string warning in warnings.Split(','))
 							{
-								_options.SuppressWarning(warning);
+								_options.DisableWarning(warning);
 							}
 						}
 						else

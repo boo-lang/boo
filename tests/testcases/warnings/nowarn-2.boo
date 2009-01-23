@@ -5,8 +5,8 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
 macro setNoWarn:
-	Context.Parameters.SuppressWarning("BCW0016")
-	Context.Parameters.SuppressWarning("BCW0022")
+	Context.Parameters.DisableWarning("BCW0016")
+	Context.Parameters.DisableWarning("BCW0022")
 
 setNoWarn
 x = 1

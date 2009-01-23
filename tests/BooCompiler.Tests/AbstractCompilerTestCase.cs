@@ -140,8 +140,8 @@ namespace BooCompiler.Tests
 
 			_parameters.Input.Clear();
 			_parameters.Strict = false;
-			_parameters.RestoreWarnings();
-			_parameters.RevokeWarningsAsErrors();
+			_parameters.ResetWarnings();
+			_parameters.ResetWarningsAsErrors();
 
 			current.CurrentCulture = current.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 		}

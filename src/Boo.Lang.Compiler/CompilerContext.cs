@@ -337,9 +337,9 @@ namespace Boo.Lang.Compiler
 		void OnCompilerWarning(object o, CompilerWarningEventArgs args)
 		{
 			CompilerWarning warning = args.Warning;
-			if (Parameters.NoWarn || Parameters.SuppressedWarnings.Contains(warning.Code))
+			if (Parameters.NoWarn || Parameters.DisabledWarnings.Contains(warning.Code))
 				args.Cancel();
-			if (Parameters.WarnAsError || Parameters.PromotedWarnings.Contains(warning.Code)) {
+			if (Parameters.WarnAsError || Parameters.WarningsAsErrors.Contains(warning.Code)) {
 				Errors.Add(new CompilerError(warning.Code, warning.LexicalInfo, warning.Message, null));
 				args.Cancel();
 			}
