@@ -159,6 +159,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0022", node.LexicalInfo);
 		}
 
+		public static CompilerWarning ImplicitReturn(Method node)
+		{
+			return new CompilerWarning("BCW0023", node.LexicalInfo);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{

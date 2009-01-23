@@ -394,6 +394,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckAbstractMethodCantHaveBody(node);
 			CheckValidExtension(node);
 			CheckNotFinalizer(node);
+			CheckImplicitReturn(node);
 		}
 
 		private void CheckNotFinalizer(Method node)
@@ -479,7 +480,62 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
+		void CheckImplicitReturn(Method node)
+		{
+			if (Parameters.DisabledWarnings.Contains("BCW0023"))
+				return;
+
+			if (null == node.ReturnType
+			    || null == node.ReturnType.Entity
+			    || node.ReturnType.Entity == TypeSystemServices.VoidType
+			    || node.Body.Statements.Count == 0
+			    || ((InternalMethod)node.Entity).IsGenerator
+			    || node.Name == "ExpandImpl") //ignore old-style macros
+				return;
+
+			if (!EndsWithReturnStatement(node.Body))
+				Warnings.Add(CompilerWarningFactory.ImplicitReturn(node));
+		}
+
+		static bool EndsWithReturnStatement(Block block)
+		{
+			if (null == block || 0 == block.Statements.Count)
+				return false;
+
+			Node node = block.Statements[block.Statements.Count-1];
+			NodeType last = node.NodeType;
+			switch (last)
+			{
+				case NodeType.ReturnStatement:
+				case NodeType.RaiseStatement:
+					return true;
+
+				case NodeType.Block:
+					return EndsWithReturnStatement((Block)node);
+
+				case NodeType.IfStatement:
+					return
+						EndsWithReturnStatement(((IfStatement)node).TrueBlock)
+						&& EndsWithReturnStatement(((IfStatement)node).FalseBlock);
+
+				case NodeType.TryStatement:
+					TryStatement ts = (TryStatement) node;
+					if (!EndsWithReturnStatement(ts.ProtectedBlock))
+						return false;
+					//if (null != ts.FailureBlock && !EndsWithReturnStatement(ts.FailureBlock))
+					//	return false;
+					foreach (ExceptionHandler handler in ts.ExceptionHandlers)
+					{
+						if (!EndsWithReturnStatement(handler.Block))
+							return false;
+					}
+					return true;
+			}
+			return false;
+		}
+
+
 		override public void LeaveConstructor(Constructor node)
 		{
 			if (node.IsStatic)

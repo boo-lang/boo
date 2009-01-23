@@ -765,19 +765,25 @@ namespace Boo.Lang.Compiler
 				_strict = value;
 				if (_strict)
 				{
+					/*strict mode*/
 					_defaultTypeVisibility = TypeMemberModifiers.Private;
 					_defaultMethodVisibility = TypeMemberModifiers.Private;
 					_defaultPropertyVisibility = TypeMemberModifiers.Private;
 					_defaultEventVisibility = TypeMemberModifiers.Private;
 					_defaultFieldVisibility = TypeMemberModifiers.Private;
+
+					EnableWarning("BCW0023");
 				}
 				else
 				{
+					/*default mode*/
 					_defaultTypeVisibility = TypeMemberModifiers.Public;
 					_defaultMethodVisibility = TypeMemberModifiers.Public;
 					_defaultPropertyVisibility = TypeMemberModifiers.Public;
 					_defaultEventVisibility = TypeMemberModifiers.Public;
 					_defaultFieldVisibility = TypeMemberModifiers.Protected;
+
+					DisableWarning("BCW0023");
 				}
 			}
 		}
