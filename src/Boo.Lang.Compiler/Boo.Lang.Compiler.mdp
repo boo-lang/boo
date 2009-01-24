@@ -51,8 +51,8 @@
     <File name="Ast/Attribute.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/AttributeCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/BinaryExpression.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/BinaryOperatorKind.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/BinaryOperatorType.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/BinaryOperatorKind.Generated.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/BinaryOperatorType.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Block.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/BlockExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/BoolLiteralExpression.cs" buildaction="Compile" subtype="Code" />
@@ -67,7 +67,7 @@
     <File name="Ast/ConditionalExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Constructor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ContinueStatement.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/CustomStatement.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/CustomStatement.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Declaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/DeclarationCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/DeclarationStatement.cs" buildaction="Compile" subtype="Code" />
@@ -80,7 +80,7 @@
     <File name="Ast/Event.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExceptionHandler.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExceptionHandlerCollection.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/ExceptionHandlerFlags.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/ExceptionHandlerFlags.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExplicitMemberInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Expression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ExpressionCollection.cs" buildaction="Compile" subtype="Code" />
@@ -93,10 +93,10 @@
     <File name="Ast/ForStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GeneratorExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GeneratorExpressionCollection.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/GenericParameterConstraints.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/GenericParameterConstraints.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericParameterDeclaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericParameterDeclarationCollection.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/GenericReferenceExpression.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/GenericReferenceExpression.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericTypeDefinitionReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GenericTypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GotoStatement.cs" buildaction="Compile" subtype="Code" />
@@ -108,6 +108,7 @@
     <File name="Ast/ImportCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithArguments.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithAttributes.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/INodeWithBody.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithParameters.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IntegerLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/InterfaceDefinition.cs" buildaction="Compile" subtype="Code" />
@@ -120,7 +121,7 @@
     <File name="Ast/MacroStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/MemberReferenceExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Method.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/MethodImplementationFlags.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/MethodImplementationFlags.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/MethodInvocationExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Module.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ModuleCollection.cs" buildaction="Compile" subtype="Code" />
@@ -132,7 +133,7 @@
     <File name="Ast/OmittedExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ParameterDeclaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ParameterDeclarationCollection.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/ParameterModifiers.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/ParameterModifiers.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Property.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/QuasiquoteExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/RaiseStatement.cs" buildaction="Compile" subtype="Code" />
@@ -152,7 +153,7 @@
     <File name="Ast/Statement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StatementCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StatementModifier.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/StatementModifierType.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/StatementModifierType.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StringLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StructDefinition.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SuperLiteralExpression.cs" buildaction="Compile" subtype="Code" />
@@ -163,12 +164,12 @@
     <File name="Ast/TypeDefinitionCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeMember.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeMemberCollection.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/TypeMemberModifiers.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/TypeMemberModifiers.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeofExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeReferenceCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnaryExpression.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/UnaryOperatorType.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/UnaryOperatorType.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnlessStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnpackStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/WhileStatement.cs" buildaction="Compile" subtype="Code" />

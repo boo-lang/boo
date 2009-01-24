@@ -115,8 +115,8 @@
     <Compile Include="Ast\Attribute.cs" />
     <Compile Include="Ast\AttributeCollection.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />
-    <Compile Include="Ast\BinaryOperatorKind.cs" />
-    <Compile Include="Ast\BinaryOperatorType.cs" />
+    <Compile Include="Ast\BinaryOperatorKind.Generated.cs" />
+    <Compile Include="Ast\BinaryOperatorType.Generated.cs" />
     <Compile Include="Ast\Block.cs" />
     <Compile Include="Ast\BlockExpression.cs" />
     <Compile Include="Ast\BoolLiteralExpression.cs" />
@@ -131,7 +131,7 @@
     <Compile Include="Ast\ConditionalExpression.cs" />
     <Compile Include="Ast\Constructor.cs" />
     <Compile Include="Ast\ContinueStatement.cs" />
-    <Compile Include="Ast\CustomStatement.cs" />
+    <Compile Include="Ast\CustomStatement.Generated.cs" />
     <Compile Include="Ast\Declaration.cs" />
     <Compile Include="Ast\DeclarationCollection.cs" />
     <Compile Include="Ast\DeclarationStatement.cs" />
@@ -144,7 +144,7 @@
     <Compile Include="Ast\Event.cs" />
     <Compile Include="Ast\ExceptionHandler.cs" />
     <Compile Include="Ast\ExceptionHandlerCollection.cs" />
-    <Compile Include="Ast\ExceptionHandlerFlags.cs" />
+    <Compile Include="Ast\ExceptionHandlerFlags.Generated.cs" />
     <Compile Include="Ast\ExplicitMemberInfo.cs" />
     <Compile Include="Ast\Expression.cs" />
     <Compile Include="Ast\ExpressionCollection.cs" />
@@ -157,10 +157,10 @@
     <Compile Include="Ast\ForStatement.cs" />
     <Compile Include="Ast\GeneratorExpression.cs" />
     <Compile Include="Ast\GeneratorExpressionCollection.cs" />
-    <Compile Include="Ast\GenericParameterConstraints.cs" />
+    <Compile Include="Ast\GenericParameterConstraints.Generated.cs" />
     <Compile Include="Ast\GenericParameterDeclaration.cs" />
     <Compile Include="Ast\GenericParameterDeclarationCollection.cs" />
-    <Compile Include="Ast\GenericReferenceExpression.cs" />
+    <Compile Include="Ast\GenericReferenceExpression.Generated.cs" />
     <Compile Include="Ast\GenericTypeDefinitionReference.cs" />
     <Compile Include="Ast\GenericTypeReference.cs" />
     <Compile Include="Ast\GotoStatement.cs" />
@@ -172,6 +172,7 @@
     <Compile Include="Ast\ImportCollection.cs" />
     <Compile Include="Ast\INodeWithArguments.cs" />
     <Compile Include="Ast\INodeWithAttributes.cs" />
+    <Compile Include="Ast\INodeWithBody.cs" />
     <Compile Include="Ast\INodeWithParameters.cs" />
     <Compile Include="Ast\IntegerLiteralExpression.cs" />
     <Compile Include="Ast\InterfaceDefinition.cs" />
@@ -184,7 +185,7 @@
     <Compile Include="Ast\MacroStatement.cs" />
     <Compile Include="Ast\MemberReferenceExpression.cs" />
     <Compile Include="Ast\Method.cs" />
-    <Compile Include="Ast\MethodImplementationFlags.cs" />
+    <Compile Include="Ast\MethodImplementationFlags.Generated.cs" />
     <Compile Include="Ast\MethodInvocationExpression.cs" />
     <Compile Include="Ast\Module.cs" />
     <Compile Include="Ast\ModuleCollection.cs" />
@@ -196,7 +197,7 @@
     <Compile Include="Ast\OmittedExpression.cs" />
     <Compile Include="Ast\ParameterDeclaration.cs" />
     <Compile Include="Ast\ParameterDeclarationCollection.cs" />
-    <Compile Include="Ast\ParameterModifiers.cs" />
+    <Compile Include="Ast\ParameterModifiers.Generated.cs" />
     <Compile Include="Ast\Property.cs" />
     <Compile Include="Ast\QuasiquoteExpression.cs" />
     <Compile Include="Ast\RaiseStatement.cs" />
@@ -216,7 +217,7 @@
     <Compile Include="Ast\Statement.cs" />
     <Compile Include="Ast\StatementCollection.cs" />
     <Compile Include="Ast\StatementModifier.cs" />
-    <Compile Include="Ast\StatementModifierType.cs" />
+    <Compile Include="Ast\StatementModifierType.Generated.cs" />
     <Compile Include="Ast\StringLiteralExpression.cs" />
     <Compile Include="Ast\StructDefinition.cs" />
     <Compile Include="Ast\SuperLiteralExpression.cs" />
@@ -227,12 +228,12 @@
     <Compile Include="Ast\TypeDefinitionCollection.cs" />
     <Compile Include="Ast\TypeMember.cs" />
     <Compile Include="Ast\TypeMemberCollection.cs" />
-    <Compile Include="Ast\TypeMemberModifiers.cs" />
+    <Compile Include="Ast\TypeMemberModifiers.Generated.cs" />
     <Compile Include="Ast\TypeofExpression.cs" />
     <Compile Include="Ast\TypeReference.cs" />
     <Compile Include="Ast\TypeReferenceCollection.cs" />
     <Compile Include="Ast\UnaryExpression.cs" />
-    <Compile Include="Ast\UnaryOperatorType.cs" />
+    <Compile Include="Ast\UnaryOperatorType.Generated.cs" />
     <Compile Include="Ast\UnlessStatement.cs" />
     <Compile Include="Ast\UnpackStatement.cs" />
     <Compile Include="Ast\WhileStatement.cs" />
