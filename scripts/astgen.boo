@@ -210,20 +210,17 @@ def applyTemplate(node as TypeDefinition,
 		template.Output = writer
 		template.Execute()
 
-def applyModelTemplate(model as Model, templateName as string, overwriteExistingFile as bool):
-	applyModelTemplate(model, templateName, "${templateName}", overwriteExistingFile)
-
 def applyModelTemplate(model as Model, templateName as string, targetFile as string, overwriteExistingFile as bool):
 	applyTemplate(null, loadTemplate(model, templateName), targetFile, overwriteExistingFile)
 
 start = date.Now
 
 model = Model(parse("ast.model.boo"))
-applyModelTemplate(model, "IAstVisitor.cs", true)
+applyModelTemplate(model, "IAstVisitor.cs", "IAstVisitor.Generated.cs", true)
 applyModelTemplate(model, "DepthFirstVisitor.cs", "Impl/DepthFirstVisitor.cs", true)
 applyModelTemplate(model, "DepthFirstTransformer.cs", "Impl/DepthFirstTransformer.cs", true)
 applyModelTemplate(model, "CodeSerializer.cs", "Impl/CodeSerializer.cs", true)
-applyModelTemplate(model, "NodeType.cs", true)
+applyModelTemplate(model, "NodeType.cs", "NodeType.Generated.cs", true)
 
 enumTemplate = loadTemplate(model, "Enum.cs")
 collectionTemplate = loadTemplate(model, "Collection.cs")

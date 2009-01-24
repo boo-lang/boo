@@ -165,7 +165,7 @@
     <Compile Include="Ast\GenericTypeReference.cs" />
     <Compile Include="Ast\GotoStatement.cs" />
     <Compile Include="Ast\HashLiteralExpression.cs" />
-    <Compile Include="Ast\IAstVisitor.cs" />
+    <Compile Include="Ast\IAstVisitor.Generated.cs" />
     <Compile Include="Ast\IExplicitMember.cs" />
     <Compile Include="Ast\IfStatement.cs" />
     <Compile Include="Ast\Import.cs" />
@@ -192,7 +192,7 @@
     <Compile Include="Ast\NamespaceDeclaration.cs" />
     <Compile Include="Ast\Node.cs" />
     <Compile Include="Ast\NodeCollection.cs" />
-    <Compile Include="Ast\NodeType.cs" />
+    <Compile Include="Ast\NodeType.Generated.cs" />
     <Compile Include="Ast\NullLiteralExpression.cs" />
     <Compile Include="Ast\OmittedExpression.cs" />
     <Compile Include="Ast\ParameterDeclaration.cs" />

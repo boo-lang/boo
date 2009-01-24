@@ -101,7 +101,7 @@
     <File name="Ast/GenericTypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/GotoStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/HashLiteralExpression.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/IAstVisitor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/IAstVisitor.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IExplicitMember.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IfStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Import.cs" buildaction="Compile" subtype="Code" />
@@ -128,7 +128,7 @@
     <File name="Ast/NamespaceDeclaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Node.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/NodeCollection.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/NodeType.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/NodeType.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/NullLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/OmittedExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ParameterDeclaration.cs" buildaction="Compile" subtype="Code" />
