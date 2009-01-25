@@ -348,10 +348,16 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0059", SafeLexicalInfo(node));
 		}
-		
-		public static CompilerError NoMethodToOverride(Node node, string signature)
+
+		public static CompilerError NoMethodToOverride(Node node, string signature, bool incompatibleSignature)
 		{
-			return new CompilerError("BCE0060", SafeLexicalInfo(node), signature);
+			return new CompilerError("BCE0060", SafeLexicalInfo(node), signature,
+				incompatibleSignature ? ResourceManager.Format("BCE0060.IncompatibleSignature") : null);
+		}
+		
+		public static CompilerError NoMethodToOverride(Node node, string signature, string suggestion)
+		{
+			return new CompilerError("BCE0060", SafeLexicalInfo(node), signature, DidYouMeanOrNull(suggestion));
 		}
 		
 		public static CompilerError MethodIsNotOverride(Node node, string signature)

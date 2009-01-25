@@ -1014,7 +1014,12 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod baseMethod = FindMethodOverride(entity);
 			if (null == baseMethod)
 			{
-				Error(CompilerErrorFactory.NoMethodToOverride(entity.Method, entity.ToString()));
+				string suggestion = NameResolutionService.GetMostSimilarMemberName(
+						entity.DeclaringType.BaseType, entity.Name, EntityType.Method);
+				if (suggestion == entity.Name) //same name => incompatible signature
+					Error(CompilerErrorFactory.NoMethodToOverride(entity.Method, entity.ToString(), true));
+				else //suggestion (or null)
+					Error(CompilerErrorFactory.NoMethodToOverride(entity.Method, entity.ToString(), suggestion));
 			}
 			else
 			{
