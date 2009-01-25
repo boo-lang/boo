@@ -194,6 +194,7 @@ BCW0022=WARNING: Boolean expression will always have the same value.
 BCW0023=WARNING: This method could return default value implicitly.
 BCW0024=WARNING: Visible {0} does not declare {1} type explicitely.
 BCW0025=WARNING: Variable '{0}' has the same name as a private field of base type '{1}'. Did you mean to use the field?
+BCW0026=WARNING: Likely typo in member name '{0}'. Did you mean '{1}'?
 
 ; BooC Command Line Errors
 BCE0500=Response file '{0}' listed more than once.

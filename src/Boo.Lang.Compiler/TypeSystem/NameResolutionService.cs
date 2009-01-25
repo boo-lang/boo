@@ -29,10 +29,13 @@
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
-	using System.Collections;
-	using Boo.Lang.Compiler.Ast;
 	using System.Reflection;
+	using System.Collections;
 	using System.Collections.Generic;
+	using Boo.Lang.Compiler.Ast;
+	using Boo.Lang.Compiler.Util;
+
+
 
 	public delegate bool EntityNameMatcher(IEntity candidate, string name);
 
@@ -650,7 +653,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (null == ns) return null;
 
-			string expectedSoundex = ToSoundex(name);
+			string expectedSoundex = StringUtilities.GetSoundex(name);
 			string lastMemberName = null;
 			foreach (IEntity member in ns.GetMembers())
 			{
@@ -659,7 +662,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (lastMemberName == member.Name)
 					continue;//no need to check this name again
 				//TODO: try Levenshtein distance or Metaphone instead of Soundex.
-				if (expectedSoundex == ToSoundex(member.Name))
+				if (expectedSoundex == StringUtilities.GetSoundex(member.Name))
 				{
 					//return properties without get_/set_ prefix
 					if (member is IMethod && ((IMethod) member).IsSpecialName)
@@ -670,36 +673,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return null;
 		}
-
-		private static string ToSoundex(string s)
-		{
-			if (s.Length < 2) return null;
-			char[] code = "?0000".ToCharArray();
-			string ws = s.ToLowerInvariant();
-			int wsLen = ws.Length;
-			char lastChar = ' ';
-			int lastCharPos = 1;
-
-			code[0] = ws[0];
-			for (int i = 1; i < wsLen; i++)
-			{
-				char wsc = ws[i];
-				char c = ' ';
-				if (wsc == 'b' || wsc == 'f' || wsc == 'p' || wsc == 'v') c = '1';
-				if (wsc == 'c' || wsc == 'g' || wsc == 'j' || wsc == 'k' || wsc == 'q' || wsc == 's' || wsc == 'x' || wsc == 'z') c = '2';
-				if (wsc == 'd' || wsc == 't') c = '3';
-				if (wsc == 'l') c = '4';
-				if (wsc == 'm' || wsc == 'n') c = '5';
-				if (wsc == 'r') c = '6';
-				if (c == lastChar) continue;
-				lastChar = c;
-				if (c == ' ') continue;
-				code[lastCharPos] = c;
-				lastCharPos++;
-				if (lastCharPos > 4) break;
-			}
-			return new string(code);
-        }
-
 	}
 }

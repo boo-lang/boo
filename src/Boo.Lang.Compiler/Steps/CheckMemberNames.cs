@@ -26,9 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
@@ -94,12 +96,18 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case NodeType.Constructor:
 				case NodeType.Method:
+				{
+					CheckOverloadableMember(list, member);
+					CheckLikelyTypoInTypeMemberName(member);
+					break;
+				}
+
 				case NodeType.Property:
 				{
 					CheckOverloadableMember(list, member);
 					break;
 				}
-					
+
 				default:
 				{
 					CheckNonOverloadableMember(list, member);
@@ -217,5 +225,54 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return list;
 		}
+
+		protected void CheckLikelyTypoInTypeMemberName(TypeMember member)
+		{
+			foreach (string name in GetLikelyTypoNames(member))
+			{
+				if (name == member.Name)
+					return;
+				if (Math.Abs(name.Length - member.Name.Length) > 1)
+					continue; //>1 distance, skip
+				if (1 == StringUtilities.GetDistance(name, member.Name))
+				{
+					Warnings.Add(
+						CompilerWarningFactory.LikelyTypoInTypeMemberName(member, name));
+					break;
+				}
+			}
+		}
+
+		protected virtual IEnumerable<string> GetLikelyTypoNames(TypeMember member)
+		{
+			char first = member.Name[0];
+			if (first == 'c' || first == 'C')
+				yield return "constructor";
+			else if (first == 'd' || first == 'D')
+				yield return "destructor";
+			if (member.IsStatic && member.Name.StartsWith("op_"))
+			{
+				yield return "op_Implicit";
+				yield return "op_Addition";
+				yield return "op_Subtraction";
+				yield return "op_Multiply";
+				yield return "op_Division";
+				yield return "op_Modulus";
+				yield return "op_Exponentiation";
+				yield return "op_Equality";
+				yield return "op_LessThan";
+				yield return "op_LessThanOrEqual";
+				yield return "op_GreaterThan";
+				yield return "op_GreaterThanOrEqual";
+				yield return "op_Match";
+				yield return "op_NotMatch";
+				yield return "op_Member";
+				yield return "op_NotMember";
+				yield return "op_BitwiseOr";
+				yield return "op_BitwiseAnd";
+				yield return "op_UnaryNegation";
+			}
+		}
+
 	}
 }

@@ -182,6 +182,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning("BCW0025", node.LexicalInfo, localName, baseName);
 		}
 
+		public static CompilerWarning LikelyTypoInTypeMemberName(TypeMember node, string suggestion)
+		{
+			return new CompilerWarning("BCW0026", node.LexicalInfo, node.Name, suggestion);
+		}
+
 
 		private static string NodeTypeString(Node node)
 		{
