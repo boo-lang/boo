@@ -33,28 +33,6 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
 class MacroMacro(LexicalInfoPreservingGeneratorMacro):
-	
-	private class CustomBlockStatement(CustomStatement):
-		public Body as Block
-		
-	private class CaseStatement(CustomBlockStatement):
-		public Pattern as Expression
-		
-	private class OtherwiseStatement(CustomBlockStatement):
-		pass
-	
-	class CaseMacro(LexicalInfoPreservingGeneratorMacro):
-		override protected def ExpandGeneratorImpl(case as MacroStatement):
-			if len(case.Arguments) != 1:
-				raise "Usage: case <pattern>"
-			pattern, = case.Arguments
-			yield CaseStatement(Pattern: pattern, Body: case.Body)
-			
-	class OtherwiseMacro(LexicalInfoPreservingGeneratorMacro):
-		override protected def ExpandGeneratorImpl(case as MacroStatement):
-			if len(case.Arguments) != 0:
-				raise "Usage: otherwise: <block>"
-			yield OtherwiseStatement(Body: case.Body)
 
 	override protected def ExpandGeneratorImpl(macro as MacroStatement):
 		if len(macro.Arguments) != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
@@ -66,6 +44,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 	private static def CreateMacroType(macro as MacroStatement) as ClassDefinition:
 		name = (macro.Arguments[0] as ReferenceExpression).Name
+
 		if YieldFinder(macro).Found:
 			macroType = CreateNewStyleMacroType(name, macro)
 		else:
@@ -119,16 +98,40 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						self.__macro = $arg
 						$(ExpandBody(name, macro.Body))
 			|]
-			
+
 	private static def ExpandBody(name as string, body as Block):
 		if ContainsCase(body):
 			return ExpandWithPatternMatching(name, body)
 		return body
-		
+
+
+	#region PatternMatching
+	private class CustomBlockStatement(CustomStatement):
+		public Body as Block
+
+	private class CaseStatement(CustomBlockStatement):
+		public Pattern as Expression
+
+	private class OtherwiseStatement(CustomBlockStatement):
+		pass
+
+	class CaseMacro(LexicalInfoPreservingGeneratorMacro):
+		override protected def ExpandGeneratorImpl(case as MacroStatement):
+			if len(case.Arguments) != 1:
+				raise "Usage: case <pattern>"
+			pattern, = case.Arguments
+			yield CaseStatement(Pattern: pattern, Body: case.Body)
+
+	class OtherwiseMacro(LexicalInfoPreservingGeneratorMacro):
+		override protected def ExpandGeneratorImpl(case as MacroStatement):
+			if len(case.Arguments) != 0:
+				raise "Usage: otherwise: <block>"
+			yield OtherwiseStatement(Body: case.Body)
+
 	private static def ContainsCase(body as Block):
 		for stmt in body.Statements:
 			return true if stmt isa CaseStatement
-			
+
 	private static def ExpandWithPatternMatching(name as string, body as Block):
 		matchBlock = [|
 			match $(ReferenceExpression(name)):
@@ -167,8 +170,9 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				for remaining as Statement in statementsEnumerator:
 					resultingBlock.Add(remaining)
 				return resultingBlock
-				
 		return matchBlock
+	#endregion
+
 
 	private static def CreateParentMacroAccessor(macro as MacroStatement, name as string):
 		cacheField = [|
@@ -184,6 +188,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 					$cacheFieldRef = __macro.GetParentMacroByName($name) unless $cacheFieldRef
 					return $cacheFieldRef
 		|]
+
 
 	private final class YieldFinder(DepthFirstVisitor):
 		private _found = false
@@ -209,3 +214,4 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 		override def EnterMacroStatement(node as MacroStatement) as bool:
 			return false
+
