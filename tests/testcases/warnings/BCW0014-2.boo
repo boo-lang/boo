@@ -2,7 +2,7 @@
 BCW0014-2.boo(12,17): BCW0014: WARNING: Private method 'Test.NeverUsed' is never used.
 BCW0014-2.boo(15,18): BCW0014: WARNING: Internal method 'Test.InternalFoo' is never used.
 """
-class Test:
+class Test(ITest):
 	def Use():
 		UsedPrivate()
 
@@ -17,4 +17,18 @@ class Test:
 
 	[getter(IUseTheField)]
 	private _fieldNeverUsedDirectly = 0
+
+	def ITest.SomeMethod():
+		pass
+
+	ITest.SomeProperty as bool:
+		get:
+			return false
+
+interface ITest:
+	def SomeMethod():
+		pass
+
+	SomeProperty as bool:
+		get
 

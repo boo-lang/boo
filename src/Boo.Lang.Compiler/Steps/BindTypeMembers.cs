@@ -60,6 +60,9 @@ namespace Boo.Lang.Compiler.Steps
 				CodeBuilder.BindParameterDeclarations(member.IsStatic, node);
 				if (!member.IsVisible && !member.IsSynthetic)
 				{
+					if (member is IExplicitMember
+						&& null != ((IExplicitMember)member).ExplicitInfo)
+						continue;
 					member.Annotate("PrivateMemberNeverUsed", null);
 				}
 			}
