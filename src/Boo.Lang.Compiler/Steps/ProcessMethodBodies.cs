@@ -62,17 +62,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected InternalMethod _currentMethod;
 
-		IMethod Array_EnumerableConstructor;
-
-		IMethod Array_TypedEnumerableConstructor;
-
-		IMethod Array_TypedCollectionConstructor;
-
-		IMethod Array_TypedConstructor2;
-
-		IMethod MultiDimensionalArray_TypedConstructor;
-
 		protected bool _optimizeNullComparisons = true;
+
 
 		public ProcessMethodBodies()
 		{
@@ -109,11 +100,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void InitializeMemberCache()
 		{
-			Array_EnumerableConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
-			Array_TypedEnumerableConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
-			Array_TypedCollectionConstructor= TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
-			Array_TypedConstructor2 = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
-			MultiDimensionalArray_TypedConstructor = TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));
+			_methodCache.Clear();
 		}
 
 		override public void Dispose()
@@ -125,27 +112,7 @@ namespace Boo.Lang.Compiler.Steps
 			_methodStack = null;
 			_memberStack = null;
 
-			_RuntimeServices_Len = null;
-			_RuntimeServices_Mid = null;
-			_RuntimeServices_NormalizeStringIndex = null;
-			_RuntimeServices_AddArrays = null;
-			_RuntimeServices_GetRange1 = null;
-			_RuntimeServices_GetRange2 = null;
-			_RuntimeServices_GetMultiDimensionalRange1 = null;
-			_RuntimeServices_SetMultiDimensionalRange1 = null;
-			_RuntimeServices_GetEnumerable = null;
-			_RuntimeServices_EqualityOperator = null;
-			_Array_get_Length = null;
-			_Array_GetLength = null;
-			_String_get_Length = null;
-			_String_Substring_Int = null;
-			_ICollection_get_Count = null;
-			_List_GetRange1 = null;
-			_List_GetRange2 = null;
-			_ICallable_Call = null;
-			_Activator_CreateInstance = null;
-			_Exception_StringConstructor = null;
-			_TextReaderEnumerator_lines = null;
+			_methodCache = null;
 		}
 
 		override public void OnModule(Module module)
@@ -4117,7 +4084,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (Array_TypedEnumerableConstructor == method ||
 				Array_TypedCollectionConstructor == method ||
-				Array_TypedConstructor2 == method)
+				Array_TypedIntConstructor == method)
 			{
 				IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
 				if (null != type)
@@ -6440,308 +6407,353 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		#region Method bindings cache
-
-		IMethod _RuntimeServices_Len;
+		Dictionary<string,IMethodBase> _methodCache = new Dictionary<string,IMethodBase>();
 
 		IMethod RuntimeServices_Len
 		{
-			get
-			{
-				if (null == _RuntimeServices_Len)
-				{
-					_RuntimeServices_Len = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
+			get {
+				string key = "RuntimeServices_Len";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_Len;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_Mid;
 
 		IMethod RuntimeServices_Mid
 		{
-			get
-			{
-				if (null == _RuntimeServices_Mid)
-				{
-					_RuntimeServices_Mid = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
+			get {
+				string key = "RuntimeServices_Mid";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_Mid;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_NormalizeStringIndex;
 
 		IMethod RuntimeServices_NormalizeStringIndex
 		{
-			get
-			{
-				if (null == _RuntimeServices_NormalizeStringIndex)
-				{
-					_RuntimeServices_NormalizeStringIndex = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");
+			get {
+				string key = "NormalizeStringIndex";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_NormalizeStringIndex;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_AddArrays;
 
 		IMethod RuntimeServices_AddArrays
 		{
-			get
-			{
-				if (null == _RuntimeServices_AddArrays)
-				{
-					_RuntimeServices_AddArrays = ResolveMethod(TypeSystemServices.RuntimeServicesType, "AddArrays");
+			get {
+				string key = "RuntimeServices_AddArrays";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "AddArrays");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_AddArrays;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_GetRange1;
 
 		IMethod RuntimeServices_GetRange1
 		{
-			get
-			{
-				if (null == _RuntimeServices_GetRange1)
-				{
-					_RuntimeServices_GetRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
+			get {
+				string key = "RuntimeServices_GetRange1";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_GetRange1;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_GetRange2;
 
 		IMethod RuntimeServices_GetRange2
 		{
-			get
-			{
-				if (null == _RuntimeServices_GetRange2)
-				{
-					_RuntimeServices_GetRange2 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2");
+			get {
+				string key = "RuntimeServices_GetRange2";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_GetRange2;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_GetMultiDimensionalRange1;
 
 		IMethod RuntimeServices_GetMultiDimensionalRange1
 		{
-			get
-			{
-				if (null == _RuntimeServices_GetMultiDimensionalRange1)
-				{
-					_RuntimeServices_GetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetMultiDimensionalRange1");
+			get {
+				string key = "RuntimeServices_GetMultiDimensionalRange1";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetMultiDimensionalRange1");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_GetMultiDimensionalRange1;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_SetMultiDimensionalRange1;
 
 		IMethod RuntimeServices_SetMultiDimensionalRange1
 		{
-			get
-			{
-				if (null == _RuntimeServices_SetMultiDimensionalRange1)
-				{
-					_RuntimeServices_SetMultiDimensionalRange1 = ResolveMethod(TypeSystemServices.RuntimeServicesType, "SetMultiDimensionalRange1");
+			get {
+				string key = "RuntimeServices_SetMultiDimensionalRange1";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "SetMultiDimensionalRange1");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_SetMultiDimensionalRange1;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_GetEnumerable;
 
 		IMethod RuntimeServices_GetEnumerable
 		{
-			get
-			{
-				if (null == _RuntimeServices_GetEnumerable)
-				{
-					_RuntimeServices_GetEnumerable = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");
+			get {
+				string key = "RuntimeServices_GetEnumerable";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_GetEnumerable;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _RuntimeServices_EqualityOperator;
 
 		IMethod RuntimeServices_EqualityOperator
 		{
-			get
-			{
-				if (null == _RuntimeServices_EqualityOperator)
-				{
-					_RuntimeServices_EqualityOperator = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));
+			get {
+				string key = "RuntimeServices_EqualityOperator";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));
+					_methodCache.Add(key, method);
 				}
-				return _RuntimeServices_EqualityOperator;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _Array_get_Length;
 
 		IMethod Array_get_Length
 		{
-			get
-			{
-				if (null == _Array_get_Length)
-				{
-					_Array_get_Length = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
+			get {
+				string key = "Array_get_Length";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
+					_methodCache.Add(key, method);
 				}
-				return _Array_get_Length;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _Array_GetLength;
 
 		IMethod Array_GetLength
 		{
-			get
-			{
-				if (null == _Array_GetLength)
-				{
-					_Array_GetLength = ResolveMethod(TypeSystemServices.ArrayType, "GetLength");
+			get {
+				string key = "Array_GetLength";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.ArrayType, "GetLength");
+					_methodCache.Add(key, method);
 				}
-				return _Array_GetLength;
+				return (IMethod) method;
 			}
 		}
 
-		IMethod _String_get_Length;
+		IMethod Array_EnumerableConstructor
+		{
+			get {
+				string key = "Array_EnumerableConstructor";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
+					_methodCache.Add(key, method);
+				}
+				return (IMethod) method;
+			}
+		}
+
+		IMethod Array_TypedEnumerableConstructor
+		{
+			get {
+				string key = "Array_TypedEnumerableConstructor";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
+					_methodCache.Add(key, method);
+				}
+				return (IMethod) method;
+			}
+		}
+
+		IMethod Array_TypedCollectionConstructor
+		{
+			get {
+				string key = "Array_TypedCollectionConstructor";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
+					_methodCache.Add(key, method);
+				}
+				return (IMethod) method;
+			}
+		}
+
+		IMethod Array_TypedIntConstructor
+		{
+			get {
+				string key = "Array_TypedIntConstructor";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
+					_methodCache.Add(key, method);
+				}
+				return (IMethod) method;
+			}
+		}
+
+		IMethod MultiDimensionalArray_TypedConstructor
+		{
+			get {
+				string key = "MultiDimensionalArray_TypedConstructor";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));
+					_methodCache.Add(key, method);
+				}
+				return (IMethod) method;
+			}
+		}
 
 		IMethod String_get_Length
 		{
-			get
-			{
-				if (null == _String_get_Length)
-				{
-					_String_get_Length = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
+			get {
+				string key = "String_get_Length";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
+					_methodCache.Add(key, method);
 				}
-				return _String_get_Length;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _String_Substring_Int;
 
 		IMethod String_Substring_Int
 		{
-			get
-			{
-				if (null == _String_Substring_Int)
-				{
-					_String_Substring_Int = TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
+			get {
+				string key = "String_Substring_Int";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
+					_methodCache.Add(key, method);
 				}
-				return _String_Substring_Int;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _ICollection_get_Count;
 
 		IMethod ICollection_get_Count
 		{
-			get
-			{
-				if (null == _ICollection_get_Count)
-				{
-					_ICollection_get_Count = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
+			get {
+				string key = "ICollection_get_Count";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
+					_methodCache.Add(key, method);
 				}
-				return _ICollection_get_Count;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _List_GetRange1;
 
 		IMethod List_GetRange1
 		{
-			get
-			{
-				if (null == _List_GetRange1)
-				{
-					_List_GetRange1 = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
+			get {
+				string key = "List_GetRange1";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
+					_methodCache.Add(key, method);
 				}
-				return _List_GetRange1;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _List_GetRange2;
 
 		IMethod List_GetRange2
 		{
-			get
-			{
-				if (null == _List_GetRange2)
-				{
-					_List_GetRange2 = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));
+			get {
+				string key = "List_GetRange2";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));
+					_methodCache.Add(key, method);
 				}
-				return _List_GetRange2;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _ICallable_Call;
 
 		IMethod ICallable_Call
 		{
-			get
-			{
-				if (null == _ICallable_Call)
-				{
-					_ICallable_Call = ResolveMethod(TypeSystemServices.ICallableType, "Call");
+			get {
+				string key = "ICallable_Call";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = ResolveMethod(TypeSystemServices.ICallableType, "Call");
+					_methodCache.Add(key, method);
 				}
-				return _ICallable_Call;
+				return (IMethod) method;
 			}
 		}
-
-		IMethod _Activator_CreateInstance;
 
 		IMethod Activator_CreateInstance
 		{
-			get
-			{
-				if (null == _Activator_CreateInstance)
-				{
-					_Activator_CreateInstance = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
+			get {
+				string key = "Activator_CreateInstance";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
+					_methodCache.Add(key, method);
 				}
-				return _Activator_CreateInstance;
+				return (IMethod) method;
 			}
 		}
-
-		IConstructor _Exception_StringConstructor;
 
 		IConstructor Exception_StringConstructor
 		{
-			get
-			{
-				if (null == _Exception_StringConstructor)
-				{
-					_Exception_StringConstructor = TypeSystemServices.GetStringExceptionConstructor();
+			get {
+				string key = "Exception_StringConstructor";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.GetStringExceptionConstructor();
+					_methodCache.Add(key, method);
 				}
-				return _Exception_StringConstructor;
+				return (IConstructor) method;
 			}
 		}
-
-		IMethod _TextReaderEnumerator_lines;
 
 		IMethod TextReaderEnumerator_lines
 		{
-			get
-			{
-				if (null == _TextReaderEnumerator_lines)
-				{
-					_TextReaderEnumerator_lines = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetMethod("lines"));
+			get {
+				string key = "TextReaderEnumerator_lines";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetMethod("lines"));
+					_methodCache.Add(key, method);
 				}
-				return _TextReaderEnumerator_lines;
+				return (IMethod) method;
 			}
 		}
+		#endregion
+
 
 		public bool OptimizeNullComparisons
 		{
 			get { return _optimizeNullComparisons; }
 			set { _optimizeNullComparisons = value; }
 		}
-
-		#endregion
 	}
 
 }
