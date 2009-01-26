@@ -72,6 +72,11 @@
 		Tip of the day:
 		You can use -D:fixture=SomeFixture (without .Tests.dll) to test just one fixture.
 		</echo>
+		<echo if="${fixture != ''}">
+		***
+		SELECTED FIXTURE: ${fixture}
+		***
+		</echo>
 
 		<boo src="generate_regression.boo">
 			<references basedir="build">
@@ -109,7 +114,8 @@
 		</booc>
 		-->
 		
-		<booc target="library" output="build/Boo.Lang.PatternMatching.Tests.dll">
+		<booc target="library" output="build/Boo.Lang.PatternMatching.Tests.dll"
+		      if="${fixture == '' or fixture == 'Boo.Lang.PatternMatching'}">
 			<sources basedir="Boo.Lang.PatternMatching.Tests">
 				<include name="*.boo" />
 			</sources>

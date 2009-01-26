@@ -108,6 +108,7 @@
 			program="NAnt.exe"
 			workingdir="tests"
 			useruntimeengine="true">
+			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
 			<arg value="compile" />
 		</exec>
 	</target>
