@@ -22,10 +22,10 @@ class X:
 	static public istatic = 0
 	
 	[property(p)]
-	_p
+	_p = null
 	
 	[property(ps)]
-	static _ps
+	static _ps = null
 	
 	def f():
 		return "in f"

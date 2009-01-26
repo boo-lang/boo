@@ -2,7 +2,7 @@ class Outer:
 
 	class Inner:
 		[property(Value)]
-		_value
+		_value = null
 		
 	[property(InnerValue)]
 	_innerValue as Inner

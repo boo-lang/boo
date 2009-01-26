@@ -95,6 +95,12 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			_referenced = true;
 		}
 
+		override public void LeaveStatementTypeMember(StatementTypeMember node)
+		{
+			if (node.Statement == null)
+				RemoveCurrentNode();
+		}
+
 		override public void OnMacroStatement(MacroStatement node)
 		{
 			EnsureCompilerAssemblyReference(Context);
@@ -141,7 +147,28 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ExpandUnknownMacro(MacroStatement node)
 		{
 			ExpandChildrenOf(node);
-			TreatMacroAsMethodInvocation(node);
+			if (IsTypeMemberMacro(node))
+				UnknownTypeMemberMacro(node);
+			else
+				TreatMacroAsMethodInvocation(node);
+		}
+
+		private bool IsTypeMemberMacro(MacroStatement node)
+		{
+			return node.ParentNode.NodeType == NodeType.StatementTypeMember;
+		}
+
+		private void UnknownTypeMemberMacro(MacroStatement node)
+		{
+			if (LooksLikeOldStyleFieldDeclaration(node))
+				ProcessingError(CompilerErrorFactory.UnknownClassMacroWithFieldHint(node, node.Name));
+			else
+				ProcessingError(CompilerErrorFactory.UnknownMacro(node, node.Name));
+		}
+
+		private bool LooksLikeOldStyleFieldDeclaration(MacroStatement node)
+		{
+			return node.Arguments.Count == 0 && node.Body.IsEmpty;
 		}
 
 		private void ExpandChildrenOf(MacroStatement node)

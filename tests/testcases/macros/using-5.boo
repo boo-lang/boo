@@ -10,7 +10,7 @@ after block
 import NUnit.Framework
 
 class Disposable(System.IDisposable):
-	_tag
+	_tag as object
 	def constructor(tag):
 		_tag = tag
 		print("${tag}: constructor")

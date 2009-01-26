@@ -91,7 +91,7 @@ Namespace introspection helper.
 		get:
 			return array(Namespace, _children.Values)
 			
-	Item(name as string) as Namespace:
+	Item[name as string] as Namespace:
 		get:
 			return _children[name]
 			

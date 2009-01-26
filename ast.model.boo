@@ -542,4 +542,9 @@ class TypeofExpression(Expression):
 class CustomStatement(Statement):
 	pass
 	
+class StatementTypeMember(TypeMember):
+"""
+Allow for macros and initializing statements inside type definition bodies.
+"""
+	Statement as Statement
 

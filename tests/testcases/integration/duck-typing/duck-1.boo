@@ -6,7 +6,7 @@ class LooksLikeADuck:
 		return "quack!"
 
 struct QuacksLikeADuck:
-	dummy # keep the verifier happy
+	dummy as object # keep the verifier happy
 	def Quack():
 		return "quack!"
 		

@@ -75,7 +75,7 @@ Example:
 					self.Add(item)
 			def Add([required] item as T):
 				self.InnerList.Add(item)
-			Item(index as int) as T:
+			Item[index as int] as T:
 				get:
 					return self.InnerList[index]
 	|]

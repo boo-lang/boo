@@ -121,16 +121,30 @@ namespace Boo.Lang.Compiler.Ast
 			return array;
 		}
 
+		public IEnumerable<TNode> OfType<TNode>() where TNode : Node
+		{
+			List<TNode> result = new List<TNode>();
+			foreach (Node node in _list)
+			{
+				TNode match = node as TNode;
+				if (null != match)
+					yield return match;
+			}
+		}
+
+		public IEnumerable<T> Except<UnwantedNodeType>() where UnwantedNodeType : T
+		{
+			foreach (T node in _list)
+				if (!(node is UnwantedNodeType))
+					yield return node;
+		}
+
 		public T[] Select(NodeType type)
 		{
 			List result = new List();
 			foreach (Node node in _list)
-			{
 				if (node.NodeType == type)
-				{
 					result.Add(node);
-				}
-			}
 			return (T[])result.ToArray(new T[result.Count]);
 		}
 

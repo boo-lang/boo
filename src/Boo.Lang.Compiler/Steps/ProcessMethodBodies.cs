@@ -194,16 +194,21 @@ namespace Boo.Lang.Compiler.Steps
 			MarkVisited(node);
 
 			VisitTypeDefinition(node);
-			ProcessFieldInitializers(node);
+			ProcessInitializers(node);
 		}
 
-		void ProcessFieldInitializers(ClassDefinition node)
+		void ProcessInitializers(ClassDefinition node)
 		{
-			foreach (TypeMember member in node.Members)
+			foreach (TypeMember member in node.Members.ToArray())
 			{
-				if (NodeType.Field == member.NodeType)
+				switch (member.NodeType)
 				{
-					ProcessFieldInitializer((Field) member);
+					case NodeType.Field:
+						ProcessFieldInitializer((Field) member);
+						break;
+					case NodeType.StatementTypeMember:
+						ProcessStatementTypeMemberInitializer(node, ((StatementTypeMember)member));
+						break;
 				}
 			}
 
@@ -213,6 +218,19 @@ namespace Boo.Lang.Compiler.Steps
 				AddInitializerToInstanceConstructors(node, initializer);
 				node.Members.Remove(initializer);
 			}
+		}
+
+		private void ProcessStatementTypeMemberInitializer(ClassDefinition node, StatementTypeMember statementTypeMember)
+		{
+			Statement stmt = statementTypeMember.Statement;
+
+			Method initializer = GetInitializerFor(node, node.IsStatic);
+			initializer.Body.Add(stmt);
+
+			InternalMethod entity = (InternalMethod) GetEntity(initializer);
+			ProcessNodeInMethodContext(entity, entity, stmt);
+
+			node.Members.Remove(statementTypeMember);
 		}
 
 		override public void OnAttribute(Attribute node)
@@ -293,6 +311,12 @@ namespace Boo.Lang.Compiler.Steps
 				setter.Name = "set_" + node.Name;
 				Visit(setter);
 			}
+		}
+
+		override public void OnStatementTypeMember(StatementTypeMember node)
+		{
+			// statement type members are later
+			// processed as initializers
 		}
 
 		override public void OnField(Field node)
@@ -399,7 +423,7 @@ namespace Boo.Lang.Compiler.Steps
 				InferClosureSignature(closure);
 			}
 
-			Method method = GetFieldsInitializerMethod(node);
+			Method method = GetInitializerMethod(node);
 			InternalMethod entity = (InternalMethod)method.Entity;
 
 			ReferenceExpression temp = new ReferenceExpression("___temp_initializer");
@@ -449,7 +473,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 			}
 
-			Method method = GetFieldsInitializerMethod(node);
+			Method method = GetInitializerMethod(node);
 			method.Body.Add(
 				CodeBuilder.CreateAssignment(
 					initializer.LexicalInfo,
@@ -488,14 +512,18 @@ namespace Boo.Lang.Compiler.Steps
 			return field;
 		}
 
-		Method GetFieldsInitializerMethod(Field node)
+		Method GetInitializerMethod(Field node)
 		{
-			TypeDefinition type = node.DeclaringType;
-			string methodName = node.IsStatic ? "$static_initializer$" : "$initializer$";
+			return GetInitializerFor(node.DeclaringType, node.IsStatic);
+		}
+
+		private Method GetInitializerFor(TypeDefinition type, bool isStatic)
+		{
+			string methodName = isStatic ? "$static_initializer$" : "$initializer$";
 			Method method = (Method)type[methodName];
 			if (null == method)
 			{
-				if (node.IsStatic)
+				if (isStatic)
 				{
 					if (!type.HasStaticConstructor)
 					{
@@ -749,7 +777,7 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInvocationExpression methodInvocationContext = node.ParentNode as MethodInvocationExpression;
 			if (methodInvocationContext == null) return false;
 			if (!methodInvocationContext.Arguments.ContainsNode(node)) return false;
-		
+
 			IMethod target = methodInvocationContext.Target.Entity as IMethod;
 			return (target != null && GenericsServices.IsGenericMethod(target));
 		}
@@ -811,7 +839,7 @@ namespace Boo.Lang.Compiler.Steps
 				AddOptionalReturnStatement(node.Body);
 			}
 
-			// Inside the closure, connect the closure method namespace with the current namespace 
+			// Inside the closure, connect the closure method namespace with the current namespace
 			NamespaceDelegator ns = new NamespaceDelegator(CurrentNamespace, closureEntity);
 
 			// Allow closure body to reference itself using its explicit name (BOO-1085)
@@ -836,13 +864,13 @@ namespace Boo.Lang.Compiler.Steps
 			CallableSignature sig = formalType.GetSignature();
 
 			TypeReplacer replacer = new TypeReplacer(TypeSystemServices);
-			TypeCollector collector = new TypeCollector(delegate(IType t) 
-			{ 
+			TypeCollector collector = new TypeCollector(delegate(IType t)
+			{
 				IGenericParameter gp = t as IGenericParameter;
 				if (gp == null) return false;
 				return gp.DeclaringEntity == inferrer.GenericMethod;
 			});
-			
+
 			collector.Visit(formalType);
 			foreach (IType typeParameter in collector.Matches)
 			{
@@ -2614,7 +2642,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			INamespace ns = GetReferenceNamespace(node);
 			member = NameResolutionService.Resolve(ns, node.Name);
-			
+
 			if (null == member || !IsAccessible(member))
 			{
 				IEntity extension = TryToResolveMemberAsExtension(node);
@@ -4173,7 +4201,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == extension) return false;
 
 			node.Annotate(ResolvedAsExtensionAnnotation);
-			
+
 			ProcessMethodInvocationExpression(node, extension);
 			return true;
 		}
@@ -4185,14 +4213,14 @@ namespace Boo.Lang.Compiler.Steps
 
 			MemberReferenceExpression mre = targetReference as MemberReferenceExpression;
 			INamespace extensionNamespace = (mre != null) ? GetReferenceNamespace(mre) : CurrentType;
-			
+
 			return NameResolutionService.ResolveExtension(extensionNamespace, targetReference.Name);
 		}
 
 		private bool ResolvedAsExtension(MethodInvocationExpression node)
 		{
-			return 
-				node.ContainsAnnotation(ResolvedAsExtensionAnnotation) || 
+			return
+				node.ContainsAnnotation(ResolvedAsExtensionAnnotation) ||
 				node.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation);
 		}
 
@@ -4232,7 +4260,7 @@ namespace Boo.Lang.Compiler.Steps
 				ProcessGenericMethodInvocation(node);
 				return;
 			}
-			
+
 			ProcessMethodInvocationExpression(node, targetEntity);
 		}
 
@@ -4419,11 +4447,11 @@ namespace Boo.Lang.Compiler.Steps
 
 			targetMethod = InferGenericMethodInvocation(node, targetMethod);
 			if (targetMethod == null) return;
-			
-			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false)) 
+
+			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
 			{
 				if (!ResolvedAsExtension(node) && TryToProcessAsExtensionInvocation(node)) return;
-				
+
 				if (ProcessMethodInvocationWithInvalidParameters(node, targetMethod)) return;
 
 				AssertParameters(node, targetMethod, node.Arguments);
@@ -4496,7 +4524,7 @@ namespace Boo.Lang.Compiler.Steps
 		private bool IsOrContainsExtensionMethod(IEntity entity)
 		{
 			if (entity == null) return false;
-			
+
 			Ambiguous ambiguous = entity as Ambiguous;
 			if (ambiguous != null) return ambiguous.Any(IsExtensionMethod);
 
@@ -6246,10 +6274,10 @@ namespace Boo.Lang.Compiler.Steps
 		IEntity DeclareLocal(Declaration d, bool privateScope)
 		{
 			AssertIdentifierName(d, d.Name);
-			
+
 			IEntity local = DeclareLocal(d, d.Name, GetType(d.Type), privateScope);
 			d.Entity = local;
-			
+
 			InternalLocal internalLocal = local as InternalLocal;
 			if (null != internalLocal)
 				internalLocal.OriginalDeclaration = d;

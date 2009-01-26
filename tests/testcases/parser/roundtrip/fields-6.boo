@@ -1,7 +1,7 @@
 """
 class Action:
 
-	cb
+	cb = null
 
 	def constructor(callback):
 		cb = callback
@@ -12,7 +12,7 @@ class A:
 	action = Action({ print('Hello World') })
 """
 class Action:
-	cb
+	cb = null
 	def constructor(callback):
 		cb = callback
 

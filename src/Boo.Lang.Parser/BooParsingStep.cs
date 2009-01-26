@@ -82,7 +82,7 @@ namespace Boo.Lang.Parser
 
 		public void Run()
 		{		
-			ParserErrorHandler errorHandler = new ParserErrorHandler(OnParserError);
+			ParserErrorHandler errorHandler = OnParserError;
 				
 			foreach (ICompilerInput input in _context.Parameters.Input)
 			{

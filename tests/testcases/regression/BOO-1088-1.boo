@@ -1,4 +1,3 @@
-#ignore Cannot depend on immediate side effect of macro application
 """
 foo
 DEADLOCK DETECTED

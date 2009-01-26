@@ -8,7 +8,7 @@ BCE0088-1.boo(25,9): BCE0088: Sorry but the 'raise_' prefix is reserved by the c
 """
 class Invalid:
 	
-	___invalid
+	___invalid = null
 
 	def get_foo():
 		pass

@@ -3,9 +3,9 @@
 namespace NS
 
 class Outer:
-	protected _bar
-	private _baz
-	public bang
+	protected _bar = null
+	private _baz = null
+	public bang = null
 	
 	class Inner:
 		def constructor(outer as Outer):

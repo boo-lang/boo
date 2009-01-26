@@ -15,7 +15,7 @@ class Foo(MarshalByRefObject):
 		
 class TraceProxy(RealProxy):
 	
-	_target
+	_target as object
 	
 	def constructor(target):
 		super(target.GetType())

@@ -192,7 +192,7 @@ namespace Boo.Lang.Compiler.Ast
 				case BinaryOperatorType.ShiftRight:
 					return BinaryOperatorKind.Bitwise;
 			}
-			throw new NotSupportedException(string.Format("unknown operator: {0}", op));
+			throw new NotSupportedException(String.Format("unknown operator: {0}", op));
 		}
 
 		public static bool IsAssignment(Expression node)
@@ -401,7 +401,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static void DebugNode(Node node)
 		{
-			System.Console.WriteLine("{0}: {1} - {2}",
+			Console.WriteLine("{0}: {1} - {2}",
 					node.LexicalInfo,
 					node.NodeType,
 					SafeToCodeString(node));
@@ -422,7 +422,7 @@ namespace Boo.Lang.Compiler.Ast
 		//use this to build a type member name unique in the inheritance hierarchy.
 		public static string BuildUniqueTypeMemberName(TypeDefinition type, string name)
 		{
-			if (string.IsNullOrEmpty(name))
+			if (String.IsNullOrEmpty(name))
 				throw new ArgumentNullException("name");
 
 			StringBuilder nameBuilder = new StringBuilder("$");
@@ -456,6 +456,20 @@ namespace Boo.Lang.Compiler.Ast
 					return local;
 			}
 			return null;
+		}
+
+		public static LexicalInfo SafeLexicalInfo(Node node)
+		{
+			if (null == node) return LexicalInfo.Empty;
+			LexicalInfo info = node.LexicalInfo;
+			if (info.IsValid) return info;
+			return SafeLexicalInfo(node.ParentNode);
+		}
+
+		public static string SafePositionOnlyLexicalInfo(Node node)
+		{
+			LexicalInfo info = SafeLexicalInfo(node);
+			return String.Format("({0},{1})", info.Line, info.Column);
 		}
 	}
 

@@ -3,7 +3,7 @@ class Customer(object):
 
 	_fname as string
 
-	_lname
+	_lname = null
 
 	_friends as System.Collections.ArrayList
 
@@ -21,6 +21,6 @@ class Customer(object):
 """
 class Customer:
 	[getter(FirstName)] _fname as string
-	[getter(LastName)] _lname
+	[getter(LastName)] _lname = null
 	[getter(Friends as System.Collections.ICollection)] _friends as System.Collections.ArrayList
 

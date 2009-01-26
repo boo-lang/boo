@@ -2,7 +2,7 @@ import System
 
 class MyAttribute(Attribute):
 	[getter(T)]
-	_t
+	_t = null
 	
 	def constructor(t):
 		_t = t

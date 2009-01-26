@@ -3,8 +3,8 @@ first
 second
 """
 class Foo:
-	public first
-	public second
+	public first as object
+	public second as object
 	def constructor(value):
 		first, second = value
 		

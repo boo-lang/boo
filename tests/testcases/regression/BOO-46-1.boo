@@ -2,7 +2,7 @@ import NUnit.Framework
 
 class Foo:
 
-	_prefix
+	_prefix = null
 	
 	def constructor(prefix):
 		_prefix = prefix

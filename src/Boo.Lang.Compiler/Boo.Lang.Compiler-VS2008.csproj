@@ -218,6 +218,7 @@
     <Compile Include="Ast\StatementCollection.cs" />
     <Compile Include="Ast\StatementModifier.cs" />
     <Compile Include="Ast\StatementModifierType.Generated.cs" />
+    <Compile Include="Ast\StatementTypeMember.cs" />
     <Compile Include="Ast\StringLiteralExpression.cs" />
     <Compile Include="Ast\StructDefinition.cs" />
     <Compile Include="Ast\SuperLiteralExpression.cs" />
@@ -328,6 +329,7 @@
     <Compile Include="Ast\Impl\StatementCollectionImpl.cs" />
     <Compile Include="Ast\Impl\StatementImpl.cs" />
     <Compile Include="Ast\Impl\StatementModifierImpl.cs" />
+    <Compile Include="Ast\Impl\StatementTypeMemberImpl.cs" />
     <Compile Include="Ast\Impl\StringLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\StructDefinitionImpl.cs" />
     <Compile Include="Ast\Impl\SuperLiteralExpressionImpl.cs" />
@@ -561,6 +563,7 @@
     <Compile Include="TypeSystem\Variance.cs" />
     <Compile Include="Util\ITask.cs" />
     <Compile Include="Util\Set.cs" />
+    <Compile Include="Util\StringUtilities.cs" />
     <Compile Include="Util\TaskList.cs" />
     <Compile Include="Util\TypeUtilities.cs" />
   </ItemGroup>

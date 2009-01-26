@@ -101,25 +101,13 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			if (null == collection) return false;
 			
-			int removed = 0;
-
 			T[] nodes = collection.ToArray();
-			for (int i = 0; i < nodes.Length; ++i)
+			foreach (T currentNode in nodes)
 			{
-				T currentNode = nodes[i];
 				T resultingNode = (T)VisitNode(currentNode);
 				if (currentNode != resultingNode)
 				{
-					int actualIndex = i - removed;
-					if (null == resultingNode)
-					{
-						++removed;
-						collection.RemoveAt(actualIndex);
-					}
-					else
-					{
-						collection.ReplaceAt(actualIndex, resultingNode);
-					}
+					collection.Replace(currentNode, resultingNode);
 				}
 			}
 			return true;

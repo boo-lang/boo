@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,20 +26,24 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Interpreter
+namespace Boo.Lang.Compiler.Ast
+{
+	using System;
 
-import System
-import System.IO
+	public partial class StatementTypeMember
+	{
+		public StatementTypeMember()
+		{
+		}
 
-class ConsoleCapture(IDisposable):	
-	_console = StringWriter()
-	_old = Console.Out
+		public StatementTypeMember(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
 		
-	def constructor():
-		Console.SetOut(_console)
-			
-	override def ToString():
-		return _console.ToString()
-		
-	def Dispose():
-		Console.SetOut(_old)
+		public StatementTypeMember(Statement macro) : base(macro.LexicalInfo)
+		{
+			this.Statement = macro;
+		}
+	}
+}
+

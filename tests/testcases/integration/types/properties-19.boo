@@ -5,7 +5,7 @@ interface IFoo:
 		
 class Foo(IFoo):
 	[property(Bar)]
-	_bar
+	_bar = null
 
 f as IFoo = Foo()
 assert f.Bar is null

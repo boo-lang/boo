@@ -29,6 +29,7 @@
 using System;
 using System.IO;
 using System.Text;
+using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Parser.Util;
 
@@ -131,7 +132,23 @@ namespace Boo.Lang.Parser
 				base.reportError(x);
 			}
 		}
-		
+
+		protected override void EmitIndexedPropertyDeprecationWarning(Property deprecated)
+		{
+			CompilerContext context = CompilerContext.Current;
+			if (null == context)
+				return;
+			context.Warnings.Add(
+				CompilerWarningFactory.ObsoleteSyntax(deprecated,
+					FormatPropertyWithDelimiters(deprecated, "(", ")"),
+					FormatPropertyWithDelimiters(deprecated, "[", "]")));
+		}
+
+		private string FormatPropertyWithDelimiters(Property deprecated, string leftDelimiter, string rightDelimiter)
+		{
+			return deprecated.Name + leftDelimiter + Builtins.join(deprecated.Parameters, ", ") + rightDelimiter;
+		}
+
 		override protected Module NewQuasiquoteModule(LexicalInfo li)
 		{
 			Module m = new Module(li);

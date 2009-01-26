@@ -563,7 +563,7 @@ value = foo()""")
 	def MethodReturningDynamicallyDefinedClassInstance():
 		
 		code = """class Foo:
-	[getter(Value)] _value
+	[getter(Value)] _value = null
 	def constructor(value):
 		_value = value
 
@@ -587,7 +587,9 @@ v = AValueType()
 		assert AValueType().Equals(_interpreter.GetValue("v"))
 		
 	def Eval(code as string):
-		result = _interpreter.Eval(code)
+		AssertNoErrors _interpreter.Eval(code)
+		
+	def AssertNoErrors(result as Boo.Lang.Compiler.CompilerContext):
 		assert 0 == len(result.Errors), result.Errors.ToString(true)
 		
 	def ConsoleLoopEval(code as string):
@@ -596,7 +598,7 @@ v = AValueType()
 		try:
 			Console.SetIn(StringReader(code))
 			Console.SetOut(writer = StringWriter())
-			_interpreter.ConsoleLoopEval()			
+			_interpreter.ConsoleLoopEval()		
 		ensure:
 			Console.SetIn(oldIn)
 			Console.SetOut(oldOut)

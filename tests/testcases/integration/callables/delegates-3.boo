@@ -7,7 +7,7 @@ import BooCompiler.Tests
 
 class Handler:
 	
-	tag
+	tag = null
 	
 	def constructor(tag):
 		self.tag = tag

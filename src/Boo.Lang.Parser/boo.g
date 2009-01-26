@@ -163,6 +163,7 @@ tokens
 		return SourceLocationFactory.ToLexicalInfo(token);
 	}
 	
+	protected abstract void EmitIndexedPropertyDeprecationWarning(Property deprecated);
 }
 
 protected
@@ -187,8 +188,8 @@ parse_module[Module module]
 	(namespace_directive[module])?
 	(import_directive[module])*
 	(
-		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? module_macro[module]
-		| type_member[module.Members]
+		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? module_macro[module] |
+		type_member[module.Members]
 	)*	
 	globals[module]
 	(assembly_attribute[module] eos)*
@@ -197,7 +198,7 @@ parse_module[Module module]
 protected
 module_macro[Module module]
 {
-	Statement s = null;
+	MacroStatement s = null;
 }:
 	s=macro_stmt { module.Globals.Add(s); }
 ;
@@ -360,11 +361,12 @@ enum_member [EnumDefinition container]
 			
 protected
 attributes
-	{
-		_attributes.Clear();
-	}:
+{
+}
+:
+	{ _attributes.Clear(); }
 	(
-		LBRACK
+		LBRACK 
 		(
 			attribute
 			(
@@ -375,7 +377,7 @@ attributes
 		RBRACK		
 		(eos)?
 	)*
-	;
+;
 			
 protected
 attribute
@@ -463,7 +465,7 @@ type_definition_member[TypeMemberCollection container]
 }:
 	attributes
 	modifiers
-	(						
+	(
 		method[container] |
 		event_declaration[container] |
 		field_or_property[container] |
@@ -730,8 +732,14 @@ property_header:
 	((ID|SELF|(SPLICE_BEGIN atom)) (DOT ID)*)
 	(
 		LBRACK |
-		LPAREN |
-		((AS type_reference)? COLON)
+		(
+			(LPAREN parameter_declaration_list[null] RPAREN)?
+			(AS type_reference)?
+			begin_with_doc[null]
+			attributes
+			modifiers
+			(GET|SET)
+		)
 	)
 	;
 	
@@ -767,7 +775,10 @@ field_or_property [TypeMemberCollection container]
 				parameters = p.Parameters;
 				tm = p;
 			}
-			((LBRACK|LPAREN) parameter_declaration_list[parameters] (RBRACK|RPAREN))?
+			(
+				(lparen:LPAREN parameter_declaration_list[parameters] RPAREN { EmitIndexedPropertyDeprecationWarning(p); })
+				| (LBRACK parameter_declaration_list[parameters] RBRACK)
+			)?
 			(AS tr=type_reference)?
 			{							
 				p.Type = tr;
@@ -779,6 +790,9 @@ field_or_property [TypeMemberCollection container]
 		)
 	)
 	|
+	(ID expression_list[null] (eos | begin_with_doc[null]))
+		=> tm=member_macro
+	|	
 	(
 		(id2:ID | begin2:SPLICE_BEGIN nameSplice=atom)
 		{
@@ -809,6 +823,21 @@ field_or_property [TypeMemberCollection container]
 	container.Add(tm);
 }
 ;
+
+protected
+member_macro returns [TypeMember result]
+{
+	MacroStatement s = null;
+	result = null;
+}:
+	s=macro_stmt
+	{
+		result = new StatementTypeMember(s);
+		result.Modifiers = _modifiers;
+		AddAttributes(result.Attributes);
+	}
+;
+
 	
 declaration_initializer returns [Expression e]
 {
@@ -882,8 +911,8 @@ block[StatementCollection container]:
 protected
 modifiers
 {
-	_modifiers = TypeMemberModifiers.None;
 }:
+	{ _modifiers = TypeMemberModifiers.None; }
 	(
 	STATIC { _modifiers |= TypeMemberModifiers.Static; } |
 	PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |

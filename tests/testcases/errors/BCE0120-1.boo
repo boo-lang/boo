@@ -6,9 +6,9 @@ BCE0120-1.boo(21,9): BCE0120: 'NS.Foo._baz' is inaccessible due to its protectio
 namespace NS
 
 class Foo:
-	protected _bar
-	private _baz
-	public bang
+	protected _bar = null
+	private _baz = null
+	public bang = null
 	
 class Bar(Foo):
 	def constructor():

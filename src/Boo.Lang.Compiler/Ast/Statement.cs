@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(ExpressionStatement))]
 	[System.Xml.Serialization.XmlInclude(typeof(MacroStatement))]
 	public abstract partial class Statement
-	{		
+	{
 		public static Statement Lift(Statement node)
 		{
 			return node;

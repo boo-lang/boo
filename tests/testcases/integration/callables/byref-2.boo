@@ -3,7 +3,7 @@ import NUnit.Framework
 
 class Foo:
 	public value = 0
-	public reference
+	public reference = null
 
 f = Foo()
 for i in -1, 0, 5:

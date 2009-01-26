@@ -2,7 +2,7 @@ import BooCompiler.Tests
 
 class Concrete(AbstractClass):
 
-	[property(Token)] _token
+	[property(Token)] _token = null
 	
 	override def ToString():
 		return "${_token}"

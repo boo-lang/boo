@@ -79,10 +79,10 @@ assert cache[42] == "42" #will print: Create entry: 42. Removed 4 from cache
 		_next = self
 		
 		[getter(Key)]
-		_key
+		_key as object
 		
 		[getter(Value)]
-		_value
+		_value as object
 		
 		def constructor(key, value):
 			_key = key
@@ -161,7 +161,7 @@ assert cache[42] == "42" #will print: Create entry: 42. Removed 4 from cache
 			assert _maxSize > 0			
 			CheckSize()
 
-	Item(key):
+	Item[key]:
 		get:
 			item = _hash[key] as LruItem
 			if item:
@@ -170,7 +170,7 @@ assert cache[42] == "42" #will print: Create entry: 42. Removed 4 from cache
 				return item.Value
 			#item not found, try to create using the creator function
 			val = _creator(key)
-			if (val):
+			if val:
 				Add(key, val)
 			return val
 			

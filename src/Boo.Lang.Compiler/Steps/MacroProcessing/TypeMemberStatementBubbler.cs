@@ -40,10 +40,18 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			TypeMemberStatement typeMemberStmt = node as TypeMemberStatement;
 			if (null == typeMemberStmt)
 				return;
+			
 			TypeMember typeMember = typeMemberStmt.TypeMember;
-			node.GetAncestor<TypeDefinition>().Members.Add(typeMember);
+			InsertTypeMemberAt(typeMember, node);
 			Visit(typeMember);
+
 			RemoveCurrentNode();
+		}
+
+		private void InsertTypeMemberAt(TypeMember typeMember, CustomStatement anchor)
+		{
+			TypeMemberCollection members = anchor.GetAncestor<TypeDefinition>().Members;
+			members.Insert(members.IndexOf(typeMember), typeMember);
 		}
 
 		#endregion

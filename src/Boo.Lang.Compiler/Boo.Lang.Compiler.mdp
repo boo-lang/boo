@@ -154,6 +154,7 @@
     <File name="Ast/StatementCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StatementModifier.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StatementModifierType.Generated.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/StatementTypeMember.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StringLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/StructDefinition.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SuperLiteralExpression.cs" buildaction="Compile" subtype="Code" />
@@ -264,6 +265,7 @@
     <File name="Ast/Impl/StatementCollectionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/StatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/StatementModifierImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/StatementTypeMemberImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/StringLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/StructDefinitionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SuperLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
@@ -497,6 +499,7 @@
     <File name="TypeSystem/Variance.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/Set.cs" buildaction="Compile" subtype="Code" />
+    <File name="Util/StringUtilities.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/TaskList.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/TypeUtilities.cs" buildaction="Compile" subtype="Code" />
   </Contents>

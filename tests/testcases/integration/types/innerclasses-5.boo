@@ -5,7 +5,7 @@ class Outer:
 
 	class Inner:
 		[property(Name)]
-		_name
+		_name = ""
 		
 		def constructor(name):
 			_name = name

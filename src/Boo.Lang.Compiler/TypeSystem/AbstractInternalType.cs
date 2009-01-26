@@ -288,14 +288,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IEntity[] GetMemberEntities(TypeMemberCollection members)
 		{
-			IEntity[] entities = new IEntity[members.Count];
-			for (int i = 0; i < entities.Length; ++i)
-			{
-				entities[i] = _typeSystemServices.GetMemberEntity(members[i]);
-			}
-			return entities;
+			List<IEntity> entities = new List<IEntity>(members.Count);
+			foreach (TypeMember member in members.Except<StatementTypeMember>())
+				entities.Add(_typeSystemServices.GetMemberEntity(member));
+			return entities.ToArray();
 		}
-
 
 		override public string ToString()
 		{

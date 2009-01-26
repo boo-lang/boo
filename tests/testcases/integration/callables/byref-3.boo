@@ -3,7 +3,7 @@ import NUnit.Framework
 
 class Foo:
 	public static value = 0
-	public static reference
+	public static reference = null
 
 for i in -1, 0, 5:
 	ByRef.SetValue(i, Foo.value)

@@ -38,11 +38,14 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 	{
 		private readonly MacroStatement _node;
 		private readonly bool _addTypeMembersToEnclosingTypeDefinition;
+		private readonly StatementTypeMember _typeMemberPrototype;
+		private TypeDefinition _enclosingTypeDefCache;
 
 		public NodeGeneratorExpander(MacroStatement node, bool addTypeMembersToEnclosingTypeDefinition)
 		{
 			_node = node;
 			_addTypeMembersToEnclosingTypeDefinition = addTypeMembersToEnclosingTypeDefinition;
+			_typeMemberPrototype = node.ParentNode as StatementTypeMember;
 		}
 
 		public Statement Expand(IEnumerable<Node> generator)
@@ -58,10 +61,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				TypeMember member = generatedNode as TypeMember;
 				if (null != member)
 				{
-					if (_addTypeMembersToEnclosingTypeDefinition)
-						_node.GetAncestor<TypeDefinition>().Members.Add(member);
-					else
-						resultingBlock.Add(new TypeMemberStatement(member));
+					ExpandTypeMember(member, resultingBlock);
 					continue;
 				}
 
@@ -99,6 +99,44 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			return resultingBlock.IsEmpty
 					? null
 					: resultingBlock.Simplify();
+		}
+
+		private void ExpandTypeMember(TypeMember member, Block resultingBlock)
+		{
+			ApplyPrototypeModifiersAndAttributesTo(member);
+			if (_addTypeMembersToEnclosingTypeDefinition)
+				AddMemberToEnclosingTypeDef(member);
+			else
+				resultingBlock.Add(new TypeMemberStatement(member));
+		}
+
+		private void AddMemberToEnclosingTypeDef(TypeMember member)
+		{
+			if (null == _typeMemberPrototype)
+				EnclosingTypeDef().Members.Add(member);
+			else
+				EnclosingTypeDef().Members.Insert(TypeMemberInsertionPoint(), member);
+		}
+
+		private int TypeMemberInsertionPoint()
+		{
+			TypeMemberCollection members = EnclosingTypeDef().Members;
+			return members.IndexOf(_typeMemberPrototype);
+		}
+
+		private TypeDefinition EnclosingTypeDef()
+		{
+			if (null == _enclosingTypeDefCache)
+				_enclosingTypeDefCache = _node.GetAncestor<TypeDefinition>();
+			return _enclosingTypeDefCache;
+		}
+
+		private void ApplyPrototypeModifiersAndAttributesTo(TypeMember member)
+		{
+			if (null == _typeMemberPrototype) return;
+
+			member.Attributes.ExtendWithClones(_typeMemberPrototype.Attributes);
+			member.Modifiers |= _typeMemberPrototype.Modifiers;
 		}
 
 		private void ExpandImport(Import import)

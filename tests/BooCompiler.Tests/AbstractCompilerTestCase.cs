@@ -241,7 +241,7 @@ namespace BooCompiler.Tests
 				{
 					Assert.Fail(GetFirstInputName(context)
 								+ ": "
-								+ context.Errors.ToString(false)
+								+ context.Errors.ToString(true)
 								+ context.Warnings.ToString());				
 				}
 				return _output.ToString().Replace("\r\n", "\n");

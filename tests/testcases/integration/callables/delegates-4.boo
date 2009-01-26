@@ -7,7 +7,7 @@ import BooCompiler.Tests
 
 class Handler:
 	
-	public State
+	public State = null
 		
 	def clicked(sender, args as System.EventArgs):
 		print("${State} - clicked!")

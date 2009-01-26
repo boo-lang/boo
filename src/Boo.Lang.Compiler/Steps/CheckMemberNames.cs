@@ -68,6 +68,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			foreach (TypeMember member in node.Members)
 			{
+				if (member.NodeType == NodeType.StatementTypeMember)
+					continue;
+
 				List list = GetMemberList(member.Name);
 				CheckMember(list, member);
 				list.Add(member);
@@ -94,6 +97,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (member.NodeType)
 			{
+				case NodeType.StatementTypeMember:
+					break;
 				case NodeType.Constructor:
 				case NodeType.Method:
 				{

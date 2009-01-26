@@ -6,23 +6,23 @@ import System.Reflection
 
 [DefaultMember("ItemOne")]
 interface IOne:
-        ItemOne(index as int) as string:
+        ItemOne[index as int] as string:
                 get
                 set
 
 [DefaultMember("ItemTwo")]
 interface ITwo:
-        ItemTwo(index as int) as string:
+        ItemTwo[index as int] as string:
                 get
                 set
 		
 class C4(IOne, ITwo):
-        ItemOne(index as int) as string:
+        ItemOne[index as int] as string:
                 get:
                         return "C4.ItemOne"
                 set:
                         pass
-        ItemTwo(index as int) as string:
+        ItemTwo[index as int] as string:
                 get:
                         return "C4.ItemTwo"
                 set:

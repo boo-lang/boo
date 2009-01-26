@@ -4,7 +4,7 @@ callable StringFunction(item as string) as string
 
 class Handler:
 	[property(Prefix)]
-	_prefix
+	_prefix = null
 	
 	def Handle(value):
 		return "${_prefix} - ${value}"

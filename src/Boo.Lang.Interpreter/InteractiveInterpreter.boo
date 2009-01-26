@@ -51,7 +51,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 	_blockStarters = ":", "\\"
 	
 	[getter(LastValue)]
-	_lastValue
+	_lastValue = null
 	
 	[property(Print, value is not null)]
 	_print as Action[of object] = print
