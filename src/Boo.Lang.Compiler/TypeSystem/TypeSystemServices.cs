@@ -38,97 +38,99 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class TypeSystemServices
 	{
-		public DuckTypeImpl DuckType;
+		public readonly DuckTypeImpl DuckType;
 
-		public ExternalType IQuackFuType;
+		public readonly ExternalType IQuackFuType;
 
-		public ExternalType MulticastDelegateType;
+		public readonly ExternalType MulticastDelegateType;
 
-		public ExternalType DelegateType;
+		public readonly ExternalType DelegateType;
 
-		public ExternalType IntPtrType;
+		public readonly ExternalType IntPtrType;
 
-		public ExternalType UIntPtrType;
+		public readonly ExternalType UIntPtrType;
 
-		public ExternalType ObjectType;
+		public readonly ExternalType ObjectType;
 
-		public ExternalType ValueTypeType;
+		public readonly ExternalType ValueTypeType;
 
-		public ExternalType EnumType;
+		public readonly ExternalType EnumType;
 
-		public ExternalType RegexType;
+		public readonly ExternalType RegexType;
 
-		public ExternalType ArrayType;
+		public readonly ExternalType ArrayType;
 
-		public ExternalType TypeType;
+		public readonly ExternalType TypeType;
 
 		public IArrayType ObjectArrayType;
 
-		public ExternalType VoidType;
+		public readonly ExternalType VoidType;
 
-		public ExternalType StringType;
+		public readonly ExternalType StringType;
 
-		public ExternalType BoolType;
+		public readonly ExternalType BoolType;
 
-		public ExternalType CharType;
+		public readonly ExternalType CharType;
 
-		public ExternalType SByteType;
+		public readonly ExternalType SByteType;
 
-		public ExternalType ByteType;
+		public readonly ExternalType ByteType;
 
-		public ExternalType ShortType;
+		public readonly ExternalType ShortType;
 
-		public ExternalType UShortType;
+		public readonly ExternalType UShortType;
 
-		public ExternalType IntType;
+		public readonly ExternalType IntType;
 
-		public ExternalType UIntType;
+		public readonly ExternalType UIntType;
 
-		public ExternalType LongType;
+		public readonly ExternalType LongType;
 
-		public ExternalType ULongType;
+		public readonly ExternalType ULongType;
 
-		public ExternalType SingleType;
+		public readonly ExternalType SingleType;
 
-		public ExternalType DoubleType;
+		public readonly ExternalType DoubleType;
 
-		public ExternalType DecimalType;
+		public readonly ExternalType DecimalType;
 
-		public ExternalType TimeSpanType;
+		public readonly ExternalType TimeSpanType;
 
-		protected ExternalType DateTimeType;
+		public readonly ExternalType DateTimeType;
 
-		public ExternalType RuntimeServicesType;
+		public readonly ExternalType RuntimeServicesType;
 
-		public ExternalType BuiltinsType;
+		public readonly ExternalType BuiltinsType;
 
-		public ExternalType ListType;
+		public readonly ExternalType ListType;
 
-		public ExternalType HashType;
+		public readonly ExternalType HashType;
 
-		public ExternalType ICallableType;
+		public readonly ExternalType ICallableType;
 
-		public ExternalType IEnumerableType;
+		public readonly ExternalType IEnumerableType;
 
-		public ExternalType IEnumeratorType;
+		public readonly ExternalType IEnumeratorType;
 
-		public ExternalType	IEnumerableGenericType;
+		public readonly ExternalType	IEnumerableGenericType;
 
-		public ExternalType	IEnumeratorGenericType;
+		public readonly ExternalType	IEnumeratorGenericType;
 
-		public ExternalType ICollectionType;
+		public readonly ExternalType ICollectionType;
 
-		public ExternalType IListType;
+		public readonly ExternalType IListType;
 
-		public ExternalType IDictionaryType;
+		public readonly ExternalType IDictionaryType;
 
-		public ExternalType SystemAttribute;
+		public readonly ExternalType SystemAttribute;
 
-		public ExternalType ConditionalAttribute;
+		public readonly ExternalType ConditionalAttribute;
 
 		protected Hashtable _primitives = new Hashtable();
 
-		protected Hashtable _entityCache = new Hashtable();
+		protected Hashtable _typeCache = new Hashtable();
+
+		protected Hashtable _memberCache = new Hashtable();
 
 		protected Hashtable _arrayCache = new Hashtable();
 
@@ -988,7 +990,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType Map(Type type)
 		{
-			IType entity = (IType)_entityCache[type];
+			IType entity = (IType)_typeCache[type];
 			if (null == entity)
 			{
 				if (type.IsArray) return GetArrayType(Map(type.GetElementType()), type.GetArrayRank());
@@ -1072,11 +1074,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IConstructor Map(ConstructorInfo constructor)
 		{
 			object key = GetCacheKey(constructor);
-			IConstructor entity = (IConstructor)_entityCache[key];
+			IConstructor entity = (IConstructor)_memberCache[key];
 			if (null == entity)
 			{
 				entity = new ExternalConstructor(this, constructor);
-				_entityCache[key] = entity;
+				_memberCache[key] = entity;
 			}
 			return entity;
 		}
@@ -1084,11 +1086,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IMethod Map(MethodInfo method)
 		{
 			object key = GetCacheKey(method);
-			IMethod entity = (IMethod)_entityCache[key];
+			IMethod entity = (IMethod)_memberCache[key];
 			if (null == entity)
 			{
 				entity = new ExternalMethod(this, method);
-				_entityCache[key] = entity;
+				_memberCache[key] = entity;
 			}
 			return entity;
 		}
@@ -1113,7 +1115,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IEntity Map(MemberInfo mi)
 		{
-			IEntity cached = (IEntity)_entityCache[GetCacheKey(mi)];
+			IEntity cached = (IEntity)_memberCache[GetCacheKey(mi)];
 			if (null == cached)
 			{
 				switch (mi.MemberType)
@@ -1156,7 +1158,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 						throw new NotImplementedException(mi.ToString());
 					}
 				}
-				_entityCache.Add(GetCacheKey(mi), cached);
+				_memberCache.Add(GetCacheKey(mi), cached);
 			}
 			return cached;
 		}
@@ -1267,12 +1269,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected void Cache(ExternalType tag)
 		{
-			_entityCache[tag.ActualType] = tag;
+			_typeCache[tag.ActualType] = tag;
 		}
 
 		protected void Cache(object key, IType tag)
 		{
-			_entityCache[key] = tag;
+			_typeCache[key] = tag;
 		}
 
 		public IConstructor GetDefaultConstructor(IType type)
