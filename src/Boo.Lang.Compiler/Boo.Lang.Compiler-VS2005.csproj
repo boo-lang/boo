@@ -500,6 +500,7 @@
     <Compile Include="TypeSystem\IMember.cs" />
     <Compile Include="TypeSystem\IMethod.cs" />
     <Compile Include="TypeSystem\IMethodBase.cs" />
+    <Compile Include="TypeSystem\ImportAnnotations.cs" />
     <Compile Include="TypeSystem\INameSpace.cs" />
     <Compile Include="TypeSystem\InferredType.cs" />
     <Compile Include="TypeSystem\InternalCallableType.cs" />

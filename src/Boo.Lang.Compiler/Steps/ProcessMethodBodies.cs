@@ -2646,17 +2646,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (EntityType.Namespace == member.EntityType)
 			{
-				string ns = null;
-				foreach (Import import in _currentModule.Imports)
-				{
-					if (import.NamespaceUsed) continue;
-					if (null == ns) ns = node.ToCodeString();
-					if (import.Namespace == ns)
-					{
-						import.NamespaceUsed = true;
-						break;
-					}
-				}
+				MarkRelatedImportAsUsed(node);
 			}
 
 			IMember memberInfo = member as IMember;
@@ -2728,6 +2718,21 @@ namespace Boo.Lang.Compiler.Steps
 
 			Bind(node, member);
 			PostProcessReferenceExpression(node);
+		}
+
+		private void MarkRelatedImportAsUsed(MemberReferenceExpression node)
+		{
+			string ns = null;
+			foreach (Import import in _currentModule.Imports)
+			{
+				if (ImportAnnotations.IsUsedImport(import)) continue;
+				if (null == ns) ns = node.ToCodeString();
+				if (import.Namespace == ns)
+				{
+					ImportAnnotations.MarkAsUsed(import);
+					break;
+				}
+			}
 		}
 
 		private bool IsBeingAssignedTo(MemberReferenceExpression node)

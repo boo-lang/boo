@@ -457,6 +457,7 @@
     <File name="TypeSystem/IMember.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IMethodBase.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ImportAnnotations.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/INameSpace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InferredType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/InternalCallableType.cs" buildaction="Compile" subtype="Code" />

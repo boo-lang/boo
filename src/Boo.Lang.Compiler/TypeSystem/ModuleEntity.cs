@@ -104,14 +104,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool Resolve(Boo.Lang.List targetList, string name, EntityType flags)
 		{
-			if (ResolveMember(targetList, name, flags)) return true;
+			if (ResolveMember(targetList, name, flags))
+				return true;
+
 			bool found = false;
 			foreach (Import import in _module.Imports)
 			{
 				INamespace ns = (INamespace) TypeSystemServices.GetEntity(import);
 				bool currentFound = ns.Resolve(targetList, name, flags);
 				found |= currentFound;
-				if (currentFound) import.NamespaceUsed = true;
+				if (currentFound) ImportAnnotations.MarkAsUsed(import);
 			}
 			return found;
 		}

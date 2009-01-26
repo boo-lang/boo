@@ -1373,7 +1373,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				case NodeType.EnumMember:
 					return new InternalEnumMember(this, (EnumMember)member);
 				case NodeType.Method:
-					return new InternalMethod(this, (Method)member);
+					return CreateEntityFor((Method)member);
 				case NodeType.Constructor:
 					return new InternalConstructor(this, (Constructor)member);
 				case NodeType.Property:
@@ -1382,6 +1382,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 					return new InternalEvent(this, (Event)member);
 			}
 			throw new ArgumentException("Member type not supported: " + member);
+		}
+
+		private IEntity CreateEntityFor(Method node)
+		{
+			return (node.GenericParameters.Count == 0)
+				? new InternalMethod(this, node)
+				: new InternalGenericMethod(this, node);
 		}
 
 

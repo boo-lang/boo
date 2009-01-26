@@ -868,10 +868,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			DeclareParameters(method, baseMethod.GetParameters(), baseMethod.IsStatic ? 0 : 1);
 
 			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);
-			method.Entity = (null != baseMethod.GenericInfo)
-							? new InternalGenericMethod(_tss, method)
-							: new InternalMethod(_tss, method);
-
+			TypeSystemServices.GetMemberEntity(method);
 			return method;
 		}
 

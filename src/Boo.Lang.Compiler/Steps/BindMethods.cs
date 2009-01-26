@@ -48,14 +48,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == node.Entity)
 			{
-				if (node.GenericParameters.Count == 0)
-				{
-					node.Entity = new InternalMethod(TypeSystemServices, node);
-				}
-				else
-				{
-					node.Entity = new InternalGenericMethod(TypeSystemServices, node);
-				}
+				TypeSystemServices.GetMemberEntity(node);
 			}
 			Visit(node.ExplicitInfo);
 		}

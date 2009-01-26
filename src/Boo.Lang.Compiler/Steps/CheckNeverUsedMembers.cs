@@ -48,7 +48,8 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (Import import in module.Imports)
 			{
 				//do not be pedantic about System, the corlib is to be ref'ed anyway
-				if (import.NamespaceUsed || import.Namespace == "System") continue;
+				if (ImportAnnotations.IsUsedImport(import) || import.Namespace == "System")
+					continue;
 				if (null == module.EnclosingNamespace
 					|| module.EnclosingNamespace.Name != import.Namespace)
 				{

@@ -91,7 +91,7 @@ namespace Boo.Lang.Compiler
 			_unit = unit;
 			_errors = new CompilerErrorCollection();
 			_warnings = new CompilerWarningCollection();
-			_warnings.Adding += new EventHandler<CompilerWarningEventArgs>(OnCompilerWarning);
+			_warnings.Adding += OnCompilerWarning;
 
 			_assemblyReferences = options.References;
 			_parameters = options;

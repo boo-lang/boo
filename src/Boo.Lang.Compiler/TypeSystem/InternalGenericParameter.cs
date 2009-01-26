@@ -93,10 +93,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public override IEntity DeclaringEntity
 		{
-			get 
-			{
-				return TypeSystemServices.GetEntity(_declaration.ParentNode);
-			}
+			get { return TypeSystemServices.GetEntity(_declaration.ParentNode); }
 		}
 		
 		public override string Name
@@ -121,10 +118,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		override public bool MustHaveDefaultConstructor
 		{
-			get
-			{
-				return HasConstraint(GenericParameterConstraints.Constructable);
-			}
+			get { return HasConstraint(GenericParameterConstraints.Constructable); }
 		}
 
 		override public Variance Variance

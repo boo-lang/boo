@@ -48,30 +48,22 @@ namespace Boo.Lang.Compiler
 		public BooCompiler(CompilerParameters parameters)
 		{
 			if (null == parameters)
-			{
 				throw new ArgumentNullException("parameters");
-			}
 			_parameters = parameters;
 		}
 
 		public CompilerParameters Parameters
 		{
-			get
-			{
-				return _parameters;
-			}
+			get { return _parameters; }
 		}
 		
 		public CompilerContext Run(CompileUnit compileUnit)
 		{
 			if (null == compileUnit)
-			{
 				throw new ArgumentNullException("compileUnit");
-			}
 			if (null == _parameters.Pipeline)
-			{
 				throw new InvalidOperationException(Boo.Lang.ResourceManager.GetString("BooC.CantRunWithoutPipeline"));
-			}
+			
 			CompilerContext context = new CompilerContext(_parameters, compileUnit);
 			_parameters.Pipeline.Run(context);
 			return context;
