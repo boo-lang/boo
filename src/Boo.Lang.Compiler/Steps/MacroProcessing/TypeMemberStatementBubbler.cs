@@ -51,9 +51,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void InsertTypeMemberAt(TypeMember typeMember, CustomStatement anchor)
 		{
 			TypeMemberCollection members = anchor.GetAncestor<TypeDefinition>().Members;
-			members.Insert(members.IndexOf(typeMember), typeMember);
+			members.Add(typeMember);
 		}
-
 		#endregion
 	}
 }
