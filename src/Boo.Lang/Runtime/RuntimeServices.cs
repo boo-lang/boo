@@ -1715,6 +1715,8 @@ namespace Boo.Lang.Runtime
 		{
 			if (null == value) return false;
 			if (value is bool) return (bool) value;
+			if (value is string)
+				return !string.IsNullOrEmpty((string) value);
 
 			Type type = value.GetType();
 			return

@@ -106,6 +106,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static MethodInfo Type_GetTypeFromHandle = Types.Type.GetMethod("GetTypeFromHandle");
 
+		static MethodInfo String_IsNullOrEmpty = Types.String.GetMethod("IsNullOrEmpty", new Type[] { Types.String });
+
 		AssemblyBuilder _asmBuilder;
 		
 		ModuleBuilder _moduleBuilder;
@@ -1608,10 +1610,25 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void LoadLocal(LocalBuilder local, IType localType)
+		LocalBuilder _currentLocal = null;
+
+		void LoadLocal(LocalBuilder local, IType localType)
 		{
 			_il.Emit(OpCodes.Ldloc, local);
 			PushType(localType);
+			_currentLocal = local;
+		}
+
+		void LoadLocal(InternalLocal local)
+		{
+			LoadLocal(local, false);
+		}
+
+		void LoadLocal(InternalLocal local, bool byAddress)
+		{
+			_il.Emit(byAddress ? OpCodes.Ldloca : OpCodes.Ldloc, local.LocalBuilder);
+			PushType(local.Type);
+			_currentLocal = local.LocalBuilder;
 		}
 
 		private LocalBuilder StoreTempLocal(IType elementType)
@@ -1839,27 +1856,55 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(GetArithmeticOpCode(type, node.Operator));
 			PushType(type);
 		}
-		
+
+		//mostly used for logical operators and ducky mode
+		//other cases of bool context are handled by PMB
 		bool EmitToBoolIfNeeded(Expression expression)
 		{
+			//if an op_Implicit has been found already, give it priority!
+			IMethod op_Implicit = expression["op_Implicit"] as IMethod;
+			if (null != op_Implicit)
+			{
+				_il.EmitCall(OpCodes.Call, GetMethodInfo(op_Implicit), null);
+				return true;
+			}
+
+			//use a builtin conversion operator just for the logical operator trueness test
 			IType type = GetExpressionType(expression);
-			if (TypeSystemServices.ObjectType == type ||
-			    TypeSystemServices.DuckType == type)
+			if (TypeSystemServices.ObjectType == type || TypeSystemServices.DuckType == type)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Object, null);
 				return true;
 			}
-			if (TypeSystemServices.DecimalType == type)
+			else if (TypeSystemServices.IsNullable(type))
+			{
+				_il.Emit(OpCodes.Ldloca, _currentLocal);
+				Type sType = GetSystemType(TypeSystemServices.GetNullableUnderlyingType(type));
+				_il.EmitCall(OpCodes.Call, GetNullableHasValue(sType), null);
+				LocalBuilder hasValue = StoreTempLocal(TypeSystemServices.BoolType);
+				_il.Emit(OpCodes.Pop); //pop nullable address (ldloca)
+				_il.Emit(OpCodes.Ldloc, hasValue);
+				return true;
+			}
+			else if (TypeSystemServices.StringType == type)
+			{
+				_il.EmitCall(OpCodes.Call, String_IsNullOrEmpty, null);
+				//reverse result
+				_il.Emit(OpCodes.Ldc_I4_0);
+				_il.Emit(OpCodes.Ceq);
+				return true;
+			}
+			else if (TypeSystemServices.DecimalType == type)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Decimal, null);
 				return true;
 			}
-			if (TypeSystemServices.SingleType == type)
+			else if (TypeSystemServices.SingleType == type)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Single, null);
 				return true;
 			}
-			if (TypeSystemServices.DoubleType == type)
+			else if (TypeSystemServices.DoubleType == type)
 			{
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Double, null);
 				return true;
@@ -3125,7 +3170,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Ldnull);
 			PushType(null);
 		}
-		
+
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			IEntity info = TypeSystem.TypeSystemServices.GetEntity(node);
@@ -3133,10 +3178,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Local:
 					{
-						InternalLocal local = (InternalLocal)info;
-						LocalBuilder builder = local.LocalBuilder;
-						_il.Emit(OpCodes.Ldloc, builder);
-						PushType(local.Type);
+						LoadLocal((InternalLocal)info);
 						break;
 					}
 					
@@ -5289,5 +5331,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		static MethodInfo stringFormat;
+
+		static Dictionary<Type,MethodInfo> _Nullable_HasValue = new Dictionary<Type,MethodInfo>();
+		static MethodInfo GetNullableHasValue(Type type)
+		{
+			MethodInfo method;
+			if (_Nullable_HasValue.TryGetValue(type, out method))
+				return method;
+			method = Types.Nullable.MakeGenericType(new Type[] {type}).GetProperty("HasValue").GetGetMethod();
+			_Nullable_HasValue.Add(type, method);
+			return method;
+		}
 	}
 }

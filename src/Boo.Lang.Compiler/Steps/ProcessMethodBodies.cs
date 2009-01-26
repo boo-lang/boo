@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void InitializeMemberCache()
 		{
-			_methodCache.Clear();
+			_methodCache = new Dictionary<string,IMethodBase>();
 		}
 
 		override public void Dispose()
@@ -3154,7 +3154,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				type = TypeSystemServices.GetNullableUnderlyingType(type);
 			}
-			return IsNumber(type) || TypeSystemServices.IsDuckType(type);
+			return TypeSystemServices.IsNumber(type) || TypeSystemServices.IsDuckType(type);
 		}
 
 		void LeaveIncrementDecrement(UnaryExpression node)
@@ -3729,7 +3729,9 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (lhs.IsEnum || rhs.IsEnum)
 			{
-				if (lhs == rhs || IsPrimitiveNumber(rhs) || IsPrimitiveNumber(lhs))
+				if (lhs == rhs
+				    || TypeSystemServices.IsPrimitiveNumber(rhs)
+				    || TypeSystemServices.IsPrimitiveNumber(lhs))
 				{
 					BindExpressionType(node, TypeSystemServices.BoolType);
 				}
@@ -3794,7 +3796,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool IsPrimitiveNumberOrChar(IType lhs)
 		{
-			return IsPrimitiveNumber(lhs) || IsChar(lhs);
+			return TypeSystemServices.IsPrimitiveNumber(lhs) || IsChar(lhs);
 		}
 
 		private bool IsBool(IType lhs)
@@ -3809,8 +3811,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindLogicalOperator(BinaryExpression node)
 		{
-			node.Left = AssertBoolContext(node.Left);
-			node.Right = AssertBoolContext(node.Right);
+			AssertBoolContext(node.Left);
+			AssertBoolContext(node.Right);
 			BindExpressionType(node, GetMostGenericType(node));
 		}
 
@@ -5481,7 +5483,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			IType left = GetExpressionType(node.Left);
 			IType right = GetExpressionType(node.Right);
-			if (IsPrimitiveNumber(left) && IsPrimitiveNumber(right))
+			if (TypeSystemServices.IsPrimitiveNumber(left) && TypeSystemServices.IsPrimitiveNumber(right))
 			{
 				BindExpressionType(node, TypeSystemServices.GetPromotedNumberType(left, right));
 			}
@@ -5641,7 +5643,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType expressionType = GetExpressionType(args[i]);
 				IType parameterType = parameters[i].Type;
 				if (!IsAssignableFrom(parameterType, expressionType) &&
-					!(IsNumber(expressionType) && IsNumber(parameterType))
+					!(TypeSystemServices.IsNumber(expressionType) && TypeSystemServices.IsNumber(parameterType))
 					&& TypeSystemServices.FindImplicitConversionOperator(expressionType,parameterType) == null)
 				{
 					return false;
@@ -5758,19 +5760,9 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeSystemServices.Map(expectedType).IsAssignableFrom(actualType);
 		}
 
-		bool IsNumber(IType type)
-		{
-			return TypeSystemServices.IsNumber(type);
-		}
-
-		bool IsPrimitiveNumber(IType type)
-		{
-			return TypeSystemServices.IsPrimitiveNumber(type);
-		}
-
 		bool IsPrimitiveNumber(Expression expression)
 		{
-			return IsPrimitiveNumber(GetExpressionType(expression));
+			return TypeSystemServices.IsPrimitiveNumber(GetExpressionType(expression));
 		}
 
 		IConstructor GetCorrectConstructor(Node sourceNode, IType type, ExpressionCollection arguments)
@@ -6069,23 +6061,39 @@ namespace Boo.Lang.Compiler.Steps
 		Expression AssertBoolContext(Expression expression)
 		{
 			IType type = GetExpressionType(expression);
-			if (type == TypeSystemServices.BoolType) return expression;
-			if (IsNumber(type)) return expression;
-			if (type.IsEnum) return expression;
+			if (TypeSystemServices.IsNumberOrBool(type) || type.IsEnum)
+				return expression;
+
+			IMethod op_Implicit = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
+			if (null != op_Implicit)
+			{
+				//return [| $op_Implicit($expression) |]
+				expression.Annotate("op_Implicit", op_Implicit); //for logical operator use (trueness only)
+				return CodeBuilder.CreateMethodInvocation(op_Implicit, expression);
+			}
 
 			// nullable types can be used in bool context
 			if (TypeSystemServices.IsNullable(type))
 			{
+				//return [| $(expression).HasValue |]
 				MemberReferenceExpression mre = new MemberReferenceExpression(expression, "HasValue");
 				Visit(mre);
 				return mre;
 			}
 
-			IMethod method = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
-			if (null != method) return CodeBuilder.CreateMethodInvocation(method, expression);
+			// string in a boolean context means string.IsNullOrEmpty (BOO-1035)
+			if (TypeSystemServices.StringType == type)
+			{
+				//return [| not string.IsNullOrEmpty($expression) |]
+				Expression mie = CodeBuilder.CreateMethodInvocation(String_IsNullOrEmpty, expression);
+				Expression not = new UnaryExpression(UnaryOperatorType.LogicalNot, mie);
+				Visit(not);
+				return not;
+			}
 
 			// reference types can be used in bool context
-			if (!type.IsValueType) return expression;
+			if (!type.IsValueType)
+				return expression;
 
 			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.ToString()));
 			return expression;
@@ -6407,7 +6415,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		#region Method bindings cache
-		Dictionary<string,IMethodBase> _methodCache = new Dictionary<string,IMethodBase>();
+		Dictionary<string,IMethodBase> _methodCache;
 
 		IMethod RuntimeServices_Len
 		{
@@ -6643,6 +6651,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		IMethod String_IsNullOrEmpty
+		{
+			get {
+				string key = "String_IsNullOrEmpty";
+				IMethodBase method;
+				if (!_methodCache.TryGetValue(key, out method)) {
+					method = TypeSystemServices.Map(typeof(string).GetMethod("IsNullOrEmpty"));
+					_methodCache.Add(key, method);
+				}
+				return (IMethod) method;
+			}
+		}
+
 		IMethod String_Substring_Int
 		{
 			get {
@@ -6755,6 +6776,5 @@ namespace Boo.Lang.Compiler.Steps
 			set { _optimizeNullComparisons = value; }
 		}
 	}
-
 }
 
