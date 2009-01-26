@@ -6420,85 +6420,65 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		#region Method bindings cache
-		Dictionary<string,IMethodBase> _methodCache;
-
 		IMethod RuntimeServices_Len
 		{
-			get {
-				return CachedRuntimeServicesMethod("Len");
-			}
+			get { return CachedRuntimeServicesMethod("Len"); }
 		}
 
 		IMethod RuntimeServices_Mid
 		{
-			get {
-				return CachedRuntimeServicesMethod("Mid");
-			}
+			get { return CachedRuntimeServicesMethod("Mid"); }
 		}
 
 		IMethod RuntimeServices_NormalizeStringIndex
 		{
-			get
-			{
-				return CachedRuntimeServicesMethod("NormalizeStringIndex");
-			}
-		}
-
-		private IMethod CachedRuntimeServicesMethod(string methodName)
-		{
-			return CachedMethod("RuntimeServices_" + methodName, delegate
-			                         {
-			                         	return ResolveMethod(TypeSystemServices.RuntimeServicesType,
-			                         	                     methodName);
-			                         });
+			get { return CachedRuntimeServicesMethod("NormalizeStringIndex"); }
 		}
 
 		IMethod RuntimeServices_AddArrays
 		{
-			get
-			{
-				return CachedRuntimeServicesMethod("AddArrays");
-			}
+			get { return CachedRuntimeServicesMethod("AddArrays"); }
 		}
 
 		IMethod RuntimeServices_GetRange1
 		{
-			get {
-				return CachedRuntimeServicesMethod("GetRange1");
-			}
+			get { return CachedRuntimeServicesMethod("GetRange1"); }
 		}
 
 		IMethod RuntimeServices_GetRange2
 		{
-			get {
-				return CachedRuntimeServicesMethod("GetRange2");
-			}
+			get { return CachedRuntimeServicesMethod("GetRange2"); }
 		}
 
 		IMethod RuntimeServices_GetMultiDimensionalRange1
 		{
-			get {
-				return CachedRuntimeServicesMethod("GetMultiDimensionalRange1");
-			}
+			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1"); }
 		}
 
 		IMethod RuntimeServices_SetMultiDimensionalRange1
 		{
-			get {
-				return CachedRuntimeServicesMethod("SetMultiDimensionalRange1");
-			}
+			get { return CachedRuntimeServicesMethod("SetMultiDimensionalRange1"); }
 		}
 
 		IMethod RuntimeServices_GetEnumerable
 		{
-			get {
-				return CachedRuntimeServicesMethod("GetEnumerable");
-			}
+			get { return CachedRuntimeServicesMethod("GetEnumerable"); }
+		}
+
+
+		private IMethod CachedRuntimeServicesMethod(string methodName)
+		{
+			return CachedMethod("RuntimeServices_" + methodName, delegate
+									 {
+										 return ResolveMethod(TypeSystemServices.RuntimeServicesType,
+															  methodName);
+									 });
 		}
 
 		IMethod RuntimeServices_EqualityOperator
 		{
-			get {
+			get
+			{
 				return CachedMethod("RuntimeServices_EqualityOperator", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));;
@@ -6508,7 +6488,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod Array_get_Length
 		{
-			get {
+			get
+			{
 				return CachedMethod("Array_get_Length", delegate
 				                                                 {
 				                                                 	return ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
@@ -6518,7 +6499,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod Array_GetLength
 		{
-			get {
+			get
+			{
 				return CachedMethod("Array_GetLength", delegate
 				                                                 {
 				                                                 	return ResolveMethod(TypeSystemServices.ArrayType, "GetLength");;
@@ -6528,7 +6510,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod Array_EnumerableConstructor
 		{
-			get {
+			get
+			{
 				return CachedMethod("Array_EnumerableConstructor", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
@@ -6538,7 +6521,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod Array_TypedEnumerableConstructor
 		{
-			get {
+			get
+			{
 				return CachedMethod("Array_TypedEnumerableConstructor", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
@@ -6548,7 +6532,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod Array_TypedCollectionConstructor
 		{
-			get {
+			get
+			{
 				return CachedMethod("Array_TypedCollectionConstructor", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));;
@@ -6558,7 +6543,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod Array_TypedIntConstructor
 		{
-			get {
+			get
+			{
 				return CachedMethod("Array_TypedIntConstructor", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));;
@@ -6568,7 +6554,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod MultiDimensionalArray_TypedConstructor
 		{
-			get {
+			get
+			{
 				return CachedMethod("MultiDimensionalArray_TypedConstructor", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));;
@@ -6578,7 +6565,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod String_get_Length
 		{
-			get {
+			get
+			{
 				return CachedMethod("String_get_Length", delegate
 				                                                 {
 				                                                 	return ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();;
@@ -6588,7 +6576,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod String_IsNullOrEmpty
 		{
-			get {
+			get
+			{
 				return CachedMethod("String_IsNullOrEmpty", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.String.GetMethod("IsNullOrEmpty"));;
@@ -6598,7 +6587,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod String_Substring_Int
 		{
-			get {
+			get
+			{
 				return CachedMethod("String_Substring_Int", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));;
@@ -6608,7 +6598,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod ICollection_get_Count
 		{
-			get {
+			get
+			{
 				return CachedMethod("ICollection_get_Count", delegate
 				                                                 {
 				                                                 	return ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();;
@@ -6618,7 +6609,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod List_GetRange1
 		{
-			get {
+			get
+			{
 				return CachedMethod("List_GetRange1", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));;
@@ -6628,7 +6620,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod List_GetRange2
 		{
-			get {
+			get
+			{
 				return CachedMethod("List_GetRange2", delegate
 				                                                 {
 				                                                 	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));;
@@ -6638,7 +6631,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod ICallable_Call
 		{
-			get {
+			get
+			{
 				return CachedMethod("ICallable_Call", delegate
 				                                                 {
 																	 return ResolveMethod(TypeSystemServices.ICallableType, "Call"); ;
@@ -6646,9 +6640,21 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private delegate IMethod MethodProducer();
+		Dictionary<string, IMethodBase> _methodCache;
+
+		private delegate IMethodBase MethodProducer();
 
 		IMethod CachedMethod(string key, MethodProducer producer)
+		{
+			return (IMethod)CachedMethodBase(key, producer);
+		}
+
+		IConstructor CachedConstructor(string key, MethodProducer producer)
+		{
+			return (IConstructor)CachedMethodBase(key, producer);
+		}
+
+		private IMethodBase CachedMethodBase(string key, MethodProducer producer)
 		{
 			IMethodBase method;
 			if (!_methodCache.TryGetValue(key, out method))
@@ -6656,45 +6662,46 @@ namespace Boo.Lang.Compiler.Steps
 				method = producer();
 				_methodCache.Add(key, method);
 			}
-			return (IMethod)method;
+			return method;
 		}
 
 		IMethod Activator_CreateInstance
 		{
-			get {
-				string key = "Activator_CreateInstance";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(typeof(Activator).GetMethod("CreateInstance", new Type[] { Types.Type, Types.ObjectArray }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+			get
+			{
+				return CachedMethod("Activator_CreateInstance", delegate
+				                                                {
+				                                                	return
+				                                                		TypeSystemServices.Map(
+				                                                			typeof(Activator).GetMethod("CreateInstance",
+				                                                			                            new Type[]
+				                                                			                            {
+				                                                			                            	Types.Type,
+				                                                			                            	Types.ObjectArray
+				                                                			                            }));
+				                                                });
 			}
 		}
 
 		IConstructor Exception_StringConstructor
 		{
-			get {
-				string key = "Exception_StringConstructor";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.GetStringExceptionConstructor();
-					_methodCache.Add(key, method);
-				}
-				return (IConstructor) method;
+			get
+			{
+				return CachedConstructor("Exception_StringConstructor", delegate
+				{
+					return TypeSystemServices.GetStringExceptionConstructor();
+				});
 			}
 		}
 
 		IMethod TextReaderEnumerator_lines
 		{
-			get {
-				string key = "TextReaderEnumerator_lines";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(typeof(TextReaderEnumerator).GetMethod("lines"));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+			get
+			{
+				return CachedMethod("TextReaderEnumerator_lines", delegate
+				{
+					return TypeSystemServices.Map(typeof(TextReaderEnumerator).GetMethod("lines"));
+				});
 			}
 		}
 		#endregion

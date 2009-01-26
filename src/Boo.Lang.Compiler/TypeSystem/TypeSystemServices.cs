@@ -38,93 +38,93 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class TypeSystemServices
 	{
-		public readonly DuckTypeImpl DuckType;
+		public DuckTypeImpl DuckType;
 
-		public readonly ExternalType IQuackFuType;
+		public ExternalType IQuackFuType;
 
-		public readonly ExternalType MulticastDelegateType;
+		public ExternalType MulticastDelegateType;
 
-		public readonly ExternalType DelegateType;
+		public ExternalType DelegateType;
 
-		public readonly ExternalType IntPtrType;
+		public ExternalType IntPtrType;
 
-		public readonly ExternalType UIntPtrType;
+		public ExternalType UIntPtrType;
 
-		public readonly ExternalType ObjectType;
+		public ExternalType ObjectType;
 
-		public readonly ExternalType ValueTypeType;
+		public ExternalType ValueTypeType;
 
-		public readonly ExternalType EnumType;
+		public ExternalType EnumType;
 
-		public readonly ExternalType RegexType;
+		public ExternalType RegexType;
 
-		public readonly ExternalType ArrayType;
+		public ExternalType ArrayType;
 
-		public readonly ExternalType TypeType;
+		public ExternalType TypeType;
 
 		public IArrayType ObjectArrayType;
 
-		public readonly ExternalType VoidType;
+		public ExternalType VoidType;
 
-		public readonly ExternalType StringType;
+		public ExternalType StringType;
 
-		public readonly ExternalType BoolType;
+		public ExternalType BoolType;
 
-		public readonly ExternalType CharType;
+		public ExternalType CharType;
 
-		public readonly ExternalType SByteType;
+		public ExternalType SByteType;
 
-		public readonly ExternalType ByteType;
+		public ExternalType ByteType;
 
-		public readonly ExternalType ShortType;
+		public ExternalType ShortType;
 
-		public readonly ExternalType UShortType;
+		public ExternalType UShortType;
 
-		public readonly ExternalType IntType;
+		public ExternalType IntType;
 
-		public readonly ExternalType UIntType;
+		public ExternalType UIntType;
 
-		public readonly ExternalType LongType;
+		public ExternalType LongType;
 
-		public readonly ExternalType ULongType;
+		public ExternalType ULongType;
 
-		public readonly ExternalType SingleType;
+		public ExternalType SingleType;
 
-		public readonly ExternalType DoubleType;
+		public ExternalType DoubleType;
 
-		public readonly ExternalType DecimalType;
+		public ExternalType DecimalType;
 
-		public readonly ExternalType TimeSpanType;
+		public ExternalType TimeSpanType;
 
-		public readonly ExternalType DateTimeType;
+		public ExternalType DateTimeType;
 
-		public readonly ExternalType RuntimeServicesType;
+		public ExternalType RuntimeServicesType;
 
-		public readonly ExternalType BuiltinsType;
+		public ExternalType BuiltinsType;
 
-		public readonly ExternalType ListType;
+		public ExternalType ListType;
 
-		public readonly ExternalType HashType;
+		public ExternalType HashType;
 
-		public readonly ExternalType ICallableType;
+		public ExternalType ICallableType;
 
-		public readonly ExternalType IEnumerableType;
+		public ExternalType IEnumerableType;
 
-		public readonly ExternalType IEnumeratorType;
+		public ExternalType IEnumeratorType;
 
-		public readonly ExternalType	IEnumerableGenericType;
+		public ExternalType IEnumerableGenericType;
 
-		public readonly ExternalType	IEnumeratorGenericType;
+		public ExternalType IEnumeratorGenericType;
 
-		public readonly ExternalType ICollectionType;
+		public ExternalType ICollectionType;
 
-		public readonly ExternalType IListType;
+		public ExternalType IListType;
 
-		public readonly ExternalType IDictionaryType;
+		public ExternalType IDictionaryType;
 
-		public readonly ExternalType SystemAttribute;
+		public ExternalType SystemAttribute;
 
-		public readonly ExternalType ConditionalAttribute;
+		public ExternalType ConditionalAttribute;
 
 		protected Hashtable _primitives = new Hashtable();
 

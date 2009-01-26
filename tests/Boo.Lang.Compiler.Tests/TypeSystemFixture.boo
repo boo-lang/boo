@@ -54,6 +54,61 @@ class TypeSystemFixture:
 		return _tss.GetCallableType(GetMethod(methodName))
 		
 	[Test]
+	def TypeFieldsMustBeMutable():
+	"""
+	The fields listed below need to be public and 
+	mutable for now because a different backend (say boojay)
+	might need different values for some of these.
+	"""
+		AssertTypeSystemFieldIsMutable "DuckType"
+		AssertTypeSystemFieldIsMutable "IQuackFuType"
+		AssertTypeSystemFieldIsMutable "MulticastDelegateType"
+		AssertTypeSystemFieldIsMutable "DelegateType"
+		AssertTypeSystemFieldIsMutable "IntPtrType"
+		AssertTypeSystemFieldIsMutable "UIntPtrType"
+		AssertTypeSystemFieldIsMutable "ObjectType"
+		AssertTypeSystemFieldIsMutable "ValueTypeType"
+		AssertTypeSystemFieldIsMutable "EnumType"
+		AssertTypeSystemFieldIsMutable "RegexType"
+		AssertTypeSystemFieldIsMutable "ArrayType"
+		AssertTypeSystemFieldIsMutable "TypeType"
+		AssertTypeSystemFieldIsMutable "ObjectArrayType"
+		AssertTypeSystemFieldIsMutable "VoidType"
+		AssertTypeSystemFieldIsMutable "StringType"
+		AssertTypeSystemFieldIsMutable "BoolType"
+		AssertTypeSystemFieldIsMutable "CharType"
+		AssertTypeSystemFieldIsMutable "SByteType"
+		AssertTypeSystemFieldIsMutable "ByteType"
+		AssertTypeSystemFieldIsMutable "ShortType"
+		AssertTypeSystemFieldIsMutable "UShortType"
+		AssertTypeSystemFieldIsMutable "IntType"
+		AssertTypeSystemFieldIsMutable "UIntType"
+		AssertTypeSystemFieldIsMutable "LongType"
+		AssertTypeSystemFieldIsMutable "ULongType"
+		AssertTypeSystemFieldIsMutable "SingleType"
+		AssertTypeSystemFieldIsMutable "DoubleType"
+		AssertTypeSystemFieldIsMutable "DecimalType"
+		AssertTypeSystemFieldIsMutable "TimeSpanType"
+		AssertTypeSystemFieldIsMutable "DateTimeType"
+		AssertTypeSystemFieldIsMutable "RuntimeServicesType"
+		AssertTypeSystemFieldIsMutable "BuiltinsType"
+		AssertTypeSystemFieldIsMutable "ListType"
+		AssertTypeSystemFieldIsMutable "HashType"
+		AssertTypeSystemFieldIsMutable "ICallableType"
+		AssertTypeSystemFieldIsMutable "IEnumerableType"
+		AssertTypeSystemFieldIsMutable "IEnumeratorType"
+		AssertTypeSystemFieldIsMutable "IEnumerableGenericType"
+		AssertTypeSystemFieldIsMutable "IEnumeratorGenericType"
+		AssertTypeSystemFieldIsMutable "ICollectionType"
+		AssertTypeSystemFieldIsMutable "IListType"
+		AssertTypeSystemFieldIsMutable "IDictionaryType"
+		AssertTypeSystemFieldIsMutable "SystemAttribute"
+		AssertTypeSystemFieldIsMutable "ConditionalAttribute"
+			
+	def AssertTypeSystemFieldIsMutable(fieldName as string):
+		assert not _tss.GetType().GetField(fieldName).IsInitOnly, "Field ${fieldName} must be mutable!"
+		
+	[Test]
 	def TestMostGenericType():
 		Assert.AreSame(_tss.LongType,
 				_tss.GetMostGenericType(_tss.IntType, _tss.LongType),
