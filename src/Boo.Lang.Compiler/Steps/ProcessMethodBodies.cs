@@ -6425,313 +6425,238 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod RuntimeServices_Len
 		{
 			get {
-				string key = "RuntimeServices_Len";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Len");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedRuntimeServicesMethod("Len");
 			}
 		}
 
 		IMethod RuntimeServices_Mid
 		{
 			get {
-				string key = "RuntimeServices_Mid";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "Mid");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedRuntimeServicesMethod("Mid");
 			}
 		}
 
 		IMethod RuntimeServices_NormalizeStringIndex
 		{
-			get {
-				string key = "NormalizeStringIndex";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "NormalizeStringIndex");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+			get
+			{
+				return CachedRuntimeServicesMethod("NormalizeStringIndex");
 			}
+		}
+
+		private IMethod CachedRuntimeServicesMethod(string methodName)
+		{
+			return CachedMethod("RuntimeServices_" + methodName, delegate
+			                         {
+			                         	return ResolveMethod(TypeSystemServices.RuntimeServicesType,
+			                         	                     methodName);
+			                         });
 		}
 
 		IMethod RuntimeServices_AddArrays
 		{
-			get {
-				string key = "RuntimeServices_AddArrays";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "AddArrays");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+			get
+			{
+				return CachedRuntimeServicesMethod("AddArrays");
 			}
 		}
 
 		IMethod RuntimeServices_GetRange1
 		{
 			get {
-				string key = "RuntimeServices_GetRange1";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange1");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedRuntimeServicesMethod("GetRange1");
 			}
 		}
 
 		IMethod RuntimeServices_GetRange2
 		{
 			get {
-				string key = "RuntimeServices_GetRange2";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetRange2");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedRuntimeServicesMethod("GetRange2");
 			}
 		}
 
 		IMethod RuntimeServices_GetMultiDimensionalRange1
 		{
 			get {
-				string key = "RuntimeServices_GetMultiDimensionalRange1";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetMultiDimensionalRange1");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedRuntimeServicesMethod("GetMultiDimensionalRange1");
 			}
 		}
 
 		IMethod RuntimeServices_SetMultiDimensionalRange1
 		{
 			get {
-				string key = "RuntimeServices_SetMultiDimensionalRange1";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "SetMultiDimensionalRange1");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedRuntimeServicesMethod("SetMultiDimensionalRange1");
 			}
 		}
 
 		IMethod RuntimeServices_GetEnumerable
 		{
 			get {
-				string key = "RuntimeServices_GetEnumerable";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.RuntimeServicesType, "GetEnumerable");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedRuntimeServicesMethod("GetEnumerable");
 			}
 		}
 
 		IMethod RuntimeServices_EqualityOperator
 		{
 			get {
-				string key = "RuntimeServices_EqualityOperator";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("RuntimeServices_EqualityOperator", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));;
+				                                                 });
 			}
 		}
 
 		IMethod Array_get_Length
 		{
 			get {
-				string key = "Array_get_Length";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("Array_get_Length", delegate
+				                                                 {
+				                                                 	return ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
+				                                                 });
 			}
 		}
 
 		IMethod Array_GetLength
 		{
 			get {
-				string key = "Array_GetLength";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.ArrayType, "GetLength");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("Array_GetLength", delegate
+				                                                 {
+				                                                 	return ResolveMethod(TypeSystemServices.ArrayType, "GetLength");;
+				                                                 });
 			}
 		}
 
 		IMethod Array_EnumerableConstructor
 		{
 			get {
-				string key = "Array_EnumerableConstructor";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("Array_EnumerableConstructor", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
+				                                                 });
 			}
 		}
 
 		IMethod Array_TypedEnumerableConstructor
 		{
 			get {
-				string key = "Array_TypedEnumerableConstructor";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("Array_TypedEnumerableConstructor", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
+				                                                 });
 			}
 		}
 
 		IMethod Array_TypedCollectionConstructor
 		{
 			get {
-				string key = "Array_TypedCollectionConstructor";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("Array_TypedCollectionConstructor", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));;
+				                                                 });
 			}
 		}
 
 		IMethod Array_TypedIntConstructor
 		{
 			get {
-				string key = "Array_TypedIntConstructor";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("Array_TypedIntConstructor", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));;
+				                                                 });
 			}
 		}
 
 		IMethod MultiDimensionalArray_TypedConstructor
 		{
 			get {
-				string key = "MultiDimensionalArray_TypedConstructor";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("MultiDimensionalArray_TypedConstructor", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));;
+				                                                 });
 			}
 		}
 
 		IMethod String_get_Length
 		{
 			get {
-				string key = "String_get_Length";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("String_get_Length", delegate
+				                                                 {
+				                                                 	return ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();;
+				                                                 });
 			}
 		}
 
 		IMethod String_IsNullOrEmpty
 		{
 			get {
-				string key = "String_IsNullOrEmpty";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(typeof(string).GetMethod("IsNullOrEmpty"));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("String_IsNullOrEmpty", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.String.GetMethod("IsNullOrEmpty"));;
+				                                                 });
 			}
 		}
 
 		IMethod String_Substring_Int
 		{
 			get {
-				string key = "String_Substring_Int";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("String_Substring_Int", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));;
+				                                                 });
 			}
 		}
 
 		IMethod ICollection_get_Count
 		{
 			get {
-				string key = "ICollection_get_Count";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("ICollection_get_Count", delegate
+				                                                 {
+				                                                 	return ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();;
+				                                                 });
 			}
 		}
 
 		IMethod List_GetRange1
 		{
 			get {
-				string key = "List_GetRange1";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("List_GetRange1", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));;
+				                                                 });
 			}
 		}
 
 		IMethod List_GetRange2
 		{
 			get {
-				string key = "List_GetRange2";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("List_GetRange2", delegate
+				                                                 {
+				                                                 	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));;
+				                                                 });
 			}
 		}
 
 		IMethod ICallable_Call
 		{
 			get {
-				string key = "ICallable_Call";
-				IMethodBase method;
-				if (!_methodCache.TryGetValue(key, out method)) {
-					method = ResolveMethod(TypeSystemServices.ICallableType, "Call");
-					_methodCache.Add(key, method);
-				}
-				return (IMethod) method;
+				return CachedMethod("ICallable_Call", delegate
+				                                                 {
+																	 return ResolveMethod(TypeSystemServices.ICallableType, "Call"); ;
+																 });
 			}
+		}
+
+		private delegate IMethod MethodProducer();
+
+		IMethod CachedMethod(string key, MethodProducer producer)
+		{
+			IMethodBase method;
+			if (!_methodCache.TryGetValue(key, out method))
+			{
+				method = producer();
+				_methodCache.Add(key, method);
+			}
+			return (IMethod)method;
 		}
 
 		IMethod Activator_CreateInstance
