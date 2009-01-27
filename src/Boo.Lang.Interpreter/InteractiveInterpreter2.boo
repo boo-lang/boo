@@ -32,6 +32,7 @@ import System
 import System.Collections
 import System.Collections.Generic
 import System.IO
+import System.Reflection
 import System.Text
 import System.Text.RegularExpressions
 import Boo.Lang
@@ -564,11 +565,15 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	def DisplayLogo():
 		Console.ForegroundColor = _interpreterColor	if not _disableColors
 		print """Welcome to booish, an interpreter for the boo programming language.
-Running boo ${BooVersion} in CLR v${Environment.Version}.
+Running boo ${BooVersion} on ${RuntimeVersion()}.
 
 Enter boo code in the prompt below (or type /help)."""
 		Console.ResetColor() if not _disableColors
 
+	def RuntimeVersion():
+		runtime = Type.GetType("Mono.Runtime")
+		return ("CLR ${Environment.Version}" if runtime is null else
+			runtime.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null))
 
 	def DisplayHelp():
 		Console.ForegroundColor = _interpreterColor	if not _disableColors
