@@ -251,14 +251,15 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		yield cacheField
 		
 		cacheFieldRef = ReferenceExpression(cacheField.Name)
-		yield [|
+		prop = [|
 			[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 			private $name:
 				get:
 					$cacheFieldRef = __macro.GetParentMacroByName($name) unless $cacheFieldRef
 					return $cacheFieldRef
 		|]
-
+		prop.IsSynthetic = true #avoid BCW0014 if not used
+		yield prop
 
 	private final class YieldFinder(DepthFirstVisitor):
 		private _found = false
