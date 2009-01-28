@@ -154,7 +154,11 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool ContainsNode(T node)
 		{
-			return _list.Contains(node);
+			foreach (T n in _list)
+			{
+				if (n == node) return true;
+			}
+			return false;
 		}
 
 		public bool Contains(System.Predicate<T> condition)
