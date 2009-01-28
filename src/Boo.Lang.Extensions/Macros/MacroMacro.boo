@@ -26,39 +26,109 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 namespace Boo.Lang.Extensions
 
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.TypeSystem
+
 
 class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
-	override protected def ExpandGeneratorImpl(macro as MacroStatement):
-		if len(macro.Arguments) != 1 or macro.Arguments[0].NodeType != NodeType.ReferenceExpression:
-			raise "Usage: macro <reference>"
-		yield CreateMacroType(macro)
+	private static final Usage = "Usage: `macro [<parent>+.]<name>`"
 
-	private static def PascalCase(name as string) as string:
-		return char.ToUpper(name[0]) + name[1:]
+	override protected def ExpandGeneratorImpl(macro as MacroStatement):
+		raise Usage if len(macro.Arguments) != 1
+
+		arg = macro.Arguments[0]
+		if arg.NodeType == NodeType.ReferenceExpression:
+			yield CreateMacroType(macro)
+		elif arg.NodeType == NodeType.MemberReferenceExpression:
+			if macro.GetAncestor[of MacroStatement]() is not null:
+				raise "Nested macro extension cannot be itself a nested macro"
+			CreateMacroExtensionType(macro)
+		else:
+			raise Usage
+
+
+	private static def BuildMacroTypeName(name as string) as string:
+		return char.ToUpper(name[0]) + name[1:] + "Macro"
+
+	private static def BuildMacroTypeName(name as Expression) as string:
+		return BuildMacroTypeName(name, false)
+
+	private static def BuildMacroTypeName(name as Expression, external as bool) as string:
+		sb = System.Text.StringBuilder()
+		for part in UnpackReferences(name):
+			if sb.Length:
+				sb.Append(char('.'))
+				sb.Append(char('$')) if external
+			sb.Append(BuildMacroTypeName(part))
+		return sb.ToString()
+
+
+	private static def UnpackReferences(refs as Expression) as string*:
+		if refs.NodeType == NodeType.ReferenceExpression:
+			re = cast(ReferenceExpression, refs)
+			yield re.Name
+		elif refs.NodeType == NodeType.MemberReferenceExpression:
+			mre = cast(MemberReferenceExpression, refs)
+			for name in UnpackReferences(mre.Target):
+				yield name
+			yield mre.Name
+		else:
+			raise "Invalid node type: ${refs.NodeType}"
+
+
+	private static def GetParentMacroNames(macro as MacroStatement) as string*:
+		parent = macro.GetAncestor[of MacroStatement]()
+		while parent is not null:
+			continue if parent.Name != 'macro'
+
+			arg = parent.Arguments[0]
+			if arg.NodeType == NodeType.ReferenceExpression:
+				yield cast(ReferenceExpression, arg).Name
+			elif arg.NodeType == NodeType.MemberReferenceExpression:
+				for name in UnpackReferences(cast(MemberReferenceExpression, arg)):
+					yield name
+
+			parent = parent.GetAncestor[of MacroStatement]()
+
+
+	private def CreateMacroExtensionType(macro as MacroStatement):
+		mre = cast(MemberReferenceExpression, macro.Arguments[0])
+
+		#resolve the macro type we want to expand
+		parentTypeName = BuildMacroTypeName(mre.Target)
+		entity = NameResolutionService.ResolveQualifiedName(parentTypeName)
+
+		if entity is null:
+			raise "No macro `${mre.Target.ToCodeString()}` has been found to extend"
+		elif entity isa InternalClass:
+			#add macro as usual to parent macro type
+			type = CreateMacroType(macro, mre.Name, UnpackReferences(mre.Target))
+			cast(InternalClass, entity).TypeDefinition.Members.Add(type)
+		else:
+			#TODO:
+			raise "External macro extension is not implemented yet"
+
 
 	private static def CreateMacroType(macro as MacroStatement) as ClassDefinition:
 		name = (macro.Arguments[0] as ReferenceExpression).Name
+		return CreateMacroType(macro, name, GetParentMacroNames(macro))
 
+
+	private static def CreateMacroType(macro as MacroStatement, name as string, parents as string*) as ClassDefinition:
 		if YieldFinder(macro).Found:
 			macroType = CreateNewStyleMacroType(name, macro)
 		else:
 			macroType = CreateOldStyleMacroType(name, macro)
 
 		#add parent macro(s) accessor(s)
-		parent = macro.GetAncestor[of MacroStatement]()
-		while parent is not null:
-			continue if macro.Name != "macro"
-			name = (parent.Arguments[0] as ReferenceExpression).Name
-			if not macroType.Members[name]:
-				for accessor in CreateParentMacroAccessor(parent, name):
+		for parent in parents:
+			if not macroType.Members[parent]:
+				for accessor in CreateParentMacroAccessor(parent):
 					macroType.Members.Add(accessor)
-			parent = parent.GetAncestor[of MacroStatement]()
 
 		return macroType
 
@@ -67,7 +137,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	private static def CreateNewStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
 		arg = ReferenceExpression(name)
 		return [|
-				final class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
+				final class $(BuildMacroTypeName(name)) (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
 					private __macro as Boo.Lang.Compiler.Ast.MacroStatement
 					def constructor():
 						super()
@@ -75,7 +145,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						raise System.ArgumentNullException("context") if not context
 						super(context)
 					override protected def ExpandGeneratorImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
-						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
+						raise System.ArgumentNullException($name) if not $name
 						self.__macro = $arg
 						$(ExpandBody(name, macro.Body))
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
@@ -86,7 +156,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	private static def CreateOldStyleMacroType(name as string, macro as MacroStatement) as ClassDefinition:
 		arg = ReferenceExpression(name)
 		return [|
-				final class $(PascalCase(name) + "Macro") (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
+				final class $(BuildMacroTypeName(name)) (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
 					private __macro as Boo.Lang.Compiler.Ast.MacroStatement
 					def constructor():
 						super()
@@ -94,7 +164,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						raise System.ArgumentNullException("context") if not context
 						super(context)
 					override protected def ExpandImpl($name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
-						raise System.ArgumentNullException($name) if not $(macro.Arguments[0])
+						raise System.ArgumentNullException($name) if not $name
 						self.__macro = $arg
 						$(ExpandBody(name, macro.Body))
 			|]
@@ -174,7 +244,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	#endregion
 
 
-	private static def CreateParentMacroAccessor(macro as MacroStatement, name as string):
+	private static def CreateParentMacroAccessor(name as string):
 		cacheField = [|
 			private $("__" + name) as Boo.Lang.Compiler.Ast.MacroStatement
 		|]
