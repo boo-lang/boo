@@ -246,7 +246,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return ResolveQualifiedName(targetList, name, EntityType.Any);
 		}
-		
+
+		public IEntity ResolveQualifiedName(string name, EntityType flags)
+		{
+			_buffer.Clear();
+			ResolveQualifiedName(_buffer, name, flags);
+			return GetEntityFromBuffer();
+		}
+
 		public bool ResolveQualifiedName(List targetList, string name, EntityType flags)
 		{
 			if (!IsQualifiedName(name))

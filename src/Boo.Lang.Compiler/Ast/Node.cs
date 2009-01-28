@@ -387,6 +387,21 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return null;
 		}
+
+		///<summary>
+		///Yields TAncestor ancestors in order from closest to farthest from this node.
+		///</summary>
+		public IEnumerable<TAncestor> GetAncestors<TAncestor>() where TAncestor : Node
+		{
+			Node parent = this.ParentNode;
+			while (parent != null)
+			{
+				TAncestor ancestor = parent as TAncestor;
+				if (null != ancestor)
+					yield return ancestor;
+				parent = parent.ParentNode;
+			}
+		}
 	}
 
 }

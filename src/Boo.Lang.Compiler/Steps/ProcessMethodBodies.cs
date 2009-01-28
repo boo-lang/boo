@@ -5704,8 +5704,21 @@ namespace Boo.Lang.Compiler.Steps
 			if (CheckParameters(method, args, true))
 				return true;
 
-			Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
+			if (IsLikelyMacroExtensionMethodInvocation(sourceNode, sourceEntity, args))
+				Error(CompilerErrorFactory.MacroExpansionError(sourceNode));
+			else
+				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
 			return false;
+		}
+
+		bool IsLikelyMacroExtensionMethodInvocation(Node node, IEntity entity, ExpressionCollection args)
+		{
+			IMethod extension = entity as IMethod;
+			return null != extension
+				&& extension.IsBooExtension
+				&& TypeSystemServices.IsMacro(extension.ReturnType)
+				&& 2 == extension.GetParameters().Length
+				&& TypeSystemServices.IsMacro(extension.GetParameters()[0].Type);
 		}
 
 		protected virtual bool CheckParameters(ICallableType method, ExpressionCollection args, bool reportErrors)

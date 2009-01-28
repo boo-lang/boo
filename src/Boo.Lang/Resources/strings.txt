@@ -232,6 +232,7 @@ BooC.PkgConfigReportedErrors=pkg-config returned errors: {0}
 BooC.DidYouMean=Did you mean '{0}'?
 BooC.Return=return
 BooC.NamedArgument='{0}' argument
+BooC.InvalidNestedMacroContext=Invalid nested macro context. Check your macro hierarchy.
 
 ;Boo.Lang
 ListWasModified=The list was modified. 

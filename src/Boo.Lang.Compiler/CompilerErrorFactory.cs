@@ -272,7 +272,12 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerError("BCE0045", AstUtil.SafeLexicalInfo(node), error, error.Message);
 		}
-		
+
+		public static CompilerError MacroExpansionError(Node node)
+		{
+			return new CompilerError("BCE0045", AstUtil.SafeLexicalInfo(node), ResourceManager.Format("BooC.InvalidNestedMacroContext"));
+		}
+
 		public static CompilerError OperatorCantBeUsedWithValueType(Node node, string operatorName, string typeName)
 		{
 			return new CompilerError("BCE0046", AstUtil.SafeLexicalInfo(node), operatorName, typeName);

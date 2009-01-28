@@ -333,8 +333,94 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		{
 			string macroTypeName = BuildMacroTypeName(node.Name);
 			IEntity entity = NameResolutionService.ResolveQualifiedName(macroTypeName);
-			if (null != entity) return entity;
-			return NameResolutionService.ResolveQualifiedName(node.Name);
+			if (null != entity && entity is IType)
+				return entity;
+
+			entity = NameResolutionService.ResolveQualifiedName(node.Name);
+			if (null != entity && entity is IType)
+				return entity;
+
+			if (null == entity)
+				return null;
+
+			//we got something interesting, check if it is/has an extension method
+			//that resolves a nested macro extension
+			return ResolveMacroExtensionType(node, entity as IMethod)
+				?? ResolveMacroExtensionType(node, entity as Ambiguous)
+				?? entity; //return as-is
+		}
+
+		IEntity ResolveMacroExtensionType(MacroStatement node, Ambiguous extensions)
+		{
+			if (null == extensions)
+				return null;
+			foreach (IEntity entity in extensions.Entities)
+			{
+				IEntity extensionType = ResolveMacroExtensionType(node, entity as IMethod);
+				if (null != extensionType)
+					return extensionType;
+			}
+			return null;
+		}
+
+		IEntity ResolveMacroExtensionType(MacroStatement node, IMethod extension)
+		{
+			if (null == extension)
+				return null;
+			IType extendedMacroType = GetExtendedMacroType(extension);
+			if (null == extendedMacroType)
+				return null;
+
+			//ok now check if extension is correctly nested under parent
+			foreach (MacroStatement parent in node.GetAncestors<MacroStatement>())
+				if (ResolveMacroName(parent) == extendedMacroType)
+					return GetExtensionMacroType(extension);
+
+			return null;
+		}
+
+		IType GetExtendedMacroType(IMethod method)
+		{
+			if (method is InternalMethod)
+			{
+				Method extension = ((InternalMethod)method).Method;
+				if (!extension.Attributes.Contains(Types.BooExtensionAttribute.FullName)
+					|| !extension.Attributes.Contains(Types.CompilerGeneratedAttribute.FullName))
+					return null;
+				SimpleTypeReference sref = extension.Parameters[0].Type as SimpleTypeReference;
+				if (null != sref && extension.Parameters.Count == 2)
+				{
+					IType type = NameResolutionService.ResolveQualifiedName(sref.Name, EntityType.Type) as IType;
+					if (type != null && type.Name.EndsWith("Macro")) //no entity yet
+						return type;
+				}
+			}
+			else if (method is ExternalMethod && method.IsBooExtension)
+			{
+				IParameter[] parameters = method.GetParameters();
+				if (parameters.Length == 2 && TypeSystemServices.IsMacro(parameters[0].Type))
+					return parameters[0].Type;
+			}
+			return null;
+		}
+
+		IType GetExtensionMacroType(IMethod method)
+		{
+			if (method is InternalMethod)
+			{
+				Method extension = ((InternalMethod)method).Method;
+				SimpleTypeReference sref = extension.ReturnType as SimpleTypeReference;
+				if (null != sref)
+				{
+					IType type = NameResolutionService.ResolveQualifiedName(sref.Name, EntityType.Type) as IType;
+					if (type != null && type.Name.EndsWith("Macro"))//no entity yet
+						return type;
+				}
+			}
+			else if (method is ExternalMethod)
+				return method.ReturnType;
+
+			return null;
 		}
 
 		private StringBuilder _buffer = new StringBuilder();

@@ -95,6 +95,8 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
+			CopyAssembly(System.Reflection.Assembly.Load("BooMacros"));
+			CopyAssembly(System.Reflection.Assembly.Load("BooSupportingClasses"));
 #if !VISUAL_STUDIO
 			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
 #endif

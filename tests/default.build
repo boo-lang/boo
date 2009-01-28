@@ -103,7 +103,6 @@
 			</sources>
 		</booc>
 
-		<!--
 		<booc
 			target="library"
 			output="build/BooMacros.dll">
@@ -112,8 +111,7 @@
 				<include name="*.boo" />
 			</sources>
 		</booc>
-		-->
-		
+
 		<booc target="library" output="build/Boo.Lang.PatternMatching.Tests.dll"
 		      if="${fixture == '' or fixture == 'Boo.Lang.PatternMatching'}">
 			<sources basedir="Boo.Lang.PatternMatching.Tests">

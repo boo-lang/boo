@@ -126,6 +126,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ExternalType ConditionalAttribute;
 
+		public ExternalType IAstMacroType;
+
+		public ExternalType IAstGeneratorMacroType;
+
 		protected Hashtable _primitives = new Hashtable();
 
 		protected Hashtable _typeCache = new Hashtable();
@@ -206,6 +210,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(ConditionalAttribute = new ExternalType(this, typeof(System.Diagnostics.ConditionalAttribute)));
 			Cache(IEnumerableGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerable<>)));
 			Cache(IEnumeratorGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerator<>)));
+			Cache(IAstMacroType = new ExternalType(this, typeof(IAstMacro)));
+			Cache(IAstGeneratorMacroType = new ExternalType(this, typeof(IAstGeneratorMacro)));
 
 			ObjectArrayType = GetArrayType(ObjectType, 1);
 
@@ -1443,6 +1449,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual IConstructor GetStringExceptionConstructor()
 		{
 			return Map(typeof(Exception).GetConstructor(new Type[] { typeof(string) }));
+		}
+
+		public virtual bool IsMacro(IType type)
+		{
+			return type.IsSubclassOf(IAstMacroType) || type.IsSubclassOf(IAstGeneratorMacroType);
 		}
 	}
 }
