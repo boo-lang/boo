@@ -65,13 +65,13 @@ namespace Boo.Lang.Compiler.Ast
 
 		public T this[int index]
 		{
-			get { return (T)_list[index]; }
+			get { return _list[index]; }
 			set { _list[index] = value; }
 		}
 
 		public IEnumerator<T> GetEnumerator()
 		{
-			foreach (T item in _list) yield return item;
+			return _list.GetEnumerator();
 		}
 
 		public int Count
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public int IndexOf(T item)
 		{
-			return InnerList.IndexOf(item);
+			return _list.IndexOf(item);
 		}
 
 		public bool IsSynchronized
@@ -111,7 +111,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public T[] ToArray()
 		{
-			return (T[])_list.ToArray(new T[_list.Count]);
+			return _list.ToArray();
 		}
 
 		public T[] ToReverseArray()
@@ -123,7 +123,6 @@ namespace Boo.Lang.Compiler.Ast
 
 		public IEnumerable<TNode> OfType<TNode>() where TNode : Node
 		{
-			List<TNode> result = new List<TNode>();
 			foreach (Node node in _list)
 			{
 				TNode match = node as TNode;
@@ -141,11 +140,11 @@ namespace Boo.Lang.Compiler.Ast
 
 		public T[] Select(NodeType type)
 		{
-			List result = new List();
-			foreach (Node node in _list)
+			List<T> result = new List<T>();
+			foreach (T node in _list)
 				if (node.NodeType == type)
 					result.Add(node);
-			return (T[])result.ToArray(new T[result.Count]);
+			return result.ToArray();
 		}
 
 		protected IEnumerable InternalPopRange(int begin)
@@ -155,11 +154,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool ContainsNode(T node)
 		{
-			foreach (T n in _list)
-			{
-				if (n == node) return true;
-			}
-			return false;
+			return _list.Contains(node);
 		}
 
 		public bool Contains(System.Predicate<T> condition)
