@@ -110,6 +110,9 @@
 			<sources basedir="BooMacros">
 				<include name="*.boo" />
 			</sources>
+			<references basedir="build">
+				<include name="BooSupportingClasses.dll" />
+			</references>
 		</booc>
 
 		<booc target="library" output="build/Boo.Lang.PatternMatching.Tests.dll"

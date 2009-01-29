@@ -2,7 +2,7 @@
 """
 >>>
 x:foo2
-y:root
+ y:root
 <<<
 """
 import BooSupportingClasses.NestedMacros #foo foo2 foo2.root are in BooSupportingClasses.dll
