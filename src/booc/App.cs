@@ -220,8 +220,8 @@ namespace BooC
 		
 		void DoLogo()
 		{
-			Console.Write("Boo Compiler version "+Builtins.BooVersion.ToString());
-			Console.WriteLine(" (CLR v"+Environment.Version.ToString()+")");
+			Console.WriteLine("Boo Compiler version {0} ({1})",
+				Builtins.BooVersion.ToString(), Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName);
 		}
 		
 		void Help ()

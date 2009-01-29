@@ -1803,5 +1803,15 @@ namespace Boo.Lang.Runtime
 		{
 			throw new ApplicationException(Boo.Lang.ResourceManager.GetString(name));
 		}
+
+		public static string RuntimeDisplayName
+		{
+			get {
+				Type runtime = Type.GetType("Mono.Runtime");
+				return (null != runtime)
+					? (string) runtime.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null)
+					: string.Concat("CLR ", Environment.Version.ToString());
+			}
+		}
 	}
 }
