@@ -2,15 +2,16 @@
 """
 import BooCompiler.Tests
 
-class Base[of T(Base[of T])]:
-	pass
-
-class Internal(Base[of Internal]):
-	pass
-
 class External(GenericArgumentMustInheritSelf[of External]):
 	pass
 
-assert Internal() != null
+class External2(GenericSelf[of External2]):
+	pass
+
+class External3(GenericSelf[of External3, int]):
+	pass
+
 assert External() != null
+assert External2() != null
+assert External3() != null
 

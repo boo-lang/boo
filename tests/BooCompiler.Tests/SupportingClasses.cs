@@ -570,4 +570,14 @@ namespace BooCompiler.Tests
 	{
 	}
 
+	public abstract class GenericSelf<T> where T : GenericSelf<T>
+	{
+	}
+
+	public abstract class GenericSelf<T,S> : GenericSelf<T>
+		where T : GenericSelf<T>
+		where S : struct
+	{
+	}
+
 }

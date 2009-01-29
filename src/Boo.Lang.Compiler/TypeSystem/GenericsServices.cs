@@ -433,12 +433,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return true;
 		}
 
-		IEntity _definition;
+		IType _definition;
 
 		private bool MaintainsParameterConstraints(IEntity definition)
 		{
 			IGenericParameter[] parameters = GenericsServices.GetGenericParameters(definition);
-			_definition = definition;
+			_definition = definition as IType;
 
 			bool valid = true;
 			for (int i = 0; i < parameters.Length; i++)
@@ -484,7 +484,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				foreach (IType baseType in baseTypes)
 				{
 					// Foo<T> where T : Foo<T>
-					if (baseType == _definition && argument == _constructionNode.ParentNode.Entity)
+					if (null != _definition
+						&& baseType.IsAssignableFrom(_definition)
+						&& argument == _constructionNode.ParentNode.Entity)
 						continue;
 
 					// Don't check for System.ValueType supertype constraint 
