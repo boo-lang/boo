@@ -4327,7 +4327,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessMethodInvocationExpression(MethodInvocationExpression node, IEntity targetEntity)
 		{
-			if (ResolvedAsExtension(node))
+			if (ResolvedAsExtension(node) || IsExtensionMethod(targetEntity))
 			{
 				PreNormalizeExtensionInvocation(node);
 			}
@@ -4491,8 +4491,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool IsExtensionMethod(IEntity entity)
 		{
-			if (EntityType.Method != entity.EntityType) return false;
-			return ((IMethod)entity).IsExtension;
+			return (entity is IExtensionEnabled) && ((IExtensionEnabled)entity).IsExtension;
 		}
 
 		private bool IsOrContainsExtensionMethod(IEntity entity)
@@ -4503,12 +4502,6 @@ namespace Boo.Lang.Compiler.Steps
 			if (ambiguous != null) return ambiguous.Any(IsExtensionMethod);
 
 			return IsExtensionMethod(entity);
-		}
-
-		private bool IsBooExtensionMethod(IEntity entity)
-		{
-			if (EntityType.Method != entity.EntityType) return false;
-			return ((IMethod)entity).IsBooExtension;
 		}
 
 		private void PostNormalizeExtensionInvocation(MethodInvocationExpression node, IMethod targetMethod)
@@ -4523,8 +4516,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		private MemberReferenceExpression EnsureMemberReferenceForExtension(MethodInvocationExpression node)
 		{
-			MemberReferenceExpression memberRef = node.Target as MemberReferenceExpression;
-			if (null != memberRef) return memberRef;
+			Expression target = node.Target;
+			if (target is GenericReferenceExpression)
+				target = ((GenericReferenceExpression)target).Target;
+
+			MemberReferenceExpression memberRef = target as MemberReferenceExpression;
+			if (null != memberRef)
+				return memberRef;
 
 			node.Target = memberRef = CodeBuilder.MemberReferenceForEntity(
 				CreateSelfReference(),
