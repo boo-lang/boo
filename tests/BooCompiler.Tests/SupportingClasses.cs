@@ -566,4 +566,8 @@ namespace BooCompiler.Tests
 		public abstract T Bar<T>(T x);
 	}
 
+	public abstract class GenericArgumentMustInheritSelf<T> where T : GenericArgumentMustInheritSelf<T>
+	{
+	}
+
 }
