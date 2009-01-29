@@ -70,8 +70,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CheckExtensionSemantics(Method node)
 		{
-			if (!((IMethod)node.Entity).IsExtension) return;
-			if (NodeType.Method == node.NodeType && (node.IsStatic || node.DeclaringType is Module)) return;
+			if (!((IMethod)node.Entity).IsExtension)
+				return;
+			if (NodeType.Method == node.NodeType
+			    && (node.IsStatic || node.DeclaringType is Module)
+			    && node.Parameters.Count != 0)
+				return;
 			Errors.Add(CompilerErrorFactory.InvalidExtensionDefinition(node));
 		}
 	}
