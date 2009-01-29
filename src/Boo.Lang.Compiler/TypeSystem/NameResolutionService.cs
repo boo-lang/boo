@@ -348,26 +348,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				node.Entity = NameNotType(node);
 				return;
 			}
-			if (EntityType.Type != entity.EntityType)
-			{
-				if (EntityType.Ambiguous == entity.EntityType)
-				{
-					entity = AmbiguousReference(node, (Ambiguous)entity);
-				}
-				else
-				{
-					entity = NameNotType(node);
-				}
-			}
 			else
 			{
 				GenericTypeReference gtr = node as GenericTypeReference;
 				if (null != gtr)
 				{
-					ResolveTypeReferenceCollection(gtr.GenericArguments);
 					entity = ResolveGenericTypeReference(gtr, entity);
 				}
-				
+
 				GenericTypeDefinitionReference gtdr = node as GenericTypeDefinitionReference;
 				if (null != gtdr)
 				{
@@ -375,13 +363,28 @@ namespace Boo.Lang.Compiler.TypeSystem
 					if (gtdr.GenericPlaceholders != type.GenericInfo.GenericParameters.Length)
 					{
 						entity = GenericArgumentsCountMismatch(gtdr, type);
+						return;
 					}
 				}
+			}
 
+			if (EntityType.Type != entity.EntityType)
+			{
+				if (EntityType.Ambiguous == entity.EntityType)
+				{
+					entity = AmbiguousReference(node, (Ambiguous)entity);
+				}
+				else if (EntityType.Error != entity.EntityType)
+				{
+					entity = NameNotType(node);
+				}
+			}
+			else
+			{
 				node.Name = entity.FullName;
 			}
-			
-			node.Entity = entity;		
+
+			node.Entity = entity;
 		}
 
 		internal IEntity ResolveTypeName(SimpleTypeReference node)
