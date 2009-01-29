@@ -39,13 +39,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		int _position = -1;
 		GenericParameterDeclaration _declaration;
-		TypeSystemServices _tss;
-
 		IType[] _baseTypes = null;
 		
 		public InternalGenericParameter(TypeSystemServices tss, GenericParameterDeclaration declaration) : base(tss)
 		{
-			_tss = tss;
 			_declaration = declaration;
 		}
 
@@ -82,6 +79,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 					if (baseType != null)
 					{
 						baseTypes.Add(baseType);
+					}
+					else if (IsDeclaringTypeReference(baseTypeReference))
+					{
+						baseTypes.Add(DeclaringType);
 					}
 				}
 
@@ -140,6 +141,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool HasConstraint(GenericParameterConstraints flag)
 		{
 			return (_declaration.Constraints & flag) == flag;
+		}
+
+		private bool IsDeclaringTypeReference(TypeReference reference)
+		{
+			if (!(reference is GenericTypeReference && DeclaringType is InternalClass))
+				return false;
+			return Node.ParentNode == ((InternalClass)DeclaringType).Node;
 		}
 	}
 }

@@ -484,7 +484,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				foreach (IType baseType in baseTypes)
 				{
 					// Foo<T> where T : Foo<T>
-					if (baseType == _definition)
+					if (baseType == _definition && argument == _constructionNode.ParentNode.Entity)
 						continue;
 
 					// Don't check for System.ValueType supertype constraint 
