@@ -4329,7 +4329,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (ResolvedAsExtension(node) || IsExtensionMethod(targetEntity))
 			{
-				PreNormalizeExtensionInvocation(node);
+				PreNormalizeExtensionInvocation(node, targetEntity as IEntityWithParameters);
 			}
 
 			targetEntity = ResolveAmbiguousMethodInvocation(node, targetEntity);
@@ -4509,9 +4509,14 @@ namespace Boo.Lang.Compiler.Steps
 			node.Target = CodeBuilder.CreateMethodReference(node.Target.LexicalInfo, targetMethod);
 		}
 
-		private void PreNormalizeExtensionInvocation(MethodInvocationExpression node)
+		private void PreNormalizeExtensionInvocation(MethodInvocationExpression node, IEntityWithParameters extension)
 		{
-			node.Arguments.Insert(0, EnsureMemberReferenceForExtension(node).Target);
+			if (0 == node.Arguments.Count
+			    || null == extension
+			    || node.Arguments.Count < extension.GetParameters().Length)
+			{
+				node.Arguments.Insert(0, EnsureMemberReferenceForExtension(node).Target);
+			}
 		}
 
 		private MemberReferenceExpression EnsureMemberReferenceForExtension(MethodInvocationExpression node)
