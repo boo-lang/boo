@@ -672,11 +672,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (entity.DeclaringType.IsValueType)
 				{
-					if (0 == node.Parameters.Count &&
-						!node.IsSynthetic)
+					if (0 == node.Parameters.Count
+						&& !node.IsStatic
+						&& !node.IsSynthetic)
 					{
-						Error(
-							CompilerErrorFactory.ValueTypesCannotDeclareParameterlessConstructors(node));
+						Error(CompilerErrorFactory.ValueTypesCannotDeclareParameterlessConstructors(node));
 					}
 				}
 				else if (
