@@ -210,7 +210,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected virtual void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
 		{
-			IInternalEntity internalEntity = entity as IInternalEntity;
+			IInternalEntity internalEntity = GetConstructedInternalEntity(entity);
 			if (null != internalEntity)
 			{
 				Node node = internalEntity.Node;
@@ -219,6 +219,19 @@ namespace Boo.Lang.Compiler.Steps
 					Visit(node);
 				}
 			}
+		}
+
+		protected static IInternalEntity GetConstructedInternalEntity(IEntity entity)
+		{
+			IConstructedMethodInfo constructedMethod = entity as IConstructedMethodInfo;
+			if (null != constructedMethod)
+				entity = constructedMethod.GenericDefinition;
+
+			IConstructedTypeInfo constructedType = entity as IConstructedTypeInfo;
+			if (null != constructedType)
+				entity = constructedType.GenericDefinition;
+
+			return entity as IInternalEntity;
 		}
 
 		protected bool WasVisited(Node node)

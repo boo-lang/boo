@@ -5850,7 +5850,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override protected void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
 		{
-			IInternalEntity internalInfo = entity as IInternalEntity;
+			IInternalEntity internalInfo = GetConstructedInternalEntity(entity);
 			if (null == internalInfo)
 			{
 				ITypedEntity typedEntity = entity as ITypedEntity;
