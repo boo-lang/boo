@@ -138,6 +138,15 @@ namespace Boo.Lang.Compiler.Ast
 					yield return node;
 		}
 
+		public IEnumerable<T> Except<UnwantedNodeType,UnwantedNodeType2>()
+			where UnwantedNodeType : T
+			where UnwantedNodeType2 : T
+		{
+			foreach (T node in _list)
+				if (!(node is UnwantedNodeType) && !(node is UnwantedNodeType2))
+					yield return node;
+		}
+
 		public T[] Select(NodeType type)
 		{
 			List<T> result = new List<T>();

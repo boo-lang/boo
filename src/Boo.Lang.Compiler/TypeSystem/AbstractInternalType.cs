@@ -289,7 +289,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private IEntity[] GetMemberEntities(TypeMemberCollection members)
 		{
 			List<IEntity> entities = new List<IEntity>(members.Count);
-			foreach (TypeMember member in members.Except<StatementTypeMember>())
+			foreach (TypeMember member in members.Except<StatementTypeMember,Destructor>())
 				entities.Add(_typeSystemServices.GetMemberEntity(member));
 			return entities.ToArray();
 		}
