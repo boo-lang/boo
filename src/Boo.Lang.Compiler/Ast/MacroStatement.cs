@@ -45,7 +45,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Name = name;
 		}
-		
+
+		public MacroStatement(string name) : this(LexicalInfo.Empty, name)
+		{
+		}
+
 		override public string ToString()
 		{
 			if (Arguments.Count == 0)

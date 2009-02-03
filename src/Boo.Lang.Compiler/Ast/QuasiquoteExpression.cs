@@ -40,6 +40,11 @@ namespace Boo.Lang.Compiler.Ast
 			: base(lexicalInfo)
 		{
 		}
-	
+
+		public QuasiquoteExpression(Node node) : this(node.LexicalInfo)
+		{
+			_node = node;
+		}
+
 	}
 }
