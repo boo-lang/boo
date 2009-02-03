@@ -350,7 +350,6 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			_nrs = context.NameResolutionService
 			_input = input
 
-
 		Output:
 			get:
 				Build() if not _output
@@ -378,38 +377,77 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				raise "Invalid macro argument declaration: `${e}`"
 
 
-		private def Append(e as ReferenceExpression):
-			#TODO: body pattern
-			_output.Add(SpliceExpression([| $e = Boo.Lang.Compiler.Ast.Expression() |]))
-
-
 		private def Append(e as TryCastExpression):
 			re = e.Target as ReferenceExpression
 			raise "Invalid macro argument name: `${e.Target}`" unless re
 
 			NameResolutionService.ResolveTypeReference(e.Type)
 			type = TypeSystemServices.GetType(e.Type)
+			Append(re, type)
 
-			#TODO: body pattern
-			#TODO: AppendArray() + AppendEnumerable() + >>AppendPrimitive()
-			if type == TypeSystemServices.StringType:
-				_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.StringLiteralExpression(Value: $re) |]))
 
-			elif type == TypeSystemServices.BoolType:
-				_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.BoolLiteralExpression(Value: $re) |]))
+		private def Append(e as ReferenceExpression):
+			#TODO: body arg context => defaults to Node()
+			_output.Add(SpliceExpression([| $e = Boo.Lang.Compiler.Ast.Expression() |]))
 
-			elif type == TypeSystemServices.LongType or type == TypeSystemServices.ULongType:
-				_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $re, IsLong: true) |]))
 
-			elif TypeSystemServices.IsIntegerNumber(type):
-				_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $re, IsLong: false) |]))
-
-			elif type == TypeSystemServices.SingleType:
-				_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $re, IsSingle: true) |]))
-
-			elif type == TypeSystemServices.DoubleType:
-				_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $re, IsSingle: false) |]))
-
+		private def Append(e as ReferenceExpression, type as IType):
+			#TODO: body arg context + AppendArray() + AppendEnumerable()
+			if TypeSystemServices.IsAstNode(type):
+				_output.Add(SpliceExpression([| $e = $(ReferenceExpression(type.FullName))() |]))
+			elif TypeSystemServices.IsLiteralPrimitive(type):
+				AppendPrimitive(e, type)
 			else:
-				Append(re)
+				raise "Unsupported type `${type.FullName}` for argument `${e.Name}`, a macro argument type must be a literal-able primitive or an AST node."
+
+
+		private def AppendPrimitive(e as ReferenceExpression, type as IType):
+			if type == TypeSystemServices.StringType:
+				AppendString(e)
+			elif type == TypeSystemServices.BoolType:
+				AppendBool(e)
+			elif type == TypeSystemServices.LongType or type == TypeSystemServices.ULongType:
+				AppendLong(e)
+			elif TypeSystemServices.IsIntegerNumber(type):
+				AppendInt(e)
+			elif type == TypeSystemServices.SingleType:
+				AppendSingle(e)
+			elif type == TypeSystemServices.DoubleType:
+				AppendDouble(e)
+			elif type == TypeSystemServices.RegexType:
+				AppendRegex(e)
+			elif type == TypeSystemServices.CharType:
+				AppendChar(e)
+			elif type == TypeSystemServices.TimeSpanType:
+				AppendTimeSpan(e)
+			else:
+				raise "Unknown primitive `${type}`"
+
+
+		private def AppendString(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.StringLiteralExpression(Value: $e) |]))
+
+		private def AppendBool(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.BoolLiteralExpression(Value: $e) |]))
+
+		private def AppendLong(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $e, IsLong: true) |]))
+
+		private def AppendInt(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $e, IsLong: false) |]))
+
+		private def AppendSingle(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $e, IsSingle: true) |]))
+
+		private def AppendDouble(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $e, IsSingle: false) |]))
+
+		private def AppendRegex(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.RELiteralExpression(Regex: $e) |]))
+
+		private def AppendChar(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.CharLiteralExpression(Value: $e) |]))
+
+		private def AppendTimeSpan(e as ReferenceExpression):
+			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression(Value: $e) |]))
 

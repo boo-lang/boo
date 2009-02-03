@@ -93,6 +93,16 @@ namespace Boo.Lang.Compiler.Ast
 			return new DoubleLiteralExpression(d);
 		}
 
+		public static Expression Lift(System.Text.RegularExpressions.Regex regex)
+		{
+			return new RELiteralExpression(string.Format("/{0}/", regex));
+		}
+
+		public static Expression Lift(TimeSpan ts)
+		{
+			return new TimeSpanLiteralExpression(ts);
+		}
+
 		public static Expression Lift(Block block)
 		{
 			return new BlockExpression(block);

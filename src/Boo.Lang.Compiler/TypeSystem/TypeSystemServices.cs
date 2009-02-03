@@ -130,7 +130,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ExternalType IAstGeneratorMacroType;
 
+		public ExternalType AstNodeType;
+
+
 		protected Hashtable _primitives = new Hashtable();
+
+		protected Boo.Lang.Compiler.Util.Set<string> _literalPrimitives = new Boo.Lang.Compiler.Util.Set<string>();
 
 		protected Hashtable _typeCache = new Hashtable();
 
@@ -153,6 +158,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected readonly CompilerContext _context;
 
 		private readonly AnonymousCallablesManager _anonymousCallablesManager;
+
 
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -212,12 +218,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(IEnumeratorGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerator<>)));
 			Cache(IAstMacroType = new ExternalType(this, typeof(IAstMacro)));
 			Cache(IAstGeneratorMacroType = new ExternalType(this, typeof(IAstGeneratorMacro)));
+			Cache(AstNodeType = new ExternalType(this, typeof(Node)));
 
 			ObjectArrayType = GetArrayType(ObjectType, 1);
 
 			PreparePrimitives();
 			PrepareBuiltinFunctions();
-
 		}
 
 		public CompilerContext Context
@@ -1213,6 +1219,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _primitives.ContainsKey(name);
 		}
 
+		public bool IsLiteralPrimitive(IType type)
+		{
+			ExternalType typ = type as ExternalType;
+			return typ != null
+					&& typ.PrimitiveName != null
+					&& _literalPrimitives.Contains(typ.PrimitiveName);
+		}
+
 		/// <summary>
 		/// checks if the passed type will be equivalente to
 		/// System.Object in runtime (accounting for the presence
@@ -1234,24 +1248,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddPrimitiveType("duck", DuckType);
 			AddPrimitiveType("void", VoidType);
 			AddPrimitiveType("object", ObjectType);
-			AddPrimitiveType("bool", BoolType);
-			AddPrimitiveType("sbyte", SByteType);
-			AddPrimitiveType("byte", ByteType);
-			AddPrimitiveType("short", ShortType);
-			AddPrimitiveType("ushort", UShortType);
-			AddPrimitiveType("int", IntType);
-			AddPrimitiveType("uint", UIntType);
-			AddPrimitiveType("long", LongType);
-			AddPrimitiveType("ulong", ULongType);
-			AddPrimitiveType("single", SingleType);
-			AddPrimitiveType("double", DoubleType);
-			AddPrimitiveType("decimal", DecimalType);
-			AddPrimitiveType("char", CharType);
-			AddPrimitiveType("string", StringType);
-			AddPrimitiveType("regex", RegexType);
-			AddPrimitiveType("date", DateTimeType);
-			AddPrimitiveType("timespan", TimeSpanType);
 			AddPrimitiveType("callable", ICallableType);
+			AddPrimitiveType("decimal", DecimalType);
+			AddPrimitiveType("date", DateTimeType);
+
+			AddLiteralPrimitiveType("bool", BoolType);
+			AddLiteralPrimitiveType("sbyte", SByteType);
+			AddLiteralPrimitiveType("byte", ByteType);
+			AddLiteralPrimitiveType("short", ShortType);
+			AddLiteralPrimitiveType("ushort", UShortType);
+			AddLiteralPrimitiveType("int", IntType);
+			AddLiteralPrimitiveType("uint", UIntType);
+			AddLiteralPrimitiveType("long", LongType);
+			AddLiteralPrimitiveType("ulong", ULongType);
+			AddLiteralPrimitiveType("single", SingleType);
+			AddLiteralPrimitiveType("double", DoubleType);
+			AddLiteralPrimitiveType("char", CharType);
+			AddLiteralPrimitiveType("string", StringType);
+			AddLiteralPrimitiveType("regex", RegexType);
+			AddLiteralPrimitiveType("timespan", TimeSpanType);
 		}
 
 		protected virtual void PrepareBuiltinFunctions()
@@ -1266,6 +1281,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			_primitives[name] = type;
 			type.PrimitiveName = name;
+		}
+
+		protected void AddLiteralPrimitiveType(string name, ExternalType type)
+		{
+			AddPrimitiveType(name, type);
+			_literalPrimitives.Add(name);
 		}
 
 		protected void AddBuiltin(BuiltinFunction function)
@@ -1455,5 +1476,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return type.IsSubclassOf(IAstMacroType) || type.IsSubclassOf(IAstGeneratorMacroType);
 		}
+
+		public virtual bool IsAstNode(IType type)
+		{
+			return type == AstNodeType || type.IsSubclassOf(AstNodeType);
+		}
+
 	}
 }

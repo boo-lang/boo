@@ -2677,7 +2677,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldstr, RuntimeServices.Mid(node.Value, 1, -1));
+			_il.Emit(OpCodes.Ldstr, node.Pattern);
 			_il.Emit(OpCodes.Newobj, Regex_Constructor);
 			PushType(node.ExpressionType);
 		}

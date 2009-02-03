@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Text.RegularExpressions;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -45,5 +46,22 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Value = value;
 		}
+
+		[System.Xml.Serialization.XmlIgnoreAttribute]
+		public string Pattern
+		{
+			get { return Boo.Lang.Runtime.RuntimeServices.Mid(Value, 1, -1); }
+		}
+
+		[System.Xml.Serialization.XmlIgnoreAttribute]
+		public Regex Regex
+		{
+			get {
+				if (null == _regex) _regex = new Regex(Pattern);
+				return _regex;
+			}
+		}
+
+		private Regex _regex;
 	}
 }
