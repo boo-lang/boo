@@ -316,37 +316,37 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitPropertyAttributes(Property node)
 		{
 			PropertyBuilder builder = GetPropertyBuilder(node);
-			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 		
 		void EmitParameterAttributes(ParameterDeclaration node)
 		{
 			ParameterBuilder builder = (ParameterBuilder)GetBuilder(node);
-			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 		
 		void EmitEventAttributes(Event node)
 		{
 			EventBuilder builder = (EventBuilder)GetBuilder(node);
-			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 		
 		void EmitConstructorAttributes(Constructor node)
 		{
 			ConstructorBuilder builder = (ConstructorBuilder)GetBuilder(node);
-			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 		
 		void EmitMethodAttributes(Method node)
 		{
 			MethodBuilder builder = GetMethodBuilder(node);
-			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 		
 		void EmitTypeAttributes(TypeDefinition node)
 		{
 			TypeBuilder builder = GetTypeBuilder(node);
-			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 
 		void EmitTypeAttributes(EnumDefinition node)
@@ -354,12 +354,12 @@ namespace Boo.Lang.Compiler.Steps
 			EnumBuilder builder = GetBuilder(node) as EnumBuilder;
 			if (null != builder)
 			{
-				EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+				EmitAttributes(node, builder.SetCustomAttribute);
 			}
 			else //nested enum
 			{
 				TypeBuilder typeBuilder = GetTypeBuilder(node);
-				EmitAttributes(node, new CustomAttributeSetter(typeBuilder.SetCustomAttribute));
+				EmitAttributes(node, typeBuilder.SetCustomAttribute);
 			}
 		}
 
@@ -4300,10 +4300,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		TypeAttributes GetTypeAttributes(TypeMember type)
 		{
-			TypeAttributes attributes = type.IsPublic ? TypeAttributes.Public : TypeAttributes.NotPublic;
-			return GetExtendedTypeAttributes(attributes, type);
+			return GetExtendedTypeAttributes(GetTypeVisibilityAttributes(type), type);
 		}
-		
+
+		private TypeAttributes GetTypeVisibilityAttributes(TypeMember type)
+		{
+			return type.IsPublic ? TypeAttributes.Public : TypeAttributes.NotPublic;
+		}
+
 		TypeAttributes GetExtendedTypeAttributes(TypeAttributes attributes, TypeMember type)
 		{
 			switch (type.NodeType)
@@ -4776,12 +4780,9 @@ namespace Boo.Lang.Compiler.Steps
 				if (IsEnumDefinition(type))
 				{
 					//have to normalize TypeAttributes for EnumBuilder only
-					TypeAttributes typeAttrs = GetTypeAttributes(type)
-													& TypeAttributes.Sealed
-													& TypeAttributes.Serializable;
 					EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(
 						type.QualifiedName,
-						typeAttrs,
+						GetTypeVisibilityAttributes(type),
 						GetEnumUnderlyingType((EnumDefinition) type));
 					enumBuilder.SetCustomAttribute(CreateSerializableAttribute());
 					return enumBuilder;
