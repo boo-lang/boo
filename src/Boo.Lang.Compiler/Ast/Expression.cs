@@ -45,6 +45,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(CastExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(BlockExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(QuasiquoteExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(SpliceExpression))]
 	public abstract partial class Expression
 	{
 		public static Expression Lift(string s)
