@@ -167,6 +167,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         public bool IsSubclassOf(IType other)
         {
+			if (null == other)
+				return false;
+
             if (BaseType != null && (BaseType == other || BaseType.IsSubclassOf(other)))
             {
                 return true;
@@ -178,6 +181,17 @@ namespace Boo.Lang.Compiler.TypeSystem
             {
                 return true;
             }
+
+			if (null != other.ConstructedInfo
+				&& ConstructedInfo.GenericDefinition == other.ConstructedInfo.GenericDefinition)
+			{
+				for (int i = 0; i < ConstructedInfo.GenericArguments.Length; ++i)
+				{
+					if (!ConstructedInfo.GenericArguments[i].IsSubclassOf(other.ConstructedInfo.GenericArguments[i]))
+						return false;
+				}
+				return true;
+			}
 
             return false;
         }
