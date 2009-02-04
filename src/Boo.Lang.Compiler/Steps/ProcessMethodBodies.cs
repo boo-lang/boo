@@ -4026,7 +4026,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			MethodInvocationExpression resultingNode = null;
+			Expression resultingNode = null;
 
 			Expression target = node.Arguments[0];
 			IType type = GetExpressionType(target);
@@ -4060,10 +4060,16 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				resultingNode = CodeBuilder.CreateMethodInvocation(target, ICollection_get_Count);
 			}
+			else if (GenericsServices.HasConstructedType(type, TypeSystemServices.ICollectionGenericType))
+			{
+				resultingNode = new MemberReferenceExpression(node.LexicalInfo, target, "Count");
+				Visit(resultingNode);
+			}
 			else
 			{
 				Error(CompilerErrorFactory.InvalidLen(target, type.ToString()));
 			}
+
 			if (null != resultingNode)
 			{
 				node.ParentNode.Replace(node, resultingNode);

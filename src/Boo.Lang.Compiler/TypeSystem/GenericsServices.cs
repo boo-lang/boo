@@ -288,6 +288,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return result;
 		}
 
+
+		/// <summary>
+		/// Checks that at least one constructed occurence of a specified generic
+		/// definition is present in the specified type's inheritance hierarchy.
+		/// </summary>
+		/// <param name="type">The type in whose hierarchy to search for constructed type.</param>
+		/// <param name="definition">The generic type definition whose constructed versions to search for.</param>
+		/// <returns>
+		/// True if a occurence has been found, False otherwise.
+		/// </returns>
+		public static bool HasConstructedType(IType type, IType definition)
+		{
+			foreach (IType candidate in FindConstructedTypes(type, definition))
+				return true;
+			return false;
+		}
+
+
 		/// <summary>
 		/// Determines whether a specified type is an open generic type - 
 		/// that is, if it contains generic parameters.

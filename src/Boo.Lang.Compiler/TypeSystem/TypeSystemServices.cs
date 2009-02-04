@@ -118,6 +118,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ExternalType ICollectionType;
 
+		public ExternalType ICollectionGenericType;
+
 		public ExternalType IListType;
 
 		public ExternalType IDictionaryType;
@@ -216,6 +218,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			Cache(ConditionalAttribute = new ExternalType(this, typeof(System.Diagnostics.ConditionalAttribute)));
 			Cache(IEnumerableGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerable<>)));
 			Cache(IEnumeratorGenericType = new ExternalType(this, typeof(System.Collections.Generic.IEnumerator<>)));
+			Cache(ICollectionGenericType = new ExternalType(this, typeof(System.Collections.Generic.ICollection<>)));
 			Cache(IAstMacroType = new ExternalType(this, typeof(IAstMacro)));
 			Cache(IAstGeneratorMacroType = new ExternalType(this, typeof(IAstGeneratorMacro)));
 			Cache(AstNodeType = new ExternalType(this, typeof(Node)));
