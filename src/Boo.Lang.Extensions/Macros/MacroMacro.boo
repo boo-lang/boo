@@ -398,7 +398,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			elif TypeSystemServices.IsLiteralPrimitive(type):
 				AppendPrimitive(e, type)
 			else:
-				raise "Unsupported type `${type.FullName}` for argument `${e.Name}`, a macro argument type must be a literal-able primitive or an AST node."
+				raise "Unsupported type `${type.FullName}` for argument `${e.Name}`, a macro argument type must be a literal-able primitive or an AST node"
 
 
 		private def AppendPrimitive(e as ReferenceExpression, type as IType):
