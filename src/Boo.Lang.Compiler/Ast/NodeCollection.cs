@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Ast
 	/// <summary>
 	/// Node collection base class.
 	/// </summary>
-	public class NodeCollection<T> : ICollection, ICloneable, IEnumerable<T>
+	public class NodeCollection<T> : ICollection<T>, ICollection, ICloneable
 		where T : Node
 	{
 		protected Node _parent;
@@ -74,6 +74,11 @@ namespace Boo.Lang.Compiler.Ast
 			return _list.GetEnumerator();
 		}
 
+		public Node ParentNode
+		{
+			get { return _parent; }
+		}
+
 		public int Count
 		{
 			get { return _list.Count; }
@@ -82,6 +87,11 @@ namespace Boo.Lang.Compiler.Ast
 		public int IndexOf(T item)
 		{
 			return _list.IndexOf(item);
+		}
+
+		public bool IsReadOnly
+		{
+			get { return false; }
 		}
 
 		public bool IsSynchronized
@@ -97,6 +107,11 @@ namespace Boo.Lang.Compiler.Ast
 		public void CopyTo(Array array, int index)
 		{
 			((ICollection)_list).CopyTo(array, index);
+		}
+
+		public void CopyTo(T[] array, int index)
+		{
+			_list.CopyTo(array, index);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
@@ -161,13 +176,19 @@ namespace Boo.Lang.Compiler.Ast
 			return _list.PopRange(begin);
 		}
 
-		public bool ContainsNode(T node)
+		public bool Contains(T node)
 		{
 			foreach (T n in _list)
 			{
 				if (n == node) return true;
 			}
 			return false;
+		}
+
+		[Obsolete("Use Contains(T node) instead.")]
+		public bool ContainsNode(T node)
+		{
+			return Contains(node);
 		}
 
 		public bool Contains(System.Predicate<T> condition)
@@ -327,14 +348,14 @@ namespace Boo.Lang.Compiler.Ast
 			InnerList.Insert(index, item);
 		}
 
-		public void Remove(T item)
+		public bool Remove(T item)
 		{
-			InnerList.Remove(item);
+			return ((ICollection<T>)_list).Remove(item);
 		}
 
 		override public int GetHashCode()
 		{
-			return base.GetHashCode();
+			return _list.GetHashCode();
 		}
 
 		override public bool Equals(object rhs)
@@ -371,5 +392,46 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 
+		public NodeCollection<TNew> Cast<TNew>() where TNew : Node
+		{
+			return Cast<TNew>(0);
+		}
+
+		public NodeCollection<TNew> Cast<TNew>(int index) where TNew : Node
+		{
+			if (index < 0 || index > Count)
+				throw new ArgumentOutOfRangeException("index");
+
+			if (typeof(TNew) == typeof(T) || 0 == Count)
+				return this;
+
+			if (0 == (Count - index)) //no item to cast
+				return Empty<TNew>(ParentNode);
+
+			NodeCollection<TNew> nodes = new NodeCollection<TNew>(ParentNode);
+			int i = -1;
+
+			foreach (T node in _list)
+			{
+				++i;
+				if (i < index)
+					continue;
+
+				TNew cnode = node as TNew;
+				if (null == cnode)
+					throw new InvalidCastException(
+						string.Format("Cannot cast item #{0} from `{1}` to `{2}`",
+						              i, node.GetType(), typeof(TNew)));
+
+				nodes.Add(cnode);
+			}
+			return nodes;
+		}
+
+		public static NodeCollection<TNode> Empty<TNode>(Node parent) where TNode : Node
+		{
+			//TODO: cache?
+			return new NodeCollection<TNode>(parent);
+		}
 	}
 }

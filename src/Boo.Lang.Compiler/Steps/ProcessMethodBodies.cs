@@ -743,7 +743,7 @@ namespace Boo.Lang.Compiler.Steps
 			// Defer closure processing if it's an argument in a generic method invocation
 			MethodInvocationExpression methodInvocationContext = node.ParentNode as MethodInvocationExpression;
 			if (methodInvocationContext == null) return false;
-			if (!methodInvocationContext.Arguments.ContainsNode(node)) return false;
+			if (!methodInvocationContext.Arguments.Contains(node)) return false;
 
 			IMethod target = methodInvocationContext.Target.Entity as IMethod;
 			return (target != null && GenericsServices.IsGenericMethod(target));

@@ -91,7 +91,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.ParentNode is Method)
 			{
 				AttributeCollection returnTypeAttributes = ((Method)node.ParentNode).ReturnTypeAttributes;
-				if (returnTypeAttributes.ContainsNode(node))
+				if (returnTypeAttributes.Contains(node))
 				{
 					return AttributeTargets.ReturnValue;
 				}

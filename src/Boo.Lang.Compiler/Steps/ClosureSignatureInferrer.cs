@@ -67,7 +67,7 @@ namespace Boo.Lang.Compiler.Steps
 			get 
 			{
 				MethodInvocationExpression mie = Closure.ParentNode as MethodInvocationExpression;
-				if (mie != null && mie.Arguments.ContainsNode(Closure)) return mie;
+				if (mie != null && mie.Arguments.Contains(Closure)) return mie;
 				return null;
 			}
 		}

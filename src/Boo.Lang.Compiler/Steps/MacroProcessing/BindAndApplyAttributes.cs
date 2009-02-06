@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private Node GetTargetNode()
 		{
 			Module module = _attribute.ParentNode as Module;
-			if (module != null && module.AssemblyAttributes.ContainsNode(_attribute))
+			if (module != null && module.AssemblyAttributes.Contains(_attribute))
 			{
 				return module.ParentNode;
 			}
