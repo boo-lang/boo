@@ -31,6 +31,9 @@ macro spellCheck(lang as string, body as string*):
 		if line.Contains("bou"):
 			yield [| print "line '${$line}' contains unknown word 'bou'. Did you mean 'boo'?" |]
 
+macro defaultBodyArg(body):
+	assert body isa NodeCollection[of Statement]
+
 
 sum 4, 8, 15, 16, 23, 42
 
@@ -43,4 +46,7 @@ invokeWithCount:
 spellCheck "en-EN":
 	"Hello boo!"
 	"How do you bou?"
+
+defaultBodyArg:
+	pass
 

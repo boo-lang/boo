@@ -453,11 +453,15 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 		private def AppendDefaultNode():
-			#TODO: body arg context => defaults to Node()
-			_pattern.Add(SpliceExpression([| $_arg = Boo.Lang.Compiler.Ast.Expression() |]))
+			if IsBodyArgument:
+				_prologue = Block()
+				_prologue.Add([| $_arg = $(MacroField).Body.Statements |])
+			else:
+				_pattern.Add(SpliceExpression([| $_arg = Boo.Lang.Compiler.Ast.Expression() |]))
 
 
 		private def AppendNode(type as IType):
+			AssertEnumerable(type.FullName) if IsBodyArgument
 			if not _enumerable:
 				_pattern.Add(SpliceExpression([| $_arg = $(ReferenceExpression(type.FullName))() |]))
 			else:
@@ -465,8 +469,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 		private def AppendPrimitive(type as IType):
-			if not _enumerable and IsBodyArgument:
-				raise "`${_arg.Name}` argument must be of enumerable type. Did you mean `${_arg.Name} as ${type.FullName}*`?"
+			AssertEnumerable(type.FullName) if IsBodyArgument
 
 			if type == TypeSystemServices.StringType:
 				AppendString()
@@ -553,23 +556,23 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				return [| $(MacroField).Arguments.Cast[of $(typeRef)]($_argIndex) |]
 
 		private def GetPrologue(type as IType):
-			return [|
-				try:
-					$_arg = $(GetPrologueCollection(type.FullName))
-				except as System.InvalidCastException:
-					raise
-			|].ToBlock()
+			p = Block()
+			p.Add([| $_arg = $(GetPrologueCollection(type.FullName)) |])
+			return p
 
 		private def GetPrologue[of TNode, TValue]():
 			temp = CreateTemp()
-			return [|
-				try:
-					$temp = $(GetPrologueCollection(typeof(TNode).FullName))
-					$_arg = Boo.Lang.Compiler.Ast.AstUtil.GetValues[of $TNode, $TValue]($temp)
-				except as System.InvalidCastException:
-					raise
-			|].ToBlock()
+			p = Block()
+			p.Add([| $temp = $(GetPrologueCollection(typeof(TNode).FullName)) |])
+			p.Add([| $_arg = Boo.Lang.Compiler.Ast.AstUtil.GetValues[of $TNode, $TValue]($temp) |])
+			return p
+
 
 		private def CreateTemp():
 			return ReferenceExpression("$temp${CompilerContext.Current.AllocIndex()}")
+
+		private def AssertEnumerable(typeName as string):
+			if not _enumerable:
+				typeName = typeof(Boo.Lang.Compiler.Ast.Statement).FullName unless typeName
+				raise "`${_arg.Name}` argument must be of enumerable type. Did you mean `${_arg.Name} as ${typeName}*`?"
 
