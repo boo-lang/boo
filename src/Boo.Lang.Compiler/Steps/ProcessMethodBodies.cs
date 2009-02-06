@@ -2569,7 +2569,9 @@ namespace Boo.Lang.Compiler.Steps
 			IType type = GetConcreteExpressionType(node.Operand);
 			if (!type.IsArray)
 			{
-				Error(CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
+				ReferenceExpression re = node.Operand as ReferenceExpression;
+				if (null == re || re.Name != "_") //ignore *_ catch-all pattern
+					Error(CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
 			}
 			BindExpressionType(node, type);
 		}

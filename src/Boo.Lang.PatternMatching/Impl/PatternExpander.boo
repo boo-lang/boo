@@ -36,7 +36,9 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching from Boo.Lang.PatternMatching
 
 class PatternExpander:
-	
+
+	private static final Dummy = '_'
+
 	def Expand(matchValue as Expression, pattern as Expression) as Expression:
 		match pattern:
 			case MethodInvocationExpression():
@@ -78,12 +80,10 @@ class PatternExpander:
 		return ExpandObjectPattern(matchValue, node.Left, node.Right)
 		
 	def ExpandObjectPattern(matchValue as Expression, node as MethodInvocationExpression) as Expression:
-	
 		if len(node.NamedArguments) == 0 and len(node.Arguments) == 0:
 			return [| $matchValue isa $(TypeRefFrom(node)) |]
-			 
 		return ExpandObjectPattern(matchValue, NewTemp(node), node)
-		
+
 	def ExpandObjectPattern(matchValue as Expression, temp as ReferenceExpression, node as MethodInvocationExpression) as Expression:
 		
 		condition = [| ($matchValue isa $(TypeRefFrom(node))) and __eval__($temp = cast($(TypeRefFrom(node)), $matchValue), true) |]
@@ -199,7 +199,13 @@ class PatternExpander:
 		return Expand(memberRef, member.Second)
 		
 	def ExpandFixedSizePattern(matchValue as Expression, pattern as ArrayLiteralExpression):
-		condition = [| $(len(pattern.Items)) == len($matchValue) |]
+		patternLen = len(pattern.Items)
+		condition = [| $(patternLen) == len($matchValue) |]
+
+		if IsCatchAllPattern(last = pattern.Items[patternLen-1]):
+			pattern.Items.Remove(last)
+			condition = [| $(patternLen) <= len($matchValue)+1 |]
+
 		i = 0
 		for item in pattern.Items:
 			itemValue = [| $matchValue[$i] |]
@@ -210,8 +216,17 @@ class PatternExpander:
 		
 	def TypeRefFrom(node as MethodInvocationExpression):
 		return node.Target
-		
+
+	def IsCatchAllPattern(pattern as Expression) as bool:
+		last = pattern as UnaryExpression
+		if AstUtil.IsExplodeExpression(last):
+			last_re = last.Operand as ReferenceExpression
+			return last_re and last_re.Name == Dummy
+		return false
+
+
 internal def NewTemp(e as Expression):
 	return ReferenceExpression(
 			LexicalInfo: e.LexicalInfo,
 			Name: "$match${CompilerContext.Current.AllocIndex()}")
+

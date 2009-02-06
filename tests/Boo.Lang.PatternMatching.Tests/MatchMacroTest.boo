@@ -22,12 +22,23 @@ class MatchMacroTest:
 	def TestFixedSizeCollection():
 		Assert.AreEqual(1, lastItem(Collection(Items: [1])))
 		Assert.AreEqual(2, lastItem(Collection(Items: [1, 2])))
-		
+
 	[Test]
 	def TestNestedFixedSize():
 		c = Collection(Items: [Collection(Items: [1, 2])])
 		Assert.AreEqual(2, nestedLastItem(c))
-		
+
+	[Test]
+	def TestFixedSizeCollectionTyped():
+		Assert.AreEqual(1, lastIntItem(Collection(Items: [1])))
+		Assert.AreEqual(2, lastIntItem(Collection(Items: [1, 2])))
+
+	[Test]
+	[Ignore("Parser does not accept *_ in array literal context")]
+	def TestFixedSizeCollectionLastItemBeforeCatchAll():
+		Assert.AreEqual(1, lastIntItemBeforeCatchAll(Collection(Items: [1, "_", "__"])))
+		Assert.AreEqual(2, lastIntItemBeforeCatchAll(Collection(Items: [1, 2, "_", "__"])))
+
 	[Test]
 	[ExpectedException(MatchError)]
 	def TestMatchErrorOnFixedSize():
@@ -183,10 +194,27 @@ class MatchMacroTest:
 			case Collection(Items: (last,)):
 				return last
 			case Collection(Items: (_, last)):
-				return last	
+				return last
 				
 	def nestedLastItem(o):
 		match o:
 			case Collection(Items: (Collection(Items: (_, last)),)):
 				return last
+
+	def lastIntItem(o):
+		match o:
+			case Collection(Items: (last = int(),)):
+				return last
+			case Collection(Items: (_ = int(), last = int(),)):
+				return last
+
+	def lastIntItemBeforeCatchAll(o):
+		/* FIXME: parser
+		match o:
+			case Collection(Items: (last = int(), *_)):
+				return last
+			case Collection(Items: (_ = int(), last = int(), *_)):
+				return last
+		*/
+		return -1
 
