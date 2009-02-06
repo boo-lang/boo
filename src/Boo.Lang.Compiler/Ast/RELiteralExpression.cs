@@ -63,5 +63,10 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		private Regex _regex;
+
+		public override object ValueObject
+		{
+			get { return this.Regex; }
+		}
 	}
 }

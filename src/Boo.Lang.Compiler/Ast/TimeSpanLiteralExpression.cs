@@ -45,5 +45,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Value = value;
 		}
+
+		public override object ValueObject
+		{
+			get { return this.Value; }
+		}
 	}
 }

@@ -53,5 +53,10 @@ namespace Boo.Lang.Compiler.Ast
 		public IntegerLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
+
+		public override object ValueObject
+		{
+			get { return this.Value; }
+		}
 	}
 }

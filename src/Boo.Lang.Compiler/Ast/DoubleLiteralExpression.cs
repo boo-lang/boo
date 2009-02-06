@@ -57,5 +57,10 @@ namespace Boo.Lang.Compiler.Ast
 		public DoubleLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
+
+		public override object ValueObject
+		{
+			get { return this.Value; }
+		}
 	}
 }

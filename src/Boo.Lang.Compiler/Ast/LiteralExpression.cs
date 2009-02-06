@@ -50,5 +50,10 @@ namespace Boo.Lang.Compiler.Ast
 		public LiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
+
+		public virtual object ValueObject
+		{
+			get { throw new NotSupportedException(); }
+		}
 	}
 }

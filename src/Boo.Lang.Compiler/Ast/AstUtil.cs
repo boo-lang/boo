@@ -32,6 +32,7 @@ namespace Boo.Lang.Compiler.Ast
 	using System.IO;
 	using System.Text;
 	using System.Xml.Serialization;
+	using System.Collections.Generic;
 	
 	public class AstUtil
 	{
@@ -470,6 +471,17 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			LexicalInfo info = SafeLexicalInfo(node);
 			return String.Format("({0},{1})", info.Line, info.Column);
+		}
+
+		public static ICollection<TValue> GetValues<TNode, TValue>(NodeCollection<TNode> nodes)
+			where TNode : LiteralExpression
+		{
+			List<TValue> values = new List<TValue>(nodes.Count);
+
+			foreach (TNode node in nodes)
+				values.Add((TValue) Convert.ChangeType(node.ValueObject, typeof(TValue)));
+
+			return values;
 		}
 	}
 

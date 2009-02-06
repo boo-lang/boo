@@ -48,6 +48,11 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public BoolLiteralExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}		
+		}
+
+		public override object ValueObject
+		{
+			get { return this.Value; }
+		}
 	}
 }

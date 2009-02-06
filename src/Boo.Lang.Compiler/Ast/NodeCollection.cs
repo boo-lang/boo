@@ -421,7 +421,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (null == cnode)
 					throw new InvalidCastException(
 						string.Format("Cannot cast item #{0} from `{1}` to `{2}`",
-						              i, node.GetType(), typeof(TNew)));
+						              i+1, node.GetType(), typeof(TNew)));
 
 				nodes.Add(cnode);
 			}
