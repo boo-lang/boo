@@ -1,6 +1,0 @@
-<settings>
-  <language>cs</language>
-  <outputType>library</outputType>
-  <references/>
-  <outputFolder>/boo/build</outputFolder>
-</settings>

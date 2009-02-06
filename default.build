@@ -346,7 +346,6 @@
 		</delete>
 		<copy todir="bin">
 			<fileset basedir="${build.dir}">
-				<include name="pt/Boo.Lang.resources.dll" />
 				<include name="Boo.*.dll" />
 				<include name="boo*.exe" />
 				<include name="boo*.rsp" />
@@ -509,7 +508,6 @@
 			output="${build.dir}/Boo.Lang.dll"
 			debug="${debug}"
 			optimize="${optimize}"
-			if="${string::starts-with(framework::get-target-framework(), 'net-')}"
 			define="${csc.define}"
 			noconfig="${csc.noconfig}">
 
@@ -520,43 +518,11 @@
 			<resources basedir="${build.dir}">
 				<include name="strings.resources" />
 			</resources>
-			<resources basedir="${build.dir}/pt">
-				<include name="strings.pt.resources" />
-			</resources>
-			<resources basedir="${build.dir}/it">
-				<include name="strings.it.resources" />
-			</resources>
 			<nowarn>
 				<warning if="${nant-csc-keyfile-bug}" number="1699"/>
 			</nowarn>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == '' or nant-csc-keyfile-bug}" />
 		</csc>
-		
-		<csc
-			target="library"
-			output="${build.dir}/Boo.Lang.dll"
-			debug="${debug}"
-			optimize="${optimize}"
-			unless="${string::starts-with(framework::get-target-framework(), 'net-')}"
-			define="${csc.define}"
-			noconfig="${csc.noconfig}">
-			
-			<sources basedir="src/Boo.Lang">
-				<include name="**/*.cs" />
-			</sources>
-			
-			<resources basedir="${build.dir}">
-				<include name="strings.resources" />
-			</resources>
-			<nowarn>
-				<warning if="${nant-csc-keyfile-bug}" number="1699"/>
-			</nowarn>
-			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == '' or nant-csc-keyfile-bug}" />
-		</csc>
-		<!-- The below commented out echo was fixed using a workaround -->
-		<!--echo level="Warning" if="${keyfile.path != '' and nant-csc-keyfile-bug}">
-			The Boo.Lang satelite resource assemblies may NOT have been signed due to a bug in NAnt 0.85 and lower.
-		</echo-->
 	</target>
 	
 	<target name="boo-pkgconfig">
@@ -996,22 +962,7 @@
 		<resgen
 			input="src/Boo.Lang/Resources/strings.txt"
 			output="${build.dir}/strings.resources" />
-	
-		<property name="locale" value="pt" />
-		<call target="build-resource" />
 		
-		<property name="locale" value="it" />
-		<call target="build-resource" />
-		
-	</target>
-	
-	<target name="build-resource">
-	
-		<mkdir dir="${build.dir}/${locale}" />
-		<resgen
-			input="src/Boo.Lang/Resources/${locale}/strings.txt"
-			output="${build.dir}/${locale}/strings.${locale}.resources" />
-			
 	</target>
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
