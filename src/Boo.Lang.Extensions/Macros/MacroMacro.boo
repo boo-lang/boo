@@ -39,7 +39,16 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 	_macro as MacroStatement
 	_name as string
-	_argumentsPattern as ExpressionCollection
+
+	_apb as ArgumentsPatternBuilder
+
+	ArgumentsPattern:
+		get:
+			return _apb.Pattern if _apb
+
+	ArgumentsPrologue:
+		get:
+			return _apb.Prologue if _apb
 
 
 	override protected def ExpandGeneratorImpl(macro as MacroStatement):
@@ -50,7 +59,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		arg = macro.Arguments[0]
 		mie = arg as MethodInvocationExpression
 		if mie and mie.Arguments.Count:
-			_argumentsPattern = ArgumentsPatternBuilder(Context, mie.Arguments).Output
+			_apb = ArgumentsPatternBuilder(Context, mie.Arguments)
 			arg = mie.Target
 
 		if arg.NodeType == NodeType.ReferenceExpression:
@@ -208,11 +217,17 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	private def ExpandBody():
 		body = _macro.Body
 
-		if _argumentsPattern:
+		if ArgumentsPattern and ArgumentsPattern.Count > 0:
 			case = CaseStatement()
 			case.Pattern = QuasiquoteExpression(pattern = MacroStatement(_name))
-			pattern.Arguments = _argumentsPattern
-			case.Body = body
+			pattern.Arguments = ArgumentsPattern
+			if ArgumentsPrologue:
+				case.Body = [|
+					$ArgumentsPrologue
+					$body
+				|].ToBlock()
+			else:
+				case.Body = body
 			otherwise = OtherwiseStatement() #TODO: macro overload without arguments def
 			otherwise.Body = [| raise "`${$(_name)}` macro invocation argument(s) did not match definition: `${$(_macro.Arguments[0].ToString())}`" |].ToBlock()
 			body = [|
@@ -222,7 +237,14 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 		if ContainsCase(body):
 			return ExpandWithPatternMatching(_name, body)
-		return body
+
+		if ArgumentsPrologue:
+			return [|
+				$ArgumentsPrologue
+				$body
+			|].ToBlock()
+		else:
+			return body
 
 
 	#region PatternMatching
@@ -340,20 +362,31 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 	private final class ArgumentsPatternBuilder():
+		static final MacroField = ReferenceExpression("__macro")
+
 		_input as ExpressionCollection
-		_output as ExpressionCollection
+		_pattern as ExpressionCollection
+		_prologue as Block
 		_tss as TypeSystemServices
 		_nrs as NameResolutionService
+		_arg as ReferenceExpression
+		_argIndex = 0
+		_enumerable = false
 
 		def constructor(context as CompilerContext, input as ExpressionCollection):
 			_tss = context.TypeSystemServices
 			_nrs = context.NameResolutionService
 			_input = input
 
-		Output:
+		Pattern:
 			get:
-				Build() if not _output
-				return _output
+				Build() if not _pattern
+				return _pattern
+
+		Prologue:
+			get:
+				Build() if not _pattern
+				return _prologue
 
 		TypeSystemServices:
 			get: return _tss
@@ -363,14 +396,17 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 		def Build():
-			_output = ExpressionCollection()
+			_pattern = ExpressionCollection()
 			for arg in _input:
+				_enumerable = false
 				Append(arg) #FIXME: run-time (duck) dispatch here makes mono cry
+				++_argIndex
 
 
 		private def Append(e as Expression):
 			if e.NodeType == NodeType.ReferenceExpression:
-				Append(e as ReferenceExpression)
+				_arg = cast(ReferenceExpression, e)
+				Append()
 			elif e.NodeType == NodeType.TryCastExpression:
 				Append(e as TryCastExpression)
 			else:
@@ -383,71 +419,135 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 			NameResolutionService.ResolveTypeReference(e.Type)
 			type = TypeSystemServices.GetType(e.Type)
-			Append(re, type)
+			_arg = cast(ReferenceExpression, re)
+			Append(type)
 
 
-		private def Append(e as ReferenceExpression):
+		private def Append():
 			#TODO: body arg context => defaults to Node()
-			_output.Add(SpliceExpression([| $e = Boo.Lang.Compiler.Ast.Expression() |]))
+			_pattern.Add(SpliceExpression([| $_arg = Boo.Lang.Compiler.Ast.Expression() |]))
 
 
-		private def Append(e as ReferenceExpression, type as IType):
-			#TODO: body arg context + AppendArray() + AppendEnumerable()
+		private def Append(type as IType):
+			#TODO: body arg context
 			if TypeSystemServices.IsAstNode(type):
-				_output.Add(SpliceExpression([| $e = $(ReferenceExpression(type.FullName))() |]))
+				AppendNode(type)
 			elif TypeSystemServices.IsLiteralPrimitive(type):
-				AppendPrimitive(e, type)
+				AppendPrimitive(type)
+			elif not _enumerable and null != (etype = TypeSystemServices.GetEnumeratorItemType(type)):
+				if _argIndex != _input.Count-1:
+					raise "Enumerable or array type argument `${_arg.Name}` must be the last argument"
+				if _pattern.Count > 0:
+					_pattern.Add(SpliceExpression(UnaryExpression(UnaryOperatorType.Explode, [| _ |])))
+				_enumerable = true
+				Append(etype)
 			else:
-				raise "Unsupported type `${type.FullName}` for argument `${e.Name}`, a macro argument type must be a literal-able primitive or an AST node"
+				raise "Unsupported type `${type.FullName}` for argument `${_arg.Name}`, a macro argument type must be a literal-able primitive or an AST node"
 
 
-		private def AppendPrimitive(e as ReferenceExpression, type as IType):
+		private def AppendNode(type as IType):
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| $_arg = $(ReferenceExpression(type.FullName))() |]))
+			else:
+				_prologue = GetPrologue(type)
+
+
+		private def AppendPrimitive(type as IType):
 			if type == TypeSystemServices.StringType:
-				AppendString(e)
+				AppendString()
 			elif type == TypeSystemServices.BoolType:
-				AppendBool(e)
+				AppendBool()
 			elif type == TypeSystemServices.LongType or type == TypeSystemServices.ULongType:
-				AppendLong(e)
+				AppendLong()
 			elif TypeSystemServices.IsIntegerNumber(type):
-				AppendInt(e)
+				AppendInt()
 			elif type == TypeSystemServices.SingleType:
-				AppendSingle(e)
+				AppendSingle()
 			elif type == TypeSystemServices.DoubleType:
-				AppendDouble(e)
+				AppendDouble()
 			elif type == TypeSystemServices.RegexType:
-				AppendRegex(e)
+				AppendRegex()
 			elif type == TypeSystemServices.CharType:
-				AppendChar(e)
+				AppendChar()
 			elif type == TypeSystemServices.TimeSpanType:
-				AppendTimeSpan(e)
+				AppendTimeSpan()
 			else:
 				raise "Unknown primitive `${type}`"
 
 
-		private def AppendString(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.StringLiteralExpression(Value: $e) |]))
+		private def AppendString():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.StringLiteralExpression(Value: $_arg) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.StringLiteralExpression, string]()
 
-		private def AppendBool(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.BoolLiteralExpression(Value: $e) |]))
+		private def AppendBool():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.BoolLiteralExpression(Value: $_arg) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.BoolLiteralExpression, bool]()
 
-		private def AppendLong(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $e, IsLong: true) |]))
+		private def AppendLong():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $_arg, IsLong: true) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.IntegerLiteralExpression, long]()
 
-		private def AppendInt(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $e, IsLong: false) |]))
+		private def AppendInt():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.IntegerLiteralExpression(Value: $_arg, IsLong: false) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.IntegerLiteralExpression, int]()
 
-		private def AppendSingle(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $e, IsSingle: true) |]))
+		private def AppendSingle():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $_arg, IsSingle: true) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.DoubleLiteralExpression, single]()
 
-		private def AppendDouble(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $e, IsSingle: false) |]))
+		private def AppendDouble():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.DoubleLiteralExpression(Value: $_arg, IsSingle: false) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.DoubleLiteralExpression, double]()
 
-		private def AppendRegex(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.RELiteralExpression(Regex: $e) |]))
+		private def AppendRegex():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.RELiteralExpression(Regex: $_arg) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.RELiteralExpression, regex]()
 
-		private def AppendChar(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.CharLiteralExpression(Value: $e) |]))
+		private def AppendChar():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.CharLiteralExpression(Value: $_arg) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.CharLiteralExpression, char]()
 
-		private def AppendTimeSpan(e as ReferenceExpression):
-			_output.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression(Value: $e) |]))
+		private def AppendTimeSpan():
+			if not _enumerable:
+				_pattern.Add(SpliceExpression([| Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression(Value: $_arg) |]))
+			else:
+				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression, timespan]()
+
+
+		private def GetPrologue(type as IType):
+			return [|
+				try:
+					$_arg = $(MacroField).Arguments.Cast[of $(Boo.Lang.Compiler.Ast.SimpleTypeReference(type.FullName))]($_argIndex)
+				except as System.InvalidCastException:
+					raise
+			|].ToBlock()
+
+		private def GetPrologue[of TNode, TValue]():
+			temp = CreateTemp()
+			return [|
+				try:
+					$temp = $(MacroField).Arguments.Cast[of $TNode]($_argIndex)
+					$_arg = Boo.Lang.Compiler.Ast.AstUtil.GetValues[of $TNode, $TValue]($temp)
+				except as System.InvalidCastException:
+					raise
+			|].ToBlock()
+
+		private def CreateTemp():
+			return ReferenceExpression("$temp${CompilerContext.Current.AllocIndex()}")
 
