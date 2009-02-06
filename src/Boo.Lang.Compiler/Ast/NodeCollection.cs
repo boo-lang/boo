@@ -402,10 +402,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (index < 0 || index > Count)
 				throw new ArgumentOutOfRangeException("index");
 
-			if (typeof(TNew) == typeof(T) || 0 == Count)
-				return this;
-
-			if (0 == (Count - index)) //no item to cast
+			if (0 == (Count - index)) //empty or no item to cast
 				return Empty<TNew>(ParentNode);
 
 			NodeCollection<TNew> nodes = new NodeCollection<TNew>(ParentNode);
