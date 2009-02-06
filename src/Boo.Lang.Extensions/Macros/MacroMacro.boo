@@ -388,13 +388,6 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				Build() if not _pattern
 				return _prologue
 
-		TypeSystemServices:
-			get: return _tss
-
-		NameResolutionService:
-			get: return _nrs
-
-
 		def Build():
 			_pattern = ExpressionCollection()
 			for arg in _input:
@@ -403,10 +396,25 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				++_argIndex
 
 
+		private TypeSystemServices:
+			get: return _tss
+
+		private NameResolutionService:
+			get: return _nrs
+
+		private IsBodyArgument:
+			get:
+				return _arg.Name == "body"
+
+		private IsLastArgument:
+			get:
+				return _argIndex == _input.Count-1
+
+
 		private def Append(e as Expression):
 			if e.NodeType == NodeType.ReferenceExpression:
 				_arg = cast(ReferenceExpression, e)
-				Append()
+				Append(null as IType)
 			elif e.NodeType == NodeType.TryCastExpression:
 				Append(e as TryCastExpression)
 			else:
@@ -423,26 +431,30 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			Append(type)
 
 
-		private def Append():
-			#TODO: body arg context => defaults to Node()
-			_pattern.Add(SpliceExpression([| $_arg = Boo.Lang.Compiler.Ast.Expression() |]))
-
-
 		private def Append(type as IType):
-			#TODO: body arg context
-			if TypeSystemServices.IsAstNode(type):
+			if IsBodyArgument and not IsLastArgument:
+				raise "`${_arg.Name}` argument must be the last argument"
+
+			if not type:
+				AppendDefaultNode()
+			elif TypeSystemServices.IsAstNode(type):
 				AppendNode(type)
 			elif TypeSystemServices.IsLiteralPrimitive(type):
 				AppendPrimitive(type)
 			elif not _enumerable and null != (etype = TypeSystemServices.GetEnumeratorItemType(type)):
-				if _argIndex != _input.Count-1:
+				if not IsLastArgument:
 					raise "Enumerable or array type argument `${_arg.Name}` must be the last argument"
-				if _pattern.Count > 0:
+				if not IsBodyArgument and _pattern.Count > 0:
 					_pattern.Add(SpliceExpression(UnaryExpression(UnaryOperatorType.Explode, [| _ |])))
 				_enumerable = true
 				Append(etype)
 			else:
 				raise "Unsupported type `${type.FullName}` for argument `${_arg.Name}`, a macro argument type must be a literal-able primitive or an AST node"
+
+
+		private def AppendDefaultNode():
+			#TODO: body arg context => defaults to Node()
+			_pattern.Add(SpliceExpression([| $_arg = Boo.Lang.Compiler.Ast.Expression() |]))
 
 
 		private def AppendNode(type as IType):
@@ -453,6 +465,9 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 		private def AppendPrimitive(type as IType):
+			if not _enumerable and IsBodyArgument:
+				raise "`${_arg.Name}` argument must be of enumerable type. Did you mean `${_arg.Name} as ${type.FullName}*`?"
+
 			if type == TypeSystemServices.StringType:
 				AppendString()
 			elif type == TypeSystemServices.BoolType:
@@ -530,10 +545,17 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				_prologue = GetPrologue[of Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression, timespan]()
 
 
+		private def GetPrologueCollection(collectionType as string):
+			typeRef = SimpleTypeReference(collectionType)
+			if IsBodyArgument:
+				return [| $(MacroField).Body.Statements.Cast[of $(typeRef)]() |]
+			else:
+				return [| $(MacroField).Arguments.Cast[of $(typeRef)]($_argIndex) |]
+
 		private def GetPrologue(type as IType):
 			return [|
 				try:
-					$_arg = $(MacroField).Arguments.Cast[of $(Boo.Lang.Compiler.Ast.SimpleTypeReference(type.FullName))]($_argIndex)
+					$_arg = $(GetPrologueCollection(type.FullName))
 				except as System.InvalidCastException:
 					raise
 			|].ToBlock()
@@ -542,7 +564,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			temp = CreateTemp()
 			return [|
 				try:
-					$temp = $(MacroField).Arguments.Cast[of $TNode]($_argIndex)
+					$temp = $(GetPrologueCollection(typeof(TNode).FullName))
 					$_arg = Boo.Lang.Compiler.Ast.AstUtil.GetValues[of $TNode, $TValue]($temp)
 				except as System.InvalidCastException:
 					raise

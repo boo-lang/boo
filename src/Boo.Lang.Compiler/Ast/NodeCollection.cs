@@ -416,6 +416,12 @@ namespace Boo.Lang.Compiler.Ast
 
 				TNew cnode = node as TNew;
 				if (null == cnode)
+				{
+					ExpressionStatement es = node as ExpressionStatement;
+					if (null != es)
+						cnode = es.Expression as TNew;
+				}
+				if (null == cnode)
 					throw new InvalidCastException(
 						string.Format("Cannot cast item #{0} from `{1}` to `{2}`",
 						              i+1, node.GetType(), typeof(TNew)));
