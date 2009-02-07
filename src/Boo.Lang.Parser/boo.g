@@ -149,7 +149,7 @@ tokens
 
 	protected bool IsValidMacroArgument(int token)
 	{
-		return LPAREN != token && LBRACK != token;
+		return LPAREN != token && LBRACK != token && DOT != token;
 	}
 	
 	protected bool IsValidClosureMacroArgument(int token)
@@ -161,6 +161,14 @@ tokens
 	private LexicalInfo ToLexicalInfo(IToken token)
 	{
 		return SourceLocationFactory.ToLexicalInfo(token);
+	}
+	
+	private MemberReferenceExpression MemberReferenceForToken(Expression target, IToken memberName)
+	{
+		MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(memberName));
+		mre.Target = target;
+		mre.Name = memberName.getText();
+		return mre;	
 	}
 	
 	protected abstract void EmitIndexedPropertyDeprecationWarning(Property deprecated);
@@ -2543,8 +2551,21 @@ atom returns [Expression e]
 		e=paren_expression |
 		e=cast_expression |
 		e=typeof_expression |
-		e=splice_expression
+		e=splice_expression |
+		e=omitted_member_expression
 	)
+;
+
+protected
+omitted_member_expression returns [Expression e]
+{
+	e = null;
+	IToken memberName = null;
+}:
+	dot:DOT memberName=member
+	{
+		e = MemberReferenceForToken(new OmittedExpression(ToLexicalInfo(dot)), memberName);
+	}
 ;
 
 protected
@@ -2810,10 +2831,7 @@ slicing_expression returns [Expression e]
 				(
 					memberName=member
 					{
-						MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(memberName));
-						mre.Target = e;
-						mre.Name = memberName.getText();
-						e = mre;
+						e = MemberReferenceForToken(e, memberName);
 					}
 				)
 				|

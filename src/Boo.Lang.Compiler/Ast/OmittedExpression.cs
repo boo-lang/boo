@@ -40,6 +40,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
+		public OmittedExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
+		{
+		}
+		
 		override public NodeType NodeType
 		{
 			get
