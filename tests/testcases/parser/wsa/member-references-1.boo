@@ -11,8 +11,8 @@ page.Foo()
 page = Builder()
 page.
     Html.
-        Head
-		.Body.
+        Head.
+			Body.
     Output()
 	
 print "foo"

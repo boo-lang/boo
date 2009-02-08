@@ -138,8 +138,8 @@ tokens
 
 	protected bool IsValidMacroArgument(int token)
 	{
-		return LPAREN != token && LBRACK != token && DOT != token;
-	} 
+		return LPAREN != token && LBRACK != token && DOT != token && MULTIPLY != token;
+	}
 	
 	private LexicalInfo ToLexicalInfo(IToken token)
 	{
@@ -2229,7 +2229,8 @@ unary_expression returns [Expression e]
 				sub:SUBTRACT { op = sub; uOperator = UnaryOperatorType.UnaryNegation; } |
 				inc:INCREMENT { op = inc; uOperator = UnaryOperatorType.Increment; } |
 				dec:DECREMENT { op = dec; uOperator = UnaryOperatorType.Decrement; } |
-				oc:ONES_COMPLEMENT { op = oc; uOperator = UnaryOperatorType.OnesComplement; }
+				oc:ONES_COMPLEMENT { op = oc; uOperator = UnaryOperatorType.OnesComplement; } |
+				explode:MULTIPLY { op = explode; uOperator = UnaryOperatorType.Explode; }
 			)
 			e=unary_expression
 		) |
@@ -2244,7 +2245,7 @@ unary_expression returns [Expression e]
 	{
 		if (null != op)
 		{
-			UnaryExpression ue = new UnaryExpression(SourceLocationFactory.ToLexicalInfo(op));
+			UnaryExpression ue = new UnaryExpression(ToLexicalInfo(op));
 			ue.Operator = uOperator;
 			ue.Operand = e;
 			e = ue; 
@@ -2548,11 +2549,6 @@ slicing_expression returns [Expression e]
 			}
 		)
 		|
-		((NEWLINE)+ DOT)=>(
-			((NEWLINE)+ DOT)
-			e=member_reference_expression[e]
-		)
-		|
 		(
 			DOT (NEWLINE)*
 			e=member_reference_expression[e]
@@ -2566,37 +2562,16 @@ slicing_expression returns [Expression e]
 					e = mce;
 				}
 				(
-					method_invocation_argument[mce] 
+					argument[mce] 
 					(
 						COMMA
-						method_invocation_argument[mce]
+						argument[mce]
 					)*
 				)?
 			RPAREN
 		)
 	)*
-	;
-	
-protected
-method_invocation_argument[MethodInvocationExpression mie]
-	{
-		Expression arg = null;
-	}:
-	(
-		t:MULTIPLY arg=expression
-		{
-			if (null != arg)
-			{
-				mie.Arguments.Add(
-					new UnaryExpression(
-						SourceLocationFactory.ToLexicalInfo(t),
-						UnaryOperatorType.Explode,
-						arg));
-			}
-		}
-	) |
-	argument[mie]
-	;
+;
 	
 protected
 literal returns [Expression e]
