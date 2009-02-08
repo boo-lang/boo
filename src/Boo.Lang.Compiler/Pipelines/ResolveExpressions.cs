@@ -39,7 +39,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new IntroduceModuleClasses());
 			Add(new NormalizeStatementModifiers());
 			Add(new NormalizeTypeAndMemberDefinitions());
-			
+			Add(new NormalizeOmittedExpressions());
+
 			Add(new BindTypeDefinitions());
 			Add(new BindGenericParameters());
 			Add(new BindEnumMembers());
