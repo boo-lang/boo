@@ -1,3 +1,4 @@
+#ignore FIXME: Covariance support is incomplete, generates unverifiable IL (BOO-1155)
 """
 OK
 """

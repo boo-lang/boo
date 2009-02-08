@@ -34,7 +34,6 @@ class MatchMacroTest:
 		Assert.AreEqual(2, lastIntItem(Collection(Items: [1, 2])))
 
 	[Test]
-	[Ignore("Parser does not accept *_ in array literal context")]
 	def TestFixedSizeCollectionLastItemBeforeCatchAll():
 		Assert.AreEqual(1, lastIntItemBeforeCatchAll(Collection(Items: [1, "_", "__"])))
 		Assert.AreEqual(2, lastIntItemBeforeCatchAll(Collection(Items: [1, 2, "_", "__"])))
@@ -209,12 +208,10 @@ class MatchMacroTest:
 				return last
 
 	def lastIntItemBeforeCatchAll(o):
-		/* FIXME: parser
 		match o:
-			case Collection(Items: (last = int(), *_)):
-				return last
 			case Collection(Items: (_ = int(), last = int(), *_)):
 				return last
-		*/
+			case Collection(Items: (last = int(), *_)):
+				return last
 		return -1
 
