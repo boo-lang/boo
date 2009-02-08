@@ -857,15 +857,19 @@ namespace BooC
 			}
 			arglist = result;
 		}
-		
+
+		Stopwatch stepStopwatch;
+
 		void OnBeforeStep(object sender, CompilerStepEventArgs args)
 		{
 			args.Context.TraceEnter("Entering {0}", args.Step);
+			stepStopwatch = Stopwatch.StartNew();
 		}
 		
 		void OnAfterStep(object sender, CompilerStepEventArgs args)
 		{
-			args.Context.TraceLeave("Leaving {0}", args.Step);
+			stepStopwatch.Stop();
+			args.Context.TraceLeave("Leaving {0} ({1}ms)", args.Step, stepStopwatch.ElapsedMilliseconds);
 		}
 		
 		void InvalidOption(string arg)

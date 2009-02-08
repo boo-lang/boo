@@ -183,22 +183,22 @@ namespace Boo.Lang.Compiler
 		}
 		
 		[Conditional("TRACE")]
-		public void TraceEnter(string format, object param)
+		public void TraceEnter(string format, params object[] args)
 		{
 			if (_parameters.TraceInfo)
 			{
-				Trace.WriteLine(string.Format(format, param));
+				Trace.WriteLine(string.Format(format, args));
 				++Trace.IndentLevel;
 			}
 		}
 		
 		[Conditional("TRACE")]
-		public void TraceLeave(string format, object param)
+		public void TraceLeave(string format, params object[] args)
 		{
 			if (_parameters.TraceInfo)
 			{
 				--Trace.IndentLevel;
-				Trace.WriteLine(string.Format(format, param));
+				Trace.WriteLine(string.Format(format, args));
 			}
 		}
 		
