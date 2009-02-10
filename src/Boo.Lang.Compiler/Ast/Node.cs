@@ -357,11 +357,24 @@ namespace Boo.Lang.Compiler.Ast
 			return writer.ToString();
 		}
 
+
+		///<summary>
+		///Returns the closest ancestor node of type <paramref name="ancestorType"/>
+		///or null if no ancestor of requested type has been found.
+		///</summary>
+		///<param name="ancestorType">The type of node you request.</param>
 		public Node GetAncestor(NodeType ancestorType)
 		{
-			return GetAncestor(ancestorType, 0xffffff);
+			return GetAncestor(ancestorType, int.MaxValue);
 		}
 
+		///<summary>
+		///Returns the closest ancestor node of type <paramref name="ancestorType"/>
+		///within <paramref name="limitDepth"/> or null if no ancestor of requested
+		///type has been found.
+		///</summary>
+		///<param name="ancestorType">The type of node you request.</param>
+		///<param name="limitDepth">Maximum depth difference from this node to ancestor.</param>
 		public Node GetAncestor(NodeType ancestorType, int limitDepth)
 		{
 			Node parent = this.ParentNode;
@@ -375,6 +388,11 @@ namespace Boo.Lang.Compiler.Ast
 			return null;
 		}
 
+		///<summary>
+		///Returns the closest ancestor node of type <paramref name="TAncestor"/>
+		///or null if no ancestor of requested type has been found.
+		///</summary>
+		///<param name="TAncestor">The type of node you request.</param>
 		public TAncestor GetAncestor<TAncestor>() where TAncestor : Node
 		{
 			Node parent = this.ParentNode;
@@ -389,8 +407,22 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		///<summary>
-		///Yields TAncestor ancestors in order from closest to farthest from this node.
+		///Returns the farthest ancestor node of type <paramref name="TAncestor"/>
+		///or null if no ancestor of requested type has been found.
 		///</summary>
+		///<param name="TAncestor">The type of node you request.</param>
+		public TAncestor GetRootAncestor<TAncestor>() where TAncestor : Node
+		{
+			TAncestor root = null;
+			foreach (TAncestor ancestor in GetAncestors<TAncestor>())
+				root = ancestor;
+			return root;
+		}
+
+		///<summary>
+		///Yields <paramref name="TAncestor"/> ancestors in order from closest to farthest from this node.
+		///</summary>
+		///<param name="TAncestor">The type of node you request.</param>
 		public IEnumerable<TAncestor> GetAncestors<TAncestor>() where TAncestor : Node
 		{
 			Node parent = this.ParentNode;
@@ -403,5 +435,5 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 	}
-
 }
+
