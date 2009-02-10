@@ -272,9 +272,42 @@ namespace Boo.Lang.Compiler
 			{
 				Prepare(context);
 				RunSteps(context);
-				DisposeSteps();
-			}			finally			{
-				OnAfter(context);
+			}
+			finally
+			{
+				try
+				{
+					DisposeServices(context);
+				}
+				finally
+				{
+					try
+					{
+						DisposeSteps();
+					}
+					finally
+					{
+						OnAfter(context);
+					}
+				}
+			}
+		}
+
+		private void DisposeServices(CompilerContext context)
+		{
+			foreach (Type service in context.RegisteredServices)
+			{
+				if (service.FullName.StartsWith("Boo.Lang.Compiler."))
+					//internal services have a process-lifetime
+					continue;
+
+				try
+				{
+					context.UnregisterService(service);
+				}
+				finally //do not stop unregistering in the event one service throws at Dispose
+				{
+				}
 			}
 		}
 
@@ -282,7 +315,13 @@ namespace Boo.Lang.Compiler
 		{
 			foreach (ICompilerStep step in _items)
 			{
-				step.Dispose();
+				try
+				{
+					step.Dispose();
+				}
+				finally //do not stop disposing in the event one step throws at Dispose
+				{
+				}
 			}
 		}
 

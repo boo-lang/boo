@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler
 	/// boo compilation context.
 	/// </summary>
 	public class CompilerContext
-	{				
+	{
 		public static CompilerContext Current
 		{
 			get { return _current != null ? _current.Value : null; }
@@ -58,8 +58,6 @@ namespace Boo.Lang.Compiler
 		protected CompilerErrorCollection _errors;
 		
 		protected CompilerWarningCollection _warnings;
-
-		protected IDictionary<Type, object> _services = new Dictionary<Type, object>();
 		
 		protected TraceSwitch _traceSwitch;
 
@@ -76,7 +74,7 @@ namespace Boo.Lang.Compiler
 		}
 
 		public CompilerContext(CompileUnit unit) : this(new CompilerParameters(), unit)
-		{				
+		{
 		}
 
 		public CompilerContext(bool stdlib) : this(new CompilerParameters(stdlib), new CompileUnit())
@@ -317,12 +315,56 @@ namespace Boo.Lang.Compiler
 			return _current;
 		}
 
-		public void RegisterService<T>(T service)
+		#region Compiler services registry
+		protected IDictionary<Type, object> _services = new Dictionary<Type, object>();
+
+		///<summary>Registers a (new) compiler service.</summary>
+		///<param name="T">The Type of the service to register. It must be a reference type.</param>
+		///<param name="service">An instance of the service.</param>
+		///<exception cref="ArgumentException">Thrown when <paramref name="T"/> is already registered.</exception>
+		///<exception cref="ArgumentNullException">Thrown when <paramref name="service"/> is null.</exception>
+		///<remarks>Services are unregistered (and potentially disposed) when a pipeline has been ran.</remarks>
+		public void RegisterService<T>(T service) where T : class
 		{
-			_services[typeof(T)] = service;
+			if (null == service)
+				throw new ArgumentNullException("T");
+
+			try
+			{
+				_services.Add(typeof(T), service);
+			}
+			catch (KeyNotFoundException)
+			{
+				throw new ArgumentException(string.Format("Compiler service of type `{0}` is already registered", typeof(T)), "T");
+			}
 		}
 
-		public T GetService<T>()
+		///<summary>Unregisters a compiler service.</summary>
+		///<param name="T">The type of the service to unregister.</param>
+		///<returns>Returns true if the service is successfuly found and removed, false otherwise.</returns>
+		///<remarks>If service implements IDisposable, the service is disposed.</remarks>
+		public bool UnregisterService<T>() where T : class
+		{
+			return UnregisterService(typeof(T));
+		}
+
+		internal bool UnregisterService(Type type)
+		{
+			object service = null;
+			if (_services.TryGetValue(type, out service))
+			{
+				IDisposable d = service as IDisposable;
+				if (null != d)
+					d.Dispose();
+			}
+			return _services.Remove(type);
+		}
+
+		///<summary>Gets a registered compiler service of a specific Type.</summary>
+		///<param name="T">The type of the requested service.</param>
+		///<returns>Returns the requested service instance.</returns>
+		///<exception cref="ArgumentException">Thrown when requested service of type <paramref name="T"/> has not been found.</exception>
+		public T GetService<T>() where T : class
 		{
 			try
 			{
@@ -330,9 +372,23 @@ namespace Boo.Lang.Compiler
 			}
 			catch (KeyNotFoundException)
 			{
-				throw new ArgumentException(string.Format("Requested compiler service not found: '{0}'.", typeof(T)));
+				throw new ArgumentException(string.Format("No compiler service of type `{0}` has been found", typeof(T)), "T");
 			}
 		}
+
+		///<summary>Gets currently registered compiler services.</summary>
+		///<returns>Returns an enumerable of available services types.</returns>
+		public IEnumerable<Type> RegisteredServices
+		{
+			get
+			{
+				Type[] keys = new Type[_services.Keys.Count];
+				_services.Keys.CopyTo(keys, 0);
+				return keys;
+			}
+		}
+		#endregion
+
 
 		void OnCompilerWarning(object o, CompilerWarningEventArgs args)
 		{
