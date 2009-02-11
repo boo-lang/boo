@@ -281,7 +281,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.IsVisibilitySet) return;
 
 			if (!node.IsStatic)
-				node.Modifiers |= TypeMemberModifiers.Public;
+				node.Modifiers |= Context.Parameters.DefaultMethodVisibility;
 			else
 				node.Modifiers |= TypeMemberModifiers.Private;
 		}

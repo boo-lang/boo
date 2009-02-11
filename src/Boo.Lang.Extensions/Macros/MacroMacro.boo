@@ -179,12 +179,12 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	private def CreateGeneratorMacroType(typeName as string) as ClassDefinition:
 		arg = ReferenceExpression(_name)
 		return [|
-				final class $(typeName) (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
+				public final class $(typeName) (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					private __macro as Boo.Lang.Compiler.Ast.MacroStatement
-					def constructor():
+					public def constructor():
 						super()
-					def constructor(context as Boo.Lang.Compiler.CompilerContext):
+					public def constructor(context as Boo.Lang.Compiler.CompilerContext):
 						raise System.ArgumentNullException("context") if not context
 						super(context)
 					override protected def ExpandGeneratorImpl($_name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Node*:
@@ -199,12 +199,12 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	private def CreateOldStyleMacroType(typeName as string) as ClassDefinition:
 		arg = ReferenceExpression(_name)
 		return [|
-				final class $(typeName) (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
+				public final class $(typeName) (Boo.Lang.Compiler.LexicalInfoPreservingMacro):
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					private __macro as Boo.Lang.Compiler.Ast.MacroStatement
-					def constructor():
+					public def constructor():
 						super()
-					def constructor(context as Boo.Lang.Compiler.CompilerContext):
+					public def constructor(context as Boo.Lang.Compiler.CompilerContext):
 						raise System.ArgumentNullException("context") if not context
 						super(context)
 					override protected def ExpandImpl($_name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
