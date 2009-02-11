@@ -7,15 +7,15 @@ class Customer(object):
 
 	_friends as System.Collections.ArrayList
 
-	FirstName as string:
+	public FirstName as string:
 		get:
 			return _fname
 
-	LastName:
+	public LastName:
 		get:
 			return _lname
 
-	Friends as System.Collections.ICollection:
+	public Friends as System.Collections.ICollection:
 		get:
 			return _friends
 """

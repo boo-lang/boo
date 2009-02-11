@@ -3,7 +3,7 @@ class Customer(object):
 
 	_fname as string
 
-	FirstName as string:
+	public FirstName as string:
 		get:
 			return _fname
 		set:

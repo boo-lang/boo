@@ -127,6 +127,8 @@ public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 			p.Modifiers |= TypeMemberModifiers.Static
 		if IsProtected:
 			p.Modifiers |= TypeMemberModifiers.Protected
+		else:
+			p.Modifiers |= TypeMemberModifiers.Public
 		p.Name = _propertyName.Name
 		if not _propertyType:
 			p.Type = f.Type
