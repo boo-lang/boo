@@ -58,7 +58,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 		arg = macro.Arguments[0]
 		mie = arg as MethodInvocationExpression
-		if mie and mie.Arguments.Count:
+		if mie:
 			_apb = ArgumentsPatternBuilder(Context, mie.Arguments)
 			arg = mie.Target
 
@@ -217,23 +217,31 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	private def ExpandBody():
 		body = _macro.Body
 
-		if ArgumentsPattern and ArgumentsPattern.Count > 0:
-			case = CaseStatement()
-			case.Pattern = QuasiquoteExpression(pattern = MacroStatement(_name))
-			pattern.Arguments = ArgumentsPattern
-			if ArgumentsPrologue:
-				case.Body = [|
-					$ArgumentsPrologue
-					$body
+		if ArgumentsPattern:
+			if 0 == ArgumentsPattern.Count and not ArgumentsPrologue:
+				body = [|
+					if __macro.Arguments.Count == 0:
+						$body
+					else:
+						$(CreateRaiseMacroArgumentsMatchError())
 				|].ToBlock()
-			else:
-				case.Body = body
-			otherwise = OtherwiseStatement() #TODO: macro overload without arguments def
-			otherwise.Body = [| raise "`${$(_name)}` macro invocation argument(s) did not match definition: `${$(_macro.Arguments[0].ToString())}`" |].ToBlock()
-			body = [|
-				$case
-				$otherwise
-			|]
+			elif ArgumentsPattern.Count > 0:
+				case = CaseStatement()
+				case.Pattern = QuasiquoteExpression(pattern = MacroStatement(_name))
+				pattern.Arguments = ArgumentsPattern
+				if ArgumentsPrologue:
+					case.Body = [|
+						$ArgumentsPrologue
+						$body
+					|].ToBlock()
+				else:
+					case.Body = body
+				otherwise = OtherwiseStatement() #TODO: macro overload without arguments def
+				otherwise.Body = CreateRaiseMacroArgumentsMatchError().ToBlock()
+				body = [|
+					$case
+					$otherwise
+				|]
 
 		if ContainsCase(body):
 			return ExpandWithPatternMatching(_name, body)
@@ -245,6 +253,9 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			|].ToBlock()
 		else:
 			return body
+
+	def CreateRaiseMacroArgumentsMatchError() as RaiseStatement:
+		return [| raise "`${$(_name)}` macro invocation argument(s) did not match definition: `${$(_macro.Arguments[0].ToString())}`" |]
 
 
 	#region PatternMatching

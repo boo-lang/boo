@@ -7,9 +7,9 @@ BCE0045-4.boo(29,1): BCE0045: Macro expansion error: Cannot cast item #2 from `B
 BCE0045-4.boo(33,1): BCE0045: Macro expansion error: `ints1` macro invocation argument(s) did not match definition: `ints1((x as string), (y as System.Collections.Generic.IEnumerable[of int]))`.
 BCE0045-4.boo(34,1): BCE0045: Macro expansion error: Cannot cast item #2 from `Boo.Lang.Compiler.Ast.StringLiteralExpression` to `Boo.Lang.Compiler.Ast.IntegerLiteralExpression`.
 BCE0045-4.boo(37,1): BCE0045: Macro expansion error: Cannot cast item #1 from `Boo.Lang.Compiler.Ast.MemberReferenceExpression` to `Boo.Lang.Compiler.Ast.MethodInvocationExpression`.
+BCE0045-4.boo(40,1): BCE0045: Macro expansion error: `noargument` macro invocation argument(s) did not match definition: `noargument()`.
 """
 import Boo.Lang.PatternMatching
-
 macro notlast(foo as string*, x as int): pass
 macro strings0(x as string*):
 	pass
@@ -19,7 +19,7 @@ macro mies0(mie as Boo.Lang.Compiler.Ast.MethodInvocationExpression*):
 	pass
 
 macro unsupported(foo as object*): pass
-
+macro noargument(): pass
 macro bodynotlast(body as string*, x as int): pass
 macro bodynotenumerable(body as string): pass
 
@@ -35,4 +35,7 @@ ints1 "s", "FAIL"
 
 mies0 Console.WriteLine("ok"), Console.Write("OK")
 mies0 Console.WriteLine, Console.Write
+
+noargument
+noargument 1
 
