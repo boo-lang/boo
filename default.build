@@ -35,6 +35,11 @@
 	<property name="fakeroot.libdir" value="${install.destdir}/${install.libdir}" />
 	<property name="fakeroot.share" value="${install.destdir}/${install.share}" />
 
+	<!-- set gendarme.dir in your build.properties to enable Gendarme report after build -->
+	<property name="gendarme.dir" value=""/>
+	<!-- set gendarme.set to 'boo' to get only Gendarme.Rules.Boo defects -->
+	<property name="gendarme.set" value=""/>
+
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
 	
 	<property name="boo.distro.name" value="boo-${boo.version}" />
@@ -66,9 +71,10 @@
 		<property name="nosign" value="true" overwrite="true" />
 	</target>
 
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env, Boo.Lang.PatternMatching">	
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env, Boo.Lang.PatternMatching">
+		<call target="gendarme" if="${gendarme.dir != ''}" />
 	</target>
-	
+
 	<target name="set-release-configuration">
 		<property name="debug" value="false" />
 		<property name="optimize" value="true" />
@@ -1153,6 +1159,51 @@
 		     are sync'ed with current install.prefix
 		-->
 		<nant buildfile="extras/makedeb.build" />
+	</target>
+
+
+	<target name="Gendarme.Rules.Abstract" depends="core">
+		<booc target="library" output="${build.dir}/Gendarme.Rules.Abstract.dll"
+		      strict="true" verbose="${verbose}" debug="${debug}">
+			<sources basedir="extras/Gendarme.Rules.Abstract">
+				<include name="**/*.boo" />
+			</sources>
+			<references basedir="${gendarme.dir}">
+				<include name="Gendarme.Framework.dll" />
+			</references>
+		</booc>
+	</target>
+
+	<target name="Gendarme.Rules.Boo" depends="Gendarme.Rules.Abstract">
+		<booc target="library" output="${build.dir}/Gendarme.Rules.Boo.dll"
+		      strict="true" verbose="${verbose}" debug="${debug}">
+			<sources basedir="extras/Gendarme.Rules.Boo">
+				<include name="**/*.boo" />
+			</sources>
+			<references basedir="${build.dir}">
+				<include name="Gendarme.Rules.Abstract.dll" />
+				<include name="${path::combine(gendarme.dir, 'Gendarme.Framework.dll')}" />
+			</references>
+		</booc>
+	</target>
+
+	<target name="gendarme" depends="Gendarme.Rules.Boo">
+		<delete file="${build.dir}/gendarme-report.html" failonerror="false" />
+		<echo>
+		***
+		In the event of detected defects, a detailed report will be available at:
+		file://${path::combine(path::get-full-path(build.dir), 'gendarme-report.html')}
+		***
+		</echo>
+		<exec program="${path::combine(gendarme.dir,'gendarme.exe')}"
+			useruntimeengine="true" failonerror="true">
+			<arg line="--config extras/rules.xml" />
+			<arg line="--html ${build.dir}/gendarme-report.html" />
+			<arg line="--set ${gendarme.set}" unless="${gendarme.set == ''}" />
+
+			<arg value="${build.dir}/Boo.Lang.dll" />
+			<arg value="${build.dir}/Boo.Lang.Compiler.dll" />
+		</exec>
 	</target>
 
 </project>
