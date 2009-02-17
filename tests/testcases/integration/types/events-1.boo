@@ -30,7 +30,7 @@ def CheckEvent(name, serializable):
 
 	CheckEventMethod("add_${name}", eventInfo.GetAddMethod())
 	CheckEventMethod("remove_${name}", eventInfo.GetRemoveMethod())
-	CheckEventField(type.GetField("___${name}", BindingFlags.NonPublic|BindingFlags.Instance), serializable, eventInfo.EventHandlerType)
+	CheckEventField(type.GetField("$event$${name}", BindingFlags.NonPublic|BindingFlags.Instance), serializable, eventInfo.EventHandlerType)
 
 	raiseMethod = eventInfo.GetRaiseMethod(true)
 	assert raiseMethod is not null

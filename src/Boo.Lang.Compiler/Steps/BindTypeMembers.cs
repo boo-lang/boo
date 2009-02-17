@@ -131,15 +131,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void BindInterfaceEvent(Event node)
 		{
-			// TODO: Add checks to ensure Add/Remove/Raise are
-			// null before doing this.
-			node.Add = CreateInterfaceEventAddMethod(node);
-			node.Remove = CreateInterfaceEventRemoveMethod(node);
+			if (null == node.Add)
+				node.Add = CreateInterfaceEventAddMethod(node);
+			if (null == node.Remove)
+				node.Remove = CreateInterfaceEventRemoveMethod(node);
 		}
 
 		private void BindClassEvent(Event node, IType type, bool typeIsCallable)
 		{
-			Field backingField = CodeBuilder.CreateField("___" + node.Name, type);
+			Field backingField = CodeBuilder.CreateField("$event$" + node.Name, type);
+			backingField.IsSynthetic = true;
 			backingField.Modifiers = TypeMemberModifiers.Private;
 			if (node.IsTransient)
 			{
@@ -161,7 +162,6 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Visit(node.Add);
 			}
-			
 			if (null == node.Remove)
 			{
 				node.Remove = CreateEventRemoveMethod(node, backingField);
@@ -170,13 +170,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Visit(node.Remove);
 			}
-			
 			if (null == node.Raise)
 			{
 				if (typeIsCallable)
-				{
 					node.Raise = CreateEventRaiseMethod(node, backingField);
-				}
 			}
 			else
 			{
@@ -314,7 +311,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = CodeBuilder.CreateMethod("raise_" + node.Name,
 				TypeSystemServices.VoidType,
 				modifiers);
-													
+
 			ICallableType type = GetEntity(node.Type) as ICallableType;
 			if (null != type)
 			{
@@ -330,9 +327,17 @@ namespace Boo.Lang.Compiler.Steps
 					++index;
 				}
 			}
-			
+
+			//assign backingField to local to avoid potential race condition between null-check and Invoke
+			InternalLocal local = CodeBuilder.DeclareTempLocal(method, GetType(backingField.Type));
+			BinaryExpression assignment = new BinaryExpression(
+				BinaryOperatorType.Assign,
+				CodeBuilder.CreateReference(local),
+				CodeBuilder.CreateReference(backingField));
+			method.Body.Add(assignment);
+
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-				CodeBuilder.CreateReference(backingField),
+				CodeBuilder.CreateReference(local),
 				NameResolutionService.ResolveMethod(GetType(backingField.Type), "Invoke"));
 			foreach (ParameterDeclaration parameter in method.Parameters)
 			{
@@ -340,12 +345,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			IfStatement stmt = new IfStatement(node.LexicalInfo);
-			stmt.Condition = CodeBuilder.CreateNotNullTest(
-				CodeBuilder.CreateReference(backingField));
+			stmt.Condition = CodeBuilder.CreateReference(local);
 			stmt.TrueBlock = new Block();
 			stmt.TrueBlock.Add(mie);
 			method.Body.Add(stmt);
+
 			return method;
 		}
 	}
 }
+

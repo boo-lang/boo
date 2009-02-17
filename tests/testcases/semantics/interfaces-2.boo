@@ -21,7 +21,7 @@ public class Foo(object, IFoo):
 	public def constructor():
 		super()
 
-	private ___Zeng as System.EventHandler
+	private $event$Zeng as System.EventHandler
 
 	public virtual def Baz() as object:
 		raise System.NotImplementedException()
