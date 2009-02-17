@@ -61,25 +61,32 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IEntity entity = ResolveImport(import);
-			if (null == entity)
-			{
-				Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
-				RemoveCurrentNode();
+			if (HandledAsImportError(import, entity))
 				return;
-			}
-
-			if (!IsValidNamespace(entity))
-			{
-				Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
-				RemoveCurrentNode();
-				return;
-			}
 
 			if (HandledAsDuplicatedNamespace(import, entity))
 				return;
 
 			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
 			import.Entity = ImportedNamespaceFor(import, entity);
+		}
+
+		private bool HandledAsImportError(Import import, IEntity entity)
+		{
+			if (null == entity)
+			{
+				Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
+				RemoveCurrentNode();
+				return true;
+			}
+
+			if (!IsValidNamespace(entity))
+			{
+				Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
+				RemoveCurrentNode();
+				return true;
+			}
+			return false;
 		}
 
 		private string ActualImportedNamespaceFor(Import import, IEntity entity)
@@ -131,6 +138,8 @@ namespace Boo.Lang.Compiler.Steps
 		private void ImportFromAssemblyReference(Import import)
 		{
 			IEntity resolvedNamespace = ResolveImportAgainstReferencedAssembly(import);
+			if (HandledAsImportError(import, resolvedNamespace))
+				return;
 			if (HandledAsDuplicatedNamespace(import, resolvedNamespace))
 				return;
 			import.Entity = ImportedNamespaceFor(import, resolvedNamespace);

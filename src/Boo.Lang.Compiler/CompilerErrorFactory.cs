@@ -161,6 +161,8 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError InvalidNamespace(Import import)
 		{
+			if (import.AssemblyReference != null)
+				return new CompilerError("BCE0167", import.LexicalInfo, import.Namespace, import.AssemblyReference);
 			return new CompilerError("BCE0021", import.LexicalInfo, import.Namespace);
 		}
 		
