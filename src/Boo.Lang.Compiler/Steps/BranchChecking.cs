@@ -32,6 +32,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {

@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public enum EntityType
 	{
 		CompileUnit = 0x00,
-		Module = 0x01,
+//		Module = 0x01,
 		Type = 0x02,
 		Method = 0x08,		
 		Constructor = 0x10,
@@ -55,6 +55,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Unknown,
 		Null,
 		Error,		
-		Any = 0xFFFF
+		Any = 0xFFFFFF
 	}
 }

@@ -34,12 +34,8 @@ namespace Boo.Lang.Compiler
 	using System.Text;
 	using Boo.Lang.Compiler.Ast;
 	
-	public class CompilerErrorFactory
-	{
-		private CompilerErrorFactory()
-		{
-		}
-		
+	public static class CompilerErrorFactory
+	{	
 		public static CompilerError CustomError(LexicalInfo lexicalInfo, string msg)
 		{
 			return new CompilerError(lexicalInfo, msg);
@@ -148,9 +144,9 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0017", AstUtil.SafeLexicalInfo(node), expectedSignature, actualSignature);
 		}
 		
-		public static CompilerError NameNotType(Node node, string name, string suggestion)
+		public static CompilerError NameNotType(Node node, string typeName, string whatItIs, string suggestion)
 		{
-			return new CompilerError("BCE0018", AstUtil.SafeLexicalInfo(node), name, DidYouMeanOrNull(suggestion));
+			return new CompilerError("BCE0018", AstUtil.SafeLexicalInfo(node), typeName, whatItIs, DidYouMeanOrNull(suggestion));
 		}
 		
 		public static CompilerError MemberNotFound(MemberReferenceExpression node, string namespace_, string suggestion)

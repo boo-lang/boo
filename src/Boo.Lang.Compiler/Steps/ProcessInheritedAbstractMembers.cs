@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {

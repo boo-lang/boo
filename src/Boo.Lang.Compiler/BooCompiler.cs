@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class BooCompiler
 	{
-		CompilerParameters _parameters;
+		private readonly CompilerParameters _parameters;
 
 		public BooCompiler()
 		{

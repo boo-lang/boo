@@ -28,11 +28,13 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Boo.Lang.Compiler.Ast
 {
+	public class LongJumpException : System.ApplicationException
+	{
+	}
+
 	public partial class DepthFirstTransformer
 	{
 		protected Node _resultingNode = null;
@@ -65,6 +67,10 @@ namespace Boo.Lang.Compiler.Ast
 					_resultingNode = saved;
 					return result;
 				}
+				catch (LongJumpException)
+				{
+					throw;
+				}
 				catch (Boo.Lang.Compiler.CompilerError)
 				{
 					throw;
@@ -75,6 +81,26 @@ namespace Boo.Lang.Compiler.Ast
 				}
 			}
 			return null;
+		}
+
+		protected bool VisitAllowingCancellation(Node node)
+		{
+			try
+			{
+				Visit(node);
+				return true;
+			}
+			catch (LongJumpException)
+			{
+				return false;
+			}
+		}
+
+		static readonly LongJumpException CancellationException = new LongJumpException();
+
+		protected void Cancel()
+		{
+			throw CancellationException;
 		}
 
 		protected virtual void OnError(Node node, Exception error)

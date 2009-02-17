@@ -33,10 +33,6 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ResolveTypeReferences : AbstractNamespaceSensitiveVisitorCompilerStep
 	{
-		public ResolveTypeReferences()
-		{
-		}
-
 		override public void Run()
 		{
 			Visit(CompileUnit.Modules);

@@ -26,12 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Reflection;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -57,71 +54,91 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsAlreadyBound(import))
 				return;
 
-			IEntity entity = ResolveImport(import);
-
-			//if 'import X', try 'import X from X'
-			//comment out next if block if this is not wanted
-			if (null == entity && null == import.AssemblyReference)
+			if (null != import.AssemblyReference)
 			{
-				if (TryAutoAddAssemblyReference(import))
-				{
-					entity = NameResolutionService.ResolveQualifiedName(import.Namespace);
-				}
+				ImportFromAssemblyReference(import);
+				return;
 			}
-			
+
+			IEntity entity = ResolveImport(import);
 			if (null == entity)
 			{
 				Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
-				entity = TypeSystemServices.ErrorEntity;
+				RemoveCurrentNode();
+				return;
 			}
-			else
+
+			if (!IsValidNamespace(entity))
 			{
-				if (!IsValidNamespace(entity))
-				{
-					Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
-					entity = TypeSystemServices.ErrorEntity;
-				}
-				else
-				{
-					string name = entity.FullName;
-					if (null != import.AssemblyReference)
-					{
-						NamespaceEntity nsInfo = entity as NamespaceEntity;
-						if (null != nsInfo)
-						{
-							entity = new AssemblyQualifiedNamespaceEntity(GetBoundAssembly(import.AssemblyReference), nsInfo);
-						}
-					}
-					
-					if (null != import.Alias)
-					{
-						entity = new AliasedNamespace(import.Alias.Name, entity);
-						import.Alias.Entity = entity;
-						name = entity.Name; //use alias name instead of namespace name
-					}
-					
-					//only add unique namespaces
-					Import cachedImport = nameSpaces[name] as Import;
-					if (cachedImport == null)
-					{
-						nameSpaces[name] = import;
-					}
-					else
-					{
-						//ignore for partial classes in separate files
-						if (cachedImport.LexicalInfo.FileName == import.LexicalInfo.FileName)
-						{
-							Warnings.Add(
-								CompilerWarningFactory.DuplicateNamespace(import, import.Namespace));
-						}
-						RemoveCurrentNode();
-						return;
-					}
-				}
+				Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
+				RemoveCurrentNode();
+				return;
 			}
-			
+
+			if (HandledAsDuplicatedNamespace(import, entity))
+				return;
+
 			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
-			import.Entity = entity;
+			import.Entity = ImportedNamespaceFor(import, entity);
+		}
+
+		private string ActualImportedNamespaceFor(Import import, IEntity entity)
+		{
+			return null != import.Alias
+			       	? import.Alias.Name
+			       	: entity.FullName;
+		}
+
+		private bool HandledAsDuplicatedNamespace(Import import, IEntity resolvedEntity)
+		{
+			string actualName = ActualImportedNamespaceFor(import, resolvedEntity);
+			//only add unique namespaces
+			Import cachedImport = nameSpaces[actualName] as Import;
+			if (cachedImport == null)
+			{
+				nameSpaces[actualName] = import;
+				return false;
+			}
+
+			//ignore for partial classes in separate files
+			if (cachedImport.LexicalInfo.FileName == import.LexicalInfo.FileName)
+			{
+				Warnings.Add(
+					CompilerWarningFactory.DuplicateNamespace(import, import.Namespace));
+			}
+			RemoveCurrentNode();
+			return true;
+		}
+
+		private IEntity ImportedNamespaceFor(Import import, IEntity entity)
+		{
+			if (!(entity is INamespace))
+				return entity;
+
+			INamespace actualNamespace = null != import.Alias
+			                       	? AliasedNamespaceFor(entity, import)
+			                       	: (INamespace)entity;
+			return new ImportedNamespace(import, actualNamespace);
+		}
+
+		private INamespace AliasedNamespaceFor(IEntity entity, Import import)
+		{
+			INamespace aliasedNamespace = new AliasedNamespace(import.Alias.Name, entity);
+			import.Alias.Entity = aliasedNamespace;
+			return aliasedNamespace;
+		}
+
+		private void ImportFromAssemblyReference(Import import)
+		{
+			IEntity resolvedNamespace = ResolveImportAgainstReferencedAssembly(import);
+			if (HandledAsDuplicatedNamespace(import, resolvedNamespace))
+				return;
+			import.Entity = ImportedNamespaceFor(import, resolvedNamespace);
+		}
+
+		private IEntity ResolveImportAgainstReferencedAssembly(Import import)
+		{
+			return NameResolutionService.ResolveQualifiedName(GetBoundReference(import.AssemblyReference).RootNamespace, import.Namespace);
 		}
 
 		private bool IsAlreadyBound(Import import)
@@ -131,8 +148,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveImport(Import import)
 		{
-			return ResolveImportOnParentNamespace(import)
-				?? NameResolutionService.ResolveQualifiedName(import.Namespace);
+			IEntity entity = ResolveImportOnParentNamespace(import)
+			                  ?? NameResolutionService.ResolveQualifiedName(import.Namespace);
+			if (null != entity)
+				return entity;
+
+			//if 'import X', try 'import X from X'
+			if (!TryAutoAddAssemblyReference(import))
+				return null;
+
+			return NameResolutionService.ResolveQualifiedName(import.Namespace);
 		}
 
 		private IEntity ResolveImportOnParentNamespace(Import import)
@@ -156,8 +181,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool TryAutoAddAssemblyReference(Boo.Lang.Compiler.Ast.Import import)
 		{
-			Assembly asm = Parameters.FindAssembly(import.Namespace);
-			if (asm != null) return false; //name resolution already failed earlier, don't try twice
+			ICompileUnit asm = Parameters.FindAssembly(import.Namespace);
+			if (asm != null)
+				return false; //name resolution already failed earlier, don't try twice
 			
 			asm = Parameters.LoadAssembly(import.Namespace, false);
 			if (asm == null) {
@@ -165,33 +191,24 @@ namespace Boo.Lang.Compiler.Steps
 				string[] namespaces = import.Namespace.Split(new char[]{'.',});
 				if (namespaces.Length == 1) {
 					return false;
-				} else {
-					string ns;
-					int level = namespaces.Length - 1;
-					while (level > 0) {
-						ns = string.Join(".", namespaces, 0, level);
-						asm = Parameters.FindAssembly(ns);
-						if (asm != null) return false; //name resolution already failed earlier, don't try twice
-						asm = Parameters.LoadAssembly(ns, false);
-						if (asm != null) break;
-						level--;
-					}
+				}
+				string ns;
+				int level = namespaces.Length - 1;
+				while (level > 0) {
+					ns = string.Join(".", namespaces, 0, level);
+					asm = Parameters.FindAssembly(ns);
+					if (asm != null) return false; //name resolution already failed earlier, don't try twice
+					asm = Parameters.LoadAssembly(ns, false);
+					if (asm != null) break;
+					level--;
 				}
 			}
 			
 			if (asm != null)
 			{
-				try
-				{
-					NameResolutionService.OrganizeAssemblyTypes(asm);
-				}
-				catch (Exception /*ignored*/)
-				{
-					return false;
-				}
-				Parameters.AddAssembly(asm);
+				Parameters.References.Add(asm);
 				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, asm.FullName);
-				import.AssemblyReference.Entity = new AssemblyReference(asm);
+				import.AssemblyReference.Entity = asm;
 				return true;
 			}
 			return false;
@@ -202,10 +219,10 @@ namespace Boo.Lang.Compiler.Steps
 			EntityType type = entity.EntityType;
 			return type == EntityType.Namespace || type == EntityType.Type;
 		}
-		
-		Assembly GetBoundAssembly(ReferenceExpression reference)
+
+		static ICompileUnit GetBoundReference(ReferenceExpression reference)
 		{
-			return ((AssemblyReference)TypeSystemServices.GetEntity(reference)).Assembly;
+			return ((ICompileUnit)TypeSystemServices.GetEntity(reference));
 		}
 	}
 }

@@ -31,6 +31,7 @@ using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler
 {
@@ -114,7 +115,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 		
-		protected TypeSystem.NameResolutionService NameResolutionService
+		protected NameResolutionService NameResolutionService
 		{
 			get
 			{

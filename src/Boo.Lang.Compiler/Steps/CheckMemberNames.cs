@@ -30,6 +30,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 

@@ -37,14 +37,15 @@ namespace Boo.Lang
 	[Serializable]
 	public class List<T> : IList<T>, IList
 	{
-		private const int DefaultCapacity = 16;
+		private static readonly T[] EmptyArray = new T[0];
 
 		protected T[] _items;
 
 		protected int _count;
 
-		public List() : this(DefaultCapacity)
+		public List()
 		{
+			_items = EmptyArray;
 		}
 
 		public List(System.Collections.IEnumerable enumerable) : this()

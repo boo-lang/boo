@@ -27,6 +27,8 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Generics;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	public class InitializeTypeSystemServices : AbstractCompilerStep
@@ -35,7 +37,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Context.RegisterService<TypeSystemServices>(CreateTypeSystemServices());
 			Context.RegisterService<CallableResolutionService>(CreateCallableResolutionService());
-			Context.RegisterService<GenericsServices>(new GenericsServices(Context));
+			Context.RegisterService<GenericsServices>(new GenericsServices());
 		}
 
 		protected virtual CallableResolutionService CreateCallableResolutionService()

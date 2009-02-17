@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Internal;
+
 namespace Boo.Lang.Compiler.Steps
 {	
 	using System;
@@ -72,7 +74,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (parameters.Length == 0) return true;
 			if (parameters.Length != 1) return false;
-			return parameters[0].Type == TypeSystemServices.GetArrayType(TypeSystemServices.StringType, 1);
+			return parameters[0].Type == TypeSystemServices.StringType.MakeArrayType(1);
 		}
 
 		private bool IsValidEntryPointReturnType(IType type)

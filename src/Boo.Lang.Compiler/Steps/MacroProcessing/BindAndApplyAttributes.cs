@@ -29,6 +29,8 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
@@ -182,8 +184,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 		
 		IType _astAttributeInterface;
-		
-		Boo.Lang.List _elements = new Boo.Lang.List();
+
+		readonly List<IEntity> _elements = new List<IEntity>();
 
 		public BindAndApplyAttributes()
 		{
@@ -222,7 +224,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
-			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
+			EnterNamespace(InternalModule.ScopeFor(module));
 			try
 			{
 				Visit(module.Members);
@@ -307,15 +309,13 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			IEntity tag = (IEntity)_elements[0];
 			if (EntityType.Type != tag.EntityType)
 			{
-				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name, null));
+				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name, tag.ToString(), null));
 				return;
 			}
 			
 			IType attributeType = ((ITypedEntity)tag).Type;
 			if (IsAstAttribute(attributeType))
 			{
-				MacroExpander.EnsureCompilerAssemblyReference(Context);
-
 				ExternalType externalType = attributeType as ExternalType;
 				if (null == externalType)
 				{
@@ -324,7 +324,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				else
 				{
 					ScheduleAttributeApplication(attribute, externalType.ActualType);
-					
 					RemoveCurrentNode();
 				}
 			}

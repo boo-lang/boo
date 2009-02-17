@@ -158,7 +158,7 @@ namespace Boo.Lang.Parser
 		
 		public static string CreateModuleName(string readerName)
 		{
-			if (readerName.IndexOfAny(Path.InvalidPathChars) > -1)
+			if (readerName.IndexOfAny(Path.GetInvalidPathChars()) > -1)
 			{
 				return EncodeModuleName(readerName);
 			}

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -28,6 +28,7 @@
 
 
 using System;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -40,25 +41,28 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class BindMethods : AbstractVisitorCompilerStep
 	{
-		public BindMethods()
+		private InternalTypeSystemProvider _internalTypeSystemProvider;
+
+		public override void Initialize(CompilerContext context)
 		{
+			base.Initialize(context);
+			_internalTypeSystemProvider = My<InternalTypeSystemProvider>.Instance;
+
 		}
-		
 		override public void OnMethod(Method node)
 		{
-			if (null == node.Entity)
-			{
-				TypeSystemServices.GetMemberEntity(node);
-			}
+			EnsureEntityFor(node);
 			Visit(node.ExplicitInfo);
+		}
+
+		protected void EnsureEntityFor(TypeMember node)
+		{
+			_internalTypeSystemProvider.EntityFor(node);
 		}
 
 		public override void OnConstructor(Constructor node)
 		{
-			if (null == node.Entity)
-			{
-				node.Entity = new InternalConstructor(TypeSystemServices, node);
-			}
+			EnsureEntityFor(node);
 		}
 		
 		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)

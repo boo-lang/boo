@@ -40,10 +40,6 @@ namespace Boo.Lang.Compiler.Steps
 		Boo.Lang.List _events = new Boo.Lang.List();
 		IMethod _delegate_Combine;
 		IMethod _delegate_Remove;
-
-		public BindTypeMembers()
-		{
-		}
 		
 		override public void OnMethod(Method node)
 		{
@@ -88,10 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnProperty(Property node)
 		{
-			if (null == node.Entity)
-			{				
-				node.Entity = new InternalProperty(TypeSystemServices, node);
-			}
+			EnsureEntityFor(node);
 			_parameters.Add(node);
 			
 			Visit(node.Getter);
@@ -114,10 +107,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindEvent(Event node)
 		{
-			if (null == node.Entity)
-			{
-				node.Entity = new InternalEvent(TypeSystemServices, node);
-			}
+			EnsureEntityFor(node);
 
 			IType type = GetType(node.Type);
 			IType declaringType = GetType(node.DeclaringType);

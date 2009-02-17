@@ -29,12 +29,14 @@
 namespace Boo.Lang.Compiler.Tests
 
 import System
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.TypeSystem
 import NUnit.Framework
 
 [TestFixture]
 class CallableSignatureFixture:
 	
+	_context as CompilerContext
 	_services as TypeSystemServices
 	_signature1 as CallableSignature
 	_signature2 as CallableSignature
@@ -58,17 +60,18 @@ class CallableSignatureFixture:
 	
 	[SetUp]
 	def SetUp():
-		_services = TypeSystemServices()
-		_signature1 = CallableSignature(GetMethod("NoArgsAsVoid"))
-		_signature2 = CallableSignature(GetMethod("NoArgsAsInt"))
-		_signature3 = CallableSignature(GetMethod("IntAsVoid"))
-		_signature4 = CallableSignature(GetMethod("IntAsInt"))
-		
+		_context = CompilerContext()
+		_context.Run:
+			_services = my(TypeSystemServices)
+			_signature1 = CallableSignature(GetMethod("NoArgsAsVoid"))
+			_signature2 = CallableSignature(GetMethod("NoArgsAsInt"))
+			_signature3 = CallableSignature(GetMethod("IntAsVoid"))
+			_signature4 = CallableSignature(GetMethod("IntAsInt"))
+			
 	def GetMethod(name as string) as IMethod:
 		return _services.Map(GetType().GetMethod(name))
 	
-	[Test]
-	def TestGetHashCode():
+	test TestGetHashCode:
 		Assert.AreEqual(CallableSignature(array(IParameter, 0), _services.VoidType).GetHashCode(),
 						_signature1.GetHashCode())
 						
@@ -80,8 +83,7 @@ class CallableSignatureFixture:
 		Assert.IsTrue(_signature2.GetHashCode() != _signature3.GetHashCode())
 		Assert.IsTrue(_signature3.GetHashCode() != _signature4.GetHashCode())
 		
-	[Test]
-	def TestEquals():
+	test TestEquals:
 		Assert.AreEqual(CallableSignature(array(IParameter, 0), _services.VoidType),
 						_signature1)
 						
@@ -95,8 +97,7 @@ class CallableSignatureFixture:
 		Assert.IsTrue(_signature2 != _signature3)
 		Assert.IsTrue(_signature3 != _signature4)
 		
-	[Test]
-	def TestToString():
+	test TestToString:
 		Assert.AreEqual("callable() as void", _signature1.ToString())
 		Assert.AreEqual("callable() as int", _signature2.ToString())
 		Assert.AreEqual("callable(int) as void", _signature3.ToString())
@@ -104,8 +105,7 @@ class CallableSignatureFixture:
 		Assert.AreEqual("callable(int, int) as int",
 						CallableSignature(GetMethod("IntIntAsInt")).ToString())
 						
-	[Test]
-	def UseAsHashKeys():
+	test UseAsHashKeys:
 		h = {}
 		h[_signature1] = "token1"
 		h[_signature2] = "token2"		
@@ -117,8 +117,4 @@ class CallableSignatureFixture:
 		
 		Assert.AreEqual("token1", h[CallableSignature(array(IParameter, 0), _services.VoidType)])
 		Assert.AreEqual("token2", h[CallableSignature(array(IParameter, 0), _services.IntType)])
-		
-		
-		 
-		
-		
+

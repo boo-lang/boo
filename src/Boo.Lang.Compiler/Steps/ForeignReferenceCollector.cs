@@ -31,6 +31,7 @@ using Boo.Lang;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Builders;
 
 namespace Boo.Lang.Compiler.Steps
 {

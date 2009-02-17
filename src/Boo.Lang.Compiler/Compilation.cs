@@ -28,9 +28,12 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.Util;
 using Module=Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.MetaProgramming
@@ -78,26 +81,25 @@ namespace Boo.Lang.Compiler.MetaProgramming
 
 		public static CompilerContext compile_(CompileUnit unit, Assembly[] references)
 		{
-			BooCompiler compiler = CompilerFor(unit, references);
+			BooCompiler compiler = NewCompiler();
+			foreach (Assembly reference in references)
+				compiler.Parameters.References.Add(reference);
 			return compiler.Run(unit);
 		}
 
-		private static BooCompiler CompilerFor(CompileUnit unit, Assembly[] references)
+		private static BooCompiler NewCompilerWithReferences(IEnumerable<ICompileUnit> references)
 		{
-			BooCompiler compiler = new BooCompiler();
-			compiler.Parameters.OutputType = IsApplication(unit) ? CompilerOutputType.ConsoleApplication : CompilerOutputType.Library;
-			compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.CompileToMemory();
-			compiler.Parameters.References.Extend(references);
+			BooCompiler compiler = NewCompiler();
+			compiler.Parameters.References.AddAll(references);
 			return compiler;
 		}
 
-		private static bool IsApplication(CompileUnit unit)
+		private static BooCompiler NewCompiler()
 		{
-			foreach (Module m in unit.Modules)
-			{
-				if (m.Globals.HasStatements) return true;
-			}
-			return false;
+			BooCompiler compiler = new BooCompiler();
+			compiler.Parameters.OutputType = CompilerOutputType.Auto;
+			compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.CompileToMemory();
+			return compiler;
 		}
 
 		private static CompileUnit CreateCompileUnit(ClassDefinition klass)
@@ -111,6 +113,11 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			module.Name = klass.Name;
 			module.Members.Add(klass);
 			return module;
+		}
+
+		public static CompilerContext compile_(CompileUnit unit, params ICompileUnit[] references)
+		{
+			return NewCompilerWithReferences(references).Run(unit);
 		}
 	}
 }

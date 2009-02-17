@@ -31,6 +31,9 @@ using System.Collections.Generic;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
@@ -40,6 +43,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private int _expanded;
 
 		private Set<Node> _visited = new Set<Node>();
+
+		private DynamicVariable<bool> _ignoringUnknownMacros = new DynamicVariable<bool>(false);
 
 		public bool ExpandAll()
 		{
@@ -56,21 +61,58 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		override public void Run()
 		{
-			Visit(CompileUnit);
+			ExpandModuleGlobalsIgnoringUnknownMacros();
+			ExpandModules();
+		}
+
+		private void ExpandModules()
+		{
+			foreach (Module module in CompileUnit.Modules)
+				ExpandOnModuleNamespace(module, VisitModule);
+		}
+
+		private void ExpandModuleGlobalsIgnoringUnknownMacros()
+		{
+			foreach (Module module in CompileUnit.Modules)
+			{
+				Module current = module;
+				_ignoringUnknownMacros.With(true, delegate
+				{
+					ExpandOnModuleNamespace(current, VisitGlobalsAllowingCancellation);	
+				});
+			}
+		}
+
+		private void VisitGlobalsAllowingCancellation(Module module)
+		{
+			VisitAllowingCancellation(module.Globals);
+		}
+
+		private void VisitModule(Module module)
+		{
+			Visit(module.Globals);
+			Visit(module.Members);
 		}
 		
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
+		bool ExpandOnModuleNamespace(Boo.Lang.Compiler.Ast.Module module, System.Action<Module> action)
 		{
-			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
+			int expansionCountBeforeAction = _expanded;
+
+			EnterModuleNamespace(module);
 			try
 			{
-				Visit(module.Globals);
-				Visit(module.Members);
+				action(module);
 			}
 			finally
 			{
 				LeaveNamespace();
 			}
+			return _expanded > expansionCountBeforeAction;
+		}
+
+		private void EnterModuleNamespace(Module module)
+		{
+			EnterNamespace(InternalModule.ScopeFor(module));
 		}
 
 		public override bool EnterClassDefinition(ClassDefinition node)
@@ -81,17 +123,20 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			return true;
 		}
 
-		static bool _referenced = false;
+		bool _referenced;
 
-		internal static void EnsureCompilerAssemblyReference(CompilerContext context)
+		internal void EnsureCompilerAssemblyReference(CompilerContext context)
 		{
-			//automatically import Boo.Lang.Compiler if needed
-			if (!_referenced && null == context.References.Find("Boo.Lang.Compiler"))
+			if (_referenced)
+				return;
+
+			if (null != context.References.Find("Boo.Lang.Compiler"))
 			{
-				System.Reflection.Assembly asm = typeof(CompilerContext).Assembly;
-				context.References.Add(asm);
-				context.NameResolutionService.OrganizeAssemblyTypes(asm);
+				_referenced = true;
+				return;
 			}
+
+			context.References.Add(typeof(CompilerContext).Assembly);
 			_referenced = true;
 		}
 
@@ -113,6 +158,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 					BubbleResultingTypeMemberStatementsUp();
 				return;
 			}
+
+			if (_ignoringUnknownMacros.Value)
+				Cancel();
+
 			ExpandUnknownMacro(node);
 		}
 
@@ -123,7 +172,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void ExpandKnownMacro(MacroStatement node, IType macroType)
 		{
-			EnsureVisitedRelatedNode(macroType);
 			EnterNamespace(new NamespaceDelegator(CurrentNamespace, macroType));
 			try
 			{	
@@ -134,14 +182,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				LeaveNamespace();
 			}
 			ProcessMacro(macroType, node);
-		}
-
-		private void EnsureVisitedRelatedNode(IType macroType)
-		{
-			AbstractInternalType internalType = macroType as AbstractInternalType;
-			if (null == internalType)
-				return;
-			EnsureVisited(internalType.TypeDefinition);
 		}
 
 		private void ExpandUnknownMacro(MacroStatement node)

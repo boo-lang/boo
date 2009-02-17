@@ -35,9 +35,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
 using Boo.Lang.Compiler.Ast;
-
+using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 
 namespace Boo.Lang.Compiler
 {
@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerParameters
 	{
-		private static List _validFileExtensions = new List(new string[] {".dll", ".exe"});
+		public static IReflectionTypeSystemProvider SharedTypeSystemProvider = new ReflectionTypeSystemProvider();
 
 		private TextWriter _outputWriter;
 
@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler
 
 		private CompilerResourceCollection _resources;
 
-		private AssemblyCollection _assemblyReferences;
+		private CompilerReferenceCollection _compilerReferences;
 
 		private int _maxExpansionIterations;
 
@@ -108,7 +108,7 @@ namespace Boo.Lang.Compiler
 		{
 		}
 
-		public CompilerParameters(bool loadDefaultReferences)
+		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
 		{
 			_libpaths = new ArrayList();
 			_systemDir = GetSystemDir();
@@ -118,12 +118,12 @@ namespace Boo.Lang.Compiler
 			_pipeline = null;
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
-			_assemblyReferences = new AssemblyCollection();
+			_compilerReferences = new CompilerReferenceCollection(reflectionProvider);
 
 			_maxExpansionIterations = 12;
-			_outputAssembly = string.Empty;
-			_outputType = CompilerOutputType.ConsoleApplication;
-			_outputWriter = System.Console.Out;
+			_outputAssembly = String.Empty;
+			_outputType = CompilerOutputType.Auto;
+			_outputWriter = Console.Out;
 			_debug = true;
 			_checked = true;
 			_generateInMemory = true;
@@ -140,34 +140,38 @@ namespace Boo.Lang.Compiler
 				LoadDefaultReferences();
 		}
 
+		public CompilerParameters(bool loadDefaultReferences) : this(SharedTypeSystemProvider, loadDefaultReferences)
+		{	
+		}
+
 		public void LoadDefaultReferences()
 		{
 			//mscorlib
-			_assemblyReferences.Add(
+			_compilerReferences.Add(
 				LoadAssembly("mscorlib", true)
 				);
 			//System
-			_assemblyReferences.Add(
+			_compilerReferences.Add(
 				LoadAssembly("System", true)
 				);
 			//boo.lang.dll
 			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
-			_assemblyReferences.Add(_booAssembly);
+			_compilerReferences.Add(_booAssembly);
 
 			//boo.lang.extensions.dll
 			//try loading extensions next to Boo.Lang (in the same directory)
 			string tentative = Path.Combine(Path.GetDirectoryName(_booAssembly.Location) , "Boo.Lang.Extensions.dll");
-			Assembly extensionsAssembly = LoadAssembly(tentative, false);
+			ICompileUnit extensionsAssembly = LoadAssembly(tentative, false);
 			if(extensionsAssembly == null)//if failed, try loading from the gac
 				extensionsAssembly = LoadAssembly("Boo.Lang.Extensions", false);
 			if(extensionsAssembly != null)
-				_assemblyReferences.Add(extensionsAssembly);
+				_compilerReferences.Add(extensionsAssembly);
 
 			if (TraceInfo)
 			{
 				Trace.WriteLine("BOO LANG DLL: " + _booAssembly.Location);
 				Trace.WriteLine("BOO COMPILER EXTENSIONS DLL: " + 
-				                (extensionsAssembly != null ? extensionsAssembly.Location : "NOT FOUND!"));
+				                (extensionsAssembly != null ? extensionsAssembly.ToString() : "NOT FOUND!"));
 			}
 		}
 
@@ -178,38 +182,39 @@ namespace Boo.Lang.Compiler
 			{
 				if (value != null)
 				{
-					(_assemblyReferences as IList).Remove(_booAssembly);
+					(_compilerReferences as IList).Remove(_booAssembly);
 					_booAssembly = value;
-					_assemblyReferences.Add(value);
+					_compilerReferences.Add(value);
 				}
 			}
 		}
 
-		public Assembly FindAssembly(string name)
+		public ICompileUnit FindAssembly(string name)
 		{
-			return _assemblyReferences.Find(name);
+			return _compilerReferences.Find(name);
 		}
 
 		public void AddAssembly(Assembly asm)
 		{
-			if (asm != null)
-			{
-				_assemblyReferences.Add(asm);
-			}
+			if (null == asm) throw new ArgumentNullException();
+			_compilerReferences.Add(asm);
 		}
 
-		public Assembly LoadAssembly(string assembly)
+		public ICompileUnit LoadAssembly(string assembly)
 		{
 			return LoadAssembly(assembly, true);
 		}
 
-		public Assembly LoadAssembly(string assembly, bool throwOnError)
+		public ICompileUnit LoadAssembly(string assemblyName, bool throwOnError)
 		{
-			if (TraceInfo)
-			{
-				Trace.WriteLine("ATTEMPTING LOADASSEMBLY: " + assembly);
-			}
+			Assembly assembly = ForName(assemblyName, throwOnError);
+			if (null == assembly)
+				return null;
+			return _compilerReferences.Provider.ForAssembly(assembly);
+		}
 
+		private Assembly ForName(string assembly, bool throwOnError)
+		{
 			Assembly a = null;
 			try
 			{
@@ -238,7 +243,7 @@ namespace Boo.Lang.Compiler
 			{
 				if (throwOnError)
 				{
-					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
+					throw new ApplicationException(ResourceManager.Format(
 					                               	"BooC.BadFormat",
 					                               	e.FusionLog), e);
 				}
@@ -247,7 +252,7 @@ namespace Boo.Lang.Compiler
 			{
 				if (throwOnError)
 				{
-					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
+					throw new ApplicationException(ResourceManager.Format(
 					                               	"BooC.UnableToLoadAssembly",
 					                               	e.FusionLog), e);
 				}
@@ -256,7 +261,7 @@ namespace Boo.Lang.Compiler
 			{
 				if (throwOnError)
 				{
-					throw new ApplicationException(Boo.Lang.ResourceManager.Format(
+					throw new ApplicationException(ResourceManager.Format(
 					                               	"BooC.NullAssembly"), e);
 				}
 			}
@@ -275,7 +280,7 @@ namespace Boo.Lang.Compiler
 			{
 				string full_path = Path.Combine(dir, assembly);
 				FileInfo file = new FileInfo(full_path);
-				if (!_validFileExtensions.Contains(file.Extension.ToLower()))
+				if (!IsAssemblyExtension(file.Extension))
 					full_path += ".dll";
 
 				try
@@ -294,7 +299,7 @@ namespace Boo.Lang.Compiler
 			}
 			if (throwOnError)
 			{
-				throw new ApplicationException(Boo.Lang.ResourceManager.Format(
+				throw new ApplicationException(ResourceManager.Format(
 				                               	"BooC.CannotFindAssembly",
 				                               	assembly));
 				//assembly, total_log)); //total_log contains the fusion log
@@ -302,7 +307,18 @@ namespace Boo.Lang.Compiler
 			return a;
 		}
 
-		private Assembly LoadAssemblyFromGac(string assemblyName)
+		private static bool IsAssemblyExtension(string extension)
+		{
+			switch (extension.ToLower())
+			{
+				case ".dll":
+				case ".exe":
+					return true;
+			}
+			return false;
+		}
+
+		private static Assembly LoadAssemblyFromGac(string assemblyName)
 		{
 			assemblyName = NormalizeAssemblyName(assemblyName);
 			// This is an intentional attempt to load an assembly with partial name
@@ -343,17 +359,17 @@ namespace Boo.Lang.Compiler
 			Process process;
 			try
 			{
-				process = Builtins.shellp("pkg-config", string.Format("--libs {0}", package));
+				process = Builtins.shellp("pkg-config", String.Format("--libs {0}", package));
 			}
 			catch (Exception e)
 			{
-				throw new ApplicationException(Boo.Lang.ResourceManager.GetString("BooC.PkgConfigNotFound"), e);
+				throw new ApplicationException(ResourceManager.GetString("BooC.PkgConfigNotFound"), e);
 			}
 			process.WaitForExit();
 			if (process.ExitCode != 0)
 			{
 				throw new ApplicationException(
-					Boo.Lang.ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
+					ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
 			}
 			return process.StandardOutput.ReadToEnd();
 #endif
@@ -390,14 +406,14 @@ namespace Boo.Lang.Compiler
 			get { return _resources; }
 		}
 
-		public AssemblyCollection References
+		public CompilerReferenceCollection References
 		{
-			get { return _assemblyReferences; }
+			get { return _compilerReferences; }
 
 			set
 			{
 				if (null == value) throw new ArgumentNullException("References");
-				_assemblyReferences = value;
+				_compilerReferences = value;
 			}
 		}
 
@@ -421,7 +437,7 @@ namespace Boo.Lang.Compiler
 
 			set
 			{
-				if (string.IsNullOrEmpty(value)) throw new ArgumentNullException("OutputAssembly");
+				if (String.IsNullOrEmpty(value)) throw new ArgumentNullException("OutputAssembly");
 				_outputAssembly = value;
 			}
 		}
@@ -457,10 +473,7 @@ namespace Boo.Lang.Compiler
 
 			set
 			{
-				if (null == value)
-				{
-					throw new ArgumentNullException("OutputWriter");
-				}
+				if (null == value) throw new ArgumentNullException("OutputWriter");
 				_outputWriter = value;
 			}
 		}
@@ -512,24 +525,14 @@ namespace Boo.Lang.Compiler
 		
 		public bool WhiteSpaceAgnostic
 		{
-			get
-			{
-				return _whiteSpaceAgnostic;
-			}
-			set
-			{
-				_whiteSpaceAgnostic = value;
-			}
+			get { return _whiteSpaceAgnostic; }
+			set { _whiteSpaceAgnostic = value; }
 		}
 
 		public Dictionary<string, string> Defines
 		{
-			get
-			{
-				return _defines;
-			}
+			get { return _defines; }
 		}
-
 
 		public TypeMemberModifiers DefaultTypeVisibility
 		{
@@ -604,10 +607,7 @@ namespace Boo.Lang.Compiler
 
 		internal TraceSwitch TraceSwitch
 		{
-			get
-			{
-				return _traceSwitch;
-			}
+			get { return _traceSwitch; }
 			set
 			{
 				if (null == _traceSwitch)
@@ -678,7 +678,7 @@ namespace Boo.Lang.Compiler
 
 		private static TypeMemberModifiers ParseVisibility(string visibility)
 		{
-			if (string.IsNullOrEmpty(visibility))
+			if (String.IsNullOrEmpty(visibility))
 				throw new ArgumentNullException("visibility");
 
 			visibility = visibility.ToLower();
@@ -693,7 +693,7 @@ namespace Boo.Lang.Compiler
 				case "private":
 					return TypeMemberModifiers.Private;
 			}
-			throw new ArgumentException("visibility", string.Format("Invalid visibility: '{0}'", visibility));
+			throw new ArgumentException("visibility", String.Format("Invalid visibility: '{0}'", visibility));
 		}
 
 		bool _noWarn = false;
@@ -789,6 +789,5 @@ namespace Boo.Lang.Compiler
 				}
 			}
 		}
-
 	}
 }

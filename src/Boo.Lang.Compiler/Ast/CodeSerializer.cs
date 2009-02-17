@@ -32,6 +32,15 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Ast
 {
+	public class QuasiquoteExpander : DepthFirstTransformer
+	{
+		override public void OnQuasiquoteExpression(QuasiquoteExpression node)
+		{
+			CodeSerializer serializer = new CodeSerializer();
+			ReplaceCurrentNode(serializer.Serialize(node));
+		}
+	}
+
 	public partial class CodeSerializer : DepthFirstVisitor
 	{
 		public static string LiftName(string value)
@@ -45,11 +54,14 @@ namespace Boo.Lang.Compiler.Ast
 		}
 		
 		private Stack<Expression> _stack = new Stack<Expression>();
+		private int _quasiquoteDepth;
 
 		public Expression Serialize(QuasiquoteExpression node)
 		{
+			_quasiquoteDepth = 0;
 			Expression e = Serialize(node.Node);
-			if (_stack.Count != 0) throw new InvalidOperationException();
+			if (_stack.Count != 0)
+				throw new InvalidOperationException();
 			return e;
 		}
 
@@ -154,17 +166,51 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			Push(CreateReference(node, "Boo.Lang.Compiler.Ast.OmittedExpression.Default"));
 		}
+
+		override public void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
+		{
+			++_quasiquoteDepth;
+
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.QuasiquoteExpression"));
+			if (ShouldSerialize(node.Node))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Node"),
+						Serialize(node.Node)));
+			}
+			Push(mie);
+
+			--_quasiquoteDepth;
+		}
 		
 		public override void OnSpliceMemberReferenceExpression(SpliceMemberReferenceExpression node)
 		{
+			if (InsideSerializedQuasiquote())
+			{
+				SerializeSpliceMemberReferenceExpression(node);
+				return;
+			}
 			MethodInvocationExpression ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression");
 			ctor.Arguments.Add(Serialize(node.Target));
 			ctor.Arguments.Add(LiftMemberName(node.NameExpression));
 			Push(ctor);
 		}
-		
+
+		private bool InsideSerializedQuasiquote()
+		{
+			return _quasiquoteDepth > 0;
+		}
+
 		public override void OnSpliceTypeMember(SpliceTypeMember node)
 		{
+			if (InsideSerializedQuasiquote())
+			{
+				SerializeSpliceTypeMember(node);
+				return;
+			}
 			MethodInvocationExpression ctor = (MethodInvocationExpression)Serialize(node.TypeMember);
 			SpliceName(ctor, node.NameExpression);
 			Push(ctor);
@@ -184,6 +230,11 @@ namespace Boo.Lang.Compiler.Ast
 
 		public override void OnSpliceParameterDeclaration(SpliceParameterDeclaration node)
 		{
+			if (InsideSerializedQuasiquote())
+			{
+				SerializeSpliceParameterDeclaration(node);
+				return;
+			}
 			MethodInvocationExpression ctor = (MethodInvocationExpression)Serialize(node.ParameterDeclaration);
 			SpliceName(ctor, node.NameExpression);
 			Push(ctor);
@@ -191,11 +242,22 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public override void OnSpliceTypeReference(SpliceTypeReference node)
 		{
+			if (InsideSerializedQuasiquote())
+			{
+				SerializeSpliceTypeReference(node);
+				return;
+			}
 			Push(LiftTypeReference(node.Expression));
 		}
 
 		public override void OnSpliceExpression(SpliceExpression node)
 		{
+			if (InsideSerializedQuasiquote())
+			{
+				SerializeSpliceExpression(node);
+				return;
+			}
+			
 			if (IsStatementExpression(node))
 			{
 				Push(LiftStatement(node.Expression));
@@ -228,7 +290,7 @@ namespace Boo.Lang.Compiler.Ast
 		private MethodInvocationExpression Lift(string methodName, Expression node)
 		{
 			MethodInvocationExpression lift = CreateInvocation(node, methodName);
-			lift.Arguments.Add(node);
+			lift.Arguments.Add(new QuasiquoteExpander().Visit(node));
 			return lift;
 		}
 

@@ -26,28 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
-using System;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ExpandAstLiterals : AbstractTransformerCompilerStep
+	public class ExpandAstLiterals : AbstractCompilerStep
 	{
-		public ExpandAstLiterals()
-		{
-		}
-
 		override public void Run()
 		{
-			Visit(CompileUnit);
-		}
-
-		override public void OnQuasiquoteExpression(QuasiquoteExpression node)
-		{
-			Visit(node.Node);
-			CodeSerializer serializer = new CodeSerializer();
-			ReplaceCurrentNode(serializer.Serialize(node));
+			CompileUnit.Accept(new QuasiquoteExpander());
 		}
 	}
 }

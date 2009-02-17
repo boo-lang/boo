@@ -31,9 +31,14 @@ using System.Reflection.Emit;
 namespace Boo.Lang.Compiler
 {
 	public enum CompilerOutputType
-	{
+	{	
+		/// <summary>
+		/// Automatically detects the output type depending if there's an entry point (ConsoleApplication)
+		/// or not (Library).
+		/// </summary>
+		Auto, 
 		Library = PEFileKinds.Dll,
 		ConsoleApplication = PEFileKinds.ConsoleApplication,
-		WindowsApplication = PEFileKinds.WindowApplication
+		WindowsApplication = PEFileKinds.WindowApplication,
 	}
 }

@@ -145,6 +145,7 @@
 			<references basedir="build">
 				<include name="${nunit.framework.dll}" />
 				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.PatternMatching.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 				<include name="BooModules.dll" />

@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Internal;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
@@ -35,13 +37,17 @@ namespace Boo.Lang.Compiler.Steps
 	[Serializable]
 	public class BindTypeDefinitions : AbstractTransformerCompilerStep
 	{
+		private InternalTypeSystemProvider _internalTypeSystemProvider;
+
 		override public void Run()
 		{
+			_internalTypeSystemProvider = My<InternalTypeSystemProvider>.Instance;
 			Visit(CompileUnit.Modules);
 		}
 		
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module node)
 		{
+			EnsureEntityFor(node);
 			Visit(node.Members);
 		}
 		
@@ -82,29 +88,23 @@ namespace Boo.Lang.Compiler.Steps
 			
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			if (null == node.Entity)
-			{
-				node.Entity = new InternalClass(TypeSystemServices, node);
-			}			
+			EnsureEntityFor(node);
 			Visit(node.Members);
 		}
-		
+
+		private void EnsureEntityFor(TypeMember node)
+		{
+			_internalTypeSystemProvider.EntityFor(node);
+		}
+
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			if (null != node.Entity)
-			{
-				return;
-			}			
-			node.Entity = new InternalInterface(TypeSystemServices, node);
+			EnsureEntityFor(node);
 		}	
 		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			if (null != node.Entity)
-			{
-				return;
-			}			
-			node.Entity = new InternalEnum(TypeSystemServices, node);
+			EnsureEntityFor(node);
 		}
 		
 		override public void OnMethod(Method method)

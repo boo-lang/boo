@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private IEntity[] _entities;
 		
-		public Ambiguous(IList entities) : this(ToArray(entities))
+		public Ambiguous(ICollection<IEntity> entities) : this(ToArray(entities))
 		{
 		}
 		
@@ -86,7 +86,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return string.Format("Ambiguous({0})", Builtins.join(_entities, ", "));
 		}
 		
-		private static IEntity[] ToArray(IList entities)
+		private static IEntity[] ToArray(ICollection<IEntity> entities)
 		{
 			if (entities.Count == 0) return NoEntities;
 			IEntity[] array = new IEntity[entities.Count];

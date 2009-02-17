@@ -39,6 +39,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Generics;
+using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module = Boo.Lang.Compiler.Ast.Module;
@@ -2187,7 +2190,7 @@ namespace Boo.Lang.Compiler.Steps
 					Visit(node.Arguments[1]);
 					EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
 					_il.Emit(OpCodes.Newarr, GetSystemType(type));
-					PushType(TypeSystemServices.GetArrayType(type, 1));
+					PushType(type.MakeArrayType(1));
 					return true;
 				}
 			}
@@ -2203,7 +2206,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (null != items)
 					{
 						EmitArray(type, items.Items);
-						PushType(TypeSystemServices.GetArrayType(type, 1));
+						PushType(type.MakeArrayType(1));
 						return true;
 					}
 				}

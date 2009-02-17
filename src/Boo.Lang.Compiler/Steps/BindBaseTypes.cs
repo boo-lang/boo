@@ -26,6 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections.Generic;
+using Boo.Lang.Compiler.TypeSystem.Internal;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
@@ -198,7 +201,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// <summary>
 	/// Provides a quasi-namespace that can resolve a type's generic parameters before its base types are bound.
 	/// </summary>
-	internal class GenericParametersNamespaceExtender : INamespace
+	internal class GenericParametersNamespaceExtender : AbstractNamespace
 	{
 		IType _type;
 		INamespace _parent;
@@ -209,7 +212,7 @@ namespace Boo.Lang.Compiler.Steps
 			_parent = currentNamespace;
 		}
 
-		public INamespace ParentNamespace
+		public override INamespace ParentNamespace
 		{
 			get 
 			{ 
@@ -217,24 +220,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		public bool Resolve(List targetList, string name, EntityType filter)
-		{
-			if (_type.GenericInfo != null && filter == EntityType.Type)
-			{
-				IGenericParameter match = Array.Find(
-					_type.GenericInfo.GenericParameters,
-					delegate(IGenericParameter gp) { return gp.Name == name; });
-
-				if (match != null)
-				{
-					targetList.AddUnique(match);
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public IEntity[] GetMembers()
+		public override IEnumerable<IEntity> GetMembers()
 		{
 			if (_type.GenericInfo != null)
 			{

@@ -38,7 +38,7 @@
     <DebugType>Full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\build\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,VISUAL_STUDIO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,VISUAL_STUDIO,NET_2_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -58,6 +58,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\build\Boo.Lang.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="Boo.Lang.PatternMatching, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL" />
     <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -74,25 +75,26 @@
     <Compile Include="ClosuresIntegrationTestFixture.cs" />
     <Compile Include="ClrExtensionsIntegrationTestFixture.cs" />
     <Compile Include="ClrIntegrationTestFixture.cs" />
-    <Compile Include="CompilationTestFixture.cs" />
     <Compile Include="CompilerErrorsTestFixture.cs" />
-    <Compile Include="CompilerWarningCollectionTestCase.cs" />
+    <Compile Include="CompilerWarningCollectionTest.cs" />
     <Compile Include="CompilerWarningsTestFixture.cs" />
     <Compile Include="DuckTypingIntegrationTestFixture.cs" />
     <Compile Include="DuckyTestFixture.cs" />
     <Compile Include="ExtensionsIntegrationTestFixture.cs" />
     <Compile Include="GeneratorsIntegrationTestFixture.cs" />
     <Compile Include="GenericsTestFixture.cs" />
-    <Compile Include="LocalizationTestCase.cs" />
+    <Compile Include="LocalizationTest.cs" />
     <Compile Include="MacrosTestFixture.cs" />
     <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />
     <Compile Include="ModulesIntegrationTestFixture.cs" />
+    <Compile Include="MyTest.cs" />
     <Compile Include="Net2ErrorsTestFixture.cs" />
     <Compile Include="OperatorsIntegrationTestFixture.cs" />
-    <Compile Include="PipelineTestCase.cs" />
+    <Compile Include="PipelineTest.cs" />
     <Compile Include="PrimitivesIntegrationTestFixture.cs" />
     <Compile Include="RegressionTestFixture.cs" />
     <Compile Include="SemanticsTestFixture.cs" />
+    <Compile Include="SmokeTest.cs" />
     <Compile Include="StatementsIntegrationTestFixture.cs" />
     <Compile Include="StdlibTestFixture.cs" />
     <Compile Include="SupportingClasses.cs" />
@@ -100,9 +102,14 @@
     <Compile Include="TypesIntegrationTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
-    <Compile Include="TypeSystem\BeanPropertyFinder.cs" />
-    <Compile Include="TypeSystem\NameResolutionServiceTestFixture.cs" />
-    <Compile Include="TypeSystem\TypeSystemServicesTestFixture.cs" />
+    <Compile Include="TypeSystem\AbstractTypeSystemTest.cs" />
+    <Compile Include="TypeSystem\Core\GlobalNamespaceTest.cs" />
+    <Compile Include="TypeSystem\Core\NamespaceAssert.cs" />
+    <Compile Include="TypeSystem\Internal\InternalCompileUnitTest.cs" />
+    <Compile Include="TypeSystem\Reflection\BeanPropertyFinder.cs" />
+    <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderExtensionTest.cs" />
+    <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderTest.cs" />
+    <Compile Include="TypeSystem\Services\NameResolutionServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2005.csproj">

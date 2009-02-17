@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.Steps
 {
 	using System;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
+
 	[Serializable]
 	public class BindEnumMembers : AbstractTransformerCompilerStep
 	{
@@ -38,6 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Visit(CompileUnit.Modules);
 		}
+
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 			long lastValue = 0;
@@ -49,10 +50,6 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				lastValue = member.Initializer.Value + 1;
 				
-				if (null == member.Entity)
-				{
-					member.Entity = new InternalEnumMember(TypeSystemServices, member);
-				}
 			}
 		}
 	}

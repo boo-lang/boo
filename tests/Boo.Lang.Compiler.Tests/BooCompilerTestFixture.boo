@@ -100,15 +100,16 @@ class CompilerTestFixture:
 	
 	[Test]
 	def DefaultOutputType():
-		Assert.AreEqual(CompilerOutputType.ConsoleApplication, _compiler.Parameters.OutputType,
-				"Default compiler output type must be ConsoleApplication.")
+		Assert.AreEqual(CompilerOutputType.Auto, _compiler.Parameters.OutputType,
+				"Default compiler output type must be CompilerOutputType.Auto.")
 	
 	[Test]
 	def DefaultAssemblyReferences():
-		references = _compiler.Parameters.References
+		parameters = _compiler.Parameters
+		references = parameters.References
 		Assert.AreEqual(4, references.Count)
 		Assert.IsTrue(references.Contains(typeof(string).Assembly), "(ms)corlib.dll must be referenced by default!")
-		Assert.IsTrue(references.Contains(Assembly.Load("System")), "System.dll must be referenced by default!")
+		Assert.IsTrue(references.Contains(parameters.LoadAssembly("System")), "System.dll must be referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Builtins).Assembly), "Boo.dll must referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Extensions.PrintMacro).Assembly), "Boo.Lang.Extensions.dll must be referenced by default!")
 		

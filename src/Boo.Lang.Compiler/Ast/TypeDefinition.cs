@@ -56,10 +56,7 @@ namespace Boo.Lang.Compiler.Ast
 						QualifiedName, 
 						GenericParameters.ToCodeString());
 				}
-				else
-				{
-					return QualifiedName;
-				}
+				return QualifiedName;
 			}
 		}
 

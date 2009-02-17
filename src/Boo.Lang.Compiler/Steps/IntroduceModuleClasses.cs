@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Internal;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler;
@@ -64,8 +66,25 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			Visit(CompileUnit.Modules);
+
+			DetectOutputType();
 		}
-		
+
+		private void DetectOutputType()
+		{
+			if (Parameters.OutputType != CompilerOutputType.Auto)
+				return;
+
+			Parameters.OutputType = HasEntryPoint()
+				? CompilerOutputType.ConsoleApplication
+				: CompilerOutputType.Library;
+		}
+
+		private bool HasEntryPoint()
+		{
+			return null != ContextAnnotations.GetEntryPoint(Context);
+		}
+
 		override public void Dispose()
 		{
 			_booModuleAttributeType = null;
@@ -135,16 +154,19 @@ namespace Boo.Lang.Compiler.Steps
 										TypeMemberModifiers.Final |
 										TypeMemberModifiers.Transient;
 				
-				((ModuleEntity)node.Entity).InitializeModuleClass(moduleClass);
+				((InternalModule)node.Entity).InitializeModuleClass(moduleClass);
 			}
 		}
 
 		private void SetEntryPointIfNecessary(Method entryPoint)
 		{
-			if (null != entryPoint && Parameters.OutputType != CompilerOutputType.Library)
-			{
-				ContextAnnotations.SetEntryPoint(Context, entryPoint);
-			}
+			if (null == entryPoint)
+				return;
+
+			if (Parameters.OutputType == CompilerOutputType.Library)
+				return;
+
+			ContextAnnotations.SetEntryPoint(Context, entryPoint);
 		}
 
 		ClassDefinition FindModuleClass(Module node)

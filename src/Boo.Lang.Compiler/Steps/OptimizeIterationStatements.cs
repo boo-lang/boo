@@ -28,6 +28,8 @@
 
 //Authored by Cameron Kenneth Knight: http://jira.codehaus.org/browse/BOO-137
 
+using Boo.Lang.Compiler.TypeSystem.Core;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;

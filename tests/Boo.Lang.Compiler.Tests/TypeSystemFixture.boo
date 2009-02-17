@@ -29,12 +29,15 @@
 namespace Boo.Lang.Compiler.Tests
 
 import System
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Util
 import Boo.Lang.Compiler.TypeSystem
 import NUnit.Framework
 
 [TestFixture]
 class TypeSystemFixture:
 	
+	_context as CompilerContext
 	_tss as TypeSystemServices
 	
 	def IntAsBool(i as int) as bool:
@@ -45,7 +48,9 @@ class TypeSystemFixture:
 	
 	[TestFixtureSetUp]
 	def SetUpFixture():
-		_tss = TypeSystemServices()
+		_context = CompilerContext()
+		_context.Run:
+			_tss = _context.TypeSystemServices
 		
 	def GetMethod(name as string) as IMethod:
 		return _tss.Map(GetType().GetMethod(name))
@@ -53,8 +58,7 @@ class TypeSystemFixture:
 	def GetCallableType(methodName as string) as ICallableType:
 		return _tss.GetCallableType(GetMethod(methodName))
 		
-	[Test]
-	def TypeFieldsMustBeMutable():
+	test TypeFieldsMustBeMutable:
 	"""
 	The fields listed below need to be public and 
 	mutable for now because a different backend (say boojay)
@@ -108,8 +112,7 @@ class TypeSystemFixture:
 	def AssertTypeSystemFieldIsMutable(fieldName as string):
 		assert not _tss.GetType().GetField(fieldName).IsInitOnly, "Field ${fieldName} must be mutable!"
 		
-	[Test]
-	def TestMostGenericType():
+	test TestMostGenericType:
 		Assert.AreSame(_tss.LongType,
 				_tss.GetMostGenericType(_tss.IntType, _tss.LongType),
 				"long > int")
@@ -126,8 +129,7 @@ class TypeSystemFixture:
 				_tss.GetMostGenericType(_tss.BoolType, _tss.IntType),
 				"int > bool")
 		
-	[Test]
-	def ExternalMethodType():
+	test ExternalMethodType:
 		method = GetMethod("IntAsBool")
 		
 		Assert.IsNotNull(method)
@@ -144,8 +146,7 @@ class TypeSystemFixture:
 		Assert.AreSame(type, method.CallableType, "method.CallableType")
 		
 		
-	[Test]
-	def GetCallableTypeReturnsTheSameObjectForCompatibleMethods():
+	test GetCallableTypeReturnsTheSameObjectForCompatibleMethods:
 		type1 = GetCallableType("IntAsBool")
 		type2 = GetCallableType("IntAsBool2")
 		Assert.AreSame(type1, type2)
@@ -153,42 +154,37 @@ class TypeSystemFixture:
 		Assert.AreSame(GetMethod("IntAsBool").CallableType,
 					GetMethod("IntAsBool2").CallableType)
 		
-	[Test]
-	def MapReturnsTheSameObjectForTheSameMember():
+	test MapReturnsTheSameObjectForTheSameMember:
 		Assert.AreSame(GetMethod("IntAsBool"),
 						GetMethod("IntAsBool"))
 						
 		Assert.AreSame(GetMethod("IntAsBool2"), GetMethod("IntAsBool2"))
 		
-	[Test]
-	def ResolveFromExternalTypesDontAddDuplicatedMethods():
+	test ResolveFromExternalTypesDontAddDuplicatedMethods:
 		type1 = _tss.ICallableType
 		type2 = _tss.MulticastDelegateType
 		
-		methods = []
+		methods = Set of IEntity()
 		type1.Resolve(methods, "GetType", EntityType.Method)
 		type2.Resolve(methods, "GetType", EntityType.Method)
 		
 		Assert.AreEqual(1, len(methods))
-		Assert.AreSame(_tss.Map(typeof(object).GetMethod("GetType")),
-					methods[0])
+		
+		found, = methods
+		Assert.AreSame(_tss.Map(typeof(object).GetMethod("GetType")), found)
 					
-	[Test]
-	def ExternalInterfaceDepth():
+	test ExternalInterfaceDepth:
 		Assert.AreEqual(1, _tss.ICallableType.GetTypeDepth())
 		
-	[Test]
-	def ExternalTypeDepth():
+	test ExternalTypeDepth:
 		Assert.AreEqual(0, _tss.ObjectType.GetTypeDepth())
 		Assert.AreEqual(2, _tss.MulticastDelegateType.GetTypeDepth())
 		
-	[Test]
-	def CallableTypeDepth():
+	test CallableTypeDepth:
 		type = _tss.GetCallableType(GetMethod("IntAsBool"))
 		Assert.AreEqual(3, type.GetTypeDepth())
 		
-	[Test]
-	def CreateCallableDefinition():
+	test CreateCallableDefinition:
 		cd = _tss.CreateCallableDefinition("Function")
 		Assert.AreEqual(3, cast(IType, TypeSystemServices.GetEntity(cd)).GetTypeDepth())
 		
@@ -201,8 +197,7 @@ class TypeSystemFixture:
 	def SingleArg(item as object) as object:
 		pass
 		
-	[Test]
-	def IsCallableTypeAssignableFrom():
+	test IsCallableTypeAssignableFrom:
 		c1 = GetCallableType("IntAsBool")
 		c2 = GetCallableType("IntAsBool2")		
 		

@@ -32,6 +32,7 @@ import System.IO
 import NUnit.Framework
 import Boo.Lang.Interpreter
 import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Compiler.TypeSystem.Reflection
 
 struct AValueType:
 	pass

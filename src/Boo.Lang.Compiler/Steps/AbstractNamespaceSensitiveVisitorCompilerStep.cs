@@ -29,6 +29,7 @@
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -60,7 +61,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
-			EnterNamespace((INamespace)GetEntity(module));
+			EnterNamespace(InternalModule.ScopeFor(module));
 			VisitTypeDefinitionBody(module);
 			Visit(module.AssemblyAttributes);
 			LeaveNamespace();

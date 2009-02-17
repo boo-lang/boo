@@ -28,10 +28,10 @@
 
 
 using System;
-using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.MetaProgramming;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 using Module=Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 	class MacroCompiler : AbstractCompilerComponent
 	{
 		private static readonly object CachedTypeAnnotation = new object();
-		private Assembly[] _references;
+		private ICompileUnit[] _references;
 
 		public MacroCompiler(CompilerContext context)
 		{

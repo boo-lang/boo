@@ -30,16 +30,13 @@ using System;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	public abstract class AbstractTransformerCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstTransformer, ICompilerStep
 	{
 		protected CompilerContext _context;
-		
-		protected AbstractTransformerCompilerStep()
-		{
-		}
 		
 		protected CompilerContext Context
 		{

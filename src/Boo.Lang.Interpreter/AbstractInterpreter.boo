@@ -29,10 +29,13 @@
 namespace Boo.Lang.Interpreter
 
 import System
+import System.Collections.Generic
 import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Compiler.TypeSystem.Reflection
+import Boo.Lang.Compiler.TypeSystem.Internal
 import Boo.Lang.Compiler.IO
 
 class AbstractInterpreter:
@@ -62,8 +65,10 @@ class AbstractInterpreter:
 				_suggestionCompiler.Parameters.Ducky = value
 	
 	def constructor([required] parser as ICompilerStep):
-		
-		_compiler = BooCompiler()
+		# use a private typeSystemProvider to avoid conflicting assembly
+		# definitions
+		typeSystemProvider = CompilerParameters.SharedTypeSystemProvider.Clone()
+		_compiler = BooCompiler(CompilerParameters(typeSystemProvider, true))
 		_parser = BooCompiler()
 		_imports = ImportCollection()
 		_referenceProcessor = ProcessInterpreterReferences(self)
@@ -212,32 +217,30 @@ class AbstractInterpreter:
 		savedImports = module.Imports.Clone()
 		module.Imports.ExtendWithClones(_imports)
 		
-		if hasStatements:	
-			if IsSingleEmptyMacroStatement(module):
-				# simple references will be parsed as macros
-				# but we want them to be evaluated
-				# as references...
-				ms = module.Globals.Statements[0] as MacroStatement
-				if ms is not null:
-					module.Globals.Statements.ReplaceAt(0,
-						ExpressionStatement(						
-							ReferenceExpression(ms.LexicalInfo, ms.Name)))
-			_compiler.Parameters.OutputType = CompilerOutputType.ConsoleApplication
-		else:
-			_compiler.Parameters.OutputType = CompilerOutputType.Library
+		if hasStatements and IsSingleEmptyMacroStatement(module):
+			# simple references will be parsed as macros
+			# but we want them to be evaluated
+			# as references...
+			ms = module.Globals.Statements[0] as MacroStatement
+			if ms is not null:
+				module.Globals.Statements.ReplaceAt(0,
+					ExpressionStatement(						
+						ReferenceExpression(ms.LexicalInfo, ms.Name)))
 		
 		SetLastValue(null) if _rememberLastValue
+		
+		_compiler.Parameters.OutputType = CompilerOutputType.Auto
 		result = _compiler.Run(cu)
 		return result if len(result.Errors)
 		
 		RecordImports(savedImports)
 		
 		asm = result.GeneratedAssembly
-		_compiler.Parameters.References.Add(asm) if hasMembers
+		_compiler.Parameters.References.Add(asm)
 		
 		InitializeModuleInterpreter(asm, module)
 		
-		ExecuteEntryPoint(asm) if hasStatements
+		ExecuteEntryPoint(asm) if asm.EntryPoint is not null
 			
 		return result
 		
@@ -264,7 +267,7 @@ class AbstractInterpreter:
 		moduleType = GetGeneratedType(asm, GetEntity(GetModuleEntity(module).ModuleClass))
 		moduleType.GetField("ParentInterpreter").SetValue(null, self)
 		
-	private static def GetModuleEntity(module as Module) as ModuleEntity:
+	private static def GetModuleEntity(module as Module) as InternalModule:
 		return GetEntity(module)
 		
 	private static def GetGeneratedType(asm as System.Reflection.Assembly, type as IType):
@@ -307,7 +310,7 @@ class AbstractInterpreter:
 		static def IsInterpreterEntity(entity as IEntity):
 			return entity is not null and TypeSystem.EntityType.Custom == entity.EntityType
 	
-	class InterpreterNamespace(INamespace):
+	class InterpreterNamespace(AbstractNamespace):
 	
 		[getter(ParentNamespace)]
 		_parent as INamespace
@@ -328,7 +331,7 @@ class AbstractInterpreter:
 			_declarations.Add(name, entity)
 			return entity
 	
-		def Resolve(targetList as List, name as string, flags as EntityType) as bool:
+		override def Resolve(targetList as ICollection of IEntity, name as string, flags as EntityType) as bool:
 			return false unless flags == EntityType.Any
 	
 			entity as IEntity = _declarations[name]
@@ -343,8 +346,9 @@ class AbstractInterpreter:
 	
 			return false
 	
-		def GetMembers():
-			return array(IEntity, 0)
+		override def GetMembers():
+			for entity as IEntity in _declarations.Values:
+				yield entity
 			
 	class InterpreterTypeSystemServices(TypeSystemServices):
 	
@@ -482,7 +486,6 @@ class AbstractInterpreter:
 			eval.Arguments.Add(CodeBuilder.CreateReference(temp))
 			BindExpressionType(eval, type)
 			return eval
-						
 	
 	class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 	

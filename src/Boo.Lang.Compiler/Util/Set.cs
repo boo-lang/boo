@@ -26,13 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Util
 {
-	public class Set<T> : IEnumerable<T>, ICollection<T>
+	public class Set<T> : ICollection<T>
 	{
 		private readonly Dictionary<T, bool> _elements = new Dictionary<T, bool>();
 
@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Util
 
 		public void CopyTo(T[] array, int arrayIndex)
 		{
-			throw new System.NotImplementedException();
+			_elements.Keys.CopyTo(array, arrayIndex);
 		}
 
 		public int Count
@@ -82,6 +82,36 @@ namespace Boo.Lang.Compiler.Util
 		public bool Remove(T element)
 		{
 			return _elements.Remove(element);
+		}
+
+		public void RemoveAll(Predicate<T> predicate)
+		{
+			List<T> toRemove = new List<T>();
+			foreach (T element in _elements.Keys)
+				if (predicate(element))
+					toRemove.Add(element);
+			foreach (T element in toRemove)
+				Remove(element);
+		}
+
+		public override string ToString()
+		{
+			return "{" + Builtins.join(this) + "}";
+		}
+
+		public bool ContainsAll(IEnumerable<T> elements)
+		{
+			foreach (T element in elements)
+				if (!Contains(element))
+					return false;
+			return true;
+		}
+
+		public T[] ToArray()
+		{
+			T[] result = new T[Count];
+			CopyTo(result, 0);
+			return result;
 		}
 	}
 }

@@ -43,28 +43,23 @@ class CallableResolutionServiceTestFixture:
 	[SetUp]
 	def SetUp():
 		_context = CompilerContext()
-		_context.RegisterService[of TypeSystemServices](Boo.Lang.Compiler.TypeSystem.TypeSystemServices())
-		_context.RegisterService[of GenericsServices](Boo.Lang.Compiler.TypeSystem.GenericsServices(_context))
-		_crs = CallableResolutionService(_context)
+		_crs = CallableResolutionService(_context)		
 		
-	[Test]
-	def TestGetLogicalTypeDepth():
+	test TestGetLogicalTypeDepth:
 		Assert.AreEqual(0, GetLogicalTypeDepth(object))
 		Assert.AreEqual(0, _crs.GetLogicalTypeDepth(TypeSystemServices.DuckType))
 		Assert.AreEqual(1, GetLogicalTypeDepth(System.ValueType))
 		Assert.AreEqual(1, GetLogicalTypeDepth(int))
 		Assert.AreEqual(1, GetLogicalTypeDepth(string))
 		
-	[Test]
-	def TestResolveAmbiguousCallable():
+	test TestResolveAmbiguousCallable:
 		entity = ResolveCallableReference(
 			NewExpressionCollection(NewObjectInvocationExpression()),
 			GetMethod("foo", E), GetMethod("foo", string))
 		Assert.AreEqual(2, _crs.ValidCandidates.Count, _crs.ValidCandidates.ToString())
 		assert entity is null, entity.ToString()
 		
-	[Test]
-	def CloserMemberWins():
+	test CloserMemberWins:
 		entity = ResolveCallableReference(
 			ExpressionCollection(),
 			intMethod = GetMethod(int, "ToString"),
@@ -72,8 +67,7 @@ class CallableResolutionServiceTestFixture:
 			GetMethod(object, "ToString"))
 		Assert.AreSame(intMethod, entity)
 		
-	[Test]
-	def UpcastPlusMatchBetterThanMatchPlusDowncast():
+	test UpcastPlusMatchBetterThanMatchPlusDowncast:
 		entity = ResolveCallableReference(
 			NewExpressionCollection(
 				CodeBuilder.CreateIntegerLiteral(42),
@@ -125,5 +119,8 @@ class CallableResolutionServiceTestFixture:
 		
 	static def bar(x as object, y as object):
 		pass
+		
+
+
 		
 

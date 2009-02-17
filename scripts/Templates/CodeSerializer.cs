@@ -22,13 +22,19 @@ end
 
 for item in model.GetConcreteAstNodes():
 	continue if item.Attributes.Contains("ignore")
-	continue if item.Name.StartsWith("Splice")
-	continue if item.Name == "ExpressionStatement"
+	continue if item.Name in ("ExpressionStatement", "QuasiquoteExpression")
 	
 	fields = model.GetAllFields(item)
 	itemType = "Boo.Lang.Compiler.Ast.${item.Name}"
+	
+	if item.Name.StartsWith("Splice"):
+		methodDeclaration = "internal void Serialize" + item.Name
+	else:
+		methodDeclaration = "override public void On" + item.Name
+	end
+
 %>		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		override public void On${item.Name}(${itemType} node)
+		${methodDeclaration}(${itemType} node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,

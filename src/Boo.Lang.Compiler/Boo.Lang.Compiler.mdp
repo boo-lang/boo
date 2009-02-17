@@ -18,7 +18,6 @@
     <File name="AbstractAstGeneratorMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="AbstractAstMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="AbstractCompilerComponent.cs" buildaction="Compile" subtype="Code" />
-    <File name="AssemblyCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="AssemblyInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="BooCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="CancellableEventArgs.cs" buildaction="Compile" subtype="Code" />
@@ -31,6 +30,7 @@
     <File name="CompilerOutputType.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerParameters.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerPipeline.cs" buildaction="Compile" subtype="Code" />
+    <File name="CompilerReferenceCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerResourceCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerWarning.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerWarningCollection.cs" buildaction="Compile" subtype="Code" />
@@ -45,6 +45,7 @@
     <File name="ICompilerStep.cs" buildaction="Compile" subtype="Code" />
     <File name="LexicalInfoPreservingGeneratorMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="LexicalInfoPreservingMacro.cs" buildaction="Compile" subtype="Code" />
+    <File name="My.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ArrayTypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/AstUtil.cs" buildaction="Compile" subtype="Code" />
@@ -332,6 +333,7 @@
     <File name="Steps/ContextAnnotations.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/DumpReferences.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/EmitAssembly.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/EntityPredicates.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandAstLiterals.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandDuckTypedExpressions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandProperties.cs" buildaction="Compile" subtype="Code" />
@@ -351,6 +353,7 @@
     <File name="Steps/MacroAndAttributeExpansion.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MergePartialClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeIterationStatements.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/NormalizeOmittedExpressions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeStatementModifiers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeTypeAndMemberDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/OptimizeIterationStatements.cs" buildaction="Compile" subtype="Code" />
@@ -384,60 +387,15 @@
     <File name="Steps/MacroProcessing/NodeGeneratorExpander.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/TypeMemberStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/TypeMemberStatementBubbler.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AbstractGenericParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AbstractType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AliasedNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Ambiguous.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AnonymousCallablesManager.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ArrayType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AssemblyEqualityComparer.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AssemblyQualifiedNamespaceEntity.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/AssemblyReference.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/BooClassBuilder.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/BooCodeBuilder.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/BooMethodBuilder.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/BuiltinFunction.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/BuiltinFunctionType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/CachedMethod.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/CallableResolutionService.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/CallableSignature.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/CompileUnit.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/DeclarationsNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/EntityType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Error.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalCallableType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalConstructedMethodInfo.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalConstructedTypeInfo.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalConstructor.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalEntity.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalEvent.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalField.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericMapping.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericMethodInfo.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalGenericTypeInfo.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalMethod.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalProperty.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ExternalType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericConstructedMethod.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericMappedTypeParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericMapping.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericParameterInferrer.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GenericsServices.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IAccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IAccessibleMember.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IArrayType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ICallableType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/ICompileUnit.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IConstructedMethodInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IConstructedTypeInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IConstructor.cs" buildaction="Compile" subtype="Code" />
@@ -457,48 +415,104 @@
     <File name="TypeSystem/IMember.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IMethod.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IMethodBase.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ImportAnnotations.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/INameSpace.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InferredType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalCallableType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalClass.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalConstructor.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalEntity.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalEnum.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalEnumMember.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalEvent.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalField.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalGenericMapping.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalGenericMethod.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalInterface.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalLabel.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalLocal.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalMethod.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/InternalProperty.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IProperty.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/IType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/ITypedEntity.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/MappedParameter.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/MetadataUtil.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/ModuleEntity.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/NameResolutionService.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/Namespace.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/NamespaceDelegator.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/NamespaceEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Null.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/SimpleNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeCollector.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/TypeInferrer.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/TypeMapper.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Unknown.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Variance.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Builders/BooClassBuilder.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Builders/BooMethodBuilder.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/AbstractType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/ArrayType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/IArrayTypeProvider.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/NamespaceDelegator.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/Namespaces.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/ResolvedNamespaces.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/SimpleNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/AbstractGenericParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/GenericConstructedMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/GenericConstructedType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/GenericMappedMembers.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/GenericMappedTypeParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/GenericMapping.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/GenericParameterInferrer.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/GenericsServices.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/InferredType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/MappedParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/TypeInferrer.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Generics/TypeMapper.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/AliasedNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/AnonymousCallablesManager.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/BuiltinFunction.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/BuiltinFunctionType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/CompileUnitNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/DeclarationsNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/ImportAnnotations.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/ImportedNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalCallableType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalClass.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalCompileUnit.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalConstructor.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalEnum.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalEnumMember.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalEvent.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalField.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalGenericMapping.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalGenericMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalInterface.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalLabel.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalLocal.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalModule.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalProperty.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/InternalTypeSystemProvider.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/PartialModuleNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/AssemblyEqualityComparer.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/AssemblyReference.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/CachedMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalCallableType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalConstructedMethodInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalConstructedTypeInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalConstructor.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalEntity.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalEvent.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalField.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalGenericMapping.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalGenericMethodInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalGenericParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalGenericTypeInfo.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalMethod.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalParameter.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalProperty.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ExternalType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/IReflectionTypeSystemProvider.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ReflectionNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ReflectionNamespaceBuilder.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/ReflectionTypeSystemProvider.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/AccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/BooCodeBuilder.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/CallableResolutionService.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/MetadataUtil.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/NameResolutionService.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
+    <File name="Util/Collections.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />
+    <File name="Util/Memo.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/Set.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/StringUtilities.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/TaskList.cs" buildaction="Compile" subtype="Code" />

@@ -36,6 +36,12 @@ using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Ast.Visitors;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Compiler.TypeSystem.Generics;
+using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module=Boo.Lang.Compiler.Ast.Module;
@@ -63,11 +69,6 @@ namespace Boo.Lang.Compiler.Steps
 		protected InternalMethod _currentMethod;
 
 		protected bool _optimizeNullComparisons = true;
-
-
-		public ProcessMethodBodies()
-		{
-		}
 
 		override public void Run()
 		{
@@ -121,7 +122,7 @@ namespace Boo.Lang.Compiler.Steps
 			MarkVisited(module);
 			_currentModule = module;
 
-			EnterNamespace((INamespace)TypeSystemServices.GetEntity(module));
+			EnterNamespace(InternalModule.ScopeFor(module));
 
 			Visit(module.Members);
 			Visit(module.AssemblyAttributes);
@@ -451,16 +452,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		Method CreateInitializerMethod(TypeDefinition type, string name, TypeMemberModifiers modifiers)
 		{
-			Method method = new Method(name);
-			method.IsSynthetic = true;
-			method.Modifiers |= modifiers;
-			method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
-
-			InternalMethod entity = new InternalMethod(TypeSystemServices, method);
-			method.Entity = entity;
+			Method method = CodeBuilder.CreateMethod(name, TypeSystemServices.VoidType, modifiers);
 			type.Members.Add(method);
 			MarkVisited(method);
-
 			return method;
 		}
 
@@ -830,7 +824,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CallableSignature sig = formalType.GetSignature();
 
-			TypeReplacer replacer = new TypeReplacer(TypeSystemServices);
+			TypeReplacer replacer = new TypeReplacer();
 			TypeCollector collector = new TypeCollector(delegate(IType t)
 			{
 				IGenericParameter gp = t as IGenericParameter;
@@ -1681,7 +1675,7 @@ namespace Boo.Lang.Compiler.Steps
 
 					BindExpressionType(ranges, TypeSystemServices.Map(typeof(int[])));
 					BindExpressionType(collapse, TypeSystemServices.Map(typeof(bool[])));
-					BindExpressionType(mie, TypeSystemServices.GetArrayType(arrayType.GetElementType(), node.Indices.Count - collapseCount));
+					BindExpressionType(mie, arrayType.GetElementType().MakeArrayType(node.Indices.Count - collapseCount));
 					node.ParentNode.Replace(node, mie);
 				}
 				else
@@ -2130,7 +2124,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null != node.Type) return (IArrayType)node.Type.Entity;
 			if (0 == node.Items.Count) return TypeSystemServices.ObjectArrayType;
-			return TypeSystemServices.GetArrayType(GetMostGenericType(node.Items), 1);
+			return GetMostGenericType(node.Items).MakeArrayType(1);
 		}
 
 		override public void LeaveDeclaration(Declaration node)
@@ -2604,7 +2598,8 @@ namespace Boo.Lang.Compiler.Steps
 		IEntity ResolveMember(MemberReferenceExpression node)
 		{
 			IEntity member = node.Entity;
-			if (!ShouldRebindMember(member)) return member;
+			if (!ShouldRebindMember(member))
+				return member;
 
 			INamespace ns = GetReferenceNamespace(node);
 			member = NameResolutionService.Resolve(ns, node.Name);
@@ -2634,7 +2629,8 @@ namespace Boo.Lang.Compiler.Steps
 		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			IEntity member = ResolveMember(node);
-			if (null == member) return;
+			if (null == member)
+				return;
 
 			if (EntityType.Ambiguous == member.EntityType)
 			{
@@ -2789,11 +2785,11 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return ResolveAmbiguousPropertyReference(node, accessibleCandidates, EmptyExpressionCollection);
 				}
-				else if (accessibleCandidates.AllEntitiesAre(EntityType.Method))
+				if (accessibleCandidates.AllEntitiesAre(EntityType.Method))
 				{
 					return ResolveAmbiguousMethodReference(node, accessibleCandidates, EmptyExpressionCollection);
-					}
-				else if (accessibleCandidates.AllEntitiesAre(EntityType.Type))
+				}
+				if (accessibleCandidates.AllEntitiesAre(EntityType.Type))
 				{
 					return ResolveAmbiguousTypeReference(node, accessibleCandidates);
 				}
@@ -2831,23 +2827,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveAmbiguousTypeReference(ReferenceExpression node, Ambiguous candidates)
 		{
-			bool isGenericReference = (node.ParentNode is GenericReferenceExpression);
-
-			List matches = new List();
-
-			foreach (IEntity candidate in candidates.Entities)
+			List<IEntity> matches = GetMatchesByGenericity(node, candidates);
+			if (matches.Count > 1)
 			{
-				IType type = candidate as IType;
-				bool isGenericType = (type != null && type.GenericInfo != null);
-				if (isGenericType == isGenericReference)
-				{
-					matches.Add(candidate);
-				}
+				PreferInternalEntitiesOverNonInternal(matches);
 			}
 
 			if (matches.Count == 1)
 			{
-				Bind(node, (IEntity)matches[0]);
+				Bind(node, matches[0]);
 			}
 			else
 			{
@@ -2857,9 +2845,33 @@ namespace Boo.Lang.Compiler.Steps
 			return node.Entity;
 		}
 
+		private static void PreferInternalEntitiesOverNonInternal(List<IEntity> matches)
+		{
+			bool isAmbiguousBetweenInternalAndExternalEntities = matches.Contains(EntityPredicates.IsInternalEntity) &&
+			                                                     matches.Contains(EntityPredicates.IsNonInternalEntity);
+			if (isAmbiguousBetweenInternalAndExternalEntities)
+				matches.RemoveAll(EntityPredicates.IsNonInternalEntity);
+		}
+
+		private List<IEntity> GetMatchesByGenericity(ReferenceExpression node, Ambiguous candidates)
+		{
+			bool isGenericReference = (node.ParentNode is GenericReferenceExpression);
+			List<IEntity> matches = new List<IEntity>();
+			foreach (IEntity candidate in candidates.Entities)
+			{
+				IType type = candidate as IType;
+				bool isGenericType = (type != null && type.GenericInfo != null);
+				if (isGenericType == isGenericReference)
+				{
+					matches.Add(candidate);
+				}
+			}
+			return matches;
+		}
+
 		private IEntity ResolveAmbiguousReferenceByAccessibility(Ambiguous candidates)
 		{
-			List newEntities = new List();
+			List<IEntity> newEntities = new List<IEntity>();
 			foreach (IEntity entity in candidates.Entities)
 			{
 				if (!IsInaccessible(entity))
@@ -2867,13 +2879,7 @@ namespace Boo.Lang.Compiler.Steps
 					newEntities.Add(entity);
 				}
 			}
-
-			if (newEntities.Count == 1)
-			{
-				return (IEntity)newEntities[0];
-			}
-
-			return new Ambiguous(newEntities);
+			return NameResolutionService.GetEntityFromList(newEntities);
 		}
 
 		private int GetIndex(IEntity[] entities, IEntity entity)
@@ -4105,7 +4111,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						CheckListLiteralArgumentInArrayConstructor(type,  expression);
 					}
-					inferredType = TypeSystemServices.GetArrayType(type, 1);
+					inferredType = type.MakeArrayType(1);
 				}
 			}
 			else if (MultiDimensionalArray_TypedConstructor == method)
@@ -4113,7 +4119,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
 				if (null != type)
 				{
-					inferredType = TypeSystemServices.GetArrayType(type, expression.Arguments.Count-1);
+					inferredType = type.MakeArrayType(expression.Arguments.Count-1);
 				}
 			}
 			else if (Array_EnumerableConstructor == method)
@@ -4121,7 +4127,7 @@ namespace Boo.Lang.Compiler.Steps
 				IType enumeratorItemType = GetEnumeratorItemType(GetExpressionType(expression.Arguments[0]));
 				if (TypeSystemServices.ObjectType != enumeratorItemType)
 				{
-					inferredType = TypeSystemServices.GetArrayType(enumeratorItemType, 1);
+					inferredType = enumeratorItemType.MakeArrayType(1);
 					expression.Target.Entity = Array_TypedEnumerableConstructor;
 					expression.ExpressionType = Array_TypedEnumerableConstructor.ReturnType;
 					expression.Arguments.Insert(0, CodeBuilder.CreateReference(enumeratorItemType));
@@ -4139,13 +4145,14 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity entity)
 		{
 			Ambiguous ambiguous = entity as Ambiguous;
-			if (ambiguous == null) return entity;
+			if (ambiguous == null)
+				return entity;
 
 			_context.TraceVerbose("{0}: resolving ambigous method invocation: {1}", node.LexicalInfo, entity);
 
 			IEntity resolved = ResolveCallableReference(node, ambiguous);
-
-			if (null != resolved) return resolved;
+			if (null != resolved)
+				return resolved;
 
 			// If resolution fails, try to resolve target as an extension method (but no more than once)
 			if (!ResolvedAsExtension(node) && TryToProcessAsExtensionInvocation(node))
@@ -4159,7 +4166,8 @@ namespace Boo.Lang.Compiler.Steps
 		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
 		{
 			IEntity resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, entity.Entities);
-			if (null == resolved) return null;
+			if (null == resolved)
+				return null;
 
 			IMember member = (IMember)resolved;
 			if (NodeType.ReferenceExpression == node.Target.NodeType)
@@ -4338,7 +4346,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			targetEntity = ResolveAmbiguousMethodInvocation(node, targetEntity);
-			if (targetEntity == null) return;
+			if (targetEntity == null)
+				return;
 
 			switch (targetEntity.EntityType)
 			{
@@ -5520,7 +5529,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity tag = NameResolutionService.Resolve(name);
 			CheckNameResolution(node, name, tag);
-
 			return tag;
 		}
 

@@ -17,7 +17,7 @@ module = [|
 		return code:
 			print("before")
 			// that's how you escape a splice inside a quasi-quotation
-			$(SpliceExpression([|e.Body|]))
+			$(SpliceExpression([| e.Body |]))
 			print("after")
 |]
 

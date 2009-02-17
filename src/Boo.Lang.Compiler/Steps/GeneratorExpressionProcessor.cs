@@ -26,6 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -332,7 +335,7 @@ namespace Boo.Lang.Compiler.Steps
 						((ExternalType)type).ActualType.GetProperty(name));
 				}
 
-				else if (entityType == EntityType.Method)
+				if (entityType == EntityType.Method)
 				{
 					return TypeSystemServices.Map(
 						((ExternalType)type).ActualType.GetMethod(name));
@@ -340,8 +343,8 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-            // For other cases we just scan through the members collection
-            return Array.Find<IEntity>(
+			// For other cases we just scan through the members collection
+            return Collections.FindFirst<IEntity>(
                 type.GetMembers(), 
                 delegate(IEntity e) { 
                     return entityType == e.EntityType && e.Name == name; 

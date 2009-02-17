@@ -31,45 +31,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IType : ITypedEntity, INamespace, IEntityWithAttributes
 	{	
-		bool IsClass
-		{
-			get;
-		}
+		bool IsClass { get; }
 		
-		bool IsAbstract
-		{
-			get;
-		}
+		bool IsAbstract { get; }
 		
-		bool IsInterface
-		{
-			get;
-		}
+		bool IsInterface { get; }
 		
-		bool IsEnum
-		{
-			get;
-		}
+		bool IsEnum { get; }
 		
-		bool IsByRef
-		{
-			get;
-		}
+		bool IsByRef { get; }
 		
-		bool IsValueType
-		{
-			get;
-		}
+		bool IsValueType { get; }
 
-		bool IsFinal
-		{
-			get;
-		}
+		bool IsFinal { get; }
 		
-		bool IsArray
-		{
-			get;
-		}
+		bool IsArray { get; }
 
 		IEntity DeclaringEntity { get; }
 		
@@ -77,10 +53,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IType GetElementType();
 		
-		IType BaseType
-		{
-			get;
-		}
+		IType BaseType { get; }
 		
 		IEntity GetDefaultMember();
 		
@@ -95,5 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IGenericTypeInfo GenericInfo { get; }
 		
 		IConstructedTypeInfo ConstructedInfo { get; }
+
+		IArrayType MakeArrayType(int rank);
 	}
 }

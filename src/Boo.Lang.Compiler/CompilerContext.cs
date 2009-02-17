@@ -28,10 +28,10 @@
 
 using System;
 using System.Diagnostics;
-using Boo.Lang;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Assembly = System.Reflection.Assembly;
-using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem;
 
@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler
 
 		protected CompileUnit _unit;
 
-		protected AssemblyCollection _assemblyReferences;
+		protected CompilerReferenceCollection _references;
 
 		protected CompilerErrorCollection _errors;
 		
@@ -91,14 +91,17 @@ namespace Boo.Lang.Compiler
 			_warnings = new CompilerWarningCollection();
 			_warnings.Adding += OnCompilerWarning;
 
-			_assemblyReferences = options.References;
+			_references = options.References;
 			_parameters = options;
 
 			if (_parameters.Debug && !_parameters.Defines.ContainsKey("DEBUG"))
 				_parameters.Defines.Add("DEBUG", null);
 
 			_properties = new Hash();
-			RegisterService<NameResolutionService>(new NameResolutionService(this));
+
+			// FIXME: temporary hack to make sure the singleton is visible
+			// using the My<IReflectionTypeSystemProvider> idiom
+			RegisterService<IReflectionTypeSystemProvider>(_references.Provider);
 		}
 
 		public Hash Properties
@@ -132,9 +135,9 @@ namespace Boo.Lang.Compiler
 			get { return _parameters; }
 		}
 
-		public AssemblyCollection References
+		public CompilerReferenceCollection References
 		{
-			get { return _assemblyReferences; }
+			get { return _references; }
 		}
 
 		public CompilerErrorCollection Errors
@@ -154,18 +157,18 @@ namespace Boo.Lang.Compiler
 
 		public TypeSystemServices TypeSystemServices
 		{
-			get { return GetService<TypeSystemServices>(); }
+			get { return Produce<TypeSystemServices>(); }
 			set { RegisterService<TypeSystemServices>(value); }
 		}
 
 		public NameResolutionService NameResolutionService
 		{
-			get { return GetService<NameResolutionService>(); }
+			get { return Produce<NameResolutionService>(); }
 		}
 
 		public TypeSystem.BooCodeBuilder CodeBuilder
 		{
-			get { return TypeSystemServices.CodeBuilder; }
+			get { return Produce<BooCodeBuilder>(); }
 		}
 		
 		public Assembly GeneratedAssembly
@@ -346,6 +349,16 @@ namespace Boo.Lang.Compiler
 		public bool UnregisterService<T>() where T : class
 		{
 			return UnregisterService(typeof(T));
+		}
+
+		public T Produce<T>() where T:class
+		{
+			object existing;
+			if (_services.TryGetValue(typeof(T), out existing))
+				return (T)existing;
+			T newService = Activator.CreateInstance<T>();
+			RegisterService(newService);
+			return newService;
 		}
 
 		internal bool UnregisterService(Type type)
