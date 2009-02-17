@@ -1,8 +1,7 @@
 import System.Xml
 import System.IO
-import System.Resources
-import System.Windows.Forms
-import Useful.IO from Boo.Lang.Useful
+import System.Resources from System.Windows.Forms
+import Boo.Lang.Useful.IO from Boo.Lang.Useful
 
 class XmlDocumentWrapper:
 

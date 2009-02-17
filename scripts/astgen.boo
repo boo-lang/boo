@@ -31,7 +31,7 @@ import System.IO
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Ast
-import Useful.BooTemplate from Boo.Lang.Useful
+import Boo.Lang.Useful.BooTemplate from Boo.Lang.Useful
 
 class Model:
 
