@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.Util;
@@ -347,6 +348,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				}
 			}
 
+			entity = PreferInternalTypesOverExternalOnes(entity);
+
 			if (EntityType.Type != entity.EntityType)
 			{
 				if (EntityType.Ambiguous == entity.EntityType)
@@ -364,6 +367,20 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			}
 
 			node.Entity = entity;
+		}
+
+		private IEntity PreferInternalTypesOverExternalOnes(IEntity entity)
+		{
+			Ambiguous ambiguous = entity as Ambiguous;
+			if (null == ambiguous)
+				return entity;
+
+			bool isAmbiguousBetweenInternalAndExternalEntities = ambiguous.Any(EntityPredicates.IsInternalEntity)
+				&& ambiguous.Any(EntityPredicates.IsNonInternalEntity);
+			if (!isAmbiguousBetweenInternalAndExternalEntities)
+				return entity;
+
+			return GetEntityFromList(ambiguous.Select(EntityPredicates.IsInternalEntity));
 		}
 
 		internal IEntity ResolveTypeName(SimpleTypeReference node)
