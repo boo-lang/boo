@@ -351,16 +351,6 @@ namespace Boo.Lang.Compiler
 			return UnregisterService(typeof(T));
 		}
 
-		public T Produce<T>() where T:class
-		{
-			object existing;
-			if (_services.TryGetValue(typeof(T), out existing))
-				return (T)existing;
-			T newService = Activator.CreateInstance<T>();
-			RegisterService(newService);
-			return newService;
-		}
-
 		internal bool UnregisterService(Type type)
 		{
 			object service = null;
@@ -387,6 +377,17 @@ namespace Boo.Lang.Compiler
 			{
 				throw new ArgumentException(string.Format("No compiler service of type `{0}` has been found", typeof(T)), "T");
 			}
+		}
+
+		//internal method used by My idiom
+		internal T Produce<T>() where T : class
+		{
+			object existing;
+			if (_services.TryGetValue(typeof(T), out existing))
+				return (T)existing;
+			T newService = Activator.CreateInstance<T>();
+			RegisterService(newService);
+			return newService;
 		}
 
 		///<summary>Gets currently registered compiler services.</summary>

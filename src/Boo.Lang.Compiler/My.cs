@@ -36,21 +36,19 @@ namespace Boo.Lang.Compiler
 	/// <summary>
 	/// Idiomatic access to compiler services.
 	/// 
-	/// The service is automatically create if it's not yet available.
+	/// The service is automatically created if it's not yet available.
 	/// 
 	/// <example>
 	/// <code>
 	///	<![CDATA[
-	/// 
 	/// if (My<TypeSystemServices>.Instance.IsPrimitive(someType))
 	///		return true;
-	/// 
 	/// ]]>
 	/// </code>
 	/// </example>
 	/// </summary>
-	/// <typeparam name="TService"></typeparam>
-	public class My<TService> where TService: class 
+	/// <typeparam name="TService">The type of the requested service.</typeparam>
+	public class My<TService> where TService : class
 	{
 		public static TService Instance
 		{
@@ -59,16 +57,7 @@ namespace Boo.Lang.Compiler
 				CompilerContext context = CompilerContext.Current;
 				if (null == context)
 					throw new InvalidOperationException("CompilerContext is not available!");
-				try
-				{
-					return context.GetService<TService>();
-				}
-				catch (ArgumentException)
-				{
-					TService newService = Activator.CreateInstance<TService>();
-					context.RegisterService(newService);
-					return newService;
-				}
+				return context.Produce<TService>();
 			}
 		}
 	}
