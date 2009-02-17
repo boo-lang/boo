@@ -496,7 +496,6 @@
     <Compile Include="TypeSystem\Core\ArrayEqualityComparer.cs" />
     <Compile Include="TypeSystem\Core\ArrayType.cs" />
     <Compile Include="TypeSystem\Core\GlobalNamespace.cs" />
-    <Compile Include="TypeSystem\Core\IArrayTypeProvider.cs" />
     <Compile Include="TypeSystem\Core\NamespaceDelegator.cs" />
     <Compile Include="TypeSystem\Core\Namespaces.cs" />
     <Compile Include="TypeSystem\Core\ResolvedNamespaces.cs" />

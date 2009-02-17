@@ -432,7 +432,6 @@
     <File name="TypeSystem/Core/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/ArrayType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/Core/IArrayTypeProvider.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/NamespaceDelegator.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/Namespaces.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/ResolvedNamespaces.cs" buildaction="Compile" subtype="Code" />
