@@ -31,7 +31,6 @@ using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
@@ -86,7 +85,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
 			// Try to resolve name as a generic parameter
-			if (NameResolutionService.IsFlagSet(typesToConsider, EntityType.Type))
+			if (Entities.IsFlagSet(typesToConsider, EntityType.Type))
 			{
 				foreach (GenericParameterDeclaration gpd in Method.GenericParameters)
 				{

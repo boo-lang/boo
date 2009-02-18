@@ -32,7 +32,6 @@ using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
-using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem
@@ -537,7 +536,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IEntity member = GetDefaultMember(interfaceType);
 				if (member != null) buffer.Add(member);
 			}
-			return NameResolutionService.GetEntityFromList(buffer);
+			return Entities.EntityFromList(buffer);
 		}
 
 		public ClassDefinition GetCompilerGeneratedExtensionsClass()

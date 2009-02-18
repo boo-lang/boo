@@ -31,7 +31,6 @@ using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Attribute=Boo.Lang.Compiler.Ast.Attribute;
@@ -89,7 +88,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		protected bool ResolveGenericParameter(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
 			// Try to resolve name as a generic parameter
-			if (NameResolutionService.IsFlagSet(flags, EntityType.Type))
+			if (Entities.IsFlagSet(flags, EntityType.Type))
 			{
 				foreach (GenericParameterDeclaration gpd in _node.GenericParameters)
 				{
@@ -227,7 +226,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 						{
 							System.Collections.Generic.List<IEntity> buffer = new System.Collections.Generic.List<IEntity>();
 							Resolve(buffer, memberName.Value, EntityType.Any);
-							return NameResolutionService.GetEntityFromList(buffer);
+							return Entities.EntityFromList(buffer);
 						}
 					}
 				}

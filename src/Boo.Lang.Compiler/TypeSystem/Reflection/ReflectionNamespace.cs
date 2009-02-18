@@ -30,7 +30,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
@@ -110,7 +110,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private bool ResolveType(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
 			List<Type> types;
-			if (NameResolutionService.IsFlagSet(typesToConsider, TypeSystem.EntityType.Type)
+			if (Entities.IsFlagSet(typesToConsider, TypeSystem.EntityType.Type)
 			    && _typeLists.TryGetValue(name, out types))
 			{
 				foreach (IEntity entity in EntitiesFor(types))
@@ -123,7 +123,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private bool ResolveChildNamespace(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
 			ReflectionNamespace childNamespace;
-			if (NameResolutionService.IsFlagSet(typesToConsider, TypeSystem.EntityType.Namespace)
+			if (Entities.IsFlagSet(typesToConsider, TypeSystem.EntityType.Namespace)
 			    && _childNamespaces.TryGetValue(name, out childNamespace))
 			{
 				resultingSet.Add(childNamespace);

@@ -154,7 +154,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				if (name != member.Name) continue;
 
 				IEntity entity = _provider.EntityFor(member);
-				if (NameResolutionService.IsFlagSet(flags, entity.EntityType))
+				if (Entities.IsFlagSet(flags, entity.EntityType))
 				{
 					targetList.Add(entity);
 					found = true;

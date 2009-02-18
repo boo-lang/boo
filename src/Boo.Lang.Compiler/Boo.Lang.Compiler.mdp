@@ -431,6 +431,7 @@
     <File name="TypeSystem/Core/AbstractType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/ArrayType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Core/Entities.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/NamespaceDelegator.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/Namespaces.cs" buildaction="Compile" subtype="Code" />

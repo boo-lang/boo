@@ -94,10 +94,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			Visit(module.Members);
 		}
 		
-		bool ExpandOnModuleNamespace(Boo.Lang.Compiler.Ast.Module module, System.Action<Module> action)
+		void ExpandOnModuleNamespace(Boo.Lang.Compiler.Ast.Module module, System.Action<Module> action)
 		{
-			int expansionCountBeforeAction = _expanded;
-
 			EnterModuleNamespace(module);
 			try
 			{
@@ -107,7 +105,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			{
 				LeaveNamespace();
 			}
-			return _expanded > expansionCountBeforeAction;
 		}
 
 		private void EnterModuleNamespace(Module module)
@@ -372,12 +369,14 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private IEntity ResolveMacroName(MacroStatement node)
 		{
 			string macroTypeName = BuildMacroTypeName(node.Name);
-			IEntity entity = NameResolutionService.ResolveQualifiedName(macroTypeName);
-			if (null != entity && entity is IType)
+			IEntity entity = ResolvePreferringInternalMacros(macroTypeName);
+			if (entity is IType)
 				return entity;
 
-			entity = NameResolutionService.ResolveQualifiedName(node.Name);
-			if (null != entity && entity is IType)
+			if (null == entity)
+				entity = ResolvePreferringInternalMacros(node.Name);
+
+			if (entity is IType)
 				return entity;
 
 			if (null == entity)
@@ -388,6 +387,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			return ResolveMacroExtensionType(node, entity as IMethod)
 				?? ResolveMacroExtensionType(node, entity as Ambiguous)
 				?? entity; //return as-is
+		}
+
+		private IEntity ResolvePreferringInternalMacros(string macroTypeName)
+		{
+			IEntity resolved = NameResolutionService.ResolveQualifiedName(macroTypeName);
+			Ambiguous ambiguous = resolved as Ambiguous;
+			if (null != ambiguous && ambiguous.AllEntitiesAre(EntityType.Type))
+				return Entities.PreferInternalEntitiesOverExternalOnes(ambiguous);
+			return resolved;
 		}
 
 		IEntity ResolveMacroExtensionType(MacroStatement node, Ambiguous extensions)

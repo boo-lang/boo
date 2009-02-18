@@ -27,7 +27,7 @@
 #endregion
 
 using System.Collections.Generic;
-using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Compiler.TypeSystem.Core;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			if (name == _alias && NameResolutionService.IsFlagSet(typesToConsider, _subject.EntityType))
+			if (name == _alias && Entities.IsFlagSet(typesToConsider, _subject.EntityType))
 			{
 				resultingSet.Add(_subject);
 				return true;

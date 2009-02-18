@@ -108,7 +108,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			Set<IEntity> resultingSet = new Set<IEntity>();
 			Resolve(resultingSet, name, flags);
-			return GetEntityFromList(resultingSet);
+			return Entities.EntityFromList(resultingSet);
 		}
 		
 		public bool Resolve(ICollection<IEntity> targetList, string name)
@@ -136,7 +136,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private bool Matches(IEntity entity, string name, EntityType typesToConsider)
 		{
-			return _entityNameMatcher(entity, name) && IsFlagSet(typesToConsider, entity.EntityType);
+			return _entityNameMatcher(entity, name) && Entities.IsFlagSet(typesToConsider, entity.EntityType);
 		}
 
 		private static bool Matches(IEntity entity, string name)
@@ -192,7 +192,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			};
 
 			extensions.RemoveAll(notExtensionPredicate);
-			return GetEntityFromList(extensions);
+			return Entities.EntityFromList(extensions);
 		}
 
 		private bool IsExtensionOf(IType type, IExtensionEnabled entity)
@@ -236,7 +236,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			Set<IEntity> resultingSet = new Set<IEntity>();
 			ResolveQualifiedName(resultingSet, name, flags);
-			return GetEntityFromList(resultingSet);
+			return Entities.EntityFromList(resultingSet);
 		}
 
 		public bool ResolveQualifiedName(ICollection<IEntity> targetList, string name, EntityType flags)
@@ -348,7 +348,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				}
 			}
 
-			entity = PreferInternalTypesOverExternalOnes(entity);
+			entity = Entities.PreferInternalEntitiesOverExternalOnes(entity);
 
 			if (EntityType.Type != entity.EntityType)
 			{
@@ -369,20 +369,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			node.Entity = entity;
 		}
 
-		private IEntity PreferInternalTypesOverExternalOnes(IEntity entity)
-		{
-			Ambiguous ambiguous = entity as Ambiguous;
-			if (null == ambiguous)
-				return entity;
-
-			bool isAmbiguousBetweenInternalAndExternalEntities = ambiguous.Any(EntityPredicates.IsInternalEntity)
-				&& ambiguous.Any(EntityPredicates.IsNonInternalEntity);
-			if (!isAmbiguousBetweenInternalAndExternalEntities)
-				return entity;
-
-			return GetEntityFromList(ambiguous.Select(EntityPredicates.IsInternalEntity));
-		}
-
 		internal IEntity ResolveTypeName(SimpleTypeReference node)
 		{	
 			Set<IEntity> resultingSet = new Set<IEntity>();
@@ -398,7 +384,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 			// Remove from the buffer types that do not match requested generity
 			FilterGenericTypes(resultingSet, node);
-			return GetEntityFromList(resultingSet);
+			return Entities.EntityFromList(resultingSet);
 		}
 
 		public IType ResolveGenericTypeReference(GenericTypeReference gtr, IEntity definition)
@@ -503,7 +489,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				throw new ArgumentNullException("namespace");
 			Set<IEntity> resultingSet = new Set<IEntity>();
 			ResolveCoalescingNamespaces(@namespace, name, elementType, resultingSet);
-			return GetEntityFromList(resultingSet);
+			return Entities.EntityFromList(resultingSet);
 		}
 
 		private bool ResolveCoalescingNamespaces(INamespace ns, string name, EntityType elementType, ICollection<IEntity> resultingSet)
@@ -515,30 +501,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			return Resolve(ns, name, EntityType.Any);
 		}
-		
-		public static IEntity GetEntityFromList(ICollection<IEntity> entities)
-		{
-			switch (entities.Count)
-			{
-				case 0:
-					return null;
-				case 1:
-					return Collections.First(entities);
-				default:
-					return new Ambiguous(entities);
-			}
-		}
-		
+
 		static bool IsQualifiedName(string name)
 		{
 			return name.IndexOf('.') > 0;
-		}	
-		
-		public static bool IsFlagSet(EntityType flags, EntityType flag)
-		{
-			return flag == (flags & flag);
 		}
-		
+
 		GlobalNamespace GetGlobalNamespace()
 		{
 			INamespace ns = _global;
@@ -630,7 +598,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			Set<IEntity> resultingSet = new Set<IEntity>();
 			ResolveQualifiedNameAgainst(namespaceToResolveAgainst, name, EntityType.Any, resultingSet);
-			return GetEntityFromList(resultingSet);
+			return Entities.EntityFromList(resultingSet);
 		}
 	}
 }

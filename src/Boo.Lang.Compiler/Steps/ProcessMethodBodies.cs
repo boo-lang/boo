@@ -2879,7 +2879,7 @@ namespace Boo.Lang.Compiler.Steps
 					newEntities.Add(entity);
 				}
 			}
-			return NameResolutionService.GetEntityFromList(newEntities);
+			return Entities.EntityFromList(newEntities);
 		}
 
 		private int GetIndex(IEntity[] entities, IEntity entity)

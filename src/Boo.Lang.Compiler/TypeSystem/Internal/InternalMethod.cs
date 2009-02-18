@@ -28,7 +28,7 @@
 
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Compiler.TypeSystem.Core;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
@@ -297,7 +297,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public virtual bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			if (NameResolutionService.IsFlagSet(typesToConsider, EntityType.Local))
+			if (Entities.IsFlagSet(typesToConsider, EntityType.Local))
 			{
 				Local local = ResolveLocal(name);
 				if (null != local)
@@ -307,7 +307,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				}
 			}
 			
-			if (NameResolutionService.IsFlagSet(typesToConsider, EntityType.Parameter))
+			if (Entities.IsFlagSet(typesToConsider, EntityType.Parameter))
 			{
 				ParameterDeclaration parameter = ResolveParameter(name);
 				if (null != parameter)
