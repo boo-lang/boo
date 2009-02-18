@@ -35,24 +35,26 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	internal class ReflectionNamespaceBuilder
 	{
-		private Assembly _assemby;
+		private Assembly _assembly;
 		private ReflectionNamespace _root;
 
 		public ReflectionNamespaceBuilder(IReflectionTypeSystemProvider provider, Assembly assembly)
 		{
 			_root = new ReflectionNamespace(provider);
-			_assemby = assembly;
+			_assembly = assembly;
 		}
 
 		public INamespace Build()
 		{
-			CatalogPublicTypes(_assemby.GetTypes());
+			try
+			{
+				CatalogPublicTypes(_assembly.GetTypes());
+			}
+			catch (ReflectionTypeLoadException x)
+			{
+				My<CompilerWarningCollection>.Instance.Add(CompilerWarningFactory.CustomWarning("Could not load types from '" + _assembly + "': " + Builtins.join(x.LoaderExceptions, "\n")));
+			}
 			return _root;
-		}
-
-		public void OrganizeAssemblyTypes(Assembly asm)
-		{
-			CatalogPublicTypes(asm.GetTypes());
 		}
 
 		private void CatalogPublicTypes(IEnumerable<Type> types)
