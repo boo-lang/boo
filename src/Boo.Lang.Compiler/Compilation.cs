@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.MetaProgramming
 	[CompilerGlobalScope]
 	public sealed class Compilation
 	{
-		public static Type compile(ClassDefinition klass, params System.Reflection.Assembly[] references)
+		public static Type compile(TypeDefinition klass, params System.Reflection.Assembly[] references)
 		{
 			Assembly generatedAssembly = compile(CreateCompileUnit(klass), references);
 			return generatedAssembly.GetType(klass.Name);
@@ -102,12 +102,12 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			return compiler;
 		}
 
-		private static CompileUnit CreateCompileUnit(ClassDefinition klass)
+		private static CompileUnit CreateCompileUnit(TypeDefinition klass)
 		{
 			return new CompileUnit(CreateModule(klass));
 		}
 
-		private static Module CreateModule(ClassDefinition klass)
+		private static Module CreateModule(TypeDefinition klass)
 		{
 			Module module = new Module();
 			module.Name = klass.Name;

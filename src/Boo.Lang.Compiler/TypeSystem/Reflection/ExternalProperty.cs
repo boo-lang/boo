@@ -199,6 +199,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	    private PropertyInfo FindBaseProperty()
 	    {
+			if (null == _memberInfo.DeclaringType.BaseType)
+				return null;
+
 	        return _memberInfo.DeclaringType.BaseType.GetProperty(
                                                         _memberInfo.Name,
                                                         _memberInfo.PropertyType,
