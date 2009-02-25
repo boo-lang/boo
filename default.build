@@ -1170,6 +1170,7 @@
 			</sources>
 			<references basedir="${gendarme.dir}">
 				<include name="Gendarme.Framework.dll" />
+				<include name="Mono.Cecil.dll" />
 			</references>
 		</booc>
 	</target>
