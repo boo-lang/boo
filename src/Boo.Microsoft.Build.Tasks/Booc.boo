@@ -116,6 +116,42 @@ Authors:
 		set:
 			Bag['DefineSymbols'] = value
 	
+	CheckForOverflowUnderflow:
+	"""
+	Gets/sets if integer overlow checking is enabled.
+	"""
+		get:
+			return GetBoolParameterWithDefault("CheckForOverflowUnderflow", true)
+		set:
+			Bag['CheckForOverflowUnderflow'] = value
+	
+	DisabledWarnings:
+	"""
+	Gets/sets a comma-separated list of warnings that should be disabled.
+	"""
+		get:
+			return Bag['DisabledWarnings'] as string
+		set:
+			Bag['DisabledWarnings'] = value
+	
+	WarningsAsErrors:
+	"""
+	Gets/sets a comma-separated list of warnings that should be treated as errors.
+	"""
+		get:
+			return Bag['WarningsAsErrors'] as string
+		set:
+			Bag['WarningsAsErrors'] = value
+	
+	Strict:
+	"""
+	Gets/sets whether strict mode is enabled.
+	"""
+		get:
+			return GetBoolParameterWithDefault("Strict", false)
+		set:
+			Bag['Strict'] = value
+	
 	ToolName:
 	"""
 	Gets the tool name.
@@ -330,6 +366,12 @@ Authors:
 		commandLine.AppendSwitchIfNotNull('-p:', Pipeline)
 		commandLine.AppendSwitchIfNotNull('-define:', DefineSymbols)
 		commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
+		commandLine.AppendSwitchIfNotNull('-nowarn:', DisabledWarnings)
+		
+		if TreatWarningsAsErrors:
+			commandLine.AppendSwitch('-warnaserror') // all warnings are errors
+		else:
+			commandLine.AppendSwitchIfNotNull('-warnaserror:', WarningsAsErrors) // only specific warnings are errors
 		
 		if NoLogo:
 			commandLine.AppendSwitch('-nologo')
@@ -343,11 +385,20 @@ Authors:
 			commandLine.AppendSwitch('-wsa')
 		if Ducky:
 			commandLine.AppendSwitch('-ducky')
+		if Utf8Output:
+			commandLine.AppendSwitch('-utf8')
+		if Strict:
+			commandLine.AppendSwitch('-strict')
 		
 		if EmitDebugInformation:
-			commandLine.AppendSwitch('-debug')
+			commandLine.AppendSwitch('-debug+')
 		else:
 			commandLine.AppendSwitch('-debug-')
+		
+		if CheckForOverflowUnderflow:
+			commandLine.AppendSwitch('-checked+')
+		else:
+			commandLine.AppendSwitch('-checked-')
 		
 		if ResponseFiles:
 			for rsp in ResponseFiles:
