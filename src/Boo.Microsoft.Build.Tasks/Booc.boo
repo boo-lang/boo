@@ -330,6 +330,13 @@ Authors:
 			# MSBuild runs on an STA thread, and WaitHandle.WaitAll()
 			# is not supported.
 			
+			boocProcess.WaitForExit()
+			if boocProcess.ExitCode != 0:
+				if buildSuccess:
+					// Report an error if booc exits with error code but we didn't
+					// receive any error.
+					Log.LogError("booc exited with code ${boocProcess.ExitCode}")
+				buildSuccess = false
 		except e as Exception:
 			Log.LogErrorFromException(e)
 			buildSuccess = false
