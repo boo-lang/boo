@@ -104,16 +104,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		protected bool Infer(IType formalType, IType actualType, TypeInference inference)
 		{
 			// Skip unspecified actual types
-			if (actualType == null) return true;
+			if (actualType == null)
+				return true;
 
-			if (formalType is IGenericParameter)
+			IGenericParameter gp = formalType as IGenericParameter;
+			if (null != gp)
 			{
-				return InferGenericParameter((IGenericParameter)formalType, actualType, inference);
+				return InferGenericParameter(gp, actualType, inference);
 			}
 
-			if (formalType is ICallableType)
+			ICallableType callableType = formalType as ICallableType;
+			if (null != callableType)
 			{
-				return InferCallableType((ICallableType)formalType, actualType, inference);
+				return InferCallableType(callableType, actualType, inference);
 			}
 
 			if (formalType.ConstructedInfo != null)
@@ -121,9 +124,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				return InferConstructedType(formalType, actualType, inference);
 			}
 
-			if (formalType is IArrayType)
+			IArrayType arrayType = formalType as IArrayType;
+			if (null != arrayType)
 			{
-				return InferArrayType((IArrayType)formalType, actualType, inference);
+				return InferArrayType(arrayType, actualType, inference);
 			}
 
 			return InferSimpleType(formalType, actualType, inference);

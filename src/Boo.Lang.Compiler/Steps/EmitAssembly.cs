@@ -4777,6 +4777,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			TypeBuilder typeBuilder = null;
 			ClassDefinition enclosingType = type.ParentNode as ClassDefinition;
+			EnumDefinition enumDef = type as EnumDefinition;
 
 			if (null == enclosingType)
 			{
@@ -4786,7 +4787,7 @@ namespace Boo.Lang.Compiler.Steps
 					EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(
 						type.QualifiedName,
 						GetTypeVisibilityAttributes(type),
-						GetEnumUnderlyingType((EnumDefinition) type));
+						GetEnumUnderlyingType(enumDef));
 					enumBuilder.SetCustomAttribute(CreateSerializableAttribute());
 					return enumBuilder;
 				}
@@ -4811,7 +4812,7 @@ namespace Boo.Lang.Compiler.Steps
 				// Mono cant construct enum array types unless
 				// the fields is already defined
 				typeBuilder.DefineField("value__",
-								GetEnumUnderlyingType((EnumDefinition) type),
+								GetEnumUnderlyingType(enumDef),
 								FieldAttributes.Public |
 								FieldAttributes.SpecialName |
 								FieldAttributes.RTSpecialName);

@@ -562,9 +562,10 @@ namespace Boo.Lang.Compiler.Steps
 					return EndsWithReturnStatement((Block)node);
 
 				case NodeType.IfStatement:
+					IfStatement ifstmt = (IfStatement) node;
 					return
-						EndsWithReturnStatement(((IfStatement)node).TrueBlock)
-						&& EndsWithReturnStatement(((IfStatement)node).FalseBlock);
+						EndsWithReturnStatement(ifstmt.TrueBlock)
+						&& EndsWithReturnStatement(ifstmt.FalseBlock);
 
 				case NodeType.TryStatement:
 					TryStatement ts = (TryStatement) node;

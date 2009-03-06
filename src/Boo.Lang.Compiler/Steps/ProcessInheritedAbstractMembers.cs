@@ -93,20 +93,20 @@ namespace Boo.Lang.Compiler.Steps
 			member.Visibility = TypeMemberModifiers.Private;
 		}
 
-		void CheckExplicitMemberValidity(IExplicitMember node)
+		void CheckExplicitMemberValidity(IExplicitMember member)
 		{
-			IMember explicitMember = (IMember)GetEntity((Node)node);
+			Node node = (Node) member;
+			IMember explicitMember = (IMember)GetEntity(node);
 			if (explicitMember.DeclaringType.IsClass)
 			{
-				IType targetInterface = GetType(node.ExplicitInfo.InterfaceType);
+				IType targetInterface = GetType(member.ExplicitInfo.InterfaceType);
 				if (!targetInterface.IsInterface)
 				{
-					Error(CompilerErrorFactory.InvalidInterfaceForInterfaceMember((Node)node, node.ExplicitInfo.InterfaceType.Name));
+					Error(CompilerErrorFactory.InvalidInterfaceForInterfaceMember(node, member.ExplicitInfo.InterfaceType.Name));
 				}
-				
-				if (!explicitMember.DeclaringType.IsSubclassOf(targetInterface))
+				else if (!explicitMember.DeclaringType.IsSubclassOf(targetInterface))
 				{
-					Error(CompilerErrorFactory.InterfaceImplForInvalidInterface((Node)node, targetInterface.Name, ((TypeMember)node).Name));
+					Error(CompilerErrorFactory.InterfaceImplForInvalidInterface(node, targetInterface.Name, ((TypeMember)node).Name));
 				}
 			}
 			else
@@ -171,8 +171,9 @@ namespace Boo.Lang.Compiler.Steps
                             {
                                 //Events and their corresponding Delegate Fields can have the same name
                                 //In such cases, we want the Event...
-                                if (inheritedImpl is ExternalEvent && oddjob is ExternalField && 
-                                    ((ExternalField)oddjob).Type.IsSubclassOf(TypeSystemServices.MulticastDelegateType))
+                                ExternalField oddField = oddjob as ExternalField;
+                                if (inheritedImpl is ExternalEvent && null != oddField
+                                    && oddField.Type.IsSubclassOf(TypeSystemServices.MulticastDelegateType))
                                 {
                                     continue;
                                 }
@@ -190,7 +191,7 @@ namespace Boo.Lang.Compiler.Steps
 						switch( entity.EntityType)
 						{
 							case EntityType.Method:
-								return CheckInheritedMethodImpl(inheritedImpl as IMethod, entity as IMethod);								
+								return CheckInheritedMethodImpl(inheritedImpl as IMethod, entity as IMethod);
 							case EntityType.Event:
 								return CheckInheritedEventImpl(inheritedImpl as IEvent, entity as IEvent);
 							case EntityType.Property:

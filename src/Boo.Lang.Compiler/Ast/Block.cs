@@ -66,8 +66,9 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public void Add(Statement stmt)
 		{
-			if (stmt is Block)
-				Add((Block)stmt);
+			Block block = stmt as Block;
+			if (null != block)
+				Add(block);
 			else
 				this.Statements.Add(stmt);
 		}

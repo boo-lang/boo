@@ -99,11 +99,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private Type GetSystemType(IType type)
 		{
 			// Get system type from external types
-			if (type is ExternalType) 
-			{
-				return ((ExternalType)type).ActualType;
-			}
-			
+			ExternalType et = type as ExternalType;
+			if (null != et)
+				return et.ActualType;
+
 			// Get system array types from arrays of external types
 			ArrayType arrayType = type as ArrayType;
 			if (arrayType != null)

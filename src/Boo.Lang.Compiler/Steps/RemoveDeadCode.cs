@@ -86,9 +86,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				//HACK: __switch__ builtin function is hard to detect/handle
 				//		within this context, let's ignore whatever is after __switch__
-				if (stmt is ExpressionStatement)
+				ExpressionStatement est = stmt as ExpressionStatement;
+				if (null != est)
 				{
-					MethodInvocationExpression mie = (stmt as ExpressionStatement).Expression as MethodInvocationExpression;
+					MethodInvocationExpression mie = est.Expression as MethodInvocationExpression;
 					if (null != mie && TypeSystem.BuiltinFunction.Switch == mie.Target.Entity)
 						return -1;//ignore followings
 				}

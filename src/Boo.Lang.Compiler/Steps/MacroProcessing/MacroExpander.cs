@@ -350,8 +350,9 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				macro.Initialize(_context);
 
 				//use new-style BOO-1077 generator macro interface if available
-				if (macro is IAstGeneratorMacro)
-					return ExpandGeneratorMacro((IAstGeneratorMacro) macro, node);
+				IAstGeneratorMacro gm = macro as IAstGeneratorMacro;
+				if (null != gm)
+					return ExpandGeneratorMacro(gm, node);
 
 				return macro.Expand(node);
 			}
@@ -372,14 +373,12 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			IEntity entity = ResolvePreferringInternalMacros(macroTypeName);
 			if (entity is IType)
 				return entity;
-
-			if (null == entity)
+			else if (null == entity)
 				entity = ResolvePreferringInternalMacros(node.Name);
 
 			if (entity is IType)
 				return entity;
-
-			if (null == entity)
+			else if (null == entity)
 				return null;
 
 			//we got something interesting, check if it is/has an extension method
@@ -429,9 +428,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		IType GetExtendedMacroType(IMethod method)
 		{
-			if (method is InternalMethod)
+			InternalMethod internalMethod = method as InternalMethod;
+			if (null != internalMethod)
 			{
-				Method extension = ((InternalMethod)method).Method;
+				Method extension = internalMethod.Method;
 				if (!extension.Attributes.Contains(Types.BooExtensionAttribute.FullName)
 					|| !extension.Attributes.Contains(Types.CompilerGeneratedAttribute.FullName))
 					return null;
@@ -454,9 +454,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		IType GetExtensionMacroType(IMethod method)
 		{
-			if (method is InternalMethod)
+			InternalMethod internalMethod = method as InternalMethod;
+			if (null != internalMethod)
 			{
-				Method extension = ((InternalMethod)method).Method;
+				Method extension = internalMethod.Method;
 				SimpleTypeReference sref = extension.ReturnType as SimpleTypeReference;
 				if (null != sref)
 				{

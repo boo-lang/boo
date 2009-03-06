@@ -332,13 +332,12 @@ namespace Boo.Lang.Compiler.Steps
 				if (entityType == EntityType.Property)
 				{
 					return TypeSystemServices.Map(
-						((ExternalType)type).ActualType.GetProperty(name));
+						external.ActualType.GetProperty(name));
 				}
-
-				if (entityType == EntityType.Method)
+				else if (entityType == EntityType.Method)
 				{
 					return TypeSystemServices.Map(
-						((ExternalType)type).ActualType.GetMethod(name));
+						external.ActualType.GetMethod(name));
 
 				}
 			}

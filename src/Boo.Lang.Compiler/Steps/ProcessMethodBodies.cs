@@ -620,12 +620,15 @@ namespace Boo.Lang.Compiler.Steps
 		//cannot call an instance method before super/self.
 		void CheckInstanceMethodInvocationsWithinConstructor(Constructor ctor)
 		{
-			if (ctor.Body.Statements.Count == 0) return;
+			if (ctor.Body.Statements.Count == 0)
+				return;
+
 			foreach (Statement st in ctor.Body.Statements)
 			{
-				if (!(st is ExpressionStatement)) continue;
+				ExpressionStatement est = st as ExpressionStatement;
+				if (null == est) continue;
 
-				MethodInvocationExpression mie = ((ExpressionStatement) st).Expression as MethodInvocationExpression;
+				MethodInvocationExpression mie = est.Expression as MethodInvocationExpression;
 				if (null == mie) continue;
 
 				if (mie.Target is SelfLiteralExpression
@@ -2140,8 +2143,9 @@ namespace Boo.Lang.Compiler.Steps
 			AssertDeclarationName(node.Declaration);
 
 			IEntity localInfo = DeclareLocal(node, node.Declaration.Name, type);
-			if (localInfo is InternalLocal)
-				((InternalLocal)localInfo).OriginalDeclaration = node.Declaration;
+			InternalLocal loopLocal = localInfo as InternalLocal;
+			if (null != loopLocal)
+				loopLocal.OriginalDeclaration = node.Declaration;
 
 			if (null != node.Initializer)
 			{
@@ -2462,26 +2466,27 @@ namespace Boo.Lang.Compiler.Steps
 
 				case EntityType.Ambiguous:
 					{
-						tag = ResolveAmbiguousReference(node, (Ambiguous)tag);
+						Ambiguous ambiguous = (Ambiguous) tag;
+						tag = ResolveAmbiguousReference(node, ambiguous);
 						IMember resolvedMember	= tag as IMember;
 						if (null != resolvedMember)
 						{
 							ResolveMemberInfo(node, resolvedMember);
 							break;
 						}
-						if (tag is IType)
+						else if (tag is IType)
 						{
 							BindTypeReferenceExpressionType(node, (IType)tag);
 							break;
 						}
-						if (!AstUtil.IsTargetOfMethodInvocation(node)
+						else if (!AstUtil.IsTargetOfMethodInvocation(node)
 							&& !AstUtil.IsTargetOfSlicing(node)
 							&& !AstUtil.IsLhsOfAssignment(node))
 						{
 							Error(node, CompilerErrorFactory.AmbiguousReference(
 								node,
 								node.Name,
-								((Ambiguous)tag).Entities));
+								ambiguous.Entities));
 						}
 						break;
 					}
@@ -2734,13 +2739,16 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Node current = node;
 			Node parent = current.ParentNode;
-			while (!(parent is BinaryExpression))
+			BinaryExpression be = parent as BinaryExpression;
+			while (null == be)
 			{
 				current = parent;
 				parent = parent.ParentNode;
-				if (parent == null || !(parent is Expression)) return false;
+				if (parent == null || !(parent is Expression))
+					return false;
+				be = parent as BinaryExpression;
 			}
-			return ((BinaryExpression)parent).Left == current;
+			return be.Left == current;
 		}
 
 		private bool IsWriteOnlyProperty(IProperty property)
@@ -4505,7 +4513,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool IsExtensionMethod(IEntity entity)
 		{
-			return (entity is IExtensionEnabled) && ((IExtensionEnabled)entity).IsExtension;
+			IExtensionEnabled extension = entity as IExtensionEnabled;
+			return null != extension && extension.IsExtension;
 		}
 
 		private bool IsOrContainsExtensionMethod(IEntity entity)
@@ -4536,8 +4545,9 @@ namespace Boo.Lang.Compiler.Steps
 		private MemberReferenceExpression EnsureMemberReferenceForExtension(MethodInvocationExpression node)
 		{
 			Expression target = node.Target;
-			if (target is GenericReferenceExpression)
-				target = ((GenericReferenceExpression)target).Target;
+			GenericReferenceExpression gre = target as GenericReferenceExpression;
+			if (null != gre)
+				target = gre.Target;
 
 			MemberReferenceExpression memberRef = target as MemberReferenceExpression;
 			if (null != memberRef)

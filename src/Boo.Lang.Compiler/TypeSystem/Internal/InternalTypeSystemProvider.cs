@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				case NodeType.InterfaceDefinition:
 					return new InternalInterface(this, (TypeDefinition) member);
 				case NodeType.ClassDefinition:
-					return new InternalClass(this, (TypeDefinition)member);
+					return new InternalClass(this, (ClassDefinition) member);
 				case NodeType.Field:
 					return new InternalField((Field)member);
 				case NodeType.EnumDefinition:

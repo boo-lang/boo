@@ -136,24 +136,36 @@ namespace Boo.Lang.Compiler.Steps
 			Expression min;
 			Expression max;
 			Expression step;
+			IntegerLiteralExpression mini;
+			IntegerLiteralExpression maxi;
+			IntegerLiteralExpression stepi;
 
 			if (args.Count == 1)
 			{
-				min = CodeBuilder.CreateIntegerLiteral(0);
+				mini = CodeBuilder.CreateIntegerLiteral(0);
+				min = mini;
 				max = args[0];
-				step = CodeBuilder.CreateIntegerLiteral(1);
+				maxi = max as IntegerLiteralExpression;
+				stepi = CodeBuilder.CreateIntegerLiteral(1);
+				step = stepi;
 			}
 			else if (args.Count == 2)
 			{
 				min = args[0];
+				mini = min as IntegerLiteralExpression;
 				max = args[1];
-				step = CodeBuilder.CreateIntegerLiteral(1);
+				maxi = max as IntegerLiteralExpression;
+				stepi = CodeBuilder.CreateIntegerLiteral(1);
+				step = stepi;
 			}
 			else
 			{
 				min = args[0];
+				mini = min as IntegerLiteralExpression;
 				max = args[1];
+				maxi = max as IntegerLiteralExpression;
 				step = args[2];
+				stepi = step as IntegerLiteralExpression;
 			}
 
 			InternalLocal numVar = CodeBuilder.DeclareTempLocal(
@@ -169,7 +181,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			Expression endRef;
 
-			if (max.NodeType == NodeType.IntegerLiteralExpression)
+			if (null != maxi)
 			{
 				endRef = max;
 			}
@@ -189,16 +201,15 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (args.Count == 1)
 			{
-				if (max.NodeType == NodeType.IntegerLiteralExpression)
+				if (null != maxi)
 				{
-					if (((IntegerLiteralExpression)max).Value < 0)
+					if (maxi.Value < 0)
 					{
 						// raise ArgumentOutOfRangeException("max") (if <max> < 0)
 						Statement statement = CodeBuilder.RaiseException(
 							body.LexicalInfo,
 							TypeSystemServices.Map(System_ArgumentOutOfRangeException_ctor),
 							CodeBuilder.CreateStringLiteral("max"));
-
 						body.Add(statement);
 					}
 				}
@@ -233,18 +244,14 @@ namespace Boo.Lang.Compiler.Steps
 					stepRef = CodeBuilder.CreateIntegerLiteral(1);
 					break;
 				case 2:
-					if ((min.NodeType == NodeType.IntegerLiteralExpression) &&
-					(max.NodeType == NodeType.IntegerLiteralExpression) &&
-					(((IntegerLiteralExpression)max).Value < ((IntegerLiteralExpression)min).Value))
+					if (null != mini && null != maxi)
 					{
-						// __step = -1
-						stepRef = CodeBuilder.CreateIntegerLiteral(-1);
-					}
-					else if ((min.NodeType == NodeType.IntegerLiteralExpression) &&
-					(max.NodeType == NodeType.IntegerLiteralExpression))
-					{
-						// __step = 1
-						stepRef = CodeBuilder.CreateIntegerLiteral(1);
+						if (maxi.Value < mini.Value)
+							// __step = -1
+							stepRef = CodeBuilder.CreateIntegerLiteral(-1);
+						else
+							// __step = 1
+							stepRef = CodeBuilder.CreateIntegerLiteral(1);
 					}
 					else
 					{
@@ -279,7 +286,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					break;
 				default:
-					if (step.NodeType == NodeType.IntegerLiteralExpression)
+					if (null != stepi)
 					{
 						stepRef = step;
 					}
@@ -305,14 +312,13 @@ namespace Boo.Lang.Compiler.Steps
 				Expression condition = null;
 				bool run = false;
 
-				if (step.NodeType == NodeType.IntegerLiteralExpression)
+				if (null != stepi)
 				{
-					if (((IntegerLiteralExpression)step).Value < 0)
+					if (stepi.Value < 0)
 					{
-						if ((max.NodeType == NodeType.IntegerLiteralExpression) &&
-							(min.NodeType == NodeType.IntegerLiteralExpression))
+						if (null != maxi && null != mini)
 						{
-							run = (((IntegerLiteralExpression)max).Value > ((IntegerLiteralExpression)min).Value);
+							run = maxi.Value > mini.Value;
 						}
 						else
 						{
@@ -325,10 +331,9 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						if ((max.NodeType == NodeType.IntegerLiteralExpression) &&
-							(min.NodeType == NodeType.IntegerLiteralExpression))
+						if (null != maxi && null != mini)
 						{
-							run = (((IntegerLiteralExpression)max).Value < ((IntegerLiteralExpression)min).Value);
+							run = maxi.Value < mini.Value;
 						}
 						else
 						{
@@ -342,10 +347,9 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if ((max.NodeType == NodeType.IntegerLiteralExpression) &&
-						(min.NodeType == NodeType.IntegerLiteralExpression))
+					if (null != maxi && null != mini)
 					{
-						if (((IntegerLiteralExpression)max).Value < ((IntegerLiteralExpression)min).Value)
+						if (maxi.Value < mini.Value)
 						{
 							condition = CodeBuilder.CreateBoundBinaryExpression(
 								TypeSystemServices.BoolType,
@@ -419,20 +423,18 @@ namespace Boo.Lang.Compiler.Steps
 				}
 
 				// __end = __num + __step * cast(int, Math.Ceiling((__end - __num)/cast(double, __step)))
-				if ((step.NodeType == NodeType.IntegerLiteralExpression) &&
-					(max.NodeType == NodeType.IntegerLiteralExpression) &&
-					(min.NodeType == NodeType.IntegerLiteralExpression))
+				if (null != stepi && null != maxi && null != mini)
 				{
-					int stepVal = (int)((IntegerLiteralExpression)step).Value;
-					int maxVal = (int)((IntegerLiteralExpression)max).Value;
-					int minVal = (int)((IntegerLiteralExpression)min).Value;
+					int stepVal = (int) stepi.Value;
+					int maxVal = (int) maxi.Value;
+					int minVal = (int) mini.Value;
 					endRef = CodeBuilder.CreateIntegerLiteral(
 						minVal + stepVal * (int)System.Math.Ceiling((maxVal - minVal) / ((double)stepVal)));
 				}
 				else
 				{
 					Expression endBak = endRef;
-					if (max.NodeType == NodeType.IntegerLiteralExpression)
+					if (null != maxi)
 					{
 						InternalLocal endVar = CodeBuilder.DeclareTempLocal(
 									_currentMethod,

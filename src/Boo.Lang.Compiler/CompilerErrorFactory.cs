@@ -770,7 +770,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError ValueTypeParameterCannotUseDefaultAttribute(Node node, string parameter)
 		{
-			string method = (null != node as Method) ? (node as Method).Name : (node as Property).Name;  
+			string method = (node is Method) ? ((Method) node).Name : ((Property) node).Name;
 			return new CompilerError("BCE0142", AstUtil.SafeLexicalInfo(node), parameter, method);
 		}
 		

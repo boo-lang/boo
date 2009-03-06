@@ -523,9 +523,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			foreach (IEntity ent in ns.GetMembers())
 			{
-				if (EntityType.Namespace != ent.EntityType) continue;
-				resultingList.Add((INamespace) ent);
-				FlattenChildNamespaces(resultingList, (INamespace) ent);
+				if (EntityType.Namespace != ent.EntityType)
+					continue;
+				INamespace nsEnt = (INamespace) ent;
+				resultingList.Add(nsEnt);
+				FlattenChildNamespaces(resultingList, nsEnt);
 			}
 		}
 
@@ -586,7 +588,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				if (expectedSoundex == StringUtilities.GetSoundex(member.Name))
 				{
 					//return properties without get_/set_ prefix
-					if (member is IMethod && ((IMethod) member).IsSpecialName)
+					IMethod method = member as IMethod;
+					if (null != method && method.IsSpecialName)
 						return member.Name.Substring(4);
 					return member.Name;
 				}

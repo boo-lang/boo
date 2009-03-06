@@ -324,11 +324,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			if (tag.IsArray)
 			{
-				IType elementType = ((IArrayType)tag).GetElementType();
+				IArrayType arrayType = (IArrayType) tag;
+				IType elementType = arrayType.GetElementType();
 				//typeReference = new ArrayTypeReference();
 				//((ArrayTypeReference)typeReference).ElementType = CreateTypeReference(elementType);
 				// FIXME: This is what it *should* be, but it causes major breakage. ??
-				typeReference = new ArrayTypeReference(CreateTypeReference(elementType), CreateIntegerLiteral(((IArrayType)tag).GetArrayRank()));
+				typeReference = new ArrayTypeReference(CreateTypeReference(elementType), CreateIntegerLiteral(arrayType.GetArrayRank()));
 			}
 			else
 			{
@@ -373,7 +374,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				case EntityType.Local: return CreateReference((InternalLocal)entity);
 				case EntityType.Field: return CreateReference((IField)entity);
 				case EntityType.Parameter: return CreateReference((InternalParameter)entity);
-				case EntityType.Custom: return CreateTypedReference(entity.Name, (ITypedEntity)entity);
+				//case EntityType.Custom: return CreateTypedReference(entity.Name, (ITypedEntity)entity);
 				case EntityType.Property: return CreateReference((IProperty)entity);
             }
             return CreateTypedReference(entity.Name, (ITypedEntity)entity);

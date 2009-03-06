@@ -119,12 +119,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ImportedNamespaceFor(Import import, IEntity entity)
 		{
-			if (!(entity is INamespace))
+			INamespace ns = entity as INamespace;
+			if (null == ns)
 				return entity;
 
 			INamespace actualNamespace = null != import.Alias
-			                       	? AliasedNamespaceFor(entity, import)
-			                       	: (INamespace)entity;
+			                        ? AliasedNamespaceFor(entity, import)
+			                        : ns;
 			return new ImportedNamespace(import, actualNamespace);
 		}
 

@@ -56,8 +56,8 @@ namespace Boo.Lang.Compiler.Steps
 				CodeBuilder.BindParameterDeclarations(member.IsStatic, node);
 				if (!member.IsVisible && !member.IsSynthetic)
 				{
-					if (member is IExplicitMember
-						&& null != ((IExplicitMember)member).ExplicitInfo)
+					IExplicitMember explicitMember = member as IExplicitMember;
+					if (null != explicitMember && null != explicitMember.ExplicitInfo)
 						continue;
 					member.Annotate("PrivateMemberNeverUsed", null);
 				}

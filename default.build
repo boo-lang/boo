@@ -1201,6 +1201,7 @@
 			<arg line="--config extras/rules.xml" />
 			<arg line="--html ${build.dir}/gendarme-report.html" />
 			<arg line="--set ${gendarme.set}" unless="${gendarme.set == ''}" />
+			<arg line="--ignore extras/gendarme.ignore" />
 
 			<arg value="${build.dir}/Boo.Lang.dll" />
 			<arg value="${build.dir}/Boo.Lang.Compiler.dll" />
