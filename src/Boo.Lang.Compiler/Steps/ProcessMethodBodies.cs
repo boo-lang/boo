@@ -3551,7 +3551,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.ReferenceInequality:
 					{
-						BindReferenceEquality(node);
+						BindReferenceEquality(node, true);
 						break;
 					}
 
@@ -3787,7 +3787,7 @@ namespace Boo.Lang.Compiler.Steps
 								&& (IsNull(node.Left) || IsNull(node.Right)))
 							{
 								node.Operator = BinaryOperatorType.ReferenceInequality;
-								BindReferenceEquality(node);
+								BindReferenceEquality(node, true);
 								break;
 							}
 							Expression expression = CreateEquals(node);
@@ -5389,9 +5389,29 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindReferenceEquality(BinaryExpression node)
 		{
+			BindReferenceEquality(node, false);
+		}
+
+		void BindReferenceEquality(BinaryExpression node, bool inequality)
+		{
 			if (BindNullableOperation(node))
 			{
 				return;
+			}
+
+			//BOO-1174: accept `booleanExpression is true|false`
+			BoolLiteralExpression isBool = node.Right as BoolLiteralExpression;
+			if (null != isBool)
+			{
+				if (GetExpressionType(node.Left) == TypeSystemServices.BoolType)
+				{
+					Node replacement = (isBool.Value ^ inequality)
+					                   ? node.Left
+					                   : new UnaryExpression(UnaryOperatorType.LogicalNot, node.Left);
+					node.ParentNode.Replace(node, replacement);
+					Visit(replacement);
+					return;
+				}
 			}
 
 			if (CheckIsNotValueType(node, node.Left) &&
