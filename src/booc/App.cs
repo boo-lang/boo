@@ -245,7 +245,7 @@ namespace BooC
 					" -o:FILE              Sets the output file name to FILE\n" +
 					" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
 					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
-					" -reference:ASS       References the specified assembly (-r:ASS)\n" +
+					" -reference:A1[,An]   References assemblies (-r:)\n" +
 					" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
 					" -target:TYPE         Sets the target type (exe, library or winexe)\n" +
 					" -resource:FILE[,ID]  Embeds FILE as a resource\n" +
@@ -367,8 +367,11 @@ namespace BooC
 						}
 						else
 						{
-							string assemblyName = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
-							_references.Add(assemblyName);
+							string assemblies = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
+							foreach (string assemblyName in assemblies.Split(','))
+							{
+								_references.Add(assemblyName);
+							}
 						}
 						break;
 					}
