@@ -37,7 +37,8 @@ namespace Boo.Lang.Runtime
 	{
 		public static Type[] GetArgumentTypes(object[] arguments)
 		{
-			if (arguments.Length == 0) return DispatcherKey.NoArguments;
+			if (arguments.Length == 0)
+				return Type.EmptyTypes;
 
 			Type[] types = new Type[arguments.Length];
 			for (int i = 0; i < types.Length; ++i)

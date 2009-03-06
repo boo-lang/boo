@@ -34,15 +34,13 @@ namespace Boo.Lang.Runtime
 {
 	public class DispatcherKey
 	{
-		public static readonly Type[] NoArguments = new Type[0];
-
 		public static readonly IEqualityComparer<DispatcherKey> EqualityComparer = new _EqualityComparer();
 
 		private readonly Type _type;
 		private readonly string _name;
 		private readonly Type[] _arguments;
 
-		public DispatcherKey(Type type, string name) : this(type, name, NoArguments)
+		public DispatcherKey(Type type, string name) : this(type, name, Type.EmptyTypes)
 		{
 		}
 

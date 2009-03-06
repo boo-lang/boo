@@ -69,15 +69,15 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		static ConstructorInfo DebuggableAttribute_Constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
 		
-		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetConstructor(new Type[0]);
+		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetConstructor(Type.EmptyTypes);
 
-		static ConstructorInfo SerializableAttribute_Constructor = typeof(SerializableAttribute).GetConstructor(new Type[0]);
+		static ConstructorInfo SerializableAttribute_Constructor = typeof(SerializableAttribute).GetConstructor(Type.EmptyTypes);
 
 		static PropertyInfo[] RuntimeCompatibilityAttribute_Property = new PropertyInfo[] { typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetProperty("WrapNonExceptionThrows") };
 
-		static ConstructorInfo DuckTypedAttribute_Constructor = Types.DuckTypedAttribute.GetConstructor(new Type[0]);
+		static ConstructorInfo DuckTypedAttribute_Constructor = Types.DuckTypedAttribute.GetConstructor(Type.EmptyTypes);
 		
-		static ConstructorInfo ParamArrayAttribute_Constructor = Types.ParamArrayAttribute.GetConstructor(new Type[0]);
+		static ConstructorInfo ParamArrayAttribute_Constructor = Types.ParamArrayAttribute.GetConstructor(Type.EmptyTypes);
 		
 		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
 		
@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		static ConstructorInfo List_ArrayBoolConstructor = Types.List.GetConstructor(new Type[] { Types.ObjectArray, Types.Bool });
 		
-		static ConstructorInfo Hash_Constructor = Types.Hash.GetConstructor(new Type[0]);
+		static ConstructorInfo Hash_Constructor = Types.Hash.GetConstructor(Type.EmptyTypes);
 		
 		static ConstructorInfo Regex_Constructor = typeof(Regex).GetConstructor(new Type[] { Types.String });
 		
@@ -2789,7 +2789,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
 			Type stringBuilderType = typeof(StringBuilder);
-			ConstructorInfo constructor = stringBuilderType.GetConstructor(new Type[0]);
+			ConstructorInfo constructor = stringBuilderType.GetConstructor(Type.EmptyTypes);
 			ConstructorInfo constructorString = stringBuilderType.GetConstructor(new Type[] { typeof(string) });
 			MethodInfo appendObject = stringBuilderType.GetMethod("Append", new Type[] { typeof(object) });
 			MethodInfo appendString = stringBuilderType.GetMethod("Append", new Type[] { typeof(string) });
@@ -2848,7 +2848,7 @@ namespace Boo.Lang.Compiler.Steps
 					_il.EmitCall(OpCodes.Call, appendObject, null);
 				}
 			}
-			_il.EmitCall(OpCodes.Call, stringBuilderType.GetMethod("ToString", new Type[0]), null);
+			_il.EmitCall(OpCodes.Call, stringBuilderType.GetMethod("ToString", Type.EmptyTypes), null);
 			PushType(TypeSystemServices.StringType);
 		}
 		
