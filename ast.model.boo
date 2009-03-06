@@ -142,6 +142,7 @@ class EnumMember(TypeMember):
 class Field(TypeMember):
 	Type as TypeReference
 	Initializer as Expression
+	IsVolatile as bool
 
 class Property(TypeMember, INodeWithParameters, IExplicitMember):
 	Parameters as ParameterDeclarationCollection

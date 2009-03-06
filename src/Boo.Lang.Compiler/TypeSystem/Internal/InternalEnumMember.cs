@@ -92,6 +92,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		public bool IsVolatile
+		{
+			get { return false; }
+		}
+
 		public bool IsDuckTyped
 		{
 			get { return false; }

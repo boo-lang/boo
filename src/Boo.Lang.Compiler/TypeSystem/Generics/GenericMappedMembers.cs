@@ -434,5 +434,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			get { return SourceMember.StaticValue; }
 		}
-	}
-}
+
+		public bool IsVolatile
+		{
+			get { return SourceMember.IsVolatile; }
+		}
+	}}
+

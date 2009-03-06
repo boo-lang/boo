@@ -45,5 +45,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
+
+		bool IsVolatile
+		{
+			get;
+		}
 	}
 }
+

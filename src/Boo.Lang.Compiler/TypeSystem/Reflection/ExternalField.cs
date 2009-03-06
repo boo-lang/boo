@@ -91,7 +91,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get { return _memberInfo.GetValue(null); }
 		}
-		
+
+		static readonly Type IsVolatileType = typeof(System.Runtime.CompilerServices.IsVolatile);
+		bool? _isVolatile;
+
+		public bool IsVolatile
+		{
+			get {
+				if (null == _isVolatile)
+				{
+					Type[] mods = _memberInfo.GetRequiredCustomModifiers();
+					_isVolatile = false;
+					foreach (Type mod in mods)
+					{
+						if (mod == IsVolatileType)
+						{
+							_isVolatile = true;
+							break;
+						}
+					}
+				}
+				return _isVolatile.Value;
+			}
+		}
+
 		public System.Reflection.FieldInfo FieldInfo
 		{
 			get { return _memberInfo; }

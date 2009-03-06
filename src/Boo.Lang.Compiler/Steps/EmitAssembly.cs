@@ -2888,12 +2888,16 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
+					if (fieldInfo.IsVolatile)
+						_il.Emit(OpCodes.Volatile);
 					_il.Emit(OpCodes.Ldsfld, GetFieldInfo(fieldInfo));
 				}
 			}
 			else
 			{
 				LoadMemberTarget(self, fieldInfo);
+				if (fieldInfo.IsVolatile)
+					_il.Emit(OpCodes.Volatile);
 				_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldInfo));
 			}
 			PushType(fieldInfo.Type);
@@ -3316,9 +3320,11 @@ namespace Boo.Lang.Compiler.Steps
 				local = _il.DeclareLocal(GetSystemType(field.Type));
 				_il.Emit(OpCodes.Stloc, local);
 			}
-			
+
+			if (field.IsVolatile)
+				_il.Emit(OpCodes.Volatile);
 			_il.Emit(opSetField, GetFieldInfo(field));
-			
+
 			if (leaveValueOnStack)
 			{
 				_il.Emit(OpCodes.Ldloc, local);
@@ -4489,7 +4495,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return attributes;
 		}
-		
+
+		static readonly Type IsVolatileType = typeof(System.Runtime.CompilerServices.IsVolatile);
+
+		Type[] GetFieldRequiredCustomModifiers(Field field)
+		{
+			if (field.IsVolatile)
+				return new Type[] { IsVolatileType };
+			return Type.EmptyTypes;
+		}
+
 		ParameterAttributes GetParameterAttributes(ParameterDeclaration param)
 		{
 			return ParameterAttributes.None;
@@ -4563,6 +4578,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			FieldBuilder builder = typeBuilder.DefineField(field.Name,
 			                                               GetSystemType(field),
+			                                               GetFieldRequiredCustomModifiers(field),
+			                                               Type.EmptyTypes,
 			                                               GetFieldAttributes(field));
 			SetBuilder(field, builder);
 		}
