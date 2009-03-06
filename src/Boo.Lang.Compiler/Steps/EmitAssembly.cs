@@ -1988,10 +1988,10 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitBitwiseOperator(BinaryExpression node)
 		{
 			IType type = node.ExpressionType;
-			
+
 			Visit(node.Left);
 			EmitCastIfNeeded(type, PopType());
-			
+
 			Visit(node.Right);
 			EmitCastIfNeeded(
 				GetExpectedTypeForBitwiseRightOperand(node),
@@ -2024,11 +2024,12 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				case BinaryOperatorType.ShiftRight:
 					{
-						_il.Emit(OpCodes.Shr);
+						_il.Emit(TypeSystemServices.IsSignedNumber(type)
+						         ? OpCodes.Shr : OpCodes.Shr_Un);
 						break;
 					}
 			}
-			
+
 			PushType(type);
 		}
 		

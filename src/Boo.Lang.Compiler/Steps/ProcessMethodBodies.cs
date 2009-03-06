@@ -3706,7 +3706,18 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IsIntegerOrBool(lhs) &&
 				TypeSystemServices.IsIntegerOrBool(rhs))
 			{
-				BindExpressionType(node, TypeSystemServices.GetPromotedNumberType(lhs, rhs));
+				IType type;
+				switch (node.Operator)
+				{
+					case BinaryOperatorType.ShiftLeft:
+					case BinaryOperatorType.ShiftRight:
+						type = lhs;
+						break;
+					default:
+						type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
+						break;
+				}
+				BindExpressionType(node, type);
 			}
 			else
 			{
