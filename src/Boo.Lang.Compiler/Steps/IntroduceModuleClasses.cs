@@ -148,8 +148,10 @@ namespace Boo.Lang.Compiler.Steps
 					moduleClass.Attributes.Add(CreateBooModuleAttribute());
 					node.Members.Add(moduleClass);
 				}
-				
-				moduleClass.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Private));
+
+				if (!moduleClass.HasInstanceConstructor)
+					moduleClass.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Private));
+
 				moduleClass.Modifiers = TypeMemberModifiers.Public |
 										TypeMemberModifiers.Final |
 										TypeMemberModifiers.Transient;
