@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			return new ChildReflectionNamespace(this, name);
 		}
 
-		private class ChildReflectionNamespace : ReflectionNamespace
+		private sealed class ChildReflectionNamespace : ReflectionNamespace
 		{
 			private readonly ReflectionNamespace _parent;
 			private string _name;

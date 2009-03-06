@@ -35,7 +35,7 @@ using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	class ApplyAttributeTask : ITask
+	sealed class ApplyAttributeTask : ITask
 	{
 		CompilerContext _context;
 

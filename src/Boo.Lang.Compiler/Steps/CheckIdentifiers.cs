@@ -40,7 +40,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		internal static bool IsValidName(string name)
 		{
-			if (name == null || name == string.Empty) return false;
+			if (string.IsNullOrEmpty(name))
+				return false;
 			char c = name[0];
 			return char.IsLetter(c) || c=='(' || c=='_' || c == '$';
 		}

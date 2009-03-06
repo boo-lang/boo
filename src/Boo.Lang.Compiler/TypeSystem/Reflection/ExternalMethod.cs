@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Reflection;
 
-	public class ExternalMethod : ExternalEntity<MethodBase>, IMethod
+	public class ExternalMethod : ExternalEntity<MethodBase>, IMethod, IEquatable<ExternalMethod>
 	{
 		protected IParameter[] _parameters;
 
@@ -251,11 +251,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public bool Equals(object other)
 		{
-			ExternalMethod rhs = other as ExternalMethod;
-			if (null == rhs) return false;
-			return _memberInfo.MethodHandle.Value == rhs._memberInfo.MethodHandle.Value;
+			if (null == other) return false;
+			if (this == other) return true;
+
+			ExternalMethod method = other as ExternalMethod;
+			return Equals(method);
 		}
-		
+
+		public bool Equals(ExternalMethod other)
+		{
+			if (null == other) return false;
+			if (this == other) return true;
+
+			return _memberInfo.MethodHandle.Value == other._memberInfo.MethodHandle.Value;
+		}
+
 		override public int GetHashCode()
 		{
 			return _memberInfo.MethodHandle.Value.GetHashCode();

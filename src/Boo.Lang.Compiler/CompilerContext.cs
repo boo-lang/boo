@@ -117,10 +117,8 @@ namespace Boo.Lang.Compiler
 			
 			set
 			{
-				if (null == value || 0 == value.Length)
-				{
-					throw new ArgumentException("GeneratedAssemblyFileName");
-				}
+				if (string.IsNullOrEmpty(value))
+					throw new ArgumentNullException("GeneratedAssemblyFileName");
 				_generatedAssemblyFileName = value;
 			}
 		}

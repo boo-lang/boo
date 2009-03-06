@@ -36,10 +36,11 @@ namespace Boo.Lang.Runtime
 	public class ExtensionRegistry
 	{
 		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		
+		private object _classLock = new object();
+
 		public void Register(Type type)
 		{
-			lock (this)
+			lock (_classLock)
 			{
 				_extensions = AddExtensionMembers(CopyExtensions(), type);
 			}
@@ -47,12 +48,12 @@ namespace Boo.Lang.Runtime
 
 		public IEnumerable<MemberInfo> Extensions
 		{
-			get { lock(this) { return _extensions; }  }
+			get { return _extensions; }
 		}
 
 		public void UnRegister(Type type)
 		{
-			lock (this)
+			lock (_classLock)
 			{
 				List<MemberInfo> extensions = CopyExtensions();
 				extensions.RemoveAll(delegate(MemberInfo member) { return member.DeclaringType == type; });

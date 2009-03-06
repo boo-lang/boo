@@ -175,7 +175,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		#endregion
 
-		class DuckTypeImpl : ExternalType
+		sealed class DuckTypeImpl : ExternalType
 		{
 			internal DuckTypeImpl(IReflectionTypeSystemProvider provider)
 				: base(provider, Types.Object)
@@ -184,7 +184,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		}
 
 		#region VoidTypeImpl
-		class VoidTypeImpl : ExternalType
+		sealed class VoidTypeImpl : ExternalType
 		{
 			internal VoidTypeImpl(IReflectionTypeSystemProvider provider)
 				: base(provider, Types.Void)

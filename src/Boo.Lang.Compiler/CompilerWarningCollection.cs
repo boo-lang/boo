@@ -67,9 +67,11 @@ namespace Boo.Lang.Compiler
 
 		protected bool OnAdding(CompilerWarning warning)
 		{
-			if (null == Adding) return true;
+			EventHandler<CompilerWarningEventArgs> adding = Adding;
+			if (null == adding)
+				return true;
 			CompilerWarningEventArgs args = new CompilerWarningEventArgs(warning);
-			Adding(this, args);
+			adding(this, args);
 			return !args.IsCancelled;
 		}
 

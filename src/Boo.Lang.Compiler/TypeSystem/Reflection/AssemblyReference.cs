@@ -28,7 +28,9 @@
 
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
-	class AssemblyReference : ICompileUnit
+	using System;
+
+	class AssemblyReference : ICompileUnit, IEquatable<AssemblyReference>
 	{
 		private readonly System.Reflection.Assembly _assembly;
 		private readonly IReflectionTypeSystemProvider _provider;
@@ -81,11 +83,20 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		#endregion
 
-		public override bool Equals(object obj)
+		public override bool Equals(object other)
 		{
-			AssemblyReference other = obj as AssemblyReference;
-			if (null == other)
-				return false;
+			if (null == other) return false;
+			if (this == other) return true;
+
+			AssemblyReference aref = other as AssemblyReference;
+			return Equals(aref);
+		}
+	
+		public bool Equals(AssemblyReference other)
+		{
+			if (null == other) return false;
+			if (this == other) return true;
+
 			return AssemblyEqualityComparer.Default.Equals(_assembly, other._assembly);
 		}
 

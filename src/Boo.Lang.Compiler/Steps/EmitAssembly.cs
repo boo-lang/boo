@@ -49,7 +49,7 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	class LoopInfo
+	sealed class LoopInfo
 	{
 		public Label BreakLabel;
 		
@@ -242,7 +242,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		class AttributeEmitVisitor : DepthFirstVisitor
+		sealed class AttributeEmitVisitor : DepthFirstVisitor
 		{
 			EmitAssembly _emitter;
 			
@@ -389,7 +389,7 @@ namespace Boo.Lang.Compiler.Steps
 		/// <summary>
 		/// Ensures that all types are created in the correct order.
 		/// </summary>
-		class TypeCreator
+		sealed class TypeCreator
 		{
 			EmitAssembly _emitter;
 			
@@ -5100,7 +5100,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		SREResourceService _sreResourceService;
 
-		class SREResourceService : IResourceService
+		sealed class SREResourceService : IResourceService
 		{
 			AssemblyBuilder _asmBuilder;
 			ModuleBuilder _moduleBuilder;
@@ -5187,7 +5187,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Warnings.Add(CompilerWarningFactory.HaveBothKeyNameAndAttribute(attribute));
 				}
-				if (Parameters.KeyContainer != "")
+				if (Parameters.KeyContainer.Length != 0)
 				{
 					return new StrongNameKeyPair(Parameters.KeyContainer);
 				}
@@ -5195,7 +5195,7 @@ namespace Boo.Lang.Compiler.Steps
 			else if (attribute != null)
 			{
 				string asmName = ((StringLiteralExpression)attribute.Arguments[0]).Value;
-				if (asmName != "") //ignore empty AssemblyKeyName values, like C# does
+				if (asmName.Length != 0) //ignore empty AssemblyKeyName values, like C# does
 				{
 					return new StrongNameKeyPair(asmName);
 				}

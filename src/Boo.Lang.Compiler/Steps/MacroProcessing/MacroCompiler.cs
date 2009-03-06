@@ -36,7 +36,7 @@ using Module=Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	class MacroCompiler : AbstractCompilerComponent
+	sealed class MacroCompiler : AbstractCompilerComponent
 	{
 		private static readonly object CachedTypeAnnotation = new object();
 		private ICompileUnit[] _references;

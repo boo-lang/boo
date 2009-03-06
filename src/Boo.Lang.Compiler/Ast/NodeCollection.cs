@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Ast
 	/// <summary>
 	/// Node collection base class.
 	/// </summary>
-	public class NodeCollection<T> : ICollection<T>, ICollection, ICloneable
+	public class NodeCollection<T> : ICollection<T>, ICollection, ICloneable, IEquatable<NodeCollection<T>>
 		where T : Node
 	{
 		protected Node _parent;
@@ -358,11 +358,19 @@ namespace Boo.Lang.Compiler.Ast
 			return _list.GetHashCode();
 		}
 
-		override public bool Equals(object rhs)
+		override public bool Equals(object other)
 		{
-			NodeCollection<T> other = rhs as NodeCollection<T>;
 			if (null == other) return false;
+			if (this == other) return true;
 
+			NodeCollection<T> collection = other as NodeCollection<T>;
+			return Equals(collection);
+		}
+
+		public bool Equals(NodeCollection<T> other)
+		{
+			if (null == other) return false;
+			if (this == other) return true;
 			if (InnerList.Count != other.Count) return false;
 
 			IEnumerator<T> enumerator = other.GetEnumerator();

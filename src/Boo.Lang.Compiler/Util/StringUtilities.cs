@@ -30,7 +30,7 @@ using System;
 
 namespace Boo.Lang.Compiler.Util
 {
-	internal class StringUtilities
+	internal sealed class StringUtilities
 	{
 		public static string GetSoundex(string s)
 		{

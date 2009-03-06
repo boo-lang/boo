@@ -13,3 +13,14 @@ M: System.Int32 Boo.Lang.Compiler.TypeSystem.CallableResolutionService::Calculat
 M: Boo.Lang.Compiler.TypeSystem.Core.GlobalNamespace Boo.Lang.Compiler.TypeSystem.Services.NameResolutionService::GetGlobalNamespace()
 M: Boo.Lang.Compiler.CompilerError Boo.Lang.Compiler.CompilerErrorFactory::ValueTypeParameterCannotUseDefaultAttribute(Boo.Lang.Compiler.Ast.Node,System.String)
 
+R: Gendarme.Rules.Performance.AvoidUnneededFieldInitializationRule
+M: System.Void Boo.Lang.Compiler.CompilerParameters::.ctor(Boo.Lang.Compiler.TypeSystem.Reflection.IReflectionTypeSystemProvider,System.Boolean)
+
+R: Gendarme.Rules.Design.EnsureSymmetryForOverloadedOperatorsRule
+T: Boo.Lang.List`1
+T: Boo.Lang.List
+
+R: Gendarme.Rules.BadPractice.CheckNewExceptionWithoutThrowingRule
+M: System.Void Boo.Lang.Compiler.Ast.DepthFirstTransformer::.cctor()
+
+

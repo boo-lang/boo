@@ -226,33 +226,37 @@ namespace Boo.Lang.Compiler
 
 		virtual protected void OnBefore(CompilerContext context)
 		{
-			if (null != Before)
+			EventHandler<CompilerPipelineEventArgs> before = Before;
+			if (null != before)
 			{
-				Before(this, new CompilerPipelineEventArgs(context));
+				before(this, new CompilerPipelineEventArgs(context));
 			}
 		}
 
 		virtual protected void OnAfter(CompilerContext context)
 		{
-			if (null != After)
+			EventHandler<CompilerPipelineEventArgs> after = After;
+			if (null != after)
 			{
-				After(this, new CompilerPipelineEventArgs(context));
+				after(this, new CompilerPipelineEventArgs(context));
 			}
 		}
 		
 		virtual protected void OnBeforeStep(CompilerContext context, ICompilerStep step)
 		{
-			if (null != BeforeStep)
+			CompilerStepEventHandler beforeStep = BeforeStep;
+			if (null != beforeStep)
 			{
-				BeforeStep(this, new CompilerStepEventArgs(context, step));
+				beforeStep(this, new CompilerStepEventArgs(context, step));
 			}
 		}
 		
 		virtual protected void OnAfterStep(CompilerContext context, ICompilerStep step)
 		{
-			if (null != AfterStep)
+			CompilerStepEventHandler afterStep = AfterStep;
+			if (null != afterStep)
 			{
-				AfterStep(this, new CompilerStepEventArgs(context, step));
+				afterStep(this, new CompilerStepEventArgs(context, step));
 			}
 		}
 		

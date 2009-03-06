@@ -38,7 +38,7 @@ namespace Boo.Lang
 	/// </summary>
 	[Serializable]
 	[EnumeratorItemType(typeof(DictionaryEntry))]
-	public class Hash : Hashtable
+	public class Hash : Hashtable, IEquatable<Hash>
 	{
 		public Hash() : base(BooHashCodeProvider.Default)
 		{
@@ -82,13 +82,19 @@ namespace Boo.Lang
 			return new Hash(this);
 		}
 
-		public override bool Equals(object obj)
+		override public bool Equals(object other)
 		{
-			if (this == obj) return true;
-			if (obj == null) return false;
-			if (GetType() != obj.GetType()) return false;
+			if (null == other) return false;
+			if (this == other) return true;
 
-			Hash other = (Hash) obj;
+			Hash hash = other as Hash;
+			return Equals(hash);
+		}
+
+		public bool Equals(Hash other)
+		{
+			if (null == other) return false;
+			if (this == other) return true;
 			if (Count != other.Count) return false;
 
 			foreach (DictionaryEntry entry in other)

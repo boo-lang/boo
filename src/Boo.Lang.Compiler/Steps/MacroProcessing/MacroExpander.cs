@@ -38,7 +38,7 @@ using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	internal class MacroExpander : AbstractNamespaceSensitiveTransformerCompilerStep
+	internal sealed class MacroExpander : AbstractNamespaceSensitiveTransformerCompilerStep
 	{
 		private int _expanded;
 

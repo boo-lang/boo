@@ -33,7 +33,7 @@ using System.Reflection;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	class AssemblyEqualityComparer : IEqualityComparer<Assembly>
+	sealed class AssemblyEqualityComparer : IEqualityComparer<Assembly>
 	{
 		public static readonly IEqualityComparer<Assembly> Default = new AssemblyEqualityComparer();
 

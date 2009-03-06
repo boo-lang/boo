@@ -34,7 +34,7 @@ using System;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	class NodeGeneratorExpander
+	sealed class NodeGeneratorExpander
 	{
 		private readonly MacroStatement _node;
 		private readonly bool _addTypeMembersToEnclosingTypeDefinition;

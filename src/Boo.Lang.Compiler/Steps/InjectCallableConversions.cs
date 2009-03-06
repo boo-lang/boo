@@ -325,7 +325,7 @@ namespace Boo.Lang.Compiler.Steps
 			return adaptor;
 		}
 		
-		class AdaptorRecord
+		sealed class AdaptorRecord
 		{
 			public readonly ICallableType To;
 			public readonly ICallableType From;

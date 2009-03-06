@@ -35,7 +35,8 @@ namespace Boo.Lang.Runtime
 {
 	class SliceDispatcherFactory : AbstractDispatcherFactory
 	{
-		public SliceDispatcherFactory(ExtensionRegistry extensions, object target, Type type, string name, params object[] arguments) : base(extensions, target, type, name == "" ? RuntimeServices.GetDefaultMemberName(type) : name, arguments)
+		public SliceDispatcherFactory(ExtensionRegistry extensions, object target, Type type, string name, params object[] arguments)
+			: base(extensions, target, type, name.Length == 0 ? RuntimeServices.GetDefaultMemberName(type) : name, arguments)
 		{
 		}
 
@@ -124,7 +125,7 @@ namespace Boo.Lang.Runtime
 					{
 						FieldInfo field = (FieldInfo)member;
 						return
-							delegate(object o, object[] arguments) { return RuntimeServices.SetSlice(field.GetValue(o), "", arguments); };
+							delegate(object o, object[] arguments) { return RuntimeServices.SetSlice(field.GetValue(o), string.Empty, arguments); };
 					}
 				case MemberTypes.Property:
 					{
@@ -138,7 +139,7 @@ namespace Boo.Lang.Runtime
 
 						return delegate(object o, object[] arguments)
 						       	{
-						       		return RuntimeServices.SetSlice(RuntimeServices.GetProperty(o, _name), "", arguments);
+						       		return RuntimeServices.SetSlice(RuntimeServices.GetProperty(o, _name), string.Empty, arguments);
 						       	};
 					}
 				default:

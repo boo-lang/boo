@@ -58,7 +58,7 @@ namespace Boo.Lang.Runtime
 			get { return _arguments;  }
 		}
 
-		class _EqualityComparer : IEqualityComparer<DispatcherKey>
+		sealed class _EqualityComparer : IEqualityComparer<DispatcherKey>
 		{
 			public int GetHashCode(DispatcherKey key)
 			{

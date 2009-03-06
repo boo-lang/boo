@@ -31,7 +31,7 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	class TypeMemberStatementBubbler : DepthFirstTransformer
+	sealed class TypeMemberStatementBubbler : DepthFirstTransformer
 	{
 		#region Implementation of ITypeMemberStatementVisitor
 

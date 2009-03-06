@@ -419,7 +419,7 @@ namespace Boo.Lang.Compiler.Steps
 			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, _externalEnumeratorSelf));
 		}
 		
-		class TryStatementInfo
+		sealed class TryStatementInfo
 		{
 			internal TryStatement _statement;
 			internal TryStatementInfo _parent;

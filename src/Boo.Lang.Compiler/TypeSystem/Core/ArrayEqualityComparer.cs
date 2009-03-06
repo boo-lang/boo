@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 	/// <summary>
 	/// Compares arrays based on their items.
 	/// </summary>
-	internal class ArrayEqualityComparer<T>: IEqualityComparer<T[]>
+	internal sealed class ArrayEqualityComparer<T>: IEqualityComparer<T[]>
 	{
 		private static ArrayEqualityComparer<T> _default = null;
 

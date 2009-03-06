@@ -232,12 +232,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		}
 		
 		
-		class LabelCollector : DepthFirstVisitor
+		sealed class LabelCollector : DepthFirstVisitor
 		{
 			public static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
 
-			protected List _labels;
-		
+			List _labels;
+
 			public override void OnLabelStatement(LabelStatement node)
 			{
 				if (null == _labels) _labels = new List();

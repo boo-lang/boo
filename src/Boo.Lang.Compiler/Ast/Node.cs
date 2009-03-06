@@ -265,7 +265,7 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
-		private class ReplaceVisitor : DepthFirstTransformer
+		private sealed class ReplaceVisitor : DepthFirstTransformer
 		{
 			NodePredicate _predicate;
 			Node _template;	

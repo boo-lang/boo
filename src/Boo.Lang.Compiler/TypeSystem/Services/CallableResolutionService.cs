@@ -76,7 +76,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			base.Dispose();
 		}
 
-		public class Candidate
+		public class Candidate : IEquatable<Candidate>
 		{
 			public IMethod Method;
 			private CallableResolutionService _crs;
@@ -137,12 +137,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			override public bool Equals(object other)
 			{
-				Candidate score = other as Candidate;
-				return null == score
-					? false
-					: Method == score.Method;
+				if (null == other) return false;
+				if (this == other) return true;
+
+				Candidate candidate = other as Candidate;
+				return Equals(candidate);
 			}
-			
+
+			public bool Equals(Candidate other)
+			{
+				if (null == other) return false;
+				if (this == other) return true;
+
+				return Method == other.Method;
+			}
+
 			override public string ToString()
 			{
 				return Method.ToString();

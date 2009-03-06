@@ -494,7 +494,7 @@ namespace Boo.Lang.Compiler.Steps
 			return candidates;
 		}
 
-		private class ExplicitMembersFirstComparer<T> : IComparer<T>
+		private sealed class ExplicitMembersFirstComparer<T> : IComparer<T>
 			where T : IExplicitMember
 		{
 			public int Compare(T lhs, T rhs)

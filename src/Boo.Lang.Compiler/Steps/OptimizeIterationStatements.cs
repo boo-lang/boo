@@ -527,7 +527,7 @@ namespace Boo.Lang.Compiler.Steps
 			ReplaceCurrentNode(body);
 		}
 		
-		private class EntityPredicate
+		private sealed class EntityPredicate
 		{
 			private IEntity _entity;
 

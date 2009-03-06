@@ -39,7 +39,6 @@ namespace Boo.Lang
 
 		public AbstractGeneratorEnumerator()
 		{
-			_state = 0;
 		}
 
 		public object Current

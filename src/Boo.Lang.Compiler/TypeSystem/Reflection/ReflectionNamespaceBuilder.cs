@@ -33,7 +33,7 @@ using System.Reflection;
 
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
-	internal class ReflectionNamespaceBuilder
+	internal sealed class ReflectionNamespaceBuilder
 	{
 		private Assembly _assembly;
 		private ReflectionNamespace _root;

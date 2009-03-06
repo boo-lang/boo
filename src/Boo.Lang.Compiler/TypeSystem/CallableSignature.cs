@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	using System;
 	using System.Text;
 
-	public class CallableSignature
+	public class CallableSignature : IEquatable<CallableSignature>
 	{
 		IParameter[] _parameters;
 		IType _returnType;
@@ -70,7 +70,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_parameters = parameters;
 			_returnType = returnType;
 			_acceptVarArgs = acceptVarArgs;
-			InitializeHashCode();
 		}
 		
 		public IParameter[] Parameters
@@ -99,20 +98,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public int GetHashCode()
 		{
+			if (0 == _hashCode)
+				InitializeHashCode();
 			return _hashCode;
 		}
 		
 		override public bool Equals(object other)
 		{
-			CallableSignature rhs = other as CallableSignature;
-			if (null == rhs
-				|| !_returnType.Equals(rhs._returnType)
-				|| _acceptVarArgs != rhs._acceptVarArgs)
-				return false;
+			if (null == other) return false;
+			if (this == other) return true;
 
-			return AreSameParameters(_parameters, rhs._parameters);
+			CallableSignature signature = other as CallableSignature;
+			return Equals(signature);
 		}
-		
+
+		public bool Equals(CallableSignature other)
+		{
+			if (null == other) return false;
+			if (this == other) return true;
+
+			return _returnType.Equals(other._returnType)
+			       && _acceptVarArgs == other._acceptVarArgs
+			       && AreSameParameters(_parameters, other._parameters);
+		}
+
 		override public string ToString()
 		{
 			StringBuilder buffer = new StringBuilder("callable(");

@@ -29,7 +29,7 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	class CachedMethod
+	sealed class CachedMethod
 	{
 		public readonly IMethod Value;
 

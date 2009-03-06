@@ -35,7 +35,7 @@ namespace Boo.Lang
 	using System.Collections.Generic;
 
 	[Serializable]
-	public class List<T> : IList<T>, IList
+	public class List<T> : IList<T>, IList, IEquatable<List<T>>
 	{
 		private static readonly T[] EmptyArray = new T[0];
 
@@ -284,7 +284,7 @@ namespace Boo.Lang
 			return this;
 		}
 
-		class ComparisonComparer : IComparer<T>
+		private sealed class ComparisonComparer : IComparer<T>
 		{
 			private readonly Comparison<T> _comparison;
 
@@ -314,7 +314,7 @@ namespace Boo.Lang
 			return this;
 		}
 
-		private class ComparerImpl : System.Collections.IComparer
+		private sealed class ComparerImpl : System.Collections.IComparer
 		{
 			Comparer _comparer;
 
@@ -365,18 +365,23 @@ namespace Boo.Lang
 
 		override public bool Equals(object other)
 		{
-			if (other == this) return true;
+			if (null == other) return false;
+			if (this == other) return true;
 
-			List<T> rhs = other as List<T>;
-			if (null == rhs) return false;
-			if (_count != rhs.Count) return false;
+			List<T> list = other as List<T>;
+			return Equals(list);
+		}
 
-			for (int i=0; i<_count; ++i)
+		public bool Equals(List<T> other)
+		{
+			if (null == other) return false;
+			if (this == other) return true;
+			if (_count != other.Count) return false;
+
+			for (int i=0; i < _count; ++i)
 			{
-				if (!RuntimeServices.EqualityOperator(_items[i], rhs[i]))
-				{
+				if (!RuntimeServices.EqualityOperator(_items[i], other[i]))
 					return false;
-				}
 			}
 			return true;
 		}
