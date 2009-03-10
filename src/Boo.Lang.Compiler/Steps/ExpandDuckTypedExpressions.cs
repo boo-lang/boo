@@ -116,7 +116,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			if (!IsDuckTyped(node.Target))
+			if (!TypeSystemServices.IsDuckTyped(node.Target))
 			{
 				base.OnMethodInvocationExpression(node);
 				return;
@@ -150,7 +150,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
-			if (!IsDuckTyped(node.Target)) return;
+			if (!TypeSystemServices.IsDuckTyped(node.Target)) return;
 			if (AstUtil.IsLhsOfAssignment(node)) return;
 
 			// todo
@@ -205,7 +205,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
-			if (IsDuckTyped(node.Operand) &&
+			if (TypeSystemServices.IsDuckTyped(node.Operand) &&
 				node.Operator == UnaryOperatorType.UnaryNegation)
 			{
 				MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
@@ -228,7 +228,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (!AstUtil.IsOverloadableOperator(node.Operator)) return;
-			if (!IsDuckTyped(node.Left) && !IsDuckTyped(node.Right)) return;
+			if (!TypeSystemServices.IsDuckTyped(node.Left) && !TypeSystemServices.IsDuckTyped(node.Right)) return;
 
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 				node.LexicalInfo,
@@ -244,7 +244,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (NodeType.SlicingExpression == node.Left.NodeType)
 			{
 				SlicingExpression slice = (SlicingExpression)node.Left;
-				if (IsDuckTyped(slice.Target))
+				if (TypeSystemServices.IsDuckTyped(slice.Target))
 				{
 					ProcessDuckSlicingPropertySet(node);
 				}
@@ -317,19 +317,13 @@ namespace Boo.Lang.Compiler.Steps
 		private void ExpandMemberInvocation(MethodInvocationExpression node, MemberReferenceExpression target, IMethod runtimeInvoke)
 		{
 			target.Target = (Expression)VisitNode(target.Target);
-			node.Target = CodeBuilder.CreateMemberReference(runtimeInvoke);			
+			node.Target = CodeBuilder.CreateMemberReference(runtimeInvoke);
 			
 			Expression args = CodeBuilder.CreateObjectArray(node.Arguments);
 			node.Arguments.Clear();
 			node.Arguments.Add(target.Target);
 			node.Arguments.Add(CodeBuilder.CreateStringLiteral(target.Name));
 			node.Arguments.Add(args);
-		}
-
-		bool IsDuckTyped(Expression expression)
-		{
-			IType type = expression.ExpressionType;
-			return null != type && TypeSystemServices.IsDuckType(type);
 		}
 
 		private void BindDuck(Expression node)

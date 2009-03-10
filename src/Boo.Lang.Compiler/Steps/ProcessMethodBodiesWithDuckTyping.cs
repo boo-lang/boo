@@ -160,7 +160,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override protected bool ProcessMethodInvocationWithInvalidParameters(MethodInvocationExpression node, IMethod targetMethod)
 		{
-			if (!TypeSystemServices.IsSystemObject(targetMethod.DeclaringType)) return false;
+			if (!TypeSystemServices.IsSystemObject(targetMethod.DeclaringType))
+				return false;
 
 			MemberReferenceExpression target = node.Target as MemberReferenceExpression;
 			if (null == target) return false;
@@ -186,7 +187,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
-			if (IsDuckTyped(node.Target))
+			if (IsDuckTyped(node.Target) && !HasDefaultMember(node.Target))
 			{
 				BindDuck(node);
 			}
@@ -230,5 +231,12 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IsQuackBuiltin(entity)) return;
 			base.CheckBuiltinUsage(node, entity);
 		}
+
+		bool HasDefaultMember(Expression expression)
+		{
+			IType type = GetExpressionType(expression);
+			return null != type && null != TypeSystemServices.GetDefaultMember(type);
+		}
 	}
 }
+

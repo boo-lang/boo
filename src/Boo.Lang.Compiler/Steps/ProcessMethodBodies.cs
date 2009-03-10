@@ -1758,7 +1758,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		bool IsIndexedProperty(Expression expression)
+		protected bool IsIndexedProperty(Expression expression)
 		{
 			IEntity entity = expression.Entity;
 			if (null != entity)

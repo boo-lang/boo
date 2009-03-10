@@ -226,7 +226,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		
 		public IType[] GetInterfaces()
 		{
-			return null;
+			return new IType[0];
 		}
 		
 		public IEnumerable<IEntity> GetMembers()
