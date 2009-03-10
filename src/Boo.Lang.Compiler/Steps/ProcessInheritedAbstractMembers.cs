@@ -342,17 +342,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void ResolveAbstractEvent(ClassDefinition node,
-			TypeReference baseTypeRef,
-			IEvent entity)
-		{	
-			// FIXME: this will produce an internal compiler error if the class implements 
-			// a non-event member by the same name
-			TypeMember member = node.Members[entity.Name];
-			if (null != member)
+		void ResolveAbstractEvent(ClassDefinition node, TypeReference baseTypeRef, IEvent entity)
+		{
+			Event ev = node.Members[entity.Name] as Event;
+			if (ev != null)
 			{
-				Event ev = (Event)member;
-
 				Method add = ev.Add;
 				if (add != null)
 				{
@@ -389,6 +383,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			if(depth == 0)
 			{
+				TypeMember conflicting;
+				if (null == ev && null != (conflicting = node.Members[entity.Name]))
+				{
+					//we've got a non-resolved conflicting member
+					Error(CompilerErrorFactory.ConflictWithInheritedMember(conflicting, conflicting.FullName, entity.FullName));
+					return;
+				}
 				node.Members.Add(CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, entity));
 				AbstractMemberNotImplemented(node, baseTypeRef, entity);
 			}
