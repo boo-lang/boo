@@ -32,38 +32,35 @@ namespace Boo.Lang.PatternMatching.Impl
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-# import the pre compiled version of the match macro
-import Boo.Lang.PatternMatching from Boo.Lang.PatternMatching
-
 class PatternExpander:
 
 	private static final Dummy = '_'
 
 	def Expand(matchValue as Expression, pattern as Expression) as Expression:
-		match pattern:
-			case MethodInvocationExpression():
-				return ExpandObjectPattern(matchValue, pattern)
+		if pattern isa MethodInvocationExpression:
+			return ExpandObjectPattern(matchValue, pattern)
 				
-			case MemberReferenceExpression():
-				return ExpandValuePattern(matchValue, pattern)
+		if pattern isa MemberReferenceExpression:
+			return ExpandValuePattern(matchValue, pattern)
 				
-			case ReferenceExpression():
-				return ExpandBindPattern(matchValue, pattern)
+		if pattern isa ReferenceExpression:
+			return ExpandBindPattern(matchValue, pattern)
 				
-			case QuasiquoteExpression():
-				return ExpandQuasiquotePattern(matchValue, pattern)
-				
-			case [| $l = $r |]:
+		if pattern isa QuasiquoteExpression:
+			return ExpandQuasiquotePattern(matchValue, pattern)
+			
+		binary = pattern as BinaryExpression
+		if binary is not null:
+			if BinaryOperatorType.Assign == binary.Operator:
 				return ExpandCapturePattern(matchValue, pattern)
 				
-			case [| $l | $r |]:
+			if BinaryOperatorType.BitwiseOr == binary.Operator:
 				return ExpandEitherPattern(matchValue, pattern)
 				
-			case ArrayLiteralExpression():
-				return ExpandFixedSizePattern(matchValue, pattern)
+		if pattern isa ArrayLiteralExpression:
+			return ExpandFixedSizePattern(matchValue, pattern)
 				
-			otherwise:
-				return ExpandValuePattern(matchValue, pattern)
+		return ExpandValuePattern(matchValue, pattern)
 		
 	def ExpandEitherPattern(matchValue as Expression, node as BinaryExpression) as Expression:
 		l = Expand(matchValue, node.Left)
