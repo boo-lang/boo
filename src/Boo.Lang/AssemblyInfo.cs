@@ -36,7 +36,7 @@ using System.Reflection;
 [assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.9.1")]
 [assembly: AssemblyDelaySign(false)]
 #if !IGNOREKEYFILE
 [assembly: AssemblyKeyFile("../src/boo.snk")]
