@@ -113,18 +113,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveReturnStatement(ReturnStatement node)
 		{
-			if (HasReturnType(_current))
-			{
-				Expression expression = node.Expression;
-				if (null != expression)
-				{
-					Expression newExpression = Convert(_current.ReturnType, expression);
-					if (null != newExpression)
-					{
-						node.Expression = newExpression;
-					}
-				}
-			}
+			Expression expression = node.Expression;
+			if (null == expression)
+				return;
+
+			if (!HasReturnType(_current))
+				return;
+			
+			Expression newExpression = Convert(_current.ReturnType, expression);
+			if (null == newExpression)
+				return;
+
+			node.Expression = newExpression;
 		}
 		
 		override public void LeaveExpressionPair(ExpressionPair pair)
