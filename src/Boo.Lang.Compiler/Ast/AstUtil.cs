@@ -342,7 +342,18 @@ namespace Boo.Lang.Compiler.Ast
 			constructor.IsSynthetic = true;
 			return constructor;
 		}
-		
+
+		public static Constructor CreateDefaultConstructor(TypeDefinition type)
+		{
+			TypeMemberModifiers modifiers = TypeMemberModifiers.Public;
+			if (type is Module)
+				modifiers = TypeMemberModifiers.Private;
+			if (type.IsAbstract)
+				modifiers = TypeMemberModifiers.Protected;
+
+			return CreateConstructor(type, modifiers);
+		}
+
 		public static ReferenceExpression CreateReferenceExpression(LexicalInfo li, string fullname)
 		{
 			ReferenceExpression e = CreateReferenceExpression(fullname);

@@ -150,7 +150,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 
 				if (!moduleClass.HasInstanceConstructor)
-					moduleClass.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Private));
+					moduleClass.Members.Add(AstUtil.CreateDefaultConstructor(node));
 
 				moduleClass.Modifiers = TypeMemberModifiers.Public |
 										TypeMemberModifiers.Final |

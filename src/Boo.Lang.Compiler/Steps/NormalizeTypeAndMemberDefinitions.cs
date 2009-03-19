@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveTypeDefinition(node);
 			if (!node.HasInstanceConstructor && !node.IsStatic)
 			{
-				node.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Public));
+				node.Members.Add(AstUtil.CreateDefaultConstructor(node));
 			}
 		}
 
