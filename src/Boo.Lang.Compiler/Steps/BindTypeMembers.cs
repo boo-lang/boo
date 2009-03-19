@@ -49,6 +49,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BindAllParameters()
 		{
+			Method entryPoint = ContextAnnotations.GetEntryPoint(Context);
+
 			foreach (INodeWithParameters node in _parameters)
 			{
 				TypeMember member = (TypeMember)node;
@@ -58,6 +60,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					IExplicitMember explicitMember = member as IExplicitMember;
 					if (null != explicitMember && null != explicitMember.ExplicitInfo)
+						continue;
+					if (member == entryPoint) //private Main is fine
 						continue;
 					member.Annotate("PrivateMemberNeverUsed", null);
 				}

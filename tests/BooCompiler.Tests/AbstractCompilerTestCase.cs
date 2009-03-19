@@ -139,6 +139,7 @@ namespace BooCompiler.Tests
 		{
 			System.Threading.Thread current = System.Threading.Thread.CurrentThread;
 
+			_parameters.OutputType = CompilerOutputType.Auto;
 			_parameters.Input.Clear();
 			_parameters.Strict = false;
 			_parameters.ResetWarnings();
