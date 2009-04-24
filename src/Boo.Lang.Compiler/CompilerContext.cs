@@ -81,6 +81,10 @@ namespace Boo.Lang.Compiler
 		{
 		}
 		
+		public CompilerContext(CompilerParameters options) : this(options, new CompileUnit())
+		{
+		}
+		
 		public CompilerContext(CompilerParameters options, CompileUnit unit)
 		{
 			if (null == options) throw new ArgumentNullException("options");

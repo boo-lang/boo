@@ -42,8 +42,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public ReflectionTypeSystemProvider()
 		{
-			_typeEntityCache.Add(typeof(Builtins.duck), new DuckTypeImpl(this));
-			_typeEntityCache.Add(typeof(void), new VoidTypeImpl(this));
+			MapTo(typeof(Builtins.duck), new DuckTypeImpl(this));
+			MapTo(typeof(void), new VoidTypeImpl(this));
+		}
+
+		protected void MapTo(Type type, IType entity)
+		{
+			_typeEntityCache.Add(type, entity);
 		}
 
 		private ReflectionTypeSystemProvider(Memo<MemberInfo, IEntity> memberCache,
@@ -128,7 +133,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			return mapped;
 		}
 
-		public IReflectionTypeSystemProvider Clone()
+		public virtual IReflectionTypeSystemProvider Clone()
 		{
 			return new ReflectionTypeSystemProvider(_memberCache.Clone(), _referenceCache.Clone(), _typeEntityCache.Clone());
 		}
