@@ -153,7 +153,7 @@ namespace Boo.Lang.Runtime
 		{
 			int depth = 0;
 			Type objectType = typeof(object);
-			while (type != objectType)
+			while (type != null && type != objectType)
 			{
 				type = type.BaseType;
 				++depth;

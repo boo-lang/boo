@@ -342,7 +342,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		{
 			int depth = 0;
 			Type objectType = Types.Object;
-			while (type != objectType)
+			while (type != null && type != objectType)
 			{
 				type = type.BaseType;
 				++depth;
