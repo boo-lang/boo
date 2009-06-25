@@ -8,6 +8,9 @@ class Customer(object):
 			return _friends
 		set:
 			self._friends = value
+			FriendsChanged(self, System.EventArgs.Empty)
+
+	protected event FriendsChanged as System.EventHandler
 """
 class Customer:
-	[property(Friends as System.Collections.ICollection, Protected: true)] _friends as System.Collections.ArrayList
+	[property(Friends as System.Collections.ICollection, Protected: true, Observable: true)] _friends as System.Collections.ArrayList

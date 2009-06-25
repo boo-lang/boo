@@ -10,7 +10,7 @@ class Customer(object):
 			self._fname = value
 			FirstNameChanged(self, System.EventArgs.Empty)
 
-	event FirstNameChanged as System.EventHandler
+	public event FirstNameChanged as System.EventHandler
 """
 class Customer:
 	[property(FirstName, Observable: true)]

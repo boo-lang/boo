@@ -192,10 +192,13 @@ public class PropertyAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 			return ReferenceExpression(LexicalInfo, f.DeclaringType.Name)
 		return SelfLiteralExpression(LexicalInfo)
 
-	
 	protected def CreateChangedEvent(f as Field) as Event:
 		e = Event(_observable.LexicalInfo)
 		e.Name = ChangedEventName
 		e.Type = CodeBuilder.CreateTypeReference(f.LexicalInfo, typeof(System.EventHandler))
+		if IsProtected or IsProtectedSetter:
+			e.Visibility = TypeMemberModifiers.Protected
+		else:
+			e.Visibility = TypeMemberModifiers.Public
 		return e
 
