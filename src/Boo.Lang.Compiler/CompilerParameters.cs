@@ -180,9 +180,12 @@ namespace Boo.Lang.Compiler
 			get { return _booAssembly; }
 			set
 			{
-				if (value != null)
+				if (null == value)
+					throw new ArgumentNullException("value");
+
+				if (value != _booAssembly)
 				{
-					(_compilerReferences as IList).Remove(_booAssembly);
+					_compilerReferences.Remove(_booAssembly);
 					_booAssembly = value;
 					_compilerReferences.Add(value);
 				}

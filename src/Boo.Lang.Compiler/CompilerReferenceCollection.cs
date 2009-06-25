@@ -85,5 +85,10 @@ namespace Boo.Lang.Compiler
 					return reference;
 			return null;
 		}
+
+		public void Remove(Assembly assembly)
+		{
+			Remove(_provider.ForAssembly(assembly));
+		}
 	}
 }
