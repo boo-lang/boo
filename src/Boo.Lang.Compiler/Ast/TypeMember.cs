@@ -111,7 +111,18 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get
 			{
-				return IsPublic | IsProtected;
+				if (IsPrivate || IsInternal)
+					return false;
+
+				TypeMember parent = DeclaringType;
+				while (null != parent && !(parent is Module))
+				{
+					if (!parent.IsPublic)
+						return false;
+					parent = parent.DeclaringType;
+				}
+
+				return true;
 			}
 		}
 
@@ -120,7 +131,7 @@ namespace Boo.Lang.Compiler.Ast
 			get
 			{
 				return IsModifierSet(TypeMemberModifiers.Abstract);
-			}			
+			}
 		}
 		
 		public bool IsOverride

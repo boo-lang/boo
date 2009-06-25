@@ -45,6 +45,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindGenericParameters());
 			Add(new BindEnumMembers());
 			Add(new BindBaseTypes());
+			Add(new CheckMemberTypes());
 
 			Add(new BindMethods());
 			Add(new ResolveTypeReferences());

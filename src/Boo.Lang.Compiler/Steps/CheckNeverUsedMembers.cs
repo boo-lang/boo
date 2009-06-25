@@ -106,7 +106,7 @@ namespace Boo.Lang.Compiler.Steps
 		private bool IsVisible(TypeMember member)
 		{
 			return HasInternalsVisibleToAttribute
-						? !member.IsPrivate : member.IsVisible;
+						? !member.IsPrivate : !(member.IsPrivate || member.IsInternal);
 		}
 
 		private bool HasInternalsVisibleToAttribute

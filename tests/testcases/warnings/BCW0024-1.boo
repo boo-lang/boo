@@ -4,6 +4,7 @@ BCW0024-1.boo(28,5): BCW0024: WARNING: Visible property does not declare return 
 BCW0024-1.boo(38,19): BCW0024: WARNING: Visible method does not declare return type explicitely.
 BCW0024-1.boo(44,9): BCW0024: WARNING: Visible method does not declare 's' argument type explicitely.
 BCW0024-1.boo(50,9): BCW0024: WARNING: Visible method does not declare return type explicitely.
+BCW0024-1.boo(57,13): BCW0024: WARNING: Visible method does not declare return type explicitely.
 """
 macro enableBCW0024disableBCW0014:
 	Context.Parameters.EnableWarning("BCW0024")
@@ -12,7 +13,6 @@ enableBCW0024disableBCW0014
 interface IFoo:
 	Good as int:
 		get
-
 	Bad: #!
 		get
 
@@ -47,9 +47,26 @@ class Foo:
 	def GoodVoid() as void:
 		pass
 
-	def BadVoid():
+	def BadVoid(): #!
 		pass
 
 	private def OkVoid():
 		pass
+
+	public class Nested:
+		def ImplicitBool(): #!
+			return true
+
+
+private class PrivateFoo:
+	public NonVisiblePublicProperty:
+		get:
+			return true
+
+	public def NonVisiblePublicMethod():
+		return true
+
+	public class NestedPublic:
+		public def NonVisibleNestedPublicMethod():
+			return false
 
