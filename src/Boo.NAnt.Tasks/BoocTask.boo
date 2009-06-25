@@ -52,8 +52,6 @@ public class BoocTask(CompilerBase):
 	private _ducky = false
 	private _checked = true
 	private _defineSymbols as string = null
-	private _noWarn as string = null
-	private _warnAsError as string = null
 	private _embed = FileSet()
 	private _pipeline as string
 	private _strict = false
@@ -168,13 +166,6 @@ public class BoocTask(CompilerBase):
 		set:
 			_embed = value
 
-	[TaskAttribute('nowarn')]
-	public NoWarn as string:
-		get:
-			return _noWarn
-		set:
-			_noWarn = value
-
 	[TaskAttribute('strict')]
 	[BooleanValidator]
 	public Strict as bool:
@@ -262,28 +253,23 @@ public class BoocTask(CompilerBase):
 			writer.WriteLine("-{0}:{1}", name, value)
 
 	protected override def WriteNoWarnList(writer as TextWriter):
-		if not NoWarn:
-			return
-		if NoWarn == "true" and SuppressWarnings.Count == 0:
-			WriteOption(writer, "nowarn")
-			return
-		sb = StringBuilder()
-		for warning as CompilerWarning in SuppressWarnings:
-			if warning.IfDefined and not warning.UnlessDefined:
-				sb.Append(warning.Number)
-				WriteOption(writer, "nowarn", sb.ToString())
+		if SuppressWarnings.Count > 0:
+			sb = StringBuilder()
+			for warning as CompilerWarning in SuppressWarnings:
+				if warning.IfDefined and not warning.UnlessDefined:
+					sb.Append(warning.Number)
+					WriteOption(writer, "nowarn", sb.ToString())
 
 	protected override def WriteWarningsAsError(writer as TextWriter):
-		if not WarnAsError:
-			return
-		if WarningAsError.Includes.Count == 0:
+		if WarnAsError:
 			WriteOption(writer, "warnaserror")
 			return
-		sb = StringBuilder()
-		for warning as CompilerWarning in WarningAsError.Includes:
-			if warning.IfDefined and not warning.UnlessDefined:
-				sb.Append(warning.Number)
-		WriteOption(writer, "warnaserror", sb.ToString())
+		if WarningAsError.Includes.Count > 0:
+			sb = StringBuilder()
+			for warning as CompilerWarning in WarningAsError.Includes:
+				if warning.IfDefined and not warning.UnlessDefined:
+					sb.Append(warning.Number)
+			WriteOption(writer, "warnaserror", sb.ToString())
 
 
 	def IsQuoted(value as string):
