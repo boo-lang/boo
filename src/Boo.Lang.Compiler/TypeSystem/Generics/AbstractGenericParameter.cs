@@ -115,7 +115,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		
 		public int GetTypeDepth()
 		{
-			return DeclaringType.GetTypeDepth() + 1;			
+			return DeclaringType.GetTypeDepth() + 1;
 		}
 		
 		IType IType.GetElementType()
@@ -135,11 +135,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		
 		public IConstructor[] GetConstructors()
 		{
-			if (MustHaveDefaultConstructor)
-			{
-				// TODO: return a something implementing IConstructor...?
-			}
-			return null;
+			return new IConstructor[0];
 		}
 		
 		public IType[] GetInterfaces()

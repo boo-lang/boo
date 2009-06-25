@@ -488,8 +488,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				Errors.Add(CompilerErrorFactory.GenericArgumentMustBeValueType(ConstructionNode, parameter, argument));
 				valid = false;
 			}
-
-			if (parameter.MustHaveDefaultConstructor && !HasDefaultConstructor(argument))
+			// Don't check for default constructor constraint if value type constraint failed
+			else if (parameter.MustHaveDefaultConstructor && !HasDefaultConstructor(argument))
 			{
 				Errors.Add(CompilerErrorFactory.GenericArgumentMustHaveDefaultConstructor(ConstructionNode, parameter, argument));
 				valid = false;
