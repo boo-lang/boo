@@ -1,10 +1,11 @@
 """
-BCW0024-1.boo(16,5): BCW0024: WARNING: Visible property does not declare return type explicitely.
+BCW0024-1.boo(17,5): BCW0024: WARNING: Visible property does not declare return type explicitely.
 BCW0024-1.boo(28,5): BCW0024: WARNING: Visible property does not declare return type explicitely.
 BCW0024-1.boo(38,19): BCW0024: WARNING: Visible method does not declare return type explicitely.
 BCW0024-1.boo(44,9): BCW0024: WARNING: Visible method does not declare 's' argument type explicitely.
 BCW0024-1.boo(50,9): BCW0024: WARNING: Visible method does not declare return type explicitely.
 BCW0024-1.boo(57,13): BCW0024: WARNING: Visible method does not declare return type explicitely.
+BCW0024-1.boo(78,9): BCW0024: WARNING: Visible constructor does not declare 'y' argument type explicitely.
 """
 macro enableBCW0024disableBCW0014:
 	Context.Parameters.EnableWarning("BCW0024")
@@ -20,7 +21,6 @@ class Foo:
 	Good as bool:
 		get:
 			return true
-
 	private NotSoGood:
 		get:
 			return true
@@ -69,4 +69,12 @@ private class PrivateFoo:
 	public class NestedPublic:
 		public def NonVisibleNestedPublicMethod():
 			return false
+
+
+class Ctors:
+	private def constructor(x,y,z):
+		pass
+
+	def constructor(y): #!
+		pass
 

@@ -74,6 +74,11 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveMember(node);
 		}
 
+		override public void LeaveConstructor(Constructor node)
+		{
+			LeaveMember(node);
+		}
+
 		void LeaveMember(TypeMember node)
 		{
 			CheckExplicitTypeForVisibleMember(node);
@@ -86,15 +91,14 @@ namespace Boo.Lang.Compiler.Steps
 
 			switch (node.NodeType) //TODO: introduce INodeWithType?
 			{
+				case NodeType.Constructor:
+					CheckExplicitParametersType(node);
+					return;
 				case NodeType.Method:
 					Method method = (Method)node;
 					if (null != method.ParentNode && method.ParentNode.NodeType == NodeType.Property)
 						return; //ignore accessors
-					foreach (ParameterDeclaration p in method.Parameters)
-					{
-						if (null == p.Type)
-							Warnings.Add(CompilerWarningFactory.VisibleMemberDoesNotDeclareTypeExplicitely(node, p.Name));
-					}
+					CheckExplicitParametersType(node);
 					if (null != method.ReturnType)
 						return;
 					if (method.Entity != null
@@ -114,6 +118,19 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			Warnings.Add(CompilerWarningFactory.VisibleMemberDoesNotDeclareTypeExplicitely(node));
+		}
+
+		void CheckExplicitParametersType(TypeMember node)
+		{
+			INodeWithParameters @params = node as INodeWithParameters;
+			if (null == @params)
+				return;
+
+			foreach (ParameterDeclaration p in @params.Parameters)
+			{
+				if (null == p.Type)
+					Warnings.Add(CompilerWarningFactory.VisibleMemberDoesNotDeclareTypeExplicitely(node, p.Name));
+			}
 		}
 	}
 }
