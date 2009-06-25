@@ -33,7 +33,7 @@ using Boo.Lang.Compiler.TypeSystem.Reflection;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public abstract class ExternalEntity<T> : IExternalEntity
+	public abstract class ExternalEntity<T> : IExternalEntity, IEntityWithAttributes
 		where T: System.Reflection.MemberInfo
 	{
 		protected readonly T _memberInfo;

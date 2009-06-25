@@ -32,7 +32,7 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public abstract class InternalEntity<T> : IInternalEntity where T : TypeMember
+	public abstract class InternalEntity<T> : IInternalEntity, IEntityWithAttributes where T : TypeMember
 	{
 		protected readonly T _node;
 

@@ -131,7 +131,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 	/// A base class for an accessible member mapped from a generic type onto a constructed type.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public abstract class GenericMappedAccessibleMember<T> : GenericMappedMember<T> where T : IAccessibleMember
+	public abstract class GenericMappedAccessibleMember<T> : GenericMappedMember<T>, IAccessibleMember where T : IAccessibleMember
 	{
 		protected GenericMappedAccessibleMember(TypeSystemServices tss, T source, GenericMapping genericMapping)
 			: base(tss, source, genericMapping)

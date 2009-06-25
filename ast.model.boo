@@ -72,7 +72,7 @@ class ArrayTypeReference(TypeReference):
 	ElementType as TypeReference
 	Rank as IntegerLiteralExpression
 	
-class CallableTypeReference(TypeReference):
+class CallableTypeReference(TypeReference, INodeWithParameters):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
 	
