@@ -412,6 +412,9 @@
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
 			debug="${debug}">
+			<nowarn>
+				<warning number="BCW0016"/> <!-- unused namespaces in generated stuff -->
+			</nowarn>
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
 			</sources>

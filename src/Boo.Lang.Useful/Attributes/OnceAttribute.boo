@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Useful.Attributes
 
-import System.Threading
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Steps
