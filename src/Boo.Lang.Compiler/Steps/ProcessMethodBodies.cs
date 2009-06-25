@@ -5725,9 +5725,11 @@ namespace Boo.Lang.Compiler.Steps
 				if (param.IsByRef)
 				{
 					if (!(args[i] is ReferenceExpression
-						  || args[i] is SlicingExpression))
+					    || args[i] is SlicingExpression
+					    || (args[i] is SelfLiteralExpression && argumentType.IsValueType)))
 					{
-						if (reportErrors) Error(CompilerErrorFactory.RefArgTakesLValue(args[i]));
+						if (reportErrors)
+							Error(CompilerErrorFactory.RefArgTakesLValue(args[i]));
 						return false;
 					}
 					if (!CallableResolutionService.IsValidByRefArg(param, parameterType, argumentType, args[i]))

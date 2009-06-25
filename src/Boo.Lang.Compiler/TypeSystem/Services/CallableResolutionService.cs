@@ -175,13 +175,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsValidByRefArg(IParameter param, IType parameterType, IType argType, Node arg)
 		{
-			if ((parameterType.IsByRef &&
-				argType == parameterType.GetElementType()))
-			{
-				return CanLoadAddress(arg);
-			}
-			if (param.IsByRef &&
-			    argType == parameterType)
+			if ((parameterType.IsByRef && argType == parameterType.GetElementType())
+			    || (param.IsByRef && argType == parameterType))
 			{
 				return CanLoadAddress(arg);
 			}
@@ -192,8 +187,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			IEntity entity = node.Entity;
 			
-			if (null == entity) return true;
-			
+			if (null == entity || node is SelfLiteralExpression)
+				return true;
+
 			switch (entity.EntityType)
 			{
 				case EntityType.Local:
