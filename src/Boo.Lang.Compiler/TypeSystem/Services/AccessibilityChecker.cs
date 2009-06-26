@@ -29,6 +29,8 @@
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Generics;
+
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -45,14 +47,37 @@ namespace Boo.Lang.Compiler.Steps
 
 		public bool IsAccessible(IAccessibleMember member)
 		{
-			if (member.IsPublic) return true;
+			if (member.IsPublic)
+				return true;
+
+			IInternalEntity internalEntity = GetInternalEntity(member);
+			if (null != internalEntity)
+			{
+				internalEntity.Node.RemoveAnnotation("PrivateMemberNeverUsed");
+				if (member.IsInternal)
+					return true;
+			}
 
 			IType declaringType = member.DeclaringType;
-			if (declaringType == CurrentType()) return true;
-			if (member.IsInternal && member is IInternalEntity) return true;
-			if (member.IsProtected && CurrentType().IsSubclassOf(declaringType)) return true;
+			if (declaringType == CurrentType())
+				return true;
+
+			if (member.IsProtected && CurrentType().IsSubclassOf(declaringType))
+				return true;
 
 			return IsDeclaredInside(declaringType);
+		}
+
+		static IInternalEntity GetInternalEntity(IAccessibleMember member)
+		{
+			if (member is IInternalEntity)
+				return (IInternalEntity) member;
+
+			IGenericMappedMember gmp = member as IGenericMappedMember;
+			if (null != gmp && gmp.SourceMember is IInternalEntity)
+				return (IInternalEntity) gmp.SourceMember;
+
+			return null;
 		}
 
 		private IType CurrentType()

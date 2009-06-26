@@ -5917,16 +5917,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			Node node = internalInfo.Node;
-
-			//member has been used so remove private member unused annotation
-			TypeMember member = node as TypeMember;
-			if (null != member
-				&& !member.IsVisible
-				&& member.ContainsAnnotation("PrivateMemberNeverUsed"))
-			{
-				node.RemoveAnnotation("PrivateMemberNeverUsed");
-			}
-
 			switch (node.NodeType)
 			{
 				case NodeType.Property:
