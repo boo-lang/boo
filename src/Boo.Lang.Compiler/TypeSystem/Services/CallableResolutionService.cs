@@ -434,6 +434,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				if (c1.ArgumentScores[i] <= DowncastScore) continue;
 
+				if (_arguments[i] is NullLiteralExpression)
+					return 0; //neither type can be more specific wrt null
+
 				// Select the most specific of the parameters' types, 
 				// taking into account generic mapped parameters
 				int better = MoreSpecific(
