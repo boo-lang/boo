@@ -130,16 +130,14 @@ namespace Boo.Lang
 			return new List(enumerable).ToArray();
 		}
 
+		//fast path, that implementation detail does not really need to be API
+		[Obsolete("Use array[of T](T*) instead. Or use array(Type, IEnumerable) if array type is variable/dynamic.")]
 		public static Array array(Type elementType, ICollection collection)
 		{
-			if (null == collection)
-			{
-				throw new ArgumentNullException("collection");
-			}
 			if (null == elementType)
-			{
 				throw new ArgumentNullException("elementType");
-			}
+			if (null == collection)
+				throw new ArgumentNullException("collection");
 
 			Array array = Array.CreateInstance(elementType, collection.Count);
 			if (RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(elementType)))
@@ -161,17 +159,17 @@ namespace Boo.Lang
 
 		public static Array array(Type elementType, IEnumerable enumerable)
 		{
-			if (null == enumerable)
-			{
-				throw new ArgumentNullException("enumerable");
-			}
 			if (null == elementType)
-			{
 				throw new ArgumentNullException("elementType");
-			}
+			if (null == enumerable)
+				throw new ArgumentNullException("enumerable");
 
-			// future optimization, check EnumeratorItemType of enumerable
-			// and get the fast path whenever possible
+			#pragma warning disable 618 //obsolete
+			ICollection collection = enumerable as ICollection;
+			if (null != collection) //fast path
+				return array(elementType, collection);
+			#pragma warning restore 618
+
 			List l = null;
 			if (RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(elementType)))
 			{
@@ -191,17 +189,80 @@ namespace Boo.Lang
 
 		public static Array array(Type elementType, int length)
 		{
+			if (length < 0)
+				throw new ArgumentException("`length' cannot be negative", "length");
+
 			return matrix(elementType, length);
 		}
 
 		public static Array matrix(Type elementType, params int[] lengths)
 		{
 			if (null == elementType)
-			{
 				throw new ArgumentNullException("elementType");
-			}
+			if (null == lengths || 0 == lengths.Length)
+				throw new ArgumentException("A matrix must have at least one dimension", "lengths");
+
 			return Array.CreateInstance(elementType, lengths);
 		}
+
+
+		#region generic array/matrix builtins (v0.9.2+)
+		public static T[] array<T>(int length)
+		{
+			if (length < 0)
+				throw new ArgumentException("`length' cannot be negative", "length");
+
+			return new T[length];
+		}
+
+		public static T[] array<T>(IEnumerable<T> enumerable)
+		{
+			if (null == enumerable)
+				throw new ArgumentNullException("enumerable");
+
+			ICollection<T> collection = enumerable as ICollection<T>;
+			if (null != collection) //fast path
+				return array<T>(collection);
+
+			List<T> list = new List<T>(enumerable);
+			return list.ToArray();
+		}
+
+		public static T[,] matrix<T>(int length0, int length1)
+		{
+			if (length0 < 0)
+				throw new ArgumentException("`length0' cannot be negative", "length0");
+			if (length1 < 0)
+				throw new ArgumentException("`length1' cannot be negative", "length1");
+
+			return new T[length0, length1];
+		}
+
+		public static T[,,] matrix<T>(int length0, int length1, int length2)
+		{
+			if (length0 < 0)
+				throw new ArgumentException("`length0' cannot be negative", "length0");
+			if (length1 < 0)
+				throw new ArgumentException("`length1' cannot be negative", "length1");
+			if (length2 < 0)
+				throw new ArgumentException("`length2' cannot be negative", "length2");
+
+			return new T[length0, length1, length2];
+		}
+
+		//private fast path, that implementation detail does not really need to be API
+		private static T[] array<T>(ICollection<T> collection)
+		{
+			if (null == collection)
+				throw new ArgumentNullException("collection");
+
+			int length = collection.Count;
+			T[] result = new T[length];
+			collection.CopyTo(result, 0);
+			return result;
+		}
+		#endregion
+
 
 		public static IEnumerable iterator(object enumerable)
 		{
