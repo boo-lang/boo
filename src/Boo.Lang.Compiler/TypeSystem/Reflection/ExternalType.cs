@@ -331,7 +331,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			{
 				return GetTypeDepth(type.GetElementType());
 			}
-			else if (type.IsInterface)
+			if (type.IsInterface)
 			{
 				return GetInterfaceDepth(type);
 			}

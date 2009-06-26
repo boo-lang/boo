@@ -31,7 +31,7 @@ using System;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	public class LongJumpException : System.ApplicationException
+	public class LongJumpException : System.Exception
 	{
 	}
 
@@ -91,9 +91,9 @@ namespace Boo.Lang.Compiler.Ast
 				return true;
 			}
 			catch (LongJumpException)
-			{
-				return false;
+			{	
 			}
+			return false;
 		}
 
 		static readonly LongJumpException CancellationException = new LongJumpException();

@@ -27,6 +27,7 @@
 #endregion
 
 using System.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 
 namespace BooCompiler.Tests
 {

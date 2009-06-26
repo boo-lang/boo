@@ -300,6 +300,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				Statement expansion = ExpandMacro(actualType, node);
 				ReplaceCurrentNode(ExpandMacroExpansion(node, expansion));
 			}
+			catch (LongJumpException)
+			{
+				throw;
+			}
 			catch (Exception error)
 			{
 				ProcessingError(CompilerErrorFactory.MacroExpansionError(node, error));

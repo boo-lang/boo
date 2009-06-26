@@ -392,6 +392,7 @@
     <Compile Include="Steps\CheckIdentifiers.cs" />
     <Compile Include="Steps\CheckMemberNames.cs" />
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
+    <Compile Include="Steps\CheckMemberTypes.cs" />
     <Compile Include="Steps\CheckNeverUsedMembers.cs" />
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />

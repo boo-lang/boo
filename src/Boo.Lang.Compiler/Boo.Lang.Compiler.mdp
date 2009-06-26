@@ -328,6 +328,7 @@
     <File name="Steps/CheckIdentifiers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMemberNames.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMembersProtectionLevel.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/CheckMemberTypes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckNeverUsedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ClosureSignatureInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ContextAnnotations.cs" buildaction="Compile" subtype="Code" />

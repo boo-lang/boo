@@ -58,7 +58,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\build\Boo.Lang.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang.PatternMatching, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL" />
+    <Reference Include="Boo.Lang.PatternMatching, Version=2.0.9.1, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\build\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
