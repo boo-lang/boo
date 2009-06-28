@@ -894,6 +894,12 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0166", AstUtil.SafeLexicalInfo(node), name);
 		}
 
+		public static CompilerError PointerIncompatibleType(Node node, IType type)
+		{
+			return new CompilerError("BCE0168", AstUtil.SafeLexicalInfo(node), type);
+		}
+
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

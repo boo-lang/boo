@@ -26,7 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Runtime.InteropServices;
 using System.Collections.Generic;
+
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -1091,6 +1093,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type == ObjectType || type == DuckType;
 		}
 
+		public bool IsPointerCompatible(IType type)
+		{
+			return type.IsValueType && IsPrimitiveNumber(type);
+		}
+
 		public bool RequiresBoxing(IType expectedType, IType actualType)
 		{
 			if (!actualType.IsValueType) return false;
@@ -1252,6 +1259,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool IsAstNode(IType type)
 		{
 			return type == AstNodeType || type.IsSubclassOf(AstNodeType);
+		}
+
+		public virtual int SizeOf(IType type)
+		{
+			if (type.IsPointer)
+				type = type.GetElementType();
+			if (null == type || !type.IsValueType)
+				return 0;
+
+			ExternalType et = type as ExternalType;
+			if (null != et)
+				return Marshal.SizeOf(et.ActualType);
+
+			int size = 0;
+			InternalClass it = type as InternalClass;
+			if (null == it)
+				return 0;
+
+			//FIXME: TODO: warning if no predefined size => StructLayoutAttribute
+			foreach (Field f in it.TypeDefinition.Members.OfType<Field>())
+			{
+				int fsize = SizeOf(f.Type.Entity as IType);
+				if (0 == fsize)
+					return 0; //cannot be unmanaged
+				size += fsize;
+			}
+			return size;
 		}
 	}
 }

@@ -1303,6 +1303,16 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					return "~";
 				}
+
+				case UnaryOperatorType.AddressOf:
+				{
+					return "&";
+				}
+
+				case UnaryOperatorType.Indirection:
+				{
+					return "*";
+				}
 			}
 			throw new ArgumentException("op");
 		}

@@ -131,6 +131,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			}
 		}
 
+		public virtual bool IsPointer
+		{
+			get
+			{
+				return false;
+			}
+		}
+
 		public virtual IType BaseType
 		{
 			get
@@ -223,5 +231,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 				return new ArrayType(this, newRank);
 			});
 		}
+
+		public IType MakePointerType()
+		{
+			return null;
+		}
 	}
 }
+

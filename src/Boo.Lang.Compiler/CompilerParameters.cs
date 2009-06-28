@@ -94,6 +94,8 @@ namespace Boo.Lang.Compiler
 
 		private Dictionary<string, string> _defines = new Dictionary<string, string>();
 
+		private bool _unsafe;
+
 
 		private TypeMemberModifiers _defaultTypeVisibility = TypeMemberModifiers.Public;
 		private TypeMemberModifiers _defaultMethodVisibility = TypeMemberModifiers.Public;
@@ -791,6 +793,12 @@ namespace Boo.Lang.Compiler
 					DisableWarning("BCW0024");
 				}
 			}
+		}
+
+		public bool Unsafe
+		{
+			get { return _unsafe; }
+			set { _unsafe = value; }
 		}
 	}
 }

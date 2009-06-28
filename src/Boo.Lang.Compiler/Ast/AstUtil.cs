@@ -393,7 +393,13 @@ namespace Boo.Lang.Compiler.Ast
 			UnaryExpression e = node as UnaryExpression;
 			return null == e ? false : e.Operator == UnaryOperatorType.Explode;
 		}
-		
+
+		public static bool IsIndirection(Node node)
+		{
+			UnaryExpression e = node as UnaryExpression;
+			return null == e ? false : e.Operator == UnaryOperatorType.Indirection;
+		}
+
 		private AstUtil()
 		{
 		}

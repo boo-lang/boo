@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2009, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,54 +26,40 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+namespace Boo.Lang.Extensions
 
-namespace Boo.Lang.Compiler.TypeSystem
-{
-	public interface IType : ITypedEntity, INamespace, IEntityWithAttributes
-	{	
-		bool IsClass { get; }
-		
-		bool IsAbstract { get; }
-		
-		bool IsInterface { get; }
-		
-		bool IsEnum { get; }
-		
-		bool IsByRef { get; }
-		
-		bool IsValueType { get; }
+import System
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Compiler.TypeSystem.Services
 
-		bool IsFinal { get; }
-		
-		bool IsArray { get; }
 
-		bool IsPointer { get; }
+[meta]
+def sizeof(e as Expression):
+	ue = e as UnaryExpression
+	e = ue.Operand if ue and ue.Operator == UnaryOperatorType.Indirection
 
-		IEntity DeclaringEntity { get; }
-		
-		int GetTypeDepth();
-		
-		IType GetElementType();
-		
-		IType BaseType { get; }
-		
-		IEntity GetDefaultMember();
-		
-		IConstructor[] GetConstructors();
-		
-		IType[] GetInterfaces();
-		
-		bool IsSubclassOf(IType other);
-		
-		bool IsAssignableFrom(IType other);
-		
-		IGenericTypeInfo GenericInfo { get; }
-		
-		IConstructedTypeInfo ConstructedInfo { get; }
+	re = e as ReferenceExpression
+	if not re:
+		goto invalid
 
-		IArrayType MakeArrayType(int rank);
+	entity = My[of NameResolutionService].Instance.Resolve(re.Name, EntityType.Type | EntityType.Local)
+	if not entity:
+		goto invalid
+	if entity.EntityType == EntityType.Local:
+		entity = cast(InternalLocal, entity).Type
 
-		IType MakePointerType();
-	}
-}
+	if entity.EntityType == EntityType.Type or entity.EntityType == EntityType.Array:
+		type = entity as IType
+		size = My[of TypeSystemServices].Instance.SizeOf(type)
+
+	if not size:
+		CompilerContext.Current.Errors.Add(CompilerErrorFactory.PointerIncompatibleType(e, type))
+		return IntegerLiteralExpression(0)
+
+	return IntegerLiteralExpression(size)
+
+	:invalid
+	CompilerContext.Current.Errors.Add(CompilerErrorFactory.NameNotType(e, e.ToCodeString(), null, null));
+	return IntegerLiteralExpression(0)
 

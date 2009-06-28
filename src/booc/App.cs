@@ -251,6 +251,7 @@ namespace BooC
 					" -resource:FILE[,ID]  Embeds FILE as a resource\n" +
 					" -pkg:P1[,Pn]         References packages P1..Pn (on supported platforms)\n" +
 					" -strict              Turns on strict mode.\n" +
+					" -unsafe              Enables unsafe code support.\n" +
 					" -utf8                Source file(s) are in utf8 format\n" +
 					" -v, -vv, -vvv        Sets verbosity level from warnings to very detailed\n" +
 					" -warnaserror[:W1,Wn] Treats all or a list of warnings as errors\n" +
@@ -520,7 +521,7 @@ namespace BooC
 								break;
 							}
 						}
-						break;					
+						break;
 					}
 
 					case 's':
@@ -660,7 +661,16 @@ namespace BooC
 						}
 						break;
 					}
-					
+
+					case 'u':
+					{
+						if (arg == "-unsafe")
+							_options.Unsafe = true;
+						else
+							InvalidOption(arg);
+						break;
+					}
+
 					default:
 					{
 						if (arg == "--help")

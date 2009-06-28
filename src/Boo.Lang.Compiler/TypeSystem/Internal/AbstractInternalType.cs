@@ -206,6 +206,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			}
 		}
 
+		public bool IsPointer
+		{
+			get { return false; }
+		}
+
 		public virtual int GetTypeDepth()
 		{
 			return 1;
@@ -342,6 +347,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			{
 				return new ArrayType(this, newRank);
 			});
+		}
+
+		public IType MakePointerType()
+		{
+			return null;
 		}
 	}
 }

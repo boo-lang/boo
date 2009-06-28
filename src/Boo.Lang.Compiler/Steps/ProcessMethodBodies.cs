@@ -3168,10 +3168,13 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual bool IsValidIncrementDecrementOperand(Expression e)
 		{
 			IType type = GetExpressionType(e);
+
+			if (type.IsPointer)
+				return true;
+
 			if (TypeSystemServices.IsNullable(type))
-			{
 				type = TypeSystemServices.GetNullableUnderlyingType(type);
-			}
+
 			return TypeSystemServices.IsNumber(type) || TypeSystemServices.IsDuckType(type);
 		}
 
@@ -3284,9 +3287,10 @@ namespace Boo.Lang.Compiler.Steps
 		Expression ExpandSimpleIncrementDecrement(UnaryExpression node)
 		{
 			InternalLocal oldValue = DeclareOldValueTempIfNeeded(node);
+			IType type = GetExpressionType(node.Operand);
 
 			BinaryExpression addition = CodeBuilder.CreateBoundBinaryExpression(
-				GetExpressionType(node.Operand),
+				type,
 				GetEquivalentBinaryOperator(node.Operator),
 				CloneOrAssignToTemp(oldValue, node.Operand),
 				CodeBuilder.CreateIntegerLiteral(1));
@@ -3389,6 +3393,18 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 
+				case UnaryOperatorType.AddressOf:
+					{
+						LeaveAddressOf(node);
+						break;
+					}
+
+				case UnaryOperatorType.Indirection:
+					{
+						LeaveIndirection(node);
+						break;
+					}
+
 				default:
 					{
 						NotImplemented(node, "unary operator not supported");
@@ -3431,6 +3447,43 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				ProcessOperatorOverload(node);
 			}
+		}
+
+		private void LeaveAddressOf(UnaryExpression node)
+		{
+			IType dataType = GetExpressionType(node.Operand);
+			if (dataType.IsArray) //if array reference take address of first element
+			{
+				dataType = dataType.GetElementType();
+				node.Replace(node.Operand, new SlicingExpression(node.Operand, new IntegerLiteralExpression(0)));
+				BindExpressionType(node.Operand, dataType);
+			}
+			if (TypeSystemServices.IsPointerCompatible(dataType))
+			{
+				node.Entity = dataType.MakePointerType();
+				BindExpressionType(node, dataType.MakePointerType());
+				return;
+			}
+
+			BindExpressionType(node, TypeSystemServices.ErrorEntity);
+			Error(CompilerErrorFactory.PointerIncompatibleType(node.Operand, dataType));
+		}
+
+		private void LeaveIndirection(UnaryExpression node)
+		{
+			if (TypeSystemServices.IsError(node.Operand))
+				return;
+
+			IType dataType = GetExpressionType(node.Operand).GetElementType();
+			if (null != dataType && TypeSystemServices.IsPointerCompatible(dataType))
+			{
+				node.Entity = node.Operand.Entity;
+				BindExpressionType(node, dataType);
+				return;
+			}
+
+			BindExpressionType(node, TypeSystemServices.ErrorEntity);
+			Error(CompilerErrorFactory.PointerIncompatibleType(node.Operand, dataType));
 		}
 
 		private void ProcessOperatorOverload(UnaryExpression node)
@@ -4248,7 +4301,6 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 
 			if (ProcessSwitchInvocation(node)) return;
-
 			if (ProcessMetaMethodInvocation(node)) return;
 
 			Visit(node.Arguments);
@@ -5550,10 +5602,50 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				BindExpressionType(node, TypeSystemServices.GetPromotedNumberType(left, right));
 			}
+			else if (left.IsPointer && !BindPointerArithmeticOperator(node, left, right))
+			{
+				InvalidOperatorForTypes(node);
+			}
 			else if (!ResolveOperator(node))
 			{
 				InvalidOperatorForTypes(node);
 			}
+		}
+
+		bool BindPointerArithmeticOperator(BinaryExpression node, IType left, IType right)
+		{
+			if (!left.IsPointer || !TypeSystemServices.IsPrimitiveNumber(right))
+				return false;
+
+			switch (node.Operator)
+			{
+				case BinaryOperatorType.Addition:
+				case BinaryOperatorType.Subtraction:
+					if (node.ContainsAnnotation("pointerSizeNormalized"))
+						return true;
+
+					BindExpressionType(node, left);
+
+					int size = TypeSystemServices.SizeOf(left);
+					if (size == 1)
+						return true; //no need for normalization
+
+					//normalize RHS wrt size of pointer
+					IntegerLiteralExpression literal = node.Right as IntegerLiteralExpression;
+					Expression normalizedRhs = (null != literal)
+						? (Expression)
+							new IntegerLiteralExpression(literal.Value * size)
+						: (Expression)
+							new BinaryExpression(BinaryOperatorType.Multiply,
+								node.Right,
+								new IntegerLiteralExpression(size));
+					node.Replace(node.Right, normalizedRhs);
+					Visit(node.Right);
+					node.Annotate("pointerSizeNormalized", size);
+					return true;
+			}
+
+			return false;
 		}
 
 		static string GetBinaryOperatorText(BinaryOperatorType op)
@@ -5670,11 +5762,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool AssertTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{
-			if (TypeSystemServices.IsError(expectedType)
-				|| TypeSystemServices.IsError(actualType))
+			if (TypeSystemServices.IsError(expectedType) || TypeSystemServices.IsError(actualType))
 			{
 				return false;
 			}
+
+			if (expectedType.IsPointer && actualType.IsPointer)
+				return true; //if both types are unmanaged pointers casting is always possible
+
 			if (TypeSystemServices.IsNullable(expectedType) && EntityType.Null == actualType.EntityType)
 			{
 				return true;
@@ -6040,6 +6135,18 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return true;
 			}
+
+			//pointer arithmetic
+			if (lhs.IsPointer && TypeSystemServices.IsIntegerNumber(rhs))
+			{
+				switch (node.Operator)
+				{
+					case BinaryOperatorType.Addition:
+					case BinaryOperatorType.Subtraction:
+						return true;
+				}
+			}
+
 			return ResolveRuntimeOperator(node, operatorName, mie);
 		}
 
@@ -6110,7 +6217,8 @@ namespace Boo.Lang.Compiler.Steps
 		bool ResolveOperator(Expression node, IType type, string operatorName, MethodInvocationExpression mie)
 		{
 			IMethod entity = FindOperator(type, operatorName, mie.Arguments);
-			if (null == entity) return false;
+			if (null == entity)
+				return false;
 			EnsureRelatedNodeWasVisited(node, entity);
 
 			mie.Target = new ReferenceExpression(entity.FullName);

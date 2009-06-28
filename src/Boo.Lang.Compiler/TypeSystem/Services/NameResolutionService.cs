@@ -276,7 +276,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public void ResolveTypeReference(TypeReference node)
 		{
-			if (null != node.Entity) return;
+			if (null != node.Entity)
+				return;
 
 			switch (node.NodeType)
 			{
@@ -365,6 +366,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			{
 				node.Name = entity.FullName;
 			}
+
+			if (node.IsPointer && EntityType.Type == entity.EntityType)
+				entity = ((IType) entity).MakePointerType();
 
 			node.Entity = entity;
 		}

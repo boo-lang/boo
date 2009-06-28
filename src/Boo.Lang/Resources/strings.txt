@@ -169,6 +169,7 @@ BCE0164=Cannot infer generic arguments for method '{0}'. Provide stronger type i
 BCE0165='{0}' is already handled by except block for '{1}' at {2}.
 BCE0166=Unknown macro '{0}'. Did you mean to declare the field '{0} as object'?
 BCE0167=Namespace '{0}' not found in assembly '{1}'
+BCE0168=Cannot take the address of, get the size of, or declare a pointer to managed type `{0}'.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

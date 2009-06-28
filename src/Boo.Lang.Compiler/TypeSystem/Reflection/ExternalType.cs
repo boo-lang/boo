@@ -170,6 +170,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			get { return false; }
 		}
 
+		public bool IsPointer
+		{
+			get { return _type.IsPointer; }
+		}
+
 		public virtual IType BaseType
 		{
 			get
@@ -424,5 +429,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 				return new ArrayType(this, newRank);
 			});
 		}
+
+		public IType MakePointerType()
+		{
+			return My<TypeSystemServices>.Instance.Map(_type.MakePointerType());
+		}
 	}
 }
+

@@ -323,3 +323,32 @@ namespace BooCompiler.Tests
 			base.RunCompilerTestCase(name);
 		}
 """)
+
+GenerateTestFixture("unsafe", "BooCompiler.Tests/UnsafeTestFixture.cs", "BooCompiler.Unsafe", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+
+	[TestFixture]
+	public class UnsafeTestFixture : AbstractCompilerTestCase
+	{
+		protected override void CustomizeCompilerParameters()
+		{
+			_parameters.Unsafe = true;
+		}
+""")
+
+GenerateTestFixture("unsafe/errors", "BooCompiler.Tests/UnsafeErrorsTestFixture.cs", "BooCompiler.UnsafeErrors", """
+namespace BooCompiler.Tests
+{
+	using NUnit.Framework;
+
+	[TestFixture]
+	public class UnsafeErrorsTestFixture : AbstractCompilerErrorsTestFixture
+	{
+		protected override void CustomizeCompilerParameters()
+		{
+			_parameters.Unsafe = true;
+		}
+""")
+

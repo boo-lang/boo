@@ -126,6 +126,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			get { return _definition.IsArray; }
 		}
 
+		public bool IsPointer
+		{
+			get { return _definition.IsPointer; }
+		}
+
 		public int GetTypeDepth()
 		{
 			return _definition.GetTypeDepth();
@@ -311,6 +316,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			{
 				return new ArrayType(this, newRank);
 			});
+		}
+
+		public IType MakePointerType()
+		{
+			return null;
 		}
 	}
 

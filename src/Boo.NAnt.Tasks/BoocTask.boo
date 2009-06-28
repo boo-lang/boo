@@ -55,7 +55,8 @@ public class BoocTask(CompilerBase):
 	private _embed = FileSet()
 	private _pipeline as string
 	private _strict = false
-	
+	private _unsafe = false
+
 	#endregion Private Instance Fields
 	#region Private Static Fields
 	private static _classNameRegex = Regex('^((?<comment>/\\*.*?(\\*/|$))|[\\s\\.\\{]+|class\\s+(?<class>\\w+)|(?<keyword>\\w+))*')
@@ -174,6 +175,14 @@ public class BoocTask(CompilerBase):
 		set:
 			_strict = value
 
+	[TaskAttribute('unsafe')]
+	[BooleanValidator]
+	public Unsafe as bool:
+		get:
+			return _unsafe
+		set:
+			_unsafe = value
+
 
 	override public SupportsNoWarnList as bool:
 		get:
@@ -235,6 +244,8 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "checked-")
 		if Strict:
 			WriteOption(writer, "strict")
+		if Unsafe:
+			WriteOption(writer, "unsafe")
 		if DefineSymbols is not null:
 			WriteOption(writer, "define", DefineSymbols)
 		if Pipeline:

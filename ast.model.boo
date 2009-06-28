@@ -63,7 +63,7 @@ class TypeMemberCollection:
 	pass
 
 abstract class TypeReference(Node):
-	pass
+	IsPointer as bool
 
 class SimpleTypeReference(TypeReference):
 	Name as string
@@ -410,6 +410,8 @@ enum UnaryOperatorType:
 	LogicalNot
 	Explode
 	OnesComplement
+	AddressOf
+	Indirection
 
 class UnaryExpression(Expression):
 	Operator as UnaryOperatorType

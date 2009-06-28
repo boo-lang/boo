@@ -37,6 +37,9 @@ using System.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Security;
+using System.Security.Permissions;
+
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -174,9 +177,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IType PeekTypeOnStack()
 		{
-			return (IType)_types.Peek();
+			return (_types.Count != 0) ? (IType) _types.Peek() : null;
 		}
-		
+
 		void AssertStackIsEmpty(string message)
 		{
 			if (0 != _types.Count)
@@ -770,7 +773,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnLocal(Local local)
 		{
 			InternalLocal info = GetInternalLocal(local);
-			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local));
+			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local), info.Type.IsPointer);
 			if (Parameters.Debug)
 			{
 				info.LocalBuilder.SetLocalSymInfo(local.Name);
@@ -1495,7 +1498,18 @@ namespace Boo.Lang.Compiler.Steps
 						EmitOnesComplement(node);
 						break;
 					}
-					
+
+				case UnaryOperatorType.AddressOf:
+					_byAddress = true;
+					node.Operand.Accept(this);
+					PushType(PopType().MakePointerType());
+					_byAddress = false;
+					break;
+
+				case UnaryOperatorType.Indirection:
+					node.Operand.Accept(this);
+					break;
+
 				default:
 					{
 						NotImplemented(node, "unary operator not supported");
@@ -1503,6 +1517,8 @@ namespace Boo.Lang.Compiler.Steps
 					}
 			}
 		}
+
+		bool _byAddress = false;
 
 		private void EmitOnesComplement(UnaryExpression node)
 		{
@@ -1618,6 +1634,7 @@ namespace Boo.Lang.Compiler.Steps
 		void LoadLocal(LocalBuilder local, IType localType)
 		{
 			_il.Emit(OpCodes.Ldloc, local);
+
 			PushType(localType);
 			_currentLocal = local;
 		}
@@ -1630,8 +1647,19 @@ namespace Boo.Lang.Compiler.Steps
 		void LoadLocal(InternalLocal local, bool byAddress)
 		{
 			_il.Emit(byAddress ? OpCodes.Ldloca : OpCodes.Ldloc, local.LocalBuilder);
+
 			PushType(local.Type);
 			_currentLocal = local.LocalBuilder;
+		}
+
+		void LoadIndirectLocal(InternalLocal local)
+		{
+			LoadLocal(local);
+
+			IType et = local.Type.GetElementType();
+			PopType();
+			PushType(et);
+			_il.Emit(GetLoadRefParamCode(et));
 		}
 
 		private LocalBuilder StoreTempLocal(IType elementType)
@@ -1792,12 +1820,22 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType lhs = node.Left.ExpressionType;
 			IType rhs = node.Right.ExpressionType;
-			
-			IType type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
-			Visit(node.Left);
-			EmitCastIfNeeded(type, PopType());
-			Visit(node.Right);
-			EmitCastIfNeeded(type, PopType());
+
+			if (lhs != rhs)
+			{
+				IType type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
+				Visit(node.Left);
+				EmitCastIfNeeded(type, PopType());
+				Visit(node.Right);
+				EmitCastIfNeeded(type, PopType());
+			}
+			else //no need for conversion
+			{
+				Visit(node.Left);
+				PopType();
+				Visit(node.Right);
+				PopType();
+			}
 		}
 		
 		void OnEquality(BinaryExpression node)
@@ -2727,7 +2765,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Type systemType = GetSystemType(elementType);
 				_il.Emit(opcode, systemType);
-				_il.Emit(OpCodes.Ldobj, systemType);
+				if (!_byAddress)
+					_il.Emit(OpCodes.Ldobj, systemType);
 			}
 			else if (OpCodes.Ldelem.Value == opcode.Value)
 			{
@@ -2891,7 +2930,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (fieldInfo.IsVolatile)
 						_il.Emit(OpCodes.Volatile);
-					_il.Emit(OpCodes.Ldsfld, GetFieldInfo(fieldInfo));
+					_il.Emit(_byAddress ? OpCodes.Ldsflda : OpCodes.Ldsfld,
+						GetFieldInfo(fieldInfo));
 				}
 			}
 			else
@@ -2899,7 +2939,8 @@ namespace Boo.Lang.Compiler.Steps
 				LoadMemberTarget(self, fieldInfo);
 				if (fieldInfo.IsVolatile)
 					_il.Emit(OpCodes.Volatile);
-				_il.Emit(OpCodes.Ldfld, GetFieldInfo(fieldInfo));
+				_il.Emit(_byAddress ? OpCodes.Ldflda : OpCodes.Ldfld,
+					GetFieldInfo(fieldInfo));
 			}
 			PushType(fieldInfo.Type);
 		}
@@ -3186,10 +3227,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Local:
 					{
-						LoadLocal((InternalLocal)info);
+						if (!AstUtil.IsIndirection(node.ParentNode))
+							LoadLocal((InternalLocal)info);
+						else
+							LoadIndirectLocal((InternalLocal)info);
 						break;
 					}
-					
+
 				case EntityType.Parameter:
 					{
 						InternalParameter param = (InternalParameter)info;
@@ -3270,8 +3314,12 @@ namespace Boo.Lang.Compiler.Steps
 					}
 			}
 		}
+
 		void SetLocal(BinaryExpression node, InternalLocal tag, bool leaveValueOnStack)
 		{
+			if (AstUtil.IsIndirection(node.Left))
+				_il.Emit(OpCodes.Ldloc, tag.LocalBuilder);
+
 			node.Right.Accept(this); // leaves type on stack
 			
 			IType typeOnStack = null;
@@ -3285,7 +3333,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				typeOnStack = PopType();
 			}
-			EmitAssignment(tag, typeOnStack);
+
+			if (!AstUtil.IsIndirection(node.Left))
+				EmitAssignment(tag, typeOnStack);
+			else
+				EmitIndirectAssignment(tag, typeOnStack);
 		}
 		
 		void EmitAssignment(InternalLocal tag, IType typeOnStack)
@@ -3296,7 +3348,14 @@ namespace Boo.Lang.Compiler.Steps
 			EmitCastIfNeeded(tag.Type, typeOnStack);
 			_il.Emit(OpCodes.Stloc, local);
 		}
-		
+
+		void EmitIndirectAssignment(InternalLocal tag, IType typeOnStack)
+		{
+			LocalBuilder local = tag.LocalBuilder;
+			EmitCastIfNeeded(tag.Type.GetElementType(), typeOnStack);
+			_il.Emit(GetStoreRefParamCode(tag.Type.GetElementType()));
+		}
+
 		void SetField(Node sourceNode, IField field, Expression reference, Expression value, bool leaveValueOnStack)
 		{
 			OpCode opSetField = OpCodes.Stsfld;
@@ -3557,6 +3616,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetLoadEntityOpCode(IType type)
 		{
+			if (_byAddress)
+				return OpCodes.Ldelema;
+
 			if (!type.IsValueType)
 			{
 				return type is IGenericParameter
@@ -3619,17 +3681,15 @@ namespace Boo.Lang.Compiler.Steps
 					tag = TypeSystemServices.Map(GetEnumUnderlyingType(tag));
 				}
 
-				if (TypeSystemServices.IntType == tag)
+				if (TypeSystemServices.IntType == tag ||
+				    TypeSystemServices.UIntType == tag)
 				{
 					return OpCodes.Stelem_I4;
 				}
-				if (TypeSystemServices.LongType == tag)
+				if (TypeSystemServices.LongType == tag ||
+				    TypeSystemServices.ULongType == tag)
 				{
 					return OpCodes.Stelem_I8;
-				}
-				if (TypeSystemServices.ByteType == tag)
-				{
-					return OpCodes.Stelem_I1;
 				}
 				if (TypeSystemServices.ShortType == tag ||
 				    TypeSystemServices.CharType == tag)
@@ -3663,13 +3723,14 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldind_I4;
 				}
-				if (TypeSystemServices.LongType == tag)
+				if (TypeSystemServices.LongType == tag ||
+				    TypeSystemServices.ULongType == tag)
 				{
 					return OpCodes.Ldind_I8;
 				}
 				if (TypeSystemServices.ByteType == tag)
 				{
-					return OpCodes.Ldind_I1;
+					return OpCodes.Ldind_U1;
 				}
 				if (TypeSystemServices.ShortType == tag ||
 				    TypeSystemServices.CharType == tag)
@@ -3692,7 +3753,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldind_U4;
 				}
-				
+
 				return OpCodes.Ldobj;
 			}
 			return OpCodes.Ldind_Ref;
@@ -3706,11 +3767,13 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					tag = TypeSystemServices.Map(GetEnumUnderlyingType(tag));
 				}
-				if (TypeSystemServices.IntType == tag)
+				if (TypeSystemServices.IntType == tag
+				    || TypeSystemServices.UIntType == tag)
 				{
 					return OpCodes.Stind_I4;
 				}
-				if (TypeSystemServices.LongType == tag)
+				if (TypeSystemServices.LongType == tag
+				    || TypeSystemServices.ULongType == tag)
 				{
 					return OpCodes.Stind_I8;
 				}
@@ -3752,9 +3815,9 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitCastIfNeeded(IType expectedType, IType actualType)
 		{
 			if (null == actualType) // see NullLiteralExpression
-			{
 				return;
-			}
+			if (expectedType.IsPointer || actualType.IsPointer) //no cast needed for addresses
+				return;
 
 			if (!IsAssignableFrom(expectedType, actualType))
 			{
@@ -3999,6 +4062,21 @@ namespace Boo.Lang.Compiler.Steps
 			return new CustomAttributeBuilder(
 				SerializableAttribute_Constructor,
 				new object[0]);
+		}
+
+		CustomAttributeBuilder CreateUnverifiableCodeAttribute()
+		{
+			return new CustomAttributeBuilder(
+				typeof(UnverifiableCodeAttribute).GetConstructor(Type.EmptyTypes), new object[0]);
+		}
+
+		CustomAttributeBuilder CreateSecurityPermissionAttribute(string permission)
+		{
+			return new CustomAttributeBuilder(
+				typeof(SecurityPermissionAttribute).GetConstructor(new Type[] { typeof(SecurityAction) }),
+				new object[] { SecurityAction.RequestMinimum },
+				new PropertyInfo[] { typeof(SecurityPermissionAttribute).GetProperty("SkipVerification") },
+				new object[] { true });
 		}
 
 		void DefineEntryPoint()
@@ -5168,7 +5246,15 @@ namespace Boo.Lang.Compiler.Steps
 				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
 			}
 			_asmBuilder.SetCustomAttribute(CreateRuntimeCompatibilityAttribute());
+
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), Parameters.Debug);
+
+			if (Parameters.Unsafe)
+			{
+				_asmBuilder.SetCustomAttribute(CreateSecurityPermissionAttribute("SkipVerification"));
+				_moduleBuilder.SetCustomAttribute(CreateUnverifiableCodeAttribute());
+			}
+
 			_sreResourceService = new SREResourceService (_asmBuilder, _moduleBuilder);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 			
