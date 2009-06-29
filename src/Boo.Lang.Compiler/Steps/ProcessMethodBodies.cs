@@ -5713,7 +5713,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool IsPublicFieldPropertyEvent(IEntity entity)
 		{
-			return IsFieldPropertyOrEvent(entity) && ((IMember)entity).IsPublic;
+			if (!IsFieldPropertyOrEvent(entity) || !((IMember) entity).IsPublic)
+				return false;
+
+			IField field = entity as IField;
+			return (null == field) || (!field.IsInitOnly && !field.IsLiteral);
 		}
 
 		private static bool IsFieldPropertyOrEvent(IEntity entity)
