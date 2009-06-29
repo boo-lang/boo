@@ -60,6 +60,17 @@ assert v.y == 2
 assert v.z == 3
 
 
+v = Vector()
+unsafe vp as Vector = v: #direct addressing (no v.firstfield)
+	(*vp).x = 1
+	(*vp).y = 2
+	(*vp).z = 3
+
+assert v.x == 1
+assert v.y == 2
+assert v.z == 3
+
+
 vv = array[of Vector](3)
 unsafe vp as Vector = vv:
 	(*vp).x = 1

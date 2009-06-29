@@ -136,7 +136,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			}
 		}
 
-		IType _elementType;
+		protected IType _elementType;
 
 		public IType GetElementType()
 		{

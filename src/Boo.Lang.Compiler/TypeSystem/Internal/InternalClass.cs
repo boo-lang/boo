@@ -130,6 +130,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		{
 			InternalClass pt =  new InternalClass(_provider, _node);
 			pt._isPointer = true;
+			pt._elementType = this;
 			return pt;
 		}
 	}

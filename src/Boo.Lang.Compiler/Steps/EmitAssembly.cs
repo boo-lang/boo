@@ -1500,10 +1500,10 @@ namespace Boo.Lang.Compiler.Steps
 					}
 
 				case UnaryOperatorType.AddressOf:
-					_byAddress = true;
+					_byAddress = GetExpressionType(node.Operand);
 					node.Operand.Accept(this);
 					PushType(PopType().MakePointerType());
-					_byAddress = false;
+					_byAddress = null;
 					break;
 
 				case UnaryOperatorType.Indirection:
@@ -1518,7 +1518,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		bool _byAddress = false;
+		IType _byAddress = null;
+		bool IsByAddress(IType type)
+		{
+			return (_byAddress == type);
+		}
 
 		private void EmitOnesComplement(UnaryExpression node)
 		{
@@ -1646,7 +1650,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void LoadLocal(InternalLocal local, bool byAddress)
 		{
-			_il.Emit(byAddress ? OpCodes.Ldloca : OpCodes.Ldloc, local.LocalBuilder);
+			_il.Emit(IsByAddress(local.Type) ? OpCodes.Ldloca : OpCodes.Ldloc, local.LocalBuilder);
 
 			PushType(local.Type);
 			_currentLocal = local.LocalBuilder;
@@ -2765,7 +2769,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Type systemType = GetSystemType(elementType);
 				_il.Emit(opcode, systemType);
-				if (!_byAddress)
+				if (!IsByAddress(elementType))
 					_il.Emit(OpCodes.Ldobj, systemType);
 			}
 			else if (OpCodes.Ldelem.Value == opcode.Value)
@@ -2930,7 +2934,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (fieldInfo.IsVolatile)
 						_il.Emit(OpCodes.Volatile);
-					_il.Emit(_byAddress ? OpCodes.Ldsflda : OpCodes.Ldsfld,
+					_il.Emit(IsByAddress(fieldInfo.Type) ? OpCodes.Ldsflda : OpCodes.Ldsfld,
 						GetFieldInfo(fieldInfo));
 				}
 			}
@@ -2939,7 +2943,7 @@ namespace Boo.Lang.Compiler.Steps
 				LoadMemberTarget(self, fieldInfo);
 				if (fieldInfo.IsVolatile)
 					_il.Emit(OpCodes.Volatile);
-				_il.Emit(_byAddress ? OpCodes.Ldflda : OpCodes.Ldfld,
+				_il.Emit(IsByAddress(fieldInfo.Type) ? OpCodes.Ldflda : OpCodes.Ldfld,
 					GetFieldInfo(fieldInfo));
 			}
 			PushType(fieldInfo.Type);
@@ -3618,7 +3622,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		OpCode GetLoadEntityOpCode(IType type)
 		{
-			if (_byAddress)
+			if (IsByAddress(type))
 				return OpCodes.Ldelema;
 
 			if (!type.IsValueType)
