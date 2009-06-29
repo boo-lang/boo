@@ -196,7 +196,7 @@ namespace Boo.Lang.Compiler.Ast
 			throw new NotSupportedException(String.Format("unknown operator: {0}", op));
 		}
 
-		public static bool IsAssignment(Expression node)
+		public static bool IsAssignment(Node node)
 		{
 			if (node.NodeType == NodeType.BinaryExpression)
 				return GetBinaryOperatorKind((BinaryExpression) node) == BinaryOperatorKind.Assignment;

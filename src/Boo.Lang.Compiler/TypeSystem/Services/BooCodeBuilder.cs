@@ -128,23 +128,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return builder;
 		}
 
+		public Expression CreateDefaultInitializer(LexicalInfo li, ReferenceExpression target, IType type)
+		{
+			if (type.IsValueType)
+				return CreateInitValueType(li, target);
+
+			return CreateAssignment(li, target, CreateNullLiteral());
+		}
+
 		public Expression CreateDefaultInitializer(LexicalInfo li, InternalLocal local)
 		{
-			if (local.Type.IsValueType)
-			{
-				return CreateInitValueType(li, local);
-			}
-			return CreateAssignment(
-					li,
-					CreateReference(local),
-					CreateNullLiteral());
+			return CreateDefaultInitializer(li, CreateReference(local), local.Type);
+		}
+
+		public Expression CreateInitValueType(LexicalInfo li, ReferenceExpression target)
+		{
+			MethodInvocationExpression mie = CreateBuiltinInvocation(li, BuiltinFunction.InitValueType);
+			mie.Arguments.Add(target);
+			return mie;
 		}
 
 		public Expression CreateInitValueType(LexicalInfo li, InternalLocal local)
 		{
-			MethodInvocationExpression mie = CreateBuiltinInvocation(li, BuiltinFunction.InitValueType);
-			mie.Arguments.Add(CreateReference(local));
-			return mie;
+			return CreateInitValueType(li, CreateReference(local));
 		}
 
 		public Expression CreateCast(IType type, Expression target)

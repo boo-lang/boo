@@ -70,6 +70,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected bool _optimizeNullComparisons = true;
 
+		const string TempInitializerName = "$___temp_initializer";
+
 		override public void Run()
 		{
 			NameResolutionService.Reset();
@@ -394,7 +396,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = GetInitializerMethod(node);
 			InternalMethod entity = (InternalMethod)method.Entity;
 
-			ReferenceExpression temp = new ReferenceExpression("___temp_initializer");
+			ReferenceExpression temp = new ReferenceExpression(TempInitializerName);
 
 			BinaryExpression assignment = new BinaryExpression(
 				node.LexicalInfo,
@@ -4839,20 +4841,49 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessValueTypeInstantiation(IType type, MethodInvocationExpression node)
 		{
-			// XXX: naive and unoptimized but correct approach
-			// simply initialize a new temporary value type
-			// TODO: OPTIMIZE by detecting assignments to local variables
+			ReferenceExpression target = GetOptimizedValueTypeInstantiationTarget(type, node);
+
+			//if no optimized target given, create a temp local to work with
+			if (null == target)
+			{
+				InternalLocal local = DeclareTempLocal(type);
+				target = CodeBuilder.CreateReference(local);
+			}
+
+			Expression initializer = CodeBuilder.CreateDefaultInitializer(node.LexicalInfo, target, type);
 
 			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
 			BindExpressionType(eval, type);
-
-			InternalLocal local = DeclareTempLocal(type);
-			ReferenceExpression localReference = CodeBuilder.CreateReference(local);
-			eval.Arguments.Add(CodeBuilder.CreateDefaultInitializer(node.LexicalInfo, local));
-			AddResolvedNamedArgumentsToEval(eval, node.NamedArguments, localReference);
-			eval.Arguments.Add(localReference);
-
+			eval.Arguments.Add(initializer);
+			AddResolvedNamedArgumentsToEval(eval, node.NamedArguments, target);
+			eval.Arguments.Add(target);
 			node.ParentNode.Replace(node, eval);
+		}
+
+		protected virtual ReferenceExpression GetOptimizedValueTypeInstantiationTarget(IType type, MethodInvocationExpression node)
+		{
+			if (!AstUtil.IsAssignment(node.ParentNode))
+				return null;
+
+			BinaryExpression be = (BinaryExpression) node.ParentNode;
+			ReferenceExpression target = be.Left as ReferenceExpression;
+			if (null == target)
+				return null;
+
+			//cannot optimize local (not memberref|field) instantiation with named args
+			if (be.Left.NodeType == NodeType.ReferenceExpression && 0 != node.NamedArguments.Count)
+				return null;
+
+			//TODO: field temp initializer optimization (!!?)
+			if (target.Name == TempInitializerName)
+				return null;
+
+			if (null == target.Entity)
+			{
+				Bind(target, type);
+				BindExpressionType(target, type);
+			}
+			return target;
 		}
 
 		void ProcessGenericMethodInvocation(MethodInvocationExpression node)
