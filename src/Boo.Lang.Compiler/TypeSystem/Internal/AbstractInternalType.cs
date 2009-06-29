@@ -206,7 +206,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			}
 		}
 
-		public bool IsPointer
+		virtual public bool IsPointer
 		{
 			get { return false; }
 		}
@@ -349,7 +349,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			});
 		}
 
-		public IType MakePointerType()
+		virtual public IType MakePointerType()
 		{
 			return null;
 		}

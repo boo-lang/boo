@@ -34,7 +34,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 	public class InternalClass : AbstractInternalType
 	{
 		int _typeDepth = -1;
-		
+		bool _isPointer;
+
 		internal InternalClass(InternalTypeSystemProvider provider, TypeDefinition typeDefinition) :
 			this(provider, typeDefinition, false)
 		{
@@ -50,7 +51,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		{
 			get { return _provider.ValueTypeType == BaseType; }
 		}
-		
+
+		override public bool IsPointer
+		{
+			get { return _isPointer; }
+		}
+
 		override public IType BaseType
 		{
 			get { return FindBaseType(); }
@@ -119,5 +125,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		{
 			return new InternalClass(_provider, _node, true);
 		}
+
+		override public IType MakePointerType()
+		{
+			InternalClass pt =  new InternalClass(_provider, _node);
+			pt._isPointer = true;
+			return pt;
+		}
 	}
 }
+

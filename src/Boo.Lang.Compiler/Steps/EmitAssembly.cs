@@ -3134,7 +3134,9 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case EntityType.Local:
 						{
-							_il.Emit(OpCodes.Ldloca, ((InternalLocal)tag).LocalBuilder);
+							InternalLocal local =  ((InternalLocal) tag);
+							_il.Emit(!local.Type.IsPointer ? OpCodes.Ldloca : OpCodes.Ldloc,
+							        local.LocalBuilder);
 							return;
 						}
 						
@@ -4362,6 +4364,8 @@ namespace Boo.Lang.Compiler.Steps
             else if (tag is AbstractInternalType)
             {
                 type = (Type)GetBuilder(((AbstractInternalType)tag).TypeDefinition);
+				if (tag.IsPointer && null != type)
+					type = type.MakePointerType();
             }
 
 			if (null == type)

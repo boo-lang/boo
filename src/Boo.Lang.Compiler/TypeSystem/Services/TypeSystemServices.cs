@@ -1095,7 +1095,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsPointerCompatible(IType type)
 		{
-			return type.IsValueType && IsPrimitiveNumber(type);
+			return IsPrimitiveNumber(type) || (type.IsValueType && 0 != SizeOf(type));
 		}
 
 		public bool RequiresBoxing(IType expectedType, IType actualType)

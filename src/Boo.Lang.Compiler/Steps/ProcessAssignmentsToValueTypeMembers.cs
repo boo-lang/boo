@@ -38,6 +38,12 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		protected override bool IsSpecialMemberTarget(Expression container)
 		{
+			if (container.NodeType == NodeType.UnaryExpression)
+			{
+				UnaryExpression ue = container as UnaryExpression;
+				if (ue.Operator == UnaryOperatorType.Indirection)
+					return false; //indirected value type, no need to process it specially
+			}
 			return null != container.ExpressionType && container.ExpressionType.IsValueType;
 		}
 	}
