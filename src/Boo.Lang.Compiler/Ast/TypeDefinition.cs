@@ -33,6 +33,7 @@ namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(Module))]
 	[System.Xml.Serialization.XmlInclude(typeof(ClassDefinition))]
+	[System.Xml.Serialization.XmlInclude(typeof(StructDefinition))]
 	[System.Xml.Serialization.XmlInclude(typeof(InterfaceDefinition))]
 	[System.Xml.Serialization.XmlInclude(typeof(EnumDefinition))]
 	public abstract partial class TypeDefinition

@@ -31,6 +31,7 @@ using System;
 namespace Boo.Lang.Compiler.Ast
 {
 	[System.Xml.Serialization.XmlInclude(typeof(MemberReferenceExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(GenericReferenceExpression))]
 	public partial class ReferenceExpression
 	{		
 		public ReferenceExpression()
