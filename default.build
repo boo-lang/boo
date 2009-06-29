@@ -1152,6 +1152,11 @@
 		<!-- This property define is a way to get around the 0.85 NAnt bug regarding signing satelite resource assemblies. -->
 		<property name="csc.define" value="${csc.define};IGNOREKEYFILE" unless="${nant-csc-keyfile-bug and not nosign}" />
 		<mkdir dir="${build.dir}" />
+
+		<!-- needed for bootstrapping Extensions -->
+		<copy file="bin/Boo.Lang.PatternMatching.dll"
+		      tofile="${build.dir}/Boo.Lang.PatternMatching.dll"
+		      failonerror="false" overwrite="false" />
 	</target>
 	
 	<target name="makedeb" depends="rebuild">
