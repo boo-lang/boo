@@ -68,12 +68,13 @@ If no pattern matches MatchError is raised.
 """
 	macro case:
 		caseListFor(match).Add(case)
-		
-	macro otherwise:
-		assert match["otherwise"] is null
-		match["otherwise"] = otherwise
-		
-	assert 0 == len(match.Body.Statements)
-	return MatchExpansion(Context, match).Value
 
+	macro otherwise:
+		otherwiseNode = match["otherwise"] as Boo.Lang.Compiler.Ast.Node
+		assert otherwiseNode is null, "`otherwise' is already defined at: ${otherwiseNode.LexicalInfo}"
+		match["otherwise"] = otherwise
+
+	assert 0 == len(match.Body.Statements), "Only `case' or `otherwise' are allowed in `match'. Offending statement at: ${match.Body.Statements[0].LexicalInfo}"
+	assert 0 != len(caseListFor(match)), "`match' must contain at least one `case'"
+	return MatchExpansion(Context, match).Value
 
