@@ -899,6 +899,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0168", AstUtil.SafeLexicalInfo(node), type);
 		}
 
+		public static CompilerError NotAMemberOfExplicitInterface(TypeMember member, IType type)
+		{
+			return new CompilerError("BCE0169", AstUtil.SafeLexicalInfo(member), member.Name, type);
+		}
+
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{

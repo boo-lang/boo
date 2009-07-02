@@ -108,11 +108,39 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Error(CompilerErrorFactory.InterfaceImplForInvalidInterface(node, targetInterface.Name, ((TypeMember)node).Name));
 				}
+				else if (!DoesExplicitMemberExistInInterface(explicitMember, targetInterface))
+				{
+					Error(CompilerErrorFactory.NotAMemberOfExplicitInterface((TypeMember) node, targetInterface));
+				}
 			}
 			else
 			{
 				// TODO: Only class ITM's can do explicit interface methods
 			}
+		}
+
+		bool DoesExplicitMemberExistInInterface(IMember member, IType iface)
+		{
+			//check the explicit decl exists in the interface
+			ICollection<IEntity> candidates = new List<IEntity>();
+			if (!iface.Resolve(candidates, member.Name, EntityType.Any))
+				return false;
+
+			//it exists! check if has a valid signature (ie. not an overload)
+			if (!(member is IMethod))
+				return true; //if a property no overload possible, return type conflict detected elsewhere
+
+			bool match = false;
+			foreach (IEntity candidate in candidates)
+			{
+				IMethod method = candidate as IMethod;
+				if (null == method)
+					continue;
+				match |= CallableSignature.AreSameParameters(((IMethod)member).GetParameters(), method.GetParameters());
+				if (match) //we're ok! skip the rest
+					break;
+			}
+			return match;
 		}
 
 		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
