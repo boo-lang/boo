@@ -432,7 +432,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public IType MakePointerType()
 		{
-			return My<TypeSystemServices>.Instance.Map(_type.MakePointerType());
+			return _provider.Map(_type.MakePointerType());
 		}
 	}
 }
