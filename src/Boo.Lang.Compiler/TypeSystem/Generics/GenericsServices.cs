@@ -300,9 +300,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		/// </returns>
 		public static bool HasConstructedType(IType type, IType definition)
 		{
-			foreach (IType candidate in FindConstructedTypes(type, definition))
-				return true;
-			return false;
+			return FindConstructedTypes(type, definition).GetEnumerator().MoveNext();
 		}
 
 
@@ -472,6 +470,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			if (argument == null || TypeSystemServices.IsError(argument))
 			{
 				return true;
+			}
+
+			if (argument == My<TypeSystemServices>.Instance.VoidType)
+			{
+				Errors.Add(CompilerErrorFactory.InvalidGenericParameterType(ConstructionNode, argument));
+				return false;
 			}
 
 			bool valid = true;

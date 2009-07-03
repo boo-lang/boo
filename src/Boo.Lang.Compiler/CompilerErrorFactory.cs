@@ -675,7 +675,12 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError InvalidParameterType(Node node, string typeName)
 		{
-			return new CompilerError("BCE0123", AstUtil.SafeLexicalInfo(node), typeName);
+			return new CompilerError("BCE0123", AstUtil.SafeLexicalInfo(node), typeName, string.Empty);
+		}
+
+		public static CompilerError InvalidGenericParameterType(Node node, IType type)
+		{
+			return new CompilerError("BCE0123", AstUtil.SafeLexicalInfo(node), type, "generic ");
 		}
 
 		public static CompilerError InvalidFieldType(Node node, string typeName)
