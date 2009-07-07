@@ -3345,17 +3345,18 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool EmitDebugInfo(Node node)
 		{
+			if (!Parameters.Debug)
+				return false;
 			return EmitDebugInfo(node, node);
-		}		
-		
+		}
+
 		private const int _DBG_SYMBOLS_QUEUE_CAPACITY = 5; 
 
 		private System.Collections.Generic.Queue<LexicalInfo> _dbgSymbols = new System.Collections.Generic.Queue<LexicalInfo>(_DBG_SYMBOLS_QUEUE_CAPACITY);
-		
+
+		[ReflectionPermission(SecurityAction.Demand, ReflectionEmit=true)]
 		bool EmitDebugInfo(Node startNode, Node endNode)
 		{
-			if (!Parameters.Debug) return false;
-			
 			LexicalInfo start = startNode.LexicalInfo;
 			if (!start.IsValid) return false;
 
