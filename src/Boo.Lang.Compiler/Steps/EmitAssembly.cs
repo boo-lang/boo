@@ -87,10 +87,6 @@ namespace Boo.Lang.Compiler.Steps
 		static MethodInfo RuntimeServices_ToBool_Object = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Object });
 
 		static MethodInfo RuntimeServices_ToBool_Decimal = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Decimal });
-		
-		static MethodInfo RuntimeServices_ToBool_Single = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Single });
-		
-		static MethodInfo RuntimeServices_ToBool_Double = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Double });
 
 		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
 		
@@ -1435,9 +1431,16 @@ namespace Boo.Lang.Compiler.Steps
 			Expression operand = node.Operand;
 			operand.Accept(this);
 			IType typeOnStack = PopType();
-			if (IsBoolOrInt(typeOnStack) || EmitToBoolIfNeeded(operand))
+			bool notContext = true;
+
+			if (IsBoolOrInt(typeOnStack))
 			{
 				EmitIntNot();
+			}
+			else if (EmitToBoolIfNeeded(operand, ref notContext))
+			{
+				if (!notContext) //we are in a not context and emit to bool is also in a not context
+					EmitIntNot();//so we do not need any not (false && false => true)
 			}
 			else
 			{
@@ -1802,10 +1805,20 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(type);
 		}
 
-		//mostly used for logical operators and ducky mode
-		//other cases of bool context are handled by PMB
+
 		bool EmitToBoolIfNeeded(Expression expression)
 		{
+			bool notContext = false;
+			return EmitToBoolIfNeeded(expression, ref notContext);
+		}
+
+		//mostly used for logical operators and ducky mode
+		//other cases of bool context are handled by PMB
+		bool EmitToBoolIfNeeded(Expression expression, ref bool notContext)
+		{
+			bool inNotContext = notContext;
+			notContext = false;
+
 			//if an op_Implicit has been found already, give it priority!
 			IMethod op_Implicit = expression["op_Implicit"] as IMethod;
 			if (null != op_Implicit)
@@ -1834,9 +1847,36 @@ namespace Boo.Lang.Compiler.Steps
 			else if (TypeSystemServices.StringType == type)
 			{
 				_il.EmitCall(OpCodes.Call, String_IsNullOrEmpty, null);
-				//reverse result
-				_il.Emit(OpCodes.Ldc_I4_0);
+				if (!inNotContext)
+					EmitIntNot(); //reverse result (true for not empty)
+				else
+					notContext = true;
+				return true;
+			}
+			else if (TypeSystemServices.IsIntegerNumber(type))
+			{
+				if (TypeSystemServices.LongType == type || TypeSystemServices.ULongType == type)
+					_il.Emit(OpCodes.Conv_I4);
+				return true;
+			}
+			else if (TypeSystemServices.SingleType == type)
+			{
+				_il.Emit(OpCodes.Ldc_R4, 0.0f);
 				_il.Emit(OpCodes.Ceq);
+				if (!inNotContext)
+					EmitIntNot();
+				else
+					notContext = true;
+				return true;
+			}
+			else if (TypeSystemServices.DoubleType == type)
+			{
+				_il.Emit(OpCodes.Ldc_R8, 0.0);
+				_il.Emit(OpCodes.Ceq);
+				if (!inNotContext)
+					EmitIntNot();
+				else
+					notContext = true;
 				return true;
 			}
 			else if (TypeSystemServices.DecimalType == type)
@@ -1844,14 +1884,14 @@ namespace Boo.Lang.Compiler.Steps
 				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Decimal, null);
 				return true;
 			}
-			else if (TypeSystemServices.SingleType == type)
+			else if (!type.IsValueType)
 			{
-				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Single, null);
-				return true;
-			}
-			else if (TypeSystemServices.DoubleType == type)
-			{
-				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Double, null);
+				_il.Emit(OpCodes.Ldnull);
+				_il.Emit(OpCodes.Ceq);
+				if (!inNotContext)
+					EmitIntNot();
+				else
+					notContext = true;
 				return true;
 			}
 			return false;
