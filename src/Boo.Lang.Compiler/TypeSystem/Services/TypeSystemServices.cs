@@ -906,6 +906,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			else if (member.IsProtected)
 			{
+				if (member.IsInternal)
+					return TypeMemberModifiers.Protected | TypeMemberModifiers.Internal;
 				return TypeMemberModifiers.Protected;
 			}
 			else if (member.IsInternal)

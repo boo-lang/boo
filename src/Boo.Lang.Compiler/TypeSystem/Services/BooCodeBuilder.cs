@@ -986,7 +986,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		Method CreateMethodStub(IMethod baseMethod)
 		{
-			Method stub = CreateMethodFromPrototype(baseMethod, TypeMemberModifiers.Public | TypeMemberModifiers.Virtual);
+			Method stub = CreateMethodFromPrototype(baseMethod, TypeSystemServices.GetAccess(baseMethod) | TypeMemberModifiers.Virtual);
 
 			MethodInvocationExpression x = new MethodInvocationExpression();
 			x.Target = new MemberReferenceExpression(
@@ -1006,7 +1006,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == property) {
 				property = new Property(LexicalInfo.Empty);
 				property.Name = baseProperty.Name;
-				property.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Virtual;
+				property.Modifiers = TypeSystemServices.GetAccess(baseProperty) | TypeMemberModifiers.Virtual;
 				property.IsSynthetic = true;
 				DeclareParameters(property, baseProperty.GetParameters(), baseProperty.IsStatic ? 0 : 1);
 				property.Type = CreateTypeReference(baseProperty.Type);
@@ -1022,5 +1022,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return property;
 		}
 	}
-
 }
+
