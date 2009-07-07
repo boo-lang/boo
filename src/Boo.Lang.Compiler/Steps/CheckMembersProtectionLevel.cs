@@ -71,9 +71,7 @@ namespace Boo.Lang.Compiler.Steps
 			IProperty property = member as IProperty;
 			if (null != property)
 			{
-				if (null != node.ParentNode
-					&& node.ParentNode.NodeType == NodeType.BinaryExpression
-					&& ((BinaryExpression) node.ParentNode).Operator == BinaryOperatorType.Assign)
+				if (AstUtil.IsLhsOfAssignment(node))
 					member = property.GetSetMethod();
 				else
 					member = property.GetGetMethod();

@@ -40,7 +40,9 @@ namespace Boo.Lang.Compiler.Steps
 		Boo.Lang.List _events = new Boo.Lang.List();
 		IMethod _delegate_Combine;
 		IMethod _delegate_Remove;
-		
+
+		const string PrivateMemberNeverUsed = "PrivateMemberNeverUsed";
+
 		override public void OnMethod(Method node)
 		{
 			_parameters.Add(node);
@@ -54,6 +56,10 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (INodeWithParameters node in _parameters)
 			{
 				TypeMember member = (TypeMember)node;
+
+				if (member.ContainsAnnotation(PrivateMemberNeverUsed))
+					continue;
+
 				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
 				CodeBuilder.BindParameterDeclarations(member.IsStatic, node);
 				if (!member.IsVisible && !member.IsSynthetic)
@@ -63,7 +69,7 @@ namespace Boo.Lang.Compiler.Steps
 						continue;
 					if (member == entryPoint) //private Main is fine
 						continue;
-					member.Annotate("PrivateMemberNeverUsed", null);
+					member.Annotate(PrivateMemberNeverUsed, null);
 				}
 			}
 		}
@@ -81,7 +87,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Entity = new InternalField(node);
 				if (!node.IsVisible && !node.IsSynthetic)
 				{
-					node.Annotate("PrivateMemberNeverUsed", null);
+					node.Annotate(PrivateMemberNeverUsed, null);
 				}
 			}
 		}
