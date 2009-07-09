@@ -64,7 +64,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				//check there is no long member
 				foreach (EnumMember member in EnumDefinition.Members)
 				{
-					if (member.Initializer.IsLong)
+					IntegerLiteralExpression il = member.Initializer as IntegerLiteralExpression;
+					if (null != il && il.IsLong)
 					{
 						_underlyingType = typeof(long);
 						break;

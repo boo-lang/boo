@@ -87,8 +87,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public object StaticValue
 		{
 			get {
-				return Convert.ChangeType(_node.Initializer.Value,
-						((InternalEnum) DeclaringType).UnderlyingType);
+				if (_node.Initializer.NodeType == NodeType.IntegerLiteralExpression)
+				{
+					return Convert.ChangeType(((IntegerLiteralExpression) _node.Initializer).Value,
+							((InternalEnum) DeclaringType).UnderlyingType);
+				}
+				return Error.Default;
 			}
 		}
 

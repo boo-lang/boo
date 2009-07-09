@@ -420,9 +420,9 @@ foo = def():
 			ed = (EnumDefinition)module.Members[1];
 			Assert.AreEqual(3, ed.Members.Count);
 			Assert.AreEqual("Easy", ed.Members[0].Name);
-			Assert.AreEqual(0, ((EnumMember)ed.Members[0]).Initializer.Value);
+			Assert.AreEqual(0, ((IntegerLiteralExpression)((EnumMember)ed.Members[0]).Initializer).Value);
 			Assert.AreEqual("Normal", ed.Members[1].Name);
-			Assert.AreEqual(5, ((EnumMember)ed.Members[1]).Initializer.Value);
+			Assert.AreEqual(5, ((IntegerLiteralExpression)((EnumMember)ed.Members[1]).Initializer).Value);
 			Assert.AreEqual("Hard", ed.Members[2].Name);
 			Assert.IsNull(((EnumMember)ed.Members[2]).Initializer, "Initializer");
 		}

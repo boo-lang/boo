@@ -160,6 +160,13 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveEnumDefinition(EnumDefinition node)
 		{
 			CheckName(node,node.Name);
+
+			foreach (EnumMember member in node.Members)
+			{
+				if (member.Initializer.NodeType != NodeType.IntegerLiteralExpression)
+					Errors.Add(
+						CompilerErrorFactory.EnumMemberMustBeConstant(member));
+			}
 		}
 		
 		override public void LeaveEvent(Event node)

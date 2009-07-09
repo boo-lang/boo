@@ -15,7 +15,7 @@ last = node.Members[-1]
 separator = ","
 for field as EnumMember in node.Members:
 	if field.Initializer:
-		initializer = " = ${field.Initializer.Value}"
+		initializer = " = ${field.Initializer.ToCodeString()}"
 	else:
 		initializer = ""
 	end

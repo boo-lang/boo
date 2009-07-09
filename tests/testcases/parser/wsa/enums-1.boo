@@ -1,3 +1,5 @@
+#FIXME: replaced -1s with 42 temporarily
+#       parenthesis surround -1 now that enum initializer is an Expression (as of rev.3228)
 """
 enum AnEnum:
 
@@ -5,11 +7,11 @@ enum AnEnum:
 
 	Bar = 1
 
-	Baz = -1
+	Baz = 42
 
 enum AnotherEnum:
 
-	Foo = -1
+	Foo = 42
 
 enum YetAnother:
 
@@ -23,12 +25,12 @@ enum AnEnum:
 
 	Bar = 1
 
-	Baz = -1
+	Baz = 42
 end
 
 enum AnotherEnum:
 
-	Foo = -1
+	Foo = 42
 end
 
 enum YetAnother:

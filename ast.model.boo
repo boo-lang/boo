@@ -137,7 +137,7 @@ class EnumDefinition(TypeDefinition):
 	pass
 
 class EnumMember(TypeMember):
-	Initializer as IntegerLiteralExpression
+	Initializer as Expression
 
 class Field(TypeMember):
 	Type as TypeReference
@@ -354,7 +354,7 @@ enum BinaryOperatorType:
 	Addition
 	Subtraction
 	Multiply
-	Division		
+	Division
 	Modulus
 	Exponentiation
 	LessThan

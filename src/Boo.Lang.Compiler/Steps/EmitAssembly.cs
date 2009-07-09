@@ -611,7 +611,8 @@ namespace Boo.Lang.Compiler.Steps
 				foreach (EnumMember member in node.Members)
 				{
 					FieldBuilder field = builder.DefineLiteral(member.Name,
-						Convert.ChangeType(member.Initializer.Value, GetEnumUnderlyingType(node)));
+						Convert.ChangeType(((IntegerLiteralExpression) member.Initializer).Value,
+							GetEnumUnderlyingType(node)));
 					SetBuilder(member, field);
 				}
 			}
@@ -624,7 +625,8 @@ namespace Boo.Lang.Compiler.Steps
 														FieldAttributes.Public |
 														FieldAttributes.Static |
 														FieldAttributes.Literal);
-					field.SetConstant(Convert.ChangeType(member.Initializer.Value, GetEnumUnderlyingType(node)));
+					field.SetConstant(Convert.ChangeType(((IntegerLiteralExpression) member.Initializer).Value,
+						GetEnumUnderlyingType(node)));
 					SetBuilder(member, field);
 				}
 			}

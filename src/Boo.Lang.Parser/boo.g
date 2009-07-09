@@ -346,27 +346,22 @@ enum_definition [TypeMemberCollection container]
 protected
 enum_member [EnumDefinition container]
 	{	
-		EnumMember em = null;	
-		IntegerLiteralExpression initializer = null;
-		bool negative = false;		
+		EnumMember em = null;
+		Expression initializer = null;
 	}: 
 	attributes
-	id:ID (ASSIGN (SUBTRACT { negative = true; })? initializer=integer_literal)?
+	id:ID (ASSIGN initializer=simple_initializer)?
 	{
 		em = new EnumMember(ToLexicalInfo(id));
 		em.Name = id.getText();
 		em.Initializer = initializer;
-		if (negative && null != initializer)
-		{
-			initializer.Value *= -1;
-		}
 		AddAttributes(em.Attributes);
 		container.Members.Add(em);
 	}
 	eos
 	docstring[em]
 	;
-			
+
 protected
 attributes
 {

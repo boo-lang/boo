@@ -48,10 +48,13 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					member.Initializer = new IntegerLiteralExpression(lastValue);
 				}
-				lastValue = member.Initializer.Value + 1;
-				
+				else if (member.Initializer.NodeType == NodeType.IntegerLiteralExpression)
+				{
+					lastValue = ((IntegerLiteralExpression) member.Initializer).Value;
+				}
+				++lastValue;
 			}
 		}
 	}
-
 }
+

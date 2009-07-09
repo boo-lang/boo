@@ -80,7 +80,9 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						if (field.Type.IsEnum)
 						{
-							return Convert.ToUInt64(field.StaticValue);
+							object o = field.StaticValue;
+							if (null != o && o != Error.Default)
+								return Convert.ToUInt64(o);
 						}
 						else
 						{
@@ -94,6 +96,21 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 			return null;
+		}
+
+		override public void LeaveEnumMember(EnumMember node)
+		{
+			if (node.Initializer.NodeType == NodeType.IntegerLiteralExpression)
+				return;
+
+			IType type = node.Initializer.ExpressionType;
+			if (null != type && (TypeSystemServices.IsIntegerNumber(type) || type.IsEnum))
+			{
+				object val = GetLiteralValue(node.Initializer);
+				if (null != val && val != Error.Default)
+					node.Initializer = new IntegerLiteralExpression(Convert.ToInt64(val));
+			}
+			return;
 		}
 
 		override public void LeaveBinaryExpression(BinaryExpression node)

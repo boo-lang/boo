@@ -142,7 +142,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			--_ensureBlock;
 		}
-		
+
 		public override void OnCustomStatement(CustomStatement node)
 		{
 			Error(CompilerErrorFactory.InvalidNode(node));

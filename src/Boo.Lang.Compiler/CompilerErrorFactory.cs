@@ -909,6 +909,10 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0169", AstUtil.SafeLexicalInfo(member), member.Name, type);
 		}
 
+		public static CompilerError EnumMemberMustBeConstant(EnumMember member)
+		{
+			return new CompilerError("BCE0170", AstUtil.SafeLexicalInfo(member), member.FullName);
+		}
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
