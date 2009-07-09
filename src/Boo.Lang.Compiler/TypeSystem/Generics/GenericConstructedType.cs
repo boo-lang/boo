@@ -215,7 +215,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		public IGenericTypeInfo GenericInfo
 		{
-			get { return null; }
+			get { return _definition.GenericInfo; }
 		}
 
 		public IConstructedTypeInfo ConstructedInfo
