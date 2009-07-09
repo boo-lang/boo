@@ -17,17 +17,17 @@ BCW0022-1.boo(97,18): BCW0022: WARNING: Boolean expression will always have the 
 BCW0022-1.boo(98,18): BCW0022: WARNING: Boolean expression will always have the same value.
 BCW0022-1.boo(99,15): BCW0022: WARNING: Boolean expression will always have the same value.
 BCW0022-1.boo(100,18): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(102,16): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(104,33): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-1.boo(105,44): BCW0022: WARNING: Boolean expression will always have the same value.
 """
-
 enum Enum:
 	Foo
 	Bar
-
 class Constant:
 	public static x = 0
 	public static final y = 1
 	public static final z = 2
-
 class Constant2:
 	public static final y = 1
 	public static final z = 2
@@ -99,10 +99,10 @@ print Constant.z <= Constant2.y
 print Test.sy != Test.sz
 print Constant.y > Test.sy
 
-print Enum.Foo == Enum.Bar #OK (ignored for now >> literal propagatione etc..)
+print Enum.Foo == Enum.Bar
 print Constant.y > Test.SF #OK (SF not literal final)
-print System.ConsoleColor.Black != System.ConsoleColor.White #OK (external)
-print cast(int, System.ConsoleColor.Black) != cast(int, System.ConsoleColor.White) #OK
+print System.ConsoleColor.Black != System.ConsoleColor.White
+print cast(int, System.ConsoleColor.Black) != cast(int, System.ConsoleColor.White)
 color = System.ConsoleColor.Black
 print color != System.ConsoleColor.White #OK
 if Test.Color == System.ConsoleColor.Black:

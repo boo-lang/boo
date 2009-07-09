@@ -14,8 +14,8 @@ BCW0022-2.boo(64,4): BCW0022: WARNING: Boolean expression will always have the s
 BCW0022-2.boo(66,14): BCW0022: WARNING: Boolean expression will always have the same value.
 BCW0022-2.boo(70,15): BCW0022: WARNING: Boolean expression will always have the same value.
 BCW0022-2.boo(72,15): BCW0022: WARNING: Boolean expression will always have the same value.
+BCW0022-2.boo(93,12): BCW0022: WARNING: Boolean expression will always have the same value.
 """
-
 class Constant:
 	public static x = 0
 	public static final y = 1
@@ -89,4 +89,6 @@ if s is "foo": #OK
 	pass
 if s is not null: #OK
 	pass
+
+assert 4*4 == 4+4
 

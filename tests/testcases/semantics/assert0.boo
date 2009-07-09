@@ -3,7 +3,7 @@
 public final transient class Assert0Module(object):
 
 	private static def Main(argv as (string)) as void:
-		unless true and false:
+		unless false:
 			raise Boo.Lang.Runtime.AssertionFailedException('assert message')
 
 	private def constructor():

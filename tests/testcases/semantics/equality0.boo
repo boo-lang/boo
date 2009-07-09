@@ -7,8 +7,9 @@ public final transient class Equality0Module(object):
 		o2 = object()
 		b1 = true
 		b2 = false
+		i3 = 3
 		Boo.Lang.Builtins.print(string.op_Equality('foo', 'bar'))
-		Boo.Lang.Builtins.print((3 == 3.0))
+		Boo.Lang.Builtins.print((i3 == 3.0))
 		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.EqualityOperator(o1, o2))
 		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.EqualityOperator('foo', o2))
 		Boo.Lang.Builtins.print(Boo.Lang.Runtime.RuntimeServices.EqualityOperator(3.0, o1))
@@ -22,8 +23,9 @@ o1 = object()
 o2 = object()
 b1 = true
 b2 = false
+i3 = 3
 print('foo' == 'bar')
-print(3 == 3.0)
+print(i3 == 3.0)
 print(o1 == o2)
 print('foo' == o2)
 print(3.0 == o1)

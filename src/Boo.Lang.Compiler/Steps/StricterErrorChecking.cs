@@ -221,12 +221,28 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
+		{
+			if (node.ContainsAnnotation(ConstantFolding.FoldedExpression))
+				Warnings.Add(
+					CompilerWarningFactory.ConstantExpression(node));
+		}
+
 		public override void LeaveIfStatement(IfStatement node)
 		{
-			if (IsConstant(node.Condition))
+			CheckNotConstant(node.Condition);
+		}
+
+		public override void LeaveUnlessStatement(UnlessStatement node)
+		{
+			CheckNotConstant(node.Condition);
+		}
+
+		void CheckNotConstant(Expression node)
+		{
+			if (IsConstant(node))
 				Warnings.Add(
-					CompilerWarningFactory.ConstantExpression(node.Condition)
-				);
+					CompilerWarningFactory.ConstantExpression(node));
 		}
 
 		protected virtual void LeaveExplodeExpression(UnaryExpression node)
@@ -282,7 +298,8 @@ namespace Boo.Lang.Compiler.Steps
 					return IsConstant(be.Left) && IsConstant(be.Right);
 			}
 
-			if ((e as LiteralExpression) != null)
+			if ((e as LiteralExpression) != null
+			    && !e.ContainsAnnotation(ConstantFolding.FoldedExpression))
 				return true;
 
 			if (IsImplicitCallable(e))

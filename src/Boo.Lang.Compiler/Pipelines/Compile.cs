@@ -35,15 +35,15 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class Compile : ResolveExpressions
 	{
 		public Compile()
-		{	
-			Add(new UnfoldConstants());
+		{
+			Add(new ConstantFolding());
 			Add(new OptimizeIterationStatements());
 
 			Add(new BranchChecking());
 
 			Add(new CheckIdentifiers());
 			Add(new StricterErrorChecking());
-		    Add(new CheckAttributesUsage());
+			Add(new CheckAttributesUsage());
 
 			Add(new ExpandDuckTypedExpressions());
 
@@ -54,8 +54,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new CheckMembersProtectionLevel());
 
 			Add(new NormalizeIterationStatements());
-			
-			Add(new ProcessSharedLocals());			
+
+			Add(new ProcessSharedLocals());
 			Add(new ProcessClosures());
 			Add(new ProcessGenerators());
 
@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			
 			Add(new InjectCallableConversions());
 			Add(new ImplementICallableOnCallableDefinitions());
-		
+
 			Add(new CheckNeverUsedMembers());
 
 			// TODO:
