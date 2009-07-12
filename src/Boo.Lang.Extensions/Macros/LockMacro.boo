@@ -35,7 +35,7 @@ import Boo.Lang.Compiler.Ast
 
 
 def createLockedBlock(context as CompilerContext, monitor as Expression, block as Block):
-	temp = ReferenceExpression(monitor.LexicalInfo, "__monitor${context.AllocIndex()}__")
+	temp = ReferenceExpression(monitor.LexicalInfo, context.GetUniqueName("lock", "monitor"))
 
 	expireString as string = null
 	expire as int = 5000 #expiration time in ms (default 5s)

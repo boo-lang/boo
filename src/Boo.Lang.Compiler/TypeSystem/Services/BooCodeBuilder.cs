@@ -923,7 +923,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public string CreateTempName()
 		{
-			return "___temp" + Context.AllocIndex();
+			return Context.GetUniqueName();
 		}
 
 		public InternalLocal DeclareTempLocal(Method node, IType type)

@@ -646,7 +646,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private LabelStatement CreateUpdateLabel(ForStatement node)
 		{
-			return new LabelStatement(LexicalInfo.Empty, "$label$" + _context.AllocIndex());
+			return new LabelStatement(LexicalInfo.Empty, Context.GetUniqueName("label"));
 		}
 
 		private static SlicingExpression CreateRawArraySlicing(ReferenceExpression arrayRef, Expression numRef, IType elementType)

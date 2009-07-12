@@ -182,11 +182,39 @@ namespace Boo.Lang.Compiler
 			set { _generatedAssembly = value; }
 		}
 
+		[Obsolete("AllocIndex is obsolete, use GetUniqueName instead")]
 		public int AllocIndex()
 		{
 			return ++_localIndex;
 		}
-		
+
+		///<summary>Generates a name that will be unique within the CompilerContext.</summary>
+		///<param name="components">Zero or more string(s) that will compose the generated name.</param>
+		///<returns>Returns the generated unique name.</returns>
+		public string GetUniqueName(params string[] components)
+		{
+			int len = 0;
+			if (null != components)
+				len = components.Length;
+
+			//ignore obsolete warning  TODO: remove when AllocIndex is private
+			#pragma warning disable 618
+			string index = string.Concat("$", AllocIndex().ToString());
+			#pragma warning restore 618
+
+			if (0 == len)
+				return index;
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			foreach (string component in components)
+			{
+				sb.Append("$");
+				sb.Append(component);
+			}
+			sb.Append(index);
+			return sb.ToString();
+		}
+
 		[Conditional("TRACE")]
 		public void TraceEnter(string format, params object[] args)
 		{

@@ -213,9 +213,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				module.Name = name = string.Format("__Module{0}__", _context.AllocIndex());
+				module.Name = name = Context.GetUniqueName("Module");
 			}
 			return name;
 		}
 	}
 }
+

@@ -137,9 +137,9 @@ class AbstractCommandLine:
 		if method is not null and len(method.GetParameters()) == 1:
 			AddOptionMethod(parser, option, method)
 			return
-			
-		assert false, "OptionAttribute not implemented for '${member}'"
-		
+
+		raise NotImplementedException("OptionAttribute not implemented for '${member}'")
+
 	private def AddOptionMethod(parser as Parser, option as OptionAttribute, method as MethodInfo):
 		parser.AddOption(option) do (value as string):
 			method.Invoke(self, (value,))
@@ -170,9 +170,9 @@ class AbstractCommandLine:
 			parser.ArgumentFound += do (value as string):
 				AddToListField(field, value)
 			return
-			
-		assert false, "ArgumentAttribute not implemented for '${member}'"
-		
+
+		raise NotImplementedException("ArgumentAttribute not implemented for '${member}'")
+
 	private def AddToListField(field as FieldInfo, value):
 		(field.GetValue(self) as IList).Add(value)
 		

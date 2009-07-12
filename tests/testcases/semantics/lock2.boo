@@ -6,12 +6,12 @@ public class LockedList(object):
 
 	public Item[index as int] as object:
 		public get:
-			__monitor1__ = self._list
-			System.Threading.Monitor.Enter(__monitor1__)
+			$lock$monitor$1 = self._list
+			System.Threading.Monitor.Enter($lock$monitor$1)
 			try:
 				return self._list.get_Item(index)
 			ensure:
-				System.Threading.Monitor.Exit(__monitor1__)
+				System.Threading.Monitor.Exit($lock$monitor$1)
 
 	public def constructor():
 		super()

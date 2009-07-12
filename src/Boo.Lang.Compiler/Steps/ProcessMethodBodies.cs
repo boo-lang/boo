@@ -870,7 +870,7 @@ namespace Boo.Lang.Compiler.Steps
 		private string ClosureName(string explicitName)
 		{
 			string closureHint = explicitName ?? "closure";
-			return _currentMethod.Name + "$" + closureHint + "$" + _context.AllocIndex();
+			return Context.GetUniqueName(_currentMethod.Name, closureHint);
 		}
 
 		private void AddOptionalReturnStatement(Block body)
@@ -2075,7 +2075,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
-				string.Format("{0}${1}", method.Name, _context.AllocIndex()),
+				Context.GetUniqueName(method.Name),
 				TypeMemberModifiers.Internal|TypeMemberModifiers.Final);
 			builder.LexicalInfo = sourceNode.LexicalInfo;
 			builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
@@ -2336,7 +2336,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (NodeType.Field != node.ParentNode.NodeType)
 			{
-				ReplaceByStaticFieldReference(node, "$re$" + _context.AllocIndex(), type);
+				ReplaceByStaticFieldReference(node, Context.GetUniqueName("re"), type);
 			}
 		}
 

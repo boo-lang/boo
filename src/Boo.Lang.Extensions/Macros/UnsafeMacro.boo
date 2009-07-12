@@ -82,7 +82,7 @@ final class UnsafeMacro (AbstractAstGeneratorMacro):
 
 		def constructor(macro as MacroStatement, name as ReferenceExpression):
 			_name = name.Name
-			_privateName = "$"+name.Name+"$"+CompilerContext.Current.AllocIndex();
+			_privateName = CompilerContext.Current.GetUniqueName("unsafe", name.Name);
 			macro.Body.Accept(self)
 
 		override def OnReferenceExpression(node as ReferenceExpression):

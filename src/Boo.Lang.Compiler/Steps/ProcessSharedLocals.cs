@@ -184,8 +184,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (_shared.Count > 0)
 			{
-				BooClassBuilder builder = CodeBuilder.CreateClass(
-											string.Format("{0}$locals${1}", _currentMethod.Name, _context.AllocIndex()));
+				BooClassBuilder builder = CodeBuilder.CreateClass(Context.GetUniqueName(_currentMethod.Name, "locals"));
 				builder.Modifiers |= TypeMemberModifiers.Internal;
 				builder.AddBaseType(TypeSystemServices.ObjectType);
 				

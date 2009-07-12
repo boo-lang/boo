@@ -5,20 +5,20 @@ import System.IO
 public final transient class Using1Module(object):
 
 	private static def Main(argv as (string)) as void:
-		__using2__ = ((f1 = File.OpenText('using0.boo')) as System.IDisposable)
+		$using$disposable$2 = ((f1 = File.OpenText('using0.boo')) as System.IDisposable)
 		try:
-			__using1__ = ((f2 = File.OpenText('using1.boo')) as System.IDisposable)
+			$using$disposable$1 = ((f2 = File.OpenText('using1.boo')) as System.IDisposable)
 			try:
 				Boo.Lang.Builtins.print(f2.ReadLine())
 			ensure:
-				if __using1__ is not null:
-					__using1__.Dispose()
-					__using1__ = null
+				if $using$disposable$1 is not null:
+					$using$disposable$1.Dispose()
+					$using$disposable$1 = null
 			Boo.Lang.Builtins.print(f1.ReadLine())
 		ensure:
-			if __using2__ is not null:
-				__using2__.Dispose()
-				__using2__ = null
+			if $using$disposable$2 is not null:
+				$using$disposable$2.Dispose()
+				$using$disposable$2 = null
 
 	private def constructor():
 		super()

@@ -298,7 +298,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void AddInternalFieldFor(InternalLocal entity)
 		{
-			Field field = _enumerator.AddInternalField("$" + entity.Name + "$" + _context.AllocIndex(), entity.Type);
+			Field field = _enumerator.AddInternalField(Context.GetUniqueName(entity.Name), entity.Type);
 			_mapping[entity] = field.Entity;
 		}
 
@@ -374,7 +374,7 @@ namespace Boo.Lang.Compiler.Steps
 		                                                      string parameterName,
 		                                                      IType parameterType)
 		{
-			Field field = type.AddInternalField("$" + parameterName + _context.AllocIndex(), parameterType);
+			Field field = type.AddInternalField(Context.GetUniqueName(parameterName), parameterType);
 			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
 			return field;
 		}

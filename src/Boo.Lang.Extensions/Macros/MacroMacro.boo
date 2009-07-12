@@ -582,7 +582,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 		private def CreateTemp():
-			return ReferenceExpression("$temp${CompilerContext.Current.AllocIndex()}")
+			return ReferenceExpression(CompilerContext.Current.GetUniqueName())
 
 		private def AssertEnumerable(typeName as string):
 			if not _enumerable:

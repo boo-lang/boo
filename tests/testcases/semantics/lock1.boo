@@ -3,17 +3,17 @@
 public final transient class Lock1Module(object):
 
 	private static def Main(argv as (string)) as void:
-		__monitor2__ = object()
-		System.Threading.Monitor.Enter(__monitor2__)
+		$lock$monitor$2 = object()
+		System.Threading.Monitor.Enter($lock$monitor$2)
 		try:
-			__monitor1__ = object
-			System.Threading.Monitor.Enter(__monitor1__)
+			$lock$monitor$1 = object
+			System.Threading.Monitor.Enter($lock$monitor$1)
 			try:
 				System.Console.WriteLine('spam')
 			ensure:
-				System.Threading.Monitor.Exit(__monitor1__)
+				System.Threading.Monitor.Exit($lock$monitor$1)
 		ensure:
-			System.Threading.Monitor.Exit(__monitor2__)
+			System.Threading.Monitor.Exit($lock$monitor$2)
 
 	private def constructor():
 		super()

@@ -35,7 +35,7 @@ import Boo.Lang.Compiler.Ast
 macro using:
 	expansion = using.Body
 	for expression as Expression in reversed(using.Arguments):
-		temp = ReferenceExpression("__using${_context.AllocIndex()}__")
+		temp = ReferenceExpression(_context.GetUniqueName("using", "disposable"))
 		assignment = [| $temp = $expression as System.IDisposable |].withLexicalInfoFrom(expression)
 		
 		expansion = [|

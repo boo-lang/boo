@@ -88,7 +88,7 @@ Example:
 			if IsObject(TypeSystemServices.GetEntity(item)):
 				classDef.BaseTypes.Remove(item)
 				return
-		assert false
-		
+		raise System.InvalidOperationException("no base type removed")
+
 	def IsObject(entity as IEntity):
 		 return entity is TypeSystemServices.ObjectType

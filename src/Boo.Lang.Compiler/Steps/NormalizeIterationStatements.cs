@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalLocal iterator = CodeBuilder.DeclareLocal(
 				_current,
-				"___iterator" + _context.AllocIndex(),
+				Context.GetUniqueName("iterator"),
 				TypeSystemServices.IEnumeratorType);
 			
 			if (TypeSystemServices.IEnumeratorType.IsAssignableFrom(enumeratorType))
@@ -156,7 +156,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			InternalLocal iteratorDisposable = CodeBuilder.DeclareLocal(
 				_current,
-				"___disposable" + _context.AllocIndex(),
+				Context.GetUniqueName("disposable"),
 				TypeSystemServices.Map(typeof(System.IDisposable)));
 			TryStatement tryStatement = new TryStatement();
 			tryStatement.ProtectedBlock.Add(ws);
