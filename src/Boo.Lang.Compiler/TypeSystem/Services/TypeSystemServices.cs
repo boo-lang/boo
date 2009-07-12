@@ -629,6 +629,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool AreTypesRelated(IType lhs, IType rhs)
 		{
+			bool byDowncast;
+			return AreTypesRelated(lhs, rhs, out byDowncast);
+		}
+
+		public bool AreTypesRelated(IType lhs, IType rhs, out bool byDowncast)
+		{
+			byDowncast = false;
+
 			ICallableType ctype = lhs as ICallableType;
 			if (null != ctype)
 			{
@@ -637,9 +645,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			return lhs.IsAssignableFrom(rhs)
-				|| (lhs.IsInterface && !rhs.IsFinal)
-				|| (rhs.IsInterface && !lhs.IsFinal)
-				|| CanBeReachedByDownCastOrPromotion(lhs, rhs)
+				|| (byDowncast = CanBeReachedByDownCastOrPromotion(lhs, rhs))
 				|| FindImplicitConversionOperator(rhs,lhs) != null;
 		}
 
@@ -762,7 +768,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual bool CanBeReachedByDowncast(IType expectedType, IType actualType)
 		{
+			if ((expectedType.IsInterface && !actualType.IsFinal)
+			    || (actualType.IsInterface && !expectedType.IsFinal))
+			{
+				if (CanBeReachedByInterfaceDowncast(expectedType, actualType))
+					return true;
+			}
 			return actualType.IsAssignableFrom(expectedType);
+		}
+
+		public virtual bool CanBeReachedByInterfaceDowncast(IType expectedType, IType actualType)
+		{
+			return true; //FIXME: currently interface downcast implements no type safety check at all (see BOO-1211)
 		}
 
 		public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)

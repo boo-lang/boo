@@ -779,6 +779,8 @@ namespace Boo.Lang.Compiler
 
 					EnableWarning("BCW0023");
 					EnableWarning("BCW0024");
+					DisableWarning("BCW0028"); //by default strict mode forbids implicit downcasts
+					                           //disable warning so we get only the regular incompatible type error
 				}
 				else
 				{
@@ -791,6 +793,7 @@ namespace Boo.Lang.Compiler
 
 					DisableWarning("BCW0023");
 					DisableWarning("BCW0024");
+					DisableWarning("BCW0028");
 				}
 			}
 		}

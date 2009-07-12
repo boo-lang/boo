@@ -5809,11 +5809,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return true;
 			}
-			if (!TypeSystemServices.AreTypesRelated(expectedType, actualType))
+
+			if (!AreTypesRelated(sourceNode, expectedType, actualType))
 			{
 				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.ToString(), actualType.ToString()));
 				return false;
 			}
+
 			return true;
 		}
 
@@ -5869,10 +5871,8 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (!TypeSystemServices.AreTypesRelated(parameterType, argumentType))
-					{
+					if (!AreTypesRelated(args[i], parameterType, argumentType))
 						return false;
-					}
 				}
 			}
 			return true;
@@ -6618,6 +6618,24 @@ namespace Boo.Lang.Compiler.Steps
 																	 GetExpressionType(node.Left).ToString(),
 																	 GetExpressionType(node.Right).ToString()));
 		}
+
+
+		bool AreTypesRelated(Node node, IType lhs, IType rhs)
+		{
+			bool byDowncast;
+			bool result = TypeSystemServices.AreTypesRelated(lhs, rhs, out byDowncast);
+			if (!result)
+				return false;
+
+			if (byDowncast)
+			{
+				Warnings.Add(CompilerWarningFactory.ImplicitDowncast(node, lhs, rhs));
+				if (Parameters.Strict && Parameters.DisabledWarnings.Contains("BCW0028"))
+					return false; //get a regular context-dependent error
+			}
+			return true;
+		}
+
 
 		void TraceReturnType(Method method, IMethod tag)
 		{

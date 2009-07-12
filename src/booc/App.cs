@@ -254,6 +254,7 @@ namespace BooC
 					" -unsafe              Enables unsafe code support.\n" +
 					" -utf8                Source file(s) are in utf8 format\n" +
 					" -v, -vv, -vvv        Sets verbosity level from warnings to very detailed\n" +
+					" -warn:W1[,Wn]        Enables a list of optional warnings.\n" +
 					" -warnaserror[:W1,Wn] Treats all or a list of warnings as errors\n" +
 					" -wsa                 Enables white-space-agnostic build\n"
 					);
@@ -307,6 +308,14 @@ namespace BooC
 							foreach (string warning in warnings.Split(','))
 							{
 								_options.EnableWarningAsError(warning);
+							}
+						}
+						else if (arg.StartsWith("-warn:"))
+						{
+							string warnings = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
+							foreach (string warning in warnings.Split(','))
+							{
+								_options.EnableWarning(warning);
 							}
 						}
 						else

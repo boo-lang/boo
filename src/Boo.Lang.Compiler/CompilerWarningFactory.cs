@@ -196,7 +196,12 @@ namespace Boo.Lang.Compiler
 		{
 			return new CompilerWarning("BCW0027", AstUtil.SafeLexicalInfo(anchor), obsoleteSyntax, newSyntax);
 		}
-			
+
+		public static CompilerWarning ImplicitDowncast(Node node, IType lhs, IType rhs)
+		{
+			return new CompilerWarning("BCW0028", AstUtil.SafeLexicalInfo(node), lhs, rhs);
+		}
+
 		private static string NodeTypeString(Node node)
 		{
 			return node.NodeType.ToString().ToLower();
