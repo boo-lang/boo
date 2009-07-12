@@ -28,8 +28,12 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
+	using System.Collections.Generic;
+
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
+
 
 	/// <summary>
 	/// AST semantic evaluation.
@@ -37,19 +41,13 @@ namespace Boo.Lang.Compiler.Steps
 	public class NormalizeIterationStatements : AbstractTransformerCompilerStep
 	{
 		static System.Reflection.MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
-		
 		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
-		
 		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
-		
-		static System.Reflection.MethodInfo IEnumerator_MoveNext = Types.IEnumerator.GetMethod("MoveNext");
-		
-		static System.Reflection.MethodInfo IEnumerator_get_Current = Types.IEnumerator.GetProperty("Current").GetGetMethod();
+		static System.Reflection.MethodInfo IDisposable_Dispose = Types.IDisposable.GetMethod("Dispose");
 
-		static System.Reflection.MethodInfo IDisposable_Dispose = typeof(System.IDisposable).GetMethod("Dispose");
-		
 		Method _current;
-		
+
+
 		override public void Run()
 		{
 			Visit(CompileUnit);
@@ -83,21 +81,25 @@ namespace Boo.Lang.Compiler.Steps
 			UnpackExpression(body, node.Expression, node.Declarations);
 			ReplaceCurrentNode(body);
 		}
-		
+
 		override public void LeaveForStatement(ForStatement node)
 		{
-			IType enumeratorType = GetExpressionType(node.Iterator);
-			IType enumeratorItemType = TypeSystemServices.GetEnumeratorItemType(enumeratorType);
+			_iteratorNode = node.Iterator;
+			CurrentEnumeratorType = GetExpressionType(node.Iterator);
+
+			if (null == CurrentBestEnumeratorType)
+				return; //error
+
 			DeclarationCollection declarations = node.Declarations;
 			Block body = new Block(node.LexicalInfo);
-			
-			InternalLocal iterator = CodeBuilder.DeclareLocal(
-				_current,
+
+			InternalLocal iterator = CodeBuilder.DeclareLocal(_current,
 				Context.GetUniqueName("iterator"),
-				TypeSystemServices.IEnumeratorType);
-			
-			if (TypeSystemServices.IEnumeratorType.IsAssignableFrom(enumeratorType))
+				CurrentBestEnumeratorType);
+
+			if (CurrentBestEnumeratorType == CurrentEnumeratorType)
 			{
+				//$iterator = <node.Iterator>
 				body.Add(
 					CodeBuilder.CreateAssignment(
 						node.LexicalInfo,
@@ -106,26 +108,28 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				// ___iterator = <node.Iterator>.GetEnumerator()
+				//$iterator = <node.Iterator>.GetEnumerator()
 				body.Add(
 					CodeBuilder.CreateAssignment(
 						node.LexicalInfo,
 						CodeBuilder.CreateReference(iterator),
-						CodeBuilder.CreateMethodInvocation(
-							node.Iterator,
-							IEnumerable_GetEnumerator)));
+						CodeBuilder.CreateMethodInvocation(node.Iterator, CurrentBestGetEnumerator)));
 			}
-			
+
 			// while __iterator.MoveNext():
+			if (null == CurrentBestMoveNext)
+				return; //error
 			WhileStatement ws = new WhileStatement(node.LexicalInfo);
 			ws.Condition = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateReference(iterator),
-				IEnumerator_MoveNext);
-			
+				CurrentBestMoveNext);
+
+			if (null == CurrentBestGetCurrent)
+				return; //error
 			Expression current = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateReference(iterator),
-				IEnumerator_get_Current);
-			
+				CurrentBestGetCurrent);
+
 			if (1 == declarations.Count)
 			{
 				//	item = __iterator.Current
@@ -139,7 +143,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				UnpackExpression(ws.Block,
 				                 CodeBuilder.CreateCast(
-				                 	enumeratorItemType,
+				                 	CurrentEnumeratorItemType,
 				                 	current),
 				                 node.Declarations);
 			}
@@ -153,32 +157,26 @@ namespace Boo.Lang.Compiler.Steps
 			// ensure:
 			//   d = iterator as IDisposable
 			//   d.Dispose() unless d is null
+			if (TypeSystemServices.IDisposableType.IsAssignableFrom(CurrentBestEnumeratorType))
+			{
+				TryStatement tryStatement = new TryStatement();
+				tryStatement.ProtectedBlock.Add(ws);
+				tryStatement.EnsureBlock = new Block();
 			
-			InternalLocal iteratorDisposable = CodeBuilder.DeclareLocal(
-				_current,
-				Context.GetUniqueName("disposable"),
-				TypeSystemServices.Map(typeof(System.IDisposable)));
-			TryStatement tryStatement = new TryStatement();
-			tryStatement.ProtectedBlock.Add(ws);
-			tryStatement.EnsureBlock = new Block();
-			
-			TryCastExpression tryCastExpression = new TryCastExpression();
-			tryCastExpression.Type = CodeBuilder.CreateTypeReference(iteratorDisposable.Type);
-			tryCastExpression.Target = CodeBuilder.CreateReference(iterator);
-			tryCastExpression.ExpressionType = iteratorDisposable.Type;
-			
-			tryStatement.EnsureBlock.Add(CodeBuilder.CreateAssignment(
-				CodeBuilder.CreateReference(iteratorDisposable),
-				tryCastExpression
-			));
-			IfStatement ifStatement = new IfStatement();
-			ifStatement.Condition = CodeBuilder.CreateNotNullTest(CodeBuilder.CreateReference(iteratorDisposable));
-			ifStatement.TrueBlock = new Block();
-			ifStatement.TrueBlock.Add(CodeBuilder.CreateMethodInvocation(CodeBuilder.CreateReference(iteratorDisposable), IDisposable_Dispose));
-			tryStatement.EnsureBlock.Add(ifStatement);
-			
-			body.Add(tryStatement);
-			
+				CastExpression castExpression = new CastExpression();
+				castExpression.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.IDisposableType);
+				castExpression.Target = CodeBuilder.CreateReference(iterator);
+				castExpression.ExpressionType = TypeSystemServices.IDisposableType;
+				tryStatement.EnsureBlock.Add(
+					CodeBuilder.CreateMethodInvocation(castExpression, IDisposable_Dispose));
+
+				body.Add(tryStatement);
+			}
+			else
+			{
+				body.Add(ws);
+			}
+
 			ReplaceCurrentNode(body);
 		}
 		
@@ -266,6 +264,162 @@ namespace Boo.Lang.Compiler.Steps
 							codeBuilder.CreateReference(local),
 							i)));
 			}
+		}
+
+
+		Node _iteratorNode;
+		IType _enumeratorType;
+		IType _enumeratorItemType;
+		IType _bestEnumeratorType;
+		IMethod _bestGetEnumerator;
+		IMethod _bestMoveNext;
+		IMethod _bestGetCurrent;
+
+		IType CurrentEnumeratorType
+		{
+			get { return _enumeratorType; }
+			set
+			{
+				if (_enumeratorType != value) //if same type reuse cache
+				{
+					_enumeratorItemType = null;
+					_bestEnumeratorType = null;
+					_bestGetEnumerator = null;
+					_bestMoveNext = null;
+					_bestGetCurrent = null;
+
+					_enumeratorType = value;
+				}
+			}
+		}
+
+		IType CurrentEnumeratorItemType
+		{
+			get
+			{
+				if (null == _enumeratorItemType)
+					_enumeratorItemType = TypeSystemServices.GetEnumeratorItemType(CurrentEnumeratorType);
+				return _enumeratorItemType;
+			}
+		}
+
+		IType CurrentBestEnumeratorType
+		{
+			get
+			{
+				if (null == _bestEnumeratorType)
+					_bestEnumeratorType = FindBestEnumeratorType();
+				return _bestEnumeratorType;
+			}
+		}
+
+		IMethod CurrentBestGetEnumerator
+		{
+			get {
+				if (null == _bestGetEnumerator)
+					_bestGetEnumerator = FindBestEnumeratorMethod("GetEnumerator");
+				return _bestGetEnumerator;
+			}
+		}
+
+		IMethod CurrentBestMoveNext
+		{
+			get {
+				if (null == _bestMoveNext)
+					_bestMoveNext = FindBestEnumeratorMethod("MoveNext");
+				return _bestMoveNext;
+			}
+		}
+
+		IMethod CurrentBestGetCurrent
+		{
+			get {
+				if (null == _bestGetCurrent)
+					_bestGetCurrent = FindBestEnumeratorMethod("Current");
+				return _bestGetCurrent;
+			}
+		}
+
+		List<IEntity> _candidates = new List<IEntity>();
+
+		IType FindBestEnumeratorType()
+		{
+			//type is already an IEnumerator, use it
+			if (TypeSystemServices.IEnumeratorType.IsAssignableFrom(CurrentEnumeratorType))
+				return CurrentEnumeratorType;
+
+			IType bestEnumeratorType = null;
+			_candidates.Clear();
+
+			//resolution order:
+			//1) type contains an applicable GetEnumerator() [whether or not type implements IEnumerator (as C# does)]
+			CurrentEnumeratorType.Resolve(_candidates, "GetEnumerator", EntityType.Method);
+			foreach (IEntity candidate in _candidates)
+			{
+				IMethod m = (IMethod) candidate;
+				if (null != m.GenericInfo || 0 != m.GetParameters().Length || !m.IsPublic)
+					continue; //only check public non-generic GetEnumerator with no argument
+
+				if (!TypeSystemServices.IEnumeratorGenericType.IsAssignableFrom(m.ReturnType)
+				    && !TypeSystemServices.IEnumeratorType.IsAssignableFrom(m.ReturnType))
+					continue; //GetEnumerator does not return an IEnumerator or IEnumerator[of T]
+
+				bestEnumeratorType = m.ReturnType;
+				_bestGetEnumerator = m;
+				break;
+			}
+
+			//2) type explicitly implements IEnumerable[of T]
+			if (null == bestEnumeratorType)
+			{
+				if (TypeSystemServices.IEnumerableGenericType.IsAssignableFrom(CurrentEnumeratorType))
+				{
+					bestEnumeratorType = TypeSystemServices.IEnumeratorGenericType;
+					_bestGetEnumerator = TypeSystemServices.Map(Types.IEnumerableGeneric.GetMethod("GetEnumerator"));
+				}
+			}
+
+			//3) type explicitly implements IEnumerable
+			if (null == bestEnumeratorType)
+			{
+				if (TypeSystemServices.IEnumerableType.IsAssignableFrom(CurrentEnumeratorType))
+				{
+					bestEnumeratorType = TypeSystemServices.IEnumeratorType;
+					_bestGetEnumerator = TypeSystemServices.Map(Types.IEnumerable.GetMethod("GetEnumerator"));
+				}
+			}
+
+			//4) error
+			if (null == bestEnumeratorType)
+				Errors.Add(CompilerErrorFactory.InvalidIteratorType(_iteratorNode, CurrentEnumeratorType));
+
+			return bestEnumeratorType;
+		}
+
+		IMethod FindBestEnumeratorMethod(string name)
+		{
+			_candidates.Clear();
+			CurrentBestEnumeratorType.Resolve(_candidates, name, EntityType.Method | EntityType.Property);
+
+			foreach (IEntity candidate in _candidates)
+			{
+				if (candidate is IMethod)
+				{
+					IMethod m = (IMethod) candidate;
+					if (null != m.GenericInfo || 0 != m.GetParameters().Length)
+						continue; //only check non-generic void methods with no argument
+
+					return m;
+				}
+				else
+				{
+					IProperty p = (IProperty) candidate;
+					return p.GetGetMethod();
+				}
+			}
+
+			Errors.Add(CompilerErrorFactory.InvalidIteratorType(_iteratorNode, CurrentEnumeratorType));
+			return null;
 		}
 	}
 }

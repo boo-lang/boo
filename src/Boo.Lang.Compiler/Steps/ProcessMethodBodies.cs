@@ -2029,7 +2029,14 @@ namespace Boo.Lang.Compiler.Steps
 
 			BooClassBuilder generatorType = CreateGeneratorSkeleton(node);
 
-			BindExpressionType(node, generatorType.Entity);
+			IType returnType = generatorType.Entity;
+			if (TypeSystemServices.VoidType != (IType) node["GeneratorItemType"])
+			{
+				//bind to corresponding IEnumerator[of T] type in order to get a safe return type
+				//that can be used from external assemblies (ie. not a generated internal nested type)
+				returnType = TypeSystemServices.IEnumerableGenericType.GenericInfo.ConstructType((IType) node["GeneratorItemType"]);
+			}
+			BindExpressionType(node, returnType);
 		}
 
 		void CreateGeneratorSkeleton(InternalMethod entity)
@@ -2077,6 +2084,7 @@ namespace Boo.Lang.Compiler.Steps
 			BooClassBuilder builder = CodeBuilder.CreateClass(
 				Context.GetUniqueName(method.Name),
 				TypeMemberModifiers.Internal|TypeMemberModifiers.Final);
+
 			builder.LexicalInfo = sourceNode.LexicalInfo;
 			builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
 
@@ -2996,35 +3004,8 @@ namespace Boo.Lang.Compiler.Steps
 						return CodeBuilder.CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
 					}
 				}
-				else
-				{
-					IMethod method = ResolveGetEnumerator(iterator, type);
-					if (null == method)
-					{
-						Error(CompilerErrorFactory.InvalidIteratorType(iterator, type.ToString()));
-					}
-					else
-					{
-						return CodeBuilder.CreateMethodInvocation(iterator, method);
-					}
-				}
 			}
 			return iterator;
-		}
-
-		IMethod ResolveGetEnumerator(Node sourceNode, IType type)
-		{
-			IMethod method = ResolveMethod(type, "GetEnumerator");
-			if (null != method)
-			{
-				EnsureRelatedNodeWasVisited(sourceNode, method);
-				if (0 == method.GetParameters().Length &&
-					method.ReturnType.IsSubclassOf(TypeSystemServices.IEnumeratorType))
-				{
-					return method;
-				}
-			}
-			return null;
 		}
 
 		/// <summary>

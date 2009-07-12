@@ -126,6 +126,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType IEnumeratorGenericType;
 
+		public IType IDisposableType;
+
 		public IType ICollectionType;
 
 		public IType ICollectionGenericType;
@@ -208,13 +210,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ICollectionType = Map(Types.ICollection);
 			IListType = Map(Types.IList);
 			IDictionaryType = Map(Types.IDictionary);
+			IDisposableType = Map(typeof(IDisposable));
 			IntPtrType = Map(Types.IntPtr);
 			UIntPtrType = Map(Types.UIntPtr);
 			MulticastDelegateType = Map(Types.MulticastDelegate);
 			DelegateType = Map(Types.Delegate);
 			SystemAttribute = Map(typeof(System.Attribute));
 			ConditionalAttribute = Map(typeof(System.Diagnostics.ConditionalAttribute));
-			IEnumerableGenericType = Map(typeof(System.Collections.Generic.IEnumerable<>));
+			IEnumerableGenericType = Map(Types.IEnumerableGeneric);
 			IEnumeratorGenericType = Map(typeof(System.Collections.Generic.IEnumerator<>));
 			ICollectionGenericType = Map(typeof(System.Collections.Generic.ICollection<>));
 			IAstMacroType = Map(typeof(IAstMacro));

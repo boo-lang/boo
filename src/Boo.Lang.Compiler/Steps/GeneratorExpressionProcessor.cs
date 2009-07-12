@@ -98,7 +98,7 @@ namespace Boo.Lang.Compiler.Steps
 			_enumerator = _collector.CreateSkeletonClass("Enumerator",_generator.LexicalInfo);
 
 			// use a generic enumerator for the source type if possible
-			_sourceItemType = TypeSystemServices.GetGenericEnumerableItemType(_generator.Iterator.ExpressionType);			
+			_sourceItemType = TypeSystemServices.GetGenericEnumerableItemType(_generator.Iterator.ExpressionType);
 			if (_sourceItemType != null && _sourceItemType != TypeSystemServices.ObjectType)
 			{
 				_sourceEnumerableType = TypeSystemServices.IEnumerableGenericType.GenericInfo.ConstructType(_sourceItemType);
@@ -112,7 +112,7 @@ namespace Boo.Lang.Compiler.Steps
 			// Add base types
 			_enumerator.AddBaseType(_resultEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(ICloneable)));
-			_enumerator.AddBaseType(TypeSystemServices.Map(typeof(IDisposable)));
+			_enumerator.AddBaseType(TypeSystemServices.IDisposableType);
 			
 			// Add fields
 			_enumeratorField = _enumerator.AddField("$$enumerator", _sourceEnumeratorType);
@@ -312,11 +312,11 @@ namespace Boo.Lang.Compiler.Steps
 		private void CreateDispose()
 		{
 			BooMethodBuilder dispose = _enumerator.AddVirtualMethod("Dispose", TypeSystemServices.VoidType);
-			if (TypeSystemServices.Map(typeof(IDisposable)).IsAssignableFrom(_sourceEnumeratorType))
-			{			
+			if (TypeSystemServices.IDisposableType.IsAssignableFrom(_sourceEnumeratorType))
+			{
 				dispose.Body.Add(CodeBuilder.CreateMethodInvocation(
 					CodeBuilder.CreateReference(_enumeratorField),
-					typeof(IDisposable).GetMethod("Dispose")));
+					Types.IDisposable.GetMethod("Dispose")));
 			}
 		}
 

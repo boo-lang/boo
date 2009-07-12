@@ -8,7 +8,7 @@ after
 import System
 import System.Collections
 
-class Enumerable(IEnumerable):
+class Enumerable:
 
 	class Enumerator(IEnumerator, IDisposable):
 	
@@ -27,7 +27,7 @@ class Enumerable(IEnumerable):
 				print("Current")
 				return null
 
-	def GetEnumerator() as IEnumerator:
+	def GetEnumerator():
 		print("GetEnumerator")
 		return Enumerator()
 		

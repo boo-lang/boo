@@ -383,9 +383,9 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0064", AstUtil.SafeLexicalInfo(node), attributeName, DidYouMeanOrNull(suggestion));
 		}
 		
-		public static CompilerError InvalidIteratorType(Node node, string typeName)
+		public static CompilerError InvalidIteratorType(Node node, IType type)
 		{
-			return new CompilerError("BCE0065", AstUtil.SafeLexicalInfo(node), typeName);
+			return new CompilerError("BCE0065", AstUtil.SafeLexicalInfo(node), type);
 		}
 		
 		public static CompilerError InvalidNodeForAttribute(LexicalInfo info, string attributeName, string expectedNodeTypes)

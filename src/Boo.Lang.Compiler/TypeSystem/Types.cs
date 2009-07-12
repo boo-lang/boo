@@ -53,7 +53,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type IEnumerable = typeof(IEnumerable);
 
+		public static readonly Type IEnumerableGeneric = typeof(System.Collections.Generic.IEnumerable<>);
+
 		public static readonly Type IEnumerator = typeof(IEnumerator);
+
+		public static readonly Type IDisposable = typeof(IDisposable);
 
 		public static readonly Type Object = typeof(object);
 
