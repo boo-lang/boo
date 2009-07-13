@@ -389,10 +389,10 @@ class InteractiveInterpreter2(AbstractInterpreter):
 						if _selectedSuggIdx > 0:
 							_selectedSuggIdx--
 						else:
-							_selectedSuggIdx = len(_suggestions)
+							_selectedSuggIdx = len(_suggestions) - 1
 						DisplaySuggestions()
 					elif key == ConsoleKey.RightArrow:
-						if _selectedSuggIdx <= len(_suggestions):
+						if _selectedSuggIdx < len(_suggestions) - 1:
 							_selectedSuggIdx++
 						else:
 							_selectedSuggIdx = 0
