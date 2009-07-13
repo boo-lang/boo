@@ -2957,7 +2957,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveReturnStatement(ReturnStatement node)
 		{
-			if (null == node.Expression) return;
+			if (null == node.Expression)
+				return;
 
 			// forces anonymous types to be correctly
 			// instantiated
@@ -2979,6 +2980,14 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				AssertTypeCompatibility(node.Expression, returnType, expressionType);
+			}
+
+			//bind to nullable Value if needed
+			if (TypeSystemServices.IsNullable(expressionType) && !TypeSystemServices.IsNullable(returnType))
+			{
+				MemberReferenceExpression mre = new MemberReferenceExpression(node.Expression.LexicalInfo, node.Expression, "Value");
+				Visit(mre);
+				node.Replace(node.Expression, mre);
 			}
 		}
 
