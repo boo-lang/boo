@@ -90,11 +90,15 @@ namespace Boo.Lang.Compiler.Steps
 		static MethodInfo RuntimeServices_ToBool_Decimal = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Decimal });
 
 		static MethodInfo Builtins_ArrayTypedConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int });
-		
+
+		static MethodInfo Builtins_ArrayGenericConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Int });
+
 		static MethodInfo Builtins_ArrayTypedCollectionConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection });
-		
+
+		static MethodInfo Array_get_Length = typeof(Array).GetProperty("Length").GetGetMethod();
+
 		static MethodInfo Math_Pow = typeof(Math).GetMethod("Pow");
-		
+
 		static ConstructorInfo List_EmptyConstructor = Types.List.GetConstructor(Type.EmptyTypes);
 		
 		static ConstructorInfo List_ArrayBoolConstructor = Types.List.GetConstructor(new Type[] { Types.ObjectArray, Types.Bool });
@@ -2193,10 +2197,18 @@ namespace Boo.Lang.Compiler.Steps
 				IType type = TypeSystemServices.GetReferencedType(node.Arguments[0]);
 				if (null != type)
 				{
-					Visit(node.Arguments[1]);
-					EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
-					_il.Emit(OpCodes.Newarr, GetSystemType(type));
-					PushType(type.MakeArrayType(1));
+					EmitNewArray(type, node.Arguments[1]);
+					return true;
+				}
+			}
+			else if (mi.IsGenericMethod && Builtins_ArrayGenericConstructor == mi.GetGenericMethodDefinition())
+			{
+				// optimize constructs such as:
+				//		array[of int](2)
+				IType type = method.ConstructedInfo.GenericArguments[0];
+				if (null != type)
+				{
+					EmitNewArray(type, node.Arguments[0]);
 					return true;
 				}
 			}
@@ -2217,7 +2229,26 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
+			else if (Array_get_Length == mi)
+			{
+				// optimize constructs such as:
+				//		len(anArray)
+				//		anArray.Length
+				Visit(node.Target);
+				PopType();
+				_il.Emit(OpCodes.Ldlen);
+				PushType(TypeSystemServices.IntType);
+				return true;
+			}
 			return false;
+		}
+
+		void EmitNewArray(IType type, Expression length)
+		{
+			Visit(length);
+			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
+			_il.Emit(OpCodes.Newarr, GetSystemType(type));
+			PushType(type.MakeArrayType(1));
 		}
 
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
