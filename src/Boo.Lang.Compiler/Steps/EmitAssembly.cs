@@ -3621,23 +3621,38 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					for (int i = 0; i < items.Count; ++i)
 					{
-						IntegerLiteralExpression literal = (IntegerLiteralExpression) items[i];
-						if (type == TypeSystemServices.IntType)
-							writer.Write(Convert.ToInt32(literal.Value));
-						else if (type == TypeSystemServices.UIntType)
-							writer.Write(Convert.ToUInt32(literal.Value));
-						else if (type == TypeSystemServices.LongType)
-							writer.Write(Convert.ToInt64(literal.Value));
-						else if (type == TypeSystemServices.ULongType)
-							writer.Write(Convert.ToUInt64(literal.Value));
-						else if (type == TypeSystemServices.ShortType)
-							writer.Write(Convert.ToInt16(literal.Value));
-						else if (type == TypeSystemServices.UShortType)
-							writer.Write(Convert.ToUInt16(literal.Value));
-						else if (type == TypeSystemServices.ByteType)
-							writer.Write(Convert.ToByte(literal.Value));
-						else if (type == TypeSystemServices.SByteType)
-							writer.Write(Convert.ToSByte(literal.Value));
+						if (items[i].NodeType == NodeType.IntegerLiteralExpression)
+						{
+							IntegerLiteralExpression literal = (IntegerLiteralExpression) items[i];
+							if (type == TypeSystemServices.IntType)
+								writer.Write(Convert.ToInt32(literal.Value));
+							else if (type == TypeSystemServices.UIntType)
+								writer.Write(Convert.ToUInt32(literal.Value));
+							else if (type == TypeSystemServices.LongType)
+								writer.Write(Convert.ToInt64(literal.Value));
+							else if (type == TypeSystemServices.ULongType)
+								writer.Write(Convert.ToUInt64(literal.Value));
+							else if (type == TypeSystemServices.ShortType)
+								writer.Write(Convert.ToInt16(literal.Value));
+							else if (type == TypeSystemServices.UShortType)
+								writer.Write(Convert.ToUInt16(literal.Value));
+							else if (type == TypeSystemServices.ByteType)
+								writer.Write(Convert.ToByte(literal.Value));
+							else if (type == TypeSystemServices.SByteType)
+								writer.Write(Convert.ToSByte(literal.Value));
+							else
+								return null;
+						}
+						else if (items[i].NodeType == NodeType.DoubleLiteralExpression)
+						{
+							DoubleLiteralExpression literal = (DoubleLiteralExpression) items[i];
+							if (type == TypeSystemServices.SingleType)
+								writer.Write(Convert.ToSingle(literal.Value));
+							else if (type == TypeSystemServices.DoubleType)
+								writer.Write(Convert.ToDouble(literal.Value));
+							else
+								return null;
+						}
 						else
 							return null;
 					}
