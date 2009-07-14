@@ -914,6 +914,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0170", AstUtil.SafeLexicalInfo(member), member.FullName);
 		}
 
+		public static CompilerError ConstantCannotBeConverted(Node node, IType type)
+		{
+			return new CompilerError("BCE0171", AstUtil.SafeLexicalInfo(node), node, type);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

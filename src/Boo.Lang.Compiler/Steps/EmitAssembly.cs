@@ -2570,27 +2570,27 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
-			if (node.IsLong)
+			if (node.IsLong
+			    || node.ExpressionType == TypeSystemServices.LongType
+			    || node.ExpressionType == TypeSystemServices.ULongType)
 			{
 				_il.Emit(OpCodes.Ldc_I8, node.Value);
-				PushType(TypeSystemServices.LongType);
+				PushType((node.IsLong) ? TypeSystemServices.LongType : node.ExpressionType);
 			}
 			else
 			{
 				switch (node.Value)
 				{
 					case -1L: _il.Emit(OpCodes.Ldc_I4_M1); break;
-										
-					case 0L: _il.Emit(OpCodes.Ldc_I4_0); break;					
+					case 0L: _il.Emit(OpCodes.Ldc_I4_0); break;
 					case 1L: _il.Emit(OpCodes.Ldc_I4_1); break;
-										
 					case 2L: _il.Emit(OpCodes.Ldc_I4_2); break;
 					case 3L: _il.Emit(OpCodes.Ldc_I4_3); break;
 					case 4L: _il.Emit(OpCodes.Ldc_I4_4); break;
 					case 5L: _il.Emit(OpCodes.Ldc_I4_5); break;
 					case 6L: _il.Emit(OpCodes.Ldc_I4_6); break;
 					case 7L: _il.Emit(OpCodes.Ldc_I4_7); break;
-					case 8L: _il.Emit(OpCodes.Ldc_I4_8); break;					
+					case 8L: _il.Emit(OpCodes.Ldc_I4_8); break;
 
 					default:
 						{
@@ -2598,7 +2598,7 @@ namespace Boo.Lang.Compiler.Steps
 							break;
 						}
 				}
-				PushType(TypeSystemServices.IntType);
+				PushType(node.ExpressionType);
 			}
 		}
 		
@@ -3516,6 +3516,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return type == TypeSystemServices.IntType ||
 				type == TypeSystemServices.LongType ||
+				type == TypeSystemServices.ShortType ||
 				type == TypeSystemServices.ByteType;
 		}
 		
@@ -3648,25 +3649,29 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Stelem_I4;
 				}
-				if (TypeSystemServices.LongType == tag ||
+				else if (TypeSystemServices.LongType == tag ||
 				    TypeSystemServices.ULongType == tag)
 				{
 					return OpCodes.Stelem_I8;
 				}
-				if (TypeSystemServices.ShortType == tag ||
+				else if (TypeSystemServices.ShortType == tag ||
 				    TypeSystemServices.CharType == tag)
 				{
 					return OpCodes.Stelem_I2;
 				}
-				if (TypeSystemServices.SingleType == tag)
+				else if (TypeSystemServices.ByteType == tag ||
+				    TypeSystemServices.SByteType == tag)
+				{
+					return OpCodes.Stelem_I1;
+				}
+				else if (TypeSystemServices.SingleType == tag)
 				{
 					return OpCodes.Stelem_R4;
 				}
-				if (TypeSystemServices.DoubleType == tag)
+				else if (TypeSystemServices.DoubleType == tag)
 				{
 					return OpCodes.Stelem_R8;
 				}
-				//NotImplemented("GetStoreEntityOpCode(" + tag + ")");
 				return OpCodes.Stobj;
 			}
 			

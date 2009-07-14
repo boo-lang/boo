@@ -37,6 +37,9 @@ namespace Boo.Lang.Compiler.Pipelines
 		public Compile()
 		{
 			Add(new ConstantFolding());
+
+			Add(new NormalizeLiterals());
+
 			Add(new OptimizeIterationStatements());
 
 			Add(new BranchChecking());
