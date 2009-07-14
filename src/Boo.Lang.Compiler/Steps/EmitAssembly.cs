@@ -1118,11 +1118,11 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 
 				case BinaryOperatorType.Equality:
-					if (CanOptimizeAwayZeroOrFalseComparison(expression.Left, expression.Right))
+					if (IsZeroEquivalent(expression.Left))
 					{
 						EmitBranch(!branch, expression.Right, label);
 					}
-					else if (CanOptimizeAwayZeroOrFalseComparison(expression.Right, expression.Left))
+					else if (IsZeroEquivalent(expression.Right))
 					{
 						EmitBranch(!branch, expression.Left, label);
 					}
@@ -1134,11 +1134,11 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 
 				case BinaryOperatorType.Inequality:
-					if (CanOptimizeAwayZeroOrFalseComparison(expression.Left, expression.Right))
+					if (IsZeroEquivalent(expression.Left))
 					{
 						EmitBranch(branch, expression.Right, label);
 					}
-					else if (CanOptimizeAwayZeroOrFalseComparison(expression.Right, expression.Left))
+					else if (IsZeroEquivalent(expression.Right))
 					{
 						EmitBranch(branch, expression.Left, label);
 					}
@@ -1150,6 +1150,16 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 
 				case BinaryOperatorType.ReferenceEquality:
+					if (IsNull(expression.Left))
+					{
+						EmitRawBranch(!branch, expression.Right, label);
+						break;
+					}
+					if (IsNull(expression.Right))
+					{
+						EmitRawBranch(!branch, expression.Left, label);
+						break;
+					}
 					Visit(expression.Left); PopType();
 					Visit(expression.Right); PopType();
 					_il.Emit(branch ? OpCodes.Beq : OpCodes.Bne_Un, label);
@@ -1261,14 +1271,14 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 
+		private bool IsZeroEquivalent(Expression expression)
+		{
+			return (IsNull(expression) || IsZero(expression) || IsFalse(expression));
+		}
+
 		private bool IsNull(Expression expression)
 		{
 			return NodeType.NullLiteralExpression == expression.NodeType;
-		}
-
-		private bool CanOptimizeAwayZeroOrFalseComparison(Expression expression, Expression operand)
-		{
-			return (IsZero(expression) || IsFalse(expression));
 		}
 
 		private bool IsFalse(Expression expression)
@@ -1279,8 +1289,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool IsZero(Expression expression)
 		{
-			return NodeType.IntegerLiteralExpression == expression.NodeType
-				&& (0 == ((IntegerLiteralExpression)expression).Value);
+			return (NodeType.IntegerLiteralExpression == expression.NodeType
+			        && (0 == ((IntegerLiteralExpression)expression).Value))
+			       ||
+			       (NodeType.DoubleLiteralExpression == expression.NodeType
+			        && (0 == ((DoubleLiteralExpression)expression).Value));
 		}
 
 		override public void OnBreakStatement(BreakStatement node)
