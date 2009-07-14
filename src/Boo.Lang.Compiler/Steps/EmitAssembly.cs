@@ -2609,16 +2609,32 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
-			if (node.IsLong
-			    || node.ExpressionType == TypeSystemServices.LongType
-			    || node.ExpressionType == TypeSystemServices.ULongType)
+			OnNumericLiteralExpression(node.ExpressionType, node.Value, node.Value);
+		}
+
+		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
+		{
+			OnNumericLiteralExpression(node.ExpressionType, (long) node.Value, node.Value);
+		}
+
+		//FIXME: TODO: BOO-1222
+		void OnNumericLiteralExpression(IType type, long l, double d)
+		{
+			if (type == TypeSystemServices.LongType || type == TypeSystemServices.ULongType)
 			{
-				_il.Emit(OpCodes.Ldc_I8, node.Value);
-				PushType((node.IsLong) ? TypeSystemServices.LongType : node.ExpressionType);
+				_il.Emit(OpCodes.Ldc_I8, l);
+			}
+			else if (type == TypeSystemServices.SingleType)
+			{
+				_il.Emit(OpCodes.Ldc_R4, (float) d);
+			}
+			else if (type == TypeSystemServices.DoubleType)
+			{
+				_il.Emit(OpCodes.Ldc_R8, d);
 			}
 			else
 			{
-				switch (node.Value)
+				switch (l)
 				{
 					case -1L: _il.Emit(OpCodes.Ldc_I4_M1); break;
 					case 0L: _il.Emit(OpCodes.Ldc_I4_0); break;
@@ -2632,29 +2648,13 @@ namespace Boo.Lang.Compiler.Steps
 					case 8L: _il.Emit(OpCodes.Ldc_I4_8); break;
 
 					default:
-						{
-							_il.Emit(OpCodes.Ldc_I4, (int)node.Value);
-							break;
-						}
+						_il.Emit(OpCodes.Ldc_I4, (int) l);
+						break;
 				}
-				PushType(node.ExpressionType);
 			}
+			PushType(type);
 		}
-		
-		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
-		{
-			if (node.IsSingle)
-			{
-				_il.Emit(OpCodes.Ldc_R4, (float)node.Value);
-				PushType(TypeSystemServices.SingleType);
-			}
-			else
-			{
-				_il.Emit(OpCodes.Ldc_R8, node.Value);
-				PushType(TypeSystemServices.DoubleType);
-			}
-		}
-		
+
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
 			if (node.Value)
@@ -3619,11 +3619,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				using (BinaryWriter writer = new BinaryWriter(ms))
 				{
-					for (int i = 0; i < items.Count; ++i)
+					foreach (Expression item in items)
 					{
-						if (items[i].NodeType == NodeType.IntegerLiteralExpression)
+						//TODO: BOO-1222 NumericLiteralExpression.GetValueAs<T>()
+						if (item.NodeType == NodeType.IntegerLiteralExpression)
 						{
-							IntegerLiteralExpression literal = (IntegerLiteralExpression) items[i];
+							IntegerLiteralExpression literal = (IntegerLiteralExpression) item;
 							if (type == TypeSystemServices.IntType)
 								writer.Write(Convert.ToInt32(literal.Value));
 							else if (type == TypeSystemServices.UIntType)
@@ -3640,16 +3641,36 @@ namespace Boo.Lang.Compiler.Steps
 								writer.Write(Convert.ToByte(literal.Value));
 							else if (type == TypeSystemServices.SByteType)
 								writer.Write(Convert.ToSByte(literal.Value));
+							else if (type == TypeSystemServices.SingleType)
+								writer.Write(Convert.ToSingle(literal.Value));
+							else if (type == TypeSystemServices.DoubleType)
+								writer.Write(Convert.ToDouble(literal.Value));
 							else
 								return null;
 						}
-						else if (items[i].NodeType == NodeType.DoubleLiteralExpression)
+						else if (item.NodeType == NodeType.DoubleLiteralExpression)
 						{
-							DoubleLiteralExpression literal = (DoubleLiteralExpression) items[i];
+							DoubleLiteralExpression literal = (DoubleLiteralExpression) item;
 							if (type == TypeSystemServices.SingleType)
 								writer.Write(Convert.ToSingle(literal.Value));
 							else if (type == TypeSystemServices.DoubleType)
 								writer.Write(Convert.ToDouble(literal.Value));
+							else if (type == TypeSystemServices.IntType)
+								writer.Write(Convert.ToInt32(literal.Value));
+							else if (type == TypeSystemServices.UIntType)
+								writer.Write(Convert.ToUInt32(literal.Value));
+							else if (type == TypeSystemServices.LongType)
+								writer.Write(Convert.ToInt64(literal.Value));
+							else if (type == TypeSystemServices.ULongType)
+								writer.Write(Convert.ToUInt64(literal.Value));
+							else if (type == TypeSystemServices.ShortType)
+								writer.Write(Convert.ToInt16(literal.Value));
+							else if (type == TypeSystemServices.UShortType)
+								writer.Write(Convert.ToUInt16(literal.Value));
+							else if (type == TypeSystemServices.ByteType)
+								writer.Write(Convert.ToByte(literal.Value));
+							else if (type == TypeSystemServices.SByteType)
+								writer.Write(Convert.ToSByte(literal.Value));
 							else
 								return null;
 						}
