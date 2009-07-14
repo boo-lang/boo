@@ -213,9 +213,11 @@ namespace Boo.Lang.Compiler.Steps
 					if( null != inheritedImpl)
 					{
 						if(inheritedImpl == entity)
-						{
 							return false; //Evaluating yourself is a very bad habit.
-						}
+
+						if (inheritedImpl is IExternalEntity && entity is IExternalEntity)
+							return true; //both sides are external, no need to check further
+
 						switch( entity.EntityType)
 						{
 							case EntityType.Method:
@@ -418,7 +420,7 @@ namespace Boo.Lang.Compiler.Steps
 					Error(CompilerErrorFactory.ConflictWithInheritedMember(conflicting, conflicting.FullName, entity.FullName));
 					return;
 				}
-				node.Members.Add(CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, entity));
+				AddStub(node, CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, entity));
 				AbstractMemberNotImplemented(node, baseTypeRef, entity);
 			}
 		}
@@ -478,8 +480,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (!AbstractMemberNotImplemented(node, baseTypeRef, baseMethod))
 				{
 					//BEHAVIOR < 0.7.7: no stub, mark class as abstract
-					node.Members.Add(CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, baseMethod));
-				}				
+					AddStub(node, CodeBuilder.CreateAbstractMethod(baseTypeRef.LexicalInfo, baseMethod));
+				}
 			}
 		}
 
@@ -567,7 +569,7 @@ namespace Boo.Lang.Compiler.Steps
 					warning = CompilerWarningFactory.AbstractMemberNotImplementedStubCreated(baseTypeRef,
 										node.FullName, GetAbstractMemberSignature(member));
 					if (m.NodeType != NodeType.Property || null == node.Members[m.Name])
-						node.Members.Add(m);
+						AddStub(node, m);
 				}
 				else
 				{
@@ -699,6 +701,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Modifiers |= TypeMemberModifiers.Abstract;
 			}
+		}
+
+		void AddStub(TypeDefinition node, TypeMember stub)
+		{
+			node.Members.Add(stub);
 		}
 	}
 }
