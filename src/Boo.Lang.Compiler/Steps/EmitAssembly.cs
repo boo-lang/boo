@@ -41,6 +41,7 @@ using System.Security;
 using System.Security.Permissions;
 
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -109,6 +110,9 @@ namespace Boo.Lang.Compiler.Steps
 		static MethodInfo Type_GetTypeFromHandle = Types.Type.GetMethod("GetTypeFromHandle");
 
 		static MethodInfo String_IsNullOrEmpty = Types.String.GetMethod("IsNullOrEmpty", new Type[] { Types.String });
+
+		static MethodInfo RuntimeHelpers_InitializeArray = typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray", new Type[] { Types.Array, typeof(System.RuntimeFieldHandle) });
+
 
 		AssemblyBuilder _asmBuilder;
 		
@@ -201,6 +205,8 @@ namespace Boo.Lang.Compiler.Steps
 			DefineResources();
 			DefineAssemblyAttributes();
 			DefineEntryPoint();
+
+			_moduleBuilder.CreateGlobalFunctions(); //setup global .data
 		}
 		
 		void GatherAssemblyAttributes()
@@ -592,6 +598,8 @@ namespace Boo.Lang.Compiler.Steps
 			_typeCache.Clear();
 			_builders.Clear();
 			_assemblyAttributes.Clear();
+
+			_packedArrays.Clear();
 		}
 		
 		override public void OnAttribute(Attribute node)
@@ -3499,19 +3507,114 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitArray(TypeSystemServices.ObjectType, items);
 		}
-		
+
+		const int InlineArrayItemCountLimit = 3;
+
 		void EmitArray(IType type, ExpressionCollection items)
 		{
 			_il.Emit(OpCodes.Ldc_I4, items.Count);
 			_il.Emit(OpCodes.Newarr, GetSystemType(type));
-			
+
+			if (0 == items.Count)
+				return;
+
+			int inlineStores = 0;
+			if (items.Count > InlineArrayItemCountLimit
+			    && TypeSystemServices.IsPrimitiveNumber(type))
+			{
+				//packed array are only supported for a literal array of
+				//an unique primitive type. check that all items are literal
+				//and count number of actual stores in order to build/emit
+				//a packed array only if is is an advantage
+				foreach (Expression item in items)
+				{
+					if ((item.NodeType != NodeType.IntegerLiteralExpression
+					    && item.NodeType != NodeType.DoubleLiteralExpression)
+					    || type != item.ExpressionType)
+					{
+						inlineStores = 0;
+						break;
+					}
+					if (IsZeroEquivalent(item))
+						continue;
+					++inlineStores;
+				}
+			}
+
+			if (inlineStores <= InlineArrayItemCountLimit)
+				EmitInlineArrayInit(type, items);
+			else
+				EmitPackedArrayInit(type, items);
+		}
+
+		void EmitInlineArrayInit(IType type, ExpressionCollection items)
+		{
 			OpCode opcode = GetStoreEntityOpCode(type);
 			for (int i=0; i<items.Count; ++i)
 			{
+				if (type == items[i].ExpressionType && IsZeroEquivalent(items[i]))
+					continue; //do not emit unnecessary init to zero
 				StoreEntity(opcode, i, items[i], type);
 			}
 		}
-		
+
+		void EmitPackedArrayInit(IType type, ExpressionCollection items)
+		{
+			byte[] ba = CreateByteArrayFromLiteralCollection(type, items);
+			if (null == ba)
+			{
+				EmitInlineArrayInit(type, items);
+				return;
+			}
+
+			FieldBuilder fb;
+			if (!_packedArrays.TryGetValue(ba, out fb))
+			{
+				//there is no previously emitted bytearray to reuse, create it then
+				fb = _moduleBuilder.DefineInitializedData(Context.GetUniqueName("newarr"), ba, FieldAttributes.Private);
+				_packedArrays.Add(ba, fb);
+			}
+
+			_il.Emit(OpCodes.Dup); //dup (newarr)
+			_il.Emit(OpCodes.Ldtoken, fb);
+			_il.EmitCall(OpCodes.Call, RuntimeHelpers_InitializeArray, null);
+		}
+
+		Dictionary<byte[], FieldBuilder> _packedArrays = new Dictionary<byte[], FieldBuilder>(ArrayEqualityComparer<byte>.Default);
+
+		byte[] CreateByteArrayFromLiteralCollection(IType type, ExpressionCollection items)
+		{
+			using (MemoryStream ms = new MemoryStream(items.Count * TypeSystemServices.SizeOf(type)))
+			{
+				using (BinaryWriter writer = new BinaryWriter(ms))
+				{
+					for (int i = 0; i < items.Count; ++i)
+					{
+						IntegerLiteralExpression literal = (IntegerLiteralExpression) items[i];
+						if (type == TypeSystemServices.IntType)
+							writer.Write(Convert.ToInt32(literal.Value));
+						else if (type == TypeSystemServices.UIntType)
+							writer.Write(Convert.ToUInt32(literal.Value));
+						else if (type == TypeSystemServices.LongType)
+							writer.Write(Convert.ToInt64(literal.Value));
+						else if (type == TypeSystemServices.ULongType)
+							writer.Write(Convert.ToUInt64(literal.Value));
+						else if (type == TypeSystemServices.ShortType)
+							writer.Write(Convert.ToInt16(literal.Value));
+						else if (type == TypeSystemServices.UShortType)
+							writer.Write(Convert.ToUInt16(literal.Value));
+						else if (type == TypeSystemServices.ByteType)
+							writer.Write(Convert.ToByte(literal.Value));
+						else if (type == TypeSystemServices.SByteType)
+							writer.Write(Convert.ToSByte(literal.Value));
+						else
+							return null;
+					}
+				}
+				return ms.ToArray();
+			}
+		}
+
 		bool IsInteger(IType type)
 		{
 			return type == TypeSystemServices.IntType ||
