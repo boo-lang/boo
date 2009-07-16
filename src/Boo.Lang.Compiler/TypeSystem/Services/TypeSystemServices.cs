@@ -648,7 +648,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			return lhs.IsAssignableFrom(rhs)
-				|| (byDowncast = CanBeReachedByDownCastOrPromotion(lhs, rhs))
+				|| (byDowncast = CanBeReachedByDowncast(lhs, rhs))
+				|| CanBeReachedByPromotion(lhs, rhs)
 				|| FindImplicitConversionOperator(rhs,lhs) != null;
 		}
 
