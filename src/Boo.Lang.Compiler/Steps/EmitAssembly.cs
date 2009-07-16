@@ -126,8 +126,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		// IL generation state
 		ILGenerator _il;
-		Label _returnLabel; // current label for method return
-		LocalBuilder _returnValueLocal; // returnValueLocal
+		int _returnStatements;
+		bool _hasLeaveWithStoredValue;
+		bool _returnImplicit; //method ends with an implicit return
+		Label _returnLabel;   //label for `ret'
+		Label _implicitLabel; //label for implicit return (with default value)
+		Label _leaveLabel;    //label to load the stored return value (because of a `leave')
 		IType _returnType;
 		int _tryBlock; // are we in a try block?
 		bool _checked = true;
@@ -593,7 +597,9 @@ namespace Boo.Lang.Compiler.Steps
 			_moduleBuilder = null;
 			_symbolDocWriters.Clear();
 			_il = null;
-			_returnValueLocal = null;
+			_returnStatements = 0;
+			_hasLeaveWithStoredValue = false;
+			_returnImplicit = false;
 			_returnType = null;
 			_tryBlock = 0;
 			_checked = true;
@@ -602,7 +608,7 @@ namespace Boo.Lang.Compiler.Steps
 			_typeCache.Clear();
 			_builders.Clear();
 			_assemblyAttributes.Clear();
-
+			_defaultValueHolders.Clear();
 			_packedArrays.Clear();
 		}
 		
@@ -718,7 +724,9 @@ namespace Boo.Lang.Compiler.Steps
 			
 			DefineLabels(method);
 			Visit(method.Locals);
-			
+
+			_returnStatements = ReturnStatementCounter.Instance.GetCount(method, out _returnImplicit);
+
 			BeginMethodBody(GetEntity(method).ReturnType);
 			Visit(method.Body);
 			EndMethodBody();
@@ -726,24 +734,95 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void BeginMethodBody(IType returnType)
 		{
+			_defaultValueHolders.Clear();
+
 			_returnType = returnType;
+			_hasLeaveWithStoredValue = false;
+
+			//we may not actually use (any/all of) them, but at least they're ready
 			_returnLabel = _il.DefineLabel();
-			if (TypeSystemServices.VoidType != _returnType)
-			{
-				_returnValueLocal = _il.DeclareLocal(GetSystemType(_returnType));
-			}
+			_leaveLabel = _il.DefineLabel();
+			_implicitLabel = _il.DefineLabel();
 		}
-		
+
 		void EndMethodBody()
 		{
-			_il.MarkLabel(_returnLabel);
-			if (null != _returnValueLocal)
+			//At most a method epilogue contains 3 independent load instructions:
+			//1) load of the value of an actual return (emitted elsewhere and branched to _returnLabel)
+			//2) load of a default value (implicit returns [e.g return without expression])
+			//3) load of the `leave' stored value
+
+			if (_returnImplicit && TypeSystemServices.VoidType != _returnType)
 			{
-				_il.Emit(OpCodes.Ldloc, _returnValueLocal);
-				_returnValueLocal = null;
+				if (_returnStatements == -1) //emit branch only if instructed to do so (-1)
+					_il.Emit(OpCodes.Br_S, _returnLabel);
+
+				//load default return value for implicit return
+				_il.MarkLabel(_implicitLabel);
+				EmitDefaultValue(_returnType);
+				PopType();
 			}
+
+			if (_hasLeaveWithStoredValue)
+			{
+				_il.Emit(OpCodes.Br_S, _returnLabel);
+
+				//load the stored return value and `ret'
+				_il.MarkLabel(_leaveLabel);
+				_il.Emit(OpCodes.Ldloc, GetDefaultValueHolder(_returnType));
+			}
+
+			_il.MarkLabel(_returnLabel);
 			_il.Emit(OpCodes.Ret);
 		}
+
+
+		sealed class ReturnStatementCounter : DepthFirstVisitor
+		{
+			private ReturnStatementCounter()
+			{
+			}
+
+			static ReturnStatementCounter _instance;
+			static public ReturnStatementCounter Instance
+			{
+				get
+				{
+					if (null == _instance)
+						_instance = new ReturnStatementCounter();
+					return _instance;
+				}
+			}
+
+			int _count;
+
+			public int GetCount(Method method, out bool returnImplicit)
+			{
+				if (method.Body.Statements.Count == 0)
+				{
+					returnImplicit = true;
+					return 0;
+				}
+
+				_count = 0;
+				returnImplicit = false;
+
+				if (!method.Body.EndsWith<ReturnStatement>())
+				{
+					returnImplicit = true;
+					++_count;
+				}
+
+				Visit(method.Body);
+				return _count;
+			}
+
+			public override void OnReturnStatement(ReturnStatement node)
+			{
+				++_count;
+			}
+		}
+
 
 		private bool IsPInvoke(Method method)
 		{
@@ -799,14 +878,36 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitDebugInfo(node);
 			OpCode retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
-			
+			Label label = _returnLabel;
+
+			--_returnStatements;
+
 			if (null != node.Expression)
 			{
 				Visit(node.Expression);
 				EmitCastIfNeeded(_returnType, PopType());
-				_il.Emit(OpCodes.Stloc, _returnValueLocal);
+
+				if (retOpCode == OpCodes.Leave)
+				{
+					//`leave' clears the stack, so we have to store return value temporarily
+					//we can use a default value holder for that since it won't be read afterwards
+					//of course this is necessary only if return type is not void
+					LocalBuilder temp = GetDefaultValueHolder(_returnType);
+					_il.Emit(OpCodes.Stloc, temp);
+					label = _leaveLabel;
+					_hasLeaveWithStoredValue = true;
+				}
 			}
-			_il.Emit(retOpCode, _returnLabel);
+			else if (_returnType != TypeSystemServices.VoidType)
+			{
+				_returnImplicit = true;
+				label = _implicitLabel;
+			}
+
+			if (_returnStatements > 0 || retOpCode == OpCodes.Leave)
+				_il.Emit(retOpCode, label);
+			if (_returnStatements == 0 && null != node.Expression && retOpCode != OpCodes.Leave)
+				_returnStatements = -1; //instruct epilogue to branch last ret only if necessary
 		}
 		
 		override public void OnRaiseStatement(RaiseStatement node)
@@ -902,7 +1003,7 @@ namespace Boo.Lang.Compiler.Steps
 
 					// If the exception is of the right type, branch
 					// to test the filter condition.
-					_il.Emit(OpCodes.Brtrue, filterCondition);
+					_il.Emit(OpCodes.Brtrue_S, filterCondition);
 
 					// Otherwise, clean up the stack and prepare the stack
 					// to skip the filter.
@@ -1393,9 +1494,9 @@ namespace Boo.Lang.Compiler.Steps
 			// value_on_stack ? 0 : 1
 			Label wasTrue = _il.DefineLabel();
 			Label wasFalse = _il.DefineLabel();
-			_il.Emit(OpCodes.Brfalse, wasFalse);
+			_il.Emit(OpCodes.Brfalse_S, wasFalse);
 			_il.Emit(OpCodes.Ldc_I4_0);
-			_il.Emit(OpCodes.Br, wasTrue);
+			_il.Emit(OpCodes.Br_S, wasTrue);
 			_il.MarkLabel(wasFalse);
 			_il.Emit(OpCodes.Ldc_I4_1);
 			_il.MarkLabel(wasTrue);
@@ -1447,6 +1548,62 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return (_byAddress == type);
 		}
+
+		void EmitDefaultValue(IType type)
+		{
+			bool isGenericParameter = GenericsServices.IsGenericParameter(type);
+
+			if (!type.IsValueType && !isGenericParameter)
+			{
+				_il.Emit(OpCodes.Ldnull);
+			}
+			else if (type == TypeSystemServices.LongType || type == TypeSystemServices.ULongType)
+			{
+				_il.Emit(OpCodes.Ldc_I8, (long) 0L);
+			}
+			else if (type == TypeSystemServices.SingleType)
+			{
+				_il.Emit(OpCodes.Ldc_R4, (float) 0.0f);
+			}
+			else if (type == TypeSystemServices.DoubleType)
+			{
+				_il.Emit(OpCodes.Ldc_R8, (double) 0.0);
+			}
+			else if (TypeSystemServices.IsIntegerOrBool(type) || type == TypeSystemServices.CharType)
+			{
+				_il.Emit(OpCodes.Ldc_I4_0);
+			}
+			else if (isGenericParameter && GenericsServices.IsReferenceType((IGenericParameter) type))
+			{
+				_il.Emit(OpCodes.Ldnull);
+				_il.Emit(OpCodes.Unbox_Any, GetSystemType(type));
+			}
+			else //valuetype or valuetype/unconstrained generic parameter
+			{
+				//TODO: if MethodBody.InitLocals is false
+				//_il.Emit(OpCodes.Ldloca, GetDefaultValueHolder(type));
+				//_il.Emit(OpCodes.Initobj, GetSystemType(type));
+				_il.Emit(OpCodes.Ldloc, GetDefaultValueHolder(type));
+			}
+
+			PushType(type);
+		}
+
+		Dictionary<IType, LocalBuilder> _defaultValueHolders = new Dictionary<IType, LocalBuilder>();
+
+		//get the default value holder (a local actually) for a given type
+		//default value holder pool is cleared before each method body processing
+		LocalBuilder GetDefaultValueHolder(IType type)
+		{
+			LocalBuilder holder;
+			if (_defaultValueHolders.TryGetValue(type, out holder))
+				return holder;
+
+			holder = _il.DeclareLocal(GetSystemType(type));
+			_defaultValueHolders.Add(type, holder);
+			return holder;
+		}
+
 
 		private void EmitOnesComplement(UnaryExpression node)
 		{
@@ -1947,7 +2104,7 @@ namespace Boo.Lang.Compiler.Steps
 				EmitToBoolIfNeeded(node.Left);	// may need to convert decimal to bool
 				_il.Emit(brForValueType, evalRhs);
 				EmitCastIfNeeded(type, lhsType);
-				_il.Emit(OpCodes.Br, end);
+				_il.Emit(OpCodes.Br_S, end);
 				
 				_il.MarkLabel(evalRhs);
 				_il.Emit(OpCodes.Pop);
@@ -1955,7 +2112,6 @@ namespace Boo.Lang.Compiler.Steps
 				EmitCastIfNeeded(type, PopType());
 				
 				_il.MarkLabel(end);
-				
 			}
 			else
 			{
