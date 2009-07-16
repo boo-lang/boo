@@ -1737,16 +1737,10 @@ namespace Boo.Lang.Compiler.Steps
 		void OnTypeTest(BinaryExpression node)
 		{
 			EmitTypeTest(node);
-			
-			Label isTrue = _il.DefineLabel();
-			Label isFalse = _il.DefineLabel();
-			_il.Emit(OpCodes.Brtrue, isTrue);
-			_il.Emit(OpCodes.Ldc_I4_0);
-			_il.Emit(OpCodes.Br, isFalse);
-			_il.MarkLabel(isTrue);
-			_il.Emit(OpCodes.Ldc_I4_1);
-			_il.MarkLabel(isFalse);
-			
+
+			_il.Emit(OpCodes.Ldnull);
+			_il.Emit(OpCodes.Cgt_Un);
+
 			PushBool();
 		}
 		
