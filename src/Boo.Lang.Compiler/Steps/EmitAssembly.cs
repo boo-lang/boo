@@ -1069,7 +1069,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != node.FalseBlock)
 			{
 				Label elseEndLabel = _il.DefineLabel();
-				_il.Emit(OpCodes.Br, elseEndLabel);
+				if (!node.TrueBlock.EndsWith<ReturnStatement>() && !node.TrueBlock.EndsWith<RaiseStatement>())
+					_il.Emit(OpCodes.Br, elseEndLabel);
 				_il.MarkLabel(endLabel);
 				
 				endLabel = elseEndLabel;
