@@ -17,3 +17,7 @@ def Foo(x as IEnumerable):
 
 Foo(Test())
 
+ol = ArrayList()
+for s as string in ol:
+	print s.StartsWith("foo")
+

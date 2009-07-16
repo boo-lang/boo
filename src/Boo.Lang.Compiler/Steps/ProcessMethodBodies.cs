@@ -6617,7 +6617,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!result)
 				return false;
 
-			if (byDowncast)
+			if (byDowncast && !TypeSystemServices.IsSystemObject(rhs))
 			{
 				Warnings.Add(CompilerWarningFactory.ImplicitDowncast(node, lhs, rhs));
 				if (Parameters.Strict && Parameters.DisabledWarnings.Contains("BCW0028"))
