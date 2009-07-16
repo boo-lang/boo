@@ -855,6 +855,37 @@ namespace Boo.Lang.Compiler.TypeSystem
 				&& type != this.ByteType;
 		}
 
+		/// <summary>
+		/// Returns true if the type is a reference type or a generic parameter
+		/// type that is constrained to represent a reference type.
+		/// </summary>
+		public static bool IsReferenceType(IType type)
+		{
+			IGenericParameter gp = type as IGenericParameter;
+			if (null == gp)
+				return !type.IsValueType;
+
+			if (gp.IsClass)
+				return true;
+
+			foreach (IType tc in gp.GetTypeConstraints())
+			{
+				if (!tc.IsValueType && !tc.IsInterface)
+					return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Returns true if the type can be either a reference type or a value type.
+		/// Currently it returns true only for an unconstrained generic parameter type.
+		/// </summary>
+		public static bool IsAnyType(IType type)
+		{
+			IGenericParameter gp = type as IGenericParameter;
+			return (null != gp && !gp.IsClass && !gp.IsValueType && 0 == gp.GetTypeConstraints().Length);
+		}
+
 		public static bool IsNullable(IType type)
 		{
 			ExternalType et = type as ExternalType;

@@ -189,23 +189,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return (entity is IGenericParameter);
 		}
 
-		/// <summary>
-		/// Returns true if the generic parameter represents a reference type.
-		/// Checking if it has a class constraint is not enough for that.
-		/// </summary>
-		public static bool IsReferenceType(IGenericParameter gp)
-		{
-			if (gp.IsClass)
-				return true;
-
-			foreach (IType type in gp.GetTypeConstraints())
-			{
-				if (!type.IsValueType && !type.IsInterface)
-					return true;
-			}
-			return false;
-		}
-
 		public static bool AreOfSameGenerity(IMethod lhs, IMethod rhs)
 		{
 			return (GetMethodGenerity(lhs) == GetMethodGenerity(rhs));

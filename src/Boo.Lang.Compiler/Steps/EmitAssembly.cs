@@ -1573,7 +1573,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_il.Emit(OpCodes.Ldc_I4_0);
 			}
-			else if (isGenericParameter && GenericsServices.IsReferenceType((IGenericParameter) type))
+			else if (isGenericParameter && TypeSystemServices.IsReferenceType(type))
 			{
 				_il.Emit(OpCodes.Ldnull);
 				_il.Emit(OpCodes.Unbox_Any, GetSystemType(type));
@@ -1878,7 +1878,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitTypeTest(BinaryExpression node)
 		{
-			Visit(node.Left); PopType();
+			IType orig;
+			Visit(node.Left); orig = PopType();
 			
 			Type type = null;
 			if (NodeType.TypeofExpression == node.Right.NodeType)
@@ -1889,6 +1890,10 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				type = GetSystemType(node.Right);
 			}
+
+			if (!TypeSystemServices.IsReferenceType(orig))
+				_il.Emit(OpCodes.Box, GetSystemType(orig));
+
 			_il.Emit(OpCodes.Isinst, type);
 		}
 		

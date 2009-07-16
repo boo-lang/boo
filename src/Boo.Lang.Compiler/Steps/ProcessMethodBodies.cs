@@ -4981,7 +4981,7 @@ namespace Boo.Lang.Compiler.Steps
 		private bool CheckIsNotValueType(BinaryExpression node, Expression expression)
 		{
 			IType tag = GetExpressionType(expression);
-			if (tag.IsValueType)
+			if (!TypeSystemServices.IsReferenceType(tag) && !TypeSystemServices.IsAnyType(tag))
 			{
 				Error(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
 					expression,
