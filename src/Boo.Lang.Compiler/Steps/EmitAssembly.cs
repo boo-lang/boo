@@ -4654,7 +4654,12 @@ namespace Boo.Lang.Compiler.Steps
             }
             else if (tag is AbstractInternalType)
             {
-                type = (Type)GetBuilder(((AbstractInternalType)tag).TypeDefinition);
+                TypeDefinition typedef = ((AbstractInternalType) tag).TypeDefinition;
+                type = (Type)GetBuilder(typedef);
+
+				if (null != tag.GenericInfo && !type.IsGenericType) //hu-oh, early-bound
+					DefineGenericParameters(typedef);
+
 				if (tag.IsPointer && null != type)
 					type = type.MakePointerType();
             }
@@ -5052,9 +5057,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineGenericParameters(TypeDefinition typeDefinition)
 		{
+			if (typeDefinition is EnumDefinition)
+				return;
+
+			TypeBuilder type = GetTypeBuilder(typeDefinition);
+			if (type.IsGenericType)
+				return; //early-bound, do not redefine generic parameters again
+
 			if (typeDefinition.GenericParameters.Count > 0)
 			{
-				DefineGenericParameters(GetTypeBuilder(typeDefinition), typeDefinition.GenericParameters.ToArray());
+				DefineGenericParameters(type, typeDefinition.GenericParameters.ToArray());
 			}
 		}
 
