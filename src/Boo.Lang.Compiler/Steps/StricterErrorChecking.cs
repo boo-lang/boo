@@ -332,7 +332,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
 			if (null == parent) return false;
-			if (parent.Arguments.Count == 0 || node != parent.Arguments[-1]) return false;
+			if (parent.Arguments.Last != node) return false;
 			ICallableType type = parent.Target.ExpressionType as ICallableType;
 			if (null != type) return type.GetSignature().AcceptVarArgs;
 			
@@ -481,7 +481,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.IsAbstract)
 			{
-				if (node.Body.Statements.Count > 0)
+				if (!node.Body.IsEmpty)
 				{
 					Error(CompilerErrorFactory.AbstractMethodCantHaveBody(node, node.FullName));
 				}
@@ -553,7 +553,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.ReturnType
 			    || null == node.ReturnType.Entity
 			    || node.ReturnType.Entity == TypeSystemServices.VoidType
-			    || node.Body.Statements.Count == 0
+			    || node.Body.IsEmpty
 			    || ((InternalMethod)node.Entity).IsGenerator
 			    || node.Name == "ExpandImpl") //ignore old-style macros
 				return;
@@ -564,10 +564,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		static bool EndsWithReturnStatement(Block block)
 		{
-			if (null == block || 0 == block.Statements.Count)
+			if (null == block || block.IsEmpty)
 				return false;
 
-			Node node = block.Statements[block.Statements.Count-1];
+			Node node = block.LastStatement;
 			NodeType last = node.NodeType;
 			switch (last)
 			{
@@ -599,7 +599,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			return false;
 		}
-
 
 		override public void LeaveConstructor(Constructor node)
 		{

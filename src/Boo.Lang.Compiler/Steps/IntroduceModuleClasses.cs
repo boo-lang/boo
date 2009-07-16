@@ -123,7 +123,7 @@ namespace Boo.Lang.Compiler.Steps
 				++removed;
 			}
 			
-			if (node.Globals.HasStatements)
+			if (!node.Globals.IsEmpty)
 			{
 				Method method = new Method(node.Globals.LexicalInfo);
 				method.IsSynthetic = true;

@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static bool Matches(Block lhs, Block rhs)
 		{
-			return lhs == null ? rhs == null || !rhs.HasStatements : lhs.Matches(rhs);
+			return lhs == null ? rhs == null || rhs.IsEmpty : lhs.Matches(rhs);
 		}
 
 		public static bool AllMatch<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) where T : Node

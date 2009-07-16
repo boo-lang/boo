@@ -427,7 +427,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ReplaceEndInvokeTargetByGetAsyncDelegate(MethodInvocationExpression node)
 		{
-			Expression asyncResult = node.Arguments[node.Arguments.Count-1];
+			Expression asyncResult = node.Arguments.Last;
 			MemberReferenceExpression endInvoke = (MemberReferenceExpression)node.Target;
 			IType callableType = ((IMember)endInvoke.Entity).DeclaringType;
 			
@@ -435,7 +435,6 @@ namespace Boo.Lang.Compiler.Steps
 									CodeBuilder.CreateMethodInvocation(
 										CodeBuilder.CreateCast(_asyncResultType, asyncResult.CloneNode()),
 										_asyncResultTypeAsyncDelegateGetter));
-										
 		}
 		
 		bool IsCallableType(IType type)

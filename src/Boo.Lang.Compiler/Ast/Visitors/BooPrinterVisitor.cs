@@ -180,7 +180,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		private void WriteBlockStatements(Block b)
 		{
-			if (0 == b.Statements.Count)
+			if (b.IsEmpty)
 			{
 				WritePass();
 			}
@@ -1005,7 +1005,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented(node.Name);
 			Write(" ");
 			WriteCommaSeparatedList(node.Arguments);
-			if (node.Body.Statements.Count > 0)
+			if (!node.Body.IsEmpty)
 			{
 				WriteLine(":");
 				WriteBlock(node.Body);

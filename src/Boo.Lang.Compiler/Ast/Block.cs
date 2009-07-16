@@ -47,17 +47,35 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public bool IsEmpty
 		{
-			get { return !HasStatements; }
+			get { return (null == _statements || Statements.IsEmpty); }
 		}
-		
+
+		[Obsolete("HasStatements is Obsolete, use IsEmpty instead")]
 		public bool HasStatements
 		{
-			get
-			{
-				if (_statements == null) return false;
-				return _statements.Count > 0;
-			}
+			get { return !IsEmpty; }
 		}
+
+		public bool StartsWith<T>() where T : Statement
+		{
+			return !IsEmpty && Statements.StartsWith<T>();
+		}
+
+		public bool EndsWith<T>() where T : Statement
+		{
+			return !IsEmpty && Statements.EndsWith<T>();
+		}
+
+		public Statement FirstStatement
+		{
+			get { return IsEmpty ? null : Statements.First; }
+		}
+
+		public Statement LastStatement
+		{
+			get { return IsEmpty ? null : Statements.Last; }
+		}
+
 
 		public override Block ToBlock()
 		{

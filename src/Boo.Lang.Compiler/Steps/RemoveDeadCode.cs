@@ -120,9 +120,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnTryStatement(TryStatement node)
 		{
-			if (0 == node.ProtectedBlock.Statements.Count)
+			if (node.ProtectedBlock.IsEmpty)
 			{
-				if (null != node.EnsureBlock && node.EnsureBlock.Statements.Count > 0)
+				if (null != node.EnsureBlock && !node.EnsureBlock.IsEmpty)
 				{
 					ReplaceCurrentNode(node.EnsureBlock);
 				}

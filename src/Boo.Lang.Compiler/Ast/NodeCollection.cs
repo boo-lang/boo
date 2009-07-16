@@ -79,6 +79,11 @@ namespace Boo.Lang.Compiler.Ast
 			get { return _parent; }
 		}
 
+		public bool IsEmpty
+		{
+			get { return (null == _list) || (0 == _list.Count); }
+		}
+
 		public int Count
 		{
 			get { return _list.Count; }
@@ -443,6 +448,26 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			//TODO: cache?
 			return new NodeCollection<TNode>(parent);
+		}
+
+		public bool StartsWith<TNode>() where TNode : T
+		{
+			return !IsEmpty && (First is TNode);
+		}
+
+		public bool EndsWith<TNode>() where TNode : T
+		{
+			return !IsEmpty && (Last is TNode);
+		}
+
+		public T First
+		{
+			get { return (IsEmpty ? null : _list[0]); }
+		}
+
+		public T Last
+		{
+			get { return (IsEmpty ? null : _list[Count - 1]); }
 		}
 	}
 }

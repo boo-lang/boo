@@ -69,7 +69,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Method call = (Method)node.Members["Call"];
 			Debug.Assert(null != call);
-			Debug.Assert(0 == call.Body.Statements.Count);
+			Debug.Assert(call.Body.IsEmpty);
 						
 			CallableSignature signature = type.GetSignature();
 			int byRefCount = GetByRefParamCount(signature);

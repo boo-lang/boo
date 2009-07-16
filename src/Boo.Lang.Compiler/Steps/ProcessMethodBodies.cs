@@ -612,7 +612,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void CheckRuntimeMethod(Method method)
 		{
-			if (method.Body.Statements.Count > 0)
+			if (!method.Body.IsEmpty)
 			{
 				Error(CompilerErrorFactory.RuntimeMethodBodyMustBeEmpty(method, method.FullName));
 			}
@@ -622,7 +622,7 @@ namespace Boo.Lang.Compiler.Steps
 		//cannot call an instance method before super/self.
 		void CheckInstanceMethodInvocationsWithinConstructor(Constructor ctor)
 		{
-			if (ctor.Body.Statements.Count == 0)
+			if (ctor.Body.IsEmpty)
 				return;
 
 			foreach (Statement st in ctor.Body.Statements)
@@ -876,7 +876,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void AddOptionalReturnStatement(Block body)
 		{
 			if (body.Statements.Count != 1) return;
-			ExpressionStatement stmt = body.Statements[0] as ExpressionStatement;
+			ExpressionStatement stmt = body.FirstStatement as ExpressionStatement;
 			if (null == stmt) return;
 
 			ReturnStatement rs = new ReturnStatement(stmt.LexicalInfo, stmt.Expression, null);
@@ -4048,7 +4048,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					AssertHasSideEffect(node.Arguments[i]);
 				}
-				BindExpressionType(node, GetConcreteExpressionType(node.Arguments[-1]));
+				BindExpressionType(node, GetConcreteExpressionType(node.Arguments.Last));
 			}
 			else
 			{
