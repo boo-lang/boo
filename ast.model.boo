@@ -86,13 +86,13 @@ class GenericTypeDefinitionReference(SimpleTypeReference):
 class TypeReferenceCollection:
 	pass
 
-class CallableDefinition(TypeMember, INodeWithParameters):
+class CallableDefinition(TypeMember, INodeWithParameters, INodeWithGenericParameters):
 	Parameters as ParameterDeclarationCollection
 	GenericParameters as GenericParameterDeclarationCollection
 	ReturnType as TypeReference
 	ReturnTypeAttributes as AttributeCollection
 
-abstract class TypeDefinition(TypeMember):
+abstract class TypeDefinition(TypeMember, INodeWithGenericParameters):
 	Members as TypeMemberCollection
 	BaseTypes as TypeReferenceCollection
 	GenericParameters as GenericParameterDeclarationCollection
