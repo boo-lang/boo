@@ -225,5 +225,5 @@ class PatternExpander:
 internal def NewTemp(e as Expression):
 	return ReferenceExpression(
 			LexicalInfo: e.LexicalInfo,
-			Name: "$match${CompilerContext.Current.AllocIndex()}")
+			Name: CompilerContext.Current.GetUniqueName("match"))
 

@@ -318,7 +318,7 @@ public class CoroutineAttribute(AbstractAstAttribute):
 
 	private def CreateField(name as string, type as TypeReference) as Field:
 		f = Field()
-		f.Name = "${name}${_generatorName}${Context.AllocIndex()}"
+		f.Name = Context.GetUniqueName(name, _generatorName)
 		f.IsSynthetic = true
 		if _m.IsStatic or _m.DeclaringType isa Module:
 			f.Modifiers |= TypeMemberModifiers.Static
@@ -330,7 +330,7 @@ public class CoroutineAttribute(AbstractAstAttribute):
 	private def GetReferenceForNewField(name as string, type as TypeReference) as ReferenceExpression:
 		f = CreateField(name, type)
 		_m.DeclaringType.Members.Add(f)
-		return ReferenceExpression(f.Name)		
+		return ReferenceExpression(f.Name)
 
 
 	private def SanityCheck() as bool:
