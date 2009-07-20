@@ -1512,15 +1512,16 @@ namespace Boo.Lang.Compiler.Steps
 					}
 
 				case UnaryOperatorType.AddressOf:
-					_byAddress = GetExpressionType(node.Operand);
-					node.Operand.Accept(this);
-					PushType(PopType().MakePointerType());
-					_byAddress = null;
-					break;
+					{
+						EmitAddressOf(node);
+						break;
+					}
 
 				case UnaryOperatorType.Indirection:
-					node.Operand.Accept(this);
-					break;
+					{
+						EmitIndirection(node);
+						break;
+					}
 
 				default:
 					{
@@ -1635,6 +1636,34 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		void EmitAddressOf(UnaryExpression node)
+		{
+			_byAddress = GetExpressionType(node.Operand);
+			node.Operand.Accept(this);
+			PushType(PopType().MakePointerType());
+			_byAddress = null;
+		}
+
+		void EmitIndirection(UnaryExpression node)
+		{
+			node.Operand.Accept(this);
+
+			if (node.Operand.NodeType != NodeType.ReferenceExpression
+				&& node.ParentNode.NodeType != NodeType.MemberReferenceExpression)
+			{
+				//pointer arithmetic, need to load the address
+				IType et = PeekTypeOnStack().GetElementType();
+				OpCode code = GetLoadRefParamCode(et);
+				if (code == OpCodes.Ldobj)
+					_il.Emit(code, GetSystemType(et));
+				else
+					_il.Emit(code);
+
+				PopType();
+				PushType(et);
+			}
+		}
+
 		bool ShouldLeaveValueOnStack(Expression node)
 		{
 			return node.ParentNode.NodeType != NodeType.ExpressionStatement;
@@ -1730,7 +1759,11 @@ namespace Boo.Lang.Compiler.Steps
 			IType et = local.Type.GetElementType();
 			PopType();
 			PushType(et);
-			_il.Emit(GetLoadRefParamCode(et));
+			OpCode code = GetLoadRefParamCode(et);
+			if (code == OpCodes.Ldobj)
+				_il.Emit(code, GetSystemType(et));
+			else
+				_il.Emit(code);
 		}
 
 		private LocalBuilder StoreTempLocal(IType elementType)
@@ -1965,6 +1998,7 @@ namespace Boo.Lang.Compiler.Steps
 			node.Left.Accept(this); EmitCastIfNeeded(type, PopType());
 			node.Right.Accept(this); EmitCastIfNeeded(type, PopType());
 			_il.Emit(GetArithmeticOpCode(type, node.Operator));
+
 			PushType(type);
 		}
 
@@ -3358,11 +3392,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				// declare local to hold value type
 				Visit(expression);
-				LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
-				_il.Emit(OpCodes.Stloc, temp);
-				_il.Emit(OpCodes.Ldloca, temp);
+
+				if (!AstUtil.IsIndirection(expression))
+				{
+					// declare local to hold value type
+					LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
+					_il.Emit(OpCodes.Stloc, temp);
+					_il.Emit(OpCodes.Ldloca, temp);
+				}
 			}
 		}
 		
@@ -3534,9 +3572,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitIndirectAssignment(InternalLocal tag, IType typeOnStack)
 		{
-			LocalBuilder local = tag.LocalBuilder;
-			EmitCastIfNeeded(tag.Type.GetElementType(), typeOnStack);
-			_il.Emit(GetStoreRefParamCode(tag.Type.GetElementType()));
+			IType et = tag.Type.GetElementType();
+			EmitCastIfNeeded(et, typeOnStack);
+
+			OpCode code = GetStoreRefParamCode(et);
+			if (code == OpCodes.Stobj)
+				_il.Emit(code, GetSystemType(et));
+			else
+				_il.Emit(code);
 		}
 
 		void SetField(Node sourceNode, IField field, Expression reference, Expression value, bool leaveValueOnStack)

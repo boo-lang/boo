@@ -5186,10 +5186,10 @@ namespace Boo.Lang.Compiler.Steps
 		virtual protected void ValidateAssignment(BinaryExpression node)
 		{
 			IEntity lhs = node.Left.Entity;
-			IType rtype = GetExpressionType(node.Right);
 			if (AssertLValue(node.Left, lhs))
 			{
 				IType lhsType = GetExpressionType(node.Left);
+				IType rtype = GetExpressionType(node.Right);
 				AssertTypeCompatibility(node.Right, lhsType, rtype);
 				CheckAssignmentToIndexedProperty(node.Left, lhs);
 			}
