@@ -188,16 +188,6 @@ namespace Boo.Lang.Compiler.Steps
 			return (_types.Count != 0) ? (IType) _types.Peek() : null;
 		}
 
-		void AssertStackIsEmpty(string message)
-		{
-			if (0 != _types.Count)
-			{
-				throw new ApplicationException(
-					string.Format("{0}: {1} items still on the stack.", message, _types.Count)
-				);
-			}
-		}
-		
 		override public void Run()
 		{
 			if (Errors.Count > 0)
@@ -1076,15 +1066,12 @@ namespace Boo.Lang.Compiler.Steps
 			// void we need to pop its return value to leave
 			// the stack sane
 			DiscardValueOnStack();
-			AssertStackIsEmpty("stack must be empty after a statement! Offending statement: '" + node.ToCodeString() + "'");
 		}
 		
 		void DiscardValueOnStack()
 		{
 			if (PopType() != TypeSystemServices.VoidType)
-			{
 				_il.Emit(OpCodes.Pop);
-			}
 		}
 		
 		override public void OnUnlessStatement(UnlessStatement node)
@@ -1369,12 +1356,12 @@ namespace Boo.Lang.Compiler.Steps
 			IType type = PopType();
 			if (TypeSystemServices.DoubleType == type)
 			{
-				_il.Emit(OpCodes.Ldc_R8, 0.0);
+				EmitDefaultValue(TypeSystemServices.DoubleType);
 				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
 			}
 			else if (TypeSystemServices.SingleType == type)
 			{
-				_il.Emit(OpCodes.Ldc_R4, 0.0f);
+				EmitDefaultValue(TypeSystemServices.SingleType);
 				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
 			}
 			else
@@ -1557,21 +1544,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				_il.Emit(OpCodes.Ldnull);
 			}
-			else if (type == TypeSystemServices.LongType || type == TypeSystemServices.ULongType)
-			{
-				_il.Emit(OpCodes.Ldc_I8, (long) 0L);
-			}
-			else if (type == TypeSystemServices.SingleType)
-			{
-				_il.Emit(OpCodes.Ldc_R4, (float) 0.0f);
-			}
-			else if (type == TypeSystemServices.DoubleType)
-			{
-				_il.Emit(OpCodes.Ldc_R8, (double) 0.0);
-			}
-			else if (TypeSystemServices.IsIntegerOrBool(type) || type == TypeSystemServices.CharType)
+			else if (type == TypeSystemServices.BoolType)
 			{
 				_il.Emit(OpCodes.Ldc_I4_0);
+			}
+			else if (TypeSystemServices.IsPrimitiveNumber(type) || type == TypeSystemServices.CharType)
+			{
+				EmitLoadLiteral(type, 0);
 			}
 			else if (isGenericParameter && TypeSystemServices.IsReferenceType(type))
 			{
@@ -2045,7 +2024,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (TypeSystemServices.SingleType == type)
 			{
-				_il.Emit(OpCodes.Ldc_R4, 0.0f);
+				EmitDefaultValue(TypeSystemServices.SingleType);
 				_il.Emit(OpCodes.Ceq);
 				if (!inNotContext)
 					EmitIntNot();
@@ -2055,7 +2034,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (TypeSystemServices.DoubleType == type)
 			{
-				_il.Emit(OpCodes.Ldc_R8, 0.0);
+				EmitDefaultValue(TypeSystemServices.DoubleType);
 				_il.Emit(OpCodes.Ceq);
 				if (!inNotContext)
 					EmitIntNot();
@@ -2758,41 +2737,68 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldc_I8, node.Value.Ticks);
+			EmitLoadLiteral(node.Value.Ticks);
 			_il.Emit(OpCodes.Newobj, TimeSpan_LongConstructor);
 			PushType(TypeSystemServices.TimeSpanType);
 		}
 		
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
-			OnNumericLiteralExpression(node.ExpressionType, node.Value, node.Value);
+			IType type = node.ExpressionType ?? TypeSystemServices.IntType;
+			EmitLoadLiteral(type, node.Value);
+			PushType(type);
 		}
 
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
 		{
-			OnNumericLiteralExpression(node.ExpressionType, (long) node.Value, node.Value);
+			IType type = node.ExpressionType ?? TypeSystemServices.DoubleType;
+			EmitLoadLiteral(type, node.Value);
+			PushType(type);
 		}
 
-		//FIXME: TODO: BOO-1222
-		void OnNumericLiteralExpression(IType type, long l, double d)
+		void EmitLoadLiteral(int i)
 		{
-			if (type == TypeSystemServices.LongType || type == TypeSystemServices.ULongType)
+			EmitLoadLiteral(TypeSystemServices.IntType, i);
+		}
+
+		void EmitLoadLiteral(long l)
+		{
+			EmitLoadLiteral(TypeSystemServices.LongType, l);
+		}
+
+		void EmitLoadLiteral(IType type, long l)
+		{
+			EmitLoadLiteral(type, l, l);
+		}
+
+		void EmitLoadLiteral(IType type, double d)
+		{
+			EmitLoadLiteral(type, (long) d, d);
+		}
+
+		void EmitLoadLiteral(IType type, long l, double d)
+		{
+			if (type.IsEnum)
+				type = TypeSystemServices.Map(GetEnumUnderlyingType(type));
+
+			if (TypeSystemServices.IsIntegerNumber(type) || type == TypeSystemServices.CharType)
 			{
-				_il.Emit(OpCodes.Ldc_I8, l);
-			}
-			else if (type == TypeSystemServices.SingleType)
-			{
-				_il.Emit(OpCodes.Ldc_R4, (float) d);
-			}
-			else if (type == TypeSystemServices.DoubleType)
-			{
-				_il.Emit(OpCodes.Ldc_R8, d);
-			}
-			else
-			{
+				bool needsLongConv = true;
 				switch (l)
 				{
-					case -1L: _il.Emit(OpCodes.Ldc_I4_M1); break;
+					case -1L:
+						{
+							if (type == TypeSystemServices.LongType || type == TypeSystemServices.ULongType)
+							{
+								_il.Emit(OpCodes.Ldc_I8, -1L);
+								needsLongConv = false;
+							}
+							else
+							{
+								_il.Emit(OpCodes.Ldc_I4_M1);
+							}
+						}
+						break;
 					case 0L: _il.Emit(OpCodes.Ldc_I4_0); break;
 					case 1L: _il.Emit(OpCodes.Ldc_I4_1); break;
 					case 2L: _il.Emit(OpCodes.Ldc_I4_2); break;
@@ -2802,13 +2808,61 @@ namespace Boo.Lang.Compiler.Steps
 					case 6L: _il.Emit(OpCodes.Ldc_I4_6); break;
 					case 7L: _il.Emit(OpCodes.Ldc_I4_7); break;
 					case 8L: _il.Emit(OpCodes.Ldc_I4_8); break;
-
 					default:
-						_il.Emit(OpCodes.Ldc_I4, (int) l);
+						{
+							if (l == (sbyte) l) //fits in an signed i1
+							{
+								_il.Emit(OpCodes.Ldc_I4_S, (sbyte) l);
+							}
+							else if (l == (int) l || l == (uint) l) //fits in an i4
+							{
+								if ((int) l == -1)
+									_il.Emit(OpCodes.Ldc_I4_M1);
+								else
+									_il.Emit(OpCodes.Ldc_I4, (int) l);
+							}
+							else
+							{
+								_il.Emit(OpCodes.Ldc_I8, l);
+								needsLongConv = false;
+							}
+						}
 						break;
 				}
+
+				if (needsLongConv && type == TypeSystemServices.LongType)
+					_il.Emit(OpCodes.Conv_I8);
+				else if (type == TypeSystemServices.ULongType)
+					_il.Emit(OpCodes.Conv_U8);
 			}
-			PushType(type);
+			else if (type == TypeSystemServices.SingleType)
+			{
+				if (d != 0)
+				{
+					_il.Emit(OpCodes.Ldc_R4, (float) d);
+				}
+				else
+				{
+					_il.Emit(OpCodes.Ldc_I4_0);
+					_il.Emit(OpCodes.Conv_R4);
+				}
+			}
+			else if (type == TypeSystemServices.DoubleType)
+			{
+				if (d != 0)
+				{
+					_il.Emit(OpCodes.Ldc_R8, d);
+				}
+				else
+				{
+					_il.Emit(OpCodes.Ldc_I4_0);
+					_il.Emit(OpCodes.Conv_R8);
+				}
+			}
+			else
+			{
+				throw new InvalidOperationException(string.Format("`{0}' is not a literal", type));
+			}
 		}
 
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -2897,7 +2951,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnCharLiteralExpression(CharLiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldc_I4, node.Value[0]);
+			EmitLoadLiteral((int) node.Value[0]);
 			PushType(TypeSystemServices.CharType);
 		}
 		
@@ -3117,106 +3171,75 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitLoadLiteralField(Node node, IField fieldInfo)
 		{
 			object value = GetStaticValue(fieldInfo);
+			IType type = fieldInfo.Type;
+			if (type.IsEnum){
+				Type underlyingType = GetEnumUnderlyingType(type);
+				type = TypeSystemServices.Map(underlyingType);
+				value = Convert.ChangeType(value, underlyingType);
+			}
+
 			if (null == value)
 			{
 				_il.Emit(OpCodes.Ldnull);
 			}
+			else if (type == TypeSystemServices.BoolType)
+			{
+				_il.Emit(((bool) value) ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+			}
+			else if (type == TypeSystemServices.StringType)
+			{
+				_il.Emit(OpCodes.Ldstr, (string) value);
+			}
+			else if (type == TypeSystemServices.CharType)
+			{
+				EmitLoadLiteral(type, (long)(char) value);
+			}
+			else if (type == TypeSystemServices.IntType)
+			{
+				EmitLoadLiteral(type, (long)(int) value);
+			}
+			else if (type == TypeSystemServices.UIntType)
+			{
+				EmitLoadLiteral(type, unchecked((long)(uint) value));
+			}
+			else if (type == TypeSystemServices.LongType)
+			{
+				EmitLoadLiteral(type, (long) value);
+			}
+			else if (type == TypeSystemServices.ULongType)
+			{
+				EmitLoadLiteral(type, unchecked((long)(ulong) value));
+			}
+			else if (type == TypeSystemServices.SingleType)
+			{
+				EmitLoadLiteral(type, (double)(float) value);
+			}
+			else if (type == TypeSystemServices.DoubleType)
+			{
+				EmitLoadLiteral(type, (double) value);
+			}
+			else if (type == TypeSystemServices.SByteType)
+			{
+				EmitLoadLiteral(type, (long)(sbyte) value);
+			}
+			else if (type == TypeSystemServices.ByteType)
+			{
+				EmitLoadLiteral(type, (long)(byte) value);
+			}
+			else if (type == TypeSystemServices.ShortType)
+			{
+				EmitLoadLiteral(type, (long)(short) value);
+			}
+			else if (type == TypeSystemServices.UShortType)
+			{
+				EmitLoadLiteral(type, (long)(ushort) value);
+			}
 			else
 			{
-				TypeCode type = Type.GetTypeCode(value.GetType());
-				switch (type)
-				{
-					case TypeCode.Boolean:
-						_il.Emit(((bool) value) ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-						break;
-
-					case TypeCode.Byte:
-						{
-							_il.Emit(OpCodes.Ldc_I4, (int)(byte)value);
-							_il.Emit(OpCodes.Conv_U1);
-							break;
-						}
-						
-					case TypeCode.SByte:
-						{
-							_il.Emit(OpCodes.Ldc_I4, (int)(sbyte)value);
-							_il.Emit(OpCodes.Conv_I1);
-							break;
-						}
-						
-					case TypeCode.Char:
-						{
-							_il.Emit(OpCodes.Ldc_I4, (int)(char)value);
-							break;
-						}
-						
-					case TypeCode.Int16:
-						{
-							_il.Emit(OpCodes.Ldc_I4, (int)(short)value);
-							break;
-						}
-
-					case TypeCode.UInt16:
-						{
-							_il.Emit(OpCodes.Ldc_I4, (int)(ushort)value);
-							break;
-						}
-						
-					case TypeCode.Int32:
-						{
-							_il.Emit(OpCodes.Ldc_I4, (int)value);
-							break;
-						}
-						
-					case TypeCode.UInt32:
-						{
-							uint uValue = (uint)value;
-							_il.Emit(OpCodes.Ldc_I4, unchecked((int)uValue));
-							_il.Emit(OpCodes.Conv_U4);
-							break;
-						}
-						
-					case TypeCode.Int64:
-						{
-							_il.Emit(OpCodes.Ldc_I8, (long)value);
-							break;
-						}
-						
-					case TypeCode.UInt64:
-						{
-							ulong uValue = (ulong)value;
-							_il.Emit(OpCodes.Ldc_I8, unchecked((long)uValue));
-							_il.Emit(OpCodes.Conv_U8);
-							break;
-						}
-						
-					case TypeCode.Single:
-						{
-							_il.Emit(OpCodes.Ldc_R4, (float)value);
-							break;
-						}
-						
-					case TypeCode.Double:
-						{
-							_il.Emit(OpCodes.Ldc_R8, (double)value);
-							break;
-						}
-						
-					case TypeCode.String:
-						{
-							_il.Emit(OpCodes.Ldstr, (string)value);
-							break;
-						}
-						
-					default:
-						{
-							NotImplemented(node, "Literal: " + type.ToString());
-							break;
-						}
-				}
+				NotImplemented(node, "Literal field type: " + type.ToString());
 			}
 		}
-		
+
 		override public void OnGenericReferenceExpression(GenericReferenceExpression node)
 		{
 			IEntity tag = TypeSystem.TypeSystemServices.GetEntity(node);
@@ -3703,7 +3726,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitArray(IType type, ExpressionCollection items)
 		{
-			_il.Emit(OpCodes.Ldc_I4, items.Count);
+			EmitLoadLiteral(items.Count);
 			_il.Emit(OpCodes.Newarr, GetSystemType(type));
 
 			if (0 == items.Count)
@@ -4308,7 +4331,7 @@ namespace Boo.Lang.Compiler.Steps
 		void StoreEntity(OpCode opcode, int index, Node value, IType elementType)
 		{
 			_il.Emit(OpCodes.Dup);	// array reference
-			_il.Emit(OpCodes.Ldc_I4, index); // element index
+			EmitLoadLiteral(index); // element index
 			
 			bool stobj = IsStobj(opcode); // value type sequence?
 			if (stobj)

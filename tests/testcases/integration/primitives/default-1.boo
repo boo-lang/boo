@@ -63,7 +63,7 @@ static class DefaultValues:
 	def Long() as long:
 		pass
 
-	def ULong() as long:
+	def ULong() as ulong:
 		pass
 
 	def Single() as single:
@@ -106,6 +106,16 @@ static class DefaultValues:
 		except:
 			pass
 
+	def RaiseNothing() as int:
+		raise "foo"
+
+	def RaiseImplicit(x as int) as int:
+		if x == 0:
+			return
+		if x == 1:
+			return 1
+		raise "foo"
+
 
 assert 0 == DefaultValues.GP[of int]()
 assert null == DefaultValues.ClassGP[of SomeClass]()
@@ -140,4 +150,6 @@ assert 0 == DefaultValues.LeaveInt(false)
 assert 0 == DefaultValues.LeaveImplicit(1)
 assert null != DefaultValues.LeaveObject(true)
 assert 42 == DefaultValues.LeaveInt(true)
+assert 0 == DefaultValues.RaiseImplicit(0)
+assert 1 == DefaultValues.RaiseImplicit(1)
 

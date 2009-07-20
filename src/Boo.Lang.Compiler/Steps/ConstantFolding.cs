@@ -151,8 +151,6 @@ namespace Boo.Lang.Compiler.Steps
 					         ? GetFoldedIntegerLiteral(node.Operator, Convert.ToInt64(lhs), Convert.ToInt64(rhs))
 					         : GetFoldedIntegerLiteral(node.Operator, Convert.ToUInt64(lhs), Convert.ToUInt64(rhs));
 				}
-				if (null != folded && folded.NodeType != NodeType.BoolLiteralExpression && lhsType.IsEnum)
-					folded = CodeBuilder.CreateCast(lhsType, folded);
 			}
 
 			if (null != folded)
@@ -189,8 +187,6 @@ namespace Boo.Lang.Compiler.Steps
 			else if (TypeSystemServices.IsIntegerNumber(operandType) || operandType.IsEnum)
 			{
 				folded = GetFoldedIntegerLiteral(node.Operator, Convert.ToInt64(operand));
-				if (null != folded && folded.NodeType != NodeType.BoolLiteralExpression && operandType.IsEnum)
-					folded = CodeBuilder.CreateCast(operandType, folded);
 			}
 
 			if (null != folded)
