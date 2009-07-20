@@ -3126,6 +3126,10 @@ namespace Boo.Lang.Compiler.Steps
 				TypeCode type = Type.GetTypeCode(value.GetType());
 				switch (type)
 				{
+					case TypeCode.Boolean:
+						_il.Emit(((bool) value) ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+						break;
+
 					case TypeCode.Byte:
 						{
 							_il.Emit(OpCodes.Ldc_I4, (int)(byte)value);
