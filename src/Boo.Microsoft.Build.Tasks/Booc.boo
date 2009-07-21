@@ -44,6 +44,7 @@ Represents the Boo compiler MSBuild task.
 
 Authors:
 	Sorin Ionescu (sorin.ionescu@gmail.com)
+	Daniel Grunwald (daniel.grunwald@gmail.com)
 """
 	def constructor():
 		NoLogo = true
@@ -133,6 +134,15 @@ Authors:
 			return Bag['DisabledWarnings'] as string
 		set:
 			Bag['DisabledWarnings'] = value
+	
+	OptionalWarnings:
+	"""
+	Gets/sets a comma-separated list of optional warnings that should be enabled.
+	"""
+		get:
+			return Bag['OptionalWarnings'] as string
+		set:
+			Bag['OptionalWarnings'] = value
 	
 	WarningsAsErrors:
 	"""
@@ -390,6 +400,7 @@ Authors:
 		commandLine.AppendSwitchIfNotNull('-define:', DefineSymbols)
 		commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
 		commandLine.AppendSwitchIfNotNull('-nowarn:', DisabledWarnings)
+		commandLine.AppendSwitchIfNotNull('-warn:', OptionalWarnings)
 		commandLine.AppendSwitchIfNotNull('-platform:', Platform)
 		
 		if TreatWarningsAsErrors:
