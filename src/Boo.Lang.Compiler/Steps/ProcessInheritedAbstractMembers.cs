@@ -335,6 +335,8 @@ namespace Boo.Lang.Compiler.Steps
 						Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, baseProperty.FullName));
 				}
 
+				AssertValidInterfaceImplementation(p, baseProperty);
+
 				//fully-implemented?
 				if (!HasGetter(baseProperty) || (HasGetter(baseProperty) && null != p.Getter))
 					if (!HasSetter(baseProperty) || (HasSetter(baseProperty) && null != p.Setter))
@@ -395,6 +397,7 @@ namespace Boo.Lang.Compiler.Steps
 					raise.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
 				}
 
+				AssertValidInterfaceImplementation(ev, entity);
 				_context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, entity);
 				return;
 			}
@@ -457,6 +460,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (!method.IsOverride && !method.IsVirtual)
 					method.Modifiers |= TypeMemberModifiers.Virtual;
 
+				AssertValidInterfaceImplementation(method, baseMethod);
 				_context.TraceInfo("{0}: Method {1} implements {2}", method.LexicalInfo, method, baseMethod);
 				return;
 			}
@@ -706,6 +710,19 @@ namespace Boo.Lang.Compiler.Steps
 		void AddStub(TypeDefinition node, TypeMember stub)
 		{
 			node.Members.Add(stub);
+		}
+
+		void AssertValidInterfaceImplementation(TypeMember node, IMember baseMember)
+		{
+			if (!baseMember.DeclaringType.IsInterface)
+				return;
+
+			IExplicitMember explicitNode = node as IExplicitMember;
+			if (null != explicitNode && null != explicitNode.ExplicitInfo)
+				return; //node is an explicit interface impl
+
+			if (node.Visibility != TypeMemberModifiers.Public)
+				Errors.Add(CompilerErrorFactory.InterfaceImplementationMustBePublicOrExplicit(node, baseMember));
 		}
 	}
 }

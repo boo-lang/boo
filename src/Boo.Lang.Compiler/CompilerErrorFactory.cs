@@ -919,6 +919,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0171", AstUtil.SafeLexicalInfo(node), node, type);
 		}
 
+		public static CompilerError InterfaceImplementationMustBePublicOrExplicit(TypeMember node, IMember member)
+		{
+			return new CompilerError("BCE0172", AstUtil.SafeLexicalInfo(node), node, member.DeclaringType);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
