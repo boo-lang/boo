@@ -230,29 +230,29 @@ namespace BooC
 					"Usage: booc [options] file1 ...\n" +
 					"Options:\n" +
 					" -c:CULTURE           Sets the UI culture to be CULTURE\n" +
+					" -checked[+|-]        Turns on or off checked operations (default: +)\n" +
 					" -debug[+|-]          Generate debugging information (default: +)\n" +
 					" -define:S1[,Sn]      Defines symbols S1..Sn with optional values (=val) (-d:)\n" +
 					" -delaysign           Delays assembly signing\n" +
 					" -ducky               Turns on duck typing by default\n" +
-					" -checked[+|-]        Turns on or off checked operations (default: +)\n" +
 					" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n"+
+					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
+					" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
 					" -lib:DIRS            Adds the comma-separated DIRS to the assembly search path\n" +
 					" -noconfig            Does not load the standard configuration\n" +
-					" -nostdlib            Does not reference any of the default libraries\n" +
 					" -nologo              Does not display the compiler logo\n" +
+					" -nostdlib            Does not reference any of the default libraries\n" +
 					" -nowarn[:W1,Wn]      Suppress all or a list of compiler warnings\n" +
-					" -p:PIPELINE          Sets the pipeline to PIPELINE\n" +
 					" -o:FILE              Sets the output file name to FILE\n" +
-					" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
-					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
-					" -reference:A1[,An]   References assemblies (-r:)\n" +
-					" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
-					" -target:TYPE         Sets the target type (exe, library or winexe)\n" +
-					" -resource:FILE[,ID]  Embeds FILE as a resource\n" +
+					" -p:PIPELINE          Sets the pipeline to PIPELINE\n" +
 					" -pkg:P1[,Pn]         References packages P1..Pn (on supported platforms)\n" +
-					" -strict              Turns on strict mode.\n" +
-					" -unsafe              Allows to compile unsafe code.\n" +
 					" -platform:ARCH       Specifies target platform (anycpu, x86, x64 or itanium)\n" +
+					" -reference:A1[,An]   References assemblies (-r:)\n" +
+					" -resource:FILE[,ID]  Embeds FILE as a resource\n" +
+					" -srcdir:DIR          Adds DIR as a directory where sources can be found\n" +
+					" -strict              Turns on strict mode.\n" +
+					" -target:TYPE         Sets the target type (exe, library or winexe) (-t:)\n" +
+					" -unsafe              Allows to compile unsafe code.\n" +
 					" -utf8                Source file(s) are in utf8 format\n" +
 					" -v, -vv, -vvv        Sets verbosity level from warnings to very detailed\n" +
 					" -warn:W1[,Wn]        Enables a list of optional warnings.\n" +
