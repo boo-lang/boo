@@ -164,9 +164,9 @@ Authors:
 	Specifies target platform (anycpu, x86, x64 or itanium)
 	"""
 		get:
-			return Bag['WarningsAsErrors'] as string
+			return Bag['Platform'] as string
 		set:
-			Bag['WarningsAsErrors'] = value
+			Bag['Platform'] = value
 	
 	ToolName:
 	"""
