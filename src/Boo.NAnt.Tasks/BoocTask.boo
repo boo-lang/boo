@@ -56,6 +56,7 @@ public class BoocTask(CompilerBase):
 	private _pipeline as string
 	private _strict = false
 	private _unsafe = false
+	private _platform as string
 
 	#endregion Private Instance Fields
 	#region Private Static Fields
@@ -183,6 +184,13 @@ public class BoocTask(CompilerBase):
 		set:
 			_unsafe = value
 
+	[TaskAttribute('platform')]
+	public Platform as string:
+		get:
+			return _platform
+		set:
+			_platform = value
+
 
 	override public SupportsNoWarnList as bool:
 		get:
@@ -246,6 +254,8 @@ public class BoocTask(CompilerBase):
 			WriteOption(writer, "strict")
 		if Unsafe:
 			WriteOption(writer, "unsafe")
+		if Platform:
+			WriteOption(writer, "platform", _platform)
 		if DefineSymbols is not null:
 			WriteOption(writer, "define", DefineSymbols)
 		if Pipeline:

@@ -29,6 +29,7 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System.IO;
+	using System.Reflection;
 	using System.Reflection.Emit;
 
 	public class SaveAssembly : AbstractCompilerStep
@@ -36,13 +37,31 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			if (_context.Errors.Count > 0)
-			{
 				return;
-			}
-			
+
 			AssemblyBuilder builder = ContextAnnotations.GetAssemblyBuilder(Context);
-			
-			builder.Save(Path.GetFileName(Context.GeneratedAssemblyFileName));
-		}	
+			string filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
+			Save(builder, filename);
+		}
+
+		void Save(AssemblyBuilder builder, string filename)
+		{
+			switch (Parameters.Platform)
+			{
+				case "x86":
+					builder.Save(filename, PortableExecutableKinds.Required32Bit, ImageFileMachine.I386);
+					break;
+				case "x64":
+					builder.Save(filename, PortableExecutableKinds.PE32Plus, ImageFileMachine.AMD64);
+					break;
+				case "itanium":
+					builder.Save(filename, PortableExecutableKinds.PE32Plus, ImageFileMachine.IA64);
+					break;
+
+				default: //AnyCPU
+					builder.Save(filename);
+					break;
+			}
+		}
 	}
 }

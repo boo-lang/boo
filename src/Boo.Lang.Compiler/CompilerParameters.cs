@@ -96,6 +96,8 @@ namespace Boo.Lang.Compiler
 
 		private bool _unsafe;
 
+		private string _platform;
+
 
 		private TypeMemberModifiers _defaultTypeVisibility = TypeMemberModifiers.Public;
 		private TypeMemberModifiers _defaultMethodVisibility = TypeMemberModifiers.Public;
@@ -802,6 +804,12 @@ namespace Boo.Lang.Compiler
 		{
 			get { return _unsafe; }
 			set { _unsafe = value; }
+		}
+
+		public string Platform
+		{
+			get { return _platform; }
+			set { _platform = value; }
 		}
 	}
 }

@@ -227,7 +227,7 @@ namespace BooC
 		void Help ()
 		{
 			Console.WriteLine(
-					"Usage is: booc [options] file1 ...\n" +
+					"Usage: booc [options] file1 ...\n" +
 					"Options:\n" +
 					" -c:CULTURE           Sets the UI culture to be CULTURE\n" +
 					" -debug[+|-]          Generate debugging information (default: +)\n" +
@@ -251,7 +251,8 @@ namespace BooC
 					" -resource:FILE[,ID]  Embeds FILE as a resource\n" +
 					" -pkg:P1[,Pn]         References packages P1..Pn (on supported platforms)\n" +
 					" -strict              Turns on strict mode.\n" +
-					" -unsafe              Enables unsafe code support.\n" +
+					" -unsafe              Allows to compile unsafe code.\n" +
+					" -platform:ARCH       Specifies target platform (anycpu, x86, x64 or itanium)\n" +
 					" -utf8                Source file(s) are in utf8 format\n" +
 					" -v, -vv, -vvv        Sets verbosity level from warnings to very detailed\n" +
 					" -warn:W1[,Wn]        Enables a list of optional warnings.\n" +
@@ -262,7 +263,7 @@ namespace BooC
 
 		void ParseOptions(string[] args)
 		{
-			bool noLogo = false;		
+			bool noLogo = false;
 			
 			ArrayList arglist = new ArrayList(args);
 			ExpandResponseFiles(ref arglist);
@@ -500,8 +501,34 @@ namespace BooC
 							string packages = StripQuotes(arg.Substring(arg.IndexOf(":")+1));
 							_packages.Add(packages);
 						}
-						else { 
+						else if (arg.StartsWith("-platform:"))
+						{
+							string arch = StripQuotes(arg.Substring(arg.IndexOf(":")+1)).ToLowerInvariant();
+							switch (arch)
+							{
+								case "anycpu":
+									break;
+								case "x86":
+									_options.Platform = "x86";
+									break;
+								case "x64":
+									_options.Platform = "x64";
+									break;
+								case "itanium":
+									_options.Platform = "itanium";
+									break;
+								default:
+									InvalidOption(arg, "Valid platform types are: `anycpu', `x86', `x64' or `itanium'.");
+									break;
+							}
+						}
+						else if (arg.StartsWith("-p:"))
+						{
 							_pipelineName = StripQuotes(arg.Substring(3));
+						}
+						else
+						{
+							InvalidOption(arg);
 						}
 						break;
 					}
@@ -524,7 +551,7 @@ namespace BooC
 							}
 							
 							default:
-							{							
+							{
 								string culture = arg.Substring(3);
 								Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture(culture);
 								break;
@@ -638,7 +665,7 @@ namespace BooC
 									}
 								}
 								else
-								{							
+								{
 									InvalidOption(arg);
 								}
 								break;
@@ -774,7 +801,7 @@ namespace BooC
 			{
 				Console.WriteLine("********* {0} *********", args.Step);
 				
-				StringWriter writer = new StringWriter();				
+				StringWriter writer = new StringWriter();
 				args.Context.CompileUnit.Accept(new BooPrinterVisitor(writer, BooPrinterVisitor.PrintOptions.PrintLocals));
 				string code = writer.ToString();
 				if (code != _last)
@@ -893,10 +920,15 @@ namespace BooC
 			stepStopwatch.Stop();
 			args.Context.TraceLeave("Leaving {0} ({1}ms)", args.Step, stepStopwatch.ElapsedMilliseconds);
 		}
-		
+
 		void InvalidOption(string arg)
 		{
-			Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.InvalidOption", arg));
+			InvalidOption(arg, null);
+		}
+
+		void InvalidOption(string arg, string message)
+		{
+			Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.InvalidOption", arg, message));
 		}
 
 		bool IsFlag(string arg)
