@@ -30,22 +30,23 @@ using System;
 
 namespace Boo.Lang.Compiler.Ast
 {
-	[System.Xml.Serialization.XmlInclude(typeof(OmittedExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(MethodInvocationExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(UnaryExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(BinaryExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(ReferenceExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(LiteralExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(BlockExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(CastExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(ConditionalExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(ExpressionInterpolationExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(GeneratorExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(ExtendedGeneratorExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(GeneratorExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(QuasiquoteExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(LiteralExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(MethodInvocationExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(OmittedExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(ReferenceExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(SlicingExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(SpliceExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(TryCastExpression))]
 	[System.Xml.Serialization.XmlInclude(typeof(TypeofExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(CastExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(BlockExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(QuasiquoteExpression))]
-	[System.Xml.Serialization.XmlInclude(typeof(SpliceExpression))]
+	[System.Xml.Serialization.XmlInclude(typeof(UnaryExpression))]
 	public abstract partial class Expression
 	{
 		public static Expression Lift(string s)
