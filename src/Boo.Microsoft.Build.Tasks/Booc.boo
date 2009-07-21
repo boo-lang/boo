@@ -151,6 +151,22 @@ Authors:
 			return GetBoolParameterWithDefault("Strict", false)
 		set:
 			Bag['Strict'] = value
+	AllowUnsafeBlocks:
+	"""
+	Allows to compile unsafe code.
+	"""
+		get:
+			return GetBoolParameterWithDefault("AllowUnsafeBlocks", false)
+		set:
+			Bag['AllowUnsafeBlocks'] = value
+	Platform:
+	"""
+	Specifies target platform (anycpu, x86, x64 or itanium)
+	"""
+		get:
+			return Bag['WarningsAsErrors'] as string
+		set:
+			Bag['WarningsAsErrors'] = value
 	
 	ToolName:
 	"""
@@ -374,6 +390,7 @@ Authors:
 		commandLine.AppendSwitchIfNotNull('-define:', DefineSymbols)
 		commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
 		commandLine.AppendSwitchIfNotNull('-nowarn:', DisabledWarnings)
+		commandLine.AppendSwitchIfNotNull('-platform:', Platform)
 		
 		if TreatWarningsAsErrors:
 			commandLine.AppendSwitch('-warnaserror') // all warnings are errors
@@ -396,6 +413,8 @@ Authors:
 			commandLine.AppendSwitch('-utf8')
 		if Strict:
 			commandLine.AppendSwitch('-strict')
+		if AllowUnsafeBlocks:
+			commandLine.AppendSwitch('-unsafe')
 		
 		if EmitDebugInformation:
 			commandLine.AppendSwitch('-debug+')

@@ -218,6 +218,7 @@
 	>
 		
 		<Booc
+			AllowUnsafeBlocks="$(AllowUnsafeBlocks)"
 			CheckForOverflowUnderflow="$(CheckForOverflowUnderflow)"
 			Culture="$(AssemblyCulture)"
 			DefineSymbols="$(DefineConstants)"
@@ -232,6 +233,7 @@
 			NoStandardLib="$(NoStdLib)"
 			OutputAssembly="@(IntermediateAssembly)"
 			Pipeline="$(Pipeline)"
+			Platform="$(PlatformTarget)"
 			References="@(ReferencePath)"
 			Resources="@(ManifestResourceWithNoCulture);
 			           @(ManifestNonResxWithNoCultureOnDisk);
