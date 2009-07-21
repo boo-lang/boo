@@ -851,17 +851,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		[Obsolete("Use DeclareGenericParameters overload with INodeWithGenericParameters instead")]
 		public void DeclareGenericParameters(Method method, IGenericParameter[] parameters)
 		{
-			DeclareGenericParameters(method, parameters, 0);
+			DeclareGenericParameters((INodeWithGenericParameters) method, parameters, 0);
 		}
 
+		[Obsolete("Use DeclareGenericParameters overload with INodeWithGenericParameters instead")]
 		public void DeclareGenericParameters(Method method, IGenericParameter[] parameters, int parameterIndexDelta)
+		{
+			DeclareGenericParameters((INodeWithGenericParameters) method, parameters, parameterIndexDelta);
+		}
+
+		public void DeclareGenericParameters(INodeWithGenericParameters node, IGenericParameter[] parameters)
+		{
+			DeclareGenericParameters(node, parameters, 0);
+		}
+
+		public void DeclareGenericParameters(INodeWithGenericParameters node, IGenericParameter[] parameters, int parameterIndexDelta)
 		{
 			for (int i=0; i < parameters.Length; ++i)
 			{
 				IGenericParameter p = parameters[i];
-				method.GenericParameters.Add(
+				node.GenericParameters.Add(
 					CreateGenericParameterDeclaration(parameterIndexDelta + i,
 						p.Name));
 			}
