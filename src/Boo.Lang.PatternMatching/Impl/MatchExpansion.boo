@@ -70,7 +70,8 @@ internal class MatchExpansion:
 		return node.Body
 		
 	def DefaultOtherwise(matchValue as Expression):
-		matchError = [| raise MatchError("`" + $(expression.ToCodeString()) + "` failed to match `" + $matchValue + "`") |]
+		errMsg = "`${expression.ToCodeString()}` ({0}) failed to match"
+		matchError = [| raise MatchError(string.Format($errMsg, $matchValue)) |]
 		matchError.LexicalInfo = node.LexicalInfo
 		return matchError.ToBlock()
 		

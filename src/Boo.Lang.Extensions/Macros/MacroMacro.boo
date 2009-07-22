@@ -179,6 +179,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 	#BOO-1077 style
 	private def CreateGeneratorMacroType(typeName as string) as ClassDefinition:
+		compatErrorMsg = "Boo installed version is older than the new macro syntax '${_name}' is using. Read BOO-1077 for more info."
 		arg = ReferenceExpression(_name)
 		return [|
 				public final class $(typeName) (Boo.Lang.Compiler.LexicalInfoPreservingGeneratorMacro):
@@ -195,7 +196,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						$(ExpandBody())
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					override protected def ExpandImpl($_name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
-						raise System.NotImplementedException("Boo installed version is older than the new macro syntax '${$(_name)}' uses. Read BOO-1077 for more info.")
+						raise System.NotImplementedException($compatErrorMsg)
 			|]
 
 	private def CreateOldStyleMacroType(typeName as string) as ClassDefinition:
@@ -257,7 +258,8 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			return body
 
 	def CreateRaiseMacroArgumentsMatchError() as RaiseStatement:
-		return [| raise "`${$(_name)}` macro invocation argument(s) did not match definition: `${$(_macro.Arguments[0].ToString())}`" |]
+		errorMsg = "`${$(_name)}` macro invocation argument(s) did not match definition: `${$(_macro.Arguments[0].ToString())}`"
+		return [| raise $errorMsg |]
 
 
 	#region PatternMatching
