@@ -2048,12 +2048,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (!type.IsValueType)
 			{
+				if (null == expression.GetAncestor<BinaryExpression>()
+				    && null != expression.GetAncestor<IfStatement>())
+					return true; //use br(true|false) directly (most common case)
+
 				_il.Emit(OpCodes.Ldnull);
-				_il.Emit(OpCodes.Ceq);
 				if (!inNotContext)
-					EmitIntNot();
+				{
+					_il.Emit(OpCodes.Cgt_Un);
+				}
 				else
+				{
+					_il.Emit(OpCodes.Ceq);
 					notContext = true;
+				}
 				return true;
 			}
 			return false;
