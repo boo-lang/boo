@@ -558,46 +558,8 @@ namespace Boo.Lang.Compiler.Steps
 			    || node.Name == "ExpandImpl") //ignore old-style macros
 				return;
 
-			if (!EndsWithReturnStatement(node.Body))
+			if (!AstUtil.AllCodePathsReturnOrRaise(node.Body))
 				Warnings.Add(CompilerWarningFactory.ImplicitReturn(node));
-		}
-
-		static bool EndsWithReturnStatement(Block block)
-		{
-			if (null == block || block.IsEmpty)
-				return false;
-
-			Node node = block.LastStatement;
-			NodeType last = node.NodeType;
-			switch (last)
-			{
-				case NodeType.ReturnStatement:
-				case NodeType.RaiseStatement:
-					return true;
-
-				case NodeType.Block:
-					return EndsWithReturnStatement((Block)node);
-
-				case NodeType.IfStatement:
-					IfStatement ifstmt = (IfStatement) node;
-					return
-						EndsWithReturnStatement(ifstmt.TrueBlock)
-						&& EndsWithReturnStatement(ifstmt.FalseBlock);
-
-				case NodeType.TryStatement:
-					TryStatement ts = (TryStatement) node;
-					if (!EndsWithReturnStatement(ts.ProtectedBlock))
-						return false;
-					//if (null != ts.FailureBlock && !EndsWithReturnStatement(ts.FailureBlock))
-					//	return false;
-					foreach (ExceptionHandler handler in ts.ExceptionHandlers)
-					{
-						if (!EndsWithReturnStatement(handler.Block))
-							return false;
-					}
-					return true;
-			}
-			return false;
 		}
 
 		override public void LeaveConstructor(Constructor node)

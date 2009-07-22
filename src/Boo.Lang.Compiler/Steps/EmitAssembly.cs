@@ -126,8 +126,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		// IL generation state
 		ILGenerator _il;
-		int _returnStatements;
-		bool _hasLeaveWithStoredValue;
+		Method _method;       //current method
+		int _returnStatements;//number of return statements in current method
+		bool _hasLeaveWithStoredValue;//has a explicit return inside a try block (a `leave')
 		bool _returnImplicit; //method ends with an implicit return
 		Label _returnLabel;   //label for `ret'
 		Label _implicitLabel; //label for implicit return (with default value)
@@ -711,22 +712,23 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitMethod(Method method, ILGenerator generator)
 		{
 			_il = generator;
-			
+			_method = method;
+
 			DefineLabels(method);
 			Visit(method.Locals);
 
-			_returnStatements = ReturnStatementCounter.Instance.GetCount(method, out _returnImplicit);
-
 			BeginMethodBody(GetEntity(method).ReturnType);
 			Visit(method.Body);
-			EndMethodBody();
+			EndMethodBody(method);
 		}
-		
+
 		void BeginMethodBody(IType returnType)
 		{
 			_defaultValueHolders.Clear();
 
 			_returnType = returnType;
+			_returnStatements = 0;
+			_returnImplicit = IsVoid(returnType);
 			_hasLeaveWithStoredValue = false;
 
 			//we may not actually use (any/all of) them, but at least they're ready
@@ -735,14 +737,17 @@ namespace Boo.Lang.Compiler.Steps
 			_implicitLabel = _il.DefineLabel();
 		}
 
-		void EndMethodBody()
+		void EndMethodBody(Method method)
 		{
+			if (!_returnImplicit)
+				_returnImplicit = !AstUtil.AllCodePathsReturnOrRaise(method.Body);
+
 			//At most a method epilogue contains 3 independent load instructions:
 			//1) load of the value of an actual return (emitted elsewhere and branched to _returnLabel)
 			//2) load of a default value (implicit returns [e.g return without expression])
 			//3) load of the `leave' stored value
 
-			if (_returnImplicit && TypeSystemServices.VoidType != _returnType)
+			if (_returnImplicit && !IsVoid(_returnType))
 			{
 				if (_returnStatements == -1) //emit branch only if instructed to do so (-1)
 					_il.Emit(OpCodes.Br_S, _returnLabel);
@@ -762,57 +767,12 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Ldloc, GetDefaultValueHolder(_returnType));
 			}
 
-			_il.MarkLabel(_returnLabel);
-			_il.Emit(OpCodes.Ret);
-		}
-
-
-		sealed class ReturnStatementCounter : DepthFirstVisitor
-		{
-			private ReturnStatementCounter()
+			if (_returnImplicit || _returnStatements != 0)
 			{
-			}
-
-			static ReturnStatementCounter _instance;
-			static public ReturnStatementCounter Instance
-			{
-				get
-				{
-					if (null == _instance)
-						_instance = new ReturnStatementCounter();
-					return _instance;
-				}
-			}
-
-			int _count;
-
-			public int GetCount(Method method, out bool returnImplicit)
-			{
-				if (method.Body.Statements.Count == 0)
-				{
-					returnImplicit = true;
-					return 0;
-				}
-
-				_count = 0;
-				returnImplicit = false;
-
-				if (!method.Body.EndsWith<ReturnStatement>())
-				{
-					returnImplicit = true;
-					++_count;
-				}
-
-				Visit(method.Body);
-				return _count;
-			}
-
-			public override void OnReturnStatement(ReturnStatement node)
-			{
-				++_count;
+				_il.MarkLabel(_returnLabel);
+				_il.Emit(OpCodes.Ret);
 			}
 		}
-
 
 		private bool IsPInvoke(Method method)
 		{
@@ -870,10 +830,10 @@ namespace Boo.Lang.Compiler.Steps
 			OpCode retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
 			Label label = _returnLabel;
 
-			--_returnStatements;
-
 			if (null != node.Expression)
 			{
+				++_returnStatements;
+
 				Visit(node.Expression);
 				EmitCastIfNeeded(_returnType, PopType());
 
@@ -894,9 +854,9 @@ namespace Boo.Lang.Compiler.Steps
 				label = _implicitLabel;
 			}
 
-			if (_returnStatements > 0 || retOpCode == OpCodes.Leave)
+			if (_method.Body.LastStatement != node)
 				_il.Emit(retOpCode, label);
-			if (_returnStatements == 0 && null != node.Expression && retOpCode != OpCodes.Leave)
+			else if (null != node.Expression)
 				_returnStatements = -1; //instruct epilogue to branch last ret only if necessary
 		}
 		
@@ -1070,10 +1030,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DiscardValueOnStack()
 		{
-			if (PopType() != TypeSystemServices.VoidType)
+			if (!IsVoid(PopType()))
 				_il.Emit(OpCodes.Pop);
 		}
-		
+
+		bool IsVoid(IType type)
+		{
+			return type == TypeSystemServices.VoidType;
+		}
+
 		override public void OnUnlessStatement(UnlessStatement node)
 		{
 			Label endLabel = _il.DefineLabel();

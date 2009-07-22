@@ -58,12 +58,14 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool StartsWith<T>() where T : Statement
 		{
-			return !IsEmpty && Statements.StartsWith<T>();
+			return !IsEmpty && (Statements.StartsWith<T>()
+			       || (FirstStatement is Block && ((Block) FirstStatement).StartsWith<T>()));
 		}
 
 		public bool EndsWith<T>() where T : Statement
 		{
-			return !IsEmpty && Statements.EndsWith<T>();
+			return !IsEmpty && (Statements.EndsWith<T>()
+			       || (LastStatement is Block && ((Block) LastStatement).EndsWith<T>()));
 		}
 
 		public Statement FirstStatement

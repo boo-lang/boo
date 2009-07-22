@@ -116,6 +116,10 @@ static class DefaultValues:
 			return 1
 		raise "foo"
 
+	def SemiImplicit() as object:
+		LeaveVoid(true)
+		return
+
 
 assert 0 == DefaultValues.GP[of int]()
 assert null == DefaultValues.ClassGP[of SomeClass]()
@@ -152,4 +156,5 @@ assert null != DefaultValues.LeaveObject(true)
 assert 42 == DefaultValues.LeaveInt(true)
 assert 0 == DefaultValues.RaiseImplicit(0)
 assert 1 == DefaultValues.RaiseImplicit(1)
+assert null == DefaultValues.SemiImplicit()
 

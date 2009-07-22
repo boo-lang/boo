@@ -500,7 +500,43 @@ namespace Boo.Lang.Compiler.Ast
 
 			return values;
 		}
-	}
 
-}
+		internal static bool AllCodePathsReturnOrRaise(Block block)
+		{
+			if (null == block || block.IsEmpty)
+				return false;
+
+			Node node = block.LastStatement;
+			NodeType last = node.NodeType;
+			switch (last)
+			{
+				case NodeType.ReturnStatement:
+				case NodeType.RaiseStatement:
+					return true;
+
+				case NodeType.Block:
+					return AllCodePathsReturnOrRaise((Block)node);
+
+				case NodeType.IfStatement:
+					IfStatement ifstmt = (IfStatement) node;
+					return
+						AllCodePathsReturnOrRaise(ifstmt.TrueBlock)
+						&& AllCodePathsReturnOrRaise(ifstmt.FalseBlock);
+
+				case NodeType.TryStatement:
+					TryStatement ts = (TryStatement) node;
+					if (!AllCodePathsReturnOrRaise(ts.ProtectedBlock))
+						return false;
+					//if (null != ts.FailureBlock && !EndsWithReturnStatement(ts.FailureBlock))
+					//	return false;
+					foreach (ExceptionHandler handler in ts.ExceptionHandlers)
+					{
+						if (!AllCodePathsReturnOrRaise(handler.Block))
+							return false;
+					}
+					return true;
+			}
+			return false;
+		}
+	}}
 
