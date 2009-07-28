@@ -39,7 +39,14 @@ namespace Boo.Lang.Compiler.Ast
 		public ParameterDeclarationCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
 		{
 		}
-		
+
+		public override object Clone()
+		{
+			ParameterDeclarationCollection c = (ParameterDeclarationCollection) base.Clone();
+			c.VariableNumber = VariableNumber;
+			return c;
+		}
+
 		public bool VariableNumber
 		{
 			get

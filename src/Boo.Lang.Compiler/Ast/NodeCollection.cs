@@ -231,7 +231,7 @@ namespace Boo.Lang.Compiler.Ast
 			return null;
 		}
 
-		public object Clone()
+		public virtual object Clone()
 		{
 			NodeCollection<T> clone = (NodeCollection<T>)Activator.CreateInstance(GetType());
 			List<T> cloneList = clone._list;
