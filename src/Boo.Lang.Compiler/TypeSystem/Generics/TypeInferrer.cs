@@ -159,8 +159,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			CallableSignature formalSignature = formalType.GetSignature();
 			CallableSignature actualSignature = callableActualType.GetSignature();
 
-			// TODO: expand actual signature when it involves varargs?
-			if (formalSignature.Parameters.Length != actualSignature.Parameters.Length) return false;
+			if (formalSignature.AcceptVarArgs)
+			{
+				if (actualSignature.Parameters.Length < formalSignature.Parameters.Length)
+					return false;
+			}
+			else if (formalSignature.Parameters.Length != actualSignature.Parameters.Length)
+			{
+				return false;
+			}
 
 			// Infer return type, maintaining inference direction
 			if (!Infer(formalSignature.ReturnType, actualSignature.ReturnType, inference))

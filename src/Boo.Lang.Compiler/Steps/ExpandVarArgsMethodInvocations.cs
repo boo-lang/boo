@@ -44,6 +44,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void LeaveMethodInvocationExpression(Boo.Lang.Compiler.Ast.MethodInvocationExpression node)
 		{
+			IMethod method = TypeSystemServices.GetOptionalEntity(node.Target) as IMethod;
+			if (null != method && method.AcceptVarArgs)
+			{
+				ExpandInvocation(node, method.GetParameters());
+				return;
+			}
+
 			ICallableType callable = node.Target.ExpressionType as ICallableType;
 			if (callable != null)
 			{
@@ -53,13 +60,8 @@ namespace Boo.Lang.Compiler.Steps
 				ExpandInvocation(node, signature.Parameters);
 				return;
 			}
-			
-			IMethod method = TypeSystemServices.GetOptionalEntity(node.Target) as IMethod;
-			if (null == method || !method.AcceptVarArgs) return;
-			
-			ExpandInvocation(node, method.GetParameters());
 		}
-		
+
 		protected virtual void ExpandInvocation(MethodInvocationExpression node, IParameter[] parameters)
 		{
 			if (node.Arguments.Count > 0 && AstUtil.IsExplodeExpression(node.Arguments[-1]))

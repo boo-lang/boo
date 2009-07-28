@@ -97,21 +97,22 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		private void InitializeArguments(ExpressionCollection arguments)
 		{
-			// TODO: account for varargs
-
 			_typedArguments = new TypedArgument[arguments.Count];
 			CallableSignature methodSignature = GenericMethod.CallableType.GetSignature();
 			int count = Math.Min(arguments.Count, methodSignature.Parameters.Length);
+			IType formalType = null;
 
 			for (int i = 0; i < count; i++)
 			{
-				IType formalType = methodSignature.Parameters[i].Type;		
+				formalType = methodSignature.Parameters[i].Type;
+				if (GenericMethod.AcceptVarArgs && i == count - 1)
+					formalType = formalType.GetElementType();
 				_typedArguments[i] = new TypedArgument(arguments[i], formalType);
 			}
 
 			for (int i = count; i < arguments.Count; i++)
 			{
-				_typedArguments[i] = new TypedArgument(arguments[i], null);
+				_typedArguments[i] = new TypedArgument(arguments[i], GenericMethod.AcceptVarArgs ? formalType : null);
 			}
 		}
 
@@ -119,8 +120,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			InferenceStart();
 
-			// TODO: account for varargs
-			if (Arguments.Length != GenericMethod.GetParameters().Length)
+			if (GenericMethod.AcceptVarArgs)
+			{
+				if (Arguments.Length < GenericMethod.GetParameters().Length)
+					return InferenceComplete(false);
+			}
+			else if (Arguments.Length != GenericMethod.GetParameters().Length)
 			{
 				return InferenceComplete(false);
 			}
