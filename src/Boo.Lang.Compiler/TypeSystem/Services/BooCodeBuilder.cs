@@ -824,11 +824,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateRuntimeMethod(name, CreateTypeReference(returnType));
 		}
 
-		public Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters, bool variableArguments)
+		public Method CreateRuntimeMethod(string name, IType returnType, IParameter[] parameters, bool hasParamArray)
 		{
 			Method method = CreateRuntimeMethod(name, returnType);
 			DeclareParameters(method, parameters);
-			method.Parameters.VariableNumber = variableArguments;
+			method.Parameters.HasParamArray = hasParamArray;
 			return method;
 		}
 
@@ -965,7 +965,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				ParameterDeclaration parameter = parameters[i];
 				if (null == parameter.Type)
 				{
-					if (last == i && parameters.VariableNumber)
+					if (last == i && parameters.HasParamArray)
 					{
 						parameter.Type = CreateTypeReference(_tss.ObjectArrayType);
 					}

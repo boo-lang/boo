@@ -131,7 +131,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		{
 			get
 			{
-				return _node.Parameters.VariableNumber;
+				return _node.Parameters.HasParamArray;
 			}
 		}
 		

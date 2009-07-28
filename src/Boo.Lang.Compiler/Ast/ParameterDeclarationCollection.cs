@@ -26,12 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class ParameterDeclarationCollection
 	{
-		bool _variableNumber;
-		
 		public ParameterDeclarationCollection()
 		{
 		}
@@ -43,21 +43,22 @@ namespace Boo.Lang.Compiler.Ast
 		public override object Clone()
 		{
 			ParameterDeclarationCollection c = (ParameterDeclarationCollection) base.Clone();
-			c.VariableNumber = VariableNumber;
+			c.HasParamArray = HasParamArray;
 			return c;
 		}
 
+		public bool HasParamArray
+		{
+			get { return _hasParamArray; }
+			set { _hasParamArray = value; }
+		}
+		bool _hasParamArray;
+
+		[Obsolete("Use HasParamArray instead.")]
 		public bool VariableNumber
 		{
-			get
-			{
-				return _variableNumber;
-			}
-			
-			set
-			{
-				_variableNumber = value;
-			}
+			get { return HasParamArray; }
+			set { HasParamArray = value; }
 		}
 	}
 }

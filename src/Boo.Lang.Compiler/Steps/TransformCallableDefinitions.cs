@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null == parameter.Type)
 				{
-					if (parameters.VariableNumber && last == parameter)
+					if (parameters.HasParamArray && last == parameter)
 					{
 						parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectArrayType);
 					}

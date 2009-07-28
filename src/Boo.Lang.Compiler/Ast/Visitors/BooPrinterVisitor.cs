@@ -1677,7 +1677,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Write(", ");
 				}
-				if (i == last && items.VariableNumber)
+				if (i == last && items.HasParamArray)
 				{
 					Write("*");
 				}

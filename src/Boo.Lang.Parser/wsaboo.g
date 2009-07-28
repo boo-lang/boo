@@ -832,7 +832,7 @@ parameter_declaration_list[ParameterDeclarationCollection c]
 	}: 
 	(variableArguments=parameter_declaration[c]
 	( {!variableArguments}?(COMMA variableArguments=parameter_declaration[c]) )* )?
-	{ c.VariableNumber = variableArguments; }
+	{ c.HasParamArray = variableArguments; }
 	;
 
 protected

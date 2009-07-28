@@ -5026,7 +5026,7 @@ namespace Boo.Lang.Compiler.Steps
 			for (int i=0; i<parameters.Count; ++i)
 			{
 				ParameterBuilder paramBuilder = defineParameter(i+1, GetParameterAttributes(parameters[i]), parameters[i].Name);
-				if (last == i && parameters.VariableNumber)
+				if (last == i && parameters.HasParamArray)
 				{
 					SetParamArrayAttribute(paramBuilder);
 				}
