@@ -187,6 +187,10 @@ end
 			Output.WriteLine("""
 		[System.Xml.Serialization.XmlAttribute,
 		System.ComponentModel.DefaultValue(${field.Type}.None)]""")
+		elif model.IsCollectionField(field):
+			Output.WriteLine("""
+		[System.Xml.Serialization.XmlArray]
+		[System.Xml.Serialization.XmlArrayItem(typeof(${model.GetCollectionItemType(model.ResolveFieldType(field))}))]""")
 		else:
 			Output.WriteLine("""
 		[System.Xml.Serialization.XmlElement]""")
