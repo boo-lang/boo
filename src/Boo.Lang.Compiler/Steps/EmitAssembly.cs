@@ -3782,6 +3782,8 @@ namespace Boo.Lang.Compiler.Steps
 			OpCode opcode = GetStoreEntityOpCode(type);
 			for (int i=0; i<items.Count; ++i)
 			{
+				if (IsNull(items[i]))
+					continue; //do not emit even if types are not the same (null is any)
 				if (type == items[i].ExpressionType && IsZeroEquivalent(items[i]))
 					continue; //do not emit unnecessary init to zero
 				StoreEntity(opcode, i, items[i], type);
