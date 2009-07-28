@@ -959,13 +959,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// arg0 is the this pointer when member is not static
 			int delta = isStatic ? 0 : 1;
 			ParameterDeclarationCollection parameters = node.Parameters;
-			int last = parameters.Count - 1;
 			for (int i=0; i<parameters.Count; ++i)
 			{
 				ParameterDeclaration parameter = parameters[i];
 				if (null == parameter.Type)
 				{
-					if (last == i && parameters.HasParamArray)
+					if (parameter.IsParamArray)
 					{
 						parameter.Type = CreateTypeReference(_tss.ObjectArrayType);
 					}

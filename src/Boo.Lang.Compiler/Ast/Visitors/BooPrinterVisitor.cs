@@ -1669,7 +1669,6 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		void WriteParameterList(ParameterDeclarationCollection items, string st, string ed)
 		{
 			Write(st);
-			int last = items.Count-1;
 			int i = 0;
 			foreach (ParameterDeclaration item in items)
 			{
@@ -1677,7 +1676,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				{
 					Write(", ");
 				}
-				if (i == last && items.HasParamArray)
+				if (item.IsParamArray)
 				{
 					Write("*");
 				}

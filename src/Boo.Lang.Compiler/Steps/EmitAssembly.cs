@@ -5022,11 +5022,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefineParameters(ParameterDeclarationCollection parameters, ParameterFactory defineParameter)
 		{
-			int last = parameters.Count - 1;
 			for (int i=0; i<parameters.Count; ++i)
 			{
 				ParameterBuilder paramBuilder = defineParameter(i+1, GetParameterAttributes(parameters[i]), parameters[i].Name);
-				if (last == i && parameters.HasParamArray)
+				if (parameters[i].IsParamArray)
 				{
 					SetParamArrayAttribute(paramBuilder);
 				}

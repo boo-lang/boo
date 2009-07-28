@@ -761,7 +761,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					inferredType = parameters[i].Type;
 				}
-				else if (node.Parameters.HasParamArray && i == node.Parameters.Count - 1)
+				else if (pd.IsParamArray)
 				{
 					inferredType = TypeSystemServices.ObjectArrayType;
 				}

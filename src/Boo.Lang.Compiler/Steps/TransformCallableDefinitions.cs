@@ -72,12 +72,11 @@ namespace Boo.Lang.Compiler.Steps
 			ParameterDeclarationCollection parameters = node.Parameters;
 			if (0 == parameters.Count) return;
 
-			ParameterDeclaration last = parameters[-1];
 			foreach (ParameterDeclaration parameter in parameters)
 			{
 				if (null == parameter.Type)
 				{
-					if (parameters.HasParamArray && last == parameter)
+					if (parameter.IsParamArray)
 					{
 						parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectArrayType);
 					}
