@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Util
@@ -41,7 +42,9 @@ namespace Boo.Lang.Compiler.Util
 
 		public Memo()
 		{
-			_cachedValues = new Dictionary<TKey, TValue>();
+			//NB: SafeComparer is required to workaround a weird RuntimeMethodInfo.Equals bug
+			//    when TKey is a MemberInfo on .NET 3.5 (not reproducible on 2.0, 4.0b1 and mono)
+			_cachedValues = new Dictionary<TKey, TValue>(SafeComparer.Instance);
 		}
 
 		private Memo(IDictionary<TKey, TValue> cachedValues)
@@ -79,5 +82,34 @@ namespace Boo.Lang.Compiler.Util
 		{
 			_cachedValues.Add(key, value);
 		}
+
+		private sealed class SafeComparer : IEqualityComparer<TKey>
+		{
+			public static SafeComparer Instance
+			{
+				get
+				{
+					if (null == instance)
+						instance = new SafeComparer();
+					return instance;
+				}
+			}
+			static SafeComparer instance;
+
+			public bool Equals(TKey x, TKey y)
+			{
+				if (null == x)
+					return (null == y);
+				return x.Equals(y);
+			}
+
+			public int GetHashCode(TKey obj)
+			{
+				if (null == obj)
+					throw new ArgumentNullException("obj");
+				return obj.GetHashCode();
+			}
+		}
 	}
 }
+
