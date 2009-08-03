@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ -x @prefix@/bin/cli ]; then
-    env @prefix@/bin/cli $MONO_OPTIONS @prefix@/lib/boo/booish.exe $BOOISH_OPTIONS "$@"
+    env @prefix@/bin/cli $MONO_OPTIONS @libdir@/boo/booish.exe $BOOISH_OPTIONS "$@"
 else
-    env @RUNTIME@ $MONO_OPTIONS @prefix@/lib/boo/booish.exe $BOOISH_OPTIONS "$@"
+    env @RUNTIME@ $MONO_OPTIONS @libdir@/boo/booish.exe $BOOISH_OPTIONS "$@"
 fi
 

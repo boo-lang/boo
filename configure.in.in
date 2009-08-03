@@ -14,7 +14,7 @@ AC_SUBST(RUNTIME)
 
 AC_PATH_PROG(GACUTIL, gacutil, no)
 
-GACUTIL_FLAGS='/package $(PACKAGE) /gacdir $(DESTDIR)/$(prefix)/lib'
+GACUTIL_FLAGS='/package $(PACKAGE) /gacdir $(DESTDIR)/$(libdir)'
 AC_SUBST(GACUTIL_FLAGS)
 
 AC_OUTPUT([

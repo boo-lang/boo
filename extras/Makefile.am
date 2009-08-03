@@ -1,4 +1,4 @@
-pkgconfigdir = $(prefix)/lib/pkgconfig
+pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = boo.pc
 
 gtksourceviewdir = $(GTKSOURCEVIEW_PREFIX)/share/gtksourceview-1.0/language-specs/
