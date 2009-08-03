@@ -62,7 +62,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get 
 			{
-				return (IEntity)_declaringMethod ?? DeclaringType;
+				//NB: do not use ?? op to workaround csc bug generating invalid IL
+				return (null != _declaringMethod) ? (IEntity) _declaringMethod : (IEntity) DeclaringType;
 			}
 		}
 
