@@ -747,7 +747,8 @@ namespace Boo.Lang.Compiler.Steps
 			//2) load of a default value (implicit returns [e.g return without expression])
 			//3) load of the `leave' stored value
 
-			if (_returnImplicit && !IsVoid(_returnType))
+			bool hasDefaultValueReturn = _returnImplicit && !IsVoid(_returnType);
+			if (hasDefaultValueReturn)
 			{
 				if (_returnStatements == -1) //emit branch only if instructed to do so (-1)
 					_il.Emit(OpCodes.Br_S, _returnLabel);
@@ -760,7 +761,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (_hasLeaveWithStoredValue)
 			{
-				_il.Emit(OpCodes.Br_S, _returnLabel);
+				if (hasDefaultValueReturn || _returnStatements == -1)
+					_il.Emit(OpCodes.Br_S, _returnLabel);
 
 				//load the stored return value and `ret'
 				_il.MarkLabel(_leaveLabel);

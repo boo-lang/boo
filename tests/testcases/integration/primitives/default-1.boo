@@ -120,6 +120,14 @@ static class DefaultValues:
 		LeaveVoid(true)
 		return
 
+	def IntEnsure(x as int):
+		try:
+			if x == 0:
+				raise "oops"
+			return 1
+		ensure:
+			pass
+
 
 assert 0 == DefaultValues.GP[of int]()
 assert null == DefaultValues.ClassGP[of SomeClass]()
@@ -157,4 +165,5 @@ assert 42 == DefaultValues.LeaveInt(true)
 assert 0 == DefaultValues.RaiseImplicit(0)
 assert 1 == DefaultValues.RaiseImplicit(1)
 assert null == DefaultValues.SemiImplicit()
+assert 1 == DefaultValues.IntEnsure(1)
 
