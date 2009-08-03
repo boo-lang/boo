@@ -33,7 +33,8 @@ namespace Boo.Lang.Compiler.Ast
 	using System.Text;
 	using System.Xml.Serialization;
 	using System.Collections.Generic;
-	
+	using System.Text.RegularExpressions;
+
 	public class AstUtil
 	{
 		public static bool IsOverloadableOperator(BinaryOperatorType op)
@@ -537,6 +538,58 @@ namespace Boo.Lang.Compiler.Ast
 					return true;
 			}
 			return false;
+		}
+
+		internal static RegexOptions GetRegexOptions(RELiteralExpression re)
+		{
+			RegexOptions ro = RegexOptions.None;
+
+			if (string.IsNullOrEmpty(re.Options))
+				return ro;
+
+			foreach (char opt in re.Options)
+			{
+				switch (opt)
+				{
+					/* common flags */
+					case 'g':
+						break; //no-op on .NET, global by default
+					case 'i':
+						ro |= RegexOptions.IgnoreCase;
+						break;
+					case 'm':
+						ro |= RegexOptions.Multiline;
+						break;
+
+					/* perl|python flags */
+					case 's':
+						ro |= RegexOptions.Singleline;
+						break;
+					case 'x':
+						//TODO: parser support, no-op for now
+						//ro |= RegexOptions.IgnorePatternWhitespace;
+						break;
+					case 'l': //no-op on .NET, (l)ocale-aware by default
+						break;
+
+					/* boo-specific flags */
+					case 'n': //culture-(n)eutral
+						ro |= RegexOptions.CultureInvariant;
+						break;
+					case 'c':
+						ro |= RegexOptions.Compiled;
+						break;
+					case 'e':
+						ro |= RegexOptions.ExplicitCapture;
+						break;
+
+					default:
+						CompilerContext.Current.Errors.Add(
+							CompilerErrorFactory.InvalidRegexOption(re, opt));
+						break;
+				}
+			}
+			return ro;
 		}
 	}}
 

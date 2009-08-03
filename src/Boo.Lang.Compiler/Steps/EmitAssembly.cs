@@ -106,7 +106,9 @@ namespace Boo.Lang.Compiler.Steps
 		static ConstructorInfo Hash_Constructor = Types.Hash.GetConstructor(Type.EmptyTypes);
 		
 		static ConstructorInfo Regex_Constructor = typeof(Regex).GetConstructor(new Type[] { Types.String });
-		
+
+		static ConstructorInfo Regex_Constructor_Options = typeof(Regex).GetConstructor(new Type[] { Types.String, typeof(RegexOptions) });
+
 		static MethodInfo Hash_Add = Types.Hash.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
 		
 		static ConstructorInfo TimeSpan_LongConstructor = Types.TimeSpan.GetConstructor(new Type[] { typeof(long) });
@@ -2936,8 +2938,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnRELiteralExpression(RELiteralExpression node)
 		{
+			RegexOptions options = AstUtil.GetRegexOptions(node);
+
 			_il.Emit(OpCodes.Ldstr, node.Pattern);
-			_il.Emit(OpCodes.Newobj, Regex_Constructor);
+			if (options == RegexOptions.None)
+			{
+				_il.Emit(OpCodes.Newobj, Regex_Constructor);
+			}
+			else
+			{
+				EmitLoadLiteral((int) options);
+				_il.Emit(OpCodes.Newobj, Regex_Constructor_Options);
+			}
+
 			PushType(node.ExpressionType);
 		}
 		

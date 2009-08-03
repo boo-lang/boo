@@ -921,7 +921,12 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError InterfaceImplementationMustBePublicOrExplicit(TypeMember node, IMember member)
 		{
-			return new CompilerError("BCE0172", AstUtil.SafeLexicalInfo(node), node, member.DeclaringType);
+			return new CompilerError("BCE0172", AstUtil.SafeLexicalInfo(node), member.DeclaringType);
+		}
+
+		public static CompilerError InvalidRegexOption(RELiteralExpression node, char option)
+		{
+			return new CompilerError("BCE0173", AstUtil.SafeLexicalInfo(node), option);
 		}
 
 		public static string ToStringList(System.Collections.IEnumerable names)

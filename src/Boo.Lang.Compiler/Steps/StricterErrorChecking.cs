@@ -606,6 +606,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		public override void OnRELiteralExpression(RELiteralExpression node)
+		{
+			int options = (int) AstUtil.GetRegexOptions(node);
+		}
+
 		static bool IsSecondArgumentOfDelegateConstructor(Expression node)
 		{                 
 			MethodInvocationExpression mie = node.ParentNode as MethodInvocationExpression;

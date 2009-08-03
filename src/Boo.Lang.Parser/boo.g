@@ -3061,7 +3061,7 @@ re_literal returns [RELiteralExpression re] { re = null; }:
 	value:RE_LITERAL
 	{ re = new RELiteralExpression(ToLexicalInfo(value), value.getText()); }
 	;
-	
+
 protected
 double_literal returns [DoubleLiteralExpression rle]
 	{
@@ -3504,7 +3504,7 @@ SESC :
 				
 
 protected
-RE_LITERAL : '/' (RE_CHAR)+ '/';
+RE_LITERAL : '/' (RE_CHAR)+ '/' (RE_OPTIONS)?;
 
 protected
 RE_CHAR : RE_ESC | ~('/' | '\\' | '\r' | '\n' | ' ' | '\t' );
@@ -3512,6 +3512,8 @@ RE_CHAR : RE_ESC | ~('/' | '\\' | '\r' | '\n' | ' ' | '\t' );
 protected
 X_RE_CHAR: RE_CHAR | ' ' | '\t';
 
+protected
+RE_OPTIONS : (ID_LETTER)+;
 
 protected
 RE_ESC : '\\' (				

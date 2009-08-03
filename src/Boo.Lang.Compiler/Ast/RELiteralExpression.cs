@@ -47,17 +47,25 @@ namespace Boo.Lang.Compiler.Ast
 			this.Value = value;
 		}
 
-		[System.Xml.Serialization.XmlIgnoreAttribute]
 		public string Pattern
 		{
-			get { return Boo.Lang.Runtime.RuntimeServices.Mid(Value, 1, -1); }
+			get { return Value.Substring(1, Value.LastIndexOf('/') - 1); }
 		}
 
-		[System.Xml.Serialization.XmlIgnoreAttribute]
+		public string Options
+		{
+			get
+			{
+				int offset = Value.LastIndexOf('/');
+				return (offset == Value.Length - 1) ? string.Empty : Value.Substring(offset + 1);
+			}
+		}
+
 		public Regex Regex
 		{
 			get {
-				if (null == _regex) _regex = new Regex(Pattern);
+				if (null == _regex)
+					_regex = new Regex(Pattern, AstUtil.GetRegexOptions(this));
 				return _regex;
 			}
 		}
