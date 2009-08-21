@@ -153,6 +153,7 @@
     <Compile Include="Ast\INodeWithArguments.cs" />
     <Compile Include="Ast\INodeWithAttributes.cs" />
     <Compile Include="Ast\INodeWithBody.cs" />
+    <Compile Include="Ast\INodeWithGenericParameters.cs" />
     <Compile Include="Ast\INodeWithParameters.cs" />
     <Compile Include="Ast\IntegerLiteralExpression.cs" />
     <Compile Include="Ast\InterfaceDefinition.cs" />
@@ -374,6 +375,7 @@
     <Compile Include="Steps\CheckMemberTypes.cs" />
     <Compile Include="Steps\CheckNeverUsedMembers.cs" />
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
+    <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
     <Compile Include="Steps\DumpReferences.cs" />
     <Compile Include="Steps\EmitAssembly.cs" />
@@ -397,6 +399,7 @@
     <Compile Include="Steps\MacroAndAttributeExpansion.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
+    <Compile Include="Steps\NormalizeLiterals.cs" />
     <Compile Include="Steps\NormalizeOmittedExpressions.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
     <Compile Include="Steps\NormalizeTypeAndMemberDefinitions.cs" />
@@ -424,7 +427,6 @@
     <Compile Include="Steps\SerializeToXml.cs" />
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
-    <Compile Include="Steps\UnfoldConstants.cs" />
     <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
@@ -473,7 +475,6 @@
     <Compile Include="TypeSystem\Builders\BooClassBuilder.cs" />
     <Compile Include="TypeSystem\Builders\BooMethodBuilder.cs" />
     <Compile Include="TypeSystem\Core\AbstractType.cs" />
-    <Compile Include="TypeSystem\Core\ArrayEqualityComparer.cs" />
     <Compile Include="TypeSystem\Core\ArrayType.cs" />
     <Compile Include="TypeSystem\Core\Entities.cs" />
     <Compile Include="TypeSystem\Core\GlobalNamespace.cs" />
@@ -554,6 +555,7 @@
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
     <Compile Include="TypeSystem\Services\TypeSystemServices.cs" />
+    <Compile Include="Util\ArrayEqualityComparer.cs" />
     <Compile Include="Util\Collections.cs" />
     <Compile Include="Util\ITask.cs" />
     <Compile Include="Util\Memo.cs" />

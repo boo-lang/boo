@@ -110,6 +110,7 @@
     <File name="Ast/INodeWithArguments.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithBody.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/INodeWithGenericParameters.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithParameters.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IntegerLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/InterfaceDefinition.cs" buildaction="Compile" subtype="Code" />
@@ -331,6 +332,7 @@
     <File name="Steps/CheckMemberTypes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckNeverUsedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ClosureSignatureInferrer.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/ConstantFolding.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ContextAnnotations.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/DumpReferences.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/EmitAssembly.cs" buildaction="Compile" subtype="Code" />
@@ -354,6 +356,7 @@
     <File name="Steps/MacroAndAttributeExpansion.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MergePartialClasses.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeIterationStatements.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/NormalizeLiterals.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeOmittedExpressions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeStatementModifiers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/NormalizeTypeAndMemberDefinitions.cs" buildaction="Compile" subtype="Code" />
@@ -381,7 +384,6 @@
     <File name="Steps/SerializeToXml.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/StricterErrorChecking.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/UnfoldConstants.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/BindAndApplyAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroExpander.cs" buildaction="Compile" subtype="Code" />
@@ -430,7 +432,6 @@
     <File name="TypeSystem/Builders/BooClassBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Builders/BooMethodBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/AbstractType.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/Core/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/ArrayType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/Entities.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Core/GlobalNamespace.cs" buildaction="Compile" subtype="Code" />
@@ -511,6 +512,7 @@
     <File name="TypeSystem/Services/MetadataUtil.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/NameResolutionService.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />
+    <File name="Util/ArrayEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/Collections.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/Memo.cs" buildaction="Compile" subtype="Code" />

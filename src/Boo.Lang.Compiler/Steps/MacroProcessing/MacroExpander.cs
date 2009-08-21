@@ -169,6 +169,11 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void ExpandKnownMacro(MacroStatement node, IType macroType)
 		{
+			ExpandChildrenOfMacroOnMacroNamespace(node, macroType);
+			ProcessMacro(macroType, node);
+		}
+
+		private void ExpandChildrenOfMacroOnMacroNamespace(MacroStatement node, IType macroType) {
 			EnterNamespace(new NamespaceDelegator(CurrentNamespace, macroType));
 			try
 			{	
@@ -178,7 +183,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			{
 				LeaveNamespace();
 			}
-			ProcessMacro(macroType, node);
 		}
 
 		private void ExpandUnknownMacro(MacroStatement node)
@@ -248,6 +252,13 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)
 		{
 			TypeDefinition macroDefinition = klass.TypeDefinition;
+
+			if (MacroDefinitionContainsMacroApplication(macroDefinition, node))
+			{
+				ProcessingError(CompilerErrorFactory.InvalidMacro(node, klass.FullName));
+				return;
+			}
+
 			bool firstTry = ! MacroCompiler.AlreadyCompiled(macroDefinition);
 			Type macroType = new MacroCompiler(Context).Compile(macroDefinition);
 			if (null == macroType)
@@ -265,14 +276,16 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			ProcessMacro(macroType, node);
 		}
 
-		private int _expansionDepth;
-
-		private void EnsureVisited(TypeDefinition node)
+		private bool MacroDefinitionContainsMacroApplication(TypeDefinition definition, MacroStatement statement)
 		{
-			if (WasVisited(node))
-				return;
-			node.Accept(this);
+			foreach (TypeDefinition ancestor in statement.GetAncestors<TypeDefinition>())
+				if (ancestor == definition)
+					return true;
+
+			return false;
 		}
+
+		private int _expansionDepth;
 
 		private bool WasVisited(TypeDefinition node)
 		{

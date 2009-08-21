@@ -103,6 +103,8 @@
     <Compile Include="SupportingClasses.cs" />
     <Compile Include="SystemDrawingPoint.cs" />
     <Compile Include="TypesIntegrationTestFixture.cs" />
+    <Compile Include="UnsafeErrorsTestFixture.cs" />
+    <Compile Include="UnsafeTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
     <Compile Include="TypeSystem\AbstractTypeSystemTest.cs" />
