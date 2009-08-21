@@ -1,7 +1,7 @@
 """
 false
 yeah
-BCE0045: Macro expansion error: `_assert` (_assert 'invalid', 'number', 'of', 'arguments') failed to match.
+BCE0045: Macro expansion error: `_assert` failed to match `_assert 'invalid', 'number', 'of', 'arguments'`.
 """
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming

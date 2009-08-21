@@ -84,7 +84,7 @@ class MatchMacroTest:
 		try:
 			itemByName(42)
 		except e as MatchError:
-			Assert.AreEqual("`o` (42) failed to match", e.Message)
+			Assert.AreEqual("`o` failed to match `42`", e.Message)
 		
 	[Test]
 	[ExpectedException(MatchError)]
