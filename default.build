@@ -91,7 +91,7 @@
 			basedir="${nant::get-base-directory()}"
 			program="NAnt.exe"
 			workingdir="tests"
-			managed="true">
+			useruntimeengine="true">
 			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
 			<arg value="run" />
 		</exec>
@@ -102,7 +102,7 @@
 			basedir="${nant::get-base-directory()}"
 			program="NAnt.exe"
 			workingdir="tests"
-			managed="true">
+			useruntimeengine="true">
 			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
 			<arg value="run-vs-bin" />
 		</exec>
@@ -113,7 +113,7 @@
 			basedir="${nant::get-base-directory()}"
 			program="NAnt.exe"
 			workingdir="tests"
-			managed="true">
+			useruntimeengine="true">
 			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
 			<arg value="compile" />
 		</exec>
@@ -267,7 +267,7 @@
 			<property name="debugflag" value="-debug-"/>
 		</if>
 		
-		<exec program="${build.dir}/booc.exe" managed="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
+		<exec program="${build.dir}/booc.exe" useruntimeengine="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
 			<arg value="-v" />
 			<arg value="-noconfig" />
 			<arg value="${debugflag}" />
@@ -576,7 +576,7 @@
 			</items>
 		</in>
 		<do>
-			<exec program="gacutil" managed="false" workingdir="${build.dir}">
+			<exec program="gacutil" useruntimeengine="false" workingdir="${build.dir}">
 				<arg value="/i" />
 				<arg value="${path::get-file-name(filename)}" />
 				<arg value="/package" />
@@ -642,7 +642,7 @@
 		</in>
 		<do>
 			<exec program="${path::combine(mono.prefix, 'bin/gacutil.bat')}"
-				managed="false" workingdir="${build.dir}">
+				useruntimeengine="false" workingdir="${build.dir}">
 				<arg value="/i" />
 				<arg value="${path::get-file-name(filename)}" />
 				<arg value="/package" />
@@ -676,7 +676,7 @@
 			</items>
 		</in>
 		<do>
-			<exec program="gacutil" managed="false">
+			<exec program="gacutil" useruntimeengine="false">
 				<arg value="/u" />
 				<arg value="${path::get-file-name-without-extension(filename)}" />
 				<arg value="/package" />
@@ -926,19 +926,19 @@
 		<touch file="README"/>
 
 		<!-- "./autogen.sh", effectively -->
-		<exec program="aclocal" managed="false" />
-		<exec program="autoconf" managed="false" />
-		<exec program="automake" managed="false">
+		<exec program="aclocal" useruntimeengine="false" />
+		<exec program="autoconf" useruntimeengine="false" />
+		<exec program="automake" useruntimeengine="false">
 			<arg value="--add-missing" />
 		</exec>
 
-		<exec program="./configure" managed="false" />
+		<exec program="./configure" useruntimeengine="false" />
 
-		<exec program="make" managed="false">
+		<exec program="make" useruntimeengine="false">
 			<arg value="dist" />
 		</exec>
 
-		<exec program="make" managed="false">
+		<exec program="make" useruntimeengine="false">
 			<arg value="distclean" />
 		</exec>
 
@@ -1038,7 +1038,7 @@
 	</target>
 	
 	<target name="update-vs2005-env" unless="${skip.vs}">
-		<exec program="bin/booi.exe" managed="true">
+		<exec program="bin/booi.exe" useruntimeengine="true">
 			<arg value="scripts/update-vs2005-env.boo" />
 		</exec>	
 	</target>
@@ -1060,7 +1060,7 @@
 			<delete dir="src/Boo.Lang.Compiler/Ast/Impl"
 					if="${directory::exists('src/Boo.Lang.Compiler/Ast/Impl')}" />
 			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
-			<exec program="bin/booi.exe" managed="true">
+			<exec program="bin/booi.exe" useruntimeengine="true">
 				<arg value="scripts/astgen.boo" />
 			</exec>			
 		</if>
@@ -1203,7 +1203,7 @@
 		***
 		</echo>
 		<exec program="${path::combine(gendarme.dir,'gendarme.exe')}"
-			managed="true" failonerror="true">
+			useruntimeengine="true" failonerror="true">
 			<arg line="--config extras/rules.xml" />
 			<arg line="--html ${build.dir}/gendarme-report.html" />
 			<arg line="--set ${gendarme.set}" unless="${gendarme.set == ''}" />
