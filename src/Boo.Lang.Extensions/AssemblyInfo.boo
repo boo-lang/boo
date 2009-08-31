@@ -28,6 +28,7 @@
 
 import System.Reflection;
 import System.Security.Permissions;
+import System.Security;
 
 [assembly: ReflectionPermission(SecurityAction.RequestMinimum,
 								ReflectionEmit: true)]
@@ -40,4 +41,5 @@ import System.Security.Permissions;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.1")]
+[assembly: AllowPartiallyTrustedCallers]
 

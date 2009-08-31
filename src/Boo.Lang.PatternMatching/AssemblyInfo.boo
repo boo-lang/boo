@@ -27,6 +27,7 @@
 #endregion
 
 import System.Reflection
+import System.Security
 
 [assembly: AssemblyTitle("Boo Pattern Matching Library")]
 [assembly: AssemblyDescription("")]
@@ -37,4 +38,4 @@ import System.Reflection
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.1")]
-
+[assembly: AllowPartiallyTrustedCallers]

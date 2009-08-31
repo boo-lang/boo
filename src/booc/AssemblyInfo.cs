@@ -27,6 +27,7 @@
 #endregion
 
 using System.Reflection;
+using System.Security;
 
 [assembly: AssemblyTitle("boo compiler")]
 [assembly: AssemblyDescription("")]
@@ -38,3 +39,4 @@ using System.Reflection;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.1")]
 [assembly: AssemblyDelaySign(false)]
+[assembly: AllowPartiallyTrustedCallers]

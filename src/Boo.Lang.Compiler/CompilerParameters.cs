@@ -25,8 +25,8 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #endregion
+
 
 using System;
 using System.Collections;
@@ -34,8 +34,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Security;
+using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 
@@ -115,10 +118,12 @@ namespace Boo.Lang.Compiler
 		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
 		{
 			_libpaths = new ArrayList();
-			_systemDir = GetSystemDir();
-			_libpaths.Add(_systemDir);
-			_libpaths.Add(Directory.GetCurrentDirectory());
-
+			if (Permissions.HasDiscoveryPermission)
+			{
+				_systemDir = GetSystemDir();
+				_libpaths.Add(_systemDir);
+				_libpaths.Add(Directory.GetCurrentDirectory());
+			}
 			_pipeline = null;
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
@@ -133,7 +138,7 @@ namespace Boo.Lang.Compiler
 			_generateInMemory = true;
 			_StdLib = true;
 
-			if (null != Environment.GetEnvironmentVariable("TRACE"))
+			if (Permissions.HasEnvironmentPermission && null != Environment.GetEnvironmentVariable("TRACE"))
 				EnableTraceSwitch();
 
 			_delaySign = false;
@@ -164,7 +169,9 @@ namespace Boo.Lang.Compiler
 
 			//boo.lang.extensions.dll
 			//try loading extensions next to Boo.Lang (in the same directory)
-			string tentative = Path.Combine(Path.GetDirectoryName(_booAssembly.Location) , "Boo.Lang.Extensions.dll");
+			string tentative = "Boo.Lang.Extensions.dll";
+			if (Permissions.HasDiscoveryPermission)
+				tentative = Path.Combine(Path.GetDirectoryName(_booAssembly.Location), tentative);
 			ICompileUnit extensionsAssembly = LoadAssembly(tentative, false);
 			if(extensionsAssembly == null)//if failed, try loading from the gac
 				extensionsAssembly = LoadAssembly("Boo.Lang.Extensions", false);

@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Reflection;
+
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	using System;
@@ -46,9 +48,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		
 		public string Name
 		{
-			get { return _assembly.GetName().Name; }
+			get
+			{
+				if (null == _name)
+					_name = new AssemblyName(_assembly.FullName).Name;
+				return _name;
+			}
 		}
-		
+		string _name;
+
 		public string FullName
 		{
 			get { return _assembly.FullName; }

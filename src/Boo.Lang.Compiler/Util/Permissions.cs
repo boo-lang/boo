@@ -1,10 +1,10 @@
-﻿#region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2009, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-//
+// 
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,23 +26,62 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System.Reflection;
+using System;
+using System.Collections.Generic;
 using System.Security;
+using System.Security.Permissions;
+using System.Text;
 
-[assembly: AssemblyTitle("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.9.1")]
-[assembly: AssemblyDelaySign(false)]
-#if !IGNOREKEYFILE
-[assembly: AssemblyKeyFile("../src/boo.snk")]
-#endif
-[assembly: AssemblyKeyName("")]
+namespace Boo.Lang.Compiler.Util
+{
+	internal static class Permissions
+	{
+		public static bool HasAppDomainPermission
+		{
+			get
+			{
+				if (null == hasAppDomainPermission)
+					hasAppDomainPermission = CheckPermission(new SecurityPermission(SecurityPermissionFlag.ControlAppDomain));
+				return (bool) hasAppDomainPermission;
+			}
+		}
+		static bool? hasAppDomainPermission = null;
 
-[assembly: System.Resources.NeutralResourcesLanguage("en")]
-[assembly: AllowPartiallyTrustedCallers]
+		public static bool HasEnvironmentPermission
+		{
+			get
+			{
+				if (null == hasEnvironmentPermission)
+					hasEnvironmentPermission = CheckPermission(new EnvironmentPermission(PermissionState.Unrestricted));
+				return (bool) hasEnvironmentPermission;
+			}
+		}
+		static bool? hasEnvironmentPermission = null;
+
+		public static bool HasDiscoveryPermission
+		{
+			get
+			{
+				if (null == hasDiscoveryPermission)
+					hasDiscoveryPermission = CheckPermission(new FileIOPermission(PermissionState.Unrestricted));
+				return (bool) hasDiscoveryPermission;
+			}
+		}
+		static bool? hasDiscoveryPermission = null;
+
+		static bool CheckPermission(IPermission permission)
+		{
+			bool hasPermission = false;
+			try
+			{
+				permission.Demand();
+				hasPermission = true;
+			}
+			catch (SecurityException)
+			{
+			}
+			return hasPermission;
+		}
+	}
+}
+

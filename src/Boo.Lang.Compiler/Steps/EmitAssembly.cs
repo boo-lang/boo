@@ -411,12 +411,24 @@ namespace Boo.Lang.Compiler.Steps
 				_types = types;
 				_created = new Hashtable();
 			}
-			
+
 			public void Run()
+			{
+				if (Permissions.HasAppDomainPermission)
+					RunWithAppDomainTypeResolveHandler();
+				else
+					RunWithoutAppDomainTypeResolveHandler();
+			}
+
+			void RunWithoutAppDomainTypeResolveHandler()
+			{
+				CreateTypes();
+			}
+
+			void RunWithAppDomainTypeResolveHandler()
 			{
 				ResolveEventHandler resolveHandler = new ResolveEventHandler(OnTypeResolve);
 				AppDomain current = Thread.GetDomain();
-				
 				try
 				{
 					current.TypeResolve += resolveHandler;
@@ -427,7 +439,7 @@ namespace Boo.Lang.Compiler.Steps
 					current.TypeResolve -= resolveHandler;
 				}
 			}
-			
+
 			void CreateTypes()
 			{
 				foreach (TypeMember type in _types)

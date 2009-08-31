@@ -31,7 +31,8 @@ namespace Boo.Lang.Compiler.Pipelines
 	using System;
 	using System.IO;
 	using System.Reflection;
-	
+	using Boo.Lang.Compiler.Util;
+
 	public class Parse : CompilerPipeline
 	{
 		static Type _defaultParserStepType;
@@ -48,7 +49,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		static Assembly FindParserAssembly()
 		{
 			Assembly thisAssembly = typeof(Parse).Assembly;
-			string thisLocation = thisAssembly.Location;
+			string thisLocation = Permissions.HasDiscoveryPermission ?  thisAssembly.Location : "";
 			string parserLocation = thisLocation.EndsWith("Boo.Lang.Compiler.dll")
                 	? thisLocation.Substring(0, thisLocation.Length - "Boo.Lang.Compiler.dll".Length) + "Boo.Lang.Parser.dll"
                 	: "";

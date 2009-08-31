@@ -31,8 +31,8 @@
 // Ian MacLean (original C# version)
 
 import System.Reflection;
+import System.Security;
 import System.Security.Permissions;
-
 [assembly: ReflectionPermission(SecurityAction.RequestMinimum,
 								ReflectionEmit: true,
 								TypeInformation: true)]
@@ -44,4 +44,4 @@ import System.Security.Permissions;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyVersion("2.0.9.1")]
-
+[assembly: AllowPartiallyTrustedCallers]
