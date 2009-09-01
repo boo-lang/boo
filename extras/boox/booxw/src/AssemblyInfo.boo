@@ -38,7 +38,7 @@ import System.Security.Permissions
 [assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.9.1")]
+[assembly: AssemblyVersion("2.0.9.2")]
 
 [assembly: ReflectionPermission(SecurityAction.RequestMinimum,
 								ReflectionEmit: true,

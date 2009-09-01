@@ -43,5 +43,5 @@ import System.Security.Permissions;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyVersion("2.0.9.1")]
+[assembly: AssemblyVersion("2.0.9.2")]
 [assembly: AllowPartiallyTrustedCallers]

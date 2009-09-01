@@ -516,6 +516,7 @@
     <File name="Util/Collections.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/ITask.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/Memo.cs" buildaction="Compile" subtype="Code" />
+    <File name="Util/Permissions.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/Set.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/StringUtilities.cs" buildaction="Compile" subtype="Code" />
     <File name="Util/TaskList.cs" buildaction="Compile" subtype="Code" />
