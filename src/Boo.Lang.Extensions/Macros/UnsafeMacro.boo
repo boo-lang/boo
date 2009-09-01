@@ -31,8 +31,6 @@ namespace Boo.Lang.Extensions
 import System
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.PatternMatching
-
 
 final class UnsafeMacro (AbstractAstGeneratorMacro):
 
@@ -49,27 +47,43 @@ final class UnsafeMacro (AbstractAstGeneratorMacro):
 		raise Usage if not nArgs
 
 		for arg in macro.Arguments:
-			match arg:
-				case [| $ptrName as $ptrType = $data |]:
-					indirector = Indirector(macro, ptrName)
-					if 0 == indirector._count and nArgs == 1:
-						#warn if there is only one arg (ignore otherwise since pointer arithmetic is probably used)
-						Context.Warnings.Add(
-							CompilerWarningFactory.CustomWarning(macro.LexicalInfo,
-								"Pointer `${$(ptrName)}' is never dereferenced. This `unsafe' block is probably useless."))
+			assert IsPointerInitializer(arg), Usage
+			
+			# [| $ptrName as $ptrType = $data |]
+			declaration as BinaryExpression = arg
+			lhs as TryCastExpression = declaration.Left
+			ptrName = lhs.Target
+			ptrType = lhs.Type
+			data = declaration.Right
+			
+			indirector = Indirector(macro, ptrName)
+			if 0 == indirector._count and nArgs == 1:
+				#warn if there is only one arg (ignore otherwise since pointer arithmetic is probably used)
+				Context.Warnings.Add(
+					CompilerWarningFactory.CustomWarning(macro.LexicalInfo,
+						"Pointer `${$(ptrName)}' is never dereferenced. This `unsafe' block is probably useless."))
 
-					ptrType.IsPointer = true
-					ptrDecl = Declaration(indirector._privateName, ptrType)
-					yield DeclarationStatement(ptrDecl, UnaryExpression(data.LexicalInfo, UnaryOperatorType.AddressOf, data))
-
-				otherwise:
-					raise Usage
+			ptrType.IsPointer = true
+			ptrDecl = Declaration(indirector._privateName, ptrType)
+			yield DeclarationStatement(ptrDecl, UnaryExpression(data.LexicalInfo, UnaryOperatorType.AddressOf, data))
 
 		if not len(macro.Body.Statements):
 			raise "`unsafe` is useless without a body"
 
 		yield
-
+		
+	private def IsPointerInitializer(e as Expression):
+		assignment = e as BinaryExpression
+		if assignment is null:
+			return false
+		
+		if assignment.Operator != BinaryOperatorType.Assign:
+			return false
+			
+		if not assignment.Left isa TryCastExpression:
+			return false
+			
+		return true
 
 	private class Indirector (DepthFirstVisitor):
 	"""

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.major.minor.release.version" value="0.9.1" />
-	<property name="boo.svn.revision" value="3377" />
+	<property name="boo.major.minor.release.version" value="0.9.2" />
+	<property name="boo.svn.revision" value="3381" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="2.${boo.major.minor.release.version}" />
 	
@@ -446,21 +446,11 @@
 	</target>
 	
 	<target name="Boo.Lang.Extensions" depends="corecs, Boo.NAnt.Tasks">
-		<uptodate property="skip.Boo.Lang.Extensions">
-			<sourcefiles basedir="src/Boo.Lang.Extensions">
-				<include name="**/*.boo" />
-			</sourcefiles>
-			<targetfiles basedir="${build.dir}">
-				<include name="Boo.Lang.Extensions.*" />
-			</targetfiles>
-		</uptodate>
-		<delete file="${build.dir}/Boo.Lang.Extensions.dll" failonerror="false" unless="${skip.Boo.Lang.Extensions}"/>
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Extensions.dll"
 			failonerror="true"
 			verbose="${verbose}"
-			debug="${debug}"
-			unless="${skip.Boo.Lang.Extensions}">
+			debug="${debug}">
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
 			</sources>
@@ -1153,11 +1143,6 @@
 		<!-- This property define is a way to get around the 0.85 NAnt bug regarding signing satelite resource assemblies. -->
 		<property name="csc.define" value="${csc.define};IGNOREKEYFILE" unless="${nant-csc-keyfile-bug and not nosign}" />
 		<mkdir dir="${build.dir}" />
-
-		<!-- needed for bootstrapping Extensions -->
-		<copy file="bin/Boo.Lang.PatternMatching.dll"
-		      tofile="${build.dir}/Boo.Lang.PatternMatching.dll"
-		      failonerror="false" overwrite="false" />
 	</target>
 	
 	<target name="makedeb" depends="rebuild">
