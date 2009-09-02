@@ -168,6 +168,7 @@
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
 					<replacestring from="@prefix@" to="${install.prefix}" />
+					<replacestring from="@libdir@" to="${install.libdir}" />
 				</filterchain>
 			</copy>
 		</if>
@@ -205,6 +206,7 @@
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
 					<replacestring from="@prefix@" to="${install.prefix}" />
+					<replacestring from="@libdir@" to="${install.libdir}" />
 				</filterchain>
 			</copy>
 		</if>
@@ -310,6 +312,7 @@
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
 					<replacestring from="@prefix@" to="${install.prefix}" />
+					<replacestring from="@libdir@" to="${install.libdir}" />
 				</filterchain>
 			</copy>
 		</if>
