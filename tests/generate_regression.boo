@@ -336,6 +336,11 @@ namespace BooCompiler.Tests
 		{
 			_parameters.Unsafe = true;
 		}
+		
+		protected override bool VerifyGeneratedAssemblies
+		{
+			get { return false; }
+		}
 """)
 
 GenerateTestFixture("unsafe/errors", "BooCompiler.Tests/UnsafeErrorsTestFixture.cs", "BooCompiler.UnsafeErrors", """

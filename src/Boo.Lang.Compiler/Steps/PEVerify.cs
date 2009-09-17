@@ -39,9 +39,7 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 #if !NO_SYSTEM_DLL
 			if (Errors.Count > 0)
-			{
 				return;
-			}
 
 			string command = null;
 			string arguments = string.Empty;
@@ -57,12 +55,6 @@ namespace Boo.Lang.Compiler.Steps
 					command = "peverify.exe";
 					arguments = "\"" + Context.GeneratedAssemblyFileName + "\"";
 					break;					
-			}
-			
-			if (null == command)
-			{
-				Errors.Add(new CompilerError(Boo.Lang.ResourceManager.GetString("BooC.VerifyPipelineUnsupported")));
-				return;
 			}
 			
 			try

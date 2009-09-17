@@ -50,7 +50,7 @@ namespace BooCompiler.Tests
 
 		protected StringWriter _output;
 
-		protected bool VerifyGeneratedAssemblies
+		protected virtual bool VerifyGeneratedAssemblies
 		{
 			get
 			{
