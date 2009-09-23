@@ -182,6 +182,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		public override void LeaveHashLiteralExpression(HashLiteralExpression node)
+		{
+			foreach (ExpressionPair pair in node.Items)
+			{
+				CheckExpressionType(pair.First);
+				CheckExpressionType(pair.Second);
+			}
+		}
+
         public override void LeaveGeneratorExpression(GeneratorExpression node)
         {
             CheckExpressionType(node.Expression);
