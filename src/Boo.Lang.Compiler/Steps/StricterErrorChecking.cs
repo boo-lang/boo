@@ -188,8 +188,10 @@ namespace Boo.Lang.Compiler.Steps
         }
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
-		{
-			CheckExpressionType(node.Right);
+		{	
+			if (CheckExpressionType(node.Right))
+				CheckExpressionType(node.Left);
+
 			if (BinaryOperatorType.ReferenceEquality == node.Operator)
 			{
 				if (IsTypeReference(node.Right))
@@ -580,15 +582,24 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			if (IsAddressOfBuiltin(node.Target))
-			{
-				if (!IsSecondArgumentOfDelegateConstructor(node))
-				{
-					Error(CompilerErrorFactory.AddressOfOutsideDelegateConstructor(node.Target));
-				}
-			}
+			if (!IsEvalBuiltin(node.Target))
+				CheckArgumentTypes(node);
+
+			if (IsAddressOfBuiltin(node.Target) && !IsSecondArgumentOfDelegateConstructor(node))
+				Error(CompilerErrorFactory.AddressOfOutsideDelegateConstructor(node.Target));
 		}
-		
+
+		private bool IsEvalBuiltin(Expression expression)
+		{
+			return expression.Entity == BuiltinFunction.Eval;
+		}
+
+		private void CheckArgumentTypes(MethodInvocationExpression node)
+		{
+			foreach (Expression arg in node.Arguments)
+				CheckExpressionType(arg);
+		}
+
 		override public void LeaveConditionalExpression(ConditionalExpression node)
 		{
 			CheckExpressionType(node.TrueValue);
@@ -639,11 +650,14 @@ namespace Boo.Lang.Compiler.Steps
 			return BuiltinFunction.AddressOf == node.Entity;
 		}
 
-		void CheckExpressionType(Expression node)
+		bool CheckExpressionType(Expression node)
 		{
 			IType type = node.ExpressionType;
-			if (type != TypeSystemServices.VoidType) return;
+			if (type != TypeSystemServices.VoidType)
+				return true;
+
 			Error(CompilerErrorFactory.InvalidExpressionType(node, type.ToString()));
+			return false;
 		}
 	}
 }
