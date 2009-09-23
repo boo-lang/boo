@@ -2713,7 +2713,7 @@ namespace Boo.Lang.Compiler.Steps
 						return;
 					}
 					else if (!AstUtil.IsLhsOfAssignment(node)
-					         || !IsNull(((BinaryExpression)node.ParentNode).Right))
+							 || !IsNull(((BinaryExpression)node.ParentNode).Right))
 					{
 						Error(node,
 							  CompilerErrorFactory.EventIsNotAnExpression(node,
@@ -2866,7 +2866,7 @@ namespace Boo.Lang.Compiler.Steps
 		private static void PreferInternalEntitiesOverNonInternal(List<IEntity> matches)
 		{
 			bool isAmbiguousBetweenInternalAndExternalEntities = matches.Contains(EntityPredicates.IsInternalEntity) &&
-			                                                     matches.Contains(EntityPredicates.IsNonInternalEntity);
+																 matches.Contains(EntityPredicates.IsNonInternalEntity);
 			if (isAmbiguousBetweenInternalAndExternalEntities)
 				matches.RemoveAll(EntityPredicates.IsNonInternalEntity);
 		}
@@ -3488,29 +3488,37 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public bool EnterBinaryExpression(BinaryExpression node)
 		{
-			if (BinaryOperatorType.Assign == node.Operator)
+			if (BinaryOperatorType.Assign != node.Operator)
+				return true;
+
+			if (NodeType.ReferenceExpression != node.Left.NodeType)
+				return true;
+
+			if (node.Left.Entity != null)
+				return true;
+
+			// Auto local declaration:
+			// assign to unknown reference implies local
+			// declaration
+			ReferenceExpression reference = (ReferenceExpression)node.Left;
+			IEntity entity = NameResolutionService.Resolve(reference.Name);
+			if (null == entity || TypeSystemServices.IsBuiltin(entity) || IsInaccessible(entity))
 			{
-				if (NodeType.ReferenceExpression == node.Left.NodeType &&
-					null == node.Left.Entity)
-				{
-					// Auto local declaration:
-					// assign to unknown reference implies local
-					// declaration
-					ReferenceExpression reference = (ReferenceExpression)node.Left;
-					IEntity info = NameResolutionService.Resolve(reference.Name);
-					if (null == info || TypeSystemServices.IsBuiltin(info) || IsInaccessible(info))
-					{
-						Visit(node.Right);
-						IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
-						IEntity local = DeclareLocal(reference, reference.Name, expressionType);
-						reference.Entity = local;
-						BindExpressionType(node.Left, expressionType);
-						BindExpressionType(node, expressionType);
-						return false;
-					}
-				}
+				ProcessAutoLocalDeclaration(node, reference);
+				return false;
 			}
+
 			return true;
+		}
+
+		protected virtual void ProcessAutoLocalDeclaration(BinaryExpression node, ReferenceExpression reference)
+		{
+			Visit(node.Right);
+			IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
+			IEntity local = DeclareLocal(reference, reference.Name, expressionType);
+			reference.Entity = local;
+			BindExpressionType(reference, expressionType);
+			BindExpressionType(node, expressionType);
 		}
 
 		bool IsInaccessible(IEntity info)
@@ -3804,8 +3812,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (lhs.IsEnum || rhs.IsEnum)
 			{
 				if (lhs == rhs
-				    || TypeSystemServices.IsPrimitiveNumber(rhs)
-				    || TypeSystemServices.IsPrimitiveNumber(lhs))
+					|| TypeSystemServices.IsPrimitiveNumber(rhs)
+					|| TypeSystemServices.IsPrimitiveNumber(lhs))
 				{
 					BindExpressionType(node, TypeSystemServices.BoolType);
 				}
@@ -4590,8 +4598,8 @@ namespace Boo.Lang.Compiler.Steps
 		private void PreNormalizeExtensionInvocation(MethodInvocationExpression node, IEntityWithParameters extension)
 		{
 			if (0 == node.Arguments.Count
-			    || null == extension
-			    || node.Arguments.Count < extension.GetParameters().Length)
+				|| null == extension
+				|| node.Arguments.Count < extension.GetParameters().Length)
 			{
 				node.Arguments.Insert(0, EnsureMemberReferenceForExtension(node).Target);
 			}
@@ -5490,8 +5498,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (GetExpressionType(node.Left) == TypeSystemServices.BoolType)
 				{
 					Node replacement = (isBool.Value ^ inequality)
-					                   ? node.Left
-					                   : new UnaryExpression(UnaryOperatorType.LogicalNot, node.Left);
+									   ? node.Left
+									   : new UnaryExpression(UnaryOperatorType.LogicalNot, node.Left);
 					node.ParentNode.Replace(node, replacement);
 					Visit(replacement);
 					return;
@@ -5686,14 +5694,19 @@ namespace Boo.Lang.Compiler.Steps
 			return tag;
 		}
 
-		bool CheckNameResolution(Node node, string name, IEntity tag)
+		protected bool CheckNameResolution(Node node, string name, IEntity resolvedEntity)
 		{
-			if (null == tag)
+			if (null == resolvedEntity)
 			{
-				Error(CompilerErrorFactory.UnknownIdentifier(node, name));
+				EmitUnknownIdentifierError(node, name);
 				return false;
 			}
 			return true;
+		}
+
+		protected void EmitUnknownIdentifierError(Node node, string name)
+		{
+			Error(CompilerErrorFactory.UnknownIdentifier(node, name));
 		}
 
 		private bool IsPublicEvent(IEntity tag)
@@ -5847,8 +5860,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (param.IsByRef)
 				{
 					if (!(args[i] is ReferenceExpression
-					    || args[i] is SlicingExpression
-					    || (args[i] is SelfLiteralExpression && argumentType.IsValueType)))
+						|| args[i] is SlicingExpression
+						|| (args[i] is SelfLiteralExpression && argumentType.IsValueType)))
 					{
 						if (reportErrors)
 							Error(CompilerErrorFactory.RefArgTakesLValue(args[i]));
@@ -6693,9 +6706,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("RuntimeServices_EqualityOperator", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));;
+																 });
 			}
 		}
 
@@ -6704,9 +6717,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("Array_get_Length", delegate
-				                                                 {
-				                                                 	return ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
-				                                                 });
+																 {
+																	return ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
+																 });
 			}
 		}
 
@@ -6715,9 +6728,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("Array_GetLength", delegate
-				                                                 {
-				                                                 	return ResolveMethod(TypeSystemServices.ArrayType, "GetLength");;
-				                                                 });
+																 {
+																	return ResolveMethod(TypeSystemServices.ArrayType, "GetLength");;
+																 });
 			}
 		}
 
@@ -6726,9 +6739,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("Array_EnumerableConstructor", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
+																 });
 			}
 		}
 
@@ -6737,9 +6750,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("Array_TypedEnumerableConstructor", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
+																 });
 			}
 		}
 
@@ -6748,9 +6761,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("Array_TypedCollectionConstructor", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));;
+																 });
 			}
 		}
 
@@ -6759,9 +6772,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("Array_TypedIntConstructor", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));;
+																 });
 			}
 		}
 
@@ -6770,9 +6783,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("MultiDimensionalArray_TypedConstructor", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));;
+																 });
 			}
 		}
 
@@ -6781,9 +6794,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("String_get_Length", delegate
-				                                                 {
-				                                                 	return ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();;
-				                                                 });
+																 {
+																	return ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();;
+																 });
 			}
 		}
 
@@ -6792,9 +6805,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("String_IsNullOrEmpty", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.String.GetMethod("IsNullOrEmpty"));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.String.GetMethod("IsNullOrEmpty"));;
+																 });
 			}
 		}
 
@@ -6803,9 +6816,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("String_Substring_Int", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));;
+																 });
 			}
 		}
 
@@ -6814,9 +6827,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("ICollection_get_Count", delegate
-				                                                 {
-				                                                 	return ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();;
-				                                                 });
+																 {
+																	return ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();;
+																 });
 			}
 		}
 
@@ -6825,9 +6838,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("List_GetRange1", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));;
+																 });
 			}
 		}
 
@@ -6836,9 +6849,9 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("List_GetRange2", delegate
-				                                                 {
-				                                                 	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));;
-				                                                 });
+																 {
+																	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));;
+																 });
 			}
 		}
 
@@ -6847,7 +6860,7 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("ICallable_Call", delegate
-				                                                 {
+																 {
 																	 return ResolveMethod(TypeSystemServices.ICallableType, "Call"); ;
 																 });
 			}
@@ -6883,16 +6896,16 @@ namespace Boo.Lang.Compiler.Steps
 			get
 			{
 				return CachedMethod("Activator_CreateInstance", delegate
-				                                                {
-				                                                	return
-				                                                		TypeSystemServices.Map(
-				                                                			typeof(Activator).GetMethod("CreateInstance",
-				                                                			                            new Type[]
-				                                                			                            {
-				                                                			                            	Types.Type,
-				                                                			                            	Types.ObjectArray
-				                                                			                            }));
-				                                                });
+																{
+																	return
+																		TypeSystemServices.Map(
+																			typeof(Activator).GetMethod("CreateInstance",
+																										new Type[]
+																										{
+																											Types.Type,
+																											Types.ObjectArray
+																										}));
+																});
 			}
 		}
 
