@@ -714,10 +714,11 @@ namespace Boo.Lang.Compiler.Steps
 			Error(CompilerErrorFactory.InvalidFieldType(type, type.Entity.ToString()));
 		}
 
-		void CheckDeclarationType(TypeReference type)
+		bool CheckDeclarationType(TypeReference type)
 		{
-			if (type.Entity != TypeSystemServices.VoidType) return;
+			if (type.Entity != TypeSystemServices.VoidType) return true;
 			Error(CompilerErrorFactory.InvalidDeclarationType(type, type.Entity.ToString()));
+			return false;
 		}
 
 		override public void OnBlockExpression(BlockExpression node)
@@ -2148,8 +2149,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveDeclarationStatement(DeclarationStatement node)
 		{
+			EnsureDeclarationType(node);
 			IType type = GetDeclarationType(node);
-
 			AssertDeclarationName(node.Declaration);
 
 			IEntity localInfo = DeclareLocal(node, node.Declaration.Name, type);
@@ -2160,7 +2161,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != node.Initializer)
 			{
 				IType itype = GetExpressionType(node.Initializer);
-				AssertTypeCompatibility(node.Initializer, type, itype);
+				if (CheckDeclarationType(node.Declaration.Type))
+					AssertTypeCompatibility(node.Initializer, type, itype);
 
 				if (TypeSystemServices.IsNullable(type) && !TypeSystemServices.IsNullable(itype))
 				{
@@ -2184,9 +2186,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IType GetDeclarationType(DeclarationStatement node)
 		{
-			if (null != node.Declaration.Type) return GetType(node.Declaration.Type);
+			return GetType(node.Declaration.Type);
+		}
 
-			return InferDeclarationType(node);
+		private void EnsureDeclarationType(DeclarationStatement node)
+		{
+			Declaration declaration = node.Declaration;
+			if (declaration.Type != null) return;
+			declaration.Type = CodeBuilder.CreateTypeReference(declaration.LexicalInfo, InferDeclarationType(node));
 		}
 
 		private IType InferDeclarationType(DeclarationStatement node)
