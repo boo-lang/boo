@@ -253,9 +253,14 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError InputError(string inputName, Exception error)
 		{
-			return new CompilerError("BCE0042", new LexicalInfo(inputName), error, inputName, error.Message);
+			return InputError(new LexicalInfo(inputName), error);
 		}
-		
+
+		public static CompilerError InputError(LexicalInfo lexicalInfo, Exception error)
+		{
+			return new CompilerError("BCE0042", lexicalInfo, error, lexicalInfo.FileName, error.Message);
+		}
+
 		public static CompilerError UnexpectedToken(LexicalInfo lexicalInfo, Exception error, string token)
 		{
 			return new CompilerError("BCE0043", lexicalInfo, error, token);

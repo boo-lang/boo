@@ -2781,7 +2781,7 @@ double_literal returns [DoubleLiteralExpression rle]
 	{
 		val = value.getText();
 		if (neg != null) val = neg.getText() + val;
-		rle = new DoubleLiteralExpression(SourceLocationFactory.ToLexicalInfo(value), PrimitiveParser.ParseDouble(val));
+		rle = new DoubleLiteralExpression(SourceLocationFactory.ToLexicalInfo(value), PrimitiveParser.ParseDouble(value, val));
 	}
 	|
 	single:FLOAT
@@ -2789,7 +2789,7 @@ double_literal returns [DoubleLiteralExpression rle]
 		val = single.getText();
 		val = val.Substring(0, val.Length-1);
 		if (neg != null) val = neg.getText() + val;
-		rle = new DoubleLiteralExpression(SourceLocationFactory.ToLexicalInfo(single), PrimitiveParser.ParseDouble(val, true), true);
+		rle = new DoubleLiteralExpression(SourceLocationFactory.ToLexicalInfo(single), PrimitiveParser.ParseDouble(single, val, true), true);
 	}
 	;
 	
@@ -2800,7 +2800,7 @@ timespan_literal returns [TimeSpanLiteralExpression tsle] { tsle = null; }:
 	{
 		string val = value.getText();
 		if (neg != null) val = neg.getText() + val;
-		tsle = new TimeSpanLiteralExpression(SourceLocationFactory.ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(val)); 
+		tsle = new TimeSpanLiteralExpression(SourceLocationFactory.ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(value, val)); 
 	}
 	;
 

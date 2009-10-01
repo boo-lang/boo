@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using antlr;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 
@@ -124,10 +125,15 @@ namespace Boo.Lang.Parser
 			}
 			else
 			{
-				_context.Errors.Add(CompilerErrorFactory.GenericParserError(data, error));
+				GenericParserError(data, error);
 			}
 		}
-		
+
+		private void GenericParserError(LexicalInfo data, RecognitionException error)
+		{
+			_context.Errors.Add(CompilerErrorFactory.GenericParserError(data, error));
+		}
+
 		void ParserError(LexicalInfo data, antlr.NoViableAltException error)
 		{			
 			_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(data, error, error.token.getText()));
