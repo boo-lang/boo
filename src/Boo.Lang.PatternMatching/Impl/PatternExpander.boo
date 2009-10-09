@@ -49,6 +49,9 @@ class PatternExpander:
 		if pattern isa QuasiquoteExpression:
 			return ExpandQuasiquotePattern(matchValue, pattern)
 			
+		if pattern isa RELiteralExpression:
+			return ExpandRegexPattern(matchValue, pattern)
+			
 		binary = pattern as BinaryExpression
 		if binary is not null:
 			if BinaryOperatorType.Assign == binary.Operator:
@@ -62,6 +65,9 @@ class PatternExpander:
 				
 		return ExpandValuePattern(matchValue, pattern)
 		
+	def ExpandRegexPattern(matchValue as Expression, node as RELiteralExpression):
+		return [| $node.IsMatch($matchValue) |] 
+		
 	def ExpandEitherPattern(matchValue as Expression, node as BinaryExpression) as Expression:
 		l = Expand(matchValue, node.Left)
 		r = Expand(matchValue, node.Right)
@@ -74,7 +80,12 @@ class PatternExpander:
 		return [| $matchValue == $node |]
 		
 	def ExpandCapturePattern(matchValue as Expression, node as BinaryExpression):
-		return ExpandObjectPattern(matchValue, node.Left, node.Right)
+		name = node.Left
+		pattern = node.Right
+		if pattern isa RELiteralExpression:
+			return [| __eval__($name = $pattern.Match($matchValue), $name.Success) |]
+			
+		return ExpandObjectPattern(matchValue, name, pattern)
 		
 	def ExpandObjectPattern(matchValue as Expression, node as MethodInvocationExpression) as Expression:
 		if len(node.NamedArguments) == 0 and len(node.Arguments) == 0:

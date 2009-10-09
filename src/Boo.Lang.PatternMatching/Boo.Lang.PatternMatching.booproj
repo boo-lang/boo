@@ -23,9 +23,15 @@
     <Reference Include="Boo.Lang.Useful" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CaseMacro.boo" />
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="Impl\Globals.boo" />
+    <Compile Include="Impl\MatchExpansion.boo" />
+    <Compile Include="Impl\PatternExpander.boo" />
     <Compile Include="MatchError.boo" />
     <Compile Include="MatchMacro.boo" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Impl" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

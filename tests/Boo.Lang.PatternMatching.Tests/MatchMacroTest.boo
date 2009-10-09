@@ -3,12 +3,6 @@ namespace Boo.Lang.PatternMatching.Tests
 import NUnit.Framework
 import Boo.Lang.PatternMatching
 	
-class Item:
-	public static final Default = Item(Name: "default")
-	
-	[property(Name)] _name = ""
-	[property(Child)] _child as Item
-	
 class Container[of T]:
 	public value as T
 	
