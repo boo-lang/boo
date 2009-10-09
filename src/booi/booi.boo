@@ -66,21 +66,25 @@ class Program:
 			return null
 		return result.GeneratedAssembly
 		
-	def execute(generatedAssembly as Assembly, argv as (string)):	
+	def execute(generatedAssembly as Assembly, argv as (string)):
+		
+		Environment.ExitCode = exitCode = DefaultSuccessCode
+
 		try: 
 			_assemblyResolver.AddAssembly(generatedAssembly)
 			main = generatedAssembly.EntryPoint
-			Environment.ExitCode = DefaultSuccessCode
 			if len(main.GetParameters()) > 0:
 				returnValue = main.Invoke(null, (argv,))
 			else:
 				returnValue = main.Invoke(null, null)
-			Environment.ExitCode = returnValue if returnValue is not null
+			exitCode = returnValue if returnValue is not null
 		except x as TargetInvocationException:
 			print(x.InnerException)
-			return DefaultErrorCode
+			exitCode = DefaultErrorCode
+		ensure:
+			Environment.ExitCode = exitCode
 			
-		return Environment.ExitCode
+		return exitCode
 		
 	def processCommandLine():
 		consumedArgs = 1
