@@ -1031,7 +1031,7 @@
 	</target>
 	
 	<target name="update-vs2005-env" unless="${skip.vs}">
-		<exec program="bin/booi.exe" useruntimeengine="true">
+		<exec program="bin/booi.exe" failonerror="false" useruntimeengine="true">
 			<arg value="scripts/update-vs2005-env.boo" />
 		</exec>	
 	</target>
@@ -1053,7 +1053,7 @@
 			<delete dir="src/Boo.Lang.Compiler/Ast/Impl"
 					if="${directory::exists('src/Boo.Lang.Compiler/Ast/Impl')}" />
 			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
-			<exec program="bin/booi.exe" useruntimeengine="true">
+			<exec program="bin/booi.exe" failonerror="false" useruntimeengine="true">
 				<arg value="scripts/astgen.boo" />
 			</exec>			
 		</if>
@@ -1191,7 +1191,7 @@
 		***
 		</echo>
 		<exec program="${path::combine(gendarme.dir,'gendarme.exe')}"
-			useruntimeengine="true" failonerror="true">
+			useruntimeengine="true">
 			<arg line="--config extras/rules.xml" />
 			<arg line="--html ${build.dir}/gendarme-report.html" />
 			<arg line="--set ${gendarme.set}" unless="${gendarme.set == ''}" />
