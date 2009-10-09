@@ -76,13 +76,18 @@ class TraceMethodCallsAttribute(AbstractAstAttribute):
 			_traceMethod = traceMethod
 			
 		def GetFullName(method as Method):
-			if not IsModuleClass(method.DeclaringType):
-				return method.FullName
+			if IsModuleClass(method.DeclaringType):
+				module as Module = method.EnclosingModule
+				if module.Namespace is null: return method.Name
+				return "${module.Namespace.Name}.{method.Name}"
 			
-			module as Module = method.EnclosingModule
-			if module.Namespace is null: return method.Name
-			return "${module.Namespace.Name}.{method.Name}"
+			prop = method.ParentNode as Property
+			if prop is not null:
+				return prop.FullName + "." + method.Name
+				
+			return method.FullName
 			
+				
 		def IsModuleClass(type as TypeDefinition):
 			return Boo.Lang.Compiler.Steps.IntroduceModuleClasses.IsModuleClass(type)
 		
