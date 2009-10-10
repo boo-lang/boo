@@ -60,13 +60,58 @@ class PatternExpander:
 			if BinaryOperatorType.BitwiseOr == binary.Operator:
 				return ExpandEitherPattern(matchValue, pattern)
 				
+			if BinaryOperatorType.BitwiseAnd == binary.Operator:
+				return ExpandBothPattern(matchValue, pattern)
+	
+			if BinaryOperatorType.And == binary.Operator:
+				return ExpandConstrainedAndPattern(matchValue, pattern)
+				
+			if BinaryOperatorType.Or == binary.Operator:
+				return ExpandConstrainedOrPattern(matchValue, pattern)
+				
 		if pattern isa ArrayLiteralExpression:
 			return ExpandFixedSizePattern(matchValue, pattern)
 				
 		return ExpandValuePattern(matchValue, pattern)
 		
+	def ExpandBothPattern(matchValue as Expression, node as BinaryExpression) as Expression:
+		l = Expand(matchValue, node.Left)
+		r = Expand(matchValue, node.Right)
+		return [| $l and $r |]
+		
+	def ExpandConstrainedAndPattern(matchValue as Expression, node as BinaryExpression) as Expression:
+		l = Expand(matchValue, node.Left)
+		return [| $l and $(node.Right) |]
+		
+	def ExpandConstrainedOrPattern(matchValue as Expression, node as BinaryExpression) as Expression:
+		l = Expand(matchValue, node.Left)
+		return [| $l or $(node.Right) |]
+		
 	def ExpandRegexPattern(matchValue as Expression, node as RELiteralExpression):
-		return [| $node.IsMatch($matchValue) |] 
+		tempBinding = NewTemp(node)
+		return ExpandRegexPatternWithBinding(matchValue, node, tempBinding)
+		
+	def ExpandRegexPatternWithBinding(matchValue as Expression, pattern as RELiteralExpression, binding as ReferenceExpression):
+		
+		groupNames = array[of string](groupName for groupName in pattern.Regex.GetGroupNames() if not IsInteger(groupName))
+		
+		expansion = [| __eval__($binding = $pattern.Match($matchValue)) |]
+		if len(groupNames) == 0:
+			expansion.Arguments.Add([| $binding.Success |])
+		else:
+			bindingAction = [| __eval__() |]
+			for groupName in groupNames:
+				groupBinding = ReferenceExpression(LexicalInfo: pattern.LexicalInfo, Name: groupName)
+				bindingAction.Arguments.Add([| $groupBinding = $binding.Groups[$groupName].Captures |])
+			bindingAction.Arguments.Add([| true |])
+			
+			expansion.Arguments.Add([| ($bindingAction if $binding.Success else false) |])
+			
+		return expansion
+	
+	def IsInteger(s as string):
+		_ as int
+		return int.TryParse(s, _) 
 		
 	def ExpandEitherPattern(matchValue as Expression, node as BinaryExpression) as Expression:
 		l = Expand(matchValue, node.Left)
@@ -83,7 +128,7 @@ class PatternExpander:
 		name = node.Left
 		pattern = node.Right
 		if pattern isa RELiteralExpression:
-			return [| __eval__($name = $pattern.Match($matchValue), $name.Success) |]
+			return ExpandRegexPatternWithBinding(matchValue, pattern, name)
 			
 		return ExpandObjectPattern(matchValue, name, pattern)
 		

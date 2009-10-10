@@ -107,6 +107,48 @@ class MatchMacroTest:
 				return "yes"
 			otherwise:
 				return "no"
+				
+	[Test]
+	def TestConstrainedOrPattern():
+		Assert.AreEqual("yes", constrainedOr(42, 2))
+		Assert.AreEqual("yes", constrainedOr(-1, 2))
+		Assert.AreEqual("yes", constrainedOr(42, 42))
+		Assert.AreEqual("no", constrainedOr(-1, 42))
+		
+	def constrainedOr(value1 as int, value2 as int):
+		match value1:
+			case 42 or value2 < 23:
+				return "yes"
+			otherwise:
+				return "no"
+	
+	[Test]
+	def TestConstrainedAndPattern():
+		Assert.AreEqual("yes", constrainedAnd(42, 2))
+		Assert.AreEqual("no", constrainedAnd(-1, 2))
+		Assert.AreEqual("no", constrainedAnd(42, 42))
+		Assert.AreEqual("no", constrainedAnd(-1, 42))
+		
+	def constrainedAnd(value1 as int, value2 as int):
+		match value1:
+			case 42 and value2 < 23:
+				return "yes"
+			otherwise:
+				return "no"
+			
+	[Test]
+	def TestBothPattern():
+		Assert.AreEqual("yes", both(Item(Name: "foo")))
+		Assert.AreEqual("yes", both(Item(Name: "foo", Child: null)))
+		Assert.AreEqual("no", both(Item(Name: "foo", Child: Item(Name: "bar"))))
+		Assert.AreEqual("no", both(Item(Name: "bar", Child: null)))
+		
+	def both(value as Item):
+		match value:
+			case Item(Child: null) & Item(Name: "foo"):
+				return "yes"
+			otherwise:
+				return "no"
 		
 	enum Foo:
 		None
