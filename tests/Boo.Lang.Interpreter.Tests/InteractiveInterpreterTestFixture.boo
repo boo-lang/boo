@@ -402,10 +402,13 @@ except x as System.OverflowException:
 		
 	class Customer:
 		
-		[Property(FirstName)]
 		_fname as string
 		
 		public LastName as string
+		
+		FirstName:
+			get: return _fname
+			set: _fname = value
 		
 		event Changed as System.EventHandler
 		
