@@ -97,7 +97,7 @@ namespace Boo.Lang.Compiler.Steps
 			ClassDefinition moduleClass = FindModuleClass(node);
 			if (null == moduleClass)
 			{
-				moduleClass = new ClassDefinition();
+				moduleClass = new ClassDefinition(node.LexicalInfo);
 				moduleClass.IsSynthetic = true;
 				hasModuleClass = false;
 			}
@@ -125,11 +125,13 @@ namespace Boo.Lang.Compiler.Steps
 			
 			if (!node.Globals.IsEmpty)
 			{
-				Method method = new Method(node.Globals.LexicalInfo);
+				Method method = new Method();
 				method.IsSynthetic = true;
 				method.Parameters.Add(new ParameterDeclaration("argv", new ArrayTypeReference(new SimpleTypeReference("string"))));
 				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 				method.Body = node.Globals;
+				method.LexicalInfo = node.Globals.Statements[0].LexicalInfo;
+				method.EndSourceLocation = node.EndSourceLocation;
 				method.Name = EntryPointMethodName;
 				method.Modifiers = TypeMemberModifiers.Static | TypeMemberModifiers.Private;
 				moduleClass.Members.Add(method);
@@ -155,6 +157,8 @@ namespace Boo.Lang.Compiler.Steps
 				moduleClass.Modifiers = TypeMemberModifiers.Public |
 										TypeMemberModifiers.Final |
 										TypeMemberModifiers.Transient;
+										
+				moduleClass.EndSourceLocation = node.EndSourceLocation;
 				
 				((InternalModule)node.Entity).InitializeModuleClass(moduleClass);
 			}

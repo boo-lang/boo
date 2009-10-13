@@ -163,6 +163,11 @@ tokens
 		return SourceLocationFactory.ToLexicalInfo(token);
 	}
 	
+	private void SetEndSourceLocation(Node node, IToken token)
+	{
+		node.EndSourceLocation = SourceLocationFactory.ToSourceLocation(token);
+	}
+	
 	private MemberReferenceExpression MemberReferenceForToken(Expression target, IToken memberName)
 	{
 		MemberReferenceExpression mre = new MemberReferenceExpression(ToLexicalInfo(memberName));
@@ -183,7 +188,7 @@ start[CompileUnit cu] returns [Module module]
 	cu.Modules.Add(module);
 }:
 	parse_module[module]
-	EOF
+	eof:EOF { SetEndSourceLocation(module, eof); }
 ;
 	
 protected
@@ -727,6 +732,7 @@ method [TypeMemberCollection container]
 	end[body]
 	{ 
 		container.Add(typeMember);
+		m.EndSourceLocation = body.EndSourceLocation;
 	}
 ;
 
@@ -1244,7 +1250,7 @@ begin_block_with_doc[Node node, Block block]:
 
 protected
 end[Node node] :
-	t:DEDENT { node.EndSourceLocation = SourceLocationFactory.ToSourceLocation(t); }
+	t:DEDENT { SetEndSourceLocation(node, t); }
 	(eos)?
 	;
 
@@ -1265,7 +1271,7 @@ compound_stmt[Block b]
 				)
 			)
 			(options { greedy = true; }: eolToken:EOL { lastEOL = eolToken; })+
-			{ b.EndSourceLocation = SourceLocationFactory.ToSourceLocation(lastEOL); }
+			{ SetEndSourceLocation(b, lastEOL); }
 		) |
 		(
 			COLON begin:INDENT
@@ -2105,7 +2111,7 @@ ast_literal_expression returns [QuasiquoteExpression e]
 		| ast_literal_closure[e]
 	)
 	end:QQ_END
-	{ e.EndSourceLocation = SourceLocationFactory.ToSourceLocation(end); }
+	{ SetEndSourceLocation(e, end); }
 ;
 
 type_definition_member_prediction:

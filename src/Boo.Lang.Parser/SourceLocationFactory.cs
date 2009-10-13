@@ -45,7 +45,8 @@ namespace Boo.Lang.Parser
 
 		public static SourceLocation ToEndSourceLocation(antlr.IToken token)
 		{
-			return new SourceLocation(token.getLine(), token.getColumn() + token.getText().Length - 1);
+			string text = token.getText() ?? "";
+			return new SourceLocation(token.getLine(), token.getColumn() + text.Length - 1);
 		}
 	}
 }
