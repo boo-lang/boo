@@ -457,9 +457,6 @@
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
 			</sources>
-			<references basedir="${build.dir}">
-				<include name="Boo.Lang.Compiler.dll" />
-			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>

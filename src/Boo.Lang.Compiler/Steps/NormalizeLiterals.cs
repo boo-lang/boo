@@ -102,6 +102,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		public override void LeaveExpressionStatement(ExpressionStatement node)
+		{
+			IntegerLiteralExpression literal = node.Expression as IntegerLiteralExpression;
+			if (null == literal)
+				return;
+
+			AssertLiteralInRange(literal, GetExpressionType(literal));
+		}
+
 		void AssertLiteralInRange(IntegerLiteralExpression literal, IType type)
 		{
 			bool ok = true;

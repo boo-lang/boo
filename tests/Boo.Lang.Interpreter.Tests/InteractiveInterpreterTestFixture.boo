@@ -594,7 +594,7 @@ v = AValueType()
 	def ConversionError():
 		_interpreter.RememberLastValue = true
 		output = ConsoleLoopEval("1 << 0x22")
-		assert output.Contains("BCE0171"), output
+		assert output.Contains("Constant value `17179869184L' cannot be converted to a `int'"), output
 		
 	def Eval(code as string):
 		AssertNoErrors _interpreter.Eval(code)
