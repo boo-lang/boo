@@ -590,6 +590,12 @@ v = AValueType()
 		ConsoleLoopEval(code)
 		assert AValueType().Equals(_interpreter.GetValue("v"))
 		
+	[Test]
+	def ConversionError():
+		_interpreter.RememberLastValue = true
+		output = ConsoleLoopEval("1 << 0x22")
+		assert output.Contains("BCE0171"), output
+		
 	def Eval(code as string):
 		AssertNoErrors _interpreter.Eval(code)
 		
