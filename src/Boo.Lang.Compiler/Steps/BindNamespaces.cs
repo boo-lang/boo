@@ -89,16 +89,16 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		private string ActualImportedNamespaceFor(Import import, IEntity entity)
+		private string EffectiveNameForImportedNamespace(Import import)
 		{
 			return null != import.Alias
 			       	? import.Alias.Name
-			       	: entity.FullName;
+			       	: import.Namespace;
 		}
 
 		private bool HandledAsDuplicatedNamespace(Import import, IEntity resolvedEntity)
 		{
-			string actualName = ActualImportedNamespaceFor(import, resolvedEntity);
+			string actualName = EffectiveNameForImportedNamespace(import);
 			//only add unique namespaces
 			Import cachedImport = nameSpaces[actualName] as Import;
 			if (cachedImport == null)

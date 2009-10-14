@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public override string FullName
 		{
-			get { return _namespace.FullName; }
+			get { return _import.Namespace; }
 		}
 
 		#region Overrides of AbstractNamespace
