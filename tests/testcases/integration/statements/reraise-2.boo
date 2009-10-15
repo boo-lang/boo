@@ -5,7 +5,7 @@ reraise successfull
 caught exception; reraising
 reraise successfull
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 try:
 	try:

@@ -3,7 +3,7 @@ OnIdle1
 OnIdle2
 closure
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses
 
 class Test:
 	

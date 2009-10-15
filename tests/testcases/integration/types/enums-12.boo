@@ -2,7 +2,7 @@
 Foo = 1
 Foo = -1
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 def testByteEnum():
 	a = ByteEnum.Foo

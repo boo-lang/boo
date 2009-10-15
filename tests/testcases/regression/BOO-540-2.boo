@@ -4,7 +4,7 @@
 0 0
 10 42
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 for i in range(2):
 	pt as Point # should cause initialization every time

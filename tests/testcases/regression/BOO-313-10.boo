@@ -1,4 +1,4 @@
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class Figure:
 	[property(rect)]

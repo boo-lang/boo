@@ -5,7 +5,7 @@ inside block
 Disposable.Dispose
 after block
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 import NUnit.Framework
 
 d = Disposable()

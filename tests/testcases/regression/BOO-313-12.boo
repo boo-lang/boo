@@ -1,7 +1,7 @@
 """
 10
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class Script(BOO313BaseClass):
 	def run():

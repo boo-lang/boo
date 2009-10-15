@@ -1,5 +1,5 @@
 import NUnit.Framework
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 i0 as int = Constants.UnsignedInt
 i1 as int = Constants.UnsignedLong

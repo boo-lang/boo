@@ -3,7 +3,7 @@ handler - clicked!
 handler - clicked!
 
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class Handler:
 	

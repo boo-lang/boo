@@ -4,7 +4,7 @@
 2
 """
 
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class test(BaseClass):
 	def doit():

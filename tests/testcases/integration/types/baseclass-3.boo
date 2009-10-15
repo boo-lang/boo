@@ -4,7 +4,7 @@ A.Method0
 BaseClass.Method0
 
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class A(BaseClass):
 	def Method0():

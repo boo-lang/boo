@@ -1,7 +1,7 @@
 """
 genericool
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 #this method will not be emitted thus we'll print nothing
 ConditionalClass.PrintNoT[of int](42)

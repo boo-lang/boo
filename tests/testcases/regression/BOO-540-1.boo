@@ -2,7 +2,7 @@
 0 0
 10 42
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 pt = Point()
 print pt.x, pt.y

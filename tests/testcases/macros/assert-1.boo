@@ -4,7 +4,7 @@ assert failed: x and z
 assert passed
 assert failed: msg 1
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 import Boo.Lang.Runtime
 
 

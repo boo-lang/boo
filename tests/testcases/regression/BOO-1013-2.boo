@@ -3,7 +3,7 @@
 foo
 """
 
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class Foo(AbstractFoo):
 	def Bar[of T](x as T) as T:

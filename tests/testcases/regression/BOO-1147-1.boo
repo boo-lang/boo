@@ -1,6 +1,6 @@
 """
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class External(GenericArgumentMustInheritSelf[of External]):
 	pass

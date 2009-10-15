@@ -3,7 +3,7 @@ A.Method0
 BaseClass.Method1
 """
 
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class A(DerivedClass):
 	def Method0():

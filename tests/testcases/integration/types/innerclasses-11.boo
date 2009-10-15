@@ -1,7 +1,7 @@
 """
 3
 """
-import BooCompiler.Tests.OutterClass
+import BooCompiler.Tests.SupportingClasses.OutterClass
 
 struct Foo:
 	x as int

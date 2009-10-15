@@ -8,7 +8,7 @@ OverrideBoolOperator.operator bool
 not o is true
 after
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 o = ExtendsOverridenBoolOperator()
 print "before"

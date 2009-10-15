@@ -2,7 +2,7 @@
 FOO
 28
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 print(Constants.StringConstant.ToUpper())
 print(Constants.IntegerConstant*2)

@@ -1,7 +1,7 @@
 """
 Pointers.Foo(int&)
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses
 
 value = 3
 

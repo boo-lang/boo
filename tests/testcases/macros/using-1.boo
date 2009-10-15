@@ -3,7 +3,7 @@ Disposable.constructor
 Disposable.foo
 Disposable.Dispose
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 import NUnit.Framework
 
 using disposable=Disposable():

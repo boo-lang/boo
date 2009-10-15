@@ -1,7 +1,7 @@
 """
 cool
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 #the method will not be emitted thus we'll print nothing
 ConditionalClass.PrintNothing(42)

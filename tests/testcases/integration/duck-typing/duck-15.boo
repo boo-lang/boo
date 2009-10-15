@@ -2,7 +2,7 @@
 foo
 bar
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 r = ReturnDucks()
 d = r.GetDuck(true)

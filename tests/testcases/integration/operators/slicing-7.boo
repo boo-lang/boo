@@ -2,7 +2,7 @@
 Guido
 Matz
 """
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 people = PersonCollection()
 people.Add(Person(FirstName: "Homer", LastName: "Simpson"))

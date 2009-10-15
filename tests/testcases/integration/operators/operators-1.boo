@@ -8,7 +8,7 @@ False
 lhs is null
 False
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 print null == OverrideEqualityOperators()
 print OverrideEqualityOperators() == null

@@ -2,7 +2,7 @@
 Simpson, Homer
 """
 import System
-import BooCompiler.Tests from BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 p = Person(LastName: "Simpson")
 p.FirstName = "Homer"

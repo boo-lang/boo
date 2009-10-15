@@ -3,7 +3,7 @@ before
 clicked!!!
 after
 """
-import BooCompiler.Tests
+import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 click = def:
 	print("clicked!!!")

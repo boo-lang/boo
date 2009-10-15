@@ -1,7 +1,7 @@
 import System
 import System.IO
 import System.Reflection
-import BooCompiler.Tests
+import BooCompiler.Tests from BooCompiler.Tests
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
