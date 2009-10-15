@@ -33,7 +33,6 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Compiler.TypeSystem.Services
 
-
 [meta]
 def sizeof(e as Expression):
 	ue = e as UnaryExpression
@@ -43,7 +42,7 @@ def sizeof(e as Expression):
 	if not re:
 		goto invalid
 
-	entity = My[of NameResolutionService].Instance.Resolve(re.Name, EntityType.Type | EntityType.Local)
+	entity = my(NameResolutionService).Resolve(re.Name, EntityType.Type | EntityType.Local)
 	if not entity:
 		goto invalid
 	if entity.EntityType == EntityType.Local:
@@ -51,15 +50,15 @@ def sizeof(e as Expression):
 
 	if entity.EntityType == EntityType.Type or entity.EntityType == EntityType.Array:
 		type = entity as IType
-		size = My[of TypeSystemServices].Instance.SizeOf(type)
+		size = my(TypeSystemServices).SizeOf(type)
 
 	if not size:
-		CompilerContext.Current.Errors.Add(CompilerErrorFactory.PointerIncompatibleType(e, type))
+		my(CompilerErrorCollection).Add(CompilerErrorFactory.PointerIncompatibleType(e, type))
 		return IntegerLiteralExpression(0)
 
 	return IntegerLiteralExpression(size)
 
 	:invalid
-	CompilerContext.Current.Errors.Add(CompilerErrorFactory.NameNotType(e, e.ToCodeString(), null, null));
+	my(CompilerErrorCollection).Add(CompilerErrorFactory.NameNotType(e, e.ToCodeString(), null, null));
 	return IntegerLiteralExpression(0)
 
