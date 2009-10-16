@@ -1304,7 +1304,6 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessMethodBody(InternalMethod entity, INamespace ns)
 		{
 			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
-			if (entity.IsGenerator) CreateGeneratorSkeleton(entity);
 		}
 
 		void ProcessNodeInMethodContext(InternalMethod entity, INamespace ns, Node node)
@@ -1328,11 +1327,6 @@ namespace Boo.Lang.Compiler.Steps
 			entity.Method.ReturnType = CodeBuilder.CreateTypeReference(returnType);
 		}
 
-		private IType GeneratorItemTypeFor(InternalMethod entity)
-		{
-			return (IType)entity.Method["GeneratorItemType"];
-		}
-
 		/// <summary>
 		/// Allows a different language to use custom rules for generator
 		/// return types.
@@ -1342,7 +1336,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual IType GetGeneratorReturnType(InternalMethod entity)
 		{
 			// Make method return a generic IEnumerable
-			IType itemType = GeneratorItemTypeFor(entity);
+			IType itemType = GetGeneratorItemType(entity);
 			if (TypeSystemServices.VoidType == itemType)
 			{
 				// circunvent exception in MakeGenericType
@@ -1350,6 +1344,17 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
 			return enumerableType.GenericInfo.ConstructType(itemType);
+		}
+
+		private IType GetGeneratorItemType(InternalMethod generator)
+		{
+			if (TypeSystemServices.IsGenericGeneratorReturnType(generator.ReturnType))
+				return generator.ReturnType.ConstructedInfo.GenericArguments[0];
+
+			ExpressionCollection yieldExpressions = generator.YieldExpressions;
+			return yieldExpressions.Count > 0
+				? TypeSystemServices.GetMostGenericType(yieldExpressions)
+				: TypeSystemServices.ObjectType;
 		}
 
 		void TryToResolveReturnType(InternalMethod entity)
@@ -2005,31 +2010,16 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Expression);
 			LeaveNamespace();
 
-			BooClassBuilder generatorType = CreateGeneratorSkeleton(node);
-
-			// introduce type safe annotation scheme
-			IType returnType = generatorType.Entity;
-			if (TypeSystemServices.VoidType != (IType) node["GeneratorItemType"])
-			{
-				//bind to corresponding IEnumerator[of T] type in order to get a safe return type
-				//that can be used from external assemblies (ie. not a generated internal nested type)
-				returnType = TypeSystemServices.IEnumerableGenericType.GenericInfo.ConstructType((IType) node["GeneratorItemType"]);
-			}
-			BindExpressionType(node, returnType);
+			IType generatorItemType = TypeSystemServices.GetConcreteExpressionType(node.Expression);
+			BindExpressionType(node, GeneratorTypeOf(generatorItemType));
 		}
 
-		private BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression generator)
+		private IType GeneratorTypeOf(IType generatorItemType)
 		{
-			Method currentMethodNode = _currentMethod.Method;
-			BooClassBuilder skeleton = Context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(generator, currentMethodNode);
-			currentMethodNode.DeclaringType.Members.Add(skeleton.ClassDefinition);
-			return skeleton;
-		}
-
-		void CreateGeneratorSkeleton(InternalMethod generator)
-		{
-			TypeDefinition skeleton = Context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(generator).ClassDefinition;
-			generator.Method.DeclaringType.Members.Add(skeleton);
+			if (generatorItemType == TypeSystemServices.VoidType)
+				// cannot use 'void' as a generic argument
+				return TypeSystemServices.ErrorEntity;
+			return TypeSystemServices.IEnumerableGenericType.GenericInfo.ConstructType(generatorItemType);
 		}
 
 		protected IType GetConstructedType(IType genericType, IType argType)

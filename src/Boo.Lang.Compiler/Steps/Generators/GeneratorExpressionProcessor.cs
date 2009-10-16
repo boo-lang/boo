@@ -193,11 +193,11 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
 			foreach (TypeMember member in _enumerable.ClassDefinition.Members)
 			{
-				if (NodeType.Field == member.NodeType)
-				{
-					IField field = (IField)member.Entity;
-					mie.Arguments.Add(CodeBuilder.CreateMemberReference(field));
-				}
+				if (NodeType.Field != member.NodeType)
+					continue;
+
+				IField field = (IField)member.Entity;
+				mie.Arguments.Add(CodeBuilder.CreateMemberReference(field));
 			}
 			
 			method.Body.Add(new ReturnStatement(mie));

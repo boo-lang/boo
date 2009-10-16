@@ -1,4 +1,5 @@
-﻿using Boo.Lang.Compiler.Ast;
+﻿using System;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -11,7 +12,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		private IType _generatorItemType;
 		private Node _sourceNode;
 
-		public BooClassBuilder SkeletonFor(InternalMethod generator)
+		public ClassDefinition SkeletonFor(InternalMethod generator)
 		{
 			_enclosingMethod = generator.Method;
 			_sourceNode = _enclosingMethod;
@@ -20,7 +21,15 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return CreateGeneratorSkeleton();
 		}
 
-		public BooClassBuilder SkeletonFor(GeneratorExpression generator, Method enclosingMethod)
+		private IType GetGeneratorItemType(InternalMethod generator)
+		{
+			IType returnType = generator.ReturnType;
+			if (TypeSystemServices.IsGenericGeneratorReturnType(returnType))
+				return returnType.ConstructedInfo.GenericArguments[0];
+			return TypeSystemServices.ObjectType;
+		}
+
+		public ClassDefinition SkeletonFor(GeneratorExpression generator, Method enclosingMethod)
 		{
 			_enclosingMethod = enclosingMethod;
 			_sourceNode = generator;
@@ -29,26 +38,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return CreateGeneratorSkeleton();
 		}
 
-		private IType GetGeneratorItemType(InternalMethod generator)
-		{
-			IType itemType = null;
-
-			if (TypeSystemServices.IsGenericGeneratorReturnType(generator.ReturnType))
-			{
-				itemType = generator.ReturnType.ConstructedInfo.GenericArguments[0];
-			}
-			if (itemType == null)
-			{
-				ExpressionCollection yieldExpressions = generator.YieldExpressions;
-
-				itemType = yieldExpressions.Count > 0
-				           	? TypeSystemServices.GetMostGenericType(yieldExpressions)
-				           	: TypeSystemServices.ObjectType;
-			}
-			return itemType;
-		}
-
-		BooClassBuilder CreateGeneratorSkeleton()
+		ClassDefinition CreateGeneratorSkeleton()
 		{
 			// create the class skeleton for type inference to work
 			BooClassBuilder builder = CodeBuilder.CreateClass(
@@ -75,7 +65,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_sourceNode["GetEnumeratorBuilder"] = getEnumeratorBuilder;
 			_sourceNode["GeneratorItemType"] = _generatorItemType;
 
-			return builder;
+			return builder.ClassDefinition;
 		}
 
 	}
