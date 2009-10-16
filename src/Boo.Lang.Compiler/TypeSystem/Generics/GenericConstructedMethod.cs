@@ -130,10 +130,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		public ICallableType CallableType
 		{
-			get
-			{
-				return My<TypeSystemServices>.Instance.GetCallableType(this);
-			}
+			get { return My<TypeSystemServices>.Instance.GetCallableType(this); }
 		}
 		
 		public bool IsExtension 
@@ -223,10 +220,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		
 		public bool FullyConstructed
 		{
-			get 
-			{
-				return _fullyConstructed;
-			}
+			get { return _fullyConstructed; }
 		}
 
 		public bool IsDefined(IType attributeType)

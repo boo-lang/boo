@@ -447,8 +447,8 @@ namespace Boo.Lang.Compiler
 		{	
 			object existing;
 			if (_services.TryGetValue(typeof(T), out existing))
-				return existing;
-			object newService = Activator.CreateInstance<T>();
+				return (T)existing;
+			T newService = Activator.CreateInstance<T>();
 			RegisterService(typeof(T), newService);
 			return newService;
 		}

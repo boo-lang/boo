@@ -26,18 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Steps.Generators
 {
-	using System;
-	using System.Collections;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-
 	class GeneratorExpressionProcessor : AbstractCompilerComponent
 	{
 		GeneratorExpression _generator;
@@ -45,6 +42,8 @@ namespace Boo.Lang.Compiler.Steps
 		BooClassBuilder _enumerable;
 		
 		BooClassBuilder _enumerator;
+
+		BooMethodBuilder _getEnumeratorBuilder;
 		
 		Field _current;
 		
@@ -60,11 +59,14 @@ namespace Boo.Lang.Compiler.Steps
 		IType _resultEnumeratorType; 
 		
 		public GeneratorExpressionProcessor(CompilerContext context,
-								ForeignReferenceCollector collector,
-								GeneratorExpression node)
+		                                    ForeignReferenceCollector collector,
+		                                    GeneratorExpression node)
 		{
 			_collector = collector;
 			_generator = node;
+			_resultItemType = (IType)_generator["GeneratorItemType"];
+			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
+			_getEnumeratorBuilder = (BooMethodBuilder) _generator["GetEnumeratorBuilder"];
 			Initialize(context);
 		}
 		
@@ -85,14 +87,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateAnonymousGeneratorType()
 		{
-			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
-
 			// Set up some important types
 			_sourceItemType = TypeSystemServices.ObjectType;
 			_sourceEnumeratorType = TypeSystemServices.IEnumeratorType;
 			_sourceEnumerableType = TypeSystemServices.IEnumerableType;
 			
-			_resultItemType = (IType)_generator["GeneratorItemType"];
 			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(_resultItemType);
 			
 			_enumerator = _collector.CreateSkeletonClass("Enumerator",_generator.LexicalInfo);
@@ -138,7 +137,7 @@ namespace Boo.Lang.Compiler.Steps
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
 		{
 			return _collector.CreateConstructorInvocationWithReferencedEntities(
-							_enumerable.Entity);
+				_enumerable.Entity);
 		}
 		
 		void EnumeratorConstructorMustCallReset()
@@ -150,16 +149,16 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod GetMemberwiseCloneMethod()
 		{
 			return TypeSystemServices.Map(
-						typeof(object).GetMethod("MemberwiseClone",
-							System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance));
+				typeof(object).GetMethod("MemberwiseClone",
+				                         System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance));
 		}
 		
 		MethodInvocationExpression CreateMethodInvocation(ClassDefinition cd, string name)
 		{
 			IMethod method = (IMethod)((Method)cd.Members[name]).Entity;
 			return CodeBuilder.CreateMethodInvocation(
-						CodeBuilder.CreateSelfReference(method.DeclaringType),
-						method);
+				CodeBuilder.CreateSelfReference(method.DeclaringType),
+				method);
 		}
 		
 		void CreateCurrent()
@@ -189,7 +188,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateGetEnumerator()
 		{
-			BooMethodBuilder method = (BooMethodBuilder)_generator["GetEnumeratorBuilder"];
+			BooMethodBuilder method = _getEnumeratorBuilder;
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
 			foreach (TypeMember member in _enumerable.ClassDefinition.Members)
@@ -216,10 +215,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CreateReset()
 		{
-            // Find GetEnumerator method on the source type
-            IMethod getEnumerator = (IMethod)GetMember(_sourceEnumerableType, "GetEnumerator", EntityType.Method);
+			// Find GetEnumerator method on the source type
+			IMethod getEnumerator = (IMethod)GetMember(_sourceEnumerableType, "GetEnumerator", EntityType.Method);
 
-            // Build Reset method that calls GetEnumerator on the source            
+			// Build Reset method that calls GetEnumerator on the source            
 			BooMethodBuilder method = _enumerator.AddVirtualMethod("Reset", TypeSystemServices.VoidType);
 			method.Body.Add(
 				CodeBuilder.CreateAssignment(
@@ -276,10 +275,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (declarations.Count > 1)
 			{
 				NormalizeIterationStatements.UnpackExpression(CodeBuilder,
-												method.Method,
-												outerBlock,
-												current,
-												declarations);
+				                                              method.Method,
+				                                              outerBlock,
+				                                              current,
+				                                              declarations);
 												
 				foreach (Declaration declaration in declarations)
 				{
@@ -291,8 +290,8 @@ namespace Boo.Lang.Compiler.Steps
 				InternalLocal local = (InternalLocal)declarations[0].Entity;
 				method.Locals.Add(local.Local);
 				outerBlock.Add(CodeBuilder.CreateAssignment(
-								CodeBuilder.CreateReference(local),
-								current));
+				               	CodeBuilder.CreateReference(local),
+				               	current));
 			}
 			
 			if (null != filter)
@@ -301,8 +300,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			innerBlock.Add(CodeBuilder.CreateAssignment(
-								CodeBuilder.CreateReference((InternalField)_current.Entity),
-								_generator.Expression));
+			               	CodeBuilder.CreateReference((InternalField)_current.Entity),
+			               	_generator.Expression));
 			innerBlock.Add(new ReturnStatement(new BoolLiteralExpression(true)));
 			
 			method.Body.Add(stmt);
@@ -315,8 +314,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IDisposableType.IsAssignableFrom(_sourceEnumeratorType))
 			{
 				dispose.Body.Add(CodeBuilder.CreateMethodInvocation(
-					CodeBuilder.CreateReference(_enumeratorField),
-					Types.IDisposable.GetMethod("Dispose")));
+				                 	CodeBuilder.CreateReference(_enumeratorField),
+				                 	Types.IDisposable.GetMethod("Dispose")));
 			}
 		}
 
@@ -334,7 +333,7 @@ namespace Boo.Lang.Compiler.Steps
 					return TypeSystemServices.Map(
 						external.ActualType.GetProperty(name));
 				}
-				else if (entityType == EntityType.Method)
+				if (entityType == EntityType.Method)
 				{
 					return TypeSystemServices.Map(
 						external.ActualType.GetMethod(name));
@@ -343,11 +342,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			// For other cases we just scan through the members collection
-            return Collections.FindFirst<IEntity>(
-                type.GetMembers(), 
-                delegate(IEntity e) { 
-                    return entityType == e.EntityType && e.Name == name; 
-                });
+			return Collections.FindFirst<IEntity>(
+				type.GetMembers(), 
+				delegate(IEntity e) {
+					return entityType == e.EntityType && e.Name == name; 
+				});
 		}
 	}
 }

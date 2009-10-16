@@ -63,6 +63,8 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		
 		IType _generatorItemType;
 
+		BooMethodBuilder _getEnumeratorBuilder;
+
 		/// <summary>
 		/// used for expressionless yield statements when the generator type
 		/// is a value type (and thus 'null' is not an appropriate value)
@@ -76,6 +78,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_generator = method;
 			_generatorItemType = (IType)_generator.Method["GeneratorItemType"];
 			_enumerable = (BooClassBuilder)_generator.Method["GeneratorClassBuilder"];
+			_getEnumeratorBuilder = (BooMethodBuilder) _generator.Method["GetEnumeratorBuilder"];
 			Debug.Assert(null != _generatorItemType);
 			Debug.Assert(null != _enumerable);
 			Initialize(context);
@@ -98,7 +101,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			MethodInvocationExpression enumerableConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerable.ClassDefinition);
 			MethodInvocationExpression enumeratorConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
 			PropagateReferences(enumerableConstructorInvocation, enumeratorConstructorInvocation);
-			CreateGetEnumerator(enumeratorConstructorInvocation);
+			CreateGetEnumeratorBody(enumeratorConstructorInvocation);
 			FixGeneratorMethodBody(enumerableConstructorInvocation);
 		}
 		
@@ -156,7 +159,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private InternalMethod GetGetEnumeratorEntity()
 		{
-			return GetGetEnumeratorBuilder().Entity;
+			return _getEnumeratorBuilder.Entity;
 		}
 
 		private bool GeneratorReturnsIEnumerator()
@@ -169,15 +172,10 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return returnsEnumerator;
 		}
 
-		void CreateGetEnumerator(Expression enumeratorExpression)
+		void CreateGetEnumeratorBody(Expression enumeratorExpression)
 		{
-			BooMethodBuilder method = GetGetEnumeratorBuilder();
-			method.Body.Add(new ReturnStatement(enumeratorExpression));
-		}
-
-		private BooMethodBuilder GetGetEnumeratorBuilder()
-		{
-			return (BooMethodBuilder)_generator.Method["GetEnumeratorBuilder"];
+			_getEnumeratorBuilder.Body.Add(
+				new ReturnStatement(enumeratorExpression));
 		}
 
 		void CreateEnumerableConstructor()
@@ -432,7 +430,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		System.Collections.Generic.List<TryStatementInfo> _convertedTryStatements = new System.Collections.Generic.List<TryStatementInfo>();
 		Stack<TryStatementInfo> _tryStatementStack = new Stack<TryStatementInfo>();
 		int _finishedStateNumber;
-		
+
 		public override bool EnterTryStatement(TryStatement node)
 		{
 			TryStatementInfo info = new TryStatementInfo();
