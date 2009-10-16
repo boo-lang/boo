@@ -460,7 +460,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				catch (Exception e)
 				{
-					My<CompilerErrorCollection>.Instance.Add(CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type.FullName), e));
+					throw CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type.FullName), e);
 				}
 
 				_current = saved;
