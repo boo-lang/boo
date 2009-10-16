@@ -361,16 +361,44 @@ namespace Boo.Lang.Compiler
 		///<remarks>Services are unregistered (and potentially disposed) when a pipeline has been ran.</remarks>
 		public void RegisterService<T>(T service) where T : class
 		{
-			if (null == service)
-				throw new ArgumentNullException("T");
+			RegisterService(typeof(T), service);
+		}
 
+		private void RegisterService(Type serviceType, object service)
+		{
+			if (null == service)
+				throw new ArgumentNullException("service");
+
+			AddService(serviceType, service);
+			InitializeService(serviceType, service);
+		}
+
+		private void AddService(Type serviceType, object service)
+		{
 			try
-			{
-				_services.Add(typeof(T), service);
+			{	
+				_services.Add(serviceType, service);
 			}
 			catch (KeyNotFoundException)
 			{
-				throw new ArgumentException(string.Format("Compiler service of type `{0}` is already registered", typeof(T)), "T");
+				throw new ArgumentException(string.Format("Compiler service of type `{0}` is already registered", serviceType), "T");
+			}
+		}
+
+		private void InitializeService(Type serviceType, object service)
+		{
+			ICompilerComponent component = service as ICompilerComponent;
+			if (null == component)
+				return;
+
+			try
+			{
+				component.Initialize(this);
+			}
+			catch (Exception)
+			{
+				_services.Remove(serviceType);
+				throw;
 			}
 		}
 
@@ -411,14 +439,17 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		//internal method used by My idiom
-		internal T Produce<T>() where T : class
-		{
+		///<summary>Gets a registered compiler service of a specific Type or registers a new instance of Type if not yet registered.</summary>
+		///<param name="T">The type of the requested service.</param>
+		///<returns>Returns the requested service instance.</returns>
+		///<exception cref="ArgumentException">Thrown when requested service of type <paramref name="T"/> has not been found.</exception>
+		public T Produce<T>() where T : class
+		{	
 			object existing;
 			if (_services.TryGetValue(typeof(T), out existing))
-				return (T)existing;
-			T newService = Activator.CreateInstance<T>();
-			RegisterService(newService);
+				return existing;
+			object newService = Activator.CreateInstance<T>();
+			RegisterService(typeof(T), newService);
 			return newService;
 		}
 

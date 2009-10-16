@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			if (_context.Errors.Count > 0)
+			if (Errors.Count > 0)
 				return;
 
 			AssemblyBuilder builder = ContextAnnotations.GetAssemblyBuilder(Context);

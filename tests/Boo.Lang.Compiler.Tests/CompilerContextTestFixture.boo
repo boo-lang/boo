@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,20 +26,36 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler
-{
-	public abstract class AbstractAstMacro : AbstractCompilerComponent, IAstMacro
-	{
+namespace Boo.Lang.Compiler.Tests
 
-		protected AbstractAstMacro() : base ()
-		{
-		}
+import Boo.Lang.Compiler
+import NUnit.Framework
 
-		protected AbstractAstMacro(CompilerContext context) : base (context)
-		{
-		}
+[TestFixture]
+class CompilerContextTestFixture:
 
-		public abstract Boo.Lang.Compiler.Ast.Statement Expand(Boo.Lang.Compiler.Ast.MacroStatement macro);
+	class SomeComponent(ICompilerComponent):
+		public Context as CompilerContext
+	
+		def Initialize(context as CompilerContext):
+			Context = context
+			
+		def Dispose():
+			Context = null
 
-	}
-}
+	[Test]
+	def ComponentLifecycle():
+		context = CompilerContext()
+		
+		component = context.Produce[of SomeComponent]()
+		assert component.Context is context
+		
+		context.UnregisterService[of SomeComponent]()
+		assert component.Context is null
+		
+	[Test]
+	def ComponentsAreCached():
+		context = CompilerContext()
+		first = context.Produce[of SomeComponent]()
+		second = context.Produce[of SomeComponent]()
+		assert first is second

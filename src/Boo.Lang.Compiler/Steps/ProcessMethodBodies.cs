@@ -35,6 +35,7 @@ using System.Reflection;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Ast.Visitors;
+using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
@@ -1269,7 +1270,7 @@ namespace Boo.Lang.Compiler.Steps
 				(TypeSystemServices.IEnumerableType == returnType ||
 				 TypeSystemServices.IEnumeratorType == returnType ||
 				 TypeSystemServices.IsSystemObject(returnType) ||
-				 CheckGenericGeneratorReturnType(returnType));
+				 TypeSystemServices.IsGenericGeneratorReturnType(returnType));
 
 			if (!validReturnType)
 			{
@@ -1277,28 +1278,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		bool CheckGenericGeneratorReturnType(IType returnType)
-		{
-			return returnType.ConstructedInfo != null &&
-				(returnType.ConstructedInfo.GenericDefinition == TypeSystemServices.IEnumerableGenericType ||
-				 returnType.ConstructedInfo.GenericDefinition == TypeSystemServices.IEnumeratorGenericType);
-		}
-
 		void CheckGeneratorYieldType(InternalMethod method, IType returnType)
 		{
-			if (CheckGenericGeneratorReturnType(returnType))
-			{
-				IType returnElementType = returnType.ConstructedInfo.GenericArguments[0];
+			if (!TypeSystemServices.IsGenericGeneratorReturnType(returnType))
+				return;
 
-				foreach (Expression yieldExpression in method.YieldExpressions)
+			IType returnElementType = returnType.ConstructedInfo.GenericArguments[0];
+			foreach (Expression yieldExpression in method.YieldExpressions)
+			{
+				IType yieldType = yieldExpression.ExpressionType;
+				if (!returnElementType.IsAssignableFrom(yieldType) &&
+					!TypeSystemServices.CanBeReachedByDownCastOrPromotion(returnElementType, yieldType))
 				{
-					IType yieldType = yieldExpression.ExpressionType;
-					if (!returnElementType.IsAssignableFrom(yieldType) &&
-						!TypeSystemServices.CanBeReachedByDownCastOrPromotion(returnElementType, yieldType))
-					{
-						Error(CompilerErrorFactory.YieldTypeDoesNotMatchReturnType(
-							yieldExpression, yieldType.ToString(), returnElementType.ToString()));
-					}
+					Error(CompilerErrorFactory.YieldTypeDoesNotMatchReturnType(
+						yieldExpression, yieldType.ToString(), returnElementType.ToString()));
 				}
 			}
 		}
@@ -1452,23 +1445,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IType GetMostGenericType(ExpressionCollection args)
 		{
-			IType type = GetConcreteExpressionType(args[0]);
-			for (int i=1; i<args.Count; ++i)
-			{
-				IType newType = GetConcreteExpressionType(args[i]);
-
-				if (type == newType)
-				{
-					continue;
-				}
-
-				type = GetMostGenericType(type, newType);
-				if (TypeSystemServices.IsSystemObject(type))
-				{
-					break;
-				}
-			}
-			return type;
+			return TypeSystemServices.GetMostGenericType(args);
 		}
 
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -2030,6 +2007,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			BooClassBuilder generatorType = CreateGeneratorSkeleton(node);
 
+			// introduce type safe annotation scheme
 			IType returnType = generatorType.Entity;
 			if (TypeSystemServices.VoidType != (IType) node["GeneratorItemType"])
 			{
@@ -2040,73 +2018,23 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, returnType);
 		}
 
-		void CreateGeneratorSkeleton(InternalMethod entity)
+		private BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression generator)
 		{
-			Method method = entity.Method;
-			IType itemType = GetGeneratorItemType(entity);
-			BooClassBuilder builder = CreateGeneratorSkeleton(method, method, itemType);
-			method.DeclaringType.Members.Add(builder.ClassDefinition);
+			Method currentMethodNode = _currentMethod.Method;
+			BooClassBuilder skeleton = Context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(generator, currentMethodNode);
+			currentMethodNode.DeclaringType.Members.Add(skeleton.ClassDefinition);
+			return skeleton;
 		}
 
-		private IType GetGeneratorItemType(InternalMethod entity)
+		void CreateGeneratorSkeleton(InternalMethod generator)
 		{
-			IType itemType = null;
-
-			if (CheckGenericGeneratorReturnType(entity.ReturnType))
-			{
-				itemType = entity.ReturnType.ConstructedInfo.GenericArguments[0];
-			}
-			if (itemType == null)
-			{
-				ExpressionCollection yieldExpressions = entity.YieldExpressions;
-
-				itemType = yieldExpressions.Count > 0
-					? GetMostGenericType(yieldExpressions)
-					: TypeSystemServices.ObjectType;
-			}
-			return itemType;
-		}
-
-		BooClassBuilder CreateGeneratorSkeleton(GeneratorExpression node)
-		{
-			BooClassBuilder builder = CreateGeneratorSkeleton(node, _currentMethod.Method, GetConcreteExpressionType(node.Expression));
-			_currentMethod.Method.DeclaringType.Members.Add(builder.ClassDefinition);
-			return builder;
+			TypeDefinition skeleton = Context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(generator).ClassDefinition;
+			generator.Method.DeclaringType.Members.Add(skeleton);
 		}
 
 		protected IType GetConstructedType(IType genericType, IType argType)
 		{
 			return genericType.GenericInfo.ConstructType(argType);
-		}
-
-		BooClassBuilder CreateGeneratorSkeleton(Node sourceNode, Method method, IType generatorItemType)
-		{
-			// create the class skeleton for type inference to work
-			BooClassBuilder builder = CodeBuilder.CreateClass(
-				Context.GetUniqueName(method.Name),
-				TypeMemberModifiers.Internal|TypeMemberModifiers.Final);
-
-			builder.LexicalInfo = sourceNode.LexicalInfo;
-			builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
-
-			BooMethodBuilder getEnumeratorBuilder = null;
-			if (generatorItemType != TypeSystemServices.VoidType)
-			{
-				builder.AddBaseType(
-					TypeSystemServices.Map(typeof(GenericGenerator<>)).GenericInfo.ConstructType(generatorItemType));
-
-				getEnumeratorBuilder = builder.AddVirtualMethod(
-					"GetEnumerator",
-					TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(generatorItemType));
-
-				getEnumeratorBuilder.Method.LexicalInfo = sourceNode.LexicalInfo;
-			}
-
-			sourceNode["GeneratorClassBuilder"] = builder;
-			sourceNode["GetEnumeratorBuilder"] = getEnumeratorBuilder;
-			sourceNode["GeneratorItemType"] = generatorItemType;
-
-			return builder;
 		}
 
 		override public void LeaveHashLiteralExpression(HashLiteralExpression node)

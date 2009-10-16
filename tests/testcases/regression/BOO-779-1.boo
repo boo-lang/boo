@@ -15,20 +15,7 @@ class Test(IEnumerable, IEnumerable[of int]):
 		return Enumerator()
 
 	class Enumerator(IEnumerator, IEnumerator[of int]):
-		def MoveNext():
-			return false
-		
-		IEnumerator.Current:
-			get: return -1
-		
-		Current as int:
-			get: return -1
-		
-		def Reset():
-			pass
-		
-		def Dispose():
-			pass
+		pass
 
 for item in Test():
 	pass

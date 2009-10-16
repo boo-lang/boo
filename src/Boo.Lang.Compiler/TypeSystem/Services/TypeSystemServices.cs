@@ -240,6 +240,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _context.CodeBuilder;  }
 		}
 
+		public bool IsGenericGeneratorReturnType(IType returnType)
+		{
+			return returnType.ConstructedInfo != null &&
+				(returnType.ConstructedInfo.GenericDefinition == IEnumerableGenericType ||
+				 returnType.ConstructedInfo.GenericDefinition == IEnumeratorGenericType);
+		}
+
+		public IType GetMostGenericType(ExpressionCollection args)
+		{
+			IType type = GetConcreteExpressionType(args[0]);
+			for (int i = 1; i < args.Count; ++i)
+			{
+				IType newType = GetConcreteExpressionType(args[i]);
+				if (type == newType)
+					continue;
+
+				type = GetMostGenericType(type, newType);
+				if (IsSystemObject(type))
+					break;
+			}
+			return type;
+		}
+
 		public IType GetMostGenericType(IType current, IType candidate)
 		{
 			if (null == current && null == candidate)
@@ -247,39 +270,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			if (null == current)
 				return candidate;
-			else if (null == candidate)
+
+			if (null == candidate)
 				return current;
 
 			if (current.IsAssignableFrom(candidate))
-			{
 				return current;
-			}
 
 			if (candidate.IsAssignableFrom(current))
-			{
 				return candidate;
-			}
 
 			if (IsNumberOrBool(current) && IsNumberOrBool(candidate))
-			{
 				return GetPromotedNumberType(current, candidate);
-			}
 
 			if (IsCallableType(current) && IsCallableType(candidate))
-			{
 				return ICallableType;
-			}
 
 			if (current.IsClass && candidate.IsClass)
 			{
 				if (current ==  ObjectType || candidate == ObjectType)
-				{
 					return ObjectType;
-				}
+
 				if (current.GetTypeDepth() < candidate.GetTypeDepth())
-				{
 					return GetMostGenericType(current.BaseType, candidate);
-				}
+
 				return GetMostGenericType(current, candidate.BaseType);
 			}
 			return ObjectType;

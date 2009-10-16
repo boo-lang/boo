@@ -173,7 +173,8 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			ProcessMacro(macroType, node);
 		}
 
-		private void ExpandChildrenOfMacroOnMacroNamespace(MacroStatement node, IType macroType) {
+		private void ExpandChildrenOfMacroOnMacroNamespace(MacroStatement node, IType macroType)
+		{
 			EnterNamespace(new NamespaceDelegator(CurrentNamespace, macroType));
 			try
 			{	

@@ -156,7 +156,6 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				return $(ReferenceExpression(extension))(context)
 		|]
 
-
 	private def CreateMacroType() as ClassDefinition:
 		return CreateMacroType(BuildMacroTypeName(_name), GetParentMacroNames(_macro))
 
@@ -194,6 +193,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 						raise System.ArgumentNullException($_name) if not $arg
 						self.__macro = $arg
 						$(ExpandBody())
+						
 					[System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 					override protected def ExpandImpl($_name as Boo.Lang.Compiler.Ast.MacroStatement) as Boo.Lang.Compiler.Ast.Statement:
 						raise System.NotImplementedException($compatErrorMsg)
@@ -581,7 +581,6 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			p.Add([| $temp = $(GetPrologueCollection(typeof(TNode).FullName)) |])
 			p.Add([| $_arg = Boo.Lang.Compiler.Ast.AstUtil.GetValues[of $TNode, $TValue]($temp) |])
 			return p
-
 
 		private def CreateTemp():
 			return ReferenceExpression(CompilerContext.Current.GetUniqueName())

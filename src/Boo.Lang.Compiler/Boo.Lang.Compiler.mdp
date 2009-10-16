@@ -343,7 +343,6 @@
     <File name="Steps/ExpandVarArgsMethodInvocations.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ForeignReferenceCollector.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/GeneratorExpressionProcessor.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/GeneratorMethodProcessor.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/GenericConstraintsValidator.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/GotoOnTopLevelContinue.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ImplementICallableOnCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
@@ -384,6 +383,8 @@
     <File name="Steps/SerializeToXml.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/StricterErrorChecking.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/Generators/GeneratorMethodProcessor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/Generators/GeneratorSkeletonBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/BindAndApplyAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroExpander.cs" buildaction="Compile" subtype="Code" />

@@ -26,18 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Steps.Generators
 {
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Diagnostics;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-
 	internal class GeneratorMethodProcessor : AbstractTransformerCompilerStep
 	{
 		InternalMethod _generator;
@@ -59,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps
 		Field _externalEnumeratorSelf;
 		
 		List _labels;
-		List<TryStatementInfo> _tryStatementInfoForLabels = new List<TryStatementInfo>();
+		System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
 		
 		Hashtable _mapping;
 		
@@ -113,8 +111,8 @@ namespace Boo.Lang.Compiler.Steps
 				new ReturnStatement(
 					_generator.Method.LexicalInfo,
 					GeneratorReturnsIEnumerator()
-					? CreateGetEnumeratorInvocation(enumerableConstructorInvocation)
-					: enumerableConstructorInvocation));
+						? CreateGetEnumeratorInvocation(enumerableConstructorInvocation)
+						: enumerableConstructorInvocation));
 		}
 		
 		void PropagateReferences(MethodInvocationExpression enumerableConstructorInvocation,
@@ -196,7 +194,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType abstractEnumeratorType =
 				TypeSystemServices.Map(typeof(Boo.Lang.GenericGeneratorEnumerator<>)).
-				GenericInfo.ConstructType(new IType[] {_generatorItemType});
+					GenericInfo.ConstructType(new IType[] {_generatorItemType});
 			
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
@@ -241,10 +239,10 @@ namespace Boo.Lang.Compiler.Steps
 			methodBuilder.Body.Add(finishedLabel);
 			
 			methodBuilder.Body.Insert(0,
-			               CodeBuilder.CreateSwitch(
-			               	this.LexicalInfo,
-			               	CodeBuilder.CreateMemberReference(_state),
-			               	_labels));
+			                          CodeBuilder.CreateSwitch(
+			                          	this.LexicalInfo,
+			                          	CodeBuilder.CreateMemberReference(_state),
+			                          	_labels));
 			
 			// if the method contains converted try statements, put it in a try/failure block
 			if (_convertedTryStatements.Count > 0)
@@ -354,9 +352,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			mn.Body.Insert(0, CodeBuilder.CreateSwitch(
-				this.LexicalInfo,
-				CodeBuilder.CreateMemberReference(_state),
-				disposeLabels));
+			                  	this.LexicalInfo,
+			                  	CodeBuilder.CreateMemberReference(_state),
+			                  	disposeLabels));
 			return mn.Entity;
 		}
 		
@@ -431,7 +429,7 @@ namespace Boo.Lang.Compiler.Steps
 			internal IMethod _ensureMethod;
 		}
 		
-		List<TryStatementInfo> _convertedTryStatements = new List<TryStatementInfo>();
+		System.Collections.Generic.List<TryStatementInfo> _convertedTryStatements = new System.Collections.Generic.List<TryStatementInfo>();
 		Stack<TryStatementInfo> _tryStatementStack = new Stack<TryStatementInfo>();
 		int _finishedStateNumber;
 		

@@ -27,9 +27,7 @@
 #endregion
 
 using System;
-using System.Reflection;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
 
@@ -37,7 +35,7 @@ namespace Boo.Lang.Compiler
 {
 	public abstract class AbstractCompilerComponent : ICompilerComponent
 	{
-		protected CompilerContext _context;
+		private CompilerContext _context;
 
 		protected AbstractCompilerComponent()
 		{
@@ -53,91 +51,61 @@ namespace Boo.Lang.Compiler
 
 		protected CompilerContext Context
 		{
-			get
-			{
-				return _context;
-			}
+			get { return _context; }
 		}
 		
 		protected BooCodeBuilder CodeBuilder
 		{
-			get
-			{
-				return _context.CodeBuilder;
-			}
+			get { return Context.CodeBuilder; }
 		}
 		
 		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
-			get
-			{
-				return _context.CompileUnit;
-			}
+			get { return Context.CompileUnit; }
 		}
 		
 		protected CompilerParameters Parameters
 		{
-			get
-			{
-				return _context.Parameters;
-			}
+			get { return Context.Parameters; }
 		}
 		
 		protected System.IO.TextWriter OutputWriter
 		{
-			get
-			{
-				return _context.Parameters.OutputWriter;
-			}
+			get { return Context.Parameters.OutputWriter; }
 		}
 		
 		protected CompilerErrorCollection Errors
 		{
-			get
-			{
-				return _context.Errors;
-			}
+			get { return Context.Errors; }
 		}
 		
 		protected CompilerWarningCollection Warnings
 		{
-			get
-			{
-				return _context.Warnings;
-			}
+			get { return Context.Warnings; }
 		}
 		
 		protected TypeSystem.TypeSystemServices TypeSystemServices
 		{
-			get
-			{
-				return _context.TypeSystemServices;
-			}
+			get { return Context.TypeSystemServices; }
 		}
 		
 		protected NameResolutionService NameResolutionService
 		{
-			get
-			{
-				return _context.NameResolutionService;
-			}
+			get { return Context.NameResolutionService; }
 		}
 		
 		public IEntity GetEntity(Node node)
 		{
 			if (null == node.Entity)
-			{
 				throw CompilerErrorFactory.InvalidNode(node);
-			}
+
 			return node.Entity;
 		}		
 		
 		public virtual void Initialize(CompilerContext context)
 		{
 			if (null == context)
-			{
 				throw new ArgumentNullException("context");
-			}
 			_context = context;			
 		}
 		

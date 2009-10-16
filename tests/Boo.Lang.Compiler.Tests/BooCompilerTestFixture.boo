@@ -52,8 +52,8 @@ class CaptureContext(ICompilerStep):
 		
 class AssertCurrentContext(Boo.Lang.Compiler.Steps.AbstractCompilerStep):
 	override def Run():
-		Assert.IsNotNull(_context)
-		Assert.AreSame(_context, CompilerContext.Current)
+		Assert.IsNotNull(Context)
+		Assert.AreSame(Context, CompilerContext.Current)
 
 [TestFixture]
 class CompilerTestFixture:

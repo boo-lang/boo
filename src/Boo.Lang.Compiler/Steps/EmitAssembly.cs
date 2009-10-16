@@ -223,29 +223,28 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void DefineTypes()
 		{
-			if (CompileUnit.Modules.Count > 0)
-			{
-				List types = CollectTypes();
-				
-				foreach (TypeDefinition type in types)
-				{
-					DefineType(type);
-				}
-				
-				foreach (TypeDefinition type in types)
-				{
-					DefineGenericParameters(type);
-					DefineTypeMembers(type);
-				}
-				
-				foreach (Module module in CompileUnit.Modules)
-				{
-					OnModule(module);
-				}
+			if (CompileUnit.Modules.Count == 0)
+				return;
 
-				EmitAttributes();
-				CreateTypes(types);
+			List types = CollectTypes();
+			foreach (TypeDefinition type in types)
+			{
+				DefineType(type);
 			}
+			
+			foreach (TypeDefinition type in types)
+			{
+				DefineGenericParameters(type);
+				DefineTypeMembers(type);
+			}
+			
+			foreach (Module module in CompileUnit.Modules)
+			{
+				OnModule(module);
+			}
+
+			EmitAttributes();
+			CreateTypes(types);
 		}
 		
 		sealed class AttributeEmitVisitor : DepthFirstVisitor
@@ -443,48 +442,59 @@ namespace Boo.Lang.Compiler.Steps
 			void CreateTypes()
 			{
 				foreach (TypeMember type in _types)
-				{
 					CreateType(type);
-				}
 			}
 			
 			void CreateType(TypeMember type)
 			{
-				if (!_created.ContainsKey(type))
+				if (_created.ContainsKey(type))
+					return;
+
+				_created.Add(type, type);
+
+				TypeMember saved = _current;
+				_current = type;
+				try
 				{
-					TypeMember saved = _current;
-					_current = type;
-					
-					_created.Add(type, type);
-					
-					Trace("creating type '{0}'", type);
-					
-					if (IsNestedType(type))
-					{
-						CreateType((TypeMember)type.ParentNode);
-					}
-					
-					TypeDefinition typedef = type as TypeDefinition;
-					if (null != typedef)
-					{
-						CreateRelatedTypes(typedef);
-					}
-
-					TypeBuilder typeBuilder = _emitter.GetBuilder(type) as TypeBuilder;
-					if (null != typeBuilder)
-					{
-						typeBuilder.CreateType();
-					}
-					else
-					{
-						EnumBuilder enumBuilder = (EnumBuilder) _emitter.GetBuilder(type);
-						enumBuilder.CreateType();
-					}
-
-					Trace("type '{0}' successfully created", type);
-					
-					_current = saved;
+					HandleTypeCreation(type);
 				}
+				catch (Exception e)
+				{
+					My<CompilerErrorCollection>.Instance.Add(CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type.FullName), e));
+				}
+
+				_current = saved;
+			}
+
+			private void HandleTypeCreation(TypeMember type)
+			{
+				Trace("creating type '{0}'", type);
+				
+				if (IsNestedType(type))
+					CreateOuterTypeOf(type);
+				
+				TypeDefinition typedef = type as TypeDefinition;
+				if (null != typedef)
+					CreateRelatedTypes(typedef);
+
+				TypeBuilder typeBuilder = _emitter.GetBuilder(type) as TypeBuilder;
+				if (null != typeBuilder)
+					typeBuilder.CreateType();
+				else
+					HandleEnumCreation(type);
+
+				Trace("type '{0}' successfully created", type);
+			}
+
+			private void HandleEnumCreation(TypeMember type)
+			{
+				EnumBuilder enumBuilder = (EnumBuilder) _emitter.GetBuilder(type);
+				enumBuilder.CreateType();
+			}
+
+			private void CreateOuterTypeOf(TypeMember type)
+			{
+				CreateType((TypeMember)type.ParentNode);
 			}
 
 			private void CreateRelatedTypes(TypeDefinition typedef)

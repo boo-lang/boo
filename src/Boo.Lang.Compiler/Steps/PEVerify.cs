@@ -69,7 +69,7 @@ namespace Boo.Lang.Compiler.Steps
 			catch (System.Exception e)
             {
 				Warnings.Add(new CompilerWarning("Could not start " + command));      
-                _context.TraceWarning("Could not start " + command +" : " + e.Message);
+                Context.TraceWarning("Could not start " + command +" : " + e.Message);
 			}
 #endif
 		}

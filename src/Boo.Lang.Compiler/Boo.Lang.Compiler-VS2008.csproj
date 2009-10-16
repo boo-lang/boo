@@ -407,7 +407,6 @@
     <Compile Include="Steps\ExpandVarArgsMethodInvocations.cs" />
     <Compile Include="Steps\ForeignReferenceCollector.cs" />
     <Compile Include="Steps\GeneratorExpressionProcessor.cs" />
-    <Compile Include="Steps\GeneratorMethodProcessor.cs" />
     <Compile Include="Steps\GenericConstraintsValidator.cs" />
     <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
@@ -448,6 +447,8 @@
     <Compile Include="Steps\SerializeToXml.cs" />
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
+    <Compile Include="Steps\Generators\GeneratorMethodProcessor.cs" />
+    <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />
     <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
@@ -616,6 +617,9 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Steps\MethodProcessing\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

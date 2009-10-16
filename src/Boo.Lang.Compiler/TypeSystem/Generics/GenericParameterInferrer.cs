@@ -238,7 +238,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			if (inferredType.Fix())
 			{
-				_context.TraceVerbose("Generic parameter {0} fixed to {1}.", genericParameter.Name, inferredType.ResultingType);
+				Context.TraceVerbose("Generic parameter {0} fixed to {1}.", genericParameter.Name, inferredType.ResultingType);
 				return true;
 			}
 			return false;
@@ -329,12 +329,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				      	Arguments,
 				      	delegate(TypedArgument arg) { return arg.Expression.ToString(); }));
 
-			_context.TraceVerbose("Attempting to infer generic type arguments for {0} from argument list ({1}).", _genericMethod, argumentsString);
+			Context.TraceVerbose("Attempting to infer generic type arguments for {0} from argument list ({1}).", _genericMethod, argumentsString);
 		}
 
 		private bool InferenceComplete(bool successfully)
 		{
-			_context.TraceVerbose(
+			Context.TraceVerbose(
 				"Generic type inference for {0} {1}.", 
 				_genericMethod,
 				successfully ? "succeeded" : "failed");

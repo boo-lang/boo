@@ -44,66 +44,42 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected CompilerContext Context
 		{
-			get
-			{
-				return _context;
-			}
+			get { return _context; }
 		}
 		
 		protected BooCodeBuilder CodeBuilder
 		{
-			get
-			{
-				return _context.CodeBuilder;
-			}
+			get { return _context.CodeBuilder; }
 		}
 		
 		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
-			get
-			{
-				return _context.CompileUnit;
-			}
+			get { return _context.CompileUnit; }
 		}
 		
 		protected NameResolutionService NameResolutionService
 		{
-			get
-			{
-				return _context.NameResolutionService;
-			}
+			get { return _context.NameResolutionService; }
 		}
 		
 		protected CompilerParameters Parameters
 		{
-			get
-			{
-				return _context.Parameters;
-			}
+			get { return _context.Parameters; }
 		}
 		
 		protected CompilerErrorCollection Errors
 		{
-			get
-			{
-				return _context.Errors;
-			}
+			get { return _context.Errors; }
 		}
 		
 		protected CompilerWarningCollection Warnings
 		{
-			get
-			{
-				return _context.Warnings;
-			}
+			get { return _context.Warnings; }
 		}
 		
 		protected TypeSystemServices TypeSystemServices
 		{
-			get
-			{
-				return _context.TypeSystemServices;
-			}
+			get { return _context.TypeSystemServices; }
 		}
 
 		public override void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
@@ -188,9 +164,7 @@ namespace Boo.Lang.Compiler.Steps
 		public virtual void Initialize(CompilerContext context)
 		{
 			if (null == context)
-			{
 				throw new ArgumentNullException("context");
-			}
 			_context = context;
 		}
 		
@@ -212,14 +186,14 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
 		{
 			IInternalEntity internalEntity = GetConstructedInternalEntity(entity);
-			if (null != internalEntity)
-			{
-				Node node = internalEntity.Node;
-				if (!WasVisited(node))
-				{
-					Visit(node);
-				}
-			}
+			if (null == internalEntity)
+				return;
+
+			Node node = internalEntity.Node;
+			if (WasVisited(node))
+				return;
+
+			Visit(node);
 		}
 
 		protected static IInternalEntity GetConstructedInternalEntity(IEntity entity)

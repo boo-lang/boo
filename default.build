@@ -452,11 +452,17 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Extensions.dll"
 			failonerror="true"
+			nostdlib="true"
 			verbose="${verbose}"
 			debug="${debug}">
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
 			</sources>
+			<references basedir="${build.dir}">
+				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="System.dll" />
+			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
