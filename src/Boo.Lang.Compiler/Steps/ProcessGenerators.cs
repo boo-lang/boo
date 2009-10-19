@@ -80,16 +80,8 @@ namespace Boo.Lang.Compiler.Steps
 			InternalMethod entity = (InternalMethod)method.Entity;
 			if (!entity.IsGenerator) return;
 
-			TypeDefinition skeleton = SkeletonBuilder().SkeletonFor(entity);
-			_current.DeclaringType.Members.Add(skeleton);
-			
 			GeneratorMethodProcessor processor = new GeneratorMethodProcessor(_context, entity);
 			processor.Run();
-		}
-
-		private GeneratorSkeletonBuilder SkeletonBuilder()
-		{
-			return Context.Produce<GeneratorSkeletonBuilder>();
 		}
 
 		override public void OnListLiteralExpression(ListLiteralExpression node)
@@ -107,9 +99,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
 		{
-			TypeDefinition skeleton = SkeletonBuilder().SkeletonFor(node, _current);
-			_current.DeclaringType.Members.Add(skeleton);
-
 			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
 			{
 				collector.CurrentType = (IType)AstUtil.GetParentClass(node).Entity;

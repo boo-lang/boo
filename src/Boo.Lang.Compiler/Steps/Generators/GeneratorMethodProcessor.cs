@@ -28,7 +28,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
@@ -76,11 +75,12 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_labels = new List();
 			_mapping = new Hashtable();
 			_generator = method;
-			_generatorItemType = (IType)_generator.Method["GeneratorItemType"];
-			_enumerable = (BooClassBuilder)_generator.Method["GeneratorClassBuilder"];
-			_getEnumeratorBuilder = (BooMethodBuilder) _generator.Method["GetEnumeratorBuilder"];
-			Debug.Assert(null != _generatorItemType);
-			Debug.Assert(null != _enumerable);
+
+			GeneratorSkeleton skeleton = context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(method);
+			_generatorItemType = skeleton.GeneratorItemType;
+			_enumerable = skeleton.GeneratorClassBuilder;
+			_getEnumeratorBuilder = skeleton.GetEnumeratorBuilder;
+
 			Initialize(context);
 		}
 		

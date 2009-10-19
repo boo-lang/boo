@@ -30,8 +30,6 @@ using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
-using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.Generators
 {
@@ -39,12 +37,8 @@ namespace Boo.Lang.Compiler.Steps.Generators
 	{
 		GeneratorExpression _generator;
 		
-		BooClassBuilder _enumerable;
-		
 		BooClassBuilder _enumerator;
 
-		BooMethodBuilder _getEnumeratorBuilder;
-		
 		Field _current;
 		
 		Field _enumeratorField;
@@ -54,19 +48,16 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		IType _sourceItemType;
 		IType _sourceEnumeratorType; 
 		IType _sourceEnumerableType;
+		IType _resultEnumeratorType;
+		GeneratorSkeleton _skeleton;
 
-		IType _resultItemType;
-		IType _resultEnumeratorType; 
-		
 		public GeneratorExpressionProcessor(CompilerContext context,
 		                                    ForeignReferenceCollector collector,
 		                                    GeneratorExpression node)
 		{
 			_collector = collector;
 			_generator = node;
-			_resultItemType = (IType)_generator["GeneratorItemType"];
-			_enumerable = (BooClassBuilder)_generator["GeneratorClassBuilder"];
-			_getEnumeratorBuilder = (BooMethodBuilder) _generator["GetEnumeratorBuilder"];
+			_skeleton = context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(node, node.GetAncestor<Method>());
 			Initialize(context);
 		}
 		
@@ -80,9 +71,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
 			Hash referencedEntities = _collector.ReferencedEntities;
 			foreach (Declaration d in _generator.Declarations)
-			{
 				referencedEntities.Remove(d.Entity);
-			}
 		}
 		
 		void CreateAnonymousGeneratorType()
@@ -92,7 +81,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_sourceEnumeratorType = TypeSystemServices.IEnumeratorType;
 			_sourceEnumerableType = TypeSystemServices.IEnumerableType;
 			
-			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(_resultItemType);
+			_resultEnumeratorType = TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(_skeleton.GeneratorItemType);
 			
 			_enumerator = _collector.CreateSkeletonClass("Enumerator",_generator.LexicalInfo);
 
@@ -115,7 +104,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			
 			// Add fields
 			_enumeratorField = _enumerator.AddField("$$enumerator", _sourceEnumeratorType);
-			_current = _enumerator.AddField("$$current", _resultItemType);
+			_current = _enumerator.AddField("$$current", _skeleton.GeneratorItemType);
 			
 			// Add methods 
 			CreateReset();
@@ -127,17 +116,18 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			EnumeratorConstructorMustCallReset();
 			
 			_collector.AdjustReferences();
-			
-			_collector.DeclareFieldsAndConstructor(_enumerable);
+
+			BooClassBuilder generatorClassBuilder = _skeleton.GeneratorClassBuilder;
+			_collector.DeclareFieldsAndConstructor(generatorClassBuilder);
 			
 			CreateGetEnumerator();
-			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
+			generatorClassBuilder.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
 		}
 		
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
 		{
 			return _collector.CreateConstructorInvocationWithReferencedEntities(
-				_enumerable.Entity);
+				_skeleton.GeneratorClassBuilder.Entity);
 		}
 		
 		void EnumeratorConstructorMustCallReset()
@@ -170,7 +160,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 					CodeBuilder.CreateReference(_current)));
 
 			// If item type is object, we're done
-			if (_resultItemType == TypeSystemServices.ObjectType) return;
+			if (_skeleton.GeneratorItemType == TypeSystemServices.ObjectType) return;
 				
 			// Since enumerator is generic, this object-typed property should be the 
 			// explicit interface implementation for the non-generic IEnumerator interface
@@ -179,7 +169,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 				(SimpleTypeReference)CodeBuilder.CreateTypeReference(TypeSystemServices.IEnumeratorType);
 			
 			// ...and now we create a typed property for the generic IEnumerator<> interface
-			Property typedProperty = _enumerator.AddReadOnlyProperty("Current", _resultItemType);
+			Property typedProperty = _enumerator.AddReadOnlyProperty("Current", _skeleton.GeneratorItemType);
 			typedProperty.Getter.Modifiers |= TypeMemberModifiers.Virtual;
 			typedProperty.Getter.Body.Add(
 				new ReturnStatement(
@@ -188,10 +178,10 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		
 		void CreateGetEnumerator()
 		{
-			BooMethodBuilder method = _getEnumeratorBuilder;
+			BooMethodBuilder method = _skeleton.GetEnumeratorBuilder;
 			
 			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
-			foreach (TypeMember member in _enumerable.ClassDefinition.Members)
+			foreach (TypeMember member in _skeleton.GeneratorClassBuilder.ClassDefinition.Members)
 			{
 				if (NodeType.Field != member.NodeType)
 					continue;
@@ -324,29 +314,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		/// </summary>
 		private IEntity GetMember(IType type, string name, EntityType entityType)
 		{
-			// For external types we can use GetMethod or GetProperty to optimize things a little
-			ExternalType external = type as ExternalType;
-			if (external != null)
-			{
-				if (entityType == EntityType.Property)
-				{
-					return TypeSystemServices.Map(
-						external.ActualType.GetProperty(name));
-				}
-				if (entityType == EntityType.Method)
-				{
-					return TypeSystemServices.Map(
-						external.ActualType.GetMethod(name));
-
-				}
-			}
-
-			// For other cases we just scan through the members collection
-			return Collections.FindFirst<IEntity>(
-				type.GetMembers(), 
-				delegate(IEntity e) {
-					return entityType == e.EntityType && e.Name == name; 
-				});
+			return NameResolutionService.ResolveMember(type, name, entityType);
 		}
 	}
 }
