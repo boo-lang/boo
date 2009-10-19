@@ -136,7 +136,7 @@ class BooTask(AbstractBooTask):
 			
 	private def reindent(code as string):
 		lines = /\n/.Split(code.Replace("\r\n", "\n"))
-		lines = [line for line in lines if len(line.Trim())].ToArray(string)
+		lines = array(line for line in lines if len(line.Trim()))
 	
 		first = lines[0]
 		indent = /(\s*)/.Match(first).Groups[0].Value
