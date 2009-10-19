@@ -35,11 +35,17 @@ namespace Boo.Lang.Compiler.Ast
 	
 	public delegate bool NodePredicate(Node node);
 
+	public interface ITypedAnnotations
+	{
+		T Get<T>() where T : class;
+		void Set<T>(T annotation) where T : class;
+	}
+
 	/// <summary>
 	/// Base class for every node in the AST.
 	/// </summary>
 	[Serializable]
-	public abstract class Node : ICloneable
+	public abstract class Node : ICloneable, ITypedAnnotations
 	{
 		public static bool Matches<T>(T lhs, T rhs) where T : Node
 		{
@@ -91,9 +97,7 @@ namespace Boo.Lang.Compiler.Ast
 		protected Node(LexicalInfo lexicalInfo)
 		{
 			if (null == lexicalInfo)
-			{
 				throw new ArgumentNullException("lexicalInfo");
-			}
 			_lexicalInfo = lexicalInfo;
 		}
 
@@ -115,29 +119,17 @@ namespace Boo.Lang.Compiler.Ast
 		[System.ComponentModel.DefaultValue(false)]
 		public bool IsSynthetic
 		{
-			get
-			{
-				return _isSynthetic;
-			}
+			get { return _isSynthetic; }
 			
-			set
-			{
-				_isSynthetic = value;
-			}
+			set { _isSynthetic = value; }
 		}
 		
 		[XmlIgnore]
-		internal Boo.Lang.Compiler.TypeSystem.IEntity Entity
+		internal TypeSystem.IEntity Entity
 		{
-			get
-			{
-				return Boo.Lang.Compiler.TypeSystem.TypeSystemServices.GetOptionalEntity(this);
-			}
+			get { return TypeSystem.TypeSystemServices.GetOptionalEntity(this); }
 			
-			set
-			{
-				Boo.Lang.Compiler.TypeSystem.TypeSystemServices.Bind(this, value);
-			}
+			set { TypeSystem.TypeSystemServices.Bind(this, value); }
 		}
 		
 		public object this[object key]
@@ -155,7 +147,27 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 
+		/// <summary>
+		/// Strongly typed annotation mechanism.
+		/// 
+		/// <example>
+		/// generatorSkeleton = generator.Tags.Get[of GeneratorSkeleton]()
+		/// </example>
+		/// </summary>
+		public ITypedAnnotations Tags
+		{
+			get { return this; }
+		}
 
+		T ITypedAnnotations.Get<T>()
+		{
+			return (T) this[typeof(T).TypeHandle];
+		}
+
+		void ITypedAnnotations.Set<T>(T annotation)
+		{
+			Annotate(typeof(T).TypeHandle, annotation);
+		}
 
 		public bool HasAnnotations
 		{
@@ -192,43 +204,33 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public Node ParentNode
 		{
-			get
-			{
-				return _parent;
-			}
+			get { return _parent; }
 		}
 		
 		public string Documentation
 		{
-			get
-			{
-				return _documentation;
-			}
+			get { return _documentation; }
 			
-			set
-			{
-				_documentation = value;
-			}
+			set { _documentation = value; }
 		}
 
+		/// <summary>
+		/// Where this element appears in the source file.
+		/// </summary>
 		[XmlIgnore]
 		public LexicalInfo LexicalInfo
 		{
 			get
 			{
-				if(_lexicalInfo.Equals(LexicalInfo.Empty) && null != ParentNode && null != ParentNode.LexicalInfo)
-				{
+				if (_lexicalInfo.Equals(LexicalInfo.Empty) && null != ParentNode && null != ParentNode.LexicalInfo)
 					_lexicalInfo = ParentNode.LexicalInfo;
-				}
 				return _lexicalInfo;
 			}
 
 			set
 			{
 				if (null == value)
-				{
 					throw new ArgumentNullException("LexicalInfo");
-				}
 				_lexicalInfo = value;
 			}
 		}
@@ -236,22 +238,17 @@ namespace Boo.Lang.Compiler.Ast
 		/// <summary>
 		/// Where this element ends in the source file.
 		/// This information is generally available and/or accurate
-		/// only for blocks and type definitions.
+		/// only for blocks and member definitions.
 		/// </summary>
 		[System.Xml.Serialization.XmlIgnore]
 		public virtual SourceLocation EndSourceLocation
 		{
-			get
-			{
-				return _endSourceLocation;
-			}
+			get { return _endSourceLocation; }
 			
 			set
 			{
 				if (null == value)
-				{
 					throw new ArgumentNullException("EndSourceLocation");
-				}
 				_endSourceLocation = value;
 			}
 		}
@@ -259,9 +256,7 @@ namespace Boo.Lang.Compiler.Ast
 		public virtual bool Replace(Node existing, Node newNode)
 		{
 			if (null == existing)
-			{
 				throw new ArgumentNullException("existing");
-			}
 			return false;
 		}
 		
@@ -279,10 +274,7 @@ namespace Boo.Lang.Compiler.Ast
 			
 			public int Matches
 			{
-				get
-				{
-					return _matches;
-				}
+				get { return _matches; }
 			}
 	
 			override protected void OnNode(Node node)
@@ -356,7 +348,6 @@ namespace Boo.Lang.Compiler.Ast
 			new Visitors.BooPrinterVisitor(writer).Visit(this);
 			return writer.ToString();
 		}
-
 
 		///<summary>
 		///Returns the closest ancestor node of type <paramref name="ancestorType"/>
