@@ -1,6 +1,4 @@
-The boo programming language
-(c) 2003, 2004, 2005 Rodrigo Barreto de Oliveira
-rbo@acm.org
+The boo programming language (c) 2009 Rodrigo Barreto de Oliveira (rbo@acm.org)
 
 Building
 ========
