@@ -107,6 +107,7 @@
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
     <Compile Include="SupportingClasses\AbstractClass.cs" />
+    <Compile Include="SupportingClasses\BaseInterface.cs" />
     <Compile Include="SupportingClasses\BOO313BaseClass.cs" />
     <Compile Include="SupportingClasses\ByRef.cs" />
     <Compile Include="SupportingClasses\ByteEnum.cs" />

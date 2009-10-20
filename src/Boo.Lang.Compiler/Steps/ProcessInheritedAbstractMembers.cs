@@ -176,61 +176,63 @@ namespace Boo.Lang.Compiler.Steps
 		/// <summary>
 		/// This function checks for inheriting implementations from EXTERNAL classes only.
 		/// </summary>
-		bool CheckInheritsInterfaceImplementation(ClassDefinition node, IEntity entity)
+		bool CheckInheritsInterfaceImplementation(ClassDefinition node, IEntity abstractMember)
 		{
-			foreach( TypeReference baseTypeRef in node.BaseTypes)
+			foreach (TypeReference baseTypeRef in node.BaseTypes)
 			{
 				IType type = GetType(baseTypeRef);
-				if( type.IsClass && !type.IsInterface)
-				{	
-					//TODO: figure out why this freakish incidence happens:
-					//entity.Name == "CopyTo"
-					//vs
-					//entity.Name == "System.ICollection.CopyTo" ... ... ...
-					//Technically correct, but completely useless.
-					IEntity inheritedImpl = null;					
-					foreach(IEntity oddjob in type.GetMembers())
-					{
-						string[] temp = oddjob.FullName.Split('.');
-						string actualName = temp[temp.Length - 1];
-						if( actualName == entity.Name)
-						{
-                            if (null != inheritedImpl)
-                            {
-                                //Events and their corresponding Delegate Fields can have the same name
-                                //In such cases, we want the Event...
-                                ExternalField oddField = oddjob as ExternalField;
-                                if (inheritedImpl is ExternalEvent && null != oddField
-                                    && oddField.Type.IsSubclassOf(TypeSystemServices.MulticastDelegateType))
-                                {
-                                    continue;
-                                }
-                            }
-							inheritedImpl = oddjob;
-						}
-					}
-					//inheritedImpl = NameResolutionService.ResolveMember(type, entity.Name, entity.EntityType);
-					if( null != inheritedImpl)
-					{
-						if(inheritedImpl == entity)
-							return false; //Evaluating yourself is a very bad habit.
+				if (type.IsInterface)
+					continue;
 
-						if (inheritedImpl is IExternalEntity && entity is IExternalEntity)
-							return true; //both sides are external, no need to check further
+				foreach (IEntity candidate in ImplementationCandidatesFor(abstractMember, type))
+				{
+					if (candidate == abstractMember)
+						return false; //Evaluating yourself is a very bad habit.
 
-						switch( entity.EntityType)
-						{
-							case EntityType.Method:
-								return CheckInheritedMethodImpl(inheritedImpl as IMethod, entity as IMethod);
-							case EntityType.Event:
-								return CheckInheritedEventImpl(inheritedImpl as IEvent, entity as IEvent);
-							case EntityType.Property:
-								return CheckInheritedPropertyImpl(inheritedImpl as IProperty, entity as IProperty);
-						}
+					switch( abstractMember.EntityType)
+					{
+						case EntityType.Method:
+							if (CheckInheritedMethodImpl(candidate as IMethod, abstractMember as IMethod))
+								return true;
+							break;
+						case EntityType.Event:
+							if (CheckInheritedEventImpl(candidate as IEvent, abstractMember as IEvent))
+								return true;
+							break;
+						case EntityType.Property:
+							if (CheckInheritedPropertyImpl(candidate as IProperty, abstractMember as IProperty))
+								return true;
+							break;
 					}
 				}
 			}
 			return false;
+		}
+
+		private IEnumerable<IEntity> ImplementationCandidatesFor(IEntity abstractMember, IType inBaseType)
+		{
+			foreach (IEntity candidate in inBaseType.GetMembers())
+			{
+				if (candidate.EntityType != abstractMember.EntityType)
+					continue;
+
+				if (candidate.EntityType == EntityType.Field)
+					continue;
+				
+				if (SimpleNameOf(candidate) == abstractMember.Name)
+					yield return candidate;
+			}
+		}
+
+		private string SimpleNameOf(IEntity candidate)
+		{
+			//TODO: figure out why this freakish incidence happens:
+			//abstractMember.Name == "CopyTo"
+			//vs
+			//abstractMember.Name == "System.ICollection.CopyTo" ... ... ...
+			//Technically correct, but completely useless.
+			string[] temp = candidate.FullName.Split('.');
+			return temp[temp.Length - 1];
 		}
 
 		bool CheckInheritedMethodImpl(IMethod impl, IMethod baseMethod)
@@ -239,12 +241,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				IType baseReturnType = TypeSystemServices.GetOverriddenSignature(baseMethod, impl).ReturnType;
 				if (impl.ReturnType == baseReturnType)
-				{
 					return true;
-				}
-				
-				//TODO: Oh snap! No reusable error messages for this!
-				//Errors(CompilerErrorFactory.ConflictWithInheritedMember());
 			}
 			return false;
 		}
@@ -256,35 +253,30 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool CheckInheritedPropertyImpl(IProperty impl, IProperty target)
 		{
-			if(impl.Type == target.Type)
+			if (impl.Type != target.Type)
+				return false;
+
+			if (!TypeSystemServices.CheckOverrideSignature(impl.GetParameters(), target.GetParameters()))
+				return false;
+	
+			if (HasGetter(target))
 			{
-				if(TypeSystemServices.CheckOverrideSignature(impl.GetParameters(), target.GetParameters()))
-				{					
-					if(HasGetter(target))
-					{
-						if(!HasGetter(impl))
-						{
-							return false;
-						}
-					}
-					if(HasSetter(target))
-					{
-						if(!HasSetter(impl))
-						{
-							return false;
-						}
-					}
-					/* Unnecessary?
-					  if(impl.IsPublic != target.IsPublic || 
-					   impl.IsProtected != target.IsProtected ||
-					   impl.IsPrivate != target.IsPrivate)
-					{
-						return false;
-					}*/
-					return true;
-				}
+				if (!HasGetter(impl))
+					return false;
 			}
-			return false;
+			if (HasSetter(target))
+			{
+				if (!HasSetter(impl))
+					return false;
+			}
+			/* Unnecessary?
+			  if(impl.IsPublic != target.IsPublic || 
+			   impl.IsProtected != target.IsProtected ||
+			   impl.IsPrivate != target.IsPrivate)
+			{
+				return false;
+			}*/
+			return true;
 		}
 
 		private static bool HasGetter(IProperty property)
@@ -300,15 +292,11 @@ namespace Boo.Lang.Compiler.Steps
 		private bool IsAbstract(IType type)
 		{
 			if (type.IsAbstract)
-			{
 				return true;
-			}
 
 			AbstractInternalType internalType = type as AbstractInternalType;
 			if (null != internalType)
-			{
 				return _newAbstractClasses.Contains(internalType.TypeDefinition);
-			}
 			return false;
 		}
 
@@ -428,9 +416,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void ResolveAbstractMethod(ClassDefinition node,
-			TypeReference baseTypeRef,
-			IMethod baseMethod)
+		void ResolveAbstractMethod(ClassDefinition node, TypeReference baseTypeRef, IMethod baseMethod)
 		{
 			if (baseMethod.IsSpecialName)
 				return;
@@ -438,11 +424,8 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (Method method in GetAbstractMethodImplementationCandidates(node, baseMethod))
 			{
 				IMethod methodEntity = GetEntity(method);
-
 				if (!TypeSystemServices.CheckOverrideSignature(methodEntity, baseMethod))
-				{
 					continue;
-				}
 
 				CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
 				if (IsUnknown(methodEntity.ReturnType))
@@ -476,7 +459,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			if(CheckInheritsInterfaceImplementation(node, baseMethod))
+			if (CheckInheritsInterfaceImplementation(node, baseMethod))
 				return;
 
 			if(depth == 0)
@@ -545,11 +528,6 @@ namespace Boo.Lang.Compiler.Steps
 			ExplicitMemberInfo info = ((IExplicitMember)member).ExplicitInfo;
 			return info == null
 				|| entity.DeclaringType == GetType(info.InterfaceType);
-		}
-
-		private static bool IsUnknown(TypeReference typeRef)
-		{
-			return Unknown.Default == typeRef.Entity;
 		}
 		
 		//returns true if a stub has been created, false otherwise.
