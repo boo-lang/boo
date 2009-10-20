@@ -495,6 +495,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			
 			if (p.ParentNode.NodeType == NodeType.CallableTypeReference)
 			{
+				if (p.IsParamArray) Write("*");
 				Visit(p.Type);
 			}
 			else
