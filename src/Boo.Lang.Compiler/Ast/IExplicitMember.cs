@@ -26,13 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler.Ast
 {
-	/// <summary>
-	/// Summary description for IExplicitMember.
-	/// </summary>
 	public interface IExplicitMember
 	{
 		ExplicitMemberInfo ExplicitInfo

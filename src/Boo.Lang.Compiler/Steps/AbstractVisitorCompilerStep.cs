@@ -114,6 +114,11 @@ namespace Boo.Lang.Compiler.Steps
 			_context.TraceVerbose("{0}: Node '{1}' bound to '{2}'.", node.LexicalInfo, node, tag);
 			node.Entity = tag;
 		}
+
+		public IType GetEntity(TypeReference node)
+		{
+			return (IType)TypeSystemServices.GetEntity(node);
+		}
 		
 		public IEntity GetEntity(Node node)
 		{

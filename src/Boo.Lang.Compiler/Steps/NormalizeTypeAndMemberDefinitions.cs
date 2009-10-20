@@ -26,7 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
@@ -51,6 +50,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Modifiers |= Context.Parameters.DefaultTypeVisibility;
 			}
+		}
+
+		public override void LeaveExplicitMemberInfo(ExplicitMemberInfo node)
+		{
+			TypeMember member = (TypeMember) node.ParentNode;
+			member.Modifiers |= TypeMemberModifiers.Private | TypeMemberModifiers.Virtual;
 		}
 		
 		override public void LeaveEnumDefinition(EnumDefinition node)

@@ -15,7 +15,7 @@ public class Foo(object, System.Collections.IEnumerable):
 			if self.i == 1:
 				return true
 
-		private System.Collections.IEnumerator.Current as object:
+		private virtual System.Collections.IEnumerator.Current as object:
 			private virtual get:
 				return 'foo'
 

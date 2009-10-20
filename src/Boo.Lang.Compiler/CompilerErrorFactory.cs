@@ -934,6 +934,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0173", AstUtil.SafeLexicalInfo(node), option);
 		}
 
+		public static CompilerError InvalidTypeForExplicitMember(Node node, IType type)
+		{
+			return new CompilerError("BCE0174", AstUtil.SafeLexicalInfo(node), type);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();
