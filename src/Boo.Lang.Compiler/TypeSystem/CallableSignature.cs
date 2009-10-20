@@ -40,10 +40,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public CallableSignature(IMethod method)
 		{
-			if (null == method)
-			{
-				throw new ArgumentNullException("method");
-			}
+			if (null == method) throw new ArgumentNullException("method");
+
 			Initialize(method.GetParameters(), method.ReturnType, method.AcceptVarArgs);
 		}
 
@@ -59,14 +57,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void Initialize(IParameter[] parameters, IType returnType, bool acceptVarArgs)
 		{
-			if (null == parameters)
-			{
-				throw new ArgumentNullException("parameters");
-			}
-			if (null == returnType)
-			{
-				throw new ArgumentNullException("returnType");
-			}
+			if (null == parameters) throw new ArgumentNullException("parameters");
+			if (null == returnType) throw new ArgumentNullException("returnType");
+
 			_parameters = parameters;
 			_returnType = returnType;
 			_acceptVarArgs = acceptVarArgs;
@@ -74,26 +67,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IParameter[] Parameters
 		{
-			get
-			{
-				return _parameters;
-			}
+			get { return _parameters; }
 		}
 		
 		public IType ReturnType
 		{
-			get
-			{
-				return _returnType;
-			}
+			get { return _returnType; }
 		}
 
 		public bool AcceptVarArgs
 		{
-			get
-			{
-				return _acceptVarArgs;
-			}
+			get { return _acceptVarArgs; }
 		}
 		
 		override public int GetHashCode()

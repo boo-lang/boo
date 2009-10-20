@@ -88,12 +88,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
 			get { return _generator.Method.LexicalInfo; }
 		}
-		
-		public InternalMethod MoveNextMethod
-		{
-			get { return _moveNext; }
-		}
-		
+
 		override public void Run()
 		{
 			CreateEnumerableConstructor();
@@ -203,7 +198,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
-			
+
 			CreateEnumeratorConstructor();
 			CreateMoveNext();
 			
@@ -430,7 +425,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		System.Collections.Generic.List<TryStatementInfo> _convertedTryStatements = new System.Collections.Generic.List<TryStatementInfo>();
 		Stack<TryStatementInfo> _tryStatementStack = new Stack<TryStatementInfo>();
 		int _finishedStateNumber;
-
+		
 		public override bool EnterTryStatement(TryStatement node)
 		{
 			TryStatementInfo info = new TryStatementInfo();

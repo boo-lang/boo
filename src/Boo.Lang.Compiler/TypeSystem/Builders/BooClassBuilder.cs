@@ -168,5 +168,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 			field.Modifiers = modifiers;
 			return field;
 		}
+
+		public GenericParameterDeclaration AddGenericParameter(string name)
+		{
+			GenericParameterDeclarationCollection genericParameters = ClassDefinition.GenericParameters;
+			GenericParameterDeclaration declaration = CodeBuilder.CreateGenericParameterDeclaration(genericParameters.Count, name);
+			genericParameters.Add(declaration);
+			return declaration;
+		}
 	}
 }

@@ -385,7 +385,6 @@
     <Compile Include="Steps\ExpandProperties.cs" />
     <Compile Include="Steps\ExpandVarArgsMethodInvocations.cs" />
     <Compile Include="Steps\ForeignReferenceCollector.cs" />
-    <Compile Include="Steps\GeneratorExpressionProcessor.cs" />
     <Compile Include="Steps\GenericConstraintsValidator.cs" />
     <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
@@ -426,7 +425,9 @@
     <Compile Include="Steps\SerializeToXml.cs" />
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
+    <Compile Include="Steps\Generators\GeneratorExpressionProcessor.cs" />
     <Compile Include="Steps\Generators\GeneratorMethodProcessor.cs" />
+    <Compile Include="Steps\Generators\GeneratorSkeleton.cs" />
     <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />
     <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
