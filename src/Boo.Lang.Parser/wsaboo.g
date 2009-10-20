@@ -869,20 +869,35 @@ parameter_declaration[ParameterDeclarationCollection c]
 	;
 	
 protected	
-callable_parameter_declaration_list[ParameterDeclarationCollection c]:
-	(callable_parameter_declaration[c]
-	(COMMA callable_parameter_declaration[c])*)?
-	;
+callable_parameter_declaration_list[ParameterDeclarationCollection c]
+{
+	bool varArgs = false;
+}:
+	(
+		varArgs=callable_parameter_declaration[c]
+		({!varArgs}?(COMMA varArgs=callable_parameter_declaration[c]))*
+		{ c.HasParamArray = varArgs; }
+	)?
+;
 
 protected
 callable_parameter_declaration[ParameterDeclarationCollection c]
+	returns [bool varArgs]
 	{		
 		TypeReference tr = null;
 		ParameterModifiers pm = ParameterModifiers.None;
-	}: 
+		varArgs = false;
+	}:
 	(
-		(pm=parameter_modifier)?
-		(tr=type_reference)
+		(
+			MULTIPLY { varArgs=true; }
+			tr=type_reference
+		)
+	|
+		(
+			(pm=parameter_modifier)?
+			(tr=type_reference)
+		)
 	)
 	{
 		ParameterDeclaration pd = new ParameterDeclaration(tr.LexicalInfo);
@@ -891,7 +906,8 @@ callable_parameter_declaration[ParameterDeclarationCollection c]
 		pd.Modifiers = pm;
 		c.Add(pd);
 	} 
-	;
+;
+
 	
 protected
 generic_parameter_declaration_list[GenericParameterDeclarationCollection c]:
