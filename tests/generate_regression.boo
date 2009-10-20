@@ -65,7 +65,10 @@ def PortParserTestCase(fromTestCase as string, toTestCase as string):
 		module.Accept(BooPrinterVisitor(writer, BooPrinterVisitor.PrintOptions.WSA))
 
 def GetTestCaseName(fname as string):
-	return Path.GetFileNameWithoutExtension(fname).Replace("-", "_")
+	return join(
+		(ch if char.IsLetterOrDigit(ch) else "_")
+		for ch in Path.GetFileNameWithoutExtension(fname),
+		"")
 
 def MapPath(path):
 #	return Path.Combine(Project.BaseDirectory, path)

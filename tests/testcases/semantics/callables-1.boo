@@ -22,13 +22,13 @@ public final class IntFunction(System.MulticastDelegate, callable):
 		pass
 
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Callables-1Module(object):
+public final transient class Callables_1Module(object):
 
 	public static def square(i as int) as int:
 		return (i * i)
 
 	private static def Main(argv as (string)) as void:
-		fn = IntFunction(null, __addressof__(Callables-1Module.square))
+		fn = IntFunction(null, __addressof__(Callables_1Module.square))
 		fn.Invoke(2)
 
 	private def constructor():

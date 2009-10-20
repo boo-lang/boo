@@ -2,7 +2,7 @@
 import System.Collections.Generic
 
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class For-1Module(object):
+public final transient class For_1Module(object):
 
 	private static def Main(argv as (string)) as void:
 		l = List[of int]((of int: 1, 2, 3))

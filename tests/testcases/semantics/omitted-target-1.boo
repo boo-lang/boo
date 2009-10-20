@@ -23,13 +23,13 @@ public class Test(object):
 		super()
 
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Omitted-target-1Module(object):
+public final transient class Omitted_target_1Module(object):
 
 	public static def Do() as void:
 		System.Console.WriteLine('done')
 
 	private static def Main(argv as (string)) as void:
-		Omitted-target-1Module.Do()
+		Omitted_target_1Module.Do()
 
 	private def constructor():
 		super()

@@ -1,6 +1,6 @@
 """
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class Folding-0Module(object):
+public final transient class Folding_0Module(object):
 
 	private static def Main(argv as (string)) as void:
 		answer = 42

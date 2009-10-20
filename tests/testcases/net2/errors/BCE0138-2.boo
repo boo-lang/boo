@@ -1,5 +1,5 @@
 """
-BCE0138-2.boo(11,7): BCE0138: 'BCE0138-2Module.Method' is not a generic definition.
+BCE0138-2.boo(11,7): BCE0138: 'BCE0138_2Module.Method' is not a generic definition.
 """
 
 def Method(arg as int):

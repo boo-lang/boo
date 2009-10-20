@@ -1,7 +1,7 @@
 """
 BCW0014-2.boo(12,17): BCW0014: WARNING: Private method 'Test.NeverUsed' is never used.
 BCW0014-2.boo(15,18): BCW0014: WARNING: Internal method 'Test.InternalFoo' is never used.
-BCW0014-2.boo(35,13): BCW0014: WARNING: Private method 'BCW0014-2Module.ModulePrivate' is never used.
+BCW0014-2.boo(35,13): BCW0014: WARNING: Private method 'BCW0014_2Module.ModulePrivate' is never used.
 """
 class Test(ITest):
 	def Use():

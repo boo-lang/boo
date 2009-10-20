@@ -1,5 +1,5 @@
 """
-invalid-generic-extension-1.boo(9,8): BCE0146: The type 'int' must be a reference type in order to substitute the generic parameter 'T' in 'Invalid-generic-extension-1Module.Test[of T](T)'.
+invalid-generic-extension-1.boo(9,8): BCE0146: The type 'int' must be a reference type in order to substitute the generic parameter 'T' in 'Invalid_generic_extension_1Module.Test[of T](T)'.
 """
 
 [Extension]

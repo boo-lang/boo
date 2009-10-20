@@ -5557,23 +5557,35 @@ namespace Boo.Lang.Compiler.Steps
 			return Path.GetDirectoryName(Path.GetFullPath(fname));
 		}
 		
-		string BuildOutputAssemblyName(string fname)
+		string BuildOutputAssemblyName()
 		{
-			if (!Path.HasExtension(fname))
+			string configuredOutputAssembly = Parameters.OutputAssembly;
+			if (!string.IsNullOrEmpty(configuredOutputAssembly))
+				return Path.GetFullPath(configuredOutputAssembly);
+
+			string outputAssembly = CompileUnit.Modules[0].Name;
+			if (!HasDllOrExeExtension(outputAssembly))
 			{
 				if (CompilerOutputType.Library == Parameters.OutputType)
-				{
-					fname += ".dll";
-				}
+					outputAssembly += ".dll";
 				else
-				{
-					fname += ".exe";
-					
-				}
+					outputAssembly += ".exe";
 			}
-			return Path.GetFullPath(fname);
+			return Path.GetFullPath(outputAssembly);
 		}
-		
+
+		private bool HasDllOrExeExtension(string fname)
+		{
+			string extension = Path.GetExtension(fname);
+			switch (extension.ToLower())
+			{
+				case ".dll":
+				case ".exe":
+					return true;
+			}
+			return false;
+		}
+
 		void DefineResources()
 		{
 			foreach (ICompilerResource resource in Parameters.Resources)
@@ -5615,14 +5627,8 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		void SetUpAssembly()
-		{
-			string fname = Parameters.OutputAssembly;
-			if (0 == fname.Length)
-			{
-				fname = CompileUnit.Modules[0].Name;
-			}
-			
-			string outputFile = BuildOutputAssemblyName(fname);
+		{	
+			string outputFile = BuildOutputAssemblyName();
 			
 			AssemblyName asmName = CreateAssemblyName(outputFile);
 			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, GetAssemblyBuilderAccess(), GetTargetDirectory(outputFile));

@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Text;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
@@ -205,21 +206,31 @@ namespace Boo.Lang.Compiler.Steps
 		
 		string BuildModuleClassName(Module module)
 		{
-			string name = module.Name;
-			if (null != name)
+			string moduleName = module.Name;
+			if (null == moduleName)
 			{
-				char c = name[0];
-				if (!(char.IsLetter(c) || c=='_'))
-				{
-					name = "_"+name;
-				}
-				name = name.Substring(0, 1).ToUpper() + name.Substring(1) + "Module";
+				module.Name = Context.GetUniqueName("Module");
+				return module.Name;
 			}
-			else
+
+			StringBuilder className = new StringBuilder();
+			char firstCharacter = moduleName[0];
+			if (!(char.IsLetter(firstCharacter) || firstCharacter=='_'))
 			{
-				module.Name = name = Context.GetUniqueName("Module");
+				className.Append('_');
 			}
-			return name;
+
+			className.Append(char.ToUpper(firstCharacter));
+			for (int i = 1; i < moduleName.Length; ++i)
+			{
+				char c = moduleName[i];
+				if (char.IsLetterOrDigit(c))
+					className.Append(c);
+				else
+					className.Append('_');
+			}
+
+			return className.Append("Module").ToString();
 		}
 	}
 }

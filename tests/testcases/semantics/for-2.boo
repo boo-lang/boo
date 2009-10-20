@@ -29,7 +29,7 @@ public class Foo(object, System.Collections.IEnumerable):
 		super()
 
 [System.Runtime.CompilerServices.CompilerGlobalScopeAttribute]
-public final transient class For-2Module(object):
+public final transient class For_2Module(object):
 
 	private static def Main(argv as (string)) as void:
 		$iterator$1 = Foo().GetEnumerator()

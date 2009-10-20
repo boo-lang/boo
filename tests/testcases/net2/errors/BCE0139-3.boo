@@ -1,5 +1,5 @@
 """
-BCE0139-3.boo(14,7): BCE0139: 'BCE0139-3Module.Method[of T, U]' requires '2' arguments.
+BCE0139-3.boo(14,7): BCE0139: 'BCE0139_3Module.Method[of T, U]' requires '2' arguments.
 """
 
 def Method(arg as int):
