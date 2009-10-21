@@ -480,7 +480,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void ProcessMethodImplementation(Method method, IMethod baseMethod) {
+		private void ProcessMethodImplementation(Method method, IMethod baseMethod)
+		{
 			IMethod methodEntity = GetEntity(method);
 			CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
 			if (IsUnknown(methodEntity.ReturnType))

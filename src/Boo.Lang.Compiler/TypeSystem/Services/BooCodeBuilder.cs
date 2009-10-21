@@ -881,7 +881,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Method CreateAbstractMethod(LexicalInfo lexicalInfo, IMethod baseMethod)
 		{
-			return CreateMethodFromPrototype(lexicalInfo, baseMethod, TypeMemberModifiers.Public | TypeMemberModifiers.Abstract);
+			TypeMemberModifiers visibility = VisibilityFrom(baseMethod);
+			return CreateMethodFromPrototype(lexicalInfo, baseMethod, visibility | TypeMemberModifiers.Abstract);
+		}
+
+		private TypeMemberModifiers VisibilityFrom(IMethod baseMethod)
+		{
+			if (baseMethod.IsPublic) return TypeMemberModifiers.Public;
+			if (baseMethod.IsInternal) return TypeMemberModifiers.Internal;
+			return TypeMemberModifiers.Protected;
 		}
 
 		public Method CreateMethodFromPrototype(IMethod baseMethod, TypeMemberModifiers newModifiers)
