@@ -145,34 +145,43 @@ class AbstractInterpreter:
 	The return value is a an array of possible members or namespaces to be inserted
 	at the __codecomplete__.
 	"""
-		return FilterSuggestions(code, ResolveEntity(code))
+		context as CompilerContext, entity as IEntity = ResolveEntity_(code)
+		
+		suggestions as (IEntity)
+		context.Run:
+			suggestions = FilterSuggestions(code, entity)
+		return suggestions
 		
 	def ResolveEntity(code as string) as IEntity:
+		_, suggestion = ResolveEntity_(code)
+		return suggestion
+		
+	private def ResolveEntity_(code as string):
 		compiler = GetSuggestionCompiler()
 		try:
 			compiler.Parameters.Input.Add(StringInput("<code>", PreProcessImportLine(code)))
 			result = compiler.Run()
-			return result["suggestion"]			
+			return result, result["suggestion"]			
 		ensure:
 			compiler.Parameters.Input.Clear()
 			
-	def FilterSuggestions(code as string, entity as IEntity):
+	private def FilterSuggestions(code as string, entity as IEntity):
 		ns = entity as INamespace
 		return array(IEntity, 0) if ns is null
 		return GetChildNamespaces(ns) if code.StartsWith("import ")
 		return FilteredMembers(TypeSystemServices.GetAllMembers(ns))
 		
-	def FilteredMembers(members as (IEntity)):
+	private def FilteredMembers(members as (IEntity)):
 		return array(
 				item
 				for item in members
 				unless IsSpecial(item) or not IsPublic(item))
 
-	def IsSpecial(entity as IEntity):
+	private def IsSpecial(entity as IEntity):
 		for prefix in ".", "___", "add_", "remove_", "raise_", "get_", "set_":
 			return true if entity.Name.StartsWith(prefix)
 			
-	def IsPublic(entity as IEntity):
+	private def IsPublic(entity as IEntity):
 		member = entity as IMember
 		return member is null or member.IsPublic
 		

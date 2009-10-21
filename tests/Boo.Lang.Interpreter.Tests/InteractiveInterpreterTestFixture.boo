@@ -532,6 +532,12 @@ for i, j in ((1, 2), (3, 4)):
 		assert suggestion.EntityType == EntityType.Namespace
 		
 	[Test]
+	def ArraySuggestion():
+		_interpreter.Eval("a = (1, 2, 3)")
+		suggestion = _interpreter.SuggestCodeCompletion("a.__codecomplete__")
+		assert suggestion is not null
+		
+	[Test]
 	def DeclarationInitializesRefType():
 		Eval("""
 for i in range(3):

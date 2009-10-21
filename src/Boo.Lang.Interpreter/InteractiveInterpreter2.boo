@@ -67,7 +67,6 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	_entityNameComparer = EntityNameComparer()
 
-
 	def constructor():
 		super()
 		Initialize()
@@ -75,7 +74,6 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	def constructor(parser as ICompilerStep):
 		super(parser)
 		Initialize()
-
 
 	def Initialize():
 		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS") is not null
@@ -88,14 +86,12 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		InitializeStandardReferences()
 		LoadHistory()
 
-
 	def Reset():
 		_values.Clear()
 		_declarations.Clear()
 		_lastValue = null
 		_indent = 0
 		InitializeStandardReferences()
-
 
 	public final static HISTORY_FILENAME = "booish_history"
 	public final static HISTORY_CAPACITY = 100	

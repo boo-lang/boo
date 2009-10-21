@@ -327,7 +327,7 @@ callable_definition [TypeMemberCollection container]
 	(AS returnType=type_reference { cd.ReturnType=returnType; })?			
 	eos
 	docstring[cd]
-	;
+;
 
 protected
 enum_definition [TypeMemberCollection container]
