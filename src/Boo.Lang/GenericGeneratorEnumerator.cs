@@ -48,10 +48,7 @@ namespace Boo.Lang
 
 		public T Current
 		{
-			get
-			{
-				return _current;
-			}
+			get { return _current; }
 		}
 
 		object IEnumerator.Current
@@ -76,6 +73,13 @@ namespace Boo.Lang
 		{
 			_state = state;
 			_current = value;
+			return true;
+		}
+
+		protected bool YieldDefault(int state)
+		{
+			_state = state;
+			_current = default(T);
 			return true;
 		}
 	}

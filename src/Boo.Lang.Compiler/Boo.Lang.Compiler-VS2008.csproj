@@ -447,6 +447,7 @@
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
     <Compile Include="Steps\Generators\GeneratorExpressionProcessor.cs" />
+    <Compile Include="Steps\Generators\GeneratorItemTypeInferrer.cs" />
     <Compile Include="Steps\Generators\GeneratorMethodProcessor.cs" />
     <Compile Include="Steps\Generators\GeneratorSkeleton.cs" />
     <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />

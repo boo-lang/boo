@@ -1331,30 +1331,23 @@ namespace Boo.Lang.Compiler.Steps
 		/// Allows a different language to use custom rules for generator
 		/// return types.
 		/// </summary>
-		/// <param name="entity"></param>
+		/// <param name="generator"></param>
 		/// <returns></returns>
-		protected virtual IType GetGeneratorReturnType(InternalMethod entity)
+		protected virtual IType GetGeneratorReturnType(InternalMethod generator)
 		{
 			// Make method return a generic IEnumerable
-			IType itemType = GetGeneratorItemType(entity);
+			IType itemType = GeneratorItemTypeFor(generator);
 			if (TypeSystemServices.VoidType == itemType)
-			{
 				// circunvent exception in MakeGenericType
 				return TypeSystemServices.ErrorEntity;
-			}
+
 			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
 			return enumerableType.GenericInfo.ConstructType(itemType);
 		}
 
-		private IType GetGeneratorItemType(InternalMethod generator)
+		private IType GeneratorItemTypeFor(InternalMethod generator)
 		{
-			if (TypeSystemServices.IsGenericGeneratorReturnType(generator.ReturnType))
-				return generator.ReturnType.ConstructedInfo.GenericArguments[0];
-
-			ExpressionCollection yieldExpressions = generator.YieldExpressions;
-			return yieldExpressions.Count > 0
-				? TypeSystemServices.GetMostGenericType(yieldExpressions)
-				: TypeSystemServices.ObjectType;
+			return Context.Produce<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
 		}
 
 		void TryToResolveReturnType(InternalMethod entity)
@@ -2873,11 +2866,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (EntityType.Constructor == _currentMethod.EntityType)
 			{
 				Error(CompilerErrorFactory.YieldInsideConstructor(node));
+				return;
 			}
-			else
-			{
-				_currentMethod.AddYieldStatement(node);
-			}
+			
+			_currentMethod.AddYieldStatement(node);
 		}
 
 		override public void LeaveReturnStatement(ReturnStatement node)

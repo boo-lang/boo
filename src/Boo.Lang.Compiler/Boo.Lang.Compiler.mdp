@@ -383,6 +383,7 @@
     <File name="Steps/StricterErrorChecking.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/TransformCallableDefinitions.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/Generators/GeneratorExpressionProcessor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/Generators/GeneratorItemTypeInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/Generators/GeneratorMethodProcessor.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/Generators/GeneratorSkeleton.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/Generators/GeneratorSkeletonBuilder.cs" buildaction="Compile" subtype="Code" />

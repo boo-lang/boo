@@ -3,7 +3,7 @@ using Boo.Lang.Compiler.TypeSystem.Builders;
 
 namespace Boo.Lang.Compiler.Steps.Generators
 {
-	internal class GeneratorSkeleton
+	public class GeneratorSkeleton
 	{
 		public readonly BooClassBuilder GeneratorClassBuilder;
 		public readonly IType GeneratorItemType;

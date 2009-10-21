@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
@@ -52,10 +53,13 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		IField _state;
 		
 		IMethod _yield;
+
+		IMethod _yieldDefault;
 		
 		Field _externalEnumeratorSelf;
 		
 		List _labels;
+
 		System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
 		
 		Hashtable _mapping;
@@ -63,12 +67,6 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		IType _generatorItemType;
 
 		BooMethodBuilder _getEnumeratorBuilder;
-
-		/// <summary>
-		/// used for expressionless yield statements when the generator type
-		/// is a value type (and thus 'null' is not an appropriate value)
-		/// </summary>
-		Field _nullValueField;
 
 		public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
 		{
@@ -191,6 +189,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
+			_yieldDefault = NameResolutionService.ResolveMethod(abstractEnumeratorType, "YieldDefault");
 			
 			_enumerator = CodeBuilder.CreateClass("$");
 			_enumerator.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
@@ -228,7 +227,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			
 			Visit(methodBuilder.Body);
 			
-			methodBuilder.Body.Add(CreateYieldInvocation(null, _finishedStateNumber));
+			methodBuilder.Body.Add(CreateYieldInvocation(LexicalInfo.Empty, _finishedStateNumber, null));
 			methodBuilder.Body.Add(finishedLabel);
 			
 			methodBuilder.Body.Insert(0,
@@ -490,7 +489,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			block.Add(
 				new ReturnStatement(
 					node.LexicalInfo,
-					CreateYieldInvocation(node.Expression, _labels.Count),
+					CreateYieldInvocation(node.LexicalInfo, _labels.Count, node.Expression),
 					null));
 			block.Add(CreateLabel(node));
 			// setting the state back to the "running" state not required, as that state has the same ensure blocks
@@ -500,29 +499,16 @@ namespace Boo.Lang.Compiler.Steps.Generators
 //			}
 			ReplaceCurrentNode(block);
 		}
-		
-		MethodInvocationExpression CreateYieldInvocation(Expression value, int newState)
+
+		MethodInvocationExpression CreateYieldInvocation(LexicalInfo sourceLocation, int newState, Expression value)
 		{
 			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateSelfReference(_enumerator.Entity),
-				_yield,
-				CodeBuilder.CreateIntegerLiteral(newState),
-				value == null ? GetDefaultYieldValue() : value);
-			if (null != value) invocation.LexicalInfo = value.LexicalInfo;
+				value != null ? _yield : _yieldDefault,
+				CodeBuilder.CreateIntegerLiteral(newState));
+			if (value != null) invocation.Arguments.Add(value);
+			invocation.LexicalInfo = sourceLocation;
 			return invocation;
-		}
-
-		private Expression GetDefaultYieldValue()
-		{
-			if (_generatorItemType.IsValueType)
-			{
-				if (null == _nullValueField)
-				{
-					_nullValueField = _enumerator.AddField("$empty", _generatorItemType);
-				}
-				return CodeBuilder.CreateReference(_nullValueField);
-			}
-			return new NullLiteralExpression();
 		}
 
 		LabelStatement CreateLabel(Node sourceNode)

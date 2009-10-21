@@ -7,12 +7,12 @@ using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps.Generators
 {
-	class GeneratorSkeletonBuilder : AbstractCompilerComponent
+	public class GeneratorSkeletonBuilder : AbstractCompilerComponent
 	{
 		public GeneratorSkeleton SkeletonFor(InternalMethod generator)
 		{
 			Method enclosingMethod = generator.Method;
-			return CreateGeneratorSkeleton(enclosingMethod, enclosingMethod, GetGeneratorItemType(generator));
+			return CreateGeneratorSkeleton(enclosingMethod, enclosingMethod, GeneratorItemTypeFor(generator));
 		}
 
 		public GeneratorSkeleton SkeletonFor(GeneratorExpression generator, Method enclosingMethod)
@@ -20,12 +20,9 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return CreateGeneratorSkeleton(generator, enclosingMethod, TypeSystemServices.GetConcreteExpressionType(generator.Expression));
 		}
 
-		private IType GetGeneratorItemType(InternalMethod generator)
+		protected virtual IType GeneratorItemTypeFor(InternalMethod generator)
 		{
-			IType returnType = generator.ReturnType;
-			if (TypeSystemServices.IsGenericGeneratorReturnType(returnType))
-				return returnType.ConstructedInfo.GenericArguments[0];
-			return TypeSystemServices.ObjectType;
+			return Context.Produce<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
 		}
 
 		GeneratorSkeleton CreateGeneratorSkeleton(Node sourceNode, Method enclosingMethod, IType generatorItemType)

@@ -82,18 +82,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public bool IsDuckTyped
 		{
-			get
-			{
-				return My<TypeSystemServices>.Instance.IsDuckType(ReturnType);
-			}
+			get { return My<TypeSystemServices>.Instance.IsDuckType(ReturnType); }
 		}
 		
 		public bool IsPInvoke
 		{
-			get
-			{
-				return IsAttributeDefined(Types.DllImportAttribute);
-			}
+			get { return IsAttributeDefined(Types.DllImportAttribute); }
 		}
 		
 		private bool IsAttributeDefined(System.Type attributeType)
@@ -103,10 +97,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public bool IsAbstract
 		{
-			get
-			{
-				return _node.IsAbstract;
-			}
+			get { return _node.IsAbstract; }
 		}
 		
 		public bool IsVirtual
@@ -121,18 +112,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public bool IsSpecialName
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool AcceptVarArgs
 		{
-			get
-			{
-				return _node.Parameters.HasParamArray;
-			}
+			get { return _node.Parameters.HasParamArray; }
 		}
 		
 		override public EntityType EntityType
@@ -142,39 +127,24 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public ICallableType CallableType
 		{
-			get
-			{
-				return My<TypeSystemServices>.Instance.GetCallableType(this);
-			}
+			get { return My<TypeSystemServices>.Instance.GetCallableType(this); }
 		}
 		
 		public IType Type
 		{
-			get
-			{
-				return CallableType;
-			}
+			get { return CallableType; }
 		}
 		
 		public Method Method
 		{
-			get
-			{
-				return _node;
-			}
+			get { return _node; }
 		}
 		
 		public IMethod Overriden
 		{
-			get
-			{
-				return _override;
-			}
+			get { return _override; }
 			
-			set
-			{
-				_override = value;
-			}
+			set { _override = value; }
 		}
 		
 		public IParameter[] GetParameters()
@@ -204,18 +174,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public bool IsGenerator
 		{
-			get
-			{
-				return null != _yieldStatements;
-			}
+			get { return null != _yieldStatements; }
 		}
 		
 		public ExpressionCollection ReturnExpressions
 		{
-			get
-			{
-				return _returnExpressions;
-			}
+			get { return _returnExpressions; }
 		}
 		
 		public ExpressionCollection YieldExpressions
@@ -224,9 +188,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			{
 				ExpressionCollection expressions = new ExpressionCollection();
 				foreach (YieldStatement stmt in _yieldStatements)
-				{
 					if (null != stmt.Expression) expressions.Add(stmt.Expression);
-				}
 				return expressions;
 			}
 		}
