@@ -14,6 +14,10 @@ namespace BooCompiler.Tests.SupportingClasses
 	
 	public abstract class BaseAbstractClassWithImplementation
 	{
+		public void Add(object o)
+		{
+		}
+
 		public void Add(string s)
 		{
 		}
