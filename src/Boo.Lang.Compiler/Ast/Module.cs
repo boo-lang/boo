@@ -39,6 +39,11 @@ namespace Boo.Lang.Compiler.Ast
 		public Module(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
+
+		public Module(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
+		{
+			Name = name;
+		}
 		
 		public Module(Block globals)
 		{

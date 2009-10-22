@@ -89,16 +89,21 @@ namespace Boo.Lang.Parser
 			ParseModule(tabSize, cu, readerName, reader, null);
 			return cu;
 		}
-	
+
 		public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
-		{		
-			BooParser parser = CreateParser(tabSize, readerName, reader, errorHandler);
-		
-			Module module = parser.start(cu);
-			module.Name = CreateModuleName(readerName);
+		{
+			if (Readers.IsEmpty(reader))
+			{
+				Module emptyModule = new Module(new LexicalInfo(readerName), ModuleNameFrom(readerName));
+				cu.Modules.Add(emptyModule);
+				return emptyModule;
+			}
+
+			Module module = CreateParser(tabSize, readerName, reader, errorHandler).start(cu);
+			module.Name = ModuleNameFrom(readerName);
 			return module;
 		}
-		
+
 		public static BooParser CreateParser(int tabSize, string readerName, TextReader reader, ParserErrorHandler errorHandler)
 		{
 			BooParser parser = new BooParser(CreateBooLexer(tabSize, readerName, reader));
@@ -152,11 +157,11 @@ namespace Boo.Lang.Parser
 		override protected Module NewQuasiquoteModule(LexicalInfo li)
 		{
 			Module m = new Module(li);
-			m.Name = CreateModuleName(li.FileName) + "$" + li.Line;
+			m.Name = ModuleNameFrom(li.FileName) + "$" + li.Line;
 			return m;
 		}
 		
-		public static string CreateModuleName(string readerName)
+		public static string ModuleNameFrom(string readerName)
 		{
 			if (readerName.IndexOfAny(Path.GetInvalidPathChars()) > -1)
 			{

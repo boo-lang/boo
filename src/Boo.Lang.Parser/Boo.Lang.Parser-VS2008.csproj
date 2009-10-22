@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -200,6 +200,7 @@
     <Compile Include="antlr\antlr.debug\TraceListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\Tracer.cs" />
     <Compile Include="Util\IndentTokenStreamFilter.cs" />
+    <Compile Include="Util\Readers.cs" />
     <Compile Include="Util\TokenStreamRecorder.cs" />
   </ItemGroup>
   <ItemGroup>

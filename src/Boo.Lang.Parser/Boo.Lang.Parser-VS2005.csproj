@@ -179,6 +179,7 @@
     <Compile Include="antlr\antlr.debug\TraceListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\Tracer.cs" />
     <Compile Include="Util\IndentTokenStreamFilter.cs" />
+    <Compile Include="Util\Readers.cs" />
     <Compile Include="Util\TokenStreamRecorder.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -91,6 +91,12 @@ class Foo(Bar):
 	";
 			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
 		}
+		
+		[Test]
+		public void EmptyModule()
+		{
+			Assert.AreEqual("", normalize(parse("").ToCodeString()));
+		}
 			
 		[Test]
 		public void SanityCheckUsingDoubleQuotes()

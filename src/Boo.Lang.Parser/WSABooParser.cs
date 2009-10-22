@@ -51,16 +51,26 @@ namespace Boo.Lang.Parser
 		public WSABooParser(antlr.TokenStream lexer) : base(lexer)
 		{
 		}
-		
-		public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, Boo.Lang.Parser.ParserErrorHandler errorHandler)
-		{		
-			WSABooParser parser = CreateParser(tabSize, readerName, reader, errorHandler);
-		
-			Module module = parser.start(cu);
-			module.Name = Boo.Lang.Parser.BooParser.CreateModuleName(readerName);
+
+		public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
+		{
+			if (Readers.IsEmpty(reader))
+			{
+				Module emptyModule = new Module(new LexicalInfo(readerName), ModuleNameFrom(readerName));
+				cu.Modules.Add(emptyModule);
+				return emptyModule;
+			}
+
+			Module module = CreateParser(tabSize, readerName, reader, errorHandler).start(cu);
+			module.Name = ModuleNameFrom(readerName);
 			return module;
 		}
-		
+
+		private static string ModuleNameFrom(string readerName)
+		{
+			return Boo.Lang.Parser.BooParser.ModuleNameFrom(readerName);
+		}
+
 		public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader, Boo.Lang.Parser.ParserErrorHandler errorHandler)
 		{
 			WSABooParser parser = new WSABooParser(CreateBooLexer(tabSize, readerName, reader));

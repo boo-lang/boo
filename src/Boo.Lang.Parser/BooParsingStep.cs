@@ -41,32 +41,19 @@ namespace Boo.Lang.Parser
 		CompilerContext _context;
 		
 		int _tabSize = BooParser.DefaultTabSize;
-
-		public BooParsingStep()
-		{
-		}
 		
 		protected CompilerContext Context
 		{
-			get
-			{
-				return _context;
-			}
+			get { return _context; }
 		}
 		
 		public int TabSize
 		{
-			get
-			{
-				return _tabSize;
-			}
+			get { return _tabSize; }
 			
 			set
 			{
-				if (value < 1)
-				{
-					throw new ArgumentOutOfRangeException("TabSize");
-				}
+				if (value < 1) throw new ArgumentOutOfRangeException("TabSize");
 				_tabSize = value;
 			}
 		}
