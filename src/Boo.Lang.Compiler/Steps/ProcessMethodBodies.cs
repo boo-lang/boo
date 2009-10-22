@@ -4073,7 +4073,7 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckListLiteralArgumentInArrayConstructor(IType expectedElementType, MethodInvocationExpression constructor)
 		{
 			ListLiteralExpression elements = constructor.Arguments[1] as ListLiteralExpression;
-			if (null == elements) return;
+			if (null == elements || AstUtil.IsListGenerator(elements)) return;
 			CheckItems(expectedElementType, elements.Items);
 		}
 
