@@ -464,20 +464,16 @@ class InteractiveInterpreter2(AbstractInterpreter):
 				quit()
 			elif cmd[0] == "/?" or cmd[0] == "/h" or cmd[0] == "/help":
 				DisplayHelp()
-				ConsolePrintPrompt()
 			elif cmd[0] == "/g" or cmd[0] == "/globals":
 				InternalLoopEval("globals()")
-				ConsolePrintPrompt()
 			else:
 				return false
 
 		elif len(cmd) == 2:
 			if cmd[0] == "/l" or cmd[0] == "/load":
 				load(cmd[1])
-				ConsolePrintPrompt()
 			elif cmd[0] == "/s" or cmd[0] == "/save":
 				save(cmd[1])
-				ConsolePrintPrompt()
 			else:
 				return false
 
