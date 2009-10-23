@@ -387,6 +387,7 @@
     <File name="Steps/Generators/GeneratorMethodProcessor.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/Generators/GeneratorSkeleton.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/Generators/GeneratorSkeletonBuilder.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/Inheritance/BaseTypeResolution.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/BindAndApplyAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroCompiler.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/MacroProcessing/MacroExpander.cs" buildaction="Compile" subtype="Code" />

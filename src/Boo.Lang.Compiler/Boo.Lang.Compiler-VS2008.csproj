@@ -451,6 +451,7 @@
     <Compile Include="Steps\Generators\GeneratorMethodProcessor.cs" />
     <Compile Include="Steps\Generators\GeneratorSkeleton.cs" />
     <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />
+    <Compile Include="Steps\Inheritance\BaseTypeResolution.cs" />
     <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />

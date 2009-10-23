@@ -939,6 +939,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0174", AstUtil.SafeLexicalInfo(node), type);
 		}
 
+		public static CompilerError NestedTypeCannotExtendEnclosingType(Node node, string nestedTypeName, string enclosingTypeName)
+		{
+			return new CompilerError("BCE0175", AstUtil.SafeLexicalInfo(node), nestedTypeName, enclosingTypeName);
+		}
+
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
 			StringBuilder builder = new StringBuilder();

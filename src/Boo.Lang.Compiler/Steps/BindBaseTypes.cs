@@ -27,6 +27,7 @@
 #endregion
 
 using System.Collections.Generic;
+using Boo.Lang.Compiler.Steps.Inheritance;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
@@ -36,7 +37,6 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	[Serializable]
 	public class BindBaseTypes : AbstractNamespaceSensitiveVisitorCompilerStep
 	{
 		public BindBaseTypes()
@@ -61,13 +61,11 @@ namespace Boo.Lang.Compiler.Steps
 			ResolveBaseTypes(new Boo.Lang.List(), node);
 			CheckBaseTypes(node);
 			
-			if (!node.IsFinal)
-			{
-				if (((IType)node.Entity).IsFinal)
-				{
-					node.Modifiers |= TypeMemberModifiers.Final;
-				}
-			}
+			if (node.IsFinal)
+				return;
+
+			if (((IType)node.Entity).IsFinal)
+				node.Modifiers |= TypeMemberModifiers.Final;
 		}
 		
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
@@ -79,37 +77,34 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckBaseTypes(ClassDefinition node)
 		{
 			IType baseClass = null;
-			foreach (TypeReference baseType in node.BaseTypes)
+			foreach (TypeReference baseTypeRef in node.BaseTypes)
 			{
-				IType baseInfo = GetType(baseType);
-				if (!baseInfo.IsInterface)
+				IType baseType = GetType(baseTypeRef);
+				if (baseType.IsInterface)
+					continue;
+
+				if (null != baseClass)
 				{
-					if (null != baseClass)
-					{
-						Error(
-						    CompilerErrorFactory.ClassAlreadyHasBaseType(baseType,
-								node.Name,
-								baseClass.FullName)
-							);
-					}
-					else
-					{
-						baseClass = baseInfo;
-						if (baseClass.IsFinal && !TypeSystemServices.IsError(baseClass))
-						{
-							Error(
-								CompilerErrorFactory.CannotExtendFinalType(
-									baseType,
-									baseClass.FullName));
-						}
-					}
+					Error(
+					    CompilerErrorFactory.ClassAlreadyHasBaseType(baseTypeRef,
+							node.Name,
+							baseClass.FullName)
+						);
+					continue;
+				}
+				
+				baseClass = baseType;
+				if (baseClass.IsFinal && !TypeSystemServices.IsError(baseClass))
+				{
+					Error(
+						CompilerErrorFactory.CannotExtendFinalType(
+							baseTypeRef,
+							baseClass.FullName));
 				}
 			}
 			
 			if (null == baseClass)
-			{
 				node.BaseTypes.Insert(0, CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType)	);
-			}
 		}
 		
 		void CheckInterfaceBaseTypes(InterfaceDefinition node)
@@ -123,78 +118,10 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 		}
-		
+
 		void ResolveBaseTypes(Boo.Lang.List visited, TypeDefinition node)
 		{
-			// If type is generic, enter a special namespace to allow 
-			// correct resolution of generic parameters
-			IType type = (IType)TypeSystemServices.GetEntity(node);
-			if (type.GenericInfo != null)
-			{
-				EnterNamespace(new GenericParametersNamespaceExtender(
-					type, NameResolutionService.CurrentNamespace));
-			}
-
-			visited.Add(node);
-
-            Boo.Lang.List visitedNonInterfaces = null;
-            Boo.Lang.List visitedInterfaces = null;
-
-			if (node is InterfaceDefinition)
-            {
-                visitedInterfaces = visited;
-                // interfaces won't have noninterface base types so visitedNonInterfaces not necessary here
-            }
-            else
-            {
-                visitedNonInterfaces = visited;
-                visitedInterfaces = new Boo.Lang.List();
-            }
-            
-			int removed = 0;
-			int index = 0;
-			foreach (SimpleTypeReference baseType in node.BaseTypes.ToArray())
-			{
-				NameResolutionService.ResolveSimpleTypeReference(baseType);
-
-				AbstractInternalType internalType = baseType.Entity as AbstractInternalType;
-				if (null != internalType)
-				{
-                    if (internalType is InternalInterface)
-                    {
-                        if (visitedInterfaces.Contains(internalType.TypeDefinition))
-                        {
-                            Error(CompilerErrorFactory.InheritanceCycle(baseType, internalType.FullName));
-                            node.BaseTypes.RemoveAt(index - removed);
-                            ++removed;
-                        }
-                        else
-                        {
-                            ResolveBaseTypes(visitedInterfaces, internalType.TypeDefinition);
-                        }
-                    }
-                    else
-                    {
-                        if (visitedNonInterfaces.Contains(internalType.TypeDefinition))
-					{
-						Error(CompilerErrorFactory.InheritanceCycle(baseType, internalType.FullName));
-						node.BaseTypes.RemoveAt(index - removed);
-						++removed;
-					}
-					else
-					{
-                            ResolveBaseTypes(visitedNonInterfaces, internalType.TypeDefinition);
-                        }
-					}
-				}
-				++index;
-			}
-
-			// Leave special namespace if we entered it before
-			if (type.GenericInfo != null)
-			{
-				LeaveNamespace();
-			}
+			new BaseTypeResolution(Context, node, visited);
 		}
 	}
 

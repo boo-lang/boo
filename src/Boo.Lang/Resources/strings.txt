@@ -176,6 +176,7 @@ BCE0171=Constant value `{0}' cannot be converted to a `{1}'.
 BCE0172=`{0}' interface member implementation must be public or explicit.
 BCE0173=`{0}' is not a regex option. Valid options are: g, i, m, s, x, l, n, c and e.
 BCE0174='{0}' is not an interface. Only interface members can be explicitly implemented.
+BCE0175=Nested type '{0}' cannot extend enclosing type '{1}'.
 
 ;Compiler warnings
 BCW0000=WARNING: {0}

@@ -36,6 +36,15 @@ namespace Boo.Lang.Compiler.Util
 	{
 		private readonly Dictionary<T, bool> _elements = new Dictionary<T, bool>();
 
+		public Set()
+		{	
+		}
+
+		public Set(IEnumerable<T> elements)
+		{
+			foreach (T element in elements) Add(element);
+		}
+
 		public void Add(T element)
 		{
 			_elements[element] = true;
