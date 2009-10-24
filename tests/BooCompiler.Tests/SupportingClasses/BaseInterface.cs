@@ -4,6 +4,16 @@ namespace BooCompiler.Tests.SupportingClasses
 	{
 		void Add(string s);
 	}
+
+	public abstract class AbstractClassWithExplicitInterfaceImpl : BaseInterface
+	{
+		protected abstract void Add(string s);
+
+		void BaseInterface.Add(string s)
+		{
+			Add(s);
+		}
+	}
 	
 	public abstract class BaseAbstractClassWithoutImplementation
 	{

@@ -66,13 +66,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnProperty(Property node)
 		{
-			if (node.IsAbstract)
-			{
-				if (null == node.Type)
-				{
-					node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
-				}
-			}
+			if (node.IsAbstract && null == node.Type)
+				node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 
 			ExplicitMemberInfo explicitInfo = node.ExplicitInfo;
 			if (null != explicitInfo)
@@ -85,20 +80,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMethod(Method node)
 		{
-			if (node.IsAbstract)
-			{
-				if (null == node.ReturnType)
-				{
-					node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
-				}
-			}
+			if (node.IsAbstract && null == node.ReturnType)
+				node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
+
 			ExplicitMemberInfo explicitInfo = node.ExplicitInfo;
 			if (null != explicitInfo)
 			{
 				Visit(explicitInfo);
 				if (null != explicitInfo.Entity)
 					ProcessMethodImplementation(node, (IMethod) explicitInfo.Entity);
-
 			}
 		}
 
@@ -109,7 +99,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			IType interfaceType = GetEntity(node.InterfaceType);
-			IEntity baseMember = FindImplementationFor(member.Entity, interfaceType);
+			IEntity baseMember = FindImplementationFor((IMember) member.Entity, interfaceType);
 			if (null == baseMember)
 			{
 				Error(CompilerErrorFactory.NotAMemberOfExplicitInterface(member, interfaceType));
@@ -193,7 +183,7 @@ namespace Boo.Lang.Compiler.Steps
 		/// <summary>
 		/// This function checks for inheriting implementations from EXTERNAL classes only.
 		/// </summary>
-		bool CheckInheritsInterfaceImplementation(ClassDefinition node, IEntity abstractMember)
+		bool CheckInheritsInterfaceImplementation(ClassDefinition node, IMember abstractMember)
 		{
 			foreach (TypeReference baseTypeRef in node.BaseTypes)
 			{
@@ -208,7 +198,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		private IEntity FindImplementationFor(IEntity member, IType inType)
+		private IEntity FindImplementationFor(IMember member, IType inType)
 		{
 			foreach (IEntity candidate in ImplementationCandidatesFor(member, inType))
 			{
@@ -241,7 +231,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		private IEnumerable<IEntity> ImplementationCandidatesFor(IEntity abstractMember, IType inBaseType)
+		private IEnumerable<IEntity> ImplementationCandidatesFor(IMember abstractMember, IType inBaseType)
 		{
 			foreach (IEntity candidate in inBaseType.GetMembers())
 			{
@@ -250,8 +240,11 @@ namespace Boo.Lang.Compiler.Steps
 
 				if (candidate.EntityType == EntityType.Field)
 					continue;
-				
-				if (SimpleNameOf(candidate) == abstractMember.Name)
+
+				string candidateName = abstractMember.DeclaringType.IsInterface
+				                       	? SimpleNameOf(candidate)
+				                       	: candidate.Name;
+				if (candidateName == abstractMember.Name)
 					yield return candidate;
 			}
 		}
@@ -625,9 +618,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		void ResolveAbstractMembers(ClassDefinition node,
-			TypeReference baseTypeRef,
-			IType baseType)
+		void ResolveAbstractMembers(ClassDefinition node, TypeReference baseTypeRef, IType baseType)
 		{
 			foreach (IEntity member in baseType.GetMembers())
 			{
@@ -637,9 +628,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						IMethod method = (IMethod)member;
 						if (method.IsAbstract)
-						{
 							ResolveAbstractMethod(node, baseTypeRef, method);
-						}
 						break;
 					}
 					
