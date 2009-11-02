@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IMember Map(IMember member)
 		{
-			return (IMember)_mapping.Map(member);
+			return (IMember)GenericMapping.Map(member);
 		}
 	}	
 }
