@@ -10,7 +10,5 @@ while len(list) < 5:
 	list.Add(len(list))
 or:
 	print "List already big!"
-	continue
-	print "Like biiiiig!"
 	
 print "Did we make it?"

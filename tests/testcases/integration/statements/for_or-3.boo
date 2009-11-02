@@ -12,5 +12,4 @@ for item in t:
 		break
 or:
 	print "No items!"
-	break
-	print "More text"
+

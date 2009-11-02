@@ -1418,45 +1418,20 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Label endLabel = _il.DefineLabel();
 			Label bodyLabel = _il.DefineLabel();
-			Label thenLabel = _il.DefineLabel();
 			Label conditionLabel = _il.DefineLabel();
-			LocalBuilder enteredLoop = null;
-			
-			if(null != node.OrBlock)
-			{
-				enteredLoop = _il.DeclareLocal(typeof(bool));
-				_il.Emit(OpCodes.Ldc_I4_0);
-				_il.Emit(OpCodes.Stloc, enteredLoop);
-			}
 			
 			_il.Emit(OpCodes.Br, conditionLabel);
 			_il.MarkLabel(bodyLabel);
 			
 			EnterLoop(endLabel, conditionLabel);
-			if(null != node.OrBlock)
-			{
-				_il.Emit(OpCodes.Ldc_I4_1);
-				_il.Emit(OpCodes.Stloc, enteredLoop);
-			}
 			node.Block.Accept(this);
 			LeaveLoop();
 			
 			_il.MarkLabel(conditionLabel);
 			EmitDebugInfo(node);
 			EmitBranchTrue(node.Condition, bodyLabel);
-			if(null != node.OrBlock)
-			{
-				_il.Emit(OpCodes.Ldloc, enteredLoop);
-				_il.Emit(OpCodes.Brtrue, thenLabel);
-				EnterLoop(endLabel, thenLabel);
-				node.OrBlock.Accept(this);
-				LeaveLoop();
-				_il.MarkLabel(thenLabel);
-			}
-			if(null != node.ThenBlock)
-			{
-				node.ThenBlock.Accept(this);
-			}
+			Visit(node.OrBlock);
+			Visit(node.ThenBlock);
 			_il.MarkLabel(endLabel);
 		}
 		

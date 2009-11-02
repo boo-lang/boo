@@ -219,6 +219,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnWhileStatement(WhileStatement node)
 		{
 			VisitLoop(node.Block);
+			Visit(node.OrBlock);
+			Visit(node.ThenBlock);
 		}
 
 		private void VisitLoop(Block block)
@@ -231,6 +233,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnForStatement(ForStatement node)
 		{
 			VisitLoop(node.Block);
+			Visit(node.OrBlock);
+			Visit(node.ThenBlock);
 		}
 
 		override public void OnLabelStatement(LabelStatement node)
@@ -301,10 +305,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void CheckInLoop(Statement node)
 		{
-			if (!_state.InLoop)
-			{
-				Error(CompilerErrorFactory.NoEnclosingLoop(node));
-			}
+			if (_state.InLoop) return;
+
+			Error(CompilerErrorFactory.NoEnclosingLoop(node));
 		}
 
 		void CheckExceptionHandlers(ExceptionHandlerCollection handlers)

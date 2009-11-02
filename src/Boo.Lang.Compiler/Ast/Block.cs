@@ -39,6 +39,11 @@ namespace Boo.Lang.Compiler.Ast
 		public Block(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
 		}
+
+		public Block(params Statement[] statements)
+		{
+			Statements.Extend(statements);
+		}
 		
 		public void Clear()
 		{

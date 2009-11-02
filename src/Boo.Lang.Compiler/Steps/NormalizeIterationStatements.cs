@@ -47,10 +47,67 @@ namespace Boo.Lang.Compiler.Steps
 
 		Method _current;
 
-
 		override public void Run()
 		{
 			Visit(CompileUnit);
+			CompileUnit.Accept(new OrBlockNormalizer(Context));
+		}
+
+		internal class OrBlockNormalizer : DepthFirstTransformer
+		{
+			private readonly CompilerContext _context;
+			private Method _currentMethod;
+
+			public OrBlockNormalizer(CompilerContext context)
+			{
+				_context = context;
+			}
+
+			public override bool EnterMethod(Method node)
+			{
+				_currentMethod = node;
+				return base.EnterMethod(node);
+			}
+
+			public override void OnWhileStatement(WhileStatement node)
+			{
+				if (node.OrBlock == null) return;
+
+				InternalLocal enteredLoop = CodeBuilder().DeclareTempLocal(_currentMethod, BoolType());
+
+				IfStatement orPart = new IfStatement(
+					node.OrBlock.LexicalInfo,
+					CodeBuilder().CreateNotExpression(CodeBuilder().CreateReference(enteredLoop)),
+					node.OrBlock,
+					null);
+
+				node.OrBlock = orPart.ToBlock();
+				node.Block.Insert(0,
+					CodeBuilder().CreateAssignment(
+						CreateReference(enteredLoop),
+						CreateTrueLiteral()));
+
+			}
+
+			private BoolLiteralExpression CreateTrueLiteral()
+			{
+				return CodeBuilder().CreateBoolLiteral(true);
+			}
+
+			private ReferenceExpression CreateReference(InternalLocal enteredLoop)
+			{
+				return CodeBuilder().CreateReference(enteredLoop);
+			}
+
+			private IType BoolType()
+			{
+				return _context.TypeSystemServices.BoolType;
+			}
+
+			private BooCodeBuilder CodeBuilder()
+			{
+				return _context.CodeBuilder;
+			}
 		}
 		
 		override public void OnMethod(Method node)
