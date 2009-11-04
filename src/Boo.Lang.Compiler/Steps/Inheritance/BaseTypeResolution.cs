@@ -2,6 +2,7 @@
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.Inheritance
@@ -23,7 +24,22 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 			_removed = 0;
 			_index = -1;
 
-			Run();
+			NameResolutionService nameResolution = NameResolutionService;
+			INamespace previous = nameResolution.CurrentNamespace;
+			nameResolution.EnterNamespace(ParentNamespaceOf(_typeDefinition));
+			try
+			{
+				Run();
+			}
+			finally
+			{
+				nameResolution.Restore(previous);
+			}
+		}
+
+		private INamespace ParentNamespaceOf(TypeDefinition typeDefinition)
+		{
+			return (INamespace) GetEntity(typeDefinition.ParentNode);
 		}
 
 		private void Run()

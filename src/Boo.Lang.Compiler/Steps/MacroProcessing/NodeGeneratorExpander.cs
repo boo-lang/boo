@@ -167,7 +167,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			}
 			finally
 			{
-				context.NameResolutionService.EnterNamespace(previous);
+				context.NameResolutionService.Restore(previous);
 			}
 		}
 	}

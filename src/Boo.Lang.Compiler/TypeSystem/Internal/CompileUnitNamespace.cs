@@ -36,8 +36,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 	internal class CompileUnitNamespace : AbstractNamespace
 	{
 		private readonly CompileUnit _compileUnit;
-		private NameResolutionService _nameResolutionService;
-		private InternalTypeSystemProvider _internalTypeSystemProvider;
+		private readonly NameResolutionService _nameResolutionService;
+		private readonly InternalTypeSystemProvider _internalTypeSystemProvider;
 
 		public CompileUnitNamespace(CompileUnit unit)
 		{
