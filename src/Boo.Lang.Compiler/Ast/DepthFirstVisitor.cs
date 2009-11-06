@@ -42,6 +42,10 @@ namespace Boo.Lang.Compiler.Ast
 					node.Accept(this);
 					return true;
 				}
+				catch (LongJumpException)
+				{
+					throw;
+				}
 				catch (Boo.Lang.Compiler.CompilerError)
 				{
 					throw;
@@ -52,6 +56,26 @@ namespace Boo.Lang.Compiler.Ast
 				}
 			}
 			return false;
+		}
+		
+		protected bool VisitAllowingCancellation(Node node)
+		{
+			try
+			{
+				Visit(node);
+				return true;
+			}
+			catch (LongJumpException)
+			{	
+			}
+			return false;
+		}
+
+		static readonly LongJumpException CancellationException = new LongJumpException();
+
+		protected void Cancel()
+		{
+			throw CancellationException;
 		}
 
 		protected virtual void OnError(Node node, Exception error)
