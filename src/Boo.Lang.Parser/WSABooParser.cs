@@ -84,7 +84,7 @@ namespace Boo.Lang.Parser
 			antlr.TokenStreamSelector selector = new antlr.TokenStreamSelector();		
 			WSABooLexer lexer = new WSABooLexer(reader);
 			lexer.setFilename(readerName);
-			lexer.Initialize(selector, tabSize, Boo.Lang.Parser.BooToken.Creator);		
+			lexer.Initialize(selector, tabSize, Boo.Lang.Parser.BooToken.TokenCreator);		
 			selector.select(lexer);
 			return selector;
 		}

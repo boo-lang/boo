@@ -127,7 +127,22 @@ def SayHello(name as string):
 			
 			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
 		}
-		
+
+		[Test]
+		public void InputNameIsPreserved()
+		{
+			string inputName = "File.boo";
+			Module module = parse(new StringInput(inputName, "class Foo:\nend"));
+			AssertInputName(inputName, module);
+			foreach (TypeMember member in module.Members)
+				AssertInputName(inputName, member);
+		}
+
+		private void AssertInputName(string inputName, Node module)
+		{
+			Assert.AreEqual(inputName, module.LexicalInfo.FileName);
+		}
+
 		string normalize(string s)
 		{
 			return s.Trim().Replace("\r\n", "\n");
@@ -135,12 +150,18 @@ def SayHello(name as string):
 			
 		Module parse(string code)
 		{
+			StringInput input = new StringInput("code", code);
+			return parse(input);
+		}
+
+		Module parse(StringInput input)
+		{
 			CompilerPipeline pipeline = new CompilerPipeline();
 			pipeline.Add(new WSABooParsingStep());
 			
 			BooCompiler compiler = new BooCompiler();
 			compiler.Parameters.Pipeline = pipeline;
-			compiler.Parameters.Input.Add(new StringInput("code", code));
+			compiler.Parameters.Input.Add(input);
 			CompilerContext result = compiler.Run();
 			Assert.AreEqual(0, result.Errors.Count, result.Errors.ToString());
 			Assert.AreEqual(1, result.CompileUnit.Modules.Count);

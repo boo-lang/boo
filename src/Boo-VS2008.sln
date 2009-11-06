@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "booc", "booc\booc.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Runtime.Tests-VS2008", "..\tests\Boo.Lang.Runtime.Tests\Boo.Lang.Runtime.Tests-VS2008.csproj", "{65AB5FCE-2BEA-4606-83CD-B4E9C44B4B1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Parser.Tests", "..\tests\Boo.Lang.Parser.Tests\Boo.Lang.Parser.Tests.csproj", "{C4994D0C-E028-4610-83C7-D3A91201C7C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Net-1.1|Any CPU = Debug Net-1.1|Any CPU
@@ -56,6 +58,12 @@ Global
 		{65AB5FCE-2BEA-4606-83CD-B4E9C44B4B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65AB5FCE-2BEA-4606-83CD-B4E9C44B4B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65AB5FCE-2BEA-4606-83CD-B4E9C44B4B1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4994D0C-E028-4610-83C7-D3A91201C7C4}.Debug Net-1.1|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4994D0C-E028-4610-83C7-D3A91201C7C4}.Debug Net-1.1|Any CPU.Build.0 = Debug|Any CPU
+		{C4994D0C-E028-4610-83C7-D3A91201C7C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4994D0C-E028-4610-83C7-D3A91201C7C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4994D0C-E028-4610-83C7-D3A91201C7C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4994D0C-E028-4610-83C7-D3A91201C7C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
