@@ -506,6 +506,7 @@
     <File name="TypeSystem/Reflection/ExternalParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/ExternalProperty.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/ExternalType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/IAssemblyReference.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/IReflectionTypeSystemProvider.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/ReflectionNamespace.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/ReflectionNamespaceBuilder.cs" buildaction="Compile" subtype="Code" />

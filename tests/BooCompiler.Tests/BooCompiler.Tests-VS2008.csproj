@@ -139,6 +139,7 @@
     <Compile Include="SupportingClasses\Disposable.cs" />
     <Compile Include="SupportingClasses\ExtendsOverridenBoolOperator.cs" />
     <Compile Include="SupportingClasses\Generics.cs" />
+    <Compile Include="SupportingClasses\ImplicitConversionToDouble.cs" />
     <Compile Include="SupportingClasses\NoParameterlessConstructor.cs" />
     <Compile Include="SupportingClasses\ObsoleteClass.cs" />
     <Compile Include="SupportingClasses\OutterClass.cs" />

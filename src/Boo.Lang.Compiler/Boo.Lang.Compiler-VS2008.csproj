@@ -570,6 +570,7 @@
     <Compile Include="TypeSystem\Reflection\ExternalParameter.cs" />
     <Compile Include="TypeSystem\Reflection\ExternalProperty.cs" />
     <Compile Include="TypeSystem\Reflection\ExternalType.cs" />
+    <Compile Include="TypeSystem\Reflection\IAssemblyReference.cs" />
     <Compile Include="TypeSystem\Reflection\IReflectionTypeSystemProvider.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionNamespace.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionNamespaceBuilder.cs" />
