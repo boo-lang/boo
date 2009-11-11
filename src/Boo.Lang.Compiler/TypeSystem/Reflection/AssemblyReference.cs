@@ -32,7 +32,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	using System;
 
-	class AssemblyReference : ICompileUnit, IEquatable<AssemblyReference>
+	class AssemblyReference : IAssemblyReference, IEquatable<AssemblyReference>
 	{
 		private readonly System.Reflection.Assembly _assembly;
 		private readonly IReflectionTypeSystemProvider _provider;

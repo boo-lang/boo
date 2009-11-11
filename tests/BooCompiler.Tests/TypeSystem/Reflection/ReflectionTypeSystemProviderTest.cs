@@ -43,5 +43,13 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 			ICompileUnit referenceFromClone = clone.ForAssembly(GetType().Assembly);
 			Assert.AreSame(original, referenceFromClone);
 		}
+
+		[Test]
+		public void AssemblyReferenceExposesAssembly()
+		{
+			IAssemblyReference assemblyRef = subject.ForAssembly(GetType().Assembly) as IAssemblyReference;
+			Assert.IsNotNull(assemblyRef);
+			Assert.AreSame(GetType().Assembly, assemblyRef.Assembly);
+		}
 	}
 }
