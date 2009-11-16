@@ -47,6 +47,15 @@ Example:
 	print resultingText # SPAM, SPAM, SPAM!
 """
 	_symbols = Hashtable()
+	
+	[property(PreserveLines)] _preserveLines = false
+	
+	def constructor():
+		pass
+		
+	def constructor(symbols as string*):
+		for symbol in symbols:
+			Define(symbol)
 		
 	def Define([required] symbol as string):
 		_symbols[symbol] = symbol
@@ -60,7 +69,7 @@ Example:
 		return writer.ToString()
 		
 	def Process([required] reader as TextReader, [required] writer as TextWriter):
-		Parser(_symbols, reader, writer).Parse()
+		Parser(_symbols, reader, writer, _preserveLines).Parse()
 		
 	class Parser:
 		IfPattern = /^\s*#if\s+((.|\s)+)$/	
@@ -70,31 +79,44 @@ Example:
 		_reader as TextReader
 		_writer as TextWriter
 		_evaluator = PreProcessorExpressionEvaluator()
+		_preserveLines as bool
 		
-		def constructor(symbolTable, reader, writer):
+		def constructor(symbolTable, reader, writer, preserveLines as bool):
 			_evaluator.SymbolTable = symbolTable
 			_reader = reader
 			_writer = writer
+			_preserveLines = preserveLines
 		
 		def Parse():
 			while (line = _reader.ReadLine()) is not null:
 				ParseLine(true, line)
 				
 		private def ParseLine(context as bool, [required] line as string):
-			if IfPattern.IsMatch(line):
-				ParseIfBlock(context, line)
-			else:
-				_writer.WriteLine(line) if context
-					
-		private def ParseIfBlock(context as bool, line as string):
 			m = IfPattern.Match(line)
-			expression = m.Groups[1].Value
+			if m.Success:
+				SkippedLine()
+				expression = m.Groups[1].Value
+				ParseIfBlock(context, expression)
+				return
+				
+			if context:
+				_writer.WriteLine(line)
+			else:
+				SkippedLine()
+				
+		private def SkippedLine():
+			if _preserveLines: _writer.WriteLine()
+					
+		private def ParseIfBlock(context as bool, expression as string):
 			localContext = context and Evaluate(expression)
 			while (line = _reader.ReadLine()) is not null:
 				if EndIfPattern.IsMatch(line):
-					break					
+					SkippedLine()
+					break			
+							
 				if ElsePattern.IsMatch(line):
 					localContext = context and not localContext
+					SkippedLine()
 				else:
 					ParseLine(localContext, line)
 					

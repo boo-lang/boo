@@ -1,4 +1,5 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectGuid>{69186382-466B-4D10-997E-569F3F5FD0FE}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -6,6 +7,10 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.Useful.Tests</RootNamespace>
     <AssemblyName>Boo.Lang.Useful.Tests</AssemblyName>
+    <UsePartialTypes>false</UsePartialTypes>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -16,6 +21,19 @@
     <OutputPath>bin\Release\</OutputPath>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <ducky>false</ducky>
+    <culture />
+    <genwarnings>false</genwarnings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <ducky>false</ducky>
+    <culture />
+    <genwarnings>false</genwarnings>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Attributes\AbstractAttributeTestFixture.boo" />
@@ -32,19 +50,14 @@
     <Compile Include="CommandLine\AbstractCommandLineTestFixture.boo" />
     <Compile Include="CommandLine\ParserTestFixture.boo" />
     <Compile Include="IO\PreprocessorFixture.boo" />
-    <Compile Include="IO\TextFileFixture.boo" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Attributes" />
-    <Folder Include="BooTemplate" />
-    <Folder Include="Collections" />
-    <Folder Include="CommandLine" />
-    <Folder Include="IO" />
     <ProjectReference Include="..\..\src\Boo.Lang.Useful\Boo.Lang.Useful.booproj">
       <Project>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</Project>
       <Name>Boo.Lang.Useful</Name>
     </ProjectReference>
-    <Reference Include="nunit.framework" />
+    <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>mono-nunit</Package>
+    </Reference>
   </ItemGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

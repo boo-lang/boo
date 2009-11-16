@@ -1,4 +1,5 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectGuid>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -6,10 +7,14 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.Useful</RootNamespace>
     <AssemblyName>Boo.Lang.Useful</AssemblyName>
-    <SignAssembly>True</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+    <UsePartialTypes>false</UsePartialTypes>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -20,6 +25,19 @@
     <OutputPath>bin\Release\</OutputPath>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <genwarnings>false</genwarnings>
+    <culture />
+    <ducky>false</ducky>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <genwarnings>false</genwarnings>
+    <culture />
+    <ducky>false</ducky>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
@@ -51,17 +69,10 @@
     <Compile Include="Resources\ResourceFu.boo" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Attributes" />
-    <Folder Include="BooTemplate" />
-    <Folder Include="Collections" />
-    <Folder Include="CommandLine" />
-    <Folder Include="IO" />
-    <Folder Include="IO\Impl" />
-    <Folder Include="Resources" />
-    <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
-      <Project>{C1943936-DBBD-4331-94C3-BE4F7E6229DA}</Project>
-      <Name>Boo.Lang.Parser</Name>
+    <Folder Include="IO\" />
+    <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser-VS2008.csproj">
+      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
+      <Name>Boo.Lang.Parser-VS2008</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

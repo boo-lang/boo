@@ -35,12 +35,12 @@ import Boo.Lang.Useful.IO
 class PreprocessorTestFixture:
 	
 	[Test]
-	def TestNoDefines():
+	def NoDefines():
 		code = "print '#ifdef'\n"
 		AssertPreProcessor(code, code)
 		
 	[Test]
-	def TestElse():
+	def IfElse():
 		code = """
 #if FOO
 print 'foo'
@@ -52,7 +52,7 @@ print 'else'
 		AssertPreProcessor("\nprint 'else'\n", code)
 		
 	[Test]
-	def TestNestedDefines():
+	def NestedIfs():
 		code = """
 #if FOO
 print 'foo'
@@ -71,7 +71,7 @@ print 'outer foo'
 		AssertPreProcessor(expected, code, "FOO")
 		
 	[Test]
-	def TestSimpleDefines():
+	def SequentialIfs():
 		code = """
 #if FOO
 print 'foo'
@@ -99,9 +99,59 @@ print 'bar'
 		expected = """
 """
 		AssertPreProcessor(expected, code)
+
+	[Test]
+	def LinePreservingPreProcessing():
+		code = """
+#if FOO
+print 'foo'
+#endif
+#if BAR
+print 'bar'
+#endif"""
+
+		expected = """
+
+
+
+
+print 'bar'
+
+"""
+		AssertLinePreservingPreProcessor(expected, code, "BAR")
+		
+		expected = """
+
+print 'foo'
+
+
+
+
+"""
+		AssertLinePreservingPreProcessor(expected, code, "FOO")
+		
+		expected = """
+
+print 'foo'
+
+
+print 'bar'
+
+"""
+		AssertLinePreservingPreProcessor(expected, code, "FOO", "BAR")
+		
+		expected = """
+
+
+
+
+
+
+"""
+		AssertLinePreservingPreProcessor(expected, code)
 		
 	[Test]
-	def TestNot():
+	def NotOperator():
 		code = """
 #if !FOO_1_0 // comments are ignored
 print 'not foo'
@@ -148,7 +198,7 @@ print 'either again'
 		AssertPreProcessor(expected, code, "FOO_1_0", "BAR")
 
 	[Test]
-	def TestExpressions():
+	def OrAnd():
 		code = """
 #if FOO || BAR
 print 'foo or bar'
@@ -174,7 +224,9 @@ print 'foo or bar'
 
 		
 	def AssertPreProcessor(expected, actual, *defines as (string)):
-		pp = PreProcessor()
-		for d in defines:
-			pp.Define(d)
+		pp = PreProcessor(defines)
+		Assert.AreEqual(expected, pp.Process(actual).Replace("\r\n", "\n"))
+		
+	def AssertLinePreservingPreProcessor(expected, actual, *defines as (string)):
+		pp = PreProcessor(defines, PreserveLines: true)
 		Assert.AreEqual(expected, pp.Process(actual).Replace("\r\n", "\n"))
