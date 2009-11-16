@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -10,7 +11,7 @@
     <RootNamespace>Boo.Lang.Parser</RootNamespace>
     <AssemblyName>Boo.Lang.Parser</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../boo.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -55,7 +56,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Net-1.1|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE</DefineConstants>
@@ -98,12 +99,15 @@
     <Compile Include="WSABooParserBase.cs" />
     <Compile Include="WSABooParsingStep.cs" />
     <Compile Include="WSABooTokenTypes.cs" />
+    <Compile Include="Util\IndentTokenStreamFilter.cs" />
+    <Compile Include="Util\Readers.cs" />
+    <Compile Include="Util\TokenStreamRecorder.cs" />
     <Compile Include="antlr\SupportClass.cs" />
     <Compile Include="antlr\antlr\ANTLRException.cs" />
     <Compile Include="antlr\antlr\ANTLRPanicException.cs" />
     <Compile Include="antlr\antlr\ASTFactory.cs" />
-    <Compile Include="antlr\antlr\ASTNodeCreator.cs" />
     <Compile Include="antlr\antlr\ASTNULLType.cs" />
+    <Compile Include="antlr\antlr\ASTNodeCreator.cs" />
     <Compile Include="antlr\antlr\ASTPair.cs" />
     <Compile Include="antlr\antlr\ASTVisitor.cs" />
     <Compile Include="antlr\antlr\BaseAST.cs" />
@@ -121,19 +125,19 @@
     <Compile Include="antlr\antlr\DumpASTVisitor.cs" />
     <Compile Include="antlr\antlr\FileLineFormatter.cs" />
     <Compile Include="antlr\antlr\IHiddenStreamToken.cs" />
-    <Compile Include="antlr\antlr\InputBuffer.cs" />
     <Compile Include="antlr\antlr\IToken.cs" />
-    <Compile Include="antlr\antlr\LexerSharedInputState.cs" />
+    <Compile Include="antlr\antlr\InputBuffer.cs" />
     <Compile Include="antlr\antlr\LLkParser.cs" />
+    <Compile Include="antlr\antlr\LexerSharedInputState.cs" />
     <Compile Include="antlr\antlr\MismatchedCharException.cs" />
     <Compile Include="antlr\antlr\MismatchedTokenException.cs" />
     <Compile Include="antlr\antlr\NoViableAltException.cs" />
     <Compile Include="antlr\antlr\NoViableAltForCharException.cs" />
-    <Compile Include="antlr\antlr\Parser.cs" />
-    <Compile Include="antlr\antlr\ParserSharedInputState.cs" />
     <Compile Include="antlr\antlr\ParseTree.cs" />
     <Compile Include="antlr\antlr\ParseTreeRule.cs" />
     <Compile Include="antlr\antlr\ParseTreeToken.cs" />
+    <Compile Include="antlr\antlr\Parser.cs" />
+    <Compile Include="antlr\antlr\ParserSharedInputState.cs" />
     <Compile Include="antlr\antlr\RecognitionException.cs" />
     <Compile Include="antlr\antlr\SemanticException.cs" />
     <Compile Include="antlr\antlr\StringUtils.cs" />
@@ -163,19 +167,20 @@
     <Compile Include="antlr\antlr.debug\GuessingEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\ICharScannerDebugSubject.cs" />
     <Compile Include="antlr\antlr.debug\IDebugSubject.cs" />
+    <Compile Include="antlr\antlr.debug\IParserDebugSubject.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferEventSupport.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferListener.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferReporter.cs" />
-    <Compile Include="antlr\antlr.debug\IParserDebugSubject.cs" />
-    <Compile Include="antlr\antlr.debug\Listener.cs" />
     <Compile Include="antlr\antlr.debug\LLkDebuggingParser.cs" />
+    <Compile Include="antlr\antlr.debug\Listener.cs" />
     <Compile Include="antlr\antlr.debug\MessageEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\MessageListener.cs" />
     <Compile Include="antlr\antlr.debug\MessageListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\NewLineEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\NewLineListener.cs" />
+    <Compile Include="antlr\antlr.debug\ParseTreeDebugParser.cs" />
     <Compile Include="antlr\antlr.debug\ParserController.cs" />
     <Compile Include="antlr\antlr.debug\ParserEventSupport.cs" />
     <Compile Include="antlr\antlr.debug\ParserListener.cs" />
@@ -187,7 +192,6 @@
     <Compile Include="antlr\antlr.debug\ParserTokenEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\ParserTokenListener.cs" />
     <Compile Include="antlr\antlr.debug\ParserTokenListenerBase.cs" />
-    <Compile Include="antlr\antlr.debug\ParseTreeDebugParser.cs" />
     <Compile Include="antlr\antlr.debug\ScannerEventSupport.cs" />
     <Compile Include="antlr\antlr.debug\SemanticPredicateEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\SemanticPredicateListener.cs" />
@@ -199,18 +203,15 @@
     <Compile Include="antlr\antlr.debug\TraceListener.cs" />
     <Compile Include="antlr\antlr.debug\TraceListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\Tracer.cs" />
-    <Compile Include="Util\IndentTokenStreamFilter.cs" />
-    <Compile Include="Util\Readers.cs" />
-    <Compile Include="Util\TokenStreamRecorder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2005.csproj">
+    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2008.csproj">
       <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
-      <Name>Boo.Lang.Compiler-VS2005</Name>
+      <Name>Boo.Lang.Compiler-VS2008</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Boo.Lang\Boo.Lang-VS2005.csproj">
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang-VS2008.csproj">
       <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
-      <Name>Boo.Lang-VS2005</Name>
+      <Name>Boo.Lang-VS2008</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -219,23 +220,15 @@
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
       <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
       <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
       <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

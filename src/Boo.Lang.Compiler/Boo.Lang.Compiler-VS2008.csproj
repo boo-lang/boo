@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -10,7 +11,7 @@
     <RootNamespace>Boo.Lang.Compiler</RootNamespace>
     <AssemblyName>Boo.Lang.Compiler</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../boo.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -38,7 +39,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0</DefineConstants>
@@ -55,7 +56,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Net-1.1|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0</DefineConstants>
@@ -168,14 +169,14 @@
     <Compile Include="Ast\HashLiteralExpression.cs" />
     <Compile Include="Ast\IAstVisitor.Generated.cs" />
     <Compile Include="Ast\IExplicitMember.cs" />
-    <Compile Include="Ast\IfStatement.cs" />
-    <Compile Include="Ast\Import.cs" />
-    <Compile Include="Ast\ImportCollection.cs" />
     <Compile Include="Ast\INodeWithArguments.cs" />
     <Compile Include="Ast\INodeWithAttributes.cs" />
     <Compile Include="Ast\INodeWithBody.cs" />
     <Compile Include="Ast\INodeWithGenericParameters.cs" />
     <Compile Include="Ast\INodeWithParameters.cs" />
+    <Compile Include="Ast\IfStatement.cs" />
+    <Compile Include="Ast\Import.cs" />
+    <Compile Include="Ast\ImportCollection.cs" />
     <Compile Include="Ast\IntegerLiteralExpression.cs" />
     <Compile Include="Ast\InterfaceDefinition.cs" />
     <Compile Include="Ast\LabelStatement.cs" />
@@ -202,9 +203,9 @@
     <Compile Include="Ast\ParameterModifiers.Generated.cs" />
     <Compile Include="Ast\Property.cs" />
     <Compile Include="Ast\QuasiquoteExpression.cs" />
+    <Compile Include="Ast\RELiteralExpression.cs" />
     <Compile Include="Ast\RaiseStatement.cs" />
     <Compile Include="Ast\ReferenceExpression.cs" />
-    <Compile Include="Ast\RELiteralExpression.cs" />
     <Compile Include="Ast\ReturnStatement.cs" />
     <Compile Include="Ast\SelfLiteralExpression.cs" />
     <Compile Include="Ast\SimpleTypeReference.cs" />
@@ -232,9 +233,9 @@
     <Compile Include="Ast\TypeMember.cs" />
     <Compile Include="Ast\TypeMemberCollection.cs" />
     <Compile Include="Ast\TypeMemberModifiers.Generated.cs" />
-    <Compile Include="Ast\TypeofExpression.cs" />
     <Compile Include="Ast\TypeReference.cs" />
     <Compile Include="Ast\TypeReferenceCollection.cs" />
+    <Compile Include="Ast\TypeofExpression.cs" />
     <Compile Include="Ast\UnaryExpression.cs" />
     <Compile Include="Ast\UnaryOperatorType.Generated.cs" />
     <Compile Include="Ast\UnlessStatement.cs" />
@@ -314,9 +315,9 @@
     <Compile Include="Ast\Impl\ParameterDeclarationImpl.cs" />
     <Compile Include="Ast\Impl\PropertyImpl.cs" />
     <Compile Include="Ast\Impl\QuasiquoteExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\RELiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\RaiseStatementImpl.cs" />
     <Compile Include="Ast\Impl\ReferenceExpressionImpl.cs" />
-    <Compile Include="Ast\Impl\RELiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ReturnStatementImpl.cs" />
     <Compile Include="Ast\Impl\SelfLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SimpleTypeReferenceImpl.cs" />
@@ -342,9 +343,9 @@
     <Compile Include="Ast\Impl\TypeDefinitionImpl.cs" />
     <Compile Include="Ast\Impl\TypeMemberCollectionImpl.cs" />
     <Compile Include="Ast\Impl\TypeMemberImpl.cs" />
-    <Compile Include="Ast\Impl\TypeofExpressionImpl.cs" />
     <Compile Include="Ast\Impl\TypeReferenceCollectionImpl.cs" />
     <Compile Include="Ast\Impl\TypeReferenceImpl.cs" />
+    <Compile Include="Ast\Impl\TypeofExpressionImpl.cs" />
     <Compile Include="Ast\Impl\UnaryExpressionImpl.cs" />
     <Compile Include="Ast\Impl\UnlessStatementImpl.cs" />
     <Compile Include="Ast\Impl\UnpackStatementImpl.cs" />
@@ -392,8 +393,8 @@
     <Compile Include="Steps\CheckGenericConstraints.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
     <Compile Include="Steps\CheckMemberNames.cs" />
-    <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
     <Compile Include="Steps\CheckMemberTypes.cs" />
+    <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
     <Compile Include="Steps\CheckNeverUsedMembers.cs" />
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
     <Compile Include="Steps\ConstantFolding.cs" />
@@ -493,8 +494,8 @@
     <Compile Include="TypeSystem\ITypedEntity.cs" />
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\TypeCollector.cs" />
-    <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />
+    <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />
     <Compile Include="TypeSystem\Builders\BooClassBuilder.cs" />
@@ -523,8 +524,8 @@
     <Compile Include="TypeSystem\Internal\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\Internal\AbstractLocalEntity.cs" />
     <Compile Include="TypeSystem\Internal\AliasedNamespace.cs" />
-    <Compile Include="TypeSystem\Internal\AnonymousCallablesManager.cs" />
     <Compile Include="TypeSystem\Internal\AnonymousCallableType.cs" />
+    <Compile Include="TypeSystem\Internal\AnonymousCallablesManager.cs" />
     <Compile Include="TypeSystem\Internal\BuiltinFunction.cs" />
     <Compile Include="TypeSystem\Internal\BuiltinFunctionType.cs" />
     <Compile Include="TypeSystem\Internal\CompileUnitNamespace.cs" />
@@ -592,9 +593,9 @@
     <Compile Include="Util\TypeUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Boo.Lang\Boo.Lang-VS2005.csproj">
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang-VS2008.csproj">
       <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
-      <Name>Boo.Lang-VS2005</Name>
+      <Name>Boo.Lang-VS2008</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -603,23 +604,15 @@
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
       <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
       <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
       <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>

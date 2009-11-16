@@ -104,14 +104,14 @@
     <File name="Ast/HashLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IAstVisitor.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IExplicitMember.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/IfStatement.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/Import.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/ImportCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithArguments.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithAttributes.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithBody.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithGenericParameters.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/INodeWithParameters.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/IfStatement.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Import.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/ImportCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/IntegerLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/InterfaceDefinition.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/LabelStatement.cs" buildaction="Compile" subtype="Code" />
@@ -138,9 +138,9 @@
     <File name="Ast/ParameterModifiers.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Property.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/QuasiquoteExpression.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/RELiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/RaiseStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ReferenceExpression.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/RELiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ReturnStatement.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SelfLiteralExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/SimpleTypeReference.cs" buildaction="Compile" subtype="Code" />
@@ -168,9 +168,9 @@
     <File name="Ast/TypeMember.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeMemberCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeMemberModifiers.Generated.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/TypeofExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeReference.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/TypeReferenceCollection.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/TypeofExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnaryExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnaryOperatorType.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/UnlessStatement.cs" buildaction="Compile" subtype="Code" />
@@ -250,9 +250,9 @@
     <File name="Ast/Impl/ParameterDeclarationImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/PropertyImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/QuasiquoteExpressionImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/RELiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/RaiseStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ReferenceExpressionImpl.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/Impl/RELiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ReturnStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SelfLiteralExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/SimpleTypeReferenceImpl.cs" buildaction="Compile" subtype="Code" />
@@ -278,9 +278,9 @@
     <File name="Ast/Impl/TypeDefinitionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/TypeMemberCollectionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/TypeMemberImpl.cs" buildaction="Compile" subtype="Code" />
-    <File name="Ast/Impl/TypeofExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/TypeReferenceCollectionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/TypeReferenceImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/TypeofExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/UnaryExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/UnlessStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/UnpackStatementImpl.cs" buildaction="Compile" subtype="Code" />
@@ -328,8 +328,8 @@
     <File name="Steps/CheckGenericConstraints.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckIdentifiers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMemberNames.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/CheckMembersProtectionLevel.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckMemberTypes.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/CheckMembersProtectionLevel.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/CheckNeverUsedMembers.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ClosureSignatureInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ConstantFolding.cs" buildaction="Compile" subtype="Code" />
@@ -429,8 +429,8 @@
     <File name="TypeSystem/ITypedEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Null.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeCollector.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeVisitor.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Unknown.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Variance.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Builders/BooClassBuilder.cs" buildaction="Compile" subtype="Code" />
@@ -459,8 +459,8 @@
     <File name="TypeSystem/Internal/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/AliasedNamespace.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/Internal/AnonymousCallablesManager.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/AnonymousCallableType.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Internal/AnonymousCallablesManager.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/BuiltinFunction.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/BuiltinFunctionType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/CompileUnitNamespace.cs" buildaction="Compile" subtype="Code" />
