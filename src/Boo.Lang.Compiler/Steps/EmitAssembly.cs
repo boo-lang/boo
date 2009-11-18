@@ -633,6 +633,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{
+			_rawArrayIndexing = AstAnnotations.IsRawIndexing(module);
 			Visit(module.Members);
 		}
 
@@ -2977,9 +2978,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnSlicingExpression(SlicingExpression node)
 		{
 			if (AstUtil.IsLhsOfAssignment(node))
-			{
 				return;
-			}
 			
 			Visit(node.Target);
 			
