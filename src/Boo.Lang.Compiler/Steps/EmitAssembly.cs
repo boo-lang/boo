@@ -813,8 +813,8 @@ namespace Boo.Lang.Compiler.Steps
 			bool currentChecked = _checked;
 			_checked = AstAnnotations.IsChecked(block, Parameters.Checked);
 			
-			bool currentArrayIndexing = _perModuleRawArrayIndexing || _rawArrayIndexing;
-			_rawArrayIndexing = AstAnnotations.IsRawIndexing(block);
+			bool currentArrayIndexing = _rawArrayIndexing;
+			_rawArrayIndexing = _perModuleRawArrayIndexing || AstAnnotations.IsRawIndexing(block);
 
 			Visit(block.Statements);
 
