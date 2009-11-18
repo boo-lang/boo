@@ -139,6 +139,8 @@ namespace Boo.Lang.Compiler.Steps
 		int _tryBlock; // are we in a try block?
 		bool _checked = true;
 		bool _rawArrayIndexing = false;
+		bool _perModuleRawArrayIndexing = false;
+		
 		Hashtable _typeCache = new Hashtable();
 		
 		// keeps track of types on the IL stack
@@ -633,7 +635,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnModule(Module module)
 		{
-			_rawArrayIndexing = AstAnnotations.IsRawIndexing(module);
+			_perModuleRawArrayIndexing = AstAnnotations.IsRawIndexing(module);
 			Visit(module.Members);
 		}
 
@@ -811,7 +813,7 @@ namespace Boo.Lang.Compiler.Steps
 			bool currentChecked = _checked;
 			_checked = AstAnnotations.IsChecked(block, Parameters.Checked);
 			
-			bool currentArrayIndexing = _rawArrayIndexing;
+			bool currentArrayIndexing = _perModuleRawArrayIndexing || _rawArrayIndexing;
 			_rawArrayIndexing = AstAnnotations.IsRawIndexing(block);
 
 			Visit(block.Statements);
