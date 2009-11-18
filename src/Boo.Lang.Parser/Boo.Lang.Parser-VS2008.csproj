@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -99,15 +99,12 @@
     <Compile Include="WSABooParserBase.cs" />
     <Compile Include="WSABooParsingStep.cs" />
     <Compile Include="WSABooTokenTypes.cs" />
-    <Compile Include="Util\IndentTokenStreamFilter.cs" />
-    <Compile Include="Util\Readers.cs" />
-    <Compile Include="Util\TokenStreamRecorder.cs" />
     <Compile Include="antlr\SupportClass.cs" />
     <Compile Include="antlr\antlr\ANTLRException.cs" />
     <Compile Include="antlr\antlr\ANTLRPanicException.cs" />
     <Compile Include="antlr\antlr\ASTFactory.cs" />
-    <Compile Include="antlr\antlr\ASTNULLType.cs" />
     <Compile Include="antlr\antlr\ASTNodeCreator.cs" />
+    <Compile Include="antlr\antlr\ASTNULLType.cs" />
     <Compile Include="antlr\antlr\ASTPair.cs" />
     <Compile Include="antlr\antlr\ASTVisitor.cs" />
     <Compile Include="antlr\antlr\BaseAST.cs" />
@@ -125,19 +122,19 @@
     <Compile Include="antlr\antlr\DumpASTVisitor.cs" />
     <Compile Include="antlr\antlr\FileLineFormatter.cs" />
     <Compile Include="antlr\antlr\IHiddenStreamToken.cs" />
-    <Compile Include="antlr\antlr\IToken.cs" />
     <Compile Include="antlr\antlr\InputBuffer.cs" />
-    <Compile Include="antlr\antlr\LLkParser.cs" />
+    <Compile Include="antlr\antlr\IToken.cs" />
     <Compile Include="antlr\antlr\LexerSharedInputState.cs" />
+    <Compile Include="antlr\antlr\LLkParser.cs" />
     <Compile Include="antlr\antlr\MismatchedCharException.cs" />
     <Compile Include="antlr\antlr\MismatchedTokenException.cs" />
     <Compile Include="antlr\antlr\NoViableAltException.cs" />
     <Compile Include="antlr\antlr\NoViableAltForCharException.cs" />
+    <Compile Include="antlr\antlr\Parser.cs" />
+    <Compile Include="antlr\antlr\ParserSharedInputState.cs" />
     <Compile Include="antlr\antlr\ParseTree.cs" />
     <Compile Include="antlr\antlr\ParseTreeRule.cs" />
     <Compile Include="antlr\antlr\ParseTreeToken.cs" />
-    <Compile Include="antlr\antlr\Parser.cs" />
-    <Compile Include="antlr\antlr\ParserSharedInputState.cs" />
     <Compile Include="antlr\antlr\RecognitionException.cs" />
     <Compile Include="antlr\antlr\SemanticException.cs" />
     <Compile Include="antlr\antlr\StringUtils.cs" />
@@ -167,20 +164,19 @@
     <Compile Include="antlr\antlr.debug\GuessingEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\ICharScannerDebugSubject.cs" />
     <Compile Include="antlr\antlr.debug\IDebugSubject.cs" />
-    <Compile Include="antlr\antlr.debug\IParserDebugSubject.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferEventSupport.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferListener.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\InputBufferReporter.cs" />
-    <Compile Include="antlr\antlr.debug\LLkDebuggingParser.cs" />
+    <Compile Include="antlr\antlr.debug\IParserDebugSubject.cs" />
     <Compile Include="antlr\antlr.debug\Listener.cs" />
+    <Compile Include="antlr\antlr.debug\LLkDebuggingParser.cs" />
     <Compile Include="antlr\antlr.debug\MessageEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\MessageListener.cs" />
     <Compile Include="antlr\antlr.debug\MessageListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\NewLineEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\NewLineListener.cs" />
-    <Compile Include="antlr\antlr.debug\ParseTreeDebugParser.cs" />
     <Compile Include="antlr\antlr.debug\ParserController.cs" />
     <Compile Include="antlr\antlr.debug\ParserEventSupport.cs" />
     <Compile Include="antlr\antlr.debug\ParserListener.cs" />
@@ -192,6 +188,7 @@
     <Compile Include="antlr\antlr.debug\ParserTokenEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\ParserTokenListener.cs" />
     <Compile Include="antlr\antlr.debug\ParserTokenListenerBase.cs" />
+    <Compile Include="antlr\antlr.debug\ParseTreeDebugParser.cs" />
     <Compile Include="antlr\antlr.debug\ScannerEventSupport.cs" />
     <Compile Include="antlr\antlr.debug\SemanticPredicateEventArgs.cs" />
     <Compile Include="antlr\antlr.debug\SemanticPredicateListener.cs" />
@@ -203,6 +200,9 @@
     <Compile Include="antlr\antlr.debug\TraceListener.cs" />
     <Compile Include="antlr\antlr.debug\TraceListenerBase.cs" />
     <Compile Include="antlr\antlr.debug\Tracer.cs" />
+    <Compile Include="Util\IndentTokenStreamFilter.cs" />
+    <Compile Include="Util\Readers.cs" />
+    <Compile Include="Util\TokenStreamRecorder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2008.csproj">

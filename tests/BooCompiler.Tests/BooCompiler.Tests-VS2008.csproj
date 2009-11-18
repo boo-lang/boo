@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -91,21 +91,45 @@
   <ItemGroup>
     <Compile Include="AbstractCompilerErrorsTestFixture.cs" />
     <Compile Include="AbstractCompilerTestCase.cs" />
+    <Compile Include="ArraysIntegrationTestFixture.cs" />
+    <Compile Include="AttributesIntegrationTestFixture.cs" />
+    <Compile Include="AttributesTestFixture.cs" />
     <Compile Include="BooTestCaseUtil.cs" />
+    <Compile Include="CallablesIntegrationTestFixture.cs" />
+    <Compile Include="ClosuresIntegrationTestFixture.cs" />
     <Compile Include="ClrExtensionsIntegrationTestFixture.cs" />
+    <Compile Include="ClrIntegrationTestFixture.cs" />
+    <Compile Include="CompilerErrorsTestFixture.cs" />
     <Compile Include="CompilerWarningCollectionTest.cs" />
+    <Compile Include="CompilerWarningsTestFixture.cs" />
+    <Compile Include="DuckTypingIntegrationTestFixture.cs" />
+    <Compile Include="DuckyTestFixture.cs" />
+    <Compile Include="ExtensionsIntegrationTestFixture.cs" />
+    <Compile Include="GeneratorsIntegrationTestFixture.cs" />
+    <Compile Include="GenericsTestFixture.cs" />
     <Compile Include="LocalizationTest.cs" />
+    <Compile Include="MacrosTestFixture.cs" />
+    <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />
+    <Compile Include="ModulesIntegrationTestFixture.cs" />
     <Compile Include="MyTest.cs" />
+    <Compile Include="Net2ErrorsTestFixture.cs" />
+    <Compile Include="OperatorsIntegrationTestFixture.cs" />
     <Compile Include="PipelineTest.cs" />
+    <Compile Include="PrimitivesIntegrationTestFixture.cs" />
+    <Compile Include="RegressionTestFixture.cs" />
+    <Compile Include="SemanticsTestFixture.cs" />
     <Compile Include="SmokeTest.cs" />
+    <Compile Include="StatementsIntegrationTestFixture.cs" />
+    <Compile Include="StdlibTestFixture.cs" />
     <Compile Include="SystemDrawingPoint.cs" />
+    <Compile Include="TypesIntegrationTestFixture.cs" />
     <Compile Include="UnsafeErrorsTestFixture.cs" />
     <Compile Include="UnsafeTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
     <Compile Include="SupportingClasses\AbstractClass.cs" />
-    <Compile Include="SupportingClasses\BOO313BaseClass.cs" />
     <Compile Include="SupportingClasses\BaseInterface.cs" />
+    <Compile Include="SupportingClasses\BOO313BaseClass.cs" />
     <Compile Include="SupportingClasses\ByRef.cs" />
     <Compile Include="SupportingClasses\ByteEnum.cs" />
     <Compile Include="SupportingClasses\ClassHierarchy.cs" />
@@ -155,6 +179,16 @@
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
       <Visible>False</Visible>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2008.csproj">
+      <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
+      <Name>Boo.Lang.Compiler-VS2008</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Boo.Lang\Boo.Lang-VS2008.csproj">
+      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
+      <Name>Boo.Lang-VS2008</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
