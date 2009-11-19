@@ -41,12 +41,12 @@ def createLockedBlock(context as CompilerContext, monitor as Expression, block a
 	expire as int = 5000 #expiration time in ms (default 5s)
 	if context.Parameters.Defines.TryGetValue("LOCK_TIMEOUT", expireString):
 		expire = int.Parse(expireString) if expireString
+		_acquired = ReferenceExpression(monitor.LexicalInfo, context.GetUniqueName("lock", "acquired"))
 		monitorEntry = [|
 			block:
-				acquired = System.Threading.Monitor.TryEnter($temp, $expire)
-				if not acquired:
-					msg = string.Format("Lock at '{0}' could not be acquired within LOCK_TIMEOUT({1}ms) - possible deadlock", $(monitor.LexicalInfo.ToString()), $expire)
-					raise System.TimeoutException(msg)
+				$(_acquired) = System.Threading.Monitor.TryEnter($temp, $expire)
+				if not $(_acquired):
+					raise System.TimeoutException(string.Format("Lock at '{0}' could not be acquired within LOCK_TIMEOUT({1}ms) - possible deadlock", $(monitor.LexicalInfo.ToString()), $expire))
 		|].Body
 	else:
 		monitorEntry = [|
