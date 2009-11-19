@@ -25,6 +25,6 @@ try:
 	lock d.DaLock:
 		res = d.Foo.BeginInvoke()
 		d.Foo.EndInvoke(res)
-except TimeoutException:
+except as System.TimeoutException:
 	print "DEADLOCK DETECTED"
 
