@@ -106,14 +106,14 @@ namespace Boo.Lang.Parser
 			return val;
 		}
 
-		public static IntegerLiteralExpression ParseIntegerLiteralExpression(antlr.IToken token, string s, bool asLong)
+		public static IntegerLiteralExpression ParseIntegerLiteralExpression(antlr.IToken token, string text, bool asLong)
 		{
 			try
 			{
-				return TryParseIntegerLiteralExpression(token, s, asLong);
+				return TryParseIntegerLiteralExpression(token, text, asLong);
 			}
 			catch (System.OverflowException x)
-			{
+			{	
 				LexicalInfo sourceLocation = ToLexicalInfo(token);
 				GenericParserError(sourceLocation, x);
 				// let the parser continue
@@ -126,30 +126,35 @@ namespace Boo.Lang.Parser
 			My<CompilerErrorCollection>.Instance.Add(CompilerErrorFactory.GenericParserError(sourceLocation, x));
 		}
 
-		private static IntegerLiteralExpression TryParseIntegerLiteralExpression(IToken token, string s, bool asLong)
+		private static IntegerLiteralExpression TryParseIntegerLiteralExpression(IToken token, string text, bool asLong)
 		{
-			const string HEX_PREFIX = "0x";
+			const string hexPrefix = "0x";
 			
 			NumberStyles style = NumberStyles.Integer | NumberStyles.AllowExponent;
-			int hex_start = s.IndexOf(HEX_PREFIX);
+			int hexStart = text.IndexOf(hexPrefix);
 			bool negative = false;
 
-			if (hex_start >= 0)
+			if (hexStart >= 0)
 			{
-				if (s.StartsWith("-"))
-				{
+				if (text.StartsWith("-"))
 					negative = true;
-				}
-				s = s.Substring(hex_start + HEX_PREFIX.Length);
+				text = text.Substring(hexStart + hexPrefix.Length);
 				style = NumberStyles.HexNumber;
 			}
 
-			long value = long.Parse(s, style, CultureInfo.InvariantCulture);
+			long value = long.Parse(RemoveLongSuffix(text), style, CultureInfo.InvariantCulture);
 			if (negative) //negative hex number
 			{
 				value *= -1;
 			}
 			return new IntegerLiteralExpression(ToLexicalInfo(token), value, asLong || (value > int.MaxValue || value < int.MinValue));
+		}
+
+		private static string RemoveLongSuffix(string s)
+		{
+			if (s.EndsWith("l") || s.EndsWith("L"))
+				return s.Substring(0, s.Length - 1);
+			return s;
 		}
 
 		private static LexicalInfo ToLexicalInfo(IToken token)

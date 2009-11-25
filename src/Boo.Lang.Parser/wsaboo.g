@@ -2240,6 +2240,8 @@ unary_expression returns [Expression e]
 			UnaryOperatorType uOperator = UnaryOperatorType.None;
 	}: 
 	(
+		(SUBTRACT LONG)=>(e=integer_literal)
+		|	
 		(
 			(
 				sub:SUBTRACT { op = sub; uOperator = UnaryOperatorType.UnaryNegation; } |
@@ -2643,24 +2645,21 @@ bool_literal returns [BoolLiteralExpression e] { e = null; }:
 protected
 integer_literal returns [IntegerLiteralExpression e] 
 	{
+		string number = null;
 		e = null;
-		string val;
 	} :
-	(neg:SUBTRACT)?
+	(sign:SUBTRACT)?
 	(
 		i:INT
 		{
-			val = i.getText();
-			if (neg != null) val = neg.getText() + val;
-			e = PrimitiveParser.ParseIntegerLiteralExpression(i, val, false);
+			number = sign != null ? sign.getText() + i.getText() : i.getText();
+			e = PrimitiveParser.ParseIntegerLiteralExpression(i, number, false);
 		}
 		|
 		l:LONG
 		{
-			val = l.getText();
-			val = val.Substring(0, val.Length-1);
-			if (neg != null) val = neg.getText() + val;
-			e = PrimitiveParser.ParseIntegerLiteralExpression(l, val, true);
+			number = sign != null ? sign.getText() + l.getText() : l.getText();
+			e = PrimitiveParser.ParseIntegerLiteralExpression(l, number, true);
 		}
 	)
 	;
