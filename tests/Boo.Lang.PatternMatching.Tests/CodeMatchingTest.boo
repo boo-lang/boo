@@ -50,8 +50,8 @@ class CodeMatchingTest:
 				
 	[Test]
 	def TestNoArgInvocationPatternMatchesAnyInvocation():
-		assert methodName([| foo() |]) == "foo"
-		assert methodName([| bar(42) |]) == "bar"
+		assert methodTarget([| foo() |]) == "foo"
+		assert methodTarget([| bar(42) |]) == "bar"
 		
 	[Test]
 	def TestInvocationPatternWithArguments():
@@ -69,6 +69,39 @@ class CodeMatchingTest:
 		assert "true" == boolLiteral([| true |])
 		assert "42" == boolLiteral([| true or 42 |])
 		
+	[Test]
+	def FullyQualifiedMethodName():
+		Assert.AreEqual("foo.bar", methodTarget([| foo.bar() |]))
+		
+	[Test]
+	def SimpleMemberReference():
+		code = [| foo.bar |]
+		match code:
+			case [| foo.bar |]:
+				pass
+				
+	[Test]
+	def SingleReference():
+		code = [| foo |]
+		match code:
+			case [| foo |]:
+				pass
+		
+	[Test]
+	def FullyQualifiedNameMatching():
+		code = [| foo.bar() |]
+		match code:
+			case [| foo.bar() |]:
+				pass
+				
+	[Test]
+	def FullyQualifiedNameMatchingWithCapture():
+		code = [| foo.bar(1, 2) |]
+		match code:
+			case [| foo.bar($first, $second) |]:
+				assert [| 1 |].Matches(first)
+				assert [| 2 |].Matches(second)
+		
 	def boolLiteral(code as Expression):
 		match code:
 			case [| true |]:
@@ -84,10 +117,10 @@ class CodeMatchingTest:
 				assert type is not null
 				return method.ToString()
 		
-	def methodName(code as Expression):
+	def methodTarget(code as Expression):
 		match code:
-			case [| $name() |]:
-				return name.ToString()
+			case [| $target() |]:
+				return target.ToString()
 		
 	def variableName(code as Expression):
 		match code:

@@ -241,6 +241,9 @@ class PatternExpander:
 		override def OnSuperLiteralExpression(node as SuperLiteralExpression):
 			Push node, [| $Ast.SuperLiteralExpression() |]
 			
+		override def OnMemberReferenceExpression(node as MemberReferenceExpression):
+			Push node, [| $Ast.MemberReferenceExpression(Target: $(Expand(node.Target)), Name: $(node.Name)) |] 
+			
 	def ObjectPatternFor(node as QuasiquoteExpression):
 		return QuasiquotePatternBuilder(self).Build(node)
 		
