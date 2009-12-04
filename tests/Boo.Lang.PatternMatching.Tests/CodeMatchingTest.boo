@@ -23,25 +23,21 @@ class CodeMatchingTest:
 		firstPrintArgument([| print_ "arg" |])
 		
 	[Test]
-	def TestAssignment():
+	def Assignment():
 		code = [| a = 21*2 |]
 		Assert.AreEqual("a", variableName(code))
 		Assert.AreEqual(code.Right, rvalue(code))
 		
 	[Test]
-	def TestSlicing():
+	def Slicing():
 		code = [| a[b] |]
 		match code:
 			case [| $target[$arg] |]:
-				match target:
-					case ReferenceExpression(Name: "a"):
-						pass
-				match arg:
-					case ReferenceExpression(Name: "b"):
-						pass
+				assert [| a |].Matches(target)
+				assert [| b |].Matches(arg)
 						
 	[Test]
-	def TestTryCast():
+	def TryCast():
 		code = [| a as int |]
 		match code:
 			case [| $name as $type |]:
@@ -49,17 +45,17 @@ class CodeMatchingTest:
 				assert type.ToString() == "int"
 				
 	[Test]
-	def TestNoArgInvocationPatternMatchesAnyInvocation():
+	def NoArgInvocationPatternMatchesAnyInvocation():
 		assert methodTarget([| foo() |]) == "foo"
 		assert methodTarget([| bar(42) |]) == "bar"
 		
 	[Test]
-	def TestInvocationPatternWithArguments():
+	def InvocationPatternWithArguments():
 		assert delegateMethod([| ThreadStart(null, __addressof__(foo)) |]) == "foo"
 	
 	[Test]
 	[ExpectedException(MatchError)]
-	def TestInvocationPatternWithArgumentsMismatch():
+	def InvocationPatternWithArgumentsMismatch():
 		delegateMethod([| ThreadStart(null) |])
 		
 		
@@ -101,6 +97,64 @@ class CodeMatchingTest:
 			case [| foo.bar($first, $second) |]:
 				assert [| 1 |].Matches(first)
 				assert [| 2 |].Matches(second)
+				
+	[Test]
+	def MemberReferenceTargetCapture():
+		code = [| foo.bar() |]
+		match code:
+			case [| $target.bar() |]:
+				assert [| foo |].Matches(target)
+				
+	[Test]
+	def OmittedTargetReferenceExpression():
+		code = [| .bar() |]
+		match code:
+			case [| .bar() |]:
+				pass
+				
+	[Test]
+	def StringLiteralExpression():
+		code = [| "foo" |]
+		match code:
+			case [| "foo" |]:
+				pass
+				
+	[Test]
+	[ExpectedException(MatchError)]
+	def StringLiteralExpressionMismatch():
+		code = [| "foo" |]
+		match code:
+			case [| "bar" |]:
+				pass
+				
+	[Test]
+	def IntegerLiteralExpression():
+		code = [| 42 |]
+		match code:
+			case [| 42 |]:
+				pass
+	
+	[Test]
+	[ExpectedException(MatchError)]
+	def IntegerLiteralExpressionMismatch():
+		code = [| 42 |]
+		match code:
+			case [| 1 |]:
+				pass
+				
+	[Test]
+	def Typeof():
+		code = [| typeof(Foo) |]
+		match code:
+			case [| typeof($type) |]:
+				assert SimpleTypeReference("Foo").Matches(type)
+				
+	[Test]
+	def Self():
+		code = [| self |]
+		match code:
+			case [| self |]:
+				pass
 		
 	def boolLiteral(code as Expression):
 		match code:

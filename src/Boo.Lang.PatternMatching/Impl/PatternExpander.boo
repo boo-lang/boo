@@ -191,7 +191,7 @@ class PatternExpander:
 			return a
 			
 		override def OnOmittedExpression(node as OmittedExpression):
-			_pattern = [| $Ast.OmittedExpression.Instance |]
+			_pattern = [| $Ast.OmittedExpression.Default |]
 			
 		override def OnSlice(node as Slice):
 			ctor = [| $Ast.Slice() |]
@@ -223,9 +223,18 @@ class PatternExpander:
 				pattern = [| $Ast.MethodInvocationExpression(Target: $(Expand(node.Target))) |]
 			Push node, pattern
 			
+		override def OnTypeofExpression(node as TypeofExpression):
+			Push node, [| $Ast.TypeofExpression(Type: $(Expand(node.Type))) |]
+			
 		override def OnBoolLiteralExpression(node as BoolLiteralExpression):
 			Push node, [| $Ast.BoolLiteralExpression(Value: $node) |]
 			
+		override def OnIntegerLiteralExpression(node as IntegerLiteralExpression):
+			Push node, [| $Ast.IntegerLiteralExpression(Value: $node) |]
+
+		override def OnStringLiteralExpression(node as StringLiteralExpression):
+			Push node, [| $Ast.StringLiteralExpression(Value: $node) |]
+						
 		override def OnNullLiteralExpression(node as NullLiteralExpression):
 			Push node, [| $Ast.NullLiteralExpression() |]
 			
@@ -241,9 +250,13 @@ class PatternExpander:
 		override def OnSuperLiteralExpression(node as SuperLiteralExpression):
 			Push node, [| $Ast.SuperLiteralExpression() |]
 			
+		override def OnSelfLiteralExpression(node as SelfLiteralExpression):
+			Push node, [| $Ast.SelfLiteralExpression() |]
+			
 		override def OnMemberReferenceExpression(node as MemberReferenceExpression):
 			Push node, [| $Ast.MemberReferenceExpression(Target: $(Expand(node.Target)), Name: $(node.Name)) |] 
 			
+		
 	def ObjectPatternFor(node as QuasiquoteExpression):
 		return QuasiquotePatternBuilder(self).Build(node)
 		
