@@ -104,6 +104,8 @@
     <Compile Include="TypesIntegrationTestFixture.cs" />
     <Compile Include="UnsafeErrorsTestFixture.cs" />
     <Compile Include="UnsafeTestFixture.cs" />
+    <Compile Include="Ast\AstAssert.cs" />
+    <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
     <Compile Include="SupportingClasses\AbstractClass.cs" />

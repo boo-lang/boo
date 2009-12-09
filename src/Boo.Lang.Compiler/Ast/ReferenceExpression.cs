@@ -34,6 +34,11 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(GenericReferenceExpression))]
 	public partial class ReferenceExpression
 	{		
+		public static new ReferenceExpression Lift(string reference)
+		{
+			return AstUtil.CreateReferenceExpression(reference);
+		}
+
 		public ReferenceExpression()
 		{
  		}
