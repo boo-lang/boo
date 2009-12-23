@@ -29,7 +29,7 @@ import System.Runtime.CompilerServices
 [assembly: AssemblyProduct("SharpDevelop")]
 [assembly: AssemblyCopyright("(c) 2004 Daniel Grunwald")]
 
-[assembly: AssemblyVersion("2.0.9.2")]
+[assembly: AssemblyVersion("2.0.9.3")]
 
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]
