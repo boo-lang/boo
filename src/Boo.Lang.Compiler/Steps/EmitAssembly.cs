@@ -3825,7 +3825,7 @@ namespace Boo.Lang.Compiler.Steps
 			_il.EmitCall(OpCodes.Call, RuntimeHelpers_InitializeArray, null);
 		}
 
-		Dictionary<byte[], FieldBuilder> _packedArrays = new Dictionary<byte[], FieldBuilder>(ArrayEqualityComparer<byte>.Default);
+		Dictionary<byte[], FieldBuilder> _packedArrays = new Dictionary<byte[], FieldBuilder>(ValueTypeArrayEqualityComparer<byte>.Default);
 
 		byte[] CreateByteArrayFromLiteralCollection(IType type, ExpressionCollection items)
 		{

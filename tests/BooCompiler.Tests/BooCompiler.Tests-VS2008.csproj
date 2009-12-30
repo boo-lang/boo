@@ -167,6 +167,7 @@
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderExtensionTest.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderTest.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionServiceTest.cs" />
+    <Compile Include="Util\ArrayEqualityComparerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

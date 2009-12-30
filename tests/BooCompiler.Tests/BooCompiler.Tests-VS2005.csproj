@@ -146,6 +146,7 @@
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderExtensionTest.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderTest.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionServiceTest.cs" />
+    <Compile Include="Util\ArrayEqualityComparerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2005.csproj">

@@ -520,7 +520,6 @@
     <Compile Include="TypeSystem\Generics\MappedParameter.cs" />
     <Compile Include="TypeSystem\Generics\TypeInferrer.cs" />
     <Compile Include="TypeSystem\Generics\TypeMapper.cs" />
-    <Compile Include="TypeSystem\Internal\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Internal\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\Internal\AbstractLocalEntity.cs" />
     <Compile Include="TypeSystem\Internal\AliasedNamespace.cs" />
@@ -553,6 +552,7 @@
     <Compile Include="TypeSystem\Internal\InternalProperty.cs" />
     <Compile Include="TypeSystem\Internal\InternalTypeSystemProvider.cs" />
     <Compile Include="TypeSystem\Internal\PartialModuleNamespace.cs" />
+    <Compile Include="TypeSystem\Reflection\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyEqualityComparer.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyReference.cs" />
     <Compile Include="TypeSystem\Reflection\CachedMethod.cs" />

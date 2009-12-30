@@ -455,7 +455,6 @@
     <File name="TypeSystem/Generics/MappedParameter.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Generics/TypeInferrer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Generics/TypeMapper.cs" buildaction="Compile" subtype="Code" />
-    <File name="TypeSystem/Internal/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/AbstractInternalType.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/AbstractLocalEntity.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/AliasedNamespace.cs" buildaction="Compile" subtype="Code" />
@@ -488,6 +487,7 @@
     <File name="TypeSystem/Internal/InternalProperty.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/InternalTypeSystemProvider.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Internal/PartialModuleNamespace.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Reflection/AbstractExternalGenericInfo.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/AssemblyEqualityComparer.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/AssemblyReference.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Reflection/CachedMethod.cs" buildaction="Compile" subtype="Code" />

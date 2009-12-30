@@ -30,22 +30,8 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Util
 {
-	/// <summary>
-	/// Compares arrays based on their items.
-	/// </summary>
-	internal sealed class ArrayEqualityComparer<T>: IEqualityComparer<T[]>
+	public abstract class ArrayEqualityComparerBase<T> : IEqualityComparer<T[]>
 	{
-		private static ArrayEqualityComparer<T> _default = null;
-
-		private ArrayEqualityComparer()
-		{
-		}
-
-		public static ArrayEqualityComparer<T> Default
-		{
-			get { return _default ?? (_default = new ArrayEqualityComparer<T>()); }
-		}
-
 		public bool Equals(T[] x, T[] y)
 		{
 			// Null equals null, and nothing else
@@ -57,26 +43,65 @@ namespace Boo.Lang.Compiler.Util
 			
 			// Compare arrays' contents
 			for (int i = 0; i < x.Length; i++)
-			{
-				if ((x[i] == null && y[i] != null) || (!x[i].Equals(y[i])))
-				{
+				if (!AreEqual(x[i], y[i]))
 					return false;
-				}
-			}
-			
+
 			return true;
 		}
-		
+
+		protected abstract bool AreEqual(T xi, T yi);
+
 		public int GetHashCode(T[] args)
 		{
 			// Make a simple hash code from the hash codes of the items
 			int hash = 0;
 			for (int i = 0; i < args.Length; i++)
-			{
 				hash ^= i ^ args[i].GetHashCode();
-			}
-			
 			return hash;
+		}
+	}
+
+	/// <summary>
+	/// Compares reference type arrays based on their items.
+	/// </summary>
+	public sealed class ArrayEqualityComparer<T>: ArrayEqualityComparerBase<T> where T:class
+	{
+		private static readonly IEqualityComparer<T[]> _default = new ArrayEqualityComparer<T>();
+
+		private ArrayEqualityComparer()
+		{
+		}
+
+		public static IEqualityComparer<T[]> Default
+		{
+			get { return _default; }
+		}
+
+		protected override bool AreEqual(T xi, T yi)
+		{
+			return object.Equals(xi, yi);
+		}
+	}
+
+	/// <summary>
+	/// Compares value type arrays based on their items.
+	/// </summary>
+	public sealed class ValueTypeArrayEqualityComparer<T> : ArrayEqualityComparerBase<T> where T : struct
+	{
+		private static readonly IEqualityComparer<T[]> _default = new ValueTypeArrayEqualityComparer<T>();
+
+		private ValueTypeArrayEqualityComparer()
+		{
+		}
+
+		public static IEqualityComparer<T[]> Default
+		{
+			get { return _default; }
+		}
+
+		protected override bool AreEqual(T xi, T yi)
+		{
+			return xi.Equals(yi);
 		}
 	}
 }
