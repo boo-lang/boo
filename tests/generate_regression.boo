@@ -223,7 +223,7 @@ namespace BooCompiler.Tests
 		}
 """)
 
-GenerateTestFixture("parser/roundtrip", "build/ParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
+GenerateTestFixture("parser/roundtrip", "Boo.Lang.Parser.Tests/ParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
 namespace Boo.Lang.Parser.Tests
 {
 	using NUnit.Framework;
@@ -238,7 +238,7 @@ namespace Boo.Lang.Parser.Tests
 """)
 
 PortParserTestCases()
-GenerateTestFixture("parser/wsa", "build/WSAParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
+GenerateTestFixture("parser/wsa", "Boo.Lang.Parser.Tests/WSAParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
 namespace Boo.Lang.Parser.Tests
 {
 	using NUnit.Framework;

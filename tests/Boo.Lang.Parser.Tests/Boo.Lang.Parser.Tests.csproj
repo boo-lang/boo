@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\build\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -45,9 +45,11 @@
     <Compile Include="AbstractParserTestFixture.cs" />
     <Compile Include="AbstractWSAParserTestFixture.cs" />
     <Compile Include="BooParserTestCase.cs" />
+    <Compile Include="ParserRoundtripTestFixture.cs" />
     <Compile Include="PrimitiveParserTest.cs" />
     <Compile Include="Util\IndentTokenStreamFilterTestCase.cs" />
     <Compile Include="WSABooParserTestCase.cs" />
+    <Compile Include="WSAParserRoundtripTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2008.csproj">

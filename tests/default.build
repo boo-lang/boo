@@ -285,8 +285,6 @@
 
 			<sources>
 				<include name="Boo.Lang.Parser.Tests/**/*.cs" />
-				<include name="build/ParserRoundtripTestFixture.cs" />
-				<include name="build/WSAParserRoundtripTestFixture.cs" />
 			</sources>
 
 			<references basedir="build">

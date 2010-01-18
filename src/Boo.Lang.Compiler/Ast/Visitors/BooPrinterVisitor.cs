@@ -348,26 +348,23 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		bool IsSimpleClosure(BlockExpression node)
 		{
-			if (1 == node.Body.Statements.Count)
+			switch (node.Body.Statements.Count)
 			{
-				switch (node.Body.Statements[0].NodeType)
-				{
-					case NodeType.IfStatement:
+				case 0:
+					return true;
+
+				case 1:
+					switch (node.Body.Statements[0].NodeType)
 					{
-						return false;
+						case NodeType.IfStatement:
+							return false;
+						case NodeType.WhileStatement:
+							return false;
+						case NodeType.ForStatement:
+							return false;
 					}
-					
-					case NodeType.WhileStatement:
-					{
-						return false;
-					}
-					
-					case NodeType.ForStatement:
-					{
-						return false;
-					}
-				}
-				return true;
+					return true;
+
 			}
 			return false;
 		}
@@ -383,7 +380,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 					WriteCommaSeparatedList(node.Parameters);
 					Write(" | ");
 				}
-				Visit(node.Body.Statements);
+				if (node.Body.IsEmpty)
+					Write("return");
+				else
+					Visit(node.Body.Statements);
 				Write(" }");
 				EnableNewLine();
 			}
@@ -1245,7 +1245,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnReturnStatement(ReturnStatement r)
 		{
 			WriteIndented();
-			WriteKeyword("return ");
+			WriteKeyword("return");
+			if (r.Expression != null || r.Modifier != null)
+				Write(" ");
 			Visit(r.Expression);
 			Visit(r.Modifier);
 			WriteLine();
