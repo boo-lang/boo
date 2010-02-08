@@ -146,7 +146,7 @@ class BooTask(AbstractBooTask):
 		for line in lines:
 			if not line.StartsWith(indent):
 				return code // let the parser complain about it
-			else:
-				buffer.Append(line[len(indent):])
-				buffer.Append("\n")
+			
+			buffer.Append(line[len(indent):])
+			buffer.Append("\n")
 		return buffer.ToString()
