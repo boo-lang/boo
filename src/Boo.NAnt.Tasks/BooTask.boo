@@ -32,6 +32,7 @@ import System
 import System.IO
 import NAnt.Core
 import NAnt.Core.Attributes
+import NAnt.Core.Types
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Ast
@@ -92,13 +93,17 @@ def WithWorkingDir(dir as string, block as callable()):
 class BooTask(AbstractBooTask):
 
 	_src as FileInfo
+	_code as RawXml
 	
 	[TaskAttribute("src", Required: false)]
 	Source:
-		get:
-			return _src
-		set:
-			_src = value
+		get: return _src
+		set: _src = value
+			
+	[BuildElement("code")]
+	Code as RawXml:
+		get: return _code
+		set: _code = value
 			
 	override def ExecuteTask():
 		
@@ -131,8 +136,9 @@ class BooTask(AbstractBooTask):
 		return pipeline
 			
 	private def getSourceCode():
-		codeNode = self.XmlNode.SelectSingleNode("code")
-		return (codeNode or self.XmlNode).InnerText
+		if Code is not null:
+			return Code.Xml.InnerText
+		return XmlNode.InnerText
 			
 	private def reindent(code as string):
 		lines = /\n/.Split(code.Replace("\r\n", "\n"))
