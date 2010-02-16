@@ -1022,6 +1022,7 @@ splice_type_reference returns [SpliceTypeReference tr]
 	}
 ;
 
+
 protected
 type_reference returns [TypeReference tr]
 	{
@@ -1030,13 +1031,11 @@ type_reference returns [TypeReference tr]
 		TypeReferenceCollection arguments = null;
 		GenericTypeDefinitionReference gtdr = null;
 	}: 
+(
 	tr=splice_type_reference
-	|
-	tr=array_type_reference
-	|
-	(CALLABLE LPAREN)=>(tr=callable_type_reference)
-	|
-	(
+	| tr=array_type_reference
+	| (CALLABLE LPAREN)=>(tr=callable_type_reference)
+	| (
 		id=type_name
 		(
 			(
@@ -1045,7 +1044,7 @@ type_reference returns [TypeReference tr]
 					(
 						MULTIPLY
 						{
-							gtdr = new GenericTypeDefinitionReference(SourceLocationFactory.ToLexicalInfo(id));
+							gtdr = new GenericTypeDefinitionReference(ToLexicalInfo(id));
 							gtdr.Name = id.getText();
 							gtdr.GenericPlaceholders = 1;
 							tr = gtdr;										
@@ -1061,7 +1060,7 @@ type_reference returns [TypeReference tr]
 					|
 					(
 						{
-							GenericTypeReference gtr = new GenericTypeReference(SourceLocationFactory.ToLexicalInfo(id), id.getText());
+							GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
 							arguments = gtr.GenericArguments;
 							tr = gtr;
 						}
@@ -1074,7 +1073,7 @@ type_reference returns [TypeReference tr]
 			(
 				OF MULTIPLY
 				{
-					gtdr = new GenericTypeDefinitionReference(SourceLocationFactory.ToLexicalInfo(id));
+					gtdr = new GenericTypeDefinitionReference(ToLexicalInfo(id));
 					gtdr.Name = id.getText();
 					gtdr.GenericPlaceholders = 1;
 					tr = gtdr;
@@ -1084,14 +1083,14 @@ type_reference returns [TypeReference tr]
 			(
 				OF tr=type_reference
 				{
-					GenericTypeReference gtr = new GenericTypeReference(SourceLocationFactory.ToLexicalInfo(id), id.getText());
+					GenericTypeReference gtr = new GenericTypeReference(ToLexicalInfo(id), id.getText());
 					gtr.GenericArguments.Add(tr);
 					tr = gtr;
 				}
 			)
 			|
 			{
-				SimpleTypeReference str = new SimpleTypeReference(SourceLocationFactory.ToLexicalInfo(id));
+				SimpleTypeReference str = new SimpleTypeReference(ToLexicalInfo(id));
 				str.Name = id.getText();
 				tr = str;
 			}
@@ -1102,16 +1101,16 @@ type_reference returns [TypeReference tr]
 				tr = ntr;
 			}
 		)?
-		(MULTIPLY {
-				GenericTypeReference etr = new GenericTypeReference(tr.LexicalInfo, "System.Collections.Generic.IEnumerable");
-				etr.GenericArguments.Add(tr);
-				tr = etr;
-			}
-		)?
 	)
-	;
+)
+(MULTIPLY
+{
+	GenericTypeReference etr = new GenericTypeReference(tr.LexicalInfo, "System.Collections.Generic.IEnumerable");
+	etr.GenericArguments.Add(tr);
+	tr = etr;
+})*
+;
 
-	
 protected
 type_name returns [IToken id]
 	{

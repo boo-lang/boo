@@ -924,6 +924,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void type_references_1()
+		{
+			RunCompilerTestCase(@"type-references-1.boo");
+		}
+		
+		[Test]
 		public void unless_1()
 		{
 			RunCompilerTestCase(@"unless-1.boo");

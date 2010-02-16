@@ -1159,13 +1159,11 @@ type_reference returns [TypeReference tr]
 		TypeReferenceCollection arguments = null;
 		GenericTypeDefinitionReference gtdr = null;
 	}: 
+(
 	tr=splice_type_reference
-	|
-	tr=array_type_reference
-	|
-	(CALLABLE LPAREN)=>(tr=callable_type_reference)
-	|
-	(
+	| tr=array_type_reference
+	| (CALLABLE LPAREN)=>(tr=callable_type_reference)
+	| (
 		id=type_name
 		(
 			(
@@ -1231,14 +1229,15 @@ type_reference returns [TypeReference tr]
 				tr = ntr;
 			}
 		)?
-		(MULTIPLY {
-				GenericTypeReference etr = new GenericTypeReference(tr.LexicalInfo, "System.Collections.Generic.IEnumerable");
-				etr.GenericArguments.Add(tr);
-				tr = etr;
-			}
-		)?
 	)
-	;
+)
+(MULTIPLY
+{
+	GenericTypeReference etr = new GenericTypeReference(tr.LexicalInfo, "System.Collections.Generic.IEnumerable");
+	etr.GenericArguments.Add(tr);
+	tr = etr;
+})*
+;
 	
 protected
 type_name returns [IToken id]
