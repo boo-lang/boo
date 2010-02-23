@@ -599,10 +599,10 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (1 == node.Declarations.Count)
 			{
-				IEntity loopVariable = node.Declarations[0].Entity;
+				ILocalEntity loopVariable = (ILocalEntity) node.Declarations[0].Entity;
 				node.Block.ReplaceNodes(
 					new NodePredicate(new EntityPredicate(loopVariable).Matches),
-					CreateRawArraySlicing(arrayRef, indexReference, elementType));
+					CreateRawArraySlicing(arrayRef, indexReference, elementType, loopVariable.Type));
 			}
 			else
 			{
@@ -633,6 +633,14 @@ namespace Boo.Lang.Compiler.Steps
 			ws.ThenBlock = node.ThenBlock;
 			body.Add(ws);
 			ReplaceCurrentNode(body);
+		}
+
+		private Expression CreateRawArraySlicing(ReferenceExpression arrayRef, Expression indexReference, IType elementType, IType expectedType)
+		{
+			var slicing = CreateRawArraySlicing(arrayRef, indexReference, elementType);
+			if (elementType != expectedType)
+				return CodeBuilder.CreateCast(expectedType, slicing);
+			return slicing;
 		}
 
 		private void FixContinueStatements(ForStatement node, WhileStatement ws)
