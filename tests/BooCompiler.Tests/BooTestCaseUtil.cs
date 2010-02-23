@@ -31,7 +31,6 @@ namespace BooCompiler.Tests
 	using System;
 	using System.IO;
 	using System.Reflection;
-	using System.Xml;
 	using System.Xml.Serialization;
 	using Boo.Lang.Compiler.Ast;
 	using NUnit.Framework;
@@ -43,11 +42,15 @@ namespace BooCompiler.Tests
 	{
 		public static string TestCasesPath
 		{
+			get { return Path.Combine(BasePath, "tests/testcases"); }
+		}
+
+		public static string BasePath
+		{
 			get
 			{
 				Uri codebase = new Uri(Assembly.GetExecutingAssembly().CodeBase);
-				Uri path = new Uri(codebase, "../testcases");
-				return path.LocalPath;
+				return new Uri(codebase, "../..").LocalPath;
 			}
 		}
 

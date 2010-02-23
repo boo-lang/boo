@@ -121,9 +121,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			m.Namespace = CleanClone(node.EnclosingModule.Namespace);
 			m.Name = node.Name;
 			foreach (Import i in node.EnclosingModule.Imports)
-			{
 				m.Imports.Add(CleanClone(i));
-			}
 			m.Members.Add(CleanClone(node));
 			return m;
 		}
@@ -139,17 +137,13 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ReportErrors(CompilerErrorCollection errors)
 		{
 			foreach (CompilerError e in errors)
-			{
 				Errors.Add(e);
-			}
 		}
 
 		private void ReportWarnings(CompilerWarningCollection warnings)
 		{
 			foreach (CompilerWarning w in warnings)
-			{
 				Warnings.Add(w);
-			}
 		}
 
 		private static void CacheType(TypeDefinition node, Type type)

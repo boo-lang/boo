@@ -87,16 +87,26 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			return compiler.Run(unit);
 		}
 
+		public static CompilerContext compile_(CompileUnit unit, params ICompileUnit[] references)
+		{
+			return NewCompilerWithReferences(references).Run(unit);
+		}
+
 		private static BooCompiler NewCompilerWithReferences(IEnumerable<ICompileUnit> references)
 		{
-			BooCompiler compiler = NewCompiler();
+			BooCompiler compiler = NewCompiler(false);
 			compiler.Parameters.References.AddAll(references);
 			return compiler;
 		}
 
 		private static BooCompiler NewCompiler()
 		{
-			BooCompiler compiler = new BooCompiler();
+			return NewCompiler(true);
+		}
+
+		private static BooCompiler NewCompiler(bool loadDefaultReferences)
+		{
+			BooCompiler compiler = new BooCompiler(new CompilerParameters(loadDefaultReferences));
 			compiler.Parameters.OutputType = CompilerOutputType.Auto;
 			compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.CompileToMemory();
 			return compiler;
@@ -113,11 +123,6 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			module.Name = klass.Name;
 			module.Members.Add(klass);
 			return module;
-		}
-
-		public static CompilerContext compile_(CompileUnit unit, params ICompileUnit[] references)
-		{
-			return NewCompilerWithReferences(references).Run(unit);
 		}
 	}
 }

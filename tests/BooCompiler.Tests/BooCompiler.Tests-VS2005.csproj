@@ -83,6 +83,7 @@
     <Compile Include="CompilerWarningsTestFixture.cs" />
     <Compile Include="DuckTypingIntegrationTestFixture.cs" />
     <Compile Include="DuckyTestFixture.cs" />
+    <Compile Include="ExtensionsCompilationTest.cs" />
     <Compile Include="ExtensionsIntegrationTestFixture.cs" />
     <Compile Include="GeneratorsIntegrationTestFixture.cs" />
     <Compile Include="GenericsTestFixture.cs" />
