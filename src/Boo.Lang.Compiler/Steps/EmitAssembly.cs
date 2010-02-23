@@ -1859,21 +1859,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitTypeTest(BinaryExpression node)
 		{
-			IType orig;
-			Visit(node.Left); orig = PopType();
-			
-			Type type = null;
-			if (NodeType.TypeofExpression == node.Right.NodeType)
-			{
-				type = GetSystemType(((TypeofExpression)node.Right).Type);
-			}
-			else
-			{
-				type = GetSystemType(node.Right);
-			}
+			Visit(node.Left);
+			IType actualType = PopType();
 
-			if (!TypeSystemServices.IsReferenceType(orig))
-				_il.Emit(OpCodes.Box, GetSystemType(orig));
+			EmitBoxIfNeeded(TypeSystemServices.ObjectType, actualType);
+
+			Type type = NodeType.TypeofExpression == node.Right.NodeType
+				? GetSystemType(((TypeofExpression)node.Right).Type)
+				: GetSystemType(node.Right);
 
 			_il.Emit(OpCodes.Isinst, type);
 		}
