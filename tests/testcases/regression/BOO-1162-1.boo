@@ -4,10 +4,12 @@ OK
 
 class SomeClass:
 	pass
+	
 struct SomeStruct:
-	pass
+	inHomageToTheVerifier as int
+
 struct SomeOtherStruct:
-	pass
+	inHomageToTheVerifier as int
 
 def ResolvableNullAmbiguity(x as SomeStruct):
 	pass

@@ -2377,6 +2377,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (Array_get_Length == mi)
 			{
+				// don't use ldlen for System.Array
+				if (!GetType(node.Target).IsArray)
+					return false;
+
 				// optimize constructs such as:
 				//		len(anArray)
 				//		anArray.Length
