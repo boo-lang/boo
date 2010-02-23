@@ -55,7 +55,7 @@ namespace BooCompiler.Tests
 			get
 			{
 #if VISUAL_STUDIO
-				return false;
+				return true;
 #else
 				return GetEnvironmentFlag("peverify", true);
 #endif
@@ -189,9 +189,7 @@ namespace BooCompiler.Tests
 		protected void RunMultiFileTestCase(params string[] files)
 		{
 			foreach (string file in files)
-			{
 				_parameters.Input.Add(new FileInput(GetTestCasePath(file)));
-			}
 			RunAndAssert();
 		}
 
@@ -199,11 +197,7 @@ namespace BooCompiler.Tests
 		{
 			CompilerContext context;
 			string output = Run(null, out context);
-			string expected = context.CompileUnit.Modules[0].Documentation;
-			if (null == expected)
-			{
-				expected = "";
-			}
+			string expected = context.CompileUnit.Modules[0].Documentation ?? "";
 			Assert.AreEqual(expected.Trim(), output.Trim(), _parameters.Input[0].Name);
 		}
 
@@ -260,10 +254,7 @@ namespace BooCompiler.Tests
 
 		protected virtual bool IgnoreErrors
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		string GetFirstInputName(CompilerContext context)
