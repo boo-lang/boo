@@ -637,7 +637,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private Expression CreateRawArraySlicing(ReferenceExpression arrayRef, Expression indexReference, IType elementType, IType expectedType)
 		{
-			var slicing = CreateRawArraySlicing(arrayRef, indexReference, elementType);
+			Expression slicing = CreateRawArraySlicing(arrayRef, indexReference, elementType);
 			if (elementType != expectedType)
 				return CodeBuilder.CreateCast(expectedType, slicing);
 			return slicing;

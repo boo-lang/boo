@@ -12,7 +12,7 @@ namespace BooCompiler.Tests
 		[Test]
 		public void MacroMacroCompilation()
 		{
-			var parameters = new CompilerParameters(false);
+			CompilerParameters parameters = new CompilerParameters(false);
 			parameters.References.Add(typeof(IEnumerable<>).Assembly);
 			
 			parameters.Input.Add(BooLangExtensionsSource("Macros/MacroMacro.boo"));
@@ -20,8 +20,8 @@ namespace BooCompiler.Tests
 
 			parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.ResolveExpressions();
 
-			var compiler = new Boo.Lang.Compiler.BooCompiler(parameters);
-			var results = compiler.Run();
+			Boo.Lang.Compiler.BooCompiler compiler = new Boo.Lang.Compiler.BooCompiler(parameters);
+			CompilerContext results = compiler.Run();
 			Assert.AreEqual(0, results.Errors.Count, results.Errors.ToString());
 		}
 

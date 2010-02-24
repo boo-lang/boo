@@ -118,12 +118,19 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private Module ModuleFor(TypeDefinition node)
 		{
 			Module m = new Module();
-			m.Namespace = node.EnclosingModule.Namespace.CleanClone();
+			m.Namespace = SafeCleanClone(node.EnclosingModule.Namespace);
 			m.Name = node.Name;
 			foreach (Import i in node.EnclosingModule.Imports)
 				m.Imports.Add(i.CleanClone());
 			m.Members.Add(node.CleanClone());
 			return m;
+		}
+
+		static T SafeCleanClone<T>(T node) where T:Node
+		{
+			return null != node
+				? (T) node.CleanClone()
+				: null;                 
 		}
 		
 		private void ReportErrors(CompilerErrorCollection errors)
