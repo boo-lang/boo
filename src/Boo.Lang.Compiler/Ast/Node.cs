@@ -323,6 +323,17 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public abstract object Clone();
 		
+		/// <summary>
+		/// Returns a Clone of the this node with any
+		/// annotations removed (including type system bindings).
+		/// </summary>
+		public Node CleanClone()
+		{
+			Node clone = (Node)Clone();
+			clone.ClearTypeSystemBindings();
+			return clone;
+		}
+		
 		public abstract bool Matches(Node other);
 
 		protected bool NoMatch(string fieldName)

@@ -26,7 +26,16 @@ end
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		new public ${node.Name} CloneNode()
 		{
-			return Clone() as ${node.Name};
+			return (${node.Name})Clone();
+		}
+		
+		/// <summary>
+		/// <see cref="Node.CleanClone"/>
+		/// </summary>
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		new public ${node.Name} CleanClone()
+		{
+			return (${node.Name})base.CleanClone();
 		}
 <%
 	unless model.IsAbstract(node):
