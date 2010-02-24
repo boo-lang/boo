@@ -540,8 +540,9 @@ interface_method [TypeMemberCollection container]
 		Method m = null;
 		TypeReference rt = null;
 		Expression nameSplice = null;
+		IToken id = null;
 	}: 
-	DEF (id:ID | (begin:SPLICE_BEGIN nameSplice=atom))
+	DEF (id=member | (begin:SPLICE_BEGIN nameSplice=atom))
 	{
 		IToken token = id ?? begin;
 		m = new Method(ToLexicalInfo(token));
@@ -688,13 +689,14 @@ method [TypeMemberCollection container]
 		StatementCollection statements = null;
 		Expression nameSplice = null;
 		TypeMember typeMember = null;
+		IToken id = null;
 	}: 
 	t:DEF
 	(		
 		(
 			(
 				(emi=explicit_member_info)?
-				(id:ID | spliceBegin:SPLICE_BEGIN nameSplice=atom)
+				(id=member | spliceBegin:SPLICE_BEGIN nameSplice=atom)
 			) {
 				IToken token = id ?? spliceBegin;
 				if (emi != null) {

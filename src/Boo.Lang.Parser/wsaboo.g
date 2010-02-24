@@ -484,8 +484,9 @@ interface_method [TypeMemberCollection container]
 	{
 		Method m = null;
 		TypeReference rt = null;
+		IToken id = null;
 	}: 
-	DEF id:ID
+	DEF id=member
 	{
 		m = new Method(SourceLocationFactory.ToLexicalInfo(id));
 		m.Name = id.getText();
@@ -625,10 +626,11 @@ method [TypeMemberCollection container]
 		GenericParameterDeclarationCollection genericParameters = null;
 		Block body = null;
 		StatementCollection statements = null;
+		IToken id = null;
 	}: 
 	t:DEF
 	(
-		(emi=explicit_member_info)? id:ID {
+		(emi=explicit_member_info)? id=member {
 			if (emi != null)
 			{
 				m = new Method(emi.LexicalInfo);
@@ -2462,6 +2464,7 @@ member returns [IToken name]
 	t1:INTERNAL { name=t1; } |
 	t2:PUBLIC { name=t2; } |
 	t3:PROTECTED { name=t3; } |
+	ev:EVENT { name=ev; } |
 	r:REF { name=r; }
 	;
 	
