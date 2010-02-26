@@ -5382,78 +5382,68 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (expression.NodeType)
 			{
+				case NodeType.NullLiteralExpression:
+					return null;
+
 				case NodeType.StringLiteralExpression:
-					{
-						return ((StringLiteralExpression)expression).Value;
-					}
+					return ((StringLiteralExpression)expression).Value;
 					
 				case NodeType.CharLiteralExpression:
-					{
-						return ((CharLiteralExpression)expression).Value[0];
-					}
+					return ((CharLiteralExpression)expression).Value[0];
 					
 				case NodeType.BoolLiteralExpression:
-					{
-						return ((BoolLiteralExpression)expression).Value;
-					}
+					return ((BoolLiteralExpression)expression).Value;
 					
 				case NodeType.IntegerLiteralExpression:
-					{
-						return ConvertValue(expectedType,
+					return ConvertValue(expectedType,
 						                    ((IntegerLiteralExpression)expression).Value);
-					}
 					
 				case NodeType.DoubleLiteralExpression:
-					{
-						return ConvertValue(expectedType,
+					return ConvertValue(expectedType,
 						                    ((DoubleLiteralExpression)expression).Value);
-					}
 					
 				case NodeType.TypeofExpression:
-					{
-						return GetSystemType(((TypeofExpression)expression).Type);
-					}
+					return GetSystemType(((TypeofExpression)expression).Type);
 
 				case NodeType.CastExpression:
-					{
-						return GetValue(expectedType, ((CastExpression)expression).Target);
-					}
+					return GetValue(expectedType, ((CastExpression)expression).Target);
 					
 				default:
-					{
-						IEntity tag = GetEntity(expression);
-						if (EntityType.Type == tag.EntityType)
-						{
-							return GetSystemType(expression);
-						}
-						else if (EntityType.Field == tag.EntityType)
-						{
-							IField field = (IField)tag;
-							if (field.IsLiteral)
-							{
-								//Scenario:
-								//IF:
-								//SomeType.StaticReference = "hamsandwich"
-								//[RandomAttribute(SomeType.StaticReferenece)]
-								//THEN:
-								//field.StaticValue != "hamsandwich"
-								//field.StaticValue == SomeType.StaticReference
-								//SO:
-								//If field.StaticValue is an AST Expression, call GetValue() on it
-								if (field.StaticValue is Expression)
-								{
-									return GetValue(expectedType, field.StaticValue as Expression);
-								}
-								return field.StaticValue;
-							}
-						}
-						break;
-					}
+					return GetComplexExpressionValue(expectedType, expression);
 			}
+		}
+
+		private object GetComplexExpressionValue(IType expectedType, Expression expression)
+		{
+			IEntity tag = GetEntity(expression);
+			if (EntityType.Type == tag.EntityType)
+				return GetSystemType(expression);
+
+			if (EntityType.Field == tag.EntityType)
+			{
+				IField field = (IField)tag;
+				if (field.IsLiteral)
+				{
+					//Scenario:
+					//IF:
+					//SomeType.StaticReference = "hamsandwich"
+					//[RandomAttribute(SomeType.StaticReferenece)]
+					//THEN:
+					//field.StaticValue != "hamsandwich"
+					//field.StaticValue == SomeType.StaticReference
+					//SO:
+					//If field.StaticValue is an AST Expression, call GetValue() on it
+					if (field.StaticValue is Expression)
+						return GetValue(expectedType, field.StaticValue as Expression);
+
+					return field.StaticValue;
+				}
+			}
+
 			NotImplemented(expression, "Expression value: " + expression);
 			return null;
 		}
-		
+
 		object ConvertValue(IType expectedType, object value)
 		{
 			if (expectedType.IsEnum)
