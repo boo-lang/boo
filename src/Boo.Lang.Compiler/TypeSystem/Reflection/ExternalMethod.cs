@@ -198,9 +198,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			/* Hack to fix problem with mono-1.1.8.* and older */
 			return parameter.ParameterType.IsArray
-				&& (
-					Attribute.IsDefined(parameter, Types.ParamArrayAttribute)
-					|| parameter.GetCustomAttributes(Types.ParamArrayAttribute, false).Length > 0);
+				&& parameter.GetCustomAttributes(Types.ParamArrayAttribute, false).Length > 0;
 		}
 
 		
