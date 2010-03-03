@@ -47,12 +47,11 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new CheckIdentifiers());
 			Add(new StricterErrorChecking());
 			Add(new CheckAttributesUsage());
-
+			
 			Add(new ExpandDuckTypedExpressions());
 
 			Add(new ProcessAssignmentsToValueTypeMembers());
 			Add(new ExpandProperties());
-			Add(new RemoveDeadCode());
 			
 			Add(new CheckMembersProtectionLevel());
 
@@ -67,6 +66,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new InjectCallableConversions());
 			Add(new ImplementICallableOnCallableDefinitions());
 
+			Add(new RemoveDeadCode());
 			Add(new CheckNeverUsedMembers());
 
 			// TODO:
