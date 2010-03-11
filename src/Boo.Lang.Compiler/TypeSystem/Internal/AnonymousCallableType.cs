@@ -51,10 +51,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType ConcreteType
 		{
-			get
-			{
-				return _concreteType;
-			}
+			get { return _concreteType; }
 			
 			set
 			{
@@ -65,10 +62,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public IType BaseType
 		{
-			get
-			{
-				return _typeSystemServices.MulticastDelegateType;
-			}
+			get { return _typeSystemServices.MulticastDelegateType; }
 		}
 		
 		override public bool IsSubclassOf(IType other)
@@ -89,18 +83,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string Name
 		{
-			get
-			{				
-				return _signature.ToString(); 
-			}
+			get { return _signature.ToString();  }
 		}
 		
 		override public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Type;
-			}
+			get { return EntityType.Type; }
 		}
 		
 		override public int GetTypeDepth()

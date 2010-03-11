@@ -33,118 +33,73 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 {
 	public abstract class AbstractType : IType, INamespace
 	{
-		public abstract string Name
-		{
-			get;
-		}
+		public abstract string Name { get; }
 
-		public abstract EntityType EntityType
-		{
-			get;
-		}
+		public abstract EntityType EntityType { get; }
 
 		public virtual string FullName
 		{
-			get
-			{
-				return Name;
-			}
+			get { return Name; }
 		}
 
 		public virtual IEntity DeclaringEntity
 		{
-			get
-			{
-				return null;
-			}
+			get { return null; }
 		}
 
 		public virtual IType Type
 		{
-			get
-			{
-				return this;
-			}
+			get { return this; }
 		}
 
 		public virtual bool IsByRef
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual bool IsClass
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual bool IsAbstract
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual bool IsInterface
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual bool IsFinal
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		public virtual bool IsEnum
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual bool IsValueType
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual bool IsArray
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual bool IsPointer
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public virtual IType BaseType
 		{
-			get
-			{
-				return null;
-			}
+			get { return null; }
 		}
 
 		public virtual IType GetElementType()
@@ -172,11 +127,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			return false;
 		}
 
-		public virtual IConstructor[] GetConstructors()
-		{
-			return new IConstructor[0];
-		}
-
 		public virtual IType[] GetInterfaces()
 		{
 			return new IType[0];
@@ -189,10 +139,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public virtual INamespace ParentNamespace
 		{
-			get
-			{
-				return null;
-			}
+			get { return null; }
 		}
 
 		public virtual bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)

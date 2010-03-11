@@ -473,6 +473,7 @@
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\TypeCollector.cs" />
     <Compile Include="TypeSystem\Types.cs" />
+    <Compile Include="TypeSystem\TypeSystemExtensions.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />
     <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />

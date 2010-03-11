@@ -39,8 +39,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
 	public abstract class AbstractInternalType : InternalEntity<TypeDefinition>, IType, INamespace, IGenericTypeInfo
 	{
-		public static readonly IConstructor[] NoConstructors = new IConstructor[0];
-
 		protected InternalTypeSystemProvider _provider;
 
 		private readonly Dictionary<IType[], IType> _constructedTypes = new Dictionary<IType[], IType>(ArrayEqualityComparer<IType>.Default);
@@ -257,11 +255,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			return this == other ||
 			       (!this.IsValueType && Null.Default == other) ||
 			       other.IsSubclassOf(this);
-		}
-
-		public virtual IConstructor[] GetConstructors()
-		{
-			return NoConstructors;
 		}
 
 		public IType[] GetInterfaces()

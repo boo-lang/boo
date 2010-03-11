@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 
 namespace Boo.Lang.Compiler.Steps
@@ -148,7 +149,7 @@ namespace Boo.Lang.Compiler.Steps
 			Block initializationBlock = new Block();
 			initializationBlock.Add(CodeBuilder.CreateAssignment(
 						CodeBuilder.CreateReference(locals),
-						CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0])));
+						CodeBuilder.CreateConstructorInvocation(type.GetConstructors().First())));
 			InitializeSharedParameters(initializationBlock, locals);
 			_currentMethod.Body.Statements.Insert(0, initializationBlock);
 						

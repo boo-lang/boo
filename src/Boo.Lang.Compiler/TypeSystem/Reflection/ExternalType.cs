@@ -41,8 +41,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		private readonly Type _type;
 
-		IConstructor[] _constructors;
-
 		IType[] _interfaces;
 
 		IEntity[] _members;
@@ -231,24 +229,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 				return false;
 			}
 			return _type.IsAssignableFrom(external._type);
-		}
-
-		public virtual IConstructor[] GetConstructors()
-		{
-			if (null == _constructors)
-				_constructors = CreateConstructors();
-			return _constructors;
-		}
-
-		protected virtual IConstructor[] CreateConstructors()
-		{
-			ConstructorInfo[] source = _type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-			IConstructor[] constructors = new IConstructor[source.Length];
-			for (int i=0; i<constructors.Length; ++i)
-			{
-				constructors[i] = (IConstructor) _provider.Map(source[i]);
-			}
-			return constructors;
 		}
 
 		public virtual IType[] GetInterfaces()

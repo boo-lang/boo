@@ -59,8 +59,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IEntity GetDefaultMember();
 		
-		IConstructor[] GetConstructors();
-		
 		IType[] GetInterfaces();
 		
 		bool IsSubclassOf(IType other);

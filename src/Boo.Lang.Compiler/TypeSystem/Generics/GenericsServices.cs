@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using System.Collections.Generic;
 using System;
@@ -530,13 +531,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		private bool HasDefaultConstructor(IType argument)
 		{
 			if (argument.IsValueType)
-			{
 				return true;
-			}
-
-			return Array.Exists(
-				argument.GetConstructors(), 
-				delegate(IConstructor ctor) { return ctor.GetParameters().Length == 0; });
+			return argument.GetConstructors().Any(ctor => ctor.GetParameters().Length == 0);
 		}
 
 		public void ReportErrors(CompilerErrorCollection targetErrorCollection)

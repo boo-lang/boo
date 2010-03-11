@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
@@ -697,7 +698,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
 		{
-			IConstructor constructor = ((IType)cd.Entity).GetConstructors()[0];
+			IConstructor constructor = ((IType)cd.Entity).GetConstructors().First();
 			return CreateConstructorInvocation(constructor);
 		}
 

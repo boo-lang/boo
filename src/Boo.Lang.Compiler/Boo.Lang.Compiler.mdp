@@ -430,6 +430,7 @@
     <File name="TypeSystem/Null.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeCollector.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Types.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/TypeSystemExtensions.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/TypeVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Unknown.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Variance.cs" buildaction="Compile" subtype="Code" />

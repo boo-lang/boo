@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 
 namespace Boo.Lang.Compiler.Steps
@@ -399,7 +400,7 @@ namespace Boo.Lang.Compiler.Steps
 			adapt.Body.Add(
 				new ReturnStatement(
 					CodeBuilder.CreateConstructorInvocation(
-						to.GetConstructors()[0],
+						to.GetConstructors().First(),
 						CodeBuilder.CreateConstructorInvocation(
 							(IConstructor)constructor.Entity,
 							CodeBuilder.CreateReference(param)),
@@ -455,7 +456,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				target = ((MemberReferenceExpression)source).Target;
 			}
-			return CodeBuilder.CreateConstructorInvocation(GetConcreteType(type).GetConstructors()[0],
+			return CodeBuilder.CreateConstructorInvocation(GetConcreteType(type).GetConstructors().First(),
 									target,
 									CodeBuilder.CreateAddressOfExpression(method));
 		}

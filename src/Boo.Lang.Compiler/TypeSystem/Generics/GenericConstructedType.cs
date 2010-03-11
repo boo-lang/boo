@@ -153,13 +153,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return null;
 		}
 
-		public IConstructor[] GetConstructors()
-		{
-			return Array.ConvertAll<IConstructor, IConstructor>(
-				_definition.GetConstructors(),
-				delegate(IConstructor c) { return GenericMapping.Map(c); });
-		}
-
 		public IType[] GetInterfaces()
 		{
 			return Array.ConvertAll<IType, IType>(

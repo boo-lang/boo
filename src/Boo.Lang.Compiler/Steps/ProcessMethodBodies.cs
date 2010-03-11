@@ -31,6 +31,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
@@ -5894,23 +5895,19 @@ namespace Boo.Lang.Compiler.Steps
 
 		IConstructor GetCorrectConstructor(Node sourceNode, IType type, ExpressionCollection arguments)
 		{
-			IConstructor[] constructors = type.GetConstructors();
+			IConstructor[] constructors = type.GetConstructors().ToArray();
 			if (null != constructors && constructors.Length > 0)
-			{
 				return (IConstructor)GetCorrectCallableReference(sourceNode, arguments, constructors);
-			}
-			else
+
+			if (!TypeSystemServices.IsError(type))
 			{
-				if (!TypeSystemServices.IsError(type))
+				if (null == (type as IGenericParameter))
 				{
-					if (null == (type as IGenericParameter))
-					{
-						Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type.ToString(), GetSignature(arguments)));
-					}
-					else
-					{
-						Error(CompilerErrorFactory.CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(sourceNode, type.ToString()));
-					}
+					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type.ToString(), GetSignature(arguments)));
+				}
+				else
+				{
+					Error(CompilerErrorFactory.CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(sourceNode, type.ToString()));
 				}
 			}
 			return null;

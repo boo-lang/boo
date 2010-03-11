@@ -227,11 +227,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			return false;
 		}
 		
-		public IConstructor[] GetConstructors()
-		{
-			return new IConstructor[0];
-		}
-		
 		public IType[] GetInterfaces()
 		{
 			return new IType[0];

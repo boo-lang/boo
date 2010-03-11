@@ -106,20 +106,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			}
 			return _provider.IsSystemObject(type);
 		}
-		
-		override public IConstructor[] GetConstructors()
-		{
-			// cache removed because the ast node might be edited (boojay, for instance)
-			// later
-			// optimize in the future but remember to observe the
-			// node for changes
-			List constructors = new List();
-			foreach (TypeMember member in _node.Members)
-				if (member.NodeType == NodeType.Constructor && !member.IsStatic)
-					constructors.Add(_provider.EntityFor(member));
-			return (IConstructor[])constructors.ToArray(new IConstructor[constructors.Count]);
-			
-		}
 
 		override protected IType CreateElementType()
 		{

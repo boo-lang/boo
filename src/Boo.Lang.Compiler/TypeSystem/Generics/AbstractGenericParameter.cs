@@ -137,11 +137,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return null;
 		}
 		
-		public IConstructor[] GetConstructors()
-		{
-			return new IConstructor[0];
-		}
-		
 		public IType[] GetInterfaces()
 		{
 			return Array.FindAll(GetTypeConstraints(), delegate(IType type) { return type.IsInterface; });

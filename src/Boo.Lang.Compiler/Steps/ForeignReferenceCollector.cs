@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using Boo.Lang;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
@@ -229,7 +230,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public MethodInvocationExpression CreateConstructorInvocationWithReferencedEntities(IType type)
 		{
-			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(type.GetConstructors()[0]);
+			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(type.GetConstructors().First());
 			foreach (ITypedEntity entity in _referencedEntities.Keys)
 			{
 				mie.Arguments.Add(CreateForeignReference(entity));
