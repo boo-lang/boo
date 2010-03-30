@@ -3824,34 +3824,29 @@ namespace Boo.Lang.Compiler.Steps
 				 || EntityType.Ambiguous == entity.EntityType))
 			{
 				BindEventSubscription(node);
+			    return;
 			}
-			else
-			{
-				BindInPlaceArithmeticOperator(node);
-			}
+            
+            BindInPlaceArithmeticOperator(node);
 		}
 
 		void BindEventSubscription(BinaryExpression node)
 		{
-			IEntity tag = GetEntity(node.Left);
-			if (EntityType.Event != tag.EntityType)
-			{
-				if (EntityType.Ambiguous == tag.EntityType)
-				{
-					IList found = ((Ambiguous)tag).Select(IsPublicEvent);
-					if (found.Count != 1)
-					{
-						tag = null;
-					}
-					else
-					{
-						tag = (IEntity)found[0];
-						Bind(node.Left, tag);
-					}
-				}
-			}
+			IEntity entity = GetEntity(node.Left);
+		    if (EntityType.Ambiguous == entity.EntityType)
+		    {
+		        IList found = ((Ambiguous) entity).Select(IsPublicEvent);
+		        if (found.Count != 1)
+		        {
+		            Error(node);
+                    return;
+		        }
+                
+                entity = (IEntity) found[0];
+                Bind(node.Left, entity);
+		    }
 
-			IEvent eventInfo = (IEvent)tag;
+		    IEvent eventInfo = (IEvent)entity;
 			IType rtype = GetExpressionType(node.Right);
 			if (!AssertDelegateArgument(node, eventInfo, rtype))
 			{
@@ -3879,10 +3874,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-				((MemberReferenceExpression)node.Left).Target,
-				method,
-				node.Right);
+		    var methodTarget = CodeBuilder.CreateMemberReference(node.Left.LexicalInfo, ((MemberReferenceExpression) node.Left).Target, method);
+		    var mie = new MethodInvocationExpression(methodTarget);
+		    mie.Arguments.Add(node.Right);
+            BindExpressionType(mie, method.ReturnType);
+
 			node.ParentNode.Replace(node, mie);
 		}
 
