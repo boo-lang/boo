@@ -15,7 +15,7 @@
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <PublishUrl>publish\</PublishUrl>
@@ -85,6 +85,10 @@
       <Package>mono-nunit</Package>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+      <HintPath>..\..\..\..\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -167,6 +171,7 @@
     <Compile Include="TypeSystem\Reflection\BeanPropertyFinder.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderExtensionTest.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderTest.cs" />
+    <Compile Include="TypeSystem\Services\MemberCollectorTest.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionServiceTest.cs" />
     <Compile Include="Util\ArrayEqualityComparerTest.cs" />
   </ItemGroup>

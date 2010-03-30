@@ -169,7 +169,7 @@ class AbstractInterpreter:
 		ns = entity as INamespace
 		return array(IEntity, 0) if ns is null
 		return GetChildNamespaces(ns) if code.StartsWith("import ")
-		return FilteredMembers(TypeSystemServices.GetAllMembers(ns))
+		return FilteredMembers(Boo.Lang.Compiler.TypeSystem.Services.MemberCollector.CollectAllMembers(ns))
 		
 	private def FilteredMembers(members as (IEntity)):
 		return array(

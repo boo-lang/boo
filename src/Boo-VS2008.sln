@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-# SharpDevelop 3.1.1.5275
+# SharpDevelop 3.2.0.5505
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang-VS2008", "Boo.Lang\Boo.Lang-VS2008.csproj", "{A359E52E-5E90-40F3-A5F0-257FE2D545EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Compiler-VS2008", "Boo.Lang.Compiler\Boo.Lang.Compiler-VS2008.csproj", "{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}"
@@ -23,6 +23,8 @@ EndProject
 Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.PatternMatching", "Boo.Lang.PatternMatching\Boo.Lang.PatternMatching.booproj", "{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}"
 EndProject
 Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.PatternMatching.Tests", "..\tests\Boo.Lang.PatternMatching.Tests\Boo.Lang.PatternMatching.Tests.booproj", "{F8CA4AC3-879C-40C3-9E06-E8192835506A}"
+EndProject
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Microsoft.Build.Tasks", "Boo.Microsoft.Build.Tasks\Boo.Microsoft.Build.Tasks.booproj", "{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +99,12 @@ Global
 		{F8CA4AC3-879C-40C3-9E06-E8192835506A}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{F8CA4AC3-879C-40C3-9E06-E8192835506A}.Release|Any CPU.Build.0 = Release|x86
 		{F8CA4AC3-879C-40C3-9E06-E8192835506A}.Release|Any CPU.ActiveCfg = Release|x86
+		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Debug Net-1.1|Any CPU.Build.0 = Debug|Any CPU
+		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Debug Net-1.1|Any CPU.ActiveCfg = Debug|Any CPU
+		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Boo.Lang\Boo.Lang-VS2008.csproj

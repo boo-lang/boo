@@ -558,6 +558,7 @@
     <Compile Include="TypeSystem\Services\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\Services\BooCodeBuilder.cs" />
     <Compile Include="TypeSystem\Services\CallableResolutionService.cs" />
+    <Compile Include="TypeSystem\Services\MemberCollector.cs" />
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
     <Compile Include="TypeSystem\Services\TypeSystemServices.cs" />

@@ -515,6 +515,7 @@
     <File name="TypeSystem/Services/AccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/BooCodeBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/CallableResolutionService.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/MemberCollector.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/MetadataUtil.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/NameResolutionService.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/TypeSystemServices.cs" buildaction="Compile" subtype="Code" />

@@ -983,29 +983,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeMemberModifiers.Private;
 		}
 
-		public static IEntity[] GetAllMembers(INamespace entity)
-		{
-			List members = new List();
-			GetAllMembers(members, entity);
-			return (IEntity[])members.ToArray(new IEntity[members.Count]);
-		}
-
-		private static void GetAllMembers(List members, INamespace entity)
-		{
-			if (null == entity) return;
-
-			IType type = entity as IType;
-			if (null != type)
-			{
-				members.ExtendUnique(type.GetMembers());
-				GetAllMembers(members, type.BaseType);
-			}
-			else
-			{
-				members.Extend(entity.GetMembers());
-			}
-		}
-
 		static object EntityAnnotationKey = new object();
 
 		public static void Bind(Node node, IEntity entity)
