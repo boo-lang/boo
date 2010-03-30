@@ -362,11 +362,6 @@
 	</target>
 	
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
-		<call target="msbuild" if="${'net-2.0' == framework::get-target-framework()}"/>
-		<!-- MSBuild doesn't appear to be supported in mono-2.0 -->
-	</target>
-	
-	<target name="msbuild" depends="core">
 		<booc target="library"
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="false" 
