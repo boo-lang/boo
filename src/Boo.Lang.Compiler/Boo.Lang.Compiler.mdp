@@ -339,7 +339,7 @@
     <File name="Steps/EntityPredicates.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandAstLiterals.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandDuckTypedExpressions.cs" buildaction="Compile" subtype="Code" />
-    <File name="Steps/ExpandProperties.cs" buildaction="Compile" subtype="Code" />
+    <File name="Steps/ExpandPropertiesAndEvents.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ExpandVarArgsMethodInvocations.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/ForeignReferenceCollector.cs" buildaction="Compile" subtype="Code" />
     <File name="Steps/GenericConstraintsValidator.cs" buildaction="Compile" subtype="Code" />

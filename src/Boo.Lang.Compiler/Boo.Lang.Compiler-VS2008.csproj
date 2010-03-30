@@ -408,7 +408,7 @@
     <Compile Include="Steps\EntityPredicates.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />
     <Compile Include="Steps\ExpandDuckTypedExpressions.cs" />
-    <Compile Include="Steps\ExpandProperties.cs" />
+    <Compile Include="Steps\ExpandPropertiesAndEvents.cs" />
     <Compile Include="Steps\ExpandVarArgsMethodInvocations.cs" />
     <Compile Include="Steps\ForeignReferenceCollector.cs" />
     <Compile Include="Steps\GenericConstraintsValidator.cs" />

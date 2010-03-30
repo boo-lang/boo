@@ -3854,42 +3854,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IMethod method = null;
-			if (node.Operator == BinaryOperatorType.InPlaceAddition)
-			{
-				method = eventInfo.GetAddMethod();
-			}
-			else
-			{
-				method = eventInfo.GetRemoveMethod();
-				CallableSignature expected = GetCallableSignature(eventInfo.Type);
-				CallableSignature actual = GetCallableSignature(node.Right);
-				if (expected != actual)
-				{
-					Warnings.Add(
-						CompilerWarningFactory.InvalidEventUnsubscribe(
-							node,
-							eventInfo.FullName,
-							expected));
-				}
-			}
-
-		    var methodTarget = CodeBuilder.CreateMemberReference(node.Left.LexicalInfo, ((MemberReferenceExpression) node.Left).Target, method);
-		    var mie = new MethodInvocationExpression(methodTarget);
-		    mie.Arguments.Add(node.Right);
-            BindExpressionType(mie, method.ReturnType);
-
-			node.ParentNode.Replace(node, mie);
-		}
-
-		CallableSignature GetCallableSignature(Expression node)
-		{
-			return GetCallableSignature(GetExpressionType(node));
-		}
-
-		CallableSignature GetCallableSignature(IType type)
-		{
-			return ((ICallableType)type).GetSignature();
+			BindExpressionType(node, TypeSystemServices.VoidType);
 		}
 
 		virtual protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)

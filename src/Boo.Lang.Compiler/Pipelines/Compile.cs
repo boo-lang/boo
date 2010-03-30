@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ExpandDuckTypedExpressions());
 
 			Add(new ProcessAssignmentsToValueTypeMembers());
-			Add(new ExpandProperties());
+			Add(new ExpandPropertiesAndEvents());
 			
 			Add(new CheckMembersProtectionLevel());
 

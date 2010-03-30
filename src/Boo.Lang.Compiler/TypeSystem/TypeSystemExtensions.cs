@@ -1,19 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
+    [CompilerGlobalScope]
 	public static class TypeSystemExtensions
 	{
 		public static IEnumerable<IConstructor> GetConstructors(this IType self)
 		{
-			foreach (var member in self.GetMembers())
-			{
-				var ctor = member as IConstructor;
-				if (ctor == null || ctor.IsStatic)
-					continue;
-				yield return ctor;
-			}
+		    return self.GetMembers().OfType<IConstructor>().Where(ctor => !ctor.IsStatic);
 		}
 	}
 }
