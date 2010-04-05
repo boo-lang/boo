@@ -464,7 +464,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (ICallableType.IsAssignableFrom(type)) || (type is ICallableType);
 		}
 
-		public AnonymousCallableType GetCallableType(IMethod method)
+		public AnonymousCallableType GetCallableType(IMethodBase method)
 		{
 			CallableSignature signature = new CallableSignature(method);
 			return GetCallableType(signature);
@@ -711,7 +711,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		bool IsConversionOperator(IMethod method, IType fromType, IType toType)
+		static bool IsConversionOperator(IMethod method, IType fromType, IType toType)
 		{
 			if (!method.IsStatic) return false;
 			if (method.ReturnType != toType) return false;

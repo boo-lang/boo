@@ -35,5 +35,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get;
 		}
+
+		IType ReturnType
+		{
+			get;
+		}
 	}
 }

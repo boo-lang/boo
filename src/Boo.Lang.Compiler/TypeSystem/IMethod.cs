@@ -31,11 +31,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IMethod : IMethodBase, IExtensionEnabled
 	{	
-		IType ReturnType
-		{
-			get;
-		}
-		
 		bool IsAbstract
 		{
 			get;

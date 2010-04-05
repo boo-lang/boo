@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		int _hashCode;
 		bool _acceptVarArgs;
 
-		public CallableSignature(IMethod method)
+		public CallableSignature(IMethodBase method)
 		{
 			if (null == method) throw new ArgumentNullException("method");
 
