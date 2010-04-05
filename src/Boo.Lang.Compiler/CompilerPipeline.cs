@@ -153,6 +153,11 @@ namespace Boo.Lang.Compiler
 			_items.RemoveAt(index);
 			return this;
 		}
+
+		public CompilerPipeline Remove(System.Type stepExactType)
+		{
+			return RemoveAt(Find(stepExactType));
+		}
 		
 		public CompilerPipeline Insert(int index, ICompilerStep step)
 		{
