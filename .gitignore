@@ -1,3 +1,4 @@
 build
 *.Generated.cs
 src/Boo.Lang.Compiler/Ast/Impl/
+src/Boo.Lang.Useful/IO/Impl/
