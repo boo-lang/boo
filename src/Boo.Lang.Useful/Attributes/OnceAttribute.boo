@@ -129,7 +129,7 @@ Usage
 		template = [|
 			private field as bool
 		|]
-		_cached = AddField(template, "___${_method.Name}_cached")
+		_cached = AddField(template, "___${MethodName()}_cached")
 		
 	def CreateMethodLockField():
 	"""
@@ -141,7 +141,13 @@ Usage
 		template = [|
 			private field as object = object()
 		|]			
-		_methodLock = AddField(template, "___${_method.Name}_lock")
+		_methodLock = AddField(template, "___${MethodName()}_lock")
+		
+	def MethodName():
+		parentProperty = _method.ParentNode as Property
+		if parentProperty is not null:
+			return "${_method.Name}_${parentProperty.Name}"
+		return _method.Name
 		
 	def AddField(template as Field, name as string):
 		template.LexicalInfo = self.LexicalInfo
