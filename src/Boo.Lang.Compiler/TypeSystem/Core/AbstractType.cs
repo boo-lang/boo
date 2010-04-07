@@ -173,10 +173,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		{
 			if (null == _arrayTypes)
 				_arrayTypes = new Memo<int, IArrayType>();
-			return _arrayTypes.Produce(rank, delegate(int newRank)
-			{
-				return new ArrayType(this, newRank);
-			});
+			return _arrayTypes.Produce(rank, newRank => new ArrayType(this, newRank));
 		}
 
 		public IType MakePointerType()
