@@ -1,6 +1,11 @@
-#Sat Jan 17 13:19:37 BRST 2009
+#Wed Apr 07 09:59:42 BRT 2010
 eclipse.preferences.version=1
+encoding//src/Boo.Lang.Compiler/.monolipse=utf-8
+encoding//src/Boo.Lang.Extensions/.monolipse=utf-8
 encoding//src/Boo.Lang.Interpreter/.monolipse=utf-8
+encoding//src/Boo.Lang.Parser/.monolipse=utf-8
 encoding//src/Boo.Lang.PatternMatching/.monolipse=utf-8
+encoding//src/Boo.Lang.Useful/.monolipse=utf-8
 encoding//src/Boo.Lang/.monolipse=utf-8
 encoding//tests/Boo.Lang.PatternMatching.Tests/.monolipse=utf-8
+encoding//tests/Boo.Lang.Useful.Tests/.monolipse=utf-8
