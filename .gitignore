@@ -1,4 +1,24 @@
 build
+bin/*.mdb
 *.Generated.cs
+
 src/Boo.Lang.Compiler/Ast/Impl/
 src/Boo.Lang.Useful/IO/Impl/
+
+#ANTLR generated files
+src/Boo.Lang.Parser/BooExpressionLexer.cs
+src/Boo.Lang.Parser/BooExpressionLexerTokenTypes.cs
+src/Boo.Lang.Parser/BooExpressionLexerTokenTypes.txt
+src/Boo.Lang.Parser/BooLexer.cs
+src/Boo.Lang.Parser/BooParserBase.cs
+src/Boo.Lang.Parser/BooTokenTypes.cs
+src/Boo.Lang.Parser/BooTokenTypes.txt
+src/Boo.Lang.Parser/WSABooExpressionLexer.cs
+src/Boo.Lang.Parser/WSABooExpressionLexerTokenTypes.cs
+src/Boo.Lang.Parser/WSABooExpressionLexerTokenTypes.txt
+src/Boo.Lang.Parser/WSABooLexer.cs
+src/Boo.Lang.Parser/WSABooParserBase.cs
+src/Boo.Lang.Parser/WSABooTokenTypes.cs
+src/Boo.Lang.Parser/WSABooTokenTypes.txt
+src/Boo.Lang/Resources/strings.resx
+
