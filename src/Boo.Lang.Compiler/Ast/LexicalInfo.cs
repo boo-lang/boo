@@ -32,9 +32,9 @@ namespace Boo.Lang.Compiler.Ast
 {	 
 	public class SourceLocation : IComparable<SourceLocation>, IEquatable<SourceLocation>
 	{
-		protected int _line;
+		private readonly int _line;
 
-		protected int _column;
+		private readonly int _column;
 		
 		public SourceLocation(int line, int column)
 		{
@@ -44,26 +44,17 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public int Line
 		{
-			get
-			{
-				return _line;
-			}
+			get { return _line; }
 		}
 
 		public int Column
 		{
-			get
-			{
-				return _column;
-			}
+			get { return _column; }
 		}
 		
 		public virtual bool IsValid
 		{
-			get
-			{
-				return (_line > 0) && (_column > 0);
-			}
+			get { return (_line > 0) && (_column > 0); }
 		}
 		
 		override public string ToString()
@@ -73,17 +64,10 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public int CompareTo(SourceLocation other)
 		{
-			int comp = _line.CompareTo(other._line);
-			if(comp != 0) 
-			{
-				return comp;
-			}
-			comp = _column.CompareTo(other._column);
-			if(comp != 0)
-			{
-				return comp;
-			}
-			return 0;
+			int result = _line.CompareTo(other._line);
+			if (result != 0) return result;
+
+			return _column.CompareTo(other._column);
 		}
 		
 		public bool Equals(SourceLocation other)
@@ -95,8 +79,8 @@ namespace Boo.Lang.Compiler.Ast
 	public class LexicalInfo : SourceLocation, IEquatable<LexicalInfo>, IComparable<LexicalInfo>
 	{
 		public static readonly LexicalInfo Empty = new LexicalInfo(null, -1, -1);
-		
-		protected string _filename;
+
+		private readonly string _filename;
 		
 		private string _fullPath;
 		
@@ -109,21 +93,19 @@ namespace Boo.Lang.Compiler.Ast
 		public LexicalInfo(string filename) : this(filename, -1, -1)
 		{
 		}
+
+		public LexicalInfo(LexicalInfo other) : this(other.FileName, other.Line, other.Column)
+		{	
+		}
 		
 		override public bool IsValid
 		{
-			get
-			{
-				return null != _filename && base.IsValid;					
-			}
+			get { return null != _filename && base.IsValid; }
 		}
 
 		public string FileName
 		{
-			get
-			{
-				return _filename;
-			}
+			get { return _filename; }
 		}
 		
 		public string FullPath
@@ -138,7 +120,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		override public string ToString()
 		{
-			return string.Format("{0}({1},{2})", _filename, _line, _column);
+			return _filename + base.ToString();
 		}
 		
 		private static string SafeGetFullPath(string fname)
@@ -155,17 +137,10 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public int CompareTo(LexicalInfo other)
 		{
-			int comp = base.CompareTo(other);
-			if(comp != 0) 
-			{
-				return comp;
-			}
-			comp = string.Compare(_filename, other._filename);
-			if(comp != 0)
-			{
-				return comp;
-			}
-			return 0;
+			int result = base.CompareTo(other);
+			if (result != 0) return result;
+
+			return string.Compare(_filename, other._filename);
 		}
 		
 		public bool Equals(LexicalInfo other)
