@@ -126,8 +126,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		
 		public MethodInvocationExpression CreateEnumerableConstructorInvocation()
 		{
-			return _collector.CreateConstructorInvocationWithReferencedEntities(
-				_skeleton.GeneratorClassBuilder.Entity);
+			return _collector.CreateConstructorInvocationWithReferencedEntities(_skeleton.GeneratorClassBuilder.Entity);
 		}
 		
 		void EnumeratorConstructorMustCallReset()

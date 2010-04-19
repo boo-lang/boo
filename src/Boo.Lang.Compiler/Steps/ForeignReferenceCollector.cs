@@ -232,22 +232,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(type.GetConstructors().First());
 			foreach (ITypedEntity entity in _referencedEntities.Keys)
-			{
 				mie.Arguments.Add(CreateForeignReference(entity));
-			}
 			return mie;
 		}
 		
 		public Expression CreateForeignReference(IEntity entity)
 		{
 			if (_selfEntity == entity)
-			{
 				return CodeBuilder.CreateSelfReference(CurrentType);
-			}
-			else
-			{
-				return CodeBuilder.CreateReference(entity);
-			}
+			return CodeBuilder.CreateReference(entity);
 		}
 
 		public override void OnMemberReferenceExpression(MemberReferenceExpression node)

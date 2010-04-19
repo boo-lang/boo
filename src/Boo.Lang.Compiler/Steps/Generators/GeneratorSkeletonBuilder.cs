@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 				Context.GetUniqueName(enclosingMethod.Name),
 				TypeMemberModifiers.Internal | TypeMemberModifiers.Final);
 
-			builder.LexicalInfo = sourceNode.LexicalInfo;
+			builder.LexicalInfo = new LexicalInfo(sourceNode.LexicalInfo);
   			builder.AddBaseType(
 					TypeSystemServices.Map(typeof(GenericGenerator<>)).GenericInfo.ConstructType(generatorItemType));
 

@@ -81,8 +81,8 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 			Initialize(context);
 		}
-		
-		public LexicalInfo LexicalInfo
+
+		private LexicalInfo LexicalInfo
 		{
 			get { return _generator.Method.LexicalInfo; }
 		}
