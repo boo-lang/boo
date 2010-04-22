@@ -41,25 +41,16 @@ import Boo.Lang.Compiler.Steps
 
 class AbstractScript:
 	
-	Project:
-		get:
-			return _project
-		set:
-			_project = value
-	
+	[property(Project)]
 	_project as Project
 	
-	Task:
-		get:
-			return _task
-		set:
-			_task = value
+	[property(Task)]
 	_task as BooTask
 	
 	def print(msg):
 		_task.LogInfo(msg)
 	
-	abstract def Run():
+	abstract def Run(argv as (string)):
 		pass
 
 class PrepareScriptStep(AbstractCompilerStep):
@@ -67,10 +58,12 @@ class PrepareScriptStep(AbstractCompilerStep):
 	override def Run():
 		module = CompileUnit.Modules[0]
 		
-		method = Method(Name: "Run",
-						Modifiers: TypeMemberModifiers.Override,
-						Body: module.Globals)
-						
+		method = [|
+			override def Run(argv as (string)):
+				pass
+		|]
+					
+		method.Body = module.Globals
 		module.Globals = Block()
 		
 		script = ClassDefinition(Name: "__Script__")
@@ -94,6 +87,7 @@ class BooTask(AbstractBooTask):
 
 	_src as FileInfo
 	_code as RawXml
+	_arguments = ArgumentCollection() 
 	
 	[TaskAttribute("src", Required: false)]
 	Source:
@@ -104,6 +98,10 @@ class BooTask(AbstractBooTask):
 	Code as RawXml:
 		get: return _code
 		set: _code = value
+		
+	[BuildElementArray("arg")]
+	Arguments as ArgumentCollection:
+		get: return _arguments
 			
 	override def ExecuteTask():
 		
@@ -126,7 +124,7 @@ class BooTask(AbstractBooTask):
 			script.Project = Project
 			script.Task = self
 			WithWorkingDir(Project.BaseDirectory) do:
-				script.Run()
+				script.Run([arg.ToString() for arg in Arguments].ToArray(string))
 		except x:
 			raise BuildException(x.Message, Location, x)
 			
