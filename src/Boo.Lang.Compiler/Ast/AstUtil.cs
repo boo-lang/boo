@@ -335,6 +335,14 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return false;
 		}
+		
+		public static bool IsStandaloneReference(Node node)
+		{
+			Node parent = node.ParentNode;
+			if (parent is GenericReferenceExpression)
+				parent = parent.ParentNode;
+			return parent.NodeType != NodeType.MemberReferenceExpression;
+		}
 
 		public static Constructor CreateConstructor(Node lexicalInfoProvider, TypeMemberModifiers modifiers)
 		{
@@ -591,5 +599,6 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return ro;
 		}
-	}}
+	}
+}
 

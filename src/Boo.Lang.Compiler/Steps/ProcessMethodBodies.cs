@@ -6452,15 +6452,9 @@ namespace Boo.Lang.Compiler.Steps
 			return null != type && type.IsArray;
 		}
 
-		bool IsStandaloneReference(Node node)
+		public static bool IsStandaloneReference(Node node)
 		{
-			Node parent = node.ParentNode;
-			if (parent is GenericReferenceExpression)
-			{
-				parent = parent.ParentNode;
-			}
-
-			return parent.NodeType != NodeType.MemberReferenceExpression;
+			return AstUtil.IsStandaloneReference(node);
 		}
 
 		string GetSignature(IEnumerable args)
