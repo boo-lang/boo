@@ -137,6 +137,7 @@
     <Compile Include="Ast\ConditionalExpression.cs" />
     <Compile Include="Ast\Constructor.cs" />
     <Compile Include="Ast\ContinueStatement.cs" />
+    <Compile Include="Ast\CustomExpression.Generated.cs" />
     <Compile Include="Ast\CustomStatement.Generated.cs" />
     <Compile Include="Ast\Declaration.cs" />
     <Compile Include="Ast\DeclarationCollection.cs" />
@@ -265,6 +266,7 @@
     <Compile Include="Ast\Impl\ConditionalExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ConstructorImpl.cs" />
     <Compile Include="Ast\Impl\ContinueStatementImpl.cs" />
+    <Compile Include="Ast\Impl\CustomExpressionImpl.cs" />
     <Compile Include="Ast\Impl\CustomStatementImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationCollectionImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationImpl.cs" />

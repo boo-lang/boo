@@ -68,6 +68,7 @@
     <File name="Ast/ConditionalExpression.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Constructor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/ContinueStatement.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/CustomExpression.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/CustomStatement.Generated.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Declaration.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/DeclarationCollection.cs" buildaction="Compile" subtype="Code" />
@@ -196,6 +197,7 @@
     <File name="Ast/Impl/ConditionalExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ConstructorImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/ContinueStatementImpl.cs" buildaction="Compile" subtype="Code" />
+    <File name="Ast/Impl/CustomExpressionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/CustomStatementImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/DeclarationCollectionImpl.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Impl/DeclarationImpl.cs" buildaction="Compile" subtype="Code" />

@@ -41,11 +41,16 @@ import Boo.Lang.Compiler.Steps
 
 class AbstractScript:
 	
-	[property(Project)]
 	_project as Project
-	
-	[property(Task)]
 	_task as BooTask
+	
+	Project:
+		get: return _project
+		set: _project = value
+		
+	Task:
+		get: return _task
+		set: _task = value
 	
 	def print(msg):
 		_task.LogInfo(msg)
