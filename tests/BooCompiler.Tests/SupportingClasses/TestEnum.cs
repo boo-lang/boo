@@ -7,6 +7,7 @@ namespace BooCompiler.Tests.SupportingClasses
 	{
 		Foo = 1,
 		Bar = 2,
-		Baz = 4
+		Baz = 4,
+		Gazong = -2
 	}
 }

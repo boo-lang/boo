@@ -55,24 +55,17 @@ namespace Boo.Lang.Compiler.Steps
 			switch (node.NodeType)
 			{
 				case NodeType.CastExpression:
-				{
 					return GetLiteralValue(((CastExpression) node).Target);
-				}
+
 				case NodeType.BoolLiteralExpression:
-				{
-					BoolLiteralExpression lit = (BoolLiteralExpression) node;
-					return lit.Value;
-				}
+					return ((BoolLiteralExpression) node).Value;
+
 				case NodeType.IntegerLiteralExpression:
-				{
-					IntegerLiteralExpression lit = (IntegerLiteralExpression) node;
-					return lit.Value;
-				}
+					return ((IntegerLiteralExpression) node).Value;
+
 				case NodeType.DoubleLiteralExpression:
-				{
-					DoubleLiteralExpression lit = (DoubleLiteralExpression) node;
-					return lit.Value;
-				}
+					return ((DoubleLiteralExpression) node).Value;
+
 				case NodeType.MemberReferenceExpression:
 				{
 					IField field = TypeSystemServices.GetOptionalEntity(node) as IField;
@@ -82,7 +75,7 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							object o = field.StaticValue;
 							if (null != o && o != Error.Default)
-								return Convert.ToUInt64(o);
+								return o;
 						}
 						else
 						{
