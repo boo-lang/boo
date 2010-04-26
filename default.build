@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.major.minor.release.version" value="0.9.3" />
-	<property name="boo.svn.revision" value="3503" />
+	<property name="boo.major.minor.release.version" value="0.9.4" />
+	<property name="boo.svn.revision" value="3504" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.svn.revision}" dynamic="True" />
 	<property name="boo.assembly.version" value="2.${boo.major.minor.release.version}" />
 	

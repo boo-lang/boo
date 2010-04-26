@@ -40,6 +40,6 @@ import System.Security;
 [assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.9.3")]
+[assembly: AssemblyVersion("2.0.9.4")]
 [assembly: AllowPartiallyTrustedCallers]
 
