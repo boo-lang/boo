@@ -161,7 +161,8 @@ namespace Boo.Lang.Compiler.Steps
 										
 				moduleClass.EndSourceLocation = node.EndSourceLocation;
 				
-				((InternalModule)node.Entity).InitializeModuleClass(moduleClass);
+				InternalModule entity = ((InternalModule)node.Entity);
+				if (null != entity) entity.InitializeModuleClass(moduleClass);
 			}
 		}
 
