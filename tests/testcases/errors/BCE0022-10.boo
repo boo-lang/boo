@@ -9,10 +9,8 @@ obj = object()
 //succeeds:
 ptr as IntPtr = cast(IntPtr, GCHandle.Alloc( obj ))
 
-//should fail because op_Explicit requires explicit cast:
+//should fail because op_Explicit requires explicit cast in StrictMode:
 gch2 as GCHandle = ptr
-
 gch2.Free()
 
-print "test should have failed"
-
+[assembly: Boo.Lang.Compiler.Attributes.StrictMode]

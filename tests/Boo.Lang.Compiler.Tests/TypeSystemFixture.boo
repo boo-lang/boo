@@ -104,8 +104,6 @@ class TypeSystemFixture:
 		AssertTypeSystemFieldIsMutable "IEnumerableGenericType"
 		AssertTypeSystemFieldIsMutable "IEnumeratorGenericType"
 		AssertTypeSystemFieldIsMutable "ICollectionType"
-		AssertTypeSystemFieldIsMutable "IListType"
-		AssertTypeSystemFieldIsMutable "IDictionaryType"
 		AssertTypeSystemFieldIsMutable "SystemAttribute"
 		AssertTypeSystemFieldIsMutable "ConditionalAttribute"
 			

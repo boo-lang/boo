@@ -293,10 +293,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnField(Field node)
 		{
-			if (WasVisited(node)) return;
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
 
-			InternalField entity = (InternalField)GetEntity(node);
+			var entity = (InternalField)GetEntity(node);
 
 			Visit(node.Attributes);
 			Visit(node.Type);
@@ -361,13 +362,9 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessFieldInitializerType(Field node, IType initializerType)
 		{
 			if (null == node.Type)
-			{
 				node.Type = CreateTypeReference(node.LexicalInfo, MapNullToObject(initializerType));
-			}
 			else
-			{
 				AssertTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
-			}
 		}
 
 		private TypeReference CreateTypeReference(LexicalInfo info, IType type)
@@ -1571,24 +1568,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (OmittedExpression.Default == node.Begin)
-			{
 				node.Begin = CreateIntegerLiteral(0);
-			}
-			else
-			{
-				if (!AssertTypeCompatibility(node.Begin, TypeSystemServices.IntType, GetExpressionType(node.Begin)))
-				{
-					return false;
-				}
-			}
+			else if (!AssertTypeCompatibility(node.Begin, TypeSystemServices.IntType, GetExpressionType(node.Begin)))
+				return false;
 
 			if (null != node.End && OmittedExpression.Default != node.End)
-			{
-				if (!AssertTypeCompatibility(node.End, TypeSystemServices.IntType, GetExpressionType(node.End)))
-				{
-					return false;
-				}
-			}
+				return AssertTypeCompatibility(node.End, TypeSystemServices.IntType, GetExpressionType(node.End));
 
 			return true;
 		}
@@ -2168,28 +2153,24 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType fromType = GetExpressionType(node.Target);
 			IType toType = GetType(node.Type);
-			if (!TypeSystemServices.AreTypesRelated(toType, fromType) &&
-				!(toType.IsInterface && !fromType.IsFinal) &&
-				!(TypeSystemServices.IsIntegerNumber(toType) && TypeSystemServices.CanBeExplicitlyCastToInteger(fromType)) &&
-				!(TypeSystemServices.IsIntegerNumber(fromType) && TypeSystemServices.CanBeExplicitlyCastToInteger(toType)))
+			bool byDowncast;
+			if (TypeSystemServices.AreTypesRelated(toType, fromType, true, out byDowncast))
 			{
 				IMethod explicitOperator = TypeSystemServices.FindExplicitConversionOperator(fromType, toType);
 				if (null != explicitOperator)
-				{
 					node.ParentNode.Replace(
 						node,
 						CodeBuilder.CreateMethodInvocation(
 							explicitOperator,
 							node.Target));
-					return;
-				}
-
+			}
+			else
 				Error(
 					CompilerErrorFactory.IncompatibleExpressionType(
 						node,
 						toType.ToString(),
 						fromType.ToString()));
-			}
+
 			BindExpressionType(node, toType);
 		}
 
@@ -2199,13 +2180,10 @@ namespace Boo.Lang.Compiler.Steps
 			IType toType = GetType(node.Type);
 
 			if (target.IsValueType)
-			{
 				Error(CompilerErrorFactory.CantCastToValueType(node.Target, target.ToString()));
-			}
 			else if (toType.IsValueType)
-			{
 				Error(CompilerErrorFactory.CantCastToValueType(node.Type, toType.ToString()));
-			}
+
 			BindExpressionType(node, toType);
 		}
 
@@ -5680,17 +5658,13 @@ namespace Boo.Lang.Compiler.Steps
 		bool AssertTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{
 			if (TypeSystemServices.IsError(expectedType) || TypeSystemServices.IsError(actualType))
-			{
 				return false;
-			}
 
 			if (expectedType.IsPointer && actualType.IsPointer)
 				return true; //if both types are unmanaged pointers casting is always possible
 
 			if (TypeSystemServices.IsNullable(expectedType) && EntityType.Null == actualType.EntityType)
-			{
 				return true;
-			}
 
 			if (!AreTypesRelated(sourceNode, expectedType, actualType))
 			{
@@ -6452,7 +6426,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null != type && type.IsArray;
 		}
 
-		public static bool IsStandaloneReference(Node node)
+		private static bool IsStandaloneReference(Node node)
 		{
 			return AstUtil.IsStandaloneReference(node);
 		}

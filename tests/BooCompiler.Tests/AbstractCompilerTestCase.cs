@@ -154,16 +154,9 @@ namespace BooCompiler.Tests
 		/// </summary>
 		protected virtual CompilerPipeline SetUpCompilerPipeline()
 		{
-			CompilerPipeline pipeline = null;
-
-			if (VerifyGeneratedAssemblies)
-			{
-				pipeline = new CompileToFileAndVerify();
-			}
-			else
-			{
-				pipeline = new CompileToMemory();
-			}
+			CompilerPipeline pipeline = VerifyGeneratedAssemblies
+				? new CompileToFileAndVerify()
+				: new CompileToMemory();
 
 			pipeline.Add(new RunAssembly());
 			return pipeline;

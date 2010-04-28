@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	public interface IReflectionTypeSystemProvider
 	{
-		ICompileUnit ForAssembly(Assembly assembly);
+		IAssemblyReference ForAssembly(Assembly assembly);
 		IType Map(Type type);
 		IMethod Map(MethodInfo method);
 		IConstructor Map(ConstructorInfo ctor);

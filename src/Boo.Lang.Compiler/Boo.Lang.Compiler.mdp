@@ -292,6 +292,7 @@
     <File name="Ast/Visitors/PseudoCSharpPrinterVisitor.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/TextEmitter.cs" buildaction="Compile" subtype="Code" />
     <File name="Ast/Visitors/TreePrinterVisitor.cs" buildaction="Compile" subtype="Code" />
+    <File name="Attributes/StrictModeAttribute.cs" buildaction="Compile" subtype="Code" />
     <File name="IO/FileInput.cs" buildaction="Compile" subtype="Code" />
     <File name="IO/ReaderInput.cs" buildaction="Compile" subtype="Code" />
     <File name="IO/StringInput.cs" buildaction="Compile" subtype="Code" />

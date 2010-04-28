@@ -42,7 +42,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public ReflectionTypeSystemProvider()
 		{
-			MapTo(typeof(Builtins.duck), new DuckTypeImpl(this));
+			MapTo(typeof(object), new ObjectTypeImpl(this));
+			MapTo(typeof(Builtins.duck), new ObjectTypeImpl(this));
 			MapTo(typeof(void), new VoidTypeImpl(this));
 		}
 
@@ -62,7 +63,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		#region Implementation of ICompilerReferenceProvider
 
-		public ICompileUnit ForAssembly(Assembly assembly)
+		public IAssemblyReference ForAssembly(Assembly assembly)
 		{
 			return _referenceCache.Produce(assembly, CreateReference);
 		}
@@ -180,11 +181,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		#endregion
 
-		sealed class DuckTypeImpl : ExternalType
+		sealed class ObjectTypeImpl : ExternalType
 		{
-			internal DuckTypeImpl(IReflectionTypeSystemProvider provider)
+			internal ObjectTypeImpl(IReflectionTypeSystemProvider provider)
 				: base(provider, Types.Object)
 			{
+			}
+
+			public override bool IsAssignableFrom(IType other)
+			{
+				var otherExternalType = other as ExternalType;
+				return otherExternalType == null || otherExternalType.ActualType != Types.Void;
 			}
 		}
 

@@ -211,9 +211,11 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		i = 0
 
 		Array.Sort(_suggestions) if _suggestions isa (string)
-		Array.Sort[of IEntity](_suggestions, _entityNameComparer) if _suggestions isa (IEntity)
+		
+		entities = _suggestions as (IEntity)
+		Array.Sort[of IEntity](entities, _entityNameComparer) if entities is not null
 
-		for s in _suggestions as (object):
+		for s in _suggestions:
 			Console.ForegroundColor = _suggestionsColor if not _disableColors
 			Console.Write(", ") if i > 0
 			if i > 20: #TODO: maxcandidates pref + paging?

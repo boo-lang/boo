@@ -214,12 +214,12 @@ namespace Boo.Lang.Compiler
 			_compilerReferences.Add(asm);
 		}
 
-		public ICompileUnit LoadAssembly(string assembly)
+		public IAssemblyReference LoadAssembly(string assembly)
 		{
 			return LoadAssembly(assembly, true);
 		}
 
-		public ICompileUnit LoadAssembly(string assemblyName, bool throwOnError)
+		public IAssemblyReference LoadAssembly(string assemblyName, bool throwOnError)
 		{
 			Assembly assembly = ForName(assemblyName, throwOnError);
 			if (null == assembly)

@@ -169,6 +169,7 @@
     <Compile Include="TypeSystem\Core\NamespaceAssert.cs" />
     <Compile Include="TypeSystem\Internal\InternalCompileUnitTest.cs" />
     <Compile Include="TypeSystem\Reflection\BeanPropertyFinder.cs" />
+    <Compile Include="TypeSystem\Reflection\NullableImplicitConversionOperatorsTest.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderExtensionTest.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderTest.cs" />
     <Compile Include="TypeSystem\Services\MemberCollectorTest.cs" />

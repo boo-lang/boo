@@ -370,13 +370,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			get
 			{
 				if (ActualType.IsGenericTypeDefinition)
-				{
-					if (_genericTypeDefinitionInfo == null)
-					{
-						_genericTypeDefinitionInfo = new ExternalGenericTypeInfo(_provider, this);
-					}
-					return _genericTypeDefinitionInfo;
-				}
+					return _genericTypeDefinitionInfo ?? (_genericTypeDefinitionInfo = new ExternalGenericTypeInfo(_provider, this));
 				return null;
 			}
 		}
@@ -387,13 +381,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			get
 			{
 				if (ActualType.IsGenericType && !ActualType.IsGenericTypeDefinition)
-				{
-					if (_genericTypeInfo == null)
-					{
-						_genericTypeInfo = new ExternalConstructedTypeInfo(_provider, this);
-					}
-					return _genericTypeInfo;
-				}
+					return _genericTypeInfo ?? (_genericTypeInfo = new ExternalConstructedTypeInfo(_provider, this));
 				return null;
 			}
 		}
@@ -404,10 +392,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		{
 			if (null == _arrayTypes)
 				_arrayTypes = new Memo<int, IArrayType>();
-			return _arrayTypes.Produce(rank, delegate(int newRank)
-			{
-				return new ArrayType(this, newRank);
-			});
+			return _arrayTypes.Produce(rank, newRank => new ArrayType(this, newRank));
 		}
 
 		public IType MakePointerType()

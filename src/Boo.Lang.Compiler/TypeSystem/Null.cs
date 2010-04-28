@@ -41,18 +41,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		override public string Name
 		{
-			get
-			{
-				return "null";
-			}
+			get { return "null"; }
 		}
 
 		override public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Null;
-			}
+			get { return EntityType.Null; }
+		}
+
+		public override IArrayType MakeArrayType(int rank)
+		{
+			return My<TypeSystemServices>.Instance.ObjectType.MakeArrayType(rank);
 		}
 	}
 

@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.Util
 			{
 				string[] argumentNames = Array.ConvertAll<Type, string>(
 					type.GetGenericArguments(),
-					delegate(Type t) { return GetFullName(t); });
+					GetFullName);
 				
 				return string.Format(
 					"{0}[{1}]",

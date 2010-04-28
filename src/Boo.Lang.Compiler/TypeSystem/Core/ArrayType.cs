@@ -50,110 +50,67 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public string Name
 		{
-			get
-			{
-				if (_rank > 1)
-				{
-					return "(" + _elementType.ToString() + ", " + _rank + ")";
-				}
-				return "(" + _elementType.ToString() + ")";
-			}
+			get { return _rank > 1 ? "(" + _elementType + ", " + _rank + ")" : "(" + _elementType + ")"; }
 		}
 		
 		public EntityType EntityType
 		{
-			get			
-			{
-				return EntityType.Array;
-			}
+			get { return EntityType.Array; }
 		}
 		
 		public string FullName
 		{
-			get
-			{
-				return Name;
-			}
+			get { return Name; }
 		}
 		
 		public IType Type
 		{
-			get
-			{
-				return this;
-			}
+			get { return this; }
 		}
 		
 		public bool IsFinal
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 		
 		public bool IsByRef
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool IsClass
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool IsInterface
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool IsAbstract
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool IsEnum
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public bool IsValueType
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public bool IsArray
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 
 		public bool IsPointer
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public int GetTypeDepth()
@@ -173,10 +130,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		
 		public IType BaseType
 		{
-			get
-			{
-				return My<TypeSystemServices>.Instance.ArrayType;
-			}
+			get { return My<TypeSystemServices>.Instance.ArrayType; }
 		}
 
 		public IEntity GetDefaultMember()
@@ -203,28 +157,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		public virtual bool IsAssignableFrom(IType other)
 		{			
 			if (other == this || other == Null.Default)
-			{
 				return true;
-			}
-			
-			if (other.IsArray)
-			{
-				IArrayType otherArray = (IArrayType)other;
 
-				if (otherArray.GetArrayRank() != _rank)
-				{
-					return false;
-				}
+			if (!other.IsArray)
+				return false;
 
-				IType otherEntityType = otherArray.GetElementType();
-				if (_elementType.IsValueType || otherEntityType.IsValueType)
-				{
-					return _elementType == otherEntityType;
-				}
-				return _elementType.IsAssignableFrom(otherEntityType);
-			}
-						
-			return false;
+			var otherArray = (IArrayType)other;
+			if (otherArray.GetArrayRank() != _rank)
+				return false;
+
+			IType otherElementType = otherArray.GetElementType();
+			return _elementType.IsAssignableFrom(otherElementType);
 		}
 		
 		public IType[] GetInterfaces()
@@ -277,10 +220,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		{
 			if (null == _arrayTypes)
 				_arrayTypes = new Memo<int, IArrayType>();
-			return _arrayTypes.Produce(rank, delegate(int newRank)
-			{
-				return new ArrayType(this, newRank);
-			});
+			return _arrayTypes.Produce(rank, newRank => new ArrayType(this, newRank));
 		}
 
 		public IType MakePointerType()

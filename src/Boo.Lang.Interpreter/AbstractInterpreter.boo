@@ -261,9 +261,9 @@ class AbstractInterpreter:
 			AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_AssemblyResolve
 			
 	def AppDomain_AssemblyResolve(sender, args as ResolveEventArgs) as System.Reflection.Assembly:
-		for reference in _compiler.Parameters.References:
+		for reference as IAssemblyReference in _compiler.Parameters.References:
 			if reference.FullName == args.Name:
-				return reference
+				return reference.Assembly
 		return null
 		
 	def Parse(input as ICompilerInput):

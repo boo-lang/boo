@@ -169,7 +169,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		private Memo<int, IArrayType> _arrayTypes;
 
-		public IArrayType MakeArrayType(int rank)
+		public virtual IArrayType MakeArrayType(int rank)
 		{
 			if (null == _arrayTypes)
 				_arrayTypes = new Memo<int, IArrayType>();

@@ -105,7 +105,7 @@ class Program:
 						print Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", arg[3:])
 					else:
 						_compiler.Parameters.References.Add(asm)
-						_assemblyResolver.AddAssembly(asm)
+						_assemblyResolver.AddAssembly(asm.Assembly)
 				except e:
 					print e.Message
 			else:

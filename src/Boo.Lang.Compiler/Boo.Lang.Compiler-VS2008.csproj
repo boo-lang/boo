@@ -361,6 +361,7 @@
     <Compile Include="Ast\Visitors\PseudoCSharpPrinterVisitor.cs" />
     <Compile Include="Ast\Visitors\TextEmitter.cs" />
     <Compile Include="Ast\Visitors\TreePrinterVisitor.cs" />
+    <Compile Include="Attributes\StrictModeAttribute.cs" />
     <Compile Include="IO\FileInput.cs" />
     <Compile Include="IO\ReaderInput.cs" />
     <Compile Include="IO\StringInput.cs" />
