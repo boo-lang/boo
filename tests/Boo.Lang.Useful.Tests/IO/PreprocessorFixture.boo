@@ -223,10 +223,14 @@ print 'foo or bar'
 		AssertPreProcessor(expected, code, "BAR")
 
 		
-	def AssertPreProcessor(expected, actual, *defines as (string)):
+	def AssertPreProcessor(expected as string, actual as string, *defines as (string)):
 		pp = PreProcessor(defines)
-		Assert.AreEqual(expected, pp.Process(actual).Replace("\r\n", "\n"))
+		Assert.AreEqual(expected.NormalizeNewLines(), pp.Process(actual).NormalizeNewLines())
 		
-	def AssertLinePreservingPreProcessor(expected, actual, *defines as (string)):
+	def AssertLinePreservingPreProcessor(expected as string, actual as string, *defines as (string)):
 		pp = PreProcessor(defines, PreserveLines: true)
-		Assert.AreEqual(expected, pp.Process(actual).Replace("\r\n", "\n"))
+		Assert.AreEqual(expected.NormalizeNewLines(), pp.Process(actual).NormalizeNewLines())
+		
+[extension] def NormalizeNewLines(this as string):
+	return this.Replace("\r\n", "\n")
+
