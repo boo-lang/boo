@@ -1,0 +1,14 @@
+// $ANTLR 2.7.5 (20050517): PreProcessorExpressions.g -> PreProcessorExpressionParserTokenTypes.txt$
+PreProcessorExpressionParser    // output token vocab name
+OR=4
+AND=5
+ID=6
+NOT=7
+LPAREN=8
+RPAREN=9
+WS=10
+COMMENT=11
+ID_START=12
+ID_PART=13
+LETTER=14
+DIGIT=15
