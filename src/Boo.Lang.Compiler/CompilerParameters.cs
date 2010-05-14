@@ -618,7 +618,6 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-
 		internal TraceSwitch TraceSwitch
 		{
 			get { return _traceSwitch; }
@@ -666,8 +665,7 @@ namespace Boo.Lang.Compiler
 			if (null == _traceSwitch)
 				_traceSwitch = new TraceSwitch("booc", "boo compiler");
 		}
-
-
+		
 		private void ReadDefaultVisibilitySettings()
 		{
 			string visibility = null;

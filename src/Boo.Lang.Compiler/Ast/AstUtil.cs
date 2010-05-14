@@ -585,7 +585,9 @@ namespace Boo.Lang.Compiler.Ast
 						ro |= RegexOptions.CultureInvariant;
 						break;
 					case 'c':
+						#if !MONOTOUCH
 						ro |= RegexOptions.Compiled;
+						#endif
 						break;
 					case 'e':
 						ro |= RegexOptions.ExplicitCapture;
