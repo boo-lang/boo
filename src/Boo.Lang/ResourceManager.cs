@@ -35,7 +35,7 @@ namespace Boo.Lang
 	/// </summary>
 	public sealed class ResourceManager
 	{
-#if VISUAL_STUDIO
+#if MSBUILD
         const string StringsResourceId = "Boo.Lang.Resources.strings";
 #else
         const string StringsResourceId = "strings";

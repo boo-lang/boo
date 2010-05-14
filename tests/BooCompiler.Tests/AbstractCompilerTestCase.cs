@@ -54,7 +54,7 @@ namespace BooCompiler.Tests
 		{
 			get
 			{
-#if VISUAL_STUDIO
+#if MSBUILD
 				return true;
 #else
 				return GetEnvironmentFlag("peverify", true);
@@ -97,7 +97,7 @@ namespace BooCompiler.Tests
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
 			CopyAssembly(System.Reflection.Assembly.Load("BooSupportingClasses"));
-#if !VISUAL_STUDIO
+#if !MSBUILD
 			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
 #endif
 		}

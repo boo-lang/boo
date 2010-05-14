@@ -39,7 +39,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\build\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,VISUAL_STUDIO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,MSBUILD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -57,7 +57,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\build\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,VISUAL_STUDIO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,MSBUILD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -95,15 +95,40 @@
   <ItemGroup>
     <Compile Include="AbstractCompilerErrorsTestFixture.cs" />
     <Compile Include="AbstractCompilerTestCase.cs" />
+    <Compile Include="ArraysIntegrationTestFixture.cs" />
+    <Compile Include="AttributesIntegrationTestFixture.cs" />
+    <Compile Include="AttributesTestFixture.cs" />
     <Compile Include="BooTestCaseUtil.cs" />
+    <Compile Include="CallablesIntegrationTestFixture.cs" />
+    <Compile Include="ClosuresIntegrationTestFixture.cs" />
     <Compile Include="ClrExtensionsIntegrationTestFixture.cs" />
+    <Compile Include="ClrIntegrationTestFixture.cs" />
+    <Compile Include="ClrextensionsIntegrationTestFixture.cs" />
+    <Compile Include="CompilerErrorsTestFixture.cs" />
     <Compile Include="CompilerWarningCollectionTest.cs" />
+    <Compile Include="CompilerWarningsTestFixture.cs" />
+    <Compile Include="DuckTypingIntegrationTestFixture.cs" />
+    <Compile Include="DuckyTestFixture.cs" />
     <Compile Include="ExtensionsCompilationTest.cs" />
+    <Compile Include="ExtensionsIntegrationTestFixture.cs" />
+    <Compile Include="GeneratorsIntegrationTestFixture.cs" />
+    <Compile Include="GenericsTestFixture.cs" />
     <Compile Include="LocalizationTest.cs" />
+    <Compile Include="MacrosTestFixture.cs" />
+    <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />
+    <Compile Include="ModulesIntegrationTestFixture.cs" />
     <Compile Include="MyTest.cs" />
+    <Compile Include="Net2ErrorsTestFixture.cs" />
+    <Compile Include="OperatorsIntegrationTestFixture.cs" />
     <Compile Include="PipelineTest.cs" />
+    <Compile Include="PrimitivesIntegrationTestFixture.cs" />
+    <Compile Include="RegressionTestFixture.cs" />
+    <Compile Include="SemanticsTestFixture.cs" />
     <Compile Include="SmokeTest.cs" />
+    <Compile Include="StatementsIntegrationTestFixture.cs" />
+    <Compile Include="StdlibTestFixture.cs" />
     <Compile Include="SystemDrawingPoint.cs" />
+    <Compile Include="TypesIntegrationTestFixture.cs" />
     <Compile Include="UnsafeErrorsTestFixture.cs" />
     <Compile Include="UnsafeTestFixture.cs" />
     <Compile Include="Ast\AstAssert.cs" />
