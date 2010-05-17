@@ -30,10 +30,9 @@ using Boo.Lang.Compiler.TypeSystem.Core;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-
 	public class Null : AbstractType
 	{
-		public static Null Default = new Null();
+		public static readonly Null Default = new Null();
 
 		private Null()
 		{
