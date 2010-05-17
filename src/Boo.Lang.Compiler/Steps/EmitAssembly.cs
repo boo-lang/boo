@@ -141,7 +141,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool _rawArrayIndexing = false;
 		bool _perModuleRawArrayIndexing = false;
 		
-		Hashtable _typeCache = new Hashtable();
+		Dictionary<IType, Type> _typeCache = new Dictionary<IType, Type>();
 		
 		// keeps track of types on the IL stack
 		Stack _types = new Stack();
@@ -4665,70 +4665,65 @@ namespace Boo.Lang.Compiler.Steps
 			return GetSystemType(GetType(node));
 		}
 		
-		Type GetSystemType(IType tag)
+		Type GetSystemType(IType entity)
 		{
-			Type type = (Type)_typeCache[tag];
-			if (type != null)
-			{
-				return type;
-			}
+			Type existingType;
+			if (_typeCache.TryGetValue(entity, out existingType))
+				return existingType;
 
-			ExternalType external = tag as ExternalType;
+			Type type = SystemTypeFrom(entity);
+			if (type == null)
+				throw new InvalidOperationException(string.Format("Could not find a Type for {0}.", entity));
+			_typeCache.Add(entity, type);
+			return type;
+		}
+
+		private Type SystemTypeFrom(IType entity)
+		{
+			var external = entity as ExternalType;
 			if (null != external)
+				return external.ActualType;
+
+			if (entity.IsArray)
 			{
-				type = external.ActualType;
-			}
-    		else if (tag.IsArray)
-			{
-				IArrayType arrayType = (IArrayType)tag;
+				IArrayType arrayType = (IArrayType)entity;
 				Type systemType = GetSystemType(arrayType.GetElementType());
 				int rank = arrayType.GetArrayRank();
 				
-				if (rank == 1)
-				{
-					type = systemType.MakeArrayType();
-				}
-				else
-				{
-					type = systemType.MakeArrayType(rank);
-				}
+				if (rank == 1) return systemType.MakeArrayType();
+				return systemType.MakeArrayType(rank);
 			}
-			else if (Null.Default == tag)
-			{
-				type = Types.Object;
-			}
-            else if (tag.ConstructedInfo != null)
-            {
-                // Type is a constructed generic type - create it using its definition's system type
-                Type[] arguments = Array.ConvertAll<IType, Type>(tag.ConstructedInfo.GenericArguments, GetSystemType);
-                type = GetSystemType(tag.ConstructedInfo.GenericDefinition).MakeGenericType(arguments);
-            }
-            else if (tag is InternalGenericParameter)
-            {
-                return (Type)GetBuilder(((InternalGenericParameter)tag).Node);
-            }
-            else if (tag is AbstractInternalType)
-            {
-                TypeDefinition typedef = ((AbstractInternalType) tag).TypeDefinition;
-                type = (Type)GetBuilder(typedef);
 
-				if (null != tag.GenericInfo && !type.IsGenericType) //hu-oh, early-bound
+			if (entity.ConstructedInfo != null)
+			{
+				// Type is a constructed generic type - create it using its definition's system type
+				Type[] arguments = Array.ConvertAll<IType, Type>(entity.ConstructedInfo.GenericArguments, GetSystemType);
+				return GetSystemType(entity.ConstructedInfo.GenericDefinition).MakeGenericType(arguments);
+			}
+			
+			if (Null.Default == entity)
+				return Types.Object;
+
+			if (entity is InternalGenericParameter)
+				return (Type)GetBuilder(((InternalGenericParameter)entity).Node);
+
+			if (entity is AbstractInternalType)
+			{
+				TypeDefinition typedef = ((AbstractInternalType) entity).TypeDefinition;
+				var type = (Type)GetBuilder(typedef);
+
+				if (null != entity.GenericInfo && !type.IsGenericType) //hu-oh, early-bound
 					DefineGenericParameters(typedef);
 
-				if (tag.IsPointer && null != type)
-					type = type.MakePointerType();
-            }
+				if (entity.IsPointer && null != type)
+					return type.MakePointerType();
 
-			if (null == type)
-			{
-				throw new InvalidOperationException(string.Format("Could not find a Type for {0}.", tag));
+				return type;
 			}
 
-			_typeCache.Add(tag, type);
-			
-			return type;
+			return null;
 		}
-		
+
 		TypeAttributes GetNestedTypeAttributes(TypeMember type)
 		{
 			return GetExtendedTypeAttributes(GetNestedTypeAccessibility(type), type);
