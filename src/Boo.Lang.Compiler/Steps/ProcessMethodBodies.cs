@@ -1353,13 +1353,12 @@ namespace Boo.Lang.Compiler.Steps
 			if (entity.IsGenerator)
 			{
 				ResolveGeneratorReturnType(entity);
+				return;
 			}
-			else
+
+			if (CanResolveReturnType(entity))
 			{
-				if (CanResolveReturnType(entity))
-				{
-					ResolveReturnType(entity);
-				}
+				ResolveReturnType(entity);
 			}
 		}
 
@@ -2123,22 +2122,21 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == _currentMethod)
 			{
 				Error(node, CompilerErrorFactory.SelfOutsideMethod(node));
+				return;
 			}
-			else
+			
+			if (_currentMethod.IsStatic)
 			{
-				if (_currentMethod.IsStatic)
+				if (NodeType.MemberReferenceExpression != node.ParentNode.NodeType)
 				{
-					if (NodeType.MemberReferenceExpression != node.ParentNode.NodeType)
-					{
-						// if we are inside a MemberReferenceExpression
-						// let the MemberReferenceExpression deal with it
-						// as it can provide a better message
-						Error(CompilerErrorFactory.SelfIsNotValidInStaticMember(node));
-					}
+					// if we are inside a MemberReferenceExpression
+					// let the MemberReferenceExpression deal with it
+					// as it can provide a better message
+					Error(CompilerErrorFactory.SelfIsNotValidInStaticMember(node));
 				}
-				node.Entity = _currentMethod;
-				node.ExpressionType = _currentMethod.DeclaringType;
 			}
+			node.Entity = _currentMethod;
+			node.ExpressionType = _currentMethod.DeclaringType;
 		}
 
 		override public void LeaveTypeofExpression(TypeofExpression node)
