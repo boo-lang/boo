@@ -1,4 +1,5 @@
 #region license
+
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -24,141 +25,99 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #endregion
 
-using System.Runtime.InteropServices;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
+using Attribute = System.Attribute;
+using Module = Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Collections;
-	using System.Reflection;
-	using System.Text;
-	using Boo.Lang.Compiler.Ast;
-	using Attribute = Boo.Lang.Compiler.Ast.Attribute;
-	using Module = Boo.Lang.Compiler.Ast.Module;
-
 	public class TypeSystemServices
 	{
-		public IType DuckType;
-
-		public IType IQuackFuType;
-
-		public IType MulticastDelegateType;
-
-		public IType DelegateType;
-
-		public IType IntPtrType;
-
-		public IType UIntPtrType;
-
-		public IType ObjectType;
-
-		public IType ValueTypeType;
-
-		public IType EnumType;
-
-		public IType RegexType;
-
+		public static readonly IType ErrorEntity = Error.Default;
+		private static readonly object EntityAnnotationKey = new object();
+		private readonly AnonymousCallablesManager _anonymousCallablesManager;
+		protected readonly CompilerContext _context;
 		public IType ArrayType;
-
-		public IType TypeType;
-
-		public IArrayType ObjectArrayType;
-
-		public IType VoidType;
-
-		public IType StringType;
-
-		public IType BoolType;
-
-		public IType CharType;
-
-		public IType SByteType;
-
-		public IType ByteType;
-
-		public IType ShortType;
-
-		public IType UShortType;
-
-		public IType IntType;
-
-		public IType UIntType;
-
-		public IType LongType;
-
-		public IType ULongType;
-
-		public IType SingleType;
-
-		public IType DoubleType;
-
-		public IType DecimalType;
-
-		public IType TimeSpanType;
-
-		public IType DateTimeType;
-
-		public IType RuntimeServicesType;
-
-		public IType BuiltinsType;
-
-		public IType ListType;
-
-		public IType HashType;
-
-		public IType ICallableType;
-
-		public IType IEnumerableType;
-
-		public IType IEnumeratorType;
-
-		public IType IEnumerableGenericType;
-
-		public IType IEnumeratorGenericType;
-
-		public IType IDisposableType;
-
-		public IType ICollectionType;
-
-		public IType ICollectionGenericType;
-
-		public IType SystemAttribute;
-
-		public IType ConditionalAttribute;
-
-		public IType IAstMacroType;
-
-		public IType IAstGeneratorMacroType;
-
 		public IType AstNodeType;
 
-		protected Hashtable _primitives = new Hashtable();
+		public IType BoolType;
+		public IType BuiltinsType;
 
-		protected Boo.Lang.Compiler.Util.Set<string> _literalPrimitives = new Boo.Lang.Compiler.Util.Set<string>();
+		public IType ByteType;
+		public IType CharType;
+		public IType ConditionalAttribute;
 
-		public static readonly IType ErrorEntity = Error.Default;
+		public IType DateTimeType;
+		public IType DecimalType;
+		public IType DelegateType;
+		public IType DoubleType;
+		public IType DuckType;
+		public IType EnumType;
+
+		public IType HashType;
+		public IType IAstGeneratorMacroType;
+		public IType IAstMacroType;
+
+		public IType ICallableType;
+		public IType ICollectionGenericType;
+		public IType ICollectionType;
+		public IType IDisposableType;
+
+		public IType IEnumerableGenericType;
+		public IType IEnumerableType;
+
+		public IType IEnumeratorGenericType;
+		public IType IEnumeratorType;
+		public IType IQuackFuType;
+		public IType IntPtrType;
+		public IType IntType;
+		public IType ListType;
+		public IType LongType;
+		public IType MulticastDelegateType;
+		public IArrayType ObjectArrayType;
+		public IType ObjectType;
+		public IType RegexType;
+		public IType RuntimeServicesType;
+		public IType SByteType;
+		public IType ShortType;
+		public IType SingleType;
+		public IType StringType;
+
+		public IType SystemAttribute;
+		public IType TimeSpanType;
+		public IType TypeType;
+		public IType UIntPtrType;
+		public IType UIntType;
+		public IType ULongType;
+		public IType UShortType;
+		public IType ValueTypeType;
+		public IType VoidType;
 
 		private StringBuilder _buffer = new StringBuilder();
 
-		private Module _compilerGeneratedTypesModule;
-
-		private Module _compilerGeneratedExtensionsModule;
-
 		private ClassDefinition _compilerGeneratedExtensionsClass;
-
-		protected readonly CompilerContext _context;
-
-		private readonly AnonymousCallablesManager _anonymousCallablesManager;
+		private Module _compilerGeneratedExtensionsModule;
+		private Module _compilerGeneratedTypesModule;
+		protected Set<string> _literalPrimitives = new Set<string>();
+		protected Hashtable _primitives = new Hashtable();
 
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -209,11 +168,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			UIntPtrType = Map(Types.UIntPtr);
 			MulticastDelegateType = Map(Types.MulticastDelegate);
 			DelegateType = Map(Types.Delegate);
-			SystemAttribute = Map(typeof(System.Attribute));
-			ConditionalAttribute = Map(typeof(System.Diagnostics.ConditionalAttribute));
+			SystemAttribute = Map(typeof(Attribute));
+			ConditionalAttribute = Map(typeof(ConditionalAttribute));
 			IEnumerableGenericType = Map(Types.IEnumerableGeneric);
-			IEnumeratorGenericType = Map(typeof(System.Collections.Generic.IEnumerator<>));
-			ICollectionGenericType = Map(typeof(System.Collections.Generic.ICollection<>));
+			IEnumeratorGenericType = Map(typeof(IEnumerator<>));
+			ICollectionGenericType = Map(typeof(ICollection<>));
 			IAstMacroType = Map(typeof(IAstMacro));
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
 			AstNodeType = Map(typeof(Node));
@@ -231,14 +190,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public BooCodeBuilder CodeBuilder
 		{
-			get { return _context.CodeBuilder;  }
+			get { return _context.CodeBuilder; }
+		}
+
+		public virtual IType ExceptionType
+		{
+			get { return Map(typeof(Exception)); }
 		}
 
 		public bool IsGenericGeneratorReturnType(IType returnType)
 		{
 			return returnType.ConstructedInfo != null &&
-				(returnType.ConstructedInfo.GenericDefinition == IEnumerableGenericType ||
-				 returnType.ConstructedInfo.GenericDefinition == IEnumeratorGenericType);
+			       (returnType.ConstructedInfo.GenericDefinition == IEnumerableGenericType ||
+			        returnType.ConstructedInfo.GenericDefinition == IEnumeratorGenericType);
 		}
 
 		public IType GetMostGenericType(ExpressionCollection args)
@@ -282,7 +246,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			if (current.IsClass && candidate.IsClass)
 			{
-				if (current ==  ObjectType || candidate == ObjectType)
+				if (current == ObjectType || candidate == ObjectType)
 					return ObjectType;
 
 				if (current.GetTypeDepth() < candidate.GetTypeDepth())
@@ -296,17 +260,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType GetPromotedNumberType(IType left, IType right)
 		{
 			if (left == DecimalType ||
-				right == DecimalType)
+			    right == DecimalType)
 			{
 				return DecimalType;
 			}
 			if (left == DoubleType ||
-				right == DoubleType)
+			    right == DoubleType)
 			{
 				return DoubleType;
 			}
 			if (left == SingleType ||
-				right == SingleType)
+			    right == SingleType)
 			{
 				return SingleType;
 			}
@@ -353,7 +317,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ULongType;
 			}
 			if (left == LongType ||
-				right == LongType)
+			    right == LongType)
 			{
 				return LongType;
 			}
@@ -394,15 +358,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return UIntType;
 			}
 			if (left == IntType ||
-				right == IntType ||
-				left == ShortType ||
-				right == ShortType ||
-				left == UShortType ||
-				right == UShortType ||
-				left == ByteType ||
-				right == ByteType ||
-				left == SByteType ||
-				right == SByteType)
+			    right == IntType ||
+			    left == ShortType ||
+			    right == ShortType ||
+			    left == UShortType ||
+			    right == UShortType ||
+			    left == ByteType ||
+			    right == ByteType ||
+			    left == SByteType ||
+			    right == SByteType)
 			{
 				return IntType;
 			}
@@ -422,7 +386,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool IsDuckTyped(Expression expression)
 		{
 			IType type = expression.ExpressionType;
-			return null != type && this.IsDuckType(type);
+			return null != type && IsDuckType(type);
 		}
 
 		public bool IsQuackBuiltin(Expression node)
@@ -442,10 +406,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				throw new ArgumentNullException("type");
 			}
 			return (
-				(type == DuckType)
-				|| KnowsQuackFu(type)
-				|| (_context.Parameters.Ducky
-					&& (type == ObjectType)));
+			       	(type == DuckType)
+			       	|| KnowsQuackFu(type)
+			       	|| (_context.Parameters.Ducky
+			       	    && (type == ObjectType)));
 		}
 
 		public bool KnowsQuackFu(IType type)
@@ -453,14 +417,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type.IsSubclassOf(IQuackFuType);
 		}
 
-		bool IsCallableType(IType type)
+		private bool IsCallableType(IType type)
 		{
 			return (ICallableType.IsAssignableFrom(type)) || (type is ICallableType);
 		}
 
 		public AnonymousCallableType GetCallableType(IMethodBase method)
 		{
-			CallableSignature signature = new CallableSignature(method);
+			var signature = new CallableSignature(method);
 			return GetCallableType(signature);
 		}
 
@@ -506,16 +470,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			IType type = node.ExpressionType;
 			if (null == type)
-			{
 				throw CompilerErrorFactory.InvalidNode(node);
-			}
 			return type;
 		}
 
 		public IType GetConcreteExpressionType(Expression expression)
 		{
 			IType type = GetExpressionType(expression);
-			AnonymousCallableType anonymousType = type as AnonymousCallableType;
+			var anonymousType = type as AnonymousCallableType;
 			if (null != anonymousType)
 			{
 				IType concreteType = GetConcreteCallableType(expression, anonymousType);
@@ -528,9 +490,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public void MapToConcreteExpressionTypes(ExpressionCollection items)
 		{
 			foreach (Expression item in items)
-			{
 				GetConcreteExpressionType(item);
-			}
 		}
 
 		public IEntity GetDefaultMember(IType type)
@@ -543,7 +503,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 
 			// Search for default members on the type's interfaces
-			Set<IEntity> buffer = new Set<IEntity>();
+			var buffer = new Set<IEntity>();
 			foreach (IType interfaceType in type.GetInterfaces())
 			{
 				IEntity member = GetDefaultMember(interfaceType);
@@ -558,12 +518,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				BooClassBuilder builder = CodeBuilder.CreateClass("CompilerGeneratedExtensions");
 				builder.Modifiers = TypeMemberModifiers.Private | TypeMemberModifiers.Static | TypeMemberModifiers.Transient;
-				builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
+				builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(CompilerGeneratedAttribute)));
 
 				ClassDefinition cd = builder.ClassDefinition;
 				Module module = GetCompilerGeneratedExtensionsModule();
 				module.Members.Add(cd);
-				((InternalModule)module.Entity).InitializeModuleClass(cd);
+				((InternalModule) module.Entity).InitializeModuleClass(cd);
 
 				_compilerGeneratedExtensionsClass = cd;
 			}
@@ -572,10 +532,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Module GetCompilerGeneratedExtensionsModule()
 		{
-			if (null == _compilerGeneratedExtensionsModule)
-			{
-				_compilerGeneratedExtensionsModule = NewModule(null, "CompilerGeneratedExtensions");
-			}
+			if (null != _compilerGeneratedExtensionsModule) return _compilerGeneratedExtensionsModule;
+			_compilerGeneratedExtensionsModule = NewModule(null, "CompilerGeneratedExtensions");
 			return _compilerGeneratedExtensionsModule;
 		}
 
@@ -586,55 +544,51 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Module GetCompilerGeneratedTypesModule()
 		{
-			if (null == _compilerGeneratedTypesModule)
-			{
-				_compilerGeneratedTypesModule = NewModule("CompilerGenerated");
-			}
-			return _compilerGeneratedTypesModule;
+			return _compilerGeneratedTypesModule ?? (_compilerGeneratedTypesModule = NewModule("CompilerGenerated"));
 		}
 
-        private Module NewModule(string nameSpace)
-        {
-            return NewModule(nameSpace, nameSpace);
-        }
+		private Module NewModule(string nameSpace)
+		{
+			return NewModule(nameSpace, nameSpace);
+		}
 
 		private Module NewModule(string nameSpace, string moduleName)
 		{
-            Module module = CodeBuilder.CreateModule(moduleName, nameSpace);
+			Module module = CodeBuilder.CreateModule(moduleName, nameSpace);
 			_context.CompileUnit.Modules.Add(module);
 			return module;
 		}
-		
+
 		public ClassDefinition CreateCallableDefinition(string name)
 		{
-			ClassDefinition cd = new ClassDefinition();
+			var cd = new ClassDefinition();
 			cd.IsSynthetic = true;
-			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(this.MulticastDelegateType));
-			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(this.ICallableType));
+			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(MulticastDelegateType));
+			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(ICallableType));
 			cd.Name = name;
 			cd.Modifiers = TypeMemberModifiers.Final;
 			cd.Members.Add(CreateCallableConstructor());
 			cd.Members.Add(CreateCallMethod());
 			cd.Entity = new InternalCallableType(My<InternalTypeSystemProvider>.Instance, cd);
-			cd.Attributes.Add(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
+			cd.Attributes.Add(CodeBuilder.CreateAttribute(typeof(CompilerGeneratedAttribute)));
 			return cd;
 		}
 
-		Method CreateCallMethod()
+		private Method CreateCallMethod()
 		{
-			Method method = CodeBuilder.CreateMethod("Call", ObjectType, TypeMemberModifiers.Public|TypeMemberModifiers.Virtual);
+			Method method = CodeBuilder.CreateMethod("Call", ObjectType, TypeMemberModifiers.Public | TypeMemberModifiers.Virtual);
 			method.Parameters.Add(CodeBuilder.CreateParameterDeclaration(1, "args", ObjectArrayType));
 			return method;
 		}
 
-		Constructor CreateCallableConstructor()
+		private Constructor CreateCallableConstructor()
 		{
 			Constructor constructor = CodeBuilder.CreateConstructor(TypeMemberModifiers.Public);
 			constructor.ImplementationFlags = MethodImplementationFlags.Runtime;
 			constructor.Parameters.Add(
-						CodeBuilder.CreateParameterDeclaration(1, "instance", ObjectType));
+				CodeBuilder.CreateParameterDeclaration(1, "instance", ObjectType));
 			constructor.Parameters.Add(
-						CodeBuilder.CreateParameterDeclaration(2, "method", IntPtrType));
+				CodeBuilder.CreateParameterDeclaration(2, "method", IntPtrType));
 			return constructor;
 		}
 
@@ -682,7 +636,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IMethod FindConversionOperator(string name, IType fromType, IType toType)
 		{
-			while (fromType != this.ObjectType)
+			while (fromType != ObjectType)
 			{
 				IMethod method = FindConversionOperator(name, fromType, toType, fromType.GetMembers());
 				if (null != method) return method;
@@ -702,24 +656,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IEntity extension = Context.NameResolutionService.ResolveExtension(fromType, name);
 			if (null == extension) return Ambiguous.NoEntities;
 
-			Ambiguous a = extension as Ambiguous;
+			var a = extension as Ambiguous;
 			if (null != a) return a.Entities;
-			return new IEntity[] { extension };
+			return new[] {extension};
 		}
 
-		IMethod FindConversionOperator(string name, IType fromType, IType toType, IEnumerable<IEntity> candidates)
+		private IMethod FindConversionOperator(string name, IType fromType, IType toType, IEnumerable<IEntity> candidates)
 		{
 			foreach (IMethod method in _context.NameResolutionService.Select<IMethod>(candidates, name, EntityType.Method))
 				if (IsConversionOperator(method, fromType, toType)) return method;
 			return null;
 		}
 
-		static bool IsConversionOperator(IMethod method, IType fromType, IType toType)
+		private static bool IsConversionOperator(IMethod method, IType fromType, IType toType)
 		{
 			if (!method.IsStatic) return false;
 			if (method.ReturnType != toType) return false;
 			IParameter[] parameters = method.GetParameters();
-			return  (1 == parameters.Length &&	fromType == parameters[0].Type);
+			return (1 == parameters.Length && fromType == parameters[0].Type);
 		}
 
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
@@ -727,7 +681,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (lhs == rhs) return true;
 			if (Null.Default == rhs) return true;
 
-			ICallableType other = rhs as ICallableType;
+			var other = rhs as ICallableType;
 			if (null == other) return false;
 
 			CallableSignature lvalue = lhs.GetSignature();
@@ -738,7 +692,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IParameter[] rparams = rvalue.Parameters;
 			if (lparams.Length < rparams.Length) return false;
 
-			for (int i=0; i<rparams.Length; ++i)
+			for (int i = 0; i < rparams.Length; ++i)
 				if (!AreTypesRelated(lparams[i].Type, rparams[i].Type))
 					return false;
 
@@ -769,16 +723,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static CallableSignature GetOverriddenSignature(IMethod baseMethod, IMethod impl)
 		{
 			if (baseMethod.GenericInfo != null && GenericsServices.AreOfSameGenerity(baseMethod, impl))
-			{
 				return baseMethod.GenericInfo.ConstructMethod(impl.GenericInfo.GenericParameters).CallableType.GetSignature();
-			}
 			return baseMethod.CallableType.GetSignature();
 		}
 
 		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
 		{
 			return CanBeReachedByDowncast(expectedType, actualType)
-				|| CanBeReachedByPromotion(expectedType, actualType);
+			       || CanBeReachedByPromotion(expectedType, actualType);
 		}
 
 		public virtual bool CanBeReachedByDowncast(IType expectedType, IType actualType)
@@ -793,7 +745,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool CanBeReachedByInterfaceDowncast(IType expectedType, IType actualType)
 		{
 			//FIXME: currently interface downcast implements no type safety check at all (see BOO-1211)
-			return true; 
+			return true;
 		}
 
 		public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
@@ -811,29 +763,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool CanBeExplicitlyCastToInteger(IType type)
 		{
-			return type.IsEnum || type == this.CharType;
+			return type.IsEnum || type == CharType;
 		}
 
 		public static bool ContainsMethodsOnly(ICollection<IEntity> members)
 		{
-			foreach (IEntity member in members)
-			{
-				if (EntityType.Method != member.EntityType) return false;
-			}
-			return true;
+			return members.All(member => EntityType.Method == member.EntityType);
 		}
 
 		public bool IsIntegerNumber(IType type)
 		{
 			return
-				type == this.ShortType ||
-				type == this.IntType ||
-				type == this.LongType ||
-				type == this.SByteType ||
-				type == this.UShortType ||
-				type == this.UIntType ||
-				type == this.ULongType ||
-				type == this.ByteType;
+				type == ShortType ||
+				type == IntType ||
+				type == LongType ||
+				type == SByteType ||
+				type == UShortType ||
+				type == UIntType ||
+				type == ULongType ||
+				type == ByteType;
 		}
 
 		public bool IsIntegerOrBool(IType type)
@@ -850,24 +798,24 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return
 				IsPrimitiveNumber(type) ||
-				type == this.DecimalType;
+				type == DecimalType;
 		}
 
 		public bool IsPrimitiveNumber(IType type)
 		{
 			return
 				IsIntegerNumber(type) ||
-				type == this.DoubleType ||
-				type == this.SingleType;
+				type == DoubleType ||
+				type == SingleType;
 		}
 
 		public bool IsSignedNumber(IType type)
 		{
 			return IsNumber(type)
-				&& type != this.UShortType
-				&& type != this.UIntType
-				&& type != this.ULongType
-				&& type != this.ByteType;
+			       && type != UShortType
+			       && type != UIntType
+			       && type != ULongType
+			       && type != ByteType;
 		}
 
 		/// <summary>
@@ -876,7 +824,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		public static bool IsReferenceType(IType type)
 		{
-			IGenericParameter gp = type as IGenericParameter;
+			var gp = type as IGenericParameter;
 			if (null == gp)
 				return !type.IsValueType;
 
@@ -884,10 +832,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 
 			foreach (IType tc in gp.GetTypeConstraints())
-			{
 				if (!tc.IsValueType && !tc.IsInterface)
 					return true;
-			}
 			return false;
 		}
 
@@ -897,30 +843,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// </summary>
 		public static bool IsAnyType(IType type)
 		{
-			IGenericParameter gp = type as IGenericParameter;
+			var gp = type as IGenericParameter;
 			return (null != gp && !gp.IsClass && !gp.IsValueType && 0 == gp.GetTypeConstraints().Length);
 		}
 
 		public static bool IsNullable(IType type)
 		{
-			ExternalType et = type as ExternalType;
+			var et = type as ExternalType;
 			return (null != et && et.ActualType.IsGenericType && et.ActualType.GetGenericTypeDefinition() == Types.Nullable);
 		}
 
 		public IType GetNullableUnderlyingType(IType type)
 		{
-			ExternalType et = type as ExternalType;
+			var et = type as ExternalType;
 			return Map(Nullable.GetUnderlyingType(et.ActualType));
 		}
 
 		public static bool IsUnknown(Expression node)
 		{
-			IType type = node.ExpressionType;
-			if (null != type)
-			{
-				return IsUnknown(type);
-			}
-			return false;
+			var type = node.ExpressionType;
+			return null != type && IsUnknown(type);
 		}
 
 		public static bool IsUnknown(IType type)
@@ -930,60 +872,41 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static bool IsError(Expression node)
 		{
-			IType type = node.ExpressionType;
-			if (null != type)
-			{
-				return IsError(type);
-			}
-			return false;
+			var type = node.ExpressionType;
+			return null != type && IsError(type);
 		}
 
 		public static bool IsErrorAny(ExpressionCollection collection)
 		{
-			foreach (Expression n in collection)
-			{
-				if (IsError(n))
-				{
-					return true;
-				}
-			}
+			return collection.Any(IsError);
+		}
+
+		public bool IsBuiltin(IEntity entity)
+		{
+			if (EntityType.Method == entity.EntityType)
+				return BuiltinsType == ((IMethod) entity).DeclaringType;
 			return false;
 		}
 
-		public bool IsBuiltin(IEntity tag)
+		public static bool IsError(IEntity entity)
 		{
-			if (EntityType.Method == tag.EntityType)
-			{
-				return BuiltinsType == ((IMethod)tag).DeclaringType;
-			}
-			return false;
-		}
-
-		public static bool IsError(IEntity tag)
-		{
-			return EntityType.Error == tag.EntityType;
+			return EntityType.Error == entity.EntityType;
 		}
 
 		public static TypeMemberModifiers GetAccess(IAccessibleMember member)
 		{
 			if (member.IsPublic)
-			{
 				return TypeMemberModifiers.Public;
-			}
-			else if (member.IsProtected)
+			if (member.IsProtected)
 			{
 				if (member.IsInternal)
 					return TypeMemberModifiers.Protected | TypeMemberModifiers.Internal;
 				return TypeMemberModifiers.Protected;
 			}
-			else if (member.IsInternal)
-			{
+			if (member.IsInternal)
 				return TypeMemberModifiers.Internal;
-			}
 			return TypeMemberModifiers.Private;
 		}
-
-		static object EntityAnnotationKey = new object();
 
 		public static void Bind(Node node, IEntity entity)
 		{
@@ -994,15 +917,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static IEntity GetOptionalEntity(Node node)
 		{
 			if (null == node) throw new ArgumentNullException("node");
-			return (IEntity)node[EntityAnnotationKey];
+			return (IEntity) node[EntityAnnotationKey];
 		}
 
 		public static IEntity GetEntity(Node node)
 		{
-			IEntity tag = GetOptionalEntity(node);
-			if (null == tag) InvalidNode(node);
-
-			return tag;
+			IEntity entity = GetOptionalEntity(node);
+			if (null == entity) InvalidNode(node);
+			return entity;
 		}
 
 		public static IType GetReferencedType(Expression typeref)
@@ -1010,15 +932,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			switch (typeref.NodeType)
 			{
 				case NodeType.TypeofExpression:
-				{
-					return GetType(((TypeofExpression)typeref).Type);
-				}
+						return GetType(((TypeofExpression) typeref).Type);
 				case NodeType.ReferenceExpression:
 				case NodeType.MemberReferenceExpression:
 				case NodeType.GenericReferenceExpression:
-				{
-					return typeref.Entity as IType;
-				}
+						return typeref.Entity as IType;
 			}
 			return null;
 		}
@@ -1026,9 +944,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool IsModule(Type type)
 		{
 			return type.IsClass
-				&& type.IsSealed
-				&& !type.IsNestedPublic
-				&& MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
+			       && type.IsSealed
+			       && !type.IsNestedPublic
+			       && MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
 		}
 
 		public bool IsAttribute(IType type)
@@ -1038,7 +956,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static IType GetType(Node node)
 		{
-			return ((ITypedEntity)GetEntity(node)).Type;
+			return ((ITypedEntity) GetEntity(node)).Type;
 		}
 
 		public IType Map(Type type)
@@ -1083,26 +1001,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static string GetSignature(IEntityWithParameters method, bool includeFullName)
 		{
-			StringBuilder _buffer = new StringBuilder();
-			if (includeFullName)
-			{
-				_buffer.Append(method.FullName);
-			}
-			else
-			{
-				_buffer.Append(method.Name);
-			}
-			_buffer.Append("(");
+			var buffer = new StringBuilder(includeFullName ? method.FullName : method.Name);
+			buffer.Append("(");
 
 			IParameter[] parameters = method.GetParameters();
-			for (int i=0; i<parameters.Length; ++i)
+			for (int i = 0; i < parameters.Length; ++i)
 			{
-				if (i > 0) { _buffer.Append(", "); }
-				if (method.AcceptVarArgs && i == parameters.Length-1) { _buffer.Append('*'); }
-				_buffer.Append(parameters[i].Type);
+				if (i > 0)
+					buffer.Append(", ");
+
+				if (method.AcceptVarArgs && i == parameters.Length - 1)
+					buffer.Append('*');
+
+				buffer.Append(parameters[i].Type);
 			}
-			_buffer.Append(")");
-			return _buffer.ToString();
+
+			buffer.Append(")");
+			return buffer.ToString();
 		}
 
 		public object GetCacheKey(MemberInfo mi)
@@ -1112,7 +1027,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IEntity ResolvePrimitive(string name)
 		{
-			return (IEntity)_primitives[name];
+			return (IEntity) _primitives[name];
 		}
 
 		public bool IsPrimitive(string name)
@@ -1122,10 +1037,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsLiteralPrimitive(IType type)
 		{
-			ExternalType typ = type as ExternalType;
+			var typ = type as ExternalType;
 			return typ != null
-					&& typ.PrimitiveName != null
-					&& _literalPrimitives.Contains(typ.PrimitiveName);
+			       && typ.PrimitiveName != null
+			       && _literalPrimitives.Contains(typ.PrimitiveName);
 		}
 
 		/// <summary>
@@ -1186,7 +1101,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected void AddPrimitiveType(string name, IType type)
 		{
 			_primitives[name] = type;
-			((ExternalType)type).PrimitiveName = name;
+			((ExternalType) type).PrimitiveName = name;
 		}
 
 		protected void AddLiteralPrimitiveType(string name, IType type)
@@ -1202,32 +1117,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IConstructor GetDefaultConstructor(IType type)
 		{
-			foreach (IConstructor constructor in type.GetConstructors())
-				if (0 == constructor.GetParameters().Length)
-					return constructor;
-			return null;
+			return type.GetConstructors().FirstOrDefault(constructor => 0 == constructor.GetParameters().Length);
 		}
 
-		IType GetExternalEnumeratorItemType(IType iteratorType)
+		private IType GetExternalEnumeratorItemType(IType iteratorType)
 		{
-			Type type = ((ExternalType)iteratorType).ActualType;
-			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)System.Attribute.GetCustomAttribute(type, typeof(EnumeratorItemTypeAttribute));
-			if (null != attribute)
-			{
-				return Map(attribute.ItemType);
-			}
-			return null;
+			Type type = ((ExternalType) iteratorType).ActualType;
+			var attribute = (EnumeratorItemTypeAttribute) Attribute.GetCustomAttribute(type, typeof(EnumeratorItemTypeAttribute));
+			return null != attribute ? Map(attribute.ItemType) : null;
 		}
 
-		IType GetEnumeratorItemTypeFromAttribute(IType iteratorType)
+		private IType GetEnumeratorItemTypeFromAttribute(IType iteratorType)
 		{
-            // If iterator type is external get its attributes via reflection
-            if (iteratorType is ExternalType)
-            {
-                return GetExternalEnumeratorItemType(iteratorType);
-            }
+			// If iterator type is external get its attributes via reflection
+			if (iteratorType is ExternalType)
+				return GetExternalEnumeratorItemType(iteratorType);
 
-            // If iterator type is a generic constructed type, get its attribute from its definition
+			// If iterator type is a generic constructed type, get its attribute from its definition
 			// and map generic parameters 
 			if (iteratorType.ConstructedInfo != null)
 			{
@@ -1235,19 +1141,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return iteratorType.ConstructedInfo.Map(definitionItemType);
 			}
 
-            // If iterator type is internal get its attributes from its type definition
-			AbstractInternalType internalType = (AbstractInternalType)iteratorType;
-            IType enumeratorItemTypeAttribute = Map(typeof(EnumeratorItemTypeAttribute));
-			foreach (Attribute attribute in internalType.TypeDefinition.Attributes)
+			// If iterator type is internal get its attributes from its type definition
+			var internalType = (AbstractInternalType) iteratorType;
+			IType enumeratorItemTypeAttribute = Map(typeof(EnumeratorItemTypeAttribute));
+			foreach (Ast.Attribute attribute in internalType.TypeDefinition.Attributes)
 			{
-				IConstructor constructor = GetEntity(attribute) as IConstructor;
-				if (null != constructor)
-				{
-					if (constructor.DeclaringType == enumeratorItemTypeAttribute)
-					{
-						return GetType(attribute.Arguments[0]);
-					}
-				}
+				var constructor = GetEntity(attribute) as IConstructor;
+				if (null != constructor && constructor.DeclaringType == enumeratorItemTypeAttribute)
+					return GetType(attribute.Arguments[0]);
 			}
 			return null;
 		}
@@ -1264,13 +1165,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IType candidateItemType = type.ConstructedInfo.GenericArguments[0];
 
 				if (itemType != null)
-				{
 					itemType = GetMostGenericType(itemType, candidateItemType);
-				}
 				else
-				{
 					itemType = candidateItemType;
-				}
 			}
 
 			return itemType;
@@ -1281,11 +1178,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			throw CompilerErrorFactory.InvalidNode(node);
 		}
 
-		public virtual IType ExceptionType
-		{
-			get { return Map(typeof(Exception)); }
-		}
-
 		public virtual bool IsValidException(IType type)
 		{
 			return ExceptionType.IsAssignableFrom(type);
@@ -1293,7 +1185,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual IConstructor GetStringExceptionConstructor()
 		{
-			return Map(typeof(Exception).GetConstructor(new Type[] { typeof(string) }));
+			return Map(typeof(Exception).GetConstructor(new[] {typeof(string)}));
 		}
 
 		public virtual bool IsMacro(IType type)
@@ -1313,12 +1205,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == type || !type.IsValueType)
 				return 0;
 
-			ExternalType et = type as ExternalType;
+			var et = type as ExternalType;
 			if (null != et)
 				return Marshal.SizeOf(et.ActualType);
 
 			int size = 0;
-			InternalClass it = type as InternalClass;
+			var it = type as InternalClass;
 			if (null == it)
 				return 0;
 
