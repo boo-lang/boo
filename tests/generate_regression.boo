@@ -40,7 +40,7 @@ def PortParserTestCases():
 Generates WSA parser test cases from
 normal parser test cases.
 """
-	for testcase in Directory.GetFiles("testcases/parser/roundtrip", "*.boo"):
+	for testcase in List of string(Directory.GetFiles("testcases/parser/roundtrip", "*.boo")).Sort():
 		if not testcase.EndsWith(".boo"): continue
 
 		fname = Path.GetFileName(testcase)

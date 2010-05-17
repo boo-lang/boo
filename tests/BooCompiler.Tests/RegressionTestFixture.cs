@@ -8,12 +8,6 @@ namespace BooCompiler.Tests
 	{
 
 		[Test]
-		public void array_ldelem()
-		{
-			RunCompilerTestCase(@"array_ldelem.boo");
-		}
-		
-		[Test]
 		public void BOO_1005_1()
 		{
 			RunCompilerTestCase(@"BOO-1005-1.boo");
@@ -98,18 +92,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void boo_1032_1()
-		{
-			RunCompilerTestCase(@"boo-1032-1.boo");
-		}
-		
-		[Test]
-		public void boo_1032_2()
-		{
-			RunCompilerTestCase(@"boo-1032-2.boo");
-		}
-		
-		[Test]
 		public void BOO_1035_1()
 		{
 			RunCompilerTestCase(@"BOO-1035-1.boo");
@@ -131,12 +113,6 @@ namespace BooCompiler.Tests
 		public void BOO_1047()
 		{
 			RunCompilerTestCase(@"BOO-1047.boo");
-		}
-		
-		[Test]
-		public void boo_1051()
-		{
-			RunCompilerTestCase(@"boo-1051.boo");
 		}
 		
 		[Test]
@@ -1355,6 +1331,30 @@ namespace BooCompiler.Tests
 		public void BOO_999_1()
 		{
 			RunCompilerTestCase(@"BOO-999-1.boo");
+		}
+		
+		[Test]
+		public void array_ldelem()
+		{
+			RunCompilerTestCase(@"array_ldelem.boo");
+		}
+		
+		[Test]
+		public void boo_1032_1()
+		{
+			RunCompilerTestCase(@"boo-1032-1.boo");
+		}
+		
+		[Test]
+		public void boo_1032_2()
+		{
+			RunCompilerTestCase(@"boo-1032-2.boo");
+		}
+		
+		[Test]
+		public void boo_1051()
+		{
+			RunCompilerTestCase(@"boo-1051.boo");
 		}
 		
 		[Test]
