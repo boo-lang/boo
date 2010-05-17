@@ -166,6 +166,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			if (otherArray.GetArrayRank() != _rank)
 				return false;
 
+			if (otherArray == EmptyArrayType.Default)
+				return true;
+
 			IType otherElementType = otherArray.GetElementType();
 			return _elementType.IsAssignableFrom(otherElementType);
 		}

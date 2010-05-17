@@ -88,11 +88,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
-			if (null == anonymousType.ConcreteType)
-			{
-				anonymousType.ConcreteType = CreateConcreteCallableType(sourceNode, anonymousType);
-			}
-			return anonymousType.ConcreteType;
+			return anonymousType.ConcreteType ??
+			       (anonymousType.ConcreteType = CreateConcreteCallableType(sourceNode, anonymousType));
 		}
 
 		private IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)

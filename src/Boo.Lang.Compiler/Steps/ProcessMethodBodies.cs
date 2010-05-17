@@ -2019,22 +2019,19 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
 		{
 			TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
+
 			IArrayType type = InferArrayType(node);
 			BindExpressionType(node, type);
 			if (null == node.Type)
-			{
 				node.Type = (ArrayTypeReference)CodeBuilder.CreateTypeReference(type);
-			}
 			else
-			{
 				CheckItems(type.GetElementType(), node.Items);
-			}
 		}
 
 		private IArrayType InferArrayType(ArrayLiteralExpression node)
 		{
 			if (null != node.Type) return (IArrayType)node.Type.Entity;
-			if (0 == node.Items.Count) return TypeSystemServices.ObjectArrayType;
+			if (0 == node.Items.Count) return EmptyArrayType.Default;
 			return GetMostGenericType(node.Items).MakeArrayType(1);
 		}
 
