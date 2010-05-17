@@ -1426,10 +1426,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		IType MapNullToObject(IType type)
 		{
+			// FIXME: refactor to TypeSystemServices
 			if (Null.Default == type)
-			{
 				return TypeSystemServices.ObjectType;
-			}
+			if (EmptyArrayType.Default == type)
+				return TypeSystemServices.ObjectArrayType;
 			return type;
 		}
 
