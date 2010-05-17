@@ -45,12 +45,11 @@ class Project(XmlDocumentWrapper):
 	def constructor(document as XmlDocument, sourceFiles as XmlElement):
 		super(document)
 		_sourceFiles = sourceFiles
-		
-	def ResetSourceFiles():
-		_sourceFiles.RemoveAll()
 
-	def AddSourceFile(item as string):
-		_sourceFiles.AppendChild(CreateSourceElement(item))
+	def SetSourceFiles(files as string*):
+		_sourceFiles.RemoveAll()
+		for item in List of string(files).Sort():
+			_sourceFiles.AppendChild(CreateSourceElement(item))
 
 	protected abstract def CreateSourceElement(src as string) as XmlElement:
 		pass
@@ -81,19 +80,19 @@ class VS2005Project(Project):
 		return compile
 
 def updateProjectFile(fname as string):
-	project = Project.Load(fname)
-	project.ResetSourceFiles()
+	
+	project = Project.Load(fname)		
+	project.SetSourceFiles(sourceFilesFor(project))
+	project.Save()
 
+	print project.AbsolutePath
+	
+def sourceFilesFor(project as Project):
 	baseURI = project.BaseURI
 	for item as string in listFiles(Path.GetDirectoryName(baseURI.AbsolutePath)):
 		if item =~ /\.svn/: continue
 		if not item.EndsWith(".cs"): continue
-		uri = baseURI.MakeRelative(System.Uri(item))
-		project.AddSourceFile(uri)
-	project.Save()
-
-	print project.AbsolutePath
-
+		yield baseURI.MakeRelativeUri(System.Uri(item)).ToString()
 
 def updateStringResources(txtFile as string):
 	fname = Path.ChangeExtension(txtFile, ".resx")
@@ -125,8 +124,6 @@ fnames = (
 "src/Boo.Lang.Parser/Boo.Lang.Parser-VS2008.csproj",
 "src/Boo.Lang.Compiler/Boo.Lang.Compiler-VS2005.csproj",
 "src/Boo.Lang.Compiler/Boo.Lang.Compiler-VS2008.csproj",
-#"src/Boo.Lang.Ast/Boo.Lang.Ast-VS2005.csproj",
-#"src/Boo.Lang.Ast/Boo.Lang.Ast-VS2008.csproj",
 "tests/BooCompiler.Tests/BooCompiler.Tests-VS2005.csproj",
 "tests/BooCompiler.Tests/BooCompiler.Tests-VS2008.csproj",
 "tests/Boo.Lang.Runtime.Tests/Boo.Lang.Runtime.Tests-VS2005.csproj",
