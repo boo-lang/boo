@@ -5660,7 +5660,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (expectedType.IsPointer && actualType.IsPointer)
 				return true; //if both types are unmanaged pointers casting is always possible
 
-			if (TypeSystemServices.IsNullable(expectedType) && EntityType.Null == actualType.EntityType)
+			if (TypeSystemServices.IsNullable(expectedType) && Null.Default == actualType)
 				return true;
 
 			if (!AreTypesRelated(sourceNode, expectedType, actualType))
