@@ -277,6 +277,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void empty_array_inference_1()
+		{
+			RunCompilerTestCase(@"empty-array-inference-1.boo");
+		}
+		
+		[Test]
+		public void empty_array_inference_2()
+		{
+			RunCompilerTestCase(@"empty-array-inference-2.boo");
+		}
+		
+		[Test]
 		public void per_module_raw_array_indexing()
 		{
 			RunCompilerTestCase(@"per-module-raw-array-indexing.boo");

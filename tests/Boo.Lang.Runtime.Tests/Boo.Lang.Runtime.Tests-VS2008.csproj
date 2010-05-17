@@ -45,9 +45,9 @@
   <ItemGroup>
     <Compile Include="AbstractDispatcherFactoryTestCase.cs" />
     <Compile Include="MethodDispatcherFactoryTestCase.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyDispatcherFactoryTestCase.cs" />
     <Compile Include="RuntimeCoercionTestCase.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler-VS2008.csproj">

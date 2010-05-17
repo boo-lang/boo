@@ -71,14 +71,15 @@
     <Compile Include="AbstractCompilerErrorsTestFixture.cs" />
     <Compile Include="AbstractCompilerTestCase.cs" />
     <Compile Include="ArraysIntegrationTestFixture.cs" />
+    <Compile Include="Ast\AstAssert.cs" />
+    <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />
     <Compile Include="AttributesIntegrationTestFixture.cs" />
     <Compile Include="AttributesTestFixture.cs" />
     <Compile Include="BooTestCaseUtil.cs" />
     <Compile Include="CallablesIntegrationTestFixture.cs" />
     <Compile Include="ClosuresIntegrationTestFixture.cs" />
-    <Compile Include="ClrExtensionsIntegrationTestFixture.cs" />
-    <Compile Include="ClrIntegrationTestFixture.cs" />
     <Compile Include="ClrextensionsIntegrationTestFixture.cs" />
+    <Compile Include="ClrIntegrationTestFixture.cs" />
     <Compile Include="CompilerErrorsTestFixture.cs" />
     <Compile Include="CompilerWarningCollectionTest.cs" />
     <Compile Include="CompilerWarningsTestFixture.cs" />
@@ -95,6 +96,8 @@
     <Compile Include="MyTest.cs" />
     <Compile Include="Net2ErrorsTestFixture.cs" />
     <Compile Include="OperatorsIntegrationTestFixture.cs" />
+    <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
+    <Compile Include="Pipeline\ViewStateAttribute.cs" />
     <Compile Include="PipelineTest.cs" />
     <Compile Include="PrimitivesIntegrationTestFixture.cs" />
     <Compile Include="RegressionTestFixture.cs" />
@@ -102,17 +105,9 @@
     <Compile Include="SmokeTest.cs" />
     <Compile Include="StatementsIntegrationTestFixture.cs" />
     <Compile Include="StdlibTestFixture.cs" />
-    <Compile Include="SystemDrawingPoint.cs" />
-    <Compile Include="TypesIntegrationTestFixture.cs" />
-    <Compile Include="UnsafeErrorsTestFixture.cs" />
-    <Compile Include="UnsafeTestFixture.cs" />
-    <Compile Include="Ast\AstAssert.cs" />
-    <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />
-    <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
-    <Compile Include="Pipeline\ViewStateAttribute.cs" />
     <Compile Include="SupportingClasses\AbstractClass.cs" />
-    <Compile Include="SupportingClasses\BOO313BaseClass.cs" />
     <Compile Include="SupportingClasses\BaseInterface.cs" />
+    <Compile Include="SupportingClasses\BOO313BaseClass.cs" />
     <Compile Include="SupportingClasses\ByRef.cs" />
     <Compile Include="SupportingClasses\ByteEnum.cs" />
     <Compile Include="SupportingClasses\ClassHierarchy.cs" />
@@ -140,6 +135,8 @@
     <Compile Include="SupportingClasses\ValueTypeOverrideBoolOperator.cs" />
     <Compile Include="SupportingClasses\VarArgs.cs" />
     <Compile Include="SupportingClasses\Vector3.cs" />
+    <Compile Include="SystemDrawingPoint.cs" />
+    <Compile Include="TypesIntegrationTestFixture.cs" />
     <Compile Include="TypeSystem\AbstractTypeSystemTest.cs" />
     <Compile Include="TypeSystem\Core\GlobalNamespaceTest.cs" />
     <Compile Include="TypeSystem\Core\NamespaceAssert.cs" />
@@ -150,6 +147,8 @@
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderTest.cs" />
     <Compile Include="TypeSystem\Services\MemberCollectorTest.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionServiceTest.cs" />
+    <Compile Include="UnsafeErrorsTestFixture.cs" />
+    <Compile Include="UnsafeTestFixture.cs" />
     <Compile Include="Util\ArrayEqualityComparerTest.cs" />
   </ItemGroup>
   <ItemGroup>
