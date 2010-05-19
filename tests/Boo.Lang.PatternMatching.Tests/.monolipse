@@ -5,6 +5,12 @@
     <monolipse.core.internal.AssemblySourceReference-Remembrance>
       <path>/boo/src/Boo.Lang.PatternMatching</path>
     </monolipse.core.internal.AssemblySourceReference-Remembrance>
+    <monolipse.core.internal.GlobalAssemblyCacheReference-Remembrance>
+      <name>nunit.framework</name>
+      <version>2.4.8.0</version>
+      <culture>neutral</culture>
+      <token>96d09a1eb7f44a77</token>
+    </monolipse.core.internal.GlobalAssemblyCacheReference-Remembrance>
   </references>
   <outputFolder>/boo/build</outputFolder>
   <additionalOptions></additionalOptions>
