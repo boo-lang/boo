@@ -26,8 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Generics;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -38,9 +40,15 @@ namespace Boo.Lang.Compiler.Steps
 			Context.RegisterService<TypeSystemServices>(CreateTypeSystemServices());
 			Context.RegisterService<CallableResolutionService>(CreateCallableResolutionService());
 			Context.RegisterService<GenericsServices>(new GenericsServices());
+            Context.RegisterService<DowncastPermissions>(CreateDowncastPermissions());
 		}
 
-		protected virtual CallableResolutionService CreateCallableResolutionService()
+	    protected virtual DowncastPermissions CreateDowncastPermissions()
+	    {
+	        return new DowncastPermissions(Context);
+	    }
+
+	    protected virtual CallableResolutionService CreateCallableResolutionService()
 		{
 			return new CallableResolutionService(Context);
 		}

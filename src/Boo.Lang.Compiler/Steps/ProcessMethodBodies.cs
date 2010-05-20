@@ -82,6 +82,7 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = new Stack();
 			_memberStack = new Stack();
+            _downcastPermissions = Context.Produce<DowncastPermissions>();
 
 			InitializeMemberCache();
 
@@ -6462,24 +6463,29 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 
-		bool AreTypesRelated(Node node, IType lhs, IType rhs)
+		bool AreTypesRelated(Node anchor, IType lhs, IType rhs)
 		{
 			bool byDowncast;
 			bool result = TypeSystemServices.AreTypesRelated(lhs, rhs, out byDowncast);
 			if (!result)
 				return false;
 
-			if (byDowncast && !TypeSystemServices.IsSystemObject(rhs))
-			{
-				Warnings.Add(CompilerWarningFactory.ImplicitDowncast(node, lhs, rhs));
-				if (Parameters.Strict && Parameters.DisabledWarnings.Contains("BCW0028"))
-					return false; //get a regular context-dependent error
-			}
+            if (!byDowncast || TypeSystemServices.IsSystemObject(rhs))
+                return true;
+            
+            if (!IsDowncastAllowed())
+                return false;
+
+            Warnings.Add(CompilerWarningFactory.ImplicitDowncast(anchor, lhs, rhs));
 			return true;
 		}
 
+        private bool IsDowncastAllowed()
+        {
+            return _downcastPermissions.IsDowncastAllowed();
+        }
 
-		void TraceReturnType(Method method, IMethod tag)
+	    void TraceReturnType(Method method, IMethod tag)
 		{
 			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, tag.ReturnType);
 		}
@@ -6706,8 +6712,9 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		Dictionary<string, IMethodBase> _methodCache;
+	    private DowncastPermissions _downcastPermissions;
 
-		private delegate IMethodBase MethodProducer();
+	    private delegate IMethodBase MethodProducer();
 
 		IMethod CachedMethod(string key, MethodProducer producer)
 		{

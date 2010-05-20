@@ -33,11 +33,12 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler
 {
-	public class CompilerWarningFactory
+	public static class CompilerWarningFactory
 	{
-		private CompilerWarningFactory()
-		{
-		}
+	    public static class Codes
+        {
+	        public const string ImplicitDowncast = "BCW0028";
+        }
 
 		public static CompilerWarning CustomWarning(Node node, string msg)
 		{
@@ -199,7 +200,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerWarning ImplicitDowncast(Node node, IType lhs, IType rhs)
 		{
-			return new CompilerWarning("BCW0028", AstUtil.SafeLexicalInfo(node), lhs, rhs);
+			return new CompilerWarning(Codes.ImplicitDowncast, AstUtil.SafeLexicalInfo(node), lhs, rhs);
 		}
 
 		private static string NodeTypeString(Node node)
