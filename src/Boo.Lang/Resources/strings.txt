@@ -1,6 +1,6 @@
 ;Compiler Error Messages
 BCE0000='{0}'
-BCE0001=The class '{0}' already has '{1}' as its base class. 
+BCE0001=The class '{0}' already has '{1}' as its base class.
 BCE0002=Parameter name must be an identifier.
 BCE0003=Named arguments are only allowed when creating objects.
 BCE0004=Ambiguous reference '{0}': {1}.
@@ -146,10 +146,10 @@ BCE0142=Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.
 BCE0143=Cannot return from an ensure block.
 BCE0144='{0}' is obsolete. {1}
 BCE0145=Cannot catch type '{0}'; 'except' blocks can only catch exceptions derived from 'System.Exception'. To catch non-CLS compliant exceptions, use a default exception handler or catch 'System.Runtime.CompilerServices.RuntimeWrappedException'.
-BCE0146=The type '{0}' must be a reference type in order to substitute the generic parameter '{1}' in '{2}'. 
-BCE0147=The type '{0}' must be a value type in order to substitute the generic parameter '{1}' in '{2}'. 
+BCE0146=The type '{0}' must be a reference type in order to substitute the generic parameter '{1}' in '{2}'.
+BCE0147=The type '{0}' must be a value type in order to substitute the generic parameter '{1}' in '{2}'.
 BCE0148=The type '{0}' must have a public default constructor in order to substitute the generic parameter '{1}' in '{2}'.
-BCE0149=The type '{0}' must derive from '{1}' in order to substitute the generic parameter '{2}' in '{3}'. 
+BCE0149=The type '{0}' must derive from '{1}' in order to substitute the generic parameter '{2}' in '{3}'.
 BCE0150='final' cannot be applied to interface, struct, or enum definitions.
 BCE0151='static' cannot be applied to interface, struct, or enum definitions.
 BCE0152=Constructors cannot be marked virtual, abstract, or override: '{0}'.
@@ -245,7 +245,7 @@ BooC.NamedArgument='{0}' argument
 BooC.InvalidNestedMacroContext=Invalid nested macro context. Check your macro hierarchy
 
 ;Boo.Lang
-ListWasModified=The list was modified. 
+ListWasModified=The list was modified.
 ArgumentNotEnumerable=Argument is not enumerable (does not implement System.Collections.IEnumerable).
 CantEnumerateNull=Cannot enumerate null.
 UnpackListOfWrongSize=Unpack list of wrong size.
