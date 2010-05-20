@@ -8,9 +8,15 @@ namespace BooCompiler.Tests
 	[TestFixture]
 	public class MyTest
 	{
-		private CompilerContext context = new CompilerContext(false);
+	    private CompilerContext context;
 
-		[Test]
+        [SetUp]
+        public void SetUpContext()
+        {
+            context = new CompilerContext(false);
+        }
+
+	    [Test]
 		[ExpectedException(typeof(InvalidOperationException))]
 		public void MyOutsideContext()
 		{
