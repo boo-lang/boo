@@ -45,5 +45,20 @@ namespace BooCompiler.Tests
 				Assert.AreSame(My<DummyService>.Instance, My<DummyService>.Instance);
 			});
 		}
+
+        class DummyServiceExtension : DummyService
+        {   
+        }
+
+        [Test]
+        public void MyExistingServiceThroughSubTyping()
+        {
+            context.Run(delegate
+            {
+                Assert.IsNotNull(My<DummyServiceExtension>.Instance);
+                Assert.AreSame(My<DummyService>.Instance, My<DummyServiceExtension>.Instance);
+            });
+        }
+
 	}
 }

@@ -28,6 +28,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
@@ -448,12 +449,17 @@ namespace Boo.Lang.Compiler
 			object existing;
 			if (_services.TryGetValue(typeof(T), out existing))
 				return (T)existing;
-			T newService = Activator.CreateInstance<T>();
+			T newService = FindCompatibleService<T>() ?? Activator.CreateInstance<T>();
 			RegisterService(typeof(T), newService);
 			return newService;
 		}
 
-		///<summary>Gets currently registered compiler services.</summary>
+	    private T FindCompatibleService<T>() where T : class
+	    {
+	        return (T) _services.Values.FirstOrDefault(existing => existing is T);
+	    }
+
+	    ///<summary>Gets currently registered compiler services.</summary>
 		///<returns>Returns an enumerable of available services types.</returns>
 		public IEnumerable<Type> RegisteredServices
 		{
