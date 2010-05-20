@@ -81,9 +81,9 @@ benchmark "static set field":
 	Item().name = "foo"
 	
 benchmark "set property":
-	(Item() as duck).name = "foo"
+	(Item() as duck).Name = "foo"
 	
 benchmark "static set property":
-	Item().name = "foo"
+	Item().Name = "foo"
 
 
