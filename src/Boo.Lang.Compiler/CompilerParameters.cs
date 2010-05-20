@@ -34,8 +34,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Security;
-using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Util;
@@ -55,9 +53,9 @@ namespace Boo.Lang.Compiler
 
 		private CompilerPipeline _pipeline;
 
-		private CompilerInputCollection _input;
+		private readonly CompilerInputCollection _input;
 
-		private CompilerResourceCollection _resources;
+		private readonly CompilerResourceCollection _resources;
 
 		private CompilerReferenceCollection _compilerReferences;
 
@@ -77,7 +75,7 @@ namespace Boo.Lang.Compiler
 
 		private bool _generateInMemory;
 
-		private bool _StdLib;
+		private bool _stdLib;
 
 		private string _keyFile;
 
@@ -85,9 +83,9 @@ namespace Boo.Lang.Compiler
 
 		private bool _delaySign;
 
-		private ArrayList _libpaths;
+		private readonly ArrayList _libPaths;
 
-		private string _systemDir;
+		private readonly string _systemDir;
 
 		private Assembly _booAssembly;
 		
@@ -95,12 +93,11 @@ namespace Boo.Lang.Compiler
 
 		private TraceSwitch _traceSwitch;
 
-		private Dictionary<string, string> _defines = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> _defines = new Dictionary<string, string>();
 
 		private bool _unsafe;
 
 		private string _platform;
-
 
 		private TypeMemberModifiers _defaultTypeVisibility = TypeMemberModifiers.Public;
 		private TypeMemberModifiers _defaultMethodVisibility = TypeMemberModifiers.Public;
@@ -109,20 +106,18 @@ namespace Boo.Lang.Compiler
 		private TypeMemberModifiers _defaultFieldVisibility = TypeMemberModifiers.Protected;
 		private bool _defaultVisibilitySettingsRead = false;
 
-
-		public CompilerParameters()
-			: this(true)
+		public CompilerParameters() : this(true)
 		{
 		}
 
 		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
 		{
-			_libpaths = new ArrayList();
+			_libPaths = new ArrayList();
 			if (Permissions.HasDiscoveryPermission)
 			{
 				_systemDir = GetSystemDir();
-				_libpaths.Add(_systemDir);
-				_libpaths.Add(Directory.GetCurrentDirectory());
+				_libPaths.Add(_systemDir);
+				_libPaths.Add(Directory.GetCurrentDirectory());
 			}
 			_pipeline = null;
 			_input = new CompilerInputCollection();
@@ -136,7 +131,7 @@ namespace Boo.Lang.Compiler
 			_debug = true;
 			_checked = true;
 			_generateInMemory = true;
-			_StdLib = true;
+			_stdLib = true;
 
 			if (Permissions.HasEnvironmentPermission && null != Environment.GetEnvironmentVariable("TRACE"))
 				EnableTraceSwitch();
@@ -290,7 +285,7 @@ namespace Boo.Lang.Compiler
 		{
 			Assembly a = null;
 			string fullLog = "";
-			foreach (string dir in _libpaths)
+			foreach (string dir in _libPaths)
 			{
 				string full_path = Path.Combine(dir, assembly);
 				FileInfo file = new FileInfo(full_path);
@@ -412,7 +407,7 @@ namespace Boo.Lang.Compiler
 
 		public ArrayList LibPaths
 		{
-			get { return _libpaths; }
+			get { return _libPaths; }
 		}
 
 		public CompilerResourceCollection Resources
@@ -476,9 +471,9 @@ namespace Boo.Lang.Compiler
 
 		public bool StdLib
 		{
-			get { return _StdLib; }
+			get { return _stdLib; }
 
-			set { _StdLib = value; }
+			set { _stdLib = value; }
 		}
 
 		public TextWriter OutputWriter

@@ -52,32 +52,24 @@ namespace Boo.Lang.Compiler
 	{
 		public event EventHandler<CompilerWarningEventArgs> Adding;
 
-		public CompilerWarningCollection()
-		{
-		}
+	    override public List<CompilerWarning> Add(CompilerWarning warning)
+	    {
+	        return OnAdding(warning) ? base.Add(warning) : this;
+	    }
 
-		override public List<CompilerWarning> Add(CompilerWarning warning)
-		{
-			if (OnAdding(warning))
-			{
-				return base.Add(warning);
-			}
-			return this;
-		}
-
-		protected bool OnAdding(CompilerWarning warning)
+	    protected bool OnAdding(CompilerWarning warning)
 		{
 			EventHandler<CompilerWarningEventArgs> adding = Adding;
 			if (null == adding)
 				return true;
-			CompilerWarningEventArgs args = new CompilerWarningEventArgs(warning);
+			var args = new CompilerWarningEventArgs(warning);
 			adding(this, args);
 			return !args.IsCancelled;
 		}
 
 		override public string ToString()
 		{
-			return Boo.Lang.Builtins.join(this, "\n");
+			return Builtins.join(this, "\n");
 		}		
 	}
 }
