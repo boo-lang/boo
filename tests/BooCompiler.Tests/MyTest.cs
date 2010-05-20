@@ -8,9 +8,15 @@ namespace BooCompiler.Tests
 	[TestFixture]
 	public class MyTest
 	{
-		private CompilerContext context = new CompilerContext(false);
+	    private CompilerContext context;
 
-		[Test]
+        [SetUp]
+        public void SetUpContext()
+        {
+            context = new CompilerContext(false);
+        }
+
+	    [Test]
 		[ExpectedException(typeof(InvalidOperationException))]
 		public void MyOutsideContext()
 		{
@@ -39,5 +45,20 @@ namespace BooCompiler.Tests
 				Assert.AreSame(My<DummyService>.Instance, My<DummyService>.Instance);
 			});
 		}
+
+        class DummyServiceExtension : DummyService
+        {   
+        }
+
+        [Test]
+        public void MyExistingServiceThroughSubTyping()
+        {
+            context.Run(delegate
+            {
+                Assert.IsNotNull(My<DummyServiceExtension>.Instance);
+                Assert.AreSame(My<DummyService>.Instance, My<DummyServiceExtension>.Instance);
+            });
+        }
+
 	}
 }
