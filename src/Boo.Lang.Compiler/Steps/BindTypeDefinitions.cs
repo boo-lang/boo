@@ -27,14 +27,14 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-	
-	[Serializable]
+
+    [Serializable]
 	public class BindTypeDefinitions : AbstractTransformerCompilerStep
 	{
 		private InternalTypeSystemProvider _internalTypeSystemProvider;
@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit.Modules);
 		}
 		
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module node)
+		override public void OnModule(Module node)
 		{
 			EnsureEntityFor(node);
 			Visit(node.Members);

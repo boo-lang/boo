@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Environments;
+
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
@@ -365,21 +367,17 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static ReferenceExpression CreateReferenceExpression(LexicalInfo li, string fullname)
 		{
-			ReferenceExpression e = CreateReferenceExpression(fullname);
+			var e = CreateReferenceExpression(fullname);
 			e.LexicalInfo = li;
 			return e;
 		}
 		
 		public static ReferenceExpression CreateReferenceExpression(string fullname)
 		{
-			string[] parts = fullname.Split('.');
-			ReferenceExpression expression = new ReferenceExpression(parts[0]);
-			expression.IsSynthetic = true;
-			for (int i=1; i<parts.Length; ++i)
-			{
-				expression = new MemberReferenceExpression(expression, parts[i]);
-				expression.IsSynthetic = true;
-			}
+			var parts = fullname.Split('.');
+			var expression = new ReferenceExpression(parts[0]) {IsSynthetic = true};
+		    for (var i=1; i<parts.Length; ++i)
+				expression = new MemberReferenceExpression(expression, parts[i]) {IsSynthetic = true};
 			return expression;
 		}
 		
@@ -594,7 +592,7 @@ namespace Boo.Lang.Compiler.Ast
 						break;
 
 					default:
-						CompilerContext.Current.Errors.Add(
+						My<CompilerErrorCollection>.Instance.Add(
 							CompilerErrorFactory.InvalidRegexOption(re, opt));
 						break;
 				}

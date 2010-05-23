@@ -26,16 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
-using System;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-	
-	/// <summary>
+
+    /// <summary>
 	/// Pre-binds methods and constructors before resolving type references, 
 	/// to enable correct resolution of generic type references.
 	/// </summary>
