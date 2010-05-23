@@ -152,12 +152,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void in_string()
-		{
-			RunCompilerTestCase(@"in_string.boo");
-		}
-		
-		[Test]
 		public void interfaces_0()
 		{
 			RunCompilerTestCase(@"interfaces-0.boo");
@@ -173,6 +167,12 @@ namespace BooCompiler.Tests
 		public void interfaces_2()
 		{
 			RunCompilerTestCase(@"interfaces-2.boo");
+		}
+		
+		[Test]
+		public void in_string()
+		{
+			RunCompilerTestCase(@"in_string.boo");
 		}
 		
 		[Test]
