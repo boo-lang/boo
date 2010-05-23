@@ -26,7 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections.Generic;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 
@@ -148,7 +150,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			// Arrays also implement generic IEnumerable of their element type 
 			if (other.ConstructedInfo != null && 
 			    other.ConstructedInfo.GenericDefinition == services.IEnumerableGenericType &&
-			    other.ConstructedInfo.GenericArguments[0].IsAssignableFrom(_elementType))
+			    IsAssignableFrom(other.ConstructedInfo.GenericArguments[0], _elementType))
 			{
 				return true;
 			}
@@ -171,10 +173,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 				return true;
 
 			IType otherElementType = otherArray.GetElementType();
-			return _elementType.IsAssignableFrom(otherElementType);
+			return IsAssignableFrom(_elementType, otherElementType);
 		}
-		
-		public IType[] GetInterfaces()
+
+	    private bool IsAssignableFrom(IType expectedType, IType actualType)
+	    {
+	        return TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
+	    }
+
+	    public IType[] GetInterfaces()
 		{
 			return new IType[0];
 		}

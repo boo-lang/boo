@@ -1286,7 +1286,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (Expression yieldExpression in method.YieldExpressions)
 			{
 				IType yieldType = yieldExpression.ExpressionType;
-				if (!returnElementType.IsAssignableFrom(yieldType) &&
+				if (!IsAssignableFrom(returnElementType, yieldType) &&
 					!TypeSystemServices.CanBeReachedByDownCastOrPromotion(returnElementType, yieldType))
 				{
 					Error(CompilerErrorFactory.YieldTypeDoesNotMatchReturnType(
@@ -1789,7 +1789,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else
 						{
-							if (TypeSystemServices.ListType.IsAssignableFrom(targetType))
+							if (IsAssignableFrom(TypeSystemServices.ListType, targetType))
 							{
 								BindComplexListSlicing(node);
 							}
@@ -2892,8 +2892,8 @@ namespace Boo.Lang.Compiler.Steps
 				return iterator;
 			}
 
-			if (!TypeSystemServices.IEnumerableType.IsAssignableFrom(type) &&
-				!TypeSystemServices.IEnumeratorType.IsAssignableFrom(type))
+			if (!IsAssignableFrom(TypeSystemServices.IEnumerableType, type) &&
+				!IsAssignableFrom(TypeSystemServices.IEnumeratorType, type))
 			{
 				if (IsRuntimeIterator(type))
 				{
@@ -3961,7 +3961,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			Expression target = node.Arguments[0];
 			IType type = GetExpressionType(target);
-			bool isArray = TypeSystemServices.ArrayType.IsAssignableFrom(type);
+			bool isArray = IsAssignableFrom(TypeSystemServices.ArrayType, type);
 
 			if ((!isArray) && (node.Arguments.Count != 1))
 			{
@@ -3987,7 +3987,7 @@ namespace Boo.Lang.Compiler.Steps
 																	   Array_GetLength, node.Arguments[1]);
 				}
 			}
-			else if (TypeSystemServices.ICollectionType.IsAssignableFrom(type))
+			else if (IsAssignableFrom(TypeSystemServices.ICollectionType, type))
 			{
 				resultingNode = CodeBuilder.CreateMethodInvocation(target, ICollection_get_Count);
 			}
@@ -4770,7 +4770,7 @@ namespace Boo.Lang.Compiler.Steps
 					Error(node);
 				}
 			}
-			else if (TypeSystemServices.ICallableType.IsAssignableFrom(type))
+			else if (IsAssignableFrom(TypeSystemServices.ICallableType, type))
 			{
 				node.Target = CodeBuilder.CreateMemberReference(node.Target, ICallable_Call);
 				ArrayLiteralExpression arg = CodeBuilder.CreateObjectArray(node.Arguments);
@@ -5674,7 +5674,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool AssertDelegateArgument(Node sourceNode, ITypedEntity delegateMember, ITypedEntity argumentInfo)
 		{
-			if (!delegateMember.Type.IsAssignableFrom(argumentInfo.Type))
+			if (!IsAssignableFrom(delegateMember.Type, argumentInfo.Type))
 			{
 				Error(CompilerErrorFactory.EventArgumentMustBeAMethod(sourceNode, delegateMember.FullName, delegateMember.Type.ToString()));
 				return false;
@@ -5812,12 +5812,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		static bool IsAssignableFrom(IType expectedType, IType actualType)
 		{
-			return expectedType.IsAssignableFrom(actualType);
+			return TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
 		}
 
 		bool IsAssignableFrom(Type expectedType, IType actualType)
 		{
-			return TypeSystemServices.Map(expectedType).IsAssignableFrom(actualType);
+			return IsAssignableFrom(TypeSystemServices.Map(expectedType), actualType);
 		}
 
 		bool IsPrimitiveNumber(Expression expression)

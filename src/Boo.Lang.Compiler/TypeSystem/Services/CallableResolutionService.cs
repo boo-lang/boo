@@ -33,6 +33,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem
@@ -612,7 +613,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 					? CallableExactMatchScore
 					: ExactMatchScore;
 			}
-			else if (parameterType.IsAssignableFrom(argumentType))
+			else if (TypeCompatibilityRules.IsAssignableFrom(parameterType, argumentType))
 			{				
 				ICallableType callableType = parameterType as ICallableType;
 				ICallableType callableArg = argumentType as ICallableType;

@@ -591,6 +591,7 @@
     <Compile Include="TypeSystem\Services\MemberCollector.cs" />
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
+    <Compile Include="TypeSystem\Services\TypeCompatibilityRules.cs" />
     <Compile Include="TypeSystem\Services\TypeSystemServices.cs" />
     <Compile Include="TypeSystem\TypeCollector.cs" />
     <Compile Include="TypeSystem\Types.cs" />

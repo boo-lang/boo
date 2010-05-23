@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 
@@ -173,7 +174,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 			if (other.IsInterface && Array.Exists(
 			                         	GetInterfaces(),
-			                         	delegate(IType i) { return other.IsAssignableFrom(i); }))
+			                         	i => TypeCompatibilityRules.IsAssignableFrom(other, i)))
 			{
 				return true;
 			}

@@ -115,20 +115,25 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			// assignable from every lower bound and assignable to every upper bound
 
 			IType lowerBound = FindSink(
-				_lowerBounds, 
-				delegate(IType t1, IType t2) { return t1.IsAssignableFrom(t2); });
+				_lowerBounds,
+				(t1, t2) => IsAssignableFrom(t1, t2));
 
 			IType upperBound = FindSink(
-				_upperBounds, 
-				delegate(IType t1, IType t2) { return t2.IsAssignableFrom(t1); });
+				_upperBounds,
+				(t1, t2) => IsAssignableFrom(t2, t1));
 
 			if (lowerBound == null) return Fix(upperBound);
 			if (upperBound == null) return Fix(lowerBound);
-			if (upperBound.IsAssignableFrom(lowerBound)) return Fix(lowerBound);
+            if (IsAssignableFrom(upperBound, lowerBound)) return Fix(lowerBound);
 			return false;
 		}
 
-		private bool Fix(IType type)
+	    private bool IsAssignableFrom(IType t1, IType t2)
+	    {
+	        return TypeCompatibilityRules.IsAssignableFrom(t1, t2);
+	    }
+
+	    private bool Fix(IType type)
 		{
 			_resultingType = type;
 			if (type == null) return false;

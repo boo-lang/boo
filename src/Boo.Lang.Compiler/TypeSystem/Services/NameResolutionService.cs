@@ -208,7 +208,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private bool IsValidExtensionType(IType actualType, IType extensionType, IExtensionEnabled extension)
 		{
-			if (extensionType.IsAssignableFrom(actualType)) return true;
+			if (TypeCompatibilityRules.IsAssignableFrom(extensionType, actualType)) return true;
 
 			// Check for a valid generic extension
 			IMethod method = extension as IMethod;

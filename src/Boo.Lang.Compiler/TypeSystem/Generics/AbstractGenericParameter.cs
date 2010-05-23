@@ -30,6 +30,7 @@
 using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem.Generics
@@ -150,20 +151,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		public bool IsAssignableFrom(IType other)
 		{
 			if (other == this)
-			{
-				return true;
-			}
+                return true;
 		
 			if (other == Null.Default)
-			{
 				return IsClass;
-			}
 
-			IGenericParameter otherParameter = other as IGenericParameter;
-			if (otherParameter != null && Array.Exists(otherParameter.GetTypeConstraints(), IsAssignableFrom))
-			{
+			var otherParameter = other as IGenericParameter;
+			if (otherParameter != null && Array.Exists(otherParameter.GetTypeConstraints(), constraint => TypeCompatibilityRules.IsAssignableFrom(this, constraint)))
 				return true;
-			}
 
 			return false;
 		}

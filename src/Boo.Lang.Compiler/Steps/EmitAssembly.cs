@@ -41,6 +41,7 @@ using System.Security;
 using System.Security.Permissions;
 
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -4151,7 +4152,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsAssignableFrom(IType expectedType, IType actualType)
 		{
 			return (IsPtr(expectedType) && IsPtr(actualType))
-				|| expectedType.IsAssignableFrom(actualType);
+				|| TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
 		}
 
 		bool IsPtr(IType type)

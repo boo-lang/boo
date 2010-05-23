@@ -30,6 +30,7 @@ using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps.Generators
 {
@@ -300,7 +301,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		private void CreateDispose()
 		{
 			BooMethodBuilder dispose = _enumerator.AddVirtualMethod("Dispose", TypeSystemServices.VoidType);
-			if (TypeSystemServices.IDisposableType.IsAssignableFrom(_sourceEnumeratorType))
+			if (TypeCompatibilityRules.IsAssignableFrom(TypeSystemServices.IDisposableType, _sourceEnumeratorType))
 			{
 				dispose.Body.Add(CodeBuilder.CreateMethodInvocation(
 				                 	CodeBuilder.CreateReference(_enumeratorField),

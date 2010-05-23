@@ -31,6 +31,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
@@ -391,7 +392,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		bool IsAstAttribute(IType type)
 		{
-			return _astAttributeInterface.IsAssignableFrom(type);
+			return TypeCompatibilityRules.IsAssignableFrom(_astAttributeInterface, type);
 		}
 	}
 }

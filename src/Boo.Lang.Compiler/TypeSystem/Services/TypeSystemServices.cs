@@ -43,6 +43,7 @@ using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 using Attribute = System.Attribute;
@@ -233,10 +234,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == candidate)
 				return current;
 
-			if (current.IsAssignableFrom(candidate))
+			if (IsAssignableFrom(current, candidate))
 				return current;
 
-			if (candidate.IsAssignableFrom(current))
+			if (IsAssignableFrom(candidate, current))
 				return candidate;
 
 			if (IsNumberOrBool(current) && IsNumberOrBool(candidate))
@@ -420,7 +421,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool IsCallableType(IType type)
 		{
-			return (ICallableType.IsAssignableFrom(type)) || (type is ICallableType);
+			return (IsAssignableFrom(ICallableType, type)) || (type is ICallableType);
 		}
 
 		public AnonymousCallableType GetCallableType(IMethodBase method)
@@ -611,9 +612,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			var ctype = lhs as ICallableType;
 			if (null != ctype)
-				return ctype.IsAssignableFrom(rhs) || ctype.IsSubclassOf(rhs);
+				return IsAssignableFrom(ctype, rhs) || ctype.IsSubclassOf(rhs);
 
-			return lhs.IsAssignableFrom(rhs)
+			return IsAssignableFrom(lhs, rhs)
 			       || (byDowncast = CanBeReachedByDowncast(lhs, rhs))
 			       || CanBeReachedByPromotion(lhs, rhs)
 			       || FindImplicitConversionOperator(rhs, lhs) != null
@@ -740,7 +741,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return false;
 			if (expectedType.IsInterface || actualType.IsInterface)
 				return CanBeReachedByInterfaceDowncast(expectedType, actualType);
-			return actualType.IsAssignableFrom(expectedType);
+			return IsAssignableFrom(actualType, expectedType);
 		}
 
 		public virtual bool CanBeReachedByInterfaceDowncast(IType expectedType, IType actualType)
@@ -1181,10 +1182,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual bool IsValidException(IType type)
 		{
-			return ExceptionType.IsAssignableFrom(type);
+			return IsAssignableFrom(ExceptionType, type);
 		}
 
-		public virtual IConstructor GetStringExceptionConstructor()
+	    private bool IsAssignableFrom(IType expectedType, IType actualType)
+	    {
+	        return TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
+	    }
+
+	    public virtual IConstructor GetStringExceptionConstructor()
 		{
 			return Map(typeof(Exception).GetConstructor(new[] {typeof(string)}));
 		}

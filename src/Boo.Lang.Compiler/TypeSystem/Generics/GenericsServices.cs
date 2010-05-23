@@ -30,6 +30,7 @@ using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using System.Collections.Generic;
 using System;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Generics
@@ -509,7 +510,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				{
 					// Foo<T> where T : Foo<T>
 					if (null != _definition
-					    && baseType.IsAssignableFrom(_definition)
+					    && TypeCompatibilityRules.IsAssignableFrom(baseType, _definition)
 					    && argument == _constructionNode.ParentNode.Entity)
 						continue;
 
@@ -518,7 +519,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 					if (baseType == Context.TypeSystemServices.ValueTypeType && parameter.IsValueType)
 						continue;
 
-					if (!baseType.IsAssignableFrom(argument))
+					if (!TypeCompatibilityRules.IsAssignableFrom(baseType, argument))
 					{
 						Errors.Add(CompilerErrorFactory.GenericArgumentMustHaveBaseType(ConstructionNode, parameter, argument, baseType));
 						valid = false;

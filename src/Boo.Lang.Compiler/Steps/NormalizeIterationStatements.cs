@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Services;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
@@ -214,7 +216,7 @@ namespace Boo.Lang.Compiler.Steps
 			// ensure:
 			//   d = iterator as IDisposable
 			//   d.Dispose() unless d is null
-			if (TypeSystemServices.IDisposableType.IsAssignableFrom(CurrentBestEnumeratorType))
+			if (IsAssignableFrom(TypeSystemServices.IDisposableType, CurrentBestEnumeratorType))
 			{
 				TryStatement tryStatement = new TryStatement();
 				tryStatement.ProtectedBlock.Add(ws);
@@ -236,8 +238,13 @@ namespace Boo.Lang.Compiler.Steps
 
 			ReplaceCurrentNode(body);
 		}
-		
-		void UnpackExpression(Block block, Expression expression, DeclarationCollection declarations)
+
+	    private bool IsAssignableFrom(IType expectedType, IType actualType)
+	    {
+	        return TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
+	    }
+
+	    void UnpackExpression(Block block, Expression expression, DeclarationCollection declarations)
 		{
 			UnpackExpression(CodeBuilder, _current, block, expression, declarations);
 		}
@@ -402,7 +409,7 @@ namespace Boo.Lang.Compiler.Steps
 		IType FindBestEnumeratorType()
 		{
 			//type is already an IEnumerator, use it
-			if (TypeSystemServices.IEnumeratorType.IsAssignableFrom(CurrentEnumeratorType))
+			if (IsAssignableFrom(TypeSystemServices.IEnumeratorType, CurrentEnumeratorType))
 				return CurrentEnumeratorType;
 
 			IType bestEnumeratorType = null;
@@ -417,8 +424,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (null != m.GenericInfo || 0 != m.GetParameters().Length || !m.IsPublic)
 					continue; //only check public non-generic GetEnumerator with no argument
 
-				if (!TypeSystemServices.IEnumeratorGenericType.IsAssignableFrom(m.ReturnType)
-				    && !TypeSystemServices.IEnumeratorType.IsAssignableFrom(m.ReturnType))
+				if (!IsAssignableFrom(TypeSystemServices.IEnumeratorGenericType, m.ReturnType)
+				    && !IsAssignableFrom(TypeSystemServices.IEnumeratorType, m.ReturnType))
 					continue; //GetEnumerator does not return an IEnumerator or IEnumerator[of T]
 
 				bestEnumeratorType = m.ReturnType;
@@ -429,7 +436,7 @@ namespace Boo.Lang.Compiler.Steps
 			//2) type explicitly implements IEnumerable[of T]
 			if (null == bestEnumeratorType)
 			{
-				if (TypeSystemServices.IEnumerableGenericType.IsAssignableFrom(CurrentEnumeratorType))
+				if (IsAssignableFrom(TypeSystemServices.IEnumerableGenericType, CurrentEnumeratorType))
 				{
 					bestEnumeratorType = TypeSystemServices.IEnumeratorGenericType;
 					_bestGetEnumerator = TypeSystemServices.Map(Types.IEnumerableGeneric.GetMethod("GetEnumerator"));
@@ -439,7 +446,7 @@ namespace Boo.Lang.Compiler.Steps
 			//3) type explicitly implements IEnumerable
 			if (null == bestEnumeratorType)
 			{
-				if (TypeSystemServices.IEnumerableType.IsAssignableFrom(CurrentEnumeratorType))
+				if (IsAssignableFrom(TypeSystemServices.IEnumerableType, CurrentEnumeratorType))
 				{
 					bestEnumeratorType = TypeSystemServices.IEnumeratorType;
 					_bestGetEnumerator = TypeSystemServices.Map(Types.IEnumerable.GetMethod("GetEnumerator"));
