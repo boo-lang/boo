@@ -27,6 +27,7 @@
 #endregion
 
 using System.Collections.Generic;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.TypeSystem.Generics
 {
@@ -34,11 +35,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 	{
 		private IType _resultingType = null;
 
-		private List<IType> _lowerBounds = new List<IType>();
-		private List<IType> _upperBounds = new List<IType>();
+		private readonly List<IType> _lowerBounds = new List<IType>();
+		private readonly List<IType> _upperBounds = new List<IType>();
 
-		private IDictionary<InferredType, bool> _dependencies = new Dictionary<InferredType, bool>();
-		private IDictionary<InferredType, bool> _dependants = new Dictionary<InferredType, bool>();
+		private readonly IDictionary<InferredType, bool> _dependencies = new Dictionary<InferredType, bool>();
+		private readonly IDictionary<InferredType, bool> _dependants = new Dictionary<InferredType, bool>();
 
 		/// <summary>
 		/// Gets the type resulting from the inference, or null if none exists.

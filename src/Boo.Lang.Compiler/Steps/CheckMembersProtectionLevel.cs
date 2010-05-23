@@ -58,28 +58,28 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			IAccessibleMember member = node.Entity as IAccessibleMember;
+			var member = node.Entity as IAccessibleMember;
 			if (null == member) return;
 
-			if (!_checker.IsAccessible(member))
+			if (!IsAccessible(member))
 			{
 				Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
 				return;
 			}
 
 			//if member is a property we also want to check the accessor specifically
-			IProperty property = member as IProperty;
-			if (null != property)
-			{
-				if (AstUtil.IsLhsOfAssignment(node))
-					member = property.GetSetMethod();
-				else
-					member = property.GetGetMethod();
+			var property = member as IProperty;
+		    if (null == property)
+                return;
 
-				if (!_checker.IsAccessible(member))
-					Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
-			}
+		    member = AstUtil.IsLhsOfAssignment(node) ? property.GetSetMethod() : property.GetGetMethod();
+		    if (!IsAccessible(member))
+		        Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
 		}
 
+	    private bool IsAccessible(IAccessibleMember member)
+	    {
+	        return _checker.IsAccessible(member);
+	    }
 	}
 }
