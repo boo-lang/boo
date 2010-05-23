@@ -118,18 +118,11 @@ def rebase(fname as string):
 	return fname
 
 fnames = (
-"src/Boo.Lang/Boo.Lang-VS2005.csproj",
 "src/Boo.Lang/Boo.Lang-VS2008.csproj",
-"src/Boo.Lang.Parser/Boo.Lang.Parser-VS2005.csproj",
 "src/Boo.Lang.Parser/Boo.Lang.Parser-VS2008.csproj",
-"src/Boo.Lang.Compiler/Boo.Lang.Compiler-VS2005.csproj",
 "src/Boo.Lang.Compiler/Boo.Lang.Compiler-VS2008.csproj",
-"tests/BooCompiler.Tests/BooCompiler.Tests-VS2005.csproj",
 "tests/BooCompiler.Tests/BooCompiler.Tests-VS2008.csproj",
-"tests/Boo.Lang.Runtime.Tests/Boo.Lang.Runtime.Tests-VS2005.csproj",
 "tests/Boo.Lang.Runtime.Tests/Boo.Lang.Runtime.Tests-VS2008.csproj",
-
-"src/Boo.Lang.Compiler/Boo.Lang.Compiler.mdp",
 )
 for fname in fnames:
 	updateProjectFile(rebase(fname))
