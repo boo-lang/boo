@@ -3,6 +3,7 @@ using System.Linq;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 using NUnit.Framework;
 
 namespace BooCompiler.Tests.TypeSystem.Services
@@ -31,7 +32,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		[Test]
 		public void GetAllMembers()
 		{
-			new CompilerContext().Run(ctx =>
+			new CompilerContext().Run(() =>
 				{
 					var barName = typeof(Bar).FullName.Replace('+', '.');
 					var fooName = typeof(Foo).FullName.Replace('+', '.');

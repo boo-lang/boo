@@ -28,11 +28,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Services
 {
@@ -53,7 +55,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			get { return _entityNameMatcher; }
 			set
 			{
-				if (null == value) throw new ArgumentNullException();
+				if (null == value)
+                    throw new ArgumentNullException();
 				_entityNameMatcher = value;
 			}
 		}
@@ -65,16 +68,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			set
 			{
 				if (null == value)
-				{
 					throw new ArgumentNullException("GlobalNamespace");
-				}
 				_global = value;
 			}
 		}		
 		
 		public void EnterNamespace(INamespace ns)
 		{
-			if (null == ns) throw new ArgumentNullException("ns");
+			if (null == ns)
+                throw new ArgumentNullException("ns");
 			_current = ns;
 		}
 		
@@ -106,7 +108,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		
 		public IEntity Resolve(string name, EntityType flags)
 		{
-			Set<IEntity> resultingSet = new Set<IEntity>();
+			var resultingSet = new Set<IEntity>();
 			Resolve(resultingSet, name, flags);
 			return Entities.EntityFromList(resultingSet);
 		}
@@ -118,12 +120,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IEnumerable<EntityOut> Select<EntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
 		{
-			foreach (IEntity entity in candidates)
-				if (Matches(entity, name, typesToConsider))
-					yield return (EntityOut) entity;
+		    return from entity in candidates where Matches(entity, name, typesToConsider) select (EntityOut) entity;
 		}
 
-		public bool Resolve(string name, IEnumerable<IEntity> candidates, EntityType typesToConsider, ICollection<IEntity> resolvedSet)
+	    public bool Resolve(string name, IEnumerable<IEntity> candidates, EntityType typesToConsider, ICollection<IEntity> resolvedSet)
 		{
 			bool found = false;
 			foreach (IEntity entity in Select<IEntity>(candidates, name, typesToConsider))
@@ -446,7 +446,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private CompilerErrorCollection CompilerErrors()
 		{
-			return CompilerContext.Current.Errors;
+            return My<CompilerErrorCollection>.Instance;
 		}
 
 		private IEntity AmbiguousReference(SimpleTypeReference node, Ambiguous entity)
@@ -600,7 +600,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				lastMemberName = member.Name;
 			}
 			return null;
-		}
+		}
+
 		public IEntity ResolveQualifiedName(INamespace namespaceToResolveAgainst, string name)
 		{
 			Set<IEntity> resultingSet = new Set<IEntity>();

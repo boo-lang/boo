@@ -50,8 +50,8 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		}
 
 		protected virtual IType GeneratorItemTypeFor(InternalMethod generator)
-		{
-			return Context.Produce<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
+{
+			return Context.Provide<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
 		}
 
 		GeneratorSkeleton CreateGeneratorSkeleton(Node sourceNode, Method enclosingMethod, IType generatorItemType)

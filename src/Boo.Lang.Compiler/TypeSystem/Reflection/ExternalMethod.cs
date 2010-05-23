@@ -27,6 +27,7 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {

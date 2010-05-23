@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,30 +26,21 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem.Reflection;
-using Boo.Lang.Environments;
+using System.Runtime.CompilerServices;
+using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Environments
 {
-	using System;
-
-	public class ExternalCallableType : ExternalType, ICallableType
+	[CompilerGlobalScope]
+	public static class MyIdiom
 	{
-		private readonly IMethod _invoke;
-		
-		public ExternalCallableType(IReflectionTypeSystemProvider provider, Type type) : base(provider, type)
+		[Meta]
+		public static Expression my(ReferenceExpression typeReference)
 		{
-			_invoke = provider.Map(type.GetMethod("Invoke"));
-		}
-		
-		public CallableSignature GetSignature()
-		{
-			return _invoke.CallableType.GetSignature();
-		}
-		
-		override public bool IsAssignableFrom(IType other)
-		{	
-			return My<TypeSystemServices>.Instance.IsCallableTypeAssignableFrom(this, other);
+			var myReference = new GenericReferenceExpression(typeReference.LexicalInfo);
+			myReference.Target = AstUtil.CreateReferenceExpression(typeReference.LexicalInfo, "Boo.Lang.Environments.My");
+			myReference.GenericArguments.Add(TypeReference.Lift(typeReference));
+			return new MemberReferenceExpression(typeReference.LexicalInfo, myReference, "Instance");
 		}
 	}
 }

@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 			if (null == name)
 				throw new ArgumentNullException("name");
 			
-			_internalTypeSystemProvider = context.Produce<InternalTypeSystemProvider>();
+			_internalTypeSystemProvider = context.Provide<InternalTypeSystemProvider>();
 			_codeBuilder = context.CodeBuilder;
 			_cd = new ClassDefinition();
 			_cd.Name = name;

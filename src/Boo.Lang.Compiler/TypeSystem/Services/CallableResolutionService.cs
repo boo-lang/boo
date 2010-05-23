@@ -506,7 +506,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void InferGenericMethods()
 		{
-			GenericsServices gs = Context.Produce<GenericsServices>();
+			GenericsServices gs = Context.Provide<GenericsServices>();
 
 			foreach (Candidate candidate in _candidates)
 			{

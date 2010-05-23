@@ -32,6 +32,7 @@ using System.Globalization;
 using antlr;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Parser
 {

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -18,7 +18,7 @@
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <PublishUrl>publish\</PublishUrl>
@@ -83,6 +83,7 @@
     <Compile Include="DuckTypedAttribute.cs" />
     <Compile Include="DynamicVariable.cs" />
     <Compile Include="EnumeratorItemTypeAttribute.cs" />
+    <Compile Include="Environments\My.cs" />
     <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="GenericGenerator.cs" />
     <Compile Include="GenericGeneratorEnumerator.cs" />
@@ -129,6 +130,9 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>

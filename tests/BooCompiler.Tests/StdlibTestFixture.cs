@@ -8,12 +8,6 @@ namespace BooCompiler.Tests
 	{
 
 		[Test]
-		public void DynamicVariable_1()
-		{
-			RunCompilerTestCase(@"DynamicVariable-1.boo");
-		}
-		
-		[Test]
 		public void cat_1()
 		{
 			RunCompilerTestCase(@"cat-1.boo");
@@ -23,6 +17,18 @@ namespace BooCompiler.Tests
 		public void cat_2()
 		{
 			RunCompilerTestCase(@"cat-2.boo");
+		}
+		
+		[Test]
+		public void DynamicVariable_1()
+		{
+			RunCompilerTestCase(@"DynamicVariable-1.boo");
+		}
+		
+		[Test]
+		public void environments_1()
+		{
+			RunCompilerTestCase(@"environments-1.boo");
 		}
 		
 		[Test]

@@ -44,6 +44,7 @@ using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 using Attribute = System.Attribute;
 using Module = Boo.Lang.Compiler.Ast.Module;
 

@@ -3,6 +3,7 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 using BooCompiler.Tests.TypeSystem.Core;
 using NUnit.Framework;
 

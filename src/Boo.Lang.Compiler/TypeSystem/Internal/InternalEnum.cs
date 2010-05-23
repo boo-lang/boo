@@ -28,6 +28,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Boo.Lang.Environments;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
@@ -58,58 +60,37 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			{
 				if (null != _underlyingType)
 					return _underlyingType;
-
-				_underlyingType = typeof(int);
-				
-				//check there is no long member
-				foreach (EnumMember member in EnumDefinition.Members)
-				{
-					IntegerLiteralExpression il = member.Initializer as IntegerLiteralExpression;
-					if (null != il && il.IsLong)
-					{
-						_underlyingType = typeof(long);
-						break;
-					}
-				}
-				return _underlyingType;
+				return _underlyingType = RequiresLongRepresentation() ? Types.Long : Types.Int;
 			}
 		}
 
-		override public bool IsFinal
+	    private bool RequiresLongRepresentation()
+	    {
+	        return EnumDefinition.Members
+                .Cast<EnumMember>()
+                .Select(member => member.Initializer as IntegerLiteralExpression)
+                .Any(il => null != il && il.IsLong);
+	    }
+
+	    override public bool IsFinal
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		}
 		
 		override public bool IsValueType
 		{
-			get
-			{
-				return true;
-			}
+			get { return true; }
 		} 
 		
 		override public IType BaseType
 		{
-			get
-			{
-				return My<TypeSystemServices>.Instance.EnumType;
-			}
+			get { return My<TypeSystemServices>.Instance.EnumType; }
 		}
 		
 		override public bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			bool found = base.Resolve(resultingSet, name, typesToConsider);
-			if (!found)
-			{
-				if (BaseType.Resolve(resultingSet, name, typesToConsider))
-				{
-					found = true;
-				}
-			}
-			return found;
+		    return base.Resolve(resultingSet, name, typesToConsider)
+                || BaseType.Resolve(resultingSet, name, typesToConsider);
 		}
 		
 		override public bool IsSubclassOf(IType type)

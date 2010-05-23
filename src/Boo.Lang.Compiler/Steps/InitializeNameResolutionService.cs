@@ -26,15 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-	using System;
-
 	public class InitializeNameResolutionService : AbstractVisitorCompilerStep
 	{	
 		override public void Run()
@@ -52,10 +51,7 @@ namespace Boo.Lang.Compiler.Steps
 					continue;
 
 				string moduleNamespace = module.Namespace.Name;
-				if (module.Imports.Contains(delegate(Import candidate)
-				{
-					return candidate.Namespace == moduleNamespace;
-				}))
+				if (module.Imports.Contains(candidate => candidate.Namespace == moduleNamespace))
 					continue;
 
 				module.Imports.Add(new Import(module.Namespace.LexicalInfo, moduleNamespace));
@@ -94,16 +90,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		private ICompileUnit ResolveAssemblyReference(ReferenceExpression reference)
 		{
-			ICompileUnit asm = Parameters.FindAssembly(reference.Name);
-			if (null == asm)
+			ICompileUnit existing = Parameters.FindAssembly(reference.Name);
+            if (null != existing) return existing;
+
+			ICompileUnit newAssembly = Parameters.LoadAssembly(reference.Name);
+			if (null != newAssembly)
 			{
-				asm = Parameters.LoadAssembly(reference.Name);
-				if (null != asm)
-				{
-					Parameters.References.Add(asm);
-				}
+				Parameters.References.Add(newAssembly);
+                return newAssembly;
 			}
-			return asm;
+		    return null;
 		}
 	}
 }

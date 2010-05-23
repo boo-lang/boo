@@ -47,7 +47,7 @@ class CompilerContextTestFixture:
 	def ComponentLifecycle():
 		context = CompilerContext()
 		
-		component = context.Produce[of SomeComponent]()
+		component = context.Provide[of SomeComponent]()
 		assert component.Context is context
 		
 		context.UnregisterService[of SomeComponent]()
@@ -56,6 +56,6 @@ class CompilerContextTestFixture:
 	[Test]
 	def ComponentsAreCached():
 		context = CompilerContext()
-		first = context.Produce[of SomeComponent]()
-		second = context.Produce[of SomeComponent]()
+		first = context.Provide[of SomeComponent]()
+		second = context.Provide[of SomeComponent]()
 		assert first is second

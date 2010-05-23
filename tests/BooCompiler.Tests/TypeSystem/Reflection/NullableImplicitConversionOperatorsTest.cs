@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Environments;
 using NUnit.Framework;
 
 namespace BooCompiler.Tests.TypeSystem.Reflection

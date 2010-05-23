@@ -38,12 +38,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		{
 			bool success = false;
 
-			Set<IEntity> resolved = new Set<IEntity>();
-			foreach (INamespace root in namespacesToResolveAgainst)
-			{
+			var resolved = new Set<IEntity>();
+			foreach (var root in namespacesToResolveAgainst)
 				if (root.Resolve(resolved, name, typesToConsider))
 					success = true;
-			}
 
 			if (!success)
 				return false;
@@ -53,15 +51,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public static bool ResolveCoalescingNamespaces(INamespace parent, INamespace namespaceToResolveAgainst, string name, EntityType typesToConsider, ICollection<IEntity> resultingSet)
 		{
-			Set<IEntity> resolved = new Set<IEntity>();
+			var resolved = new Set<IEntity>();
 			if (!namespaceToResolveAgainst.Resolve(resolved, name, typesToConsider))
 				return false;
 			return CoalesceResolved(resolved, parent, name, resultingSet);
 		}
 
-		private static bool CoalesceResolved(Set<IEntity> resolved, INamespace parent, string name, ICollection<IEntity> resultingSet)
+		private static bool CoalesceResolved(IEnumerable<IEntity> resolved, INamespace parent, string name, ICollection<IEntity> resultingSet)
 		{
-			List<INamespace> namespaces = new List<INamespace>();
+			var namespaces = new List<INamespace>();
 			foreach (IEntity entity in resolved)
 			{
 				if (entity.EntityType == EntityType.Namespace)

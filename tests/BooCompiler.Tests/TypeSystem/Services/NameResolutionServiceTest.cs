@@ -4,6 +4,7 @@ using Boo.Lang.Compiler.Pipelines;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 using NUnit.Framework;
 
 namespace BooCompiler.Tests.TypeSystem.Services

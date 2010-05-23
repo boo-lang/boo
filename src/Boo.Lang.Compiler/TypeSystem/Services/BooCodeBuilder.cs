@@ -29,6 +29,7 @@
 using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {

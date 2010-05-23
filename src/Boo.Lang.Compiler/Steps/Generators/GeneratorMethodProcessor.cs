@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_mapping = new Hashtable();
 			_generator = method;
 
-			GeneratorSkeleton skeleton = context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(method);
+			GeneratorSkeleton skeleton = context.Provide<GeneratorSkeletonBuilder>().SkeletonFor(method);
 			_generatorItemType = skeleton.GeneratorItemType;
 			_enumerable = skeleton.GeneratorClassBuilder;
 			_getEnumeratorBuilder = skeleton.GetEnumeratorBuilder;

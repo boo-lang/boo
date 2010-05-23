@@ -26,17 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 using System;
 using System.Runtime.CompilerServices;
-using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler
+namespace Boo.Lang.Environments
 {
 	/// <summary>
-	/// Idiomatic access to compiler services.
-	/// 
-	/// The service is automatically created if it's not yet available.
+	/// Idiomatic access to environmental services.
 	/// 
 	/// <example>
 	/// <code>
@@ -47,34 +43,64 @@ namespace Boo.Lang.Compiler
 	/// </code>
 	/// </example>
 	/// </summary>
-	/// <typeparam name="TService">The type of the requested service.</typeparam>
-	public class My<TService> where TService : class
+	/// <typeparam name="TNeed">The type of the requested service.</typeparam>
+	public static class My<TNeed> where TNeed : class
 	{
-		public static TService Instance
+		public static TNeed Instance
 		{
 			get
 			{
-				CompilerContext context = CompilerContext.Current;
-				if (null == context)
-					throw new InvalidOperationException("CompilerContext is not available!");
-				return context.Produce<TService>();
+                var environment = Environment.CurrentEnvironment;
+				if (null == environment)
+					throw new InvalidOperationException("Environment is not available!");
+			    return environment.Provide<TNeed>();
 			}
 		}
 	}
-	
-	[CompilerGlobalScope]
-	public static class My
-	{
-		[Meta]
-		public static Expression my(ReferenceExpression typeReference)
-		{
-			GenericReferenceExpression myReference = new GenericReferenceExpression(typeReference.LexicalInfo);
-			myReference.Target = new ReferenceExpression(typeReference.LexicalInfo, "My");
-			myReference.GenericArguments.Add(TypeReference.Lift(typeReference));
-			return new MemberReferenceExpression(
-				typeReference.LexicalInfo,
-				new MethodInvocationExpression(myReference),
-				"Instance");
-		}
-	}
+
+    public interface IEnvironment
+    {
+        TNeed Provide<TNeed>() where TNeed : class;
+    }
+
+    public class ClosedEnvironment : IEnvironment
+    {
+        private readonly object[] _bindings;
+
+        public ClosedEnvironment(params object[] bindings)
+        {
+            _bindings = bindings;
+        }
+
+        public TNeed Provide<TNeed>() where TNeed : class
+        {
+            foreach (var binding in _bindings)
+                if (binding is TNeed)
+                    return (TNeed)binding;
+            return null;
+        }
+    }
+
+    [CompilerGlobalScope]
+    public static class Environment
+    {
+        public static IEnvironment CurrentEnvironment { get { return _currentEnvironment; } }
+
+        public static void With(IEnvironment environment, Action action)
+        {
+            var previous = _currentEnvironment;
+            try
+            {
+                _currentEnvironment = environment;
+                action(); 
+            }
+            finally
+            {
+                _currentEnvironment = previous;
+            }
+        }
+
+        [ThreadStatic]
+        private static IEnvironment _currentEnvironment;
+    }
 }

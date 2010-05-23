@@ -32,6 +32,7 @@ using System.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {

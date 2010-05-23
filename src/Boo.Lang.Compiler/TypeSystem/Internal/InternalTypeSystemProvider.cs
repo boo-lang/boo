@@ -29,6 +29,7 @@
 
 using System;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {

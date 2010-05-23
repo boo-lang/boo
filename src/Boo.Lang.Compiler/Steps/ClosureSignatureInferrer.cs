@@ -33,6 +33,7 @@ using System.Text;
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -59,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected BooCodeBuilder CodeBuilder
 		{
-			get { return CompilerContext.Current.CodeBuilder; }
+			get { return My<BooCodeBuilder>.Instance; }
 		}
 
 		public MethodInvocationExpression MethodInvocationContext

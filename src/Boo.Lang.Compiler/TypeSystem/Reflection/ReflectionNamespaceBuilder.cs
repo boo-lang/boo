@@ -30,6 +30,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {

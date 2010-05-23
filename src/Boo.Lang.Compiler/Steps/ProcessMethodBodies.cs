@@ -82,7 +82,7 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = new Stack();
 			_memberStack = new Stack();
-            _downcastPermissions = Context.Produce<DowncastPermissions>();
+            _downcastPermissions = Context.Provide<DowncastPermissions>();
 
 			InitializeMemberCache();
 
@@ -1346,7 +1346,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IType GeneratorItemTypeFor(InternalMethod generator)
 		{
-			return Context.Produce<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
+			return Context.Provide<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
 		}
 
 		void TryToResolveReturnType(InternalMethod entity)

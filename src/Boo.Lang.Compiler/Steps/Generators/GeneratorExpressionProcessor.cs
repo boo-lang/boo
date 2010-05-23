@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
 			_collector = collector;
 			_generator = node;
-			_skeleton = context.Produce<GeneratorSkeletonBuilder>().SkeletonFor(node, node.GetAncestor<Method>());
+			_skeleton = context.Provide<GeneratorSkeletonBuilder>().SkeletonFor(node, node.GetAncestor<Method>());
 			Initialize(context);
 		}
 		

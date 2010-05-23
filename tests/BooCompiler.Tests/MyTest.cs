@@ -1,6 +1,7 @@
 using System;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 using NUnit.Framework;
 
 namespace BooCompiler.Tests

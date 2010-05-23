@@ -61,6 +61,7 @@
     <Compile Include="DuckTypedAttribute.cs" />
     <Compile Include="DynamicVariable.cs" />
     <Compile Include="EnumeratorItemTypeAttribute.cs" />
+    <Compile Include="Environments\My.cs" />
     <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="GenericGenerator.cs" />
     <Compile Include="GenericGeneratorEnumerator.cs" />

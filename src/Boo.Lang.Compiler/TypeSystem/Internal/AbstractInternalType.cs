@@ -33,6 +33,7 @@ using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 using Attribute=Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal

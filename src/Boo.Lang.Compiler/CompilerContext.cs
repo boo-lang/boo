@@ -35,20 +35,20 @@ using Boo.Lang.Compiler.TypeSystem.Services;
 using Assembly = System.Reflection.Assembly;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Environments;
+using Environment = Boo.Lang.Environments.Environment;
 
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// boo compilation context.
 	/// </summary>
-	public class CompilerContext
+	public class CompilerContext : IEnvironment
 	{
 		public static CompilerContext Current
 		{
-			get { return _current != null ? _current.Value : null; }
+			get { return Environment.CurrentEnvironment != null ? My<CompilerContext>.Instance : null; }
 		}
-
-		[ThreadStatic] private static DynamicVariable<CompilerContext> _current;
 
 		protected CompilerParameters _parameters;
 
@@ -109,6 +109,7 @@ namespace Boo.Lang.Compiler
 			RegisterService<IReflectionTypeSystemProvider>(_references.Provider);
 			RegisterService<CompilerErrorCollection>(_errors);
 			RegisterService<CompilerWarningCollection>(_warnings);
+            RegisterService<CompilerContext>(this);
 		}
 
 		public Hash Properties
@@ -162,18 +163,18 @@ namespace Boo.Lang.Compiler
 
 		public TypeSystemServices TypeSystemServices
 		{
-			get { return Produce<TypeSystemServices>(); }
+			get { return Provide<TypeSystemServices>(); }
 			set { RegisterService<TypeSystemServices>(value); }
 		}
 
 		public NameResolutionService NameResolutionService
 		{
-			get { return Produce<NameResolutionService>(); }
+			get { return Provide<NameResolutionService>(); }
 		}
 
 		public TypeSystem.BooCodeBuilder CodeBuilder
 		{
-			get { return Produce<BooCodeBuilder>(); }
+			get { return Provide<BooCodeBuilder>(); }
 		}
 		
 		public Assembly GeneratedAssembly
@@ -340,15 +341,9 @@ namespace Boo.Lang.Compiler
 		/// returns the right context.
 		/// </summary>
 		/// <param name="action"></param>
-		public void Run(System.Action<CompilerContext> action)
+		public void Run(System.Action action)
 		{
-			CurrentVariable().With(this, action);
-		}
-
-		private static DynamicVariable<CompilerContext> CurrentVariable()
-		{
-			if (null == _current) _current = new DynamicVariable<CompilerContext>();
-			return _current;
+			Environment.With(this, action);
 		}
 
 		#region Compiler services registry
@@ -444,7 +439,7 @@ namespace Boo.Lang.Compiler
 		///<param name="T">The type of the requested service.</param>
 		///<returns>Returns the requested service instance.</returns>
 		///<exception cref="ArgumentException">Thrown when requested service of type <paramref name="T"/> has not been found.</exception>
-		public T Produce<T>() where T : class
+		public T Provide<T>() where T : class
 		{	
 			object existing;
 			if (_services.TryGetValue(typeof(T), out existing))

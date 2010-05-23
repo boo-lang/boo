@@ -30,6 +30,7 @@
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {

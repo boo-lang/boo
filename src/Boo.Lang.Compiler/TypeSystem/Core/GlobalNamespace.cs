@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		public GlobalNamespace(CompilerContext context)
 		{
 			_references = context.References;
-			InternalTypeSystemProvider internalTypeSystemProvider = context.Produce<InternalTypeSystemProvider>();
+			InternalTypeSystemProvider internalTypeSystemProvider = context.Provide<InternalTypeSystemProvider>();
 			_compileUnit = internalTypeSystemProvider.EntityFor(context.CompileUnit);
 		}
 

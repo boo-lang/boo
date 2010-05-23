@@ -151,13 +151,13 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void BindImport(Import import)
 		{
-			CompilerContext context = CompilerContext.Current;
-			INamespace previous = context.NameResolutionService.CurrentNamespace;
+			var context = CompilerContext.Current;
+			var previous = context.NameResolutionService.CurrentNamespace;
 			try
 			{
 				context.NameResolutionService.Reset();
 
-				BindNamespaces namespaceBinder = new BindNamespaces();
+				var namespaceBinder = new BindNamespaces();
 				namespaceBinder.Initialize(context);
 				import.Accept(namespaceBinder);
 			}
