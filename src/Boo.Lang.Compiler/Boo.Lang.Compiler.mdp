@@ -282,6 +282,7 @@
     <File name="CompilerWarning.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerWarningCollection.cs" buildaction="Compile" subtype="Code" />
     <File name="CompilerWarningFactory.cs" buildaction="Compile" subtype="Code" />
+    <File name="Environments/MyIdiom.cs" buildaction="Compile" subtype="Code" />
     <File name="IAstAttribute.cs" buildaction="Compile" subtype="Code" />
     <File name="IAstGeneratorMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="IAstMacro.cs" buildaction="Compile" subtype="Code" />
@@ -296,7 +297,6 @@
     <File name="LexicalInfoPreservingGeneratorMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="LexicalInfoPreservingMacro.cs" buildaction="Compile" subtype="Code" />
     <File name="MonoTouch/System.Diagnostics.Trace.cs" buildaction="Compile" subtype="Code" />
-    <File name="My.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/CheckForErrors.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/Compile.cs" buildaction="Compile" subtype="Code" />
     <File name="Pipelines/CompileToBoo.cs" buildaction="Compile" subtype="Code" />
@@ -515,6 +515,7 @@
     <File name="TypeSystem/Services/AccessibilityChecker.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/BooCodeBuilder.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/CallableResolutionService.cs" buildaction="Compile" subtype="Code" />
+    <File name="TypeSystem/Services/DowncastPermissions.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/MemberCollector.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/MetadataUtil.cs" buildaction="Compile" subtype="Code" />
     <File name="TypeSystem/Services/NameResolutionService.cs" buildaction="Compile" subtype="Code" />

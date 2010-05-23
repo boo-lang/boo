@@ -325,6 +325,7 @@
     <Compile Include="CompilerWarning.cs" />
     <Compile Include="CompilerWarningCollection.cs" />
     <Compile Include="CompilerWarningFactory.cs" />
+    <Compile Include="Environments\MyIdiom.cs" />
     <Compile Include="IAstAttribute.cs" />
     <Compile Include="IAstGeneratorMacro.cs" />
     <Compile Include="IAstMacro.cs" />
@@ -339,7 +340,6 @@
     <Compile Include="LexicalInfoPreservingGeneratorMacro.cs" />
     <Compile Include="LexicalInfoPreservingMacro.cs" />
     <Compile Include="MonoTouch\System.Diagnostics.Trace.cs" />
-    <Compile Include="My.cs" />
     <Compile Include="Pipelines\CheckForErrors.cs" />
     <Compile Include="Pipelines\Compile.cs" />
     <Compile Include="Pipelines\CompileToBoo.cs" />
@@ -558,6 +558,7 @@
     <Compile Include="TypeSystem\Services\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\Services\BooCodeBuilder.cs" />
     <Compile Include="TypeSystem\Services\CallableResolutionService.cs" />
+    <Compile Include="TypeSystem\Services\DowncastPermissions.cs" />
     <Compile Include="TypeSystem\Services\MemberCollector.cs" />
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
