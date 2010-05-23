@@ -269,40 +269,29 @@ namespace Boo.Lang.Compiler
 		{
 		}
 
-		virtual public void Run(CompilerContext context)
-		{
-			context.Run(DoRun);
-		}
+        virtual public void Run(CompilerContext context)
+        {
+            context.Run(() =>
+            {
+                OnBefore(context);
+                try
+                {
+                    Prepare(context);
+                    RunSteps(context);
+                }
+                finally
+                {
+                    try { DisposeServices(context); }
+                    finally
+                    {
+                        try { DisposeSteps(); }
+                        finally { OnAfter(context); }
+                    }
+                }
+            });
+        }
 
-		protected void DoRun(CompilerContext context)
-		{
-			OnBefore(context);
-			try
-			{
-				Prepare(context);
-				RunSteps(context);
-			}
-			finally
-			{
-				try
-				{
-					DisposeServices(context);
-				}
-				finally
-				{
-					try
-					{
-						DisposeSteps();
-					}
-					finally
-					{
-						OnAfter(context);
-					}
-				}
-			}
-		}
-
-		private void DisposeServices(CompilerContext context)
+	    private void DisposeServices(CompilerContext context)
 		{
 			foreach (Type service in context.RegisteredServices)
 			{

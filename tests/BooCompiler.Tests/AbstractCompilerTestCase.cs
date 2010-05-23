@@ -189,8 +189,10 @@ namespace BooCompiler.Tests
 		protected void RunAndAssert()
 		{
 			CompilerContext context;
-			string output = Run(null, out context);
-			string expected = context.CompileUnit.Modules[0].Documentation ?? "";
+			var output = Run(null, out context);
+		    var modules = context.CompileUnit.Modules;
+		    Assert.IsTrue(modules.Count > 0, output);
+		    var expected = modules[0].Documentation ?? "";
 			Assert.AreEqual(expected.Trim(), output.Trim(), _parameters.Input[0].Name);
 		}
 
