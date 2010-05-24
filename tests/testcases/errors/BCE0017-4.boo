@@ -6,8 +6,8 @@ import System.Collections
 
 macro enableStrict:
 	Parameters.Strict = true
+	
 enableStrict
-
 
 class Test:
 	pass
