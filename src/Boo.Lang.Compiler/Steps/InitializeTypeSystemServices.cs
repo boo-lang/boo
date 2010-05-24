@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 
 	    protected virtual DowncastPermissions CreateDowncastPermissions()
 	    {
-	        return new DowncastPermissions(Context);
+	        return new DowncastPermissions();
 	    }
 
 	    protected virtual CallableResolutionService CreateCallableResolutionService()

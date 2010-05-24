@@ -2151,7 +2151,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType fromType = GetExpressionType(node.Target);
 			IType toType = GetType(node.Type);
 			bool byDowncast;
-			if (TypeSystemServices.AreTypesRelated(toType, fromType, true, out byDowncast))
+			if (TypeSystemServices.CanBeReachedFrom(toType, fromType, true, out byDowncast))
 			{
 				IMethod explicitOperator = TypeSystemServices.FindExplicitConversionOperator(fromType, toType);
 				if (null != explicitOperator)
@@ -5663,7 +5663,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IsNullable(expectedType) && Null.Default == actualType)
 				return true;
 
-			if (!AreTypesRelated(sourceNode, expectedType, actualType))
+			if (!CanBeReachedFrom(sourceNode, expectedType, actualType))
 			{
 				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType.ToString(), actualType.ToString()));
 				return false;
@@ -5724,7 +5724,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (!AreTypesRelated(args[i], parameterType, argumentType))
+					if (!CanBeReachedFrom(args[i], parameterType, argumentType))
 						return false;
 				}
 			}
@@ -6462,28 +6462,21 @@ namespace Boo.Lang.Compiler.Steps
 																	 GetExpressionType(node.Right).ToString()));
 		}
 
-
-		bool AreTypesRelated(Node anchor, IType lhs, IType rhs)
+		bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType)
 		{
+            if (TypeSystemServices.IsSystemObject(actualType))
+                return true;
+
 			bool byDowncast;
-			bool result = TypeSystemServices.AreTypesRelated(lhs, rhs, out byDowncast);
+			bool result = TypeSystemServices.CanBeReachedFrom(expectedType, actualType, out byDowncast);
 			if (!result)
 				return false;
 
-            if (!byDowncast || TypeSystemServices.IsSystemObject(rhs))
-                return true;
-            
-            if (!IsDowncastAllowed())
-                return false;
+            if (byDowncast)
+                Warnings.Add(CompilerWarningFactory.ImplicitDowncast(anchor, expectedType, actualType));
 
-            Warnings.Add(CompilerWarningFactory.ImplicitDowncast(anchor, lhs, rhs));
 			return true;
 		}
-
-        private bool IsDowncastAllowed()
-        {
-            return _downcastPermissions.IsDowncastAllowed();
-        }
 
 	    void TraceReturnType(Method method, IMethod tag)
 		{

@@ -594,31 +594,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return constructor;
 		}
 
-		public bool AreTypesRelated(IType lhs, IType rhs)
+		public bool CanBeReachedFrom(IType expectedType, IType actualType)
 		{
 			bool byDowncast;
-			return AreTypesRelated(lhs, rhs, out byDowncast);
+			return CanBeReachedFrom(expectedType, actualType, out byDowncast);
 		}
 
-		public bool AreTypesRelated(IType lhs, IType rhs, out bool byDowncast)
+		public bool CanBeReachedFrom(IType expectedType, IType actualType, out bool byDowncast)
 		{
 			bool considerExplicitConversionOperators = !InStrictMode();
-			return AreTypesRelated(lhs, rhs, considerExplicitConversionOperators, out byDowncast);
+			return CanBeReachedFrom(expectedType, actualType, considerExplicitConversionOperators, out byDowncast);
 		}
 
-		public bool AreTypesRelated(IType lhs, IType rhs, bool considerExplicitConversionOperators, out bool byDowncast)
+		public bool CanBeReachedFrom(IType expectedType, IType actualType, bool considerExplicitConversionOperators, out bool byDowncast)
 		{
 			byDowncast = false;
 
-			var ctype = lhs as ICallableType;
+			var ctype = expectedType as ICallableType;
 			if (null != ctype)
-				return IsAssignableFrom(ctype, rhs) || ctype.IsSubclassOf(rhs);
+				return IsAssignableFrom(ctype, actualType) || ctype.IsSubclassOf(actualType);
 
-			return IsAssignableFrom(lhs, rhs)
-			       || (byDowncast = CanBeReachedByDowncast(lhs, rhs))
-			       || CanBeReachedByPromotion(lhs, rhs)
-			       || FindImplicitConversionOperator(rhs, lhs) != null
-			       || (considerExplicitConversionOperators && FindExplicitConversionOperator(rhs, lhs) != null);
+			return IsAssignableFrom(expectedType, actualType)
+			       || (byDowncast = My<DowncastPermissions>.Instance.CanBeReachedByDowncast(expectedType, actualType))
+			       || CanBeReachedByPromotion(expectedType, actualType)
+			       || FindImplicitConversionOperator(actualType, expectedType) != null
+			       || (considerExplicitConversionOperators && FindExplicitConversionOperator(actualType, expectedType) != null);
 		}
 
 		private bool InStrictMode()
@@ -695,7 +695,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (lparams.Length < rparams.Length) return false;
 
 			for (int i = 0; i < rparams.Length; ++i)
-				if (!AreTypesRelated(lparams[i].Type, rparams[i].Type))
+				if (!CanBeReachedFrom(lparams[i].Type, rparams[i].Type))
 					return false;
 
 			return CompatibleReturnTypes(lvalue, rvalue);
@@ -704,7 +704,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private bool CompatibleReturnTypes(CallableSignature lvalue, CallableSignature rvalue)
 		{
 			if (VoidType != lvalue.ReturnType && VoidType != rvalue.ReturnType)
-				return AreTypesRelated(lvalue.ReturnType, rvalue.ReturnType);
+				return CanBeReachedFrom(lvalue.ReturnType, rvalue.ReturnType);
 			return true;
 		}
 
@@ -731,26 +731,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
 		{
-			return CanBeReachedByDowncast(expectedType, actualType)
+			return My<DowncastPermissions>.Instance.CanBeReachedByDowncast(expectedType, actualType)
 			       || CanBeReachedByPromotion(expectedType, actualType);
 		}
 
-		public virtual bool CanBeReachedByDowncast(IType expectedType, IType actualType)
-		{
-			if (actualType.IsFinal)
-				return false;
-			if (expectedType.IsInterface || actualType.IsInterface)
-				return CanBeReachedByInterfaceDowncast(expectedType, actualType);
-			return IsAssignableFrom(actualType, expectedType);
-		}
-
-		public virtual bool CanBeReachedByInterfaceDowncast(IType expectedType, IType actualType)
-		{
-			//FIXME: currently interface downcast implements no type safety check at all (see BOO-1211)
-			return true;
-		}
-
-		public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
+	    public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
 		{
 			if (IsNullable(expectedType) && Null.Default == actualType)
 				return true;

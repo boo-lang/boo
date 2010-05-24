@@ -35,6 +35,7 @@ using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -55,13 +56,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected List<Candidate> _candidates = new List<Candidate>();
 		protected ExpressionCollection _arguments;
+	    private DowncastPermissions _downcastPermissions;
 
-		public CallableResolutionService(CompilerContext context)
-		{
-			Initialize(context);
-		}
+	    public CallableResolutionService(CompilerContext context)
+	    {   
+	        Initialize(context);
+	    }
 
-		protected Expression GetArgument(int index)
+	    protected Expression GetArgument(int index)
 		{
 			return _arguments[index];
 		}
@@ -288,10 +290,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			candidates.Sort(new System.Comparison<Candidate>(BetterCandidate));
 
 			Candidate pivot = candidates[candidates.Count - 1];
-			candidates.RemoveAll(delegate(Candidate candidate)
-          		{
-          			return 0 != BetterCandidate(candidate, pivot);
-          		});
+			candidates.RemoveAll(candidate => 0 != BetterCandidate(candidate, pivot));
 		}
 
 		private bool ApplicableCandidate(Candidate candidate)
@@ -350,9 +349,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			int total = 0;
 			foreach (int score in c1.ArgumentScores)
-			{
 				total += score;
-			}
 			return total;
 		}
 
@@ -596,50 +593,48 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
 		{
-			IType argumentType = ArgumentType(arg);
+			var argumentType = ArgumentType(arg);
 			if (param.IsByRef)
-			{
-				if (IsValidByRefArg(param, parameterType, argumentType, arg))
-				{
-					return ExactMatchScore;
-				}
-				return -1;
-			}
-			else if (parameterType == argumentType
-				|| (TypeSystemServices.IsSystemObject(argumentType) && 
-					TypeSystemServices.IsSystemObject(parameterType)))
-			{
-				return parameterType is ICallableType
-					? CallableExactMatchScore
-					: ExactMatchScore;
-			}
-			else if (TypeCompatibilityRules.IsAssignableFrom(parameterType, argumentType))
-			{				
-				ICallableType callableType = parameterType as ICallableType;
-				ICallableType callableArg = argumentType as ICallableType;
-				if (callableType != null && callableArg != null)
-				{
-					return CalculateCallableScore(callableType, callableArg);
-				}
-				return UpCastScore;
-			}
-			else if (TypeSystemServices.FindImplicitConversionOperator(argumentType, parameterType) != null)
-			{
-				return ImplicitConversionScore;
-			}
-			else if (TypeSystemServices.CanBeReachedByPromotion(parameterType, argumentType))
-			{
-				if (IsWideningPromotion(parameterType, argumentType)) return WideningPromotion;
-				return NarrowingPromotion;
-			}
-			else if (TypeSystemServices.CanBeReachedByDowncast(parameterType, argumentType))
-			{
-				return DowncastScore;
-			}
-			return -1;
+			    return IsValidByRefArg(param, parameterType, argumentType, arg)
+                    ? ExactMatchScore
+                    : -1;
+
+		    if (parameterType == argumentType
+		        || (TypeSystemServices.IsSystemObject(argumentType) && 
+		            TypeSystemServices.IsSystemObject(parameterType)))
+		        return parameterType is ICallableType
+		                   ? CallableExactMatchScore
+		                   : ExactMatchScore;
+
+		    if (TypeCompatibilityRules.IsAssignableFrom(parameterType, argumentType))
+		    {				
+		        var callableType = parameterType as ICallableType;
+		        var callableArg = argumentType as ICallableType;
+		        if (callableType != null && callableArg != null)
+		            return CalculateCallableScore(callableType, callableArg);
+		        return UpCastScore;
+		    }
+
+		    if (TypeSystemServices.FindImplicitConversionOperator(argumentType, parameterType) != null)
+		        return ImplicitConversionScore;
+
+		    if (TypeSystemServices.CanBeReachedByPromotion(parameterType, argumentType))
+		        return IsWideningPromotion(parameterType, argumentType)
+                    ? WideningPromotion
+                    : NarrowingPromotion;
+
+		    if (MyDowncastPermissions().CanBeReachedByDowncast(parameterType, argumentType))
+		        return DowncastScore;
+
+		    return -1;
 		}
 
-		private bool IsWideningPromotion(IType paramType, IType argumentType)
+	    private DowncastPermissions MyDowncastPermissions()
+	    {
+            return _downcastPermissions ?? (_downcastPermissions = My<DowncastPermissions>.Instance);
+	    }
+
+	    private bool IsWideningPromotion(IType paramType, IType argumentType)
 		{
 			ExternalType expected = paramType as ExternalType;
 			if (null == expected) return false;
