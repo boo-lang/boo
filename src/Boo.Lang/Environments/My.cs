@@ -51,9 +51,12 @@ namespace Boo.Lang.Environments
 			get
 			{
                 var environment = Environment.CurrentEnvironment;
-				if (null == environment)
+                if (environment == null)
 					throw new InvalidOperationException("Environment is not available!");
-			    return environment.Provide<TNeed>();
+			    var need = environment.Provide<TNeed>();
+                if (need == null)
+                    throw new InvalidOperationException(string.Format("Environment could not provide '{0}'.", typeof(TNeed)));
+			    return need;
 			}
 		}
 	}
