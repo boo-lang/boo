@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler
 	    public static class Codes
         {
 	        public const string ImplicitDowncast = "BCW0028";
+	        public const string ImplicitReturn = "BCW0023";
+	        public const string VisibleMemberDoesNotDeclareTypeExplicitely = "BCW0024";
         }
 
 		public static CompilerWarning CustomWarning(Node node, string msg)
@@ -167,7 +169,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerWarning ImplicitReturn(Method node)
 		{
-			return new CompilerWarning("BCW0023", AstUtil.SafeLexicalInfo(node));
+			return new CompilerWarning(Codes.ImplicitReturn, AstUtil.SafeLexicalInfo(node));
 		}
 
 		public static CompilerWarning VisibleMemberDoesNotDeclareTypeExplicitely(TypeMember node)
@@ -180,7 +182,7 @@ namespace Boo.Lang.Compiler
 			string details = (null == argument)
 				? ResourceManager.Format("BooC.Return")
 				: ResourceManager.Format("BooC.NamedArgument", argument);
-			return new CompilerWarning("BCW0024", AstUtil.SafeLexicalInfo(node), NodeTypeString(node), details);
+			return new CompilerWarning(Codes.VisibleMemberDoesNotDeclareTypeExplicitely, AstUtil.SafeLexicalInfo(node), NodeTypeString(node), details);
 		}
 
 		public static CompilerWarning AmbiguousVariableName(Local node, string localName, string baseName)

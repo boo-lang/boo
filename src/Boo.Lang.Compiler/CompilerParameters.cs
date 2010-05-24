@@ -779,10 +779,12 @@ namespace Boo.Lang.Compiler
 					_defaultEventVisibility = TypeMemberModifiers.Private;
 					_defaultFieldVisibility = TypeMemberModifiers.Private;
 
-					EnableWarning("BCW0023");
-					EnableWarning("BCW0024");
-					DisableWarning("BCW0028"); //by default strict mode forbids implicit downcasts
-					                           //disable warning so we get only the regular incompatible type error
+                    EnableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
+                    EnableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
+
+					DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
+                   //by default strict mode forbids implicit downcasts
+                   //disable warning so we get only the regular incompatible type error
 				}
 				else
 				{
@@ -793,9 +795,9 @@ namespace Boo.Lang.Compiler
 					_defaultEventVisibility = TypeMemberModifiers.Public;
 					_defaultFieldVisibility = TypeMemberModifiers.Protected;
 
-					DisableWarning("BCW0023");
-					DisableWarning("BCW0024");
-					DisableWarning("BCW0028");
+                    DisableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
+                    DisableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
+                    DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
 				}
 			}
 		}
