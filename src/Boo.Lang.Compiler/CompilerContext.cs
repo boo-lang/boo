@@ -107,6 +107,7 @@ namespace Boo.Lang.Compiler
 			// FIXME: temporary hack to make sure the singleton is visible
 			// using the My<IReflectionTypeSystemProvider> idiom
 			RegisterService<IReflectionTypeSystemProvider>(_references.Provider);
+            RegisterService<CompilerParameters>(_parameters);
 			RegisterService<CompilerErrorCollection>(_errors);
 			RegisterService<CompilerWarningCollection>(_warnings);
             RegisterService<CompilerContext>(this);
