@@ -2373,7 +2373,7 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Method:
 					{
 						var method = entity as IMethod;
-						if (IsGenericMethod(method) && IsStandaloneReference(node) && !IsSubjectToGenericArgumentInference(node))
+						if (null != method && IsGenericMethod(method) && IsStandaloneReference(node) && !IsSubjectToGenericArgumentInference(node))
 							CannotInferGenericMethodArguments(node, method);
 						break;
 					}
