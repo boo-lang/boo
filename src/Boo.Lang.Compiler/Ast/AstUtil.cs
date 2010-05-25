@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static Node GetMemberAnchor(Node node)
 		{
-			MemberReferenceExpression member = node as MemberReferenceExpression;
+			var member = node as MemberReferenceExpression;
 			return member != null ? member.Target : node;
 		}
 

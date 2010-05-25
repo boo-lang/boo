@@ -36,10 +36,10 @@ namespace Boo.Lang.Compiler
 	public static class CompilerWarningFactory
 	{
 	    public static class Codes
-        {
-	        public const string ImplicitDowncast = "BCW0028";
+        {   
 	        public const string ImplicitReturn = "BCW0023";
 	        public const string VisibleMemberDoesNotDeclareTypeExplicitely = "BCW0024";
+			public const string ImplicitDowncast = "BCW0028";
         }
 
 		public static CompilerWarning CustomWarning(Node node, string msg)
