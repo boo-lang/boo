@@ -3260,8 +3260,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnGenericReferenceExpression(GenericReferenceExpression node)
 		{
-			IEntity tag = TypeSystem.TypeSystemServices.GetEntity(node);
-			switch (tag.EntityType)
+			IEntity entity = TypeSystem.TypeSystemServices.GetEntity(node);
+			switch (entity.EntityType)
 			{
 				case EntityType.Type:
 					{
@@ -3277,7 +3277,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				default:
 					{
-						NotImplemented(node, tag.ToString());
+						NotImplemented(node, entity.ToString());
 						break;
 					}
 			}
