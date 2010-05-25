@@ -2361,7 +2361,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void PostProcessReferenceExpression(ReferenceExpression node)
 		{
-			IEntity entity = GetEntity(node);
+			var entity = GetEntity(node);
 			switch (entity.EntityType)
 			{
 				case EntityType.Type:
@@ -2415,7 +2415,7 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Parameter:
 				case EntityType.Local:
 					{
-						ILocalEntity local = (ILocalEntity)node.Entity;
+						var local = (ILocalEntity)node.Entity;
 						local.IsUsed = true;
 						BindExpressionType(node, local.Type);
 						break;
@@ -2439,7 +2439,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private bool IsGenericMethod(IMethod m)
+		private static bool IsGenericMethod(IMethod m)
 		{
 			return m.GenericInfo != null;
 		}
