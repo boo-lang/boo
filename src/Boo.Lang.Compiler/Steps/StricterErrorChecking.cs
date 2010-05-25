@@ -225,9 +225,7 @@ namespace Boo.Lang.Compiler.Steps
 				else if (BinaryOperatorType.Assign != node.Operator
 				         && AreConstantExpressions(node.Left, node.Right))
 				{
-					Warnings.Add(
-						CompilerWarningFactory.ConstantExpression(node)
-					);
+					WarnAboutConstantExpression(node);
 				}
 			}
 		}
@@ -235,8 +233,7 @@ namespace Boo.Lang.Compiler.Steps
 		public override void OnBoolLiteralExpression(BoolLiteralExpression node)
 		{
 			if (node.ContainsAnnotation(ConstantFolding.FoldedExpression))
-				Warnings.Add(
-					CompilerWarningFactory.ConstantExpression(node));
+				WarnAboutConstantExpression(node);
 		}
 
 		public override void LeaveIfStatement(IfStatement node)
@@ -252,8 +249,20 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckNotConstant(Expression node)
 		{
 			if (IsConstant(node))
-				Warnings.Add(
-					CompilerWarningFactory.ConstantExpression(node));
+				WarnAboutConstantExpression(WarningAnchorFor(node));
+		}
+
+		private static Expression WarningAnchorFor(Expression node)
+		{
+			var genericRef = node as GenericReferenceExpression;
+			if (null != genericRef)
+				return genericRef.Target;
+			return node;
+		}
+
+		private void WarnAboutConstantExpression(Expression node)
+		{
+			Warnings.Add(CompilerWarningFactory.ConstantExpression(node));
 		}
 
 		protected virtual void LeaveExplodeExpression(UnaryExpression node)
@@ -303,8 +312,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (e.NodeType == NodeType.UnaryExpression)
 				return IsConstant(((UnaryExpression)e).Operand);
-			if (e.NodeType == NodeType.BinaryExpression) {
-				BinaryExpression be = (BinaryExpression)e;
+
+			if (e.NodeType == NodeType.BinaryExpression)
+			{
+				var be = (BinaryExpression)e;
 				if (AstUtil.GetBinaryOperatorKind(be) == BinaryOperatorKind.Logical)
 					return IsConstant(be.Left) && IsConstant(be.Right);
 			}
@@ -336,7 +347,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static bool IsImplicitCallable(Expression e)
 		{
-			return e is ReferenceExpression && (null != (e.Entity as IMethod));
+			return (e is ReferenceExpression || e is GenericReferenceExpression) && e.Entity is IMethod;
 		}
 
 		static bool IsLastArgumentOfVarArgInvocation(UnaryExpression node)

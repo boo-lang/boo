@@ -61,7 +61,7 @@ if not Constant.y:
 	pass
 if not NotAProperty: #FAIL (!!implicit callable!!)
 	pass
-if GenericNotAProperty: #same
+if GenericNotAProperty of int: #same
 	pass
 if not "foo" is "bar":
 	pass
