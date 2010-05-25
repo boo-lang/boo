@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit.Modules);
 		}
 		
-		public override void OnMethod (Method node)
+		public override void OnMethod(Method node)
 		{
 			// If method is generic, enter its namespace			
 			if (node.GenericParameters.Count != 0)
@@ -75,24 +75,20 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveCallableTypeReference(CallableTypeReference node)
 		{
-			IParameter[] parameters = new IParameter[node.Parameters.Count];
-			for (int i=0; i<parameters.Length; ++i)
-			{
-				parameters[i] = new InternalParameter(node.Parameters[i], i);
-			}
-			
-			IType returnType = null;
-			if (null != node.ReturnType)
-			{
-				returnType = GetType(node.ReturnType);
-			}
-			else
-			{
-				returnType = TypeSystemServices.VoidType;
-			}
-			
-			node.Entity = TypeSystemServices.GetConcreteCallableType(node, new CallableSignature(parameters, returnType, node.Parameters.HasParamArray));
+		    node.Entity = TypeSystemServices.GetConcreteCallableType(node, CallableSignatureFor(node));
 		}
 
+	    private CallableSignature CallableSignatureFor(CallableTypeReference node)
+	    {
+	        var parameters = new IParameter[node.Parameters.Count];
+	        for (int i=0; i<parameters.Length; ++i)
+	            parameters[i] = new InternalParameter(node.Parameters[i], i);
+			
+	        var returnType = node.ReturnType != null
+                   ? GetType(node.ReturnType)
+                   : TypeSystemServices.VoidType;
+
+	        return new CallableSignature(parameters, returnType, node.Parameters.HasParamArray);
+	    }
 	}
 }
