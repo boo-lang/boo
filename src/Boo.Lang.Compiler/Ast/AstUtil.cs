@@ -599,6 +599,14 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return ro;
 		}
+
+		public static bool IsTargetOfGenericReferenceExpression(Expression node)
+		{
+			var parent = node.ParentNode as GenericReferenceExpression;
+			if (parent == null)
+				return false;
+			return parent.Target == node;
+		}
 	}
 }
 

@@ -2444,8 +2444,8 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void BindNonGenericTypeReferenceExpressionType(Expression node, IType type)
 		{
 			if (type.GenericInfo != null
-				&& !(node.ParentNode is GenericReferenceExpression)
-				&& !AstUtil.IsTargetOfGenericMethodInvocation(node))
+				&& !AstUtil.IsTargetOfGenericReferenceExpression(node)
+				&& !AstUtil.IsTargetOfMethodInvocation(node))
 			{
 				My<CompilerErrorEmitter>.Instance.GenericArgumentsCountMismatch(node, type);
 				Error(node);
