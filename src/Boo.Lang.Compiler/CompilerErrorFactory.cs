@@ -889,7 +889,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0163", AstUtil.SafeLexicalInfo(type), gpd.Name, type, other);
 		}
 
-		public static CompilerError CannotInferGenericMethodArguments(MethodInvocationExpression node, IMethod method)
+		public static CompilerError CannotInferGenericMethodArguments(Node node, IMethod method)
 		{
 			return new CompilerError("BCE0164", AstUtil.SafeLexicalInfo(node), method);
 		}

@@ -2361,33 +2361,33 @@ namespace Boo.Lang.Compiler.Steps
 
 		void PostProcessReferenceExpression(ReferenceExpression node)
 		{
-			IEntity tag = GetEntity(node);
-			switch (tag.EntityType)
+			IEntity entity = GetEntity(node);
+			switch (entity.EntityType)
 			{
 				case EntityType.Type:
 					{
-						BindNonGenericTypeReferenceExpressionType(node, (IType)tag);
+						BindNonGenericTypeReferenceExpressionType(node, (IType)entity);
 						break;
 					}
 
 				case EntityType.Ambiguous:
 					{
-						Ambiguous ambiguous = (Ambiguous) tag;
-						tag = ResolveAmbiguousReference(node, ambiguous);
-						IMember resolvedMember	= tag as IMember;
+						var ambiguous = (Ambiguous) entity;
+						var resolvedEntity = ResolveAmbiguousReference(node, ambiguous);
+						var resolvedMember = resolvedEntity as IMember;
 						if (null != resolvedMember)
 						{
 							ResolveMemberInfo(node, resolvedMember);
 							break;
 						}
-						else if (tag is IType)
+						if (resolvedEntity is IType)
 						{
-							BindNonGenericTypeReferenceExpressionType(node, (IType)tag);
+							BindNonGenericTypeReferenceExpressionType(node, (IType)resolvedEntity);
 							break;
 						}
-						else if (!AstUtil.IsTargetOfMethodInvocation(node)
-							&& !AstUtil.IsTargetOfSlicing(node)
-							&& !AstUtil.IsLhsOfAssignment(node))
+						if (!AstUtil.IsTargetOfMethodInvocation(node)
+						    && !AstUtil.IsTargetOfSlicing(node)
+						    && !AstUtil.IsLhsOfAssignment(node))
 						{
 							Error(node, CompilerErrorFactory.AmbiguousReference(
 								node,
@@ -2400,9 +2400,7 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Namespace:
 					{
 						if (IsStandaloneReference(node))
-						{
-							Error(node, CompilerErrorFactory.NamespaceIsNotAnExpression(node, tag.Name));
-						}
+							Error(node, CompilerErrorFactory.NamespaceIsNotAnExpression(node, entity.Name));
 						break;
 					}
 
@@ -2417,15 +2415,15 @@ namespace Boo.Lang.Compiler.Steps
 
 				default:
 					{
-						if (EntityType.BuiltinFunction == tag.EntityType)
+						if (EntityType.BuiltinFunction == entity.EntityType)
 						{
-							CheckBuiltinUsage(node, tag);
+							CheckBuiltinUsage(node, entity);
 						}
 						else
 						{
 							if (node.ExpressionType == null)
 							{
-								BindExpressionType(node, ((ITypedEntity)tag).Type);
+								BindExpressionType(node, ((ITypedEntity)entity).Type);
 							}
 						}
 						break;
@@ -2443,9 +2441,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected virtual void BindNonGenericTypeReferenceExpressionType(Expression node, IType type)
 		{
-			if (type.GenericInfo != null
-				&& !AstUtil.IsTargetOfGenericReferenceExpression(node)
-				&& !AstUtil.IsTargetOfMethodInvocation(node))
+			if (type.GenericInfo != null && !IsSubjectToGenericArgumentInference(node))
 			{
 				My<CompilerErrorEmitter>.Instance.GenericArgumentsCountMismatch(node, type);
 				Error(node);
@@ -2453,6 +2449,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			BindTypeReferenceExpressionType(node, type);
+		}
+
+		private bool IsSubjectToGenericArgumentInference(Expression node)
+		{
+			return (AstUtil.IsTargetOfGenericReferenceExpression(node)
+			        || AstUtil.IsTargetOfMethodInvocation(node));
 		}
 
 		protected virtual void CheckBuiltinUsage(ReferenceExpression node, IEntity entity)
@@ -2518,21 +2520,31 @@ namespace Boo.Lang.Compiler.Steps
 
 		IEntity ResolveMember(MemberReferenceExpression node)
 		{
-			IEntity member = node.Entity;
-			if (!ShouldRebindMember(member))
-				return member;
+			var entity = node.Entity;
+			if (!ShouldRebindMember(entity))
+				return entity;
 
-			INamespace ns = GetReferenceNamespace(node);
-			member = NameResolutionService.Resolve(ns, node.Name);
-
+			var ns = GetReferenceNamespace(node);
+			var member = NameResolutionService.Resolve(ns, node.Name);
 			if (null == member || !IsAccessible(member))
 			{
-				IEntity extension = TryToResolveMemberAsExtension(node);
-				if (extension != null) return extension;
+				var extension = TryToResolveMemberAsExtension(node);
+				if (null != extension)
+					return extension;
 			}
 
-			if (null == member) MemberNotFound(node, ns);
+			if (null != member)
+				return Disambiguate(node, member);
 
+			MemberNotFound(node, ns);
+			return null;
+		}
+
+		private IEntity Disambiguate(ReferenceExpression node, IEntity member)
+		{
+			var ambiguous = member as Ambiguous;
+			if (ambiguous != null)
+				return ResolveAmbiguousReference(node, ambiguous);
 			return member;
 		}
 
@@ -2549,44 +2561,33 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			IEntity member = ResolveMember(node);
-			if (null == member)
+			var entity = ResolveMember(node);
+			if (null == entity)
 				return;
 
-			if (EntityType.Ambiguous == member.EntityType)
-			{
-				member = ResolveAmbiguousReference(node, (Ambiguous)member);
-			}
-
-			EnsureRelatedNodeWasVisited(node, member);
-
-			if (EntityType.Namespace == member.EntityType)
-			{
+			EnsureRelatedNodeWasVisited(node, entity);
+			if (EntityType.Namespace == entity.EntityType)
 				MarkRelatedImportAsUsed(node);
-			}
 
-			IMember memberInfo = member as IMember;
-			if (null != memberInfo)
+			var member = entity as IMember;
+			if (member != null)
 			{
-				if (!AssertTargetContext(node, memberInfo))
+				if (!AssertTargetContext(node, member))
 				{
 					Error(node);
 					return;
 				}
 
-				if (EntityType.Method != memberInfo.EntityType)
-				{
-					BindExpressionType(node, GetInferredType(memberInfo));
-				}
+				if (EntityType.Method != member.EntityType)
+					BindExpressionType(node, GetInferredType(member));
 				else
-				{
-					BindExpressionType(node, memberInfo.Type);
-				}
+					BindExpressionType(node, member.Type);
 			}
 
-			if (EntityType.Property == member.EntityType)
+			// TODO: check for generic methods with no generic args here
+			if (EntityType.Property == entity.EntityType)
 			{
-				IProperty property = (IProperty)member;
+				IProperty property = (IProperty)entity;
 				if (IsIndexedProperty(property))
 				{
 					if (!AstUtil.IsTargetOfSlicing(node)
@@ -2594,7 +2595,7 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						Error(node, CompilerErrorFactory.PropertyRequiresParameters(
 							AstUtil.GetMemberAnchor(node),
-							member.FullName));
+							entity.FullName));
 						return;
 					}
 				}
@@ -2602,17 +2603,17 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Error(node, CompilerErrorFactory.PropertyIsWriteOnly(
 						AstUtil.GetMemberAnchor(node),
-						member.FullName));
+						entity.FullName));
 				}
 			}
-			else if (EntityType.Event == member.EntityType)
+			else if (EntityType.Event == entity.EntityType)
 			{
 				if (!AstUtil.IsTargetOfMethodInvocation(node) &&
 					!AstUtil.IsLhsOfInPlaceAddSubtract(node))
 				{
-					if (CurrentType == memberInfo.DeclaringType)
+					if (CurrentType == member.DeclaringType)
 					{
-						InternalEvent ev = (InternalEvent)member;
+						InternalEvent ev = (InternalEvent)entity;
 						node.Name = ev.BackingField.Name;
 						node.Entity = ev.BackingField;
 						BindExpressionType(node, ev.BackingField.Type);
@@ -2623,16 +2624,16 @@ namespace Boo.Lang.Compiler.Steps
 					{
 						Error(node,
 							  CompilerErrorFactory.EventIsNotAnExpression(node,
-																		  member.FullName));
+																		  entity.FullName));
 					}
 					else //event=null
 					{
-						EnsureInternalEventInvocation((IEvent) member, node);
+						EnsureInternalEventInvocation((IEvent) entity, node);
 					}
 				}
 			}
 
-			Bind(node, member);
+			Bind(node, entity);
 			PostProcessReferenceExpression(node);
 		}
 
@@ -2698,26 +2699,20 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveAmbiguousReference(ReferenceExpression node, Ambiguous candidates)
 		{
-			IEntity resolved = ResolveAmbiguousReferenceByAccessibility(candidates);
-			Ambiguous accessibleCandidates = resolved as Ambiguous;
+			var resolved = ResolveAmbiguousReferenceByAccessibility(candidates);
+			var accessibleCandidates = resolved as Ambiguous;
 
-			if (accessibleCandidates != null &&
-				!AstUtil.IsTargetOfSlicing(node) &&
-				!AstUtil.IsLhsOfAssignment(node))
-			{
-				if (accessibleCandidates.AllEntitiesAre(EntityType.Property))
-				{
-					return ResolveAmbiguousPropertyReference(node, accessibleCandidates, EmptyExpressionCollection);
-				}
-				if (accessibleCandidates.AllEntitiesAre(EntityType.Method))
-				{
-					return ResolveAmbiguousMethodReference(node, accessibleCandidates, EmptyExpressionCollection);
-				}
-				if (accessibleCandidates.AllEntitiesAre(EntityType.Type))
-				{
-					return ResolveAmbiguousTypeReference(node, accessibleCandidates);
-				}
-			}
+			if (accessibleCandidates == null || AstUtil.IsTargetOfSlicing(node) || AstUtil.IsLhsOfAssignment(node))
+				return resolved;
+
+			if (accessibleCandidates.AllEntitiesAre(EntityType.Property))
+				return ResolveAmbiguousPropertyReference(node, accessibleCandidates, EmptyExpressionCollection);
+
+			if (accessibleCandidates.AllEntitiesAre(EntityType.Method))
+				return ResolveAmbiguousMethodReference(node, accessibleCandidates, EmptyExpressionCollection);
+
+			if (accessibleCandidates.AllEntitiesAre(EntityType.Type))
+				return ResolveAmbiguousTypeReference(node, accessibleCandidates);
 
 			return resolved;
 		}
@@ -4398,7 +4393,7 @@ namespace Boo.Lang.Compiler.Steps
 			inferrer.ResolveClosure += ProcessClosureInMethodInvocation;
 			if (!inferrer.Run())
 			{
-				Error(node, CompilerErrorFactory.CannotInferGenericMethodArguments(node, targetMethod));
+				CannotInferGenericMethodArguments(node, targetMethod);
 				return null;
 			}
 
@@ -4416,9 +4411,14 @@ namespace Boo.Lang.Compiler.Steps
 			return constructedMethod;
 		}
 
+		private void CannotInferGenericMethodArguments(Expression node, IMethod genericMethod)
+		{
+			Error(node, CompilerErrorFactory.CannotInferGenericMethodArguments(node, genericMethod));
+		}
+
 		private bool IsAccessible(IEntity member)
 		{
-			IAccessibleMember accessible = member as IAccessibleMember;
+			var accessible = member as IAccessibleMember;
 			if (accessible == null) return true;
 			return GetAccessibilityChecker().IsAccessible(accessible);
 		}
@@ -4444,16 +4444,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IExtensionEnabled extension = entity as IExtensionEnabled;
 			return null != extension && extension.IsExtension;
-		}
-
-		private bool IsOrContainsExtensionMethod(IEntity entity)
-		{
-			if (entity == null) return false;
-
-			Ambiguous ambiguous = entity as Ambiguous;
-			if (ambiguous != null) return ambiguous.Any(IsExtensionMethod);
-
-			return IsExtensionMethod(entity);
 		}
 
 		private void PostNormalizeExtensionInvocation(MethodInvocationExpression node, IMethod targetMethod)
