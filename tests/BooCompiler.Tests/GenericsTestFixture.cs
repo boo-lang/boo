@@ -499,12 +499,6 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"naked-type-constraints-1.boo");
 		}
 		
-		[Test]
-		public void name_resolution_1()
-		{
-			RunCompilerTestCase(@"name-resolution-1.boo");
-		}
-		
 		[Ignore(" generics with nested types not supported yet")][Test]
 		public void nested_generic_type_1()
 		{
