@@ -457,9 +457,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		
 		private void GenericArgumentsCountMismatch(TypeReference node, IType type)
 		{
-			CompilerErrors().Add(CompilerErrorFactory.GenericDefinitionArgumentCount(node, type.FullName, type.GenericInfo.GenericParameters.Length));
+		    CompilerErrorEmitter().GenericArgumentsCountMismatch(node, type);
 		}
-		
+
+		private CompilerErrorEmitter CompilerErrorEmitter()
+		{
+			return My<CompilerErrorEmitter>.Instance;
+		}
+
 		public IField ResolveField(IType type, string name)
 		{
 			return (IField)ResolveMember(type, name, EntityType.Field);
