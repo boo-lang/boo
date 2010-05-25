@@ -2370,6 +2370,14 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 
+				case EntityType.Method:
+					{
+						var method = entity as IMethod;
+						if (IsGenericMethod(method) && IsStandaloneReference(node) && !IsSubjectToGenericArgumentInference(node))
+							CannotInferGenericMethodArguments(node, method);
+						break;
+					}
+
 				case EntityType.Ambiguous:
 					{
 						var ambiguous = (Ambiguous) entity;
@@ -2429,6 +2437,11 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 			}
+		}
+
+		private bool IsGenericMethod(IMethod m)
+		{
+			return m.GenericInfo != null;
 		}
 
 		protected virtual void BindTypeReferenceExpressionType(Expression node, IType type)
