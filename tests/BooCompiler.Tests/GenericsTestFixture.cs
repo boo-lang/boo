@@ -452,6 +452,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void method_ref_1()
+		{
+			RunCompilerTestCase(@"method-ref-1.boo");
+		}
+		
+		[Test]
 		public void mixed_1()
 		{
 			RunCompilerTestCase(@"mixed-1.boo");

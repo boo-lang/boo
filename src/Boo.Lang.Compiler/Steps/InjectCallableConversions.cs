@@ -97,9 +97,9 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsStandaloneMethodReference(Expression node)
 		{
 			return
-				(node is ReferenceExpression) &&
-				IsMethodReference(node) &&
-				IsNotTargetOfMethodInvocation(node);
+				(node is ReferenceExpression || node is GenericReferenceExpression)
+                && IsMethodReference(node)
+                && IsNotTargetOfMethodInvocation(node);
 		}
 		
 		override public void LeaveExpressionStatement(ExpressionStatement node)
