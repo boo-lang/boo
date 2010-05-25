@@ -2287,7 +2287,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			if (AlreadyBound(node)) return;
+			if (AlreadyBound(node))
+                return;
 
 			IEntity entity = ResolveName(node, node.Name);
 			if (null == entity)
