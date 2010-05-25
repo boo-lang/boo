@@ -224,21 +224,17 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Expression newExpression = Convert(node.ExpressionType, node.Target);
 			if (null != newExpression)
-			{
 				node.Target = newExpression;
-			}
 		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
-			if (BinaryOperatorType.Assign == node.Operator)
-			{
-				Expression newRight = Convert(node.Left.ExpressionType, node.Right);
-				if (null != newRight)
-				{
-					node.Right = newRight;
-				}
-			}
+		    if (BinaryOperatorType.Assign != node.Operator)
+                return;
+
+		    Expression newRight = Convert(node.Left.ExpressionType, node.Right);
+		    if (null != newRight)
+		        node.Right = newRight;
 		}
 		
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
@@ -445,17 +441,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		Expression CreateDelegate(IType type, Expression source)
 		{
-			IMethod method = (IMethod)GetEntity(source);
+			var method = (IMethod)GetEntity(source);
 			
-			Expression target = null;
-			if (method.IsStatic)
-			{
-				target = CodeBuilder.CreateNullLiteral();
-			}
-			else
-			{
-				target = ((MemberReferenceExpression)source).Target;
-			}
+			Expression target = method.IsStatic
+                ? CodeBuilder.CreateNullLiteral()
+                : ((MemberReferenceExpression)source).Target;
+
 			return CodeBuilder.CreateConstructorInvocation(GetConcreteType(type).GetConstructors().First(),
 									target,
 									CodeBuilder.CreateAddressOfExpression(method));
@@ -463,12 +454,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IType GetConcreteType(IType type)
 		{
-			AnonymousCallableType anonymous = type as AnonymousCallableType;
-			if (null == anonymous)
-			{
-				return type;
-			}
-			return anonymous.ConcreteType;
+			var anonymous = type as AnonymousCallableType;
+			return null == anonymous ? type : anonymous.ConcreteType;
 		}
 		
 		IMethod GetInvokeMethod(ICallableType type)
