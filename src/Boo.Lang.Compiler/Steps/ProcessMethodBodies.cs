@@ -44,6 +44,7 @@ using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module=Boo.Lang.Compiler.Ast.Module;
@@ -2365,7 +2366,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				case EntityType.Type:
 					{
-						BindTypeReferenceExpressionType(node, (IType)tag);
+						BindNonGenericTypeReferenceExpressionType(node, (IType)tag);
 						break;
 					}
 
@@ -2381,7 +2382,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						else if (tag is IType)
 						{
-							BindTypeReferenceExpressionType(node, (IType)tag);
+							BindNonGenericTypeReferenceExpressionType(node, (IType)tag);
 							break;
 						}
 						else if (!AstUtil.IsTargetOfMethodInvocation(node)
@@ -2435,13 +2436,23 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void BindTypeReferenceExpressionType(Expression node, IType type)
 		{
 			if (IsStandaloneReference(node))
-			{
 				BindExpressionType(node, TypeSystemServices.TypeType);
-			}
 			else
-			{
 				BindExpressionType(node, type);
+		}
+
+		protected virtual void BindNonGenericTypeReferenceExpressionType(Expression node, IType type)
+		{
+			if (type.GenericInfo != null
+				&& !(node.ParentNode is GenericReferenceExpression)
+				&& !AstUtil.IsTargetOfGenericMethodInvocation(node))
+			{
+				My<CompilerErrorEmitter>.Instance.GenericArgumentsCountMismatch(node, type);
+				Error(node);
+				return;
 			}
+			
+			BindTypeReferenceExpressionType(node, type);
 		}
 
 		protected virtual void CheckBuiltinUsage(ReferenceExpression node, IEntity entity)
