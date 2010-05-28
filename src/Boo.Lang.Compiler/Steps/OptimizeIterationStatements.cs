@@ -29,6 +29,7 @@
 //Authored by Cameron Kenneth Knight: http://jira.codehaus.org/browse/BOO-137
 
 using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -41,9 +42,9 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class OptimizeIterationStatements : AbstractTransformerCompilerStep
 	{
-		static readonly System.Reflection.MethodInfo Array_get_Length = Types.Array.GetProperty("Length").GetGetMethod();
-		static readonly System.Reflection.MethodInfo System_Math_Ceiling = typeof(System.Math).GetMethod("Ceiling", new System.Type[] { typeof(double) });
-		static readonly System.Reflection.ConstructorInfo System_ArgumentOutOfRangeException_ctor = typeof(System.ArgumentOutOfRangeException).GetConstructor(new System.Type[] { typeof(string) });
+		private static readonly System.Reflection.MethodInfo Array_get_Length = Methods.GetterOf<Array, int>(a => a.Length);
+		private static readonly System.Reflection.MethodInfo System_Math_Ceiling = Methods.Of<double, double>(Math.Ceiling);
+		static readonly System.Reflection.ConstructorInfo System_ArgumentOutOfRangeException_ctor = Methods.ConstructorOf(() => new ArgumentOutOfRangeException(string.Empty));
 		
 		IMethod _range_End;
 		IMethod _range_Begin_End;

@@ -51,6 +51,7 @@ using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module = Boo.Lang.Compiler.Ast.Module;
 using System.Collections.Generic;
+using Method = Boo.Lang.Compiler.Ast.Method;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -84,7 +85,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static ConstructorInfo ParamArrayAttribute_Constructor = Types.ParamArrayAttribute.GetConstructor(Type.EmptyTypes);
 
-		static MethodInfo RuntimeServices_NormalizeArrayIndex = Types.RuntimeServices.GetMethod("NormalizeArrayIndex");
+		static MethodInfo RuntimeServices_NormalizeArrayIndex = Methods.Of<Array, int, int>(RuntimeServices.NormalizeArrayIndex);
 
 		static MethodInfo RuntimeServices_ToBool_Object = Types.RuntimeServices.GetMethod("ToBool", new Type[] { Types.Object });
 
@@ -98,7 +99,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static MethodInfo Array_get_Length = typeof(Array).GetProperty("Length").GetGetMethod();
 
-		static MethodInfo Math_Pow = typeof(Math).GetMethod("Pow");
+		static MethodInfo Math_Pow = Methods.Of<double, double, double>(Math.Pow);
 
 		static ConstructorInfo List_EmptyConstructor = Types.List.GetConstructor(Type.EmptyTypes);
 
@@ -114,7 +115,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static ConstructorInfo TimeSpan_LongConstructor = Types.TimeSpan.GetConstructor(new Type[] { typeof(long) });
 
-		static MethodInfo Type_GetTypeFromHandle = Types.Type.GetMethod("GetTypeFromHandle");
+		private static MethodInfo Type_GetTypeFromHandle = Methods.Of<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle);
 
 		static MethodInfo String_IsNullOrEmpty = Types.String.GetMethod("IsNullOrEmpty", new Type[] { Types.String });
 
@@ -4268,11 +4269,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitUnbox(IType expectedType)
 		{
-			string unboxMethodName = GetUnboxMethodName(expectedType);
-			if (null != unboxMethodName)
-			{
-				_il.EmitCall(OpCodes.Call, GetRuntimeMethod(unboxMethodName), null);
-			}
+			var unboxMethod = UnboxMethodFor(expectedType);
+			if (null != unboxMethod)
+				_il.EmitCall(OpCodes.Call, unboxMethod, null);
 			else
 			{
 				Type type = GetSystemType(expectedType);
@@ -4281,26 +4280,21 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		MethodInfo GetRuntimeMethod(string methodName)
+		MethodInfo UnboxMethodFor(IType type)
 		{
-			return Types.RuntimeServices.GetMethod(methodName);
-		}
-
-		string GetUnboxMethodName(IType type)
-		{
-			if (type == TypeSystemServices.ByteType) return "UnboxByte";
-			if (type == TypeSystemServices.SByteType) return "UnboxSByte";
-			if (type == TypeSystemServices.ShortType) return "UnboxInt16";
-			if (type == TypeSystemServices.UShortType) return "UnboxUInt16";
-			if (type == TypeSystemServices.IntType) return "UnboxInt32";
-			if (type == TypeSystemServices.UIntType) return "UnboxUInt32";
-			if (type == TypeSystemServices.LongType) return "UnboxInt64";
-			if (type == TypeSystemServices.ULongType) return "UnboxUInt64";
-			if (type == TypeSystemServices.SingleType) return "UnboxSingle";
-			if (type == TypeSystemServices.DoubleType) return "UnboxDouble";
-			if (type == TypeSystemServices.DecimalType) return "UnboxDecimal";
-			if (type == TypeSystemServices.BoolType) return "UnboxBoolean";
-			if (type == TypeSystemServices.CharType) return "UnboxChar";
+			if (type == TypeSystemServices.ByteType) return Methods.Of<object, byte>(RuntimeServices.UnboxByte);
+			if (type == TypeSystemServices.SByteType) return Methods.Of<object, sbyte>(RuntimeServices.UnboxSByte);
+			if (type == TypeSystemServices.ShortType) return Methods.Of<object, short>(RuntimeServices.UnboxInt16);
+			if (type == TypeSystemServices.UShortType) return Methods.Of<object, ushort>(RuntimeServices.UnboxUInt16);
+			if (type == TypeSystemServices.IntType) return Methods.Of<object, int>(RuntimeServices.UnboxInt32);
+			if (type == TypeSystemServices.UIntType) return Methods.Of<object, uint>(RuntimeServices.UnboxUInt32);
+			if (type == TypeSystemServices.LongType) return Methods.Of<object, long>(RuntimeServices.UnboxInt64);
+			if (type == TypeSystemServices.ULongType) return Methods.Of<object, ulong>(RuntimeServices.UnboxUInt64);
+			if (type == TypeSystemServices.SingleType) return Methods.Of<object, float>(RuntimeServices.UnboxSingle);
+			if (type == TypeSystemServices.DoubleType) return Methods.Of<object, double>(RuntimeServices.UnboxDouble);
+			if (type == TypeSystemServices.DecimalType) return Methods.Of<object, decimal>(RuntimeServices.UnboxDecimal);
+			if (type == TypeSystemServices.BoolType) return Methods.Of<object, bool>(RuntimeServices.UnboxBoolean);
+			if (type == TypeSystemServices.CharType) return Methods.Of<object, char>(RuntimeServices.UnboxChar);
 			return null;
 		}
 

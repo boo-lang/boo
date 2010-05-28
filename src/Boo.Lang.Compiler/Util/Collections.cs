@@ -29,12 +29,9 @@
 
 using System;
 using System.Collections.Generic;
-using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Util
 {
-	public delegate TOut Func<TIn, TOut>(TIn arg);
-
 	public static class Collections
 	{
 		public static T First<T>(IEnumerable<T> source)
@@ -58,7 +55,7 @@ namespace Boo.Lang.Compiler.Util
 					yield return element;
 		}
 
-		public static bool Any<T>(IEnumerable<T> source, System.Predicate<T> predicate)
+		public static bool Any<T>(IEnumerable<T> source, Predicate<T> predicate)
 		{
 			foreach (T element in source)
 				if (predicate(element))

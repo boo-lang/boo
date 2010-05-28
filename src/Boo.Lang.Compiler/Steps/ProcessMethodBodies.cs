@@ -6558,10 +6558,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get
 			{
-				return CachedMethod("RuntimeServices_EqualityOperator", delegate
-																 {
-																	return TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));;
-																 });
+				return CachedMethod("RuntimeServices_EqualityOperator", () => Methods.Of<object, object, bool>(RuntimeServices.EqualityOperator));
 			}
 		}
 
@@ -6600,13 +6597,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod Array_TypedEnumerableConstructor
 		{
-			get
-			{
-				return CachedMethod("Array_TypedEnumerableConstructor", delegate
-																 {
-																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
-																 });
-			}
+			get { return CachedMethod("Array_TypedEnumerableConstructor", () => Methods.Of<Type, IEnumerable, Array>(Builtins.array)); }
 		}
 
 		IMethod Array_TypedCollectionConstructor
@@ -6644,97 +6635,61 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod String_get_Length
 		{
-			get
-			{
-				return CachedMethod("String_get_Length", delegate
-																 {
-																	return ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();;
-																 });
-			}
+			get { return CachedMethod("String_get_Length", () => Methods.GetterOf<string, int>(s => s.Length)); }
 		}
 
 		IMethod String_IsNullOrEmpty
 		{
-			get
-			{
-				return CachedMethod("String_IsNullOrEmpty", delegate
-																 {
-																	return TypeSystemServices.Map(Types.String.GetMethod("IsNullOrEmpty"));;
-																 });
-			}
+			get { return CachedMethod("String_IsNullOrEmpty", () => Methods.Of<string, bool>(string.IsNullOrEmpty)); }
 		}
 
 		IMethod String_Substring_Int
 		{
-			get
-			{
-				return CachedMethod("String_Substring_Int", delegate
-																 {
-																	return TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));;
-																 });
-			}
+			get { return CachedMethod("String_Substring_Int", () => Methods.InstanceFunctionOf<string, int, string>(s => s.Substring)); }
 		}
 
 		IMethod ICollection_get_Count
 		{
 			get
 			{
-				return CachedMethod("ICollection_get_Count", delegate
-																 {
-																	return ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();;
-																 });
+				return CachedMethod("ICollection_get_Count", () => Methods.GetterOf<ICollection, int>(c => c.Count));
 			}
 		}
 
 		IMethod List_GetRange1
 		{
-			get
-			{
-				return CachedMethod("List_GetRange1", delegate
-																 {
-																	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));;
-																 });
-			}
+			get { return CachedMethod("List_GetRange1", () => Methods.InstanceFunctionOf<List<object>, int, List<object>>(l => l.GetRange)); }
 		}
 
 		IMethod List_GetRange2
 		{
-			get
-			{
-				return CachedMethod("List_GetRange2", delegate
-																 {
-																	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));;
-																 });
-			}
+			get { return CachedMethod("List_GetRange2", () => Methods.InstanceFunctionOf<List<object>, int, int, List<object>>(l => l.GetRange)); }
 		}
 
 		IMethod ICallable_Call
 		{
-			get
-			{
-				return CachedMethod("ICallable_Call", delegate
-																 {
-																	 return ResolveMethod(TypeSystemServices.ICallableType, "Call"); ;
-																 });
-			}
+			get { return CachedMethod("ICallable_Call", () => Methods.InstanceFunctionOf<ICallable, object[], object>(c => c.Call)); }
 		}
 
 		Dictionary<string, IMethodBase> _methodCache;
 	    private DowncastPermissions _downcastPermissions;
 
-	    private delegate IMethodBase MethodProducer();
+		IMethod CachedMethod(string key, Func<MethodInfo> producer)
+		{
+			return (IMethod)CachedMethodBase(key, () => TypeSystemServices.Map(producer()));
+		}
 
-		IMethod CachedMethod(string key, MethodProducer producer)
+		IMethod CachedMethod(string key, Func<IMethodBase> producer)
 		{
 			return (IMethod)CachedMethodBase(key, producer);
 		}
 
-		IConstructor CachedConstructor(string key, MethodProducer producer)
+		IConstructor CachedConstructor(string key, Func<IMethodBase> producer)
 		{
 			return (IConstructor)CachedMethodBase(key, producer);
 		}
 
-		private IMethodBase CachedMethodBase(string key, MethodProducer producer)
+		private IMethodBase CachedMethodBase(string key, Func<IMethodBase> producer)
 		{
 			IMethodBase method;
 			if (!_methodCache.TryGetValue(key, out method))
