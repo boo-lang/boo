@@ -1847,8 +1847,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 				node.Target,
-				TypeSystemServices.Map(
-					typeof(Array).GetMethod("GetValue", new Type[] { typeof(int[]) })));
+				CachedMethod("Array_GetValue", () => Methods.InstanceFunctionOf<Array, int[], object>(a => a.GetValue)));
 			for (int i = 0; i < node.Indices.Count; i++)
 			{
 				mie.Arguments.Add(node.Indices[i].Begin);
@@ -4938,7 +4937,7 @@ namespace Boo.Lang.Compiler.Steps
 			SlicingExpression slice = (SlicingExpression)node.Left;
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
 				slice.Target,
-				TypeSystemServices.Map(typeof(Array).GetMethod("SetValue", new Type[] { typeof(object), typeof(int[]) })),
+				CachedMethod("Array_SetValue", () => Methods.InstanceActionOf<Array, object, int[]>(a => a.SetValue)),
 				node.Right);
 			for (int i = 0; i < slice.Indices.Count; i++)
 			{
@@ -6501,240 +6500,151 @@ namespace Boo.Lang.Compiler.Steps
 		#region Method bindings cache
 		IMethod RuntimeServices_Len
 		{
-			get { return CachedRuntimeServicesMethod("Len"); }
+			get { return CachedRuntimeServicesMethod("Len", () => Methods.Of<object, int>(RuntimeServices.Len)); }
 		}
 
 		IMethod RuntimeServices_Mid
 		{
-			get { return CachedRuntimeServicesMethod("Mid"); }
+			get { return CachedRuntimeServicesMethod("Mid", () => Methods.Of<string, int, int, string>(RuntimeServices.Mid)); }
 		}
 
 		IMethod RuntimeServices_NormalizeStringIndex
 		{
-			get { return CachedRuntimeServicesMethod("NormalizeStringIndex"); }
+			get { return CachedRuntimeServicesMethod("NormalizeStringIndex", () => Methods.Of<string, int, int>(RuntimeServices.NormalizeStringIndex)); }
 		}
 
 		IMethod RuntimeServices_AddArrays
 		{
-			get { return CachedRuntimeServicesMethod("AddArrays"); }
+			get { return CachedRuntimeServicesMethod("AddArrays", () => Methods.Of<Type, Array, Array, Array>(RuntimeServices.AddArrays)); }
 		}
 
 		IMethod RuntimeServices_GetRange1
 		{
-			get { return CachedRuntimeServicesMethod("GetRange1"); }
+			get { return CachedRuntimeServicesMethod("GetRange1", () => Methods.Of<Array, int, Array>(RuntimeServices.GetRange1)); }
 		}
 
 		IMethod RuntimeServices_GetRange2
 		{
-			get { return CachedRuntimeServicesMethod("GetRange2"); }
+			get { return CachedRuntimeServicesMethod("GetRange2", () => Methods.Of<Array, int, int, Array>(RuntimeServices.GetRange2)); }
 		}
 
 		IMethod RuntimeServices_GetMultiDimensionalRange1
 		{
-			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1"); }
+			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1", () => Methods.Of<Array, int[], bool[], Array>(RuntimeServices.GetMultiDimensionalRange1)); }
 		}
 
 		IMethod RuntimeServices_SetMultiDimensionalRange1
 		{
-			get { return CachedRuntimeServicesMethod("SetMultiDimensionalRange1"); }
+			get { return CachedRuntimeServicesMethod("SetMultiDimensionalRange1", () => Methods.Of<Array, Array, int[], bool[]>(RuntimeServices.SetMultiDimensionalRange1)); }
 		}
 
 		IMethod RuntimeServices_GetEnumerable
 		{
-			get { return CachedRuntimeServicesMethod("GetEnumerable"); }
+			get { return CachedRuntimeServicesMethod("GetEnumerable", () => Methods.Of<object, IEnumerable>(RuntimeServices.GetEnumerable)); }
 		}
 
-
-		private IMethod CachedRuntimeServicesMethod(string methodName)
+		private IMethod CachedRuntimeServicesMethod(string methodName, Func<MethodInfo> producer)
 		{
-			return CachedMethod("RuntimeServices_" + methodName, delegate
-									 {
-										 return ResolveMethod(TypeSystemServices.RuntimeServicesType,
-															  methodName);
-									 });
+			return CachedMethod("RuntimeServices_" + methodName, producer);
 		}
 
 		IMethod RuntimeServices_EqualityOperator
 		{
-			get
-			{
-				return CachedMethod("RuntimeServices_EqualityOperator", delegate
-																 {
-																	return TypeSystemServices.Map(Types.RuntimeServices.GetMethod("EqualityOperator", new Type[] { Types.Object, Types.Object }));;
-																 });
-			}
+			get { return CachedMethod("RuntimeServices_EqualityOperator", () => Methods.Of<object, object, bool>(RuntimeServices.EqualityOperator)); }
 		}
 
 		IMethod Array_get_Length
 		{
-			get
-			{
-				return CachedMethod("Array_get_Length", delegate
-																 {
-																	return ResolveProperty(TypeSystemServices.ArrayType, "Length").GetGetMethod();
-																 });
-			}
+			get { return CachedMethod("Array_get_Length", () => Methods.GetterOf<Array, int>(a => a.Length)); }
 		}
 
 		IMethod Array_GetLength
 		{
-			get
-			{
-				return CachedMethod("Array_GetLength", delegate
-																 {
-																	return ResolveMethod(TypeSystemServices.ArrayType, "GetLength");;
-																 });
-			}
+			get { return CachedMethod("Array_GetLength", () => Methods.InstanceFunctionOf<Array, int, int>(a => a.GetLength)); }
 		}
 
 		IMethod Array_EnumerableConstructor
 		{
 			get
 			{
-				return CachedMethod("Array_EnumerableConstructor", delegate
-																 {
-																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.IEnumerable }));
-																 });
+				return CachedMethod("Array_EnumerableConstructor", () => Methods.Of<IEnumerable, Array>(Builtins.array));
 			}
 		}
 
 		IMethod Array_TypedEnumerableConstructor
 		{
-			get
-			{
-				return CachedMethod("Array_TypedEnumerableConstructor", delegate
-																 {
-																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.IEnumerable }));
-																 });
-			}
+			get { return CachedMethod("Array_TypedEnumerableConstructor", () => Methods.Of<Type, IEnumerable, Array>(Builtins.array)); }
 		}
 
 		IMethod Array_TypedCollectionConstructor
 		{
-			get
-			{
-				return CachedMethod("Array_TypedCollectionConstructor", delegate
-																 {
-																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection }));;
-																 });
-			}
+			get { return CachedMethod("Array_TypedCollectionConstructor", () => Methods.Of<Type, ICollection, Array>(Builtins.array)); }
 		}
 
 		IMethod Array_TypedIntConstructor
 		{
-			get
-			{
-				return CachedMethod("Array_TypedIntConstructor", delegate
-																 {
-																	return TypeSystemServices.Map(Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.Int }));;
-																 });
-			}
+			get { return CachedMethod("Array_TypedIntConstructor", () => Methods.Of<Type, int, Array>(Builtins.array)); }
 		}
 
 		IMethod MultiDimensionalArray_TypedConstructor
 		{
-			get
-			{
-				return CachedMethod("MultiDimensionalArray_TypedConstructor", delegate
-																 {
-																	return TypeSystemServices.Map(Types.Builtins.GetMethod("matrix", new Type[] { Types.Type, typeof(int[]) }));;
-																 });
-			}
+			get { return CachedMethod("MultiDimensionalArray_TypedConstructor",  () => Methods.Of<Type, int[], Array>(Builtins.matrix)); }
 		}
 
 		IMethod String_get_Length
 		{
-			get
-			{
-				return CachedMethod("String_get_Length", delegate
-																 {
-																	return ResolveProperty(TypeSystemServices.StringType, "Length").GetGetMethod();;
-																 });
-			}
+			get { return CachedMethod("String_get_Length", () => Methods.GetterOf<string, int>(s => s.Length)); }
 		}
 
 		IMethod String_IsNullOrEmpty
 		{
-			get
-			{
-				return CachedMethod("String_IsNullOrEmpty", delegate
-																 {
-																	return TypeSystemServices.Map(Types.String.GetMethod("IsNullOrEmpty"));;
-																 });
-			}
+			get { return CachedMethod("String_IsNullOrEmpty", () => Methods.Of<string, bool>(string.IsNullOrEmpty)); }
 		}
 
 		IMethod String_Substring_Int
 		{
-			get
-			{
-				return CachedMethod("String_Substring_Int", delegate
-																 {
-																	return TypeSystemServices.Map(Types.String.GetMethod("Substring", new Type[] { Types.Int }));;
-																 });
-			}
+			get { return CachedMethod("String_Substring_Int", () => Methods.InstanceFunctionOf<string, int, string>(s => s.Substring)); }
 		}
 
 		IMethod ICollection_get_Count
 		{
-			get
-			{
-				return CachedMethod("ICollection_get_Count", delegate
-																 {
-																	return ResolveProperty(TypeSystemServices.ICollectionType, "Count").GetGetMethod();;
-																 });
-			}
+			get { return CachedMethod("ICollection_get_Count", () => Methods.GetterOf<ICollection, int>(c => c.Count)); }
 		}
 
 		IMethod List_GetRange1
 		{
-			get
-			{
-				return CachedMethod("List_GetRange1", delegate
-																 {
-																	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int) }));;
-																 });
-			}
+			get { return CachedMethod("List_GetRange1", () => Methods.InstanceFunctionOf<List<object>, int, List<object>>(l => l.GetRange)); }
 		}
 
 		IMethod List_GetRange2
 		{
-			get
-			{
-				return CachedMethod("List_GetRange2", delegate
-																 {
-																	return TypeSystemServices.Map(Types.List.GetMethod("GetRange", new Type[] { typeof(int), typeof(int) }));;
-																 });
-			}
+			get { return CachedMethod("List_GetRange2", () => Methods.InstanceFunctionOf<List<object>, int, int, List<object>>(l => l.GetRange)); }
 		}
 
 		IMethod ICallable_Call
 		{
-			get
-			{
-				return CachedMethod("ICallable_Call", delegate
-																 {
-																	 return ResolveMethod(TypeSystemServices.ICallableType, "Call"); ;
-																 });
-			}
+			get { return CachedMethod("ICallable_Call", () => Methods.InstanceFunctionOf<ICallable, object[], object>(c => c.Call)); }
 		}
 
 		Dictionary<string, IMethodBase> _methodCache;
 	    private DowncastPermissions _downcastPermissions;
 
-	    private delegate IMethodBase MethodProducer();
+		IMethod CachedMethod(string key, Func<MethodInfo> producer)
+		{
+			return (IMethod)CachedMethodBase(key, () => TypeSystemServices.Map(producer()));
+		}
 
-		IMethod CachedMethod(string key, MethodProducer producer)
+		IMethod CachedMethod(string key, Func<IMethodBase> producer)
 		{
 			return (IMethod)CachedMethodBase(key, producer);
 		}
 
-		IConstructor CachedConstructor(string key, MethodProducer producer)
+		IConstructor CachedConstructor(string key, Func<IMethodBase> producer)
 		{
 			return (IConstructor)CachedMethodBase(key, producer);
 		}
 
-		private IMethodBase CachedMethodBase(string key, MethodProducer producer)
+		private IMethodBase CachedMethodBase(string key, Func<IMethodBase> producer)
 		{
 			IMethodBase method;
 			if (!_methodCache.TryGetValue(key, out method))
@@ -6749,17 +6659,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get
 			{
-				return CachedMethod("Activator_CreateInstance", delegate
-																{
-																	return
-																		TypeSystemServices.Map(
-																			typeof(Activator).GetMethod("CreateInstance",
-																										new Type[]
-																										{
-																											Types.Type,
-																											Types.ObjectArray
-																										}));
-																});
+				return CachedMethod("Activator_CreateInstance", () => Methods.Of<Type, object[], object>(Activator.CreateInstance));
 			}
 		}
 
@@ -6776,13 +6676,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IMethod TextReaderEnumerator_lines
 		{
-			get
-			{
-				return CachedMethod("TextReaderEnumerator_lines", delegate
-				{
-					return TypeSystemServices.Map(typeof(TextReaderEnumerator).GetMethod("lines"));
-				});
-			}
+			get { return CachedMethod("TextReaderEnumerator_lines", () => Methods.Of<TextReader, IEnumerable<string>>(TextReaderEnumerator.lines)); }
 		}
 		#endregion
 

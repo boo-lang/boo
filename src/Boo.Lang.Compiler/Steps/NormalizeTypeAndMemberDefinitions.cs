@@ -26,7 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Reflection;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -130,7 +132,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IConstructor DefaultMemberAttributeStringConstructor()
 		{
-			return TypeSystemServices.Map(Types.DefaultMemberAttribute.GetConstructor(new System.Type[] {Types.String }));
+			return TypeSystemServices.Map(Methods.ConstructorOf(() => new DefaultMemberAttribute(default(string))));
 		}
 
 		private static bool ContainsDefaultMemberAttribute(TypeDefinition t)
@@ -161,7 +163,8 @@ namespace Boo.Lang.Compiler.Steps
 			else if (!node.IsVisibilitySet && null == node.ExplicitInfo)
 			{
 				node.Modifiers |= Context.Parameters.DefaultPropertyVisibility;
-			}
+			}
+
 			if (null != node.Getter)
 			{
 				SetPropertyAccessorModifiers(node, node.Getter);

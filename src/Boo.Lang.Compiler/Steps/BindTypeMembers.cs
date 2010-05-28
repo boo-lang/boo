@@ -28,6 +28,7 @@
 
 
 using System;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -229,10 +230,8 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return;
 			}
-			Type delegateType = Types.Delegate;
-			Type[] delegates = new Type[] { delegateType, delegateType };
-			_delegate_Combine = TypeSystemServices.Map(delegateType.GetMethod("Combine", delegates));
-			_delegate_Remove = TypeSystemServices.Map(delegateType.GetMethod("Remove", delegates));
+			_delegate_Combine = TypeSystemServices.Map(Methods.Of<Delegate, Delegate, Delegate>(Delegate.Combine));
+			_delegate_Remove = TypeSystemServices.Map(Methods.Of<Delegate, Delegate, Delegate>(Delegate.Remove));
 		}
 
 		Method CreateInterfaceEventMethod(Event node, string prefix)

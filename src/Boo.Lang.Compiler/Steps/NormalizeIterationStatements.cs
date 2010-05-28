@@ -26,7 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Compiler.Util;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -42,10 +45,10 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class NormalizeIterationStatements : AbstractTransformerCompilerStep
 	{
-		static System.Reflection.MethodInfo RuntimeServices_MoveNext = Types.RuntimeServices.GetMethod("MoveNext");
-		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable = Types.RuntimeServices.GetMethod("GetEnumerable");
-		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = Types.IEnumerable.GetMethod("GetEnumerator");
-		static System.Reflection.MethodInfo IDisposable_Dispose = Types.IDisposable.GetMethod("Dispose");
+		static System.Reflection.MethodInfo RuntimeServices_MoveNext = Methods.Of<IEnumerator, object>(RuntimeServices.MoveNext);
+		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable =  Methods.Of<object, IEnumerable>(RuntimeServices.GetEnumerable);
+		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = Methods.InstanceFunctionOf<IEnumerable, IEnumerator>(e => e.GetEnumerator);
+		static System.Reflection.MethodInfo IDisposable_Dispose =  Methods.InstanceActionOf<IDisposable>(d => d.Dispose);
 
 		Method _current;
 
