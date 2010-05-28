@@ -63,11 +63,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError AmbiguousReference(ReferenceExpression reference, System.Reflection.MemberInfo[] members)
 		{
-			return new CompilerError("BCE0004",
-									  AstUtil.SafeLexicalInfo(reference),
-									  reference.Name,
-									  ToNameList(members)
-									  );
+			return new CompilerError("BCE0004", AstUtil.SafeLexicalInfo(reference), reference.Name, ToNameList(members));
 		}
 		
 		public static CompilerError AmbiguousReference(Node node, string name, System.Collections.IEnumerable names)
@@ -97,11 +93,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError AttributeApplicationError(Exception error, Boo.Lang.Compiler.Ast.Attribute attribute, Type attributeType)
 		{
-			return new CompilerError("BCE0009",
-					                  attribute.LexicalInfo,
-					                  error,
-					                  attributeType,
-					                  error.Message);
+			return new CompilerError("BCE0009", attribute.LexicalInfo, error, attributeType, error.Message);
 		}
 		
 		public static CompilerError AstAttributeMustBeExternal(Node node, string attributeType)
@@ -149,9 +141,9 @@ namespace Boo.Lang.Compiler
 			return new CompilerError("BCE0018", AstUtil.SafeLexicalInfo(node), typeName, whatItIs, DidYouMeanOrNull(suggestion));
 		}
 		
-		public static CompilerError MemberNotFound(MemberReferenceExpression node, string namespace_, string suggestion)
+		public static CompilerError MemberNotFound(MemberReferenceExpression node, string @namespace, string suggestion)
 		{
-			return new CompilerError("BCE0019", AstUtil.SafeLexicalInfo(node), node.Name, namespace_, DidYouMeanOrNull(suggestion));
+			return new CompilerError("BCE0019", AstUtil.SafeLexicalInfo(node), node.Name, @namespace, DidYouMeanOrNull(suggestion));
 		}
 
 		public static CompilerError InstanceRequired(Node node, string typeName, string memberName)
