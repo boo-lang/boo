@@ -1,4 +1,5 @@
 build
+ide-build
 _ReSharper*
 obj
 *.suo
