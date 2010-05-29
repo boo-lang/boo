@@ -4810,55 +4810,49 @@ namespace Boo.Lang.Compiler.Steps
 			return attributes;
 		}
 
-		MethodAttributes GetMethodAttributesFromTypeMember(TypeMember member)
+		MethodAttributes MethodAttributesFor(TypeMember member)
 		{
-			MethodAttributes attributes = (MethodAttributes)0;
-			if (member.IsPublic)
-			{
-				attributes = MethodAttributes.Public;
-			}
-			else if (member.IsProtected)
-			{
-				attributes = member.IsInternal
-					? MethodAttributes.FamORAssem
-					: MethodAttributes.Family;
-			}
-			else if (member.IsPrivate)
-			{
-				attributes = MethodAttributes.Private;
-			}
-			else if (member.IsInternal)
-			{
-				attributes = MethodAttributes.Assembly;
-			}
+			var attributes = MethodVisibilityAttributesFor(member);
+
 			if (member.IsStatic)
 			{
 				attributes |= MethodAttributes.Static;
-
 				if (member.Name.StartsWith("op_"))
-				{
 					attributes |= MethodAttributes.SpecialName;
-				}
 			}
-			if (member.IsFinal)
-			{
-				attributes |= MethodAttributes.Final;
-			}
-			if (member.IsAbstract)
-			{
+			else if (member.IsAbstract)
 				attributes |= (MethodAttributes.Abstract | MethodAttributes.Virtual);
-			}
-			if (member.IsVirtual || member.IsOverride)
+			else if (member.IsVirtual || member.IsOverride)
 			{
 				attributes |= MethodAttributes.Virtual;
+				if (member.IsFinal)
+					attributes |= MethodAttributes.Final;
 			}
+
+			return attributes;
+		}
+
+		private MethodAttributes MethodVisibilityAttributesFor(TypeMember member)
+		{
+			MethodAttributes attributes = (MethodAttributes)0;
+			
+			if (member.IsPublic)
+				attributes = MethodAttributes.Public;
+			else if (member.IsProtected)
+				attributes = member.IsInternal
+				             	? MethodAttributes.FamORAssem
+				             	: MethodAttributes.Family;
+			else if (member.IsPrivate)
+				attributes = MethodAttributes.Private;
+			else if (member.IsInternal)
+				attributes = MethodAttributes.Assembly;
 			return attributes;
 		}
 
 		MethodAttributes GetPropertyMethodAttributes(TypeMember property)
 		{
 			MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
-			attributes |= GetMethodAttributesFromTypeMember(property);
+			attributes |= MethodAttributesFor(property);
 			return attributes;
 		}
 
@@ -4874,7 +4868,7 @@ namespace Boo.Lang.Compiler.Steps
 				Debug.Assert(method.IsStatic);
 				attributes |= MethodAttributes.PinvokeImpl;
 			}
-			attributes |= GetMethodAttributesFromTypeMember(method);
+			attributes |= MethodAttributesFor(method);
 			return attributes;
 		}
 
