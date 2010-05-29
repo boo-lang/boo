@@ -73,17 +73,17 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class EmitAssembly : AbstractVisitorCompilerStep
 	{
-		static ConstructorInfo DebuggableAttribute_Constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { Types.Bool, Types.Bool });
+		static ConstructorInfo DebuggableAttribute_Constructor = Methods.ConstructorOf(() => new DebuggableAttribute(true, true));
 
-		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetConstructor(Type.EmptyTypes);
+		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = Methods.ConstructorOf(() => new System.Runtime.CompilerServices.RuntimeCompatibilityAttribute());
 
-		static ConstructorInfo SerializableAttribute_Constructor = typeof(SerializableAttribute).GetConstructor(Type.EmptyTypes);
+		static ConstructorInfo SerializableAttribute_Constructor = Methods.ConstructorOf(() => new SerializableAttribute());
 
-		static PropertyInfo[] RuntimeCompatibilityAttribute_Property = new PropertyInfo[] { typeof(System.Runtime.CompilerServices.RuntimeCompatibilityAttribute).GetProperty("WrapNonExceptionThrows") };
+		static PropertyInfo[] RuntimeCompatibilityAttribute_Property = new[] { Properties.Of<System.Runtime.CompilerServices.RuntimeCompatibilityAttribute, bool>(a => a.WrapNonExceptionThrows) };
 
-		static ConstructorInfo DuckTypedAttribute_Constructor = Types.DuckTypedAttribute.GetConstructor(Type.EmptyTypes);
+		static ConstructorInfo DuckTypedAttribute_Constructor = Methods.ConstructorOf(() => new DuckTypedAttribute());
 
-		static ConstructorInfo ParamArrayAttribute_Constructor = Types.ParamArrayAttribute.GetConstructor(Type.EmptyTypes);
+		static ConstructorInfo ParamArrayAttribute_Constructor = Methods.ConstructorOf(() => new ParamArrayAttribute());
 
 		static MethodInfo RuntimeServices_NormalizeArrayIndex = Methods.Of<Array, int, int>(RuntimeServices.NormalizeArrayIndex);
 
@@ -97,7 +97,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static MethodInfo Builtins_ArrayTypedCollectionConstructor = Types.Builtins.GetMethod("array", new Type[] { Types.Type, Types.ICollection });
 
-		static MethodInfo Array_get_Length = typeof(Array).GetProperty("Length").GetGetMethod();
+		private static MethodInfo Array_get_Length = Methods.GetterOf<Array, int>(a => a.Length);
 
 		static MethodInfo Math_Pow = Methods.Of<double, double, double>(Math.Pow);
 
@@ -113,13 +113,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		static MethodInfo Hash_Add = Types.Hash.GetMethod("Add", new Type[] { typeof(object), typeof(object) });
 
-		static ConstructorInfo TimeSpan_LongConstructor = Types.TimeSpan.GetConstructor(new Type[] { typeof(long) });
+		private static ConstructorInfo TimeSpan_LongConstructor = Methods.ConstructorOf(() => new TimeSpan(default(long)));
 
 		private static MethodInfo Type_GetTypeFromHandle = Methods.Of<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle);
 
-		static MethodInfo String_IsNullOrEmpty = Types.String.GetMethod("IsNullOrEmpty", new Type[] { Types.String });
+		static MethodInfo String_IsNullOrEmpty = Methods.Of<string, bool>(string.IsNullOrEmpty);
 
-		static MethodInfo RuntimeHelpers_InitializeArray = typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray", new Type[] { Types.Array, typeof(System.RuntimeFieldHandle) });
+		static MethodInfo RuntimeHelpers_InitializeArray = Methods.Of<Array, RuntimeFieldHandle>(System.Runtime.CompilerServices.RuntimeHelpers.InitializeArray);
 
 
 		AssemblyBuilder _asmBuilder;
@@ -3058,8 +3058,9 @@ namespace Boo.Lang.Compiler.Steps
 			Type stringBuilderType = typeof(StringBuilder);
 			ConstructorInfo constructor = stringBuilderType.GetConstructor(Type.EmptyTypes);
 			ConstructorInfo constructorString = stringBuilderType.GetConstructor(new Type[] { typeof(string) });
-			MethodInfo appendObject = stringBuilderType.GetMethod("Append", new Type[] { typeof(object) });
-			MethodInfo appendString = stringBuilderType.GetMethod("Append", new Type[] { typeof(string) });
+
+			MethodInfo appendObject = Methods.InstanceFunctionOf<StringBuilder, object, StringBuilder>(sb => sb.Append);
+			MethodInfo appendString = Methods.InstanceFunctionOf<StringBuilder, string, StringBuilder>(sb => sb.Append);
 			Expression arg0 = node.Expressions[0];
 			IType argType = arg0.ExpressionType;
 
@@ -4409,16 +4410,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		CustomAttributeBuilder CreateUnverifiableCodeAttribute()
 		{
-			return new CustomAttributeBuilder(
-				typeof(UnverifiableCodeAttribute).GetConstructor(Type.EmptyTypes), new object[0]);
+			return new CustomAttributeBuilder(Methods.ConstructorOf(() => new UnverifiableCodeAttribute()), new object[0]);
 		}
 
 		CustomAttributeBuilder CreateSecurityPermissionAttribute(string permission)
 		{
 			return new CustomAttributeBuilder(
-				typeof(SecurityPermissionAttribute).GetConstructor(new Type[] { typeof(SecurityAction) }),
+				Methods.ConstructorOf(() => new SecurityPermissionAttribute(default(SecurityAction))),
 				new object[] { SecurityAction.RequestMinimum },
-				new PropertyInfo[] { typeof(SecurityPermissionAttribute).GetProperty("SkipVerification") },
+				new[] { Properties.Of<SecurityPermissionAttribute, bool>(p => p.SkipVerification) },
 				new object[] { true });
 		}
 
@@ -5780,7 +5780,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (null != stringFormat)
 					return stringFormat;
-				stringFormat = Types.String.GetMethod("Format", new Type[] { typeof(string), typeof(object) });
+				stringFormat = Methods.Of<string, object, string>(string.Format);
 				return stringFormat;
 			}
 		}

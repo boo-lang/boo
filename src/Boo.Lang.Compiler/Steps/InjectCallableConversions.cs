@@ -27,7 +27,9 @@
 #endregion
 
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -56,9 +58,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void Initialize()
 		{
-			Type type = typeof(System.Runtime.Remoting.Messaging.AsyncResult);
+			Type type = typeof(AsyncResult);
 			_asyncResultType = TypeSystemServices.Map(type);
-			_asyncResultTypeAsyncDelegateGetter = TypeSystemServices.Map(type.GetProperty("AsyncDelegate").GetGetMethod());
+			_asyncResultTypeAsyncDelegateGetter = TypeSystemServices.Map(Methods.GetterOf<AsyncResult, object>(r => r.AsyncDelegate));
 			_adaptors = new Boo.Lang.List();
 		}
 		

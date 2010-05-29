@@ -115,6 +115,7 @@
     <Compile Include="Runtime\Methods.cs" />
     <Compile Include="Runtime\NumericTypes.cs" />
     <Compile Include="Runtime\PromotionEmitter.cs" />
+    <Compile Include="Runtime\Properties.cs" />
     <Compile Include="Runtime\PropertyDispatcherFactory.cs" />
     <Compile Include="Runtime\RuntimeException.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />

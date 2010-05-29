@@ -26,9 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections;
 using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -38,7 +40,7 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ProcessGenerators : AbstractTransformerCompilerStep
 	{
-		public static System.Reflection.ConstructorInfo List_IEnumerableConstructor = Types.List.GetConstructor(new Type[] { Types.IEnumerable });
+		public static System.Reflection.ConstructorInfo List_IEnumerableConstructor = Methods.ConstructorOf(() => new List(default(IEnumerable)));
 		
 		Method _current;
 		

@@ -6,6 +6,7 @@ namespace Boo.Lang.Runtime
 {
 	public static class Methods
 	{
+		
 		public static MethodInfo Of<T>(Func<T> value)
 		{
 			return value.Method;
@@ -21,6 +22,11 @@ namespace Boo.Lang.Runtime
 			return value.Method;
 		}
 
+		public static MethodInfo Of<T1, T2, T3, TRet>(Func<T1, T2, T3, TRet> value)
+		{
+			return value.Method;
+		}
+
 		public static MethodInfo Of(Action value)
 		{
 			return value.Method;
@@ -31,7 +37,22 @@ namespace Boo.Lang.Runtime
 			return value.Method;
 		}
 
+		public static MethodInfo Of<T1, T2>(Action<T1, T2> value)
+		{
+			return value.Method;
+		}
+
+		public static MethodInfo Of<T1, T2, T3, T4>(Action<T1, T2, T3, T4> value)
+		{
+			return value.Method;
+		}
+
 		public static MethodInfo InstanceActionOf<TInstance>(Expression<Func<TInstance, Action>> func)
+		{
+			return MethodInfoFromLambdaExpressionBody(func.Body);
+		}
+
+		public static MethodInfo InstanceActionOf<TInstance, T1, T2>(Expression<Func<TInstance, Action<T1, T2>>> func)
 		{
 			return MethodInfoFromLambdaExpressionBody(func.Body);
 		}
