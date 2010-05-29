@@ -48,14 +48,7 @@ namespace Boo.Lang
 
 		public static string GetString(string name)
 		{
-			try
-			{
-				return _rm.GetString(name);
-			}
-			catch (Exception)
-			{
-				return "Resource not found: " + name;
-			}
+			return _rm.GetString(name);
 		}
 
 		public static string Format(string name, params object[] args)
