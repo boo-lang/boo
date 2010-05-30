@@ -72,11 +72,27 @@ namespace Boo.Lang.Compiler.Ast
 			return _stack.Pop();
 		}
 
+		public Expression Serialize(LexicalInfo location)
+		{
+			if (!location.IsValid)
+				return CreateReference(location, location.GetType().FullName + ".Empty");
+			var ctorInvocation = CreateInvocation(location, location.GetType().FullName);
+			ctorInvocation.Arguments.Add(Serialize(location.FileName));
+			ctorInvocation.Arguments.Add(Serialize(location.Line));
+			ctorInvocation.Arguments.Add(Serialize(location.Column));
+			return ctorInvocation;
+		}
+
 		public Expression CreateReference(Node sourceNode, string qname)
 		{
-			return AstUtil.CreateReferenceExpression(sourceNode.LexicalInfo, qname);
+			return CreateReference(sourceNode.LexicalInfo, qname);
 		}
-		
+
+		private Expression CreateReference(LexicalInfo lexicalInfo, string qname)
+		{
+			return AstUtil.CreateReferenceExpression(lexicalInfo, qname);
+		}
+
 		public Expression CreateReference(string qname)
 		{
 			return AstUtil.CreateReferenceExpression(qname);
@@ -128,9 +144,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			MethodInvocationExpression mie = CreateFromArrayInvocation(sourceNode, typeName);
 			foreach (Statement item in items)
-			{
 				mie.Arguments.Add(LiftStatement(Serialize(item)));
-			}
 			return mie;
 		}
 		
@@ -143,9 +157,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			MethodInvocationExpression mie = CreateFromArrayInvocation(sourceNode, typeName);
 			foreach (Node item in items)
-			{
 				mie.Arguments.Add(Serialize(item));
-			}
 			return mie;
 		}
 		
@@ -296,9 +308,12 @@ namespace Boo.Lang.Compiler.Ast
 
 		private MethodInvocationExpression CreateInvocation(Node sourceNode, string reference)
 		{
-			return new MethodInvocationExpression(
-						sourceNode.LexicalInfo,
-						CreateReference(sourceNode, reference));
+			return CreateInvocation(sourceNode.LexicalInfo, reference);
+		}
+
+		private MethodInvocationExpression CreateInvocation(LexicalInfo lexicalInfo, string reference)
+		{
+			return new MethodInvocationExpression(lexicalInfo, CreateReference(lexicalInfo, reference));
 		}
 
 		private static bool IsStatementExpression(SpliceExpression node)

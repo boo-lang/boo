@@ -39,6 +39,7 @@ for item in model.GetConcreteAstNodes():
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "${itemType}"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 <%
 	for field in fields:
 	

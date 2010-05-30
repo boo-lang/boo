@@ -1,6 +1,6 @@
 """
-BCE0035: 'Fail1.GetEnumerator' conflicts with inherited member 'System.Collections.IEnumerable.GetEnumerator'.
-BCE0035: 'Fail2.GetEnumerator' conflicts with inherited member 'System.Collections.Generic.IEnumerable[of B].GetEnumerator()'.
+'Fail1.GetEnumerator' conflicts with inherited member 'System.Collections.IEnumerable.GetEnumerator'.
+'Fail2.GetEnumerator' conflicts with inherited member 'System.Collections.Generic.IEnumerable[of B].GetEnumerator()'.
 """
 
 import Boo.Lang.Compiler.MetaProgramming
@@ -27,4 +27,5 @@ code = [|
 
 |]
 
-print compile_(code).Errors
+for error in compile_(code).Errors:
+	print error.Message

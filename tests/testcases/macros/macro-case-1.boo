@@ -1,7 +1,7 @@
 """
 false
 yeah
-BCE0045: Macro expansion error: `_assert` failed to match `_assert 'invalid', 'number', 'of', 'arguments'`.
+Macro expansion error: `_assert` failed to match `_assert 'invalid', 'number', 'of', 'arguments'`.
 """
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
@@ -31,5 +31,5 @@ code = [|
 	_assert "invalid", "number", "of", "arguments"
 |]
 result = compile_(code, System.Reflection.Assembly.GetExecutingAssembly())
-print result.Errors.ToString()
-
+for error in result.Errors:
+	print error.Message

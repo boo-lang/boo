@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		public override void OnReturnStatement(ReturnStatement node)
+		override public void OnReturnStatement(ReturnStatement node)
 		{
 			RemoveUnreachableCode(node);
 		}

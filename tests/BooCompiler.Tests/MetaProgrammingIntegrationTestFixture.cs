@@ -61,6 +61,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void lexical_info_is_preserved()
+		{
+			RunCompilerTestCase(@"lexical-info-is-preserved.boo");
+		}
+		
+		[Test]
 		public void meta_methods_1()
 		{
 			RunCompilerTestCase(@"meta-methods-1.boo");

@@ -148,8 +148,9 @@ namespace Boo.Lang.Compiler.Ast
 		override public void OnCompileUnit(Boo.Lang.Compiler.Ast.CompileUnit node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(
-					node.LexicalInfo,
+				node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CompileUnit"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modules))
 			{
 				mie.NamedArguments.Add(
@@ -166,6 +167,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ExplicitMemberInfo"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.InterfaceType))
 			{
 				mie.NamedArguments.Add(
@@ -182,6 +184,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SimpleTypeReference"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.IsPointer))
 			{
 				mie.NamedArguments.Add(
@@ -205,6 +208,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ArrayTypeReference"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.IsPointer))
 			{
 				mie.NamedArguments.Add(
@@ -235,6 +239,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CallableTypeReference"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.IsPointer))
 			{
 				mie.NamedArguments.Add(
@@ -265,6 +270,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.GenericTypeReference"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.IsPointer))
 			{
 				mie.NamedArguments.Add(
@@ -295,6 +301,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.GenericTypeDefinitionReference"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.IsPointer))
 			{
 				mie.NamedArguments.Add(
@@ -325,6 +332,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CallableDefinition"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -383,6 +391,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.NamespaceDeclaration"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -399,6 +408,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Import"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Namespace))
 			{
 				mie.NamedArguments.Add(
@@ -429,6 +439,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Module"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -508,6 +519,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ClassDefinition"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -559,6 +571,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.StructDefinition"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -610,6 +623,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.InterfaceDefinition"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -661,6 +675,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.EnumDefinition"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -712,6 +727,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.EnumMember"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -749,6 +765,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Field"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -800,6 +817,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Property"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -865,6 +883,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Event"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -923,6 +942,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Local"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -939,6 +959,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.BlockExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Parameters))
 			{
 				mie.NamedArguments.Add(
@@ -969,6 +990,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Method"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -1055,6 +1077,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Constructor"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -1141,6 +1164,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Destructor"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -1227,6 +1251,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ParameterDeclaration"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -1264,6 +1289,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.GenericParameterDeclaration"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -1294,6 +1320,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Declaration"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -1317,6 +1344,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Attribute"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -1347,6 +1375,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.StatementModifier"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Type))
 			{
 				mie.NamedArguments.Add(
@@ -1370,6 +1399,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.GotoStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1393,6 +1423,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.LabelStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1416,6 +1447,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Block"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1439,6 +1471,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.DeclarationStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1469,6 +1502,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.MacroStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1506,6 +1540,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.TryStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1550,6 +1585,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ExceptionHandler"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Declaration))
 			{
 				mie.NamedArguments.Add(
@@ -1587,6 +1623,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.IfStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1624,6 +1661,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.UnlessStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1654,6 +1692,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ForStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1705,6 +1744,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.WhileStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1749,6 +1789,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.BreakStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1765,6 +1806,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ContinueStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1781,6 +1823,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ReturnStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1804,6 +1847,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.YieldStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1827,6 +1871,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.RaiseStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1850,6 +1895,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.UnpackStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -1880,6 +1926,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ExpressionPair"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.First))
 			{
 				mie.NamedArguments.Add(
@@ -1903,6 +1950,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.MethodInvocationExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Target))
 			{
 				mie.NamedArguments.Add(
@@ -1933,6 +1981,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.UnaryExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Operator))
 			{
 				mie.NamedArguments.Add(
@@ -1956,6 +2005,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.BinaryExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Operator))
 			{
 				mie.NamedArguments.Add(
@@ -1986,6 +2036,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ConditionalExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Condition))
 			{
 				mie.NamedArguments.Add(
@@ -2016,6 +2067,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ReferenceExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -2032,6 +2084,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -2055,6 +2108,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.GenericReferenceExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Target))
 			{
 				mie.NamedArguments.Add(
@@ -2078,6 +2132,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.StringLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Value))
 			{
 				mie.NamedArguments.Add(
@@ -2094,6 +2149,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CharLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Value))
 			{
 				mie.NamedArguments.Add(
@@ -2110,6 +2166,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Value))
 			{
 				mie.NamedArguments.Add(
@@ -2126,6 +2183,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.IntegerLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Value))
 			{
 				mie.NamedArguments.Add(
@@ -2149,6 +2207,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.DoubleLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Value))
 			{
 				mie.NamedArguments.Add(
@@ -2172,6 +2231,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.NullLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			Push(mie);
 		}
 
@@ -2181,6 +2241,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SelfLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			Push(mie);
 		}
 
@@ -2190,6 +2251,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SuperLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			Push(mie);
 		}
 
@@ -2199,6 +2261,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.BoolLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Value))
 			{
 				mie.NamedArguments.Add(
@@ -2215,6 +2278,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.RELiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Value))
 			{
 				mie.NamedArguments.Add(
@@ -2231,6 +2295,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SpliceExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Expression))
 			{
 				mie.NamedArguments.Add(
@@ -2247,6 +2312,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SpliceTypeReference"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.IsPointer))
 			{
 				mie.NamedArguments.Add(
@@ -2270,6 +2336,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Target))
 			{
 				mie.NamedArguments.Add(
@@ -2293,6 +2360,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SpliceTypeMember"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
@@ -2337,6 +2405,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SpliceParameterDeclaration"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Name))
 			{
 				mie.NamedArguments.Add(
@@ -2388,6 +2457,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Expressions))
 			{
 				mie.NamedArguments.Add(
@@ -2404,6 +2474,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.HashLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Items))
 			{
 				mie.NamedArguments.Add(
@@ -2420,6 +2491,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ListLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Items))
 			{
 				mie.NamedArguments.Add(
@@ -2436,6 +2508,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ArrayLiteralExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Items))
 			{
 				mie.NamedArguments.Add(
@@ -2459,6 +2532,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.GeneratorExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Expression))
 			{
 				mie.NamedArguments.Add(
@@ -2496,6 +2570,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Items))
 			{
 				mie.NamedArguments.Add(
@@ -2512,6 +2587,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Slice"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Begin))
 			{
 				mie.NamedArguments.Add(
@@ -2542,6 +2618,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SlicingExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Target))
 			{
 				mie.NamedArguments.Add(
@@ -2565,6 +2642,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.TryCastExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Target))
 			{
 				mie.NamedArguments.Add(
@@ -2588,6 +2666,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CastExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Target))
 			{
 				mie.NamedArguments.Add(
@@ -2611,6 +2690,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.TypeofExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Type))
 			{
 				mie.NamedArguments.Add(
@@ -2627,6 +2707,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CustomStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifier))
 			{
 				mie.NamedArguments.Add(
@@ -2643,6 +2724,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CustomExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			Push(mie);
 		}
 
@@ -2652,6 +2734,7 @@ namespace Boo.Lang.Compiler.Ast
 			MethodInvocationExpression mie = new MethodInvocationExpression(
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.StatementTypeMember"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modifiers))
 			{
 				mie.NamedArguments.Add(
