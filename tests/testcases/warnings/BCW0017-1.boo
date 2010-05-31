@@ -6,7 +6,7 @@ BCW0017-1.boo(38,15): BCW0017: WARNING: New protected field '_z' declared in sea
 """
 
 class A:
-	protected def Foo():
+	protected virtual def Foo():
 		pass
 
 	X:

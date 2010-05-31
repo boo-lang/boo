@@ -29,36 +29,18 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public interface IMethod : IMethodBase, IExtensionEnabled
+	public interface IMethod : IMethodBase, IExtensionEnabled, IOverridableMember
 	{	
-		bool IsAbstract
-		{
-			get;
-		}
+		bool IsAbstract { get; }
 		
-		bool IsVirtual
-		{
-			get;
-		}
+		bool IsVirtual { get; }
 		
-		bool IsSpecialName
-		{
-			get;
-		}
+		bool IsSpecialName { get; }
 
-		bool IsPInvoke
-		{
-			get;
-		}
+		bool IsPInvoke { get; }
 		
-		IConstructedMethodInfo ConstructedInfo
-		{
-			get; 
-		}
+		IConstructedMethodInfo ConstructedInfo { get;  }
 		
-		IGenericMethodInfo GenericInfo
-		{
-			get;
-		}
+		IGenericMethodInfo GenericInfo { get; }
 	}
 }

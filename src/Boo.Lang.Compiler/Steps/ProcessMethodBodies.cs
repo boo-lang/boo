@@ -919,14 +919,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void CheckIfIsMethodOverride(InternalMethod entity)
+		void CheckIfIsMethodOverride(InternalMethod internalMethod)
 		{
-			if (entity.IsStatic) return;
+			if (internalMethod.IsStatic) return;
 
-			IMethod overriden = FindMethodOverride(entity);
+			IMethod overriden = FindMethodOverride(internalMethod);
 			if (null == overriden) return;
 
-			ProcessMethodOverride(entity, overriden);
+			ValidateOverride(internalMethod, overriden);
 		}
 
 		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
@@ -960,22 +960,16 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			Method method = entity.Method;
 			if (NodeType.Property == method.ParentNode.NodeType)
-			{
 				return FindPropertyAccessorOverride((Property)method.ParentNode, method);
-			}
 
 			IType baseType = entity.DeclaringType.BaseType;
 			IEntity candidates = NameResolutionService.Resolve(baseType, entity.Name, EntityType.Method);
 			if (null == candidates)
-			{
 				return null;
-			}
 
 			IMethod baseMethod = FindMethodOverride(entity, candidates);
 			if (null != baseMethod)
-			{
 				EnsureRelatedNodeWasVisited(method, baseMethod);
-			}
 			return baseMethod;
 		}
 
@@ -983,7 +977,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (EntityType.Method == candidates.EntityType)
 			{
-				IMethod candidate = (IMethod)candidates;
+				var candidate = (IMethod)candidates;
 				if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
 				{
 					return candidate;
@@ -1019,15 +1013,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (!baseMethod.IsVirtual)
-				{
-					CantOverrideNonVirtual(entity.Method, baseMethod);
-				}
-				else
-				{
-					ProcessMethodOverride(entity, baseMethod);
-				}
+				ValidateOverride(entity, baseMethod);
 			}
+		}
+
+		private void ValidateOverride(InternalMethod entity, IMethod baseMethod)
+		{
+			if (!baseMethod.IsVirtual || baseMethod.IsFinal)
+				CantOverrideNonVirtual(entity.Method, baseMethod);
+			else
+				ProcessMethodOverride(entity, baseMethod);
 		}
 
 		void ProcessMethodOverride(InternalMethod entity, IMethod baseMethod)

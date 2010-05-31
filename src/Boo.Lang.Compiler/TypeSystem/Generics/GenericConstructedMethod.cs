@@ -108,6 +108,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			get { return _definition.IsVirtual; }
 		}
+
+		public bool IsFinal
+		{
+			get { return _definition.IsFinal; }
+		}
 		
 		public bool IsSpecialName
 		{

@@ -103,12 +103,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public bool IsVirtual
 		{
-			get
-			{
-				return _node.IsVirtual
-				       || _node.IsAbstract
-				       || _node.IsOverride;
-			}
+			get { return _node.IsVirtual || _node.IsAbstract || _node.IsOverride; }
+		}
+
+		public bool IsFinal
+		{
+			get { return _node.IsFinal;  }
 		}
 		
 		public bool IsSpecialName

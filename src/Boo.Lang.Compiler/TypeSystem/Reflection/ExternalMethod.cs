@@ -167,10 +167,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsVirtual
 		{
-			get
-			{
-				return _memberInfo.IsVirtual;
-			}
+			get { return _memberInfo.IsVirtual; }
+		}
+
+		public bool IsFinal
+		{
+			get { return _memberInfo.IsFinal;  }
 		}
 		
 		public bool IsSpecialName

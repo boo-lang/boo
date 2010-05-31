@@ -3,7 +3,7 @@ BCE0090-3.boo(10,17): BCE0090: Derived method 'Derived.Foo' can not reduce the a
 """
 
 class Base:
-	internal def Foo():
+	internal virtual def Foo():
 		pass
 
 class Derived(Base):

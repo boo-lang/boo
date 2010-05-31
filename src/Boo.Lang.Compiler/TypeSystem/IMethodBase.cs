@@ -31,14 +31,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IMethodBase : IAccessibleMember, IEntityWithParameters
 	{
-		ICallableType CallableType
-		{
-			get;
-		}
+		ICallableType CallableType { get; }
 
-		IType ReturnType
-		{
-			get;
-		}
+		IType ReturnType { get; }
 	}
 }

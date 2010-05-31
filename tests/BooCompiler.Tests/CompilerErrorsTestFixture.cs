@@ -333,6 +333,24 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCE0047_3()
+		{
+			RunCompilerTestCase(@"BCE0047-3.boo");
+		}
+		
+		[Test]
+		public void BCE0047_4()
+		{
+			RunCompilerTestCase(@"BCE0047-4.boo");
+		}
+		
+		[Test]
+		public void BCE0047_5()
+		{
+			RunCompilerTestCase(@"BCE0047-5.boo");
+		}
+		
+		[Test]
 		public void BCE0049_1()
 		{
 			RunCompilerTestCase(@"BCE0049-1.boo");

@@ -555,6 +555,7 @@
     <Compile Include="TypeSystem\Internal\InternalProperty.cs" />
     <Compile Include="TypeSystem\Internal\InternalTypeSystemProvider.cs" />
     <Compile Include="TypeSystem\Internal\PartialModuleNamespace.cs" />
+    <Compile Include="TypeSystem\IOverridableMember.cs" />
     <Compile Include="TypeSystem\IParameter.cs" />
     <Compile Include="TypeSystem\IProperty.cs" />
     <Compile Include="TypeSystem\IType.cs" />

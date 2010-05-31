@@ -179,6 +179,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			get { return SourceMember.IsVirtual; }
 		}
 
+		public bool IsFinal
+		{
+			get { return SourceMember.IsFinal; }
+		}
+
 		public bool IsSpecialName
 		{
 			get { return SourceMember.IsSpecialName; }
@@ -439,5 +444,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			get { return SourceMember.IsVolatile; }
 		}
-	}}
+	}
+}
 
