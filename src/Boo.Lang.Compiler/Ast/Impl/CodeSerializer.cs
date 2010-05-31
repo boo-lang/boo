@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.Ast
 		override public void OnCompileUnit(Boo.Lang.Compiler.Ast.CompileUnit node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(
-				node.LexicalInfo,
+					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.CompileUnit"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
 			if (ShouldSerialize(node.Modules))
