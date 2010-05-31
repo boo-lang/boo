@@ -75,12 +75,25 @@ namespace BooCompiler.Tests
 			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
-			_parameters.OutputAssembly = Path.Combine(Path.GetTempPath(), "testcase.exe");
+			Directory.CreateDirectory(TestOutputPath);
+			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
 			_parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
 			CustomizeCompilerParameters();
 			if (VerifyGeneratedAssemblies) CopyDependencies();
 		}
-		
+
+		private string TestOutputPath
+		{
+			get
+			{
+#if MSBUILD
+				return Path.Combine(Path.GetTempPath(), "msbuild");
+#else
+				return Path.GetTempPath();
+#endif
+			}
+		}
+
 		protected virtual string GetRelativeTestCasesPath()
 		{
 			return "compilation";
@@ -118,7 +131,7 @@ namespace BooCompiler.Tests
 		
 		public void CopyAssembly(string location)
 		{
-			string destFileName = Path.Combine(Path.GetTempPath(), Path.GetFileName(location));
+			string destFileName = Path.Combine(TestOutputPath, Path.GetFileName(location));
 			if (File.Exists(destFileName) && !IsNewer(location, destFileName))
 				return;
 			File.Copy(location, destFileName, true);
