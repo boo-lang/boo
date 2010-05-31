@@ -637,6 +637,30 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void method_shadowing_1()
+		{
+			RunCompilerTestCase(@"method-shadowing-1.boo");
+		}
+		
+		[Test]
+		public void method_shadowing_2()
+		{
+			RunCompilerTestCase(@"method-shadowing-2.boo");
+		}
+		
+		[Test]
+		public void method_shadowing_3()
+		{
+			RunCompilerTestCase(@"method-shadowing-3.boo");
+		}
+		
+		[Test]
+		public void method_shadowing_4()
+		{
+			RunCompilerTestCase(@"method-shadowing-4.boo");
+		}
+		
+		[Test]
 		public void methods_1()
 		{
 			RunCompilerTestCase(@"methods-1.boo");

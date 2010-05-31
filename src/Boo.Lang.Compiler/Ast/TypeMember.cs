@@ -129,7 +129,12 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			get { return IsModifierSet(TypeMemberModifiers.Virtual); }
 		}
-		
+
+		public bool IsNew
+		{
+			get { return IsModifierSet(TypeMemberModifiers.New); }
+		}
+
 		public bool IsStatic
 		{
 			get { return IsModifierSet(TypeMemberModifiers.Static); }

@@ -4827,6 +4827,8 @@ namespace Boo.Lang.Compiler.Steps
 				attributes |= MethodAttributes.Virtual;
 				if (member.IsFinal)
 					attributes |= MethodAttributes.Final;
+				if (member.IsNew)
+					attributes |= MethodAttributes.NewSlot;
 			}
 
 			return attributes;
@@ -4860,9 +4862,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MethodAttributes attributes = MethodAttributes.HideBySig;
 			if (method.ExplicitInfo != null)
-			{
 				attributes |= MethodAttributes.NewSlot;
-			}
 			if (IsPInvoke(method))
 			{
 				Debug.Assert(method.IsStatic);

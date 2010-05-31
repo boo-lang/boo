@@ -922,6 +922,7 @@ namespace Boo.Lang.Compiler.Steps
 		void CheckIfIsMethodOverride(InternalMethod internalMethod)
 		{
 			if (internalMethod.IsStatic) return;
+			if (internalMethod.IsNew) return;
 
 			IMethod overriden = FindMethodOverride(internalMethod);
 			if (null == overriden) return;
@@ -1184,14 +1185,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		void PreProcessMethod(Method node)
 		{
-			if (WasAlreadyPreProcessed(node)) return;
+			if (WasAlreadyPreProcessed(node))
+				return;
+
 			MarkPreProcessed(node);
 
-			InternalMethod entity = (InternalMethod)GetEntity(node);
+			var entity = (InternalMethod)GetEntity(node);
 			if (node.IsOverride)
-			{
 				ResolveMethodOverride(entity);
-			}
 			else
 			{
 				CheckIfIsMethodOverride(entity);

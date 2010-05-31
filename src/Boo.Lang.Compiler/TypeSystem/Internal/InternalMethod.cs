@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
@@ -301,6 +302,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public virtual IGenericMethodInfo GenericInfo
 		{
 			get { return null; }
+		}
+
+		public bool IsNew
+		{
+			get { return _node.IsNew; }
 		}
 	}
 }
