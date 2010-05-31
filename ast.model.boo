@@ -23,6 +23,7 @@ enum TypeMemberModifiers:
 	Override = 256
 	Abstract = 512
 	Partial = 1024
+	New = 2048
 	VisibilityMask = 15
 	
 enum MethodImplementationFlags:

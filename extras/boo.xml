@@ -51,6 +51,7 @@ Also based on boo.lang from gtksourceview
 			<item>abstract</item>
 			<item>virtual</item>
 			<item>override</item>
+			<item>new</item>
 			<item>static</item>
 			<item>final</item>
 			<item>transient</item>

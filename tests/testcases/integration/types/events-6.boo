@@ -20,7 +20,7 @@ class Observable:
 	static event Changed as callable(object, object)
 
 	
-handler = { old, new | print "${old}, ${new}" }
+handler = { old, newValue | print "${old}, ${newValue}" }
 Observable.Changed += handler
 
 Observable.Value = "foo"

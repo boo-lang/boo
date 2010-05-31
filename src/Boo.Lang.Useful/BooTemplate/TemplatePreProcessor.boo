@@ -34,13 +34,13 @@ import Boo.Lang.Compiler.Steps
 
 class TemplatePreProcessor(AbstractCompilerStep):
 	override def Run():
-		new = []
+		preprocessed = []
 		for input in self.Parameters.Input:
 			using reader=input.Open():
 				code = booify(reader.ReadToEnd())
-				new.Add(StringInput(input.Name, code))
+				preprocessed.Add(StringInput(input.Name, code))
 		self.Parameters.Input.Clear()
-		for input in new:
+		for input in preprocessed:
 			self.Parameters.Input.Add(input)
 
 def booify(code as string):

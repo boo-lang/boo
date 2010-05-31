@@ -81,13 +81,14 @@ tokens
 	IS="is";	
 	ISA="isa";	
 	IF="if";	
-	IN="in";	
+	IN="in";
+	NAMESPACE="namespace";
+	NEW="new";	
 	NOT="not";	
 	NULL="null";
 	OF="of";
 	OR="or";
 	OVERRIDE="override";	
-	NAMESPACE="namespace";
 	PUBLIC="public";
 	PROTECTED="protected";
 	PRIVATE="private";
@@ -797,23 +798,25 @@ block[StatementCollection container]:
 	)*
 	; 
 	
+	
 protected
 modifiers
 {
-	_modifiers = TypeMemberModifiers.None;
 }:
+	{ _modifiers = TypeMemberModifiers.None; }
 	(
-	STATIC { _modifiers |= TypeMemberModifiers.Static; } |
-	PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
-	PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
-	PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
-	INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
-	FINAL { _modifiers |= TypeMemberModifiers.Final; } |
-	TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
-	OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
-	ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
-	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |
-	PARTIAL { _modifiers |= TypeMemberModifiers.Partial; }	
+		STATIC { _modifiers |= TypeMemberModifiers.Static; } |
+		PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
+		PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
+		PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
+		INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
+		FINAL { _modifiers |= TypeMemberModifiers.Final; } |
+		TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
+		OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
+		ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
+		VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |
+		NEW { _modifiers |= TypeMemberModifiers.New; } |
+		PARTIAL { _modifiers |= TypeMemberModifiers.Partial; }
 	)*
 ;
 

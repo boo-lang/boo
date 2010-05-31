@@ -101,6 +101,7 @@ OR
 		<keyword>abstract</keyword>
 		<keyword>virtual</keyword>
 		<keyword>override</keyword>
+		<keyword>new</keyword>
 		<keyword>static</keyword>
 		<keyword>final</keyword>
 		<keyword>transient</keyword>

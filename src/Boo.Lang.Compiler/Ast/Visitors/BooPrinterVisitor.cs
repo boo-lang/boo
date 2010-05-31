@@ -1747,49 +1747,29 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteIndented();
 			if (member.IsPartial)
-			{
 				WriteKeyword("partial ");
-			}
 			if (member.IsPublic)
-			{
 				WriteKeyword("public ");
-			}
 			else if (member.IsProtected)
-			{
 				WriteKeyword("protected ");
-			}
 			else if (member.IsPrivate)
-			{
 				WriteKeyword("private ");
-			}
 			else if (member.IsInternal)
-			{
 				WriteKeyword("internal ");
-			}
 			if (member.IsStatic)
-			{
 				WriteKeyword("static ");
-			}
 			else if (member.IsModifierSet(TypeMemberModifiers.Override))
-			{
 				WriteKeyword("override ");
-			}
 			else if (member.IsModifierSet(TypeMemberModifiers.Virtual))
-			{
 				WriteKeyword("virtual ");
-			}
 			else if (member.IsModifierSet(TypeMemberModifiers.Abstract))
-			{
 				WriteKeyword("abstract ");
-			}
 			if (member.IsFinal)
-			{
 				WriteKeyword("final ");
-			}
+			if (member.IsNew)
+				WriteKeyword("new ");
 			if (member.IsTransient)
-			{
 				WriteKeyword("transient ");
-			}
 		}
 
 		virtual protected void WriteTypeDefinition(string keyword, TypeDefinition td)

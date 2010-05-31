@@ -15,9 +15,9 @@ public class Test(object):
 		public get:
 			return self.x
 
-	public def GetAndSet(ref x as object, new as object) as void:
+	public def GetAndSet(ref x as object, newValue as object) as void:
 		x = self.x
-		self.x = new
+		self.x = newValue
 
 	public def constructor():
 		super()
@@ -47,9 +47,9 @@ class Test:
 	Value:
 		get: return .x
 
-	def GetAndSet(ref x, new):
+	def GetAndSet(ref x, newValue):
 		x = .x
-		.x = new
+		.x = newValue
 
 
 def Do():

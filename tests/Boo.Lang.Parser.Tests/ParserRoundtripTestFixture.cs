@@ -798,6 +798,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void new_1()
+		{
+			RunCompilerTestCase(@"new-1.boo");
+		}
+		
+		[Test]
 		public void not_1()
 		{
 			RunCompilerTestCase(@"not-1.boo");
