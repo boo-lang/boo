@@ -53,10 +53,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public virtual TypeDefinition DeclaringType
 		{
-			get
-			{
-				return ParentNode as TypeDefinition;
-			}
+			get { return ParentNode as TypeDefinition; }
 		}
 		
 		public virtual string FullName
@@ -64,9 +61,7 @@ namespace Boo.Lang.Compiler.Ast
 			get
 			{
 				if (null != ParentNode)
-				{
 					return DeclaringType.FullName + "." + Name;
-				}
 				return Name;
 			}
 		}
@@ -87,10 +82,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public TypeMemberModifiers Visibility
 		{
-			get
-			{
-				return _modifiers & TypeMemberModifiers.VisibilityMask;
-			}
+			get { return _modifiers & TypeMemberModifiers.VisibilityMask; }
 
 			set
 			{
@@ -101,10 +93,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool IsVisibilitySet
 		{
-			get
-			{
-				return IsPublic | IsInternal | IsPrivate | IsProtected;
-			}
+			get { return IsPublic | IsInternal | IsPrivate | IsProtected; }
 		}
 
 		public bool IsVisible
@@ -128,90 +117,57 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool IsAbstract
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Abstract);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Abstract); }
 		}
 		
 		public bool IsOverride
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Override);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Override); }
 		}
 		
 		public bool IsVirtual
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Virtual);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Virtual); }
 		}
 		
 		public bool IsStatic
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Static);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Static); }
 		}
 		
 		public bool IsPublic
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Public);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Public); }
 		}
 		
 		public bool IsInternal
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Internal);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Internal); }
 		}
 		
 		public bool IsProtected
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Protected);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Protected); }
 		}
 		
 		public bool IsPrivate
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Private);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Private); }
 		}
 		
 		public bool IsFinal
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Final);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Final); }
 		}
 		
 		public bool IsTransient
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Transient);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Transient); }
 		}
 		
 		public bool IsPartial
 		{
-			get
-			{
-				return IsModifierSet(TypeMemberModifiers.Partial);
-			}
+			get { return IsModifierSet(TypeMemberModifiers.Partial); }
 		}
 		
 		public bool IsModifierSet(TypeMemberModifiers modifiers)
