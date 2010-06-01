@@ -589,14 +589,14 @@ class BooCodeGenerator(CodeGenerator):
 		for att as CodeAttributeDeclaration in attributes:
 			GenerateAttributeDeclarationsStart(attributes)
 			Output.Write(prefix) if prefix
-			OutputAttributeDeclaration(att)
+			OutputAttribute(att)
 			GenerateAttributeDeclarationsEnd(attributes)
 			if inline:  //for parameter and return type attributes
 				pass //Output.Write(" ")
 			else:
 				Output.WriteLine()
 	
-	private def OutputAttributeDeclaration(attribute as CodeAttributeDeclaration):
+	private def OutputAttribute(attribute as CodeAttributeDeclaration):
 		Output.Write(attribute.Name.Replace ('+', '.'))
 		Output.Write('(')
 		first = true
