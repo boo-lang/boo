@@ -339,6 +339,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCW0029_1()
+		{
+			RunCompilerTestCase(@"BCW0029-1.boo");
+		}
+		
+		[Test]
 		public void nowarn_1()
 		{
 			RunCompilerTestCase(@"nowarn-1.boo");

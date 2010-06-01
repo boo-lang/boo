@@ -11,3 +11,8 @@ class B(A):
 
 t as A = B()
 t.B()
+
+		
+[assembly: StrictMode]
+
+

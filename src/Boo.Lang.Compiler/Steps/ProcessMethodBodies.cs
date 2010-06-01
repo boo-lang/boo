@@ -927,7 +927,25 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod overriden = FindMethodOverride(internalMethod);
 			if (null == overriden) return;
 
-			ValidateOverride(internalMethod, overriden);
+			if (CanBeOverriden(overriden))
+				ProcessMethodOverride(internalMethod, overriden);
+			else
+			{
+				if (InStrictMode())
+					CantOverrideNonVirtual(internalMethod.Method, overriden);
+				else
+					MethodHidesInheritedNonVirtual(internalMethod, overriden);
+			}
+		}
+
+		private bool InStrictMode()
+		{
+			return Parameters.Strict;
+		}
+
+		private void MethodHidesInheritedNonVirtual(InternalMethod hidingMethod, IMethod hiddenMethod)
+		{
+			Warnings.Add(CompilerWarningFactory.MethodHidesInheritedNonVirtual(hidingMethod.Method, hidingMethod.ToString(), hiddenMethod.ToString()));
 		}
 
 		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
@@ -1002,28 +1020,35 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ResolveMethodOverride(InternalMethod entity)
 		{
-			IMethod baseMethod = FindMethodOverride(entity);
+			var baseMethod = FindMethodOverride(entity);
 			if (null == baseMethod)
 			{
-				string suggestion = NameResolutionService.GetMostSimilarMemberName(
-						entity.DeclaringType.BaseType, entity.Name, EntityType.Method);
+				var suggestion = GetMostSimilarBaseMethodName(entity);
 				if (suggestion == entity.Name) //same name => incompatible signature
 					Error(CompilerErrorFactory.NoMethodToOverride(entity.Method, entity.ToString(), true));
 				else //suggestion (or null)
 					Error(CompilerErrorFactory.NoMethodToOverride(entity.Method, entity.ToString(), suggestion));
 			}
 			else
-			{
 				ValidateOverride(entity, baseMethod);
-			}
+		}
+
+		private string GetMostSimilarBaseMethodName(InternalMethod entity)
+		{
+			return NameResolutionService.GetMostSimilarMemberName(entity.DeclaringType.BaseType, entity.Name, EntityType.Method);
 		}
 
 		private void ValidateOverride(InternalMethod entity, IMethod baseMethod)
 		{
-			if (!baseMethod.IsVirtual || baseMethod.IsFinal)
-				CantOverrideNonVirtual(entity.Method, baseMethod);
-			else
+			if (CanBeOverriden(baseMethod))
 				ProcessMethodOverride(entity, baseMethod);
+			else
+				CantOverrideNonVirtual(entity.Method, baseMethod);
+		}
+
+		private bool CanBeOverriden(IMethod baseMethod)
+		{
+			return baseMethod.IsVirtual && !baseMethod.IsFinal;
 		}
 
 		void ProcessMethodOverride(InternalMethod entity, IMethod baseMethod)

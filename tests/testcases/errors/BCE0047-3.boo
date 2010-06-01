@@ -6,3 +6,5 @@ import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 class A(DerivedClass):
 	def Method2():
 		pass
+		
+[assembly: StrictMode]

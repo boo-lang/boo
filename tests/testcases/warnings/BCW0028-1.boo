@@ -1,5 +1,5 @@
 """
-BCW0028-1.boo(18,9): BCW0028: WARNING: Implicit downcast from `System.Collections.IEnumerable' to `Test'.
+BCW0028-1.boo(18,9): BCW0028: WARNING: Implicit downcast from 'System.Collections.IEnumerable' to 'Test'.
 """
 
 import System.Collections

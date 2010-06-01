@@ -12,3 +12,5 @@ class B(A):
 class C(B):
 	def B():
 		pass
+	
+[assembly: StrictMode]

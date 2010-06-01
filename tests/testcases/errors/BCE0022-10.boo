@@ -13,4 +13,4 @@ ptr as IntPtr = cast(IntPtr, GCHandle.Alloc( obj ))
 gch2 as GCHandle = ptr
 gch2.Free()
 
-[assembly: Boo.Lang.Compiler.Attributes.StrictMode]
+[assembly: StrictMode]

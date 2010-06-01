@@ -205,6 +205,11 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning(Codes.ImplicitDowncast, AstUtil.SafeLexicalInfo(node), lhs, rhs);
 		}
 
+		public static CompilerWarning MethodHidesInheritedNonVirtual(Node anchor, string hidingMethod, string hiddenMethod)
+		{
+			return new CompilerWarning("BCW0029", AstUtil.SafeLexicalInfo(anchor), hidingMethod, hiddenMethod);
+		}
+
 		private static string NodeTypeString(Node node)
 		{
 			return node.NodeType.ToString().ToLower();
