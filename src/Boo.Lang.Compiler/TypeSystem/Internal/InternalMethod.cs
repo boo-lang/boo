@@ -168,10 +168,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public INamespace ParentNamespace
 		{
-			get
-			{
-				return DeclaringType;
-			}
+			get { return DeclaringType; }
 		}
 		
 		public bool IsGenerator

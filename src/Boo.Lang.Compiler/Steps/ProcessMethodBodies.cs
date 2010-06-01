@@ -1166,9 +1166,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		sealed class ReturnExpressionFinder : DepthFirstVisitor
 		{
-			bool _hasReturnStatements = false;
+			bool _hasReturnStatements;
 
-			bool _hasYieldStatements = false;
+			bool _hasYieldStatements;
 
 			public ReturnExpressionFinder(Method node)
 			{
@@ -1177,18 +1177,12 @@ namespace Boo.Lang.Compiler.Steps
 
 			public bool HasReturnStatements
 			{
-				get
-				{
-					return _hasReturnStatements;
-				}
+				get { return _hasReturnStatements; }
 			}
 
 			public bool HasYieldStatements
 			{
-				get
-				{
-					return _hasYieldStatements;
-				}
+				get { return _hasYieldStatements; }
 			}
 
 			public override void OnReturnStatement(ReturnStatement node)
@@ -1202,9 +1196,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		bool DontHaveReturnExpressionsNorYield(Method node)
+		protected bool HasNeitherReturnNorYield(Method node)
 		{
-			ReturnExpressionFinder finder = new ReturnExpressionFinder(node);
+			var finder = new ReturnExpressionFinder(node);
 			return !(finder.HasReturnStatements || finder.HasYieldStatements);
 		}
 
@@ -1223,7 +1217,7 @@ namespace Boo.Lang.Compiler.Steps
 				CheckIfIsMethodOverride(entity);
 				if (TypeSystemServices.IsUnknown(entity.ReturnType))
 				{
-					if (DontHaveReturnExpressionsNorYield(node))
+					if (HasNeitherReturnNorYield(node))
 					{
 						node.ReturnType = CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.VoidType);
 					}
@@ -2907,18 +2901,15 @@ namespace Boo.Lang.Compiler.Steps
 
 			IType returnType = _currentMethod.ReturnType;
 			if (TypeSystemServices.IsUnknown(returnType))
-			{
 				_currentMethod.AddReturnExpression(node.Expression);
-			}
 			else
-			{
 				AssertTypeCompatibility(node.Expression, returnType, expressionType);
-			}
 
 			//bind to nullable Value if needed
 			if (TypeSystemServices.IsNullable(expressionType) && !TypeSystemServices.IsNullable(returnType))
 			{
-				MemberReferenceExpression mre = new MemberReferenceExpression(node.Expression.LexicalInfo, node.Expression, "Value");
+				// TODO: move to later steps or introduce an implicit conversion operator
+				var mre = new MemberReferenceExpression(node.Expression.LexicalInfo, node.Expression, "Value");
 				Visit(mre);
 				node.Replace(node.Expression, mre);
 			}
