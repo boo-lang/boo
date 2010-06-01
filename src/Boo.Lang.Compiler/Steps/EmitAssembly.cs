@@ -2564,16 +2564,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		void InvokeSuperMethod(IMethod methodInfo, MethodInvocationExpression node)
 		{
-			IMethod super = ((InternalMethod)methodInfo).Overriden;
-			MethodInfo superMI = GetMethodInfo(super);
+			var super = ((InternalMethod)methodInfo).Overriden ?? (IMethod)GetEntity(node.Target);
+			var superMI = GetMethodInfo(super);
 			if (methodInfo.DeclaringType.IsValueType)
-			{
 				_il.Emit(OpCodes.Ldarga_S, 0);
-			}
 			else
-			{
 				_il.Emit(OpCodes.Ldarg_0); // this
-			}
 			PushArguments(super, node.Arguments);
 			_il.EmitCall(OpCodes.Call, superMI, null);
 			PushType(super.ReturnType);
@@ -4540,24 +4536,18 @@ namespace Boo.Lang.Compiler.Steps
 		MethodInfo GetMethodInfo(IMethod entity)
 		{
 			// If method is external, get its existing MethodInfo
-			ExternalMethod external = entity as ExternalMethod;
+			var external = entity as ExternalMethod;
 			if (null != external)
-			{
 				return (MethodInfo)external.MethodInfo;
-			}
 
 			// If method is a constructed generic method, get its MethodInfo from its definition
 			if (entity is GenericConstructedMethod)
-			{
 				return GetConstructedMethodInfo(entity.ConstructedInfo);
-			}
 
 			// If method is mapped from a generic type, get its MethodInfo on the constructed type
-			GenericMappedMethod mapped = entity as GenericMappedMethod;
+			var mapped = entity as GenericMappedMethod;
 			if (mapped != null)
-			{
 				return GetMappedMethodInfo(mapped.DeclaringType, mapped.SourceMember);
-			}
 
 			// If method is internal, get its MethodBuilder
 			return GetMethodBuilder(((InternalMethod)entity).Method);

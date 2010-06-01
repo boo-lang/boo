@@ -753,7 +753,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public MethodInvocationExpression CreateSuperMethodInvocation(IMethod superMethod)
 		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(new SuperLiteralExpression());
+			var mie = new MethodInvocationExpression(new SuperLiteralExpression());
 			mie.Target.Entity = superMethod;
 			mie.ExpressionType = superMethod.ReturnType;
 			return mie;
@@ -901,8 +901,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Method CreateMethodFromPrototype(LexicalInfo lexicalInfo, IMethod baseMethod, TypeMemberModifiers newModifiers)
 		{
-			Method method = new Method(lexicalInfo);
-			method.Name = baseMethod.Name;
+			return CreateMethodFromPrototype(lexicalInfo, baseMethod, newModifiers, baseMethod.Name);
+		}
+
+		public Method CreateMethodFromPrototype(LexicalInfo location, IMethod baseMethod, TypeMemberModifiers newModifiers, string newMethodName)
+		{
+			var method = new Method(location);
+			method.Name = newMethodName;
 			method.Modifiers = newModifiers;
 			method.IsSynthetic = true;
 

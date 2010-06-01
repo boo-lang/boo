@@ -38,11 +38,11 @@ namespace Boo.Lang.Compiler.Steps.Generators
 {
 	internal class GeneratorMethodProcessor : AbstractTransformerCompilerStep
 	{
-		InternalMethod _generator;
+		readonly InternalMethod _generator;
 		
 		InternalMethod _moveNext;
-		
-		BooClassBuilder _enumerable;
+
+		readonly BooClassBuilder _enumerable;
 		
 		BooClassBuilder _enumerator;
 		
@@ -57,16 +57,16 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		IMethod _yieldDefault;
 		
 		Field _externalEnumeratorSelf;
-		
-		List _labels;
 
-		System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
-		
-		Hashtable _mapping;
-		
-		IType _generatorItemType;
+		readonly List _labels;
 
-		BooMethodBuilder _getEnumeratorBuilder;
+		readonly System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
+
+		readonly Hashtable _mapping;
+
+		readonly IType _generatorItemType;
+
+		readonly BooMethodBuilder _getEnumeratorBuilder;
 
 		public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
 		{
@@ -396,19 +396,69 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
+			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, ExternalEnumeratorSelf()));
+		}
+
+		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
+		{
+			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, ExternalEnumeratorSelf()));
+		}
+
+		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
+		{
+			var superInvocation = IsInvocationOnSuperMethod(node);
+			base.OnMethodInvocationExpression(node);
+			if (!superInvocation)
+				return;
+
+			var accessor = CreateAccessorForSuperMethod(node.Target);
+			Bind(node.Target, accessor);
+		}
+
+		private IEntity CreateAccessorForSuperMethod(Expression target)
+		{
+			var superMethod = (IMethod)GetEntity(target);
+			var accessor = CodeBuilder.CreateMethodFromPrototype(target.LexicalInfo, superMethod, TypeMemberModifiers.Internal, UniqueName(superMethod.Name));
+			
+			var superMethodInvocation = CodeBuilder.CreateSuperMethodInvocation(superMethod);
+			foreach (var p in superMethod.GetParameters())
+				superMethodInvocation.Arguments.Add(CodeBuilder.CreateReference(p));
+			accessor.Body.Add(new ReturnStatement(superMethodInvocation));
+
+			DeclaringTypeDefinition.Members.Add(accessor);
+			return GetEntity(accessor);
+		}
+
+		private string UniqueName(string name)
+		{
+			return _context.GetUniqueName(name);
+		}
+
+		protected TypeDefinition DeclaringTypeDefinition
+		{
+			get { return _generator.Method.DeclaringType; }
+		}
+
+		private bool IsInvocationOnSuperMethod(MethodInvocationExpression node)
+		{
+			var target = node.Target as MemberReferenceExpression;
+			return target != null && target.Target is SuperLiteralExpression;
+		}
+
+		private Field ExternalEnumeratorSelf()
+		{
 			if (null == _externalEnumeratorSelf)
 			{
-				IType type = node.ExpressionType;
 				_externalEnumeratorSelf = DeclareFieldInitializedFromConstructorParameter(
 					_enumerator,
 					_enumeratorConstructor,
 					"self_",
-					type);
+					_generator.DeclaringType);
 			}
-			
-			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, _externalEnumeratorSelf));
+
+			return _externalEnumeratorSelf;
 		}
-		
+
 		sealed class TryStatementInfo
 		{
 			internal TryStatement _statement;
