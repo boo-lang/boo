@@ -2562,11 +2562,11 @@ namespace Boo.Lang.Compiler.Steps
 			return type.IsValueType && method.DeclaringType == type;
 		}
 
-		void InvokeSuperMethod(IMethod methodInfo, MethodInvocationExpression node)
+		void InvokeSuperMethod(IMethod method, MethodInvocationExpression node)
 		{
-			var super = ((InternalMethod)methodInfo).Overriden ?? (IMethod)GetEntity(node.Target);
+			var super = (IMethod)GetEntity(node.Target);
 			var superMI = GetMethodInfo(super);
-			if (methodInfo.DeclaringType.IsValueType)
+			if (method.DeclaringType.IsValueType)
 				_il.Emit(OpCodes.Ldarga_S, 0);
 			else
 				_il.Emit(OpCodes.Ldarg_0); // this

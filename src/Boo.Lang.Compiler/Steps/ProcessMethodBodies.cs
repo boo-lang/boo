@@ -1383,7 +1383,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!AstUtil.IsTargetOfMethodInvocation(node))
 			{
-			node.ExpressionType = _currentMethod.DeclaringType.BaseType;
+				node.ExpressionType = _currentMethod.DeclaringType.BaseType;
 				return;
 			}
 
@@ -1401,7 +1401,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 		}
 
-			node.Entity = _currentMethod;
+			node.Entity = _currentMethod.Overriden;
 		}
 
 		bool CanResolveReturnType(InternalMethod tag)
