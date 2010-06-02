@@ -938,16 +938,7 @@ namespace Boo.Lang.Compiler
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
-			StringBuilder builder = new StringBuilder();
-			foreach (object name in names)
-			{
-				if (builder.Length > 0)
-				{
-					builder.Append(", ");
-				}
-				builder.Append(name.ToString());
-			}
-			return builder.ToString();
+			return Boo.Lang.Builtins.join(names, ", ");
 		}
 		
 		public static string ToAssemblyQualifiedNameList(List types)
@@ -964,7 +955,7 @@ namespace Boo.Lang.Compiler
 		
 		public static string GetSignature(object[] parameters)
 		{
-			StringBuilder sb = new StringBuilder("(");
+			var sb = new StringBuilder("(");
 			for (int i=0; i<parameters.Length; ++i)
 			{
 				if (i>0)
