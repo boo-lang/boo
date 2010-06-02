@@ -30,7 +30,6 @@ using System;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO;
-using Boo.Lang.Compiler.Ast;
 using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Ast.Visitors
@@ -46,10 +45,6 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			PrintLocals = 1,
 			WSA = 2,
 		}
-
-		static Regex _identifierRE = new Regex("^[a-zA-Z.]+$");
-		
-		//static Regex _extendedRE = new Regex(@"\s");
 
 		public PrintOptions Options = PrintOptions.None;
 		
@@ -129,12 +124,14 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		static bool IsExtendedRE(string s)
 		{
 			return s.IndexOfAny(new char[] { ' ', '\t' }) > -1;
-			//return _extendedRE.IsMatch(s);
 		}
 		
-		static bool IsSimpleIdentifier(string s)
+		static bool CanBeRepresentedAsQualifiedName(string s)
 		{
-			return _identifierRE.IsMatch(s);
+			foreach (char ch in s)
+				if (!char.IsLetterOrDigit(ch) && ch != '_' && ch != '.')
+					return false;
+			return true;
 		}
 
 		override public void OnImport(Import p)
@@ -145,15 +142,11 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			{
 				WriteKeyword(" from ");
 
-				string assemblyName = p.AssemblyReference.Name;
-				if (IsSimpleIdentifier(assemblyName))
-				{
-					Write(assemblyName);
-				}
+				var assemblyRef = p.AssemblyReference.Name;
+				if (CanBeRepresentedAsQualifiedName(assemblyRef))
+					Write(assemblyRef);
 				else
-				{
-					WriteStringLiteral(assemblyName);
-				}
+					WriteStringLiteral(assemblyRef);
 			}
 			if (null != p.Alias)
 			{
@@ -1282,40 +1275,26 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				}
 				case UnaryOperatorType.PostIncrement:
 				case UnaryOperatorType.Increment:
-				{
 					return "++";
-				}
 					
 				case UnaryOperatorType.PostDecrement:
 				case UnaryOperatorType.Decrement:
-				{
 					return "--";
-				}
 					
 				case UnaryOperatorType.UnaryNegation:
-				{
 					return "-";
-				}
 				
 				case UnaryOperatorType.LogicalNot:
-				{
 					return "not ";
-				}
 
 				case UnaryOperatorType.OnesComplement:
-				{
 					return "~";
-				}
 
 				case UnaryOperatorType.AddressOf:
-				{
 					return "&";
-				}
 
 				case UnaryOperatorType.Indirection:
-				{
 					return "*";
-				}
 			}
 			throw new ArgumentException("op");
 		}
@@ -1325,189 +1304,115 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			switch (op)
 			{
 				case BinaryOperatorType.Assign:
-				{
 					return "=";
-				}
 
 				case BinaryOperatorType.Match:
-				{
 					return "=~";
-				}
 				
 				case BinaryOperatorType.NotMatch:
-				{
 					return "!~";
-				}
 
 				case BinaryOperatorType.Equality:
-				{
 					return "==";
-				}
 				
 				case BinaryOperatorType.Inequality:
-				{
 					return "!=";
-				}
 				
 				case BinaryOperatorType.Addition:
-				{
 					return "+";
-				}
 				
 				case BinaryOperatorType.Exponentiation:
-				{
 					return "**";
-				}
 				
 				case BinaryOperatorType.InPlaceAddition:
-				{
 					return "+=";
-				}
 				
 				case BinaryOperatorType.InPlaceBitwiseAnd:
-				{
 					return "&=";
-				}
 				
 				case BinaryOperatorType.InPlaceBitwiseOr:
-				{
 					return "|=";
-				}
 				
 				case BinaryOperatorType.InPlaceSubtraction:
-				{
 					return "-=";
-				}
 				
 				case BinaryOperatorType.InPlaceMultiply:
-				{
 					return "*=";
-				}
 				
 				case BinaryOperatorType.InPlaceModulus:
-				{
 					return "%=";
-				}
 
 				case BinaryOperatorType.InPlaceExclusiveOr:
-				{
 					return "^=";
-				}
 				
 				case BinaryOperatorType.InPlaceDivision:
-				{
 					return "/=";
-				}
 				
 				case BinaryOperatorType.Subtraction:
-				{
 					return "-";
-				}
 				
 				case BinaryOperatorType.Multiply:
-				{
 					return "*";
-				}
 				
 				case BinaryOperatorType.Division:
-				{
 					return "/";
-				}
 				
 				case BinaryOperatorType.GreaterThan:
-				{
 					return ">";
-				}
 				
 				case BinaryOperatorType.GreaterThanOrEqual:
-				{
 					return ">=";
-				}
 				
 				case BinaryOperatorType.LessThan:
-				{
 					return "<";
-				}
 				
 				case BinaryOperatorType.LessThanOrEqual:
-				{
 					return "<=";
-				}
 				
 				case BinaryOperatorType.Modulus:
-				{
 					return "%";
-				}
 				
 				case BinaryOperatorType.Member:
-				{
 					return "in";
-				}
 				
 				case BinaryOperatorType.NotMember:
-				{
 					return "not in";
-				}
 				
 				case BinaryOperatorType.ReferenceEquality:
-				{
 					return "is";
-				}
 				
 				case BinaryOperatorType.ReferenceInequality:
-				{
 					return "is not";
-				}
 				
 				case BinaryOperatorType.TypeTest:
-				{
 					return "isa";
-				}
 				
 				case BinaryOperatorType.Or:
-				{
 					return "or";
-				}
 				
 				case BinaryOperatorType.And:
-				{
 					return "and";
-				}
 				
 				case BinaryOperatorType.BitwiseOr:
-				{
 					return "|";
-				}
 				
 				case BinaryOperatorType.BitwiseAnd:
-				{
 					return "&";
-				}
 				
 				case BinaryOperatorType.ExclusiveOr:
-				{
 					return "^";
-				}
 
 				case BinaryOperatorType.ShiftLeft:
-				{
 					return "<<";
-				}
 
 				case BinaryOperatorType.ShiftRight:
-				{
 					return ">>";
-				}
 
 				case BinaryOperatorType.InPlaceShiftLeft:
-				{
 					return "<<=";
-				}
 
 				case BinaryOperatorType.InPlaceShiftRight:
-				{
 					return ">>=";
-				}
 			}
 			throw new NotImplementedException(op.ToString());
 		}
