@@ -354,6 +354,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			expression.ExpressionType = super;
 			return expression;
 		}
+		
+		public SelfLiteralExpression CreateSelfReference(LexicalInfo location, IType self)
+		{
+			var reference = CreateSelfReference(self);
+			reference.LexicalInfo = location;
+			return reference;
+		}
 
 		public SelfLiteralExpression CreateSelfReference(IType self)
 		{
