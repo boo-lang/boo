@@ -65,27 +65,32 @@ namespace BooC
 		static int Main(string[] args)
 		{
 			if (((IList)args).Contains("-utf8"))
+				return RunInUtf8Mode(args);
+			return AppRun(args);
+		}
+
+		private static int AppRun(string[] args)
+		{
+			return new App().Run(args);
+		}
+
+		private static int RunInUtf8Mode(string[] args)
+		{
+			using (StreamWriter writer = new StreamWriter(Console.OpenStandardError(), Encoding.UTF8))
 			{
-				using (StreamWriter writer = new StreamWriter(Console.OpenStandardError(), Encoding.UTF8))
-				{
-					// leave the byte order mark in its own line and out
-					writer.WriteLine();
+				// leave the byte order mark in its own line and out
+				writer.WriteLine();
 					
-					Console.SetError(writer);
-					return new App().Run(args);
-				}
-			}
-			else
-			{
-				return new App().Run(args);
+				Console.SetError(writer);
+				return AppRun(args);
 			}
 		}
-		
+
 		public int Run(string[] args)
 		{
 			int resultCode = 127;
 
-			AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
+			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 			
 			CheckBooCompiler();
 			
@@ -680,10 +685,6 @@ namespace BooC
 						{
 							case "embedres":
 							{
-								if (!IsMono)
-								{
-									throw new ApplicationException("-embedres is only supported on mono. Try -resource.");
-								}
 								int start = arg.IndexOf(":") + 1;
 								EmbedResource(StripQuotes(arg.Substring(start)));
 								break;
@@ -735,7 +736,6 @@ namespace BooC
 
 		private void EmbedResource(string resourceFile)
 		{
-
 			int comma = resourceFile.LastIndexOf(',');
 			if (comma >= 0)
 			{
