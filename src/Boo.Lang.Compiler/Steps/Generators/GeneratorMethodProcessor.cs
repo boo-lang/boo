@@ -398,7 +398,11 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{
-			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, ExternalEnumeratorSelf()));
+			var externalSelf = CodeBuilder.CreateReference(node.LexicalInfo, ExternalEnumeratorSelf());
+			if (AstUtil.IsTargetOfMethodInvocation(node)) // super(...)
+				ReplaceCurrentNode(CodeBuilder.CreateMemberReference(externalSelf, (IMethod)GetEntity(node)));
+			else // super.Method(...)
+				ReplaceCurrentNode(externalSelf);
 		}
 
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
@@ -438,6 +442,9 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private bool IsInvocationOnSuperMethod(MethodInvocationExpression node)
 		{
+			if (node.Target is SuperLiteralExpression)
+				return true;
+
 			var target = node.Target as MemberReferenceExpression;
 			return target != null && target.Target is SuperLiteralExpression;
 		}

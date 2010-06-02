@@ -7,6 +7,24 @@ namespace BooCompiler.Tests
 	{
 	
 		[Test]
+		public void generator_calling_external_super_with_arguments_2()
+		{
+			RunCompilerTestCase(@"generator-calling-external-super-with-arguments-2.boo");
+		}
+		
+		[Test]
+		public void generator_calling_external_super_with_arguments()
+		{
+			RunCompilerTestCase(@"generator-calling-external-super-with-arguments.boo");
+		}
+		
+		[Test]
+		public void generator_calling_super_with_arguments_2()
+		{
+			RunCompilerTestCase(@"generator-calling-super-with-arguments-2.boo");
+		}
+		
+		[Test]
 		public void generator_calling_super_with_arguments()
 		{
 			RunCompilerTestCase(@"generator-calling-super-with-arguments.boo");

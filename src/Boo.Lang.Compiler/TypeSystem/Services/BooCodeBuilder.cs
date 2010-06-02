@@ -760,8 +760,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public MethodInvocationExpression CreateSuperMethodInvocation(IMethod superMethod)
 		{
-			var mie = new MethodInvocationExpression(new SuperLiteralExpression());
-			mie.Target.Entity = superMethod;
+			var mie = new MethodInvocationExpression(CreateMemberReference(CreateSuperReference(superMethod.DeclaringType), superMethod));
 			mie.ExpressionType = superMethod.ReturnType;
 			return mie;
 		}
