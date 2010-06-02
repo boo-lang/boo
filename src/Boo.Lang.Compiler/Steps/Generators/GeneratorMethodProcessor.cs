@@ -118,7 +118,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			// the enumerable to the enumerator
 			foreach (ParameterDeclaration parameter in _generator.Method.Parameters)
 			{
-				InternalParameter entity = (InternalParameter)parameter.Entity;
+				var entity = (InternalParameter)parameter.Entity;
 				if (entity.IsUsed)
 				{
 					enumerableConstructorInvocation.Arguments.Add(
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			// propagate the external self reference if necessary
 			if (null != _externalEnumeratorSelf)
 			{
-				IType type = (IType)_externalEnumeratorSelf.Type.Entity;
+				var type = (IType)_externalEnumeratorSelf.Type.Entity;
 				enumerableConstructorInvocation.Arguments.Add(CodeBuilder.CreateSelfReference(type));
 				
 				PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
@@ -145,9 +145,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private MethodInvocationExpression CreateGetEnumeratorInvocation(MethodInvocationExpression enumerableConstructorInvocation)
 		{
-			return CodeBuilder.CreateMethodInvocation(
-				enumerableConstructorInvocation,
-				GetGetEnumeratorEntity());
+			return CodeBuilder.CreateMethodInvocation(enumerableConstructorInvocation, GetGetEnumeratorEntity());
 		}
 
 		private InternalMethod GetGetEnumeratorEntity()
@@ -202,7 +200,6 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			CreateMoveNext();
 			
 			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
-			//new Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor(System.Console.Out).Visit(_enumerator.ClassDefinition);
 		}
 		
 		void CreateMoveNext()
@@ -241,7 +238,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			{
 				IMethod dispose = CreateDisposeMethod();
 				
-				TryStatement tryFailure = new TryStatement();
+				var tryFailure = new TryStatement();
 				tryFailure.ProtectedBlock.Add(methodBuilder.Body);
 				tryFailure.FailureBlock = new Block();
 				tryFailure.FailureBlock.Add(CallMethodOnSelf(dispose));
@@ -254,7 +251,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
 			foreach (ParameterDeclaration parameter in generator.Parameters)
 			{
-				InternalParameter entity = (InternalParameter)parameter.Entity;
+				var entity = (InternalParameter)parameter.Entity;
 				if (entity.IsUsed)
 				{
 					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
@@ -267,9 +264,9 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private void TransformLocalsIntoFields(Method generator)
 		{
-			foreach (Local local in generator.Locals)
+			foreach (var local in generator.Locals)
 			{
-				InternalLocal entity = (InternalLocal)local.Entity;
+				var entity = (InternalLocal)local.Entity;
 				if (IsExceptionHandlerVariable(entity))
 				{
 					AddToMoveNextMethod(local);
