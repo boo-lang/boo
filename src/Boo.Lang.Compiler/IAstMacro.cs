@@ -26,10 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Ast;
+
 namespace Boo.Lang.Compiler
 {
 	public interface IAstMacro : ICompilerComponent
 	{
-		Boo.Lang.Compiler.Ast.Statement Expand(Boo.Lang.Compiler.Ast.MacroStatement statement);
+		Statement Expand(MacroStatement statement);
 	}
 }
