@@ -419,9 +419,9 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
 			var superMethod = (IMethod)GetEntity(target);
 			var accessor = CodeBuilder.CreateMethodFromPrototype(target.LexicalInfo, superMethod, TypeMemberModifiers.Internal, UniqueName(superMethod.Name));
-			
+			var accessorEntity = (IMethod)GetEntity(accessor);
 			var superMethodInvocation = CodeBuilder.CreateSuperMethodInvocation(superMethod);
-			foreach (var p in superMethod.GetParameters())
+			foreach (var p in accessorEntity.GetParameters())
 				superMethodInvocation.Arguments.Add(CodeBuilder.CreateReference(p));
 			accessor.Body.Add(new ReturnStatement(superMethodInvocation));
 
