@@ -5526,9 +5526,7 @@ namespace Boo.Lang.Compiler.Steps
 		void DefineResources()
 		{
 			foreach (ICompilerResource resource in Parameters.Resources)
-			{
 				resource.WriteResource(_sreResourceService);
-			}
 		}
 
 		SREResourceService _sreResourceService;
@@ -5540,26 +5538,19 @@ namespace Boo.Lang.Compiler.Steps
 
 			public SREResourceService (AssemblyBuilder asmBuilder, ModuleBuilder modBuilder)
 			{
-				this._asmBuilder = asmBuilder;
-				this._moduleBuilder = modBuilder;
+				_asmBuilder = asmBuilder;
+				_moduleBuilder = modBuilder;
 			}
 
 			public bool EmbedFile(string resourceName, string fname)
 			{
-				MethodInfo embed_res = typeof (AssemblyBuilder).GetMethod(
-					"EmbedResourceFile", BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic,
-					null, CallingConventions.Any, new Type[] { typeof(string), typeof(string) }, null);
-				if (embed_res != null)
-				{
-					embed_res.Invoke(this._asmBuilder, new object[] { resourceName, fname });
-					return true;
-				}
-				return false;
+				_moduleBuilder.DefineManifestResource(resourceName, File.OpenRead(fname), ResourceAttributes.Public);
+				return true;
 			}
 
 			public IResourceWriter DefineResource(string resourceName, string resourceDescription)
 			{
-				return this._moduleBuilder.DefineResource(resourceName, resourceDescription);
+				return _moduleBuilder.DefineResource(resourceName, resourceDescription);
 			}
 		}
 

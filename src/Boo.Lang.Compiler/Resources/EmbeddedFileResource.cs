@@ -43,10 +43,7 @@ namespace Boo.Lang.Compiler.Resources
 		
 		public string FileName
 		{
-			get
-			{
-				return _fname;
-			}
+			get { return _fname; }
 		}
 		
 		public virtual string Name
