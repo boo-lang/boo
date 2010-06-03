@@ -121,8 +121,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 				var entity = (InternalParameter)parameter.Entity;
 				if (entity.IsUsed)
 				{
-					enumerableConstructorInvocation.Arguments.Add(
-						CodeBuilder.CreateReference(parameter));
+					enumerableConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(parameter));
 					
 					PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
 					                                    entity.Name,
@@ -352,8 +351,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		                                         IType parameterType)
 		{
 			Field field = DeclareFieldInitializedFromConstructorParameter(_enumerable, _enumerableConstructor, parameterName, parameterType);
-			enumeratorConstructorInvocation.Arguments.Add(
-				CodeBuilder.CreateReference(field));
+			enumeratorConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(field));
 		}
 		
 		Field DeclareFieldInitializedFromConstructorParameter(BooClassBuilder type,
