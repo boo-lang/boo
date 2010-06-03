@@ -1358,6 +1358,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void complex_iterators_1()
+		{
+			RunCompilerTestCase(@"complex-iterators-1.boo");
+		}
+		
+		[Test]
 		public void duck_default_member_overload()
 		{
 			RunCompilerTestCase(@"duck-default-member-overload.boo");
@@ -1373,6 +1379,12 @@ namespace BooCompiler.Tests
 		public void generators_1()
 		{
 			RunCompilerTestCase(@"generators-1.boo");
+		}
+		
+		[Test]
+		public void nullables_and_generators()
+		{
+			RunCompilerTestCase(@"nullables-and-generators.boo");
 		}
 		
 		[Test]
