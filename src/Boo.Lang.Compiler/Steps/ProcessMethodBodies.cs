@@ -4719,63 +4719,25 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessValueTypeInstantiation(IType type, MethodInvocationExpression node)
 		{
-			ReferenceExpression target = GetOptimizedValueTypeInstantiationTarget(type, node);
-
-			//if no optimized target given, create a temp local to work with
-			if (null == target)
-			{
-				InternalLocal local = DeclareTempLocal(type);
-				target = CodeBuilder.CreateReference(local);
-			}
+			var target = CodeBuilder.CreateReference(DeclareTempLocal(type));
 
 			Expression initializer = CodeBuilder.CreateDefaultInitializer(node.LexicalInfo, target, type);
 
 			MethodInvocationExpression eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
 			BindExpressionType(eval, type);
 			eval.Arguments.Add(initializer);
-			AddResolvedNamedArgumentsToEval(eval, node.NamedArguments, target);
-			eval.Arguments.Add(target);
+			AddResolvedNamedArgumentsToEval(eval, node.NamedArguments, target.CloneNode());
+			eval.Arguments.Add(target.CloneNode());
 			node.ParentNode.Replace(node, eval);
-		}
-
-		protected virtual ReferenceExpression GetOptimizedValueTypeInstantiationTarget(IType type, MethodInvocationExpression node)
-		{
-			if (!AstUtil.IsAssignment(node.ParentNode))
-				return null;
-
-			BinaryExpression be = (BinaryExpression) node.ParentNode;
-			ReferenceExpression target = be.Left as ReferenceExpression;
-			if (null == target)
-				return null;
-
-			//cannot optimize local (not memberref|field) instantiation with named args
-			if (be.Left.NodeType == NodeType.ReferenceExpression && 0 != node.NamedArguments.Count)
-				return null;
-
-			//TODO: field temp initializer optimization (!!?)
-			if (target.Name == TempInitializerName)
-				return null;
-
-			if (null == target.Entity)
-			{
-				Bind(target, type);
-				BindExpressionType(target, type);
-			}
-			return target;
 		}
 
 		void ProcessGenericMethodInvocation(MethodInvocationExpression node)
 		{
 			IType type = GetExpressionType(node.Target);
 			if (TypeSystemServices.IsCallable(type))
-			{
 				ProcessMethodInvocationOnCallableExpression(node);
-			}
 			else
-			{
-				Error(node,
-					  CompilerErrorFactory.TypeIsNotCallable(node.Target, type.ToString()));
-			}
+				Error(node, CompilerErrorFactory.TypeIsNotCallable(node.Target, type.ToString()));
 		}
 
 		void ProcessMethodInvocationOnCallableExpression(MethodInvocationExpression node)
