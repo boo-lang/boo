@@ -496,10 +496,6 @@ class AbstractInterpreter:
 			BindExpressionType(eval, type)
 			return eval
 
-		protected override def GetOptimizedValueTypeInstantiationTarget(type as IType, node as MethodInvocationExpression) as ReferenceExpression:
-			return null #needs to redirect to interpreter
-
-
 	class ProcessInterpreterReferences(Steps.AbstractTransformerCompilerStep):
 	
 		static AbstractInterpreter_GetValue = typeof(AbstractInterpreter).GetMethod("GetValue")
