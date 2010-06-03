@@ -115,24 +115,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				MemberInfo[] members;
 				if (_clrExtensionsMembers.TryGetValue(member.DeclaringType, out members))
-				{
 					return ((ICollection<MemberInfo>) members).Contains(member);
-				}
 			}
-#if CHECK_ATTRIBUTES_BY_ISDEFINED
 			return System.Attribute.IsDefined(member, attributeType);
-#else
-			// check attribute by name to account for different 
-			// loaded modules (and thus different type identities)
-			string attributeName = attributeType.FullName;
-			System.Attribute[] attributes = System.Attribute.GetCustomAttributes(member);
-			foreach (System.Attribute a in attributes)
-			{
-				if (a.GetType().FullName == attributeName)
-					return true;
-			}
-			return false;
-#endif
 		}
 	}
 }
