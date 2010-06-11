@@ -307,6 +307,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void explicit_value_type_conversion_operator()
+		{
+			RunCompilerTestCase(@"explicit-value-type-conversion-operator.boo");
+		}
+		
+		[Test]
 		public void fields_1()
 		{
 			RunCompilerTestCase(@"fields-1.boo");
