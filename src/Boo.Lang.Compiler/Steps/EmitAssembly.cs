@@ -4168,7 +4168,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!IsAssignableFrom(expectedType, actualType))
 			{
-				IMethod method = TypeSystemServices.FindImplicitConversionOperator(actualType,expectedType);
+				var method = TypeSystemServices.FindImplicitConversionOperator(actualType, expectedType)
+						?? TypeSystemServices.FindExplicitConversionOperator(actualType, expectedType);
 				if (method != null)
 				{
 					EmitBoxIfNeeded(method.GetParameters()[0].Type, actualType);
