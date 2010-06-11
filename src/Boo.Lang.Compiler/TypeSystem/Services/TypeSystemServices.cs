@@ -120,6 +120,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private Module _compilerGeneratedTypesModule;
 		protected Set<string> _literalPrimitives = new Set<string>();
 		protected Hashtable _primitives = new Hashtable();
+		private DowncastPermissions _downcastPermissions;
 
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -615,10 +616,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return IsAssignableFrom(ctype, actualType) || ctype.IsSubclassOf(actualType);
 
 			return IsAssignableFrom(expectedType, actualType)
-			       || (byDowncast = My<DowncastPermissions>.Instance.CanBeReachedByDowncast(expectedType, actualType))
+			       || (byDowncast = DowncastPermissions().CanBeReachedByDowncast(expectedType, actualType))
 			       || CanBeReachedByPromotion(expectedType, actualType)
 			       || FindImplicitConversionOperator(actualType, expectedType) != null
 			       || (considerExplicitConversionOperators && FindExplicitConversionOperator(actualType, expectedType) != null);
+		}
+
+		private DowncastPermissions DowncastPermissions()
+		{
+			return _downcastPermissions ?? (_downcastPermissions = My<DowncastPermissions>.Instance);
 		}
 
 		private bool InStrictMode()
