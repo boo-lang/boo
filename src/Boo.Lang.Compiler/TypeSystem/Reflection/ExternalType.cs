@@ -178,7 +178,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		{
 			get
 			{
-
 				Type baseType = _type.BaseType;
 				return null == baseType
 				       	? null
