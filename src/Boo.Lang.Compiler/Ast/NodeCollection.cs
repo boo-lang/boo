@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool IsEmpty
 		{
-			get { return (null == _list) || (0 == _list.Count); }
+			get { return 0 == _list.Count; }
 		}
 
 		public int Count
@@ -184,9 +184,7 @@ namespace Boo.Lang.Compiler.Ast
 		public bool Contains(T node)
 		{
 			foreach (T n in _list)
-			{
 				if (n == node) return true;
-			}
 			return false;
 		}
 
@@ -204,24 +202,18 @@ namespace Boo.Lang.Compiler.Ast
 		public bool ContainsEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
 		{
 			foreach (T node in _list)
-			{
 				if (entity == node.Entity)
-				{
 					return true;
-				}
-			}
 			return false;
 		}
 
 		public Node RemoveByEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
 		{
 			if (null == entity)
-			{
 				throw new ArgumentNullException("entity");
-			}
 			for (int i = 0; i < _list.Count; ++i)
 			{
-				Node node = (Node)_list[i];
+				Node node = _list[i];
 				if (entity == node.Entity)
 				{
 					_list.RemoveAt(i);
@@ -233,66 +225,49 @@ namespace Boo.Lang.Compiler.Ast
 
 		public virtual object Clone()
 		{
-			NodeCollection<T> clone = (NodeCollection<T>)Activator.CreateInstance(GetType());
-			List<T> cloneList = clone._list;
+			var clone = (NodeCollection<T>)Activator.CreateInstance(GetType());
+			var cloneList = clone._list;
 			foreach (T node in _list)
-			{
 				cloneList.Add((T)node.CloneNode());
-			}
 			return clone;
 		}
 
 		public void ClearTypeSystemBindings()
 		{
 			foreach (T node in _list)
-			{
 				node.ClearTypeSystemBindings();
-			}
 		}
 
 		protected List<T> InnerList
 		{
-			get
-			{
-				return _list;
-			}
+			get { return _list; }
 		}
 
 		internal void InitializeParent(Node parent)
 		{
 			_parent = parent;
 			foreach (T node in _list)
-			{
 				node.InitializeParent(_parent);
-			}
 		}
 
 		public void Reject(System.Predicate<T> condition)
 		{
 			if (null == condition)
-			{
 				throw new ArgumentNullException("condition");
-			}
 
 			int index = 0;
 			foreach (T node in ToArray())
-			{
 				if (condition(node))
-				{
 					RemoveAt(index);
-				}
 				else
-				{
 					++index;
-				}
-			}
 		}
 
 		public void RemoveAt(int index)
 		{
 			//Node existing = (Node)InnerList[index];
 			//existing.InitializeParent(null);
-			InnerList.RemoveAt(index);
+			_list.RemoveAt(index);
 		}
 
 		public void ExtendWithClones(IEnumerable<T> items)
@@ -350,7 +325,7 @@ namespace Boo.Lang.Compiler.Ast
 		public void Insert(int index, T item)
 		{
 			Initialize(item);
-			InnerList.Insert(index, item);
+			_list.Insert(index, item);
 		}
 
 		public bool Remove(T item)
