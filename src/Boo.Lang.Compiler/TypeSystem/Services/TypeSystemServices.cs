@@ -54,9 +54,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public class TypeSystemServices
 	{
 		public static readonly IType ErrorEntity = Error.Default;
-		private static readonly object EntityAnnotationKey = new object();
+		
 		private readonly AnonymousCallablesManager _anonymousCallablesManager;
+
 		protected readonly CompilerContext _context;
+
 		public IType ArrayType;
 		public IType AstNodeType;
 
@@ -901,21 +903,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeMemberModifiers.Private;
 		}
 
-		public static void Bind(Node node, IEntity entity)
-		{
-			if (null == node) throw new ArgumentNullException("node");
-			node[EntityAnnotationKey] = entity;
-		}
-
 		public static IEntity GetOptionalEntity(Node node)
 		{
 			if (null == node) throw new ArgumentNullException("node");
-			return (IEntity) node[EntityAnnotationKey];
+			return node.Entity;
 		}
 
 		public static IEntity GetEntity(Node node)
 		{
-			IEntity entity = GetOptionalEntity(node);
+			IEntity entity = node.Entity;
 			if (null == entity) InvalidNode(node);
 			return entity;
 		}

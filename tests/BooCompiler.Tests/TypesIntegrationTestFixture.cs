@@ -643,6 +643,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void local_hiding_field()
+		{
+			RunCompilerTestCase(@"local-hiding-field.boo");
+		}
+		
+		[Test]
 		public void method_shadowing_1()
 		{
 			RunCompilerTestCase(@"method-shadowing-1.boo");
