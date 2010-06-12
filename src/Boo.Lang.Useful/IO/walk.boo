@@ -28,26 +28,31 @@
 
 namespace Boo.Lang.Useful.IO
 
+import System
 import System.IO
 import System.Collections
 import System.Collections.Generic
 
-callable FileAction(fname as string)
-
-def eachFile([required] top as string, [required] action as FileAction):
-	for fname in Directory.GetFiles(top):
+def forEachFileIn([required] topDir as string, [required] action as Action of string):
+	for fname in Directory.GetFiles(topDir):
 		action(fname)
-	for subDir in Directory.GetDirectories(top):
-		eachFile(subDir, action)
+	for subDir in Directory.GetDirectories(topDir):
+		forEachFileIn(subDir, action)
 		
-def listFiles([required] top as string) as IEnumerable[of string]:
+def forEachFileIn([required] topDir as string, [required] fileGlob as string, [required] action as Action of string):
+	for fname in Directory.GetFiles(topDir, fileGlob):
+		action(fname)
+	for subDir in Directory.GetDirectories(topDir):
+		forEachFileIn(subDir, fileGlob, action)
+		
+def listFiles([required] top as string) as string*:
 	for fname in Directory.GetFiles(top):
 		yield fname
 	for subDir in Directory.GetDirectories(top):
 		for fname in listFiles(subDir):
 			yield fname
 
-def walk([required] top as string) as IEnumerable:
+def walk([required] top as string) as (object)*:
 	files = Directory.GetFiles(top)
 	dirs  = Directory.GetDirectories(top)
 	yield (top, dirs, files)
