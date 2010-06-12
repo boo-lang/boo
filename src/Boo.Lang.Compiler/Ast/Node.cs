@@ -87,6 +87,8 @@ namespace Boo.Lang.Compiler.Ast
 		
 		protected System.Collections.Hashtable _annotations;
 		
+		protected Boo.Lang.Compiler.TypeSystem.IEntity _entity;
+		
 		protected bool _isSynthetic;
 
 		protected Node()
@@ -127,9 +129,9 @@ namespace Boo.Lang.Compiler.Ast
 		[XmlIgnore]
 		internal TypeSystem.IEntity Entity
 		{
-			get { return TypeSystem.TypeSystemServices.GetOptionalEntity(this); }
+			get { return _entity; }
 			
-			set { TypeSystem.TypeSystemServices.Bind(this, value); }
+			set { _entity = value; }
 		}
 		
 		public object this[object key]

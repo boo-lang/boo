@@ -132,6 +132,7 @@ end
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
+			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 		
 <%			
@@ -166,6 +167,7 @@ end
 		override internal void ClearTypeSystemBindings()
 		{
 			_annotations = null;
+			_entity = null;
 <%
 	if model.IsExpression(node):
 %>			_expressionType = null;

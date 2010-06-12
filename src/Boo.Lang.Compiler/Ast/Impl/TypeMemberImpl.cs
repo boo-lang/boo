@@ -101,6 +101,7 @@ namespace Boo.Lang.Compiler.Ast
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
+			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 		
 			clone._modifiers = _modifiers;
@@ -117,6 +118,7 @@ namespace Boo.Lang.Compiler.Ast
 		override internal void ClearTypeSystemBindings()
 		{
 			_annotations = null;
+			_entity = null;
 			if (null != _attributes)
 			{
 				_attributes.ClearTypeSystemBindings();
