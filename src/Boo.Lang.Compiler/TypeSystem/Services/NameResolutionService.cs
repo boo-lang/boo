@@ -138,7 +138,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private bool Matches(IEntity entity, string name, EntityType typesToConsider)
 		{
-			return _entityNameMatcher(entity, name) && Entities.IsFlagSet(typesToConsider, entity.EntityType);
+			return Entities.IsFlagSet(typesToConsider, entity.EntityType) && _entityNameMatcher(entity, name);
 		}
 
 		private static bool Matches(IEntity entity, string name)
