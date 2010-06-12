@@ -5555,6 +5555,11 @@ namespace Boo.Lang.Compiler.Steps
 			_nameResolutionCache.Clear();
 		}
 
+		void ClearResolutionCacheFor(string name)
+		{
+			_nameResolutionCache.Remove(name);
+		}
+
 		protected override void EnterNamespace(INamespace ns)
 		{
 			ClearResolutionCache();
@@ -6198,9 +6203,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected IEntity DeclareLocal(Node sourceNode, string name, IType localType, bool privateScope)
 		{
-			Local local = new Local(name, privateScope);
+			ClearResolutionCacheFor(name);
+
+			var local = new Local(name, privateScope);
 			local.LexicalInfo = sourceNode.LexicalInfo;
-			InternalLocal entity = new InternalLocal(local, localType);
+			var entity = new InternalLocal(local, localType);
 			local.Entity = entity;
 			_currentMethod.Method.Locals.Add(local);
 			return entity;
