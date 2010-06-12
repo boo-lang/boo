@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -8,24 +9,29 @@
     <AssemblyName>Boo.Lang</AssemblyName>
     <RootNamespace>Boo.Lang</RootNamespace>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../boo.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\ide-build\</OutputPath>
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE;NET_2_0</DefineConstants>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>.\bin\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
@@ -41,6 +47,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractGenerator.cs" />
@@ -68,9 +75,30 @@
     <Compile Include="Runtime\RuntimeException.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />
     <Compile Include="Runtime\TextReaderEnumerator.cs" />
+    <Compile Include="GenericList.cs" />
+    <Compile Include="Runtime\AbstractDispatcherFactory.cs" />
+    <Compile Include="Runtime\DispatcherCache.cs" />
+    <Compile Include="Runtime\DispatcherEmitter.cs" />
+    <Compile Include="Runtime\DispatcherKey.cs" />
+    <Compile Include="Runtime\ExtensionMethodDispatcherEmitter.cs" />
+    <Compile Include="Runtime\ExtensionRegistry.cs" />
+    <Compile Include="Runtime\GetFieldEmitter.cs" />
+    <Compile Include="Runtime\ICoercible.cs" />
+    <Compile Include="Runtime\ImplicitConversionEmitter.cs" />
+    <Compile Include="Runtime\MethodDispatcherFactory.cs" />
+    <Compile Include="Runtime\Methods.cs" />
+    <Compile Include="Runtime\NumericTypes.cs" />
+    <Compile Include="Runtime\PromotionEmitter.cs" />
+    <Compile Include="Runtime\Properties.cs" />
+    <Compile Include="Runtime\PropertyDispatcherFactory.cs" />
+    <Compile Include="Runtime\SetFieldEmitter.cs" />
+    <Compile Include="Runtime\SetOrGet.cs" />
+    <Compile Include="Runtime\SetPropertyEmitter.cs" />
+    <Compile Include="Runtime\SliceDispatcherFactory.cs" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />
   </ProjectExtensions>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
