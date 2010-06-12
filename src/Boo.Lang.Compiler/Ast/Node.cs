@@ -202,6 +202,7 @@ namespace Boo.Lang.Compiler.Ast
 		internal virtual void ClearTypeSystemBindings()
 		{
 			_annotations = null;
+			_entity = null;
 		}
 		
 		public Node ParentNode
