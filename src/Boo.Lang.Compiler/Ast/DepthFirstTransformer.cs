@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler.Ast
 		public bool Visit<T>(NodeCollection<T> collection) where T : Node
 		{
 			if (null == collection) return false;
-			
+
 			T[] nodes = collection.ToArray();
 			foreach (T currentNode in nodes)
 			{

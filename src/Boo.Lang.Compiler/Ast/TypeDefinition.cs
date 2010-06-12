@@ -108,34 +108,22 @@ namespace Boo.Lang.Compiler.Ast
 
 		public bool HasInstanceConstructor
 		{
-			get
-			{
-				return null != GetConstructor(0, false, null);
-			}
+			get { return null != GetConstructor(0, false, null); }
 		}
 
 		public bool HasDeclaredInstanceConstructor
 		{
-			get
-			{
-				return null != GetConstructor(0, false, false);
-			}
+			get { return null != GetConstructor(0, false, false); }
 		}
 
 		public bool HasStaticConstructor
 		{
-			get
-			{
-				return null != GetConstructor(0, true, null);
-			}
+			get { return null != GetConstructor(0, true, null); }
 		}
 
 		public bool HasDeclaredStaticConstructor
 		{
-			get
-			{
-				return null != GetConstructor(0, true, false);
-			}
+			get { return null != GetConstructor(0, true, false); }
 		}
 
 		public Constructor GetConstructor(int index)
