@@ -118,9 +118,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return Resolve(targetList, name, EntityType.Any);
 		}
 
-		public IEnumerable<EntityOut> Select<EntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
+		public IEnumerable<TEntityOut> Select<TEntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
 		{
-		    return from entity in candidates where Matches(entity, name, typesToConsider) select (EntityOut) entity;
+			foreach (var candidate in candidates)
+				if (Matches(candidate, name, typesToConsider))
+					yield return (TEntityOut) candidate;
 		}
 
 	    public bool Resolve(string name, IEnumerable<IEntity> candidates, EntityType typesToConsider, ICollection<IEntity> resolvedSet)
