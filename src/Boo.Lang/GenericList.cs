@@ -261,7 +261,10 @@ namespace Boo.Lang
 
 		public T[] ToArray()
 		{
-			T[] target = new T[_count];
+			if (_count == 0)
+				return EmptyArray;
+
+			var target = new T[_count];
 			CopyTo(target, 0);
 			return target;
 		}
