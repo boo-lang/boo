@@ -46,7 +46,7 @@ namespace BooC
 	/// <summary>
 	///
 	/// </summary>
-	class App
+	public class App
 	{
 		ArrayList _responseFileList = new ArrayList();
 		CompilerParameters _options = null;
@@ -62,7 +62,7 @@ namespace BooC
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
-		static int Main(string[] args)
+		public static int Main(string[] args)
 		{
 			if (((IList)args).Contains("-utf8"))
 				return RunInUtf8Mode(args);
