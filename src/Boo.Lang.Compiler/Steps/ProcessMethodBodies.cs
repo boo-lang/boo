@@ -2996,10 +2996,10 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					IEntity tag = NameResolutionService.Resolve(d.Name);
-					if (null != tag)
+					IEntity entity = TryToResolveName(d.Name);
+					if (null != entity)
 					{
-						Bind(d, tag);
+						Bind(d, entity);
 						AssertLValue(d);
 						continue;
 					}
@@ -3425,7 +3425,7 @@ namespace Boo.Lang.Compiler.Steps
 			// assign to unknown reference implies local
 			// declaration
 			ReferenceExpression reference = (ReferenceExpression)node.Left;
-			IEntity entity = NameResolutionService.Resolve(reference.Name);
+			IEntity entity = TryToResolveName(reference.Name);
 			if (null == entity || TypeSystemServices.IsBuiltin(entity) || IsInaccessible(entity))
 			{
 				ProcessAutoLocalDeclaration(node, reference);
@@ -5529,11 +5529,42 @@ namespace Boo.Lang.Compiler.Steps
 			return BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 
+		Dictionary<string, IEntity> _nameResolutionCache = new Dictionary<string, IEntity>();
+
 		IEntity ResolveName(Node node, string name)
 		{
-			IEntity tag = NameResolutionService.Resolve(name);
-			CheckNameResolution(node, name, tag);
-			return tag;
+			IEntity existing;
+			if (_nameResolutionCache.TryGetValue(name, out existing))
+				return existing;
+			var entity = NameResolutionService.Resolve(name);
+			if (CheckNameResolution(node, name, entity))
+				_nameResolutionCache.Add(name, entity);
+			return entity;
+		}
+
+		IEntity TryToResolveName(string name)
+		{
+			IEntity existing;
+			if (_nameResolutionCache.TryGetValue(name, out existing))
+				return existing;
+			return NameResolutionService.Resolve(name);
+		}
+
+		void ClearResolutionCache()
+		{
+			_nameResolutionCache.Clear();
+		}
+
+		protected override void EnterNamespace(INamespace ns)
+		{
+			ClearResolutionCache();
+			base.EnterNamespace(ns);
+		}
+
+		protected override void LeaveNamespace()
+		{
+			base.LeaveNamespace();
+			ClearResolutionCache();
 		}
 
 		protected bool CheckNameResolution(Node node, string name, IEntity resolvedEntity)
