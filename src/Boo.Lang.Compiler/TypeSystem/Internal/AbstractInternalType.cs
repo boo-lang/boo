@@ -44,9 +44,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		private readonly Dictionary<IType[], IType> _constructedTypes = new Dictionary<IType[], IType>(ArrayEqualityComparer<IType>.Default);
 
+		private IEntity[] _memberEntitiesCache;
+
 		protected AbstractInternalType(InternalTypeSystemProvider provider, TypeDefinition typeDefinition) : base(typeDefinition)
 		{
 			_provider = provider;
+			typeDefinition.Members.Changed += (sender, args) => ClearMemberEntitiesCache();
 		}
 
 		protected virtual string BuildFullName()
@@ -271,7 +274,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public virtual IEnumerable<IEntity> GetMembers()
 		{
-			return GetMemberEntities(_node.Members);
+			if (null != _memberEntitiesCache)
+				return _memberEntitiesCache;
+			return _memberEntitiesCache = GetMemberEntities(_node.Members);
+		}
+
+		private void ClearMemberEntitiesCache()
+		{
+			_memberEntitiesCache = null;
 		}
 
 		private IEntity[] GetMemberEntities(TypeMemberCollection members)
