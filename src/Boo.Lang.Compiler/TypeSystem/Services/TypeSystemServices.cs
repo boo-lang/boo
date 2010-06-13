@@ -125,6 +125,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private DowncastPermissions _downcastPermissions;
 		private MemoizedFunction<IType, IType, IMethod> _findImplicitConversionOperator;
 		private MemoizedFunction<IType, IType, IMethod> _findExplicitConversionOperator;
+		private MemoizedFunction<IType, IType, bool> _canBeReachedByPromotion;
 
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -143,6 +144,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				new MemoizedFunction<IType, IType, IMethod>((fromType, toType) => FindConversionOperator("op_Explicit", fromType, toType));
 
 			context.Provide<CurrentScope>().Changed += (sender, args) => ClearScopeDependentMemoizedFunctions();
+
+			_canBeReachedByPromotion = new MemoizedFunction<IType, IType, bool>(CanBeReachedByPromotionImpl);
 
 			DuckType = Map(typeof(Builtins.duck));
 			IQuackFuType = Map(typeof(IQuackFu));
@@ -759,6 +762,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 	    public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
+	    {
+	    	return _canBeReachedByPromotion.Invoke(expectedType, actualType);
+	    }
+
+		private bool CanBeReachedByPromotionImpl(IType expectedType, IType actualType)
 		{
 			if (IsNullable(expectedType) && Null.Default == actualType)
 				return true;
@@ -766,9 +774,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			if (IsIntegerNumber(expectedType) && CanBeExplicitlyCastToInteger(actualType))
 				return true;
-			return (expectedType.IsValueType
-			        && IsNumber(expectedType)
-			        && IsNumber(actualType));
+			return (expectedType.IsValueType && IsNumber(expectedType) && IsNumber(actualType));
 		}
 
 		public bool CanBeExplicitlyCastToInteger(IType type)
