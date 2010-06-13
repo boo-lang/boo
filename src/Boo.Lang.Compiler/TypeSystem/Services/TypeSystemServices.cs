@@ -123,6 +123,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected Set<string> _literalPrimitives = new Set<string>();
 		protected Hashtable _primitives = new Hashtable();
 		private DowncastPermissions _downcastPermissions;
+		private MemoizedFunction<IType, IType, IMethod> _findImplicitConversionOperator;
+		private MemoizedFunction<IType, IType, IMethod> _findExplicitConversionOperator;
 
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -134,6 +136,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			_context = context;
 			_anonymousCallablesManager = new AnonymousCallablesManager(this);
+
+			_findImplicitConversionOperator =
+				new MemoizedFunction<IType, IType, IMethod>((fromType, toType) => FindConversionOperator("op_Implicit", fromType, toType));
+			_findExplicitConversionOperator =
+				new MemoizedFunction<IType, IType, IMethod>((fromType, toType) => FindConversionOperator("op_Explicit", fromType, toType));
+
+			context.Provide<CurrentScope>().Changed += (sender, args) => ClearScopeDependentMemoizedFunctions();
 
 			DuckType = Map(typeof(Builtins.duck));
 			IQuackFuType = Map(typeof(IQuackFu));
@@ -186,6 +195,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			PreparePrimitives();
 			PrepareBuiltinFunctions();
+		}
+
+		private void ClearScopeDependentMemoizedFunctions()
+		{
+			_findImplicitConversionOperator.Clear();
+			_findExplicitConversionOperator.Clear();
 		}
 
 		public CompilerContext Context
@@ -636,15 +651,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IMethod FindExplicitConversionOperator(IType fromType, IType toType)
 		{
-			return FindConversionOperator("op_Explicit", fromType, toType);
+			return _findExplicitConversionOperator.Invoke(fromType, toType);
 		}
 
 		public IMethod FindImplicitConversionOperator(IType fromType, IType toType)
 		{
-			return FindConversionOperator("op_Implicit", fromType, toType);
+			return _findImplicitConversionOperator.Invoke(fromType, toType);
 		}
 
-		public IMethod FindConversionOperator(string name, IType fromType, IType toType)
+		private IMethod FindConversionOperator(string name, IType fromType, IType toType)
 		{
 			while (fromType != ObjectType)
 			{
