@@ -72,11 +72,6 @@ namespace Boo.Lang
 			return new List(items, takeOwnership);
 		}
 
-		protected override List<object> NewConcreteList(int capacity)
-		{
-			return new List(capacity);
-		}
-
 		public Array ToArray(Type targetType)
 		{
 			Array target = Array.CreateInstance(targetType, _count);
