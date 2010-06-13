@@ -118,6 +118,11 @@ namespace Boo.Lang
 			return new List<T>(items, takeOwnership);
 		}
 
+		protected virtual List<T> NewConcreteList(int capacity)
+		{
+			return new List<T>(capacity);
+		}
+
 		public IEnumerable<T> Reversed
 		{
 			get
@@ -434,7 +439,7 @@ namespace Boo.Lang
 
 		public List<T> FindAll(System.Predicate<T> condition)
 		{
-			List<T> result = NewConcreteList(new T[0], true);
+			List<T> result = NewConcreteList(_count);
 			foreach (T item in this)
 			{
 				if (condition(item)) result.Add(item);
