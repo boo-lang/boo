@@ -143,12 +143,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private static bool Matches(IEntity entity, string name)
 		{
-			return entity.Name.Equals(name);
+			return entity.Name == name;
 		}
 
 		public bool Resolve(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
-			name = StringUtilities.DoIntern(name);
 			IEntity entity = My<TypeSystemServices>.Instance.ResolvePrimitive(name);
 			if (null != entity)
 			{
