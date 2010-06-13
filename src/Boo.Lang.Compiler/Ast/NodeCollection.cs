@@ -43,6 +43,7 @@ namespace Boo.Lang.Compiler.Ast
 		protected Node _parent;
 
 		protected List<T> _list;
+		private EventHandler _changed;
 
 		protected NodeCollection()
 		{
@@ -66,7 +67,13 @@ namespace Boo.Lang.Compiler.Ast
 		public T this[int index]
 		{
 			get { return _list[index]; }
-			set { _list[index] = value; }
+			set
+			{
+				if (_list[index] == value)
+					return;
+				_list[index] = value;
+				OnChanged();
+			}
 		}
 
 		public IEnumerator<T> GetEnumerator()
@@ -127,6 +134,7 @@ namespace Boo.Lang.Compiler.Ast
 		public void Clear()
 		{
 			_list.Clear();
+			OnChanged();
 		}
 
 		public T[] ToArray()
@@ -178,6 +186,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		protected IEnumerable InternalPopRange(int begin)
 		{
+			OnChanged();
 			return _list.PopRange(begin);
 		}
 
@@ -216,7 +225,7 @@ namespace Boo.Lang.Compiler.Ast
 				Node node = _list[i];
 				if (entity == node.Entity)
 				{
-					_list.RemoveAt(i);
+					RemoveAt(i);
 					return node;
 				}
 			}
@@ -268,37 +277,34 @@ namespace Boo.Lang.Compiler.Ast
 			//Node existing = (Node)InnerList[index];
 			//existing.InitializeParent(null);
 			_list.RemoveAt(index);
+			OnChanged();
 		}
 
 		public void ExtendWithClones(IEnumerable<T> items)
 		{
 			foreach (T item in items)
-			{
 				Add((T)item.CloneNode());
-			}
 		}
 
 		public void ReplaceAt(int i, T newItem)
-		{
-			//Node existing = (Node)InnerList[i];
-			//existing.InitializeParent(null);
-			_list[i] = newItem;
+		{	
 			Initialize(newItem);
+			_list[i] = newItem;
+			OnChanged();
 		}
 
 		public void Add(T item)
 		{
 			Initialize(item);
 			_list.Add(item);
+			OnChanged();
 		}
 
 		public void Extend(IEnumerable<T> items)
 		{
 			AssertNotNull("items", items);
 			foreach (T item in items)
-			{
 				Add(item);
-			}
 		}
 
 		public bool Replace(T existing, T newItem)
@@ -309,13 +315,9 @@ namespace Boo.Lang.Compiler.Ast
 				if (this[i] == existing)
 				{
 					if (null == newItem)
-					{
 						RemoveAt(i);
-					}
 					else
-					{
 						ReplaceAt(i, newItem);
-					}
 					return true;
 				}
 			}
@@ -326,11 +328,30 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			Initialize(item);
 			_list.Insert(index, item);
+			OnChanged();
 		}
 
 		public bool Remove(T item)
 		{
-			return ((ICollection<T>)_list).Remove(item);
+			if (((ICollection<T>)_list).Remove(item))
+			{
+				OnChanged();
+				return true;
+			}
+			return false;
+		}
+
+		public event System.EventHandler Changed
+		{
+			add { _changed += value; }
+			remove { _changed -= value; }
+		}
+
+		private void OnChanged()
+		{
+			if (_changed == null)
+				return;
+			_changed(this, EventArgs.Empty);
 		}
 
 		override public int GetHashCode()
@@ -366,18 +387,13 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			AssertNotNull("item", item);
 			if (null != _parent)
-			{
 				item.InitializeParent(_parent);
-			}
 		}
 
 		private void AssertNotNull(string descrip, object o)
 		{
 			if (o == null)
-			{
-				throw new ArgumentException(
-					String.Format("null reference for: {0}", descrip));
-			}
+				throw new ArgumentException(String.Format("null reference for: {0}", descrip));
 		}
 
 		public NodeCollection<TNew> Cast<TNew>() where TNew : Node
