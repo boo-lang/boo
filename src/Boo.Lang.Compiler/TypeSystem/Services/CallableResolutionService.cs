@@ -61,6 +61,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	    public CallableResolutionService(CompilerContext context)
 	    {   
 	        Initialize(context);
+	    	context.Provide<CurrentScope>().Changed += (sender, args) => ClearArgumentScoreCache();
 	    }
 
 	    protected Expression GetArgument(int index)
@@ -592,41 +593,73 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			var argumentType = ArgumentType(arg);
 			if (param.IsByRef)
-			    return IsValidByRefArg(param, parameterType, argumentType, arg)
-                    ? ExactMatchScore
-                    : -1;
+			    return CalculateByRefArgumentScore(arg, param, parameterType, argumentType);
 
-		    if (parameterType == argumentType
-		        || (TypeSystemServices.IsSystemObject(argumentType) && 
-		            TypeSystemServices.IsSystemObject(parameterType)))
-		        return parameterType is ICallableType
-		                   ? CallableExactMatchScore
-		                   : ExactMatchScore;
+			Dictionary<IType, int> scoresByArgumentType;
+			if (_scoresByArgumentTypeByParameterType.TryGetValue(parameterType, out scoresByArgumentType))
+			{
+				int cached;
+				if (scoresByArgumentType.TryGetValue(argumentType, out cached))
+					return cached;
+			}
 
-		    if (TypeCompatibilityRules.IsAssignableFrom(parameterType, argumentType))
-		    {				
-		        var callableType = parameterType as ICallableType;
-		        var callableArg = argumentType as ICallableType;
-		        if (callableType != null && callableArg != null)
-		            return CalculateCallableScore(callableType, callableArg);
-		        return UpCastScore;
-		    }
+			var score = CalculateArgumentScore(parameterType, argumentType);
 
-		    if (TypeSystemServices.FindImplicitConversionOperator(argumentType, parameterType) != null)
-		        return ImplicitConversionScore;
+			if (null == scoresByArgumentType)
+			{
+				scoresByArgumentType = new Dictionary<IType, int>();
+				_scoresByArgumentTypeByParameterType.Add(parameterType, scoresByArgumentType);
+			}
+			scoresByArgumentType.Add(argumentType, score);
 
-		    if (TypeSystemServices.CanBeReachedByPromotion(parameterType, argumentType))
-		        return IsWideningPromotion(parameterType, argumentType)
-                    ? WideningPromotion
-                    : NarrowingPromotion;
-
-		    if (MyDowncastPermissions().CanBeReachedByDowncast(parameterType, argumentType))
-		        return DowncastScore;
-
-		    return -1;
+			return score;
 		}
 
-	    private DowncastPermissions MyDowncastPermissions()
+		private void ClearArgumentScoreCache()
+		{
+			_scoresByArgumentTypeByParameterType.Clear();
+		}
+
+		Dictionary<IType, Dictionary<IType, int>> _scoresByArgumentTypeByParameterType = new Dictionary<IType, Dictionary<IType, int>>();
+
+		private int CalculateByRefArgumentScore(Node arg, IParameter param, IType parameterType, IType argumentType)
+		{
+			return IsValidByRefArg(param, parameterType, argumentType, arg) ? ExactMatchScore : -1;
+		}
+
+		private int CalculateArgumentScore(IType parameterType, IType argumentType)
+		{
+			if (parameterType == argumentType
+			    || (TypeSystemServices.IsSystemObject(argumentType) && 
+			        TypeSystemServices.IsSystemObject(parameterType)))
+				return parameterType is ICallableType
+				       	? CallableExactMatchScore
+				       	: ExactMatchScore;
+
+			if (TypeCompatibilityRules.IsAssignableFrom(parameterType, argumentType))
+			{				
+				var callableType = parameterType as ICallableType;
+				var callableArg = argumentType as ICallableType;
+				if (callableType != null && callableArg != null)
+					return CalculateCallableScore(callableType, callableArg);
+				return UpCastScore;
+			}
+
+			if (TypeSystemServices.FindImplicitConversionOperator(argumentType, parameterType) != null)
+				return ImplicitConversionScore;
+
+			if (TypeSystemServices.CanBeReachedByPromotion(parameterType, argumentType))
+				return IsWideningPromotion(parameterType, argumentType)
+				       	? WideningPromotion
+				       	: NarrowingPromotion;
+
+			if (MyDowncastPermissions().CanBeReachedByDowncast(parameterType, argumentType))
+				return DowncastScore;
+
+			return -1;
+		}
+
+		private DowncastPermissions MyDowncastPermissions()
 	    {
             return _downcastPermissions ?? (_downcastPermissions = My<DowncastPermissions>.Instance);
 	    }
