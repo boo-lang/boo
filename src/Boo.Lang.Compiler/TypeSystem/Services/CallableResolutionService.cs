@@ -100,10 +100,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			public int[] ArgumentScores
 			{
-				get
-				{
-					return _scores;
-				}
+				get { return _scores; }
 			}
 
 			public bool Expanded
@@ -114,12 +111,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			public int Score(int argumentIndex)
 			{
-				_scores[argumentIndex] = _crs.CalculateArgumentScore(
+				var score = _crs.CalculateArgumentScore(
 					Parameters[argumentIndex],
 					Parameters[argumentIndex].Type,
 					_crs.GetArgument(argumentIndex));
-
-				return _scores[argumentIndex];
+				_scores[argumentIndex] = score;
+				return score;
 			}
 
 			public int ScoreVarArgs(int argumentIndex)
@@ -170,7 +167,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		protected IType ArgumentType(Node node)
 		{
-			Expression e = node as Expression;
+			var e = node as Expression;
 			return null != e
 				? TypeSystemServices.GetExpressionType(e)
 				: TypeSystem.TypeSystemServices.GetType(node);
