@@ -120,6 +120,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"implicit-conversion-extension-2.boo");
 		}
 		
+		[Test]
+		public void per_module_extensions()
+		{
+			RunCompilerTestCase(@"per-module-extensions.boo");
+		}
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{
