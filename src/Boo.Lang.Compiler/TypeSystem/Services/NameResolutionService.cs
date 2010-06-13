@@ -77,12 +77,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			if (null == ns)
                 throw new ArgumentNullException("ns");
-			_current = ns;
+			CurrentNamespace = ns;
 		}
 		
 		public INamespace CurrentNamespace
 		{
 			get { return _current; }
+			private set
+			{
+				_current = value;
+				ClearResolutionCache();
+			}
 		}
 		
 		public void Reset()
@@ -93,31 +98,44 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		public void Restore(INamespace saved)
 		{
 			if (null == saved) throw new ArgumentNullException("saved");
-			_current = saved;
+			CurrentNamespace = saved;
 		}
 		
 		public void LeaveNamespace()
 		{
-			_current = _current.ParentNamespace;
+			CurrentNamespace = _current.ParentNamespace;
 		}
 		
 		public IEntity Resolve(string name)
 		{
-			return Resolve(name, EntityType.Any);
+			IEntity cached;
+			if (_nameResolutionCache.TryGetValue(name, out cached))
+				return cached;
+
+			var resolved = Resolve(name, EntityType.Any);
+			_nameResolutionCache.Add(name, resolved);
+			return resolved;
 		}
-		
+
+		Dictionary<string, IEntity> _nameResolutionCache = new Dictionary<string, IEntity>();
+
 		public IEntity Resolve(string name, EntityType flags)
 		{
 			var resultingSet = new Set<IEntity>();
 			Resolve(resultingSet, name, flags);
 			return Entities.EntityFromList(resultingSet);
 		}
-		
-		public bool Resolve(ICollection<IEntity> targetList, string name)
+
+		public void ClearResolutionCacheFor(string name)
 		{
-			return Resolve(targetList, name, EntityType.Any);
+			_nameResolutionCache.Remove(name);
 		}
 
+		void ClearResolutionCache()
+		{
+			_nameResolutionCache.Clear();
+		}
+				
 		public IEnumerable<TEntityOut> Select<TEntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
 		{
 			foreach (var candidate in candidates)
@@ -146,7 +164,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return entity.Name == name;
 		}
 
-		public bool Resolve(ICollection<IEntity> targetList, string name, EntityType flags)
+		private bool Resolve(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
 			IEntity entity = My<TypeSystemServices>.Instance.ResolvePrimitive(name);
 			if (null != entity)
@@ -377,16 +395,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		internal IEntity ResolveTypeName(SimpleTypeReference node)
 		{	
-			Set<IEntity> resultingSet = new Set<IEntity>();
+			var resultingSet = new Set<IEntity>();
 			if (IsQualifiedName(node.Name))
-			{
 				ResolveQualifiedName(resultingSet, node.Name);
-			}
 			else
-			{
 				Resolve(resultingSet, node.Name, EntityType.Type);
-			}
-
 
 			// Remove from the buffer types that do not match requested generity
 			FilterGenericTypes(resultingSet, node);

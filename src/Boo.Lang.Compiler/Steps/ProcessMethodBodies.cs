@@ -5529,47 +5529,21 @@ namespace Boo.Lang.Compiler.Steps
 			return BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 
-		Dictionary<string, IEntity> _nameResolutionCache = new Dictionary<string, IEntity>();
-
 		IEntity ResolveName(Node node, string name)
 		{
-			IEntity existing;
-			if (_nameResolutionCache.TryGetValue(name, out existing))
-				return existing;
 			var entity = NameResolutionService.Resolve(name);
-			if (CheckNameResolution(node, name, entity))
-				_nameResolutionCache.Add(name, entity);
+			CheckNameResolution(node, name, entity);
 			return entity;
 		}
 
 		IEntity TryToResolveName(string name)
 		{
-			IEntity existing;
-			if (_nameResolutionCache.TryGetValue(name, out existing))
-				return existing;
 			return NameResolutionService.Resolve(name);
 		}
 
-		void ClearResolutionCache()
+		protected void ClearResolutionCacheFor(string name)
 		{
-			_nameResolutionCache.Clear();
-		}
-
-		void ClearResolutionCacheFor(string name)
-		{
-			_nameResolutionCache.Remove(name);
-		}
-
-		protected override void EnterNamespace(INamespace ns)
-		{
-			ClearResolutionCache();
-			base.EnterNamespace(ns);
-		}
-
-		protected override void LeaveNamespace()
-		{
-			base.LeaveNamespace();
-			ClearResolutionCache();
+			NameResolutionService.ClearResolutionCacheFor(name);
 		}
 
 		protected bool CheckNameResolution(Node node, string name, IEntity resolvedEntity)
