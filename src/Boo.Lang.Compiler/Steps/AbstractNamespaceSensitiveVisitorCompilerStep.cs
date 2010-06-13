@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.Reset();
 		}
 		
-		protected virtual void EnterNamespace(INamespace ns)
+		protected void EnterNamespace(INamespace ns)
 		{
 			NameResolutionService.EnterNamespace(ns);
 		}
@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Steps
 			get { return NameResolutionService.CurrentNamespace; }
 		}
 		
-		protected virtual void LeaveNamespace()
+		protected void LeaveNamespace()
 		{
 			NameResolutionService.LeaveNamespace();
 		}
