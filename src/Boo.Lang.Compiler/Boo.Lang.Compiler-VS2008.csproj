@@ -479,6 +479,7 @@
     <Compile Include="TypeSystem\Core\ArrayType.cs" />
     <Compile Include="TypeSystem\Core\EmptyArrayType.cs" />
     <Compile Include="TypeSystem\Core\Entities.cs" />
+    <Compile Include="TypeSystem\Core\EnvironmentProperty.cs" />
     <Compile Include="TypeSystem\Core\GlobalNamespace.cs" />
     <Compile Include="TypeSystem\Core\NamespaceDelegator.cs" />
     <Compile Include="TypeSystem\Core\Namespaces.cs" />
@@ -589,6 +590,7 @@
     <Compile Include="TypeSystem\Services\BooCodeBuilder.cs" />
     <Compile Include="TypeSystem\Services\CallableResolutionService.cs" />
     <Compile Include="TypeSystem\Services\CompilerErrorEmitter.cs" />
+    <Compile Include="TypeSystem\Services\CurrentScope.cs" />
     <Compile Include="TypeSystem\Services\DowncastPermissions.cs" />
     <Compile Include="TypeSystem\Services\MemberCollector.cs" />
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
