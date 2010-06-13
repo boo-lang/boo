@@ -5949,7 +5949,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			finally
 			{
-				NameResolutionService.Restore(saved);
+				NameResolutionService.EnterNamespace(saved);
 			}
 		}
 
@@ -5978,7 +5978,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			finally
 			{
-				NameResolutionService.Restore(saved);
+				NameResolutionService.EnterNamespace(saved);
 			}
 		}
 
