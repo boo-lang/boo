@@ -87,5 +87,10 @@ namespace Boo.Lang.Compiler.Util
 			}
 			return d[n, m];
 		}
+
+		public static string DoIntern(string name)
+		{
+			return String.IsInterned(name) ?? String.Intern(name);
+		}
 	}
 }
