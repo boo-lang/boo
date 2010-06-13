@@ -44,11 +44,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	{
 		public static readonly char[] DotArray = new char[] { '.' };
 		
-		protected INamespace _current;
-		
 		protected INamespace _global = NullNamespace.Default;
 
 		private EntityNameMatcher _entityNameMatcher = Matches;
+
+		private readonly CurrentScope _current = My<CurrentScope>.Instance;
+
+		public NameResolutionService()
+		{
+			_current.Changed += (sender, args) => ClearResolutionCache();
+		}
 
 		public EntityNameMatcher EntityNameMatcher
 		{
@@ -82,12 +87,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		
 		public INamespace CurrentNamespace
 		{
-			get { return _current; }
-			private set
-			{
-				_current = value;
-				ClearResolutionCache();
-			}
+			get { return _current.Value; }
+			private set { _current.Value = value; }
 		}
 		
 		public void Reset()
@@ -97,7 +98,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		
 		public void LeaveNamespace()
 		{
-			CurrentNamespace = _current.ParentNamespace;
+			CurrentNamespace = CurrentNamespace.ParentNamespace;
 		}
 		
 		public IEntity Resolve(string name)
@@ -171,7 +172,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			}
 
 			AssertInNamespace();
-			INamespace current = _current;
+			INamespace current = CurrentNamespace;
 			do
 			{
 				if (Namespaces.ResolveCoalescingNamespaces(current.ParentNamespace, current, name, flags, targetList))
@@ -208,7 +209,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private IEntity ResolveExtensionFor(IType type, string name)
 		{
-			INamespace current = _current;
+			INamespace current = CurrentNamespace;
 			while (null != current)
 			{
 				IEntity found = ResolveExtensionForType(current, type, name);
@@ -279,7 +280,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				return Resolve(targetList, name, flags);
 
 			AssertInNamespace();
-			INamespace current = _current;
+			INamespace current = CurrentNamespace;
 			do
 			{
 				if (ResolveQualifiedNameAgainst(current, name, flags, targetList))
