@@ -2347,11 +2347,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveCallable(ReferenceExpression node)
 		{
-			return NameResolutionService.Resolve(node.Name,
-												 EntityType.Type
-												 | EntityType.Method
-												 | EntityType.BuiltinFunction
-												 | EntityType.Event);
+			const EntityType callableEntityFlags = EntityType.Type | EntityType.Method | EntityType.BuiltinFunction | EntityType.Event;
+			return NameResolutionService.Resolve(node.Name, callableEntityFlags);
 		}
 
 		private bool IsCallableEntity(IEntity entity)
