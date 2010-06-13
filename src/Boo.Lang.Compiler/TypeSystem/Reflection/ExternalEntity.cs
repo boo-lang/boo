@@ -30,7 +30,6 @@
 using System;
 using System.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
-using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -40,8 +39,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected readonly T _memberInfo;
 
 		private string _cachedFullName;
-
-		private string _cachedName;
 
 		protected readonly IReflectionTypeSystemProvider _provider;
 
@@ -60,14 +57,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual string Name
 		{
-			get
-			{
-				if (_cachedName != null)
-					return _cachedName;
-				var memberName = _memberInfo.Name;
-				_cachedName = StringUtilities.DoIntern(memberName);
-				return _cachedName;
-			}
+			get { return _memberInfo.Name; }
 		}
 
 		public string FullName
