@@ -95,12 +95,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			EnterNamespace(_global);
 		}
 		
-		public void Restore(INamespace saved)
-		{
-			if (null == saved) throw new ArgumentNullException("saved");
-			CurrentNamespace = saved;
-		}
-		
 		public void LeaveNamespace()
 		{
 			CurrentNamespace = _current.ParentNamespace;

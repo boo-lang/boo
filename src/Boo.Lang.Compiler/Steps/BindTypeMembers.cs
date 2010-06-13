@@ -61,7 +61,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (member.ContainsAnnotation(PrivateMemberNeverUsed))
 					continue;
 
-				NameResolutionService.Restore((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
+				NameResolutionService.EnterNamespace((INamespace)TypeSystemServices.GetEntity(member.DeclaringType));
 				CodeBuilder.BindParameterDeclarations(member.IsStatic, node);
 				if (!member.IsVisible && !member.IsSynthetic)
 				{

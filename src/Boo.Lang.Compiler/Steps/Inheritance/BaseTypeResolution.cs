@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 			}
 			finally
 			{
-				nameResolution.Restore(previous);
+				nameResolution.EnterNamespace(previous);
 			}
 		}
 
