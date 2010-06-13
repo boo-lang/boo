@@ -113,11 +113,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				return cached;
 
 			var resolved = Resolve(name, EntityType.Any);
+
 			_nameResolutionCache.Add(name, resolved);
 			return resolved;
 		}
 
 		Dictionary<string, IEntity> _nameResolutionCache = new Dictionary<string, IEntity>();
+		Dictionary<IType, Dictionary<string, IEntity>> _extensionResolutionCache = new Dictionary<IType, Dictionary<string, IEntity>>();
 
 		public IEntity Resolve(string name, EntityType flags)
 		{
@@ -134,6 +136,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		void ClearResolutionCache()
 		{
 			_nameResolutionCache.Clear();
+			_extensionResolutionCache.Clear();
 		}
 				
 		public IEnumerable<TEntityOut> Select<TEntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
@@ -186,9 +189,31 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IEntity ResolveExtension(INamespace ns, string name)
 		{
-			IType type = ns as IType;
+			var type = ns as IType;
 			if (null == type) return null;
-			
+
+			Dictionary<string, IEntity> typeCache;
+			if (_extensionResolutionCache.TryGetValue(type, out typeCache))
+			{
+				IEntity cached;
+				if (typeCache.TryGetValue(name, out cached))
+					return cached;
+			}
+
+			var resolved = ResolveExtensionFor(type, name);
+
+			if (typeCache == null)
+			{
+				typeCache = new Dictionary<string, IEntity>();
+				_extensionResolutionCache.Add(type, typeCache);
+			}
+			typeCache.Add(name, resolved);
+
+			return resolved;
+		}
+
+		private IEntity ResolveExtensionFor(IType type, string name)
+		{
 			INamespace current = _current;
 			while (null != current)
 			{
@@ -199,18 +224,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return null;
 		}
 
-
 		private IEntity ResolveExtensionForType(INamespace ns, IType type, string name)
 		{
-			Set<IEntity> extensions = new Set<IEntity>();
+			var extensions = new Set<IEntity>();
 			if (!ns.Resolve(extensions, name, EntityType.Method | EntityType.Property))
 				return null;
 
-			Predicate<IEntity> notExtensionPredicate = delegate(IEntity item)
-			{
-				return !IsExtensionOf(type, item as IExtensionEnabled);
-			};
-
+			Predicate<IEntity> notExtensionPredicate = item => !IsExtensionOf(type, item as IExtensionEnabled);
 			extensions.RemoveAll(notExtensionPredicate);
 			return Entities.EntityFromList(extensions);
 		}
