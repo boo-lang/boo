@@ -259,7 +259,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return Entities.EntityFromList(resultingSet);
 		}
 
-		public bool ResolveQualifiedName(ICollection<IEntity> targetList, string name, EntityType flags)
+		private bool ResolveQualifiedName(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
 			if (!IsQualifiedName(name))
 				return Resolve(targetList, name, flags);
