@@ -57,11 +57,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected List<Candidate> _candidates = new List<Candidate>();
 		protected ExpressionCollection _arguments;
 	    private DowncastPermissions _downcastPermissions;
+		readonly MemoizedFunction<IType, IType, int> _calculateArgumentScore;
 
 	    public CallableResolutionService(CompilerContext context)
 	    {   
 	        Initialize(context);
-	    	context.Provide<CurrentScope>().Changed += (sender, args) => ClearArgumentScoreCache();
+			_calculateArgumentScore = new MemoizedFunction<IType, IType, int>(CalculateArgumentScore);
+	    	context.Provide<CurrentScope>().Changed += (sender, args) => _calculateArgumentScore.Clear();
 	    }
 
 	    protected Expression GetArgument(int index)
@@ -594,33 +596,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			var argumentType = ArgumentType(arg);
 			if (param.IsByRef)
 			    return CalculateByRefArgumentScore(arg, param, parameterType, argumentType);
-
-			Dictionary<IType, int> scoresByArgumentType;
-			if (_scoresByArgumentTypeByParameterType.TryGetValue(parameterType, out scoresByArgumentType))
-			{
-				int cached;
-				if (scoresByArgumentType.TryGetValue(argumentType, out cached))
-					return cached;
-			}
-
-			var score = CalculateArgumentScore(parameterType, argumentType);
-
-			if (null == scoresByArgumentType)
-			{
-				scoresByArgumentType = new Dictionary<IType, int>();
-				_scoresByArgumentTypeByParameterType.Add(parameterType, scoresByArgumentType);
-			}
-			scoresByArgumentType.Add(argumentType, score);
-
-			return score;
+			return _calculateArgumentScore.Invoke(parameterType, argumentType);
 		}
-
-		private void ClearArgumentScoreCache()
-		{
-			_scoresByArgumentTypeByParameterType.Clear();
-		}
-
-		Dictionary<IType, Dictionary<IType, int>> _scoresByArgumentTypeByParameterType = new Dictionary<IType, Dictionary<IType, int>>();
 
 		private int CalculateByRefArgumentScore(Node arg, IParameter param, IType parameterType, IType argumentType)
 		{

@@ -50,8 +50,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private readonly CurrentScope _current = My<CurrentScope>.Instance;
 
+		private MemoizedFunction<IType, string, IEntity> _resolveExtensionFor;
+
 		public NameResolutionService()
 		{
+			_resolveExtensionFor = new MemoizedFunction<IType, string, IEntity>(ResolveExtensionFor);
 			_current.Changed += (sender, args) => ClearResolutionCache();
 		}
 
@@ -114,7 +117,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		}
 
 		Dictionary<string, IEntity> _nameResolutionCache = new Dictionary<string, IEntity>();
-		Dictionary<IType, Dictionary<string, IEntity>> _extensionResolutionCache = new Dictionary<IType, Dictionary<string, IEntity>>();
 
 		public IEntity Resolve(string name, EntityType flags)
 		{
@@ -131,7 +133,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		void ClearResolutionCache()
 		{
 			_nameResolutionCache.Clear();
-			_extensionResolutionCache.Clear();
+			_resolveExtensionFor.Clear();
 		}
 				
 		public IEnumerable<TEntityOut> Select<TEntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
@@ -187,24 +189,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			var type = ns as IType;
 			if (null == type) return null;
 
-			Dictionary<string, IEntity> typeCache;
-			if (_extensionResolutionCache.TryGetValue(type, out typeCache))
-			{
-				IEntity cached;
-				if (typeCache.TryGetValue(name, out cached))
-					return cached;
-			}
-
-			var resolved = ResolveExtensionFor(type, name);
-
-			if (typeCache == null)
-			{
-				typeCache = new Dictionary<string, IEntity>();
-				_extensionResolutionCache.Add(type, typeCache);
-			}
-			typeCache.Add(name, resolved);
-
-			return resolved;
+			return _resolveExtensionFor.Invoke(type, name);
 		}
 
 		private IEntity ResolveExtensionFor(IType type, string name)
