@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		private readonly Dictionary<IType[], IType> _constructedTypes = new Dictionary<IType[], IType>(ArrayEqualityComparer<IType>.Default);
 
-		private IEntity[] _memberEntitiesCache;
+		private readonly System.Collections.Generic.List<IEntity> _memberEntitiesCache = new System.Collections.Generic.List<IEntity>();
 
 		protected AbstractInternalType(InternalTypeSystemProvider provider, TypeDefinition typeDefinition) : base(typeDefinition)
 		{
@@ -274,22 +274,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public virtual IEnumerable<IEntity> GetMembers()
 		{
-			if (null != _memberEntitiesCache)
+			if (_memberEntitiesCache.Count > 0)
 				return _memberEntitiesCache;
-			return _memberEntitiesCache = GetMemberEntities(_node.Members);
+			GetMemberEntities(_node.Members);
+			return _memberEntitiesCache;
 		}
 
 		private void ClearMemberEntitiesCache()
 		{
-			_memberEntitiesCache = null;
+			_memberEntitiesCache.Clear();
 		}
 
-		private IEntity[] GetMemberEntities(TypeMemberCollection members)
+		private void GetMemberEntities(TypeMemberCollection members)
 		{
-			System.Collections.Generic.List<IEntity> entities = new System.Collections.Generic.List<IEntity>(members.Count);
 			foreach (TypeMember member in members.Except<StatementTypeMember,Destructor>())
-				entities.Add(_provider.EntityFor(member));
-			return entities.ToArray();
+				_memberEntitiesCache.Add(_provider.EntityFor(member));
 		}
 
 		override public string ToString()
