@@ -40,10 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public override string Name
 		{
-			get
-			{
-				return "constructor";
-			}
+			get { return "constructor"; }
 		}
 
 		override public EntityType EntityType
