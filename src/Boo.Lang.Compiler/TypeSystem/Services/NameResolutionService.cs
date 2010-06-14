@@ -28,9 +28,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.Util;
