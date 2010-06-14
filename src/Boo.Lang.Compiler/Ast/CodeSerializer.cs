@@ -32,11 +32,43 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Ast
 {
+	/// <summary>
+	/// Delimits a block of code where the original lexical info for code literals should be preserved.
+	/// 
+	/// preservingLexicalInfo:
+	///     print [| foo |].LexicalInfo.FileName # prints current file name
+	/// print [| bar |].LexicalInfo.FileName # prints nothing
+	/// 
+	/// Useful for stepping into macro generated code.
+	/// </summary>
+	public class PreservingLexicalInfoMacro : AbstractAstMacro
+	{
+		public override Statement Expand(MacroStatement macro)
+		{
+			if (macro.Arguments.Count > 0)
+				throw new ArgumentException("preservingLexicalInfo doesn't take any arguments");
+
+			macro.Body.Annotate(QuasiquoteExpander.PreserveLexicalInfoAnnotation);
+			return macro.Body;
+		}
+	}
+
 	public class QuasiquoteExpander : DepthFirstTransformer
 	{
+		public static object PreserveLexicalInfoAnnotation = new object();
+		private bool _preserveLexicalInfo;
+
+		public override void OnBlock(Block node)
+		{
+			var previousPreserveLexicalInfo = _preserveLexicalInfo;
+			_preserveLexicalInfo = previousPreserveLexicalInfo || node.ContainsAnnotation(PreserveLexicalInfoAnnotation);
+			base.OnBlock(node);
+			_preserveLexicalInfo = previousPreserveLexicalInfo;
+		}
+
 		override public void OnQuasiquoteExpression(QuasiquoteExpression node)
 		{
-			CodeSerializer serializer = new CodeSerializer();
+			var serializer = new CodeSerializer(_preserveLexicalInfo);
 			ReplaceCurrentNode(serializer.Serialize(node));
 		}
 	}
@@ -52,9 +84,19 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return node.Name;
 		}
-		
-		private Stack<Expression> _stack = new Stack<Expression>();
+
+		private readonly bool _preserveLexicalInfo;
+		private readonly Stack<Expression> _stack = new Stack<Expression>();
 		private int _quasiquoteDepth;
+
+		public CodeSerializer() : this(false)
+		{	
+		}
+
+		public CodeSerializer(bool preserveLexicalInfo)
+		{
+			_preserveLexicalInfo = preserveLexicalInfo;
+		}
 
 		public Expression Serialize(QuasiquoteExpression node)
 		{
@@ -74,8 +116,13 @@ namespace Boo.Lang.Compiler.Ast
 
 		public Expression Serialize(LexicalInfo location)
 		{
-			if (!location.IsValid)
-				return CreateReference(location, location.GetType().FullName + ".Empty");
+			if (_preserveLexicalInfo && location.IsValid)
+				return SerializeLexicalInfo(location);
+			return CreateReference(location, location.GetType().FullName + ".Empty");
+		}
+
+		private Expression SerializeLexicalInfo(LexicalInfo location)
+		{
 			var ctorInvocation = CreateInvocation(location, location.GetType().FullName);
 			ctorInvocation.Arguments.Add(Serialize(location.FileName));
 			ctorInvocation.Arguments.Add(Serialize(location.Line));
