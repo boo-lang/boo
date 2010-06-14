@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Util
 			get
 			{
 				if (null == hasAppDomainPermission)
-					hasAppDomainPermission = CheckPermission(new SecurityPermission(SecurityPermissionFlag.ControlAppDomain));
+					hasAppDomainPermission = CheckPermission(() => new SecurityPermission(SecurityPermissionFlag.ControlAppDomain));
 				return (bool) hasAppDomainPermission;
 			}
 		}
@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.Util
 			get
 			{
 				if (null == hasEnvironmentPermission)
-					hasEnvironmentPermission = CheckPermission(new EnvironmentPermission(PermissionState.Unrestricted));
+					hasEnvironmentPermission = CheckPermission(() => new EnvironmentPermission(PermissionState.Unrestricted));
 				return (bool) hasEnvironmentPermission;
 			}
 		}
@@ -63,24 +63,23 @@ namespace Boo.Lang.Compiler.Util
 			get
 			{
 				if (null == hasDiscoveryPermission)
-					hasDiscoveryPermission = CheckPermission(new FileIOPermission(PermissionState.Unrestricted));
+					hasDiscoveryPermission = CheckPermission(() => new FileIOPermission(PermissionState.Unrestricted));
 				return (bool) hasDiscoveryPermission;
 			}
 		}
 		static bool? hasDiscoveryPermission = null;
 
-		static bool CheckPermission(IPermission permission)
+		static bool CheckPermission(Func<IPermission> permission)
 		{
-			bool hasPermission = false;
 			try
 			{
-				permission.Demand();
-				hasPermission = true;
+				permission().Demand();
+				return true;
 			}
-			catch (SecurityException)
+			catch (Exception)
 			{
+				return false;
 			}
-			return hasPermission;
 		}
 	}
 }
