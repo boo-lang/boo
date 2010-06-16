@@ -13,6 +13,11 @@ namespace Boo.Lang.Compiler.Util
 			_func = func;
 		}
 
+		public void Clear(T1 arg1)
+		{
+			_cache.Remove(arg1);
+		}
+
 		public void Clear()
 		{
 			_cache.Clear();
