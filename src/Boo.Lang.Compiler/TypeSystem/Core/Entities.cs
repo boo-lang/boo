@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public static bool IsFlagSet(EntityType flags, EntityType flag)
 		{
-			return flag == (flags & flag);
+			return (flags & flag) != 0;
 		}
 	}
 }
