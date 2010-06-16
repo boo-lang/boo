@@ -186,8 +186,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		
 		IType _astAttributeInterface;
 
-		readonly List<IEntity> _elements = new List<IEntity>();
-
 		public BindAndApplyAttributes()
 		{
 			_tasks = new TaskList();
@@ -273,48 +271,37 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
 		{
 			if (null != attribute.Entity)
-			{
 				return;
-			}
-			
-			_elements.Clear();
-			
-			if (!NameResolutionService.ResolveQualifiedName(_elements, BuildAttributeName(attribute.Name, true)))
-			{
-				if (!NameResolutionService.ResolveQualifiedName(_elements, BuildAttributeName(attribute.Name, false)))
-				{
-					NameResolutionService.ResolveQualifiedName(_elements, attribute.Name);
-				}
-			}
 
-			if (_elements.Count == 0)
+			var entity = NameResolutionService.ResolveQualifiedName(BuildAttributeName(attribute.Name, true))
+				?? NameResolutionService.ResolveQualifiedName(BuildAttributeName(attribute.Name, false))
+				?? NameResolutionService.ResolveQualifiedName(attribute.Name);
+
+			if (entity == null)
 			{
-				string suggestion = NameResolutionService.GetMostSimilarTypeName(BuildAttributeName(attribute.Name, true));
-				if (null == suggestion)
-					suggestion = NameResolutionService.GetMostSimilarTypeName(BuildAttributeName(attribute.Name, false));
+				var suggestion = NameResolutionService.GetMostSimilarTypeName(BuildAttributeName(attribute.Name, true))
+					?? NameResolutionService.GetMostSimilarTypeName(BuildAttributeName(attribute.Name, false));
 
 				Error(attribute, CompilerErrorFactory.UnknownAttribute(attribute, attribute.Name, suggestion));
 				return;
 			}
 						
-			if (_elements.Count > 1)
+			if (EntityType.Ambiguous == entity.EntityType)
 			{
 				Error(attribute, CompilerErrorFactory.AmbiguousReference(
 				                 	attribute,
 				                 	attribute.Name,
-				                 	_elements));
+				                 	((Ambiguous)entity).Entities));
 				return;
 			}
 
-			// if _elements.Count == 1
-			IEntity tag = (IEntity)_elements[0];
-			if (EntityType.Type != tag.EntityType)
+			if (EntityType.Type != entity.EntityType)
 			{
-				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name, tag.ToString(), null));
+				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name, entity.ToString(), null));
 				return;
 			}
 			
-			IType attributeType = ((ITypedEntity)tag).Type;
+			IType attributeType = ((ITypedEntity)entity).Type;
 			if (IsAstAttribute(attributeType))
 			{
 				ExternalType externalType = attributeType as ExternalType;
@@ -338,7 +325,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				{
 					// remember the attribute's type
 					attribute.Name = attributeType.FullName;
-					attribute.Entity = attributeType;
+					attribute.Entity = entity;
 					CheckAttributeParameters(attribute);
 				}
 			}
