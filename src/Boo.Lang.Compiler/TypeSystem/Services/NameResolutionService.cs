@@ -162,13 +162,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return entity.Name == name;
 		}
 
-		private bool Resolve(ICollection<IEntity> targetList, string name, EntityType flags)
+		private void Resolve(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
 			IEntity entity = My<TypeSystemServices>.Instance.ResolvePrimitive(name);
 			if (null != entity)
 			{
 				targetList.Add(entity);
-				return true;
+				return;
 			}
 
 			AssertInNamespace();
@@ -176,10 +176,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			do
 			{
 				if (Namespaces.ResolveCoalescingNamespaces(current.ParentNamespace, current, name, flags, targetList))
-					return true;
+					return;
 				current = current.ParentNamespace;
-			} while (current != null);
-			return false;
+			}
+			while (current != null);
 		}
 
 		public IEntity ResolveExtension(INamespace ns, string name)
