@@ -456,7 +456,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				SimpleTypeReference sref = extension.Parameters[0].Type as SimpleTypeReference;
 				if (null != sref && extension.Parameters.Count == 2)
 				{
-					IType type = NameResolutionService.ResolveQualifiedName(sref.Name, EntityType.Type) as IType;
+					IType type = NameResolutionService.ResolveQualifiedName(sref.Name) as IType;
 					if (type != null && type.Name.EndsWith("Macro")) //no entity yet
 						return type;
 				}
@@ -479,7 +479,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				SimpleTypeReference sref = extension.ReturnType as SimpleTypeReference;
 				if (null != sref)
 				{
-					IType type = NameResolutionService.ResolveQualifiedName(sref.Name, EntityType.Type) as IType;
+					IType type = NameResolutionService.ResolveQualifiedName(sref.Name) as IType;
 					if (type != null && type.Name.EndsWith("Macro"))//no entity yet
 						return type;
 				}

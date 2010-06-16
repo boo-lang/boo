@@ -124,10 +124,10 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	private def CreateMacroExtensionType(mre as MemberReferenceExpression):
 		#resolve the macro type we want to expand
 		parentTypeName = BuildMacroTypeName(mre.Target)
-		parent = NameResolutionService.ResolveQualifiedName(parentTypeName, EntityType.Type)
+		parent = NameResolutionService.ResolveQualifiedName(parentTypeName) as IType
 		if parent is null: #oh, this is a external extension maybe?
 			parentTypeName = BuildMacroTypeName(mre.Target, true)
-			parent = NameResolutionService.ResolveQualifiedName(parentTypeName, EntityType.Type)
+			parent = NameResolutionService.ResolveQualifiedName(parentTypeName) as IType
 		if parent is null:
 			raise "No macro `${mre.Target.ToString()}` has been found to extend"
 

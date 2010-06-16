@@ -250,7 +250,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return ResolveQualifiedName(targetList, name, EntityType.Any);
 		}
 
-		public IEntity ResolveQualifiedName(string name, EntityType flags)
+		private IEntity ResolveQualifiedName(string name, EntityType flags)
 		{
 			Set<IEntity> resultingSet = new Set<IEntity>();
 			ResolveQualifiedName(resultingSet, name, flags);
