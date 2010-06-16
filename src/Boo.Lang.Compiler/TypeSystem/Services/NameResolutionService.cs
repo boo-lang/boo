@@ -48,11 +48,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private readonly CurrentScope _current = My<CurrentScope>.Instance;
 
-		private MemoizedFunction<IType, string, IEntity> _resolveExtensionFor;
+		private readonly MemoizedFunction<IType, string, IEntity> _resolveExtensionFor;
+		private readonly MemoizedFunction<string, EntityType, IEntity> _resolveName;
 
 		public NameResolutionService()
 		{
 			_resolveExtensionFor = new MemoizedFunction<IType, string, IEntity>(ResolveExtensionFor);
+			_resolveName = new MemoizedFunction<string, EntityType, IEntity>(ResolveImpl);
 			_current.Changed += (sender, args) => ClearResolutionCache();
 		}
 
@@ -104,19 +106,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		
 		public IEntity Resolve(string name)
 		{
-			IEntity cached;
-			if (_nameResolutionCache.TryGetValue(name, out cached))
-				return cached;
-
-			var resolved = Resolve(name, EntityType.Any);
-
-			_nameResolutionCache.Add(name, resolved);
-			return resolved;
+			return Resolve(name, EntityType.Any);
 		}
 
-		Dictionary<string, IEntity> _nameResolutionCache = new Dictionary<string, IEntity>();
-
 		public IEntity Resolve(string name, EntityType flags)
+		{
+			return _resolveName.Invoke(name, flags);
+		}
+
+		private IEntity ResolveImpl(string name, EntityType flags)
 		{
 			var resultingSet = new Set<IEntity>();
 			Resolve(resultingSet, name, flags);
@@ -125,12 +123,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public void ClearResolutionCacheFor(string name)
 		{
-			_nameResolutionCache.Remove(name);
+			_resolveName.Clear(name);
 		}
 
 		void ClearResolutionCache()
 		{
-			_nameResolutionCache.Clear();
+			_resolveName.Clear();
 			_resolveExtensionFor.Clear();
 		}
 				
@@ -241,27 +239,22 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		}
 
 		public IEntity ResolveQualifiedName(string name)
-		{
+		{	
 			return ResolveQualifiedName(name, EntityType.Any);
-		}
-		
-		public bool ResolveQualifiedName(ICollection<IEntity> targetList, string name)
-		{
-			return ResolveQualifiedName(targetList, name, EntityType.Any);
 		}
 
 		private IEntity ResolveQualifiedName(string name, EntityType flags)
-		{
-			Set<IEntity> resultingSet = new Set<IEntity>();
+		{	
+			if (!IsQualifiedName(name))
+				return Resolve(name, flags);
+
+			var resultingSet = new Set<IEntity>();
 			ResolveQualifiedName(resultingSet, name, flags);
 			return Entities.EntityFromList(resultingSet);
 		}
 
 		private bool ResolveQualifiedName(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
-			if (!IsQualifiedName(name))
-				return Resolve(targetList, name, flags);
-
 			AssertInNamespace();
 			INamespace current = CurrentNamespace;
 			do

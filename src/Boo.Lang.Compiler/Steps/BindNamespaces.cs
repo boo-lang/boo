@@ -219,6 +219,8 @@ namespace Boo.Lang.Compiler.Steps
 				Parameters.References.Add(asm);
 				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, asm.FullName);
 				import.AssemblyReference.Entity = asm;
+
+				NameResolutionService.ClearResolutionCacheFor(asm.Name);
 				return true;
 			}
 			return false;
