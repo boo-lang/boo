@@ -39,9 +39,8 @@ print JOIN(l, "", "")
 ";
 			parameters.Input.Add(new StringInput("code", code));
 			parameters.Pipeline = new ResolveExpressions();
-			parameters.Pipeline.Insert(0,
-			                           new ActionStep(
-			                           	delegate(CompilerContext context) { context.NameResolutionService.EntityNameMatcher = MatchIgnoringCase; }));
+			parameters.Pipeline.Insert(0, new ActionStep(
+			                           	context => context.NameResolutionService.EntityNameMatcher = MatchIgnoringCase));
 			CompilerContext result = new Boo.Lang.Compiler.BooCompiler(parameters).Run();
 			Assert.AreEqual(0, result.Errors.Count, result.Errors.ToString());
 		}
