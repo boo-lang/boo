@@ -392,16 +392,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		}
 
 		internal IEntity ResolveTypeName(SimpleTypeReference node)
-		{	
-			var resultingSet = new Set<IEntity>();
-			if (IsQualifiedName(node.Name))
-				ResolveQualifiedName(resultingSet, node.Name);
-			else
-				Resolve(resultingSet, node.Name, EntityType.Type);
-
-			// Remove from the buffer types that do not match requested generity
-			FilterGenericTypes(resultingSet, node);
-			return Entities.EntityFromList(resultingSet);
+		{
+			var resolved = ResolveQualifiedName(node.Name, EntityType.Type);
+			if (resolved == null)
+				return null;
+			if (EntityType.Ambiguous == resolved.EntityType)
+			{
+				// Remove from the buffer types that do not match requested generity
+				var resultingSet = new Set<IEntity>(((Ambiguous)resolved).Entities);
+				FilterGenericTypes(resultingSet, node);
+				return Entities.EntityFromList(resultingSet);
+			}
+			return resolved;
 		}
 
 		public IType ResolveGenericTypeReference(GenericTypeReference gtr, IEntity definition)
