@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		static Assembly FindParserAssembly()
 		{
 			Assembly thisAssembly = typeof(Parse).Assembly;
-			string thisLocation = Permissions.HasDiscoveryPermission ?  thisAssembly.Location : "";
+			string thisLocation = Permissions.WithDiscoveryPermission(() => thisAssembly.Location) ?? "";
 			string parserLocation = thisLocation.EndsWith("Boo.Lang.Compiler.dll")
                 	? thisLocation.Substring(0, thisLocation.Length - "Boo.Lang.Compiler.dll".Length) + "Boo.Lang.Parser.dll"
                 	: "";
