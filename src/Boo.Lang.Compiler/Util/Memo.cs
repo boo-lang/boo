@@ -87,20 +87,14 @@ namespace Boo.Lang.Compiler.Util
 		{
 			public static SafeComparer Instance
 			{
-				get
-				{
-					if (null == instance)
-						instance = new SafeComparer();
-					return instance;
-				}
+				get { return instance ?? (instance = new SafeComparer()); }
 			}
+
 			static SafeComparer instance;
 
 			public bool Equals(TKey x, TKey y)
 			{
-				if (null == x)
-					return (null == y);
-				return x.Equals(y);
+				return object.Equals(x, y);
 			}
 
 			public int GetHashCode(TKey obj)
