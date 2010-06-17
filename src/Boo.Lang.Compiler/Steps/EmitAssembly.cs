@@ -417,30 +417,20 @@ namespace Boo.Lang.Compiler.Steps
 
 			public void Run()
 			{
-				if (Permissions.HasAppDomainPermission)
-					RunWithAppDomainTypeResolveHandler();
-				else
-					RunWithoutAppDomainTypeResolveHandler();
-			}
-
-			void RunWithoutAppDomainTypeResolveHandler()
-			{
-				CreateTypes();
-			}
-
-			void RunWithAppDomainTypeResolveHandler()
-			{
-				ResolveEventHandler resolveHandler = new ResolveEventHandler(OnTypeResolve);
-				AppDomain current = Thread.GetDomain();
+				Permissions.WithAppDomainPermission(() => CurrentDomain().TypeResolve += OnTypeResolve);
 				try
 				{
-					current.TypeResolve += resolveHandler;
 					CreateTypes();
 				}
 				finally
 				{
-					current.TypeResolve -= resolveHandler;
+					Permissions.WithAppDomainPermission(() => CurrentDomain().TypeResolve -= OnTypeResolve);
 				}
+			}
+
+			private AppDomain CurrentDomain()
+			{
+				return Thread.GetDomain();
 			}
 
 			void CreateTypes()

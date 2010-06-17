@@ -113,9 +113,9 @@ namespace Boo.Lang.Compiler
 		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
 		{
 			_libPaths = new ArrayList();
-			if (Permissions.HasDiscoveryPermission)
+			_systemDir = Permissions.WithDiscoveryPermission(() => GetSystemDir());
+			if (_systemDir != null)
 			{
-				_systemDir = GetSystemDir();
 				_libPaths.Add(_systemDir);
 				_libPaths.Add(Directory.GetCurrentDirectory());
 			}
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler
 			_generateInMemory = true;
 			_stdLib = true;
 
-			if (Permissions.HasEnvironmentPermission && null != Environment.GetEnvironmentVariable("TRACE"))
+			if (Permissions.WithEnvironmentPermission(() => Environment.GetEnvironmentVariable("TRACE") != null))
 				EnableTraceSwitch();
 
 			_delaySign = false;
@@ -164,9 +164,10 @@ namespace Boo.Lang.Compiler
 
 			//boo.lang.extensions.dll
 			//try loading extensions next to Boo.Lang (in the same directory)
-			string tentative = "Boo.Lang.Extensions.dll";
-			if (Permissions.HasDiscoveryPermission)
-				tentative = Path.Combine(Path.GetDirectoryName(_booAssembly.Location), tentative);
+			const string booLangExtensionsDll = "Boo.Lang.Extensions.dll";
+			var tentative = Permissions.WithDiscoveryPermission(() => Path.Combine(Path.GetDirectoryName(_booAssembly.Location), booLangExtensionsDll))
+				?? booLangExtensionsDll;
+
 			ICompileUnit extensionsAssembly = LoadAssembly(tentative, false);
 			if(extensionsAssembly == null)//if failed, try loading from the gac
 				extensionsAssembly = LoadAssembly("Boo.Lang.Extensions", false);

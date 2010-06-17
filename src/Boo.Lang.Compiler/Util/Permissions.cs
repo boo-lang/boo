@@ -27,58 +27,48 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Security;
 using System.Security.Permissions;
-using System.Text;
 
 namespace Boo.Lang.Compiler.Util
 {
 	internal static class Permissions
 	{
-		public static bool HasAppDomainPermission
+		public static T WithEnvironmentPermission<T>(Func<T> function)
 		{
-			get
-			{
-				if (null == hasAppDomainPermission)
-					hasAppDomainPermission = CheckPermission(() => new SecurityPermission(SecurityPermissionFlag.ControlAppDomain));
-				return (bool) hasAppDomainPermission;
-			}
+			return WithPermission(ref hasEnvironmentPermission, () => new EnvironmentPermission(PermissionState.Unrestricted), function);
 		}
-		static bool? hasAppDomainPermission = null;
 
-		public static bool HasEnvironmentPermission
+		public static T WithDiscoveryPermission<T>(Func<T> function)
 		{
-			get
-			{
-				if (null == hasEnvironmentPermission)
-					hasEnvironmentPermission = CheckPermission(() => new EnvironmentPermission(PermissionState.Unrestricted));
-				return (bool) hasEnvironmentPermission;
-			}
+			return WithPermission(ref hasDiscoveryPermission, () => new FileIOPermission(PermissionState.Unrestricted), function);
 		}
-		static bool? hasEnvironmentPermission = null;
 
-		public static bool HasDiscoveryPermission
+		public static void WithAppDomainPermission(Action action)
 		{
-			get
-			{
-				if (null == hasDiscoveryPermission)
-					hasDiscoveryPermission = CheckPermission(() => new FileIOPermission(PermissionState.Unrestricted));
-				return (bool) hasDiscoveryPermission;
-			}
+			WithPermission(ref hasAppDomainPermission,
+				() => new SecurityPermission(SecurityPermissionFlag.ControlAppDomain),
+				() => { action(); return false; });
 		}
-		static bool? hasDiscoveryPermission = null;
 
-		static bool CheckPermission(Func<IPermission> permission)
+		static bool? hasAppDomainPermission;
+		static bool? hasEnvironmentPermission;
+		static bool? hasDiscoveryPermission;
+
+		private static TRetVal WithPermission<TPermission, TRetVal>(ref bool? hasPermission, Func<TPermission> permission, Func<TRetVal> function)
 		{
+			if (hasPermission.HasValue && !hasPermission.Value)
+				return default(TRetVal);
+
 			try
 			{
-				permission().Demand();
-				return true;
+				permission();
+				return function();
 			}
 			catch (Exception)
 			{
-				return false;
+				hasPermission = false;
+				return default(TRetVal);
 			}
 		}
 	}
