@@ -32,9 +32,9 @@ public class Foo(object, System.Collections.IEnumerable):
 public final transient class For_2Module(object):
 
 	private static def Main(argv as (string)) as void:
-		$iterator$1 = Foo().GetEnumerator()
-		while $iterator$1.MoveNext():
-			i = $iterator$1.get_Current()
+		\$iterator\$1 = Foo().GetEnumerator()
+		while \$iterator\$1.MoveNext():
+			i = \$iterator\$1.get_Current()
 			System.Console.WriteLine(i)
 
 	private def constructor():

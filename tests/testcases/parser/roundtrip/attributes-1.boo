@@ -36,7 +36,7 @@ class Person:
 	[before((null != _fname))]
 	[before((null != _lname))]
 	def GetName() [capitalize]  as string:
-		return "\${_fname} \${_lname}"
+		return "\$_fname \$_lname"
 
 	[XmlAttribute]
 	Age as int:

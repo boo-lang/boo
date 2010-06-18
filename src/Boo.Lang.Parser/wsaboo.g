@@ -2940,14 +2940,34 @@ options
 		}
 	}
 
+	void ParseInterpolatedExpression(int tokenClose, int tokenOpen)
+	{
+		EnqueueESEPARATOR();
+		if (0 == _erecorder.RecordUntil(CreateExpressionLexer(), tokenClose, tokenOpen))
+			_erecorder.Dequeue();
+		else
+			EnqueueESEPARATOR();
+		refresh();
+	}
+	
+	void EnqueueESEPARATOR()
+	{
+		_erecorder.Enqueue(makeESEPARATOR());
+	}
+
 	void Enqueue(antlr.IToken token, string text)
 	{
 		token.setText(text);
-		_erecorder.Enqueue(makeESEPARATOR());
-		_erecorder.Enqueue(token);
-		_erecorder.Enqueue(makeESEPARATOR());
+		EnqueueInterpolatedToken(token);
 	}
 	
+	void EnqueueInterpolatedToken(antlr.IToken token)
+	{
+		EnqueueESEPARATOR();
+		_erecorder.Enqueue(token);
+		EnqueueESEPARATOR();
+	}
+
 	antlr.IToken makeESEPARATOR()
 	{
 		return makeToken(ESEPARATOR);
@@ -3089,18 +3109,24 @@ TRIPLE_QUOTED_STRING:
 	"\"\""!
 	(
 	options { greedy=false; }:		
-		("${")=>		
+		("${" | "$(")=>		
 		{					
 			Enqueue(makeToken(TRIPLE_QUOTED_STRING), $getText);
 			$setText("");
 		}
-		ESCAPED_EXPRESSION |
+		INTERPOLATED_EXPRESSION |
+		('$' ID) => 
+		{
+			Enqueue(makeToken(TRIPLE_QUOTED_STRING), $getText);
+			$setText("");
+		}
+		INTERPOLATED_REFERENCE |
 		("\\$")=>'\\'! '$' |
 		~('\r'|'\n') |
 		NEWLINE
 	)*
 	"\"\"\""!
-	;
+;
 
 DOUBLE_QUOTED_STRING:
 	'"'!
@@ -3110,12 +3136,18 @@ DOUBLE_QUOTED_STRING:
 		(
 			(
 				DQS_ESC |
-				("${")=>
+				("${" | "$(")=>
 				{					
 					Enqueue(makeToken(DOUBLE_QUOTED_STRING), $getText);
 					$setText("");
 				}
-				ESCAPED_EXPRESSION |
+				INTERPOLATED_EXPRESSION |
+				('$' ID) => 
+				{
+					Enqueue(makeToken(DOUBLE_QUOTED_STRING), $getText);
+					$setText("");
+				}
+				INTERPOLATED_REFERENCE |
 				~('"' | '\\' | '\r' | '\n')
 			)*
 			'"'!			
@@ -3130,8 +3162,19 @@ DOUBLE_QUOTED_STRING:
 			_selector.push(_erecorder);
 		}
 	}
-	;
-		
+;
+	
+protected
+INTERPOLATED_EXPRESSION :
+	"${"! { ParseInterpolatedExpression(RBRACE, LBRACE); }
+	| "$("! { ParseInterpolatedExpression(RPAREN, LPAREN); }
+;
+
+protected
+INTERPOLATED_REFERENCE:
+	"$"! id:ID! { EnqueueInterpolatedToken(id); }
+;
+				
 SINGLE_QUOTED_STRING :
 	'\''!
 	(
@@ -3192,22 +3235,6 @@ NEWLINE:
 		}
 	}
 ;
-		
-protected
-ESCAPED_EXPRESSION : "${"!
-	{			
-		_erecorder.Enqueue(makeESEPARATOR());
-		if (0 == _erecorder.RecordUntil(CreateExpressionLexer(), RBRACE, LBRACE))
-		{	
-			_erecorder.Dequeue();			
-		}
-		else
-		{
-			_erecorder.Enqueue(makeESEPARATOR());
-		}
-		refresh();
-	} 
-	;
 
 protected
 DQS_ESC : '\\'! ( SESC | '"' | '$') ;	

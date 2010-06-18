@@ -151,25 +151,26 @@ namespace Boo.Lang.Parser
 		public const int FLOAT = 118;
 		public const int TIMESPAN = 119;
 		public const int LINE_CONTINUATION = 120;
-		public const int SL_COMMENT = 121;
-		public const int ML_COMMENT = 122;
-		public const int WS = 123;
-		public const int X_RE_LITERAL = 124;
-		public const int NEWLINE = 125;
-		public const int ESCAPED_EXPRESSION = 126;
-		public const int DQS_ESC = 127;
-		public const int SQS_ESC = 128;
-		public const int SESC = 129;
-		public const int RE_CHAR = 130;
-		public const int X_RE_CHAR = 131;
-		public const int RE_OPTIONS = 132;
-		public const int RE_ESC = 133;
-		public const int DIGIT_GROUP = 134;
-		public const int REVERSE_DIGIT_GROUP = 135;
-		public const int ID_PREFIX = 136;
-		public const int ID_LETTER = 137;
-		public const int DIGIT = 138;
-		public const int HEXDIGIT = 139;
+		public const int INTERPOLATED_EXPRESSION = 121;
+		public const int INTERPOLATED_REFERENCE = 122;
+		public const int SL_COMMENT = 123;
+		public const int ML_COMMENT = 124;
+		public const int WS = 125;
+		public const int X_RE_LITERAL = 126;
+		public const int NEWLINE = 127;
+		public const int DQS_ESC = 128;
+		public const int SQS_ESC = 129;
+		public const int SESC = 130;
+		public const int RE_CHAR = 131;
+		public const int X_RE_CHAR = 132;
+		public const int RE_OPTIONS = 133;
+		public const int RE_ESC = 134;
+		public const int DIGIT_GROUP = 135;
+		public const int REVERSE_DIGIT_GROUP = 136;
+		public const int ID_PREFIX = 137;
+		public const int ID_LETTER = 138;
+		public const int DIGIT = 139;
+		public const int HEXDIGIT = 140;
 		
 		
 	

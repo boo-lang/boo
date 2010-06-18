@@ -28,9 +28,9 @@ def CheckEvent(name, serializable):
 	Assert.IsNotNull(eventInfo, name)
 	Assert.AreSame(EventHandler, eventInfo.EventHandlerType)
 
-	CheckEventMethod("add_${name}", eventInfo.GetAddMethod())
-	CheckEventMethod("remove_${name}", eventInfo.GetRemoveMethod())
-	CheckEventField(type.GetField("$event$${name}", BindingFlags.NonPublic|BindingFlags.Instance), serializable, eventInfo.EventHandlerType)
+	CheckEventMethod("add_$name", eventInfo.GetAddMethod())
+	CheckEventMethod("remove_$name", eventInfo.GetRemoveMethod())
+	CheckEventField(type.GetField("\$event\$$name", BindingFlags.NonPublic|BindingFlags.Instance), serializable, eventInfo.EventHandlerType)
 
 	raiseMethod = eventInfo.GetRaiseMethod(true)
 	assert raiseMethod is not null
