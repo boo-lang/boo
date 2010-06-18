@@ -56,9 +56,9 @@ Enforces constraint that no static members exist on the singleton class (as a re
 	[property(AccessorName)]
 	_accessorName = ReferenceExpression(Name: DEFAULT_INSTANCE_PROPERTY_NAME)
 	
-	public static final NESTED_CLASS_NAME = "$Nested"
+	public static final NESTED_CLASS_NAME = "\$Nested"
 	public static final INSTANCE_FIELD_NAME = "instance"
-	public static final SERIALIZATION_OBJECT_CLASS_NAME = "$ObjectForSerialization"
+	public static final SERIALIZATION_OBJECT_CLASS_NAME = "\$ObjectForSerialization"
 	public static final DEFAULT_INSTANCE_PROPERTY_NAME = "Instance"
 	
 	public static final ISERIALIZABLE_FULL_NAME = typeof(ISerializable).FullName
@@ -149,7 +149,7 @@ Enforces constraint that no static members exist on the singleton class (as a re
 	"""
 	Creates the public, static, read-only property 'Instance' and 
 	adds it to the singleton.  This property accesses
-	'$Nested.instance' to return the actual singleton instance.
+	'\$Nested.instance' to return the actual singleton instance.
 	"""
 		classRef = SimpleTypeReference(_classDef.Name)
 		

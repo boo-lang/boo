@@ -139,6 +139,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void name_splicing_6()
+		{
+			RunCompilerTestCase(@"name-splicing-6.boo");
+		}
+		
+		[Test]
 		public void parameter_splicing_1()
 		{
 			RunCompilerTestCase(@"parameter-splicing-1.boo");

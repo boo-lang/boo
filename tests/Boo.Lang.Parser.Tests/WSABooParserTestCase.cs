@@ -103,7 +103,7 @@ class Foo(Bar):
 		{
 			string code = @"
 			def SayHello(name as string):
-				return ""Hello, ${name}""
+				return ""Hello, $name""
 			end
 			";
 			
@@ -111,7 +111,7 @@ class Foo(Bar):
 			
 			string expected = @"
 def SayHello(name as string):
-	return ""Hello, ${name}""
+	return ""Hello, $name""
 	";
 			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
 		}

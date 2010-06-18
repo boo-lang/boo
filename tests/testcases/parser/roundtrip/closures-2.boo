@@ -2,7 +2,7 @@
 button = Button()
 button.Click += { print('clicked!') }
 button.Click += { print('yes, it was!') }
-button.Click += { sender | print("\${sender} clicked!") }
+button.Click += { sender | print("\$sender clicked!") }
 """
 button = Button()
 button.Click += def:
@@ -12,4 +12,4 @@ button.Click += def ():
 	print("yes, it was!")
 	
 button.Click += def (sender):
-	print("${sender} clicked!")
+	print("$sender clicked!")

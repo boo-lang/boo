@@ -702,6 +702,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void interpolation_4()
+		{
+			RunCompilerTestCase(@"interpolation-4.boo");
+		}
+		
+		[Test]
 		public void invocation_1()
 		{
 			RunCompilerTestCase(@"invocation-1.boo");

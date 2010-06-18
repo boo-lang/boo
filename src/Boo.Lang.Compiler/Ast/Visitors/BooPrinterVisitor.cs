@@ -954,18 +954,23 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		override public void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
 		{
 			Write("\"");
-			foreach (Expression arg in node.Expressions)
+			foreach (var arg in node.Expressions)
 			{
-				StringLiteralExpression s = arg as StringLiteralExpression;
-				if (null == s)
+				switch (arg.NodeType)
 				{
-					Write("${");
-					Visit(arg);
-					Write("}");
-				}
-				else
-				{
-					WriteStringLiteralContents(s.Value, _writer, false);
+					case NodeType.StringLiteralExpression:
+						WriteStringLiteralContents(((StringLiteralExpression)arg).Value, _writer, false);
+						break;
+					case NodeType.ReferenceExpression:
+					case NodeType.BinaryExpression:
+						Write("$");
+						Visit(arg);
+						break;
+					default:
+						Write("$(");
+						Visit(arg);
+						Write(")");
+						break;
 				}
 			}
 			Write("\"");
