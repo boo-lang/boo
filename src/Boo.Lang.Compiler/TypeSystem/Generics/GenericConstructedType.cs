@@ -301,16 +301,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return FullName;
 		}
 
-		private Memo<int, IArrayType> _arrayTypes;
+		private ArrayTypeCache _arrayTypes;
 
 		public IArrayType MakeArrayType(int rank)
 		{
 			if (null == _arrayTypes)
-				_arrayTypes = new Memo<int, IArrayType>();
-			return _arrayTypes.Produce(rank, delegate(int newRank)
-			{
-				return new ArrayType(this, newRank);
-			});
+				_arrayTypes = new ArrayTypeCache(this);
+			return _arrayTypes.MakeArrayType(rank);
 		}
 
 		public IType MakePointerType()

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -36,12 +36,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	public class ReflectionTypeSystemProvider : IReflectionTypeSystemProvider
 	{
-		private readonly Memo<Assembly, AssemblyReference> _referenceCache = new Memo<Assembly, AssemblyReference>(AssemblyEqualityComparer.Default);
-		private readonly Memo<Type, IType> _typeEntityCache = new Memo<Type, IType>();
-		private readonly Memo<MemberInfo, IEntity> _memberCache = new Memo<MemberInfo, IEntity>();
+		private readonly MemoizedFunction<Assembly, AssemblyReference> _referenceCache;
+		private readonly MemoizedFunction<Type, IType> _typeEntityCache;
+		private readonly MemoizedFunction<MemberInfo, IEntity> _memberCache;
 
 		public ReflectionTypeSystemProvider()
 		{
+			_referenceCache = new MemoizedFunction<Assembly, AssemblyReference>(AssemblyEqualityComparer.Default, CreateReference);
+			_typeEntityCache = new MemoizedFunction<Type, IType>(NewType);
+			_memberCache = new MemoizedFunction<MemberInfo, IEntity>(NewEntityForMember);
+
 			MapTo(typeof(object), new ObjectTypeImpl(this));
 			MapTo(typeof(Builtins.duck), new ObjectTypeImpl(this));
 			MapTo(typeof(void), new VoidTypeImpl(this));
@@ -52,9 +56,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			_typeEntityCache.Add(type, entity);
 		}
 
-		private ReflectionTypeSystemProvider(Memo<MemberInfo, IEntity> memberCache,
-			Memo<Assembly, AssemblyReference> referenceCache,
-			Memo<Type, IType> typeEntityCache)
+		private ReflectionTypeSystemProvider(MemoizedFunction<MemberInfo, IEntity> memberCache,
+			MemoizedFunction<Assembly, AssemblyReference> referenceCache,
+			MemoizedFunction<Type, IType> typeEntityCache)
 		{
 			_memberCache = memberCache;
 			_referenceCache = referenceCache;
@@ -65,7 +69,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public IAssemblyReference ForAssembly(Assembly assembly)
 		{
-			return _referenceCache.Produce(assembly, CreateReference);
+			return _referenceCache.Invoke(assembly);
 		}
 
 		private AssemblyReference CreateReference(Assembly assembly)
@@ -79,7 +83,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public IType Map(Type type)
 		{
-			return _typeEntityCache.Produce(type, NewType);
+			return _typeEntityCache.Invoke(type);
 		}
 
 		public IMethod Map(MethodInfo method)
@@ -102,7 +106,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			if (mi.MemberType == MemberTypes.NestedType)
 				return Map((Type) mi);
 
-			return _memberCache.Produce(mi, NewEntityForMember);
+			return _memberCache.Invoke(mi);
 		}
 
 		private IEntity NewEntityForMember(MemberInfo mi)

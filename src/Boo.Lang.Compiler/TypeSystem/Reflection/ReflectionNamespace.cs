@@ -37,19 +37,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	internal class ReflectionNamespace : AbstractNamespace
 	{
-		private readonly Memo<string, ReflectionNamespace> _childNamespaces = new Memo<string, ReflectionNamespace>();
-		private readonly Memo<string, List<Type>> _typeLists = new Memo<string, List<Type>>();
+		private readonly MemoizedFunction<string, ReflectionNamespace> _childNamespaces;
+		private readonly MemoizedFunction<string, List<Type>> _typeLists;
 		private List<INamespace> _modules;
 		private readonly IReflectionTypeSystemProvider _provider;
 
 		public ReflectionNamespace(IReflectionTypeSystemProvider provider)
 		{
+			_childNamespaces = new MemoizedFunction<string, ReflectionNamespace>(CreateChildNamespace);
+			_typeLists = new MemoizedFunction<string, List<Type>>(NewTypeList);
 			_provider = provider;
 		}
 
 		public ReflectionNamespace Produce(string name)
 		{
-			return _childNamespaces.Produce(name, CreateChildNamespace);
+			return _childNamespaces.Invoke(name);
 		}
 
 		private ReflectionNamespace CreateChildNamespace(string name)
@@ -172,7 +174,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		private List<Type> TypeListFor(string name)
 		{
-			return _typeLists.Produce(name, NewTypeList);
+			return _typeLists.Invoke(name);
 		}
 
 		private static bool IsModule(Type type)

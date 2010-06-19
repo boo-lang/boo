@@ -115,8 +115,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType ValueTypeType;
 		public IType VoidType;
 
-		private StringBuilder _buffer = new StringBuilder();
-
 		private ClassDefinition _compilerGeneratedExtensionsClass;
 		private Module _compilerGeneratedExtensionsModule;
 		private Module _compilerGeneratedTypesModule;
