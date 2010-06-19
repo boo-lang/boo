@@ -29,7 +29,6 @@
 using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Services;
-using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Core
@@ -225,13 +224,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		#endregion
 
-		private Memo<int, IArrayType> _arrayTypes;
+		private ArrayTypeCache _arrayTypes;
 
 		public IArrayType MakeArrayType(int rank)
 		{
 			if (null == _arrayTypes)
-				_arrayTypes = new Memo<int, IArrayType>();
-			return _arrayTypes.Produce(rank, newRank => new ArrayType(this, newRank));
+				_arrayTypes = new ArrayTypeCache(this);
+			return _arrayTypes.MakeArrayType(rank);
 		}
 
 		public IType MakePointerType()

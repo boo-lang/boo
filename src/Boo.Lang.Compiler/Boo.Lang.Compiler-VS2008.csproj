@@ -477,6 +477,7 @@
     <Compile Include="TypeSystem\CallableSignature.cs" />
     <Compile Include="TypeSystem\Core\AbstractType.cs" />
     <Compile Include="TypeSystem\Core\ArrayType.cs" />
+    <Compile Include="TypeSystem\Core\ArrayTypeCache.cs" />
     <Compile Include="TypeSystem\Core\EmptyArrayType.cs" />
     <Compile Include="TypeSystem\Core\Entities.cs" />
     <Compile Include="TypeSystem\Core\EnvironmentProperty.cs" />
@@ -606,7 +607,6 @@
     <Compile Include="Util\ArrayEqualityComparer.cs" />
     <Compile Include="Util\Collections.cs" />
     <Compile Include="Util\ITask.cs" />
-    <Compile Include="Util\Memo.cs" />
     <Compile Include="Util\MemoizedFunction.cs" />
     <Compile Include="Util\Permissions.cs" />
     <Compile Include="Util\Set.cs" />
