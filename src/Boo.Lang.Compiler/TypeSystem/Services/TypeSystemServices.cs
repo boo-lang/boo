@@ -412,7 +412,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsQuackBuiltin(Expression node)
 		{
-			return IsQuackBuiltin(GetOptionalEntity(node));
+			return IsQuackBuiltin(node.Entity);
 		}
 
 		public bool IsQuackBuiltin(IEntity entity)

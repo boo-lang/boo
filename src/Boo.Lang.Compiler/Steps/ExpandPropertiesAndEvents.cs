@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.Steps
 
         public override void LeaveBinaryExpression(BinaryExpression node)
         {
-            var eventInfo = TypeSystemServices.GetOptionalEntity(node.Left) as IEvent;
+            var eventInfo = node.Left.Entity as IEvent;
             if (null == eventInfo)
                 return;
 

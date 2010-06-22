@@ -1,4 +1,4 @@
-﻿using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Core;
 
@@ -31,7 +31,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			var entityWithParameters = TypeSystemServices.GetOptionalEntity(node.Target) as IEntityWithParameters;
+			var entityWithParameters = node.Target.Entity as IEntityWithParameters;
 			if (entityWithParameters == null)
 				return;
 

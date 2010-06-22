@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -358,7 +358,7 @@ namespace Boo.Lang.Compiler.Steps
 			ICallableType type = parent.Target.ExpressionType as ICallableType;
 			if (null != type) return type.GetSignature().AcceptVarArgs;
 			
-			IMethod method = TypeSystemServices.GetOptionalEntity(parent.Target) as IMethod;
+			IMethod method = parent.Target.Entity as IMethod;
 			return null != method && method.AcceptVarArgs;
 		}
 

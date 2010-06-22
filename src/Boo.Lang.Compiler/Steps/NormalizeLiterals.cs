@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (0 == node.Arguments.Count)
 				return;
 
-			IMethod target = TypeSystemServices.GetOptionalEntity(node.Target) as IMethod;
+			IMethod target = node.Target.Entity as IMethod;
 			if (null == target)
 				return;
 			IParameter[] parameters = target.GetParameters();

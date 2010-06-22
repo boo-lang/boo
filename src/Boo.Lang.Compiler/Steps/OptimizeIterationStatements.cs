@@ -539,7 +539,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			public bool Matches(Node node)
 			{
-				return _entity == TypeSystemServices.GetOptionalEntity(node);
+				return _entity == node.Entity;
 			}
 		}
 

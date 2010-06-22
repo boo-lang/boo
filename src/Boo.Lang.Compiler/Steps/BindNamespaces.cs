@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -153,7 +153,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool IsAlreadyBound(Import import)
 		{
-			return TypeSystemServices.GetOptionalEntity(import) != null;
+			return import.Entity != null;
 		}
 
 		private IEntity ResolveImport(Import import)

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -133,7 +133,7 @@ namespace Boo.Lang.Compiler.Steps
 			if(node.GetAncestor(NodeType.Constructor) == null 
 				|| (node.Target.NodeType != NodeType.SelfLiteralExpression
 			    	&& node.Target.NodeType != NodeType.SuperLiteralExpression)
-				|| TypeSystemServices.GetOptionalEntity(node.Target) as IConstructor == null)
+				|| node.Target.Entity as IConstructor == null)
 				ExpandCallableInvocation(node);
 		}
 

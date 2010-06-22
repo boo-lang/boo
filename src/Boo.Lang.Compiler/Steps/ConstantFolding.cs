@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				case NodeType.MemberReferenceExpression:
 				{
-					IField field = TypeSystemServices.GetOptionalEntity(node) as IField;
+					IField field = node.Entity as IField;
 					if (null != field && field.IsLiteral)
 					{
 						if (field.Type.IsEnum)

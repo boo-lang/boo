@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -75,7 +75,7 @@ namespace Boo.Lang.Compiler.Steps
 				foreach (Boo.Lang.Compiler.Ast.Attribute mAttr in m.Attributes)
 				{
 					if (mAttr == node) continue;
-					IExternalEntity mAttrEnt = TypeSystemServices.GetOptionalEntity(mAttr) as IExternalEntity;
+					IExternalEntity mAttrEnt = mAttr.Entity as IExternalEntity;
 					if (null != mAttrEnt && mAttrEnt.MemberInfo.DeclaringType == attrType)
 						Errors.Add(
 							CompilerErrorFactory.MultipleAttributeUsage(node, attrType));
@@ -117,14 +117,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static Type AttributeType(Ast.Attribute node)
 		{
-			IExternalEntity attr = TypeSystemServices.GetOptionalEntity(node) as IExternalEntity;
+			IExternalEntity attr = node.Entity as IExternalEntity;
 			if (null == attr) return null;
 			return attr.MemberInfo.DeclaringType;
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			IExternalEntity member = TypeSystemServices.GetOptionalEntity(node) as IExternalEntity;
+			IExternalEntity member = node.Entity as IExternalEntity;
 			if (member == null) {//extract to OnInternalReferenceExpression
 				OnInternalReferenceExpression(node);
 				return;
