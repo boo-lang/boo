@@ -264,7 +264,7 @@ namespace Boo.Lang.Compiler
 				if (throwOnError)
 					throw new ApplicationException(ResourceManager.Format("BooC.NullAssembly"), e);
 			}
-			return LoadAssemblyFromLibPaths(assembly, false);
+			return a ?? LoadAssemblyFromLibPaths(assembly, false);
 		}
 
 		private Assembly LoadAssemblyFromLibPaths(string assembly, bool throwOnError)
