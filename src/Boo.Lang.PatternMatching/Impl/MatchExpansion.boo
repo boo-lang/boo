@@ -70,9 +70,15 @@ internal class MatchExpansion:
 		return node.Body
 		
 	def DefaultOtherwise(matchValue as Expression):
-		errMsg = "`${expression.ToCodeString()}` failed to match `{0}`"
-		matchError = [| raise MatchError(string.Format($errMsg, $matchValue)) |]
+		
+		errorMessage = ExpressionInterpolationExpression(matchValue.LexicalInfo)
+		errorMessage.Expressions.Add(StringLiteralExpression.Lift("`$(expression.ToCodeString())` failed to match `"))
+		errorMessage.Expressions.Add(matchValue.CloneNode())
+		errorMessage.Expressions.Add(StringLiteralExpression.Lift("`"))
+		
+		matchError = [| raise MatchError($errorMessage) |]
 		matchError.LexicalInfo = node.LexicalInfo
+		
 		return matchError.ToBlock()
 		
 	def ExpandCase(matchValue as Expression, node as MacroStatement):
