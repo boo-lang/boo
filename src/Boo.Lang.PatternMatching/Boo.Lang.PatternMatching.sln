@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{B3672514-7503-4B01-B4B4-B44E87061EA2}") = "Boo.Lang.PatternMatching", "Boo.Lang.PatternMatching.booproj", "{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}"
+EndProject
+Project("{B3672514-7503-4B01-B4B4-B44E87061EA2}") = "Boo.Lang.PatternMatching.Tests", "..\..\tests\Boo.Lang.PatternMatching.Tests\Boo.Lang.PatternMatching.Tests.booproj", "{F8CA4AC3-879C-40C3-9E06-E8192835506A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8CA4AC3-879C-40C3-9E06-E8192835506A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8CA4AC3-879C-40C3-9E06-E8192835506A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8CA4AC3-879C-40C3-9E06-E8192835506A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8CA4AC3-879C-40C3-9E06-E8192835506A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Boo.Lang.PatternMatching.booproj
+	EndGlobalSection
+EndGlobal
