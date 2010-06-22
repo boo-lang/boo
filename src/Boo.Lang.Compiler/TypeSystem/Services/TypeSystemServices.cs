@@ -922,9 +922,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeMemberModifiers.Private;
 		}
 
+		[Obsolete("Use Node.Entity instead.")]
 		public static IEntity GetOptionalEntity(Node node)
 		{
-			if (null == node) throw new ArgumentNullException("node");
 			return node.Entity;
 		}
 

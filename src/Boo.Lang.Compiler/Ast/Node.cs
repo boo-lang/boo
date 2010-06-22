@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler.Ast
 		}
 		
 		[XmlIgnore]
-		internal TypeSystem.IEntity Entity
+		public TypeSystem.IEntity Entity
 		{
 			get { return _entity; }
 			
