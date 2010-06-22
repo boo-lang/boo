@@ -43,9 +43,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveBlockExpression(BlockExpression node)
 		{
-			InternalMethod closureEntity = (InternalMethod)GetEntity(node);
+			var closureEntity = GetEntity(node) as InternalMethod;
+			if (closureEntity == null)
+				return;
 						
-			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
+			using (var collector = new ForeignReferenceCollector())
 			{
 				collector.CurrentMethod = closureEntity.Method;
 				collector.CurrentType = (IType)closureEntity.DeclaringType;
