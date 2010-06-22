@@ -210,7 +210,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnAttribute(Attribute node)
 		{
 			IType tag = node.Entity as IType;
-			if (null != tag && !TypeSystemServices.IsError(tag))
+			if (null != tag && !IsError(tag))
 			{
 				Visit(node.Arguments);
 				ResolveNamedArguments(tag, node.NamedArguments);
@@ -221,6 +221,11 @@ namespace Boo.Lang.Compiler.Steps
 					Bind(node, constructor);
 				}
 			}
+		}
+
+		private static bool IsError(IEntity entity)
+		{
+			return TypeSystemServices.IsError(entity);
 		}
 
 		override public void OnProperty(Property node)
@@ -1759,7 +1764,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			// target[indices]
 			IType targetType = GetExpressionType(node.Target);
-			if (TypeSystemServices.IsError(targetType))
+			if (IsError(targetType))
 			{
 				Error(node);
 				return;
@@ -2273,7 +2278,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)
 		{
-			if (node.Target.Entity == null || TypeSystemServices.IsError(node.Target.Entity))
+			if (node.Target.Entity == null || IsError(node.Target.Entity))
 			{
 				BindExpressionType(node, TypeSystemServices.ErrorEntity);
 				return;
@@ -2915,7 +2920,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected Expression GetCorrectIterator(Expression iterator)
 		{
 			IType type = GetExpressionType(iterator);
-			if (TypeSystemServices.IsError(type))
+			if (IsError(type))
 			{
 				return iterator;
 			}
@@ -3009,7 +3014,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.Exception == null) return;
 
-			IType exceptionType = GetExpressionType(node.Exception);
+			var exceptionType = GetExpressionType(node.Exception);
+			if (IsError(exceptionType))
+				return;
+
 			if (TypeSystemServices.StringType == exceptionType)
 			{
 				node.Exception = CodeBuilder.CreateConstructorInvocation(
@@ -5649,7 +5657,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool AssertTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{
-			if (TypeSystemServices.IsError(expectedType) || TypeSystemServices.IsError(actualType))
+			if (IsError(expectedType) || IsError(actualType))
 				return false;
 
 			if (expectedType.IsPointer && actualType.IsPointer)
@@ -5826,7 +5834,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != constructors && constructors.Length > 0)
 				return (IConstructor)GetCorrectCallableReference(sourceNode, arguments, constructors);
 
-			if (!TypeSystemServices.IsError(type))
+			if (!IsError(type))
 			{
 				if (null == (type as IGenericParameter))
 				{

@@ -1287,6 +1287,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void error_doesnt_cascade_to_raise()
+		{
+			RunCompilerTestCase(@"error-doesnt-cascade-to-raise.boo");
+		}
+		
+		[Test]
 		public void invalid_generic_extension_1()
 		{
 			RunCompilerTestCase(@"invalid-generic-extension-1.boo");
