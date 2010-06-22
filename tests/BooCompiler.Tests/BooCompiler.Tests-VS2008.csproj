@@ -105,6 +105,7 @@
     <Compile Include="ClosuresIntegrationTestFixture.cs" />
     <Compile Include="ClrextensionsIntegrationTestFixture.cs" />
     <Compile Include="ClrIntegrationTestFixture.cs" />
+    <Compile Include="CompilerContextTest.cs" />
     <Compile Include="CompilerErrorsTestFixture.cs" />
     <Compile Include="CompilerWarningCollectionTest.cs" />
     <Compile Include="CompilerWarningsTestFixture.cs" />

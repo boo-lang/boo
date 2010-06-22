@@ -110,6 +110,7 @@ namespace Boo.Lang.Compiler
             RegisterService<CompilerParameters>(_parameters);
 			RegisterService<CompilerErrorCollection>(_errors);
 			RegisterService<CompilerWarningCollection>(_warnings);
+			RegisterService<CompileUnit>(_unit);
             RegisterService<CompilerContext>(this);
 		}
 
