@@ -252,34 +252,19 @@ namespace Boo.Lang.Compiler
 			catch (BadImageFormatException e)
 			{
 				if (throwOnError)
-				{
-					throw new ApplicationException(ResourceManager.Format(
-					                               	"BooC.BadFormat",
-					                               	e.FusionLog), e);
-				}
+					throw new ApplicationException(ResourceManager.Format("BooC.BadFormat", e.FusionLog), e);
 			}
 			catch (FileLoadException e)
 			{
 				if (throwOnError)
-				{
-					throw new ApplicationException(ResourceManager.Format(
-					                               	"BooC.UnableToLoadAssembly",
-					                               	e.FusionLog), e);
-				}
+					throw new ApplicationException(ResourceManager.Format("BooC.UnableToLoadAssembly", e.FusionLog), e);
 			}
 			catch (ArgumentNullException e)
 			{
 				if (throwOnError)
-				{
-					throw new ApplicationException(ResourceManager.Format(
-					                               	"BooC.NullAssembly"), e);
-				}
+					throw new ApplicationException(ResourceManager.Format("BooC.NullAssembly"), e);
 			}
-			if (a == null)
-			{
-				return LoadAssemblyFromLibPaths(assembly, throwOnError);
-			}
-			return a;
+			return LoadAssemblyFromLibPaths(assembly, false);
 		}
 
 		private Assembly LoadAssemblyFromLibPaths(string assembly, bool throwOnError)
@@ -334,18 +319,16 @@ namespace Boo.Lang.Compiler
 			// This is an intentional attempt to load an assembly with partial name
 			// so ignore the compiler warning
 			#pragma warning disable 618	
-			Assembly assembly = Assembly.LoadWithPartialName(assemblyName);
+			var assembly = Assembly.LoadWithPartialName(assemblyName);
 			#pragma warning restore 618
-			if (assembly != null) return assembly;
-			return Assembly.Load(assemblyName);
+			return assembly ?? Assembly.Load(assemblyName);
 		}
 
 		private static string NormalizeAssemblyName(string assembly)
 		{
-			if (assembly.EndsWith(".dll") || assembly.EndsWith(".exe"))
-			{
-				assembly = assembly.Substring(0, assembly.Length - 4);
-			}
+			var extension = Path.GetExtension(assembly).ToLower();
+			if (extension == ".dll" || extension == ".exe")
+				return assembly.Substring(0, assembly.Length - 4);
 			return assembly;
 		}
 
