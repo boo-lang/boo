@@ -168,12 +168,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return depth;
 		}
 		
-		protected IType ArgumentType(Node node)
+		protected IType ArgumentType(Expression e)
 		{
-			var e = node as Expression;
-			return null != e
-				? TypeSystemServices.GetExpressionType(e)
-				: TypeSystem.TypeSystemServices.GetType(node);
+			return TypeSystemServices.GetExpressionType(e);
 		}
 		
 		public bool IsValidByRefArg(IParameter param, IType parameterType, IType argType, Node arg)
@@ -563,12 +560,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		protected virtual bool CheckVarArgsParameter(IParameter[] parameters, ExpressionCollection args)
 		{
-			int lastIndex = parameters.Length - 1;
-			Node lastArg = args[-1];
+			var lastIndex = parameters.Length - 1;
+			var lastArg = args[-1];
 			if (AstUtil.IsExplodeExpression(lastArg))
-			{
 				return CalculateArgumentScore(parameters[lastIndex], parameters[lastIndex].Type, lastArg) > 0;
-			}
 
 			IType varArgType = parameters[lastIndex].Type.GetElementType();
 			for (int i = lastIndex; i < args.Count; ++i)
@@ -591,7 +586,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return true;
 		}
 		
-		protected int CalculateArgumentScore(IParameter param, IType parameterType, Node arg)
+		protected int CalculateArgumentScore(IParameter param, IType parameterType, Expression arg)
 		{
 			var argumentType = ArgumentType(arg);
 			if (param.IsByRef)
