@@ -537,8 +537,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public BinaryExpression CreateAssignment(Expression lhs, Expression rhs)
 		{
-			BinaryExpression assignment = new BinaryExpression(BinaryOperatorType.Assign, lhs, rhs);
-			assignment.ExpressionType = _tss.GetExpressionType(lhs);
+			var assignment = new BinaryExpression(BinaryOperatorType.Assign, lhs, rhs);
+			assignment.ExpressionType = TypeSystemServices.GetExpressionType(lhs);
 			return assignment;
 		}
 

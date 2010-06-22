@@ -487,17 +487,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return ObjectType;
 		}
 
-		public IType GetExpressionType(Expression node)
+		public static IType GetExpressionType(Expression node)
 		{
-			IType type = node.ExpressionType;
-			if (null == type)
-				throw CompilerErrorFactory.InvalidNode(node);
-			return type;
+			return node.ExpressionType ?? Error.Default;
 		}
 
 		public IType GetConcreteExpressionType(Expression expression)
 		{
-			IType type = GetExpressionType(expression);
+			var type = GetExpressionType(expression);
 			var anonymousType = type as AnonymousCallableType;
 			if (null != anonymousType)
 			{
