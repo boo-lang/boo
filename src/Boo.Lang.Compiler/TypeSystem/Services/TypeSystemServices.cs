@@ -928,7 +928,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static IEntity GetEntity(Node node)
 		{
 			IEntity entity = node.Entity;
-			if (null == entity) InvalidNode(node);
+			if (null == entity)
+			{
+				if (My<CompilerParameters>.Instance.Pipeline.BreakOnErrors)
+					InvalidNode(node);
+				return Error.Default;
+			}
 			return entity;
 		}
 
