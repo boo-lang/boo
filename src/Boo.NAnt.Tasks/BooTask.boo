@@ -116,7 +116,7 @@ class BooTask(AbstractBooTask):
 		if _src:
 			parameters.Input.Add(FileInput(_src.ToString()))
 		else:
-			parameters.Input.Add(StringInput("boo", reindent(getSourceCode())))
+			parameters.Input.Add(StringInput("code", ReIndent(SourceCode())))
 		parameters.References.Add(GetType().Assembly)
 		parameters.References.Add(typeof(NAnt.Core.Project).Assembly)
 		
@@ -138,24 +138,25 @@ class BooTask(AbstractBooTask):
 		pipeline.Insert(1, PrepareScriptStep())
 		return pipeline
 			
-	private def getSourceCode():
+	private def SourceCode():
 		if Code is not null:
 			return Code.Xml.InnerText
 		return XmlNode.InnerText
 			
-	private def reindent(code as string):
-		lines = /\n/.Split(code.Replace("\r\n", "\n"))
-		lines = array(line for line in lines if len(line.Trim()))
+def ReIndent(code as string):	
+	lines = NonEmptyLines(code)
+
+	firstLine = lines[0]
+	indentation = /(\s*)/.Match(firstLine).Groups[0].Value
+	return code if len(indentation) == 0
+
+	buffer = System.Text.StringBuilder()
+	for line in lines:
+		if not line.StartsWith(indentation):
+			return code // let the parser complain about it
+		buffer.AppendLine(line[len(indentation):])
+	return buffer.ToString()
 	
-		first = lines[0]
-		indent = /(\s*)/.Match(first).Groups[0].Value
-		return code if 0 == len(indent)
-	
-		buffer = System.Text.StringBuilder()
-		for line in lines:
-			if not line.StartsWith(indent):
-				return code // let the parser complain about it
-			
-			buffer.Append(line[len(indent):])
-			buffer.Append("\n")
-		return buffer.ToString()
+def NonEmptyLines(s as string):
+	lines = s.Replace("\r\n", "\n").Split(char('\n'))
+	return array(line for line in lines if len(line.Trim()))
