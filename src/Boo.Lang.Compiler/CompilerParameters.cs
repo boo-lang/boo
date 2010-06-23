@@ -319,7 +319,7 @@ namespace Boo.Lang.Compiler
 			// This is an intentional attempt to load an assembly with partial name
 			// so ignore the compiler warning
 			#pragma warning disable 618	
-			var assembly = Assembly.LoadWithPartialName(assemblyName);
+			var assembly = Permissions.WithDiscoveryPermission(()=> Assembly.LoadWithPartialName(assemblyName));
 			#pragma warning restore 618
 			return assembly ?? Assembly.Load(assemblyName);
 		}
