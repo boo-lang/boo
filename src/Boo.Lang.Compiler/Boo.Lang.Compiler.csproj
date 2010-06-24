@@ -82,7 +82,6 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
       <HintPath>..\..\..\..\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -615,12 +614,6 @@
     <Compile Include="Util\TypeUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Boo.Lang\Boo.Lang-VS2008.csproj">
-      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
-      <Name>Boo.Lang-VS2008</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="boo.snk" />
   </ItemGroup>
   <ItemGroup>
@@ -636,6 +629,12 @@
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
       <Visible>False</Visible>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
+      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
+      <Name>Boo.Lang</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Steps\MethodProcessing\" />
