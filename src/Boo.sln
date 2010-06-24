@@ -2,17 +2,17 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 # SharpDevelop 3.2.0.5505
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang-VS2008", "Boo.Lang\Boo.Lang-VS2008.csproj", "{A359E52E-5E90-40F3-A5F0-257FE2D545EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang", "Boo.Lang\Boo.Lang.csproj", "{A359E52E-5E90-40F3-A5F0-257FE2D545EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Compiler-VS2008", "Boo.Lang.Compiler\Boo.Lang.Compiler-VS2008.csproj", "{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Compiler", "Boo.Lang.Compiler\Boo.Lang.Compiler.csproj", "{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Parser-VS2008", "Boo.Lang.Parser\Boo.Lang.Parser-VS2008.csproj", "{BA0306B9-A10B-4D29-B219-0DFBE24741E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Parser", "Boo.Lang.Parser\Boo.Lang.Parser.csproj", "{BA0306B9-A10B-4D29-B219-0DFBE24741E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooCompiler.Tests-VS2008", "..\tests\BooCompiler.Tests\BooCompiler.Tests-VS2008.csproj", "{A275332A-DE63-4FC3-844E-F765554D26A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooCompiler.Tests", "..\tests\BooCompiler.Tests\BooCompiler.Tests.csproj", "{A275332A-DE63-4FC3-844E-F765554D26A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "booc", "booc\booc.csproj", "{3D5461D4-F243-41A5-927B-6636CEE2E6B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Runtime.Tests-VS2008", "..\tests\Boo.Lang.Runtime.Tests\Boo.Lang.Runtime.Tests-VS2008.csproj", "{65AB5FCE-2BEA-4606-83CD-B4E9C44B4B1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Runtime.Tests", "..\tests\Boo.Lang.Runtime.Tests\Boo.Lang.Runtime.Tests.csproj", "{65AB5FCE-2BEA-4606-83CD-B4E9C44B4B1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Parser.Tests", "..\tests\Boo.Lang.Parser.Tests\Boo.Lang.Parser.Tests.csproj", "{C4994D0C-E028-4610-83C7-D3A91201C7C4}"
 EndProject
@@ -107,7 +107,7 @@ Global
 		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Boo.Lang\Boo.Lang-VS2008.csproj
+		StartupItem = Boo.Lang\Boo.Lang.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
