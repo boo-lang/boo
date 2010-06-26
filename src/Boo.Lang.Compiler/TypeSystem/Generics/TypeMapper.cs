@@ -81,8 +81,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		public virtual IType MapByRefType(IType sourceType)
 		{
-			IType elementType = MapType(sourceType.GetElementType());
-			return elementType;
+			return MapType(sourceType.GetElementType());
 		}
 
 		public virtual IType MapArrayType(IArrayType sourceType)
