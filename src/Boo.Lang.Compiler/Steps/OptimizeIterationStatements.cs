@@ -549,7 +549,7 @@ namespace Boo.Lang.Compiler.Steps
 		/// <param name="node">the for statement to check</param>
 		private void CheckForItemInArrayLoop(ForStatement node)
 		{	
-			ArrayType enumeratorType = GetExpressionType(node.Iterator) as ArrayType;
+			var enumeratorType = GetExpressionType(node.Iterator) as IArrayType;
 			if (enumeratorType == null || enumeratorType.GetArrayRank() > 1) return;
 			IType elementType = enumeratorType.GetElementType();
 			if (elementType is InternalCallableType) return;
