@@ -52,9 +52,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		IEntity DeclaringEntity { get; }
 		
 		int GetTypeDepth();
-		
-		IType GetElementType();
-		
+
+		IType ElementType { get; }
+
 		IType BaseType { get; }
 		
 		IEntity GetDefaultMember();

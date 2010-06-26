@@ -550,8 +550,8 @@ namespace Boo.Lang.Compiler.Steps
 		private void CheckForItemInArrayLoop(ForStatement node)
 		{	
 			var enumeratorType = GetExpressionType(node.Iterator) as IArrayType;
-			if (enumeratorType == null || enumeratorType.GetArrayRank() > 1) return;
-			IType elementType = enumeratorType.GetElementType();
+			if (enumeratorType == null || enumeratorType.Rank > 1) return;
+			IType elementType = enumeratorType.ElementType;
 			if (elementType is InternalCallableType) return;
 
 			Block body = new Block(node.LexicalInfo);

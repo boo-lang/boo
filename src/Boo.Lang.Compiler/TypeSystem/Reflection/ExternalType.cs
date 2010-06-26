@@ -134,9 +134,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			return MetadataUtil.IsAttributeDefined(_type, type.ActualType);
 		}
 
-		public virtual IType GetElementType()
+		public virtual IType ElementType
 		{
-			return _provider.Map(_type.GetElementType() ?? _type);
+			get { return _provider.Map(_type.GetElementType() ?? _type); }
 		}
 
 		public virtual bool IsClass
@@ -359,7 +359,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			if (_primitiveName != null) return _primitiveName;
 
 			// keep builtin names pretty ('ref int' instead of 'ref System.Int32')
-			if (_type.IsByRef) return "ref " + GetElementType().FullName;
+			if (_type.IsByRef) return "ref " + ElementType.FullName;
 
 			return Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(_type);
 		}

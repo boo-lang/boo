@@ -333,11 +333,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (tag.IsArray)
 			{
 				IArrayType arrayType = (IArrayType) tag;
-				IType elementType = arrayType.GetElementType();
+				IType elementType = arrayType.ElementType;
 				//typeReference = new ArrayTypeReference();
 				//((ArrayTypeReference)typeReference).ElementType = CreateTypeReference(elementType);
 				// FIXME: This is what it *should* be, but it causes major breakage. ??
-				typeReference = new ArrayTypeReference(CreateTypeReference(elementType), CreateIntegerLiteral(arrayType.GetArrayRank()));
+				typeReference = new ArrayTypeReference(CreateTypeReference(elementType), CreateIntegerLiteral(arrayType.Rank));
 			}
 			else
 			{
@@ -623,7 +623,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IArrayType arrayType = target.ExpressionType as IArrayType;
 			if (null != arrayType)
 			{
-				expressionType = arrayType.GetElementType();
+				expressionType = arrayType.ElementType;
 			}
 			expression.ExpressionType = expressionType;
 			return expression;

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -225,8 +225,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			IArrayType actualArrayType = actualType as IArrayType;
 			return
 				(actualArrayType != null) &&
-				(actualArrayType.GetArrayRank() == formalType.GetArrayRank()) &&
-				(Infer(formalType.GetElementType(), actualType.GetElementType(), inference));
+				(actualArrayType.Rank == formalType.Rank) &&
+				(Infer(formalType.ElementType, actualType.ElementType, inference));
 		}
 
 		private bool InferSimpleType(IType formalType, IType actualType, TypeInference inference)

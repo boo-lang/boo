@@ -102,9 +102,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			get { return null; }
 		}
 
-		public virtual IType GetElementType()
+		public virtual IType ElementType
 		{
-			return null;
+			get { return null; }
 		}
 
 		public virtual IEntity GetDefaultMember()

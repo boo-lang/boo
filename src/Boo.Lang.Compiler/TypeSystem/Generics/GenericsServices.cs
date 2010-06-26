@@ -211,7 +211,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 			if (type is IArrayType)
 			{
-				foreach (IGenericParameter gp in FindGenericParameters(type.GetElementType())) yield return gp;
+				foreach (IGenericParameter gp in FindGenericParameters(type.ElementType)) yield return gp;
 				yield break;
 			}
 
@@ -340,7 +340,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			if (type.IsByRef || type.IsArray)
 			{
-				return GetTypeGenerity(type.GetElementType());
+				return GetTypeGenerity(type.ElementType);
 			}
 
 			if (type is IGenericParameter)

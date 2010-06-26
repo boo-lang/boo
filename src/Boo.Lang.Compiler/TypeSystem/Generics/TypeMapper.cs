@@ -81,13 +81,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		public virtual IType MapByRefType(IType sourceType)
 		{
-			return MapType(sourceType.GetElementType());
+			return MapType(sourceType.ElementType);
 		}
 
 		public virtual IType MapArrayType(IArrayType sourceType)
 		{
-			IType elementType = MapType(sourceType.GetElementType());
-			return elementType.MakeArrayType(sourceType.GetArrayRank());
+			IType elementType = MapType(sourceType.ElementType);
+			return elementType.MakeArrayType(sourceType.Rank);
 		}
 
 		public virtual IType MapCallableType(AnonymousCallableType sourceType)

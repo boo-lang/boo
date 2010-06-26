@@ -91,7 +91,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			
 			if (type is ArrayType)
 			{
-				return IsExternal(type.GetElementType());
+				return IsExternal(type.ElementType);
 			}
 			
 			return false;
@@ -108,8 +108,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ArrayType arrayType = type as ArrayType;
 			if (arrayType != null)
 			{			
-				Type elementType = GetSystemType(arrayType.GetElementType());
-				int rank = arrayType.GetArrayRank();
+				Type elementType = GetSystemType(arrayType.ElementType);
+				int rank = arrayType.Rank;
 
 				// Calling MakeArrayType(1) gives a multi-dimensional array with 1 dimensions,
 				// which is (surprisingly) not the same as calling MakeArrayType() which gives

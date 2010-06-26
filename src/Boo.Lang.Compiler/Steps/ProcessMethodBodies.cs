@@ -1664,7 +1664,7 @@ namespace Boo.Lang.Compiler.Steps
 
 					BindExpressionType(ranges, TypeSystemServices.Map(typeof(int[])));
 					BindExpressionType(collapse, TypeSystemServices.Map(typeof(bool[])));
-					BindExpressionType(mie, arrayType.GetElementType().MakeArrayType(node.Indices.Count - collapseCount));
+					BindExpressionType(mie, arrayType.ElementType.MakeArrayType(node.Indices.Count - collapseCount));
 					node.ParentNode.Replace(node, mie);
 				}
 				else
@@ -1779,9 +1779,9 @@ namespace Boo.Lang.Compiler.Steps
 				if (targetType.IsArray)
 				{
 					IArrayType arrayType = (IArrayType)targetType;
-					if (arrayType.GetArrayRank() != node.Indices.Count)
+					if (arrayType.Rank != node.Indices.Count)
 					{
-						Error(node, CompilerErrorFactory.InvalidArrayRank(node, node.Target.ToString(), arrayType.GetArrayRank(), node.Indices.Count));
+						Error(node, CompilerErrorFactory.InvalidArrayRank(node, node.Target.ToString(), arrayType.Rank, node.Indices.Count));
 					}
 
 					if (AstUtil.IsComplexSlicing(node))
@@ -1790,13 +1790,13 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					else
 					{
-						if (arrayType.GetArrayRank() > 1)
+						if (arrayType.Rank > 1)
 						{
 							BindMultiDimensionalArraySlicing(node);
 						}
 						else
 						{
-							BindExpressionType(node, arrayType.GetElementType());
+							BindExpressionType(node, arrayType.ElementType);
 						}
 					}
 				}
@@ -1873,7 +1873,7 @@ namespace Boo.Lang.Compiler.Steps
 				mie.Arguments.Add(node.Indices[i].Begin);
 			}
 
-			IType elementType = node.Target.ExpressionType.GetElementType();
+			IType elementType = node.Target.ExpressionType.ElementType;
 			node.ParentNode.Replace(node, CodeBuilder.CreateCast(elementType, mie));
 		}
 
@@ -2046,7 +2046,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == node.Type)
 				node.Type = (ArrayTypeReference)CodeBuilder.CreateTypeReference(type);
 			else
-				CheckItems(type.GetElementType(), node.Items);
+				CheckItems(type.ElementType, node.Items);
 		}
 
 		private IArrayType InferArrayType(ArrayLiteralExpression node)
@@ -3375,7 +3375,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType dataType = GetExpressionType(node.Operand);
 			if (dataType.IsArray) //if array reference take address of first element
 			{
-				dataType = dataType.GetElementType();
+				dataType = dataType.ElementType;
 				node.Replace(node.Operand, new SlicingExpression(node.Operand, new IntegerLiteralExpression(0)));
 				BindExpressionType(node.Operand, dataType);
 			}
@@ -3395,7 +3395,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IsError(node.Operand))
 				return;
 
-			IType dataType = GetExpressionType(node.Operand).GetElementType();
+			IType dataType = GetExpressionType(node.Operand).ElementType;
 			if (null != dataType && TypeSystemServices.IsPointerCompatible(dataType))
 			{
 				node.Entity = node.Operand.Entity;
@@ -4892,7 +4892,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (!AssertTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType))
+					if (!AssertTypeCompatibility(node.Right, sliceTargetType.ElementType, lhsType))
 					{
 						Error(node);
 						return;
@@ -4902,12 +4902,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				if (!AssertTypeCompatibility(node.Right, sliceTargetType.GetElementType(), lhsType))
+				if (!AssertTypeCompatibility(node.Right, sliceTargetType.ElementType, lhsType))
 				{
 					Error(node);
 					return;
 				}
-				node.ExpressionType = sliceTargetType.GetElementType();
+				node.ExpressionType = sliceTargetType.ElementType;
 			}
 		}
 
@@ -5450,7 +5450,7 @@ namespace Boo.Lang.Compiler.Steps
 			IArrayType lhs = (IArrayType)GetExpressionType(node.Left);
 			IArrayType rhs = (IArrayType)GetExpressionType(node.Right);
 
-			if (lhs.GetElementType() == rhs.GetElementType())
+			if (lhs.ElementType == rhs.ElementType)
 			{
 				node.ParentNode.Replace(
 					node,
@@ -5458,7 +5458,7 @@ namespace Boo.Lang.Compiler.Steps
 						lhs,
 						CodeBuilder.CreateMethodInvocation(
 							RuntimeServices_AddArrays,
-							CodeBuilder.CreateTypeofExpression(lhs.GetElementType()),
+							CodeBuilder.CreateTypeofExpression(lhs.ElementType),
 							node.Left,
 							node.Right)));
 			}

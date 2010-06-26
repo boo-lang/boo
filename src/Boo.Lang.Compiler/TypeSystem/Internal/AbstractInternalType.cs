@@ -140,9 +140,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		protected IType _elementType;
 
-		public IType GetElementType()
+		public IType ElementType
 		{
-			return _elementType ?? (_elementType = CreateElementType());
+			get { return _elementType ?? (_elementType = CreateElementType()); }
 		}
 
 		protected virtual IType CreateElementType()

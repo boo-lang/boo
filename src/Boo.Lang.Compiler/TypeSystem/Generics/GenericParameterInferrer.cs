@@ -106,7 +106,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			{
 				formalType = methodSignature.Parameters[i].Type;
 				if (GenericMethod.AcceptVarArgs && i == count - 1)
-					formalType = formalType.GetElementType();
+					formalType = formalType.ElementType;
 				_typedArguments[i] = new TypedArgument(arguments[i], formalType);
 			}
 

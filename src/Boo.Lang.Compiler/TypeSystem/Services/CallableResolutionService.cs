@@ -127,7 +127,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IParameter parameter = Parameters[Parameters.Length-1];
 				_scores[argumentIndex] = _crs.CalculateArgumentScore(
 					parameter,
-					parameter.Type.GetElementType(),
+					parameter.Type.ElementType,
 					_crs.GetArgument(argumentIndex));
 
 				return _scores[argumentIndex];
@@ -175,7 +175,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public bool IsValidByRefArg(IParameter param, IType parameterType, IType argType, Node arg)
 		{
-			if ((parameterType.IsByRef && argType == parameterType.GetElementType())
+			if ((parameterType.IsByRef && argType == parameterType.ElementType)
 			    || (param.IsByRef && argType == parameterType))
 			{
 				return CanLoadAddress(arg);
@@ -476,7 +476,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IParameter[] parameters = method.GetParameters();
 			if (candidate.Expanded && position >= parameters.Length - 1)
 			{
-				return parameters[parameters.Length - 1].Type.GetElementType();
+				return parameters[parameters.Length - 1].Type.ElementType;
 			}
 			
 			// Otherwise use the parameter's original type
@@ -488,7 +488,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Dive into array types and ref types
 			if (t1.IsArray && t2.IsArray || t1.IsByRef && t2.IsByRef)
 			{
-				return MoreSpecific(t1.GetElementType(), t2.GetElementType());
+				return MoreSpecific(t1.ElementType, t2.ElementType);
 			}
 
 			// The less-generic type is more specific
@@ -565,7 +565,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (AstUtil.IsExplodeExpression(lastArg))
 				return CalculateArgumentScore(parameters[lastIndex], parameters[lastIndex].Type, lastArg) > 0;
 
-			IType varArgType = parameters[lastIndex].Type.GetElementType();
+			IType varArgType = parameters[lastIndex].Type.ElementType;
 			for (int i = lastIndex; i < args.Count; ++i)
 			{
 				int argumentScore = CalculateArgumentScore(parameters[lastIndex], varArgType, args[i]);

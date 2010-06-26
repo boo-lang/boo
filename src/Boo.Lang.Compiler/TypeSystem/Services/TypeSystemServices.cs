@@ -467,7 +467,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType GetEnumeratorItemType(IType iteratorType)
 		{
 			// Arrays are enumerators of their element type
-			if (iteratorType.IsArray) return iteratorType.GetElementType();
+			if (iteratorType.IsArray) return iteratorType.ElementType;
 
 			// String are enumerators of char
 			if (StringType == iteratorType) return CharType;
@@ -1166,7 +1166,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType GetGenericEnumerableItemType(IType iteratorType)
 		{
 			// Arrays implicitly implement IEnumerable[of element type]
-			if (iteratorType is ArrayType) return iteratorType.GetElementType();
+			if (iteratorType is ArrayType) return iteratorType.ElementType;
 
 			// If type is not an array, try to find IEnumerable[of some type] in its interfaces
 			IType itemType = null;
@@ -1216,7 +1216,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual int SizeOf(IType type)
 		{
 			if (type.IsPointer)
-				type = type.GetElementType();
+				type = type.ElementType;
 			if (null == type || !type.IsValueType)
 				return 0;
 

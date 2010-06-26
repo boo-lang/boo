@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 				for (int i=0; i < lastParamIndex; ++i)
 					TryToReifyEmptyArrayLiteral(node.Arguments[i], parameters[i].Type);
 
-				var varArgArrayType = parameters[lastParamIndex].Type.GetElementType();
+				var varArgArrayType = parameters[lastParamIndex].Type.ElementType;
 				for (int i=lastParamIndex; i < node.Arguments.Count; ++i)
 					TryToReifyEmptyArrayLiteral(node.Arguments[i], varArgArrayType);
 			}

@@ -1613,7 +1613,7 @@ namespace Boo.Lang.Compiler.Steps
 				&& node.ParentNode.NodeType != NodeType.MemberReferenceExpression)
 			{
 				//pointer arithmetic, need to load the address
-				IType et = PeekTypeOnStack().GetElementType();
+				IType et = PeekTypeOnStack().ElementType;
 				OpCode code = GetLoadRefParamCode(et);
 				if (code == OpCodes.Ldobj)
 					_il.Emit(code, GetSystemType(et));
@@ -1648,7 +1648,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(slice.Target);
 
 			IArrayType arrayType = (IArrayType)PopType();
-			IType elementType = arrayType.GetElementType();
+			IType elementType = arrayType.ElementType;
 			OpCode opcode = GetStoreEntityOpCode(elementType);
 
 			Slice index = slice.Indices[0];
@@ -1717,7 +1717,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			LoadLocal(local);
 
-			IType et = local.Type.GetElementType();
+			IType et = local.Type.ElementType;
 			PopType();
 			PushType(et);
 			OpCode code = GetLoadRefParamCode(et);
@@ -2917,7 +2917,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
 			IArrayType type = (IArrayType)node.ExpressionType;
-			EmitArray(type.GetElementType(), node.Items);
+			EmitArray(type.ElementType, node.Items);
 			PushType(type);
 		}
 
@@ -2972,7 +2972,7 @@ namespace Boo.Lang.Compiler.Steps
 			IArrayType type = (IArrayType)PopType();
 			EmitNormalizedArrayIndex(node, node.Indices[0].Begin);
 
-			IType elementType = type.GetElementType();
+			IType elementType = type.ElementType;
 			OpCode opcode = GetLoadEntityOpCode(elementType);
 			if (OpCodes.Ldelema.Value == opcode.Value)
 			{
@@ -3360,7 +3360,7 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(slicing.Target);
 				IArrayType arrayType = (IArrayType)PopType();
 				EmitNormalizedArrayIndex(slicing, slicing.Indices[0].Begin);
-				_il.Emit(OpCodes.Ldelema, GetSystemType(arrayType.GetElementType()));
+				_il.Emit(OpCodes.Ldelema, GetSystemType(arrayType.ElementType));
 			}
 			else
 			{
@@ -3382,7 +3382,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != slicing)
 			{
 				IArrayType type = (IArrayType)slicing.Target.ExpressionType;
-				return type.GetElementType().IsValueType;
+				return type.ElementType.IsValueType;
 			}
 			return false;
 		}
@@ -3544,7 +3544,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitIndirectAssignment(InternalLocal tag, IType typeOnStack)
 		{
-			IType et = tag.Type.GetElementType();
+			IType et = tag.Type.ElementType;
 			EmitCastIfNeeded(et, typeOnStack);
 
 			OpCode code = GetStoreRefParamCode(et);
@@ -4663,8 +4663,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (entity.IsArray)
 			{
 				IArrayType arrayType = (IArrayType)entity;
-				Type systemType = GetSystemType(arrayType.GetElementType());
-				int rank = arrayType.GetArrayRank();
+				Type systemType = GetSystemType(arrayType.ElementType);
+				int rank = arrayType.Rank;
 
 				if (rank == 1) return systemType.MakeArrayType();
 				return systemType.MakeArrayType(rank);

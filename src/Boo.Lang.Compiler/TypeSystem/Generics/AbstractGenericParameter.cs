@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -122,10 +122,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			return DeclaringType.GetTypeDepth() + 1;
 		}
-		
-		IType IType.GetElementType()
+
+		IType IType.ElementType
 		{
-			return null;
+			get { return null; }
 		}
 
 		public IType BaseType

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -106,7 +106,7 @@ namespace Boo.Lang.Compiler.Steps
 					IType tempType = parameter.Type;
 					if (tempType.IsByRef)
 					{
-						tempType = tempType.GetElementType();
+						tempType = tempType.ElementType;
 					}
 					temporaries[byRefIndex] = CodeBuilder.DeclareLocal(call,
 								"__temp_" + parameter.Name,

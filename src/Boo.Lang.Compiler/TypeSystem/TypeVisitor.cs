@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -50,12 +50,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual void VisitArrayType(IArrayType arrayType)
 		{
-			Visit(arrayType.GetElementType());
+			Visit(arrayType.ElementType);
 		}
 
 		public virtual void VisitByRefType(IType type)
 		{
-			Visit(type.GetElementType());
+			Visit(type.ElementType);
 		}
 
 		public virtual void VisitConstructedType(IType constructedType)

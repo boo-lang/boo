@@ -138,9 +138,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return _definition.GetTypeDepth();
 		}
 
-		public IType GetElementType()
+		public IType ElementType
 		{
-			return GenericMapping.MapType(_definition.GetElementType());
+			get { return GenericMapping.MapType(_definition.ElementType); }
 		}
 
 		public IType BaseType

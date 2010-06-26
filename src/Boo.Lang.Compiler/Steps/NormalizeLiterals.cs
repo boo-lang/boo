@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			IType expectedType = GetExpressionType(node).GetElementType();
+			IType expectedType = GetExpressionType(node).ElementType;
 			if (!TypeSystemServices.IsPrimitiveNumber(expectedType))
 				return;
 

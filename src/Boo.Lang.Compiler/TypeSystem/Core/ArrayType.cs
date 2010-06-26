@@ -119,17 +119,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		{
 			return 2;
 		}
-		
-		public int GetArrayRank()
+
+		public int Rank
 		{
-			return _rank;
-		}		
-		
-		public IType GetElementType()
-		{
-			return _elementType;
+			get { return _rank; }
 		}
-		
+
+		public IType ElementType
+		{
+			get { return _elementType; }
+		}
+
 		public IType BaseType
 		{
 			get { return My<TypeSystemServices>.Instance.ArrayType; }
@@ -165,13 +165,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 				return false;
 
 			var otherArray = (IArrayType)other;
-			if (otherArray.GetArrayRank() != _rank)
+			if (otherArray.Rank != _rank)
 				return false;
 
 			if (otherArray == EmptyArrayType.Default)
 				return true;
 
-			IType otherElementType = otherArray.GetElementType();
+			IType otherElementType = otherArray.ElementType;
 			return IsAssignableFrom(_elementType, otherElementType);
 		}
 
@@ -192,7 +192,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		
 		public INamespace ParentNamespace
 		{
-			get { return GetElementType().ParentNamespace; }
+			get { return ElementType.ParentNamespace; }
 		}
 		
 		public bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
