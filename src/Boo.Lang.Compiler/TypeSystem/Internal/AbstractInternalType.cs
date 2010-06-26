@@ -142,9 +142,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public IType GetElementType()
 		{
-			if (null == _elementType)
-				_elementType = CreateElementType();
-			return _elementType;
+			return _elementType ?? (_elementType = CreateElementType());
 		}
 
 		protected virtual IType CreateElementType()
@@ -154,58 +152,37 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public bool IsClass
 		{
-			get
-			{
-				return NodeType.ClassDefinition == _node.NodeType;
-			}
+			get { return NodeType.ClassDefinition == _node.NodeType; }
 		}
 
 		public bool IsAbstract
 		{
-			get
-			{
-				return _node.IsAbstract;
-			}
+			get { return _node.IsAbstract; }
 		}
 
 		virtual public bool IsFinal
 		{
-			get
-			{
-				return _node.IsFinal || IsValueType;
-			}
+			get { return _node.IsFinal || IsValueType; }
 		}
 
 		public bool IsInterface
 		{
-			get
-			{
-				return NodeType.InterfaceDefinition == _node.NodeType;
-			}
+			get { return NodeType.InterfaceDefinition == _node.NodeType; }
 		}
 
 		public bool IsEnum
 		{
-			get
-			{
-				return NodeType.EnumDefinition == _node.NodeType;
-			}
+			get { return NodeType.EnumDefinition == _node.NodeType; }
 		}
 
 		virtual public bool IsValueType
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public bool IsArray
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		virtual public bool IsPointer
@@ -221,20 +198,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public IEntity GetDefaultMember()
 		{
 			IType defaultMemberAttribute = My<TypeSystemServices>.Instance.Map(Types.DefaultMemberAttribute);
-			foreach (Attribute attribute in _node.Attributes)
+			foreach (var attribute in _node.Attributes)
 			{
-				IConstructor tag = TypeSystemServices.GetEntity(attribute) as IConstructor;
-				if (null != tag)
+				var ctor = TypeSystemServices.GetEntity(attribute) as IConstructor;
+				if (null != ctor && defaultMemberAttribute == ctor.DeclaringType)
 				{
-					if (defaultMemberAttribute == tag.DeclaringType)
+					var memberName = attribute.Arguments[0] as StringLiteralExpression;
+					if (null != memberName)
 					{
-						StringLiteralExpression memberName = attribute.Arguments[0] as StringLiteralExpression;
-						if (null != memberName)
-						{
-							System.Collections.Generic.List<IEntity> buffer = new System.Collections.Generic.List<IEntity>();
-							Resolve(buffer, memberName.Value, EntityType.Any);
-							return Entities.EntityFromList(buffer);
-						}
+						var buffer = new System.Collections.Generic.List<IEntity>();
+						Resolve(buffer, memberName.Value, EntityType.Any);
+						return Entities.EntityFromList(buffer);
 					}
 				}
 			}
@@ -243,10 +217,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		override public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Type;
-			}
+			get { return EntityType.Type; }
 		}
 
 		public virtual bool IsSubclassOf(IType other)
@@ -257,19 +228,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public virtual bool IsAssignableFrom(IType other)
 		{
 			return this == other ||
-			       (!this.IsValueType && Null.Default == other) ||
+			       (!IsValueType && Null.Default == other) ||
 			       other.IsSubclassOf(this);
 		}
 
 		public IType[] GetInterfaces()
 		{
-			List buffer = new List(_node.BaseTypes.Count);
+			var buffer = new List<IType>(_node.BaseTypes.Count);
 			foreach (TypeReference baseType in _node.BaseTypes)
 			{
-				IType type = TypeSystemServices.GetType(baseType);
+				var type = TypeSystemServices.GetType(baseType);
 				if (type.IsInterface) buffer.AddUnique(type);
 			}
-			return (IType[])buffer.ToArray(new IType[buffer.Count]);
+			return buffer.ToArray();
 		}
 
 		public virtual IEnumerable<IEntity> GetMembers()
@@ -298,14 +269,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public IGenericTypeInfo GenericInfo
 		{
-			get 
-			{
-				if (TypeDefinition.GenericParameters.Count != 0)
-				{
-					return this;
-				}
-				return null;
-			}
+			get { return TypeDefinition.GenericParameters.Count != 0 ? this : null; }
 		}
 
 		public IConstructedTypeInfo ConstructedInfo
@@ -319,13 +283,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			{
 				return Array.ConvertAll<GenericParameterDeclaration, IGenericParameter>(
 					_node.GenericParameters.ToArray(),
-					delegate(GenericParameterDeclaration gpd) { return (IGenericParameter)gpd.Entity; } );
+					gpd => (IGenericParameter) gpd.Entity);
 			}
 		}
 
 		IType IGenericTypeInfo.ConstructType(IType[] arguments)
 		{
-			IType constructed = null;
+			IType constructed;
 			if (!_constructedTypes.TryGetValue(arguments, out constructed))
 			{
 				constructed = CreateConstructedType(arguments);
