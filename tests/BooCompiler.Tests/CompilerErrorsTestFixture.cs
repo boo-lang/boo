@@ -1287,6 +1287,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void error_doesnt_cascade_to_cast()
+		{
+			RunCompilerTestCase(@"error-doesnt-cascade-to-cast.boo");
+		}
+		
+		[Test]
 		public void error_doesnt_cascade_to_raise()
 		{
 			RunCompilerTestCase(@"error-doesnt-cascade-to-raise.boo");

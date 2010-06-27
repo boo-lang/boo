@@ -2170,6 +2170,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType fromType = GetExpressionType(node.Target);
 			IType toType = GetType(node.Type);
+			if (IsError(fromType) || IsError(toType))
+			{
+				Error(node);
+				return;
+			}
+
 			bool byDowncast;
 			if (TypeSystemServices.CanBeReachedFrom(toType, fromType, true, out byDowncast))
 			{
