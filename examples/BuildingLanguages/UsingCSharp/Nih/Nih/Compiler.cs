@@ -19,6 +19,7 @@ namespace Nih
 			var result = compiler.Run();
 			if (result.Errors.Count > 0)
 				throw new CompilationErrorsException(result.Errors);
+			
 			return result.GeneratedAssembly;
 		}
 	}
