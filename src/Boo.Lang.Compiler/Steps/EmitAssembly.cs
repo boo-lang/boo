@@ -2389,7 +2389,7 @@ namespace Boo.Lang.Compiler.Steps
 		void InvokeRegularMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{
 			// Do not emit call if conditional attributes (if any) do not match defined symbols
-			if (!CheckConditionalAttributes(method, mi))
+			if (!CheckConditionalAttributes(method))
 			{
 				EmitNop();
 				PushType(method.ReturnType); // keep a valid state
@@ -2419,71 +2419,57 @@ namespace Boo.Lang.Compiler.Steps
 
 		//returns true if no conditional attribute match the defined symbols
 		//else return false (which means the method won't get emitted)
-		private bool CheckConditionalAttributes(IMethod method, MethodInfo mi)
+		private bool CheckConditionalAttributes(IMethod method)
 		{
 			foreach (string conditionalSymbol in GetConditionalSymbols(method))
-			{
 				if (!Parameters.Defines.ContainsKey(conditionalSymbol))
 				{
 					_context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), conditionalSymbol);
 					return false;
 				}
-			}
 			return true;
 		}
 
 		private IEnumerable<string> GetConditionalSymbols(IMethod method)
 		{
-			GenericMappedMethod mappedMethod = method as GenericMappedMethod;
+			var mappedMethod = method as GenericMappedMethod;
 			if (mappedMethod != null)
-			{
 				return GetConditionalSymbols(mappedMethod.SourceMember);
-			}
 
-			GenericConstructedMethod constructedMethod = method as GenericConstructedMethod;
+			var constructedMethod = method as GenericConstructedMethod;
 			if (constructedMethod != null)
-			{
 				return GetConditionalSymbols(constructedMethod.GenericDefinition);
-			}
 
-			ExternalMethod externalMethod = method as ExternalMethod;
+			var externalMethod = method as ExternalMethod;
 			if (externalMethod != null)
-			{
 				return GetConditionalSymbols(externalMethod);
-			}
 
-			InternalMethod internalMethod = method as InternalMethod;
+			var internalMethod = method as InternalMethod;
 			if (internalMethod != null)
-			{
 				return GetConditionalSymbols(internalMethod);
-			}
 
-			return new string[0];
+			return NoSymbols;
 		}
+
+		private static readonly string[] NoSymbols = new string[0];
 
 		private IEnumerable<string> GetConditionalSymbols(ExternalMethod method)
 		{
-			object[] attrs = method.MethodInfo.GetCustomAttributes(typeof(System.Diagnostics.ConditionalAttribute), false);
-			foreach (System.Diagnostics.ConditionalAttribute attr in attrs)
-			{
+			foreach (ConditionalAttribute attr in method.MethodInfo.GetCustomAttributes(typeof(ConditionalAttribute), false))
 				yield return attr.ConditionString;
-			}
-			yield break;
 		}
 
 		private IEnumerable<string> GetConditionalSymbols(InternalMethod method)
 		{
-			Attribute[] attrs = MetadataUtil.GetCustomAttributes(method.Method, TypeSystemServices.ConditionalAttribute);
-			foreach (Attribute attr in attrs)
+			foreach (var attr in MetadataUtil.GetCustomAttributes(method.Method, TypeSystemServices.ConditionalAttribute))
 			{
 				if (1 != attr.Arguments.Count) continue;
 
-				StringLiteralExpression sle = attr.Arguments[0] as StringLiteralExpression;
-				if (sle == null) continue;
+				var conditionString = attr.Arguments[0] as StringLiteralExpression;
+				if (conditionString == null) continue;
 
-				yield return sle.Value;
+				yield return conditionString.Value;
 			}
-			yield break;
 		}
 
 		private void PushTargetObject(MethodInvocationExpression node, MethodInfo mi)

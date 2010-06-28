@@ -41,39 +41,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		public static bool IsAttributeDefined(TypeMember member, IType attributeType)
 		{
-			foreach (Boo.Lang.Compiler.Ast.Attribute attr in member.Attributes)
-			{
-				IEntity entity = TypeSystemServices.GetEntity(attr);
-				if (entity == attributeType)
-					return true; // pre bound attribute
-				IConstructor constructor = entity as IConstructor;
-				if (null == constructor)
-					continue;
-				if (constructor.DeclaringType == attributeType)
+			foreach (var attr in member.Attributes)
+				if (IsOfType(attr, attributeType))
 					return true;
-			}
 			return false;
 		}
 
-		public static Boo.Lang.Compiler.Ast.Attribute[] GetCustomAttributes(TypeMember member, IType attributeType)
+		public static IEnumerable<Ast.Attribute> GetCustomAttributes(TypeMember member, IType attributeType)
 		{
-			List<Boo.Lang.Compiler.Ast.Attribute> attrs = new List<Boo.Lang.Compiler.Ast.Attribute>();
-			foreach (Boo.Lang.Compiler.Ast.Attribute attr in member.Attributes)
-			{
-				IEntity entity = TypeSystemServices.GetEntity(attr);
-				if (entity == attributeType) { // pre bound attribute
-					attrs.Add(attr);
-					continue;
-				}
-				IConstructor constructor = entity as IConstructor;
-				if (null == constructor)
-					continue;
-				if (constructor.DeclaringType == attributeType) {
-					attrs.Add(attr);
-					continue;
-				}
-			}
-			return attrs.ToArray();
+			foreach (var attribute in member.Attributes)
+				if (IsOfType(attribute, attributeType))
+					yield return attribute;
+		}
+
+		private static bool IsOfType(Ast.Attribute attribute, IType attributeType)
+		{
+			var entity = TypeSystemServices.GetEntity(attribute);
+			if (entity == attributeType)
+				return true;
+
+			var constructor = entity as IConstructor;
+			return constructor != null && constructor.DeclaringType == attributeType;
 		}
 
 		private static readonly MemberInfo[] NoExtensions = new MemberInfo[0];
