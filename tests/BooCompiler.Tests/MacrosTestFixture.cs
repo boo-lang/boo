@@ -50,6 +50,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void ifdef_1()
+		{
+			RunCompilerTestCase(@"ifdef-1.boo");
+		}
+		
+		[Test]
 		public void internal_macro_is_preferred()
 		{
 			RunCompilerTestCase(@"internal-macro-is-preferred.boo");
