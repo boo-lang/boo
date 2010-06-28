@@ -12,8 +12,8 @@ namespace BooCompiler.Tests.TypeSystem.Services
 	public class MemberCollectorTest
 	{
 		class Foo : object
-		{	
-			public Foo() {}
+		{
+			protected Foo() {}
 
 			public virtual string Name { get; set; }
 
@@ -22,11 +22,13 @@ namespace BooCompiler.Tests.TypeSystem.Services
 
 		class Bar : Foo
 		{
+// ReSharper disable RedundantOverridenMember
 			public override string Name
 			{
 				get { return base.Name; }
 				set { base.Name = value; }
 			}
+// ReSharper restore RedundantOverridenMember
 		}
 
 		[Test]

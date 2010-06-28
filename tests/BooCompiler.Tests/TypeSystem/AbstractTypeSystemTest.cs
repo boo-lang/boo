@@ -1,5 +1,4 @@
 using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 
@@ -9,26 +8,31 @@ namespace BooCompiler.Tests.TypeSystem
 
 	public class AbstractTypeSystemTest
 	{
-		protected CompilerContext context;
+		protected CompilerContext Context;
 
 		protected BooCodeBuilder CodeBuilder
 		{
-			get { return context.CodeBuilder;  }
+			get { return Context.CodeBuilder;  }
 		}
 
 		[SetUp]
 		public virtual void SetUp()
 		{
-			context = new CompilerContext(false);
+			Context = new CompilerContext(false);
 		}
 
 		protected IType DefineInternalClass(string @namespace, string typeName)
 		{
-			BooClassBuilder classBuilder = CodeBuilder.CreateClass(typeName);
-			Module classModule = CodeBuilder.CreateModule(typeName + "Module", @namespace);
+			return BuildInternalClass(@namespace, typeName).Entity;
+		}
+
+		protected BooClassBuilder BuildInternalClass(string @namespace, string typeName)
+		{
+			var classBuilder = CodeBuilder.CreateClass(typeName);
+			var classModule = CodeBuilder.CreateModule(typeName + "Module", @namespace);
 			classModule.Members.Add(classBuilder.ClassDefinition);
-			context.CompileUnit.Modules.Add(classModule);
-			return classBuilder.Entity;
+			Context.CompileUnit.Modules.Add(classModule);
+			return classBuilder;
 		}
 	}
 }

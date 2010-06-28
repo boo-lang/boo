@@ -1,3 +1,4 @@
+using System;
 using Boo.Lang;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
@@ -9,13 +10,13 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 	[TestFixture]
 	public class ReflectionTypeSystemProviderTest
 	{
-		private readonly IReflectionTypeSystemProvider subject = new ReflectionTypeSystemProvider();
+		private readonly IReflectionTypeSystemProvider _subject = new ReflectionTypeSystemProvider();
 
 		[Test]
 		public void ReferencesToSameAssemblyAreEqual()
 		{
-			ICompileUnit ref1 = subject.ForAssembly(GetType().Assembly);
-			ICompileUnit ref2 = subject.ForAssembly(GetType().Assembly);
+			ICompileUnit ref1 = _subject.ForAssembly(GetType().Assembly);
+			ICompileUnit ref2 = _subject.ForAssembly(GetType().Assembly);
 			Assert.IsNotNull(ref1);
 			Assert.IsNotNull(ref2);
 			Assert.AreEqual(ref1, ref2);
@@ -24,7 +25,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 		[Test]
 		public void RootNamespace()
 		{
-			ICompileUnit reference = subject.ForAssembly(GetType().Assembly);
+			ICompileUnit reference = _subject.ForAssembly(GetType().Assembly);
 			INamespace root = reference.RootNamespace;
 
 			Assert.IsFalse(root.Resolve(new List<IEntity>(), "XXX", EntityType.Any));
@@ -35,11 +36,11 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 		}
 
 		[Test]
-		public void Clone()
+		public void ClonePreservesOriginalReferences()
 		{
-			ICompileUnit original = subject.ForAssembly(GetType().Assembly);
-			IReflectionTypeSystemProvider clone = subject.Clone();
-			Assert.AreNotSame(subject, clone);
+			ICompileUnit original = _subject.ForAssembly(GetType().Assembly);
+			IReflectionTypeSystemProvider clone = _subject.Clone();
+			Assert.AreNotSame(_subject, clone);
 			ICompileUnit referenceFromClone = clone.ForAssembly(GetType().Assembly);
 			Assert.AreSame(original, referenceFromClone);
 		}
@@ -47,7 +48,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 		[Test]
 		public void AssemblyReferenceExposesAssembly()
 		{
-			IAssemblyReference assemblyRef = subject.ForAssembly(GetType().Assembly) as IAssemblyReference;
+			var assemblyRef = _subject.ForAssembly(GetType().Assembly);
 			Assert.IsNotNull(assemblyRef);
 			Assert.AreSame(GetType().Assembly, assemblyRef.Assembly);
 		}

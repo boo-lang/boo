@@ -25,7 +25,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 				}
 			}
 
-			protected override IType CreateEntityForRegularType(System.Type type)
+			protected override IType CreateEntityForRegularType(Type type)
 			{
 				return new BeanAwareType(this, type);
 			}
@@ -44,12 +44,12 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 		{
 			IEntity[] members = new List<IEntity>(new BeanAwareTypeSystemProvider().Map(typeof(Bean)).GetMembers()).ToArray();
 			Assert.AreEqual(5, members.Length);
-			Array.Sort(members, delegate(IEntity l, IEntity r) { return l.Name.CompareTo(r.Name);  });
+			Array.Sort(members, (l, r) => l.Name.CompareTo(r.Name));
 
 			Assert.AreEqual("constructor", members[0].Name);
 			Assert.AreEqual("getName", members[1].Name);
 
-			IProperty beanProperty = (IProperty) members[2];
+			var beanProperty = (IProperty) members[2];
 			Assert.AreEqual("name", beanProperty.Name);
 			Assert.AreSame(members[1], beanProperty.GetGetMethod());
 			Assert.AreSame(members[3], beanProperty.GetSetMethod());

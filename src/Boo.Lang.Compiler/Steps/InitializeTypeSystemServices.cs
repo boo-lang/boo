@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.Steps
             Context.RegisterService<DowncastPermissions>(CreateDowncastPermissions());
 		}
 
-	    protected virtual DowncastPermissions CreateDowncastPermissions()
+		protected virtual DowncastPermissions CreateDowncastPermissions()
 	    {
 	        return new DowncastPermissions();
 	    }

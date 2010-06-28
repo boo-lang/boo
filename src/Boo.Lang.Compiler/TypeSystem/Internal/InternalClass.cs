@@ -68,9 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			{
 				IType entity = (IType)baseType.Entity;
 				if (null != entity && !entity.IsInterface)
-				{
 					return entity;
-				}
 			}
 			return null;
 		}
@@ -78,10 +76,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		override public bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
 			bool found = base.Resolve(resultingSet, name, typesToConsider);
-			if (null != BaseType)
-			{
-				found |= BaseType.Resolve(resultingSet, name, typesToConsider);
-			}
+			var baseType = BaseType;
+			if (null != baseType)
+				found |= baseType.Resolve(resultingSet, name, typesToConsider);
 			return found;
 		}
 		

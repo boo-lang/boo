@@ -6441,17 +6441,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		string GetSignature(IEnumerable args)
 		{
-			StringBuilder sb = new StringBuilder("(");
+			var sb = new StringBuilder("(");
 			foreach (Expression arg in args)
 			{
 				if (sb.Length > 1)
-				{
 					sb.Append(", ");
-				}
 				if (AstUtil.IsExplodeExpression(arg))
-				{
 					sb.Append('*');
-				}
 				sb.Append(GetExpressionType(arg));
 			}
 			sb.Append(")");

@@ -9,9 +9,9 @@ namespace BooCompiler.Tests.TypeSystem.Core
 	{
 		public static IEntity ResolveSingle(INamespace root, string name)
 		{
-			List<IEntity> resolved = new List<IEntity>();
+			var resolved = new List<IEntity>();
 			Assert.IsTrue(root.Resolve(resolved, name, EntityType.Any), "Failed to resolve '{0}' against '{1}'", name, root);
-			Assert.AreEqual(1, resolved.Count, resolved.ToString());
+			Assert.AreEqual(1, resolved.Count);
 			return resolved[0];
 		}
 
@@ -19,9 +19,7 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		{
 			IEntity current = root;
 			foreach (string part in qualifiedName.Split('.'))
-			{
 				current = ResolveSingle((INamespace) current, part);
-			}
 			return current;
 		}
 
@@ -30,10 +28,8 @@ namespace BooCompiler.Tests.TypeSystem.Core
 			INamespace current = root;
 			string[] parts = qualifiedName.Split('.');
 			for (int i=0; i < parts.Length - 1; ++i)
-			{
 				current = (INamespace) ResolveSingle(current, parts[i]);
-			}
-			Set<IEntity> result = new Set<IEntity>();
+			var result = new Set<IEntity>();
 			current.Resolve(result, parts[parts.Length - 1], EntityType.Any);
 			return result;
 		}

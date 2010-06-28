@@ -12,17 +12,17 @@ namespace BooCompiler.Tests.TypeSystem.Services
 	[TestFixture]
 	public class NameResolutionServiceTest
 	{
-		private IEntity ResolveQualifiedName(string qualifiedName)
+		private static IEntity ResolveQualifiedName(string qualifiedName)
 		{
 			return Subject().ResolveQualifiedName(qualifiedName);
 		}
 
-		private NameResolutionService Subject()
+		private static NameResolutionService Subject()
 		{
 			return My<NameResolutionService>.Instance;
 		}
 
-		private bool MatchIgnoringCase(IEntity candidate, string name)
+		private static bool MatchIgnoringCase(IEntity candidate, string name)
 		{
 			return 0 == string.Compare(candidate.Name, name, true);
 		}
@@ -31,7 +31,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		public void NameMatchingCanBeCustomized()
 		{
 			var parameters = new CompilerParameters();
-			string code = @"
+			const string code = @"
 l = []
 l.ADD(42)
 l.add(42)

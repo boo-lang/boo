@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
 using NUnit.Framework;
@@ -15,7 +10,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 		[Test]
 		public void ImplicitConversionFromNullableToValue()
 		{
-			context.Run(delegate
+			Context.Run(delegate
         	{
         		var typeSystemServices = My<TypeSystemServices>.Instance;
         		var nullableDouble = typeSystemServices.Map(typeof(double?));

@@ -6,7 +6,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 {
 	internal class BeanPropertyFinder
 	{
-		Dictionary<string, BeanProperty> _properties = new Dictionary<string, BeanProperty>();
+		readonly Dictionary<string, BeanProperty> _properties = new Dictionary<string, BeanProperty>();
 
 		public BeanPropertyFinder(IEntity[] members)
 		{
@@ -28,7 +28,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 			return HasCamelCasePrefix(entity, "get");
 		}
 
-		private bool HasCamelCasePrefix(IEntity entity, string prefix)
+		private static bool HasCamelCasePrefix(IEntity entity, string prefix)
 		{
 			string name = entity.Name;
 			if (name.Length <= prefix.Length + 1) return false;
