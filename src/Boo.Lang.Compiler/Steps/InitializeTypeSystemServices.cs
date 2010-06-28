@@ -37,10 +37,16 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
+			Context.RegisterService<EntityFormatter>(CreateEntityFormatter());
 			Context.RegisterService<TypeSystemServices>(CreateTypeSystemServices());
 			Context.RegisterService<CallableResolutionService>(CreateCallableResolutionService());
 			Context.RegisterService<GenericsServices>(new GenericsServices());
             Context.RegisterService<DowncastPermissions>(CreateDowncastPermissions());
+		}
+		
+		protected virtual EntityFormatter CreateEntityFormatter()
+		{
+			return new EntityFormatter();
 		}
 
 		protected virtual DowncastPermissions CreateDowncastPermissions()
