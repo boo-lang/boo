@@ -339,13 +339,22 @@ namespace Boo.Lang.Compiler
 		}
 
 		/// <summary>
-		/// Runs the given action with this context ensuring CompilerContext.Current
-		/// returns the right context.
+		/// Runs the given action in this environment.
 		/// </summary>
 		/// <param name="action"></param>
 		public void Run(System.Action action)
 		{
 			Environment.With(this, action);
+		}
+
+		/// <summary>
+		/// Invokes the given function in this environment.
+		/// </summary>
+		public TResult Invoke<TResult>(System.Func<TResult> function)
+		{
+			TResult result = default(TResult);
+			Environment.With(this, () => result = function());
+			return result;
 		}
 
 		#region Compiler services registry
