@@ -27,7 +27,9 @@
 #endregion
 
 using System.Collections.Generic;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Core
 {
@@ -147,9 +149,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			return false;
 		}
 
-		override public string ToString()
+		override sealed public string ToString()
 		{
-			return Name;
+			return My<EntityFormatter>.Instance.FormatType(this);
 		}
 
 		IGenericTypeInfo IType.GenericInfo

@@ -72,12 +72,5 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return _provider.IsCallableTypeAssignableFrom(this, other);
 		}
-		
-		override public string ToString()
-		{
-			CallableSignature signature = GetSignature();
-			if (null == signature) return base.ToString();
-			return signature.ToString();
-		}
 	}
 }

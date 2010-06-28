@@ -307,7 +307,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		override public string ToString()
 		{
-			return FullName;
+			return My<EntityFormatter>.Instance.FormatType(this);
 		}
 
 		static int GetTypeDepth(Type type)

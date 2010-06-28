@@ -202,7 +202,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		
 		override public string ToString()
 		{
-			return Name;
+			return My<EntityFormatter>.Instance.FormatType(this);
 		}
 
 		IGenericTypeInfo IType.GenericInfo

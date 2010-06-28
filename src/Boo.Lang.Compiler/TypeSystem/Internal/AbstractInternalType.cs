@@ -262,9 +262,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				_memberEntitiesCache.Add(_provider.EntityFor(member));
 		}
 
-		override public string ToString()
+		override sealed public string ToString()
 		{
-			return FullName;
+			return My<EntityFormatter>.Instance.FormatType(this);
 		}
 
 		public IGenericTypeInfo GenericInfo

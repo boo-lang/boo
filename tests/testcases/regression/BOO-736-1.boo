@@ -1,26 +1,24 @@
 """
-<code>(8,34): BCE0023: No appropriate version of 'CompilerGeneratedExtensions.BeginInvoke' for the argument list '(callable(string) as int)' was found.
+BOO-736-1.boo(15,42): No appropriate version of 'CompilerGeneratedExtensions.BeginInvoke' for the argument list '(callable(string) as int)' was found.
 """
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Pipelines
-import Boo.Lang.Compiler.Steps
+import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.MetaProgramming
 
-def compile(code as string):	
-	compiler = BooCompiler()
-	compiler.Parameters.OutputType = CompilerOutputType.Library
-	compiler.Parameters.Input.Add(StringInput("<code>", code))
-	compiler.Parameters.Pipeline = CompileToMemory()
-	return compiler.Run()
+preservingLexicalInfo:
+	code = [|
+		class Foo:
+			def Bar1(parameter as string):
+				return 42
+	
+			def Bar2():
+				result = Bar1.BeginInvoke()
+	|]
 
-code = """	
-class Foo:
-	def Bar1(parameter as string):
-		print "Something"
-		return 5
-
-	def Bar2():
-		result = Bar1.BeginInvoke()
-"""
-
-print compile(code).Errors.ToString()
+for error in compile_(code).Errors:
+	location = error.LexicalInfo
+	file = System.IO.Path.GetFileName(location.FileName)
+	line = location.Line
+	column = location.Column
+	message = error.Message
+	print "$file($line,$column): $message"
