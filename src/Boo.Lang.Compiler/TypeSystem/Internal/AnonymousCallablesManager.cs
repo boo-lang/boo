@@ -26,7 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -55,13 +57,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _tss.CodeBuilder; }
 		}
 
-		public AnonymousCallableType GetCallableType(IMethod method)
-		{
-			CallableSignature signature = new CallableSignature(method);
-			return GetCallableType(signature);
-		}
-
-		public AnonymousCallableType GetCallableType(CallableSignature signature)
+		public ICallableType GetCallableType(CallableSignature signature)
 		{
 			AnonymousCallableType type = GetCachedCallableType(signature);
 
@@ -82,8 +78,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType GetConcreteCallableType(Node sourceNode, CallableSignature signature)
 		{
-			AnonymousCallableType type = GetCallableType(signature);
-			return GetConcreteCallableType(sourceNode, type);
+			var type = GetCallableType(signature);
+			var anonymous = type as AnonymousCallableType;
+			return anonymous != null ? GetConcreteCallableType(sourceNode, anonymous) : type;
 		}
 
 		public IType GetConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
@@ -94,9 +91,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IType CreateConcreteCallableType(Node sourceNode, AnonymousCallableType anonymousType)
 		{
-			Module module = TypeSystemServices.GetCompilerGeneratedTypesModule();
+			var module = TypeSystemServices.GetCompilerGeneratedTypesModule();
 			
-			TypeMember enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.InterfaceDefinition) ?? sourceNode.GetAncestor(NodeType.EnumDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
+			var enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.InterfaceDefinition) ?? sourceNode.GetAncestor(NodeType.EnumDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
 			string prefix = "";
 			string postfix = "";
 			if(enclosing != null)
@@ -121,7 +118,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				postfix = "$" + sourceNode.LexicalInfo.Line + "_" + sourceNode.LexicalInfo.Column + postfix;
 			}
 			string name = "__" + prefix + "callable" + module.Members.Count + postfix + "__";
-			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(name);
+			ClassDefinition cd = My<CallableTypeBuilder>.Instance.CreateEmptyCallableDefinition(name);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
 

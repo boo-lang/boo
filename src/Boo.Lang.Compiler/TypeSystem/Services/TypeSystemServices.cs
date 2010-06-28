@@ -443,13 +443,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return (IsAssignableFrom(ICallableType, type)) || (type is ICallableType);
 		}
 
-		public AnonymousCallableType GetCallableType(IMethodBase method)
+		public ICallableType GetCallableType(IMethodBase method)
 		{
 			var signature = new CallableSignature(method);
 			return GetCallableType(signature);
 		}
 
-		public AnonymousCallableType GetCallableType(CallableSignature signature)
+		public ICallableType GetCallableType(CallableSignature signature)
 		{
 			return _anonymousCallablesManager.GetCallableType(signature);
 		}
