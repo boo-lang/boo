@@ -33,33 +33,23 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.Util;
 using Module=Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.MetaProgramming
 {
-	public class CompilationErrorsException : System.Exception
-	{
-		private CompilerErrorCollection _errors;
-
-		public CompilationErrorsException(CompilerErrorCollection errors) : base(errors.ToString())
-		{
-			_errors = errors;
-		}
-
-		public CompilerErrorCollection Errors
-		{
-			get { return _errors;  }
-		}
-	}
-
 	[CompilerGlobalScope]
 	public sealed class Compilation
 	{
-		public static Type compile(TypeDefinition klass, params System.Reflection.Assembly[] references)
+		public static Type compile(TypeDefinition klass, params Assembly[] references)
 		{
-			Assembly generatedAssembly = compile(CreateCompileUnit(klass), references);
-			return generatedAssembly.GetType(klass.Name);
+			var result = compile_(klass, references);
+			AssertNoErrors(result);
+			return result.GeneratedAssembly.GetType(klass.Name);
+		}
+
+		public static CompilerContext compile_(TypeDefinition klass, params Assembly[] references)
+		{
+			return compile_(CreateCompileUnit(klass), references);
 		}
 
 		public static Assembly compile(Module module, params System.Reflection.Assembly[] references)
@@ -75,8 +65,13 @@ namespace Boo.Lang.Compiler.MetaProgramming
 		public static Assembly compile(CompileUnit unit, params Assembly[] references)
 		{
 			CompilerContext result = compile_(unit, references);
-			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
+			AssertNoErrors(result);
 			return result.GeneratedAssembly;
+		}
+
+		private static void AssertNoErrors(CompilerContext result)
+		{
+			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
 		}
 
 		public static CompilerContext compile_(CompileUnit unit, Assembly[] references)
