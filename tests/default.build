@@ -150,6 +150,7 @@
 				<include name="Boo.Lang.Extensions.dll" />
 				<include name="BooModules.dll" />
 				<include name="BooSupportingClasses.dll" />
+				<include name="Moq.dll" />
 			</references>
 		</csc>
 
@@ -302,6 +303,7 @@
 	<target name="init">
 		<delete dir="build" if="${directory::exists('build')}" />
 		<mkdir dir="build" />
+		
 		<copy todir="build" overwrite="true">
 			<fileset basedir="${test-bin-dir}">
 				<include name="*.dll" />
@@ -312,6 +314,9 @@
 				<include name="pt/*.dll" />
 			</fileset>
 		</copy>
+		
+		<copy todir="build" file="../lib/moq-3.1.416.3/Moq.dll" />
+			
 		<copy todir="${path::get-temp-path()}" overwrite="true">
 			<fileset basedir="${test-bin-dir}">
 				<include name="*.dll" />
@@ -323,6 +328,7 @@
 			</fileset>
 		</copy>
 		<copy todir="build" file="${nunit.framework.dll}" />
+		
 		<loadtasks assembly="build/Boo.NAnt.Tasks.dll" />
 		<echo message="Starting boo tests.  Running in framework: ${nant.settings.currentframework}" />
 	</target>
