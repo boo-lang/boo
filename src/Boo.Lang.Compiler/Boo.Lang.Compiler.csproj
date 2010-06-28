@@ -474,6 +474,7 @@
     <Compile Include="TypeSystem\Ambiguous.cs" />
     <Compile Include="TypeSystem\Builders\BooClassBuilder.cs" />
     <Compile Include="TypeSystem\Builders\BooMethodBuilder.cs" />
+    <Compile Include="TypeSystem\Builders\CallableTypeBuilder.cs" />
     <Compile Include="TypeSystem\CallableSignature.cs" />
     <Compile Include="TypeSystem\Core\AbstractType.cs" />
     <Compile Include="TypeSystem\Core\ArrayType.cs" />

@@ -577,39 +577,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return module;
 		}
 
-		public ClassDefinition CreateCallableDefinition(string name)
-		{
-			var cd = new ClassDefinition();
-			cd.IsSynthetic = true;
-			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(MulticastDelegateType));
-			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(ICallableType));
-			cd.Name = name;
-			cd.Modifiers = TypeMemberModifiers.Final;
-			cd.Members.Add(CreateCallableConstructor());
-			cd.Members.Add(CreateCallMethod());
-			cd.Entity = new InternalCallableType(My<InternalTypeSystemProvider>.Instance, cd);
-			cd.Attributes.Add(CodeBuilder.CreateAttribute(typeof(CompilerGeneratedAttribute)));
-			return cd;
-		}
-
-		private Method CreateCallMethod()
-		{
-			Method method = CodeBuilder.CreateMethod("Call", ObjectType, TypeMemberModifiers.Public | TypeMemberModifiers.Virtual);
-			method.Parameters.Add(CodeBuilder.CreateParameterDeclaration(1, "args", ObjectArrayType));
-			return method;
-		}
-
-		private Constructor CreateCallableConstructor()
-		{
-			Constructor constructor = CodeBuilder.CreateConstructor(TypeMemberModifiers.Public);
-			constructor.ImplementationFlags = MethodImplementationFlags.Runtime;
-			constructor.Parameters.Add(
-				CodeBuilder.CreateParameterDeclaration(1, "instance", ObjectType));
-			constructor.Parameters.Add(
-				CodeBuilder.CreateParameterDeclaration(2, "method", IntPtrType));
-			return constructor;
-		}
-
 		public bool CanBeReachedFrom(IType expectedType, IType actualType)
 		{
 			bool byDowncast;

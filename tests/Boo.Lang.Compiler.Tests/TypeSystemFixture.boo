@@ -30,9 +30,12 @@ namespace Boo.Lang.Compiler.Tests
 
 import System
 import Boo.Lang.Compiler
+import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Util
 import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Compiler.TypeSystem.Builders
 import NUnit.Framework
+import Boo.Lang.Environments
 
 [TestFixture]
 class TypeSystemFixture:
@@ -183,8 +186,8 @@ class TypeSystemFixture:
 		Assert.AreEqual(3, type.GetTypeDepth())
 		
 	test CreateCallableDefinition:
-		cd = _tss.CreateCallableDefinition("Function")
-		Assert.AreEqual(3, cast(IType, TypeSystemServices.GetEntity(cd)).GetTypeDepth())
+		cd = my(CallableTypeBuilder).ForCallableDefinition(CallableDefinition(Name: "Function"))
+		Assert.AreEqual(3, cast(IType, cd.Entity).GetTypeDepth())
 		
 	def Function() as void:
 		pass

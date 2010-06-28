@@ -26,6 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Environments;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
@@ -49,92 +52,35 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnCallableDefinition(CallableDefinition node)
 		{
-			if (null == node.ReturnType)
-			{
-				node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
-			}
+			CompleteOmittedReturnType(node);
+			CompleteOmittedParameterTypes(node);
 
-			CompleteOmittedParameterType(node);
-
-			ClassDefinition cd = TypeSystemServices.CreateCallableDefinition(node.Name);
-			cd.LexicalInfo = node.LexicalInfo;
-			cd.GenericParameters = node.GenericParameters;
-
-			cd.Members.Add(CreateInvokeMethod(node));
-			cd.Members.Add(CreateBeginInvokeMethod(node));
-			cd.Members.Add(CreateEndInvokeMethod(node));
-
+			ClassDefinition cd = My<CallableTypeBuilder>.Instance.ForCallableDefinition(node);
 			ReplaceCurrentNode(cd);
 		}
 
-		private void CompleteOmittedParameterType(CallableDefinition node)
+		private void CompleteOmittedReturnType(CallableDefinition node)
+		{
+			if (node.ReturnType == null)
+				node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
+		}
+
+		private void CompleteOmittedParameterTypes(CallableDefinition node)
 		{
 			ParameterDeclarationCollection parameters = node.Parameters;
-			if (0 == parameters.Count) return;
+			if (parameters.Count == 0)
+				return;
 
 			foreach (ParameterDeclaration parameter in parameters)
 			{
-				if (null == parameter.Type)
-				{
-					if (parameter.IsParamArray)
-					{
-						parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectArrayType);
-					}
-					else
-					{
-						parameter.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
-					}
-				}
-			}
-		}
+				if (parameter.Type != null)
+					continue;
 
-		Method CreateInvokeMethod(CallableDefinition node)
-		{
-			Method method = CreateRuntimeMethod("Invoke", node.ReturnType);
-			method.Parameters = node.Parameters;
-			return method;
-		}
-		
-		Method CreateBeginInvokeMethod(CallableDefinition node)
-		{
-			Method method = CreateRuntimeMethod("BeginInvoke",
-						CodeBuilder.CreateTypeReference(node.LexicalInfo, typeof(IAsyncResult)));
-			method.Parameters.ExtendWithClones(node.Parameters);
-			method.Parameters.Add(
-				new ParameterDeclaration("callback",
-					CodeBuilder.CreateTypeReference(node.LexicalInfo, typeof(AsyncCallback))));
-			method.Parameters.Add(
-				new ParameterDeclaration("asyncState",
-					CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.ObjectType)));
-			return method;
-		}
-		
-		Method CreateEndInvokeMethod(CallableDefinition node)
-		{
-			Method method = CreateRuntimeMethod("EndInvoke", node.ReturnType);
-			
-			foreach(ParameterDeclaration p in node.Parameters)
-			{
-				if (p.IsByRef)
-				{
-					method.Parameters.Add(p.CloneNode());
-				}
+				parameter.Type = CodeBuilder.CreateTypeReference(
+					parameter.IsParamArray
+						? TypeSystemServices.ObjectArrayType
+						: TypeSystemServices.ObjectType);
 			}
-			
-			method.Parameters.Add(
-				new ParameterDeclaration("asyncResult",
-					CodeBuilder.CreateTypeReference(node.LexicalInfo, typeof(IAsyncResult))));
-			return method;
-		}
-		
-		Method CreateRuntimeMethod(string name, TypeReference returnType)
-		{
-			Method method = new Method();
-			method.Name = name;
-			method.ReturnType = returnType;
-			method.Modifiers = TypeMemberModifiers.Public|TypeMemberModifiers.Virtual;
-			method.ImplementationFlags = MethodImplementationFlags.Runtime;
-			return method;
 		}
 	}
 }
