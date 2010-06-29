@@ -144,36 +144,29 @@ namespace Boo.Lang.Runtime
 
 		private static object Dispatch(object target, string cacheKeyName, Type[] cacheKeyTypes, object[] args, DispatcherCache.DispatcherFactory factory)
 		{
-			Type targetType = (target as Type) ?? target.GetType();
-			DispatcherKey key = new DispatcherKey(targetType, cacheKeyName, cacheKeyTypes);
-			Dispatcher dispatcher = _cache.Get(key, factory);
+			var targetType = (target as Type) ?? target.GetType();
+			var key = new DispatcherKey(targetType, cacheKeyName, cacheKeyTypes);
+			var dispatcher = _cache.Get(key, factory);
 			return dispatcher(target, args);
 		}
 
 		public static object GetProperty(object target, string name)
 		{
-			return Dispatch(target, name, NoArguments, delegate { return CreatePropGetDispatcher(target, name);  });
+			return Dispatch(target, name, NoArguments, () => CreatePropGetDispatcher(target, name));
 		}
 
 		private static Dispatcher CreatePropGetDispatcher(object target, string name)
 		{
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck)
-			{
-				return delegate(object o, object[] args) { return ((IQuackFu)o).QuackGet(name, null); };
-			}
+				return (o, args) => ((IQuackFu) o).QuackGet(name, null);
 
 			Type type = target as Type;
 			if (null != type) return DoCreatePropGetDispatcher(null, type, name);
 
 			Type targetType = target.GetType();
 			if (targetType.IsCOMObject)
-			{
-				return delegate(object o, object[] args)
-		       	{
-		       		return o.GetType().InvokeMember(name, GetPropertyBindingFlags, null, o, null);
-		       	};
-			}
+				return (o, args) => o.GetType().InvokeMember(name, GetPropertyBindingFlags, null, o, null);
 
 			return DoCreatePropGetDispatcher(target, target.GetType(), name);
 		}
@@ -185,7 +178,7 @@ namespace Boo.Lang.Runtime
 
 		public static object SetProperty(object target, string name, object value)
 		{
-			return Dispatch(target, name, new object[] { value }, delegate { return CreatePropSetDispatcher(target, name, value); });
+			return Dispatch(target, name, new[] { value }, () => CreatePropSetDispatcher(target, name, value));
 		}
 
 		private static Dispatcher CreatePropSetDispatcher(object target, string name, object value)
@@ -261,7 +254,7 @@ namespace Boo.Lang.Runtime
 		{
 			if (value == null) return null;
 
-			return Dispatch(value, "$Coerce$", new Type[] {toType}, new object[] {toType}, delegate { return CreateCoerceDispatcher(value, toType); });
+			return Dispatch(value, "$Coerce$", new[] {toType}, new object[] {toType}, () => CreateCoerceDispatcher(value, toType));
 		}
 
 		private static Dispatcher CreateCoerceDispatcher(object value, Type toType)
