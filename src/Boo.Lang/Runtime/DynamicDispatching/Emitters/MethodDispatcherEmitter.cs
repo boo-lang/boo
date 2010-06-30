@@ -26,14 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+#if !NO_SYSTEM_REFLECTION_EMIT
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	public delegate object Dispatcher(object target, object[] args);
-
 	public class MethodDispatcherEmitter : DispatcherEmitter
 	{
 		protected readonly CandidateMethod _found;
@@ -168,3 +166,4 @@ namespace Boo.Lang.Runtime
 		}
 	}
 }
+#endif

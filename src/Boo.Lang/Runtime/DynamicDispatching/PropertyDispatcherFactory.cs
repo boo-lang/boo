@@ -92,9 +92,13 @@ namespace Boo.Lang.Runtime
 
 		private Dispatcher EmitFieldDispatcher(FieldInfo field, SetOrGet gos)
 		{
+#if NO_SYSTEM_REFLECTION_EMIT
+			throw new NotImplementedException();
+#else
 			return SetOrGet.Get == gos
 			       	? new GetFieldEmitter(field).Emit()
 			       	: new SetFieldEmitter(field, GetArgumentTypes()[0]).Emit();
+#endif
 		}
 
 		private Dispatcher EmitPropertyDispatcher(PropertyInfo property, SetOrGet gos)
@@ -104,8 +108,13 @@ namespace Boo.Lang.Runtime
 			if (null == accessor) throw MissingField();
 			CandidateMethod found = ResolveMethod(argumentTypes, new MethodInfo[] { accessor });
 			if (null == found) throw MissingField();
+
+#if NO_SYSTEM_REFLECTION_EMIT
+			throw new NotImplementedException();
+#else
 			if (SetOrGet.Get == gos) return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 			return new SetPropertyEmitter(_type, found, argumentTypes).Emit();
+#endif
 		}
 	}
 }

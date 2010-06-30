@@ -74,7 +74,11 @@ namespace Boo.Lang.Runtime
 
 		private Dispatcher EmitMethodDispatcher(CandidateMethod found, Type[] argumentTypes)
 		{
+#if NO_SYSTEM_REFLECTION_EMIT
+			throw new NotImplementedException();
+#else
 			return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
+#endif
 		}
 	}
 }

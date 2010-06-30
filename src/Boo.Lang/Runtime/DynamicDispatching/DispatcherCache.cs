@@ -27,54 +27,52 @@
 #endregion
 
 
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	public delegate object Dispatcher(object target, object[] args);
+
+	public class DispatcherCache
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
+		public delegate Dispatcher DispatcherFactory();
 
-		public void Register(Type type)
+		private static Dictionary<DispatcherKey, Dispatcher> _cache =
+			new Dictionary<DispatcherKey, Dispatcher>(DispatcherKey.EqualityComparer);
+
+		/// <summary>
+		/// Gets a dispatcher from the cache if available otherwise
+		/// invokes factory to produce one and then cache it.
+		/// </summary>
+		/// <param name="key">the dispatcher key</param>
+		/// <param name="factory">function to produce a dispatcher in case one it's not yet available</param>
+		/// <returns></returns>
+		public Dispatcher Get(DispatcherKey key, DispatcherFactory factory)
 		{
-			lock (_classLock)
+			Dispatcher dispatcher;
+			if (!_cache.TryGetValue(key, out dispatcher))
 			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
+				lock (_cache)
+				{
+					if (!_cache.TryGetValue(key, out dispatcher))
+					{
+						dispatcher = factory();
+						_cache.Add(key, dispatcher);
+					}
+				}
 			}
+			return dispatcher;
 		}
 
-		public IEnumerable<MemberInfo> Extensions
+		/// <summary>
+		/// Removes all Dispatchers from the cache.
+		/// </summary>
+		public void Clear()
 		{
-			get { return _extensions; }
-		}
-
-		public void UnRegister(Type type)
-		{
-			lock (_classLock)
+			lock (_cache)
 			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
+				_cache.Clear();
 			}
-		}
-
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
 		}
 	}
 }

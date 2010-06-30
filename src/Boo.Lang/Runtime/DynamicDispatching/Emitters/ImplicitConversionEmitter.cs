@@ -26,55 +26,29 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+#if !NO_SYSTEM_REFLECTION_EMIT
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	class ImplicitConversionEmitter : DispatcherEmitter
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
+		private MethodInfo _conversion;
 
-		public void Register(Type type)
+		public ImplicitConversionEmitter(MethodInfo conversion) : base(conversion.DeclaringType, conversion.Name)
 		{
-			lock (_classLock)
-			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
-			}
+			_conversion = conversion;
 		}
 
-		public IEnumerable<MemberInfo> Extensions
+		protected override void EmitMethodBody()
 		{
-			get { return _extensions; }
-		}
-
-		public void UnRegister(Type type)
-		{
-			lock (_classLock)
-			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
-			}
-		}
-
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
+			_il.Emit(OpCodes.Ldarg_0);
+			EmitCastOrUnbox(_conversion.GetParameters()[0].ParameterType);
+			_il.Emit(OpCodes.Call, _conversion);
+			EmitReturn(_conversion.ReturnType);
 		}
 	}
 }
+#endif

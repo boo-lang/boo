@@ -4226,16 +4226,35 @@ namespace Boo.Lang.Compiler.Steps
 
 			object[] arguments = GetMetaMethodInvocationArguments(node);
 			Type[] argumentTypes = MethodResolver.GetArgumentTypes(arguments);
-			MethodResolver resolver = new MethodResolver(argumentTypes);
-			CandidateMethod method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
+			var resolver = new MethodResolver(argumentTypes);
+			var method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
 			if (null == method) return false;
 
 			// TODO: cache emitted dispatchers
-			MethodDispatcherEmitter emitter = new MethodDispatcherEmitter(method, argumentTypes);
-			Node replacement = (Node)emitter.Emit()(null, arguments);
+			Node replacement = InvokeMetaMethod(node, method, argumentTypes, arguments);
 			ReplaceMetaMethodInvocationSite(node, replacement);
 
 			return true;
+		}
+
+		private Node InvokeMetaMethod(Node anchor, CandidateMethod method, Type[] argumentTypes, object[] arguments)
+		{
+			if (method.DoesNotRequireConversions)
+				return (Node)method.Method.Invoke(null, AdjustArgumentsForVarArgsInvocation(method, arguments));
+
+			NotImplemented(anchor, "Meta method invocations that require conversions");
+			return null;
+		}
+
+		private static object[] AdjustArgumentsForVarArgsInvocation(CandidateMethod method, object[] arguments)
+		{
+			if (method.VarArgs && arguments.Length > method.MinimumArgumentCount)
+			{
+				var newArguments = arguments.Take(method.MinimumArgumentCount).ToList();
+				newArguments.Add(Builtins.array(method.VarArgsParameterType, arguments.Skip(method.MinimumArgumentCount)));
+				return newArguments.ToArray();
+			}
+			return arguments;
 		}
 
 		private static object[] GetMetaMethodInvocationArguments(MethodInvocationExpression node)

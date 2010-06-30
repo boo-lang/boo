@@ -27,54 +27,11 @@
 #endregion
 
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	enum SetOrGet
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
-
-		public void Register(Type type)
-		{
-			lock (_classLock)
-			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
-			}
-		}
-
-		public IEnumerable<MemberInfo> Extensions
-		{
-			get { return _extensions; }
-		}
-
-		public void UnRegister(Type type)
-		{
-			lock (_classLock)
-			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
-			}
-		}
-
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
-		}
+		Set,
+		Get
 	}
 }

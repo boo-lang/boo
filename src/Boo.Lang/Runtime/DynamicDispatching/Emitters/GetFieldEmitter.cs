@@ -26,55 +26,39 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
-using System;
-using System.Collections.Generic;
+#if !NO_SYSTEM_REFLECTION_EMIT
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	internal class GetFieldEmitter : DispatcherEmitter
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
+		protected readonly FieldInfo _field;
 
-		public void Register(Type type)
+		public GetFieldEmitter(FieldInfo field) : base(field.DeclaringType, field.Name)
 		{
-			lock (_classLock)
+			_field = field;
+		}
+
+		protected override void EmitMethodBody()
+		{	
+			if (_field.IsStatic)
 			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
+				// make sure type is initialized before
+				// accessing any static fields
+				RuntimeHelpers.RunClassConstructor(_field.DeclaringType.TypeHandle);
+				_il.Emit(OpCodes.Ldsfld, _field);
 			}
-		}
-
-		public IEnumerable<MemberInfo> Extensions
-		{
-			get { return _extensions; }
-		}
-
-		public void UnRegister(Type type)
-		{
-			lock (_classLock)
+			else
 			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
+				EmitLoadTargetObject(_field.DeclaringType);
+				_il.Emit(OpCodes.Ldfld, _field);
 			}
-		}
 
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
+			EmitReturn(_field.FieldType);
 		}
 	}
 }
+#endif

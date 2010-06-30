@@ -31,7 +31,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Collections;
 using System.IO;
-using System.Reflection.Emit;
 using System.Text;
 
 namespace Boo.Lang.Runtime
@@ -54,13 +53,6 @@ namespace Boo.Lang.Runtime
 		private const BindingFlags InvokeBindingFlags = DefaultBindingFlags |
 												BindingFlags.InvokeMethod;
 
-		private const BindingFlags StaticMemberBindingFlags = BindingFlags.Public |
-												BindingFlags.Static |
-												BindingFlags.FlattenHierarchy;
-
-		private const BindingFlags InvokeOperatorBindingFlags = StaticMemberBindingFlags |
-												BindingFlags.InvokeMethod;
-
 		private const BindingFlags SetPropertyBindingFlags = DefaultBindingFlags |
 												BindingFlags.SetProperty |
 												BindingFlags.SetField;
@@ -69,12 +61,12 @@ namespace Boo.Lang.Runtime
 												BindingFlags.GetProperty |
 												BindingFlags.GetField;
 
-		private static DispatcherCache _cache = new DispatcherCache();
-		private static ExtensionRegistry _extensions = new ExtensionRegistry();
+		private static readonly DispatcherCache _cache = new DispatcherCache();
+		private static readonly ExtensionRegistry _extensions = new ExtensionRegistry();
 
 		public delegate void CodeBlock();
 
-		public static void WithExtensions(System.Type extensions, CodeBlock block)
+		public static void WithExtensions(Type extensions, CodeBlock block)
 		{
 			RegisterExtensions(extensions);
 			try
@@ -87,37 +79,33 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		public static void RegisterExtensions(System.Type extensions)
+		public static void RegisterExtensions(Type extensions)
 		{
 			_extensions.Register(extensions);
 		}
 
-		public static void UnRegisterExtensions(System.Type extensions)
+		public static void UnRegisterExtensions(Type extensions)
 		{
 			_extensions.UnRegister(extensions);
 		}
 
 		public static object Invoke(object target, string name, object[] args)
 		{	
-			return Dispatch(target, name, args, delegate { return CreateMethodDispatcher(target, name, args); });
+			return Dispatch(target, name, args, () => CreateMethodDispatcher(target, name, args));
 		}
 
 		private static Dispatcher CreateMethodDispatcher(object target, string name, object[] args)
 		{
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck)
-			{
-				return delegate(object o, object[] arguments) { return ((IQuackFu) o).QuackInvoke(name, arguments); };
-			}
+				return (o, arguments) => ((IQuackFu) o).QuackInvoke(name, arguments);
 
-			Type type = target as Type;
+			var type = target as Type;
 			if (null != type)
-			{
 				// static method
 				return DoCreateMethodDispatcher(null, type, name, args);
-			}
 
-			Type targetType = target.GetType();
+			var targetType = target.GetType();
 			if (targetType.IsCOMObject)
 			{
 				// COM methods cant be seen through reflection
@@ -125,7 +113,7 @@ namespace Boo.Lang.Runtime
 				// is indeed by creating a specific Binder object
 				// which knows the boo conversion rules
 				return
-					delegate(object o, object[] arguments) { return o.GetType().InvokeMember(name, InvokeBindingFlags, null, target, arguments); };
+					(o, arguments) => o.GetType().InvokeMember(name, InvokeBindingFlags, null, target, arguments);
 			}
 			
 			return DoCreateMethodDispatcher(target, targetType, name, args);
@@ -138,7 +126,7 @@ namespace Boo.Lang.Runtime
 
 		private static object Dispatch(object target, string cacheKeyName, object[] args, DispatcherCache.DispatcherFactory factory)
 		{
-			Type[] cacheKeyTypes = MethodResolver.GetArgumentTypes(args);
+			var cacheKeyTypes = MethodResolver.GetArgumentTypes(args);
 			return Dispatch(target, cacheKeyName, cacheKeyTypes, args, factory);
 		}
 
@@ -161,10 +149,11 @@ namespace Boo.Lang.Runtime
 			if (null != duck)
 				return (o, args) => ((IQuackFu) o).QuackGet(name, null);
 
-			Type type = target as Type;
-			if (null != type) return DoCreatePropGetDispatcher(null, type, name);
+			var type = target as Type;
+			if (null != type)
+				return DoCreatePropGetDispatcher(null, type, name);
 
-			Type targetType = target.GetType();
+			var targetType = target.GetType();
 			if (targetType.IsCOMObject)
 				return (o, args) => o.GetType().InvokeMember(name, GetPropertyBindingFlags, null, o, null);
 
@@ -183,27 +172,17 @@ namespace Boo.Lang.Runtime
 
 		private static Dispatcher CreatePropSetDispatcher(object target, string name, object value)
 		{
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck)
-			{
-				return delegate(object o, object[] args) { return ((IQuackFu) o).QuackSet(name, null, args[0]); };
-			}
+				return (o, args) => ((IQuackFu) o).QuackSet(name, null, args[0]);
 
-			Type type = target as Type;
-			if (null != type) return DoCreatePropSetDispatcher(null, type, name, value);
+			var type = target as Type;
+			if (null != type)
+				return DoCreatePropSetDispatcher(null, type, name, value);
 
-			Type targetType = target.GetType();
+			var targetType = target.GetType();
 			if (targetType.IsCOMObject)
-			{
-				return delegate(object o, object[] args)
-		       	{
-		       		return o.GetType().InvokeMember(name,
-		       		                                SetPropertyBindingFlags,
-		       		                                null,
-		       		                                o,
-		       		                                args);
-		       	};
-			}
+				return (o, args) => o.GetType().InvokeMember(name, SetPropertyBindingFlags, null, o, args);
 
 			return DoCreatePropSetDispatcher(target, targetType, name, value);
 		}
@@ -244,12 +223,6 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		[Obsolete("Use Coerce instead.")]
-		public static object DuckImplicitCast(object value, Type toType)
-		{
-			return Coerce(value, toType);
-		}
-
 		public static object Coerce(object value, Type toType)
 		{
 			if (value == null) return null;
@@ -262,16 +235,23 @@ namespace Boo.Lang.Runtime
 			if (toType.IsInstanceOfType(value)) return IdentityDispatcher;
 			if (value is ICoercible) return CoercibleDispatcher;
 
-			Type fromType = value.GetType();
+			var fromType = value.GetType();
 			if (IsPromotableNumeric(fromType) && IsPromotableNumeric(toType))
-			{
-				return new PromotionEmitter(toType).Emit();
-			}
+				return EmitPromotionDispatcher(toType);
 
-			MethodInfo method = FindImplicitConversionOperator(fromType, toType);
+			var method = FindImplicitConversionOperator(fromType, toType);
 			if (null == method) return IdentityDispatcher;
 
 			return EmitImplicitConversionDispatcher(method);
+		}
+
+		private static Dispatcher EmitPromotionDispatcher(Type toType)
+		{
+#if NO_SYSTEM_REFLECTION_EMIT
+			throw new NotImplementedException();
+#else
+			return new PromotionEmitter(toType).Emit();
+#endif
 		}
 
 		private static bool IsPromotableNumeric(Type fromType)
@@ -281,7 +261,11 @@ namespace Boo.Lang.Runtime
 
 		private static Dispatcher EmitImplicitConversionDispatcher(MethodInfo method)
 		{
+#if NO_SYSTEM_REFLECTION_EMIT
+			throw new NotImplementedException();
+#else
 			return new ImplicitConversionEmitter(method).Emit();
+#endif
 		}
 
 		private static object CoercibleDispatcher(object o, object[] args)
@@ -296,16 +280,14 @@ namespace Boo.Lang.Runtime
 
 		public static object GetSlice(object target, string name, object[] args)
 		{
-			return Dispatch(target, name + "[]", args, delegate { return CreateGetSliceDispatcher(target, name, args); });
+			return Dispatch(target, name + "[]", args, () => CreateGetSliceDispatcher(target, name, args));
 		}
 
 		private static Dispatcher CreateGetSliceDispatcher(object target, string name, object[] args)
 		{
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck)
-			{
-				return delegate(object o, object[] arguments) { return ((IQuackFu) o).QuackGet(name, arguments); };
-			}
+				return (o, arguments) => ((IQuackFu) o).QuackGet(name, arguments);
 
 			if ("" == name
 				&& args.Length == 1
@@ -316,18 +298,18 @@ namespace Boo.Lang.Runtime
 
 		private static object GetArraySlice(object target, object[] args)
 		{
-			IList list = (IList)target;
+			var list = (IList)target;
 			return list[NormalizeIndex(list.Count, (int)args[0])];
 		}
 
 		public static object SetSlice(object target, string name, object[] args)
 		{
-			return Dispatch(target, name + "[]=", args, delegate { return CreateSetSliceDispatcher(target, name, args); });
+			return Dispatch(target, name + "[]=", args, () => CreateSetSliceDispatcher(target, name, args));
 		}
 
 		static Dispatcher CreateSetSliceDispatcher(object target, string name, object[] args)
 		{
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck)
 			{
 				return delegate(object o, object[] arguments)
@@ -345,14 +327,14 @@ namespace Boo.Lang.Runtime
 
 		private static object SetArraySlice(object target, object[] args)
 		{
-			IList list = (IList)target;
+			var list = (IList)target;
 			list[NormalizeIndex(list.Count, (int)args[0])] = args[1];
 			return args[1];
 		}
 
 		internal static String GetDefaultMemberName(Type type)
 		{
-			DefaultMemberAttribute attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
+			var attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
 			return attribute != null ? attribute.MemberName : "";
 		}
 
@@ -361,13 +343,13 @@ namespace Boo.Lang.Runtime
 			if (null == target) throw new ArgumentNullException("target");
 			if (null == args) throw new ArgumentNullException("args");
 
-			ICallable c = target as ICallable;
+			var c = target as ICallable;
 			if (null != c) return c.Call(args);
 
-			Delegate d = target as Delegate;
+			var d = target as Delegate;
 			if (null != d) return d.DynamicInvoke(args);
 			
-			Type type = target as Type;
+			var type = target as Type;
 			if (null != type) return Activator.CreateInstance(type, args);
 			
 			return ((MethodInfo)target).Invoke(null, args);
@@ -445,12 +427,10 @@ namespace Boo.Lang.Runtime
 			}
 			else
 			{
-				object[] args = new object[] { lhs, rhs };
-				IQuackFu duck = lhs as IQuackFu;
+				var args = new object[] { lhs, rhs };
+				var duck = lhs as IQuackFu;
 				if (null != duck)
-				{
 					return duck.QuackInvoke(operatorName, args);
-				}
 				else
 				{
 					duck = rhs as IQuackFu;
@@ -550,10 +530,10 @@ namespace Boo.Lang.Runtime
 		{
 			if (null != obj)
 			{
-				ICollection collection = obj as ICollection;
+				var collection = obj as ICollection;
 				if (null != collection) return collection.Count;
 
-				string s = obj as string;
+				var s = obj as string;
 				if (null != s) return s.Length;
 			}
 			throw new ArgumentException();
@@ -1573,133 +1553,105 @@ namespace Boo.Lang.Runtime
 
 		public static IConvertible CheckNumericPromotion(object value)
 		{
-			IConvertible convertible = (IConvertible)value;
+			var convertible = (IConvertible)value;
 			return CheckNumericPromotion(convertible);
 		}
 
 		public static IConvertible CheckNumericPromotion(IConvertible convertible)
 		{
 			if (IsPromotableNumeric(convertible.GetTypeCode()))
-			{
 				return convertible;
-			}
 			throw new InvalidCastException();
 		}
 
 		public static Byte UnboxByte(object value)
 		{
 			if (value is Byte)
-			{
 				return (Byte)value;
-			}
 			return CheckNumericPromotion(value).ToByte(null);
 		}
 
 		public static SByte UnboxSByte(object value)
 		{
 			if (value is SByte)
-			{
 				return (SByte)value;
-			}
 			return CheckNumericPromotion(value).ToSByte(null);
 		}
 
 		public static char UnboxChar(object value)
 		{
 			if (value is char)
-			{
 				return (char)value;
-			}
 			return CheckNumericPromotion(value).ToChar(null);
 		}
 
 		public static Int16 UnboxInt16(object value)
 		{
 			if (value is Int16)
-			{
 				return (Int16)value;
-			}
 			return CheckNumericPromotion(value).ToInt16(null);
 		}
 
 		public static UInt16 UnboxUInt16(object value)
 		{
 			if (value is UInt16)
-			{
 				return (UInt16)value;
-			}
 			return CheckNumericPromotion(value).ToUInt16(null);
 		}
 
 		public static Int32 UnboxInt32(object value)
 		{
 			if (value is Int32)
-			{
 				return (Int32)value;
-			}
 			return CheckNumericPromotion(value).ToInt32(null);
 		}
 
 		public static UInt32 UnboxUInt32(object value)
 		{
 			if (value is UInt32)
-			{
 				return (UInt32)value;
-			}
 			return CheckNumericPromotion(value).ToUInt32(null);
 		}
 
 		public static Int64 UnboxInt64(object value)
 		{
 			if (value is Int64)
-			{
 				return (Int64)value;
-			}
 			return CheckNumericPromotion(value).ToInt64(null);
 		}
 
 		public static UInt64 UnboxUInt64(object value)
 		{
 			if (value is UInt64)
-			{
 				return (UInt64)value;
-			}
 			return CheckNumericPromotion(value).ToUInt64(null);
 		}
 
 		public static Single UnboxSingle(object value)
 		{
 			if (value is Single)
-			{
 				return (Single)value;
-			}
 			return CheckNumericPromotion(value).ToSingle(null);
 		}
 
 		public static Double UnboxDouble(object value)
 		{
 			if (value is Double)
-			{
 				return (Double)value;
-			}
 			return CheckNumericPromotion(value).ToDouble(null);
 		}
 
 		public static Decimal UnboxDecimal(object value)
 		{
 			if (value is Decimal)
-			{
 				return (Decimal)value;
-			}
 			return CheckNumericPromotion(value).ToDecimal(null);
 		}
 
 		public static Boolean UnboxBoolean(object value)
 		{
 			if (value is Boolean)
-			{
 				return (Boolean)value;
-			}
 			return CheckNumericPromotion(value).ToBoolean(null);
 		}
 
@@ -1714,7 +1666,7 @@ namespace Boo.Lang.Runtime
 			Type type = value.GetType();
 			return
 				(bool)
-				Dispatch(value, "$ToBool$", new Type[] {type}, new object[] {value}, delegate { return CreateBoolConverter(type); });
+				Dispatch(value, "$ToBool$", new[] {type}, new[] {value}, () => CreateBoolConverter(type));
 		}
 
 		public static bool ToBool(decimal value)
@@ -1733,6 +1685,7 @@ namespace Boo.Lang.Runtime
 		}
 
 		private static readonly object True = true;
+
 		private static object ToBoolTrue(object value, object[] arguments)
 		{
 			return True;
@@ -1766,9 +1719,8 @@ namespace Boo.Lang.Runtime
 		private static IEnumerable<MethodInfo> GetExtensionMethods()
 		{
 			foreach (MemberInfo member in _extensions.Extensions)
-			{
-				if (member.MemberType == MemberTypes.Method) yield return (MethodInfo) member;
-			}
+				if (member.MemberType == MemberTypes.Method)
+					yield return (MethodInfo) member;
 		}
 
 		private static MethodInfo FindImplicitConversionMethod(System.Collections.Generic.IEnumerable<MethodInfo> candidates, Type from, Type to)

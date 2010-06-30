@@ -26,55 +26,28 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+#if !NO_SYSTEM_REFLECTION_EMIT
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	class PromotionEmitter : DispatcherEmitter
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
+		private Type _toType;
 
-		public void Register(Type type)
+		public PromotionEmitter(Type toType) : base(toType, "NumericPromotion")
 		{
-			lock (_classLock)
-			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
-			}
+			_toType = toType;
 		}
 
-		public IEnumerable<MemberInfo> Extensions
+		protected override void EmitMethodBody()
 		{
-			get { return _extensions; }
-		}
-
-		public void UnRegister(Type type)
-		{
-			lock (_classLock)
-			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
-			}
-		}
-
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
+			_il.Emit(OpCodes.Ldarg_0);
+			MethodInfo promotion = EmitPromotion(_toType);
+			EmitReturn(promotion.ReturnType);
 		}
 	}
 }
+#endif

@@ -226,7 +226,7 @@ namespace BooC
 		void DoLogo()
 		{
 			Console.WriteLine("Boo Compiler version {0} ({1})",
-				Builtins.BooVersion.ToString(), Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName);
+				Builtins.BooVersion, Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName);
 		}
 		
 		void Help ()

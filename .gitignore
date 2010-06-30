@@ -2,6 +2,7 @@ build
 ide-build
 _ReSharper*
 obj
+external
 *.suo
 *.user
 *.pidb

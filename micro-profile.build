@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project name="boo micro profile" default="test" description="Boo.Lang.dll with no System.Reflection.Emit references">
+<!--
+
+Micro profile currently means only no System.Reflection.Emit support.
+
+The following symbol is defined when compiling for the micro profile: 
+
+	NO_SYSTEM_REFLECTION_EMIT
+
+-->
+
+	<property name="cecil.dir" value="external/cecil" />
+	<property name="csc.define.custom" value="NO_SYSTEM_REFLECTION_EMIT" />
+
+	<target name="test" depends="verify-Boo.Lang.dll">
+		<nant buildfile="default.build" target="test" inheritall="true" />
+	</target>
+	
+	<target name="Boo.Lang">
+		<nant buildfile="default.build" inheritall="true" />
+	</target>
+	
+	<target name="verify-Boo.Lang.dll" depends="Mono.Cecil, Boo.Lang">
+		<boo>
+			<references basedir="${cecil.dir}/bin/Debug">
+				<include name="Mono.Cecil.dll" />
+			</references>
+			<code>
+			import Mono.Cecil
+			
+			booLang = ModuleDefinition.ReadModule("build/Boo.Lang.dll")
+			assert not booLang.HasTypeReference("System.Reflection.Emit.ILGenerator")
+			</code>
+		</boo>
+	</target>
+	
+	<target name="Mono.Cecil" depends="checkout-Mono.Cecil">
+	
+		<property name="xbuild" value="xbuild" />
+		<property name="xbuild" value="msbuild" if="${platform::is-win32()}" />
+	
+		<exec program="${xbuild}">
+			<arg file="${cecil.dir}/Mono.Cecil.csproj" />
+		</exec>
+		
+	</target>
+	
+	<target name="checkout-Mono.Cecil" unless="${directory::exists(cecil.dir)}">
+		
+		<exec program="git">
+			<arg line="clone git://github.com/jbevain/cecil.git ${cecil.dir}" />
+		</exec>
+		
+	</target>
+
+</project>

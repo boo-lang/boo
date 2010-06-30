@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+#if !NO_SYSTEM_REFLECTION_EMIT
 
 using System;
 using System.Reflection;
@@ -169,3 +170,4 @@ namespace Boo.Lang.Runtime
 		}
 	}
 }
+#endif

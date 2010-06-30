@@ -26,55 +26,42 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+#if !NO_SYSTEM_REFLECTION_EMIT
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	class SetPropertyEmitter : MethodDispatcherEmitter
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
-
-		public void Register(Type type)
-		{
-			lock (_classLock)
-			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
-			}
+		public SetPropertyEmitter(Type type, CandidateMethod found, Type[] argumentTypes) : base(type, found, argumentTypes)
+		{	
 		}
 
-		public IEnumerable<MemberInfo> Extensions
+		protected override void EmitMethodBody()
 		{
-			get { return _extensions; }
+			Type valueType = GetValueType();
+
+			LocalBuilder retVal = DeclareLocal(valueType);
+			EmitLoadTargetObject();
+			EmitMethodArguments();
+
+			// Store last argument in a local variable
+			Dup();
+			StoreLocal(retVal);
+
+			EmitMethodCall();
+
+			LoadLocal(retVal);
+			EmitReturn(valueType);
 		}
 
-		public void UnRegister(Type type)
+		private Type GetValueType()
 		{
-			lock (_classLock)
-			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
-			}
-		}
-
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
+			ParameterInfo[] parameters = _found.Parameters;
+			return parameters[parameters.Length-1].ParameterType;
 		}
 	}
 }
+#endif

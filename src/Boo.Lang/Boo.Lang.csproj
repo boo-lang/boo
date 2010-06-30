@@ -73,6 +73,15 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Micro-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Micro-Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,MSBUILD,NO_SYSTEM_REFLECTION_EMIT</DefineConstants>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="AbstractGenerator.cs" />
     <Compile Include="AbstractGeneratorEnumerator.cs" />
@@ -98,31 +107,31 @@
     <Compile Include="ModuleAttribute.cs" />
     <Compile Include="QuackFuMember.cs" />
     <Compile Include="ResourceManager.cs" />
-    <Compile Include="Runtime\AbstractDispatcherFactory.cs" />
     <Compile Include="Runtime\AssertionFailedException.cs" />
     <Compile Include="Runtime\CandidateMethod.cs" />
-    <Compile Include="Runtime\DispatcherCache.cs" />
-    <Compile Include="Runtime\DispatcherEmitter.cs" />
-    <Compile Include="Runtime\DispatcherKey.cs" />
-    <Compile Include="Runtime\ExtensionMethodDispatcherEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\AbstractDispatcherFactory.cs" />
+    <Compile Include="Runtime\DynamicDispatching\DispatcherCache.cs" />
+    <Compile Include="Runtime\DynamicDispatching\DispatcherKey.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\DispatcherEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\ExtensionMethodDispatcherEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\GetFieldEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\ImplicitConversionEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\MethodDispatcherEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\PromotionEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\SetFieldEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\Emitters\SetPropertyEmitter.cs" />
+    <Compile Include="Runtime\DynamicDispatching\MethodDispatcherFactory.cs" />
+    <Compile Include="Runtime\DynamicDispatching\PropertyDispatcherFactory.cs" />
+    <Compile Include="Runtime\DynamicDispatching\SetOrGet.cs" />
+    <Compile Include="Runtime\DynamicDispatching\SliceDispatcherFactory.cs" />
     <Compile Include="Runtime\ExtensionRegistry.cs" />
-    <Compile Include="Runtime\GetFieldEmitter.cs" />
     <Compile Include="Runtime\ICoercible.cs" />
-    <Compile Include="Runtime\ImplicitConversionEmitter.cs" />
-    <Compile Include="Runtime\MethodDispatcherEmitter.cs" />
-    <Compile Include="Runtime\MethodDispatcherFactory.cs" />
     <Compile Include="Runtime\MethodResolver.cs" />
     <Compile Include="Runtime\Methods.cs" />
     <Compile Include="Runtime\NumericTypes.cs" />
-    <Compile Include="Runtime\PromotionEmitter.cs" />
     <Compile Include="Runtime\Properties.cs" />
-    <Compile Include="Runtime\PropertyDispatcherFactory.cs" />
     <Compile Include="Runtime\RuntimeException.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />
-    <Compile Include="Runtime\SetFieldEmitter.cs" />
-    <Compile Include="Runtime\SetOrGet.cs" />
-    <Compile Include="Runtime\SetPropertyEmitter.cs" />
-    <Compile Include="Runtime\SliceDispatcherFactory.cs" />
     <Compile Include="Runtime\TextReaderEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>

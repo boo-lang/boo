@@ -29,52 +29,49 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	public class DispatcherKey
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
+		public static readonly IEqualityComparer<DispatcherKey> EqualityComparer = new _EqualityComparer();
 
-		public void Register(Type type)
+		private readonly Type _type;
+		private readonly string _name;
+		private readonly Type[] _arguments;
+
+		public DispatcherKey(Type type, string name) : this(type, name, Type.EmptyTypes)
 		{
-			lock (_classLock)
+		}
+
+		public DispatcherKey(Type type, string name, Type[] arguments)
+		{
+			_type = type;
+			_name = name;
+			_arguments = arguments;
+		}
+
+		public Type[] Arguments
+		{
+			get { return _arguments;  }
+		}
+
+		sealed class _EqualityComparer : IEqualityComparer<DispatcherKey>
+		{
+			public int GetHashCode(DispatcherKey key)
 			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
+				return key._type.GetHashCode() ^ key._name.GetHashCode() ^ key._arguments.Length;
 			}
-		}
 
-		public IEnumerable<MemberInfo> Extensions
-		{
-			get { return _extensions; }
-		}
-
-		public void UnRegister(Type type)
-		{
-			lock (_classLock)
+			public bool Equals(DispatcherKey x, DispatcherKey y)
 			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
+				if (x._type != y._type) return false;
+				if (x._arguments.Length != y._arguments.Length) return false;
+				if (x._name != y._name) return false;
+				for (int i = 0; i < x._arguments.Length; ++i)
+					if (x._arguments[i] != y._arguments[i]) return false;
+				return true;
 			}
-		}
-
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
 		}
 	}
 }

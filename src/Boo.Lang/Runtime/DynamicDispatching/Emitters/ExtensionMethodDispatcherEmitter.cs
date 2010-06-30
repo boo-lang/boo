@@ -26,55 +26,28 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+#if !NO_SYSTEM_REFLECTION_EMIT
 using System;
-using System.Collections.Generic;
-using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	class ExtensionMethodDispatcherEmitter : MethodDispatcherEmitter
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
-
-		public void Register(Type type)
+		public ExtensionMethodDispatcherEmitter(CandidateMethod found, Type[] argumentTypes) : base(found, argumentTypes)
 		{
-			lock (_classLock)
-			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
-			}
 		}
 
-		public IEnumerable<MemberInfo> Extensions
+		protected override void EmitLoadTargetObject()
 		{
-			get { return _extensions; }
+			_il.Emit(OpCodes.Ldarg_0);
+			EmitCastOrUnbox(_found.GetParameterType(0));
 		}
 
-		public void UnRegister(Type type)
+		protected override int FixedArgumentOffset
 		{
-			lock (_classLock)
-			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
-			}
-		}
-
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
-		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
+			get { return 1; }
 		}
 	}
 }
+#endif

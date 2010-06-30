@@ -54,7 +54,8 @@
 	<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
 			
 	<property name="csc.noconfig" value="false" />	
-	<property name="csc.define" value="NET_2_0;TRACE;DEBUG" />
+	<property name="csc.define.custom" value="" unless="${property::exists('csc.define.custom')}" />
+	<property name="csc.define" value="NET_2_0;TRACE;DEBUG;${csc.define.custom}" />
 
 	<property name="fixture" value="" dynamic="true" />
 	
@@ -78,7 +79,7 @@
 	<target name="set-release-configuration">
 		<property name="debug" value="false" />
 		<property name="optimize" value="true" />
-		<property name="csc.define" value="NET_2_0" />
+		<property name="csc.define" value="NET_2_0;${csc.define.custom}" />
 	</target>
 	
 	<target name="nostdlib">

@@ -65,9 +65,9 @@ namespace Boo.Lang.Runtime
 			{
 				case MemberTypes.Field:
 					{	
-						FieldInfo field = (FieldInfo)member;
+						var field = (FieldInfo)member;
 						return
-							delegate(object o, object[] arguments) { return RuntimeServices.GetSlice(field.GetValue(o), "", arguments); };
+							(o, arguments) => RuntimeServices.GetSlice(field.GetValue(o), "", arguments);
 					}
 				case MemberTypes.Property:
 					{
@@ -80,8 +80,7 @@ namespace Boo.Lang.Runtime
 
 						// otherwise its a simple property and the slice
 						// should be applied to the return value
-						return
-							delegate(object o, object[] arguments) { return RuntimeServices.GetSlice(getter.Invoke(o, null), "", arguments); };
+						return (o, arguments) => RuntimeServices.GetSlice(getter.Invoke(o, null), "", arguments);
 					}
 				default:
 					{
@@ -92,7 +91,7 @@ namespace Boo.Lang.Runtime
 
 		private Dispatcher EmitMethodDispatcher(MethodInfo candidate)
 		{
-			return EmitMethodDispatcher(new MethodInfo[] { candidate });
+			return EmitMethodDispatcher(new[] { candidate });
 		}
 
 		private Dispatcher EmitMethodDispatcher(IEnumerable<MethodInfo> candidates)
@@ -100,7 +99,11 @@ namespace Boo.Lang.Runtime
 			CandidateMethod method = ResolveMethod(GetArgumentTypes(), candidates);
 			if (null == method) throw MissingField();
 
+#if NO_SYSTEM_REFLECTION_EMIT
+			throw new NotImplementedException();
+#else
 			return new MethodDispatcherEmitter(_type, method, GetArgumentTypes()).Emit();
+#endif
 		}
 
 		private MemberInfo[] ResolveMember()
@@ -123,13 +126,13 @@ namespace Boo.Lang.Runtime
 			{
 				case MemberTypes.Field:
 					{
-						FieldInfo field = (FieldInfo)member;
+						var field = (FieldInfo)member;
 						return
-							delegate(object o, object[] arguments) { return RuntimeServices.SetSlice(field.GetValue(o), string.Empty, arguments); };
+							(o, arguments) => RuntimeServices.SetSlice(field.GetValue(o), string.Empty, arguments);
 					}
 				case MemberTypes.Property:
 					{
-						PropertyInfo property = (PropertyInfo)member;
+						var property = (PropertyInfo)member;
 						if (property.GetIndexParameters().Length > 0)
 						{
 							MethodInfo setter = property.GetSetMethod(true);
@@ -137,10 +140,7 @@ namespace Boo.Lang.Runtime
 							return EmitMethodDispatcher(setter);
 						}
 
-						return delegate(object o, object[] arguments)
-						       	{
-						       		return RuntimeServices.SetSlice(RuntimeServices.GetProperty(o, _name), string.Empty, arguments);
-						       	};
+						return (o, arguments) => RuntimeServices.SetSlice(RuntimeServices.GetProperty(o, _name), string.Empty, arguments);
 					}
 				default:
 					{

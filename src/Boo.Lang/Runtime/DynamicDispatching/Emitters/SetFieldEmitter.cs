@@ -26,55 +26,52 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+#if !NO_SYSTEM_REFLECTION_EMIT
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime
 {
-	public class ExtensionRegistry
+	class SetFieldEmitter : DispatcherEmitter
 	{
-		private List<MemberInfo> _extensions = new List<MemberInfo>();
-		private object _classLock = new object();
+		private readonly FieldInfo _field;
+		private Type _argumentType;
 
-		public void Register(Type type)
+		public SetFieldEmitter(FieldInfo field, Type argumentType)
+			: base(field.DeclaringType, field.Name + "=")
 		{
-			lock (_classLock)
+			_field = field;
+			_argumentType = argumentType;
+		}
+
+		protected override void EmitMethodBody()
+		{
+			LocalBuilder value = DeclareLocal(_field.FieldType);
+			EmitLoadValue();
+			StoreLocal(value);
+
+			if (_field.IsStatic)
 			{
-				_extensions = AddExtensionMembers(CopyExtensions(), type);
+				LoadLocal(value);
+				_il.Emit(OpCodes.Stsfld, _field);
 			}
-		}
-
-		public IEnumerable<MemberInfo> Extensions
-		{
-			get { return _extensions; }
-		}
-
-		public void UnRegister(Type type)
-		{
-			lock (_classLock)
+			else
 			{
-				var extensions = CopyExtensions();
-				extensions.RemoveAll(member => member.DeclaringType == type);
-				_extensions = extensions;
+				EmitLoadTargetObject(_field.DeclaringType);
+				LoadLocal(value);
+				_il.Emit(OpCodes.Stfld, _field);
 			}
+
+			LoadLocal(value);
+			EmitReturn(_field.FieldType);
 		}
 
-		private static List<MemberInfo> AddExtensionMembers(List<MemberInfo> extensions, Type type)
+		private void EmitLoadValue()
 		{
-			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
-			{
-				if (!Attribute.IsDefined(member, typeof(Boo.Lang.ExtensionAttribute))) continue;
-				if (extensions.Contains(member)) continue;
-				extensions.Add(member);
-			}
-			return extensions;
-		}
-
-		private List<MemberInfo> CopyExtensions()
-		{
-			return new List<MemberInfo>(_extensions);
+			EmitArgArrayElement(0);
+			EmitCoercion(_argumentType, _field.FieldType, CandidateMethod.CalculateArgumentScore(_field.FieldType, _argumentType));
 		}
 	}
 }
+#endif
