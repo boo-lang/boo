@@ -55,10 +55,17 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		}
 		
 		protected object[] GetExtensionArgs()
-		{	
-			object[] extensionArgs = new object[_arguments.Length + 1];
-			extensionArgs[0] = _target;
-			Array.Copy(_arguments, 0, extensionArgs, 1, _arguments.Length);
+		{
+			return AdjustExtensionArgs(_target, _arguments);
+		}
+
+		private static object[] AdjustExtensionArgs(object target, object[] originalArguments)
+		{
+			if (originalArguments == null)
+				return new object[] { target };
+			var extensionArgs = new object[originalArguments.Length + 1];
+			extensionArgs[0] = target;
+			Array.Copy(originalArguments, 0, extensionArgs, 1, originalArguments.Length);
 			return extensionArgs;
 		}
 
@@ -75,7 +82,7 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		protected Dispatcher EmitExtensionDispatcher(CandidateMethod found)
 		{
 #if NO_SYSTEM_REFLECTION_EMIT
-			throw new NotImplementedException();
+			return (target, args) => found.DynamicInvoke(null, AdjustExtensionArgs(target, args));
 #else
 			return new Emitters.ExtensionMethodDispatcherEmitter(found, GetArgumentTypes()).Emit();
 #endif
