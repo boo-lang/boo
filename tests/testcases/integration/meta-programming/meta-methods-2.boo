@@ -28,7 +28,7 @@ def captureException(block as callable()):
 	try:
 		block()
 	except x:
-		print "exception message:", x.Message
+		print "exception message:", (x.InnerException or x).Message
 
 
 typeDef = [|

@@ -13,7 +13,7 @@ def assert_(condition as Expression):
 	return [|
 		if not $condition: raise $(condition.ToCodeString())
 	|]
-
+	
 typeDef = [|
 	class Test:
 		def Run():
@@ -27,4 +27,4 @@ print "before runtime"
 try:
 	(type() as duck).Run()
 except x:
-	print "exception message:", x.Message
+	print "exception message:", (x.InnerException or x).Message

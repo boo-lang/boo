@@ -75,7 +75,7 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		private Dispatcher EmitMethodDispatcher(CandidateMethod found, Type[] argumentTypes)
 		{
 #if NO_SYSTEM_REFLECTION_EMIT
-			throw new NotImplementedException();
+			return found.DynamicInvoke;
 #else
 			return new Emitters.MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 #endif

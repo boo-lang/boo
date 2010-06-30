@@ -46,8 +46,8 @@ namespace Boo.Lang.Runtime.Tests
 		[Test]
 		public void ExtensionMethodWithVarArgs()
 		{
-			Foo o = new Foo();
-			object value = Dispatch(o, "ExtensionEchoVar", 1, "skip", "Hello");
+			var o = new Foo();
+			var value = Dispatch(o, "ExtensionEchoVar", 1, "skip", "Hello");
 			Assert.AreEqual(FooExtensions.ExtensionEchoVar(o, 1, "skip", "Hello"), value);
 		}
 

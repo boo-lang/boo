@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Boo.Lang.Runtime.DynamicDispatching
@@ -92,7 +93,20 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		private Dispatcher EmitFieldDispatcher(FieldInfo field, SetOrGet gos)
 		{
 #if NO_SYSTEM_REFLECTION_EMIT
-			throw new NotImplementedException();
+			switch (gos)
+			{
+				case SetOrGet.Get:
+					return (target, args) => field.GetValue(target);
+				case SetOrGet.Set:
+					return (target, args) =>
+					       	{
+					       		var value = args[0];
+					       		field.SetValue(target, RuntimeServices.Coerce(value, field.FieldType));
+					       		return value;
+					       	};
+				default:
+					throw new ArgumentException();
+			}
 #else
 			return SetOrGet.Get == gos
 			       	? new Emitters.GetFieldEmitter(field).Emit()
@@ -109,7 +123,20 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 			if (null == found) throw MissingField();
 
 #if NO_SYSTEM_REFLECTION_EMIT
-			throw new NotImplementedException();
+			switch (gos)
+			{
+				case SetOrGet.Get:
+					return (target, args) => property.GetValue(target, args);
+				case SetOrGet.Set:
+					return (target, args) =>
+					       	{
+					       		var value = args[args.Length - 1];
+					       		property.SetValue(target, RuntimeServices.Coerce(value, property.PropertyType), args.Take(args.Length - 1).ToArray());
+					       		return value;
+					       	};
+				default:
+					throw new ArgumentException();
+			}
 #else
 			if (SetOrGet.Get == gos) return new Emitters.MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 			return new Emitters.SetPropertyEmitter(_type, found, argumentTypes).Emit();
