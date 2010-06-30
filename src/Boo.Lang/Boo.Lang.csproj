@@ -117,10 +117,10 @@
     <Compile Include="Runtime\DynamicDispatching\Emitters\GetFieldEmitter.cs" />
     <Compile Include="Runtime\DynamicDispatching\Emitters\ImplicitConversionEmitter.cs" />
     <Compile Include="Runtime\DynamicDispatching\Emitters\MethodDispatcherEmitter.cs" />
-    <Compile Include="Runtime\DynamicDispatching\Emitters\PromotionEmitter.cs" />
     <Compile Include="Runtime\DynamicDispatching\Emitters\SetFieldEmitter.cs" />
     <Compile Include="Runtime\DynamicDispatching\Emitters\SetPropertyEmitter.cs" />
     <Compile Include="Runtime\DynamicDispatching\MethodDispatcherFactory.cs" />
+    <Compile Include="Runtime\DynamicDispatching\NumericPromotions.cs" />
     <Compile Include="Runtime\DynamicDispatching\PropertyDispatcherFactory.cs" />
     <Compile Include="Runtime\DynamicDispatching\SetOrGet.cs" />
     <Compile Include="Runtime\DynamicDispatching\SliceDispatcherFactory.cs" />

@@ -1,6 +1,10 @@
 class Item:
 	public value as int
 	
-item = Item() as duck
+item = Item()
 item.value = 1.51
-assert 2 == item.value
+
+duckyItem as duck = Item()
+duckyItem.value = 1.51
+
+assert item.value == duckyItem.value

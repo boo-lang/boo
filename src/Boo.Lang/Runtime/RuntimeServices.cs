@@ -238,7 +238,7 @@ namespace Boo.Lang.Runtime
 
 			var fromType = value.GetType();
 			if (IsPromotableNumeric(fromType) && IsPromotableNumeric(toType))
-				return EmitPromotionDispatcher(toType);
+				return EmitPromotionDispatcher(fromType, toType);
 
 			var method = FindImplicitConversionOperator(fromType, toType);
 			if (null == method) return IdentityDispatcher;
@@ -246,13 +246,9 @@ namespace Boo.Lang.Runtime
 			return EmitImplicitConversionDispatcher(method);
 		}
 
-		private static Dispatcher EmitPromotionDispatcher(Type toType)
+		private static Dispatcher EmitPromotionDispatcher(Type fromType, Type toType)
 		{
-#if NO_SYSTEM_REFLECTION_EMIT
-			throw new NotImplementedException();
-#else
-			return new DynamicDispatching.Emitters.PromotionEmitter(toType).Emit();
-#endif
+			return (Dispatcher)Delegate.CreateDelegate(typeof(Dispatcher), typeof(NumericPromotions).GetMethod("From" + Type.GetTypeCode(fromType) + "To" + Type.GetTypeCode(toType)));
 		}
 
 		private static bool IsPromotableNumeric(Type fromType)
@@ -263,7 +259,7 @@ namespace Boo.Lang.Runtime
 		private static Dispatcher EmitImplicitConversionDispatcher(MethodInfo method)
 		{
 #if NO_SYSTEM_REFLECTION_EMIT
-			throw new NotImplementedException();
+			return (target, args) => method.Invoke(null, new object[] { target });
 #else
 			return new DynamicDispatching.Emitters.ImplicitConversionEmitter(method).Emit();
 #endif

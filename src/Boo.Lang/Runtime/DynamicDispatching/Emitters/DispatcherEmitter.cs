@@ -100,23 +100,46 @@ namespace Boo.Lang.Runtime.DynamicDispatching.Emitters
 		protected void EmitReturn(Type typeOnStack)
 		{
 			if (typeOnStack == typeof(void))
-			{
 				_il.Emit(OpCodes.Ldnull);
-			}
 			else
-			{
 				BoxIfNeeded(typeOnStack);
-			}
 			_il.Emit(OpCodes.Ret);
 		}
 
-		protected MethodInfo EmitPromotion(Type expectedType)
+		protected void EmitPromotion(Type expectedType, Type actualType)
 		{
-			_il.Emit(OpCodes.Castclass, typeof(IConvertible));
-			_il.Emit(OpCodes.Ldnull);
-			MethodInfo method = GetPromotionMethod(expectedType);
-			_il.Emit(OpCodes.Callvirt, method);
-			return method;
+			_il.Emit(OpCodes.Unbox_Any, actualType);
+			_il.Emit(NumericPromotionOpcodeFor(Type.GetTypeCode(expectedType), true));
+		}
+
+		private static OpCode NumericPromotionOpcodeFor(TypeCode typeCode, bool @checked)
+		{
+			switch (typeCode)
+			{
+				case TypeCode.SByte:
+					return @checked ? OpCodes.Conv_Ovf_I1 : OpCodes.Conv_I1;
+				case TypeCode.Byte:
+					return @checked ? OpCodes.Conv_Ovf_U1 : OpCodes.Conv_U1;
+				case TypeCode.Int16:
+					return @checked ? OpCodes.Conv_Ovf_I2 : OpCodes.Conv_I2;
+				case TypeCode.UInt16:
+				case TypeCode.Char:
+					return @checked ? OpCodes.Conv_Ovf_U2 : OpCodes.Conv_U2;
+				case TypeCode.Int32:
+					return @checked ? OpCodes.Conv_Ovf_I4 : OpCodes.Conv_I4;
+				case TypeCode.UInt32:
+					return @checked ? OpCodes.Conv_Ovf_U4 : OpCodes.Conv_U4;
+				case TypeCode.Int64:
+					return @checked ? OpCodes.Conv_Ovf_I8 : OpCodes.Conv_I8;
+				case TypeCode.UInt64:
+					return @checked ? OpCodes.Conv_Ovf_U8 : OpCodes.Conv_U8;
+				case TypeCode.Single:
+					return OpCodes.Conv_R4;
+				case TypeCode.Double:
+					return OpCodes.Conv_R8;
+				default:
+					throw new ArgumentException(typeCode.ToString());
+			}
 		}
 
 		protected void EmitArgArrayElement(int argumentIndex)
@@ -142,7 +165,7 @@ namespace Boo.Lang.Runtime.DynamicDispatching.Emitters
 			{
 				case CandidateMethod.WideningPromotion:
 				case CandidateMethod.NarrowingPromotion:
-					EmitPromotion(expectedType);
+					EmitPromotion(expectedType, actualType);
 					break;
 				case CandidateMethod.ImplicitConversionScore:
 					EmitCastOrUnbox(actualType);

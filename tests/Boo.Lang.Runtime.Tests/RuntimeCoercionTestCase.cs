@@ -65,8 +65,9 @@ namespace Boo.Lang.Runtime.Tests
 
 		[Test]
 		public void TestNumericPromotion()
-		{	
-			Assert.AreEqual(42, Coerce(41.51, typeof(int)));
+		{
+			var value = 41.51;
+			Assert.AreEqual((int)value, (int)Coerce(value, typeof(int)));
 		}
 
 		[Test]
