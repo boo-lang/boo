@@ -82,6 +82,15 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Micro-Release|AnyCPU' ">
+    <OutputPath>bin\Micro-Release\</OutputPath>
+    <DefineConstants>TRACE;MSBUILD,NO_SYSTEM_REFLECTION_EMIT</DefineConstants>
+    <Optimize>true</Optimize>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="AbstractGenerator.cs" />
     <Compile Include="AbstractGeneratorEnumerator.cs" />
