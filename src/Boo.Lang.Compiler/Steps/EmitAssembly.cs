@@ -4274,55 +4274,66 @@ namespace Boo.Lang.Compiler.Steps
 
 		OpCode GetNumericPromotionOpCode(IType type)
 		{
-			if (type.IsEnum)
+			return NumericPromotionOpcodeFor(TypeCodeFor(type), _checked);
+		}
+
+		private static OpCode NumericPromotionOpcodeFor(TypeCode typeCode, bool @checked)
+		{
+			switch (typeCode)
 			{
-				type = TypeSystemServices.Map(GetEnumUnderlyingType(type));
+				case TypeCode.SByte:
+					return @checked ? OpCodes.Conv_Ovf_I1 : OpCodes.Conv_I1;
+				case TypeCode.Byte:
+					return @checked ? OpCodes.Conv_Ovf_U1 : OpCodes.Conv_U1;
+				case TypeCode.Int16:
+					return @checked ? OpCodes.Conv_Ovf_I2 : OpCodes.Conv_I2;
+				case TypeCode.UInt16:
+				case TypeCode.Char:
+					return @checked ? OpCodes.Conv_Ovf_U2 : OpCodes.Conv_U2;
+				case TypeCode.Int32:
+					return @checked ? OpCodes.Conv_Ovf_I4 : OpCodes.Conv_I4;
+				case TypeCode.UInt32:
+					return @checked ? OpCodes.Conv_Ovf_U4 : OpCodes.Conv_U4;
+				case TypeCode.Int64:
+					return @checked ? OpCodes.Conv_Ovf_I8 : OpCodes.Conv_I8;
+				case TypeCode.UInt64:
+					return @checked ? OpCodes.Conv_Ovf_U8 : OpCodes.Conv_U8;
+				case TypeCode.Single:
+					return OpCodes.Conv_R4;
+				case TypeCode.Double:
+					return OpCodes.Conv_R8;
+				default:
+					throw new ArgumentException(typeCode.ToString());
 			}
-			else if (type == TypeSystemServices.SByteType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_I1 : OpCodes.Conv_I1;
-			}
-			else if (type == TypeSystemServices.ByteType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_U1 : OpCodes.Conv_U1;
-			}
-			else if (type == TypeSystemServices.ShortType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_I2 : OpCodes.Conv_I2;
-			}
-			else if (type == TypeSystemServices.UShortType ||
-					 type == TypeSystemServices.CharType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_U2 : OpCodes.Conv_U2;
-			}
+		}
+
+		private TypeCode TypeCodeFor(IType type)
+		{
 			if (type == TypeSystemServices.IntType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_I4 : OpCodes.Conv_I4;
-			}
-			else if (type == TypeSystemServices.UIntType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_U4 :OpCodes.Conv_U4;
-			}
-			else if (type == TypeSystemServices.LongType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_I8 : OpCodes.Conv_I8;
-			}
-			else if (type == TypeSystemServices.ULongType)
-			{
-				return _checked ? OpCodes.Conv_Ovf_U8 :OpCodes.Conv_U8;
-			}
-			else if (type == TypeSystemServices.SingleType)
-			{
-				return OpCodes.Conv_R4;
-			}
-			else if (type == TypeSystemServices.DoubleType)
-			{
-				return OpCodes.Conv_R8;
-			}
-			else
-			{
-				throw new NotImplementedException(string.Format("Numeric promotion for {0} not implemented!", type));
-			}
+				return TypeCode.Int32;
+			if (type == TypeSystemServices.SingleType)
+				return TypeCode.Single;
+			if (type == TypeSystemServices.DoubleType)
+				return TypeCode.Double;
+			if (type.IsEnum)
+				return Type.GetTypeCode(GetEnumUnderlyingType(type));
+			if (type == TypeSystemServices.SByteType)
+				return TypeCode.SByte;
+			if (type == TypeSystemServices.ByteType)
+				return TypeCode.Byte;
+			if (type == TypeSystemServices.ShortType)
+				return TypeCode.Int16;
+			if (type == TypeSystemServices.UShortType)
+				return TypeCode.UInt16;
+			if (type == TypeSystemServices.CharType)
+				return TypeCode.Char;
+			if (type == TypeSystemServices.UIntType)
+				return TypeCode.UInt32;
+			if (type == TypeSystemServices.LongType)
+				return TypeCode.Int64;
+			if (type == TypeSystemServices.ULongType)
+				return TypeCode.UInt64;
+			throw new NotImplementedException(string.Format("TypeCodeFor({0}) not implemented!", type));
 		}
 
 		void StoreEntity(OpCode opcode, int index, Node value, IType elementType)
