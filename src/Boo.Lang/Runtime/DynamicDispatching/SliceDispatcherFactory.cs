@@ -99,7 +99,7 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 			if (null == method) throw MissingField();
 
 #if NO_SYSTEM_REFLECTION_EMIT
-			throw new NotImplementedException();
+			return method.DynamicInvoke;
 #else
 			return new Emitters.MethodDispatcherEmitter(_type, method, GetArgumentTypes()).Emit();
 #endif
