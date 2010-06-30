@@ -100,7 +100,12 @@ namespace Boo.Lang.Runtime
 
 		public bool DoesNotRequireConversions
 		{
-			get { return !Array.Exists(_argumentScores, RequiresConversion); }
+			get { return !RequiresConversions; }
+		}
+
+		private bool RequiresConversions
+		{
+			get { return Array.Exists(_argumentScores, RequiresConversion); }
 		}
 
 		private static bool RequiresConversion(int score)
@@ -121,17 +126,25 @@ namespace Boo.Lang.Runtime
 
 		public object DynamicInvoke(object target, object[] args)
 		{
-			return _method.Invoke(target, AdjustArgumentsForVarArgsInvocation(args));
+			return _method.Invoke(target, AdjustArgumentsForInvocation(args));
 		}
 
-		private object[] AdjustArgumentsForVarArgsInvocation(object[] arguments)
+		private object[] AdjustArgumentsForInvocation(object[] arguments)
 		{
-			if (VarArgs && arguments.Length > MinimumArgumentCount)
+			if (VarArgs)
 			{
-				var newArguments = arguments.Take(MinimumArgumentCount).ToList();
-				newArguments.Add(Builtins.array(VarArgsParameterType, arguments.Skip(MinimumArgumentCount)));
-				return newArguments.ToArray();
+				var varArgsParameterType = VarArgsParameterType;
+				var minimumArgumentCount = MinimumArgumentCount;
+				var newArguments = new object[minimumArgumentCount + 1];
+				for (int i = 0; i < minimumArgumentCount; ++i)
+					newArguments[i] = RequiresConversion(ArgumentScores[i]) ? RuntimeServices.Coerce(arguments[i], GetParameterType(i)) : arguments[i];
+				newArguments[minimumArgumentCount] = Builtins.array(varArgsParameterType, arguments.Skip(minimumArgumentCount).Select(arg => RuntimeServices.Coerce(arg, varArgsParameterType)));
+				return newArguments;
 			}
+
+			if (RequiresConversions)
+				for (int i = 0; i < arguments.Length; ++i)
+					arguments[i] = RequiresConversion(ArgumentScores[i]) ? RuntimeServices.Coerce(arguments[i], GetParameterType(i)) : arguments[i];
 			return arguments;
 		}
 	}
