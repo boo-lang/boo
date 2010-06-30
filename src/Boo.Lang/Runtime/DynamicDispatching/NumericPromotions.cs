@@ -3,8 +3,7 @@
 namespace Boo.Lang.Runtime.DynamicDispatching
 {
 	public class NumericPromotions
-	{
- 
+	{ 
 		public static object FromSByteToByte(object value, object[] args)
 		{
 			return (Byte) ((SByte)value);
@@ -48,6 +47,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		public static object FromSByteToDouble(object value, object[] args)
 		{
 			return (Double) ((SByte)value);
+		}
+ 
+		public static object FromSByteToChar(object value, object[] args)
+		{
+			return (Char) ((SByte)value);
 		}
  
 		public static object FromByteToSByte(object value, object[] args)
@@ -95,6 +99,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 			return (Double) ((Byte)value);
 		}
  
+		public static object FromByteToChar(object value, object[] args)
+		{
+			return (Char) ((Byte)value);
+		}
+ 
 		public static object FromInt16ToSByte(object value, object[] args)
 		{
 			return (SByte) ((Int16)value);
@@ -138,6 +147,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		public static object FromInt16ToDouble(object value, object[] args)
 		{
 			return (Double) ((Int16)value);
+		}
+ 
+		public static object FromInt16ToChar(object value, object[] args)
+		{
+			return (Char) ((Int16)value);
 		}
  
 		public static object FromUInt16ToSByte(object value, object[] args)
@@ -185,6 +199,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 			return (Double) ((UInt16)value);
 		}
  
+		public static object FromUInt16ToChar(object value, object[] args)
+		{
+			return (Char) ((UInt16)value);
+		}
+ 
 		public static object FromInt32ToSByte(object value, object[] args)
 		{
 			return (SByte) ((Int32)value);
@@ -228,6 +247,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		public static object FromInt32ToDouble(object value, object[] args)
 		{
 			return (Double) ((Int32)value);
+		}
+ 
+		public static object FromInt32ToChar(object value, object[] args)
+		{
+			return (Char) ((Int32)value);
 		}
  
 		public static object FromUInt32ToSByte(object value, object[] args)
@@ -275,6 +299,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 			return (Double) ((UInt32)value);
 		}
  
+		public static object FromUInt32ToChar(object value, object[] args)
+		{
+			return (Char) ((UInt32)value);
+		}
+ 
 		public static object FromInt64ToSByte(object value, object[] args)
 		{
 			return (SByte) ((Int64)value);
@@ -318,6 +347,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		public static object FromInt64ToDouble(object value, object[] args)
 		{
 			return (Double) ((Int64)value);
+		}
+ 
+		public static object FromInt64ToChar(object value, object[] args)
+		{
+			return (Char) ((Int64)value);
 		}
  
 		public static object FromUInt64ToSByte(object value, object[] args)
@@ -365,6 +399,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 			return (Double) ((UInt64)value);
 		}
  
+		public static object FromUInt64ToChar(object value, object[] args)
+		{
+			return (Char) ((UInt64)value);
+		}
+ 
 		public static object FromSingleToSByte(object value, object[] args)
 		{
 			return (SByte) ((Single)value);
@@ -408,6 +447,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		public static object FromSingleToDouble(object value, object[] args)
 		{
 			return (Double) ((Single)value);
+		}
+ 
+		public static object FromSingleToChar(object value, object[] args)
+		{
+			return (Char) ((Single)value);
 		}
  
 		public static object FromDoubleToSByte(object value, object[] args)
@@ -454,7 +498,61 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		{
 			return (Single) ((Double)value);
 		}
-	
+ 
+		public static object FromDoubleToChar(object value, object[] args)
+		{
+			return (Char) ((Double)value);
+		}
+ 
+		public static object FromCharToSByte(object value, object[] args)
+		{
+			return (SByte) ((Char)value);
+		}
+ 
+		public static object FromCharToByte(object value, object[] args)
+		{
+			return (Byte) ((Char)value);
+		}
+ 
+		public static object FromCharToInt16(object value, object[] args)
+		{
+			return (Int16) ((Char)value);
+		}
+ 
+		public static object FromCharToUInt16(object value, object[] args)
+		{
+			return (UInt16) ((Char)value);
+		}
+ 
+		public static object FromCharToInt32(object value, object[] args)
+		{
+			return (Int32) ((Char)value);
+		}
+ 
+		public static object FromCharToUInt32(object value, object[] args)
+		{
+			return (UInt32) ((Char)value);
+		}
+ 
+		public static object FromCharToInt64(object value, object[] args)
+		{
+			return (Int64) ((Char)value);
+		}
+ 
+		public static object FromCharToUInt64(object value, object[] args)
+		{
+			return (UInt64) ((Char)value);
+		}
+ 
+		public static object FromCharToSingle(object value, object[] args)
+		{
+			return (Single) ((Char)value);
+		}
+ 
+		public static object FromCharToDouble(object value, object[] args)
+		{
+			return (Double) ((Char)value);
+		}
 	}
 }
 

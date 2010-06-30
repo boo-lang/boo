@@ -211,6 +211,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void promotion_4()
+		{
+			RunCompilerTestCase(@"promotion-4.boo");
+		}
+		
+		[Test]
+		public void promotion_5()
+		{
+			RunCompilerTestCase(@"promotion-5.boo");
+		}
+		
+		[Test]
 		public void runtime_extensions_1()
 		{
 			RunCompilerTestCase(@"runtime-extensions-1.boo");
