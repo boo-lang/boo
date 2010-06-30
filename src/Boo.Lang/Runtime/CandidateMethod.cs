@@ -45,27 +45,15 @@ namespace Boo.Lang.Runtime
 		public static int CalculateArgumentScore(Type paramType, Type argType)
 		{
 			if (null == argType)
-			{
-				if (paramType.IsValueType) return -1;
-				return CandidateMethod.ExactMatchScore;
-			}
-			else
-			{
-				if (paramType == argType) return CandidateMethod.ExactMatchScore;
+				return !paramType.IsValueType ? ExactMatchScore : -1;
 
-				if (paramType.IsAssignableFrom(argType)) return CandidateMethod.UpCastScore;
-
-				if (argType.IsAssignableFrom(paramType)) return CandidateMethod.DowncastScore;
-
-				if (IsNumericPromotion(paramType, argType))
-				{
-					if (NumericTypes.IsWideningPromotion(paramType, argType)) return WideningPromotion;
-					return CandidateMethod.NarrowingPromotion;
-				}
-
-				MethodInfo conversion = RuntimeServices.FindImplicitConversionOperator(argType, paramType);
-				if (null != conversion) return CandidateMethod.ImplicitConversionScore;
-			}
+			if (paramType == argType) return ExactMatchScore;
+			if (paramType.IsAssignableFrom(argType)) return UpCastScore;
+			if (argType.IsAssignableFrom(paramType)) return DowncastScore;
+			if (IsNumericPromotion(paramType, argType))
+				return NumericTypes.IsWideningPromotion(paramType, argType) ? WideningPromotion : NarrowingPromotion;
+			var conversion = RuntimeServices.FindImplicitConversionOperator(argType, paramType);
+			if (null != conversion) return ImplicitConversionScore;
 			return -1;
 		}
 
