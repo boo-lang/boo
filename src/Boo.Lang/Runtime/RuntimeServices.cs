@@ -32,6 +32,7 @@ using System.Reflection;
 using System.Collections;
 using System.IO;
 using System.Text;
+using Boo.Lang.Runtime.DynamicDispatching;
 
 namespace Boo.Lang.Runtime
 {
@@ -250,7 +251,7 @@ namespace Boo.Lang.Runtime
 #if NO_SYSTEM_REFLECTION_EMIT
 			throw new NotImplementedException();
 #else
-			return new PromotionEmitter(toType).Emit();
+			return new DynamicDispatching.Emitters.PromotionEmitter(toType).Emit();
 #endif
 		}
 
@@ -264,7 +265,7 @@ namespace Boo.Lang.Runtime
 #if NO_SYSTEM_REFLECTION_EMIT
 			throw new NotImplementedException();
 #else
-			return new ImplicitConversionEmitter(method).Emit();
+			return new DynamicDispatching.Emitters.ImplicitConversionEmitter(method).Emit();
 #endif
 		}
 

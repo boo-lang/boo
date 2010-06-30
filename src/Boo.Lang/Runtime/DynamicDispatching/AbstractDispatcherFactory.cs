@@ -26,12 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Runtime.DynamicDispatching
 {
 	public abstract class AbstractDispatcherFactory
 	{
@@ -78,7 +77,7 @@ namespace Boo.Lang.Runtime
 #if NO_SYSTEM_REFLECTION_EMIT
 			throw new NotImplementedException();
 #else
-			return new ExtensionMethodDispatcherEmitter(found, GetArgumentTypes()).Emit();
+			return new Emitters.ExtensionMethodDispatcherEmitter(found, GetArgumentTypes()).Emit();
 #endif
 		}
 

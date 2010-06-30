@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,12 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Runtime.DynamicDispatching
 {
 	public class PropertyDispatcherFactory : AbstractDispatcherFactory
 	{
@@ -96,8 +95,8 @@ namespace Boo.Lang.Runtime
 			throw new NotImplementedException();
 #else
 			return SetOrGet.Get == gos
-			       	? new GetFieldEmitter(field).Emit()
-			       	: new SetFieldEmitter(field, GetArgumentTypes()[0]).Emit();
+			       	? new Emitters.GetFieldEmitter(field).Emit()
+			       	: new Emitters.SetFieldEmitter(field, GetArgumentTypes()[0]).Emit();
 #endif
 		}
 
@@ -112,8 +111,8 @@ namespace Boo.Lang.Runtime
 #if NO_SYSTEM_REFLECTION_EMIT
 			throw new NotImplementedException();
 #else
-			if (SetOrGet.Get == gos) return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
-			return new SetPropertyEmitter(_type, found, argumentTypes).Emit();
+			if (SetOrGet.Get == gos) return new Emitters.MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
+			return new Emitters.SetPropertyEmitter(_type, found, argumentTypes).Emit();
 #endif
 		}
 	}

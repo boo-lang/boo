@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,12 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Runtime.DynamicDispatching
 {
 	class SliceDispatcherFactory : AbstractDispatcherFactory
 	{
@@ -102,7 +101,7 @@ namespace Boo.Lang.Runtime
 #if NO_SYSTEM_REFLECTION_EMIT
 			throw new NotImplementedException();
 #else
-			return new MethodDispatcherEmitter(_type, method, GetArgumentTypes()).Emit();
+			return new Emitters.MethodDispatcherEmitter(_type, method, GetArgumentTypes()).Emit();
 #endif
 		}
 

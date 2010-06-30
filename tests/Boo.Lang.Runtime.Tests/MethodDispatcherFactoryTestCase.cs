@@ -1,4 +1,5 @@
 using System;
+using Boo.Lang.Runtime.DynamicDispatching;
 using NUnit.Framework;
 
 namespace Boo.Lang.Runtime.Tests

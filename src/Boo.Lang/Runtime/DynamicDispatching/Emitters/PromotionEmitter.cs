@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -31,7 +31,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Runtime.DynamicDispatching.Emitters
 {
 	class PromotionEmitter : DispatcherEmitter
 	{

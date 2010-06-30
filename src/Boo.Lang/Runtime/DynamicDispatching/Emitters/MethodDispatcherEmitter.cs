@@ -30,7 +30,7 @@
 using System;
 using System.Reflection.Emit;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Runtime.DynamicDispatching.Emitters
 {
 	public class MethodDispatcherEmitter : DispatcherEmitter
 	{

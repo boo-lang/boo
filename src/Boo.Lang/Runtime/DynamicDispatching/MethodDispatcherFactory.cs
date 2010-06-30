@@ -30,7 +30,7 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Runtime.DynamicDispatching
 {
 	public class MethodDispatcherFactory : AbstractDispatcherFactory
 	{
@@ -77,7 +77,7 @@ namespace Boo.Lang.Runtime
 #if NO_SYSTEM_REFLECTION_EMIT
 			throw new NotImplementedException();
 #else
-			return new MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
+			return new Emitters.MethodDispatcherEmitter(_type, found, argumentTypes).Emit();
 #endif
 		}
 	}

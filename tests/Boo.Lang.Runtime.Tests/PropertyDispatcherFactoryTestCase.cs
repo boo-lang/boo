@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using Boo.Lang.Compiler.MetaProgramming;
 using Boo.Lang.Parser;
+using Boo.Lang.Runtime.DynamicDispatching;
 using NUnit.Framework;
 
 namespace Boo.Lang.Runtime.Tests
