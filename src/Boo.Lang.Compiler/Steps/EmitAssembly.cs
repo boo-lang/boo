@@ -4139,72 +4139,67 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (null == actualType) // see NullLiteralExpression
 				return;
+
 			if (expectedType.IsPointer || actualType.IsPointer) //no cast needed for addresses
 				return;
 
-			if (!IsAssignableFrom(expectedType, actualType))
+			if (IsAssignableFrom(expectedType, actualType))
 			{
-				var method = TypeSystemServices.FindImplicitConversionOperator(actualType, expectedType)
-						?? TypeSystemServices.FindExplicitConversionOperator(actualType, expectedType);
-				if (method != null)
+				EmitBoxIfNeeded(expectedType, actualType);
+				return;
+			}
+
+			var method = TypeSystemServices.FindImplicitConversionOperator(actualType, expectedType)
+			             ?? TypeSystemServices.FindExplicitConversionOperator(actualType, expectedType);
+			if (method != null)
+			{
+				EmitBoxIfNeeded(method.GetParameters()[0].Type, actualType);
+				_il.EmitCall(OpCodes.Call, GetMethodInfo(method), null);
+				return;
+			}
+
+			if (expectedType is IGenericParameter)
+			{
+				// Since expected type is a generic parameter, we don't know whether to emit
+				// an unbox opcode or a castclass opcode; so we emit an unbox.any opcode which
+				// works as either of those at runtime
+				_il.Emit(OpCodes.Unbox_Any, GetSystemType(expectedType));
+				return;
+			}
+
+			if (expectedType.IsValueType)
+			{
+				if (!actualType.IsValueType)
 				{
-					EmitBoxIfNeeded(method.GetParameters()[0].Type, actualType);
-					_il.EmitCall(OpCodes.Call, GetMethodInfo(method), null);
+					// To get a value type out of a reference type we emit an unbox opcode
+					EmitUnbox(expectedType);
 					return;
 				}
 
-				if (expectedType is IGenericParameter)
-				{
-					// Since expected type is a generic parameter, we don't know whether to emit
-					// an unbox opcode or a castclass opcode; so we emit an unbox.any opcode which
-					// works as either of those at runtime
-					_il.Emit(OpCodes.Unbox_Any, GetSystemType(expectedType));
-				}
-				else if (expectedType.IsValueType)
-				{
-					if (actualType.IsValueType)
-					{
-						// numeric promotion
-						if (TypeSystemServices.DecimalType == expectedType)
-						{
-							_il.EmitCall(OpCodes.Call, GetToDecimalConversionMethod(actualType), null);
-						}
-						else if (TypeSystemServices.DecimalType == actualType)
-						{
-							_il.EmitCall(OpCodes.Call, GetFromDecimalConversionMethod(expectedType), null);
-						}
-						else
-						{
-							//we need to get the real underlying type here and no earlier
-							//(because cause enum casting from int can occur [e.g enums-13])
-							if (actualType.IsEnum)
-								actualType = TypeSystemServices.Map(GetEnumUnderlyingType(actualType));
-							if (expectedType.IsEnum)
-								expectedType = TypeSystemServices.Map(GetEnumUnderlyingType(expectedType));
-
-							if (actualType != expectedType) //do we really need conv?
-								_il.Emit(GetNumericPromotionOpCode(expectedType));
-						}
-					}
-					else
-					{
-						// To get a value type out of a reference type we emit an unbox opcode
-						EmitUnbox(expectedType);
-					}
-				}
+				// numeric promotion
+				if (TypeSystemServices.DecimalType == expectedType)
+					_il.EmitCall(OpCodes.Call, GetToDecimalConversionMethod(actualType), null);
+				else if (TypeSystemServices.DecimalType == actualType)
+					_il.EmitCall(OpCodes.Call, GetFromDecimalConversionMethod(expectedType), null);
 				else
 				{
-					EmitRuntimeCoercionIfNeeded(expectedType, actualType);
-
-					// In order to cast to a reference type we emit a castclass opcode
-					_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
-					_il.Emit(OpCodes.Castclass, GetSystemType(expectedType));
+					//we need to get the real underlying type here and no earlier
+					//(because cause enum casting from int can occur [e.g enums-13])
+					if (actualType.IsEnum)
+						actualType = TypeSystemServices.Map(GetEnumUnderlyingType(actualType));
+					if (expectedType.IsEnum)
+						expectedType = TypeSystemServices.Map(GetEnumUnderlyingType(expectedType));
+					if (actualType != expectedType) //do we really need conv?
+						_il.Emit(GetNumericPromotionOpCode(expectedType));
 				}
+				return;
 			}
-			else
-			{
-				EmitBoxIfNeeded(expectedType, actualType);
-			}
+
+			EmitRuntimeCoercionIfNeeded(expectedType, actualType);
+
+			// In order to cast to a reference type we emit a castclass opcode
+			_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
+			_il.Emit(OpCodes.Castclass, GetSystemType(expectedType));
 		}
 
 		private void EmitRuntimeCoercionIfNeeded(IType expectedType, IType actualType)
