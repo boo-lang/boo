@@ -4231,30 +4231,15 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == method) return false;
 
 			// TODO: cache emitted dispatchers
-			Node replacement = InvokeMetaMethod(node, method, argumentTypes, arguments);
+			Node replacement = InvokeMetaMethod(method, arguments);
 			ReplaceMetaMethodInvocationSite(node, replacement);
 
 			return true;
 		}
 
-		private Node InvokeMetaMethod(Node anchor, CandidateMethod method, Type[] argumentTypes, object[] arguments)
+		private Node InvokeMetaMethod(CandidateMethod method, object[] arguments)
 		{
-			if (method.DoesNotRequireConversions)
-				return (Node)method.Method.Invoke(null, AdjustArgumentsForVarArgsInvocation(method, arguments));
-
-			NotImplemented(anchor, "Meta method invocations that require conversions");
-			return null;
-		}
-
-		private static object[] AdjustArgumentsForVarArgsInvocation(CandidateMethod method, object[] arguments)
-		{
-			if (method.VarArgs && arguments.Length > method.MinimumArgumentCount)
-			{
-				var newArguments = arguments.Take(method.MinimumArgumentCount).ToList();
-				newArguments.Add(Builtins.array(method.VarArgsParameterType, arguments.Skip(method.MinimumArgumentCount)));
-				return newArguments.ToArray();
-			}
-			return arguments;
+			return (Node)method.DynamicInvoke(null, arguments);
 		}
 
 		private static object[] GetMetaMethodInvocationArguments(MethodInvocationExpression node)

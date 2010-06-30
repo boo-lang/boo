@@ -28,6 +28,7 @@
 
 
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace Boo.Lang.Runtime
@@ -128,6 +129,22 @@ namespace Boo.Lang.Runtime
 		{
 			return RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(paramType))
 			       && RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(argType));
+		}
+
+		public object DynamicInvoke(object target, object[] args)
+		{
+			return _method.Invoke(target, AdjustArgumentsForVarArgsInvocation(args));
+		}
+
+		private object[] AdjustArgumentsForVarArgsInvocation(object[] arguments)
+		{
+			if (VarArgs && arguments.Length > MinimumArgumentCount)
+			{
+				var newArguments = arguments.Take(MinimumArgumentCount).ToList();
+				newArguments.Add(Builtins.array(VarArgsParameterType, arguments.Skip(MinimumArgumentCount)));
+				return newArguments.ToArray();
+			}
+			return arguments;
 		}
 	}
 }
