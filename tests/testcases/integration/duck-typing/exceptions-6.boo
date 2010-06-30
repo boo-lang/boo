@@ -11,7 +11,7 @@ def stackTrace(code as callable()):
 	try:
 		code()
 	except x:
-		return firstLines(x)
+		return firstLines(x.InnerException or x)
 
 def firstLines(o):
 	return join(/\n/.Split(o.ToString())[:3], "\n").Trim()

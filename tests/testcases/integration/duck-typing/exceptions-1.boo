@@ -9,7 +9,7 @@ def stackTrace(code as callable()):
 	try:
 		code()
 	except x:
-		return firstLines(x).Trim()
+		return firstLines(x.InnerException or x).Trim()
 
 def firstLines(o):
 	return join(/\n/.Split(o.ToString())[:3], "\n")
