@@ -1785,7 +1785,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				case EntityType.Property:
 					{
-						SetProperty(node, (IProperty)tag, node.Left, node.Right, leaveValueOnStack);
+						SetProperty((IProperty)tag, node.Left, node.Right, leaveValueOnStack);
 						break;
 					}
 
@@ -3560,25 +3560,23 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void SetProperty(Node sourceNode, IProperty property, Expression reference, Expression value, bool leaveValueOnStack)
+		void SetProperty(IProperty property, Expression reference, Expression value, bool leaveValueOnStack)
 		{
 			OpCode callOpCode = OpCodes.Call;
 
 			MethodInfo setMethod = GetMethodInfo(property.GetSetMethod());
-
+			IType targetType = null;
 			if (null != reference)
 			{
 				if (!setMethod.IsStatic)
 				{
 					Expression target = ((MemberReferenceExpression)reference).Target;
-					if (setMethod.DeclaringType.IsValueType)
-					{
+					targetType = target.ExpressionType;
+					if (setMethod.DeclaringType.IsValueType || targetType is IGenericParameter)
 						LoadAddress(target);
-					}
 					else
 					{
 						callOpCode = GetCallOpCode(target, property.GetSetMethod());
-
 						target.Accept(this);
 						PopType();
 					}
@@ -3594,6 +3592,12 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Dup);
 				local = _il.DeclareLocal(GetSystemType(property.Type));
 				_il.Emit(OpCodes.Stloc, local);
+			}
+
+			if (targetType is IGenericParameter)
+			{
+				_il.Emit(OpCodes.Constrained, GetSystemType(targetType));
+				callOpCode = OpCodes.Callvirt;
 			}
 
 			_il.EmitCall(callOpCode, setMethod, null);

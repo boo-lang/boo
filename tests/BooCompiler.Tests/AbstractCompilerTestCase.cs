@@ -106,6 +106,7 @@ namespace BooCompiler.Tests
 		protected virtual void CopyDependencies()
 		{
 			CopyAssembly(typeof(Boo.Lang.List).Assembly);
+			CopyAssembly(typeof(Boo.Lang.Compiler.Ast.Node).Assembly);
 			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
@@ -118,9 +119,7 @@ namespace BooCompiler.Tests
 		protected void CopyAssembliesFromTestCasePath()
 		{
 			foreach (string fname in Directory.GetFiles(_baseTestCasesPath, "*.dll"))
-			{
 				CopyAssembly(fname);
-			}
 		}
 
 		public void CopyAssembly(System.Reflection.Assembly assembly)

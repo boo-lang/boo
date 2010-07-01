@@ -164,6 +164,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void generic_extension_1()
+		{
+			RunCompilerTestCase(@"generic-extension-1.boo");
+		}
+		
+		[Test]
+		public void generic_extension_2()
+		{
+			RunCompilerTestCase(@"generic-extension-2.boo");
+		}
+		
+		[Test]
 		public void generic_field_1()
 		{
 			RunCompilerTestCase(@"generic-field-1.boo");
