@@ -9,6 +9,9 @@
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 	<property name="verbose" value="false" />
+	
+	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
+
 
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
 	<property name="java" value="java" />	
@@ -74,6 +77,26 @@
 
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs2005-env, Boo.Lang.PatternMatching">
 		<call target="gendarme" if="${gendarme.dir != ''}" />
+		<call target="verify-assemblies" />
+	</target>
+	
+	<target name="verify-assemblies" if="${mono}">
+		<foreach item="File" property="filename">
+		<in>
+			<items>
+				<include name="${build.dir}/Boo.Lang*.dll" />
+			</items>
+		</in>
+		<do>
+			<exec program="pedump" workingdir="${build.dir}">
+				<environment>
+					<variable name="MONO_PATH" path="${build.dir}" />
+				</environment>
+				<arg line="--verify code" />
+				<arg value="${path::get-file-name(filename)}" />
+			</exec>
+		</do>
+		</foreach>
 	</target>
 
 	<target name="set-release-configuration">
