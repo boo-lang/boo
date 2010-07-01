@@ -263,13 +263,13 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 	#region PatternMatching
-	private class CustomBlockStatement(CustomStatement):
+	internal class CustomBlockStatement(CustomStatement):
 		public Body as Block
 
-	private class CaseStatement(CustomBlockStatement):
+	internal class CaseStatement(CustomBlockStatement):
 		public Pattern as Expression
 
-	private class OtherwiseStatement(CustomBlockStatement):
+	internal class OtherwiseStatement(CustomBlockStatement):
 		pass
 
 	class CaseMacro(LexicalInfoPreservingGeneratorMacro):
