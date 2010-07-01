@@ -455,7 +455,13 @@ namespace Boo.Lang.Compiler
 			object existing;
 			if (_services.TryGetValue(typeof(T), out existing))
 				return (T)existing;
-			T newService = FindCompatibleService<T>() ?? Activator.CreateInstance<T>();
+			var existingService = FindCompatibleService<T>();
+			if (existingService != null)
+			{
+				AddService(typeof(T), existingService);
+				return existingService;
+			}
+			var newService = Activator.CreateInstance<T>();
 			RegisterService(typeof(T), newService);
 			return newService;
 		}
