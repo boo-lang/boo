@@ -2530,13 +2530,9 @@ namespace Boo.Lang.Compiler.Steps
 			_context.TraceVerbose("LeaveMemberReferenceExpression: {0}", node);
 
 			if (TypeSystemServices.IsError(node.Target))
-			{
 				Error(node);
-			}
 			else
-			{
 				ProcessMemberReferenceExpression(node);
-			}
 		}
 
 		virtual protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
@@ -2587,10 +2583,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IEntity extension = NameResolutionService.ResolveExtension(GetReferenceNamespace(node), node.Name);
 			if (null != extension)
-			{
 				node.Annotate(ResolvedAsExtensionAnnotation);
-			}
-
 			return extension;
 		}
 

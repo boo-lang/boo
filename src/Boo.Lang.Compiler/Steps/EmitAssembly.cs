@@ -2312,11 +2312,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		void InvokeMethod(IMethod method, MethodInvocationExpression node)
 		{
-			MethodInfo mi = GetMethodInfo(method);
+			var mi = GetMethodInfo(method);
 			if (!InvokeOptimizedMethod(method, mi, node))
-			{
 				InvokeRegularMethod(method, mi, node);
-			}
 		}
 
 		bool InvokeOptimizedMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
@@ -2409,9 +2407,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			// Emit a constrained call if target is a generic parameter
 			if (targetType != null && targetType is IGenericParameter)
-			{
 				_il.Emit(OpCodes.Constrained, GetSystemType(targetType));
-			}
+
 			_il.EmitCall(GetCallOpCode(target, method), mi, null);
 
 			PushType(method.ReturnType);
@@ -2474,52 +2471,46 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void PushTargetObject(MethodInvocationExpression node, MethodInfo mi)
 		{
-			Expression target = GetTargetObject(node);
-			IType targetType = target.ExpressionType;
+			var target = GetTargetObject(node);
+			var targetType = target.ExpressionType;
 
 			// If target is a generic parameter, its address must be loaded
 			// to allow a constrained method call
 			if (targetType is IGenericParameter)
 			{
 				LoadAddress(target);
+				return;
 			}
 
-			else if (targetType.IsValueType)
+			if (targetType.IsValueType)
 			{
 				if (mi.DeclaringType.IsValueType)
-				{
 					LoadAddress(target);
-				}
 				else
 				{
 					Visit(node.Target);
 					EmitBox(PopType());
 				}
+				return;
 			}
-			else
-			{
-				// pushes target reference
-				Visit(node.Target);
-				PopType();
-			}
+
+			// pushes target reference
+			Visit(node.Target);
+			PopType();
 		}
 
 		private static Expression GetTargetObject(MethodInvocationExpression node)
 		{
-			Expression target = node.Target;
+			var target = node.Target;
 
 			// Skip over generic reference expressions
-			GenericReferenceExpression genericRef = target as GenericReferenceExpression;
+			var genericRef = target as GenericReferenceExpression;
 			if (genericRef != null)
-			{
 				target = genericRef.Target;
-			}
 
-			MemberReferenceExpression memberRef = target as MemberReferenceExpression;
+			var memberRef = target as MemberReferenceExpression;
 			if (memberRef != null)
-			{
 				return memberRef.Target;
-			}
 
 			return null;
 		}
@@ -2659,35 +2650,28 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			IEntity tag = TypeSystemServices.GetEntity(node.Target);
-
-			switch (tag.EntityType)
+			IEntity entity = TypeSystemServices.GetEntity(node.Target);
+			switch (entity.EntityType)
 			{
 				case EntityType.BuiltinFunction:
 					{
-						OnBuiltinFunction((BuiltinFunction)tag, node);
+						OnBuiltinFunction((BuiltinFunction)entity, node);
 						break;
 					}
 
 				case EntityType.Method:
 					{
-						IMethod methodInfo = (IMethod)tag;
-
+						var methodInfo = (IMethod)entity;
 						if (node.Target.NodeType == NodeType.SuperLiteralExpression)
-						{
 							InvokeSuperMethod(methodInfo, node);
-						}
 						else
-						{
 							InvokeMethod(methodInfo, node);
-						}
-
 						break;
 					}
 
 				case EntityType.Constructor:
 					{
-						IConstructor constructorInfo = (IConstructor)tag;
+						IConstructor constructorInfo = (IConstructor)entity;
 						ConstructorInfo ci = GetConstructorInfo(constructorInfo);
 
 						if (NodeType.SuperLiteralExpression == node.Target.NodeType || node.Target.NodeType == NodeType.SelfLiteralExpression)
@@ -2711,7 +2695,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				default:
 					{
-						NotImplemented(node, tag.ToString());
+						NotImplemented(node, entity.ToString());
 						break;
 					}
 			}
@@ -4224,11 +4208,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void EmitBoxIfNeeded(IType expectedType, IType actualType)
 		{
-			if ((actualType.IsValueType && !expectedType.IsValueType) ||
-				(actualType is IGenericParameter && !(expectedType is IGenericParameter)))
-			{
+			if ((actualType.IsValueType && !expectedType.IsValueType)
+				|| (actualType is IGenericParameter && !(expectedType is IGenericParameter)))
 				EmitBox(actualType);
-			}
 		}
 
 		void EmitBox(IType type)
