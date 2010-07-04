@@ -387,7 +387,6 @@
     <Compile Include="LexicalInfoPreservingMacro.cs" />
     <Compile Include="MetaProgramming\Compilation.cs" />
     <Compile Include="MetaProgramming\CompilationErrorsException.cs" />
-    <Compile Include="MonoTouch\System.Diagnostics.Trace.cs" />
     <Compile Include="Pipelines\CheckForErrors.cs" />
     <Compile Include="Pipelines\Compile.cs" />
     <Compile Include="Pipelines\CompileToBoo.cs" />
