@@ -34,12 +34,8 @@ namespace Boo.Lang.Compiler.Steps
 {
 	/// <summary>
 	/// </summary>
-	public class PreProcessExtensionMethods : AbstractVisitorCompilerStep
-	{	
-		public PreProcessExtensionMethods()
-		{
-		}
-
+	public class VerifyExtensionMethods : AbstractVisitorCompilerStep
+	{
 		public override void Run()
 		{
 			Visit(CompileUnit);

@@ -56,10 +56,9 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new CheckMemberNames());
 			
 			Add(new ProcessMethodBodiesWithDuckTyping());
-
 			Add(new ReifyTypes());
 			
-			Add(new PreProcessExtensionMethods());
+			Add(new VerifyExtensionMethods());
 		}
 	}
 }

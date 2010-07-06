@@ -467,7 +467,6 @@
     <Compile Include="Steps\OptimizeIterationStatements.cs" />
     <Compile Include="Steps\PEVerify.cs" />
     <Compile Include="Steps\PreErrorChecking.cs" />
-    <Compile Include="Steps\PreProcessExtensionMethods.cs" />
     <Compile Include="Steps\PrintAst.cs" />
     <Compile Include="Steps\PrintBoo.cs" />
     <Compile Include="Steps\PrintErrors.cs" />
@@ -489,6 +488,7 @@
     <Compile Include="Steps\SerializeToXml.cs" />
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
+    <Compile Include="Steps\VerifyExtensionMethods.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />
     <Compile Include="TypeSystem\Builders\BooClassBuilder.cs" />
     <Compile Include="TypeSystem\Builders\BooMethodBuilder.cs" />
