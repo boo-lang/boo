@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class ResolveTypeReferences : AbstractNamespaceSensitiveVisitorCompilerStep, ITypeMemberReifier
+	public class ResolveTypeReferences : AbstractNamespaceSensitiveVisitorCompilerStep, ITypeMemberReifier, ITypeReferenceReifier
 	{
 		override public void Run()
 		{
@@ -97,6 +97,11 @@ namespace Boo.Lang.Compiler.Steps
 		public void Reify(TypeMember member)
 		{
 			member.Accept(this);
+		}
+
+		public void Reify(TypeReference node)
+		{
+			node.Accept(this);
 		}
 	}
 }

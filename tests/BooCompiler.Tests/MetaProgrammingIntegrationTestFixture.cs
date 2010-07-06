@@ -25,6 +25,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CodeReifierMergeInto_1()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeInto-1.boo");
+		}
+		
+		[Test]
 		public void compile_1()
 		{
 			RunCompilerTestCase(@"compile-1.boo");
