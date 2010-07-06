@@ -34,7 +34,7 @@ using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class InitializeNameResolutionService : AbstractVisitorCompilerStep
+	public class InitializeNameResolutionService : AbstractCompilerStep
 	{	
 		override public void Run()
 		{

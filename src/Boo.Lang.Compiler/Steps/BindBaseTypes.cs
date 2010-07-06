@@ -29,6 +29,7 @@
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Steps.Inheritance;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -37,12 +38,8 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.TypeSystem;
 
-	public class BindBaseTypes : AbstractVisitorCompilerStep
+	public class BindBaseTypes : AbstractVisitorCompilerStep, ITypeMemberReification
 	{
-		public BindBaseTypes()
-		{
-		}
-		
 		override public void Run()
 		{
 			Visit(CompileUnit.Modules);
@@ -122,6 +119,11 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveBaseTypes(Boo.Lang.List visited, TypeDefinition node)
 		{
 			new BaseTypeResolution(Context, node, visited);
+		}
+
+		public void Reify(TypeMember member)
+		{
+			member.Accept(this);
 		}
 	}
 
