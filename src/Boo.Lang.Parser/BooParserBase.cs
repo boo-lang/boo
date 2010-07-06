@@ -1260,11 +1260,11 @@ _loop178_breakloop:				;
 					}
 					else
 					{
-						goto _loop631_breakloop;
+						goto _loop629_breakloop;
 					}
 					
 				}
-_loop631_breakloop:				;
+_loop629_breakloop:				;
 			}    // ( ... )*
 			if (0==inputState.guessing)
 			{
@@ -3181,11 +3181,11 @@ _loop250_breakloop:				;
 							}
 							else
 							{
-								goto _loop623_breakloop;
+								goto _loop621_breakloop;
 							}
 							
 						}
-_loop623_breakloop:						;
+_loop621_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -5119,11 +5119,11 @@ _loop133_breakloop:					;
 							}
 							else
 							{
-								goto _loop619_breakloop;
+								goto _loop617_breakloop;
 							}
 							
 						}
-_loop619_breakloop:						;
+_loop617_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -5384,11 +5384,11 @@ _loop619_breakloop:						;
 											}
 											else
 											{
-												goto _loop565_breakloop;
+												goto _loop563_breakloop;
 											}
 											
 										}
-_loop565_breakloop:										;
+_loop563_breakloop:										;
 									}    // ( ... )*
 									break;
 								}
@@ -5527,11 +5527,11 @@ _loop565_breakloop:										;
 											}
 											else
 											{
-												goto _loop574_breakloop;
+												goto _loop572_breakloop;
 											}
 											
 										}
-_loop574_breakloop:										;
+_loop572_breakloop:										;
 									}    // ( ... )*
 									break;
 								}
@@ -5550,11 +5550,11 @@ _loop574_breakloop:										;
 					}
 					else
 					{
-						goto _loop575_breakloop;
+						goto _loop573_breakloop;
 					}
 					
 				}
-_loop575_breakloop:				;
+_loop573_breakloop:				;
 			}    // ( ... )*
 		}
 		catch (RecognitionException ex)
@@ -5588,11 +5588,7 @@ _loop575_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						mi = e as MethodInvocationExpression;
-						if (null == mi) 
-						{
-							mi = new MethodInvocationExpression(e.LexicalInfo, e);
-						}
+						mi = e as MethodInvocationExpression ?? new MethodInvocationExpression(e.LexicalInfo, e);
 						mi.Arguments.Add(block);
 					
 			}
@@ -12465,11 +12461,11 @@ _loop515_breakloop:				;
 						e=integer_literal();
 					}
 					else {
-						bool synPredMatched579 = false;
+						bool synPredMatched577 = false;
 						if (((LA(1)==LBRACE) && (tokenSet_115_.member(LA(2)))))
 						{
-							int _m579 = mark();
-							synPredMatched579 = true;
+							int _m577 = mark();
+							synPredMatched577 = true;
 							inputState.guessing++;
 							try {
 								{
@@ -12478,12 +12474,12 @@ _loop515_breakloop:				;
 							}
 							catch (RecognitionException)
 							{
-								synPredMatched579 = false;
+								synPredMatched577 = false;
 							}
-							rewind(_m579);
+							rewind(_m577);
 							inputState.guessing--;
 						}
-						if ( synPredMatched579 )
+						if ( synPredMatched577 )
 						{
 							e=hash_literal();
 						}
@@ -13039,60 +13035,6 @@ _loop546_breakloop:							;
 		return e;
 	}
 	
-	protected Statement  method_invocation_with_block() //throws RecognitionException, TokenStreamException
-{
-		Statement s;
-		
-		
-				s = null;
-				MethodInvocationExpression mie = null;
-				Expression block = null;
-			
-		
-		try {      // for error handling
-			match(RPAREN);
-			{
-				switch ( LA(1) )
-				{
-				case DEF:
-				case DO:
-				case COLON:
-				{
-					block=callable_expression();
-					if (0==inputState.guessing)
-					{
-						
-									mie.Arguments.Add(block);
-								
-					}
-					break;
-				}
-				case EOF:
-				{
-					break;
-				}
-				default:
-				{
-					throw new NoViableAltException(LT(1), getFilename());
-				}
-				 }
-			}
-		}
-		catch (RecognitionException ex)
-		{
-			if (0 == inputState.guessing)
-			{
-				reportError(ex);
-				recover(ex,tokenSet_0_);
-			}
-			else
-			{
-				throw ex;
-			}
-		}
-		return s;
-	}
-	
 	protected void slice(
 		SlicingExpression se
 	) //throws RecognitionException, TokenStreamException
@@ -13348,11 +13290,11 @@ _loop546_breakloop:							;
 			
 		
 		try {      // for error handling
-			bool synPredMatched626 = false;
+			bool synPredMatched624 = false;
 			if (((LA(1)==ID) && (LA(2)==COLON)))
 			{
-				int _m626 = mark();
-				synPredMatched626 = true;
+				int _m624 = mark();
+				synPredMatched624 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -13362,12 +13304,12 @@ _loop546_breakloop:							;
 				}
 				catch (RecognitionException)
 				{
-					synPredMatched626 = false;
+					synPredMatched624 = false;
 				}
-				rewind(_m626);
+				rewind(_m624);
 				inputState.guessing--;
 			}
-			if ( synPredMatched626 )
+			if ( synPredMatched624 )
 			{
 				{
 					id = LT(1);
@@ -13565,11 +13507,11 @@ _loop546_breakloop:							;
 									}
 									else
 									{
-										goto _loop600_breakloop;
+										goto _loop598_breakloop;
 									}
 									
 								}
-_loop600_breakloop:								;
+_loop598_breakloop:								;
 							}    // ( ... )*
 						}
 						{
@@ -13768,11 +13710,11 @@ _loop600_breakloop:								;
 							}
 							else
 							{
-								goto _loop608_breakloop;
+								goto _loop606_breakloop;
 							}
 							
 						}
-_loop608_breakloop:						;
+_loop606_breakloop:						;
 					}    // ( ... )*
 					{
 						switch ( LA(1) )
@@ -14170,7 +14112,7 @@ _loop608_breakloop:						;
 				
 			}
 			{ // ( ... )+
-				int _cnt593=0;
+				int _cnt591=0;
 				for (;;)
 				{
 					if ((LA(1)==ESEPARATOR) && (tokenSet_5_.member(LA(2))))
@@ -14243,12 +14185,12 @@ _loop608_breakloop:						;
 					}
 					else
 					{
-						if (_cnt593 >= 1) { goto _loop593_breakloop; } else { throw new NoViableAltException(LT(1), getFilename());; }
+						if (_cnt591 >= 1) { goto _loop591_breakloop; } else { throw new NoViableAltException(LT(1), getFilename());; }
 					}
 					
-					_cnt593++;
+					_cnt591++;
 				}
-_loop593_breakloop:				;
+_loop591_breakloop:				;
 			}    // ( ... )+
 			{
 				if ((LA(1)==ESEPARATOR) && (tokenSet_32_.member(LA(2))))

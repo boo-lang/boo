@@ -2109,11 +2109,7 @@ method_invocation_block[Expression e] returns [MethodInvocationExpression mi]
 }:
 	block=callable_expression
 	{
-		mi = e as MethodInvocationExpression;
-		if (null == mi) 
-		{
-			mi = new MethodInvocationExpression(e.LexicalInfo, e);
-		}
+		mi = e as MethodInvocationExpression ?? new MethodInvocationExpression(e.LexicalInfo, e);
 		mi.Arguments.Add(block);
 	}
 ;
@@ -2724,22 +2720,6 @@ typed_array returns [Expression e]
 	)
 	RPAREN
 ;
-	
-protected
-method_invocation_with_block returns [Statement s]
-	{
-		s = null;
-		MethodInvocationExpression mie = null;
-		Expression block = null;
-	}:
-	RPAREN
-	(
-		block=callable_expression
-		{
-			mie.Arguments.Add(block);
-		}
-	)?
-	;
 	
 protected
 member returns [IToken name]
