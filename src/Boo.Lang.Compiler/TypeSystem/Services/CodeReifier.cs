@@ -25,9 +25,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	/// Implemented by compiler steps that need to take part in statement
 	/// reification.
 	/// </summary>
-	public interface IStatementReifier
+	public interface IStatementReifier : INodeReifier<Statement>
+	{	
+	}
+
+	/// <summary>
+	/// Implemented by compiler steps that need to take part in expression
+	/// reification.
+	/// </summary>
+	public interface IExpressionReifier : INodeReifier<Expression>
 	{
-		Statement Reify(Statement node);
+	}
+
+	public interface INodeReifier<T> where T: Node
+	{
+		T Reify(T node);
 	}
 
 	/// <summary>
@@ -42,19 +54,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	{
 		public Statement Reify(Statement node)
 		{
-			var original = node;
-			var originalParent = original.ParentNode;
-			ForEachReifier<IStatementReifier>(r =>
-          	{
-          		node = r.Reify(node);
-				if (node != original)
-				{
-					originalParent.Replace(original, node);
-					original = node;
-					originalParent = original.ParentNode;
-				}
-          	});
-			return node;
+			return ReifyNode(node);
+		}
+
+		public Expression Reify(Expression node)
+		{
+			return ReifyNode(node);
 		}
 
 		public void ReifyInto(TypeDefinition parentType, TypeMember member)
@@ -94,6 +99,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		private void Reify(TypeMember node)
 		{
 			ForEachReifier<ITypeMemberReifier>(r => r.Reify(node));
+		}
+
+		private T ReifyNode<T>(T node) where T : Node
+		{
+			var original = node;
+			var originalParent = original.ParentNode;
+			ForEachReifier<INodeReifier<T>>(r =>
+			{
+				node = r.Reify(node);
+				if (node != original)
+				{
+					originalParent.Replace(original, node);
+					original = node;
+					originalParent = original.ParentNode;
+				}
+			});
+			return node;
 		}
 
 		private void ForEachReifier<T>(Action<T> action) where T: class

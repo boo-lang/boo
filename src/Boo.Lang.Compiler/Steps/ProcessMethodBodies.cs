@@ -4256,7 +4256,10 @@ namespace Boo.Lang.Compiler.Steps
 					replacement = My<CodeReifier>.Instance.Reify((Statement)replacement);
 			}
 			else
+			{
 				node.ParentNode.Replace(node, replacement);
+				replacement = My<CodeReifier>.Instance.Reify((Expression) replacement);
+			}
 			Visit(replacement);
 		}
 

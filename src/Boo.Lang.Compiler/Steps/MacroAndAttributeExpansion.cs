@@ -33,7 +33,7 @@ using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class MacroAndAttributeExpansion : AbstractCompilerStep, ITypeMemberReifier, IStatementReifier
+	public class MacroAndAttributeExpansion : AbstractCompilerStep, ITypeMemberReifier, IStatementReifier, IExpressionReifier
 	{
 		private BindAndApplyAttributes _attributes = new BindAndApplyAttributes();
 		private MacroExpander _macroExpander = new MacroExpander();
@@ -72,25 +72,31 @@ namespace Boo.Lang.Compiler.Steps
 			return attributesApplied || macrosExpanded;
 		}
 
-		public void Reify(TypeMember member)
+		public void Reify(TypeMember node)
 		{
 			ApplyAttributesAndExpandMacros();
 		}
 
-		public Statement Reify(Statement stmt)
+		public Statement Reify(Statement node)
 		{
-			var result = stmt;
-			if (stmt is MacroStatement)
+			var result = node;
+			if (node is MacroStatement)
 			{
 				// macro statements are replaced
 				// so we need to wrap it in a Block
 				// otherwise we would lose the result
-				var parentNode = stmt.ParentNode;
-				result = new Block(stmt);
-				parentNode.Replace(stmt, result);
+				var parentNode = node.ParentNode;
+				result = new Block(node);
+				parentNode.Replace(node, result);
 			}
 			ApplyAttributesAndExpandMacros();
 			return result;
+		}
+
+		public Expression Reify(Expression node)
+		{
+			ApplyAttributesAndExpandMacros();
+			return node;
 		}
 	}
 }

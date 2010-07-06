@@ -115,6 +115,11 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void meta_methods_with_closure()
+		{
+			RunCompilerTestCase(@"meta-methods-with-closure.boo");
+		}
+		
 		[Test]
 		public void meta_methods_with_generator()
 		{
@@ -128,11 +133,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void meta_methods_with_modifier_inside_closure()
+		{
+			RunCompilerTestCase(@"meta-methods-with-modifier-inside-closure.boo");
+		}
+		
+		[Test]
 		public void meta_methods_with_statement_modifier()
 		{
 			RunCompilerTestCase(@"meta-methods-with-statement-modifier.boo");
 		}
 		
+		[Test]
 		public void name_splicing_1()
 		{
 			RunCompilerTestCase(@"name-splicing-1.boo");
