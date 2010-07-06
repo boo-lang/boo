@@ -29,10 +29,11 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.MacroProcessing;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class MacroAndAttributeExpansion : AbstractCompilerStep
+	public class MacroAndAttributeExpansion : AbstractCompilerStep, ITypeMemberReifier
 	{
 		private BindAndApplyAttributes _attributes = new BindAndApplyAttributes();
 		private MacroExpander _macroExpander = new MacroExpander();
@@ -69,6 +70,11 @@ namespace Boo.Lang.Compiler.Steps
 			bool attributesApplied = _attributes.BindAndApply();
 			bool macrosExpanded = _macroExpander.ExpandAll();
 			return attributesApplied || macrosExpanded;
+		}
+
+		public void Reify(TypeMember member)
+		{
+			ApplyAttributesAndExpandMacros();
 		}
 	}
 }

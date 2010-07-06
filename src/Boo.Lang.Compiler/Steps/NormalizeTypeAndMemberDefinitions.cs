@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,15 +26,17 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Reflection;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
 
-	public class NormalizeTypeAndMemberDefinitions : AbstractVisitorCompilerStep
+	public class NormalizeTypeAndMemberDefinitions : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
 		override public void Run()
 		{
@@ -291,6 +293,11 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers |= Context.Parameters.DefaultMethodVisibility;
 			else
 				node.Modifiers |= TypeMemberModifiers.Private;
+		}
+
+		public void Reify(TypeMember member)
+		{
+			member.Accept(this);
 		}
 	}
 }

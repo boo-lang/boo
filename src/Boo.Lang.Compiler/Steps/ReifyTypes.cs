@@ -1,10 +1,12 @@
+using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ReifyTypes : AbstractVisitorCompilerStep
+	public class ReifyTypes : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
 		public override void Run()
 		{
@@ -68,6 +70,11 @@ namespace Boo.Lang.Compiler.Steps
 		private static bool IsEmptyArrayLiteral(Expression e)
 		{	
 			return e.ExpressionType == EmptyArrayType.Default;
+		}
+
+		public void Reify(TypeMember member)
+		{
+			member.Accept(this);
 		}
 	}
 }

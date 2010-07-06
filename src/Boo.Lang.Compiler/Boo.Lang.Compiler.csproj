@@ -609,6 +609,7 @@
     <Compile Include="TypeSystem\Services\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\Services\BooCodeBuilder.cs" />
     <Compile Include="TypeSystem\Services\CallableResolutionService.cs" />
+    <Compile Include="TypeSystem\Services\CodeReifier.cs" />
     <Compile Include="TypeSystem\Services\CompilerErrorEmitter.cs" />
     <Compile Include="TypeSystem\Services\CurrentScope.cs" />
     <Compile Include="TypeSystem\Services\DowncastPermissions.cs" />

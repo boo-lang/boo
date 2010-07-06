@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// <summary>
 	/// AST semantic evaluation.
 	/// </summary>
-	public class ProcessMethodBodies : AbstractNamespaceSensitiveVisitorCompilerStep
+	public class ProcessMethodBodies : AbstractNamespaceSensitiveVisitorCompilerStep, ITypeMemberReifier
 	{
 		static readonly ExpressionCollection EmptyExpressionCollection = new ExpressionCollection();
 
@@ -6675,6 +6675,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get { return _optimizeNullComparisons; }
 			set { _optimizeNullComparisons = value; }
+		}
+
+		public void Reify(TypeMember member)
+		{
+			member.Accept(this);
+
+			var field = member as Field;
+			if (field != null)
+				FlushFieldInitializers((ClassDefinition) field.DeclaringType);
 		}
 	}
 }

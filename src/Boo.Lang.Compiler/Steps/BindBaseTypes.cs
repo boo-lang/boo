@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.TypeSystem;
 
-	public class BindBaseTypes : AbstractVisitorCompilerStep, ITypeMemberReification
+	public class BindBaseTypes : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
 		override public void Run()
 		{

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -27,6 +27,7 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
@@ -35,7 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 
     [Serializable]
-	public class BindTypeDefinitions : AbstractTransformerCompilerStep
+	public class BindTypeDefinitions : AbstractTransformerCompilerStep, ITypeMemberReifier
 	{
 		private InternalTypeSystemProvider _internalTypeSystemProvider;
 
@@ -118,5 +119,10 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnField(Field field)
 		{
 		}
+
+    	public void Reify(TypeMember member)
+    	{
+    		member.Accept(this);
+    	}
 	}
 }

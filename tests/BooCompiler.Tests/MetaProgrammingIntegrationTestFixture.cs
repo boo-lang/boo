@@ -193,6 +193,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void reification_1()
+		{
+			RunCompilerTestCase(@"reification-1.boo");
+		}
+		
+		[Test]
 		public void splicing_1()
 		{
 			RunCompilerTestCase(@"splicing-1.boo");

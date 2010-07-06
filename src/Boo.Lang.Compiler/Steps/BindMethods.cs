@@ -27,6 +27,7 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
@@ -37,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// Pre-binds methods and constructors before resolving type references, 
 	/// to enable correct resolution of generic type references.
 	/// </summary>
-	public class BindMethods : AbstractVisitorCompilerStep
+	public class BindMethods : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
 		private InternalTypeSystemProvider _internalTypeSystemProvider;
 
@@ -80,8 +81,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{			
-			NameResolutionService.Reset();
 			Visit(CompileUnit.Modules);
 		}
+
+        public void Reify(TypeMember member)
+        {
+        	member.Accept(this);
+        }
 	}
 }
