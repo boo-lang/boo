@@ -122,6 +122,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void meta_methods_with_macro()
+		{
+			RunCompilerTestCase(@"meta-methods-with-macro.boo");
+		}
+		
+		[Test]
 		public void meta_methods_with_statement_modifier()
 		{
 			RunCompilerTestCase(@"meta-methods-with-statement-modifier.boo");
