@@ -430,21 +430,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (baseMethod.IsSpecialName)
 				return;
-
+			
 			foreach (Method method in GetAbstractMethodImplementationCandidates(node, baseMethod))
-			{
-				if (!TypeSystemServices.CheckOverrideSignature(GetEntity(method), baseMethod))
-					continue;
+				if (ResolveAsImplementationOf(baseMethod, method))
+					return;
 
-				ProcessMethodImplementation(method, baseMethod);
-
-				if (!method.IsOverride && !method.IsVirtual)
-					method.Modifiers |= TypeMemberModifiers.Virtual;
-
-				AssertValidInterfaceImplementation(method, baseMethod);
-				TraceImplements(method, baseMethod);
-				return;
-			}
 
 			// FIXME: this will fail with InvalidCastException on a base type that's a GenericTypeReference!
 			foreach(SimpleTypeReference parent in node.BaseTypes)
@@ -470,18 +460,29 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		private bool ResolveAsImplementationOf(IMethod baseMethod, Method method)
+		{
+			if (!TypeSystemServices.CheckOverrideSignature(GetEntity(method), baseMethod))
+				return false;
+
+			ProcessMethodImplementation(method, baseMethod);
+
+			if (!method.IsOverride && !method.IsVirtual)
+				method.Modifiers |= TypeMemberModifiers.Virtual;
+
+			AssertValidInterfaceImplementation(method, baseMethod);
+			TraceImplements(method, baseMethod);
+			return true;
+		}
+
 		private void ProcessMethodImplementation(Method method, IMethod baseMethod)
 		{
 			IMethod methodEntity = GetEntity(method);
 			CallableSignature baseSignature = TypeSystemServices.GetOverriddenSignature(baseMethod, methodEntity);
 			if (IsUnknown(methodEntity.ReturnType))
-			{
 				method.ReturnType = CodeBuilder.CreateTypeReference(baseSignature.ReturnType);
-			}
 			else if (baseSignature.ReturnType != methodEntity.ReturnType)
-			{
 				Error(CompilerErrorFactory.ConflictWithInheritedMember(method, method.FullName, baseMethod.FullName));
-			}
 		}
 
 		private void TraceImplements(TypeMember member, IEntity baseMember)
@@ -496,29 +497,23 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEnumerable<Method> GetAbstractMethodImplementationCandidates(TypeDefinition node, IMethod baseMethod)
 		{
-			return GetAbstractMemberImplementationCandidates<Method, IMethod>(node, baseMethod);
+			return GetAbstractMemberImplementationCandidates<Method>(node, baseMethod);
 		}
 
 		private IEnumerable<Property> GetAbstractPropertyImplementationCandidates(TypeDefinition node, IProperty baseProperty)
 		{
-			return GetAbstractMemberImplementationCandidates<Property, IProperty>(node, baseProperty);
+			return GetAbstractMemberImplementationCandidates<Property>(node, baseProperty);
 		}
 
-		private IEnumerable<TMember> GetAbstractMemberImplementationCandidates<TMember, TEntity>(
-			TypeDefinition node, TEntity baseEntity)
-			where TEntity : IEntityWithParameters, IMember
+		private IEnumerable<TMember> GetAbstractMemberImplementationCandidates<TMember>(TypeDefinition node, IMember baseEntity)
 			where TMember : TypeMember, IExplicitMember		
 		{
-			List<TMember> candidates = new List<TMember>();
+			var candidates = new List<TMember>();
 			foreach (TypeMember m in node.Members)
 			{
-				TMember member = m as TMember;
-				if (member != null &&
-					member.Name == baseEntity.Name &&
-					IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(member, baseEntity))
-				{
+				var member = m as TMember;
+				if (member != null && IsCandidateMemberImplementationFor(baseEntity, m))
 					candidates.Add(member);
-				}
 			}
 
 			// BOO-1031: Move explicitly implemented candidates to top of list so that
@@ -527,6 +522,12 @@ namespace Boo.Lang.Compiler.Steps
 			//       mono bug #399214.
 			candidates.Sort(new ExplicitMembersFirstComparer<TMember>());
 			return candidates;
+		}
+
+		private bool IsCandidateMemberImplementationFor(IMember baseMember, TypeMember candidate)
+		{
+			return candidate.Name == baseMember.Name
+				&& IsCorrectExplicitMemberImplOrNoExplicitMemberAtAll(candidate, baseMember);
 		}
 
 		private sealed class ExplicitMembersFirstComparer<T> : IComparer<T>
@@ -657,9 +658,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null != accessor && accessor.IsAbstract;
 		}
 
-		void ResolveAbstractMember(ClassDefinition node,
-			TypeReference baseTypeRef,
-			IMember member)
+		void ResolveAbstractMember(ClassDefinition node, TypeReference baseTypeRef, IMember member)
 		{
 			switch (member.EntityType)
 			{
