@@ -22,6 +22,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	}
 
 	/// <summary>
+	/// Implemented by compiler steps that need to take part in statement
+	/// reification.
+	/// </summary>
+	public interface IStatementReifier
+	{
+		Statement Reify(Statement node);
+	}
+
+	/// <summary>
 	/// Reifies ast nodes.
 	/// 
 	/// Reification of an ast node means compiling it up to the point of being ready for inclusion into <see cref="CompilerContext.CompileUnit"/>.
@@ -31,6 +40,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	/// </summary>
 	public class CodeReifier : AbstractCompilerComponent
 	{
+		public Statement Reify(Statement node)
+		{
+			var original = node;
+			var originalParent = original.ParentNode;
+			ForEachReifier<IStatementReifier>(r =>
+          	{
+          		node = r.Reify(node);
+				if (node != original)
+				{
+					originalParent.Replace(original, node);
+					original = node;
+					originalParent = original.ParentNode;
+				}
+          	});
+			return node;
+		}
+
 		public void ReifyInto(TypeDefinition parentType, TypeMember member)
 		{	
 			if (member == null)

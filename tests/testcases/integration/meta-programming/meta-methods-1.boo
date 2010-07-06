@@ -1,4 +1,5 @@
 """
+compile time: (x is null)
 compile time: (x is not null)
 before runtime
 runtime
@@ -19,6 +20,7 @@ typeDef = [|
 		def Run():
 			print "runtime"
 			x = null
+			assert_ x is null
 			assert_ x is not null
 |]
 

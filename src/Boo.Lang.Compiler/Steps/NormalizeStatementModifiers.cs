@@ -26,12 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using Boo.Lang.Compiler.TypeSystem.Services;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler;
 
-	public class NormalizeStatementModifiers : AbstractTransformerCompilerStep
+	public class NormalizeStatementModifiers : AbstractTransformerCompilerStep, IStatementReifier
 	{
 		override public void Run()
 		{
@@ -140,6 +143,11 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifier = null;
 				ReplaceCurrentNode(CreateModifiedStatement(modifier, node));
 			}
+		}
+
+		public Statement Reify(Statement node)
+		{
+			return Visit(node);
 		}
 	}
 }

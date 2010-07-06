@@ -4239,7 +4239,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.NamedArguments.Count == 0) return node.Arguments.ToArray();
 
-			List arguments = new List();
+			var arguments = new List();
 			arguments.Add(node.NamedArguments.ToArray());
 			arguments.Extend(node.Arguments);
 			return arguments.ToArray();
@@ -4250,16 +4250,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (replacement == null || replacement is Statement)
 			{
 				if (node.ParentNode.NodeType != NodeType.ExpressionStatement)
-				{
 					NotImplemented(node, "Cant use an statement where an expression is expected.");
-				}
-				Node statementParent = node.ParentNode.ParentNode;
+				var statementParent = node.ParentNode.ParentNode;
 				statementParent.Replace(node.ParentNode, replacement);
+				if (replacement != null)
+					replacement = My<CodeReifier>.Instance.Reify((Statement)replacement);
 			}
 			else
-			{
 				node.ParentNode.Replace(node, replacement);
-			}
 			Visit(replacement);
 		}
 
