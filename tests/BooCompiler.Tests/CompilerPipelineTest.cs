@@ -113,7 +113,7 @@ namespace BooCompiler.Tests
 	/// <summary>	
 	/// </summary>
 	[TestFixture]
-	public class PipelineTest
+	public class CompilerPipelineTest
 	{	
 		CompilerPipeline _pipeline;
 
@@ -126,7 +126,7 @@ namespace BooCompiler.Tests
 		[Test]
 		public void TestEventSequence()
 		{
-			List calls = new List();
+			var calls = new List<string>();
 			_pipeline.Before += delegate { calls.Add("before"); };
 			_pipeline.BeforeStep += delegate { calls.Add("before step"); };
 			_pipeline.Add(new ActionStep(delegate { calls.Add("step"); }));
@@ -134,8 +134,31 @@ namespace BooCompiler.Tests
 			_pipeline.After += delegate { calls.Add("after"); };
 			_pipeline.Run(new CompilerContext());
 			Assert.AreEqual(
-				new List(new string[] {"before", "before step", "step", "after step", "after"}),
-				calls);
+				new string[] {"before", "before step", "step", "after step", "after"},
+				calls.ToArray());
+		}
+
+		[Test]
+		public void CurrentStep()
+		{
+			var step1 = new DummyStep();
+			_pipeline.Add(step1);
+
+			ActionStep step2 = null;
+			step2 = new ActionStep(context => Assert.AreSame(step2, _pipeline.CurrentStep));
+			_pipeline.Add(step2);
+
+			var currentSteps = new List();
+			_pipeline.Before += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
+			_pipeline.BeforeStep += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
+			_pipeline.AfterStep += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
+			_pipeline.After += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
+
+			_pipeline.Run(new CompilerContext());
+
+			Assert.AreEqual(
+				new object[] { null, step1, step1, step2, step2, null },
+				currentSteps.ToArray());
 		}
 
 		[Test]

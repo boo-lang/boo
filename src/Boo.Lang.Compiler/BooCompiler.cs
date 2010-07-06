@@ -27,9 +27,7 @@
 #endregion
 
 using System;
-using System.IO;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler;
 
 namespace Boo.Lang.Compiler
 {
@@ -64,7 +62,7 @@ namespace Boo.Lang.Compiler
 			if (null == _parameters.Pipeline)
 				throw new InvalidOperationException(Boo.Lang.ResourceManager.GetString("BooC.CantRunWithoutPipeline"));
 			
-			CompilerContext context = new CompilerContext(_parameters, compileUnit);
+			var context = new CompilerContext(_parameters, compileUnit);
 			_parameters.Pipeline.Run(context);
 			return context;
 		}

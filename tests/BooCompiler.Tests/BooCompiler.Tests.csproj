@@ -131,6 +131,7 @@
     <Compile Include="ClrIntegrationTestFixture.cs" />
     <Compile Include="CompilerContextTest.cs" />
     <Compile Include="CompilerErrorsTestFixture.cs" />
+    <Compile Include="CompilerPipelineTest.cs" />
     <Compile Include="CompilerWarningCollectionTest.cs" />
     <Compile Include="CompilerWarningsTestFixture.cs" />
     <Compile Include="DuckTypingIntegrationTestFixture.cs" />
@@ -148,7 +149,6 @@
     <Compile Include="OperatorsIntegrationTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />
-    <Compile Include="PipelineTest.cs" />
     <Compile Include="PrimitivesIntegrationTestFixture.cs" />
     <Compile Include="RegressionTestFixture.cs" />
     <Compile Include="SemanticsTestFixture.cs" />

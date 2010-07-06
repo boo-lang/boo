@@ -26,6 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections;
+using System.Collections.Generic;
+using Boo.Lang.Environments;
+
 namespace Boo.Lang.Compiler
 {
 	using System;
@@ -57,7 +61,7 @@ namespace Boo.Lang.Compiler
 	/// A ordered set of <see cref="ICompilerStep"/> implementations
 	/// that should be executed in sequence.
 	/// </summary>
-	public class CompilerPipeline
+	public class CompilerPipeline : IEnumerable<ICompilerStep>
 	{
 		public event EventHandler<CompilerPipelineEventArgs> Before;
 
@@ -125,13 +129,13 @@ namespace Boo.Lang.Compiler
 	        return null;
 	    }
 
-	    protected Boo.Lang.List _items;
+	    protected Boo.Lang.List<ICompilerStep> _items;
 		
 		protected bool _breakOnErrors;
 
 		public CompilerPipeline()
 		{
-			_items = new Boo.Lang.List();
+			_items = new Boo.Lang.List<ICompilerStep>();
 			_breakOnErrors = true;
 		}
 		
@@ -213,9 +217,11 @@ namespace Boo.Lang.Compiler
 			get { return _items.Count; }
 		}
 
+		public ICompilerStep CurrentStep { get; private set; }
+
 		public ICompilerStep this[int index]
 		{
-			get { return (ICompilerStep)_items[index]; }
+			get { return _items[index]; }
 			
 			set
 			{
@@ -298,29 +304,26 @@ namespace Boo.Lang.Compiler
 				if (service.FullName.StartsWith("Boo.Lang.Compiler."))
 					//internal services have a process-lifetime
 					continue;
+				TracingErrors(() => context.UnregisterService(service));
+			}
+		}
 
-				try
-				{
-					context.UnregisterService(service);
-				}
-				finally //do not stop unregistering in the event one service throws at Dispose
-				{
-				}
+		private void TracingErrors(Action action)
+		{
+			try
+			{
+				action();
+			}
+			catch (Exception x) //do not stop unregistering in the event one service throws at Dispose
+			{
+				My<CompilerContext>.Instance.TraceError(x);
 			}
 		}
 
 		private void DisposeSteps()
 		{
 			foreach (ICompilerStep step in _items)
-			{
-				try
-				{
-					step.Dispose();
-				}
-				finally //do not stop disposing in the event one step throws at Dispose
-				{
-				}
-			}
+				TracingErrors(() => step.Dispose());
 		}
 
 		private void RunSteps(CompilerContext context)
@@ -338,25 +341,43 @@ namespace Boo.Lang.Compiler
 
 		protected void RunStep(CompilerContext context, ICompilerStep step)
 		{
-			OnBeforeStep(context, step);
-				
-			step.Initialize(context);
+			CurrentStep = step;
 			try
 			{
-				step.Run();
-			}
-			catch (Boo.Lang.Compiler.CompilerError error)
-			{
-				context.Errors.Add(error);
-			}
-			catch (System.Exception x)
-			{
-				context.Errors.Add(CompilerErrorFactory.StepExecutionError(x, step));
+				OnBeforeStep(context, step);
+
+				step.Initialize(context);
+				try
+				{
+					step.Run();
+				}
+				catch (Boo.Lang.Compiler.CompilerError error)
+				{
+					context.Errors.Add(error);
+				}
+				catch (System.Exception x)
+				{
+					context.Errors.Add(CompilerErrorFactory.StepExecutionError(x, step));
+				}
+				finally
+				{
+					OnAfterStep(context, step);
+				}
 			}
 			finally
 			{
-				OnAfterStep(context, step);
+				CurrentStep = null;
 			}
+		}
+
+		public IEnumerator<ICompilerStep> GetEnumerator()
+		{
+			return _items.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable<ICompilerStep>) this).GetEnumerator();
 		}
 	}
 }
