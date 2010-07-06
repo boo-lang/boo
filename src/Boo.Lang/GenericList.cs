@@ -180,15 +180,9 @@ namespace Boo.Lang
 
 		public T this[int index]
 		{
-			get
-			{
-				return _items[CheckIndex(NormalizeIndex(index))];
-			}
+			get { return _items[CheckIndex(NormalizeIndex(index))]; }
 
-			set
-			{
-				_items[CheckIndex(NormalizeIndex(index))] = value;
-			}
+			set { _items[CheckIndex(NormalizeIndex(index))] = value; }
 		}
 
 		public List<T> Push(T item)
@@ -612,35 +606,23 @@ namespace Boo.Lang
 		int AdjustIndex(int index)
 		{
 			if (index > _count)
-			{
 				return _count;
-			}
 			if (index < 0)
-			{
 				return 0;
-			}
 			return index;
 		}
 
 		int CheckIndex(int index)
 		{
 			if (index >= _count)
-			{
 				throw new IndexOutOfRangeException();
-			}
 			return index;
 		}
 
 		int NormalizeIndex(int index)
 		{
-			if (index < 0)
-			{
-				index += _count;
-			}
-			return index;
+			return index < 0 ? index + _count : index;
 		}
-
-
 
 		#region IList Members
 

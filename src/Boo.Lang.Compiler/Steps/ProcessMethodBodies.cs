@@ -4213,17 +4213,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node)
 		{
-			IEntity targetEntity = node.Target.Entity;
+			var targetEntity = node.Target.Entity;
 			if (null == targetEntity) return false;
 			if (!IsOrContainMetaMethod(targetEntity)) return false;
 
-			object[] arguments = GetMetaMethodInvocationArguments(node);
-			Type[] argumentTypes = MethodResolver.GetArgumentTypes(arguments);
+			var arguments = GetMetaMethodInvocationArguments(node);
+			var argumentTypes = MethodResolver.GetArgumentTypes(arguments);
 			var resolver = new MethodResolver(argumentTypes);
 			var method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
 			if (null == method) return false;
 
-			// TODO: cache emitted dispatchers
 			Node replacement = InvokeMetaMethod(method, arguments);
 			ReplaceMetaMethodInvocationSite(node, replacement);
 

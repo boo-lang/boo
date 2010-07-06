@@ -10,8 +10,8 @@ def dict(items as (ExpressionPair)):
 	print "compile time"
 	h = [| {} |]
 	for item in items:
-		h.Items.Add(
-			[| $((item.First as ReferenceExpression).Name): $(item.Second) |])
+		pair = [| $((item.First as ReferenceExpression).Name): $(item.Second) |]
+		h.Items.Add(pair)
 	return h
 
 typeDef = [|
