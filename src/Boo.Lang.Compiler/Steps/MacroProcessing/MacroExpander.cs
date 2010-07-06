@@ -74,13 +74,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ExpandModuleGlobalsIgnoringUnknownMacros()
 		{
 			foreach (Module module in CompileUnit.Modules)
-			{
-				Module current = module;
-				_ignoringUnknownMacros.With(true, delegate
-				{
-					ExpandOnModuleNamespace(current, VisitGlobalsAllowingCancellation);	
-				});
-			}
+				ExpandModuleGlobalsIgnoringUnknownMacros(module);
+		}
+
+		private void ExpandModuleGlobalsIgnoringUnknownMacros(Module current)
+		{
+			_ignoringUnknownMacros.With(true, delegate
+          	{
+          		ExpandOnModuleNamespace(current, VisitGlobalsAllowingCancellation);	
+          	});
 		}
 
 		private void VisitGlobalsAllowingCancellation(Module module)

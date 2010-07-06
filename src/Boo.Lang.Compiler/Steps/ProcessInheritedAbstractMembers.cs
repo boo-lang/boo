@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps
@@ -42,10 +43,6 @@ namespace Boo.Lang.Compiler.Steps
 		private Boo.Lang.Hash _classDefinitionList;
 		private int depth = 0;
 		private Set<IEntity> _explicitMembers;
-
-		public ProcessInheritedAbstractMembers()
-		{
-		}
 
 		override public void Run()
 		{	
@@ -606,9 +603,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType baseType)
 		{
 			foreach (IType entity in baseType.GetInterfaces())
-			{
 				ResolveInterfaceMembers(node, baseTypeRef, entity);
-			}
 			
 			foreach (IMember entity in baseType.GetMembers())
 			{
@@ -659,13 +654,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private static bool IsAbstractAccessor(IMethod accessor)
 		{
-			if (null != accessor)
-			{
-				return accessor.IsAbstract;
-			}
-			return false;
+			return null != accessor && accessor.IsAbstract;
 		}
-		
+
 		void ResolveAbstractMember(ClassDefinition node,
 			TypeReference baseTypeRef,
 			IMember member)

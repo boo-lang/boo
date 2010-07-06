@@ -212,11 +212,14 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		public bool BindAndApply()
 		{
-			Visit(CompileUnit);
+			return BindAndApply(CompileUnit);
+		}
+
+		public bool BindAndApply(Node node)
+		{
+			Visit(node);
 			if (_tasks.Count == 0)
-			{
 				return false;
-			}
 			_tasks.Flush();
 			return true;
 		}

@@ -168,10 +168,10 @@ namespace Boo.Lang.Compiler.Steps
 			MarkVisited(node);
 
 			VisitTypeDefinition(node);
-			ProcessInitializers(node);
+			FlushFieldInitializers(node);
 		}
 
-		void ProcessInitializers(ClassDefinition node)
+		void FlushFieldInitializers(ClassDefinition node)
 		{
 			foreach (TypeMember member in node.Members.ToArray())
 			{
@@ -186,7 +186,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			Method initializer = (Method) node["$initializer$"];
+			var initializer = (Method) node["$initializer$"];
 			if (null != initializer)
 			{
 				AddInitializerToInstanceConstructors(node, initializer);
