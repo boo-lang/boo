@@ -115,6 +115,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		[Test]
+		public void meta_methods_with_generator()
+		{
+			RunCompilerTestCase(@"meta-methods-with-generator.boo");
+		}
+		
+		[Test]
+		public void meta_methods_with_statement_modifier()
+		{
+			RunCompilerTestCase(@"meta-methods-with-statement-modifier.boo");
+		}
+		
 		public void name_splicing_1()
 		{
 			RunCompilerTestCase(@"name-splicing-1.boo");
