@@ -16,35 +16,59 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		public void ReifyIntoShouldFailWithAlreadyConnectedMember()
 		{
 			var module = new Module();
-			var context = new CompilerContext(new CompileUnit(module));
-			context.Run(() =>
+			RunCompilerStepAfterExpressionResolutionOn(new CompileUnit(module), new ActionStep(context =>
 			{
 				var klass = new ClassDefinition { Name = "Foo" };
 				module.Members.Add(klass);
-				try
-				{
-					My<CodeReifier>.Instance.ReifyInto(module, klass);
-				}
-				catch (ArgumentException)
-				{
-					return;
-				}
-				Assert.Fail("ArgumentException expected!");
-			});
+				Exceptions.Expecting<ArgumentException>(() => CodeReifier().ReifyInto(module, klass));
+			}));
+		}
+
+		private static CodeReifier CodeReifier()
+		{
+			return My<CodeReifier>.Instance;
+		}
+
+		[Test]
+		public void ReifyStatementShouldRefuseDisconnectedStatement()
+		{
+			RunCompilerStepAfterExpressionResolution(new ActionStep(context =>
+			{
+				Exceptions.Expecting<ArgumentException>(() => CodeReifier().Reify(new ReturnStatement()));
+			}));
+		}
+
+		[Test]
+		public void ReifyExpressionShouldRefuseDisconnectedExpression()
+		{
+			RunCompilerStepAfterExpressionResolution(new ActionStep(context =>
+			{
+				Exceptions.Expecting<ArgumentException>(() => CodeReifier().Reify(new NullLiteralExpression()));
+			}));
 		}
 
 		[Test]
 		public void ReifyClassAfterExpressionResolution()
 		{
-			var pipeline = new Boo.Lang.Compiler.Pipelines.ResolveExpressions { new ReifyClass() };
+			RunCompilerStepAfterExpressionResolution(new ReifyClass());
+		}
+
+		private void RunCompilerStepAfterExpressionResolution(ICompilerStep step)
+		{
+			RunCompilerStepAfterExpressionResolutionOn(new CompileUnit(new Module()), step);
+		}
+
+		private void RunCompilerStepAfterExpressionResolutionOn(CompileUnit compileUnit, ICompilerStep step)
+		{
+			var pipeline = new Boo.Lang.Compiler.Pipelines.ResolveExpressions { step };
 
 			var compiler = new Boo.Lang.Compiler.BooCompiler(new CompilerParameters { Pipeline = pipeline });
-			var result = compiler.Run(new CompileUnit(new Module()));
+			var result = compiler.Run(compileUnit);
 
 			if (result.Errors.Count > 0)
 				Assert.Fail(result.Errors.ToString(true));
 		}
-		
+
 		class ReifyClass : AbstractCompilerStep
 		{
 			public override void Run()

@@ -105,6 +105,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			var original = node;
 			var originalParent = original.ParentNode;
+			if (null == originalParent)
+				throw new ArgumentException(string.Format("ParentNode must be set on {0}.", typeof(T).Name), "node");
+
 			ForEachReifier<INodeReifier<T>>(r =>
 			{
 				node = r.Reify(node);
