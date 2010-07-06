@@ -27,10 +27,10 @@
 #endregion
 
 using Boo.Lang;
+using Boo.Lang.Compiler.Steps;
 
 namespace BooCompiler.Tests
 {
-	using System;
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 
@@ -72,44 +72,6 @@ namespace BooCompiler.Tests
 	{
 	}
 
-	public class ActionStep : ICompilerStep
-	{
-		private readonly Action<CompilerContext> _action;
-		private CompilerContext _context;
-
-		public ActionStep(Action<CompilerContext> action)
-		{
-			_action = action;
-		}
-
-		#region ICompilerStep Members
-
-		public void Run()
-		{
-			_action(_context);
-		}
-
-		#endregion
-
-		#region ICompilerComponent Members
-
-		public void Initialize(CompilerContext context)
-		{
-			_context = context;
-		}
-
-		#endregion
-
-		#region IDisposable Members
-
-		public void Dispose()
-		{
-			_context = null;
-		}
-
-		#endregion
-	}
-
 	/// <summary>	
 	/// </summary>
 	[TestFixture]
@@ -145,7 +107,7 @@ namespace BooCompiler.Tests
 			_pipeline.Add(step1);
 
 			ActionStep step2 = null;
-			step2 = new ActionStep(context => Assert.AreSame(step2, _pipeline.CurrentStep));
+			step2 = new ActionStep(() => Assert.AreSame(step2, _pipeline.CurrentStep));
 			_pipeline.Add(step2);
 
 			var currentSteps = new List();

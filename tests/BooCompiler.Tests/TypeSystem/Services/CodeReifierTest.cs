@@ -16,7 +16,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		public void ReifyIntoShouldFailWithAlreadyConnectedMember()
 		{
 			var module = new Module();
-			RunCompilerStepAfterExpressionResolutionOn(new CompileUnit(module), new ActionStep(context =>
+			RunCompilerStepAfterExpressionResolutionOn(new CompileUnit(module), new ActionStep(() =>
 			{
 				var klass = new ClassDefinition { Name = "Foo" };
 				module.Members.Add(klass);
@@ -32,7 +32,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		[Test]
 		public void ReifyStatementShouldRefuseDisconnectedStatement()
 		{
-			RunCompilerStepAfterExpressionResolution(new ActionStep(context =>
+			RunCompilerStepAfterExpressionResolution(new ActionStep(() =>
 			{
 				Exceptions.Expecting<ArgumentException>(() => CodeReifier().Reify(new ReturnStatement()));
 			}));
@@ -41,7 +41,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		[Test]
 		public void ReifyExpressionShouldRefuseDisconnectedExpression()
 		{
-			RunCompilerStepAfterExpressionResolution(new ActionStep(context =>
+			RunCompilerStepAfterExpressionResolution(new ActionStep(() =>
 			{
 				Exceptions.Expecting<ArgumentException>(() => CodeReifier().Reify(new NullLiteralExpression()));
 			}));

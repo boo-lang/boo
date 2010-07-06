@@ -409,6 +409,7 @@
     <Compile Include="Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs" />
     <Compile Include="Steps\AbstractTransformerCompilerStep.cs" />
     <Compile Include="Steps\AbstractVisitorCompilerStep.cs" />
+    <Compile Include="Steps\ActionStep.cs" />
     <Compile Include="Steps\AstAnnotations.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
     <Compile Include="Steps\BindEnumMembers.cs" />
