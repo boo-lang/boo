@@ -32,21 +32,12 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			if (Errors.Count > 0 ||
-				CompilerOutputType.Library == Parameters.OutputType ||
-				null == Context.GeneratedAssembly)
-			{
+			if (Errors.Count > 0
+				|| CompilerOutputType.Library == Parameters.OutputType
+				|| Context.GeneratedAssembly == null)
 				return;
-			}
 			
-			try
-			{
-				Context.GeneratedAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
-			}
-			catch (System.Reflection.TargetInvocationException x)
-			{				
-				throw x.InnerException;
-			}
+			Context.GeneratedAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
 		}
 	}
 }
