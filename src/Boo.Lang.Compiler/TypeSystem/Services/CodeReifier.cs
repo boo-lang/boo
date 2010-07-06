@@ -98,18 +98,26 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private void ForEachReifier<T>(Action<T> action) where T: class
 		{
-			var pipeline = Parameters.Pipeline;
-			var currentStep = pipeline.CurrentStep;
-			foreach (var step in pipeline)
+			var currentScope = NameResolutionService.CurrentNamespace;
+			try
 			{
-				if (step == currentStep)
-					break;
+				var pipeline = Parameters.Pipeline;
+				var currentStep = pipeline.CurrentStep;
+				foreach (var step in pipeline)
+				{
+					if (step == currentStep)
+						break;
 
-				var reifier = step as T;
-				if (reifier == null)
-					continue;
+					var reifier = step as T;
+					if (reifier == null)
+						continue;
 
-				action(reifier);
+					action(reifier);
+				}
+			}
+			finally
+			{
+				NameResolutionService.EnterNamespace(currentScope);
 			}
 		}
 	}
