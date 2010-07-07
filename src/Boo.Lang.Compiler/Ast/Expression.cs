@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -121,9 +122,29 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static Expression Lift(TypeDefinition type)
 		{
-			return new TypeofExpression(type.LexicalInfo, TypeReference.Lift(type));
+			return new ReferenceExpression(type.LexicalInfo, type.FullName);
 		}
-		
+
+		public static Expression Lift(System.Type type)
+		{
+			if (type.IsGenericType)
+				return LiftGenericType(type);
+			return ReferenceExpressionFor(type);
+		}
+
+		private static ReferenceExpression ReferenceExpressionFor(Type type)
+		{
+			return ReferenceExpression.Lift(TypeUtilities.GetFullName(type));
+		}
+
+		private static Expression LiftGenericType(Type type)
+		{
+			var genericRef = new GenericReferenceExpression { Target = ReferenceExpressionFor(type) };
+			foreach (var arg in type.GetGenericArguments())
+				genericRef.GenericArguments.Add(TypeReference.Lift(arg));
+			return genericRef;
+		}
+
 		protected Boo.Lang.Compiler.TypeSystem.IType _expressionType;
 		
 		public Expression()

@@ -38,9 +38,11 @@ namespace Boo.Lang.Compiler.Ast
 	{	
 		public static TypeReference Lift(System.Type type)
 		{
-			return new SimpleTypeReference(Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(type));
+			if (type.IsGenericType)
+				return LiftGenericType(type);
+			return new SimpleTypeReference(FullNameOf(type));
 		}
-		
+
 		public static TypeReference Lift(string name)
 		{
 			return new SimpleTypeReference(name);
@@ -104,6 +106,19 @@ namespace Boo.Lang.Compiler.Ast
 		private static string TypeNameFor(Expression target)
 		{
 			return ((ReferenceExpression) target).ToString();
+		}
+
+		private static string FullNameOf(Type type)
+		{
+			return Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(type);
+		}
+
+		private static TypeReference LiftGenericType(Type type)
+		{
+			var genericTypeRef = new GenericTypeReference { Name = FullNameOf(type) };
+			foreach (var arg in type.GetGenericArguments())
+				genericTypeRef.GenericArguments.Add(Lift(arg));
+			return genericTypeRef;
 		}
 
 		public TypeReference()

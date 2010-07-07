@@ -330,6 +330,18 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"typeref-splicing-3.boo");
 		}
 		
+		[Test]
+		public void typeref_splicing_4()
+		{
+			RunCompilerTestCase(@"typeref-splicing-4.boo");
+		}
+		
+		[Test]
+		public void typeref_splicing_5()
+		{
+			RunCompilerTestCase(@"typeref-splicing-5.boo");
+		}
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{

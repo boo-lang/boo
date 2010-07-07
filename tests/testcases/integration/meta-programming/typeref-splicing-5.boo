@@ -1,11 +1,14 @@
 """
-(a = Foo)
-(a = IFoo)
-(a = SFoo)
-(a = Foo[of string])
-(a = IFoo[of string])
-(a = SFoo[of string])
+a = Foo
+a = IFoo
+a = SFoo
+a = Foo[of Bar]
+a = IFoo[of Bar]
+a = SFoo[of Bar]
 """
+class Bar:
+	pass
+	
 class Foo:
 	pass
 	
@@ -28,7 +31,7 @@ def test(e as System.Type):
 	code = [| a = $e |]
 	print code.ToCodeString()
 
-types = (Foo, IFoo, SFoo, Foo of string, IFoo of string, SFoo of string)
+types = (Foo, IFoo, SFoo, Foo of Bar, IFoo of Bar, SFoo of Bar)
 for type in types:
 	test type
 
