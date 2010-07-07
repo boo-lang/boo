@@ -317,16 +317,8 @@ namespace Boo.Lang.Compiler.Steps
 		{			
 			foreach (Property p in GetAbstractPropertyImplementationCandidates(node, baseProperty))
 			{
-				if (!TypeSystemServices.CheckOverrideSignature(GetEntity(p).GetParameters(), baseProperty.GetParameters()))
-				{
+				if (!ResolveAsImplementationOf(baseProperty, p))
 					continue;
-				}
-
-				ProcessPropertyImplementation(p, baseProperty);
-				if (baseProperty.Type != p.Type.Entity)
-					Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, baseProperty.FullName));
-
-				AssertValidInterfaceImplementation(p, baseProperty);
 
 				//fully-implemented?
 				if (!HasGetter(baseProperty) || (HasGetter(baseProperty) && null != p.Getter))
@@ -351,6 +343,24 @@ namespace Boo.Lang.Compiler.Steps
 				AbstractMemberNotImplemented(node, baseTypeRef, baseProperty);
 		}
 
+		private bool ResolveAsImplementationOf(IProperty baseProperty, Property property)
+		{
+			if (!TypeSystemServices.CheckOverrideSignature(GetEntity(property).GetParameters(), baseProperty.GetParameters()))
+				return false;
+
+			ProcessPropertyImplementation(property, baseProperty);
+			AssertValidPropertyImplementation(property, baseProperty);
+			return true;
+		}
+
+		private void AssertValidPropertyImplementation(Property p, IProperty baseProperty)
+		{
+			if (baseProperty.Type != p.Type.Entity)
+				Error(CompilerErrorFactory.ConflictWithInheritedMember(p, p.FullName, baseProperty.FullName));
+
+			AssertValidInterfaceImplementation(p, baseProperty);
+		}
+
 		private void ProcessPropertyImplementation(Property p, IProperty baseProperty)
 		{
 			if (p.Type == null) p.Type = CodeBuilder.CreateTypeReference(baseProperty.Type);
@@ -360,70 +370,77 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static void ProcessPropertyAccessor(Property p, Method accessor, IMethod method)
 		{
-			if (null != accessor)
+			if (accessor == null)
+				return;
+
+			accessor.Modifiers |= TypeMemberModifiers.Virtual;
+
+			if (p.ExplicitInfo != null)
 			{
-				accessor.Modifiers |= TypeMemberModifiers.Virtual;
-				if (null != p.ExplicitInfo)
-				{
-					accessor.ExplicitInfo = p.ExplicitInfo.CloneNode();
-					accessor.ExplicitInfo.Entity = method;
-					accessor.Visibility = TypeMemberModifiers.Private;
-				}
+				accessor.ExplicitInfo = p.ExplicitInfo.CloneNode();
+				accessor.ExplicitInfo.Entity = method;
+				accessor.Visibility = TypeMemberModifiers.Private;
 			}
 		}
 
-		void ResolveAbstractEvent(ClassDefinition node, TypeReference baseTypeRef, IEvent entity)
+		void ResolveAbstractEvent(ClassDefinition node, TypeReference baseTypeRef, IEvent baseEvent)
 		{
-			Event ev = node.Members[entity.Name] as Event;
+			var ev = node.Members[baseEvent.Name] as Event;
 			if (ev != null)
 			{
-				Method add = ev.Add;
-				if (add != null)
-				{
-					add.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
-				}
-
-				Method remove = ev.Remove;
-				if (remove != null)
-				{
-					remove.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
-				}
-
-				Method raise = ev.Remove;
-				if (raise != null)
-				{
-					raise.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
-				}
-
-				AssertValidInterfaceImplementation(ev, entity);
-				_context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, entity);
+				ProcessEventImplementation(ev, baseEvent);
 				return;
 			}
-			if (CheckInheritsInterfaceImplementation(node, entity))
-			{
+
+			if (CheckInheritsInterfaceImplementation(node, baseEvent))
 				return;
-			}
+
 			foreach (SimpleTypeReference parent in node.BaseTypes)
 			{
 				if (_classDefinitionList.Contains(parent.Name))
 				{
 					_depth++;
-					ResolveAbstractEvent(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, entity);
+					ResolveAbstractEvent(_classDefinitionList[parent.Name] as ClassDefinition, baseTypeRef, baseEvent);
 					_depth--;
 				}
 			}
+
 			if (_depth == 0)
 			{
 				TypeMember conflicting;
-				if (null == ev && null != (conflicting = node.Members[entity.Name]))
+				if (null == ev && null != (conflicting = node.Members[baseEvent.Name]))
 				{
 					//we've got a non-resolved conflicting member
-					Error(CompilerErrorFactory.ConflictWithInheritedMember(conflicting, conflicting.FullName, entity.FullName));
+					Error(CompilerErrorFactory.ConflictWithInheritedMember(conflicting, conflicting.FullName, baseEvent.FullName));
 					return;
 				}
-				AddStub(node, CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, entity));
-				AbstractMemberNotImplemented(node, baseTypeRef, entity);
+				AddStub(node, CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, baseEvent));
+				AbstractMemberNotImplemented(node, baseTypeRef, baseEvent);
 			}
+		}
+
+		private void ProcessEventImplementation(Event ev, IEvent baseEvent)
+		{
+			Method add = ev.Add;
+			if (add != null)
+			{
+				add.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
+			}
+
+			Method remove = ev.Remove;
+			if (remove != null)
+			{
+				remove.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
+			}
+
+			Method raise = ev.Remove;
+			if (raise != null)
+			{
+				raise.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
+			}
+
+			AssertValidInterfaceImplementation(ev, baseEvent);
+			_context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, baseEvent);
 		}
 
 		void ResolveAbstractMethod(ClassDefinition node, TypeReference baseTypeRef, IMethod baseMethod)
@@ -718,21 +735,47 @@ namespace Boo.Lang.Compiler.Steps
 
 		public void Reify(TypeMember node)
 		{
+			Visit(node);
 			var method = node as Method;
 			if (method != null)
+			{
 				ReifyMethod(method);
+				return;
+			}
+			var @event = node as Event;
+			if (@event != null)
+			{
+				ReifyEvent(@event);
+				return;
+			}
+
+			var property = node as Property;
+			if (property != null)
+				ReifyProperty(property);
+		}
+
+		private void ReifyProperty(Property property)
+		{
+			foreach (var baseProperty in InheritedAbstractMembersOf(property.DeclaringType).OfType<IProperty>())
+				if (ResolveAsImplementationOf(baseProperty, property))
+					return;
+		}
+
+		private void ReifyEvent(Event @event)
+		{
+			foreach (var baseEvent in InheritedAbstractMembersOf(@event.DeclaringType).OfType<IEvent>())
+				if (baseEvent.Name == @event.Name)
+				{
+					ProcessEventImplementation(@event, baseEvent);
+					break;
+				}
 		}
 
 		private void ReifyMethod(Method method)
 		{
-			foreach (var baseMethod in InheritedAbstractMethodsOf(method.DeclaringType))
+			foreach (var baseMethod in InheritedAbstractMembersOf(method.DeclaringType).OfType<IMethod>())
 				if (ResolveAsImplementationOf(baseMethod, method))
 					return;
-		}
-
-		private IEnumerable<IMethod> InheritedAbstractMethodsOf(TypeDefinition declaringType)
-		{
-			return InheritedAbstractMembersOf(declaringType).OfType<IMethod>();
 		}
 
 		private IEnumerable<IMember> InheritedAbstractMembersOf(TypeDefinition typeDefinition)

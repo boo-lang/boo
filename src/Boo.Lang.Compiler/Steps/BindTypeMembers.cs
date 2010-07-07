@@ -195,15 +195,32 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{
 			base.Run();
+			BindAll();
+		}
+
+		override public void Reify(TypeMember node)
+		{
+			base.Reify(node);
+			BindAll();
+			Reset();
+		}
+
+		private void BindAll()
+		{
 			BindAllParameters();
 			BindAllEvents();
 		}
-		
+
 		override public void Dispose()
+		{
+			Reset();
+			base.Dispose();
+		}
+
+		private void Reset()
 		{
 			_parameters.Clear();
 			_events.Clear();
-			base.Dispose();
 		}
 
 		IMethod Delegate_Combine

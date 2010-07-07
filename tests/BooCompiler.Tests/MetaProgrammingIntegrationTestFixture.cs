@@ -25,9 +25,27 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void CodeReifierMergeInto_1()
+		public void CodeReifierMergeIntoWithEvent()
 		{
-			RunCompilerTestCase(@"CodeReifierMergeInto-1.boo");
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithEvent.boo");
+		}
+		
+		[Test]
+		public void CodeReifierMergeIntoWithMacros()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithMacros.boo");
+		}
+		
+		[Test]
+		public void CodeReifierMergeIntoWithProperties()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithProperties.boo");
+		}
+		
+		[Test]
+		public void CodeReifierMergeIntoWithStatementModifiers()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithStatementModifiers.boo");
 		}
 		
 		[Test]

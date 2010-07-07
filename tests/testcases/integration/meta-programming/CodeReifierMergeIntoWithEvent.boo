@@ -1,6 +1,8 @@
 """
-Foo.Bar(1)
-Foo.Bar(2)
+Foo.Trigger(1)
+Foo.Trigger(2)
+Bar.Trigger(1)
+Bar.Trigger(2)
 """
 
 import Boo.Lang.Environments
@@ -10,8 +12,12 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.TypeSystem.Services
 
+class FooEventArgs(System.EventArgs):
+	public Message as string
+	
 interface IFoo:
-	def Bar()
+	event Triggered as System.EventHandler of FooEventArgs
+	def Trigger()
 	
 class ImplementIFoo(AbstractVisitorCompilerStep):
 	
@@ -22,19 +28,29 @@ class ImplementIFoo(AbstractVisitorCompilerStep):
 		impl = [|
 			class _($IFoo):
 					
-				private _count = 1
+				_count = 1
+				
+				event Triggered as System.EventHandler of $FooEventArgs
 	
-				def Bar():
-					print "Foo.Bar($_count)"
-					_count++
+				def Trigger():
+					Triggered(self, FooEventArgs(Message: "$(GetType().Name).Trigger($_count)"))
+					++_count
 		|]
 		my(CodeReifier).MergeInto(node, impl)
-				
+		
+def test(foo as IFoo):
+	foo.Triggered += do (sender, args as FooEventArgs):
+		print args.Message
+	foo.Trigger()
+	foo.Trigger()
 	
 module = [|
 	import System
 	
 	class Foo:
+		pass
+		
+	class Bar:
 		pass
 |]
 
@@ -47,7 +63,8 @@ parameters.References.Add(typeof(IFoo).Assembly)
 result = BooCompiler(parameters).Run(CompileUnit(module))
 assert len(result.Errors) == 0, result.Errors.ToString(true)
 
-foo as IFoo = result.GeneratedAssembly.GetType("Foo")()
-foo.Bar()
-foo.Bar()
+assembly = result.GeneratedAssembly
+test assembly.GetType("Foo")()
+test assembly.GetType("Bar")()
+	
 
