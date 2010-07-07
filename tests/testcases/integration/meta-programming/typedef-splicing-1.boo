@@ -1,5 +1,5 @@
 """
-type = typeof(Foo)
+type = Foo
 """
 import Boo.Lang.Compiler
 
