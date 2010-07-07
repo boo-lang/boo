@@ -37,6 +37,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CodeReifierMergeIntoWithMultipleMethods()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithMultipleMethods.boo");
+		}
+		
+		[Test]
+		public void CodeReifierMergeIntoWithMultipleProperties()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithMultipleProperties.boo");
+		}
+		
+		[Test]
 		public void CodeReifierMergeIntoWithProperties()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithProperties.boo");

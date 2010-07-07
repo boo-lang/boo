@@ -757,7 +757,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void ReifyProperty(Property property)
 		{
 			foreach (var baseProperty in InheritedAbstractMembersOf(property.DeclaringType).OfType<IProperty>())
-				if (ResolveAsImplementationOf(baseProperty, property))
+				if (IsCandidateMemberImplementationFor(baseProperty, property) && ResolveAsImplementationOf(baseProperty, property))
 					return;
 		}
 
@@ -774,7 +774,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void ReifyMethod(Method method)
 		{
 			foreach (var baseMethod in InheritedAbstractMembersOf(method.DeclaringType).OfType<IMethod>())
-				if (ResolveAsImplementationOf(baseMethod, method))
+				if (IsCandidateMemberImplementationFor(baseMethod, method) && ResolveAsImplementationOf(baseMethod, method))
 					return;
 		}
 
