@@ -7,5 +7,10 @@
 		EmptyArrayType() : base(Null.Default, 1)
 		{
 		}
+
+		protected override bool IsSubclassOfGenericEnumerable(IType other)
+		{
+			return true;
+		}
 	}
 }

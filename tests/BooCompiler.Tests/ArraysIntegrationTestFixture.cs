@@ -289,6 +289,24 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void empty_array_inference_as_enumerable_of_int()
+		{
+			RunCompilerTestCase(@"empty-array-inference-as-enumerable-of-int.boo");
+		}
+		
+		[Test]
+		public void empty_array_inference_as_enumerable()
+		{
+			RunCompilerTestCase(@"empty-array-inference-as-enumerable.boo");
+		}
+		
+		[Test]
+		public void empty_array_inference_as_object()
+		{
+			RunCompilerTestCase(@"empty-array-inference-as-object.boo");
+		}
+		
+		[Test]
 		public void per_module_raw_array_indexing()
 		{
 			RunCompilerTestCase(@"per-module-raw-array-indexing.boo");

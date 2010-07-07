@@ -7,6 +7,8 @@ System.String[]
 System.String
 System.String
 System.Int32
+System.Boolean
+System.Int64
 """
 def pa(a):
 	print a.GetType().GetElementType()
@@ -16,6 +18,12 @@ def useStrings(a as (string)):
 	
 def useIntegers(a as (int)):
 	pa(a)
+	
+def returnBooleans() as (bool):
+	return (,)
+	
+def yieldLongs() as (long)*:
+	yield (,)
 	
 a1 as (string) = (,)
 pa(a1)
@@ -37,3 +45,6 @@ pa(a6)
 
 useStrings((,))
 useIntegers((,))
+pa(returnBooleans())
+for longs in yieldLongs():
+	pa(longs)

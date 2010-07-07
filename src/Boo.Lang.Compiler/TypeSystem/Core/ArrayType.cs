@@ -149,13 +149,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			// Arrays also implement generic IEnumerable of their element type 
 			if (other.ConstructedInfo != null && 
 			    other.ConstructedInfo.GenericDefinition == services.IEnumerableGenericType &&
-			    IsAssignableFrom(other.ConstructedInfo.GenericArguments[0], _elementType))
-			{
+			    IsSubclassOfGenericEnumerable(other))
 				return true;
-			}
+
 			return false;
 		}
-		
+
+		protected virtual bool IsSubclassOfGenericEnumerable(IType other)
+		{
+			return IsAssignableFrom(other.ConstructedInfo.GenericArguments[0], _elementType);
+		}
+
 		public virtual bool IsAssignableFrom(IType other)
 		{			
 			if (other == this || other == Null.Default)

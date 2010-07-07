@@ -8,6 +8,8 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class ReifyTypes : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
+		private IMethod _currentMethod;
+
 		public override void Run()
 		{
 			if (Errors.Count > 0)
@@ -29,6 +31,28 @@ namespace Boo.Lang.Compiler.Steps
 		public override void LeaveTryCastExpression(TryCastExpression node)
 		{
 			TryToReifyEmptyArrayLiteral(node.Target, GetExpressionType(node));
+		}
+
+		public override bool EnterMethod(Method node)
+		{
+			_currentMethod = GetEntity(node);
+			return true;
+		}
+
+		public override void LeaveReturnStatement(ReturnStatement node)
+		{
+			if (node.Expression == null)
+				return;
+
+			TryToReifyEmptyArrayLiteral(node.Expression, _currentMethod.ReturnType);
+		}
+
+		public override void LeaveYieldStatement(YieldStatement node)
+		{
+			if (node.Expression == null)
+				return;
+
+			TryToReifyEmptyArrayLiteral(node.Expression, GeneratorItemTypeFrom(_currentMethod.ReturnType) ?? TypeSystemServices.ObjectArrayType);
 		}
 
 		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
@@ -58,7 +82,25 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!IsEmptyArrayLiteral(candidateArray))
 				return;
-			ReifyArrayLiteralType((IArrayType)expectedType, candidateArray);
+			ReifyArrayLiteralType(ArrayTypeFor(expectedType), candidateArray);
+		}
+
+		private IArrayType ArrayTypeFor(IType expectedType)
+		{
+			var arrayType = expectedType as IArrayType;
+			if (arrayType != null)
+				return arrayType;
+
+			IType generatorItemType = GeneratorItemTypeFrom(expectedType);
+			if (generatorItemType != null)
+				return generatorItemType.MakeArrayType(1);
+
+			return TypeSystemServices.ObjectArrayType;
+		}
+
+		private IType GeneratorItemTypeFrom(IType expectedType)
+		{
+			return TypeSystemServices.IsGenericGeneratorReturnType(expectedType) ? expectedType.ConstructedInfo.GenericArguments[0] : null;
 		}
 
 		private void ReifyArrayLiteralType(IArrayType expectedArrayType, Expression array)
