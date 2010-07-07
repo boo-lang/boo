@@ -31,7 +31,7 @@ using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class NormalizeStatementModifiers : AbstractTransformerCompilerStep, IStatementReifier, IExpressionReifier
+	public class NormalizeStatementModifiers : AbstractTransformerCompilerStep, IStatementReifier, IExpressionReifier, ITypeMemberReifier
 	{
 		override public void Run()
 		{
@@ -140,6 +140,11 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifier = null;
 				ReplaceCurrentNode(CreateModifiedStatement(modifier, node));
 			}
+		}
+
+		public void Reify(TypeMember member)
+		{
+			Visit(member);
 		}
 
 		public Statement Reify(Statement node)
