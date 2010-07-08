@@ -55,6 +55,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CodeReifierMergeIntoWithNestedTypes()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithNestedTypes.boo");
+		}
+		
+		[Test]
+		public void CodeReifierMergeIntoWithNestedTypesInDifferentOrder()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithNestedTypesInDifferentOrder.boo");
+		}
+		
+		[Test]
 		public void CodeReifierMergeIntoWithProperties()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithProperties.boo");
