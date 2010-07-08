@@ -198,10 +198,11 @@ namespace Boo.Lang.Compiler.Steps
 			BindAll();
 		}
 
-		override public void Reify(TypeMember node)
+		override public TypeMember Reify(TypeMember node)
 		{
 			base.Reify(node);
 			BindAll();
+			return node;
 		}
 
 		private void BindAll()

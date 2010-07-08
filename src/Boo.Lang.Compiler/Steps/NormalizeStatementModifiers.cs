@@ -142,9 +142,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		public void Reify(TypeMember member)
+		public TypeMember Reify(TypeMember member)
 		{
-			Visit(member);
+			return Visit(member);
 		}
 
 		public Statement Reify(Statement node)

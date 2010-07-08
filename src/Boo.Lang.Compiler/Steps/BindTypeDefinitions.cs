@@ -120,9 +120,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 		}
 
-    	public void Reify(TypeMember member)
+    	public TypeMember Reify(TypeMember member)
     	{
-    		member.Accept(this);
+    		return Visit(member);
     	}
 	}
 }

@@ -733,25 +733,27 @@ namespace Boo.Lang.Compiler.Steps
 				Errors.Add(CompilerErrorFactory.InterfaceImplementationMustBePublicOrExplicit(node, baseMember));
 		}
 
-		public void Reify(TypeMember node)
+		public TypeMember Reify(TypeMember node)
 		{
 			Visit(node);
 			var method = node as Method;
 			if (method != null)
 			{
 				ReifyMethod(method);
-				return;
+				return node;
 			}
 			var @event = node as Event;
 			if (@event != null)
 			{
 				ReifyEvent(@event);
-				return;
+				return node;
 			}
 
 			var property = node as Property;
 			if (property != null)
 				ReifyProperty(property);
+
+			return node;
 		}
 
 		private void ReifyProperty(Property property)

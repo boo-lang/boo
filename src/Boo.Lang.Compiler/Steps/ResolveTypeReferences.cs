@@ -94,10 +94,11 @@ namespace Boo.Lang.Compiler.Steps
 	        return new CallableSignature(parameters, returnType, node.Parameters.HasParamArray);
 	    }
 
-		public void Reify(TypeMember member)
+		public TypeMember Reify(TypeMember member)
 		{
-			NameResolutionService.EnterNamespace(GetType(member.DeclaringType));
-			member.Accept(this);
+			NameResolutionService.EnterNamespace((INamespace) GetEntity(member.DeclaringType));
+			Visit(member);
+			return member;
 		}
 
 		public void Reify(TypeReference node)

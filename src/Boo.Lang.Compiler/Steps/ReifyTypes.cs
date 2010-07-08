@@ -114,9 +114,10 @@ namespace Boo.Lang.Compiler.Steps
 			return e.ExpressionType == EmptyArrayType.Default;
 		}
 
-		public void Reify(TypeMember member)
+		public TypeMember Reify(TypeMember member)
 		{
-			member.Accept(this);
+			Visit(member);
+			return member;
 		}
 	}
 }

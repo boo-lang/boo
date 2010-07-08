@@ -84,9 +84,10 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit.Modules);
 		}
 
-        public virtual void Reify(TypeMember member)
+        public virtual TypeMember Reify(TypeMember member)
         {
         	member.Accept(this);
+        	return member;
         }
 	}
 }
