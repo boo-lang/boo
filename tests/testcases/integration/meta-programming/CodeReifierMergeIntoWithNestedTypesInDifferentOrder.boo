@@ -1,4 +1,4 @@
-#ignore
+#ignore work in progress
 """
 First
 Second
@@ -26,8 +26,8 @@ class ImplementIFoo(AbstractVisitorCompilerStep):
 	
 				def Bar():
 					generator as OrdinalGenerator = do:
-						yield Items.First
-						yield Items.Second
+						yield Ordinal.First
+						yield Ordinal.Second
 					for item in generator():
 						yield item.ToString()
 						
