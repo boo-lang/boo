@@ -25,6 +25,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CodeReifierMergeIntoWithEmptyArrayLiteral()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithEmptyArrayLiteral.boo");
+		}
+		
+		[Test]
 		public void CodeReifierMergeIntoWithEvent()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithEvent.boo");
