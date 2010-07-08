@@ -424,7 +424,7 @@
     <value>yield cannot be used inside constructors.</value>
   </data>
   <data name="BCE0101" xml:space="preserve">
-    <value>Return type '{0}' cannot be used on a generator. Did you mean '{0}*' ? Or use a 'System.Collections.IEnumerable' or 'object'.</value>
+    <value>Return type '{0}' cannot be used on a generator. Did you mean '{0}*'? You can also use 'System.Collections.IEnumerable' or 'object'.</value>
   </data>
   <data name="BCE0102" xml:space="preserve">
     <value>Generators cannot return values.</value>
