@@ -295,9 +295,10 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers |= TypeMemberModifiers.Private;
 		}
 
-		public void Reify(TypeMember member)
+		public TypeMember Reify(TypeMember member)
 		{
-			member.Accept(this);
+			Visit(member);
+			return member;
 		}
 	}
 }

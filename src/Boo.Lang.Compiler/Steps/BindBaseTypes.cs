@@ -121,9 +121,10 @@ namespace Boo.Lang.Compiler.Steps
 			new BaseTypeResolution(Context, node, visited);
 		}
 
-		public void Reify(TypeMember member)
+		public TypeMember Reify(TypeMember member)
 		{
-			member.Accept(this);
+			Visit(member);
+			return member;
 		}
 	}
 

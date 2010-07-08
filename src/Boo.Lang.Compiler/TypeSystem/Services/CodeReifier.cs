@@ -7,9 +7,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	/// Implemented by compiler steps that need to take part in type member
 	/// reification.
 	/// </summary>
-	public interface ITypeMemberReifier
+	public interface ITypeMemberReifier : INodeReifier<TypeMember>
 	{
-		void Reify(TypeMember node);
 	}
 
 	/// <summary>
@@ -72,7 +71,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				throw new ArgumentException("ParentNode must be null for member to be reified.", "member");
 			
 			parentType.Members.Add(member);
-			Reify(member);
+			ReifyNode(member);
 		}
 
 		public void MergeInto(TypeDefinition targetType, TypeDefinition mixin)
@@ -88,17 +87,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 			targetType.Members.Extend(mixin.Members);
 			foreach (var member in mixin.Members)
-				Reify(member);
+				ReifyNode(member);
 		}
 
 		private void Reify(TypeReference node)
 		{
 			ForEachReifier<ITypeReferenceReifier>(r => r.Reify(node));
-		}
-
-		private void Reify(TypeMember node)
-		{
-			ForEachReifier<ITypeMemberReifier>(r => r.Reify(node));
 		}
 
 		private T ReifyNode<T>(T node) where T : Node

@@ -58,9 +58,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		public void Reify(TypeMember node)
+		public TypeMember Reify(TypeMember node)
 		{
 			Visit(node);
+			return node;
 		}
 	}
 }

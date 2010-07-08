@@ -72,9 +72,10 @@ namespace Boo.Lang.Compiler.Steps
 			return attributesApplied || macrosExpanded;
 		}
 
-		public void Reify(TypeMember node)
+		public TypeMember Reify(TypeMember node)
 		{
 			ApplyAttributesAndExpandMacros();
+			return node;
 		}
 
 		public Statement Reify(Statement node)

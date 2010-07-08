@@ -113,6 +113,11 @@ namespace Boo.Lang.Compiler.Ast
 			return VisitNode(node);
 		}
 
+		public TypeMember Visit(TypeMember node)
+		{
+			return (TypeMember)VisitNode(node);
+		}
+
 		public Expression Visit(Expression node)
 		{
 			return (Expression)VisitNode(node);

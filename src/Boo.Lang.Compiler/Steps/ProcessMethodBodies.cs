@@ -6677,13 +6677,15 @@ namespace Boo.Lang.Compiler.Steps
 			set { _optimizeNullComparisons = value; }
 		}
 
-		public void Reify(TypeMember member)
+		public TypeMember Reify(TypeMember member)
 		{
-			member.Accept(this);
+			Visit(member);
 
 			var field = member as Field;
 			if (field != null)
 				FlushFieldInitializers((ClassDefinition) field.DeclaringType);
+
+			return member;
 		}
 	}
 }
