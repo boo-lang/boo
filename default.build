@@ -12,7 +12,6 @@
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
-
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
 	<property name="java" value="java" />	
 	
@@ -57,7 +56,7 @@
 	<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
 			
 	<property name="csc.noconfig" value="false" />	
-	<property name="csc.define.custom" value="" unless="${property::exists('csc.define.custom')}" />
+	<property name="csc.define.custom" value="NO_CUSTOM_DEFINE" unless="${property::exists('csc.define.custom')}" />
 	<property name="csc.define" value="NET_2_0;TRACE;DEBUG;${csc.define.custom}" />
 
 	<property name="fixture" value="" dynamic="true" />
