@@ -1294,7 +1294,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!validReturnType)
 			{
-				Error(CompilerErrorFactory.InvalidGeneratorReturnType(method.ReturnType));
+				Error(CompilerErrorFactory.InvalidGeneratorReturnType(method.ReturnType, returnType.ToString()));
 			}
 		}
 
@@ -1304,9 +1304,9 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			IType returnElementType = returnType.ConstructedInfo.GenericArguments[0];
-			foreach (Expression yieldExpression in method.YieldExpressions)
+			foreach (var yieldExpression in method.YieldExpressions)
 			{
-				IType yieldType = yieldExpression.ExpressionType;
+				var yieldType = yieldExpression.ExpressionType;
 				if (!IsAssignableFrom(returnElementType, yieldType) &&
 					!TypeSystemServices.CanBeReachedByDownCastOrPromotion(returnElementType, yieldType))
 				{
