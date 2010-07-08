@@ -27,6 +27,7 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
@@ -34,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using System;
 	using Boo.Lang.Compiler.Ast;
 	
-	public class TransformCallableDefinitions : AbstractTransformerCompilerStep
+	public class TransformCallableDefinitions : AbstractTransformerCompilerStep, ITypeMemberReifier
 	{
 		override public void Run()
 		{
@@ -81,6 +82,14 @@ namespace Boo.Lang.Compiler.Steps
 						? TypeSystemServices.ObjectArrayType
 						: TypeSystemServices.ObjectType);
 			}
+		}
+
+		public void Reify(TypeMember node)
+		{
+			var parentNode = node.ParentNode;
+			var resultingNode = VisitNode(node);
+			if (node != resultingNode)
+				parentNode.Replace(node, resultingNode);
 		}
 	}
 }
