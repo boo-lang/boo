@@ -38,7 +38,7 @@ module = [|
 |]
 
 pipeline = Pipelines.CompileToMemory()
-pipeline.InsertBefore(Steps.ConstantFolding, ImplementIFoo())
+pipeline.InsertAfter(Steps.TypeInference, ImplementIFoo())
 
 parameters = CompilerParameters(Pipeline: pipeline)
 parameters.References.Add(typeof(IFoo).Assembly)

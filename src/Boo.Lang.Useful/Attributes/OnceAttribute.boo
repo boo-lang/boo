@@ -98,11 +98,9 @@ Usage
 		CreateMethodLockField()
 		PrepareMethodBody()		
 	
-		Context.Parameters.Pipeline.AfterStep += def(
-			sender,
-			e as CompilerStepEventArgs):
+		Context.Parameters.Pipeline.AfterStep += def(sender, e as CompilerStepEventArgs):
 				
-			return if not e.Step isa ProcessMethodBodies	
+			return if not e.Step isa TypeInference	
 			
 			# void methods dont need to be cached.
 			returnType = TypeSystemServices.GetEntity(_method.ReturnType)
