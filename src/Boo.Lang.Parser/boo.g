@@ -1235,12 +1235,10 @@ type_reference returns [TypeReference tr]
 		)?
 	)
 )
-(MULTIPLY
-{
-	GenericTypeReference etr = new GenericTypeReference(tr.LexicalInfo, "System.Collections.Generic.IEnumerable");
-	etr.GenericArguments.Add(tr);
-	tr = etr;
-})*
+(
+	MULTIPLY { tr = CodeFactory.EnumerableTypeReferenceFor(tr); }
+	| EXPONENTIATION { tr = CodeFactory.EnumerableTypeReferenceFor(CodeFactory.EnumerableTypeReferenceFor(tr)); }
+)*
 ;
 	
 protected

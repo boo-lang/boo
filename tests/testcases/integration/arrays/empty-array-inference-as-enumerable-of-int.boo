@@ -11,7 +11,7 @@ def pet(o):
 def returnArray() as int*:
 	return (,)
 	
-def yieldArray() as int* *:
+def yieldArray() as int**:
 	yield (,)
 	
 o as int* = (,)

@@ -390,6 +390,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void enumerable_type_shortcut()
+		{
+			RunCompilerTestCase(@"enumerable-type-shortcut.boo");
+		}
+		
+		[Test]
 		public void enums_1()
 		{
 			RunCompilerTestCase(@"enums-1.boo");
