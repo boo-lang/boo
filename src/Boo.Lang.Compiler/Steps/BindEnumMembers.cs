@@ -26,13 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Services;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using System;
 	using Boo.Lang.Compiler.Ast;
 
 	[Serializable]
-	public class BindEnumMembers : AbstractTransformerCompilerStep
+	public class BindEnumMembers : AbstractTransformerCompilerStep, ITypeMemberReifier
 	{
 		override public void Run()
 		{
@@ -54,6 +56,11 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				++lastValue;
 			}
+		}
+
+		public void Reify(TypeMember node)
+		{
+			Visit(node);
 		}
 	}
 }

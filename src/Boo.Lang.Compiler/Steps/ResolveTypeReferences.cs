@@ -96,6 +96,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		public void Reify(TypeMember member)
 		{
+			NameResolutionService.EnterNamespace(GetType(member.DeclaringType));
 			member.Accept(this);
 		}
 
