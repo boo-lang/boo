@@ -31,6 +31,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CodeReifierMergeIntoWithGenerators()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithGenerators.boo");
+		}
+		
+		[Test]
 		public void CodeReifierMergeIntoWithMacros()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithMacros.boo");
