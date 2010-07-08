@@ -61,6 +61,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void CodeReifierMergeIntoWithNestedGenericStruct()
+		{
+			RunCompilerTestCase(@"CodeReifierMergeIntoWithNestedGenericStruct.boo");
+		}
+		
+		[Test]
 		public void CodeReifierMergeIntoWithNestedTypes()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithNestedTypes.boo");
