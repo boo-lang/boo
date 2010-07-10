@@ -1,5 +1,6 @@
 using System;
 using Boo.Lang;
+using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using BooCompiler.Tests.TypeSystem.Core;
@@ -51,6 +52,15 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 			var assemblyRef = _subject.ForAssembly(GetType().Assembly);
 			Assert.IsNotNull(assemblyRef);
 			Assert.AreSame(GetType().Assembly, assemblyRef.Assembly);
+		}
+
+		[Test]
+		public void CloningPreservesTypeIdentityAccrossProviders()
+		{
+			var type = typeof(int);
+			ICompileUnit original = _subject.ForAssembly(type.Assembly);
+			IReflectionTypeSystemProvider clone = _subject.Clone();
+			Assert.AreSame(_subject.Map(type), clone.Map(type));
 		}
 	}
 }

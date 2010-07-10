@@ -29,7 +29,6 @@
 using System.Reflection;
 using Boo.Lang.Compiler.Util;
 
-
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	using System;
@@ -37,15 +36,20 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 	class AssemblyReference : IAssemblyReference, IEquatable<AssemblyReference>
 	{
 		private readonly System.Reflection.Assembly _assembly;
-		private readonly IReflectionTypeSystemProvider _provider;
+		private readonly ReflectionTypeSystemProvider _provider;
 		private INamespace _rootNamespace;
 
-		internal AssemblyReference(IReflectionTypeSystemProvider provider, System.Reflection.Assembly assembly)
+		private readonly MemoizedFunction<Type, IType> _typeEntityCache;
+		private readonly MemoizedFunction<MemberInfo, IEntity> _memberCache;
+
+		internal AssemblyReference(ReflectionTypeSystemProvider provider, System.Reflection.Assembly assembly)
 		{
 			if (null == assembly)
 				throw new System.ArgumentNullException("assembly");
 			_provider = provider;
 			_assembly = assembly;
+			_typeEntityCache = new MemoizedFunction<Type, IType>(NewType);
+			_memberCache = new MemoizedFunction<MemberInfo, IEntity>(NewEntityForMember);
 		}
 		
 		public string Name
@@ -115,5 +119,65 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		{
 			return _assembly.FullName;
 		}
+
+		public IType Map(Type type)
+		{
+			AssertAssembly(type);
+			return _typeEntityCache.Invoke(type);
+		}
+
+		public IEntity MapMember(MemberInfo mi)
+		{
+			AssertAssembly(mi);
+			if (mi.MemberType == MemberTypes.NestedType)
+				return Map((Type)mi);
+			return _memberCache.Invoke(mi);
+		}
+
+		private void AssertAssembly(MemberInfo member)
+		{
+			if (_assembly != member.Module.Assembly)
+				throw new ArgumentException(string.Format("{0} doesn't belong to assembly '{1}'.", member, _assembly));
+		}
+
+		private IEntity NewEntityForMember(MemberInfo mi)
+		{
+			switch (mi.MemberType)
+			{
+				case MemberTypes.Method:
+					return new ExternalMethod(_provider, (MethodBase)mi);
+				case MemberTypes.Constructor:
+					return new ExternalConstructor(_provider, (ConstructorInfo)mi);
+				case MemberTypes.Field:
+					return new ExternalField(_provider, (FieldInfo)mi);
+				case MemberTypes.Property:
+					return new ExternalProperty(_provider, (PropertyInfo)mi);
+				case MemberTypes.Event:
+					return new ExternalEvent(_provider, (EventInfo)mi);
+				default:
+					throw new NotImplementedException(mi.ToString());
+			}
+		}
+
+		public void MapTo(Type type, IType entity)
+		{
+			AssertAssembly(type);
+			_typeEntityCache.Add(type, entity);
+		}
+
+		private IType NewType(Type type)
+		{
+			return type.IsArray
+				? Map(type.GetElementType()).MakeArrayType(type.GetArrayRank())
+				: CreateEntityForType(type);
+		}
+
+		private IType CreateEntityForType(Type type)
+		{
+			if (type.IsGenericParameter) return new ExternalGenericParameter(_provider, type);
+			if (type.IsSubclassOf(Types.MulticastDelegate)) return _provider.CreateEntityForCallableType(type);
+			return _provider.CreateEntityForRegularType(type);
+		}
+
 	}
 }
