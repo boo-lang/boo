@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{6B5F795B-0317-4C25-9115-115965CC78BE}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -6,6 +7,9 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.Interpreter.Tests</RootNamespace>
     <AssemblyName>Boo.Lang.Interpreter.Tests</AssemblyName>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <UsePartialTypes>false</UsePartialTypes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -17,24 +21,39 @@
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <ducky>false</ducky>
+    <culture />
+    <genwarnings>false</genwarnings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <ducky>false</ducky>
+    <culture />
+    <genwarnings>false</genwarnings>
+  </PropertyGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
   <ItemGroup>
     <Compile Include="AbstractInterpreterTestFixture.boo" />
     <Compile Include="InteractiveInterpreterTestFixture.boo" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
-      <Project>{83C914F8-1F12-4879-925D-D831A04366BD}</Project>
-      <Name>Boo.Lang.Compiler</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj">
       <Project>{5AB9F617-B157-4BFC-B251-EB64C4697FC0}</Project>
       <Name>Boo.Lang.Interpreter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
-      <Project>{C1943936-DBBD-4331-94C3-BE4F7E6229DA}</Project>
-      <Name>Boo.Lang.Parser</Name>
-    </ProjectReference>
-    <Reference Include="nunit.framework" />
+    <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+    <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77" />
+    <Reference Include="Boo.Lang.Useful, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+    <Reference Include="Boo.Lang, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+    <Reference Include="Boo.Lang.Extensions, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
   </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties InternalTargetFrameworkVersion="3.5" />
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>
