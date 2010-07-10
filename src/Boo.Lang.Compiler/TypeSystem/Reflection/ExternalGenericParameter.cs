@@ -28,7 +28,6 @@
 
 using System;
 using System.Reflection;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 
 namespace Boo.Lang.Compiler.TypeSystem
