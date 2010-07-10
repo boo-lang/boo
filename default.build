@@ -270,6 +270,7 @@
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.PatternMatching.dll" />
+				<include name="System.Core.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>

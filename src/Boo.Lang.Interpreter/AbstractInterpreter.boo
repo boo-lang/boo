@@ -30,6 +30,7 @@ namespace Boo.Lang.Interpreter
 
 import System
 import System.Collections.Generic
+import System.Linq.Enumerable
 import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
@@ -78,8 +79,7 @@ class AbstractInterpreter:
 		pipeline.Replace(Steps.ProcessMethodBodiesWithDuckTyping, ProcessVariableDeclarations(self))
 		pipeline.InsertBefore(Steps.EmitAssembly, _referenceProcessor)
 		
-		index = pipeline.Find(Steps.IntroduceModuleClasses)
-		cast(Steps.IntroduceModuleClasses, pipeline[index]).ForceModuleClass = true
+		pipeline.OfType[of Steps.IntroduceModuleClasses]().First().ForceModuleClass = true
 		
 		// avoid InvalidCastExceptions by always
 		// defining callable types only once per run
