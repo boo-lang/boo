@@ -314,7 +314,6 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		_selectedSuggIdx = null
 		_suggestions = null
 
-
 	private _beforeHistory = string.Empty
 
 	def DisplayHistory():
@@ -508,8 +507,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			_print(repr(_))
 			SetValue("_", _)
 
-	override def Declare([required] name as string,
-				[required] type as System.Type):
+	override def Declare([required] name as string, [required] type as System.Type):
 		_declarations.Add(name, type)
 
 	override def SetLastValue(value):
@@ -555,7 +553,6 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		SetValue("quit", quit)
 		SetValue("getRootNamespace", Namespace.GetRootNamespace)
 
-
 	def DisplayLogo():
 		Console.ForegroundColor = _interpreterColor	if not _disableColors
 		print """Welcome to booish, an interactive interpreter for the boo programming language.
@@ -575,13 +572,11 @@ Enter boo code in the prompt below (or type /help)."""
     quit() or /q : exits the interpreter"""
 		Console.ResetColor() if not _disableColors
 
-
 	def DisplayGoodbye():	// booish is friendly
 		Console.ForegroundColor = _interpreterColor if not _disableColors
 		print ""
 		print "All your boo are belong to us!"
 		Console.ResetColor() if not _disableColors
-
 
 	def LoadHistory():
 		try:
@@ -608,7 +603,7 @@ Enter boo code in the prompt below (or type /help)."""
 
 
 	def globals():
-		return array(string, _values.Keys)		
+		return array(key as string for key in _values.Keys)		
 
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
@@ -649,9 +644,11 @@ Enter boo code in the prompt below (or type /help)."""
 		for line in Help.HelpFormatter("    ").GenerateFormattedLinesFor(type):
 			_print(line)
 
-	private _quit = false	
+	private _quit = false
+	
 	def quit():
 		_quit = true
+		
 	def repr(value):
 		writer = System.IO.StringWriter()
 		repr(value, writer)
@@ -714,17 +711,11 @@ Enter boo code in the prompt below (or type /help)."""
 	def GetBestRepresenter(type as Type) as Representer:
 		for key as Type, value in _representers:
 			return value if key.IsAssignableFrom(type)
-		assert false, "An appropriate representer could not be found!"
-
+		raise ArgumentException("An appropriate representer could not be found!")
 
 	private def CheckBooLangCompilerReferenced():
 		return if _blcReferenced
-		blcAssembly = typeof(Boo.Lang.Compiler.CompilerContext).Assembly
-		referenced = false
-		for refr in _compiler.Parameters.References:
-			referenced |= (refr == blcAssembly)
-		if not referenced:
-			_compiler.Parameters.AddAssembly(blcAssembly)
+		_compiler.Parameters.AddAssembly(typeof(Boo.Lang.Compiler.CompilerContext).Assembly)
 		_blcReferenced = true
 
 	_blcReferenced = false

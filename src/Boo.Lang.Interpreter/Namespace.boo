@@ -62,7 +62,7 @@ Namespace introspection helper.
 		return root
 				
 	_name as string
-	_types = []
+	_types = List[of System.Type]()
 	_children = {}
 	
 	def constructor([required] name as string):
@@ -80,20 +80,17 @@ Namespace introspection helper.
 		_types.Add(type)
 		
 	Types as (System.Type):
-		get:
-			return array(System.Type, _types)
+		get: return _types.ToArray()
 			
 	def GetType(name as string):
 		for type as System.Type in _types:
 			return type if name == type.Name
 			
-	Namespaces as (Namespace):
-		get:
-			return array(Namespace, _children.Values)
+	Namespaces:
+		get: return array(value as Namespace for value in _children.Values)
 			
 	Item[name as string] as Namespace:
-		get:
-			return _children[name]
+		get: return _children[name]
 			
 	override def ToString():
 		return "${_name} - ${len(_types)} type(s), ${len(_children)} namespace(s)"

@@ -56,8 +56,7 @@ class AbstractInterpreter:
 	_suggestionCompiler as BooCompiler
 	
 	Ducky:
-		get:
-			return _compiler.Parameters.Ducky
+		get: return _compiler.Parameters.Ducky
 			
 		set:
 			_compiler.Parameters.Ducky = value
@@ -76,8 +75,7 @@ class AbstractInterpreter:
 		pipeline = Pipelines.CompileToMemory()
 		pipeline.RemoveAt(0)
 				
-		pipeline.Replace(Steps.ProcessMethodBodiesWithDuckTyping,
-						ProcessVariableDeclarations(self))
+		pipeline.Replace(Steps.ProcessMethodBodiesWithDuckTyping, ProcessVariableDeclarations(self))
 		pipeline.InsertBefore(Steps.EmitAssembly, _referenceProcessor)
 		
 		index = pipeline.Find(Steps.IntroduceModuleClasses)
@@ -114,13 +112,10 @@ class AbstractInterpreter:
 		if _suggestionCompiler is null:
 			pipeline = Pipelines.ResolveExpressions(BreakOnErrors: false)
 			pipeline.Insert(1, AddRecordedImports(_imports))
-			pipeline.Replace(
-				Steps.ProcessMethodBodiesWithDuckTyping,
-				ProcessExpressionsWithInterpreterNamespace(self))
-			pipeline.Replace(
-				Steps.InitializeTypeSystemServices,
-				_compiler.Parameters.Pipeline.Get(InitializeTypeSystemServices))
+			pipeline.Replace(Steps.ProcessMethodBodiesWithDuckTyping, ProcessExpressionsWithInterpreterNamespace(self))
+			pipeline.Replace(Steps.InitializeTypeSystemServices, _compiler.Parameters.Pipeline.Get(InitializeTypeSystemServices))
 			pipeline.Add(FindCodeCompleteSuggestion())
+			
 			_suggestionCompiler = BooCompiler()
 			_suggestionCompiler.Parameters.Ducky = self.Ducky
 			_suggestionCompiler.Parameters.Pipeline = pipeline	
@@ -130,12 +125,10 @@ class AbstractInterpreter:
 		return _suggestionCompiler
 		
 	Pipeline:
-		get:
-			return _compiler.Parameters.Pipeline
+		get: return _compiler.Parameters.Pipeline
 			
 	References:
-		get:
-			return _compiler.Parameters.References
+		get: return _compiler.Parameters.References
 				
 	def SuggestCodeCompletion(code as string) as (IEntity):
 	"""
@@ -286,7 +279,7 @@ class AbstractInterpreter:
 		return TypeSystemServices.GetEntity(node)
 		
 	static def GetOptionalEntity(node as Node):
-		return TypeSystemServices.GetOptionalEntity(node)
+		return node.Entity
 		
 	private def RecordImports(imports as ImportCollection):
 		for imp in imports:
@@ -371,16 +364,14 @@ class AbstractInterpreter:
 			super(context)
 			_cachedCallableTypes = cache			
 			
-		override def GetConcreteCallableType(sourceNode as Node, 
-											signature as CallableSignature):
+		override def GetConcreteCallableType(sourceNode as Node, signature as CallableSignature):
 												
 			cached = GetCachedCallableType(signature)
 			if cached is not null: return cached
 			
 			return CacheCallableType(super(sourceNode, signature))
 		
-		override def GetConcreteCallableType(sourceNode as Node, 
-											anonymousType as AnonymousCallableType):
+		override def GetConcreteCallableType(sourceNode as Node, anonymousType as AnonymousCallableType):
 												
 			cached = GetCachedCallableType(anonymousType.GetSignature())
 			if cached is not null: return cached

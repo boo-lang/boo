@@ -31,7 +31,6 @@ namespace Boo.Lang.Interpreter
 import System
 import System.Collections
 import System.IO
-import Boo.Lang
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.IO
@@ -147,7 +146,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 		SetValue("getRootNamespace", Namespace.GetRootNamespace)
 		
 	def globals():
-		return array(string, _values.Keys)
+		return array(key as string for key in _values.Keys)
 					
 	def dir([required] obj):
 		type = (obj as Type) or obj.GetType()
@@ -237,7 +236,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 	def GetBestRepresenter(type as Type) as Representer:
 		for key as Type, value in _representers:
 			return value if key.IsAssignableFrom(type)
-		assert false, "An appropriate representer could not be found!"
+		raise ArgumentException("An appropriate representer could not be found!")
 
 def ReadBlock(line as string):
 	newLine = System.Environment.NewLine
