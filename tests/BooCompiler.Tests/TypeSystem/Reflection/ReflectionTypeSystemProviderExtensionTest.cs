@@ -25,7 +25,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 				}
 			}
 
-			protected override IType CreateEntityForRegularType(Type type)
+			public override IType CreateEntityForRegularType(Type type)
 			{
 				return new BeanAwareType(this, type);
 			}

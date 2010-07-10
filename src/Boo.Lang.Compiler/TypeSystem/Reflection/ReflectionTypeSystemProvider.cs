@@ -37,14 +37,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 	public class ReflectionTypeSystemProvider : IReflectionTypeSystemProvider
 	{
 		private readonly MemoizedFunction<Assembly, AssemblyReference> _referenceCache;
-		private readonly MemoizedFunction<Type, IType> _typeEntityCache;
-		private readonly MemoizedFunction<MemberInfo, IEntity> _memberCache;
-
+		
 		public ReflectionTypeSystemProvider()
 		{
 			_referenceCache = new MemoizedFunction<Assembly, AssemblyReference>(AssemblyEqualityComparer.Default, CreateReference);
-			_typeEntityCache = new MemoizedFunction<Type, IType>(NewType);
-			_memberCache = new MemoizedFunction<MemberInfo, IEntity>(NewEntityForMember);
 
 			MapTo(typeof(object), new ObjectTypeImpl(this));
 			MapTo(typeof(Builtins.duck), new ObjectTypeImpl(this));
@@ -53,21 +49,22 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		protected void MapTo(Type type, IType entity)
 		{
-			_typeEntityCache.Add(type, entity);
+			AssemblyReferenceFor(type.Assembly).MapTo(type, entity);
 		}
 
-		private ReflectionTypeSystemProvider(MemoizedFunction<MemberInfo, IEntity> memberCache,
-			MemoizedFunction<Assembly, AssemblyReference> referenceCache,
-			MemoizedFunction<Type, IType> typeEntityCache)
+		private ReflectionTypeSystemProvider(MemoizedFunction<Assembly, AssemblyReference> referenceCache)
 		{
-			_memberCache = memberCache;
 			_referenceCache = referenceCache;
-			_typeEntityCache = typeEntityCache;
 		}
 
 		#region Implementation of ICompilerReferenceProvider
 
 		public IAssemblyReference ForAssembly(Assembly assembly)
+		{
+			return AssemblyReferenceFor(assembly);
+		}
+
+		private AssemblyReference AssemblyReferenceFor(Assembly assembly)
 		{
 			return _referenceCache.Invoke(assembly);
 		}
@@ -83,7 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public IType Map(Type type)
 		{
-			return _typeEntityCache.Invoke(type);
+			return AssemblyReferenceFor(type.Assembly).Map(type);
 		}
 
 		public IMethod Map(MethodInfo method)
@@ -101,36 +98,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			return MapMember(mi);
 		}
 
-		private IEntity MapMember(MemberInfo mi)
-		{
-			if (mi.MemberType == MemberTypes.NestedType)
-				return Map((Type) mi);
-
-			return _memberCache.Invoke(mi);
-		}
-
-		private IEntity NewEntityForMember(MemberInfo mi)
-		{
-			switch (mi.MemberType)
-			{
-				case MemberTypes.Method:
-					return new ExternalMethod(this, (MethodBase) mi);
-				case MemberTypes.Constructor:
-					return new ExternalConstructor(this, (ConstructorInfo) mi);
-				case MemberTypes.Field:
-					return new ExternalField(this, (FieldInfo)mi);
-				case MemberTypes.Property:
-					return new ExternalProperty(this, (PropertyInfo)mi);
-				case MemberTypes.Event:
-					return new ExternalEvent(this, (EventInfo)mi);
-				default:
-					throw new NotImplementedException(mi.ToString());
-			}
-		}
-
 		public IParameter[] Map(ParameterInfo[] parameters)
 		{
-			IParameter[] mapped = new IParameter[parameters.Length];
+			var mapped = new IParameter[parameters.Length];
 			for (int i = 0; i < parameters.Length; ++i)
 			{
 				mapped[i] = new ExternalParameter(this, parameters[i]);
@@ -138,9 +108,24 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			return mapped;
 		}
 
+		private IEntity MapMember(MemberInfo mi)
+		{
+			return AssemblyReferenceFor(mi.DeclaringType.Assembly).MapMember(mi);
+		}
+
 		public virtual IReflectionTypeSystemProvider Clone()
 		{
-			return new ReflectionTypeSystemProvider(_memberCache.Clone(), _referenceCache.Clone(), _typeEntityCache.Clone());
+			return new ReflectionTypeSystemProvider(_referenceCache.Clone());
+		}
+
+		public virtual IType CreateEntityForRegularType(Type type)
+		{
+			return new ExternalType(this, type);
+		}
+
+		public virtual IType CreateEntityForCallableType(Type type)
+		{
+			return new ExternalCallableType(this, type);
 		}
 
 		public IEntity Map(MemberInfo[] members)
@@ -152,35 +137,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 				case 1:
 					return Map(members[0]);
 				default:
-					IEntity[] entities = new IEntity[members.Length];
+					var entities = new IEntity[members.Length];
 					for (int i = 0; i < entities.Length; ++i)
 						entities[i] = Map(members[i]);
 					return new Ambiguous(entities);
 			}
-		}
-
-		private IType NewType(Type type)
-		{
-			return type.IsArray
-				? Map(type.GetElementType()).MakeArrayType(type.GetArrayRank())
-				: CreateEntityForType(type);
-		}
-
-		private IType CreateEntityForType(Type type)
-		{
-			if (type.IsGenericParameter) return new ExternalGenericParameter(this, type);
-			if (type.IsSubclassOf(Types.MulticastDelegate)) return CreateEntityForCallableType(type);
-			return CreateEntityForRegularType(type);
-		}
-
-		protected virtual IType CreateEntityForRegularType(Type type)
-		{
-			return new ExternalType(this, type);
-		}
-
-		protected virtual IType CreateEntityForCallableType(Type type)
-		{
-			return new ExternalCallableType(this, type);
 		}
 
 		#endregion
