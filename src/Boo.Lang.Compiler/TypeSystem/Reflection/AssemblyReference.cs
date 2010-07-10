@@ -27,6 +27,8 @@
 #endregion
 
 using System.Reflection;
+using Boo.Lang.Compiler.Util;
+
 
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
@@ -48,13 +50,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		
 		public string Name
 		{
-			get
-			{
-				if (null == _name)
-					_name = new AssemblyName(_assembly.FullName).Name;
-				return _name;
-			}
+			get { return _name ?? (_name = new AssemblyName(_assembly.FullName).Name); }
 		}
+
 		string _name;
 
 		public string FullName
