@@ -370,7 +370,6 @@
     <Compile Include="CompilerWarning.cs" />
     <Compile Include="CompilerWarningCollection.cs" />
     <Compile Include="CompilerWarningFactory.cs" />
-    <Compile Include="ConditionalCompilation\IfdefMacro.cs" />
     <Compile Include="Environments\MyIdiom.cs" />
     <Compile Include="IAstAttribute.cs" />
     <Compile Include="IAstGeneratorMacro.cs" />
