@@ -42,8 +42,8 @@ macro printIfdef(expression as Expression):
 	|]
 	
 module = [|
-	import Boo.Lang.ConditionalCompilation from Boo.Lang.Compiler
-
+	import System
+	
 	printIfdef FOO
 	printIfdef BAR
 	printIfdef FOO and BAR
