@@ -142,25 +142,26 @@ using System.Globalization;
 		public const int DOUBLE = 115;
 		public const int FLOAT = 116;
 		public const int TIMESPAN = 117;
-		public const int LINE_CONTINUATION = 118;
-		public const int INTERPOLATED_EXPRESSION = 119;
-		public const int INTERPOLATED_REFERENCE = 120;
-		public const int SL_COMMENT = 121;
-		public const int ML_COMMENT = 122;
-		public const int WS = 123;
-		public const int X_RE_LITERAL = 124;
-		public const int DQS_ESC = 125;
-		public const int SQS_ESC = 126;
-		public const int SESC = 127;
-		public const int RE_CHAR = 128;
-		public const int X_RE_CHAR = 129;
-		public const int RE_ESC = 130;
-		public const int DIGIT_GROUP = 131;
-		public const int REVERSE_DIGIT_GROUP = 132;
-		public const int ID_PREFIX = 133;
-		public const int ID_LETTER = 134;
-		public const int DIGIT = 135;
-		public const int HEXDIGIT = 136;
+		public const int ID_SUFFIX = 118;
+		public const int LINE_CONTINUATION = 119;
+		public const int INTERPOLATED_EXPRESSION = 120;
+		public const int INTERPOLATED_REFERENCE = 121;
+		public const int SL_COMMENT = 122;
+		public const int ML_COMMENT = 123;
+		public const int WS = 124;
+		public const int X_RE_LITERAL = 125;
+		public const int DQS_ESC = 126;
+		public const int SQS_ESC = 127;
+		public const int SESC = 128;
+		public const int RE_CHAR = 129;
+		public const int X_RE_CHAR = 130;
+		public const int RE_ESC = 131;
+		public const int DIGIT_GROUP = 132;
+		public const int REVERSE_DIGIT_GROUP = 133;
+		public const int AT_SYMBOL = 134;
+		public const int ID_LETTER = 135;
+		public const int DIGIT = 136;
+		public const int HEXDIGIT = 137;
 		
 				
 	protected System.Text.StringBuilder _sbuilder = new System.Text.StringBuilder();
@@ -12625,6 +12626,7 @@ _loop525_breakloop:				;
 		@"""DOUBLE""",
 		@"""FLOAT""",
 		@"""TIMESPAN""",
+		@"""ID_SUFFIX""",
 		@"""LINE_CONTINUATION""",
 		@"""INTERPOLATED_EXPRESSION""",
 		@"""INTERPOLATED_REFERENCE""",
@@ -12640,7 +12642,7 @@ _loop525_breakloop:				;
 		@"""RE_ESC""",
 		@"""DIGIT_GROUP""",
 		@"""REVERSE_DIGIT_GROUP""",
-		@"""ID_PREFIX""",
+		@"""AT_SYMBOL""",
 		@"""ID_LETTER""",
 		@"""DIGIT""",
 		@"""HEXDIGIT"""

@@ -54,10 +54,16 @@ options
 		throw new SemanticException("Unterminated expression interpolation!", getFilename(), getLine(), getColumn());
 	}
 }
-ID options { testLiterals = true; }:
-	(ID_PREFIX)? ID_LETTER (ID_LETTER | DIGIT)*
-	;
 
+ID options { testLiterals = true; }:
+	(AT_SYMBOL ID_LETTER)=>(AT_SYMBOL ID_SUFFIX)
+	| AT_SYMBOL 
+	| ID_SUFFIX
+;
+	
+protected ID_SUFFIX:
+	ID_LETTER (ID_LETTER | DIGIT)*
+;
 INT : 
   	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
   	DIGIT_GROUP
@@ -267,7 +273,7 @@ protected
 REVERSE_DIGIT_GROUP : (DIGIT DIGIT DIGIT ({BooLexer.IsDigit(LA(2))}? '_'!)? | DIGIT)+;
 
 protected
-ID_PREFIX : '@' | '?';
+AT_SYMBOL : '@' | '?';
 
 protected
 ID_LETTER : ('_' | 'a'..'z' | 'A'..'Z' | {System.Char.IsLetter(LA(1))}? '\u0080'..'\uFFFE');

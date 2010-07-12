@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public static BuiltinFunction AddressOf = new BuiltinFunction("__addressof__", BuiltinFunctionType.AddressOf);
 		
-		public static BuiltinFunction Eval = new BuiltinFunction("__eval__", BuiltinFunctionType.Eval);
+		public static BuiltinFunction Eval = new BuiltinFunction("@", BuiltinFunctionType.Eval);
 		
 		public static BuiltinFunction Switch = new BuiltinFunction("__switch__", BuiltinFunctionType.Switch);
 

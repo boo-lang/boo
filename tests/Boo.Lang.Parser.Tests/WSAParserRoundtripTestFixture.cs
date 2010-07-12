@@ -120,6 +120,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void at_operator()
+		{
+			RunCompilerTestCase(@"at-operator.boo");
+		}
+		
+		[Test]
 		public void attributes_1()
 		{
 			RunCompilerTestCase(@"attributes-1.boo");

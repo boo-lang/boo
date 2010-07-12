@@ -95,11 +95,11 @@ class PatternExpander:
 		
 		groupNames = array[of string](groupName for groupName in pattern.Regex.GetGroupNames() if not IsInteger(groupName))
 		
-		expansion = [| __eval__($binding = $pattern.Match($matchValue)) |]
+		expansion = [| @($binding = $pattern.Match($matchValue)) |]
 		if len(groupNames) == 0:
 			expansion.Arguments.Add([| $binding.Success |])
 		else:
-			bindingAction = [| __eval__() |]
+			bindingAction = [| @() |]
 			for groupName in groupNames:
 				groupBinding = ReferenceExpression(LexicalInfo: pattern.LexicalInfo, Name: groupName)
 				bindingAction.Arguments.Add([| $groupBinding = $binding.Groups[$groupName].Captures |])
@@ -119,7 +119,7 @@ class PatternExpander:
 		return [| $l or $r |]
 		
 	def ExpandBindPattern(matchValue as Expression, node as ReferenceExpression):
-		return [| __eval__($node = $matchValue, true) |]
+		return [| @($node = $matchValue, true) |]
 		
 	def ExpandValuePattern(matchValue as Expression, node as Expression):
 		return [| $matchValue == $node |]
@@ -139,13 +139,13 @@ class PatternExpander:
 
 	def ExpandObjectPattern(matchValue as Expression, temp as ReferenceExpression, node as MethodInvocationExpression) as Expression:
 		
-		condition = [| ($matchValue isa $(TypeRefFrom(node))) and __eval__($temp = cast($(TypeRefFrom(node)), $matchValue), true) |]
+		condition = [| ($matchValue isa $(TypeRefFrom(node))) and @($temp = cast($(TypeRefFrom(node)), $matchValue), true) |]
 		condition.LexicalInfo = node.LexicalInfo
 		
 		for member in node.Arguments:
 			assert member isa ReferenceExpression, "Invalid argument '${member}' in pattern '${node}'."
 			memberRef = MemberReferenceExpression(member.LexicalInfo, temp.CloneNode(), member.ToString())
-			condition = [| $condition and __eval__($member = $memberRef, true) |]  
+			condition = [| $condition and @($member = $memberRef, true) |]  
 			
 		for member in node.NamedArguments:
 			namedArgCondition = ExpandMemberPattern(temp.CloneNode(), member)

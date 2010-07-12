@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (string.IsNullOrEmpty(name))
 				return false;
 			char c = name[0];
+			if (name.Length == 1 && c == '@')
+				return true;
 			return char.IsLetter(c) || c=='(' || c=='_' || c == '$';
 		}
 		
