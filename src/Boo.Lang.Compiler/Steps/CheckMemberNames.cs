@@ -133,29 +133,30 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected void CheckOverloadableMember(List existing, TypeMember member)
 		{
-			NodeType expectedNodeType = member.NodeType;
+			var expectedNodeType = member.NodeType;
 			foreach (TypeMember existingMember in existing)
 			{
 				if (expectedNodeType != existingMember.NodeType)
-				{
 					MemberNameConflict(member);
-				}
 				else
 				{
-					if (existingMember.IsStatic == member.IsStatic)
-					{
-						if (AreParametersTheSame(existingMember, member)
-							&& !AreDifferentInterfaceMembers((IExplicitMember)existingMember, (IExplicitMember)member)
-							&& !AreDifferentConversionOperators(existingMember, member)
-							&& IsGenericityTheSame(existingMember, member))
-						{
-							MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters)member.Entity, false));
-						}
-					}
+					if (expectedNodeType == NodeType.Constructor && existingMember.IsStatic != member.IsStatic)
+						continue; // only check instance constructors against each other
+
+					if (IsConflictingOverload(member, existingMember))
+						MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters) member.Entity, false));
 				}
 			}
 		}
-		
+
+		private bool IsConflictingOverload(TypeMember member, TypeMember existingMember)
+		{
+			return AreParametersTheSame(existingMember, member)
+			       && !AreDifferentInterfaceMembers((IExplicitMember) existingMember, (IExplicitMember) member)
+			       && !AreDifferentConversionOperators(existingMember, member)
+			       && IsGenericityTheSame(existingMember, member);
+		}
+
 		bool AreParametersTheSame(TypeMember lhs, TypeMember rhs)
 		{
 			IParameter[] lhsParameters = GetParameters(lhs.Entity);
