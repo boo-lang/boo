@@ -32,9 +32,9 @@ import System
 import Boo.Lang.Compiler.Ast
 
 
-public class VolatileAttribute (Boo.Lang.Compiler.AbstractAstAttribute):
+class VolatileAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 
-	public override def Apply(node as Node):
+	override def Apply(node as Node):
 		f = node as Field
 		if f is null:
 			InvalidNodeForAttribute('Field')
