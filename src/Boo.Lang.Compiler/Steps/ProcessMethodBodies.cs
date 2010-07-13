@@ -6271,22 +6271,18 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 
-		bool AssertDeclarationName(Declaration d)
+		protected bool AssertDeclarationName(Declaration d)
 		{
 			if (AssertIdentifierName(d, d.Name))
-			{
 				return AssertUniqueLocal(d);
-			}
 			return false;
 		}
 
-		bool AssertUniqueLocal(Declaration d)
+		protected bool AssertUniqueLocal(Declaration d)
 		{
 			if (null == _currentMethod.ResolveLocal(d.Name) &&
 				null == _currentMethod.ResolveParameter(d.Name))
-			{
 				return true;
-			}
 			Error(CompilerErrorFactory.LocalAlreadyExists(d, d.Name));
 			return false;
 		}
@@ -6332,8 +6328,8 @@ namespace Boo.Lang.Compiler.Steps
 			else if (declarations.Count == 1) //local reuse (BOO-1111)
 			{
 				var d = declarations[0];
-				var local = AstUtil.GetLocalByName(_currentMethod.Method, d.Name);
-				if (null != local && d.Type == null)
+				var local = LocalToReuseFor(d);
+				if (local != null)
 				{
 					GetDeclarationType(defaultDeclType, d);
 					AssertTypeCompatibility(d, GetType(d.Type), ((InternalLocal) local.Entity).Type);
@@ -6344,6 +6340,19 @@ namespace Boo.Lang.Compiler.Steps
 
 			foreach (var d in declarations)
 				ProcessDeclarationForIterator(d, defaultDeclType);
+		}
+		
+		protected virtual Local LocalToReuseFor(Declaration d)
+		{
+			if (d.Type != null)
+				return null;
+			
+			return LocalByName(d.Name);
+		}
+		
+		protected Local LocalByName(string name)
+		{
+			return AstUtil.GetLocalByName(_currentMethod.Method, name);
 		}
 
 		protected void ProcessDeclarationForIterator(Declaration d, IType defaultDeclType)
