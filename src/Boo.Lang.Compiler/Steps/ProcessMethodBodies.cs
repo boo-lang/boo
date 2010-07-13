@@ -2920,24 +2920,15 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType type = GetExpressionType(iterator);
 			if (IsError(type))
-			{
 				return iterator;
-			}
 
 			if (!IsAssignableFrom(TypeSystemServices.IEnumerableType, type) &&
 				!IsAssignableFrom(TypeSystemServices.IEnumeratorType, type))
 			{
 				if (IsRuntimeIterator(type))
-				{
-					if (IsTextReader(type))
-					{
-						return CodeBuilder.CreateMethodInvocation(TextReaderEnumerator_lines, iterator);
-					}
-					else
-					{
-						return CodeBuilder.CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
-					}
-				}
+					return IsTextReader(type)
+					       	? CodeBuilder.CreateMethodInvocation(TextReaderEnumerator_lines, iterator)
+					       	: CodeBuilder.CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
 			}
 			return iterator;
 		}
@@ -6336,15 +6327,14 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType defaultDeclType = GetEnumeratorItemType(iteratorType);
 			if (declarations.Count > 1)
-			{
 				// will enumerate (unpack) each item
 				defaultDeclType = GetEnumeratorItemType(defaultDeclType);
-			}
 			else if (declarations.Count == 1) //local reuse (BOO-1111)
 			{
-				Declaration d = declarations[0];
-				Local local = AstUtil.GetLocalByName(_currentMethod.Method, d.Name);
-				if (null != local) {
+				var d = declarations[0];
+				var local = AstUtil.GetLocalByName(_currentMethod.Method, d.Name);
+				if (null != local && d.Type == null)
+				{
 					GetDeclarationType(defaultDeclType, d);
 					AssertTypeCompatibility(d, GetType(d.Type), ((InternalLocal) local.Entity).Type);
 					d.Entity = local.Entity;
@@ -6352,10 +6342,8 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			foreach (Declaration d in declarations)
-			{
+			foreach (var d in declarations)
 				ProcessDeclarationForIterator(d, defaultDeclType);
-			}
 		}
 
 		protected void ProcessDeclarationForIterator(Declaration d, IType defaultDeclType)
