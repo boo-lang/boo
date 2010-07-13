@@ -131,8 +131,7 @@ namespace Boo.Lang
 		}
 
 		//fast path, that implementation detail does not really need to be API
-		[Obsolete("Use array[of T](T*) instead. Or use array(Type, IEnumerable) if array type is variable/dynamic.")]
-		public static Array array(Type elementType, ICollection collection)
+		private static Array ArrayFromCollection(Type elementType, ICollection collection)
 		{
 			if (null == elementType)
 				throw new ArgumentNullException("elementType");
@@ -167,7 +166,7 @@ namespace Boo.Lang
 			#pragma warning disable 618 //obsolete
 			ICollection collection = enumerable as ICollection;
 			if (null != collection) //fast path
-				return array(elementType, collection);
+				return ArrayFromCollection(elementType, collection);
 			#pragma warning restore 618
 
 			List l = null;
@@ -209,23 +208,7 @@ namespace Boo.Lang
 		#region generic array/matrix builtins (v0.9.2+)
 		public static T[] array<T>(int length)
 		{
-			if (length < 0)
-				throw new ArgumentException("`length' cannot be negative", "length");
-
-			return new T[length];
-		}
-
-		public static T[] array<T>(IEnumerable<T> enumerable)
-		{
-			if (null == enumerable)
-				throw new ArgumentNullException("enumerable");
-
-			ICollection<T> collection = enumerable as ICollection<T>;
-			if (null != collection) //fast path
-				return array<T>(collection);
-
-			List<T> list = new List<T>(enumerable);
-			return list.ToArray();
+			throw new NotSupportedException("Operation should have been optimized away by the compiler!");
 		}
 
 		public static T[,] matrix<T>(int length0, int length1)
@@ -248,18 +231,6 @@ namespace Boo.Lang
 				throw new ArgumentException("`length2' cannot be negative", "length2");
 
 			return new T[length0, length1, length2];
-		}
-
-		//private fast path, that implementation detail does not really need to be API
-		private static T[] array<T>(ICollection<T> collection)
-		{
-			if (null == collection)
-				throw new ArgumentNullException("collection");
-
-			int length = collection.Count;
-			T[] result = new T[length];
-			collection.CopyTo(result, 0);
-			return result;
 		}
 		#endregion
 

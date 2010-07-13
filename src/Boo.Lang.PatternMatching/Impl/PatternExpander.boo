@@ -93,7 +93,7 @@ class PatternExpander:
 		
 	def ExpandRegexPatternWithBinding(matchValue as Expression, pattern as RELiteralExpression, binding as ReferenceExpression):
 		
-		groupNames = array[of string](groupName for groupName in pattern.Regex.GetGroupNames() if not IsInteger(groupName))
+		groupNames = array(groupName for groupName in pattern.Regex.GetGroupNames() if not IsInteger(groupName))
 		
 		expansion = [| @($binding = $pattern.Match($matchValue)) |]
 		if len(groupNames) == 0:
