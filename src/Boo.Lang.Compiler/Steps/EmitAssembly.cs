@@ -5525,10 +5525,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		void SetUpAssembly()
 		{
-			string outputFile = BuildOutputAssemblyName();
+			var outputFile = BuildOutputAssemblyName();
 
 			AssemblyName asmName = CreateAssemblyName(outputFile);
-			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, GetAssemblyBuilderAccess(), GetTargetDirectory(outputFile));
+			var assemblyBuilderAccess = GetAssemblyBuilderAccess();
+			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, GetTargetDirectory(outputFile));
 			if (Parameters.Debug)
 			{
 				// ikvm tip:  Set DebuggableAttribute to assembly before
