@@ -433,6 +433,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void implicit_bool_7()
+		{
+			RunCompilerTestCase(@"implicit-bool-7.boo");
+		}
+		
+		[Test]
+		public void implicit_bool_8()
+		{
+			RunCompilerTestCase(@"implicit-bool-8.boo");
+		}
+		
+		[Test]
 		public void innerclasses_1()
 		{
 			RunCompilerTestCase(@"innerclasses-1.boo");

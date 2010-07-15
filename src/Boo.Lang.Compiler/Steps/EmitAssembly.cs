@@ -1954,14 +1954,6 @@ namespace Boo.Lang.Compiler.Steps
 			bool inNotContext = notContext;
 			notContext = false;
 
-			//if an op_Implicit has been found already, give it priority!
-			IMethod op_Implicit = expression["op_Implicit"] as IMethod;
-			if (null != op_Implicit)
-			{
-				_il.EmitCall(OpCodes.Call, GetMethodInfo(op_Implicit), null);
-				return true;
-			}
-
 			//use a builtin conversion operator just for the logical operator trueness test
 			IType type = GetExpressionType(expression);
 			if (TypeSystemServices.ObjectType == type || TypeSystemServices.DuckType == type)

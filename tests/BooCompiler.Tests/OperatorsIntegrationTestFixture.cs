@@ -199,6 +199,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void or_4()
+		{
+			RunCompilerTestCase(@"or-4.boo");
+		}
+		
+		[Test]
 		public void post_incdec_1()
 		{
 			RunCompilerTestCase(@"post-incdec-1.boo");

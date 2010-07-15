@@ -2845,14 +2845,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveConditionalExpression(ConditionalExpression node)
 		{
 			node.Condition = AssertBoolContext(node.Condition);
-
-			IType trueType = null;
-			IType falseType = null;
-			if (null != node.TrueValue)
-				trueType = GetExpressionType(node.TrueValue);
-			if (null != node.FalseValue)
-				falseType = GetExpressionType(node.FalseValue);
-
+			IType trueType = GetExpressionType(node.TrueValue);
+			IType falseType = GetExpressionType(node.FalseValue);
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
 		}
 
@@ -3806,8 +3800,41 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindLogicalOperator(BinaryExpression node)
 		{
-			AssertBoolContext(node.Left);
-			AssertBoolContext(node.Right);
+			var conditionalStatement = node.ParentNode as ConditionalStatement;
+			if (conditionalStatement != null && conditionalStatement.Condition == node)
+				BindLogicalOperatorCondition(node);
+			else
+				BindLogicalOperatorExpression(node);
+		}
+
+		private void BindLogicalOperatorExpression(BinaryExpression node)
+		{
+			var condition = AssertBoolContext(node.Left);
+			if (condition != node.Left)
+			{
+				// implicit conversion, original value has to be preserved
+				// a and b => (b if op_Implicit(a) else a)
+				// a or b => (a if op_Implicit(a) else b)
+				var local = DeclareTempLocal(GetExpressionType(node.Left));
+				var a = CodeBuilder.CreateReference(local);
+				var b = node.Right;
+				var e = node.Operator == BinaryOperatorType.And
+				        	? new ConditionalExpression(node.LexicalInfo) { Condition = condition, TrueValue = b, FalseValue = a }
+				        	: new ConditionalExpression(node.LexicalInfo) { Condition = condition, TrueValue = a, FalseValue = b };
+
+				if (condition.ReplaceNodes((n) => n == node.Left, CodeBuilder.CreateAssignment(a.CloneNode(), node.Left)) != 1)
+					throw new InvalidOperationException();
+
+				BindExpressionType(e, GetMostGenericType(node));
+				node.ParentNode.Replace(node, e);
+			}
+			BindExpressionType(node, GetMostGenericType(node));
+		}
+
+		private void BindLogicalOperatorCondition(BinaryExpression node)
+		{
+			node.Left = AssertBoolContext(node.Left);
+			node.Right = AssertBoolContext(node.Right);
 			BindExpressionType(node, GetMostGenericType(node));
 		}
 
@@ -6110,15 +6137,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		Expression AssertBoolContext(Expression expression)
 		{
-			IType type = GetExpressionType(expression);
+			var type = GetExpressionType(expression);
 			if (TypeSystemServices.IsNumberOrBool(type) || type.IsEnum)
 				return expression;
 
-			IMethod op_Implicit = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
-			if (null != op_Implicit)
+			var op_Implicit = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
+			if (op_Implicit != null)
 			{
 				//return [| $op_Implicit($expression) |]
-				expression.Annotate("op_Implicit", op_Implicit); //for logical operator use (trueness only)
 				return CodeBuilder.CreateMethodInvocation(op_Implicit, expression);
 			}
 
@@ -6126,7 +6152,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.IsNullable(type))
 			{
 				//return [| $(expression).HasValue |]
-				MemberReferenceExpression mre = new MemberReferenceExpression(expression, "HasValue");
+				var mre = new MemberReferenceExpression(expression, "HasValue");
 				Visit(mre);
 				return mre;
 			}
@@ -6135,10 +6161,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.StringType == type)
 			{
 				//return [| not string.IsNullOrEmpty($expression) |]
-				Expression mie = CodeBuilder.CreateMethodInvocation(String_IsNullOrEmpty, expression);
-				Expression not = new UnaryExpression(UnaryOperatorType.LogicalNot, mie);
-				Visit(not);
-				return not;
+				var notIsNullOrEmpty = new UnaryExpression(
+					UnaryOperatorType.LogicalNot,
+					CodeBuilder.CreateMethodInvocation(String_IsNullOrEmpty, expression));
+				Visit(notIsNullOrEmpty);
+				return notIsNullOrEmpty;
 			}
 
 			// reference types can be used in bool context
