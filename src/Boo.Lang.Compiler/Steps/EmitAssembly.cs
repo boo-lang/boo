@@ -1165,17 +1165,17 @@ namespace Boo.Lang.Compiler.Steps
 			EmitBranch(false, expression, label);
 		}
 
-		void EmitBranch(bool branch, BinaryExpression expression, Label label)
+		void EmitBranch(bool branchOnTrue, BinaryExpression expression, Label label)
 		{
 			switch (expression.Operator)
 			{
 				case BinaryOperatorType.TypeTest:
 					EmitTypeTest(expression);
-					_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
+					_il.Emit(branchOnTrue ? OpCodes.Brtrue : OpCodes.Brfalse, label);
 					break;
 
 				case BinaryOperatorType.Or:
-					if (branch)
+					if (branchOnTrue)
 					{
 						EmitBranch(true, expression.Left, label);
 						EmitBranch(true, expression.Right, label);
@@ -1190,7 +1190,7 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 
 				case BinaryOperatorType.And:
-					if (branch)
+					if (branchOnTrue)
 					{
 						Label skipRhs = _il.DefineLabel();
 						EmitBranch(false, expression.Left, skipRhs);
@@ -1207,124 +1207,124 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.Equality:
 					if (IsZeroEquivalent(expression.Left))
 					{
-						EmitBranch(!branch, expression.Right, label);
+						EmitBranch(!branchOnTrue, expression.Right, label);
 					}
 					else if (IsZeroEquivalent(expression.Right))
 					{
-						EmitBranch(!branch, expression.Left, label);
+						EmitBranch(!branchOnTrue, expression.Left, label);
 					}
 					else
 					{
 						LoadCmpOperands(expression);
-						_il.Emit(branch ? OpCodes.Beq : OpCodes.Bne_Un, label);
+						_il.Emit(branchOnTrue ? OpCodes.Beq : OpCodes.Bne_Un, label);
 					}
 					break;
 
 				case BinaryOperatorType.Inequality:
 					if (IsZeroEquivalent(expression.Left))
 					{
-						EmitBranch(branch, expression.Right, label);
+						EmitBranch(branchOnTrue, expression.Right, label);
 					}
 					else if (IsZeroEquivalent(expression.Right))
 					{
-						EmitBranch(branch, expression.Left, label);
+						EmitBranch(branchOnTrue, expression.Left, label);
 					}
 					else
 					{
 						LoadCmpOperands(expression);
-						_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
+						_il.Emit(branchOnTrue ? OpCodes.Bne_Un : OpCodes.Beq, label);
 					}
 					break;
 
 				case BinaryOperatorType.ReferenceEquality:
 					if (IsNull(expression.Left))
 					{
-						EmitRawBranch(!branch, expression.Right, label);
+						EmitRawBranch(!branchOnTrue, expression.Right, label);
 						break;
 					}
 					if (IsNull(expression.Right))
 					{
-						EmitRawBranch(!branch, expression.Left, label);
+						EmitRawBranch(!branchOnTrue, expression.Left, label);
 						break;
 					}
 					Visit(expression.Left); PopType();
 					Visit(expression.Right); PopType();
-					_il.Emit(branch ? OpCodes.Beq : OpCodes.Bne_Un, label);
+					_il.Emit(branchOnTrue ? OpCodes.Beq : OpCodes.Bne_Un, label);
 					break;
 
 				case BinaryOperatorType.ReferenceInequality:
 					if (IsNull(expression.Left))
 					{
-						EmitRawBranch(branch, expression.Right, label);
+						EmitRawBranch(branchOnTrue, expression.Right, label);
 						break;
 					}
 					if (IsNull(expression.Right))
 					{
-						EmitRawBranch(branch, expression.Left, label);
+						EmitRawBranch(branchOnTrue, expression.Left, label);
 						break;
 					}
 					Visit(expression.Left); PopType();
 					Visit(expression.Right); PopType();
-					_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
+					_il.Emit(branchOnTrue ? OpCodes.Bne_Un : OpCodes.Beq, label);
 					break;
 
 				case BinaryOperatorType.GreaterThan:
 					LoadCmpOperands(expression);
-					_il.Emit(branch ? OpCodes.Bgt : OpCodes.Ble, label);
+					_il.Emit(branchOnTrue ? OpCodes.Bgt : OpCodes.Ble, label);
 					break;
 
 				case BinaryOperatorType.GreaterThanOrEqual:
 					LoadCmpOperands(expression);
-					_il.Emit(branch ? OpCodes.Bge : OpCodes.Blt, label);
+					_il.Emit(branchOnTrue ? OpCodes.Bge : OpCodes.Blt, label);
 					break;
 
 				case BinaryOperatorType.LessThan:
 					LoadCmpOperands(expression);
-					_il.Emit(branch ? OpCodes.Blt : OpCodes.Bge, label);
+					_il.Emit(branchOnTrue ? OpCodes.Blt : OpCodes.Bge, label);
 					break;
 
 				case BinaryOperatorType.LessThanOrEqual:
 					LoadCmpOperands(expression);
-					_il.Emit(branch ? OpCodes.Ble : OpCodes.Bgt, label);
+					_il.Emit(branchOnTrue ? OpCodes.Ble : OpCodes.Bgt, label);
 					break;
 
 				default:
-					EmitDefaultBranch(branch, expression, label);
+					EmitDefaultBranch(branchOnTrue, expression, label);
 					break;
 			}
 		}
 
-		void EmitBranch(bool branch, UnaryExpression expression, Label label)
+		void EmitBranch(bool branchOnTrue, UnaryExpression expression, Label label)
 		{
 			if (UnaryOperatorType.LogicalNot == expression.Operator)
 			{
-				EmitBranch(!branch, expression.Operand, label);
+				EmitBranch(!branchOnTrue, expression.Operand, label);
 			}
 			else
 			{
-				EmitDefaultBranch(branch, expression, label);
+				EmitDefaultBranch(branchOnTrue, expression, label);
 			}
 		}
 
-		void EmitBranch(bool branch, Expression expression, Label label)
+		void EmitBranch(bool branchOnTrue, Expression expression, Label label)
 		{
 			switch (expression.NodeType)
 			{
 				case NodeType.BinaryExpression:
 					{
-						EmitBranch(branch, (BinaryExpression)expression, label);
+						EmitBranch(branchOnTrue, (BinaryExpression)expression, label);
 						break;
 					}
 
 				case NodeType.UnaryExpression:
 					{
-						EmitBranch(branch, (UnaryExpression)expression, label);
+						EmitBranch(branchOnTrue, (UnaryExpression)expression, label);
 						break;
 					}
 
 				default:
 					{
-						EmitDefaultBranch(branch, expression, label);
+						EmitDefaultBranch(branchOnTrue, expression, label);
 						break;
 					}
 			}
@@ -1340,14 +1340,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			expression.Accept(this);
 			IType type = PopType();
-			if (TypeSystemServices.DoubleType == type)
+			if (type == TypeSystemServices.DoubleType || type == TypeSystemServices.SingleType)
 			{
-				EmitDefaultValue(TypeSystemServices.DoubleType);
-				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
-			}
-			else if (TypeSystemServices.SingleType == type)
-			{
-				EmitDefaultValue(TypeSystemServices.SingleType);
+				EmitDefaultValue(type);
 				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
 			}
 			else
@@ -1356,7 +1351,6 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
 			}
 		}
-
 
 		private bool IsZeroEquivalent(Expression expression)
 		{
@@ -1385,28 +1379,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnBreakStatement(BreakStatement node)
 		{
-			EmitDebugInfo(node);
-			if (InTryInLoop())
-			{
-				_il.Emit(OpCodes.Leave, _currentLoopInfo.BreakLabel);
-			}
-			else
-			{
-				_il.Emit(OpCodes.Br, _currentLoopInfo.BreakLabel);
-			}
+			EmitGoTo(_currentLoopInfo.BreakLabel, node);
+		}
+
+		private void EmitGoTo(Label label, Node debugInfo)
+		{
+			EmitDebugInfo(debugInfo);
+			_il.Emit(InTryInLoop() ? OpCodes.Leave : OpCodes.Br, label);
 		}
 
 		override public void OnContinueStatement(ContinueStatement node)
 		{
-			EmitDebugInfo(node);
-			if (InTryInLoop())
-			{
-				_il.Emit(OpCodes.Leave, _currentLoopInfo.ContinueLabel);
-			}
-			else
-			{
-				_il.Emit(OpCodes.Br, _currentLoopInfo.ContinueLabel);
-			}
+			EmitGoTo(_currentLoopInfo.ContinueLabel, node);
 		}
 
 		override public void OnWhileStatement(WhileStatement node)

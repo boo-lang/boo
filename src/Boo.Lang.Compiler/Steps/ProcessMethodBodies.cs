@@ -2818,23 +2818,17 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveAmbiguousReferenceByAccessibility(Ambiguous candidates)
 		{
-			List<IEntity> newEntities = new List<IEntity>();
+			var newEntities = new List<IEntity>();
 			foreach (IEntity entity in candidates.Entities)
-			{
 				if (!IsInaccessible(entity))
-				{
 					newEntities.Add(entity);
-				}
-			}
 			return Entities.EntityFromList(newEntities);
 		}
 
 		private int GetIndex(IEntity[] entities, IEntity entity)
 		{
 			for (int i=0; i<entities.Length; ++i)
-			{
 				if (entities[i] == entity) return i;
-			}
 			throw new ArgumentException("entity");
 		}
 
