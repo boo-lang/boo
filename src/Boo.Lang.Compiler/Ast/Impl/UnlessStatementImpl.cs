@@ -37,10 +37,8 @@ namespace Boo.Lang.Compiler.Ast
 	using System.Runtime.Serialization;
 	
 	[System.Serializable]
-	public partial class UnlessStatement : Statement
+	public partial class UnlessStatement : ConditionalStatement
 	{
-		protected Expression _condition;
-
 		protected Block _block;
 
 
@@ -158,31 +156,6 @@ namespace Boo.Lang.Compiler.Ast
 
 		}
 	
-
-		[System.Xml.Serialization.XmlElement]
-		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public Expression Condition
-		{
-			get
-			{
-
-				return _condition;
-			}
-
-			set
-			{
-				if (_condition != value)
-				{
-					_condition = value;
-					if (null != _condition)
-					{
-						_condition.InitializeParent(this);
-					}
-				}
-			}
-
-		}
-		
 
 		[System.Xml.Serialization.XmlElement]
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]

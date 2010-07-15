@@ -128,6 +128,7 @@
     <Compile Include="Ast\CodeSerializer.cs" />
     <Compile Include="Ast\CompileUnit.cs" />
     <Compile Include="Ast\ConditionalExpression.cs" />
+    <Compile Include="Ast\ConditionalStatement.Generated.cs" />
     <Compile Include="Ast\Constructor.cs" />
     <Compile Include="Ast\ContinueStatement.cs" />
     <Compile Include="Ast\CustomExpression.Generated.cs" />
@@ -185,6 +186,7 @@
     <Compile Include="Ast\Impl\CodeSerializer.cs" />
     <Compile Include="Ast\Impl\CompileUnitImpl.cs" />
     <Compile Include="Ast\Impl\ConditionalExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\ConditionalStatementImpl.cs" />
     <Compile Include="Ast\Impl\ConstructorImpl.cs" />
     <Compile Include="Ast\Impl\ContinueStatementImpl.cs" />
     <Compile Include="Ast\Impl\CustomExpressionImpl.cs" />

@@ -274,14 +274,15 @@ class ExceptionHandler(Node):
 [collection(ExceptionHandler)]
 class ExceptionHandlerCollection:
 	pass
-
-class IfStatement(Statement):
+	
+abstract class ConditionalStatement(Statement):
 	Condition as Expression
+
+class IfStatement(ConditionalStatement):
 	TrueBlock as Block
 	FalseBlock as Block
 
-class UnlessStatement(Statement):
-	Condition as Expression
+class UnlessStatement(ConditionalStatement):
 	
 	[auto]
 	Block as Block
@@ -295,8 +296,7 @@ class ForStatement(Statement):
 	OrBlock as Block
 	ThenBlock as Block
 
-class WhileStatement(Statement):
-	Condition as Expression
+class WhileStatement(ConditionalStatement):
 	
 	[auto]
 	Block as Block
