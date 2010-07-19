@@ -134,9 +134,19 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 
+		public override bool EnterInterfaceDefinition(InterfaceDefinition node)
+		{
+			return !WasVisited(node);
+		}
+
 		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
 		{
 			MarkVisited(node);
+		}
+
+		public override bool EnterClassDefinition(ClassDefinition node)
+		{
+			return !WasVisited(node);
 		}
 
 		override public void LeaveClassDefinition(ClassDefinition node)
