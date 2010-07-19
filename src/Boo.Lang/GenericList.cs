@@ -151,9 +151,7 @@ namespace Boo.Lang
 			for (int i = 0; i < _count; ++i)
 			{
 				if (originalCount != _count || originalItems != _items)
-				{
 					throw new InvalidOperationException(ResourceManager.GetString("ListWasModified"));
-				}
 				yield return _items[i];
 			}
 		}

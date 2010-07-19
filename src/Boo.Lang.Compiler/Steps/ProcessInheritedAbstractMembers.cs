@@ -26,7 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Boo.Lang.Compiler.Ast;
@@ -66,7 +65,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.IsAbstract && null == node.Type)
 				node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
 
-			ExplicitMemberInfo explicitInfo = node.ExplicitInfo;
+			var explicitInfo = node.ExplicitInfo;
 			if (null != explicitInfo)
 			{
 				Visit(explicitInfo);
@@ -80,7 +79,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.IsAbstract && null == node.ReturnType)
 				node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
 
-			ExplicitMemberInfo explicitInfo = node.ExplicitInfo;
+			var explicitInfo = node.ExplicitInfo;
 			if (null != explicitInfo)
 			{
 				Visit(explicitInfo);
@@ -91,12 +90,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
 		{
-			TypeMember member = (TypeMember)node.ParentNode;
+			var member = (TypeMember)node.ParentNode;
 			if (!CheckExplicitMemberValidity((IExplicitMember)member))
 				return;
 
-			IType interfaceType = GetEntity(node.InterfaceType);
-			IEntity baseMember = FindImplementationFor((IMember) member.Entity, interfaceType);
+			var interfaceType = GetEntity(node.InterfaceType);
+			var baseMember = FindImplementationFor((IMember) member.Entity, interfaceType);
 			if (null == baseMember)
 			{
 				Error(CompilerErrorFactory.NotAMemberOfExplicitInterface(member, interfaceType));
@@ -109,16 +108,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool CheckExplicitMemberValidity(IExplicitMember member)
 		{
-			Node node = (Node) member;
-			IMember explicitMember = (IMember)GetEntity(node);
-			IType declaringType = explicitMember.DeclaringType;
+			var node = (Node) member;
+			var explicitMember = (IMember)GetEntity(node);
+			var declaringType = explicitMember.DeclaringType;
 			if (!declaringType.IsClass)
 			{
 				Error(CompilerErrorFactory.InvalidTypeForExplicitMember(node, declaringType));
 				return false;
 			}
 
-			IType targetInterface = GetType(member.ExplicitInfo.InterfaceType);
+			var targetInterface = GetType(member.ExplicitInfo.InterfaceType);
 			if (!targetInterface.IsInterface)
 			{
 				Error(CompilerErrorFactory.InvalidInterfaceForInterfaceMember(node, member.ExplicitInfo.InterfaceType.Name));
@@ -279,24 +278,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!TypeSystemServices.CheckOverrideSignature(impl.GetParameters(), target.GetParameters()))
 				return false;
-	
-			if (HasGetter(target))
-			{
-				if (!HasGetter(impl))
-					return false;
-			}
-			if (HasSetter(target))
-			{
-				if (!HasSetter(impl))
-					return false;
-			}
-			/* Unnecessary?
-			  if(impl.IsPublic != target.IsPublic || 
-			   impl.IsProtected != target.IsProtected ||
-			   impl.IsPrivate != target.IsPrivate)
-			{
-				return false;
-			}*/
+
+			if (HasGetter(target) && !HasGetter(impl)) return false;
+			if (HasSetter(target) && !HasSetter(impl)) return false;
+
 			return true;
 		}
 
@@ -315,17 +300,15 @@ namespace Boo.Lang.Compiler.Steps
 			if (type.IsAbstract)
 				return true;
 
-			AbstractInternalType internalType = type as AbstractInternalType;
+			var internalType = type as AbstractInternalType;
 			if (null != internalType)
 				return _newAbstractClasses.Contains(internalType.TypeDefinition);
 			return false;
 		}
 
-		void ResolveAbstractProperty(ClassDefinition node,
-			TypeReference baseTypeRef,
-			IProperty baseProperty)
+		void ResolveAbstractProperty(ClassDefinition node, TypeReference baseTypeRef, IProperty baseProperty)
 		{			
-			foreach (Property p in GetAbstractPropertyImplementationCandidates(node, baseProperty))
+			foreach (var p in GetAbstractPropertyImplementationCandidates(node, baseProperty))
 			{
 				if (!ResolveAsImplementationOf(baseProperty, p))
 					continue;
@@ -431,26 +414,17 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessEventImplementation(Event ev, IEvent baseEvent)
 		{
-			Method add = ev.Add;
-			if (add != null)
-			{
-				add.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
-			}
-
-			Method remove = ev.Remove;
-			if (remove != null)
-			{
-				remove.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
-			}
-
-			Method raise = ev.Remove;
-			if (raise != null)
-			{
-				raise.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
-			}
-
+			MakeVirtualFinal(ev.Add);
+			MakeVirtualFinal(ev.Remove);
+			MakeVirtualFinal(ev.Remove);
 			AssertValidInterfaceImplementation(ev, baseEvent);
 			_context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, baseEvent);
+		}
+
+		private static void MakeVirtualFinal(Method method)
+		{
+			if (method == null) return;
+			method.Modifiers |= TypeMemberModifiers.Final | TypeMemberModifiers.Virtual;
 		}
 
 		void ResolveAbstractMethod(ClassDefinition node, TypeReference baseTypeRef, IMethod baseMethod)
@@ -516,7 +490,7 @@ namespace Boo.Lang.Compiler.Steps
 			_context.TraceInfo("{0}: Member {1} implements {2}", member.LexicalInfo, member, baseMember);
 		}
 
-		private bool IsUnknown(IType type)
+		private static bool IsUnknown(IType type)
 		{
 			return TypeSystem.TypeSystemServices.IsUnknown(type);
 		}
@@ -625,9 +599,7 @@ namespace Boo.Lang.Compiler.Steps
 				: member.FullName;
 		}
 
-		void ResolveInterfaceMembers(ClassDefinition node,
-			TypeReference baseTypeRef,
-			IType baseType)
+		void ResolveInterfaceMembers(ClassDefinition node, TypeReference baseTypeRef, IType baseType)
 		{
 			foreach (IType entity in baseType.GetInterfaces())
 				ResolveInterfaceMembers(node, baseTypeRef, entity);
@@ -648,7 +620,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					case EntityType.Method:
 					{
-						IMethod method = (IMethod)member;
+						var method = (IMethod)member;
 						if (method.IsAbstract)
 							ResolveAbstractMethod(node, baseTypeRef, method);
 						break;
@@ -656,21 +628,17 @@ namespace Boo.Lang.Compiler.Steps
 					
 					case EntityType.Property:
 					{
-						IProperty property = (IProperty)member;
+						var property = (IProperty)member;
 						if (IsAbstract(property))
-						{
 							ResolveAbstractProperty(node, baseTypeRef, property);
-						}
 						break;
 					}
 
 					case EntityType.Event:
 					{
-						IEvent ev = (IEvent)member;
+						var ev = (IEvent)member;
 						if (ev.IsAbstract)
-						{
 							ResolveAbstractEvent(node, baseTypeRef, ev);
-						}
 						break;
 					}
 					
