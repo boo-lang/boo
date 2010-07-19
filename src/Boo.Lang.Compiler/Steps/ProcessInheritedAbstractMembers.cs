@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			var interfaceType = GetEntity(node.InterfaceType);
-			var baseMember = FindImplementationFor((IMember) member.Entity, interfaceType);
+			var baseMember = FindBaseMemberOf((IMember) member.Entity, interfaceType);
 			if (null == baseMember)
 			{
 				Error(CompilerErrorFactory.NotAMemberOfExplicitInterface(member, interfaceType));
@@ -197,16 +197,16 @@ namespace Boo.Lang.Compiler.Steps
 				if (type.IsInterface)
 					continue;
 
-				IEntity implementation = FindImplementationFor(abstractMember, type);
-				if (null != implementation)
+				IMember implementation = FindBaseMemberOf(abstractMember, type);
+				if (null != implementation && !IsAbstract(implementation))
 					return true;
 			}
 			return false;
 		}
 
-		private IEntity FindImplementationFor(IMember member, IType inType)
+		private IMember FindBaseMemberOf(IMember member, IType inType)
 		{
-			foreach (IEntity candidate in ImplementationCandidatesFor(member, inType))
+			foreach (var candidate in ImplementationCandidatesFor(member, inType))
 			{
 				if (candidate == member)
 					continue;
@@ -237,21 +237,25 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		private IEnumerable<IEntity> ImplementationCandidatesFor(IMember abstractMember, IType inBaseType)
+		private IEnumerable<IMember> ImplementationCandidatesFor(IMember abstractMember, IType inBaseType)
 		{
-			foreach (IEntity candidate in inBaseType.GetMembers())
+			while (inBaseType != null)
 			{
-				if (candidate.EntityType != abstractMember.EntityType)
-					continue;
+				foreach (var candidate in inBaseType.GetMembers())
+				{
+					if (candidate.EntityType != abstractMember.EntityType)
+						continue;
 
-				if (candidate.EntityType == EntityType.Field)
-					continue;
+					if (candidate.EntityType == EntityType.Field)
+						continue;
 
-				string candidateName = abstractMember.DeclaringType.IsInterface
-				                       	? SimpleNameOf(candidate)
-				                       	: candidate.Name;
-				if (candidateName == abstractMember.Name)
-					yield return candidate;
+					string candidateName = abstractMember.DeclaringType.IsInterface
+					                       	? SimpleNameOf(candidate)
+					                       	: candidate.Name;
+					if (candidateName == abstractMember.Name)
+						yield return (IMember)candidate;
+				}
+				inBaseType = inBaseType.BaseType;
 			}
 		}
 

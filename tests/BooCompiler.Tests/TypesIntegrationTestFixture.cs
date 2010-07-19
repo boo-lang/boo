@@ -517,6 +517,36 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void interface_implementation_inheritance_1()
+		{
+			RunCompilerTestCase(@"interface-implementation-inheritance-1.boo");
+		}
+		
+		[Test]
+		public void interface_implementation_inheritance_2()
+		{
+			RunCompilerTestCase(@"interface-implementation-inheritance-2.boo");
+		}
+		
+		[Test]
+		public void interface_implementation_inheritance_3()
+		{
+			RunCompilerTestCase(@"interface-implementation-inheritance-3.boo");
+		}
+		
+		[Test]
+		public void interface_implementation_inheritance_4()
+		{
+			RunCompilerTestCase(@"interface-implementation-inheritance-4.boo");
+		}
+		
+		[Test]
+		public void interface_implementation_inheritance_5()
+		{
+			RunCompilerTestCase(@"interface-implementation-inheritance-5.boo");
+		}
+		
+		[Test]
 		public void interfaces_1()
 		{
 			RunCompilerTestCase(@"interfaces-1.boo");
