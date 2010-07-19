@@ -52,10 +52,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsExtension
 		{
-			get
-			{
-				return IsBooExtension || IsClrExtension;
-			}
+			get { return IsBooExtension || IsClrExtension; }
 		}
 
 		public bool IsBooExtension
@@ -63,9 +60,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				if (null == _isBooExtension)
-				{
 					_isBooExtension = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
-				}
 				return _isBooExtension.Value;
 			}
 		}

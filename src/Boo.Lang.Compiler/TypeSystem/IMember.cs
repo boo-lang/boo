@@ -32,20 +32,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public interface IMember : ITypedEntity, IEntityWithAttributes
 	{
 		bool IsDuckTyped { get; }
-
-		IType DeclaringType
-		{
-			get;
-		}
-		
-		bool IsStatic
-		{
-			get;
-		}
-		
-		bool IsPublic
-		{
-			get;
-		}
+		IType DeclaringType { get; }
+		bool IsStatic { get; }
+		bool IsPublic { get; }
 	}
 }
