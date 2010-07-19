@@ -73,6 +73,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void double_precision_is_used_for_literals()
+		{
+			RunCompilerTestCase(@"double-precision-is-used-for-literals.boo");
+		}
+		
+		[Test]
 		public void hash_1()
 		{
 			RunCompilerTestCase(@"hash-1.boo");
