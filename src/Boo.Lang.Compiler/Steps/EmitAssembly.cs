@@ -230,22 +230,18 @@ namespace Boo.Lang.Compiler.Steps
 			if (CompileUnit.Modules.Count == 0)
 				return;
 
-			List types = CollectTypes();
-			foreach (TypeDefinition type in types)
-			{
+			var types = CollectTypes();
+			foreach (var type in types)
 				DefineType(type);
-			}
 
-			foreach (TypeDefinition type in types)
+			foreach (var type in types)
 			{
 				DefineGenericParameters(type);
 				DefineTypeMembers(type);
 			}
 
-			foreach (Module module in CompileUnit.Modules)
-			{
+			foreach (var module in CompileUnit.Modules)
 				OnModule(module);
-			}
 
 			EmitAttributes();
 			CreateTypes(types);
@@ -390,9 +386,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void CreateTypes(List types)
+		void CreateTypes(List<TypeDefinition> types)
 		{
-			new TypeCreator(this, types).Run();
+			new TypeCreator(this, types).CreateTypes();
 		}
 
 		/// <summary>
@@ -402,51 +398,33 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitAssembly _emitter;
 
-			Hashtable _created;
+			Set<TypeDefinition> _created;
 
-			List _types;
+			List<TypeDefinition> _types;
 
-			TypeMember _current;
+			TypeDefinition _current;
 
-			public TypeCreator(EmitAssembly emitter, List types)
+			public TypeCreator(EmitAssembly emitter, List<TypeDefinition> types)
 			{
 				_emitter = emitter;
 				_types = types;
-				_created = new Hashtable();
+				_created = new Set<TypeDefinition>();
 			}
 
-			public void Run()
+			public void CreateTypes()
 			{
-				Permissions.WithAppDomainPermission(() => CurrentDomain().TypeResolve += OnTypeResolve);
-				try
-				{
-					CreateTypes();
-				}
-				finally
-				{
-					Permissions.WithAppDomainPermission(() => CurrentDomain().TypeResolve -= OnTypeResolve);
-				}
-			}
-
-			private AppDomain CurrentDomain()
-			{
-				return Thread.GetDomain();
-			}
-
-			void CreateTypes()
-			{
-				foreach (TypeMember type in _types)
+				foreach (var type in _types)
 					CreateType(type);
 			}
 
-			void CreateType(TypeMember type)
+			void CreateType(TypeDefinition type)
 			{
-				if (_created.ContainsKey(type))
+				if (_created.Contains(type))
 					return;
 
-				_created.Add(type, type);
+				_created.Add(type);
 
-				TypeMember saved = _current;
+				var saved = _current;
 				_current = type;
 				try
 				{
@@ -460,18 +438,15 @@ namespace Boo.Lang.Compiler.Steps
 				_current = saved;
 			}
 
-			private void HandleTypeCreation(TypeMember type)
+			private void HandleTypeCreation(TypeDefinition type)
 			{
 				Trace("creating type '{0}'", type);
 
 				if (IsNestedType(type))
 					CreateOuterTypeOf(type);
 
-				TypeDefinition typedef = type as TypeDefinition;
-				if (null != typedef)
-					CreateRelatedTypes(typedef);
-
-				TypeBuilder typeBuilder = _emitter.GetBuilder(type) as TypeBuilder;
+				CreateRelatedTypes(type);
+				var typeBuilder = _emitter.GetBuilder(type) as TypeBuilder;
 				if (null != typeBuilder)
 					typeBuilder.CreateType();
 				else
@@ -482,37 +457,36 @@ namespace Boo.Lang.Compiler.Steps
 
 			private void HandleEnumCreation(TypeMember type)
 			{
-				EnumBuilder enumBuilder = (EnumBuilder) _emitter.GetBuilder(type);
+				var enumBuilder = (EnumBuilder) _emitter.GetBuilder(type);
 				enumBuilder.CreateType();
 			}
 
 			private void CreateOuterTypeOf(TypeMember type)
 			{
-				CreateType((TypeMember)type.ParentNode);
+				CreateType(type.DeclaringType);
 			}
 
 			private void CreateRelatedTypes(TypeDefinition typedef)
 			{
 				CreateRelatedTypes(typedef.BaseTypes);
-
-				foreach (GenericParameterDeclaration gpd in typedef.GenericParameters)
-				{
+				foreach (var gpd in typedef.GenericParameters)
 					CreateRelatedTypes(gpd.BaseTypes);
-				}
+				foreach (var field in typedef.Members.OfType<Field>())
+					EnsureInternalDependencies((IType)field.Type.Entity);
 			}
 
-			private void CreateRelatedTypes(TypeReferenceCollection typerefs)
+			private void CreateRelatedTypes(IEnumerable<TypeReference> typerefs)
 			{
-				foreach (TypeReference typeref in typerefs)
+				foreach (var typeref in typerefs)
 				{
-					IType type = _emitter.GetType(typeref);
-					EnsureInternalDependency(type);
+					var type = _emitter.GetType(typeref);
+					EnsureInternalDependencies(type);
 				}
 			}
 
-			private void EnsureInternalDependency(IType type)
+			private void EnsureInternalDependencies(IType type)
 			{
-				AbstractInternalType internalType = type as AbstractInternalType;
+				var internalType = type as AbstractInternalType;
 				if (null != internalType)
 				{
 					CreateType(internalType.TypeDefinition);
@@ -521,11 +495,9 @@ namespace Boo.Lang.Compiler.Steps
 
 				if (type.ConstructedInfo != null)
 				{
-					EnsureInternalDependency(type.ConstructedInfo.GenericDefinition);
-					foreach (IType typeArg in type.ConstructedInfo.GenericArguments)
-					{
-						EnsureInternalDependency(typeArg);
-					}
+					EnsureInternalDependencies(type.ConstructedInfo.GenericDefinition);
+					foreach (var typeArg in type.ConstructedInfo.GenericArguments)
+						EnsureInternalDependencies(typeArg);
 				}
 			}
 
@@ -536,62 +508,37 @@ namespace Boo.Lang.Compiler.Steps
 					(NodeType.InterfaceDefinition == parent);
 			}
 
-			Assembly OnTypeResolve(object sender, ResolveEventArgs args)
-			{
-				Trace("OnTypeResolve('{0}') during '{1}' creation.", args.Name, _current);
-
-				// TypeResolve is generated whenever a type
-				// contains fields of a value type not created yet.
-				// All we need to do is look for value type fields
-				// and create them all.
-				ClassDefinition classdef = _current as ClassDefinition;
-				foreach (TypeMember member in classdef.Members)
-				{
-					if (NodeType.Field == member.NodeType)
-					{
-						AbstractInternalType type = _emitter.GetType(((Field)member).Type) as AbstractInternalType;
-						if (type != null && type.IsValueType)
-						{
-							CreateType(type.TypeDefinition);
-						}
-					}
-				}
-
-				return _emitter._asmBuilder;
-			}
-
 			void Trace(string format, params object[] args)
 			{
 				_emitter.Context.TraceVerbose(format, args);
 			}
 		}
 
-		List CollectTypes()
+		List<TypeDefinition> CollectTypes()
 		{
-			List types = new List();
+			var types = new List<TypeDefinition>();
 			foreach (Module module in CompileUnit.Modules)
-			{
 				CollectTypes(types, module.Members);
-			}
 			return types;
 		}
 
-		void CollectTypes(List types, TypeMemberCollection members)
+		void CollectTypes(List<TypeDefinition> types, TypeMemberCollection members)
 		{
-			foreach (TypeMember member in members)
+			foreach (var member in members)
 			{
 				switch (member.NodeType)
 				{
 					case NodeType.InterfaceDefinition:
 					case NodeType.ClassDefinition:
 						{
-							types.Add(member);
-							CollectTypes(types, ((TypeDefinition)member).Members);
+							var typeDefinition = ((TypeDefinition)member);
+							types.Add(typeDefinition);
+							CollectTypes(types, typeDefinition.Members);
 							break;
 						}
 					case NodeType.EnumDefinition:
 						{
-							types.Add(member);
+							types.Add((TypeDefinition) member);
 							break;
 						}
 				}
