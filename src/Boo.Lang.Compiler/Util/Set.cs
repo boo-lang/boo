@@ -57,8 +57,7 @@ namespace Boo.Lang.Compiler.Util
 
 		public bool Contains(T element)
 		{
-			bool value;
-			return _elements.TryGetValue(element, out value);
+			return _elements.ContainsKey(element);
 		}
 
 		public void CopyTo(T[] array, int arrayIndex)
@@ -95,11 +94,11 @@ namespace Boo.Lang.Compiler.Util
 
 		public void RemoveAll(Predicate<T> predicate)
 		{
-			List<T> toRemove = new List<T>();
-			foreach (T element in _elements.Keys)
+			var toRemove = new List<T>();
+			foreach (var element in _elements.Keys)
 				if (predicate(element))
 					toRemove.Add(element);
-			foreach (T element in toRemove)
+			foreach (var element in toRemove)
 				Remove(element);
 		}
 
