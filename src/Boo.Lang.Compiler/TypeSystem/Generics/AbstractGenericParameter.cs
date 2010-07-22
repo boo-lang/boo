@@ -63,25 +63,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			get
 			{
 				if (DeclaringEntity is IType)
-				{
 					return (IType)DeclaringEntity;
-				}
-
 				if (DeclaringEntity is IMethod)
-				{
 					return ((IMethod)DeclaringEntity).DeclaringType;
-				}
-
 				return null;
 			}
 		}
 
 		protected IMethod DeclaringMethod 
 		{
-			get
-			{
-				return DeclaringEntity as IMethod;
-			}
+			get { return DeclaringEntity as IMethod; }
 		}
 
 		bool IType.IsAbstract
@@ -113,6 +104,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			get { return false; }
 		}
+
 		bool IType.IsPointer
 		{
 			get { return false; }
@@ -140,7 +132,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		
 		public IType[] GetInterfaces()
 		{
-			return Array.FindAll(GetTypeConstraints(), delegate(IType type) { return type.IsInterface; });
+			return Array.FindAll(GetTypeConstraints(), type => type.IsInterface);
 		}
 
 		public bool IsSubclassOf(IType other)
@@ -177,10 +169,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		public string FullName 
 		{
-			get 
-			{
-				return string.Format("{0}.{1}", DeclaringEntity.FullName, Name);
-			}
+			get { return string.Format("{0}.{1}", DeclaringEntity.FullName, Name); }
 		}
 		
 		public EntityType EntityType
@@ -205,15 +194,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		
 		bool INamespace.Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			bool resolved = false;
-			
+			var resolved = false;
 			foreach (IType type in GetTypeConstraints())
-			{
 				resolved |= type.Resolve(resultingSet, name, typesToConsider);
-			}
-			
 			resolved |= _tss.ObjectType.Resolve(resultingSet, name, typesToConsider);
-
 			return resolved;
 		}
 		
@@ -230,12 +214,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		protected IType FindBaseType()
 		{
 			foreach (IType type in GetTypeConstraints())
-			{
 				if (!type.IsInterface)
-				{
 					return type;
-				}
-			}
 			return _tss.ObjectType;
 		}
 
@@ -247,6 +227,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				_arrayTypes = new ArrayTypeCache(this);
 			return _arrayTypes.MakeArrayType(rank);
 		}
+
 		public IType MakePointerType()
 		{
 			return null;
