@@ -70,11 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			string baseName = _definition.FullName;
 			int typeParametersPosition = baseName.LastIndexOf("[");
 			if (typeParametersPosition >= 0) baseName = baseName.Remove(typeParametersPosition);
-
-			string[] argumentNames = Array.ConvertAll<IType, string>(
-				ConstructedInfo.GenericArguments,
-				delegate(IType t) { return t.FullName; });
-
+			string[] argumentNames = Array.ConvertAll<IType, string>(ConstructedInfo.GenericArguments, t => t.ToString());
 			return string.Format("{0}[of {1}]", baseName, string.Join(", ", argumentNames));
 		}
 
