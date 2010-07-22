@@ -343,6 +343,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-1261-1.boo");
 		}
 		
+		[Ignore(" WIP")][Test]
+		public void BOO_1264()
+		{
+			RunCompilerTestCase(@"BOO-1264.boo");
+		}
+		
 		[Test]
 		public void BOO_1288()
 		{
