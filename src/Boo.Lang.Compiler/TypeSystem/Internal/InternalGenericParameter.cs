@@ -40,8 +40,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public class InternalGenericParameter : AbstractGenericParameter, IInternalEntity
 	{
 		int _position = -1;
-		GenericParameterDeclaration _declaration;
-		IType[] _baseTypes = null;
+    	readonly GenericParameterDeclaration _declaration;
+		IType[] _baseTypes;
 		
 		public InternalGenericParameter(TypeSystemServices tss, GenericParameterDeclaration declaration) : base(tss)
 		{
@@ -74,10 +74,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			if (_baseTypes == null)
 			{
-				List<IType> baseTypes = new List<IType>();
+				var baseTypes = new List<IType>();
 				foreach (TypeReference baseTypeReference in _declaration.BaseTypes)
 				{
-					IType baseType = (IType)baseTypeReference.Entity;
+					var baseType = (IType)baseTypeReference.Entity;
 					if (baseType != null)
 					{
 						baseTypes.Add(baseType);
@@ -129,13 +129,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				if (HasConstraint(GenericParameterConstraints.Covariant))
-				{
 					return Variance.Covariant;
-				}
-				else if (HasConstraint(GenericParameterConstraints.Contravariant))
-				{
+				if (HasConstraint(GenericParameterConstraints.Contravariant))
 					return Variance.Contravariant;
-				}
 				return Variance.Invariant;
 			}
 		}

@@ -343,6 +343,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-1261-1.boo");
 		}
 		
+		[Ignore(" WIP")][Test]
+		public void BOO_1264()
+		{
+			RunCompilerTestCase(@"BOO-1264.boo");
+		}
+		
 		[Test]
 		public void BOO_1288()
 		{
@@ -353,6 +359,12 @@ namespace BooCompiler.Tests
 		public void BOO_129_1()
 		{
 			RunCompilerTestCase(@"BOO-129-1.boo");
+		}
+		
+		[Test]
+		public void BOO_1290()
+		{
+			RunCompilerTestCase(@"BOO-1290.boo");
 		}
 		
 		[Test]

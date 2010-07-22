@@ -513,6 +513,7 @@
     <Compile Include="TypeSystem\Generics\AbstractGenericParameter.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructedMethod.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructedType.cs" />
+    <Compile Include="TypeSystem\Generics\GenericConstructionChecker.cs" />
     <Compile Include="TypeSystem\Generics\GenericMappedMembers.cs" />
     <Compile Include="TypeSystem\Generics\GenericMappedTypeParameter.cs" />
     <Compile Include="TypeSystem\Generics\GenericMapping.cs" />

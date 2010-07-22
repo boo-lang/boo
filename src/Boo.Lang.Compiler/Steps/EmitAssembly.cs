@@ -2542,8 +2542,9 @@ namespace Boo.Lang.Compiler.Steps
 
 			Expression argument = node.Arguments[0];
 			LoadAddressForInitObj(argument);
-			System.Type type = GetSystemType(GetExpressionType(argument));
-			Debug.Assert(type.IsValueType);
+			var expressionType = GetExpressionType(argument);
+			System.Type type = GetSystemType(expressionType);
+			Debug.Assert(type.IsValueType || (type.IsGenericParameter && expressionType.IsValueType));
 			_il.Emit(OpCodes.Initobj, type);
 			PushVoid();
 		}
