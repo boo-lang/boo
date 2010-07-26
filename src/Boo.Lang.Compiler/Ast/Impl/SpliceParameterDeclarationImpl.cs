@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.SpliceParameterDeclaration;
-			}
+			get { return NodeType.SpliceParameterDeclaration; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -189,12 +186,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ParameterDeclaration ParameterDeclaration
 		{
-			get
-			{
-
-				return _parameterDeclaration;
-			}
-
+			
+			get { return _parameterDeclaration; }
 			set
 			{
 				if (_parameterDeclaration != value)
@@ -214,12 +207,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression NameExpression
 		{
-			get
-			{
-
-				return _nameExpression;
-			}
-
+			
+			get { return _nameExpression; }
 			set
 			{
 				if (_nameExpression != value)

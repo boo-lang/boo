@@ -60,10 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.GenericTypeDefinitionReference;
-			}
+			get { return NodeType.GenericTypeDefinitionReference; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -122,16 +119,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public int GenericPlaceholders
 		{
-			get
-			{
-
-				return _genericPlaceholders;
-			}
-
-			set
-			{
-				_genericPlaceholders = value;
-			}
+			
+			get { return _genericPlaceholders; }
+			set { _genericPlaceholders = value; }
 
 		}
 		

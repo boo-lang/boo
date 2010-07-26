@@ -58,10 +58,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.NullLiteralExpression;
-			}
+			get { return NodeType.NullLiteralExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]

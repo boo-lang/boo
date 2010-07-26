@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.SlicingExpression;
-			}
+			get { return NodeType.SlicingExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -157,12 +154,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Target
 		{
-			get
-			{
-
-				return _target;
-			}
-
+			
+			get { return _target; }
 			set
 			{
 				if (_target != value)
@@ -183,14 +176,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public SliceCollection Indices
 		{
-			get
-			{
+			
 
-			if (_indices == null) _indices = new SliceCollection(this);
-
-				return _indices;
-			}
-
+			get { return _indices ?? (_indices = new SliceCollection(this)); }
 			set
 			{
 				if (_indices != value)

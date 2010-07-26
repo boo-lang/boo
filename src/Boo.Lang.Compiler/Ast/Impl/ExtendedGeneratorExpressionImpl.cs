@@ -60,10 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ExtendedGeneratorExpression;
-			}
+			get { return NodeType.ExtendedGeneratorExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -141,14 +138,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public GeneratorExpressionCollection Items
 		{
-			get
-			{
+			
 
-			if (_items == null) _items = new GeneratorExpressionCollection(this);
-
-				return _items;
-			}
-
+			get { return _items ?? (_items = new GeneratorExpressionCollection(this)); }
 			set
 			{
 				if (_items != value)

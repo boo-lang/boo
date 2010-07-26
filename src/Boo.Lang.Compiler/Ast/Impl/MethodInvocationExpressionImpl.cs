@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.MethodInvocationExpression;
-			}
+			get { return NodeType.MethodInvocationExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -181,12 +178,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Target
 		{
-			get
-			{
-
-				return _target;
-			}
-
+			
+			get { return _target; }
 			set
 			{
 				if (_target != value)
@@ -207,14 +200,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ExpressionCollection Arguments
 		{
-			get
-			{
+			
 
-			if (_arguments == null) _arguments = new ExpressionCollection(this);
-
-				return _arguments;
-			}
-
+			get { return _arguments ?? (_arguments = new ExpressionCollection(this)); }
 			set
 			{
 				if (_arguments != value)
@@ -235,14 +223,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ExpressionPairCollection NamedArguments
 		{
-			get
-			{
+			
 
-			if (_namedArguments == null) _namedArguments = new ExpressionPairCollection(this);
-
-				return _namedArguments;
-			}
-
+			get { return _namedArguments ?? (_namedArguments = new ExpressionPairCollection(this)); }
 			set
 			{
 				if (_namedArguments != value)

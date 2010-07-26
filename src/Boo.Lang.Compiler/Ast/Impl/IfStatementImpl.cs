@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.IfStatement;
-			}
+			get { return NodeType.IfStatement; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -178,12 +175,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block TrueBlock
 		{
-			get
-			{
-
-				return _trueBlock;
-			}
-
+			
+			get { return _trueBlock; }
 			set
 			{
 				if (_trueBlock != value)
@@ -203,12 +196,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block FalseBlock
 		{
-			get
-			{
-
-				return _falseBlock;
-			}
-
+			
+			get { return _falseBlock; }
 			set
 			{
 				if (_falseBlock != value)

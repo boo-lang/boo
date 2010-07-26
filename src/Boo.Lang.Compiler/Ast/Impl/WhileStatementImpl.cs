@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.WhileStatement;
-			}
+			get { return NodeType.WhileStatement; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -195,17 +192,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block Block
 		{
+			
 			get
-			{
-			if (_block == null)
-			{
-				_block = new Block();
-				_block.InitializeParent(this);
-			}
-
+			{ 
+				if (_block == null)
+				{
+					_block = new Block();
+					_block.InitializeParent(this);
+				}
 				return _block;
 			}
-
 			set
 			{
 				if (_block != value)
@@ -225,12 +221,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block OrBlock
 		{
-			get
-			{
-
-				return _orBlock;
-			}
-
+			
+			get { return _orBlock; }
 			set
 			{
 				if (_orBlock != value)
@@ -250,12 +242,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block ThenBlock
 		{
-			get
-			{
-
-				return _thenBlock;
-			}
-
+			
+			get { return _thenBlock; }
 			set
 			{
 				if (_thenBlock != value)

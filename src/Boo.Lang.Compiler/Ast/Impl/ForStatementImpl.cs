@@ -68,10 +68,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ForStatement;
-			}
+			get { return NodeType.ForStatement; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -222,14 +219,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public DeclarationCollection Declarations
 		{
-			get
-			{
+			
 
-			if (_declarations == null) _declarations = new DeclarationCollection(this);
-
-				return _declarations;
-			}
-
+			get { return _declarations ?? (_declarations = new DeclarationCollection(this)); }
 			set
 			{
 				if (_declarations != value)
@@ -249,12 +241,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Iterator
 		{
-			get
-			{
-
-				return _iterator;
-			}
-
+			
+			get { return _iterator; }
 			set
 			{
 				if (_iterator != value)
@@ -274,17 +262,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block Block
 		{
+			
 			get
-			{
-			if (_block == null)
-			{
-				_block = new Block();
-				_block.InitializeParent(this);
-			}
-
+			{ 
+				if (_block == null)
+				{
+					_block = new Block();
+					_block.InitializeParent(this);
+				}
 				return _block;
 			}
-
 			set
 			{
 				if (_block != value)
@@ -304,12 +291,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block OrBlock
 		{
-			get
-			{
-
-				return _orBlock;
-			}
-
+			
+			get { return _orBlock; }
 			set
 			{
 				if (_orBlock != value)
@@ -329,12 +312,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block ThenBlock
 		{
-			get
-			{
-
-				return _thenBlock;
-			}
-
+			
+			get { return _thenBlock; }
 			set
 			{
 				if (_thenBlock != value)

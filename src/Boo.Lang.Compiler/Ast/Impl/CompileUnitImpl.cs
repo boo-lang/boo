@@ -60,10 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.CompileUnit;
-			}
+			get { return NodeType.CompileUnit; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -139,14 +136,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ModuleCollection Modules
 		{
-			get
-			{
+			
 
-			if (_modules == null) _modules = new ModuleCollection(this);
-
-				return _modules;
-			}
-
+			get { return _modules ?? (_modules = new ModuleCollection(this)); }
 			set
 			{
 				if (_modules != value)

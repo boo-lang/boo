@@ -43,10 +43,7 @@ end
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.${node.Name};
-			}
+			get { return NodeType.${node.Name}; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -210,28 +207,30 @@ end
 %>		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ${field.Type} ${field.Name}
 		{
-			get
-			{
+			
 <%
 	if model.IsCollectionField(field):
 %>
-			if (${GetPrivateName(field)} == null) ${GetPrivateName(field)} = new ${field.Type}(this);
+			get { return ${GetPrivateName(field)} ?? (${GetPrivateName(field)} = new ${field.Type}(this)); }
 <%
 	elif field.Attributes.Contains("auto"):
-%>			if (${GetPrivateName(field)} == null)
-			{
-				${GetPrivateName(field)} = new ${field.Type}();
-				${GetPrivateName(field)}.InitializeParent(this);
-			}
-<%
-	end
-%>
+%>			get
+			{ 
+				if (${GetPrivateName(field)} == null)
+				{
+					${GetPrivateName(field)} = new ${field.Type}();
+					${GetPrivateName(field)}.InitializeParent(this);
+				}
 				return ${GetPrivateName(field)};
 			}
+<%
+	else:
+%>			get { return ${GetPrivateName(field)}; }
+<%
+	end
 
-<%			
-		fieldType = model.ResolveFieldType(field)
-		if fieldType is not null and not model.IsEnum(fieldType):
+	fieldType = model.ResolveFieldType(field)
+	if fieldType is not null and not model.IsEnum(fieldType):
 		
 %>			set
 			{
@@ -252,10 +251,7 @@ end
 <%
 		else:
 
-%>			set
-			{
-				${GetPrivateName(field)} = value;
-			}
+%>			set { ${GetPrivateName(field)} = value; }
 <%
 		end
 %>

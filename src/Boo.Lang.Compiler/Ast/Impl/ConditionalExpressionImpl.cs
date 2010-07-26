@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ConditionalExpression;
-			}
+			get { return NodeType.ConditionalExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -167,12 +164,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Condition
 		{
-			get
-			{
-
-				return _condition;
-			}
-
+			
+			get { return _condition; }
 			set
 			{
 				if (_condition != value)
@@ -192,12 +185,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression TrueValue
 		{
-			get
-			{
-
-				return _trueValue;
-			}
-
+			
+			get { return _trueValue; }
 			set
 			{
 				if (_trueValue != value)
@@ -217,12 +206,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression FalseValue
 		{
-			get
-			{
-
-				return _falseValue;
-			}
-
+			
+			get { return _falseValue; }
 			set
 			{
 				if (_falseValue != value)

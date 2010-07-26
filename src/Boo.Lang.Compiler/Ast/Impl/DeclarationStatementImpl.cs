@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.DeclarationStatement;
-			}
+			get { return NodeType.DeclarationStatement; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -163,12 +160,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Declaration Declaration
 		{
-			get
-			{
-
-				return _declaration;
-			}
-
+			
+			get { return _declaration; }
 			set
 			{
 				if (_declaration != value)
@@ -188,12 +181,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Initializer
 		{
-			get
-			{
-
-				return _initializer;
-			}
-
+			
+			get { return _initializer; }
 			set
 			{
 				if (_initializer != value)

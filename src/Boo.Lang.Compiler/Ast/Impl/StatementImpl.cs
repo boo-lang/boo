@@ -116,12 +116,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public StatementModifier Modifier
 		{
-			get
-			{
-
-				return _modifier;
-			}
-
+			
+			get { return _modifier; }
 			set
 			{
 				if (_modifier != value)

@@ -66,10 +66,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ParameterDeclaration;
-			}
+			get { return NodeType.ParameterDeclaration; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -163,16 +160,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public string Name
 		{
-			get
-			{
-
-				return _name;
-			}
-
-			set
-			{
-				_name = value;
-			}
+			
+			get { return _name; }
+			set { _name = value; }
 
 		}
 		
@@ -181,12 +171,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReference Type
 		{
-			get
-			{
-
-				return _type;
-			}
-
+			
+			get { return _type; }
 			set
 			{
 				if (_type != value)
@@ -207,16 +193,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ParameterModifiers Modifiers
 		{
-			get
-			{
-
-				return _modifiers;
-			}
-
-			set
-			{
-				_modifiers = value;
-			}
+			
+			get { return _modifiers; }
+			set { _modifiers = value; }
 
 		}
 		
@@ -226,14 +205,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public AttributeCollection Attributes
 		{
-			get
-			{
+			
 
-			if (_attributes == null) _attributes = new AttributeCollection(this);
-
-				return _attributes;
-			}
-
+			get { return _attributes ?? (_attributes = new AttributeCollection(this)); }
 			set
 			{
 				if (_attributes != value)

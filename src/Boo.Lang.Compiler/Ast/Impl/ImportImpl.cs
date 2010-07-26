@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.Import;
-			}
+			get { return NodeType.Import; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -152,16 +149,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public string Namespace
 		{
-			get
-			{
-
-				return _namespace;
-			}
-
-			set
-			{
-				_namespace = value;
-			}
+			
+			get { return _namespace; }
+			set { _namespace = value; }
 
 		}
 		
@@ -170,12 +160,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ReferenceExpression AssemblyReference
 		{
-			get
-			{
-
-				return _assemblyReference;
-			}
-
+			
+			get { return _assemblyReference; }
 			set
 			{
 				if (_assemblyReference != value)
@@ -195,12 +181,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ReferenceExpression Alias
 		{
-			get
-			{
-
-				return _alias;
-			}
-
+			
+			get { return _alias; }
 			set
 			{
 				if (_alias != value)

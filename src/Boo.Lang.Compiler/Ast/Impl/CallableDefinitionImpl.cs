@@ -66,10 +66,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.CallableDefinition;
-			}
+			get { return NodeType.CallableDefinition; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -230,14 +227,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ParameterDeclarationCollection Parameters
 		{
-			get
-			{
+			
 
-			if (_parameters == null) _parameters = new ParameterDeclarationCollection(this);
-
-				return _parameters;
-			}
-
+			get { return _parameters ?? (_parameters = new ParameterDeclarationCollection(this)); }
 			set
 			{
 				if (_parameters != value)
@@ -258,14 +250,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public GenericParameterDeclarationCollection GenericParameters
 		{
-			get
-			{
+			
 
-			if (_genericParameters == null) _genericParameters = new GenericParameterDeclarationCollection(this);
-
-				return _genericParameters;
-			}
-
+			get { return _genericParameters ?? (_genericParameters = new GenericParameterDeclarationCollection(this)); }
 			set
 			{
 				if (_genericParameters != value)
@@ -285,12 +272,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReference ReturnType
 		{
-			get
-			{
-
-				return _returnType;
-			}
-
+			
+			get { return _returnType; }
 			set
 			{
 				if (_returnType != value)
@@ -311,14 +294,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public AttributeCollection ReturnTypeAttributes
 		{
-			get
-			{
+			
 
-			if (_returnTypeAttributes == null) _returnTypeAttributes = new AttributeCollection(this);
-
-				return _returnTypeAttributes;
-			}
-
+			get { return _returnTypeAttributes ?? (_returnTypeAttributes = new AttributeCollection(this)); }
 			set
 			{
 				if (_returnTypeAttributes != value)

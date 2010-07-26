@@ -131,12 +131,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Condition
 		{
-			get
-			{
-
-				return _condition;
-			}
-
+			
+			get { return _condition; }
 			set
 			{
 				if (_condition != value)

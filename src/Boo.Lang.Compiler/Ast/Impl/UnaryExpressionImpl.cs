@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.UnaryExpression;
-			}
+			get { return NodeType.UnaryExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -137,16 +134,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public UnaryOperatorType Operator
 		{
-			get
-			{
-
-				return _operator;
-			}
-
-			set
-			{
-				_operator = value;
-			}
+			
+			get { return _operator; }
+			set { _operator = value; }
 
 		}
 		
@@ -155,12 +145,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Operand
 		{
-			get
-			{
-
-				return _operand;
-			}
-
+			
+			get { return _operand; }
 			set
 			{
 				if (_operand != value)

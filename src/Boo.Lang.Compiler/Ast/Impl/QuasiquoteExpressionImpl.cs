@@ -60,10 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.QuasiquoteExpression;
-			}
+			get { return NodeType.QuasiquoteExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -124,16 +121,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Node Node
 		{
-			get
-			{
-
-				return _node;
-			}
-
-			set
-			{
-				_node = value;
-			}
+			
+			get { return _node; }
+			set { _node = value; }
 
 		}
 		

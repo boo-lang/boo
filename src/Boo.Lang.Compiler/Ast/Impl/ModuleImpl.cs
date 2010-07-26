@@ -66,10 +66,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.Module;
-			}
+			get { return NodeType.Module; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -288,12 +285,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public NamespaceDeclaration Namespace
 		{
-			get
-			{
-
-				return _namespace;
-			}
-
+			
+			get { return _namespace; }
 			set
 			{
 				if (_namespace != value)
@@ -314,14 +307,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ImportCollection Imports
 		{
-			get
-			{
+			
 
-			if (_imports == null) _imports = new ImportCollection(this);
-
-				return _imports;
-			}
-
+			get { return _imports ?? (_imports = new ImportCollection(this)); }
 			set
 			{
 				if (_imports != value)
@@ -341,17 +329,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block Globals
 		{
+			
 			get
-			{
-			if (_globals == null)
-			{
-				_globals = new Block();
-				_globals.InitializeParent(this);
-			}
-
+			{ 
+				if (_globals == null)
+				{
+					_globals = new Block();
+					_globals.InitializeParent(this);
+				}
 				return _globals;
 			}
-
 			set
 			{
 				if (_globals != value)
@@ -372,14 +359,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public AttributeCollection AssemblyAttributes
 		{
-			get
-			{
+			
 
-			if (_assemblyAttributes == null) _assemblyAttributes = new AttributeCollection(this);
-
-				return _assemblyAttributes;
-			}
-
+			get { return _assemblyAttributes ?? (_assemblyAttributes = new AttributeCollection(this)); }
 			set
 			{
 				if (_assemblyAttributes != value)

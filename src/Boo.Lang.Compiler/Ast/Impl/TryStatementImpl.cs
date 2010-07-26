@@ -66,10 +66,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.TryStatement;
-			}
+			get { return NodeType.TryStatement; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -204,17 +201,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block ProtectedBlock
 		{
+			
 			get
-			{
-			if (_protectedBlock == null)
-			{
-				_protectedBlock = new Block();
-				_protectedBlock.InitializeParent(this);
-			}
-
+			{ 
+				if (_protectedBlock == null)
+				{
+					_protectedBlock = new Block();
+					_protectedBlock.InitializeParent(this);
+				}
 				return _protectedBlock;
 			}
-
 			set
 			{
 				if (_protectedBlock != value)
@@ -235,14 +231,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ExceptionHandlerCollection ExceptionHandlers
 		{
-			get
-			{
+			
 
-			if (_exceptionHandlers == null) _exceptionHandlers = new ExceptionHandlerCollection(this);
-
-				return _exceptionHandlers;
-			}
-
+			get { return _exceptionHandlers ?? (_exceptionHandlers = new ExceptionHandlerCollection(this)); }
 			set
 			{
 				if (_exceptionHandlers != value)
@@ -262,12 +253,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block FailureBlock
 		{
-			get
-			{
-
-				return _failureBlock;
-			}
-
+			
+			get { return _failureBlock; }
 			set
 			{
 				if (_failureBlock != value)
@@ -287,12 +274,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block EnsureBlock
 		{
-			get
-			{
-
-				return _ensureBlock;
-			}
-
+			
+			get { return _ensureBlock; }
 			set
 			{
 				if (_ensureBlock != value)

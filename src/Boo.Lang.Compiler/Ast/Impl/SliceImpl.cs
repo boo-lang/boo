@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.Slice;
-			}
+			get { return NodeType.Slice; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -165,12 +162,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Begin
 		{
-			get
-			{
-
-				return _begin;
-			}
-
+			
+			get { return _begin; }
 			set
 			{
 				if (_begin != value)
@@ -190,12 +183,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression End
 		{
-			get
-			{
-
-				return _end;
-			}
-
+			
+			get { return _end; }
 			set
 			{
 				if (_end != value)
@@ -215,12 +204,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Step
 		{
-			get
-			{
-
-				return _step;
-			}
-
+			
+			get { return _step; }
 			set
 			{
 				if (_step != value)

@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.StatementModifier;
-			}
+			get { return NodeType.StatementModifier; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -135,16 +132,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public StatementModifierType Type
 		{
-			get
-			{
-
-				return _type;
-			}
-
-			set
-			{
-				_type = value;
-			}
+			
+			get { return _type; }
+			set { _type = value; }
 
 		}
 		
@@ -153,12 +143,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Condition
 		{
-			get
-			{
-
-				return _condition;
-			}
-
+			
+			get { return _condition; }
 			set
 			{
 				if (_condition != value)

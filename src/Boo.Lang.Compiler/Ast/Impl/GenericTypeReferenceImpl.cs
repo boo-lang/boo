@@ -60,10 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.GenericTypeReference;
-			}
+			get { return NodeType.GenericTypeReference; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -143,14 +140,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReferenceCollection GenericArguments
 		{
-			get
-			{
+			
 
-			if (_genericArguments == null) _genericArguments = new TypeReferenceCollection(this);
-
-				return _genericArguments;
-			}
-
+			get { return _genericArguments ?? (_genericArguments = new TypeReferenceCollection(this)); }
 			set
 			{
 				if (_genericArguments != value)

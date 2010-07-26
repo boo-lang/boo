@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.GenericParameterDeclaration;
-			}
+			get { return NodeType.GenericParameterDeclaration; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -146,16 +143,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public string Name
 		{
-			get
-			{
-
-				return _name;
-			}
-
-			set
-			{
-				_name = value;
-			}
+			
+			get { return _name; }
+			set { _name = value; }
 
 		}
 		
@@ -165,14 +155,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReferenceCollection BaseTypes
 		{
-			get
-			{
+			
 
-			if (_baseTypes == null) _baseTypes = new TypeReferenceCollection(this);
-
-				return _baseTypes;
-			}
-
+			get { return _baseTypes ?? (_baseTypes = new TypeReferenceCollection(this)); }
 			set
 			{
 				if (_baseTypes != value)
@@ -192,16 +177,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public GenericParameterConstraints Constraints
 		{
-			get
-			{
-
-				return _constraints;
-			}
-
-			set
-			{
-				_constraints = value;
-			}
+			
+			get { return _constraints; }
+			set { _constraints = value; }
 
 		}
 		

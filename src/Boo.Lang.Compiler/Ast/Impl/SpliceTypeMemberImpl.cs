@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.SpliceTypeMember;
-			}
+			get { return NodeType.SpliceTypeMember; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -174,12 +171,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeMember TypeMember
 		{
-			get
-			{
-
-				return _typeMember;
-			}
-
+			
+			get { return _typeMember; }
 			set
 			{
 				if (_typeMember != value)
@@ -199,12 +192,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression NameExpression
 		{
-			get
-			{
-
-				return _nameExpression;
-			}
-
+			
+			get { return _nameExpression; }
 			set
 			{
 				if (_nameExpression != value)

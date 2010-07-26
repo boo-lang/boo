@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.BlockExpression;
-			}
+			get { return NodeType.BlockExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -175,14 +172,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ParameterDeclarationCollection Parameters
 		{
-			get
-			{
+			
 
-			if (_parameters == null) _parameters = new ParameterDeclarationCollection(this);
-
-				return _parameters;
-			}
-
+			get { return _parameters ?? (_parameters = new ParameterDeclarationCollection(this)); }
 			set
 			{
 				if (_parameters != value)
@@ -202,12 +194,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReference ReturnType
 		{
-			get
-			{
-
-				return _returnType;
-			}
-
+			
+			get { return _returnType; }
 			set
 			{
 				if (_returnType != value)
@@ -227,17 +215,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block Body
 		{
+			
 			get
-			{
-			if (_body == null)
-			{
-				_body = new Block();
-				_body.InitializeParent(this);
-			}
-
+			{ 
+				if (_body == null)
+				{
+					_body = new Block();
+					_body.InitializeParent(this);
+				}
 				return _body;
 			}
-
 			set
 			{
 				if (_body != value)

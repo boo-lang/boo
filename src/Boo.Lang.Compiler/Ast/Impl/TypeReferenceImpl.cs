@@ -103,16 +103,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public bool IsPointer
 		{
-			get
-			{
-
-				return _isPointer;
-			}
-
-			set
-			{
-				_isPointer = value;
-			}
+			
+			get { return _isPointer; }
+			set { _isPointer = value; }
 
 		}
 		

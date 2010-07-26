@@ -198,14 +198,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeMemberCollection Members
 		{
-			get
-			{
+			
 
-			if (_members == null) _members = new TypeMemberCollection(this);
-
-				return _members;
-			}
-
+			get { return _members ?? (_members = new TypeMemberCollection(this)); }
 			set
 			{
 				if (_members != value)
@@ -226,14 +221,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReferenceCollection BaseTypes
 		{
-			get
-			{
+			
 
-			if (_baseTypes == null) _baseTypes = new TypeReferenceCollection(this);
-
-				return _baseTypes;
-			}
-
+			get { return _baseTypes ?? (_baseTypes = new TypeReferenceCollection(this)); }
 			set
 			{
 				if (_baseTypes != value)
@@ -254,14 +244,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public GenericParameterDeclarationCollection GenericParameters
 		{
-			get
-			{
+			
 
-			if (_genericParameters == null) _genericParameters = new GenericParameterDeclarationCollection(this);
-
-				return _genericParameters;
-			}
-
+			get { return _genericParameters ?? (_genericParameters = new GenericParameterDeclarationCollection(this)); }
 			set
 			{
 				if (_genericParameters != value)

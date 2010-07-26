@@ -64,10 +64,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.BinaryExpression;
-			}
+			get { return NodeType.BinaryExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -154,16 +151,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public BinaryOperatorType Operator
 		{
-			get
-			{
-
-				return _operator;
-			}
-
-			set
-			{
-				_operator = value;
-			}
+			
+			get { return _operator; }
+			set { _operator = value; }
 
 		}
 		
@@ -172,12 +162,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Left
 		{
-			get
-			{
-
-				return _left;
-			}
-
+			
+			get { return _left; }
 			set
 			{
 				if (_left != value)
@@ -197,12 +183,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Right
 		{
-			get
-			{
-
-				return _right;
-			}
-
+			
+			get { return _right; }
 			set
 			{
 				if (_right != value)

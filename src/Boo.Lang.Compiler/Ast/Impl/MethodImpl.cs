@@ -66,10 +66,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.Method;
-			}
+			get { return NodeType.Method; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -283,17 +280,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Block Body
 		{
+			
 			get
-			{
-			if (_body == null)
-			{
-				_body = new Block();
-				_body.InitializeParent(this);
-			}
-
+			{ 
+				if (_body == null)
+				{
+					_body = new Block();
+					_body.InitializeParent(this);
+				}
 				return _body;
 			}
-
 			set
 			{
 				if (_body != value)
@@ -314,14 +310,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public LocalCollection Locals
 		{
-			get
-			{
+			
 
-			if (_locals == null) _locals = new LocalCollection(this);
-
-				return _locals;
-			}
-
+			get { return _locals ?? (_locals = new LocalCollection(this)); }
 			set
 			{
 				if (_locals != value)
@@ -341,16 +332,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public MethodImplementationFlags ImplementationFlags
 		{
-			get
-			{
-
-				return _implementationFlags;
-			}
-
-			set
-			{
-				_implementationFlags = value;
-			}
+			
+			get { return _implementationFlags; }
+			set { _implementationFlags = value; }
 
 		}
 		
@@ -359,12 +343,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ExplicitMemberInfo ExplicitInfo
 		{
-			get
-			{
-
-				return _explicitInfo;
-			}
-
+			
+			get { return _explicitInfo; }
 			set
 			{
 				if (_explicitInfo != value)

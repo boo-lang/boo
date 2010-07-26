@@ -60,10 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ExpressionInterpolationExpression;
-			}
+			get { return NodeType.ExpressionInterpolationExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -141,14 +138,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ExpressionCollection Expressions
 		{
-			get
-			{
+			
 
-			if (_expressions == null) _expressions = new ExpressionCollection(this);
-
-				return _expressions;
-			}
-
+			get { return _expressions ?? (_expressions = new ExpressionCollection(this)); }
 			set
 			{
 				if (_expressions != value)

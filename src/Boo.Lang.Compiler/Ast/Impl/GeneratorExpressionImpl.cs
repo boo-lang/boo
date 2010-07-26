@@ -66,10 +66,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.GeneratorExpression;
-			}
+			get { return NodeType.GeneratorExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -191,12 +188,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Expression
 		{
-			get
-			{
-
-				return _expression;
-			}
-
+			
+			get { return _expression; }
 			set
 			{
 				if (_expression != value)
@@ -217,14 +210,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public DeclarationCollection Declarations
 		{
-			get
-			{
+			
 
-			if (_declarations == null) _declarations = new DeclarationCollection(this);
-
-				return _declarations;
-			}
-
+			get { return _declarations ?? (_declarations = new DeclarationCollection(this)); }
 			set
 			{
 				if (_declarations != value)
@@ -244,12 +232,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Iterator
 		{
-			get
-			{
-
-				return _iterator;
-			}
-
+			
+			get { return _iterator; }
 			set
 			{
 				if (_iterator != value)
@@ -269,12 +253,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public StatementModifier Filter
 		{
-			get
-			{
-
-				return _filter;
-			}
-
+			
+			get { return _filter; }
 			set
 			{
 				if (_filter != value)

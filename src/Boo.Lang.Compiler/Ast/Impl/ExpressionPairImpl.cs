@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ExpressionPair;
-			}
+			get { return NodeType.ExpressionPair; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -148,12 +145,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression First
 		{
-			get
-			{
-
-				return _first;
-			}
-
+			
+			get { return _first; }
 			set
 			{
 				if (_first != value)
@@ -173,12 +166,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Expression Second
 		{
-			get
-			{
-
-				return _second;
-			}
-
+			
+			get { return _second; }
 			set
 			{
 				if (_second != value)

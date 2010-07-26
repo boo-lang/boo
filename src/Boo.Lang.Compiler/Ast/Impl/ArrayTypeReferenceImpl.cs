@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ArrayTypeReference;
-			}
+			get { return NodeType.ArrayTypeReference; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -150,12 +147,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReference ElementType
 		{
-			get
-			{
-
-				return _elementType;
-			}
-
+			
+			get { return _elementType; }
 			set
 			{
 				if (_elementType != value)
@@ -175,12 +168,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public IntegerLiteralExpression Rank
 		{
-			get
-			{
-
-				return _rank;
-			}
-
+			
+			get { return _rank; }
 			set
 			{
 				if (_rank != value)

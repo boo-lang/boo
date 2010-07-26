@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.DoubleLiteralExpression;
-			}
+			get { return NodeType.DoubleLiteralExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -124,16 +121,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public double Value
 		{
-			get
-			{
-
-				return _value;
-			}
-
-			set
-			{
-				_value = value;
-			}
+			
+			get { return _value; }
+			set { _value = value; }
 
 		}
 		
@@ -142,16 +132,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public bool IsSingle
 		{
-			get
-			{
-
-				return _isSingle;
-			}
-
-			set
-			{
-				_isSingle = value;
-			}
+			
+			get { return _isSingle; }
+			set { _isSingle = value; }
 
 		}
 		

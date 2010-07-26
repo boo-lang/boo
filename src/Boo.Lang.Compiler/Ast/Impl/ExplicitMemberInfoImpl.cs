@@ -60,10 +60,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.ExplicitMemberInfo;
-			}
+			get { return NodeType.ExplicitMemberInfo; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -131,12 +128,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public SimpleTypeReference InterfaceType
 		{
-			get
-			{
-
-				return _interfaceType;
-			}
-
+			
+			get { return _interfaceType; }
 			set
 			{
 				if (_interfaceType != value)

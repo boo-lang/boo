@@ -62,10 +62,7 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get
-			{
-				return NodeType.CallableTypeReference;
-			}
+			get { return NodeType.CallableTypeReference; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -158,14 +155,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public ParameterDeclarationCollection Parameters
 		{
-			get
-			{
+			
 
-			if (_parameters == null) _parameters = new ParameterDeclarationCollection(this);
-
-				return _parameters;
-			}
-
+			get { return _parameters ?? (_parameters = new ParameterDeclarationCollection(this)); }
 			set
 			{
 				if (_parameters != value)
@@ -185,12 +177,8 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public TypeReference ReturnType
 		{
-			get
-			{
-
-				return _returnType;
-			}
-
+			
+			get { return _returnType; }
 			set
 			{
 				if (_returnType != value)
