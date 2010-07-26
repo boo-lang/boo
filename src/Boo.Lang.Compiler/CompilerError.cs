@@ -38,16 +38,13 @@ namespace Boo.Lang.Compiler
 	[Serializable]
 	public class CompilerError : ApplicationException
 	{
-		LexicalInfo _lexicalInfo;
-		
-		string _code;
+		private readonly LexicalInfo _lexicalInfo;
+		private readonly string _code;
 		
 		public CompilerError(string code, LexicalInfo lexicalInfo, Exception cause, params object[] args) : base(ResourceManager.Format(code, args), cause)
 		{
 			if (null == lexicalInfo)
-			{
 				throw new ArgumentNullException("lexicalInfo");
-			}
 			_code = code;
 			_lexicalInfo = lexicalInfo;
 		}
@@ -59,9 +56,7 @@ namespace Boo.Lang.Compiler
 		public CompilerError(string code, LexicalInfo lexicalInfo, params object[] args) : base(ResourceManager.Format(code, args))
 		{
 			if (null == lexicalInfo)
-			{
 				throw new ArgumentNullException("lexicalInfo");
-			}
 			_code = code;
 			_lexicalInfo = lexicalInfo;
 		}
@@ -69,9 +64,7 @@ namespace Boo.Lang.Compiler
 		public CompilerError(string code, LexicalInfo lexicalInfo, string message, Exception cause) : base(message, cause)
 		{
 			if (null == lexicalInfo)
-			{
 				throw new ArgumentNullException("lexicalInfo");
-			}
 			_code = code;
 			_lexicalInfo = lexicalInfo;
 		}
@@ -105,18 +98,12 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public string Code
 		{
-			get
-			{
-				return _code;
-			}
+			get { return _code; }
 		}
 
 		public LexicalInfo LexicalInfo
 		{
-			get
-			{
-				return _lexicalInfo;
-			}
+			get { return _lexicalInfo; }
 		}
 
 		override public string ToString()
@@ -126,7 +113,7 @@ namespace Boo.Lang.Compiler
 
 		public string ToString(bool verbose)
 		{
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			if (_lexicalInfo.Line > 0)
 			{
 				sb.Append(_lexicalInfo);
@@ -134,14 +121,7 @@ namespace Boo.Lang.Compiler
 			}
 			sb.Append(_code);
 			sb.Append(": ");
-			if (verbose)
-			{
-				sb.Append(base.ToString());
-			}
-			else
-			{
-				sb.Append(Message);			
-			}
+			sb.Append(verbose ? base.ToString() : Message);
 			return sb.ToString();
 		}
 	}

@@ -289,7 +289,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return SingleType;
 			if (left == ULongType)
 			{
-				if (right == SByteType || right == ShortType || right == IntType || right == LongType)
+				if (IsSignedInteger(right))
 				{
 					// This is against the C# spec but allows expressions like:
 					//    ulong x = 4
@@ -307,7 +307,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			if (right == ULongType)
 			{
-				if (left == SByteType || left == ShortType || left == IntType || left == LongType)
+				if (IsSignedInteger(left))
 				{
 					// This is against the C# spec but allows expressions like:
 					//    ulong x = 4
@@ -358,7 +358,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return UIntType;
 			}
 			if (left == IntType ||
-			    right == IntType ||
+				right == IntType ||
 			    left == ShortType ||
 			    right == ShortType ||
 			    left == UShortType ||
@@ -367,10 +367,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			    right == ByteType ||
 			    left == SByteType ||
 			    right == SByteType)
-			{
 				return IntType;
-			}
 			return left;
+		}
+
+		private bool IsSignedInteger(IType right)
+		{
+			return right == SByteType || right == ShortType || right == IntType || right == LongType;
 		}
 
 		public static bool IsReadOnlyField(IField field)
@@ -730,15 +733,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsIntegerNumber(IType type)
 		{
-			return
-				type == ShortType ||
-				type == IntType ||
-				type == LongType ||
-				type == SByteType ||
-				type == UShortType ||
-				type == UIntType ||
-				type == ULongType ||
-				type == ByteType;
+			return IsSignedInteger(type) || IsUnsignedInteger(type);
+		}
+
+		private bool IsUnsignedInteger(IType type)
+		{
+			return (type == UShortType ||
+			        type == UIntType ||
+			        type == ULongType ||
+			        type == ByteType);
 		}
 
 		public bool IsIntegerOrBool(IType type)
@@ -753,26 +756,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsNumber(IType type)
 		{
-			return
-				IsPrimitiveNumber(type) ||
-				type == DecimalType;
+			return IsPrimitiveNumber(type) || type == DecimalType;
 		}
 
 		public bool IsPrimitiveNumber(IType type)
 		{
-			return
-				IsIntegerNumber(type) ||
-				type == DoubleType ||
-				type == SingleType;
+			return IsIntegerNumber(type) || type == DoubleType || type == SingleType;
 		}
 
 		public bool IsSignedNumber(IType type)
 		{
-			return IsNumber(type)
-			       && type != UShortType
-			       && type != UIntType
-			       && type != ULongType
-			       && type != ByteType;
+			return IsNumber(type) && !IsUnsignedInteger(type);
 		}
 
 		/// <summary>

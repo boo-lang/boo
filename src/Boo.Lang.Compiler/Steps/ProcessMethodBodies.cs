@@ -309,19 +309,15 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Attributes);
 			Visit(node.Type);
 
-			if (null != node.Initializer)
+			if (node.Initializer != null)
 			{
-				IType type = (null != node.Type) ? GetType(node.Type) : null;
+				var type = (null != node.Type) ? GetType(node.Type) : null;
 				if (null != type && TypeSystemServices.IsNullable(type))
-				{
 					BindNullableInitializer(node, node.Initializer, type);
-				}
+
 				if (entity.DeclaringType.IsValueType && !node.IsStatic)
-				{
-					Error(
-						CompilerErrorFactory.ValueTypeFieldsCannotHaveInitializers(
-							node.Initializer));
-				}
+					Error(CompilerErrorFactory.ValueTypeFieldsCannotHaveInitializers(node.Initializer));
+
 				try
 				{
 					PushMember(node);
@@ -2058,24 +2054,23 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveDeclarationStatement(DeclarationStatement node)
 		{
 			EnsureDeclarationType(node);
-			IType type = GetDeclarationType(node);
 			AssertDeclarationName(node.Declaration);
 
-			IEntity localInfo = DeclareLocal(node, node.Declaration.Name, type);
-			InternalLocal loopLocal = localInfo as InternalLocal;
+			var type = GetDeclarationType(node);
+
+			var localInfo = DeclareLocal(node, node.Declaration.Name, type);
+			var loopLocal = localInfo as InternalLocal;
 			if (null != loopLocal)
 				loopLocal.OriginalDeclaration = node.Declaration;
 
-			if (null != node.Initializer)
+			if (node.Initializer != null)
 			{
-				IType itype = GetExpressionType(node.Initializer);
+				IType initializerType = GetExpressionType(node.Initializer);
 				if (CheckDeclarationType(node.Declaration.Type))
-					AssertTypeCompatibility(node.Initializer, type, itype);
+					AssertTypeCompatibility(node.Initializer, type, initializerType);
 
-				if (TypeSystemServices.IsNullable(type) && !TypeSystemServices.IsNullable(itype))
-				{
+				if (TypeSystemServices.IsNullable(type) && !TypeSystemServices.IsNullable(initializerType))
 					BindNullableInitializer(node, node.Initializer, type);
-				}
 
 				node.ReplaceBy(
 					new ExpressionStatement(
@@ -2085,11 +2080,7 @@ namespace Boo.Lang.Compiler.Steps
 							node.Initializer)));
 			}
 			else
-			{
-				node.ReplaceBy(
-					new ExpressionStatement(
-						CreateDefaultLocalInitializer(node, localInfo)));
-			}
+				node.ReplaceBy(new ExpressionStatement(CreateDefaultLocalInitializer(node, localInfo)));
 		}
 
 		private IType GetDeclarationType(DeclarationStatement node)
@@ -2099,7 +2090,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void EnsureDeclarationType(DeclarationStatement node)
 		{
-			Declaration declaration = node.Declaration;
+			var declaration = node.Declaration;
 			if (declaration.Type != null) return;
 			declaration.Type = CodeBuilder.CreateTypeReference(declaration.LexicalInfo, InferDeclarationType(node));
 		}
@@ -5243,8 +5234,7 @@ namespace Boo.Lang.Compiler.Steps
 					root = and = new BinaryExpression(
 									BinaryOperatorType.BitwiseAnd,
 									CreateNullableHasValueOrTrueExpression(cur),
-									CreateNullableHasValueOrTrueExpression(lookahead)
-								);
+									CreateNullableHasValueOrTrueExpression(lookahead));
 				}
 			}
 
@@ -5253,18 +5243,19 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindNullableInitializer(Node node, Expression rhs, IType type)
 		{
-			Expression instantiation = CreateNullableInstantiation(rhs, type);
+			var instantiation = CreateNullableInstantiation(rhs, type);
 			node.Replace(rhs, instantiation);
 			Visit(instantiation);
 
-			Expression coalescing = BuildNullableCoalescingConditional(rhs);
+			var coalescing = BuildNullableCoalescingConditional(rhs);
 			if (null != coalescing) //rhs contains at least one nullable
 			{
-				ConditionalExpression cond = new ConditionalExpression();
-				cond.Condition = coalescing;
-				cond.TrueValue = instantiation;
-				cond.FalseValue = CreateNullableInstantiation(type);
-
+				var cond = new ConditionalExpression
+				           	{
+				           		Condition = coalescing,
+				           		TrueValue = instantiation,
+				           		FalseValue = CreateNullableInstantiation(type)
+				           	};
 				node.Replace(instantiation, cond);
 				Visit(cond);
 			}
