@@ -186,6 +186,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"typeof-2.boo");
 		}
 		
+		[Ignore(" WIP")][Test]
+		public void uint_1()
+		{
+			RunCompilerTestCase(@"uint-1.boo");
+		}
+		
 		[Test]
 		public void unsigned_1()
 		{
