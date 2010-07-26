@@ -8,7 +8,7 @@
 		{
 		}
 
-		protected override bool IsSubclassOfGenericEnumerable(IType other)
+		protected override bool IsSubclassOfGenericEnumerable(IType enumerableType)
 		{
 			return true;
 		}

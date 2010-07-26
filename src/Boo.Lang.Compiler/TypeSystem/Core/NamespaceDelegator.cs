@@ -56,12 +56,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		{
 			bool found = false;
 			foreach (INamespace @delegate in Delegates)
-			{
 				if (@delegate.Resolve(resultingSet, name, typesToConsider))
-				{
 					found = true;
-				}
-			}
 			return found;
 		}
 

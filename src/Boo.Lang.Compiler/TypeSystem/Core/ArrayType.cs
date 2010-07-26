@@ -155,9 +155,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			return false;
 		}
 
-		protected virtual bool IsSubclassOfGenericEnumerable(IType other)
+		protected virtual bool IsSubclassOfGenericEnumerable(IType enumerableType)
 		{
-			return IsAssignableFrom(other.ConstructedInfo.GenericArguments[0], _elementType);
+			return IsAssignableFrom(enumerableType.ConstructedInfo.GenericArguments[0], _elementType);
 		}
 
 		public virtual bool IsAssignableFrom(IType other)
