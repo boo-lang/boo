@@ -1478,14 +1478,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
 		{
-			if (node.IsLong)
-			{
-				BindExpressionType(node, TypeSystemServices.LongType);
-			}
-			else
-			{
-				BindExpressionType(node, TypeSystemServices.IntType);
-			}
+			BindExpressionType(node, node.IsLong ? TypeSystemServices.LongType : TypeSystemServices.IntType);
 		}
 
 		override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)

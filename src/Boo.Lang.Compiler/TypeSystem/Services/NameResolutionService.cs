@@ -184,7 +184,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			var type = ns as IType;
 			if (null == type) return null;
-
 			return _resolveExtensionFor.Invoke(type, name);
 		}
 

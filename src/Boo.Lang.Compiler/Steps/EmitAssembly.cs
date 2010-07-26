@@ -580,14 +580,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			EnumBuilder builder = GetBuilder(node) as EnumBuilder;
+			var builder = GetBuilder(node) as EnumBuilder;
 			if (null != builder)
 			{
 				foreach (EnumMember member in node.Members)
 				{
-					FieldBuilder field = builder.DefineLiteral(member.Name,
-						Convert.ChangeType(((IntegerLiteralExpression) member.Initializer).Value,
-							GetEnumUnderlyingType(node)));
+					var field = builder.DefineLiteral(member.Name, InitializerValueOf(member, node));
 					SetBuilder(member, field);
 				}
 			}
@@ -596,15 +594,20 @@ namespace Boo.Lang.Compiler.Steps
 				TypeBuilder typeBuilder = GetTypeBuilder(node);
 				foreach (EnumMember member in node.Members)
 				{
-					FieldBuilder field = typeBuilder.DefineField(member.Name, typeBuilder,
+					var field = typeBuilder.DefineField(member.Name, typeBuilder,
 														FieldAttributes.Public |
 														FieldAttributes.Static |
 														FieldAttributes.Literal);
-					field.SetConstant(Convert.ChangeType(((IntegerLiteralExpression) member.Initializer).Value,
-						GetEnumUnderlyingType(node)));
+					field.SetConstant(InitializerValueOf(member, node));
 					SetBuilder(member, field);
 				}
 			}
+		}
+
+		private object InitializerValueOf(EnumMember enumMember, EnumDefinition enumType)
+		{
+			return Convert.ChangeType(((IntegerLiteralExpression) enumMember.Initializer).Value,
+			                          GetEnumUnderlyingType(enumType));
 		}
 
 		override public void OnArrayTypeReference(ArrayTypeReference node)
