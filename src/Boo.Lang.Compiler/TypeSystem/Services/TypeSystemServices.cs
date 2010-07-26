@@ -281,27 +281,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType GetPromotedNumberType(IType left, IType right)
 		{
-			if (left == DecimalType ||
-			    right == DecimalType)
-			{
+			if (left == DecimalType || right == DecimalType)
 				return DecimalType;
-			}
-			if (left == DoubleType ||
-			    right == DoubleType)
-			{
+			if (left == DoubleType || right == DoubleType)
 				return DoubleType;
-			}
-			if (left == SingleType ||
-			    right == SingleType)
-			{
+			if (left == SingleType || right == SingleType)
 				return SingleType;
-			}
 			if (left == ULongType)
 			{
-				if (right == SByteType ||
-				    right == ShortType ||
-				    right == IntType ||
-				    right == LongType)
+				if (right == SByteType || right == ShortType || right == IntType || right == LongType)
 				{
 					// This is against the C# spec but allows expressions like:
 					//    ulong x = 4
@@ -319,10 +307,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			if (right == ULongType)
 			{
-				if (left == SByteType ||
-				    left == ShortType ||
-				    left == IntType ||
-				    left == LongType)
+				if (left == SByteType || left == ShortType || left == IntType || left == LongType)
 				{
 					// This is against the C# spec but allows expressions like:
 					//    ulong x = 4
@@ -338,16 +323,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				}
 				return ULongType;
 			}
-			if (left == LongType ||
-			    right == LongType)
-			{
+			if (left == LongType || right == LongType)
 				return LongType;
-			}
 			if (left == UIntType)
 			{
-				if (right == SByteType ||
-				    right == ShortType ||
-				    right == IntType)
+				if (right == SByteType || right == ShortType || right == IntType)
 				{
 					// This is allowed per C# spec and y is long:
 					//    uint x = 4
@@ -363,9 +343,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			if (right == UIntType)
 			{
-				if (left == SByteType ||
-				    left == ShortType ||
-				    left == IntType)
+				if (left == SByteType || left == ShortType || left == IntType)
 				{
 					// This is allowed per C# spec and y is long:
 					//    uint x = 4
