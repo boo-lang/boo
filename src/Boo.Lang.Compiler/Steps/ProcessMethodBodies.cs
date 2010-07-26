@@ -2112,7 +2112,7 @@ namespace Boo.Lang.Compiler.Steps
 			// there's no way to create an untyped declaration statement.
 			// This is here to support languages that do allow untyped variable
 			// declarations (unityscript is such an example).
-			return GetConcreteExpressionType(node.Initializer);
+			return MapNullToObject(GetConcreteExpressionType(node.Initializer));
 		}
 
 		virtual protected Expression CreateDefaultLocalInitializer(Node sourceNode, IEntity local)
