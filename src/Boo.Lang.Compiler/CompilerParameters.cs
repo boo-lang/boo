@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler
 
 		private TraceSwitch _traceSwitch;
 
-		private readonly Dictionary<string, string> _defines = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> _defines = new Dictionary<string, string>(StringComparer.Ordinal);
 
 		private bool _unsafe;
 

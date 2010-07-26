@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void InitializeMemberCache()
 		{
-			_methodCache = new Dictionary<string,IMethodBase>();
+			_methodCache = new Dictionary<string,IMethodBase>(StringComparer.Ordinal);
 		}
 
 		override public void Dispose()

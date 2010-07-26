@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class StricterErrorChecking : AbstractNamespaceSensitiveVisitorCompilerStep
 	{	
-		Dictionary<string,TypeDefinition> _types = new Dictionary<string,TypeDefinition>();
+		Dictionary<string,TypeDefinition> _types = new Dictionary<string,TypeDefinition>(StringComparer.Ordinal);
 		
 		int _ensureBlock;
 		
