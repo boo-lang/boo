@@ -44,8 +44,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public ReflectionNamespace(IReflectionTypeSystemProvider provider)
 		{
-			_childNamespaces = new MemoizedFunction<string, ReflectionNamespace>(CreateChildNamespace);
-			_typeLists = new MemoizedFunction<string, List<Type>>(NewTypeList);
+			_childNamespaces = new MemoizedFunction<string, ReflectionNamespace>(StringComparer.Ordinal, CreateChildNamespace);
+			_typeLists = new MemoizedFunction<string, List<Type>>(StringComparer.Ordinal, NewTypeList);
 			_provider = provider;
 		}
 

@@ -55,17 +55,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		public static readonly IType ErrorEntity = Error.Default;
 		
-		private readonly AnonymousCallablesManager _anonymousCallablesManager;
-
-		protected readonly CompilerContext _context;
-
 		public IType ArrayType;
 		public IType AstNodeType;
 
 		public IType BoolType;
 		public IType BuiltinsType;
 
-		public IType ByteType;
 		public IType CharType;
 		public IType ConditionalAttribute;
 
@@ -91,39 +86,45 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType IEnumeratorGenericType;
 		public IType IEnumeratorType;
 		public IType IQuackFuType;
-		public IType IntPtrType;
+
+		public IType SByteType;
+		public IType ShortType;
 		public IType IntType;
-		public IType ListType;
+		public IType IntPtrType;
 		public IType LongType;
+		public IType ByteType;
+		public IType UShortType;
+		public IType UIntType;
+		public IType UIntPtrType;
+		public IType ULongType;
+
+		public IType ListType;
 		public IType MulticastDelegateType;
 		public IArrayType ObjectArrayType;
 		public IType ObjectType;
 		public IType RegexType;
 		public IType RuntimeServicesType;
-		public IType SByteType;
-		public IType ShortType;
 		public IType SingleType;
 		public IType StringType;
 
 		public IType SystemAttribute;
 		public IType TimeSpanType;
 		public IType TypeType;
-		public IType UIntPtrType;
-		public IType UIntType;
-		public IType ULongType;
-		public IType UShortType;
+		
 		public IType ValueTypeType;
 		public IType VoidType;
 
 		private ClassDefinition _compilerGeneratedExtensionsClass;
 		private Module _compilerGeneratedExtensionsModule;
 		private Module _compilerGeneratedTypesModule;
-		protected Set<string> _literalPrimitives = new Set<string>();
-		protected Hashtable _primitives = new Hashtable();
+		private readonly Set<string> _literalPrimitives = new Set<string>();
+		private readonly Dictionary<string, IEntity> _primitives = new Dictionary<string, IEntity>(StringComparer.Ordinal);
 		private DowncastPermissions _downcastPermissions;
-		private MemoizedFunction<IType, IType, IMethod> _findImplicitConversionOperator;
-		private MemoizedFunction<IType, IType, IMethod> _findExplicitConversionOperator;
-		private MemoizedFunction<IType, IType, bool> _canBeReachedByPromotion;
+		private readonly MemoizedFunction<IType, IType, IMethod> _findImplicitConversionOperator;
+		private readonly MemoizedFunction<IType, IType, IMethod> _findExplicitConversionOperator;
+		private readonly MemoizedFunction<IType, IType, bool> _canBeReachedByPromotion;
+		private readonly AnonymousCallablesManager _anonymousCallablesManager;
+		private readonly CompilerContext _context;
 
 		public TypeSystemServices() : this(new CompilerContext())
 		{
@@ -1004,7 +1005,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IEntity ResolvePrimitive(string name)
 		{
-			return (IEntity) _primitives[name];
+			IEntity result;
+			if (_primitives.TryGetValue(name, out result))
+				return result;
+			return null;
 		}
 
 		public bool IsPrimitive(string name)

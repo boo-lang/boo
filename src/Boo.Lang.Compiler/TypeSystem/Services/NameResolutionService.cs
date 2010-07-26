@@ -48,13 +48,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private readonly CurrentScope _current = My<CurrentScope>.Instance;
 
-		private readonly MemoizedFunction<IType, string, IEntity> _resolveExtensionFor;
+		private readonly MemoizedFunction<string, IType, IEntity> _resolveExtensionFor;
 		private readonly MemoizedFunction<string, EntityType, IEntity> _resolveName;
 
 		public NameResolutionService()
 		{
-			_resolveExtensionFor = new MemoizedFunction<IType, string, IEntity>(ResolveExtensionFor);
-			_resolveName = new MemoizedFunction<string, EntityType, IEntity>(ResolveImpl);
+			_resolveExtensionFor = new MemoizedFunction<string, IType, IEntity>(StringComparer.Ordinal, ResolveExtensionFor);
+			_resolveName = new MemoizedFunction<string, EntityType, IEntity>(StringComparer.Ordinal, ResolveImpl);
 			_current.Changed += (sender, args) => ClearResolutionCache();
 		}
 
@@ -184,10 +184,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			var type = ns as IType;
 			if (null == type) return null;
-			return _resolveExtensionFor.Invoke(type, name);
+			return _resolveExtensionFor.Invoke(name, type);
 		}
 
-		private IEntity ResolveExtensionFor(IType type, string name)
+		private IEntity ResolveExtensionFor(string name, IType type)
 		{
 			INamespace current = CurrentNamespace;
 			while (null != current)

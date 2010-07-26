@@ -14,7 +14,7 @@ namespace Boo.Lang.Compiler.Util
 			_cachedValues = new Dictionary<TArg, TResult>(comparer);
 		}
 
-		public MemoizedFunction(Func<TArg, TResult> function) : this(SafeComparer.Instance, function)
+		public MemoizedFunction(Func<TArg, TResult> function) : this(SafeComparer<TArg>.Instance, function)
 		{
 			//NB: SafeComparer is required to workaround a weird RuntimeMethodInfo.Equals bug
 			//    when TKey is a MemberInfo on .NET 3.5 (not reproducible on 2.0, 4.0b1 and mono)
@@ -66,37 +66,40 @@ namespace Boo.Lang.Compiler.Util
 		{
 			_cachedValues.Add(arg, result);
 		}
+	}
 
-		private sealed class SafeComparer : IEqualityComparer<TArg>
+	sealed class SafeComparer<T> : IEqualityComparer<T>
+	{
+		public static SafeComparer<T> Instance
 		{
-			public static SafeComparer Instance
-			{
-				get { return instance ?? (instance = new SafeComparer()); }
-			}
+			get { return _instance ?? (_instance = new SafeComparer<T>()); }
+		}
 
-			static SafeComparer instance;
+		private static SafeComparer<T> _instance;
 
-			public bool Equals(TArg x, TArg y)
-			{
-				return object.Equals(x, y);
-			}
+		public bool Equals(T x, T y)
+		{
+			return object.Equals(x, y);
+		}
 
-			public int GetHashCode(TArg obj)
-			{
-				if (null == obj)
-					throw new ArgumentNullException("obj");
-				return obj.GetHashCode();
-			}
+		public int GetHashCode(T obj)
+		{
+			return obj.GetHashCode();
 		}
 	}
 
 	public class MemoizedFunction<T1, T2, TResult>
-	{	
-		Dictionary<T1, Dictionary<T2, TResult>> _cache = new Dictionary<T1, Dictionary<T2, TResult>>();
-		Func<T1, T2, TResult> _func;
+	{
+		readonly Dictionary<T1, Dictionary<T2, TResult>> _cache;
+		readonly Func<T1, T2, TResult> _func;
 
-		public MemoizedFunction(Func<T1, T2, TResult> func)
+		public MemoizedFunction(Func<T1, T2, TResult> func) : this(SafeComparer<T1>.Instance, func)
 		{
+		}
+
+		public MemoizedFunction(IEqualityComparer<T1> comparer, Func<T1, T2, TResult> func)
+		{
+			_cache = new Dictionary<T1, Dictionary<T2, TResult>>(comparer);
 			_func = func;
 		}
 
