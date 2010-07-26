@@ -186,10 +186,22 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"typeof-2.boo");
 		}
 		
-		[Ignore(" WIP")][Test]
+		[Test]
 		public void uint_1()
 		{
 			RunCompilerTestCase(@"uint-1.boo");
+		}
+		
+		[Test]
+		public void uint_argument()
+		{
+			RunCompilerTestCase(@"uint-argument.boo");
+		}
+		
+		[Test]
+		public void uint_field_initializer()
+		{
+			RunCompilerTestCase(@"uint-field-initializer.boo");
 		}
 		
 		[Test]

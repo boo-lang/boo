@@ -20,17 +20,17 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void LeaveBinaryExpression(BinaryExpression node)
 		{
-			TryToReifyEmptyArrayLiteral(node.Right, GetExpressionType(node.Left));
+			TryToReify(node.Right, GetExpressionType(node.Left));
 		}
 
 		public override void LeaveCastExpression(CastExpression node)
 		{
-			TryToReifyEmptyArrayLiteral(node.Target, GetExpressionType(node));
+			TryToReify(node.Target, GetExpressionType(node));
 		}
 
 		public override void LeaveTryCastExpression(TryCastExpression node)
 		{
-			TryToReifyEmptyArrayLiteral(node.Target, GetExpressionType(node));
+			TryToReify(node.Target, GetExpressionType(node));
 		}
 
 		public override bool EnterMethod(Method node)
@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.Expression == null)
 				return;
 
-			TryToReifyEmptyArrayLiteral(node.Expression, _currentMethod.ReturnType);
+			TryToReify(node.Expression, _currentMethod.ReturnType);
 		}
 
 		public override void LeaveYieldStatement(YieldStatement node)
@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.Expression == null)
 				return;
 
-			TryToReifyEmptyArrayLiteral(node.Expression, GeneratorItemTypeFrom(_currentMethod.ReturnType) ?? TypeSystemServices.ObjectArrayType);
+			TryToReify(node.Expression, GeneratorItemTypeFrom(_currentMethod.ReturnType) ?? TypeSystemServices.ObjectArrayType);
 		}
 
 		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
@@ -66,23 +66,24 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				var lastParamIndex = parameters.Length - 1;
 				for (int i=0; i < lastParamIndex; ++i)
-					TryToReifyEmptyArrayLiteral(node.Arguments[i], parameters[i].Type);
+					TryToReify(node.Arguments[i], parameters[i].Type);
 
 				var varArgArrayType = parameters[lastParamIndex].Type.ElementType;
 				for (int i=lastParamIndex; i < node.Arguments.Count; ++i)
-					TryToReifyEmptyArrayLiteral(node.Arguments[i], varArgArrayType);
+					TryToReify(node.Arguments[i], varArgArrayType);
 			}
 			else
 				for (int i = 0; i < parameters.Length; i++)
-					TryToReifyEmptyArrayLiteral(node.Arguments[i], parameters[i].Type);
+					TryToReify(node.Arguments[i], parameters[i].Type);
 
 		}
 
-		private void TryToReifyEmptyArrayLiteral(Expression candidateArray, IType expectedType)
+		private void TryToReify(Expression candidate, IType expectedType)
 		{
-			if (!IsEmptyArrayLiteral(candidateArray))
-				return;
-			ReifyArrayLiteralType(ArrayTypeFor(expectedType), candidateArray);
+			if (IsEmptyArrayLiteral(candidate))
+				ReifyArrayLiteralType(ArrayTypeFor(expectedType), candidate);
+			else if (candidate.NodeType == NodeType.IntegerLiteralExpression && TypeSystemServices.IsIntegerNumber(expectedType))
+				BindExpressionType(candidate, expectedType);
 		}
 
 		private IArrayType ArrayTypeFor(IType expectedType)
