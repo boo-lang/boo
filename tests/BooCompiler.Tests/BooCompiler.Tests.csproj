@@ -131,6 +131,7 @@
     <Compile Include="ClrIntegrationTestFixture.cs" />
     <Compile Include="CompilerContextTest.cs" />
     <Compile Include="CompilerErrorsTestFixture.cs" />
+    <Compile Include="CompilerErrorTest.cs" />
     <Compile Include="CompilerPipelineTest.cs" />
     <Compile Include="CompilerWarningCollectionTest.cs" />
     <Compile Include="CompilerWarningsTestFixture.cs" />
