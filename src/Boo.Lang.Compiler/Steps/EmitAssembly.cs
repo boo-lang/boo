@@ -388,7 +388,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void CreateTypes(List<TypeDefinition> types)
 		{
-			new TypeCreator(this, types).CreateTypes();
+			new TypeCreator(this, types).Run();
 		}
 
 		/// <summary>
@@ -411,7 +411,28 @@ namespace Boo.Lang.Compiler.Steps
 				_created = new Set<TypeDefinition>();
 			}
 
-			public void CreateTypes()
+			public void Run()
+			{
+				AppDomain domain = Thread.GetDomain();
+				try
+				{
+					domain.TypeResolve += OnTypeResolve;
+					CreateTypes();
+				}
+				finally
+				{
+					domain.TypeResolve -= OnTypeResolve;
+				}
+			}
+
+			private Assembly OnTypeResolve(object sender, ResolveEventArgs args)
+			{
+				Trace("OnTypeResolve('{0}') during '{1}' creation.", args.Name, _current);
+				EnsureInternalFieldDependencies(_current);
+				return _emitter._asmBuilder;
+			}
+
+			private void CreateTypes()
 			{
 				foreach (var type in _types)
 					CreateType(type);
@@ -434,7 +455,6 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					throw CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type.FullName), e);
 				}
-
 				_current = saved;
 			}
 
@@ -471,6 +491,10 @@ namespace Boo.Lang.Compiler.Steps
 				CreateRelatedTypes(typedef.BaseTypes);
 				foreach (var gpd in typedef.GenericParameters)
 					CreateRelatedTypes(gpd.BaseTypes);
+			}
+
+			private void EnsureInternalFieldDependencies(TypeDefinition typedef)
+			{
 				foreach (var field in typedef.Members.OfType<Field>())
 					EnsureInternalDependencies((IType)field.Type.Entity);
 			}
