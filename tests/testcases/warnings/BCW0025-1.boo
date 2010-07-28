@@ -1,7 +1,7 @@
 """
-BCW0025-1.boo(36,9): BCW0025: WARNING: Variable 'i' has the same name as a private field of base type 'Base'. Did you mean to use the field?
-BCW0025-1.boo(42,9): BCW0025: WARNING: Variable 'i' has the same name as a private field of base type 'Base'. Did you mean to use the field?
-BCW0025-1.boo(43,9): BCW0025: WARNING: Variable 'k' has the same name as a private field of base type 'BaseBase'. Did you mean to use the field?
+BCW0025-1.boo(36,9): BCW0025: WARNING: Variable 'i' has the same name as a private field of super type 'Base'. Did you mean to use the field?
+BCW0025-1.boo(42,9): BCW0025: WARNING: Variable 'i' has the same name as a private field of super type 'Base'. Did you mean to use the field?
+BCW0025-1.boo(43,9): BCW0025: WARNING: Variable 'k' has the same name as a private field of super type 'BaseBase'. Did you mean to use the field?
 """
 macro disableBCW0014:
 	Context.Parameters.DisableWarning("BCW0014") #unused privates

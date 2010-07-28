@@ -1,5 +1,5 @@
 """
-BCE0047-4.boo(9,9): BCE0047: Method 'A.B()' cannot be overridden because it is not virtual.
+BCE0047-4.boo(9,9): BCE0047: Non virtual method 'A.B()' cannot be overridden.
 """
 class A:
 	def B():

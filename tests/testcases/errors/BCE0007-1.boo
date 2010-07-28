@@ -1,6 +1,6 @@
 """
-BCE0007-1.boo(13,16): BCE0007: The name 'y' does not represent a settable public property or field of the type 'Foo'.
-BCE0007-1.boo(13,22): BCE0007: The name 'z' does not represent a settable public property or field of the type 'Foo'.
+BCE0007-1.boo(13,16): BCE0007: The name 'y' does not represent a writable public property or field of the type 'Foo'.
+BCE0007-1.boo(13,22): BCE0007: The name 'z' does not represent a writable public property or field of the type 'Foo'.
 """
 
 

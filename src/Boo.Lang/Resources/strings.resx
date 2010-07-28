@@ -121,7 +121,7 @@
     <value>'{0}'</value>
   </data>
   <data name="BCE0001" xml:space="preserve">
-    <value>The class '{0}' already has '{1}' as its base class.</value>
+    <value>The class '{0}' already has '{1}' as its super class.</value>
   </data>
   <data name="BCE0002" xml:space="preserve">
     <value>Parameter name must be an identifier.</value>
@@ -139,7 +139,7 @@
     <value>'{0}' is a value type. The 'as' operator can only be used with reference types.</value>
   </data>
   <data name="BCE0007" xml:space="preserve">
-    <value>The name '{0}' does not represent a settable public property or field of the type '{1}'.</value>
+    <value>The name '{0}' does not represent a writable public property or field of the type '{1}'.</value>
   </data>
   <data name="BCE0008" xml:space="preserve">
     <value>The '{0}' type does not have a constructor with the signature '{1}'.</value>
@@ -259,7 +259,7 @@
     <value>'{0}' can't be used with a value type ('{1}')</value>
   </data>
   <data name="BCE0047" xml:space="preserve">
-    <value>Method '{0}' cannot be overridden because it is not virtual.</value>
+    <value>Non virtual method '{0}' cannot be overridden.</value>
   </data>
   <data name="BCE0048" xml:space="preserve">
     <value>Type '{0}' does not support slicing.</value>
@@ -478,7 +478,7 @@
     <value>Target of explode expression must be an array.</value>
   </data>
   <data name="BCE0119" xml:space="preserve">
-    <value>Explode expression can only be used as the last argument to a callable which takes a variable number of arguments.</value>
+    <value>Explode expression can only be used as the last argument to callable that takes a variable number of arguments.</value>
   </data>
   <data name="BCE0120" xml:space="preserve">
     <value>'{0}' is inaccessible due to its protection level.</value>
@@ -589,7 +589,7 @@
     <value>Instantiating generic parameters is not yet supported.</value>
   </data>
   <data name="BCE0156" xml:space="preserve">
-    <value>Event '{0}' can only be invoked from within the class it was declared ('{1}').</value>
+    <value>Event '{0}' can only be triggered from within its declaring type ('{1}').</value>
   </data>
   <data name="BCE0157" xml:space="preserve">
     <value>Generic types without all generic parameters defined cannot be instantiated.</value>
@@ -724,7 +724,7 @@
     <value>WARNING: Visible {0} does not declare {1} type explicitely.</value>
   </data>
   <data name="BCW0025" xml:space="preserve">
-    <value>WARNING: Variable '{0}' has the same name as a private field of base type '{1}'. Did you mean to use the field?</value>
+    <value>WARNING: Variable '{0}' has the same name as a private field of super type '{1}'. Did you mean to use the field?</value>
   </data>
   <data name="BCW0026" xml:space="preserve">
     <value>WARNING: Likely typo in member name '{0}'. Did you mean '{1}'?</value>

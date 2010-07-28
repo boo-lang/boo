@@ -1,8 +1,8 @@
 """
-BCE0156-1.boo(27,10): BCE0156: Event 'E' can only be invoked from within the class it was declared ('Base').
-BCE0156-1.boo(30,11): BCE0156: Event 'SE' can only be invoked from within the class it was declared ('Base').
-BCE0156-1.boo(33,9): BCE0156: Event 'E' can only be invoked from within the class it was declared ('Base').
-BCE0156-1.boo(36,9): BCE0156: Event 'SE' can only be invoked from within the class it was declared ('Base').
+BCE0156-1.boo(27,10): BCE0156: Event 'E' can only be triggered from within its declaring type ('Base').
+BCE0156-1.boo(30,11): BCE0156: Event 'SE' can only be triggered from within its declaring type ('Base').
+BCE0156-1.boo(33,9): BCE0156: Event 'E' can only be triggered from within its declaring type ('Base').
+BCE0156-1.boo(36,9): BCE0156: Event 'SE' can only be triggered from within its declaring type ('Base').
 """
 
 class Base:
