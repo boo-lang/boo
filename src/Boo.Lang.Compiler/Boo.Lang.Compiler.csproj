@@ -100,6 +100,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
       <HintPath>..\..\..\..\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -618,6 +619,7 @@
     <Compile Include="TypeSystem\Services\CurrentScope.cs" />
     <Compile Include="TypeSystem\Services\DowncastPermissions.cs" />
     <Compile Include="TypeSystem\Services\EntityFormatter.cs" />
+    <Compile Include="TypeSystem\Services\ErrorFormatter.cs" />
     <Compile Include="TypeSystem\Services\MemberCollector.cs" />
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
