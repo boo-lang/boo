@@ -108,25 +108,6 @@ namespace Boo.Lang.Compiler
 
 		override public string ToString()
 		{
-			return BuildString();
-		}
-
-		public string ToString(bool verbose)
-		{
-			var saved = _verbose;
-			try
-			{
-				_verbose = _verbose || verbose;
-				return BuildString();
-			}
-			finally
-			{
-				_verbose = saved;
-			}
-		}
-
-		private string BuildString()
-		{
 			var sb = new StringBuilder();
 			if (_lexicalInfo.Line > 0)
 			{
@@ -137,6 +118,20 @@ namespace Boo.Lang.Compiler
 			sb.Append(": ");
 			sb.Append(_verbose ? base.ToString() : Message);
 			return sb.ToString();
+		}
+
+		public string ToString(bool verbose)
+		{
+			var saved = _verbose;
+			try
+			{
+				_verbose = _verbose || verbose;
+				return ToString();
+			}
+			finally
+			{
+				_verbose = saved;
+			}
 		}
 
 		[ThreadStatic]
