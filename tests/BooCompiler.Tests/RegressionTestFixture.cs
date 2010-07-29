@@ -380,6 +380,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BOO_1308()
+		{
+			RunCompilerTestCase(@"BOO-1308.boo");
+		}
+		
+		[Test]
 		public void BOO_138_1()
 		{
 			RunCompilerTestCase(@"BOO-138-1.boo");

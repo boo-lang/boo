@@ -39,6 +39,10 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 
+		public override void OnBlockExpression(BlockExpression node)
+		{	
+		}
+
 		public override void LeaveReturnStatement(ReturnStatement node)
 		{
 			if (node.Expression == null)
