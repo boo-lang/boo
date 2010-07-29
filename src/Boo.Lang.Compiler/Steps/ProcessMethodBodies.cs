@@ -780,8 +780,10 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessClosureBody(BlockExpression node)
 		{
 			MarkVisited(node);
+			if (node.ContainsAnnotation("inline"))
+				AddOptionalReturnStatement(node.Body);
 
-			string explicitClosureName = node["ClosureName"] as string;
+			var explicitClosureName = node["ClosureName"] as string;
 
 			Method closure = CodeBuilder.CreateMethod(
 				ClosureName(explicitClosureName),
@@ -790,7 +792,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			MarkVisited(closure);
 
-			InternalMethod closureEntity = (InternalMethod)closure.Entity;
+			var closureEntity = (InternalMethod)closure.Entity;
 			closure.LexicalInfo = node.LexicalInfo;
 			closure.Parameters = node.Parameters;
 			closure.Body = node.Body;
@@ -803,26 +805,17 @@ namespace Boo.Lang.Compiler.Steps
 			// resolve parameter types
 			Visit(closure.Parameters);
 
-			if (node.ContainsAnnotation("inline"))
-			{
-				AddOptionalReturnStatement(node.Body);
-			}
-
 			// Inside the closure, connect the closure method namespace with the current namespace
-			NamespaceDelegator ns = new NamespaceDelegator(CurrentNamespace, closureEntity);
+			var ns = new NamespaceDelegator(CurrentNamespace, closureEntity);
 
 			// Allow closure body to reference itself using its explicit name (BOO-1085)
 			if (explicitClosureName != null)
-			{
 				ns.DelegateTo(new AliasedNamespace(explicitClosureName, closureEntity));
-			}
 
 			ProcessMethodBody(closureEntity, ns);
 
 			if (closureEntity.ReturnType is Unknown)
-			{
 				TryToResolveReturnType(closureEntity);
-			}
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
@@ -876,13 +869,13 @@ namespace Boo.Lang.Compiler.Steps
 			return Context.GetUniqueName(_currentMethod.Name, closureHint);
 		}
 
-		private void AddOptionalReturnStatement(Block body)
+		private static void AddOptionalReturnStatement(Block body)
 		{
 			if (body.Statements.Count != 1) return;
-			ExpressionStatement stmt = body.FirstStatement as ExpressionStatement;
+			var stmt = body.FirstStatement as ExpressionStatement;
 			if (null == stmt) return;
 
-			ReturnStatement rs = new ReturnStatement(stmt.LexicalInfo, stmt.Expression, null);
+			var rs = new ReturnStatement(stmt.LexicalInfo, stmt.Expression, null);
 			rs.Annotate(OptionalReturnStatementAnnotation);
 			body.Replace(stmt, rs);
 		}

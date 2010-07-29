@@ -43,10 +43,10 @@ namespace Boo.Lang.Compiler.Steps
 		ClassDefinition _sharedLocalsClass;
 		
 		Hashtable _mappings = new Hashtable();
-		
-		List _references = new List();
-		
-		List _shared = new List();
+
+		readonly List<ReferenceExpression> _references = new List<ReferenceExpression>();
+
+		readonly List<ILocalEntity> _shared = new List<ILocalEntity>();
 		
 		int _closureDepth;
 		
@@ -211,11 +211,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (T node in nodes)
 			{
-				ILocalEntity local = (ILocalEntity)node.Entity;
+				var local = (ILocalEntity)node.Entity;
 				if (local.IsShared)
-				{
 					_shared.Add(local);
-				}
 			}
 		}
 	}
