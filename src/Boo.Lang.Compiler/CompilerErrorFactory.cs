@@ -958,14 +958,8 @@ namespace Boo.Lang.Compiler
 			var sb = new StringBuilder("(");
 			for (int i=0; i<parameters.Length; ++i)
 			{
-				if (i>0)
-				{
-					sb.Append(", ");
-				}
-				if (null != parameters)
-				{
-					sb.Append(parameters[i].GetType());
-				}
+				if (i > 0) sb.Append(", ");
+				sb.Append(parameters[i].GetType());
 			}
 			sb.Append(")");
 			return sb.ToString();
@@ -973,10 +967,10 @@ namespace Boo.Lang.Compiler
 
 		public static string ToNameList(System.Reflection.MemberInfo[] members)
 		{
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			for (int i=0; i<members.Length; ++i)
 			{
-				if (i>0) { sb.Append(", "); }
+				if (i > 0) sb.Append(", ");
 				sb.Append(members[i].MemberType.ToString());
 				sb.Append(" ");
 				sb.Append(members[i].Name);
