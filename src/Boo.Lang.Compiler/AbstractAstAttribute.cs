@@ -32,27 +32,20 @@ namespace Boo.Lang.Compiler
 	
 	public abstract class AbstractAstAttribute : AbstractCompilerComponent, IAstAttribute
 	{
-		protected Boo.Lang.Compiler.Ast.Attribute _attribute;
-		
 		public Boo.Lang.Compiler.Ast.Attribute Attribute
 		{
-			set
-			{				
-				_attribute = value;
-			}
+			get;
+			set;
 		}
 
 		public Boo.Lang.Compiler.Ast.LexicalInfo LexicalInfo
 		{
-			get
-			{
-				return _attribute.LexicalInfo;
-			}
+			get { return Attribute.LexicalInfo; }
 		}
 		
 		protected void InvalidNodeForAttribute(string expectedNodeTypes)
 		{
-			Errors.Add(CompilerErrorFactory.InvalidNodeForAttribute(LexicalInfo, GetType().FullName, expectedNodeTypes));
+			Errors.Add(CompilerErrorFactory.InvalidNodeForAttribute(Attribute, GetType().FullName, expectedNodeTypes));
 		}
 		
 		public abstract void Apply(Boo.Lang.Compiler.Ast.Node targetNode);
