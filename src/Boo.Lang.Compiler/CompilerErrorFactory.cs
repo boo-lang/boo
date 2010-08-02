@@ -202,7 +202,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError EventArgumentMustBeAMethod(Node node, string eventName, string eventType)
 		{
-			return Instantiate("BCE0032", node, eventName, eventType);
+			return Instantiate("BCE0032", node, eventName, eventType, LanguageAmbiance.CallableKeyword);
 		}
 		
 		public static CompilerError TypeNotAttribute(Node node, string attributeType)
@@ -479,7 +479,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError EventTypeIsNotCallable(Node node, string typeName)
 		{
-			return Instantiate("BCE0082", node, typeName);
+			return Instantiate("BCE0082", node, typeName, LanguageAmbiance.CallableKeyword);
 		}
 		
 		public static CompilerError StaticConstructorMustBePrivate(Node node)
@@ -554,7 +554,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError CannotBranchIntoTry(Node node)
 		{
-			return Instantiate("BCE0097", node);
+			return Instantiate("BCE0097", node, LanguageAmbiance.TryKeyword);
 		}
 		
 		public static CompilerError InvalidSwitch(Node node)
@@ -664,7 +664,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError ExplodeExpressionMustMatchVarArgCall(Node node)
 		{
-			return Instantiate("BCE0119", node);
+			return Instantiate("BCE0119", node, LanguageAmbiance.CallableKeyword);
 		}
 
 		public static CompilerError UnaccessibleMember(Node node, string name)

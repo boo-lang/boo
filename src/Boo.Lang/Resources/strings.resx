@@ -214,7 +214,7 @@
     <value>Language feature still not implemented: '{0}'.</value>
   </data>
   <data name="BCE0032" xml:space="preserve">
-    <value>The event '{0}' expects a callable reference compatible with '{1}'.</value>
+    <value>The event '{0}' expects a {2} reference compatible with '{1}'.</value>
   </data>
   <data name="BCE0033" xml:space="preserve">
     <value>The type '{0}' is not a valid attribute.</value>
@@ -367,13 +367,13 @@
     <value>A {0} statement with no arguments is not allowed outside an exception handler.</value>
   </data>
   <data name="BCE0082" xml:space="preserve">
-    <value>'{0}' is not callable. Event type must be callable.</value>
+    <value>'{0}' is not a {1} type. Event type must be a {1} type.</value>
   </data>
   <data name="BCE0083" xml:space="preserve">
     <value>Static constructors must be private.</value>
   </data>
   <data name="BCE0084" xml:space="preserve">
-    <value>Static constructors can not declare parameters.</value>
+    <value>Static constructors cannot declare parameters.</value>
   </data>
   <data name="BCE0085" xml:space="preserve">
     <value>Cannot create instance of abstract class '{0}'.</value>
@@ -412,7 +412,7 @@
     <value>Method '{0}' already has a label '{1}'.</value>
   </data>
   <data name="BCE0097" xml:space="preserve">
-    <value>Cannot branch into try block.</value>
+    <value>Cannot branch into {0} block.</value>
   </data>
   <data name="BCE0098" xml:space="preserve">
     <value>Invalid arguments for __switch__.</value>
@@ -478,7 +478,7 @@
     <value>Target of explode expression must be an array.</value>
   </data>
   <data name="BCE0119" xml:space="preserve">
-    <value>Explode expression can only be used as the last argument to callable that takes a variable number of arguments.</value>
+    <value>Explode expression can only be used as the last argument to {0} that takes a variable number of arguments.</value>
   </data>
   <data name="BCE0120" xml:space="preserve">
     <value>'{0}' is inaccessible due to its protection level.</value>

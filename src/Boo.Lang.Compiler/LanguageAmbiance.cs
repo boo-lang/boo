@@ -44,6 +44,11 @@ namespace Boo.Lang.Compiler
 			get { return "raise"; }
 		}
 
+		public string CallableKeyword
+		{
+			get { return "callable"; }
+		}
+
 		public virtual string DefaultGeneratorTypeFor(string typeName)
 		{
 			return typeName + "*";
