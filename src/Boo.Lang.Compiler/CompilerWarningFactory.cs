@@ -28,6 +28,7 @@
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler
 {
@@ -72,9 +73,14 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerWarning IsInsteadOfIsa(Node node)
 		{
-			return new CompilerWarning("BCW0004", AstUtil.SafeLexicalInfo(node));
+			return new CompilerWarning("BCW0004", AstUtil.SafeLexicalInfo(node), LanguageAmbiance.IsKeyword, LanguageAmbiance.IsaKeyword);
 		}
-		
+
+		private static LanguageAmbiance LanguageAmbiance
+		{
+			get { return My<LanguageAmbiance>.Instance; }
+		}
+
 		public static CompilerWarning InvalidEventUnsubscribe(Node node, string eventName, CallableSignature expected)
 		{
 			return new CompilerWarning("BCW0005", AstUtil.SafeLexicalInfo(node), eventName, expected);

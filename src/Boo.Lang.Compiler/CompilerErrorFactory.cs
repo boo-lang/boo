@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -27,6 +27,8 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler
 {
@@ -315,7 +317,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError IsaArgument(Node node)
 		{
-			return Instantiate("BCE0054", node);
+			return Instantiate("BCE0054", node, LanguageAmbiance.IsaKeyword);
 		}
 
 		public static CompilerError InternalError(Node node, Exception error)
@@ -340,10 +342,20 @@ namespace Boo.Lang.Compiler
 		}
 
 		public static CompilerError SelfIsNotValidInStaticMember(Node node)
-		{
-			return Instantiate("BCE0058", node);
+		{	
+			return Instantiate("BCE0058", node, SelfKeyword);
 		}
-		
+
+		private static string SelfKeyword
+		{
+			get { return LanguageAmbiance.SelfKeyword; }
+		}
+
+		private static LanguageAmbiance LanguageAmbiance
+		{
+			get { return My<LanguageAmbiance>.Instance; }
+		}
+
 		public static CompilerError InvalidLockMacroArguments(Node node)
 		{
 			return Instantiate("BCE0059", node);
@@ -427,7 +439,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError SelfOutsideMethod(Node node)
 		{
-			return Instantiate("BCE0074", node);
+			return Instantiate("BCE0074", node, SelfKeyword);
 		}
 		
 		public static CompilerError NamespaceIsNotAnExpression(Node node, string name)
@@ -462,7 +474,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError ReRaiseOutsideExceptionHandler(Node node)
 		{
-			return Instantiate("BCE0081", node);
+			return Instantiate("BCE0081", node, LanguageAmbiance.RaiseKeyword);
 		}
 		
 		public static CompilerError EventTypeIsNotCallable(Node node, string typeName)
@@ -517,12 +529,12 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError InvalidRaiseArgument(Node node, string typeName)
 		{
-			return Instantiate("BCE0092", node, typeName);
+			return Instantiate("BCE0092", node, typeName, LanguageAmbiance.RaiseKeyword);
 		}
 		
 		public static CompilerError CannotBranchIntoEnsure(Node node)
 		{
-			return Instantiate("BCE0093", node);
+			return Instantiate("BCE0093", node, LanguageAmbiance.EnsureKeyword);
 		}
 		
 		public static CompilerError CannotBranchIntoExcept(Node node)
@@ -552,7 +564,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError YieldInsideTryExceptOrEnsureBlock(Node node)
 		{
-			return Instantiate("BCE0099", node);
+			return Instantiate("BCE0099", node, LanguageAmbiance.TryKeyword, LanguageAmbiance.ExceptKeyword, LanguageAmbiance.EnsureKeyword);
 		}
 		
 		public static CompilerError YieldInsideConstructor(Node node)
@@ -562,7 +574,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError InvalidGeneratorReturnType(Node node, string typeName)
 		{
-			return Instantiate("BCE0101", node, typeName);
+			return Instantiate("BCE0101", node, typeName, LanguageAmbiance.DefaultGeneratorTypeFor(typeName));
 		}
 
 		public static CompilerError GeneratorCantReturnValue(Node node)
@@ -702,7 +714,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError InvalidTryStatement(Node node)
 		{
-			return Instantiate("BCE0128", node);
+			return Instantiate("BCE0128", node, LanguageAmbiance.TryKeyword, LanguageAmbiance.ExceptKeyword, LanguageAmbiance.FailureKeyword, LanguageAmbiance.EnsureKeyword);
 		}
 
 		public static CompilerError InvalidExtensionDefinition(Node node)
@@ -778,7 +790,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError CantReturnFromEnsure(Node node)
 		{
-			return Instantiate("BCE0143", node);
+			return Instantiate("BCE0143", node, LanguageAmbiance.EnsureKeyword);
 		}
 		
 		public static CompilerError Obsolete(Node node, string memberName, string message)
@@ -788,7 +800,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError InvalidExceptArgument(Node node, string exceptionType)
 		{
-			return Instantiate("BCE0145", node, exceptionType);
+			return Instantiate("BCE0145", node, exceptionType, LanguageAmbiance.ExceptKeyword);
 		}
 		
 		public static CompilerError GenericArgumentMustBeReferenceType(Node node, IGenericParameter parameter, IType argument)
@@ -853,7 +865,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError InstanceMethodInvocationBeforeInitialization(Constructor ctor, MemberReferenceExpression mre)
 		{
-			return Instantiate("BCE0158", mre, mre.Name);
+			return Instantiate("BCE0158", mre, mre.Name, SelfKeyword);
 		}
 
 		public static CompilerError StructAndClassConstraintsConflict(GenericParameterDeclaration gpd)
@@ -888,7 +900,9 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError ExceptionAlreadyHandled(ExceptionHandler dupe, ExceptionHandler previous)
 		{
-			return Instantiate("BCE0165", dupe.Declaration, dupe.Declaration.Type, previous.Declaration.Type, AstUtil.SafePositionOnlyLexicalInfo(previous.Declaration));
+			return Instantiate("BCE0165",
+				dupe.Declaration, dupe.Declaration.Type, previous.Declaration.Type,
+				AstUtil.SafePositionOnlyLexicalInfo(previous.Declaration), LanguageAmbiance.ExceptKeyword);
 		}
 
 		public static CompilerError UnknownClassMacroWithFieldHint(MacroStatement node, string name)

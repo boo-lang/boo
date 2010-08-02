@@ -385,6 +385,7 @@
     <Compile Include="IO\FileInput.cs" />
     <Compile Include="IO\ReaderInput.cs" />
     <Compile Include="IO\StringInput.cs" />
+    <Compile Include="LanguageAmbiance.cs" />
     <Compile Include="LexicalInfoPreservingGeneratorMacro.cs" />
     <Compile Include="LexicalInfoPreservingMacro.cs" />
     <Compile Include="MetaProgramming\Compilation.cs" />

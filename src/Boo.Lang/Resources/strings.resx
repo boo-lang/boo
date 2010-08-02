@@ -280,7 +280,7 @@
     <value>Property '{0}' is read only.</value>
   </data>
   <data name="BCE0054" xml:space="preserve">
-    <value>'isa' expects a type reference, a System.Type instance or a type array.</value>
+    <value>'{0}' expects a type reference, a System.Type instance or a type array.</value>
   </data>
   <data name="BCE0055" xml:space="preserve">
     <value>Internal compiler error: {0}.</value>
@@ -292,7 +292,7 @@
     <value>Primitive '{0}' can't be redefined.</value>
   </data>
   <data name="BCE0058" xml:space="preserve">
-    <value>'self' is not valid in a static method, static property, or static field initializer.</value>
+    <value>'{0}' is not valid in a static method, static property, or static field initializer.</value>
   </data>
   <data name="BCE0059" xml:space="preserve">
     <value>The 'lock' macro expects at least one argument.</value>
@@ -343,7 +343,7 @@
     <value>Abstract method '{0}' cannot have a body.</value>
   </data>
   <data name="BCE0074" xml:space="preserve">
-    <value>'self' cannot be used outside a method.</value>
+    <value>'{0}' cannot be used outside a method.</value>
   </data>
   <data name="BCE0075" xml:space="preserve">
     <value>'{0}' is a namespace. Namespaces cannot be used as expressions.</value>
@@ -364,7 +364,7 @@
     <value>'{0}' built-in function cannot be used as an expression.</value>
   </data>
   <data name="BCE0081" xml:space="preserve">
-    <value>A raise statement with no arguments is not allowed outside an exception handler.</value>
+    <value>A {0} statement with no arguments is not allowed outside an exception handler.</value>
   </data>
   <data name="BCE0082" xml:space="preserve">
     <value>'{0}' is not callable. Event type must be callable.</value>
@@ -397,10 +397,10 @@
     <value>Event reference '{0}' cannot be used as an expression.</value>
   </data>
   <data name="BCE0092" xml:space="preserve">
-    <value>'{0}' is not a valid argument type for raise, only strings and exceptions are allowed.</value>
+    <value>'{0}' is not a valid argument type for {1}, only strings and exceptions are allowed.</value>
   </data>
   <data name="BCE0093" xml:space="preserve">
-    <value>Cannot branch into ensure block.</value>
+    <value>Cannot branch into {0} block.</value>
   </data>
   <data name="BCE0094" xml:space="preserve">
     <value>Cannot branch into exception handler.</value>
@@ -418,13 +418,13 @@
     <value>Invalid arguments for __switch__.</value>
   </data>
   <data name="BCE0099" xml:space="preserve">
-    <value>yield cannot be used inside a try, except or ensure block.</value>
+    <value>yield cannot be used inside a {0}, {1} or {2} block.</value>
   </data>
   <data name="BCE0100" xml:space="preserve">
     <value>yield cannot be used inside constructors.</value>
   </data>
   <data name="BCE0101" xml:space="preserve">
-    <value>Return type '{0}' cannot be used on a generator. Did you mean '{0}*'? You can also use 'System.Collections.IEnumerable' or 'object'.</value>
+    <value>Return type '{0}' cannot be used on a generator. Did you mean '{1}'? You can also use 'System.Collections.IEnumerable' or 'object'.</value>
   </data>
   <data name="BCE0102" xml:space="preserve">
     <value>Generators cannot return values.</value>
@@ -505,7 +505,7 @@
     <value>A ref or out argument must be an lvalue: '{0}'</value>
   </data>
   <data name="BCE0128" xml:space="preserve">
-    <value>'try' block must be followed by at least one 'except' block or either a 'failure' or 'ensure' block.</value>
+    <value>'{0}' block must be followed by at least one '{1}' block or either a '{2}' or '{3}' block.</value>
   </data>
   <data name="BCE0129" xml:space="preserve">
     <value>Invalid extension definition, only static methods with at least one argument are allowed.</value>
@@ -550,13 +550,13 @@
     <value>Cannot bind [default] attribute to value type parameter '{0}' in '{1}'.</value>
   </data>
   <data name="BCE0143" xml:space="preserve">
-    <value>Cannot return from an ensure block.</value>
+    <value>Cannot return from an {0} block.</value>
   </data>
   <data name="BCE0144" xml:space="preserve">
     <value>'{0}' is obsolete. {1}</value>
   </data>
   <data name="BCE0145" xml:space="preserve">
-    <value>Cannot catch type '{0}'; 'except' blocks can only catch exceptions derived from 'System.Exception'. To catch non-CLS compliant exceptions, use a default exception handler or catch 'System.Runtime.CompilerServices.RuntimeWrappedException'.</value>
+    <value>Cannot catch type '{0}'; '{1}' blocks can only catch exceptions derived from 'System.Exception'. To catch non-CLS compliant exceptions, use a default exception handler or catch 'System.Runtime.CompilerServices.RuntimeWrappedException'.</value>
   </data>
   <data name="BCE0146" xml:space="preserve">
     <value>The type '{0}' must be a reference type in order to substitute the generic parameter '{1}' in '{2}'.</value>
@@ -595,7 +595,7 @@
     <value>Generic types without all generic parameters defined cannot be instantiated.</value>
   </data>
   <data name="BCE0158" xml:space="preserve">
-    <value>Cannot invoke instance method '{0}' before object initialization. Move your call after 'self' or 'super'.</value>
+    <value>Cannot invoke instance method '{0}' before object initialization. Move your call after '{1}' or 'super'.</value>
   </data>
   <data name="BCE0159" xml:space="preserve">
     <value>Generic parameter '{0}' cannot have both a reference type constraint and a value type constraint.</value>
@@ -616,7 +616,7 @@
     <value>Cannot infer generic arguments for method '{0}'. Provide stronger type information through arguments, or explicitly state the generic arguments.</value>
   </data>
   <data name="BCE0165" xml:space="preserve">
-    <value>'{0}' is already handled by except block for '{1}' at {2}.</value>
+    <value>'{0}' is already handled by {3} block for '{1}' at {2}.</value>
   </data>
   <data name="BCE0166" xml:space="preserve">
     <value>Unknown macro '{0}'. Did you mean to declare the field '{0} as object'?</value>
@@ -661,7 +661,7 @@
     <value>WARNING: Unused local variable '{0}'.</value>
   </data>
   <data name="BCW0004" xml:space="preserve">
-    <value>WARNING: Right hand side of 'is' operator is a type reference, are you sure you do not want to use 'isa' instead?</value>
+    <value>WARNING: Right hand side of '{0}' operator is a type reference, are you sure you do not want to use '{1}' instead?</value>
   </data>
   <data name="BCW0005" xml:space="preserve">
     <value>WARNING: Unsubscribing from event '{0}' with an adapted method reference. Either change the signature of the method to '{1}' or use a cached reference of the correct type.</value>
