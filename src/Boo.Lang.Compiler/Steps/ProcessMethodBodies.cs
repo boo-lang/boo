@@ -5307,15 +5307,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindTypeTest(BinaryExpression node)
 		{
-			if (CheckIsNotValueType(node, node.Left) &&
-				CheckIsaArgument(node.Right))
-			{
+			if (CheckIsNotValueType(node, node.Left) && CheckIsaArgument(node.Right))
 				BindExpressionType(node, TypeSystemServices.BoolType);
-			}
 			else
-			{
 				Error(node);
-			}
 		}
 
 		void BindReferenceEquality(BinaryExpression node)
