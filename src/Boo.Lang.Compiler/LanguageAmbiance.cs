@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Boo.Lang.Compiler
+﻿namespace Boo.Lang.Compiler
 {
 	public class LanguageAmbiance
 	{
