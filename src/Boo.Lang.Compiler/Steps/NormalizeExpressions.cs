@@ -68,16 +68,21 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.Initializer is ListLiteralExpression)
 				foreach (var item in ((ListLiteralExpression)node.Initializer).Items)
 					// temp.Add(item)
-					initialization.Arguments.Add(new MethodInvocationExpression(item.LexicalInfo, new MemberReferenceExpression(temp.CloneNode(), "Add"), item));
+					initialization.Arguments.Add(NewAddInvocation(item.LexicalInfo, temp, item));
 			else
 				foreach (var pair in ((HashLiteralExpression)node.Initializer).Items)
 					// temp.Add(key, value)
-					initialization.Arguments.Add(new MethodInvocationExpression(pair.LexicalInfo, new MemberReferenceExpression(temp.CloneNode(), "Add"), pair.First, pair.Second));
+					initialization.Arguments.Add(NewAddInvocation(pair.LexicalInfo, temp, pair.First, pair.Second));
 
 			// return temp
 			initialization.Arguments.Add(temp.CloneNode());
 
 			ReplaceCurrentNode(initialization);
+		}
+
+		private static MethodInvocationExpression NewAddInvocation(LexicalInfo location, ReferenceExpression target, params Expression[] args)
+		{
+			return new MethodInvocationExpression(location, new MemberReferenceExpression(target.CloneNode(), "Add"), args);
 		}
 
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
