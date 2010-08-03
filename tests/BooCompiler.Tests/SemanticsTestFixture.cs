@@ -62,6 +62,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void collection_initializer()
+		{
+			RunCompilerTestCase(@"collection-initializer.boo");
+		}
+		
+		[Test]
 		public void enum0()
 		{
 			RunCompilerTestCase(@"enum0.boo");

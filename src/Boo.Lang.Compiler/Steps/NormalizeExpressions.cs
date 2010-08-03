@@ -60,19 +60,24 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var temp = new ReferenceExpression(node.LexicalInfo, Context.GetUniqueName("collection"));
 
-			var eval = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
-			eval.Arguments.Add(new BinaryExpression(BinaryOperatorType.Assign, temp, node.Collection));
-			foreach (var pair in ((HashLiteralExpression)node.Initializer).Items)
-			{
-				// collection.Add(key, value)
-				var addInvocation = new MethodInvocationExpression(
-					new MemberReferenceExpression(temp.CloneNode(), "Add"),
-					pair.First, pair.Second);
-				eval.Arguments.Add(addInvocation);
-			}
-			eval.Arguments.Add(temp.CloneNode());
+			var initialization = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
 
-			ReplaceCurrentNode(eval);
+			// temp = $(node.Collection)
+			initialization.Arguments.Add(new BinaryExpression(BinaryOperatorType.Assign, temp, node.Collection));
+
+			if (node.Initializer is ListLiteralExpression)
+				foreach (var item in ((ListLiteralExpression)node.Initializer).Items)
+					// temp.Add(item)
+					initialization.Arguments.Add(new MethodInvocationExpression(new MemberReferenceExpression(temp.CloneNode(), "Add"), item));
+			else
+				foreach (var pair in ((HashLiteralExpression)node.Initializer).Items)
+					// temp.Add(key, value)
+					initialization.Arguments.Add(new MethodInvocationExpression(new MemberReferenceExpression(temp.CloneNode(), "Add"), pair.First, pair.Second));
+
+			// return temp
+			initialization.Arguments.Add(temp.CloneNode());
+
+			ReplaceCurrentNode(initialization);
 		}
 
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)

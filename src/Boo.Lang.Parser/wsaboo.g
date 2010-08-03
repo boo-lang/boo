@@ -2592,11 +2592,29 @@ slicing_expression returns [Expression e]
 				)?
 			RPAREN
 			(
-				initializer=hash_literal
+				(
+					(hash_literal_test)=>initializer=hash_literal
+					| initializer=list_initializer
+				)
 				{ e = new CollectionInitializationExpression(e, initializer); }
 			)?
 		)
 	)*
+;
+
+protected
+list_initializer returns [ListLiteralExpression e]
+	{
+		e = null;
+		ExpressionCollection items = null;
+	}:
+	lbrace:LBRACE
+	{
+		e = new ListLiteralExpression(ToLexicalInfo(lbrace));
+		items = e.Items;
+	}
+	list_items[items]
+	RBRACE
 ;
 	
 protected
@@ -2724,33 +2742,35 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 	
 
 protected
-list_literal returns [Expression e]
+list_literal returns [ListLiteralExpression e]
 	{
 		e = null;
-		ListLiteralExpression lle = null;
-		Expression item = null;
+		ExpressionCollection items = null;
 	}:
 	lbrack:LBRACK
-	(
-		(
-			item=expression
-			(
-				{
-					e = lle = new ListLiteralExpression(SourceLocationFactory.ToLexicalInfo(lbrack));
-					lle.Items.Add(item);
-				}
-				(  options { greedy = true; } :
-					COMMA item=expression { lle.Items.Add(item); }
-				)*
-			)
-			(COMMA)?
-		)
-		|
-		{ e = new ListLiteralExpression(SourceLocationFactory.ToLexicalInfo(lbrack)); }
-	)
+	{
+		e = new ListLiteralExpression(ToLexicalInfo(lbrack));
+		items = e.Items;
+	}
+	list_items[items]
 	RBRACK
-	;
+;
 	
+protected
+list_items[ExpressionCollection items]
+	{
+		Expression item = null;
+	}:
+	(
+		item=expression { items.Add(item); }
+		(
+			(  options { greedy = true; } :
+				COMMA item=expression { items.Add(item); }
+			)*
+		)
+		(COMMA)?
+	)?
+;
 protected
 hash_literal_test:
 	LBRACE	(RBRACE|(expression COLON))

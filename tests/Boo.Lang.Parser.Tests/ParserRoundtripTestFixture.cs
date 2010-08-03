@@ -324,6 +324,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void collection_initializer()
+		{
+			RunCompilerTestCase(@"collection-initializer.boo");
+		}
+		
+		[Test]
 		public void comments_1()
 		{
 			RunCompilerTestCase(@"comments-1.boo");
