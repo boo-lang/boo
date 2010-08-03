@@ -127,6 +127,7 @@
     <Compile Include="Ast\CharLiteralExpression.cs" />
     <Compile Include="Ast\ClassDefinition.cs" />
     <Compile Include="Ast\CodeSerializer.cs" />
+    <Compile Include="Ast\CollectionInitializationExpression.cs" />
     <Compile Include="Ast\CompileUnit.cs" />
     <Compile Include="Ast\ConditionalExpression.cs" />
     <Compile Include="Ast\ConditionalStatement.Generated.cs" />
@@ -425,6 +426,7 @@
     <Compile Include="Steps\CheckAttributesUsage.cs" />
     <Compile Include="Steps\CheckGenericConstraints.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
+    <Compile Include="Steps\CheckLiteralValues.cs" />
     <Compile Include="Steps\CheckMemberNames.cs" />
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
     <Compile Include="Steps\CheckMemberTypes.cs" />
@@ -463,9 +465,8 @@
     <Compile Include="Steps\MacroProcessing\TypeMemberStatement.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
+    <Compile Include="Steps\NormalizeExpressions.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
-    <Compile Include="Steps\NormalizeLiterals.cs" />
-    <Compile Include="Steps\NormalizeOmittedExpressions.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
     <Compile Include="Steps\NormalizeTypeAndMemberDefinitions.cs" />
     <Compile Include="Steps\OptimizeIterationStatements.cs" />

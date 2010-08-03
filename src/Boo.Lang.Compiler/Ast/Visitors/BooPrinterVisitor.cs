@@ -782,6 +782,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteCommaSeparatedList(node.Items);
 			Write("]");
 		}
+
+		public override void OnCollectionInitializationExpression(CollectionInitializationExpression node)
+		{
+			Visit(node.Collection);
+			Write(" ");
+			Visit(node.Initializer);
+		}
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)
 		{

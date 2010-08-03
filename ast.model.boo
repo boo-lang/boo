@@ -283,21 +283,18 @@ class IfStatement(ConditionalStatement):
 	FalseBlock as Block
 
 class UnlessStatement(ConditionalStatement):
-	
 	[auto]
 	Block as Block
 
 class ForStatement(Statement):
 	Declarations as DeclarationCollection
 	Iterator as Expression
-	
 	[auto]
 	Block as Block
 	OrBlock as Block
 	ThenBlock as Block
 
 class WhileStatement(ConditionalStatement):
-	
 	[auto]
 	Block as Block
 	OrBlock as Block
@@ -502,6 +499,10 @@ class HashLiteralExpression(LiteralExpression):
 
 class ListLiteralExpression(LiteralExpression):
 	Items as ExpressionCollection
+	
+class CollectionInitializationExpression(Expression):
+	Collection as Expression
+	Initializer as Expression
 
 class ArrayLiteralExpression(ListLiteralExpression):
 	Type as ArrayTypeReference

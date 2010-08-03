@@ -2788,6 +2788,7 @@ slicing_expression returns [Expression e]
 		TypeReference genericArgument = null;
 		TypeReferenceCollection genericArguments = null;
 		Expression nameSplice = null;
+		Expression initializer = null;
 	} :
 	e=atom
 	( options { greedy=true; }:
@@ -2862,6 +2863,10 @@ slicing_expression returns [Expression e]
 					)*
 				)?
 			RPAREN
+			(
+				initializer=hash_literal
+				{ e = new CollectionInitializationExpression(e, initializer); }
+			)?
 		)
 	)*
 ;

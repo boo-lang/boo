@@ -612,6 +612,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void hash_initializer()
+		{
+			RunCompilerTestCase(@"hash-initializer.boo");
+		}
+		
+		[Test]
 		public void iif_1()
 		{
 			RunCompilerTestCase(@"iif-1.boo");

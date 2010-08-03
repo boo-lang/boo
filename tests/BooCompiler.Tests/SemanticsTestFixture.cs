@@ -146,6 +146,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void hash_initializer()
+		{
+			RunCompilerTestCase(@"hash-initializer.boo");
+		}
+		
+		[Test]
 		public void hash0()
 		{
 			RunCompilerTestCase(@"hash0.boo");
