@@ -1197,11 +1197,11 @@ _loop155_breakloop:				;
 					}
 					else
 					{
-						goto _loop562_breakloop;
+						goto _loop563_breakloop;
 					}
 					
 				}
-_loop562_breakloop:				;
+_loop563_breakloop:				;
 			}    // ( ... )*
 			if (0==inputState.guessing)
 			{
@@ -2929,11 +2929,11 @@ _loop223_breakloop:				;
 							}
 							else
 							{
-								goto _loop554_breakloop;
+								goto _loop555_breakloop;
 							}
 							
 						}
-_loop554_breakloop:						;
+_loop555_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -4590,6 +4590,7 @@ _loop119_breakloop:					;
 				MethodInvocationExpression mce = null;
 				TypeReference genericArgument = null;
 				TypeReferenceCollection genericArguments = null;
+				Expression initializer = null;
 			
 		
 		try {      // for error handling
@@ -4813,16 +4814,88 @@ _loop507_breakloop:										;
 								 }
 							}
 							match(RPAREN);
+							{
+								switch ( LA(1) )
+								{
+								case LBRACE:
+								{
+									initializer=hash_literal();
+									if (0==inputState.guessing)
+									{
+										e = new CollectionInitializationExpression(e, initializer);
+									}
+									break;
+								}
+								case EOF:
+								case ESEPARATOR:
+								case AND:
+								case AS:
+								case DEF:
+								case DO:
+								case ELSE:
+								case FOR:
+								case IS:
+								case ISA:
+								case IF:
+								case IN:
+								case NOT:
+								case OF:
+								case OR:
+								case UNLESS:
+								case WHILE:
+								case ID:
+								case EOS:
+								case NEWLINE:
+								case LBRACK:
+								case RBRACK:
+								case LPAREN:
+								case RPAREN:
+								case ASSIGN:
+								case SUBTRACT:
+								case COMMA:
+								case DOT:
+								case COLON:
+								case MULTIPLY:
+								case EXPONENTIATION:
+								case BITWISE_OR:
+								case RBRACE:
+								case QQ_END:
+								case INPLACE_BITWISE_OR:
+								case INPLACE_EXCLUSIVE_OR:
+								case INPLACE_BITWISE_AND:
+								case INPLACE_SHIFT_LEFT:
+								case INPLACE_SHIFT_RIGHT:
+								case CMP_OPERATOR:
+								case GREATER_THAN:
+								case LESS_THAN:
+								case ADD:
+								case EXCLUSIVE_OR:
+								case DIVISION:
+								case MODULUS:
+								case BITWISE_AND:
+								case SHIFT_LEFT:
+								case SHIFT_RIGHT:
+								case INCREMENT:
+								case DECREMENT:
+								{
+									break;
+								}
+								default:
+								{
+									throw new NoViableAltException(LT(1), getFilename());
+								}
+								 }
+							}
 						}
 						break;
 					}
 					default:
 					{
-						goto _loop508_breakloop;
+						goto _loop509_breakloop;
 					}
 					 }
 				}
-_loop508_breakloop:				;
+_loop509_breakloop:				;
 			}    // ( ... )*
 		}
 		catch (RecognitionException ex)
@@ -6575,11 +6648,11 @@ _loop203_breakloop:				;
 							}
 							else
 							{
-								goto _loop550_breakloop;
+								goto _loop551_breakloop;
 							}
 							
 						}
-_loop550_breakloop:						;
+_loop551_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -10653,11 +10726,11 @@ _loop448_breakloop:				;
 						e=integer_literal();
 					}
 					else {
-						bool synPredMatched512 = false;
+						bool synPredMatched513 = false;
 						if (((LA(1)==LBRACE) && (tokenSet_108_.member(LA(2)))))
 						{
-							int _m512 = mark();
-							synPredMatched512 = true;
+							int _m513 = mark();
+							synPredMatched513 = true;
 							inputState.guessing++;
 							try {
 								{
@@ -10666,12 +10739,12 @@ _loop448_breakloop:				;
 							}
 							catch (RecognitionException)
 							{
-								synPredMatched512 = false;
+								synPredMatched513 = false;
 							}
-							rewind(_m512);
+							rewind(_m513);
 							inputState.guessing--;
 						}
-						if ( synPredMatched512 )
+						if ( synPredMatched513 )
 						{
 							e=hash_literal();
 						}
@@ -11572,11 +11645,11 @@ _loop479_breakloop:							;
 			
 		
 		try {      // for error handling
-			bool synPredMatched557 = false;
+			bool synPredMatched558 = false;
 			if (((LA(1)==ID) && (LA(2)==COLON)))
 			{
-				int _m557 = mark();
-				synPredMatched557 = true;
+				int _m558 = mark();
+				synPredMatched558 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -11586,12 +11659,12 @@ _loop479_breakloop:							;
 				}
 				catch (RecognitionException)
 				{
-					synPredMatched557 = false;
+					synPredMatched558 = false;
 				}
-				rewind(_m557);
+				rewind(_m558);
 				inputState.guessing--;
 			}
-			if ( synPredMatched557 )
+			if ( synPredMatched558 )
 			{
 				{
 					id = LT(1);
@@ -11638,6 +11711,130 @@ _loop479_breakloop:							;
 				throw ex;
 			}
 		}
+	}
+	
+	protected HashLiteralExpression  hash_literal() //throws RecognitionException, TokenStreamException
+{
+		HashLiteralExpression dle;
+		
+		IToken  lbrace = null;
+		
+				dle = null;
+				ExpressionPair pair = null;
+			
+		
+		try {      // for error handling
+			lbrace = LT(1);
+			match(LBRACE);
+			if (0==inputState.guessing)
+			{
+				dle = new HashLiteralExpression(SourceLocationFactory.ToLexicalInfo(lbrace));
+			}
+			{
+				switch ( LA(1) )
+				{
+				case ESEPARATOR:
+				case CAST:
+				case CHAR:
+				case FALSE:
+				case NOT:
+				case NULL:
+				case SELF:
+				case SUPER:
+				case TRUE:
+				case TYPEOF:
+				case ID:
+				case TRIPLE_QUOTED_STRING:
+				case DOUBLE_QUOTED_STRING:
+				case SINGLE_QUOTED_STRING:
+				case LBRACK:
+				case LPAREN:
+				case SUBTRACT:
+				case DOT:
+				case MULTIPLY:
+				case SPLICE_BEGIN:
+				case LBRACE:
+				case QQ_BEGIN:
+				case LONG:
+				case INCREMENT:
+				case DECREMENT:
+				case ONES_COMPLEMENT:
+				case INT:
+				case RE_LITERAL:
+				case DOUBLE:
+				case FLOAT:
+				case TIMESPAN:
+				{
+					pair=expression_pair();
+					if (0==inputState.guessing)
+					{
+						dle.Items.Add(pair);
+					}
+					{    // ( ... )*
+						for (;;)
+						{
+							if ((LA(1)==COMMA) && (tokenSet_5_.member(LA(2))))
+							{
+								match(COMMA);
+								pair=expression_pair();
+								if (0==inputState.guessing)
+								{
+									dle.Items.Add(pair);
+								}
+							}
+							else
+							{
+								goto _loop540_breakloop;
+							}
+							
+						}
+_loop540_breakloop:						;
+					}    // ( ... )*
+					{
+						switch ( LA(1) )
+						{
+						case COMMA:
+						{
+							match(COMMA);
+							break;
+						}
+						case RBRACE:
+						{
+							break;
+						}
+						default:
+						{
+							throw new NoViableAltException(LT(1), getFilename());
+						}
+						 }
+					}
+					break;
+				}
+				case RBRACE:
+				{
+					break;
+				}
+				default:
+				{
+					throw new NoViableAltException(LT(1), getFilename());
+				}
+				 }
+			}
+			match(RBRACE);
+		}
+		catch (RecognitionException ex)
+		{
+			if (0 == inputState.guessing)
+			{
+				reportError(ex);
+				recover(ex,tokenSet_31_);
+			}
+			else
+			{
+				throw ex;
+			}
+		}
+		return dle;
 	}
 	
 	protected Expression  string_literal() //throws RecognitionException, TokenStreamException
@@ -11789,11 +11986,11 @@ _loop479_breakloop:							;
 									}
 									else
 									{
-										goto _loop531_breakloop;
+										goto _loop532_breakloop;
 									}
 									
 								}
-_loop531_breakloop:								;
+_loop532_breakloop:								;
 							}    // ( ... )*
 						}
 						{
@@ -11919,130 +12116,6 @@ _loop531_breakloop:								;
 				throw ex;
 			}
 		}
-	}
-	
-	protected HashLiteralExpression  hash_literal() //throws RecognitionException, TokenStreamException
-{
-		HashLiteralExpression dle;
-		
-		IToken  lbrace = null;
-		
-				dle = null;
-				ExpressionPair pair = null;
-			
-		
-		try {      // for error handling
-			lbrace = LT(1);
-			match(LBRACE);
-			if (0==inputState.guessing)
-			{
-				dle = new HashLiteralExpression(SourceLocationFactory.ToLexicalInfo(lbrace));
-			}
-			{
-				switch ( LA(1) )
-				{
-				case ESEPARATOR:
-				case CAST:
-				case CHAR:
-				case FALSE:
-				case NOT:
-				case NULL:
-				case SELF:
-				case SUPER:
-				case TRUE:
-				case TYPEOF:
-				case ID:
-				case TRIPLE_QUOTED_STRING:
-				case DOUBLE_QUOTED_STRING:
-				case SINGLE_QUOTED_STRING:
-				case LBRACK:
-				case LPAREN:
-				case SUBTRACT:
-				case DOT:
-				case MULTIPLY:
-				case SPLICE_BEGIN:
-				case LBRACE:
-				case QQ_BEGIN:
-				case LONG:
-				case INCREMENT:
-				case DECREMENT:
-				case ONES_COMPLEMENT:
-				case INT:
-				case RE_LITERAL:
-				case DOUBLE:
-				case FLOAT:
-				case TIMESPAN:
-				{
-					pair=expression_pair();
-					if (0==inputState.guessing)
-					{
-						dle.Items.Add(pair);
-					}
-					{    // ( ... )*
-						for (;;)
-						{
-							if ((LA(1)==COMMA) && (tokenSet_5_.member(LA(2))))
-							{
-								match(COMMA);
-								pair=expression_pair();
-								if (0==inputState.guessing)
-								{
-									dle.Items.Add(pair);
-								}
-							}
-							else
-							{
-								goto _loop539_breakloop;
-							}
-							
-						}
-_loop539_breakloop:						;
-					}    // ( ... )*
-					{
-						switch ( LA(1) )
-						{
-						case COMMA:
-						{
-							match(COMMA);
-							break;
-						}
-						case RBRACE:
-						{
-							break;
-						}
-						default:
-						{
-							throw new NoViableAltException(LT(1), getFilename());
-						}
-						 }
-					}
-					break;
-				}
-				case RBRACE:
-				{
-					break;
-				}
-				default:
-				{
-					throw new NoViableAltException(LT(1), getFilename());
-				}
-				 }
-			}
-			match(RBRACE);
-		}
-		catch (RecognitionException ex)
-		{
-			if (0 == inputState.guessing)
-			{
-				reportError(ex);
-				recover(ex,tokenSet_31_);
-			}
-			else
-			{
-				throw ex;
-			}
-		}
-		return dle;
 	}
 	
 	protected RELiteralExpression  re_literal() //throws RecognitionException, TokenStreamException
@@ -12445,11 +12518,11 @@ _loop539_breakloop:						;
 					}
 					else
 					{
-						goto _loop525_breakloop;
+						goto _loop526_breakloop;
 					}
 					
 				}
-_loop525_breakloop:				;
+_loop526_breakloop:				;
 			}    // ( ... )*
 		}
 		catch (RecognitionException ex)

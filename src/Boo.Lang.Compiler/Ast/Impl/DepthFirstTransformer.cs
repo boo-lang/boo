@@ -2301,6 +2301,45 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		{	
+			if (EnterCollectionInitializationExpression(node))
+			{
+				Expression currentCollectionValue = node.Collection;
+				if (null != currentCollectionValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentCollectionValue);
+					if (!object.ReferenceEquals(newValue, currentCollectionValue))
+					{
+						node.Collection = newValue;
+					}
+				}
+				Expression currentInitializerValue = node.Initializer;
+				if (null != currentInitializerValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentInitializerValue);
+					if (!object.ReferenceEquals(newValue, currentInitializerValue))
+					{
+						node.Initializer = newValue;
+					}
+				}
+
+				LeaveCollectionInitializationExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnArrayLiteralExpression(Boo.Lang.Compiler.Ast.ArrayLiteralExpression node)
 		{	
 			if (EnterArrayLiteralExpression(node))

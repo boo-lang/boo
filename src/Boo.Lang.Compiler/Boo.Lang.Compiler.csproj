@@ -186,6 +186,7 @@
     <Compile Include="Ast\Impl\CharLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ClassDefinitionImpl.cs" />
     <Compile Include="Ast\Impl\CodeSerializer.cs" />
+    <Compile Include="Ast\Impl\CollectionInitializationExpressionImpl.cs" />
     <Compile Include="Ast\Impl\CompileUnitImpl.cs" />
     <Compile Include="Ast\Impl\ConditionalExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ConditionalStatementImpl.cs" />

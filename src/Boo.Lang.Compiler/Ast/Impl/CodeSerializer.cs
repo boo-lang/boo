@@ -2503,6 +2503,30 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.CollectionInitializationExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.Collection))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Collection"),
+						Serialize(node.Collection)));
+			}
+			if (ShouldSerialize(node.Initializer))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Initializer"),
+						Serialize(node.Initializer)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public void OnArrayLiteralExpression(Boo.Lang.Compiler.Ast.ArrayLiteralExpression node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(

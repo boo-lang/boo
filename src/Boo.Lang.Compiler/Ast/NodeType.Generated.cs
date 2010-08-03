@@ -114,6 +114,7 @@ namespace Boo.Lang.Compiler.Ast
 		ExpressionInterpolationExpression,
 		HashLiteralExpression,
 		ListLiteralExpression,
+		CollectionInitializationExpression,
 		ArrayLiteralExpression,
 		GeneratorExpression,
 		ExtendedGeneratorExpression,
