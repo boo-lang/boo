@@ -45,6 +45,12 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Target = target;
 		}
+
+		public MethodInvocationExpression(LexicalInfo li, Expression target, params Expression[] args) : base(li)
+		{
+			this.Target = target;
+			this.Arguments.Extend(args);
+		}
 		
 		public MethodInvocationExpression(Expression target, params Expression[] args)
 		{

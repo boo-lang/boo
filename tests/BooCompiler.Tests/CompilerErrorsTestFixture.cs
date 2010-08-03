@@ -1329,6 +1329,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void mismatched_collection_initializers()
+		{
+			RunCompilerTestCase(@"mismatched-collection-initializers.boo");
+		}
+		
+		[Test]
 		public void strict_1()
 		{
 			RunCompilerTestCase(@"strict-1.boo");
