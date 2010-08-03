@@ -1261,11 +1261,11 @@ _loop178_breakloop:				;
 					}
 					else
 					{
-						goto _loop630_breakloop;
+						goto _loop634_breakloop;
 					}
 					
 				}
-_loop630_breakloop:				;
+_loop634_breakloop:				;
 			}    // ( ... )*
 			if (0==inputState.guessing)
 			{
@@ -3185,11 +3185,11 @@ _loop250_breakloop:				;
 							}
 							else
 							{
-								goto _loop622_breakloop;
+								goto _loop626_breakloop;
 							}
 							
 						}
-_loop622_breakloop:						;
+_loop626_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -5123,11 +5123,11 @@ _loop133_breakloop:					;
 							}
 							else
 							{
-								goto _loop618_breakloop;
+								goto _loop622_breakloop;
 							}
 							
 						}
-_loop618_breakloop:						;
+_loop622_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -5554,7 +5554,38 @@ _loop572_breakloop:										;
 							{
 								if ((LA(1)==LBRACE) && (tokenSet_65_.member(LA(2))))
 								{
-									initializer=hash_literal();
+									{
+										bool synPredMatched576 = false;
+										if (((LA(1)==LBRACE) && (tokenSet_65_.member(LA(2)))))
+										{
+											int _m576 = mark();
+											synPredMatched576 = true;
+											inputState.guessing++;
+											try {
+												{
+													hash_literal_test();
+												}
+											}
+											catch (RecognitionException)
+											{
+												synPredMatched576 = false;
+											}
+											rewind(_m576);
+											inputState.guessing--;
+										}
+										if ( synPredMatched576 )
+										{
+											initializer=hash_literal();
+										}
+										else if ((LA(1)==LBRACE) && (tokenSet_65_.member(LA(2)))) {
+											initializer=list_initializer();
+										}
+										else
+										{
+											throw new NoViableAltException(LT(1), getFilename());
+										}
+										
+									}
 									if (0==inputState.guessing)
 									{
 										e = new CollectionInitializationExpression(e, initializer);
@@ -5572,11 +5603,11 @@ _loop572_breakloop:										;
 					}
 					else
 					{
-						goto _loop574_breakloop;
+						goto _loop577_breakloop;
 					}
 					
 				}
-_loop574_breakloop:				;
+_loop577_breakloop:				;
 			}    // ( ... )*
 		}
 		catch (RecognitionException ex)
@@ -12483,11 +12514,11 @@ _loop515_breakloop:				;
 						e=integer_literal();
 					}
 					else {
-						bool synPredMatched578 = false;
+						bool synPredMatched582 = false;
 						if (((LA(1)==LBRACE) && (tokenSet_65_.member(LA(2)))))
 						{
-							int _m578 = mark();
-							synPredMatched578 = true;
+							int _m582 = mark();
+							synPredMatched582 = true;
 							inputState.guessing++;
 							try {
 								{
@@ -12496,12 +12527,12 @@ _loop515_breakloop:				;
 							}
 							catch (RecognitionException)
 							{
-								synPredMatched578 = false;
+								synPredMatched582 = false;
 							}
-							rewind(_m578);
+							rewind(_m582);
 							inputState.guessing--;
 						}
-						if ( synPredMatched578 )
+						if ( synPredMatched582 )
 						{
 							e=hash_literal();
 						}
@@ -13312,11 +13343,11 @@ _loop546_breakloop:							;
 			
 		
 		try {      // for error handling
-			bool synPredMatched625 = false;
+			bool synPredMatched629 = false;
 			if (((LA(1)==ID) && (LA(2)==COLON)))
 			{
-				int _m625 = mark();
-				synPredMatched625 = true;
+				int _m629 = mark();
+				synPredMatched629 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -13326,12 +13357,12 @@ _loop546_breakloop:							;
 				}
 				catch (RecognitionException)
 				{
-					synPredMatched625 = false;
+					synPredMatched629 = false;
 				}
-				rewind(_m625);
+				rewind(_m629);
 				inputState.guessing--;
 			}
-			if ( synPredMatched625 )
+			if ( synPredMatched629 )
 			{
 				{
 					id = LT(1);
@@ -13372,6 +13403,79 @@ _loop546_breakloop:							;
 			{
 				reportError(ex);
 				recover(ex,tokenSet_76_);
+			}
+			else
+			{
+				throw ex;
+			}
+		}
+	}
+	
+	protected void hash_literal_test() //throws RecognitionException, TokenStreamException
+{
+		
+		
+		try {      // for error handling
+			match(LBRACE);
+			{
+				switch ( LA(1) )
+				{
+				case RBRACE:
+				{
+					match(RBRACE);
+					break;
+				}
+				case ESEPARATOR:
+				case CAST:
+				case CHAR:
+				case FALSE:
+				case NOT:
+				case NULL:
+				case SELF:
+				case SUPER:
+				case TRUE:
+				case TYPEOF:
+				case ID:
+				case TRIPLE_QUOTED_STRING:
+				case DOUBLE_QUOTED_STRING:
+				case SINGLE_QUOTED_STRING:
+				case LBRACK:
+				case LPAREN:
+				case SPLICE_BEGIN:
+				case DOT:
+				case MULTIPLY:
+				case LBRACE:
+				case QQ_BEGIN:
+				case SUBTRACT:
+				case LONG:
+				case INCREMENT:
+				case DECREMENT:
+				case ONES_COMPLEMENT:
+				case INT:
+				case RE_LITERAL:
+				case DOUBLE:
+				case FLOAT:
+				case TIMESPAN:
+				{
+					{
+						expression();
+						match(COLON);
+					}
+					break;
+				}
+				default:
+				{
+					throw new NoViableAltException(LT(1), getFilename());
+				}
+				 }
+			}
+		}
+		catch (RecognitionException ex)
+		{
+			if (0 == inputState.guessing)
+			{
+				reportError(ex);
+				recover(ex,tokenSet_0_);
 			}
 			else
 			{
@@ -13451,11 +13555,11 @@ _loop546_breakloop:							;
 							}
 							else
 							{
-								goto _loop607_breakloop;
+								goto _loop611_breakloop;
 							}
 							
 						}
-_loop607_breakloop:						;
+_loop611_breakloop:						;
 					}    // ( ... )*
 					{
 						switch ( LA(1) )
@@ -13502,6 +13606,163 @@ _loop607_breakloop:						;
 			}
 		}
 		return dle;
+	}
+	
+	protected ListLiteralExpression  list_initializer() //throws RecognitionException, TokenStreamException
+{
+		ListLiteralExpression e;
+		
+		IToken  lbrace = null;
+		
+				e = null;
+				ExpressionCollection items = null;
+			
+		
+		try {      // for error handling
+			lbrace = LT(1);
+			match(LBRACE);
+			if (0==inputState.guessing)
+			{
+				
+						e = new ListLiteralExpression(ToLexicalInfo(lbrace));
+						items = e.Items;
+					
+			}
+			list_items(items);
+			match(RBRACE);
+		}
+		catch (RecognitionException ex)
+		{
+			if (0 == inputState.guessing)
+			{
+				reportError(ex);
+				recover(ex,tokenSet_66_);
+			}
+			else
+			{
+				throw ex;
+			}
+		}
+		return e;
+	}
+	
+	protected void list_items(
+		ExpressionCollection items
+	) //throws RecognitionException, TokenStreamException
+{
+		
+		
+				Expression item = null;
+			
+		
+		try {      // for error handling
+			{
+				switch ( LA(1) )
+				{
+				case ESEPARATOR:
+				case CAST:
+				case CHAR:
+				case FALSE:
+				case NOT:
+				case NULL:
+				case SELF:
+				case SUPER:
+				case TRUE:
+				case TYPEOF:
+				case ID:
+				case TRIPLE_QUOTED_STRING:
+				case DOUBLE_QUOTED_STRING:
+				case SINGLE_QUOTED_STRING:
+				case LBRACK:
+				case LPAREN:
+				case SPLICE_BEGIN:
+				case DOT:
+				case MULTIPLY:
+				case LBRACE:
+				case QQ_BEGIN:
+				case SUBTRACT:
+				case LONG:
+				case INCREMENT:
+				case DECREMENT:
+				case ONES_COMPLEMENT:
+				case INT:
+				case RE_LITERAL:
+				case DOUBLE:
+				case FLOAT:
+				case TIMESPAN:
+				{
+					item=expression();
+					if (0==inputState.guessing)
+					{
+						items.Add(item);
+					}
+					{
+						{    // ( ... )*
+							for (;;)
+							{
+								if ((LA(1)==COMMA) && (tokenSet_5_.member(LA(2))))
+								{
+									match(COMMA);
+									item=expression();
+									if (0==inputState.guessing)
+									{
+										items.Add(item);
+									}
+								}
+								else
+								{
+									goto _loop603_breakloop;
+								}
+								
+							}
+_loop603_breakloop:							;
+						}    // ( ... )*
+					}
+					{
+						switch ( LA(1) )
+						{
+						case COMMA:
+						{
+							match(COMMA);
+							break;
+						}
+						case RBRACK:
+						case RBRACE:
+						{
+							break;
+						}
+						default:
+						{
+							throw new NoViableAltException(LT(1), getFilename());
+						}
+						 }
+					}
+					break;
+				}
+				case RBRACK:
+				case RBRACE:
+				{
+					break;
+				}
+				default:
+				{
+					throw new NoViableAltException(LT(1), getFilename());
+				}
+				 }
+			}
+		}
+		catch (RecognitionException ex)
+		{
+			if (0 == inputState.guessing)
+			{
+				reportError(ex);
+				recover(ex,tokenSet_119_);
+			}
+			else
+			{
+				throw ex;
+			}
+		}
 	}
 	
 	protected Expression  string_literal() //throws RecognitionException, TokenStreamException
@@ -13580,121 +13841,27 @@ _loop607_breakloop:						;
 		return e;
 	}
 	
-	protected Expression  list_literal() //throws RecognitionException, TokenStreamException
+	protected ListLiteralExpression  list_literal() //throws RecognitionException, TokenStreamException
 {
-		Expression e;
+		ListLiteralExpression e;
 		
 		IToken  lbrack = null;
 		
 				e = null;
-				ListLiteralExpression lle = null;
-				Expression item = null;
+				ExpressionCollection items = null;
 			
 		
 		try {      // for error handling
 			lbrack = LT(1);
 			match(LBRACK);
+			if (0==inputState.guessing)
 			{
-				switch ( LA(1) )
-				{
-				case ESEPARATOR:
-				case CAST:
-				case CHAR:
-				case FALSE:
-				case NOT:
-				case NULL:
-				case SELF:
-				case SUPER:
-				case TRUE:
-				case TYPEOF:
-				case ID:
-				case TRIPLE_QUOTED_STRING:
-				case DOUBLE_QUOTED_STRING:
-				case SINGLE_QUOTED_STRING:
-				case LBRACK:
-				case LPAREN:
-				case SPLICE_BEGIN:
-				case DOT:
-				case MULTIPLY:
-				case LBRACE:
-				case QQ_BEGIN:
-				case SUBTRACT:
-				case LONG:
-				case INCREMENT:
-				case DECREMENT:
-				case ONES_COMPLEMENT:
-				case INT:
-				case RE_LITERAL:
-				case DOUBLE:
-				case FLOAT:
-				case TIMESPAN:
-				{
-					{
-						item=expression();
-						{
-							if (0==inputState.guessing)
-							{
-								
-													e = lle = new ListLiteralExpression(ToLexicalInfo(lbrack));
-													lle.Items.Add(item);
-												
-							}
-							{    // ( ... )*
-								for (;;)
-								{
-									if ((LA(1)==COMMA) && (tokenSet_5_.member(LA(2))))
-									{
-										match(COMMA);
-										item=expression();
-										if (0==inputState.guessing)
-										{
-											lle.Items.Add(item);
-										}
-									}
-									else
-									{
-										goto _loop599_breakloop;
-									}
-									
-								}
-_loop599_breakloop:								;
-							}    // ( ... )*
-						}
-						{
-							switch ( LA(1) )
-							{
-							case COMMA:
-							{
-								match(COMMA);
-								break;
-							}
-							case RBRACK:
-							{
-								break;
-							}
-							default:
-							{
-								throw new NoViableAltException(LT(1), getFilename());
-							}
-							 }
-						}
-					}
-					break;
-				}
-				case RBRACK:
-				{
-					if (0==inputState.guessing)
-					{
+				
 						e = new ListLiteralExpression(ToLexicalInfo(lbrack));
-					}
-					break;
-				}
-				default:
-				{
-					throw new NoViableAltException(LT(1), getFilename());
-				}
-				 }
+						items = e.Items;
+					
 			}
+			list_items(items);
 			match(RBRACK);
 		}
 		catch (RecognitionException ex)
@@ -13710,79 +13877,6 @@ _loop599_breakloop:								;
 			}
 		}
 		return e;
-	}
-	
-	protected void hash_literal_test() //throws RecognitionException, TokenStreamException
-{
-		
-		
-		try {      // for error handling
-			match(LBRACE);
-			{
-				switch ( LA(1) )
-				{
-				case RBRACE:
-				{
-					match(RBRACE);
-					break;
-				}
-				case ESEPARATOR:
-				case CAST:
-				case CHAR:
-				case FALSE:
-				case NOT:
-				case NULL:
-				case SELF:
-				case SUPER:
-				case TRUE:
-				case TYPEOF:
-				case ID:
-				case TRIPLE_QUOTED_STRING:
-				case DOUBLE_QUOTED_STRING:
-				case SINGLE_QUOTED_STRING:
-				case LBRACK:
-				case LPAREN:
-				case SPLICE_BEGIN:
-				case DOT:
-				case MULTIPLY:
-				case LBRACE:
-				case QQ_BEGIN:
-				case SUBTRACT:
-				case LONG:
-				case INCREMENT:
-				case DECREMENT:
-				case ONES_COMPLEMENT:
-				case INT:
-				case RE_LITERAL:
-				case DOUBLE:
-				case FLOAT:
-				case TIMESPAN:
-				{
-					{
-						expression();
-						match(COLON);
-					}
-					break;
-				}
-				default:
-				{
-					throw new NoViableAltException(LT(1), getFilename());
-				}
-				 }
-			}
-		}
-		catch (RecognitionException ex)
-		{
-			if (0 == inputState.guessing)
-			{
-				reportError(ex);
-				recover(ex,tokenSet_0_);
-			}
-			else
-			{
-				throw ex;
-			}
-		}
 	}
 	
 	protected RELiteralExpression  re_literal() //throws RecognitionException, TokenStreamException
@@ -14134,7 +14228,7 @@ _loop599_breakloop:								;
 				
 			}
 			{ // ( ... )+
-				int _cnt592=0;
+				int _cnt596=0;
 				for (;;)
 				{
 					if ((LA(1)==ESEPARATOR) && (tokenSet_5_.member(LA(2))))
@@ -14207,12 +14301,12 @@ _loop599_breakloop:								;
 					}
 					else
 					{
-						if (_cnt592 >= 1) { goto _loop592_breakloop; } else { throw new NoViableAltException(LT(1), getFilename());; }
+						if (_cnt596 >= 1) { goto _loop596_breakloop; } else { throw new NoViableAltException(LT(1), getFilename());; }
 					}
 					
-					_cnt592++;
+					_cnt596++;
 				}
-_loop592_breakloop:				;
+_loop596_breakloop:				;
 			}    // ( ... )+
 			{
 				if ((LA(1)==ESEPARATOR) && (tokenSet_32_.member(LA(2))))
@@ -14270,7 +14364,7 @@ _loop592_breakloop:				;
 			if (0 == inputState.guessing)
 			{
 				reportError(ex);
-				recover(ex,tokenSet_119_);
+				recover(ex,tokenSet_120_);
 			}
 			else
 			{
@@ -15145,10 +15239,16 @@ _loop592_breakloop:				;
 	public static readonly BitSet tokenSet_118_ = new BitSet(mk_tokenSet_118_());
 	private static long[] mk_tokenSet_119_()
 	{
-		long[] data = { 0L, 268697600L, 0L, 0L};
+		long[] data = { 0L, 268451840L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_119_ = new BitSet(mk_tokenSet_119_());
+	private static long[] mk_tokenSet_120_()
+	{
+		long[] data = { 0L, 268697600L, 0L, 0L};
+		return data;
+	}
+	public static readonly BitSet tokenSet_120_ = new BitSet(mk_tokenSet_120_());
 	
 }
 }
