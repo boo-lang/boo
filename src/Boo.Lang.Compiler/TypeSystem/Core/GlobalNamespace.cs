@@ -27,7 +27,9 @@
 #endregion
 
 using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Core
 {
@@ -36,15 +38,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		private readonly IEnumerable<ICompileUnit> _references;
 		private readonly ICompileUnit _compileUnit;
 
-		public GlobalNamespace() : this(CompilerContext.Current)
+		public GlobalNamespace()
 		{
-		}
-
-		public GlobalNamespace(CompilerContext context)
-		{
-			_references = context.References;
-			InternalTypeSystemProvider internalTypeSystemProvider = context.Provide<InternalTypeSystemProvider>();
-			_compileUnit = internalTypeSystemProvider.EntityFor(context.CompileUnit);
+			var internalTypeSystemProvider = My<InternalTypeSystemProvider>.Instance;
+			_compileUnit = internalTypeSystemProvider.EntityFor(My<CompileUnit>.Instance);
+			_references = My<CompilerParameters>.Instance.References;
 		}
 
 		public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)

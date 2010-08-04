@@ -140,10 +140,9 @@ namespace Boo.Lang.Parser
 
 		protected override void EmitIndexedPropertyDeprecationWarning(Property deprecated)
 		{
-			CompilerContext context = CompilerContext.Current;
-			if (null == context)
+			if (Boo.Lang.Environments.Environment.CurrentEnvironment == null)
 				return;
-			context.Warnings.Add(
+			Boo.Lang.Environments.My<CompilerWarningCollection>.Instance.Add(
 				CompilerWarningFactory.ObsoleteSyntax(deprecated,
 					FormatPropertyWithDelimiters(deprecated, "(", ")"),
 					FormatPropertyWithDelimiters(deprecated, "[", "]")));

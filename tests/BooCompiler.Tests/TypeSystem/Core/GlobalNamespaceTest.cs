@@ -5,6 +5,7 @@ using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 using NUnit.Framework;
+using Environment = Boo.Lang.Environments.Environment;
 
 namespace BooCompiler.Tests.TypeSystem.Core
 {
@@ -20,8 +21,8 @@ namespace BooCompiler.Tests.TypeSystem.Core
 
 			Context.References.Add(typeof(Boo.Lang.List).Assembly);
 			Context.References.Add(typeof(Boo.Lang.Compiler.CompilerContext).Assembly);
-			
-			_subject = new GlobalNamespace(Context);
+
+			Environment.With(Context, ()=>_subject = My<GlobalNamespace>.Instance);
 		}
 
 		[Test]

@@ -29,7 +29,6 @@
 
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
 using System;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing

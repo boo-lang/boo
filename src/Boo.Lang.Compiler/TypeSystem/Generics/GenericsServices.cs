@@ -29,14 +29,14 @@
 using Boo.Lang.Compiler.Ast;
 using System.Collections.Generic;
 using System;
+using Boo.Lang.Compiler.TypeSystem.Core;
 
 namespace Boo.Lang.Compiler.TypeSystem.Generics
 {
 	public class GenericsServices : AbstractCompilerComponent
 	{
-		public GenericsServices()
+		public GenericsServices() : base(CompilerContext.Current)
 		{
-			Initialize(CompilerContext.Current);
 		}
 
 		/// <summary>
@@ -74,11 +74,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		/// </summary>
 		private IEntity ConstructAmbiguousEntity(Node constructionNode, Ambiguous ambiguousDefinition, IType[] typeArguments)
 		{
-			GenericConstructionChecker checker = new GenericConstructionChecker(typeArguments, constructionNode); 
-
-			List<IEntity> matches = new List<IEntity>(ambiguousDefinition.Entities);
+			var checker = new GenericConstructionChecker(typeArguments, constructionNode); 
+			var matches = new List<IEntity>(ambiguousDefinition.Entities);
 			bool reportErrors = false;
-
 			foreach (Predicate<IEntity> check in checker.Checks)
 			{
 				matches = matches.Collect(check);
@@ -90,38 +88,26 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				}
 
 				if (reportErrors)
-				{
 					checker.ReportErrors(Errors);
-				}
+
 				checker.DiscardErrors();
 
 				// We only want full error reporting once we get down to a single candidate
 				if (matches.Count == 1)
-				{
 					reportErrors = true;
-				}			
 			}
 
-			IEntity[] constructedMatches = Array.ConvertAll<IEntity, IEntity>(
-				matches.ToArray(),
-				delegate(IEntity def) { return MakeGenericEntity(def, typeArguments); });
-
-			return constructedMatches.Length == 1 ? 
-			                                      	constructedMatches[0] : 
-			                                      	                      	new Ambiguous(constructedMatches);
+			IEntity[] constructedMatches = Array.ConvertAll<IEntity, IEntity>(matches.ToArray(), def => MakeGenericEntity(def, typeArguments));
+			return Entities.EntityFromList(constructedMatches);
 		}
 
 		private IEntity MakeGenericEntity(IEntity definition, IType[] typeArguments)
 		{
 			if (IsGenericType(definition))
-			{
 				return ((IType)definition).GenericInfo.ConstructType(typeArguments);
-			}
 
 			if (IsGenericMethod(definition))
-			{
 				return ((IMethod)definition).GenericInfo.ConstructMethod(typeArguments);
-			}
 
 			// Should never be reached
 			return TypeSystemServices.ErrorEntity;
@@ -140,8 +126,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		/// </summary>
 		public bool CheckGenericConstruction(Node node, IEntity definition, IType[] typeArguments, bool reportErrors)
 		{
-			GenericConstructionChecker checker = new GenericConstructionChecker(typeArguments, node);
-
+			var checker = new GenericConstructionChecker(typeArguments, node);
 			foreach (Predicate<IEntity> check in checker.Checks)
 			{
 				if (check(definition)) continue;
