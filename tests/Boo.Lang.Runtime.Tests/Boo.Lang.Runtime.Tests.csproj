@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractDispatcherFactoryTestCase.cs" />
+    <Compile Include="Environments\DeferredEnvironmentTest.cs" />
     <Compile Include="MethodDispatcherFactoryTestCase.cs" />
     <Compile Include="MethodsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

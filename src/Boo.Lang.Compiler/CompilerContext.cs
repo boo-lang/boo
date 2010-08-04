@@ -182,7 +182,6 @@ namespace Boo.Lang.Compiler
 		public Assembly GeneratedAssembly
 		{
 			get { return _generatedAssembly; }
-			
 			set { _generatedAssembly = value; }
 		}
 

@@ -101,6 +101,10 @@
     <Compile Include="DuckTypedAttribute.cs" />
     <Compile Include="DynamicVariable.cs" />
     <Compile Include="EnumeratorItemTypeAttribute.cs" />
+    <Compile Include="Environments\ClosedEnvironment.cs" />
+    <Compile Include="Environments\DeferredEnvironment.cs" />
+    <Compile Include="Environments\Environment.cs" />
+    <Compile Include="Environments\IEnvironment.cs" />
     <Compile Include="Environments\My.cs" />
     <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="GenericGenerator.cs" />
@@ -151,7 +155,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />

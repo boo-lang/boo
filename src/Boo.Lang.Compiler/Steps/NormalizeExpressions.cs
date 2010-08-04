@@ -29,7 +29,6 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 
 	public class NormalizeExpressions : AbstractTransformerCompilerStep
 	{

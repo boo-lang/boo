@@ -8,6 +8,6 @@ class ArbitraryService:
 	override def ToString():
 		return "hooray!"
 
-With CompilerContext():
+Environment.With(CompilerContext()):
 	assert my(ArbitraryService) is my(ArbitraryService)
 	print my(ArbitraryService)
