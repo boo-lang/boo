@@ -163,12 +163,6 @@ namespace Boo.Lang.Compiler
 			get { return _unit; }
 		}
 
-		public TypeSystemServices TypeSystemServices
-		{
-			get { return Provide<TypeSystemServices>(); }
-			set { RegisterService<TypeSystemServices>(value); }
-		}
-
 		public NameResolutionService NameResolutionService
 		{
 			get { return Provide<NameResolutionService>(); }
@@ -419,7 +413,7 @@ namespace Boo.Lang.Compiler
 
 		internal bool UnregisterService(Type type)
 		{
-			object service = null;
+			object service;
 			if (_services.TryGetValue(type, out service))
 			{
 				IDisposable d = service as IDisposable;

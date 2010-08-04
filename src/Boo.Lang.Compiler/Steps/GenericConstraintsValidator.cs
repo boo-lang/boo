@@ -29,6 +29,7 @@
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -113,8 +114,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected TypeSystemServices TypeSystemServices
 		{
-			get { return Context.TypeSystemServices; }
+			get { return _typeSystemServices; }
 		}
+
+		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
 
 		protected void Error(CompilerError error)
 		{

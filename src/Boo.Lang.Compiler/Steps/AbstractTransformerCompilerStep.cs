@@ -31,6 +31,7 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -96,11 +97,10 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected TypeSystemServices TypeSystemServices
 		{
-			get
-			{
-				return _context.TypeSystemServices;
-			}
+			get { return _typeSystemServices; }
 		}
+
+		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
 
 		public override void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
 		{
@@ -136,10 +136,9 @@ namespace Boo.Lang.Compiler.Steps
 		public virtual void Initialize(CompilerContext context)
 		{
 			if (null == context)
-			{
 				throw new ArgumentNullException("context");
-			}
 			_context = context;
+			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
 		}
 		
 		public abstract void Run();

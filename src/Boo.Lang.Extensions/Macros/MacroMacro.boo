@@ -28,6 +28,7 @@
 
 namespace Boo.Lang.Extensions
 
+import Boo.Lang.Environments
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
@@ -52,7 +53,6 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		get:
 			return _apb.Prologue if _apb
 
-
 	override protected def ExpandGeneratorImpl(macro as MacroStatement):
 		raise Usage if len(macro.Arguments) != 1
 
@@ -61,7 +61,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		arg = macro.Arguments[0]
 		mie = arg as MethodInvocationExpression
 		if mie:
-			_apb = ArgumentsPatternBuilder(Context, mie.Arguments)
+			_apb = ArgumentsPatternBuilder(mie.Arguments)
 			arg = mie.Target
 
 		if arg.NodeType == NodeType.ReferenceExpression:
@@ -382,15 +382,13 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		_input as ExpressionCollection
 		_pattern as ExpressionCollection
 		_prologue as Block
-		_tss as TypeSystemServices
-		_nrs as NameResolutionService
+		_tss = EnvironmentProvision[of TypeSystemServices]()
+		_nrs = EnvironmentProvision[of NameResolutionService]()
 		_arg as ReferenceExpression
 		_argIndex = 0
 		_enumerable = false
 
-		def constructor(context as CompilerContext, input as ExpressionCollection):
-			_tss = context.TypeSystemServices
-			_nrs = context.NameResolutionService
+		def constructor(input as ExpressionCollection):
 			_input = input
 
 		Pattern:
@@ -412,19 +410,16 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 
 		private TypeSystemServices:
-			get: return _tss
+			get: return _tss.Instance
 
 		private NameResolutionService:
-			get: return _nrs
+			get: return _nrs.Instance
 
 		private IsBodyArgument:
-			get:
-				return _arg.Name == "body"
+			get: return _arg.Name == "body"
 
 		private IsLastArgument:
-			get:
-				return _argIndex == _input.Count-1
-
+			get: return _argIndex == _input.Count-1
 
 		private def Append(e as Expression):
 			if e.NodeType == NodeType.ReferenceExpression:

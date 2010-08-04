@@ -30,11 +30,13 @@ using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler
 {
 	public abstract class AbstractCompilerComponent : ICompilerComponent
 	{
+		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
 		private CompilerContext _context;
 
 		protected AbstractCompilerComponent()
@@ -86,7 +88,7 @@ namespace Boo.Lang.Compiler
 		
 		protected TypeSystem.TypeSystemServices TypeSystemServices
 		{
-			get { return Context.TypeSystemServices; }
+			get { return _typeSystemServices; }
 		}
 		
 		protected NameResolutionService NameResolutionService
@@ -106,7 +108,9 @@ namespace Boo.Lang.Compiler
 		{
 			if (null == context)
 				throw new ArgumentNullException("context");
-			_context = context;			
+
+			_context = context;
+			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
 		}
 		
 		public virtual void Dispose()
