@@ -409,6 +409,7 @@
     <Compile Include="Resources\FileResource.cs" />
     <Compile Include="Resources\NamedEmbeddedFileResource.cs" />
     <Compile Include="Resources\NamedFileResource.cs" />
+    <Compile Include="Services\UniqueNameProvider.cs" />
     <Compile Include="Steps\AbstractCompilerStep.cs" />
     <Compile Include="Steps\AbstractNamespaceSensitiveCompilerStep.cs" />
     <Compile Include="Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs" />
