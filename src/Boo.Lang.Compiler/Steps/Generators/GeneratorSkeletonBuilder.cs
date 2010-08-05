@@ -26,13 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
-using System;
-using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps.Generators
 {
@@ -50,9 +48,11 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		}
 
 		protected virtual IType GeneratorItemTypeFor(InternalMethod generator)
-{
-			return Context.Provide<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
+		{
+			return _generatorItemTypeInferrer.Instance.GeneratorItemTypeFor(generator);
 		}
+
+		private EnvironmentProvision<GeneratorItemTypeInferrer> _generatorItemTypeInferrer;
 
 		GeneratorSkeleton CreateGeneratorSkeleton(Node sourceNode, Method enclosingMethod, IType generatorItemType)
 		{

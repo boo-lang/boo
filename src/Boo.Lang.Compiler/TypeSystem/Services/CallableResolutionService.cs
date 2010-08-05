@@ -59,11 +59,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	    private DowncastPermissions _downcastPermissions;
 		readonly MemoizedFunction<IType, IType, int> _calculateArgumentScore;
 
-	    public CallableResolutionService(CompilerContext context)
+	    public CallableResolutionService() : base(CompilerContext.Current)
 	    {   
-	        Initialize(context);
 			_calculateArgumentScore = new MemoizedFunction<IType, IType, int>(CalculateArgumentScore);
-	    	context.Provide<CurrentScope>().Changed += (sender, args) => _calculateArgumentScore.Clear();
+	    	My<CurrentScope>.Instance.Changed += (sender, args) => _calculateArgumentScore.Clear();
 	    }
 
 	    protected Expression GetArgument(int index)

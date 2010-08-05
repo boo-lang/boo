@@ -46,12 +46,11 @@ namespace Boo.Lang.Compiler.Steps
 			var closureEntity = GetEntity(node) as InternalMethod;
 			if (closureEntity == null)
 				return;
-						
-			using (var collector = new ForeignReferenceCollector())
+
+			var collector = new ForeignReferenceCollector();
 			{
 				collector.CurrentMethod = closureEntity.Method;
 				collector.CurrentType = (IType)closureEntity.DeclaringType;
-				collector.Initialize(_context);
 				collector.Visit(closureEntity.Method.Body);
 				
 				if (collector.ContainsForeignLocalReferences)

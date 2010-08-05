@@ -82,7 +82,7 @@ namespace Boo.Lang.Compiler.Steps
 			InternalMethod entity = (InternalMethod)method.Entity;
 			if (!entity.IsGenerator) return;
 
-			GeneratorMethodProcessor processor = new GeneratorMethodProcessor(_context, entity);
+			GeneratorMethodProcessor processor = new GeneratorMethodProcessor(Context, entity);
 			processor.Run();
 		}
 
@@ -101,16 +101,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
 		{
-			using (ForeignReferenceCollector collector = new ForeignReferenceCollector())
-			{
-				collector.CurrentType = (IType)AstUtil.GetParentClass(node).Entity;
-				collector.Initialize(_context);
-				collector.Visit(node);
+			var collector = new ForeignReferenceCollector();
+			collector.CurrentType = (IType) AstUtil.GetParentClass(node).Entity;
+			collector.Visit(node);
 
-				GeneratorExpressionProcessor processor = new GeneratorExpressionProcessor(_context, collector, node);
-				processor.Run();
-				ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());
-			}
+			var processor = new GeneratorExpressionProcessor(Context, collector, node);
+			processor.Run();
+			ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());
 		}
 	}
 }

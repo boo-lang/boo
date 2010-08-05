@@ -29,6 +29,7 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 using Attribute=Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.TypeSystem.Builders
@@ -39,24 +40,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 		private readonly ClassDefinition _cd;
 		private InternalTypeSystemProvider _internalTypeSystemProvider;
 
-		public BooClassBuilder(CompilerContext context, string name)
+		public BooClassBuilder(string name)
 		{
-			if (null == context)
-				throw new ArgumentNullException("context");
 			if (null == name)
 				throw new ArgumentNullException("name");
 			
-			_internalTypeSystemProvider = context.Provide<InternalTypeSystemProvider>();
-			_codeBuilder = context.CodeBuilder;
+			_internalTypeSystemProvider = My<InternalTypeSystemProvider>.Instance;
+			_codeBuilder = My<BooCodeBuilder>.Instance;
 			_cd = new ClassDefinition();
 			_cd.Name = name;
 			_cd.IsSynthetic = true;
 			EnsureEntityFor(_cd);
-		}
-		
-		public BooCodeBuilder CodeBuilder
-		{
-			get { return _codeBuilder; }
 		}
 		
 		public ClassDefinition ClassDefinition
@@ -172,7 +166,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 		public GenericParameterDeclaration AddGenericParameter(string name)
 		{
 			GenericParameterDeclarationCollection genericParameters = ClassDefinition.GenericParameters;
-			GenericParameterDeclaration declaration = CodeBuilder.CreateGenericParameterDeclaration(genericParameters.Count, name);
+			GenericParameterDeclaration declaration = _codeBuilder.CreateGenericParameterDeclaration(genericParameters.Count, name);
 			genericParameters.Add(declaration);
 			return declaration;
 		}

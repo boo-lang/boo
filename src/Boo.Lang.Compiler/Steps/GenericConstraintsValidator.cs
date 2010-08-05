@@ -117,7 +117,7 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _typeSystemServices; }
 		}
 
-		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
+		private EnvironmentProvision<TypeSystemServices> _typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
 
 		protected void Error(CompilerError error)
 		{
