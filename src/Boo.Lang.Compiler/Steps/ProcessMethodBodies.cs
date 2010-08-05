@@ -92,8 +92,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected CallableResolutionService CallableResolutionService
 		{
-			get { return Context.GetService<CallableResolutionService>(); }
+			get { return _callableResolutionService; }
 		}
+
+		private readonly EnvironmentProvision<CallableResolutionService> _callableResolutionService;
 
 		protected IMethod ResolveMethod(IType type, string name)
 		{
@@ -4419,7 +4421,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IType[] inferredTypeArguments = inferrer.GetInferredTypes();
-			if (!Context.GetService<GenericsServices>().CheckGenericConstruction(node, targetMethod, inferredTypeArguments, true))
+			if (!_genericServices.Instance.CheckGenericConstruction(node, targetMethod, inferredTypeArguments, true))
 			{
 				Error(node);
 				return null;
@@ -4431,6 +4433,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			return constructedMethod;
 		}
+
+		private EnvironmentProvision<GenericsServices> _genericServices;
 
 		private void CannotInferGenericMethodArguments(Expression node, IMethod genericMethod)
 		{
