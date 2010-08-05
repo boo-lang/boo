@@ -58,11 +58,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get { return _context.CompileUnit; }
 		}
-		
+
 		protected NameResolutionService NameResolutionService
 		{
-			get { return _context.NameResolutionService; }
+			get { return _nameResolutionService; }
 		}
+
+		private EnvironmentProvision<NameResolutionService> _nameResolutionService;
 		
 		protected CompilerParameters Parameters
 		{
@@ -174,6 +176,7 @@ namespace Boo.Lang.Compiler.Steps
 				throw new ArgumentNullException("context");
 			_context = context;
 			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
+			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 		}
 		
 		public abstract void Run();

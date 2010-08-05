@@ -90,11 +90,13 @@ namespace Boo.Lang.Compiler
 		{
 			get { return _typeSystemServices; }
 		}
-		
+
 		protected NameResolutionService NameResolutionService
 		{
-			get { return Context.NameResolutionService; }
+			get { return _nameResolutionService; }
 		}
+
+		private EnvironmentProvision<NameResolutionService> _nameResolutionService;
 		
 		public IEntity GetEntity(Node node)
 		{
@@ -111,6 +113,7 @@ namespace Boo.Lang.Compiler
 
 			_context = context;
 			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
+			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 		}
 		
 		public virtual void Dispose()
