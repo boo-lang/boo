@@ -1,4 +1,4 @@
-﻿namespace Boo.Lang.Compiler
+﻿namespace Boo.Lang.Compiler.Services
 {
 	public class LanguageAmbiance
 	{

@@ -387,7 +387,6 @@
     <Compile Include="IO\FileInput.cs" />
     <Compile Include="IO\ReaderInput.cs" />
     <Compile Include="IO\StringInput.cs" />
-    <Compile Include="LanguageAmbiance.cs" />
     <Compile Include="LexicalInfoPreservingGeneratorMacro.cs" />
     <Compile Include="LexicalInfoPreservingMacro.cs" />
     <Compile Include="MetaProgramming\Compilation.cs" />
@@ -409,6 +408,7 @@
     <Compile Include="Resources\FileResource.cs" />
     <Compile Include="Resources\NamedEmbeddedFileResource.cs" />
     <Compile Include="Resources\NamedFileResource.cs" />
+    <Compile Include="Services\LanguageAmbiance.cs" />
     <Compile Include="Services\UniqueNameProvider.cs" />
     <Compile Include="Steps\AbstractCompilerStep.cs" />
     <Compile Include="Steps\AbstractNamespaceSensitiveCompilerStep.cs" />

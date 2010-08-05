@@ -1,5 +1,6 @@
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Services;
 using Boo.Lang.Environments;
 using Moq;
 using NUnit.Framework;
