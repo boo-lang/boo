@@ -83,7 +83,7 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = new Stack();
 			_memberStack = new Stack();
-            _downcastPermissions = Context.Provide<DowncastPermissions>();
+			_callableResolutionService = new EnvironmentProvision<CallableResolutionService>();
 
 			InitializeMemberCache();
 
@@ -95,7 +95,7 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _callableResolutionService; }
 		}
 
-		private readonly EnvironmentProvision<CallableResolutionService> _callableResolutionService;
+		private EnvironmentProvision<CallableResolutionService> _callableResolutionService;
 
 		protected IMethod ResolveMethod(IType type, string name)
 		{
@@ -6611,16 +6611,10 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		Dictionary<string, IMethodBase> _methodCache;
-	    private DowncastPermissions _downcastPermissions;
-
+	    
 		IMethod CachedMethod(string key, Func<MethodInfo> producer)
 		{
 			return (IMethod)CachedMethodBase(key, () => TypeSystemServices.Map(producer()));
-		}
-
-		IMethod CachedMethod(string key, Func<IMethodBase> producer)
-		{
-			return (IMethod)CachedMethodBase(key, producer);
 		}
 
 		IConstructor CachedConstructor(string key, Func<IMethodBase> producer)
