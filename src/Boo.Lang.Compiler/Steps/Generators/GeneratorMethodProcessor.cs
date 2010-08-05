@@ -430,7 +430,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private string UniqueName(string name)
 		{
-			return _context.GetUniqueName(name);
+			return Context.GetUniqueName(name);
 		}
 
 		protected TypeDefinition DeclaringTypeDefinition

@@ -67,7 +67,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (HandledAsDuplicatedNamespace(import, entity))
 				return;
 
-			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
+			Context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
 			import.Entity = ImportedNamespaceFor(import, entity);
 		}
 

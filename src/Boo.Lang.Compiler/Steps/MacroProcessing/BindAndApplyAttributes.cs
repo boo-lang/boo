@@ -355,7 +355,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		void ScheduleAttributeApplication(Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
 		{
-			_tasks.Add(new ApplyAttributeTask(_context, attribute, type));
+			_tasks.Add(new ApplyAttributeTask(Context, attribute, type));
 		}
 
 		string BuildAttributeName(string name, bool forcePascalNaming)
