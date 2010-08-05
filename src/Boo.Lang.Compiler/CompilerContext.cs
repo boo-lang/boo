@@ -168,7 +168,7 @@ namespace Boo.Lang.Compiler
 
 		public TypeSystem.BooCodeBuilder CodeBuilder
 		{
-			get { return Provide<BooCodeBuilder>(); }
+			get { return My<BooCodeBuilder>.Instance; }
 		}
 		
 		public Assembly GeneratedAssembly
