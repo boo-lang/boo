@@ -454,7 +454,6 @@
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\Inheritance\BaseTypeResolution.cs" />
     <Compile Include="Steps\InitializeNameResolutionService.cs" />
-    <Compile Include="Steps\InitializeTypeSystemServices.cs" />
     <Compile Include="Steps\InjectCallableConversions.cs" />
     <Compile Include="Steps\InjectCastsAndConversions.cs" />
     <Compile Include="Steps\IntroduceGlobalNamespaces.cs" />

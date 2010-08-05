@@ -44,14 +44,11 @@ class CompilerContextTestFixture:
 			Context = null
 
 	[Test]
-	def ComponentLifecycle():
+	def ComponentsAreInitialized():
 		context = CompilerContext()
-		
 		component = context.Provide[of SomeComponent]()
 		assert component.Context is context
 		
-		context.UnregisterService[of SomeComponent]()
-		assert component.Context is null
 		
 	[Test]
 	def ComponentsAreCached():

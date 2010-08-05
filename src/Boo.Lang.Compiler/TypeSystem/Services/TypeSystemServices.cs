@@ -126,7 +126,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private readonly AnonymousCallablesManager _anonymousCallablesManager;
 		private readonly CompilerContext _context;
 
-		public TypeSystemServices() : this(new CompilerContext())
+		public TypeSystemServices() : this(CompilerContext.Current)
 		{
 		}
 

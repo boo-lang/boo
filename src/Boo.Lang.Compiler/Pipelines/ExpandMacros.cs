@@ -36,7 +36,6 @@ namespace Boo.Lang.Compiler.Pipelines
 	{
 		public ExpandMacros()
 		{
-			Add(new InitializeTypeSystemServices());
 			Add(new PreErrorChecking());
 
 			Add(new MergePartialClasses());

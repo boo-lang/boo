@@ -11,17 +11,17 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 	{
 		protected override IType SimpleType()
 		{	
-			return Context.Invoke(() => DefineInternalClass("Foo", "Bar"));
+			return InvokeInCompilerContextEnvironment(() => DefineInternalClass("Foo", "Bar"));
 		}
 
 		protected override IType CallableType()
 		{
-			return (IType) Context.Invoke(() => My<CallableTypeBuilder>.Instance.ForCallableDefinition(new CallableDefinition {Name = "Foo"}).Entity);
+			return (IType)InvokeInCompilerContextEnvironment(() => My<CallableTypeBuilder>.Instance.ForCallableDefinition(new CallableDefinition { Name = "Foo" }).Entity);
 		}
 
 		protected override IType GenericType()
 		{
-			return Context.Invoke(() => DefineGenericType());
+			return InvokeInCompilerContextEnvironment(() => DefineGenericType());
 		}
 
 		private IType DefineGenericType()

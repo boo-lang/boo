@@ -55,7 +55,7 @@ class TemplateCompiler:
 		pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
 		pipeline.Insert(0, TemplatePreProcessor())
 		pipeline.InsertAfter(
-				Steps.InitializeTypeSystemServices,
+				Steps.PreErrorChecking,
 				ApplyTemplateSemantics(self))
 		compiler.Parameters.Pipeline = pipeline
 		

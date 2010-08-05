@@ -1,3 +1,4 @@
+using System;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipelines;
@@ -49,16 +50,21 @@ print JOIN(l, "", "")
 		[Test]
 		public void ResolveQualifiedName()
 		{
-			new CompilerContext().Run(delegate
-				{
-					Subject().EnterNamespace(My<GlobalNamespace>.Instance);
-					IEntity result = ResolveQualifiedName("Boo.Lang");
-					Assert.IsNotNull(result);
-					Assert.AreEqual(EntityType.Namespace, result.EntityType);
+			RunInCompilerContextEnvironment(delegate
+			{
+				Subject().EnterNamespace(My<GlobalNamespace>.Instance);
+				IEntity result = ResolveQualifiedName("Boo.Lang");
+				Assert.IsNotNull(result);
+				Assert.AreEqual(EntityType.Namespace, result.EntityType);
 
-					var builtinsType = ResolveQualifiedName("Boo.Lang.Builtins") as IType;
-					Assert.IsNotNull(builtinsType);
-				});
+				var builtinsType = ResolveQualifiedName("Boo.Lang.Builtins") as IType;
+				Assert.IsNotNull(builtinsType);
+			});
+		}
+
+		private void RunInCompilerContextEnvironment(Action action)
+		{
+			new CompilerContext().Environment.Run(action);
 		}
 	}
 }

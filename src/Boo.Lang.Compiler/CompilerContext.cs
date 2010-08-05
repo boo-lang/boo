@@ -28,26 +28,24 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Assembly = System.Reflection.Assembly;
-using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
-using Environment = Boo.Lang.Environments.Environment;
 
 namespace Boo.Lang.Compiler
 {
 	/// <summary>
 	/// boo compilation context.
 	/// </summary>
-	public class CompilerContext : IEnvironment
+	public class CompilerContext
 	{
 		public static CompilerContext Current
 		{
-			get { return Environment.CurrentEnvironment != null ? My<CompilerContext>.Instance : null; }
+			get { return Boo.Lang.Environments.Environment.CurrentEnvironment != null ? My<CompilerContext>.Instance : null; }
 		}
 
 		protected CompilerParameters _parameters;
@@ -102,6 +100,12 @@ namespace Boo.Lang.Compiler
 
 			_properties = new Hash();
 
+			var activator = new InstantiatingEnvironment();
+			_environment = _parameters.Environment != null
+				? new CachingEnvironment(new EnvironmentChain(_parameters.Environment, activator))
+				: new CachingEnvironment(activator);
+			_environment.InstanceCached += InitializeService;
+
 			// FIXME: temporary hack to make sure the singleton is visible
 			// using the My<IReflectionTypeSystemProvider> idiom
 			RegisterService<IReflectionTypeSystemProvider>(_references.Provider);
@@ -110,6 +114,11 @@ namespace Boo.Lang.Compiler
 			RegisterService<CompilerWarningCollection>(_warnings);
 			RegisterService<CompileUnit>(_unit);
             RegisterService<CompilerContext>(this);
+		}
+
+		public IEnvironment Environment
+		{
+			get { return _environment;  }
 		}
 
 		public Hash Properties
@@ -301,9 +310,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-
-		#region Compiler services registry
-		protected IDictionary<Type, object> _services = new Dictionary<Type, object>();
+		private readonly CachingEnvironment _environment;
 
 		///<summary>Registers a (new) compiler service.</summary>
 		///<param name="T">The Type of the service to register. It must be a reference type.</param>
@@ -313,82 +320,23 @@ namespace Boo.Lang.Compiler
 		///<remarks>Services are unregistered (and potentially disposed) when a pipeline has been ran.</remarks>
 		public void RegisterService<T>(T service) where T : class
 		{
-			RegisterService(typeof(T), service);
-		}
-
-		private void RegisterService(Type serviceType, object service)
-		{
 			if (null == service)
 				throw new ArgumentNullException("service");
 
-			AddService(serviceType, service);
-			InitializeService(serviceType, service);
+			AddService(typeof(T), service);
 		}
 
 		private void AddService(Type serviceType, object service)
 		{
-			try
-			{	
-				_services.Add(serviceType, service);
-			}
-			catch (KeyNotFoundException)
-			{
-				throw new ArgumentException(string.Format("Compiler service of type `{0}` is already registered", serviceType), "T");
-			}
+			_environment.Add(serviceType, service);
 		}
 
-		private void InitializeService(Type serviceType, object service)
+		private void InitializeService(object service)
 		{
-			ICompilerComponent component = service as ICompilerComponent;
+			var component = service as ICompilerComponent;
 			if (null == component)
 				return;
-
-			try
-			{
-				component.Initialize(this);
-			}
-			catch (Exception)
-			{
-				_services.Remove(serviceType);
-				throw;
-			}
-		}
-
-		///<summary>Unregisters a compiler service.</summary>
-		///<param name="T">The type of the service to unregister.</param>
-		///<returns>Returns true if the service is successfuly found and removed, false otherwise.</returns>
-		///<remarks>If service implements IDisposable, the service is disposed.</remarks>
-		public bool UnregisterService<T>() where T : class
-		{
-			return UnregisterService(typeof(T));
-		}
-
-		internal bool UnregisterService(Type type)
-		{
-			object service;
-			if (_services.TryGetValue(type, out service))
-			{
-				IDisposable d = service as IDisposable;
-				if (null != d)
-					d.Dispose();
-			}
-			return _services.Remove(type);
-		}
-
-		///<summary>Gets a registered compiler service of a specific Type.</summary>
-		///<param name="T">The type of the requested service.</param>
-		///<returns>Returns the requested service instance.</returns>
-		///<exception cref="ArgumentException">Thrown when requested service of type <paramref name="T"/> has not been found.</exception>
-		public T GetService<T>() where T : class
-		{
-			try
-			{
-				return (T)_services[typeof(T)];
-			}
-			catch (KeyNotFoundException)
-			{
-				throw new ArgumentException(string.Format("No compiler service of type `{0}` has been found", typeof(T)), "T");
-			}
+			component.Initialize(this);
 		}
 
 		///<summary>Gets a registered compiler service of a specific Type or registers a new instance of Type if not yet registered.</summary>
@@ -396,46 +344,17 @@ namespace Boo.Lang.Compiler
 		///<returns>Returns the requested service instance.</returns>
 		///<exception cref="ArgumentException">Thrown when requested service of type <paramref name="T"/> has not been found.</exception>
 		public T Provide<T>() where T : class
-		{	
-			object existing;
-			if (_services.TryGetValue(typeof(T), out existing))
-				return (T)existing;
-			var existingService = FindCompatibleService<T>();
-			if (existingService != null)
-			{
-				AddService(typeof(T), existingService);
-				return existingService;
-			}
-			var newService = Activator.CreateInstance<T>();
-			RegisterService(typeof(T), newService);
-			return newService;
-		}
-
-	    private T FindCompatibleService<T>() where T : class
-	    {
-	        return (T) _services.Values.FirstOrDefault(existing => existing is T);
-	    }
-
-	    ///<summary>Gets currently registered compiler services.</summary>
-		///<returns>Returns an enumerable of available services types.</returns>
-		public IEnumerable<Type> RegisteredServices
 		{
-			get
-			{
-				Type[] keys = new Type[_services.Keys.Count];
-				_services.Keys.CopyTo(keys, 0);
-				return keys;
-			}
+			return _environment.Provide<T>();
 		}
-		#endregion
-
 
 		void OnCompilerWarning(object o, CompilerWarningEventArgs args)
 		{
 			CompilerWarning warning = args.Warning;
 			if (Parameters.NoWarn || Parameters.DisabledWarnings.Contains(warning.Code))
 				args.Cancel();
-			if (Parameters.WarnAsError || Parameters.WarningsAsErrors.Contains(warning.Code)) {
+			if (Parameters.WarnAsError || Parameters.WarningsAsErrors.Contains(warning.Code))
+			{
 				Errors.Add(new CompilerError(warning.Code, warning.LexicalInfo, warning.Message, null));
 				args.Cancel();
 			}

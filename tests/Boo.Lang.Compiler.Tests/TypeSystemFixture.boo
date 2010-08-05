@@ -52,7 +52,7 @@ class TypeSystemFixture:
 	[TestFixtureSetUp]
 	def SetUpFixture():
 		_context = CompilerContext()
-		_context.Run:
+		_context.Environment.Run:
 			_tss = my(TypeSystemServices)
 		
 	def GetMethod(name as string) as IMethod:

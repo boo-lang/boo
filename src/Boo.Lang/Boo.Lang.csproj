@@ -109,6 +109,7 @@
     <Compile Include="Environments\EnvironmentExtensions.cs" />
     <Compile Include="Environments\EnvironmentProvision.cs" />
     <Compile Include="Environments\IEnvironment.cs" />
+    <Compile Include="Environments\InstantiatingEnvironment.cs" />
     <Compile Include="Environments\My.cs" />
     <Compile Include="ExtensionAttribute.cs" />
     <Compile Include="GenericGenerator.cs" />

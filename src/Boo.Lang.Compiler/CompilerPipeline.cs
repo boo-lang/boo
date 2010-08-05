@@ -277,7 +277,7 @@ namespace Boo.Lang.Compiler
 
         virtual public void Run(CompilerContext context)
         {
-            context.Run(() =>
+            context.Environment.Run(() =>
             {
                 OnBefore(context);
                 try
@@ -287,26 +287,11 @@ namespace Boo.Lang.Compiler
                 }
                 finally
                 {
-                    try { DisposeServices(context); }
-                    finally
-                    {
-                        try { DisposeSteps(); }
-                        finally { OnAfter(context); }
-                    }
+                    try { DisposeSteps(); }
+					finally { OnAfter(context); }
                 }
             });
         }
-
-	    private void DisposeServices(CompilerContext context)
-		{
-			foreach (Type service in context.RegisteredServices)
-			{
-				if (service.FullName.StartsWith("Boo.Lang.Compiler."))
-					//internal services have a process-lifetime
-					continue;
-				TracingErrors(() => context.UnregisterService(service));
-			}
-		}
 
 		private void TracingErrors(Action action)
 		{

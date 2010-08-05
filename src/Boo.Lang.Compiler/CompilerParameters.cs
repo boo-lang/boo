@@ -39,6 +39,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler
 {
@@ -133,7 +134,7 @@ namespace Boo.Lang.Compiler
 			_generateInMemory = true;
 			_stdLib = true;
 
-			if (Permissions.WithEnvironmentPermission(() => Environment.GetEnvironmentVariable("TRACE") != null))
+			if (Permissions.WithEnvironmentPermission(() => System.Environment.GetEnvironmentVariable("TRACE") != null))
 				EnableTraceSwitch();
 
 			_delaySign = false;
@@ -796,6 +797,12 @@ namespace Boo.Lang.Compiler
 		{
 			get { return _platform; }
 			set { _platform = value; }
+		}
+
+		public IEnvironment Environment
+		{
+			get;
+			set;
 		}
 	}
 }

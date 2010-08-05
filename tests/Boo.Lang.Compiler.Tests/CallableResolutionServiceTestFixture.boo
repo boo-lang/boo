@@ -44,7 +44,7 @@ class CallableResolutionServiceTestFixture:
 	[SetUp]
 	def SetUp():
 		_context = CompilerContext()
-		_crs = CallableResolutionService(_context)		
+		_crs = _context.Environment.Invoke[of CallableResolutionService]({ CallableResolutionService() })		
 		
 	test TestGetLogicalTypeDepth:
 		Assert.AreEqual(0, GetLogicalTypeDepth(object))
