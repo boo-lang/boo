@@ -69,16 +69,14 @@ namespace Boo.Lang.Parser
 		}
 
 		public void Run()
-		{		
-			ParserErrorHandler errorHandler = OnParserError;
-				
-			foreach (ICompilerInput input in _context.Parameters.Input)
+		{
+			foreach (var input in _context.Parameters.Input)
 			{
 				try
 				{
-					using (System.IO.TextReader reader = input.Open())
+					using (var reader = input.Open())
 					{
-						ParseModule(input.Name, reader, errorHandler);
+						ParseModule(input.Name, reader, OnParserError);
 					}
 				}				
 				catch (CompilerError error)

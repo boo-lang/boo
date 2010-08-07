@@ -122,20 +122,18 @@ namespace Boo.Lang.Compiler
 
 	    private static Assembly FindLoadedAssembly(string assemblyName)
 	    {
-	        foreach (Assembly loaded in AppDomain.CurrentDomain.GetAssemblies())
-	        {
+	        foreach (var loaded in AppDomain.CurrentDomain.GetAssemblies())
 	            if (loaded.GetName().Name == assemblyName) return loaded;
-	        }
 	        return null;
 	    }
 
-	    protected Boo.Lang.List<ICompilerStep> _items;
+	    protected List<ICompilerStep> _items;
 		
 		protected bool _breakOnErrors;
 
 		public CompilerPipeline()
 		{
-			_items = new Boo.Lang.List<ICompilerStep>();
+			_items = new List<ICompilerStep>();
 			_breakOnErrors = true;
 		}
 		
@@ -158,7 +156,7 @@ namespace Boo.Lang.Compiler
 			return this;
 		}
 
-		public CompilerPipeline Remove(System.Type stepExactType)
+		public CompilerPipeline Remove(Type stepExactType)
 		{
 			return RemoveAt(Find(stepExactType));
 		}
@@ -193,15 +191,13 @@ namespace Boo.Lang.Compiler
 		
 		public int Find(Type stepExactType)
 		{
-			if (null == stepExactType) throw new ArgumentNullException("stepExactType");
+			if (null == stepExactType)
+				throw new ArgumentNullException("stepExactType");
 
 			for (int i=0; i<_items.Count; ++i)
-			{
 				if (_items[i].GetType() == stepExactType)
-				{
 					return i;
-				}
-			}
+
 			return -1;
 		}
 		
@@ -239,36 +235,28 @@ namespace Boo.Lang.Compiler
 		{
 			EventHandler<CompilerPipelineEventArgs> before = Before;
 			if (null != before)
-			{
 				before(this, new CompilerPipelineEventArgs(context));
-			}
 		}
 
 		virtual protected void OnAfter(CompilerContext context)
 		{
 			EventHandler<CompilerPipelineEventArgs> after = After;
 			if (null != after)
-			{
 				after(this, new CompilerPipelineEventArgs(context));
-			}
 		}
 		
 		virtual protected void OnBeforeStep(CompilerContext context, ICompilerStep step)
 		{
 			CompilerStepEventHandler beforeStep = BeforeStep;
 			if (null != beforeStep)
-			{
 				beforeStep(this, new CompilerStepEventArgs(context, step));
-			}
 		}
 		
 		virtual protected void OnAfterStep(CompilerContext context, ICompilerStep step)
 		{
 			CompilerStepEventHandler afterStep = AfterStep;
 			if (null != afterStep)
-			{
 				afterStep(this, new CompilerStepEventArgs(context, step));
-			}
 		}
 		
 		virtual protected void Prepare(CompilerContext context)

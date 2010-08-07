@@ -17,15 +17,15 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class TypeInference : ICompilerStep
 	{
-		void IDisposable.Dispose()
-		{
-		}
-
 		void ICompilerComponent.Initialize(CompilerContext context)
 		{
 		}
 
 		void ICompilerStep.Run()
+		{
+		}
+
+		void IDisposable.Dispose()
 		{
 		}
 	}
