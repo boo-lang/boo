@@ -28,6 +28,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler
@@ -287,7 +288,7 @@ namespace Boo.Lang.Compiler
 			{
 				action();
 			}
-			catch (Exception x) //do not stop unregistering in the event one service throws at Dispose
+			catch (Exception x)
 			{
 				My<CompilerContext>.Instance.TraceError(x);
 			}
@@ -295,8 +296,8 @@ namespace Boo.Lang.Compiler
 
 		private void DisposeSteps()
 		{
-			foreach (ICompilerStep step in _items)
-				TracingErrors(() => step.Dispose());
+			foreach (var disposableStep in _items.OfType<IDisposable>())
+				TracingErrors(() => disposableStep.Dispose());
 		}
 
 		private void RunSteps(CompilerContext context)
@@ -304,11 +305,8 @@ namespace Boo.Lang.Compiler
 			foreach (ICompilerStep step in _items)
 			{
 				RunStep(context, step);
-				
 				if (_breakOnErrors && context.Errors.Count > 0)
-				{
 					break;
-				}
 			}
 		}
 

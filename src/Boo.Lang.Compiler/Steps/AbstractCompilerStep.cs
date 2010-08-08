@@ -31,5 +31,9 @@ namespace Boo.Lang.Compiler.Steps
 	public abstract class AbstractCompilerStep : AbstractCompilerComponent, ICompilerStep
 	{
 		public abstract void Run();
+
+		public virtual void Dispose()
+		{	
+		}
 	}
 }

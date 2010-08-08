@@ -72,10 +72,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				if (null != aa)
 				{
 					aa.Initialize(_context);
-					using (aa)
-					{
-						aa.Apply(_targetNode);
-					}
+					aa.Apply(_targetNode);
 				}
 			}
 			catch (Exception x)

@@ -115,10 +115,5 @@ namespace Boo.Lang.Compiler
 			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
 			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 		}
-		
-		public virtual void Dispose()
-		{
-			_context = null;
-		}	
 	}
 }

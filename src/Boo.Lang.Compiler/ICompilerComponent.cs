@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler
 	/// A component that is invoked during the compilation
 	/// process.
 	/// </summary>
-	public interface ICompilerComponent : IDisposable
+	public interface ICompilerComponent
 	{
 		/// <summary>
 		/// </summary> 

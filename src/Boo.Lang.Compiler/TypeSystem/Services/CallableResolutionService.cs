@@ -75,12 +75,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get { return _candidates; }
 		}
 
-		public override void Dispose()
-		{
-			_candidates.Clear();
-			base.Dispose();
-		}
-
 		public class Candidate : IEquatable<Candidate>
 		{
 			public IMethod Method;
