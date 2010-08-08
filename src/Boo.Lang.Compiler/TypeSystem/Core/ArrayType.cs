@@ -185,7 +185,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 	    public IType[] GetInterfaces()
 		{
-			return new IType[0];
+			TypeSystemServices services = My<TypeSystemServices>.Instance;
+			return new[] {
+				services.IEnumerableType,
+				services.ICollectionType,
+				services.IListType,
+				services.IEnumerableGenericType.GenericInfo.ConstructType(_elementType),
+				services.ICollectionGenericType.GenericInfo.ConstructType(_elementType),
+				services.IListGenericType.GenericInfo.ConstructType(_elementType),
+			};
 		}
 		
 		public IEnumerable<IEntity> GetMembers()

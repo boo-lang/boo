@@ -83,6 +83,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType IEnumerableGenericType;
 		public IType IEnumerableType;
 
+		public IType IListGenericType;
+		public IType IListType;
+
 		public IType IEnumeratorGenericType;
 		public IType IEnumeratorType;
 		public IType IQuackFuType;
@@ -189,6 +192,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IEnumerableGenericType = Map(Types.IEnumerableGeneric);
 			IEnumeratorGenericType = Map(typeof(IEnumerator<>));
 			ICollectionGenericType = Map(typeof(ICollection<>));
+			IListGenericType = Map(typeof (IList<>));
+			IListType = Map(typeof (IList));
 			IAstMacroType = Map(typeof(IAstMacro));
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
 			AstNodeType = Map(typeof(Node));
