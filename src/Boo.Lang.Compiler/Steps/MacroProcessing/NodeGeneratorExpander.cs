@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -157,7 +157,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			{
 				NameResolutionService.Reset();
 
-				var namespaceBinder = new BindNamespaces();
+				var namespaceBinder = new ResolveImports();
 				namespaceBinder.Initialize(CompilerContext.Current);
 				import.Accept(namespaceBinder);
 			}
