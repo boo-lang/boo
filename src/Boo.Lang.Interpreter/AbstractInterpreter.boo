@@ -92,10 +92,10 @@ class AbstractInterpreter:
 		_compiler.Parameters.Ducky = true		
 		_compiler.Parameters.Environment = DeferredEnvironment() { TypeSystemServices: { InterpreterTypeSystemServices(_cachedCallableTypes) } }
 		
-		_parser.Parameters.Pipeline = CompilerPipeline().Add(parser)
+		_parser.Parameters.Pipeline = CompilerPipeline() { parser }
 		
 	def constructor():
-		self(Pipelines.Parse.NewParserStep())
+		self(Steps.Parsing())
 		
 	abstract def Declare(name as string, type as System.Type):
 		pass

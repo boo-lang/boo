@@ -470,6 +470,7 @@
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
     <Compile Include="Steps\NormalizeTypeAndMemberDefinitions.cs" />
     <Compile Include="Steps\OptimizeIterationStatements.cs" />
+    <Compile Include="Steps\Parsing.cs" />
     <Compile Include="Steps\PEVerify.cs" />
     <Compile Include="Steps\PreErrorChecking.cs" />
     <Compile Include="Steps\PrintAst.cs" />

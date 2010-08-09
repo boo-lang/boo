@@ -95,7 +95,7 @@ class Program:
 			elif "-ducky" == arg:
 				_compiler.Parameters.Ducky = true
 			elif "-wsa" == arg:
-				_compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
+				_compiler.Parameters.WhiteSpaceAgnostic = true
 			elif "-w" == arg:
 				_printWarnings = true
 			elif arg.StartsWith("-r:"):

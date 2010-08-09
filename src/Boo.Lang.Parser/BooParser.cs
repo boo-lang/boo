@@ -38,8 +38,6 @@ namespace Boo.Lang.Parser
 {
 	public class BooParser : BooParserBase
 	{	
-		public const int DefaultTabSize = 4;
-		
 		protected ParserErrorHandler Error;
 
 		public BooParser(antlr.TokenStream lexer) : base(lexer)
@@ -58,20 +56,16 @@ namespace Boo.Lang.Parser
 		
 		public static CompileUnit ParseFile(string fname)
 		{
-			return ParseFile(DefaultTabSize, fname);
+			return ParseFile(ParserSettings.DefaultTabSize, fname);
 		}
 
 		public static CompileUnit ParseFile(int tabSize, string fname)
 		{
 			if (null == fname)
-			{
 				throw new ArgumentNullException("fname");
-			}
 	
 			using (StreamReader reader = File.OpenText(fname))
-			{
 				return ParseReader(tabSize, fname, reader);
-			}
 		}
 		
 		public static CompileUnit ParseString(string name, string text)
@@ -81,12 +75,12 @@ namespace Boo.Lang.Parser
 		
 		public static CompileUnit ParseReader(string readerName, TextReader reader)
 		{
-			return ParseReader(DefaultTabSize, readerName, reader);
+			return ParseReader(ParserSettings.DefaultTabSize, readerName, reader);
 		}
 
 		public static CompileUnit ParseReader(int tabSize, string readerName, TextReader reader)
 		{		
-			CompileUnit cu = new CompileUnit();
+			var cu = new CompileUnit();
 			ParseModule(tabSize, cu, readerName, reader, null);
 			return cu;
 		}
@@ -95,19 +89,19 @@ namespace Boo.Lang.Parser
 		{
 			if (Readers.IsEmpty(reader))
 			{
-				Module emptyModule = new Module(new LexicalInfo(readerName), ModuleNameFrom(readerName));
+				var emptyModule = new Module(new LexicalInfo(readerName), ModuleNameFrom(readerName));
 				cu.Modules.Add(emptyModule);
 				return emptyModule;
 			}
 
-			Module module = CreateParser(tabSize, readerName, reader, errorHandler).start(cu);
+			var module = CreateParser(tabSize, readerName, reader, errorHandler).start(cu);
 			module.Name = ModuleNameFrom(readerName);
 			return module;
 		}
 
 		public static BooParser CreateParser(int tabSize, string readerName, TextReader reader, ParserErrorHandler errorHandler)
 		{
-			BooParser parser = new BooParser(CreateBooLexer(tabSize, readerName, reader));
+			var parser = new BooParser(CreateBooLexer(tabSize, readerName, reader));
 			parser.setFilename(readerName);
 			parser.Error += errorHandler;
 			return parser;
@@ -115,13 +109,13 @@ namespace Boo.Lang.Parser
 		
 		public static antlr.TokenStream CreateBooLexer(int tabSize, string readerName, TextReader reader)
 		{
-			antlr.TokenStreamSelector selector = new antlr.TokenStreamSelector();
+			var selector = new antlr.TokenStreamSelector();
 		
-			BooLexer lexer = new BooLexer(reader);
+			var lexer = new BooLexer(reader);
 			lexer.setFilename(readerName);
 			lexer.Initialize(selector, tabSize, BooToken.TokenCreator);
 		
-			IndentTokenStreamFilter filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOL);
+			var filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOL);
 			selector.select(filter);
 			
 			return selector;
@@ -130,13 +124,9 @@ namespace Boo.Lang.Parser
 		override public void reportError(antlr.RecognitionException x)
 		{
 			if (null != Error)
-			{
 				Error(x);
-			}
 			else
-			{
 				base.reportError(x);
-			}
 		}
 
 		protected override void EmitIndexedPropertyDeprecationWarning(Property deprecated)
@@ -156,33 +146,25 @@ namespace Boo.Lang.Parser
 
 		override protected Module NewQuasiquoteModule(LexicalInfo li)
 		{
-			Module m = new Module(li);
-			m.Name = ModuleNameFrom(li.FileName) + "$" + li.Line;
-			return m;
+			return new Module(li) { Name = ModuleNameFrom(li.FileName) + "$" + li.Line };
 		}
 		
 		public static string ModuleNameFrom(string readerName)
 		{
 			if (readerName.IndexOfAny(Path.GetInvalidPathChars()) > -1)
-			{
 				return EncodeModuleName(readerName);
-			}
 			return Path.GetFileNameWithoutExtension(Path.GetFileName(readerName));
 		}
 	
 		static string EncodeModuleName(string name)
 		{
-			StringBuilder buffer = new StringBuilder(name.Length);
-			foreach (char ch in name)
+			var buffer = new StringBuilder(name.Length);
+			foreach (var ch in name)
 			{
 				if (Char.IsLetterOrDigit(ch))
-				{
 					buffer.Append(ch);
-				}
 				else
-				{
 					buffer.Append("_");
-				}
 			}
 			return buffer.ToString();
 		}

@@ -26,42 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Steps;
+
 namespace Boo.Lang.Compiler.Pipelines
 {
-	using System;
-	using System.IO;
-	using System.Reflection;
-	using Boo.Lang.Compiler.Util;
-
 	public class Parse : CompilerPipeline
-	{
-		static Type _defaultParserStepType;
-		
-		public static ICompilerStep NewParserStep()
-		{
-			if (null == _defaultParserStepType)
-			{
-				_defaultParserStepType = FindParserAssembly().GetType("Boo.Lang.Parser.BooParsingStep", true);
-			}
-			return (ICompilerStep)Activator.CreateInstance(_defaultParserStepType);
-		}
-
-		static Assembly FindParserAssembly()
-		{
-			Assembly thisAssembly = typeof(Parse).Assembly;
-			string thisLocation = Permissions.WithDiscoveryPermission(() => thisAssembly.Location) ?? "";
-			string parserLocation = thisLocation.EndsWith("Boo.Lang.Compiler.dll")
-                	? thisLocation.Substring(0, thisLocation.Length - "Boo.Lang.Compiler.dll".Length) + "Boo.Lang.Parser.dll"
-                	: "";
-
-			return File.Exists(parserLocation)
-					? Assembly.LoadFrom(parserLocation)
-					: Assembly.Load(thisAssembly.FullName.Replace("Boo.Lang.Compiler", "Boo.Lang.Parser"));
-		}
-		
+	{	
 		public Parse()
 		{
-			Add(NewParserStep());
+			Add(new Parsing());
 		}
 	}
 }
