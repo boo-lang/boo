@@ -42,7 +42,7 @@
 			get { return "raise"; }
 		}
 
-		public string CallableKeyword
+		public virtual string CallableKeyword
 		{
 			get { return "callable"; }
 		}
