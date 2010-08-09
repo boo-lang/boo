@@ -4,7 +4,14 @@
 	{
 		private T _instance;
 
-		public T Instance { get { return _instance ?? (_instance = My<T>.Instance);  } }
+		public T Instance
+		{
+			get
+			{
+				if (_instance != null) return _instance;
+				return (_instance = My<T>.Instance); 
+			}
+		}
 
 		public static implicit operator T(EnvironmentProvision<T> provision)
 		{
