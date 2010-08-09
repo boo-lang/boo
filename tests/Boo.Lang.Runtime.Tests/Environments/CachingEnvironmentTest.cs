@@ -1,4 +1,4 @@
-﻿using Boo.Lang.Environments;
+using Boo.Lang.Environments;
 using Moq;
 using NUnit.Framework;
 
@@ -16,7 +16,7 @@ namespace Boo.Lang.Runtime.Tests.Environments
 			mock.Setup(e => e.Provide<string>()).Returns(instance).AtMostOnce();
 
 			var subject = new CachingEnvironment(mock.Object);
-			Environment.With(subject, ()=>
+			ActiveEnvironment.With(subject, ()=>
 			{
 				Assert.AreSame(instance, My<string>.Instance);
 				Assert.AreSame(instance, My<string>.Instance);
@@ -34,7 +34,7 @@ namespace Boo.Lang.Runtime.Tests.Environments
 			mock.Setup(e => e.Provide<string>()).Returns(instance).AtMostOnce();
 
 			var subject = new CachingEnvironment(mock.Object);
-			Environment.With(subject, () =>
+			ActiveEnvironment.With(subject, () =>
 			{
 				Assert.AreSame(instance, My<string>.Instance);
 				Assert.AreSame(instance, My<object>.Instance);

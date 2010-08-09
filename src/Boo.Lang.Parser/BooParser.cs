@@ -31,6 +31,7 @@ using System.IO;
 using System.Text;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Environments;
 using Boo.Lang.Parser.Util;
 
 namespace Boo.Lang.Parser
@@ -140,9 +141,9 @@ namespace Boo.Lang.Parser
 
 		protected override void EmitIndexedPropertyDeprecationWarning(Property deprecated)
 		{
-			if (Boo.Lang.Environments.Environment.CurrentEnvironment == null)
+			if (ActiveEnvironment.Instance == null)
 				return;
-			Boo.Lang.Environments.My<CompilerWarningCollection>.Instance.Add(
+			My<CompilerWarningCollection>.Instance.Add(
 				CompilerWarningFactory.ObsoleteSyntax(deprecated,
 					FormatPropertyWithDelimiters(deprecated, "(", ")"),
 					FormatPropertyWithDelimiters(deprecated, "[", "]")));

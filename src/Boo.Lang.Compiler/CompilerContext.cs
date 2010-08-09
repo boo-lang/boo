@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler
 	{
 		public static CompilerContext Current
 		{
-			get { return Boo.Lang.Environments.Environment.CurrentEnvironment != null ? My<CompilerContext>.Instance : null; }
+			get { return ActiveEnvironment.Instance != null ? My<CompilerContext>.Instance : null; }
 		}
 
 		protected CompilerParameters _parameters;

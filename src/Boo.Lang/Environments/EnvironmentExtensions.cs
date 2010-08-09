@@ -10,7 +10,7 @@ namespace Boo.Lang.Environments
 		/// </summary>
 		public static void Run(this IEnvironment @this, System.Action action)
 		{
-			Environment.With(@this, action);
+			ActiveEnvironment.With(@this, action);
 		}
 
 		/// <summary>
@@ -19,7 +19,7 @@ namespace Boo.Lang.Environments
 		public static TResult Invoke<TResult>(this IEnvironment @this, System.Func<TResult> function)
 		{
 			TResult result = default(TResult);
-			Environment.With(@this, () => result = function());
+			ActiveEnvironment.With(@this, () => result = function());
 			return result;
 		}
 	}

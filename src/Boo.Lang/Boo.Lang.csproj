@@ -101,10 +101,10 @@
     <Compile Include="DuckTypedAttribute.cs" />
     <Compile Include="DynamicVariable.cs" />
     <Compile Include="EnumeratorItemTypeAttribute.cs" />
+    <Compile Include="Environments\ActiveEnvironment.cs" />
     <Compile Include="Environments\CachingEnvironment.cs" />
     <Compile Include="Environments\ClosedEnvironment.cs" />
     <Compile Include="Environments\DeferredEnvironment.cs" />
-    <Compile Include="Environments\Environment.cs" />
     <Compile Include="Environments\EnvironmentChain.cs" />
     <Compile Include="Environments\EnvironmentExtensions.cs" />
     <Compile Include="Environments\EnvironmentProvision.cs" />

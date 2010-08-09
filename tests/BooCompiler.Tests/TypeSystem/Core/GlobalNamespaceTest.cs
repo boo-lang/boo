@@ -5,7 +5,6 @@ using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 using NUnit.Framework;
-using Environment = Boo.Lang.Environments.Environment;
 
 namespace BooCompiler.Tests.TypeSystem.Core
 {

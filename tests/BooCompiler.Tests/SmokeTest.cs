@@ -40,12 +40,6 @@ namespace BooCompiler.Tests
 		}
 
 		[Test]
-		public void My()
-		{
-			RunCompilerTestCase("My.boo");
-		}
-
-		[Test]
 		public void ExternalModuleWithNoNamespace()
 		{
 			RunCompilerTestCase("ExternalModuleWithNoNamespace.boo");

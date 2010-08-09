@@ -1,4 +1,4 @@
-﻿using Boo.Lang.Environments;
+using Boo.Lang.Environments;
 using Moq;
 using NUnit.Framework;
 
@@ -16,7 +16,7 @@ namespace Boo.Lang.Runtime.Tests.Environments
 			mock.Setup(e => e.Provide<Foo>()).Returns(new Foo()).AtMostOnce();
 
 			var foo = new EnvironmentProvision<Foo>();
-			Environment.With(mock.Object, () =>
+			ActiveEnvironment.With(mock.Object, () =>
 			{
 				var first = foo.Instance;
 				var second = foo.Instance;

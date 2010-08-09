@@ -14,7 +14,7 @@ namespace BooCompiler.Tests
 		public void DefaultGeneratorTypeRepresentationComesFromLanguageAmbience()
 		{
 			var mock = new Mock<LanguageAmbiance>();
-			Environment.With(new ClosedEnvironment(mock.Object), () =>
+			ActiveEnvironment.With(new ClosedEnvironment(mock.Object), () =>
 			{
 				mock.Setup(ambience => ambience.DefaultGeneratorTypeFor("string"))
 					.Returns("string*")
