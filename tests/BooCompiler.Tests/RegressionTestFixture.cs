@@ -241,7 +241,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-1147-1.boo");
 		}
 		
-		[Ignore(" Boo's SRE of generic base type constraint of constraint's declaring type does not work on MS.NET (2.0 at least)")][Test]
+		[Ignore("Boo's SRE of generic base type constraint of constraint's declaring type does not work on MS.NET (2.0 at least)")][Test]
 		public void BOO_1147_2()
 		{
 			RunCompilerTestCase(@"BOO-1147-2.boo");
@@ -343,7 +343,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-1261-1.boo");
 		}
 		
-		[Ignore(" WIP")][Test]
+		[Ignore("WIP")][Test]
 		public void BOO_1264()
 		{
 			RunCompilerTestCase(@"BOO-1264.boo");
@@ -1069,19 +1069,19 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-770-1.boo");
 		}
 		
-		[Ignore(" Preference for generic not complete")][Test]
+		[Ignore("Preference for generic not complete")][Test]
 		public void BOO_779_1()
 		{
 			RunCompilerTestCase(@"BOO-779-1.boo");
 		}
 		
-		[Ignore(" Preference for generic not complete")][Test]
+		[Ignore("Preference for generic not complete")][Test]
 		public void BOO_779_2()
 		{
 			RunCompilerTestCase(@"BOO-779-2.boo");
 		}
 		
-		[Ignore(" Non-IEnumerable definitions of GetEnumerator() not yet supported")][Test]
+		[Ignore("Non-IEnumerable definitions of GetEnumerator() not yet supported")][Test]
 		public void BOO_779_3()
 		{
 			RunCompilerTestCase(@"BOO-779-3.boo");

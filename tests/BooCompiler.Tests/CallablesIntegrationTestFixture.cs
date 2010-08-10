@@ -12,7 +12,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"byref-1.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void byref_10()
 		{
 			RunCompilerTestCase(@"byref-10.boo");

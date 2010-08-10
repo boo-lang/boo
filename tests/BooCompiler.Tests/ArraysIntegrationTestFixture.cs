@@ -312,7 +312,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"empty-array-inference-as-object.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void empty_array_inference_in_closure()
 		{
 			RunCompilerTestCase(@"empty-array-inference-in-closure.boo");

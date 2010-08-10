@@ -97,7 +97,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"enumerable-type-inference-5.boo");
 		}
 		
-		[Ignore(" generic generators not supported yet")][Test]
+		[Ignore("generic generators not supported yet")][Test]
 		public void generator_with_type_constraint_1()
 		{
 			RunCompilerTestCase(@"generator-with-type-constraint-1.boo");
@@ -265,7 +265,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"generic-overload-5.boo");
 		}
 		
-		[Ignore(" FIXME: Covariance support is incomplete, generates unverifiable IL (BOO-1155)")][Test]
+		[Ignore("FIXME: Covariance support is incomplete, generates unverifiable IL (BOO-1155)")][Test]
 		public void generic_overload_6()
 		{
 			RunCompilerTestCase(@"generic-overload-6.boo");
@@ -343,7 +343,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"inference-7.boo");
 		}
 		
-		[Ignore(" Anonymous callable types involving generic type arguments are not handled correctly yet (BOO-854)")][Test]
+		[Ignore("Anonymous callable types involving generic type arguments are not handled correctly yet (BOO-854)")][Test]
 		public void inference_8()
 		{
 			RunCompilerTestCase(@"inference-8.boo");
@@ -511,7 +511,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"naked-type-constraints-1.boo");
 		}
 		
-		[Ignore(" generics with nested types not supported yet")][Test]
+		[Ignore("generics with nested types not supported yet")][Test]
 		public void nested_generic_type_1()
 		{
 			RunCompilerTestCase(@"nested-generic-type-1.boo");
