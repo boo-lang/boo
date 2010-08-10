@@ -31,7 +31,6 @@ using System.Diagnostics;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
-using Boo.Lang.Compiler.TypeSystem.Services;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
@@ -168,11 +167,6 @@ namespace Boo.Lang.Compiler
 		public CompileUnit CompileUnit
 		{
 			get { return _unit; }
-		}
-
-		public NameResolutionService NameResolutionService
-		{
-			get { return Provide<NameResolutionService>(); }
 		}
 
 		public TypeSystem.BooCodeBuilder CodeBuilder

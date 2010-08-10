@@ -1,5 +1,6 @@
 using System;
 using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 using NUnit.Framework;
@@ -19,7 +20,7 @@ namespace BooCompiler.Tests
 		[Test]
 		public void MyExistingService()
 		{
-			RunInCompilerContextEnvironment(() => Assert.AreSame(My<CompilerContext>.Instance.NameResolutionService, My<NameResolutionService>.Instance));
+			RunInCompilerContextEnvironment(() => Assert.AreSame(My<CompilerContext>.Instance.CodeBuilder, My<BooCodeBuilder>.Instance));
 		}
 
 		public class DummyService
