@@ -27,6 +27,7 @@
 #endregion
 
 using System.Linq;
+using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
@@ -42,23 +43,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	public class BooCodeBuilder
 	{
-		protected readonly TypeSystemServices _tss;
-		private readonly InternalTypeSystemProvider _internalTypeSystemProvider;
-
-		public BooCodeBuilder()
-		{
-			_tss = My<TypeSystemServices>.Instance;
-			_internalTypeSystemProvider = My<InternalTypeSystemProvider>.Instance;
-		}
+		private readonly EnvironmentProvision<TypeSystemServices> _tss = new EnvironmentProvision<TypeSystemServices>();
+		private readonly EnvironmentProvision<InternalTypeSystemProvider> _internalTypeSystemProvider = new EnvironmentProvision<InternalTypeSystemProvider>();
 
 		public TypeSystemServices TypeSystemServices
 		{
 			get { return _tss; }
-		}
-
-		public CompilerContext Context
-		{
-			get { return _tss.Context; }
 		}
 
 		public int GetFirstParameterIndex(TypeMember member)
@@ -68,7 +58,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Statement CreateFieldAssignment(Field node, Expression initializer)
 		{
-			InternalField fieldEntity = (InternalField)TypeSystem.TypeSystemServices.GetEntity(node);
+			var fieldEntity = (InternalField)TypeSystem.TypeSystemServices.GetEntity(node);
 			return CreateFieldAssignment(node.LexicalInfo, fieldEntity, initializer);
 		}
 
@@ -85,13 +75,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Attribute CreateAttribute(System.Type type)
 		{
-			return CreateAttribute(_tss.Map(type));
+			return CreateAttribute(TypeSystemServices.Map(type));
 		}
 
 		public Attribute CreateAttribute(IType type)
 		{
 			// TODO: check for the existence of a default constructor
-			return CreateAttribute(_tss.GetDefaultConstructor(type));
+			return CreateAttribute(TypeSystemServices.GetDefaultConstructor(type));
 		}
 
 		public Attribute CreateAttribute(IConstructor constructor)
@@ -111,11 +101,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Ast.Module CreateModule(string moduleName, string nameSpace)
 		{
-			Ast.Module module = new Ast.Module();
+			var module = new Ast.Module();
 			module.Name = moduleName;
 			if (!string.IsNullOrEmpty(nameSpace)) module.Namespace = new NamespaceDeclaration(nameSpace);
-			_internalTypeSystemProvider.EntityFor(module); // ensures the module is bound
+			InternalTypeSystemProvider.EntityFor(module); // ensures the module is bound
 			return module;
+		}
+
+		private InternalTypeSystemProvider InternalTypeSystemProvider
+		{
+			get { return _internalTypeSystemProvider.Instance; }
 		}
 
 		public BooClassBuilder CreateClass(string name)
@@ -158,11 +153,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public Expression CreateCast(IType type, Expression target)
 		{
 			if (type == target.ExpressionType)
-			{
 				return target;
-			}
 
-			CastExpression expression = new CastExpression(target.LexicalInfo);
+			var expression = new CastExpression(target.LexicalInfo);
 			expression.Type = CreateTypeReference(type);
 			expression.Target = target;
 			expression.ExpressionType = type;
@@ -171,21 +164,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Expression CreateTypeofExpression(IType type)
 		{
-			TypeofExpression expression = new TypeofExpression();
+			var expression = new TypeofExpression();
 			expression.Type = CreateTypeReference(type);
-			expression.ExpressionType = _tss.TypeType;
+			expression.ExpressionType = TypeSystemServices.TypeType;
 			expression.Entity = type;
 			return expression;
 		}
 
 		public Expression CreateTypeofExpression(System.Type type)
 		{
-			return CreateTypeofExpression(_tss.Map(type));
+			return CreateTypeofExpression(TypeSystemServices.Map(type));
 		}
 
 		public ReferenceExpression CreateLabelReference(LabelStatement label)
 		{
-			ReferenceExpression reference = new ReferenceExpression(label.LexicalInfo, label.Name);
+			var reference = new ReferenceExpression(label.LexicalInfo, label.Name);
 			reference.Entity = label.Entity;
 			return reference;
 		}
@@ -204,7 +197,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				sw.Arguments.Add(CreateLabelReference(label));
 			}
-			sw.ExpressionType = _tss.VoidType;
+			sw.ExpressionType = TypeSystemServices.VoidType;
 			return new ExpressionStatement(sw);
 		}
 
@@ -213,13 +206,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			MethodInvocationExpression mie = new MethodInvocationExpression();
 			mie.Target = CreateBuiltinReference(BuiltinFunction.AddressOf);
 			mie.Arguments.Add(CreateMethodReference(method));
-			mie.ExpressionType = _tss.IntPtrType;
+			mie.ExpressionType = TypeSystemServices.IntPtrType;
 			return mie;
 		}
 
 		public MethodInvocationExpression CreateMethodInvocation(Expression target, MethodInfo method)
 		{
-			return CreateMethodInvocation(target, _tss.Map(method));
+			return CreateMethodInvocation(target, TypeSystemServices.Map(method));
 		}
 
 		public MethodInvocationExpression CreatePropertyGet(Expression target, IProperty property)
@@ -236,12 +229,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public MethodInvocationExpression CreateMethodInvocation(MethodInfo staticMethod, Expression arg)
 		{
-			return CreateMethodInvocation(_tss.Map(staticMethod), arg);
+			return CreateMethodInvocation(TypeSystemServices.Map(staticMethod), arg);
 		}
 
 		public MethodInvocationExpression CreateMethodInvocation(MethodInfo staticMethod, Expression arg0, Expression arg1)
 		{
-			return CreateMethodInvocation(_tss.Map(staticMethod), arg0, arg1);
+			return CreateMethodInvocation(TypeSystemServices.Map(staticMethod), arg0, arg1);
 		}
 
 		public MethodInvocationExpression CreateMethodInvocation(LexicalInfo li, Expression target, IMethod tag, Expression arg)
@@ -311,12 +304,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public TypeReference CreateTypeReference(Type type)
 		{
-			return CreateTypeReference(_tss.Map(type));
+			return CreateTypeReference(TypeSystemServices.Map(type));
 		}
 
 		public TypeReference CreateTypeReference(LexicalInfo li, Type type)
 		{
-			return CreateTypeReference(li, _tss.Map(type));
+			return CreateTypeReference(li, TypeSystemServices.Map(type));
 		}
 
 		public TypeReference CreateTypeReference(LexicalInfo li, IType type)
@@ -481,7 +474,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ReferenceExpression CreateReference(LexicalInfo li, System.Type type)
 		{
-			return CreateReference(li, _tss.Map(type));
+			return CreateReference(li, TypeSystemServices.Map(type));
 		}
 
 		public ReferenceExpression CreateReference(IType type)
@@ -567,14 +560,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public BoolLiteralExpression CreateBoolLiteral(bool value)
 		{
 			BoolLiteralExpression expression = new BoolLiteralExpression(value);
-			expression.ExpressionType = _tss.BoolType;
+			expression.ExpressionType = TypeSystemServices.BoolType;
 			return expression;
 		}
 
 		public StringLiteralExpression CreateStringLiteral(string value)
 		{
 			StringLiteralExpression expression = new StringLiteralExpression(value);
-			expression.ExpressionType = _tss.StringType;
+			expression.ExpressionType = TypeSystemServices.StringType;
 			return expression;
 		}
 
@@ -587,44 +580,42 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ArrayLiteralExpression CreateObjectArray(ExpressionCollection items)
 		{
-			return CreateArray(_tss.ObjectArrayType, items);
+			return CreateArray(TypeSystemServices.ObjectArrayType, items);
 		}
 
 		public ArrayLiteralExpression CreateArray(IType arrayType, ExpressionCollection items)
 		{
-			if (!arrayType.IsArray) throw new ArgumentException(string.Format("'{0}'  is not an array type!", arrayType), "arrayType");
-			ArrayLiteralExpression array = new ArrayLiteralExpression();
+			if (!arrayType.IsArray)
+				throw new ArgumentException(string.Format("'{0}'  is not an array type!", arrayType), "arrayType");
+
+			var array = new ArrayLiteralExpression();
 			array.ExpressionType = arrayType;
 			array.Items.Extend(items);
-			_tss.MapToConcreteExpressionTypes(array.Items);
+			TypeSystemServices.MapToConcreteExpressionTypes(array.Items);
 			return array;
 		}
 
 		public IntegerLiteralExpression CreateIntegerLiteral(int value)
 		{
-			IntegerLiteralExpression integer = new IntegerLiteralExpression(value);
-			integer.ExpressionType = _tss.IntType;
+			var integer = new IntegerLiteralExpression(value);
+			integer.ExpressionType = TypeSystemServices.IntType;
 			return integer;
 		}
 
 		public IntegerLiteralExpression CreateIntegerLiteral(long value)
 		{
-			IntegerLiteralExpression integer = new IntegerLiteralExpression(value);
-			integer.ExpressionType = _tss.LongType;
+			var integer = new IntegerLiteralExpression(value);
+			integer.ExpressionType = TypeSystemServices.LongType;
 			return integer;
 		}
 
 		public SlicingExpression CreateSlicing(Expression target, int begin)
 		{
-			SlicingExpression expression = new SlicingExpression(target,
-												CreateIntegerLiteral(begin));
-
-			IType expressionType = _tss.ObjectType;
-			IArrayType arrayType = target.ExpressionType as IArrayType;
+			var expression = new SlicingExpression(target, CreateIntegerLiteral(begin));
+			var expressionType = TypeSystemServices.ObjectType;
+			var arrayType = target.ExpressionType as IArrayType;
 			if (null != arrayType)
-			{
 				expressionType = arrayType.ElementType;
-			}
 			expression.ExpressionType = expressionType;
 			return expression;
 		}
@@ -649,7 +640,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			notNode.Operand = node;
 			notNode.Operator = UnaryOperatorType.LogicalNot;
 
-			notNode.ExpressionType = _tss.BoolType;
+			notNode.ExpressionType = TypeSystemServices.BoolType;
 			return notNode;
 		}
 
@@ -691,7 +682,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void EnsureEntityFor(TypeMember member)
 		{
-			_internalTypeSystemProvider.EntityFor(member);
+			InternalTypeSystemProvider.EntityFor(member);
 		}
 
 		public Constructor CreateStaticConstructor(TypeDefinition type)
@@ -744,7 +735,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ExpressionStatement CreateSuperConstructorInvocation(IType baseType)
 		{
-			IConstructor defaultConstructor = _tss.GetDefaultConstructor(baseType);
+			IConstructor defaultConstructor = TypeSystemServices.GetDefaultConstructor(baseType);
 			if (null == defaultConstructor)
 				throw new ArgumentException("No default constructor for type '" + baseType + "'.");
 			return CreateSuperConstructorInvocation(defaultConstructor);
@@ -752,9 +743,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ExpressionStatement CreateSuperConstructorInvocation(IConstructor defaultConstructor)
 		{
-			MethodInvocationExpression call = new MethodInvocationExpression(new SuperLiteralExpression());
+			var call = new MethodInvocationExpression(new SuperLiteralExpression());
 			call.Target.Entity = defaultConstructor;
-			call.ExpressionType = _tss.VoidType;
+			call.ExpressionType = TypeSystemServices.VoidType;
 			return new ExpressionStatement(call);
 		}
 
@@ -944,19 +935,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 											BinaryOperatorType.ReferenceInequality,
 											target,
 											CreateNullLiteral());
-			test.ExpressionType = _tss.BoolType;
+			test.ExpressionType = TypeSystemServices.BoolType;
 			return test;
 		}
 
 		public RaiseStatement RaiseException(LexicalInfo lexicalInfo, IConstructor exceptionConstructor, params Expression[] args)
 		{
-			Debug.Assert(_tss.IsValidException(exceptionConstructor.DeclaringType));
+			Debug.Assert(TypeSystemServices.IsValidException(exceptionConstructor.DeclaringType));
 			return new RaiseStatement(lexicalInfo, CreateConstructorInvocation(lexicalInfo, exceptionConstructor, args));
 		}
 
 		public InternalLocal DeclareTempLocal(Method node, IType type)
 		{
-			InternalLocal local = DeclareLocal(node, Context.GetUniqueName(), type);
+			var local = DeclareLocal(node, My<UniqueNameProvider>.Instance.GetUniqueName(), type);
 			local.IsPrivateScope = true;
 			return local;
 		}
@@ -982,11 +973,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 				{
 					if (parameter.IsParamArray)
 					{
-						parameter.Type = CreateTypeReference(_tss.ObjectArrayType);
+						parameter.Type = CreateTypeReference(TypeSystemServices.ObjectArrayType);
 					}
 					else
 					{
-						parameter.Type = CreateTypeReference(_tss.ObjectType);
+						parameter.Type = CreateTypeReference(TypeSystemServices.ObjectType);
 					}
 				}
 				parameter.Entity = new InternalParameter(parameter, i + delta);
