@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Parser
 {
 	/// <summary>
@@ -66,10 +64,7 @@ namespace Boo.Lang.Parser
 		{
 			override public string TokenTypeName
 			{
-				get
-				{
-					return typeof(BooToken).FullName;
-				}
+				get { return typeof(BooToken).FullName; }
 			}
 			
 			override public antlr.IToken Create()
