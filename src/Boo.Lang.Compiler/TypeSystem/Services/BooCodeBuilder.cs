@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Attribute CreateAttribute(IType type)
 		{
-			return CreateAttribute(GetDefaultConstructor(type));
+			return CreateAttribute(DefaultConstructorFor(type));
 		}
 
 		public Attribute CreateAttribute(IConstructor constructor)
@@ -713,10 +713,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ExpressionStatement CreateSuperConstructorInvocation(IType baseType)
 		{
+			return CreateSuperConstructorInvocation(DefaultConstructorFor(baseType));
+		}
+
+		private IConstructor DefaultConstructorFor(IType baseType)
+		{
 			IConstructor defaultConstructor = TypeSystemServices.GetDefaultConstructor(baseType);
 			if (null == defaultConstructor)
 				throw new ArgumentException("No default constructor for type '" + baseType + "'.");
-			return CreateSuperConstructorInvocation(defaultConstructor);
+			return defaultConstructor;
 		}
 
 		public ExpressionStatement CreateSuperConstructorInvocation(IConstructor defaultConstructor)
