@@ -30,6 +30,7 @@
 import System
 import System.IO
 import Boo.Lang.Compiler.Ast.Visitors
+import Boo.Lang.PatternMatching
 import Boo.Lang.Parser
 
 class Util:
@@ -67,8 +68,7 @@ def PortParserTestCase(fromTestCase as string, toTestCase as string):
 def GetTestCaseName(fname as string):
 	return join(
 		(ch if char.IsLetterOrDigit(ch) else "_")
-		for ch in Path.GetFileNameWithoutExtension(fname),
-		"")
+		for ch in Path.GetFileNameWithoutExtension(fname),"")
 
 def MapPath(path):
 #	return Path.Combine(Project.BaseDirectory, path)
@@ -78,17 +78,12 @@ def WriteTestCases(writer as TextWriter, baseDir as string):
 	count, ignored = 0, 0
 	for fname as string in Directory.GetFiles(MapPath("testcases/${baseDir}")):
 		continue unless fname.EndsWith(".boo")
-		ignore = false
-		message = ''
-		using file = File.OpenText(fname):
-			while firstLine = file.ReadLine().Trim():
-				break unless firstLine.StartsWith('#')
-				if firstLine.StartsWith('#ignore', StringComparison.InvariantCultureIgnoreCase):
-					message += ' ' + (firstLine[8:] if len(firstLine) > 9 else '').Trim()
-					ignore = true
+		attribute = CategoryAttributeFor(fname)
+		
+		ignore = attribute.StartsWith("[Ignore")
 		++count unless ignore
 		++ignored if ignore
-		attribute = ("[Ignore(\"${message}\")]" if ignore else '')
+		
 		writer.Write("""
 		${attribute}[Test]
 		public void ${GetTestCaseName(fname)}()
@@ -97,6 +92,23 @@ def WriteTestCases(writer as TextWriter, baseDir as string):
 		}
 		""")
 	print("{0,5} {1,7}  {2}" % (count, ignored, baseDir))
+	
+def CategoryAttributeFor(testFile as string):
+"""
+If the first line of the test case file starts with // category CategoryName 
+then return a suitable [CategoryName()] attribute.
+"""
+	match FirstLineOf(testFile):
+		case /\s*#\s*ignore\s+(?<reason>.*)/:
+			return "[Ignore(\"${reason[0].Value.Trim()}\")]"
+		case /\s*#\s*category\s+(?<name>.*)/:
+			return "[Category(\"${name[0].Value.Trim()}\")]"
+		otherwise:
+			return ""
+			
+def FirstLineOf(fname as string):
+	using reader=File.OpenText(fname):
+		return reader.ReadLine()
 
 def GenerateTestFixture(srcDir as string, targetFile as string, fixtureAssembly as string, header as string):
 	return if Util.argv and len(Util.argv) and Util.argv[0] == fixtureAssembly
