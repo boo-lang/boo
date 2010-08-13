@@ -60,9 +60,9 @@ namespace Boo.Lang.Compiler.Steps
 			var thisLocation = Permissions.WithDiscoveryPermission(() => ThisAssembly().Location) ?? "";
 			if (string.IsNullOrEmpty(thisLocation))
 				return LoadParserAssemblyByName();
-			var parserLocation = thisLocation.EndsWith("Boo.Lang.Compiler.dll")
-			                     	? thisLocation.Substring(0, thisLocation.Length - "Boo.Lang.Compiler.dll".Length) + "Boo.Lang.Parser.dll"
-			                     	: "";
+			var parserLocation = thisLocation.EndsWith("Boo.Lang.Compiler.dll", StringComparison.OrdinalIgnoreCase)
+				? thisLocation.Substring(0, thisLocation.Length - "Boo.Lang.Compiler.dll".Length) + "Boo.Lang.Parser.dll"
+				: "";
 			return File.Exists(parserLocation) ? Assembly.LoadFrom(parserLocation) : LoadParserAssemblyByName();
 		}
 
