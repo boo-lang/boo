@@ -80,8 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Attribute CreateAttribute(IType type)
 		{
-			// TODO: check for the existence of a default constructor
-			return CreateAttribute(TypeSystemServices.GetDefaultConstructor(type));
+			return CreateAttribute(GetDefaultConstructor(type));
 		}
 
 		public Attribute CreateAttribute(IConstructor constructor)
@@ -530,9 +529,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public BinaryExpression CreateAssignment(Expression lhs, Expression rhs)
 		{
-			var assignment = new BinaryExpression(BinaryOperatorType.Assign, lhs, rhs);
-			assignment.ExpressionType = TypeSystemServices.GetExpressionType(lhs);
-			return assignment;
+			return CreateBoundBinaryExpression(TypeSystemServices.GetExpressionType(lhs), BinaryOperatorType.Assign, lhs, rhs);
 		}
 
 		public Expression CreateMethodReference(IMethod method)
@@ -542,40 +539,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Expression CreateMethodReference(LexicalInfo lexicalInfo, IMethod method)
 		{
-			Expression e = CreateMethodReference(method);
+			var e = CreateMethodReference(method);
 			e.LexicalInfo = lexicalInfo;
 			return e;
 		}
 
-		public BinaryExpression CreateBoundBinaryExpression(IType expressionType,
-												BinaryOperatorType op,
-												Expression lhs,
-												Expression rhs)
+		public BinaryExpression CreateBoundBinaryExpression(IType expressionType, BinaryOperatorType op, Expression lhs, Expression rhs)
 		{
-			BinaryExpression expression = new BinaryExpression(op, lhs, rhs);
-			expression.ExpressionType = expressionType;
-			return expression;
+			return new BinaryExpression(op, lhs, rhs) { ExpressionType = expressionType };
 		}
 
 		public BoolLiteralExpression CreateBoolLiteral(bool value)
 		{
-			BoolLiteralExpression expression = new BoolLiteralExpression(value);
-			expression.ExpressionType = TypeSystemServices.BoolType;
-			return expression;
+			return new BoolLiteralExpression(value) { ExpressionType = TypeSystemServices.BoolType };
 		}
 
 		public StringLiteralExpression CreateStringLiteral(string value)
 		{
-			StringLiteralExpression expression = new StringLiteralExpression(value);
-			expression.ExpressionType = TypeSystemServices.StringType;
-			return expression;
+			return new StringLiteralExpression(value) { ExpressionType = TypeSystemServices.StringType };
 		}
 
 		public NullLiteralExpression CreateNullLiteral()
 		{
-			NullLiteralExpression expression = new NullLiteralExpression();
-			expression.ExpressionType = Null.Default;
-			return expression;
+			return new NullLiteralExpression { ExpressionType = Null.Default };
 		}
 
 		public ArrayLiteralExpression CreateObjectArray(ExpressionCollection items)
@@ -597,27 +583,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IntegerLiteralExpression CreateIntegerLiteral(int value)
 		{
-			var integer = new IntegerLiteralExpression(value);
-			integer.ExpressionType = TypeSystemServices.IntType;
-			return integer;
+			return new IntegerLiteralExpression(value) { ExpressionType = TypeSystemServices.IntType };
 		}
 
 		public IntegerLiteralExpression CreateIntegerLiteral(long value)
 		{
-			var integer = new IntegerLiteralExpression(value);
-			integer.ExpressionType = TypeSystemServices.LongType;
-			return integer;
+			return new IntegerLiteralExpression(value) { ExpressionType = TypeSystemServices.LongType };
 		}
 
 		public SlicingExpression CreateSlicing(Expression target, int begin)
 		{
-			var expression = new SlicingExpression(target, CreateIntegerLiteral(begin));
-			var expressionType = TypeSystemServices.ObjectType;
 			var arrayType = target.ExpressionType as IArrayType;
-			if (null != arrayType)
-				expressionType = arrayType.ElementType;
-			expression.ExpressionType = expressionType;
-			return expression;
+			var expressionType = arrayType != null ? arrayType.ElementType : TypeSystemServices.ObjectType;
+			return new SlicingExpression(target, CreateIntegerLiteral(begin)) { ExpressionType = expressionType };
 		}
 
 		public ReferenceExpression CreateReference(ParameterDeclaration parameter)
