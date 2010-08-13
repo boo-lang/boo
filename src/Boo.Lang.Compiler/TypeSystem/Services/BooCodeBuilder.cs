@@ -85,23 +85,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Attribute CreateAttribute(IConstructor constructor)
 		{
-			Attribute attribute = new Attribute();
-			attribute.Name = constructor.DeclaringType.FullName;
-			attribute.Entity = constructor;
-			return attribute;
+			return new Attribute { Name = constructor.DeclaringType.FullName, Entity = constructor };
 		}
 
 		public Attribute CreateAttribute(IConstructor constructor, Expression arg)
 		{
-			Attribute attribute = CreateAttribute(constructor);
+			var attribute = CreateAttribute(constructor);
 			attribute.Arguments.Add(arg);
 			return attribute;
 		}
 
 		public Ast.Module CreateModule(string moduleName, string nameSpace)
 		{
-			var module = new Ast.Module();
-			module.Name = moduleName;
+			var module = new Ast.Module { Name = moduleName };
 			if (!string.IsNullOrEmpty(nameSpace)) module.Namespace = new NamespaceDeclaration(nameSpace);
 			InternalTypeSystemProvider.EntityFor(module); // ensures the module is bound
 			return module;
@@ -119,17 +115,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public BooClassBuilder CreateClass(string name, TypeMemberModifiers modifiers)
 		{
-			BooClassBuilder builder = CreateClass(name);
+			var builder = CreateClass(name);
 			builder.Modifiers = modifiers;
 			return builder;
 		}
 
 		public Expression CreateDefaultInitializer(LexicalInfo li, ReferenceExpression target, IType type)
 		{
-			if (type.IsValueType)
-				return CreateInitValueType(li, target);
-
-			return CreateAssignment(li, target, CreateNullLiteral());
+			return type.IsValueType
+				? CreateInitValueType(li, target)
+				: CreateAssignment(li, target, CreateNullLiteral());
 		}
 
 		public Expression CreateDefaultInitializer(LexicalInfo li, InternalLocal local)
@@ -139,7 +134,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Expression CreateInitValueType(LexicalInfo li, ReferenceExpression target)
 		{
-			MethodInvocationExpression mie = CreateBuiltinInvocation(li, BuiltinFunction.InitValueType);
+			var mie = CreateBuiltinInvocation(li, BuiltinFunction.InitValueType);
 			mie.Arguments.Add(target);
 			return mie;
 		}
