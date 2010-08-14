@@ -31,6 +31,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Resources;
@@ -5418,7 +5419,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			string configuredOutputAssembly = Parameters.OutputAssembly;
 			if (!string.IsNullOrEmpty(configuredOutputAssembly))
-				return Path.GetFullPath(configuredOutputAssembly);
+				return TryToGetFullPath(configuredOutputAssembly);
 
 			string outputAssembly = CompileUnit.Modules[0].Name;
 			if (!HasDllOrExeExtension(outputAssembly))
@@ -5428,12 +5429,17 @@ namespace Boo.Lang.Compiler.Steps
 				else
 					outputAssembly += ".exe";
 			}
-			return Path.GetFullPath(outputAssembly);
+			return TryToGetFullPath(outputAssembly);
+		}
+
+		private string TryToGetFullPath(string path)
+		{
+			return Permissions.WithDiscoveryPermission(() => Path.GetFullPath(path)) ?? path;
 		}
 
 		private bool HasDllOrExeExtension(string fname)
 		{
-			string extension = Path.GetExtension(fname);
+			var extension = Path.GetExtension(fname);
 			switch (extension.ToLower())
 			{
 				case ".dll":
@@ -5477,10 +5483,12 @@ namespace Boo.Lang.Compiler.Steps
 		void SetUpAssembly()
 		{
 			var outputFile = BuildOutputAssemblyName();
-
-			AssemblyName asmName = CreateAssemblyName(outputFile);
+			var asmName = CreateAssemblyName(outputFile);
 			var assemblyBuilderAccess = GetAssemblyBuilderAccess();
-			_asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, GetTargetDirectory(outputFile));
+			_asmBuilder = Parameters.GenerateInMemory
+				? AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess)
+				: AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, GetTargetDirectory(outputFile));
+
 			if (Parameters.Debug)
 			{
 				// ikvm tip:  Set DebuggableAttribute to assembly before
@@ -5488,8 +5496,8 @@ namespace Boo.Lang.Compiler.Steps
 				// picks up the attribute when debugging dynamically generated code.
 				_asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
 			}
-			_asmBuilder.SetCustomAttribute(CreateRuntimeCompatibilityAttribute());
 
+			_asmBuilder.SetCustomAttribute(CreateRuntimeCompatibilityAttribute());
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), Parameters.Debug);
 
 			if (Parameters.Unsafe)
@@ -5511,41 +5519,31 @@ namespace Boo.Lang.Compiler.Steps
 
 		AssemblyName CreateAssemblyName(string outputFile)
 		{
-			AssemblyName assemblyName = new AssemblyName();
+			var assemblyName = new AssemblyName();
 			assemblyName.Name = GetAssemblySimpleName(outputFile);
 			assemblyName.Version = GetAssemblyVersion();
 			if (Parameters.DelaySign)
-			{
 				assemblyName.SetPublicKey(GetAssemblyKeyPair(outputFile).PublicKey);
-			}
 			else
-			{
 				assemblyName.KeyPair = GetAssemblyKeyPair(outputFile);
-			}
 			return assemblyName;
 		}
 
 		StrongNameKeyPair GetAssemblyKeyPair(string outputFile)
 		{
-			Attribute attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyNameAttribute");
+			var attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyNameAttribute");
 			if (Parameters.KeyContainer != null)
 			{
 				if (attribute != null)
-				{
 					Warnings.Add(CompilerWarningFactory.HaveBothKeyNameAndAttribute(attribute));
-				}
 				if (Parameters.KeyContainer.Length != 0)
-				{
 					return new StrongNameKeyPair(Parameters.KeyContainer);
-				}
 			}
 			else if (attribute != null)
 			{
-				string asmName = ((StringLiteralExpression)attribute.Arguments[0]).Value;
+				var asmName = ((StringLiteralExpression)attribute.Arguments[0]).Value;
 				if (asmName.Length != 0) //ignore empty AssemblyKeyName values, like C# does
-				{
 					return new StrongNameKeyPair(asmName);
-				}
 			}
 
 			string fname = null;
@@ -5556,25 +5554,19 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				fname = Parameters.KeyFile;
 				if (attribute != null)
-				{
 					Warnings.Add(CompilerWarningFactory.HaveBothKeyFileAndAttribute(attribute));
-				}
 			}
 			else if (attribute != null)
 			{
 				fname = ((StringLiteralExpression)attribute.Arguments[0]).Value;
 				if (attribute.LexicalInfo != null)
-				{
 					srcFile = attribute.LexicalInfo.FileName;
-				}
 			}
 
-			if (null != fname && fname.Length > 0)
+			if (!string.IsNullOrEmpty(fname))
 			{
 				if (!Path.IsPathRooted(fname))
-				{
 					fname = ResolveRelative(outputFile, srcFile, fname);
-				}
 				using (FileStream stream = File.OpenRead(fname))
 				{
 					//Parameters.DelaySign is ignored.
@@ -5587,59 +5579,50 @@ namespace Boo.Lang.Compiler.Steps
 		string ResolveRelative(string targetFile, string srcFile, string relativeFile)
 		{
 			//relative to current directory:
-			string fname = Path.GetFullPath(relativeFile);
+			var fname = Path.GetFullPath(relativeFile);
 			if (File.Exists(fname))
-			{
 				return fname;
-			}
 
 			//relative to source file:
 			if (srcFile != null)
 			{
-				fname = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(srcFile),
-													  relativeFile));
+				fname = ResolveRelativePath(srcFile, relativeFile);
 				if (File.Exists(fname))
-				{
 					return fname;
-				}
 			}
 
 			//relative to output assembly:
 			if (targetFile != null)
-			{
-				fname = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(targetFile),
-													  relativeFile));
-			}
+				return ResolveRelativePath(targetFile, relativeFile);
+
 			return fname;
+		}
+
+		private string ResolveRelativePath(string srcFile, string relativeFile)
+		{
+			return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(srcFile), relativeFile));
 		}
 
 		Version GetAssemblyVersion()
 		{
-			string version = GetAssemblyAttributeValue("System.Reflection.AssemblyVersionAttribute");
-			if (null == version)
-			{
-				version = "0.0.0.0";
-			}
+			var version = GetAssemblyAttributeValue("System.Reflection.AssemblyVersionAttribute");
+			if (version == null)
+				return new Version();
+
 			/* 1.0.* -- BUILD -- based on days since January 1, 2000
 			 * 1.0.0.* -- REVISION -- based on seconds since midnight, January 1, 2000, divided by 2			 *
 			 */
 			string[] sliced = version.Split('.');
 			if (sliced.Length > 2)
 			{
-				DateTime baseTime = new DateTime(2000, 1, 1);
-				TimeSpan mark = (DateTime.Now - baseTime);
+				var baseTime = new DateTime(2000, 1, 1);
+				var mark = DateTime.Now - baseTime;
 				if (sliced[2].StartsWith("*"))
-				{
 					sliced[2] = Math.Round(mark.TotalDays).ToString();
-				}
 				if (sliced.Length > 3)
-				{
 					if (sliced[3].StartsWith("*"))
-					{
 						sliced[3] = Math.Round(mark.TotalSeconds).ToString();
-					}
-				}
-				version = Boo.Lang.Builtins.join(sliced, ".");
+				version = string.Join(".", sliced);
 			}
 			return new Version(version);
 		}
@@ -5654,13 +5637,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		Attribute GetAssemblyAttribute(string name)
 		{
-			Attribute[] attributes = _assemblyAttributes.Get(name);
-			if (attributes.Length > 0)
-			{
-				Debug.Assert(1 == attributes.Length);
-				return attributes[0];
-			}
-			return null;
+			return _assemblyAttributes.Get(name).FirstOrDefault();
 		}
 
 		protected override IType GetExpressionType(Expression node)
