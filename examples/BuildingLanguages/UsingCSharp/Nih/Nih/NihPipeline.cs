@@ -7,7 +7,7 @@ namespace Nih
 	{
 		public NihPipeline()
 		{	
-			Replace(typeof(Boo.Lang.Parser.BooParsingStep), new NihParsingStep());
+			Replace(typeof(Parsing), new NihParsingStep());
 			InsertAfter(typeof(NihParsingStep), new AddRuntimeImport());
 		}
 

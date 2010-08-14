@@ -16,7 +16,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			}
 		}
 
-		public event System.EventHandler Changed;
+		public event EventHandler Changed;
 
 		private void OnChange()
 		{

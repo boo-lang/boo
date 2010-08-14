@@ -127,6 +127,7 @@
     <Compile Include="Ast\CharLiteralExpression.cs" />
     <Compile Include="Ast\ClassDefinition.cs" />
     <Compile Include="Ast\CodeSerializer.cs" />
+    <Compile Include="Ast\CollectionInitializationExpression.cs" />
     <Compile Include="Ast\CompileUnit.cs" />
     <Compile Include="Ast\ConditionalExpression.cs" />
     <Compile Include="Ast\ConditionalStatement.Generated.cs" />
@@ -185,6 +186,7 @@
     <Compile Include="Ast\Impl\CharLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ClassDefinitionImpl.cs" />
     <Compile Include="Ast\Impl\CodeSerializer.cs" />
+    <Compile Include="Ast\Impl\CollectionInitializationExpressionImpl.cs" />
     <Compile Include="Ast\Impl\CompileUnitImpl.cs" />
     <Compile Include="Ast\Impl\ConditionalExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ConditionalStatementImpl.cs" />
@@ -385,7 +387,6 @@
     <Compile Include="IO\FileInput.cs" />
     <Compile Include="IO\ReaderInput.cs" />
     <Compile Include="IO\StringInput.cs" />
-    <Compile Include="LanguageAmbiance.cs" />
     <Compile Include="LexicalInfoPreservingGeneratorMacro.cs" />
     <Compile Include="LexicalInfoPreservingMacro.cs" />
     <Compile Include="MetaProgramming\Compilation.cs" />
@@ -407,6 +408,8 @@
     <Compile Include="Resources\FileResource.cs" />
     <Compile Include="Resources\NamedEmbeddedFileResource.cs" />
     <Compile Include="Resources\NamedFileResource.cs" />
+    <Compile Include="Services\LanguageAmbiance.cs" />
+    <Compile Include="Services\UniqueNameProvider.cs" />
     <Compile Include="Steps\AbstractCompilerStep.cs" />
     <Compile Include="Steps\AbstractNamespaceSensitiveCompilerStep.cs" />
     <Compile Include="Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs" />
@@ -418,13 +421,13 @@
     <Compile Include="Steps\BindEnumMembers.cs" />
     <Compile Include="Steps\BindGenericParameters.cs" />
     <Compile Include="Steps\BindMethods.cs" />
-    <Compile Include="Steps\BindNamespaces.cs" />
     <Compile Include="Steps\BindTypeDefinitions.cs" />
     <Compile Include="Steps\BindTypeMembers.cs" />
     <Compile Include="Steps\BranchChecking.cs" />
     <Compile Include="Steps\CheckAttributesUsage.cs" />
     <Compile Include="Steps\CheckGenericConstraints.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
+    <Compile Include="Steps\CheckLiteralValues.cs" />
     <Compile Include="Steps\CheckMemberNames.cs" />
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
     <Compile Include="Steps\CheckMemberTypes.cs" />
@@ -450,7 +453,6 @@
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\Inheritance\BaseTypeResolution.cs" />
     <Compile Include="Steps\InitializeNameResolutionService.cs" />
-    <Compile Include="Steps\InitializeTypeSystemServices.cs" />
     <Compile Include="Steps\InjectCallableConversions.cs" />
     <Compile Include="Steps\InjectCastsAndConversions.cs" />
     <Compile Include="Steps\IntroduceGlobalNamespaces.cs" />
@@ -463,12 +465,12 @@
     <Compile Include="Steps\MacroProcessing\TypeMemberStatement.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
+    <Compile Include="Steps\NormalizeExpressions.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
-    <Compile Include="Steps\NormalizeLiterals.cs" />
-    <Compile Include="Steps\NormalizeOmittedExpressions.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
     <Compile Include="Steps\NormalizeTypeAndMemberDefinitions.cs" />
     <Compile Include="Steps\OptimizeIterationStatements.cs" />
+    <Compile Include="Steps\Parsing.cs" />
     <Compile Include="Steps\PEVerify.cs" />
     <Compile Include="Steps\PreErrorChecking.cs" />
     <Compile Include="Steps\PrintAst.cs" />
@@ -485,6 +487,7 @@
     <Compile Include="Steps\ProcessSharedLocals.cs" />
     <Compile Include="Steps\ReifyTypes.cs" />
     <Compile Include="Steps\RemoveDeadCode.cs" />
+    <Compile Include="Steps\ResolveImports.cs" />
     <Compile Include="Steps\ResolveTypeReferences.cs" />
     <Compile Include="Steps\RunAssembly.cs" />
     <Compile Include="Steps\SaveAssembly.cs" />

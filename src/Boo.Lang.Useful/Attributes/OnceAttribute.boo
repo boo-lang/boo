@@ -73,12 +73,6 @@ Usage
 	_methodLock as Field
 	_cached as Field
 	_returnValue as Field
-	
-	override def Dispose():
-	"""
-	Dont get rid of the context because we'll need it later.
-	"""
-		pass
 		
 	override def Apply(node as Node):
 	"""

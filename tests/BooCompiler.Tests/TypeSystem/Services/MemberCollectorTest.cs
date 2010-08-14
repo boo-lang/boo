@@ -34,28 +34,33 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		[Test]
 		public void GetAllMembers()
 		{
-			new CompilerContext().Run(() =>
-				{
-					var barName = typeof(Bar).FullName.Replace('+', '.');
-					var fooName = typeof(Foo).FullName.Replace('+', '.');
-					var members = MemberCollector.CollectAllMembers(My<TypeSystemServices>.Instance.Map(typeof(Bar)));
-					var expected = new[]
-					               	{
-										barName + ".constructor",
-										barName + ".get_Name",
-										barName + ".Name",
-										barName + ".set_Name",
-										fooName + ".ToString",
-                                        "object.Equals",
-                                        "object.Equals", // static
-                                        "object.GetHashCode",
-                                        "object.GetType",                                        
-                                        "object.ReferenceEquals",
-					               	};
-					var actual = members.OfType<IAccessibleMember>().Where(m => m.IsPublic).Select(m => m.FullName).ToArray();
-					Array.Sort(actual);
-					Assert.AreEqual(expected, actual);
-				});
+			RunInCompilerContextEnvironment(() =>
+			{
+				var barName = typeof(Bar).FullName.Replace('+', '.');
+				var fooName = typeof(Foo).FullName.Replace('+', '.');
+				var members = MemberCollector.CollectAllMembers(My<TypeSystemServices>.Instance.Map(typeof(Bar)));
+				var expected = new[]
+				               	{
+									barName + ".constructor",
+									barName + ".get_Name",
+									barName + ".Name",
+									barName + ".set_Name",
+									fooName + ".ToString",
+                                    "object.Equals",
+                                    "object.Equals", // static
+                                    "object.GetHashCode",
+                                    "object.GetType",                                        
+                                    "object.ReferenceEquals",
+				               	};
+				var actual = members.OfType<IAccessibleMember>().Where(m => m.IsPublic).Select(m => m.FullName).ToArray();
+				Array.Sort(actual);
+				Assert.AreEqual(expected, actual);
+			});
+		}
+
+		private void RunInCompilerContextEnvironment(Action action)
+		{
+			new CompilerContext().Environment.Run(action);
 		}
 	}
 }

@@ -31,11 +31,13 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	public abstract class AbstractVisitorCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstVisitor, ICompilerStep
 	{
+		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
 		protected CompilerContext _context;
 		
 		protected AbstractVisitorCompilerStep()
@@ -56,11 +58,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get { return _context.CompileUnit; }
 		}
-		
+
 		protected NameResolutionService NameResolutionService
 		{
-			get { return _context.NameResolutionService; }
+			get { return _nameResolutionService; }
 		}
+
+		private EnvironmentProvision<NameResolutionService> _nameResolutionService;
 		
 		protected CompilerParameters Parameters
 		{
@@ -79,7 +83,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected TypeSystemServices TypeSystemServices
 		{
-			get { return _context.TypeSystemServices; }
+			get { return _typeSystemServices; }
 		}
 
 		public override void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
@@ -171,6 +175,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == context)
 				throw new ArgumentNullException("context");
 			_context = context;
+			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
+			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 		}
 		
 		public abstract void Run();

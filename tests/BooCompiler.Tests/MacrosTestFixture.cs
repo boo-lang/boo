@@ -223,7 +223,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"nested-macros-6.boo");
 		}
 		
-		[Ignore(" Use of external extension within another external extension does not work yet")][Test]
+		[Ignore("Use of external extension within another external extension does not work yet")][Test]
 		public void nested_macros_7()
 		{
 			RunCompilerTestCase(@"nested-macros-7.boo");

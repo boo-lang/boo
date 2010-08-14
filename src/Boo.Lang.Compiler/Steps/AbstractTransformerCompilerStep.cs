@@ -31,76 +31,57 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	public abstract class AbstractTransformerCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstTransformer, ICompilerStep
 	{
-		protected CompilerContext _context;
+		private CompilerContext _context;
 		
 		protected CompilerContext Context
 		{
-			get
-			{
-				return _context;
-			}
+			get { return _context; }
 		}
 		
 		protected BooCodeBuilder CodeBuilder
 		{
-			get
-			{
-				return _context.CodeBuilder;
-			}
+			get { return _context.CodeBuilder; }
 		}
 		
 		protected NameResolutionService NameResolutionService
 		{
-			get
-			{
-				return _context.NameResolutionService;
-			}
+			get { return _nameResolutionService; }
 		}
+
+		private EnvironmentProvision<NameResolutionService> _nameResolutionService;
 		
 		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
 		{
-			get
-			{
-				return _context.CompileUnit;
-			}
+			get { return _context.CompileUnit; }
 		}
 		
 		protected CompilerParameters Parameters
 		{
-			get
-			{
-				return _context.Parameters;
-			}
+			get { return _context.Parameters; }
 		}
 		
 		protected CompilerErrorCollection Errors
 		{
-			get
-			{
-				return _context.Errors;
-			}
+			get { return _context.Errors; }
 		}
 		
 		protected CompilerWarningCollection Warnings
 		{
-			get
-			{
-				return _context.Warnings;
-			}
+			get { return _context.Warnings; }
 		}
 		
 		protected TypeSystemServices TypeSystemServices
 		{
-			get
-			{
-				return _context.TypeSystemServices;
-			}
+			get { return _typeSystemServices; }
 		}
+
+		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
 
 		public override void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
 		{
@@ -136,10 +117,10 @@ namespace Boo.Lang.Compiler.Steps
 		public virtual void Initialize(CompilerContext context)
 		{
 			if (null == context)
-			{
 				throw new ArgumentNullException("context");
-			}
 			_context = context;
+			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
+			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 		}
 		
 		public abstract void Run();

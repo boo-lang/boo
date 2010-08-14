@@ -31,9 +31,9 @@ namespace Boo.Lang.Compiler.Steps
 	using System.IO;
 	using Boo.Lang.Compiler;
 	
-	public class PrintWarnings : AbstractCompilerComponent, ICompilerStep
+	public class PrintWarnings : AbstractCompilerStep
 	{
-		public void Run()
+		override public void Run()
 		{
 			foreach (CompilerWarning warning in Warnings)
 			{

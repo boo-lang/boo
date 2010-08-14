@@ -162,7 +162,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"generators-9.boo");
 		}
 		
-		[Ignore(" BOO-759 - generic generator methods are not supported")][Test]
+		[Ignore("BOO-759 - generic generator methods are not supported")][Test]
 		public void generic_generator_1()
 		{
 			RunCompilerTestCase(@"generic-generator-1.boo");

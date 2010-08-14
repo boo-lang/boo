@@ -63,9 +63,9 @@ namespace Boo.Lang.Compiler.Steps
 	using System.IO;
 	using Boo.Lang.Compiler;
 	
-	public class PrintErrors : AbstractCompilerComponent, ICompilerStep
+	public class PrintErrors : AbstractCompilerStep
 	{
-		public void Run()
+		override public void Run()
 		{
 			Print(OutputWriter, Errors);
 		}

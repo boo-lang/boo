@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -27,12 +27,11 @@
 #endregion
 
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Boo.Lang.Environments
 {
 	/// <summary>
-	/// Idiomatic access to environmental services.
+	/// Idiomatic access to the <see cref="ActiveEnvironment">active environment</see>.
 	/// 
 	/// <example>
 	/// <code>
@@ -43,14 +42,14 @@ namespace Boo.Lang.Environments
 	/// </code>
 	/// </example>
 	/// </summary>
-	/// <typeparam name="TNeed">The type of the requested service.</typeparam>
+	/// <typeparam name="TNeed">Type describing the code's need.</typeparam>
 	public static class My<TNeed> where TNeed : class
 	{
 		public static TNeed Instance
 		{
 			get
 			{
-                var environment = Environment.CurrentEnvironment;
+                var environment = ActiveEnvironment.Instance;
                 if (environment == null)
 					throw new InvalidOperationException("Environment is not available!");
 			    var need = environment.Provide<TNeed>();
@@ -60,50 +59,4 @@ namespace Boo.Lang.Environments
 			}
 		}
 	}
-
-    public interface IEnvironment
-    {
-        TNeed Provide<TNeed>() where TNeed : class;
-    }
-
-    public class ClosedEnvironment : IEnvironment
-    {
-        private readonly object[] _bindings;
-
-        public ClosedEnvironment(params object[] bindings)
-        {
-            _bindings = bindings;
-        }
-
-        public TNeed Provide<TNeed>() where TNeed : class
-        {
-            foreach (var binding in _bindings)
-                if (binding is TNeed)
-                    return (TNeed)binding;
-            return null;
-        }
-    }
-
-    [CompilerGlobalScope]
-    public static class Environment
-    {
-        public static IEnvironment CurrentEnvironment { get { return _currentEnvironment; } }
-
-        public static void With(IEnvironment environment, Action action)
-        {
-            var previous = _currentEnvironment;
-            try
-            {
-                _currentEnvironment = environment;
-                action(); 
-            }
-            finally
-            {
-                _currentEnvironment = previous;
-            }
-        }
-
-        [ThreadStatic]
-        private static IEnvironment _currentEnvironment;
-    }
 }

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -29,8 +29,9 @@
 
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
 using System;
+using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
@@ -151,14 +152,13 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void BindImport(Import import)
 		{
-			var context = CompilerContext.Current;
-			var previous = context.NameResolutionService.CurrentNamespace;
+			var previous = NameResolutionService.CurrentNamespace;
 			try
 			{
-				context.NameResolutionService.Reset();
+				NameResolutionService.Reset();
 
-				var namespaceBinder = new BindNamespaces();
-				namespaceBinder.Initialize(context);
+				var namespaceBinder = new ResolveImports();
+				namespaceBinder.Initialize(CompilerContext.Current);
 				import.Accept(namespaceBinder);
 			}
 			catch (Exception x)
@@ -167,8 +167,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			}
 			finally
 			{
-				context.NameResolutionService.EnterNamespace(previous);
+				NameResolutionService.EnterNamespace(previous);
 			}
 		}
+
+		NameResolutionService NameResolutionService
+		{
+			get { return _nameResolutionService; }
+		}
+
+		private EnvironmentProvision<NameResolutionService> _nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 	}
 }

@@ -324,6 +324,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void collection_initializer()
+		{
+			RunCompilerTestCase(@"collection-initializer.boo");
+		}
+		
+		[Test]
 		public void comments_1()
 		{
 			RunCompilerTestCase(@"comments-1.boo");
@@ -609,6 +615,12 @@ namespace Boo.Lang.Parser.Tests
 		public void hash_1()
 		{
 			RunCompilerTestCase(@"hash-1.boo");
+		}
+		
+		[Test]
+		public void hash_initializer()
+		{
+			RunCompilerTestCase(@"hash-initializer.boo");
 		}
 		
 		[Test]

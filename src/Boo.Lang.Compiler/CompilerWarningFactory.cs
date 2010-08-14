@@ -27,6 +27,7 @@
 #endregion
 
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
 

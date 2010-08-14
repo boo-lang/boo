@@ -20,8 +20,8 @@ namespace BooCompiler.Tests.TypeSystem.Core
 
 			Context.References.Add(typeof(Boo.Lang.List).Assembly);
 			Context.References.Add(typeof(Boo.Lang.Compiler.CompilerContext).Assembly);
-			
-			_subject = new GlobalNamespace(Context);
+
+			RunInCompilerContextEnvironment(() => _subject = My<GlobalNamespace>.Instance);
 		}
 
 		[Test]
@@ -39,7 +39,7 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void ResolveTopLevelNamespace()
 		{	
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
 			{
 				var booCompiler = (INamespace) NamespaceAssert.ResolveSingle(_subject, "Boo");
 				Assert.AreEqual(EntityType.Namespace, booCompiler.EntityType);
@@ -52,7 +52,7 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void ResolveNestedNamespace()
 		{
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
 			{
 				var booLang = (INamespace) ResolveQualifiedNameToSingle("Boo.Lang");
 				Assert.AreEqual(EntityType.Namespace, booLang.EntityType);
@@ -66,7 +66,7 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void ResolveSingleType()
 		{
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
 			{
 				AssertSingleTypeResolution(typeof(Boo.Lang.Builtins));
 				AssertSingleTypeResolution(typeof(Boo.Lang.Compiler.CompilerContext));
@@ -76,7 +76,7 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void ResolveAmbiguousGenericNonGenericType()
 		{
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
 			{
 				Set<IEntity> found = ResolveQualifiedName("Boo.Lang.List");
 				Assert.AreEqual(2, found.Count, found.ToString());
@@ -86,7 +86,7 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void ResolveSingleInternalType()
 		{
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
 			{
 				IType bazType = DefineInternalClass("Foo.Bar", "Baz");
 				AssertTypeResolution(bazType, "Foo.Bar.Baz");
@@ -96,13 +96,13 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void SingleEnumType()
 		{
-			Context.Run(() => AssertSingleTypeResolution(typeof (Boo.Lang.Compiler.Ast.TypeMemberModifiers)));
+			RunInCompilerContextEnvironment(() => AssertSingleTypeResolution(typeof (Boo.Lang.Compiler.Ast.TypeMemberModifiers)));
 		}
 
 		[Test]
 		public void SingleEnumTypeWithInternalModuleInSiblingNamespace()
 		{
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
 			{
 				IType fooType = DefineInternalClass("Boo.Lang.Compiler", "Foo");
 				AssertSingleTypeResolution(typeof(Boo.Lang.Compiler.Ast.TypeMemberModifiers));
@@ -113,7 +113,7 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void InternalTypeWithSameNameAsReferencedType()
 		{
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
 			{
 				Type subjectType = _subject.GetType();
 				IType internalType = DefineInternalClass(subjectType.Namespace, subjectType.Name);

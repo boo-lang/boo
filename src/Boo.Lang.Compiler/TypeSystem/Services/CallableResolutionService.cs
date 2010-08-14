@@ -59,11 +59,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 	    private DowncastPermissions _downcastPermissions;
 		readonly MemoizedFunction<IType, IType, int> _calculateArgumentScore;
 
-	    public CallableResolutionService(CompilerContext context)
+	    public CallableResolutionService() : base(CompilerContext.Current)
 	    {   
-	        Initialize(context);
 			_calculateArgumentScore = new MemoizedFunction<IType, IType, int>(CalculateArgumentScore);
-	    	context.Provide<CurrentScope>().Changed += (sender, args) => _calculateArgumentScore.Clear();
+	    	My<CurrentScope>.Instance.Changed += (sender, args) => _calculateArgumentScore.Clear();
 	    }
 
 	    protected Expression GetArgument(int index)
@@ -74,12 +73,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IList<Candidate> ValidCandidates
 		{
 			get { return _candidates; }
-		}
-
-		public override void Dispose()
-		{
-			_candidates.Clear();
-			base.Dispose();
 		}
 
 		public class Candidate : IEquatable<Candidate>
@@ -185,27 +178,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		static bool CanLoadAddress(Node node)
 		{
-			IEntity entity = node.Entity;
+			var entity = node.Entity;
 			
-			if (null == entity || node is SelfLiteralExpression)
+			if (entity == null || node is SelfLiteralExpression)
 				return true;
 
 			switch (entity.EntityType)
 			{
 				case EntityType.Local:
-				{
 					return !((InternalLocal)entity).IsPrivateScope;
-				}
-				
 				case EntityType.Parameter:
-				{
 					return true;
-				}
-				
 				case EntityType.Field:
-				{
 					return !TypeSystemServices.IsReadOnlyField((IField)entity);
-				}
 			}
 			return false;
 		}
@@ -305,12 +290,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			// Score each argument against a fixed parameter
 			for (int i = 0; i < fixedParams; i++)
-			{
 				if (candidate.Score(i) < 0)
-				{
 					return false;
-				}
-			}
 
 			// If method should be expanded, match remaining arguments against
 			// last parameter
@@ -318,12 +299,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				candidate.Expanded = true;
 				for (int i = fixedParams; i < _arguments.Count; i++)
-				{
 					if (candidate.ScoreVarArgs(i) < 0)
-					{
 						return false;
-					}
-				}
 			}
 
 			return true;
@@ -355,36 +332,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (c1 == c2) return 0;
 
 			int result = Math.Sign(TotalScore(c1) - TotalScore(c2));
-//			int result = 0;
-			/*
-			if (false)
-			{
-				for (int i = 0; i < _arguments.Count; i++)
-				{
-					// Compare methods based on their score for the current argument 
-					int better = Math.Sign(c1.ArgumentScores[i] - c2.ArgumentScores[i]);
-					if (better == 0) continue;
-
-					// If neither method has been selecteed yet, select one
-					// based on this argument
-					if (result == 0)
-					{
-						result = better;
-					}
-						// If this argument comparison is in conflict with previous selection,
-						// neither method is better
-					else if (result != better)
-					{
-						return 0;
-					}
-				}
-			}
-			*/
-			
-			if (result != 0)
-			{
-				return result;
-			}
+			if (result != 0) return result;
 
 			// Prefer methods declared on deeper types
 			result = 
@@ -403,14 +351,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// --- Tie breaking mode! ---
 
 			// Non-expanded methods are better than expanded ones
-			if (!c1.Expanded && c2.Expanded)
-			{
-				return 1;
-			}
-			else if (c1.Expanded && !c2.Expanded)
-			{
-				return -1;
-			}
+			if (!c1.Expanded && c2.Expanded) return 1;
+			if (c1.Expanded && !c2.Expanded) return -1;
 
 			// An expanded method with more fixed parameters is better
 			result = c1.Parameters.Length - c2.Parameters.Length;
@@ -440,20 +382,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 				// Skip parameters that are the same for both candidates
 				if (better == 0)
-				{
 					continue;
-				}
 
 				// Keep the first result that is not a tie
 				if (result == 0)
-				{
 					result = better;
-				}
 				// If a further result contradicts the initial result, neither candidate is more specific					
 				else if (result != better)
-				{
 					return 0;
-				}
 			}
 			return result;
 		}
@@ -463,21 +399,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Get the method this candidate represents, or its generic template
 			IMethod method = candidate.Method;
 			if (candidate.Method.DeclaringType.ConstructedInfo != null)
-			{
 				method = (IMethod)candidate.Method.DeclaringType.ConstructedInfo.UnMap(method);
-			}
 
 			if (candidate.Method.ConstructedInfo != null)
-			{
 				method = candidate.Method.ConstructedInfo.GenericDefinition;
-			}
 
 			// If the parameter is the varargs parameter, use its element type
 			IParameter[] parameters = method.GetParameters();
 			if (candidate.Expanded && position >= parameters.Length - 1)
-			{
 				return parameters[parameters.Length - 1].Type.ElementType;
-			}
 			
 			// Otherwise use the parameter's original type
 			return parameters[position].Type;
@@ -487,9 +417,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			// Dive into array types and ref types
 			if (t1.IsArray && t2.IsArray || t1.IsByRef && t2.IsByRef)
-			{
 				return MoreSpecific(t1.ElementType, t2.ElementType);
-			}
 
 			// The less-generic type is more specific
 			int result = GenericsServices.GetTypeGenerity(t2) - GenericsServices.GetTypeGenerity(t1);
@@ -501,8 +429,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void InferGenericMethods()
 		{
-			GenericsServices gs = Context.Provide<GenericsServices>();
-
+			var gs = Context.Provide<GenericsServices>();
 			foreach (Candidate candidate in _candidates)
 			{
 				if (candidate.Method.GenericInfo != null)

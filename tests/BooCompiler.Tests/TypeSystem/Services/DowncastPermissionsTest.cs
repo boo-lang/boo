@@ -1,33 +1,33 @@
-﻿using Boo.Lang.Compiler;
+﻿using System;
+using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 using NUnit.Framework;
-using Environment = Boo.Lang.Environments.Environment;
 
 namespace BooCompiler.Tests.TypeSystem.Services
 {
     [TestFixture]
     public class DowncastPermissionsTest
     {
-        class Base { }
-        class Derived : Base { }
+        class Base {}
+        class Derived : Base {}
         interface IInterface {}
 
         [Test]
         public void RegularDowncastAllowedByDefault()
         {
-            Environment.With(new CompilerContext(), () =>
-            {   
-                var subject = My<DowncastPermissions>.Instance;
-                Assert.IsTrue(subject.CanBeReachedByDowncast(ITypeFor<Derived>(), ITypeFor<Base>()));
-            });
+        	RunInCompilerContextEnvironment(() =>
+        	{   
+        		var subject1 = My<DowncastPermissions>.Instance;
+        		Assert.IsTrue(subject1.CanBeReachedByDowncast(ITypeFor<Derived>(), ITypeFor<Base>()));
+        	});
         }
 
-        [Test]
+    	[Test]
         public void InterfaceDowncastAllowedByDefault()
         {
-            Environment.With(new CompilerContext(), () =>
+			RunInCompilerContextEnvironment(() =>
             {
                 var subject = My<DowncastPermissions>.Instance;
                 Assert.IsTrue(subject.CanBeReachedByDowncast(ITypeFor<Derived>(), ITypeFor<IInterface>()));
@@ -37,7 +37,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
         [Test]
         public void InterfaceDowncastNotAllowedInStrictMode()
         {
-            Environment.With(new CompilerContext(), () =>
+			RunInCompilerContextEnvironment(() =>
             {
                 My<CompilerParameters>.Instance.Strict = true;
 
@@ -49,12 +49,17 @@ namespace BooCompiler.Tests.TypeSystem.Services
         [Test]
         public void ArrayDowncastIsNotAllowed()
         {
-            Environment.With(new CompilerContext(), () =>
+			RunInCompilerContextEnvironment(() =>
             {
                 var subject = My<DowncastPermissions>.Instance;
                 Assert.IsFalse(subject.CanBeReachedByDowncast(ITypeFor<string[]>(), ITypeFor<object[]>()));
             });
         }
+
+		private void RunInCompilerContextEnvironment(Action action)
+		{
+			new CompilerContext().Environment.Run(action);
+		}
 
         private static IType ITypeFor<T>()
         {

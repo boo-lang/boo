@@ -284,7 +284,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private void AddInternalFieldFor(InternalLocal entity)
 		{
-			Field field = _enumerator.AddInternalField(Context.GetUniqueName(entity.Name), entity.Type);
+			Field field = _enumerator.AddInternalField(UniqueName(entity.Name), entity.Type);
 			_mapping[entity] = field.Entity;
 		}
 
@@ -359,7 +359,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		                                                      string parameterName,
 		                                                      IType parameterType)
 		{
-			Field field = type.AddInternalField(Context.GetUniqueName(parameterName), parameterType);
+			Field field = type.AddInternalField(UniqueName(parameterName), parameterType);
 			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
 			return field;
 		}
@@ -430,7 +430,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private string UniqueName(string name)
 		{
-			return _context.GetUniqueName(name);
+			return Context.GetUniqueName(name);
 		}
 
 		protected TypeDefinition DeclaringTypeDefinition

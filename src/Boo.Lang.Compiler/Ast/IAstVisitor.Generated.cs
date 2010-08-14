@@ -113,6 +113,7 @@ namespace Boo.Lang.Compiler.Ast
 		void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node);
 		void OnHashLiteralExpression(HashLiteralExpression node);
 		void OnListLiteralExpression(ListLiteralExpression node);
+		void OnCollectionInitializationExpression(CollectionInitializationExpression node);
 		void OnArrayLiteralExpression(ArrayLiteralExpression node);
 		void OnGeneratorExpression(GeneratorExpression node);
 		void OnExtendedGeneratorExpression(ExtendedGeneratorExpression node);

@@ -11,7 +11,7 @@ a field named _context)
 	case [| test $name |]:
 		yield [|
 			[Test] def $name():
-				_context.Run:
+				_context.Environment.Run:
 					$(test.Body)
 		|]
 

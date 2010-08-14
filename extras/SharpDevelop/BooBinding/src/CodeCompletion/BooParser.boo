@@ -89,10 +89,10 @@ class BooParser(IParser):
 	private def Parse(fileName as string, lineLength as (int), compiler as BooCompiler):
 		compiler.Parameters.OutputWriter = StringWriter()
 		compiler.Parameters.TraceSwitch.Level = TraceLevel.Warning;
+		compiler.Parameters.Environment = ClosedEnvironment(Boo.Lang.Parser.ParserSettings(TabSize: 1))
 		
 		compilePipe = Compile()
-		parsingStep as Boo.Lang.Parser.BooParsingStep = compilePipe[0]
-		parsingStep.TabSize = 1
+		
 		num = compilePipe.Find(typeof(ProcessMethodBodiesWithDuckTyping))
 		visitor = Visitor(LineLength:lineLength)
 		visitor.Cu.FileName = fileName

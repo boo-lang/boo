@@ -1,4 +1,4 @@
-﻿namespace Boo.Lang.Compiler
+﻿namespace Boo.Lang.Compiler.Services
 {
 	public class LanguageAmbiance
 	{
@@ -42,7 +42,7 @@
 			get { return "raise"; }
 		}
 
-		public string CallableKeyword
+		public virtual string CallableKeyword
 		{
 			get { return "callable"; }
 		}

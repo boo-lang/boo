@@ -17,7 +17,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		public override void SetUp()
 		{
 			base.SetUp();
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{	
 				_subject = My<InternalTypeSystemProvider>.Instance.EntityFor(Context.CompileUnit);
 			});
@@ -26,7 +26,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void EmptyCompileUnitHasNoMembers()
 		{
-			Context.Run(() => Assert.IsTrue(IsEmpty(_subject.RootNamespace.GetMembers())));
+			RunInCompilerContextEnvironment(() => Assert.IsTrue(IsEmpty(_subject.RootNamespace.GetMembers())));
 		}
 
 		private static bool IsEmpty(IEnumerable<IEntity> source)
@@ -37,14 +37,14 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void ParentNamespaceIsTheGlobalNamespace()
 		{
-			Context.Run(
+			RunInCompilerContextEnvironment(
 				() => Assert.AreSame(My<NameResolutionService>.Instance.GlobalNamespace, _subject.RootNamespace.ParentNamespace));
 		}
 
 		[Test]
 		public void SingleTypeResolutionForNamespaceWithTwoComponents()
 		{
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{
 				IType bazType = DefineInternalClass("Foo.Bar", "Baz");
 				Assert.AreSame(bazType, NamespaceAssert.ResolveQualifiedNameToSingle(_subject.RootNamespace, bazType.FullName));
@@ -54,7 +54,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void SingleTypeResolutionForNamespaceWithThreeComponents()
 		{
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{
 				IType bazType = DefineInternalClass("Foo.Bar.Zeng", "Baz");
 				Assert.AreSame(bazType, NamespaceAssert.ResolveQualifiedNameToSingle(_subject.RootNamespace, bazType.FullName));
@@ -64,7 +64,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void SingleTypeResolutionForSimpleNamespace()
 		{
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{
 				IType bazType = DefineInternalClass("Foo", "Baz");
 				Assert.AreSame(bazType, NamespaceAssert.ResolveQualifiedNameToSingle(_subject.RootNamespace, bazType.FullName));
@@ -74,7 +74,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void SingleTypeResolutionNoNamespace()
 		{
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{
 				IType bazType = DefineInternalClass("", "Baz");
 				Assert.AreEqual("Baz", bazType.FullName);
@@ -85,7 +85,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void SingleTypeResolutionAgainstTwoModules()
 		{
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{
 				IType bazType = DefineInternalClass("Foo.Bar", "Baz");
 				IType eggsType = DefineInternalClass("Spam", "Eggs");
@@ -97,7 +97,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void ModuleNamespace()
 		{
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{
 				DefineInternalClass("Foo", "Bar");
 				IEntity entity = NamespaceAssert.ResolveSingle(_subject.RootNamespace, "Foo");
@@ -108,7 +108,7 @@ namespace BooCompiler.Tests.TypeSystem.Internal
 		[Test]
 		public void ModuleNamespaceParent()
 		{
-			Context.Run(() =>
+			RunInCompilerContextEnvironment(() =>
 			{
 				DefineInternalClass("Foo.Bar", "Baz");
 

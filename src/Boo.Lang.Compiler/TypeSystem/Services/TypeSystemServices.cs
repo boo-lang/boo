@@ -129,7 +129,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private readonly AnonymousCallablesManager _anonymousCallablesManager;
 		private readonly CompilerContext _context;
 
-		public TypeSystemServices() : this(new CompilerContext())
+		public TypeSystemServices() : this(CompilerContext.Current)
 		{
 		}
 
@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_findExplicitConversionOperator =
 				new MemoizedFunction<IType, IType, IMethod>((fromType, toType) => FindConversionOperator("op_Explicit", fromType, toType));
 
-			context.Provide<CurrentScope>().Changed += (sender, args) => ClearScopeDependentMemoizedFunctions();
+			My<CurrentScope>.Instance.Changed += (sender, args) => ClearScopeDependentMemoizedFunctions();
 
 			_canBeReachedByPromotion = new MemoizedFunction<IType, IType, bool>(CanBeReachedByPromotionImpl);
 
@@ -630,7 +630,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IEntity[] FindExtension(IType fromType, string name)
 		{
-			IEntity extension = Context.NameResolutionService.ResolveExtension(fromType, name);
+			IEntity extension = NameResolutionService.ResolveExtension(fromType, name);
 			if (null == extension) return Ambiguous.NoEntities;
 
 			var a = extension as Ambiguous;
@@ -640,10 +640,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IMethod FindConversionOperator(string name, IType fromType, IType toType, IEnumerable<IEntity> candidates)
 		{
-			foreach (IMethod method in _context.NameResolutionService.Select<IMethod>(candidates, name, EntityType.Method))
+			foreach (IMethod method in NameResolutionService.Select<IMethod>(candidates, name, EntityType.Method))
 				if (IsConversionOperator(method, fromType, toType)) return method;
 			return null;
 		}
+
+		protected NameResolutionService NameResolutionService
+		{
+			get { return _nameResolutionService; }
+		}
+
+		EnvironmentProvision<NameResolutionService> _nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 
 		private static bool IsConversionOperator(IMethod method, IType fromType, IType toType)
 		{

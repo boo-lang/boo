@@ -213,6 +213,7 @@
     <Compile Include="CodeFactory.cs" />
     <Compile Include="DocStringFormatter.cs" />
     <Compile Include="OperatorParser.cs" />
+    <Compile Include="ParserSettings.cs" />
     <Compile Include="PrimitiveParser.cs" />
     <Compile Include="SourceLocationFactory.cs" />
     <Compile Include="Util\IndentTokenStreamFilter.cs" />

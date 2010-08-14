@@ -51,6 +51,10 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq, Version=3.1.416.3, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\moq-3.1.416.3\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <Package>mono-nunit</Package>
     </Reference>
@@ -63,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractDispatcherFactoryTestCase.cs" />
+    <Compile Include="Environments\CachingEnvironmentTest.cs" />
+    <Compile Include="Environments\DeferredEnvironmentTest.cs" />
+    <Compile Include="Environments\EnvironmentProvisionTest.cs" />
     <Compile Include="MethodDispatcherFactoryTestCase.cs" />
     <Compile Include="MethodsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -62,6 +62,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void collection_initializer()
+		{
+			RunCompilerTestCase(@"collection-initializer.boo");
+		}
+		
+		[Test]
 		public void enum0()
 		{
 			RunCompilerTestCase(@"enum0.boo");
@@ -143,6 +149,12 @@ namespace BooCompiler.Tests
 		public void for_2()
 		{
 			RunCompilerTestCase(@"for-2.boo");
+		}
+		
+		[Test]
+		public void hash_initializer()
+		{
+			RunCompilerTestCase(@"hash-initializer.boo");
 		}
 		
 		[Test]

@@ -767,29 +767,18 @@ namespace BooC
 		private void ConfigurePipeline()
 		{
 			if (null != _pipelineName)
-			{
 				_options.Pipeline = CompilerPipeline.GetPipeline(_pipelineName);
-			}
 			else
-			{
 				_options.Pipeline = new CompileToFile();
-			}			
-			if (_whiteSpaceAgnostic)
-			{
-				_options.Pipeline[0] = new Boo.Lang.Parser.WSABooParsingStep();
-			}
+			
 			if (_debugSteps)
-			{
 				_options.Pipeline.AfterStep += new CompilerStepEventHandler(new StepDebugger().AfterStep);
-			}
 		}
 		
 		private string StripQuotes(string s)
 		{
 			if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\""))
-			{
 				return s.Substring(1,s.Length-2);
-			}
 			return s;
 		}
 		

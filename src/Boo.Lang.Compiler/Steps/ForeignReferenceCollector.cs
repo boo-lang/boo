@@ -31,18 +31,16 @@ using System.Linq;
 using Boo.Lang;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ForeignReferenceCollector : DepthFirstVisitor, IDisposable, ICompilerComponent
+	public class ForeignReferenceCollector : DepthFirstVisitor
 	{
-		Node _sourceNode;
-		
 		IType _currentType;
-		
-		Method _currentMethod;
 		
 		List _references;
 
@@ -52,8 +50,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		SelfEntity _selfEntity;
 		
-		CompilerContext _context;
-		
 		public ForeignReferenceCollector()
 		{
 			_references = new List();
@@ -61,63 +57,30 @@ namespace Boo.Lang.Compiler.Steps
 			_referencedEntities = new Hash();
 		}
 		
-		public Node SourceNode
-		{
-			get
-			{
-				return _sourceNode;
-			}
-			
-			set
-			{
-				_sourceNode = value;
-			}
-		}
-		
-		public Method CurrentMethod
-		{
-			get
-			{
-				return _currentMethod;
-			}
-			
-			set
-			{
-				_currentMethod = value;
-			}
-		}
+		public Node SourceNode { get; set; }
+
+		public Method CurrentMethod { get; set; }
 		
 		public IType CurrentType
 		{
-			get
-			{
-				return _currentType;
-			}
+			get { return _currentType; }
 			
 			set
 			{
 				_currentType = value;
 				if (null != _selfEntity)
-				{
 					_selfEntity.Type = value;
-				}
 			}
 		}
 		
 		public List References
 		{
-			get
-			{
-				return _references;
-			}
+			get { return _references; }
 		}
 		
 		public Hash ReferencedEntities
 		{
-			get
-			{
-				return _referencedEntities;
-			}
+			get { return _referencedEntities; }
 		}
 		
 		public bool ContainsForeignLocalReferences
@@ -126,12 +89,9 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				foreach (IEntity entity in _referencedEntities.Keys)
 				{
-					EntityType type = entity.EntityType;
-					if (EntityType.Local == type ||
-						EntityType.Parameter == type)
-					{
+					var entityType = entity.EntityType;
+					if (entityType == EntityType.Local || entityType == EntityType.Parameter)
 						return true;
-					}
 				}
 				return false;
 			}
@@ -139,42 +99,19 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected IEntity GetSelfEntity()
 		{
-			if (null == _selfEntity)
-			{
-				_selfEntity = new SelfEntity("this", CurrentType);
-			}
-			return _selfEntity;
+			return _selfEntity ?? (_selfEntity = new SelfEntity("this", CurrentType));
 		}
-		
+
 		protected BooCodeBuilder CodeBuilder
 		{
-			get
-			{
-				return _context.CodeBuilder;
-			}
+			get { return _codeBuilder; }
 		}
-		
-		public void Initialize(CompilerContext context)
-		{
-			if (null == _currentType)
-			{
-				throw new InvalidOperationException("CurrentType was not properly initialized!");
-			}
-			_context = context;
-		}
-		
-		public void Dispose()
-		{
-			_context = null;
-			_currentMethod = null;
-			_selfEntity = null;
-			_references.Clear();
-			_referencedEntities.Clear();
-		}
+
+		private EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
 		
 		public BooClassBuilder CreateSkeletonClass(string name, LexicalInfo lexicalInfo)
 		{
-			BooClassBuilder builder = CodeBuilder.CreateClass(name);
+			var builder = CodeBuilder.CreateClass(name);
 			builder.Modifiers |= TypeMemberModifiers.Internal;
 			builder.LexicalInfo = lexicalInfo;
 			
@@ -188,7 +125,7 @@ namespace Boo.Lang.Compiler.Steps
 			// referenced entities turn into fields
 			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
 			{
-				Field field = builder.AddInternalField(_context.GetUniqueName(entity.Name), entity.Type);
+				Field field = builder.AddInternalField(GetUniqueName(entity.Name), entity.Type);
 				_referencedEntities[entity] = field.Entity;
 			}
 
@@ -205,17 +142,21 @@ namespace Boo.Lang.Compiler.Steps
 									CodeBuilder.CreateReference(parameter)));
 			}
 		}
-		
+
+		private string GetUniqueName(string name)
+		{
+			return _uniqueNameProvider.Instance.GetUniqueName(name);
+		}
+
+		private EnvironmentProvision<UniqueNameProvider> _uniqueNameProvider;
+
 		public void AdjustReferences()
 		{
 			foreach (Expression reference in _references)
 			{
-				InternalField entity = (InternalField)_referencedEntities[reference.Entity];
+				var entity = (InternalField)_referencedEntities[reference.Entity];
 				if (null != entity)
-				{
-					reference.ParentNode.Replace(reference,
-							CodeBuilder.CreateReference(entity));
-				}
+					reference.ParentNode.Replace(reference, CodeBuilder.CreateReference(entity));
 			}
 
 			foreach (ReferenceExpression reference in _recursiveReferences)
@@ -246,13 +187,9 @@ namespace Boo.Lang.Compiler.Steps
 		public override void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			if (IsRecursiveReference(node))
-			{
 				_recursiveReferences.Add(node);
-			}
 			else
-			{
 				Visit(node.Target);
-			}
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -266,7 +203,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
-			IEntity entity = GetSelfEntity();
+			var entity = GetSelfEntity();
 			node.Entity = entity;
 			_references.Add(node);
 			_referencedEntities[entity] = null;
@@ -279,20 +216,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		bool IsForeignReference(ReferenceExpression node)
 		{
-			IEntity entity = node.Entity;
+			var entity = node.Entity;
 			if (null != entity)
 			{
-				EntityType type = entity.EntityType;
+				var type = entity.EntityType;
 				if (type == EntityType.Local)
-				{
-					return null == _currentMethod ||
-						!_currentMethod.Locals.ContainsEntity(entity);
-				}
-				else if (type == EntityType.Parameter)
-				{
-					return null == _currentMethod ||
-						!_currentMethod.Parameters.ContainsEntity(entity);
-				}
+					return null == CurrentMethod || !CurrentMethod.Locals.ContainsEntity(entity);
+				if (type == EntityType.Parameter)
+					return null == CurrentMethod || !CurrentMethod.Parameters.ContainsEntity(entity);
 			}
 			return false;
 		}

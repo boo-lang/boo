@@ -120,7 +120,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public BooClassBuilder CreateClass(string name)
 		{
-			return new BooClassBuilder(Context, name);
+			return new BooClassBuilder(name);
 		}
 
 		public BooClassBuilder CreateClass(string name, TypeMemberModifiers modifiers)
@@ -954,14 +954,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new RaiseStatement(lexicalInfo, CreateConstructorInvocation(lexicalInfo, exceptionConstructor, args));
 		}
 
-		public string CreateTempName()
-		{
-			return Context.GetUniqueName();
-		}
-
 		public InternalLocal DeclareTempLocal(Method node, IType type)
 		{
-			InternalLocal local = DeclareLocal(node, CreateTempName(), type);
+			InternalLocal local = DeclareLocal(node, Context.GetUniqueName(), type);
 			local.IsPrivateScope = true;
 			return local;
 		}

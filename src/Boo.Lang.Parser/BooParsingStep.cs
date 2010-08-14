@@ -30,32 +30,23 @@ using System;
 using antlr;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Parser
 {
 	/// <summary>
 	/// Step 1. Parses any input fed to the compiler.
+	/// 
+	/// Parsing behaviour can be customized by providing a specific <see cref="ParserSettings"/> instance through
+	/// <see cref="CompilerParameters.Environment" />.
 	/// </summary>
 	public class BooParsingStep : ICompilerStep
 	{
 		CompilerContext _context;
 		
-		int _tabSize = BooParser.DefaultTabSize;
-		
 		protected CompilerContext Context
 		{
 			get { return _context; }
-		}
-		
-		public int TabSize
-		{
-			get { return _tabSize; }
-			
-			set
-			{
-				if (value < 1) throw new ArgumentOutOfRangeException("TabSize");
-				_tabSize = value;
-			}
 		}
 		
 		public void Initialize(CompilerContext context)
@@ -68,18 +59,19 @@ namespace Boo.Lang.Parser
 			_context = null;
 		}
 
+		protected int TabSize
+		{
+			get { return My<ParserSettings>.Instance.TabSize;  }
+		}
+
 		public void Run()
-		{		
-			ParserErrorHandler errorHandler = OnParserError;
-				
-			foreach (ICompilerInput input in _context.Parameters.Input)
+		{
+			foreach (var input in _context.Parameters.Input)
 			{
 				try
 				{
-					using (System.IO.TextReader reader = input.Open())
-					{
-						ParseModule(input.Name, reader, errorHandler);
-					}
+					using (var reader = input.Open())
+						ParseModule(input.Name, reader, OnParserError);
 				}				
 				catch (CompilerError error)
 				{
@@ -98,22 +90,17 @@ namespace Boo.Lang.Parser
 		
 		protected virtual void ParseModule(string inputName, System.IO.TextReader reader, ParserErrorHandler errorHandler)
 		{
-			BooParser.ParseModule(_tabSize, _context.CompileUnit, inputName, reader, errorHandler); 
+			BooParser.ParseModule(TabSize, _context.CompileUnit, inputName, reader, errorHandler); 
 		}
 
 		void OnParserError(antlr.RecognitionException error)
 		{			
-			LexicalInfo data = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn());
-
-			antlr.NoViableAltException nvae = error as antlr.NoViableAltException;
+			var location = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn());
+			var nvae = error as antlr.NoViableAltException;
 			if (null != nvae)
-			{
-				ParserError(data, nvae);
-			}
+				ParserError(location, nvae);
 			else
-			{
-				GenericParserError(data, error);
-			}
+				GenericParserError(location, error);
 		}
 
 		private void GenericParserError(LexicalInfo data, RecognitionException error)

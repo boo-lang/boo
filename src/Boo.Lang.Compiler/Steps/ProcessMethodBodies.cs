@@ -83,7 +83,7 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = new Stack();
 			_memberStack = new Stack();
-            _downcastPermissions = Context.Provide<DowncastPermissions>();
+			_callableResolutionService = new EnvironmentProvision<CallableResolutionService>();
 
 			InitializeMemberCache();
 
@@ -92,8 +92,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected CallableResolutionService CallableResolutionService
 		{
-			get { return Context.GetService<CallableResolutionService>(); }
+			get { return _callableResolutionService; }
 		}
+
+		private EnvironmentProvision<CallableResolutionService> _callableResolutionService;
 
 		protected IMethod ResolveMethod(IType type, string name)
 		{
@@ -4419,7 +4421,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IType[] inferredTypeArguments = inferrer.GetInferredTypes();
-			if (!Context.GetService<GenericsServices>().CheckGenericConstruction(node, targetMethod, inferredTypeArguments, true))
+			if (!_genericServices.Instance.CheckGenericConstruction(node, targetMethod, inferredTypeArguments, true))
 			{
 				Error(node);
 				return null;
@@ -4431,6 +4433,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			return constructedMethod;
 		}
+
+		private EnvironmentProvision<GenericsServices> _genericServices;
 
 		private void CannotInferGenericMethodArguments(Expression node, IMethod genericMethod)
 		{
@@ -6607,16 +6611,10 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		Dictionary<string, IMethodBase> _methodCache;
-	    private DowncastPermissions _downcastPermissions;
-
+	    
 		IMethod CachedMethod(string key, Func<MethodInfo> producer)
 		{
 			return (IMethod)CachedMethodBase(key, () => TypeSystemServices.Map(producer()));
-		}
-
-		IMethod CachedMethod(string key, Func<IMethodBase> producer)
-		{
-			return (IMethod)CachedMethodBase(key, producer);
 		}
 
 		IConstructor CachedConstructor(string key, Func<IMethodBase> producer)

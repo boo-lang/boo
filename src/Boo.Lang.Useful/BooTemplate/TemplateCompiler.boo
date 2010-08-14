@@ -50,13 +50,11 @@ class TemplateCompiler:
 		compiler.Parameters.Input.Add(input)
 		compiler.Parameters.OutputType = CompilerOutputType.Library
 		compiler.Parameters.References.Add(typeof(Ast.Node).Assembly)
+		compiler.Parameters.WhiteSpaceAgnostic = true
 		
 		pipeline = Pipelines.CompileToMemory()
-		pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
 		pipeline.Insert(0, TemplatePreProcessor())
-		pipeline.InsertAfter(
-				Steps.InitializeTypeSystemServices,
-				ApplyTemplateSemantics(self))
+		pipeline.InsertAfter(Steps.PreErrorChecking, ApplyTemplateSemantics(self))
 		compiler.Parameters.Pipeline = pipeline
 		
 		return compiler.Run()

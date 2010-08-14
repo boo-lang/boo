@@ -62,7 +62,7 @@ class CallableSignatureFixture:
 	[SetUp]
 	def SetUp():
 		_context = CompilerContext()
-		_context.Run:
+		_context.Environment.Run:
 			_services = my(TypeSystemServices)
 			_signature1 = CallableSignature(GetMethod("NoArgsAsVoid"))
 			_signature2 = CallableSignature(GetMethod("NoArgsAsInt"))

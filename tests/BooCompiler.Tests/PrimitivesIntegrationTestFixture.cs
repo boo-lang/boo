@@ -96,7 +96,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"hex-2.boo");
 		}
 		
-		[Ignore(" implicit casts for comparison operators still not implemented")][Test]
+		[Ignore("implicit casts for comparison operators still not implemented")][Test]
 		public void implicit_casts_1()
 		{
 			RunCompilerTestCase(@"implicit-casts-1.boo");

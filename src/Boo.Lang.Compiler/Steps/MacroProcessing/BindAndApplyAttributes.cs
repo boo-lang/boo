@@ -72,10 +72,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				if (null != aa)
 				{
 					aa.Initialize(_context);
-					using (aa)
-					{
-						aa.Apply(_targetNode);
-					}
+					aa.Apply(_targetNode);
 				}
 			}
 			catch (Exception x)
@@ -355,7 +352,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		void ScheduleAttributeApplication(Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
 		{
-			_tasks.Add(new ApplyAttributeTask(_context, attribute, type));
+			_tasks.Add(new ApplyAttributeTask(Context, attribute, type));
 		}
 
 		string BuildAttributeName(string name, bool forcePascalNaming)

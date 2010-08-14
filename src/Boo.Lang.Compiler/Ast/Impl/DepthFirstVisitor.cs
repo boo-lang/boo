@@ -1451,6 +1451,28 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		{				
+			if (EnterCollectionInitializationExpression(node))
+			{
+				Visit(node.Collection);
+				Visit(node.Initializer);
+				LeaveCollectionInitializationExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnArrayLiteralExpression(Boo.Lang.Compiler.Ast.ArrayLiteralExpression node)
 		{				
 			if (EnterArrayLiteralExpression(node))

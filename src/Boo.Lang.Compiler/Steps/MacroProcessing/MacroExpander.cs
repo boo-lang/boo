@@ -365,17 +365,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private Statement ExpandMacro(Type macroType, MacroStatement node)
 		{
-			using (IAstMacro macro = (IAstMacro) Activator.CreateInstance(macroType))
-			{
-				macro.Initialize(_context);
+			var macro = (IAstMacro) Activator.CreateInstance(macroType);
+			macro.Initialize(Context);
 
-				//use new-style BOO-1077 generator macro interface if available
-				IAstGeneratorMacro gm = macro as IAstGeneratorMacro;
-				if (null != gm)
-					return ExpandGeneratorMacro(gm, node);
+			//use new-style BOO-1077 generator macro interface if available
+			var gm = macro as IAstGeneratorMacro;
+			if (null != gm)
+				return ExpandGeneratorMacro(gm, node);
 
-				return macro.Expand(node);
-			}
+			return macro.Expand(node);
 		}
 
 		private Statement ExpandGeneratorMacro(IAstGeneratorMacro macroType, MacroStatement node)

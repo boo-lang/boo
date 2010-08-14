@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,51 +26,22 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Ast
 {
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-
-	public class NormalizeOmittedExpressions : AbstractTransformerCompilerStep
+	public partial class CollectionInitializationExpression
 	{
-		Method _current;
-
-		override public void Run()
+		public CollectionInitializationExpression()
 		{
-			Visit(CompileUnit);
 		}
 
-		override public void OnMethod(Method node)
+		public CollectionInitializationExpression(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
-			_current = node;
-			Visit(node.Body);
 		}
 
-		override public void OnConstructor(Constructor node)
+		public CollectionInitializationExpression(Expression collection, Expression initializer) : base(collection.LexicalInfo)
 		{
-			OnMethod(node);
-		}
-
-		override public void OnDestructor(Destructor node)
-		{
-			OnMethod(node);
-		}
-
-		override public void OnBlockExpression(BlockExpression node)
-		{
-			// ignore closure's body since it will be visited
-			// through the closure's newly created method
-		}
-
-		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
-		{
-			if (node.Target.NodeType != NodeType.OmittedExpression)
-				return;
-
-			if (_current.IsStatic)
-				node.Target = new ReferenceExpression(node.Target.LexicalInfo, _current.DeclaringType.Name);
-			else
-				node.Target = new SelfLiteralExpression(node.Target.LexicalInfo);
+			Collection = collection;
+			Initializer = initializer;
 		}
 	}
 }

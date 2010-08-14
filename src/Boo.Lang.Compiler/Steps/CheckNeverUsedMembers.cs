@@ -45,17 +45,16 @@ namespace Boo.Lang.Compiler.Steps
 			if (module.ContainsAnnotation("merged-module"))
 				return;
 
+			var moduleNamespace = module.EnclosingNamespace != null ? module.EnclosingNamespace.Name : string.Empty;
 			foreach (Import import in module.Imports)
 			{
-				//do not be pedantic about System, the corlib is to be ref'ed anyway
-				if (ImportAnnotations.IsUsedImport(import) || import.Namespace == "System")
+				if (import.Entity == Error.Default)
 					continue;
-				if (null == module.EnclosingNamespace
-					|| module.EnclosingNamespace.Name != import.Namespace)
-				{
-					Warnings.Add(
-						CompilerWarningFactory.NamespaceNeverUsed(import) );
-				}
+
+				//do not be pedantic about System, the corlib is to be ref'ed anyway
+				if (ImportAnnotations.IsUsedImport(import) || import.Namespace == moduleNamespace || import.Namespace == "System")
+					continue;
+				Warnings.Add(CompilerWarningFactory.NamespaceNeverUsed(import) );
 			}
 		}
 

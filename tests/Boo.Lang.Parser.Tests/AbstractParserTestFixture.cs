@@ -16,7 +16,7 @@ namespace Boo.Lang.Parser.Tests
 		{
 			_compiler = new Boo.Lang.Compiler.BooCompiler();
 			_compiler.Parameters.OutputWriter = new StringWriter();
-			_compiler.Parameters.Pipeline = CreatePipeline();			
+			_compiler.Parameters.Pipeline = CreatePipeline();
 		}
 		
 		protected virtual Boo.Lang.Compiler.CompilerPipeline CreatePipeline()

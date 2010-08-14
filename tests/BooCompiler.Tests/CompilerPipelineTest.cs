@@ -34,67 +34,22 @@ namespace BooCompiler.Tests
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 
-	public class DummyStep : ICompilerStep
-	{		
-		int _runCount = 0;
-		
-		public void Initialize(CompilerContext context)
-		{			
-		}
-
-		public void Run()
-		{
-			++_runCount;
-		}
-		
-		public void Dispose()
-		{			
-		}
-
-		public int RunCount
-		{
-			get
-			{
-				return _runCount;
-			}
-		}
-	}
-
-	public class DummyStep2 : DummyStep
-	{
-	}
-	
-	public class DummyStep3 : DummyStep
-	{
-	}
-	
-	public class DummyStep4 : DummyStep
-	{
-	}
-
 	/// <summary>	
 	/// </summary>
 	[TestFixture]
 	public class CompilerPipelineTest
 	{	
-		CompilerPipeline _pipeline;
-
-		[SetUp]
-		public void SetUp()
-		{
-			_pipeline = new CompilerPipeline();			
-		}
-
 		[Test]
-		public void TestEventSequence()
+		public void EventSequence()
 		{
 			var calls = new List<string>();
-			_pipeline.Before += delegate { calls.Add("before"); };
-			_pipeline.BeforeStep += delegate { calls.Add("before step"); };
-			_pipeline.Add(new ActionStep(delegate { calls.Add("step"); }));
-			_pipeline.AfterStep += delegate { calls.Add("after step"); };
-			_pipeline.After += delegate { calls.Add("after"); };
-			_pipeline.Run(new CompilerContext());
+			var pipeline = new CompilerPipeline();
+			pipeline.Before += delegate { calls.Add("before"); };
+			pipeline.BeforeStep += delegate { calls.Add("before step"); };
+			pipeline.Add(new ActionStep(() => calls.Add("step")));
+			pipeline.AfterStep += delegate { calls.Add("after step"); };
+			pipeline.After += delegate { calls.Add("after"); };
+			pipeline.Run(new CompilerContext());
 			Assert.AreEqual(
 				new string[] {"before", "before step", "step", "after step", "after"},
 				calls.ToArray());
@@ -103,20 +58,22 @@ namespace BooCompiler.Tests
 		[Test]
 		public void CurrentStep()
 		{
-			var step1 = new DummyStep();
-			_pipeline.Add(step1);
+			var pipeline = new CompilerPipeline();
+
+			var step1 = new ActionStep(delegate {});
+			pipeline.Add(step1);
 
 			ActionStep step2 = null;
-			step2 = new ActionStep(() => Assert.AreSame(step2, _pipeline.CurrentStep));
-			_pipeline.Add(step2);
+			step2 = new ActionStep(() => Assert.AreSame(step2, pipeline.CurrentStep));
+			pipeline.Add(step2);
 
 			var currentSteps = new List();
-			_pipeline.Before += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
-			_pipeline.BeforeStep += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
-			_pipeline.AfterStep += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
-			_pipeline.After += (sender, args) => currentSteps.Add(_pipeline.CurrentStep);
+			pipeline.Before += (sender, args) => currentSteps.Add(pipeline.CurrentStep);
+			pipeline.BeforeStep += (sender, args) => currentSteps.Add(pipeline.CurrentStep);
+			pipeline.AfterStep += (sender, args) => currentSteps.Add(pipeline.CurrentStep);
+			pipeline.After += (sender, args) => currentSteps.Add(pipeline.CurrentStep);
 
-			_pipeline.Run(new CompilerContext());
+			pipeline.Run(new CompilerContext());
 
 			Assert.AreEqual(
 				new object[] { null, step1, step1, step2, step2, null },
@@ -124,42 +81,22 @@ namespace BooCompiler.Tests
 		}
 
 		[Test]
-		public void TestConstructor()
+		public void PipelineIsEmptyByDefault()
 		{
-			Assert.AreEqual(0, _pipeline.Count);
+			Assert.AreEqual(0, new CompilerPipeline().Count);
 		}
 
 		[Test]
-		public void TestAdd()
+		public void ExecutionOrder()
 		{
-			DummyStep p = new DummyStep();			
-			_pipeline.Add(p);
-			Assert.AreEqual(1, _pipeline.Count);
-		}
+			var order = new List<string>();
+			var p1 = new ActionStep(() => order.Add("p1"));
+			var p2 = new ActionStep(() => order.Add("p2"));
 
-		[Test]
-		public void TestRun()
-		{
-			DummyStep p1 = new DummyStep();		
-			DummyStep p2 = new DummyStep();
+			var pipeline = new CompilerPipeline { p1, p2 };
+			pipeline.Run(new CompilerContext());
 
-			_pipeline.Add(p1);
-			_pipeline.Add(p2);
-
-			Assert.AreEqual(0, p1.RunCount);
-			Assert.AreEqual(0, p2.RunCount);
-			_pipeline.Run(new CompilerContext(new CompilerParameters(), new Boo.Lang.Compiler.Ast.CompileUnit()));
-			Assert.AreEqual(1, p1.RunCount);
-			Assert.AreEqual(1, p2.RunCount);
-		}
-		
-		void AssertPipeline(params ICompilerStep[] expected)
-		{
-			Assert.AreEqual(expected.Length, _pipeline.Count);
-			for (int i=0; i<expected.Length; ++i)
-			{
-				Assert.AreSame(expected[i], _pipeline[i]);
-			}
+			Assert.AreEqual(new[] { "p1", "p2" }, order.ToArray());
 		}
 	}
 }

@@ -778,9 +778,24 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnListLiteralExpression(ListLiteralExpression node)
 		{
-			Write("[");
-			WriteCommaSeparatedList(node.Items);
-			Write("]");
+			WriteDelimitedCommaSeparatedList("[", node.Items, "]");
+		}
+
+		private void WriteDelimitedCommaSeparatedList(string opening, IEnumerable<Expression> list, string closing)
+		{
+			Write(opening);
+			WriteCommaSeparatedList(list);
+			Write(closing);
+		}
+
+		public override void OnCollectionInitializationExpression(CollectionInitializationExpression node)
+		{
+			Visit(node.Collection);
+			Write(" ");
+			if (node.Initializer is ListLiteralExpression)
+				WriteDelimitedCommaSeparatedList("{ ", ((ListLiteralExpression) node.Initializer).Items, " }");
+			else
+				Visit(node.Initializer);
 		}
 		
 		override public void OnGeneratorExpression(GeneratorExpression node)

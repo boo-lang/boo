@@ -10,7 +10,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 		[Test]
 		public void ImplicitConversionFromNullableToValue()
 		{
-			Context.Run(delegate
+			RunInCompilerContextEnvironment(delegate
         	{
         		var typeSystemServices = My<TypeSystemServices>.Instance;
         		var nullableDouble = typeSystemServices.Map(typeof(double?));

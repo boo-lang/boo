@@ -32,6 +32,7 @@ import System
 import System.Collections.Generic
 import System.Linq.Enumerable
 import Boo.Lang
+import Boo.Lang.Environments
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
@@ -55,6 +56,8 @@ class AbstractInterpreter:
 	_inputId as int
 	
 	_suggestionCompiler as BooCompiler
+	
+	_cachedCallableTypes = []
 	
 	Ducky:
 		get: return _compiler.Parameters.Ducky
@@ -83,15 +86,16 @@ class AbstractInterpreter:
 		
 		// avoid InvalidCastExceptions by always
 		// defining callable types only once per run
-		pipeline.Replace(Steps.InitializeTypeSystemServices, InitializeTypeSystemServices())
 		pipeline.Add(CacheCallableTypes())
 		
 		_compiler.Parameters.Pipeline = pipeline
 		_compiler.Parameters.Ducky = true		
-		_parser.Parameters.Pipeline = CompilerPipeline().Add(parser)
+		_compiler.Parameters.Environment = DeferredEnvironment() { TypeSystemServices: { InterpreterTypeSystemServices(_cachedCallableTypes) } }
+		
+		_parser.Parameters.Pipeline = CompilerPipeline() { parser }
 		
 	def constructor():
-		self(Pipelines.Parse.NewParserStep())
+		self(Steps.Parsing())
 		
 	abstract def Declare(name as string, type as System.Type):
 		pass
@@ -113,12 +117,12 @@ class AbstractInterpreter:
 			pipeline = Pipelines.ResolveExpressions(BreakOnErrors: false)
 			pipeline.Insert(1, AddRecordedImports(_imports))
 			pipeline.Replace(Steps.ProcessMethodBodiesWithDuckTyping, ProcessExpressionsWithInterpreterNamespace(self))
-			pipeline.Replace(Steps.InitializeTypeSystemServices, _compiler.Parameters.Pipeline.Get(InitializeTypeSystemServices))
 			pipeline.Add(FindCodeCompleteSuggestion())
 			
 			_suggestionCompiler = BooCompiler()
 			_suggestionCompiler.Parameters.Ducky = self.Ducky
 			_suggestionCompiler.Parameters.Pipeline = pipeline	
+			_suggestionCompiler.Parameters.Environment = _compiler.Parameters.Environment
 			// keep the references in sync
 			_suggestionCompiler.Parameters.References = self.References
 			
@@ -141,7 +145,7 @@ class AbstractInterpreter:
 		context as CompilerContext, entity as IEntity = ResolveEntity_(code)
 		
 		suggestions as (IEntity)
-		context.Run:
+		context.Environment.Run:
 			suggestions = FilterSuggestions(code, entity)
 		return suggestions
 		
@@ -360,8 +364,7 @@ class AbstractInterpreter:
 		[getter(GeneratedCallableTypes)]
 		_generatedCallableTypes = []
 		
-		def constructor(context, cache):
-			super(context)
+		def constructor(cache):
 			_cachedCallableTypes = cache			
 			
 		override def GetConcreteCallableType(sourceNode as Node, signature as CallableSignature):
@@ -387,13 +390,6 @@ class AbstractInterpreter:
 				cached = Map(type) as ExternalCallableType
 				if signature == cached.GetSignature():
 					return cached
-			
-	class InitializeTypeSystemServices(Steps.InitializeTypeSystemServices):
-		
-		_cachedCallableTypes = []
-		
-		override def CreateTypeSystemServices():
-			return InterpreterTypeSystemServices(Context, _cachedCallableTypes)
 			
 	class CacheCallableTypes(Steps.AbstractCompilerStep):
 		

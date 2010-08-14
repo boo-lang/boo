@@ -29,6 +29,7 @@
 namespace Boo.Lang.Compiler.Tests
 
 import System
+import Boo.Lang.Environments
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
@@ -43,7 +44,7 @@ class CallableResolutionServiceTestFixture:
 	[SetUp]
 	def SetUp():
 		_context = CompilerContext()
-		_crs = CallableResolutionService(_context)		
+		_crs = _context.Environment.Invoke[of CallableResolutionService]({ CallableResolutionService() })		
 		
 	test TestGetLogicalTypeDepth:
 		Assert.AreEqual(0, GetLogicalTypeDepth(object))
@@ -96,12 +97,10 @@ class CallableResolutionServiceTestFixture:
 		return TypeSystemServices.Map(type.GetMethod(methodName, types))
 		
 	CodeBuilder:
-		get:
-			return _context.CodeBuilder
+		get: return my(BooCodeBuilder)
 		
 	TypeSystemServices:
-		get:
-			return _context.TypeSystemServices
+		get: return my(TypeSystemServices)
 			
 	enum E:
 		A

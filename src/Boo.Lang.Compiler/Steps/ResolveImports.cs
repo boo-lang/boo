@@ -32,9 +32,9 @@ using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class BindNamespaces : AbstractTransformerCompilerStep
+	public class ResolveImports : AbstractTransformerCompilerStep
 	{
-		private Hash nameSpaces = new Hash();
+		private readonly Hash _namespaces = new Hash();
 		
 		override public void Run()
 		{
@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
 		{
 			Visit(module.Imports);
-			nameSpaces.Clear();
+			_namespaces.Clear();
 		}
 		
 		public override void OnImport(Boo.Lang.Compiler.Ast.Import import)
@@ -60,14 +60,11 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IEntity entity = ResolveImport(import);
-			if (HandledAsImportError(import, entity))
+			var entity = ResolveImport(import);
+			if (HandledAsImportError(import, entity) || HandledAsDuplicatedNamespace(import, entity))
 				return;
 
-			if (HandledAsDuplicatedNamespace(import, entity))
-				return;
-
-			_context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
+			Context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
 			import.Entity = ImportedNamespaceFor(import, entity);
 		}
 
@@ -76,56 +73,55 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == entity)
 			{
 				Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
-				RemoveCurrentNode();
+				BindError(import);
 				return true;
 			}
 
 			if (!IsValidNamespace(entity))
 			{
 				Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
-				RemoveCurrentNode();
+				BindError(import);
 				return true;
 			}
 			return false;
 		}
 
-		private string EffectiveNameForImportedNamespace(Import import)
+		private void BindError(Import import)
 		{
-			return null != import.Alias
-			       	? import.Alias.Name
-			       	: import.Namespace;
+			Bind(import, Error.Default);
+		}
+
+		private static string EffectiveNameForImportedNamespace(Import import)
+		{
+			return null != import.Alias ? import.Alias.Name : import.Namespace;
 		}
 
 		private bool HandledAsDuplicatedNamespace(Import import, IEntity resolvedEntity)
 		{
-			string actualName = EffectiveNameForImportedNamespace(import);
+			var actualName = EffectiveNameForImportedNamespace(import);
 			//only add unique namespaces
-			Import cachedImport = nameSpaces[actualName] as Import;
+			var cachedImport = _namespaces[actualName] as Import;
 			if (cachedImport == null)
 			{
-				nameSpaces[actualName] = import;
+				_namespaces[actualName] = import;
 				return false;
 			}
 
 			//ignore for partial classes in separate files
 			if (cachedImport.LexicalInfo.FileName == import.LexicalInfo.FileName)
-			{
-				Warnings.Add(
-					CompilerWarningFactory.DuplicateNamespace(import, import.Namespace));
-			}
-			RemoveCurrentNode();
+				Warnings.Add(CompilerWarningFactory.DuplicateNamespace(import, import.Namespace));
+
+			BindError(import);
 			return true;
 		}
 
 		private IEntity ImportedNamespaceFor(Import import, IEntity entity)
 		{
-			INamespace ns = entity as INamespace;
-			if (null == ns)
+			var ns = entity as INamespace;
+			if (ns == null)
 				return entity;
 
-			INamespace actualNamespace = null != import.Alias
-			                        ? AliasedNamespaceFor(entity, import)
-			                        : ns;
+			var actualNamespace = null != import.Alias ? AliasedNamespaceFor(entity, import) : ns;
 			return new ImportedNamespace(import, actualNamespace);
 		}
 
