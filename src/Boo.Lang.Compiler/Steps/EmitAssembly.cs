@@ -5412,7 +5412,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		string GetTargetDirectory(string fname)
 		{
-			return Path.GetDirectoryName(Path.GetFullPath(fname));
+			return Path.GetDirectoryName(TryToGetFullPath(fname));
 		}
 
 		string BuildOutputAssemblyName()
@@ -5485,9 +5485,10 @@ namespace Boo.Lang.Compiler.Steps
 			var outputFile = BuildOutputAssemblyName();
 			var asmName = CreateAssemblyName(outputFile);
 			var assemblyBuilderAccess = GetAssemblyBuilderAccess();
-			_asmBuilder = Parameters.GenerateInMemory
+			var targetDirectory = GetTargetDirectory(outputFile);
+			_asmBuilder = string.IsNullOrEmpty(targetDirectory)
 				? AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess)
-				: AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, GetTargetDirectory(outputFile));
+				: AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, targetDirectory);
 
 			if (Parameters.Debug)
 			{
