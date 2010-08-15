@@ -2536,7 +2536,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			var ns = GetReferenceNamespace(node);
 			var member = NameResolutionService.Resolve(ns, node.Name);
-			if (null == member || !IsAccessible(member))
+			if (null == member || !IsAccessible(member) || !IsApplicable(member, node))
 			{
 				var extension = TryToResolveMemberAsExtension(node);
 				if (null != extension)
@@ -2548,6 +2548,18 @@ namespace Boo.Lang.Compiler.Steps
 
 			MemberNotFound(node, ns);
 			return null;
+		}
+
+		private bool IsApplicable(IEntity entity, MemberReferenceExpression node)
+		{
+			//ProcessLenInvocation - Visit(resultingNode), call for node without parent
+			if (node == null || node.ParentNode == null)
+				return true;
+			if (AstUtil.IsTargetOfMethodInvocation(node)
+				&& !IsCallableEntity(entity))
+				return false;
+
+			return true;
 		}
 
 		private IEntity Disambiguate(ReferenceExpression node, IEntity member)
