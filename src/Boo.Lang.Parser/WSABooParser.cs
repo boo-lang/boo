@@ -73,7 +73,7 @@ namespace Boo.Lang.Parser
 
 		public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader, Boo.Lang.Parser.ParserErrorHandler errorHandler)
 		{
-			WSABooParser parser = new WSABooParser(CreateBooLexer(tabSize, readerName, reader));
+			var parser = new WSABooParser(CreateBooLexer(tabSize, readerName, reader));
 			parser.setFilename(readerName);
 			parser.Error += errorHandler;
 			return parser;
@@ -81,10 +81,10 @@ namespace Boo.Lang.Parser
 		
 		public static antlr.TokenStream CreateBooLexer(int tabSize, string readerName, TextReader reader)
 		{
-			antlr.TokenStreamSelector selector = new antlr.TokenStreamSelector();		
-			WSABooLexer lexer = new WSABooLexer(reader);
+			var selector = new antlr.TokenStreamSelector();		
+			var lexer = new WSABooLexer(reader);
 			lexer.setFilename(readerName);
-			lexer.Initialize(selector, tabSize, Boo.Lang.Parser.BooToken.TokenCreator);		
+			lexer.Initialize(selector, tabSize, BooToken.TokenCreator);		
 			selector.select(lexer);
 			return selector;
 		}
@@ -92,13 +92,9 @@ namespace Boo.Lang.Parser
 		override public void reportError(antlr.RecognitionException x)
 		{
 			if (null != Error)
-			{
 				Error(x);
-			}
 			else
-			{
 				base.reportError(x);
-			}
 		}
 	}
 }

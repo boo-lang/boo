@@ -57,7 +57,7 @@ namespace antlr
 		/// Constructs an <c>ASTFactory</c> with the default AST node type of
 		/// <see cref="antlr.CommonAST"/>.
 		/// </summary>
-		public ASTFactory() : this("antlr.CommonAST")
+		public ASTFactory() : this(typeof(antlr.CommonAST))
 		{
 		}
 
@@ -68,10 +68,19 @@ namespace antlr
 		/// <param name="nodeTypeName">
 		///		Name of default AST node type for this factory.
 		/// </param>
-		public ASTFactory(string nodeTypeName)
+		public ASTFactory(string nodeTypeName) : this(loadNodeTypeObject(nodeTypeName))
+		{	
+		}
+
+		/// <summary>
+		/// Constructs an <c>ASTFactory</c> and use the specified AST node type
+		/// as the default.
+		/// </summary>
+		/// <param name="defaultASTNodeType">Node type for this factory.</param>
+		public ASTFactory(Type defaultASTNodeType)
 		{
 			heteroList_					= new FactoryEntry[Token.MIN_USER_TYPE+1];
-			defaultASTNodeTypeObject_	= loadNodeTypeObject(nodeTypeName);
+			defaultASTNodeTypeObject_	= defaultASTNodeType;
 			defaultCreator_				= null;
 			typename2creator_			= new Hashtable(32, (float) 0.3);
 			typename2creator_["antlr.CommonAST"]					= CommonAST.Creator;
@@ -553,7 +562,7 @@ namespace antlr
 		// PRIVATE FUNCTION MEMBERS
 		//---------------------------------------------------------------------
 
-		private Type loadNodeTypeObject(string nodeTypeName)
+		private static Type loadNodeTypeObject(string nodeTypeName)
 		{
 			Type	nodeTypeObject	= null;
 			bool	typeCreated		= false;

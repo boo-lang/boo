@@ -1,4 +1,5 @@
 ﻿#region license
+
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -24,10 +25,12 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #endregion
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -36,34 +39,22 @@ namespace Boo.Lang.Compiler.Ast
 		public AttributeCollection()
 		{
 		}
-		
-		public AttributeCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
+
+		public AttributeCollection(Node parent) : base(parent)
 		{
 		}
 
 		public bool Contains(string attributeName)
 		{
-			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in this)
-			{
+			foreach (var attribute in this)
 				if (attributeName == attribute.Name)
-				{
 					return true;
-				}
-			}
 			return false;
 		}
-		
-		public Boo.Lang.Compiler.Ast.Attribute[] Get(string attributeName)
+
+		public IEnumerable<Attribute> Get(string attributeName)
 		{
-			ArrayList attributes = new ArrayList();
-			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in this)
-			{
-				if (0 == string.Compare(attributeName, attribute.Name, true))
-				{
-					attributes.Add(attribute);
-				}
-			}
-			return (Boo.Lang.Compiler.Ast.Attribute[])attributes.ToArray(typeof(Boo.Lang.Compiler.Ast.Attribute));
+			return this.Where(attribute => 0 == string.Compare(attributeName, attribute.Name, StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }

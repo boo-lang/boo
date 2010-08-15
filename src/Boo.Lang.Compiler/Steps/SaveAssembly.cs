@@ -39,8 +39,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (Errors.Count > 0)
 				return;
 
-			AssemblyBuilder builder = ContextAnnotations.GetAssemblyBuilder(Context);
-			string filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
+			var builder = ContextAnnotations.GetAssemblyBuilder(Context);
+			var filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
 			Save(builder, filename);
 		}
 
@@ -57,7 +57,6 @@ namespace Boo.Lang.Compiler.Steps
 				case "itanium":
 					builder.Save(filename, PortableExecutableKinds.PE32Plus, ImageFileMachine.IA64);
 					break;
-
 				default: //AnyCPU
 					builder.Save(filename);
 					break;
