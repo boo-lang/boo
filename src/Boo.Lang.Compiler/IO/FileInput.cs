@@ -34,25 +34,20 @@ namespace Boo.Lang.Compiler.IO
 	/// File based compiler input.
 	/// </summary>
 	[Serializable]
-	public class FileInput : Boo.Lang.Compiler.ICompilerInput
+	public class FileInput : ICompilerInput
 	{
-		string _fname;
+		private readonly string _fname;
 
 		public FileInput(string fname)
 		{
 			if (null == fname)
-			{
 				throw new ArgumentNullException("fname");
-			}
 			_fname = fname;
 		}
 
 		public string Name
 		{
-			get
-			{
-				return _fname;
-			}
+			get { return _fname; }
 		}
 
 		public System.IO.TextReader Open()
