@@ -25,6 +25,8 @@ Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.PatternMatching.Te
 EndProject
 Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Microsoft.Build.Tasks", "Boo.Microsoft.Build.Tasks\Boo.Microsoft.Build.Tasks.booproj", "{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Tests", "..\tests\Boo.Lang.Tests\Boo.Lang.Tests.csproj", "{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Net-1.1|Any CPU = Debug Net-1.1|Any CPU
@@ -144,6 +146,16 @@ Global
 		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Micro-Release|Any CPU.ActiveCfg = Release|Any CPU
 		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Debug Net-1.1|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Debug Net-1.1|Any CPU.Build.0 = Debug|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Micro-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Micro-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Micro-Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Micro-Release|Any CPU.Build.0 = Release|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
