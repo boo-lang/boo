@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler
 
 		private bool _delaySign;
 
-		private readonly ArrayList _libPaths;
+		private readonly List<string> _libPaths;
 
 		private readonly string _systemDir;
 
@@ -113,7 +113,7 @@ namespace Boo.Lang.Compiler
 
 		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
 		{
-			_libPaths = new ArrayList();
+			_libPaths = new List<string>();
 			_systemDir = Permissions.WithDiscoveryPermission(() => GetSystemDir());
 			if (_systemDir != null)
 			{
@@ -390,7 +390,7 @@ namespace Boo.Lang.Compiler
 			get { return _input; }
 		}
 
-		public ArrayList LibPaths
+		public List<string> LibPaths
 		{
 			get { return _libPaths; }
 		}
