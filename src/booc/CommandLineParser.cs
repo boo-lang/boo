@@ -17,7 +17,7 @@ namespace booc
 {
 	public class CommandLineParser
 	{
-		public static void Parse(string[] commandLine, CompilerParameters options)
+		public static void ParseInto(CompilerParameters options, params string[] commandLine)
 		{
 			new CommandLineParser(commandLine, options);
 		}

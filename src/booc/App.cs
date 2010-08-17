@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -83,7 +83,7 @@ namespace booc
 			{
 				var setupTime = Stopwatch.StartNew();
 
-				CommandLineParser.Parse(args, parameters);
+				CommandLineParser.ParseInto(parameters, args);
 
 				if (0 == parameters.Input.Count)
 					throw new ApplicationException(ResourceManager.GetString("BooC.NoInputSpecified"));
