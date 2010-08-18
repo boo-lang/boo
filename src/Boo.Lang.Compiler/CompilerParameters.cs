@@ -29,7 +29,6 @@
 
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -105,7 +104,7 @@ namespace Boo.Lang.Compiler
 		private TypeMemberModifiers _defaultPropertyVisibility = TypeMemberModifiers.Public;
 		private TypeMemberModifiers _defaultEventVisibility = TypeMemberModifiers.Public;
 		private TypeMemberModifiers _defaultFieldVisibility = TypeMemberModifiers.Protected;
-		private bool _defaultVisibilitySettingsRead = false;
+		private bool _defaultVisibilitySettingsRead;
 
 		public CompilerParameters() : this(true)
 		{
@@ -152,13 +151,9 @@ namespace Boo.Lang.Compiler
 		public void LoadDefaultReferences()
 		{
 			//mscorlib
-			_compilerReferences.Add(
-				LoadAssembly("mscorlib", true)
-				);
+			_compilerReferences.Add(LoadAssembly("mscorlib", true));
 			//System
-			_compilerReferences.Add(
-				LoadAssembly("System", true)
-				);
+			_compilerReferences.Add(LoadAssembly("System", true));
 			//boo.lang.dll
 			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
 			_compilerReferences.Add(_booAssembly);
@@ -169,10 +164,8 @@ namespace Boo.Lang.Compiler
 			var tentative = Permissions.WithDiscoveryPermission(() => Path.Combine(Path.GetDirectoryName(_booAssembly.Location), booLangExtensionsDll))
 				?? booLangExtensionsDll;
 
-			ICompileUnit extensionsAssembly = LoadAssembly(tentative, false);
-			if(extensionsAssembly == null)//if failed, try loading from the gac
-				extensionsAssembly = LoadAssembly("Boo.Lang.Extensions", false);
-			if(extensionsAssembly != null)
+			var extensionsAssembly = LoadAssembly(tentative, false) ?? LoadAssembly("Boo.Lang.Extensions", false);
+			if (extensionsAssembly != null)
 				_compilerReferences.Add(extensionsAssembly);
 
 			if (TraceInfo)
@@ -766,7 +759,6 @@ namespace Boo.Lang.Compiler
 
                     EnableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
                     EnableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
-
 					DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
                    //by default strict mode forbids implicit downcasts
                    //disable warning so we get only the regular incompatible type error
