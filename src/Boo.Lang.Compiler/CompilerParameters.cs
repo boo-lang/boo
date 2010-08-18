@@ -154,6 +154,8 @@ namespace Boo.Lang.Compiler
 			_compilerReferences.Add(LoadAssembly("mscorlib", true));
 			//System
 			_compilerReferences.Add(LoadAssembly("System", true));
+			//System.Core
+			_compilerReferences.Add(LoadAssembly("System.Core", true));
 			//boo.lang.dll
 			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
 			_compilerReferences.Add(_booAssembly);
@@ -211,7 +213,7 @@ namespace Boo.Lang.Compiler
 
 		public IAssemblyReference LoadAssembly(string assemblyName, bool throwOnError)
 		{
-			Assembly assembly = ForName(assemblyName, throwOnError);
+			var assembly = ForName(assemblyName, throwOnError);
 			if (null == assembly)
 				return null;
 			return _compilerReferences.Provider.ForAssembly(assembly);
