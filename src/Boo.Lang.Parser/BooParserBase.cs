@@ -12120,6 +12120,7 @@ _loop511_breakloop:				;
 		Expression e;
 		
 		IToken  t = null;
+		IToken  c = null;
 		IToken  token = null;
 		
 				e = null;
@@ -12130,111 +12131,32 @@ _loop511_breakloop:				;
 		try {      // for error handling
 			e=unary_expression();
 			{
-				switch ( LA(1) )
-				{
-				case AS:
+				if ((LA(1)==AS))
 				{
 					t = LT(1);
 					match(AS);
 					tr=type_reference();
 					if (0==inputState.guessing)
 					{
-						
-									TryCastExpression ae = new TryCastExpression(ToLexicalInfo(t));
-									ae.Target = e;
-									ae.Type = tr;
-									e = ae; 
-								
+						e = new TryCastExpression(ToLexicalInfo(t)) { Target = e, Type = tr };
 					}
-					break;
 				}
-				case EOF:
-				case DEDENT:
-				case ESEPARATOR:
-				case EOL:
-				case AND:
-				case BREAK:
-				case CONTINUE:
-				case CAST:
-				case CHAR:
-				case DEF:
-				case DO:
-				case ELSE:
-				case FOR:
-				case FALSE:
-				case GOTO:
-				case IS:
-				case ISA:
-				case IF:
-				case IN:
-				case NOT:
-				case NULL:
-				case OR:
-				case RAISE:
-				case RETURN:
-				case SELF:
-				case SUPER:
-				case TRY:
-				case TRUE:
-				case TYPEOF:
-				case UNLESS:
-				case WHILE:
-				case YIELD:
-				case ID:
-				case TRIPLE_QUOTED_STRING:
-				case EOS:
-				case DOUBLE_QUOTED_STRING:
-				case SINGLE_QUOTED_STRING:
-				case LBRACK:
-				case RBRACK:
-				case LPAREN:
-				case RPAREN:
-				case ASSIGN:
-				case COMMA:
-				case ASSEMBLY_ATTRIBUTE_BEGIN:
-				case SPLICE_BEGIN:
-				case DOT:
-				case COLON:
-				case MULTIPLY:
-				case EXPONENTIATION:
-				case BITWISE_OR:
-				case LBRACE:
-				case RBRACE:
-				case QQ_BEGIN:
-				case QQ_END:
-				case INPLACE_BITWISE_OR:
-				case INPLACE_EXCLUSIVE_OR:
-				case INPLACE_BITWISE_AND:
-				case INPLACE_SHIFT_LEFT:
-				case INPLACE_SHIFT_RIGHT:
-				case CMP_OPERATOR:
-				case GREATER_THAN:
-				case LESS_THAN:
-				case ADD:
-				case SUBTRACT:
-				case EXCLUSIVE_OR:
-				case DIVISION:
-				case MODULUS:
-				case BITWISE_AND:
-				case SHIFT_LEFT:
-				case SHIFT_RIGHT:
-				case LONG:
-				case INCREMENT:
-				case DECREMENT:
-				case ONES_COMPLEMENT:
-				case INT:
-				case RE_LITERAL:
-				case DOUBLE:
-				case FLOAT:
-				case TIMESPAN:
-				{
-					break;
+				else if ((LA(1)==CAST) && (tokenSet_34_.member(LA(2)))) {
+					c = LT(1);
+					match(CAST);
+					tr=type_reference();
+					if (0==inputState.guessing)
+					{
+						e = new CastExpression(ToLexicalInfo(c)) { Target = e, Type = tr };
+					}
 				}
-				default:
+				else if ((tokenSet_114_.member(LA(1))) && (tokenSet_14_.member(LA(2)))) {
+				}
+				else
 				{
 					throw new NoViableAltException(LT(1), getFilename());
 				}
-				 }
+				
 			}
 			{    // ( ... )*
 				for (;;)
@@ -12247,11 +12169,7 @@ _loop511_breakloop:				;
 						if (0==inputState.guessing)
 						{
 							
-										BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
-										be.Operator = BinaryOperatorType.Exponentiation;
-										be.Left = e;
-										be.Right = r;
-										e = be;
+										e = new BinaryExpression(ToLexicalInfo(token)) { Operator = BinaryOperatorType.Exponentiation, Left = e, Right = r };
 									
 						}
 					}

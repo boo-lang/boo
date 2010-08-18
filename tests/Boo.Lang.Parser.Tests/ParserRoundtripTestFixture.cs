@@ -162,6 +162,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void cast_1()
+		{
+			RunCompilerTestCase(@"cast-1.boo");
+		}
+		
+		[Test]
 		public void char_1()
 		{
 			RunCompilerTestCase(@"char-1.boo");

@@ -2210,28 +2210,18 @@ exponentiation returns [Expression e]
 	}:
 	e=unary_expression
 	(
-		t:AS
-		tr=type_reference
-		{
-			TryCastExpression ae = new TryCastExpression(SourceLocationFactory.ToLexicalInfo(t));
-			ae.Target = e;
-			ae.Type = tr;
-			e = ae; 
-		}
-	)?
-	
+		t:AS tr=type_reference { e = new TryCastExpression(ToLexicalInfo(t)) { Target = e, Type = tr }; }
+		| c:CAST tr=type_reference { e = new CastExpression(ToLexicalInfo(c)) { Target = e, Type = tr }; }
+		|
+	)
 	( options { greedy = true; }:
 	 	token:EXPONENTIATION
 		r=exponentiation
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token));
-			be.Operator = BinaryOperatorType.Exponentiation;
-			be.Left = e;
-			be.Right = r;
-			e = be;
+			e = new BinaryExpression(ToLexicalInfo(token)) { Operator = BinaryOperatorType.Exponentiation, Left = e, Right = r };
 		}
 	)*
-	;
+;
 	
 	
 protected

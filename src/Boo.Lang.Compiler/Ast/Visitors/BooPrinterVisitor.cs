@@ -624,11 +624,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnCastExpression(CastExpression node)
 		{
-			WriteKeyword("cast");
 			Write("(");
-			Visit(node.Type);
-			Write(", ");
 			Visit(node.Target);
+			WriteKeyword(" cast ");
+			Visit(node.Type);
 			Write(")");
 		}
 		

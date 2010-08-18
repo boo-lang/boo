@@ -12,7 +12,7 @@ public final transient class For_1Module(object):
 				i = \$iterator\$1.get_Current()
 				System.Console.WriteLine(i)
 		ensure:
-			cast(System.IDisposable, \$iterator\$1).Dispose()
+			(\$iterator\$1 cast System.IDisposable).Dispose()
 
 	private def constructor():
 		super()
