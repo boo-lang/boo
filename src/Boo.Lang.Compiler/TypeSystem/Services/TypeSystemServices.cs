@@ -579,16 +579,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool CanBeReachedFrom(IType expectedType, IType actualType, bool considerExplicitConversionOperators, out bool byDowncast)
 		{
 			byDowncast = false;
-
-			var ctype = expectedType as ICallableType;
-			if (null != ctype)
-				return IsAssignableFrom(ctype, actualType) || ctype.IsSubclassOf(actualType);
-
 			return IsAssignableFrom(expectedType, actualType)
-			       || (byDowncast = DowncastPermissions().CanBeReachedByDowncast(expectedType, actualType))
 			       || CanBeReachedByPromotion(expectedType, actualType)
 			       || FindImplicitConversionOperator(actualType, expectedType) != null
-			       || (considerExplicitConversionOperators && FindExplicitConversionOperator(actualType, expectedType) != null);
+			       || (considerExplicitConversionOperators && FindExplicitConversionOperator(actualType, expectedType) != null)
+				   || (byDowncast = DowncastPermissions().CanBeReachedByDowncast(expectedType, actualType));
 		}
 
 		private DowncastPermissions DowncastPermissions()
@@ -713,7 +708,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
 		{
-			return My<DowncastPermissions>.Instance.CanBeReachedByDowncast(expectedType, actualType)
+			return DowncastPermissions().CanBeReachedByDowncast(expectedType, actualType)
 			       || CanBeReachedByPromotion(expectedType, actualType);
 		}
 
@@ -1148,7 +1143,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return IsAssignableFrom(ExceptionType, type);
 		}
 
-	    private bool IsAssignableFrom(IType expectedType, IType actualType)
+	    private static bool IsAssignableFrom(IType expectedType, IType actualType)
 	    {
 	        return TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
 	    }

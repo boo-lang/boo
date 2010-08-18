@@ -2147,39 +2147,41 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveCastExpression(CastExpression node)
 		{
-			IType fromType = GetExpressionType(node.Target);
-			IType toType = GetType(node.Type);
+			var fromType = GetExpressionType(node.Target);
+			var toType = GetType(node.Type);
+			BindExpressionType(node, toType);
+
 			if (IsError(fromType) || IsError(toType))
+				return;
+
+			if (IsAssignableFrom(toType, fromType))
+				return;
+
+			if (TypeSystemServices.CanBeReachedByPromotion(toType, fromType))
+				return;
+
+			var conversion = TypeSystemServices.FindExplicitConversionOperator(fromType, toType) ?? TypeSystemServices.FindImplicitConversionOperator(fromType, toType);
+			if (null != conversion)
 			{
-				Error(node);
+				node.ParentNode.Replace(node, CodeBuilder.CreateMethodInvocation(conversion, node.Target));
 				return;
 			}
 
-			bool byDowncast;
-			if (TypeSystemServices.CanBeReachedFrom(toType, fromType, true, out byDowncast))
+			if (toType.IsValueType)
 			{
-				IMethod explicitOperator = TypeSystemServices.FindExplicitConversionOperator(fromType, toType);
-				if (null != explicitOperator)
-					node.ParentNode.Replace(
-						node,
-						CodeBuilder.CreateMethodInvocation(
-							explicitOperator,
-							node.Target));
+				if (TypeSystemServices.IsSystemObject(fromType))
+					return;
 			}
-			else
-				Error(
-					CompilerErrorFactory.IncompatibleExpressionType(
-						node,
-						toType.ToString(),
-						fromType.ToString()));
+			else if (!fromType.IsFinal)
+				return;
 
-			BindExpressionType(node, toType);
+			Error(CompilerErrorFactory.IncompatibleExpressionType(node, toType.ToString(), fromType.ToString()));
 		}
 
 		override public void LeaveTryCastExpression(TryCastExpression node)
 		{
-			IType target = GetExpressionType(node.Target);
-			IType toType = GetType(node.Type);
+			var target = GetExpressionType(node.Target);
+			var toType = GetType(node.Type);
 
 			if (target.IsValueType)
 				Error(CompilerErrorFactory.CantCastToValueType(node.Target, target.ToString()));
