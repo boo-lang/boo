@@ -6474,9 +6474,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType)
 		{
-            if (TypeSystemServices.IsSystemObject(actualType))
-                return true;
-
 			bool byDowncast;
 			bool result = TypeSystemServices.CanBeReachedFrom(expectedType, actualType, out byDowncast);
 			if (!result)
