@@ -171,6 +171,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCE0022_15_strict()
+		{
+			RunCompilerTestCase(@"BCE0022-15-strict.boo");
+		}
+		
+		[Test]
 		public void BCE0022_2()
 		{
 			RunCompilerTestCase(@"BCE0022-2.boo");

@@ -12,7 +12,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
             if (actualType.IsFinal)
                 return false;
 
-            if (_typeSystem.IsSystemObject(actualType))
+            if (IsDuckType(actualType))
                 return true;
 
             if (!IsDowncastAllowed())
@@ -24,7 +24,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
             return TypeCompatibilityRules.IsAssignableFrom(actualType, expectedType);
         }
 
-        protected virtual bool CanBeReachedByInterfaceDowncast(IType expectedType, IType actualType)
+    	private bool IsDuckType(IType actualType)
+    	{
+    		return _typeSystem.IsDuckType(actualType);
+    	}
+
+    	protected virtual bool CanBeReachedByInterfaceDowncast(IType expectedType, IType actualType)
         {
             //FIXME: currently interface downcast implements no type safety check at all (see BOO-1211)
             return true;
