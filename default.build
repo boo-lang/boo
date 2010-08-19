@@ -53,11 +53,25 @@
 		value="&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
 &lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
 
-	<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
+	<property name="supported.runtimes.net-4.0"
+		value="&lt;supportedRuntime version=&quot;v4.0.30319&quot;/&gt;
+&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
+&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
+
+	<!-- Tests whether the target .NET platform is 4.0 or not -->
+	<if test="${version::get-major(framework::get-version()) &gt;= 4}">
+		<property name="supported.runtimes" value="${supported.runtimes.net-4.0}" />
+		<property name="csc.4.define" value="NET_4_0;" />
+	</if>
+
+	<if test="${version::get-major(framework::get-version()) &lt; 4}">
+		<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
+		<property name="csc.4.define" value="" />
+	</if>
 			
 	<property name="csc.noconfig" value="false" />	
 	<property name="csc.define.custom" value="NO_CUSTOM_DEFINE" unless="${property::exists('csc.define.custom')}" />
-	<property name="csc.define" value="NET_2_0;TRACE;DEBUG;${csc.define.custom}" />
+	<property name="csc.define" value="${csc.4.define}NET_2_0;TRACE;DEBUG;${csc.define.custom}" />
 
 	<property name="fixture" value="" dynamic="true" />
 	
