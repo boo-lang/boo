@@ -58,13 +58,15 @@
 &lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
 &lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
 
+	<property name="net40" value="${version::get-major(framework::get-version(framework::get-target-framework())) &gt;= 4}" />
+
 	<!-- Tests whether the target .NET platform is 4.0 or not -->
-	<if test="${version::get-major(framework::get-version()) &gt;= 4}">
+	<if test="${net40}">
 		<property name="supported.runtimes" value="${supported.runtimes.net-4.0}" />
 		<property name="csc.4.define" value="NET_4_0;" />
 	</if>
 
-	<if test="${version::get-major(framework::get-version()) &lt; 4}">
+	<if test="${not net40}">
 		<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
 		<property name="csc.4.define" value="" />
 	</if>
