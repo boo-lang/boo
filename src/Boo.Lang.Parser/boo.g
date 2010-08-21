@@ -2146,7 +2146,12 @@ ast_literal_block[QuasiquoteExpression e]
 	Node node = null;
 }: 
 	(ast_literal_module_prediction)=>(ast_literal_module[e])
-	| (attributes (type_member_modifier | (modifiers (CLASS | STRUCT | INTERFACE | EVENT | DEF))))=>((type_definition_member[collection])+ {
+	
+	| (attributes (type_member_modifier | (modifiers
+		(CLASS | STRUCT | INTERFACE | EVENT | DEF | CALLABLE
+		| ((ID | splice_expression) (AS type_reference)? begin_with_doc[null] (GET|SET))))))
+		
+		=>((type_definition_member[collection])+ {
 			if (collection.Count == 1) {
 				e.Node = collection[0];
 			} else {
@@ -2158,9 +2163,7 @@ ast_literal_block[QuasiquoteExpression e]
 	)
 	| (stmt[statements])+ { e.Node = b.Statements.Count > 1 ? b : b.Statements[0]; }
 	
-;
-
-	
+;	
 
 ast_literal_module_prediction
 {

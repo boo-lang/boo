@@ -72,6 +72,18 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void ast_literals_10()
+		{
+			RunCompilerTestCase(@"ast-literals-10.boo");
+		}
+		
+		[Test]
+		public void ast_literals_11()
+		{
+			RunCompilerTestCase(@"ast-literals-11.boo");
+		}
+		
+		[Test]
 		public void ast_literals_2()
 		{
 			RunCompilerTestCase(@"ast-literals-2.boo");
@@ -117,6 +129,12 @@ namespace Boo.Lang.Parser.Tests
 		public void ast_literals_9()
 		{
 			RunCompilerTestCase(@"ast-literals-9.boo");
+		}
+		
+		[Test]
+		public void ast_literals_if_it_looks_like_a_block_1()
+		{
+			RunCompilerTestCase(@"ast-literals-if-it-looks-like-a-block-1.boo");
 		}
 		
 		[Test]
