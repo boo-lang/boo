@@ -55,10 +55,9 @@ internal class MatchExpansion:
 		expanded.FalseBlock = ExpandOtherwise(matchValue)
 		
 		return [|
-			block:
-				$matchValue = $expression
-				$topLevel
-		|].Body
+			$matchValue = $expression
+			$topLevel
+		|]
 		
 	def ExpandOtherwise(matchValue as Expression):
 		otherwise as MacroStatement = node["otherwise"]

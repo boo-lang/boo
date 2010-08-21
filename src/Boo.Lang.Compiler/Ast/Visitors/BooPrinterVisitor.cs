@@ -248,7 +248,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		private static bool IsInterfaceMember(TypeMember node)
 		{
-			return node.DeclaringType != null && node.DeclaringType.NodeType == NodeType.InterfaceDefinition;
+			return node.ParentNode != null && node.ParentNode.NodeType == NodeType.InterfaceDefinition;
 		}
 
 		override public void OnField(Field f)
