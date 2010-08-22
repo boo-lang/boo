@@ -314,8 +314,6 @@
 			<arg value="${debugflag}" />
 			<arg value="-out:${build.dir}/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
-			<!--arg value="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" /-->
-			<arg value="-lib:${nant::get-base-directory()}" />
 			<arg value="-r:NAnt.Core.dll" />
 			<arg value="-r:NAnt.DotNetTasks.dll" />
 			<arg value="src/Boo.NAnt.Tasks/UpdateAssemblyVersionTask.boo" />
@@ -323,6 +321,7 @@
 			<arg value="src/Boo.NAnt.Tasks/BoocTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BooTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/AbstractBooTask.boo" />
+			<arg line='"-lib:${nant::get-base-directory()}"' />
 		</exec>
 		
 		<loadtasks assembly="${build.dir}/Boo.NAnt.Tasks.dll" />

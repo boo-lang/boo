@@ -176,20 +176,7 @@ namespace booc
 							{
 								case "lib":
 									{
-										var paths = arg.Substring(arg.IndexOf(":") + 1);
-										if (paths == "")
-										{
-											Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
-											break;
-										}
-
-										foreach (var dir in paths.Split(','))
-										{
-											if (Directory.Exists(dir))
-												_options.LibPaths.Add(dir);
-											else
-												Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
-										}
+										ParseLib(arg);
 										break;
 									}
 
@@ -494,6 +481,23 @@ namespace booc
 			return StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
 		}
 
+		private void ParseLib(string arg)
+		{
+			var paths = TrimAdditionalQuote(ValueOf(arg)); // TrimAdditionalQuote to work around nant bug with spaces on lib path
+			if (string.IsNullOrEmpty(paths))
+			{
+				Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
+				return;
+			}
+			foreach (var dir in paths.Split(','))
+			{
+				if (Directory.Exists(dir))
+					_options.LibPaths.Add(dir);
+				else
+					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
+			}
+		}
+
 		static void DoLogo()
 		{
 			Console.WriteLine("Boo Compiler version {0} ({1})",
@@ -579,6 +583,11 @@ namespace booc
 			if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\""))
 				return s.Substring(1, s.Length - 2);
 			return s;
+		}
+
+		private static string TrimAdditionalQuote(string s)
+		{
+			return s.EndsWith("\"") ? s.Substring(0, s.Length - 1) : s;
 		}
 
 		private class StepDebugger
