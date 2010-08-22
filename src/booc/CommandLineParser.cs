@@ -30,7 +30,7 @@ namespace booc
 		string _pipelineName;
 		bool _debugSteps;
 
-		private CommandLineParser(string[] args, CompilerParameters options)
+		private CommandLineParser(IEnumerable<string> args, CompilerParameters options)
 		{
 			_options = options;
 			_options.GenerateInMemory = false;
@@ -74,7 +74,7 @@ namespace booc
 				}
 				if (!IsFlag(arg))
 				{
-					_options.Input.Add(new FileInput(StripQuotes(arg)));
+					_options.Input.Add(new FileInput(arg));
 					continue;
 				}
 				if ("-utf8" == arg)
@@ -97,13 +97,13 @@ namespace booc
 								_options.WarnAsError = true;
 							else if (arg.StartsWith("-warnaserror:"))
 							{
-								string warnings = StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
+								string warnings = ValueOf(arg);
 								foreach (string warning in warnings.Split(','))
 									_options.EnableWarningAsError(warning);
 							}
 							else if (arg.StartsWith("-warn:"))
 							{
-								var warnings = StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
+								var warnings = ValueOf(arg);
 								foreach (string warning in warnings.Split(','))
 									_options.EnableWarning(warning);
 							}
@@ -150,8 +150,7 @@ namespace booc
 								{
 									case "resource":
 										{
-											int start = arg.IndexOf(":") + 1;
-											AddResource(StripQuotes(arg.Substring(start)));
+											AddResource(ValueOf(arg));
 											break;
 										}
 
@@ -164,7 +163,7 @@ namespace booc
 							}
 							else
 							{
-								var assemblies = StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
+								var assemblies = ValueOf(arg);
 								foreach (var assemblyName in assemblies.Split(','))
 									_references.Add(assemblyName);
 							}
@@ -215,7 +214,7 @@ namespace booc
 								_options.NoWarn = true;
 							else if (arg.StartsWith("-nowarn:"))
 							{
-								string warnings = StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
+								string warnings = ValueOf(arg);
 								foreach (string warning in warnings.Split(','))
 									_options.DisableWarning(warning);
 							}
@@ -226,13 +225,13 @@ namespace booc
 
 					case 'o':
 						{
-							_options.OutputAssembly = StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
+							_options.OutputAssembly = ValueOf(arg);
 							break;
 						}
 
 					case 't':
 						{
-							string targetType = arg.Substring(arg.IndexOf(":") + 1);
+							string targetType = ValueOf(arg);
 							switch (targetType)
 							{
 								case "library":
@@ -266,12 +265,12 @@ namespace booc
 						{
 							if (arg.StartsWith("-pkg:"))
 							{
-								string packages = StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
+								string packages = ValueOf(arg);
 								_packages.Add(packages);
 							}
 							else if (arg.StartsWith("-platform:"))
 							{
-								string arch = StripQuotes(arg.Substring(arg.IndexOf(":") + 1)).ToLowerInvariant();
+								string arch = ValueOf(arg).ToLowerInvariant();
 								switch (arch)
 								{
 									case "anycpu":
@@ -414,8 +413,7 @@ namespace booc
 									{
 										if (arg.StartsWith("-d:") || arg.StartsWith("-define:"))
 										{
-											int skip = arg.StartsWith("-d:") ? 3 : 8;
-											string[] symbols = StripQuotes(arg.Substring(skip)).Split(",".ToCharArray());
+											string[] symbols = ValueOf(arg).Split(",".ToCharArray());
 											foreach (string symbol in symbols)
 											{
 												string[] s_v = symbol.Split("=".ToCharArray(), 2);
@@ -448,8 +446,7 @@ namespace booc
 							{
 								case "embedres":
 									{
-										int start = arg.IndexOf(":") + 1;
-										EmbedResource(StripQuotes(arg.Substring(start)));
+										EmbedResource(ValueOf(arg));
 										break;
 									}
 
@@ -490,6 +487,11 @@ namespace booc
 			{
 				DoLogo();
 			}
+		}
+
+		private static string ValueOf(string arg)
+		{
+			return StripQuotes(arg.Substring(arg.IndexOf(":") + 1));
 		}
 
 		static void DoLogo()
@@ -621,7 +623,7 @@ namespace booc
 							if (line.StartsWith("@") && line.Length > 2)
 								arglist.AddRange(LoadResponseFile(line.Substring(1)));
 							else
-								arglist.Add(line);
+								arglist.Add(StripQuotes(line));
 						}
 					}
 				}
