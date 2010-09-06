@@ -44,6 +44,13 @@ class CodeGeneratorTestFixture:
 	def SetUp():		
 		_generator = BooCodeProvider().CreateGenerator()
 		Assert.IsNotNull(_generator)
+		
+	[Test]
+	def Enums():
+		type = CodeTypeDeclaration("Foo", IsEnum: true)
+		type.Members.Add(CodeMemberField(type.Name, "Bar"))
+		type.Members.Add(CodeMemberField(type.Name, "Baz"))
+		AssertTypeDeclaration "enum Foo:\n    \n    Bar\n    Baz", type
 
 	[Test]
 	def TestNestedTypeReference():
@@ -88,7 +95,7 @@ class CodeGeneratorTestFixture:
 		AssertWriter expected, buffer
 		
 	def AssertWriter(expected as string, buffer as StringWriter):
-		Assert.AreEqual(expected, buffer.ToString().Trim())
+		Assert.AreEqual(expected, buffer.ToString().Trim().Replace("\r\n", "\n"))
 		
 	[Test]
 	def TestArrayCreateSizeExpression():
@@ -100,7 +107,6 @@ class CodeGeneratorTestFixture:
 	[Test]
 	def TestArrayCreateSingle():
 		e = CodeArrayCreateExpression(CodeTypeReference(int), *(CodePrimitiveExpression(2),))
-		
 		AssertExpression "(of int: 2)", e
 		
 	[Test]
@@ -112,11 +118,13 @@ class CodeGeneratorTestFixture:
 
 	[Test]
 	def TestPartial():
-		td = CodeTypeDeclaration("PartialType")
-		td.IsPartial = true
+		expected = "partial class PartialType:\n    pass"
+		AssertTypeDeclaration expected, CodeTypeDeclaration("PartialType", IsPartial: true)
+		
+	def AssertTypeDeclaration(expected as string, type as CodeTypeDeclaration):
 		buffer = StringWriter()
-		_generator.GenerateCodeFromType(td, buffer,  CodeGeneratorOptions())
-		Assert.AreEqual("partial class PartialType():\r\n    pass\r\n", buffer.ToString())
+		_generator.GenerateCodeFromType(type, buffer, CodeGeneratorOptions())
+		AssertWriter(expected, buffer)
 	
 	[Test]
 	def TestCharType():
