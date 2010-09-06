@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.CodeDom</RootNamespace>
@@ -6,6 +7,10 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}</ProjectGuid>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <UsePartialTypes>false</UsePartialTypes>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
@@ -25,11 +30,19 @@
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <genwarnings>false</genwarnings>
+    <culture />
+    <ducky>false</ducky>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <genwarnings>false</genwarnings>
+    <culture />
+    <ducky>false</ducky>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="BooCodeCompiler.boo" />
