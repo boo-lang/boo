@@ -19,6 +19,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void infer_closure_singature()
+		{
+			RunCompilerTestCase(@"infer-closure-singature.boo");
+		}
+		
+		[Test]
 		public void linq_extensions_1()
 		{
 			RunCompilerTestCase(@"linq-extensions-1.boo");

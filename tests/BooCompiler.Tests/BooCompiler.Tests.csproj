@@ -128,7 +128,7 @@
     <Compile Include="BooTestCaseUtil.cs" />
     <Compile Include="CallablesIntegrationTestFixture.cs" />
     <Compile Include="ClosuresIntegrationTestFixture.cs" />
-    <Compile Include="ClrextensionsIntegrationTestFixture.cs" />
+    <Compile Include="ClrExtensionsIntegrationTestFixture.cs" />
     <Compile Include="ClrIntegrationTestFixture.cs" />
     <Compile Include="CompilerContextTest.cs" />
     <Compile Include="CompilerErrorFactoryTest.cs" />

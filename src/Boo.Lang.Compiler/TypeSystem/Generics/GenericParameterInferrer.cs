@@ -197,7 +197,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 				if (CanResolveClosure(closure))
 				{
-					ResolveClosure(this, closure, argument.FormalType as ICallableType);
+					var callable = (ICallableType)argument.FormalType;
+					if (closure.Parameters.Count != callable.GetSignature().Parameters.Length)
+						continue;
+					ResolveClosure(this, closure, callable);
 					_closureDependencies.Remove(closure);
 					Infer(argument.FormalType, closure.ExpressionType);
 				}
