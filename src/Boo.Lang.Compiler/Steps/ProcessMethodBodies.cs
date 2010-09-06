@@ -749,6 +749,9 @@ namespace Boo.Lang.Compiler.Steps
 			if (methodInvocationContext == null) return false;
 			if (!methodInvocationContext.Arguments.Contains(node)) return false;
 
+			if (methodInvocationContext.Target.Entity is Ambiguous)
+				return ((Ambiguous) methodInvocationContext.Target.Entity).Any(GenericsServices.IsGenericMethod);
+
 			IMethod target = methodInvocationContext.Target.Entity as IMethod;
 			return (target != null && GenericsServices.IsGenericMethod(target));
 		}
@@ -4131,7 +4134,24 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
 		{
-			IEntity resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, entity.Entities);
+			var genericService = Context.Environment.Provide<GenericsServices>();
+			var methods = entity.Entities
+				.OfType<IMethod>()
+				.Select(m => {
+					if (m.GenericInfo == null)
+						return m;
+
+					var inferrer = new GenericParameterInferrer(Context, m, node.Arguments);
+					inferrer.ResolveClosure += ProcessClosureInMethodInvocation;
+					if (!inferrer.Run())
+						return null;
+					var arguments = inferrer.GetInferredTypes();
+					if (arguments == null || !genericService.CheckGenericConstruction(m, arguments))
+						return null;
+					return m.GenericInfo.ConstructMethod(arguments);
+				}).Where(m => m != null).ToArray();
+
+			var resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, methods);
 			if (null == resolved)
 				return null;
 
@@ -5872,7 +5892,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void EmitCallableResolutionError(Node sourceNode, IEntity[] candidates, ExpressionCollection args)
 		{
-			if (CallableResolutionService.ValidCandidates.Count > 1)
+			//if this is call without arguments and ambiguous contains generic method without arguments
+			//than emit BCE0164 for readability
+			var genericMethod = candidates.OfType<IMethod>().FirstOrDefault(m => m.GenericInfo != null && m.GetParameters().Length == 0);
+			if (args.Count == 0 && genericMethod != null) 
+			{
+				Error(CompilerErrorFactory.CannotInferGenericMethodArguments(sourceNode, genericMethod));
+			}
+			else if (CallableResolutionService.ValidCandidates.Count > 1)
 			{
 				Error(CompilerErrorFactory.AmbiguousReference(sourceNode, candidates[0].Name, CallableResolutionService.ValidCandidates));
 			}
