@@ -12,5 +12,5 @@ class Bar(Foo, IDisposable):
 
 f as Foo
 f = Bar()
-d = cast(IDisposable, f)
+d = f cast IDisposable
 d.Dispose()

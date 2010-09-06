@@ -799,25 +799,31 @@ block[StatementCollection container]:
 	; 
 	
 	
+	
 protected
 modifiers
 {
 }:
 	{ _modifiers = TypeMemberModifiers.None; }
-	(
-		STATIC { _modifiers |= TypeMemberModifiers.Static; } |
-		PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
-		PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
-		PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
-		INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
-		FINAL { _modifiers |= TypeMemberModifiers.Final; } |
-		TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
-		OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
-		ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
-		VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |
-		NEW { _modifiers |= TypeMemberModifiers.New; } |
-		PARTIAL { _modifiers |= TypeMemberModifiers.Partial; }
-	)*
+	(type_member_modifier)*
+;
+
+protected
+type_member_modifier
+{
+}:
+	STATIC { _modifiers |= TypeMemberModifiers.Static; } |
+	PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
+	PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
+	PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
+	INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
+	FINAL { _modifiers |= TypeMemberModifiers.Final; } |
+	TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
+	OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
+	ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
+	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |
+	NEW { _modifiers |= TypeMemberModifiers.New; } |
+	PARTIAL { _modifiers |= TypeMemberModifiers.Partial; }
 ;
 
 protected
@@ -1924,34 +1930,52 @@ ast_literal_expression returns [QuasiquoteExpression e]
 	{ e.EndSourceLocation = SourceLocationFactory.ToSourceLocation(end); }
 ;
 
-type_definition_member_prediction:
-	attributes
-	modifiers
-	(CLASS|INTERFACE|STRUCT|DEF|EVENT|(ID (AS|ASSIGN)))
+
+ast_literal_module[QuasiquoteExpression e]
+{
+	var m = CodeFactory.NewQuasiquoteModule(e.LexicalInfo);
+	e.Node = m;
+}:
+	parse_module[m]
 ;
+
 
 ast_literal_block[QuasiquoteExpression e]
 {
 	// TODO: either cache or construct these objects on demand
 	TypeMemberCollection collection = new TypeMemberCollection();
-	Block block = new Block();
-	StatementCollection statements = block.Statements;
+	Block b = new Block();
+	StatementCollection statements = b.Statements;
 	Node node = null;
 }: 
-	(type_definition_member_prediction)=>(
-		type_definition_member[collection]
-		{ e.Node = collection[0]; }
-	)
-	| (
-		(stmt[statements])+
-		{
-			if (block.Statements.Count > 0)
-			{
-				e.Node = block.Statements.Count > 1 ? block : block.Statements[0];
+	(ast_literal_module_prediction)=>(ast_literal_module[e])
+	
+	| (attributes (type_member_modifier | (modifiers
+		(CLASS | STRUCT | INTERFACE | EVENT | DEF | CALLABLE
+		| (ID (AS type_reference)? begin_with_doc[null] (GET|SET))))))
+		
+		=>((type_definition_member[collection])+ {
+			if (collection.Count == 1) {
+				e.Node = collection[0];
+			} else {
+				Module m = CodeFactory.NewQuasiquoteModule(e.LexicalInfo);
+				m.Members = collection;
+				e.Node = m;
 			}
 		}
 	)
+	| (stmt[statements])+ { e.Node = b.Statements.Count > 1 ? b : b.Statements[0]; }
+	
+;	
+
+
+ast_literal_module_prediction
+{
+}:
+	(eos)?
+	(NAMESPACE | IMPORT)
 ;
+
 
 
 protected
@@ -2210,28 +2234,18 @@ exponentiation returns [Expression e]
 	}:
 	e=unary_expression
 	(
-		t:AS
-		tr=type_reference
-		{
-			TryCastExpression ae = new TryCastExpression(SourceLocationFactory.ToLexicalInfo(t));
-			ae.Target = e;
-			ae.Type = tr;
-			e = ae; 
-		}
-	)?
-	
+		t:AS tr=type_reference { e = new TryCastExpression(ToLexicalInfo(t)) { Target = e, Type = tr }; }
+		| c:CAST tr=type_reference { e = new CastExpression(ToLexicalInfo(c)) { Target = e, Type = tr }; }
+		|
+	)
 	( options { greedy = true; }:
 	 	token:EXPONENTIATION
 		r=exponentiation
 		{
-			BinaryExpression be = new BinaryExpression(SourceLocationFactory.ToLexicalInfo(token));
-			be.Operator = BinaryOperatorType.Exponentiation;
-			be.Left = e;
-			be.Right = r;
-			e = be;
+			e = new BinaryExpression(ToLexicalInfo(token)) { Operator = BinaryOperatorType.Exponentiation, Left = e, Right = r };
 		}
 	)*
-	;
+;
 	
 	
 protected

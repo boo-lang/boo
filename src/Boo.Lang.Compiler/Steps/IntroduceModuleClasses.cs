@@ -207,30 +207,23 @@ namespace Boo.Lang.Compiler.Steps
 		
 		string BuildModuleClassName(Module module)
 		{
-			string moduleName = module.Name;
-			if (null == moduleName)
+			var moduleName = module.Name;
+			if (string.IsNullOrEmpty(moduleName))
 			{
 				module.Name = Context.GetUniqueName("Module");
 				return module.Name;
 			}
 
-			StringBuilder className = new StringBuilder();
-			char firstCharacter = moduleName[0];
-			if (!(char.IsLetter(firstCharacter) || firstCharacter=='_'))
-			{
+			var className = new StringBuilder();
+			if (!(char.IsLetter(moduleName[0]) || moduleName[0]=='_'))
 				className.Append('_');
-			}
 
-			className.Append(char.ToUpper(firstCharacter));
+			className.Append(char.ToUpper(moduleName[0]));
 			for (int i = 1; i < moduleName.Length; ++i)
 			{
-				char c = moduleName[i];
-				if (char.IsLetterOrDigit(c))
-					className.Append(c);
-				else
-					className.Append('_');
+				var c = moduleName[i];
+				className.Append(char.IsLetterOrDigit(c) ? c : '_');
 			}
-
 			return className.Append("Module").ToString();
 		}
 	}

@@ -2,7 +2,7 @@ using System;
 using Boo.Lang.Environments;
 using NUnit.Framework;
 
-namespace Boo.Lang.Runtime.Tests.Environments
+namespace Boo.Lang.Tests.Environments
 {
 	[TestFixture]
 	public class DeferredEnvironmentTest

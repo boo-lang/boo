@@ -39,4 +39,8 @@ using System.Security;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.4")]
 [assembly: AssemblyDelaySign(false)]
-[assembly: AllowPartiallyTrustedCallers]
+[assembly: AllowPartiallyTrustedCallers]
+
+#if (NET_4_0)
+[assembly: SecurityRules(SecurityRuleSet.Level1)]
+#endif

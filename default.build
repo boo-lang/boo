@@ -53,11 +53,27 @@
 		value="&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
 &lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
 
-	<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
+	<property name="supported.runtimes.net-4.0"
+		value="&lt;supportedRuntime version=&quot;v4.0.30319&quot;/&gt;
+&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
+&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
+
+	<property name="net40" value="${version::get-major(framework::get-version(framework::get-target-framework())) &gt;= 4}" />
+
+	<!-- Tests whether the target .NET platform is 4.0 or not -->
+	<if test="${net40}">
+		<property name="supported.runtimes" value="${supported.runtimes.net-4.0}" />
+		<property name="csc.4.define" value="NET_4_0;" />
+	</if>
+
+	<if test="${not net40}">
+		<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
+		<property name="csc.4.define" value="" />
+	</if>
 			
 	<property name="csc.noconfig" value="false" />	
 	<property name="csc.define.custom" value="NO_CUSTOM_DEFINE" unless="${property::exists('csc.define.custom')}" />
-	<property name="csc.define" value="NET_2_0;TRACE;DEBUG;${csc.define.custom}" />
+	<property name="csc.define" value="${csc.4.define}NET_2_0;TRACE;DEBUG;${csc.define.custom}" />
 
 	<property name="fixture" value="" dynamic="true" />
 	
@@ -270,7 +286,6 @@
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.PatternMatching.dll" />
-				<include name="System.Core.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
@@ -299,8 +314,6 @@
 			<arg value="${debugflag}" />
 			<arg value="-out:${build.dir}/Boo.NAnt.Tasks.dll" />
 			<arg value="-target:library" />
-			<!--arg value="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" /-->
-			<arg value="-lib:${nant::get-base-directory()}" />
 			<arg value="-r:NAnt.Core.dll" />
 			<arg value="-r:NAnt.DotNetTasks.dll" />
 			<arg value="src/Boo.NAnt.Tasks/UpdateAssemblyVersionTask.boo" />
@@ -308,6 +321,7 @@
 			<arg value="src/Boo.NAnt.Tasks/BoocTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/BooTask.boo" />
 			<arg value="src/Boo.NAnt.Tasks/AbstractBooTask.boo" />
+			<arg line='"-lib:${nant::get-base-directory()}"' />
 		</exec>
 		
 		<loadtasks assembly="${build.dir}/Boo.NAnt.Tasks.dll" />

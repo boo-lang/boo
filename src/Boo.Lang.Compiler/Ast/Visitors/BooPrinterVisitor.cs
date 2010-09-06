@@ -248,7 +248,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		private static bool IsInterfaceMember(TypeMember node)
 		{
-			return node.DeclaringType != null && node.DeclaringType.NodeType == NodeType.InterfaceDefinition;
+			return node.ParentNode != null && node.ParentNode.NodeType == NodeType.InterfaceDefinition;
 		}
 
 		override public void OnField(Field f)
@@ -624,11 +624,10 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnCastExpression(CastExpression node)
 		{
-			WriteKeyword("cast");
 			Write("(");
-			Visit(node.Type);
-			Write(", ");
 			Visit(node.Target);
+			WriteKeyword(" cast ");
+			Visit(node.Type);
 			Write(")");
 		}
 		

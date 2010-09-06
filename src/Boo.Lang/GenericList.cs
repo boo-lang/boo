@@ -48,7 +48,7 @@ namespace Boo.Lang
 			_items = EmptyArray;
 		}
 
-		public List(System.Collections.IEnumerable enumerable) : this()
+		public List(IEnumerable enumerable) : this()
 		{
 			Extend(enumerable);
 		}
@@ -56,9 +56,7 @@ namespace Boo.Lang
 		public List(int initialCapacity)
 		{
 			if (initialCapacity < 0)
-			{
 				throw new ArgumentOutOfRangeException("initialCapacity");
-			}
 			_items = new T[initialCapacity];
 			_count = 0;
 		}
@@ -66,18 +64,9 @@ namespace Boo.Lang
 		public List(T[] items, bool takeOwnership)
 		{
 			if (null == items)
-			{
 				throw new ArgumentNullException("items");
-			}
 
-			if (takeOwnership)
-			{
-				_items = items;
-			}
-			else
-			{
-				_items = (T[])items.Clone();
-			}
+			_items = takeOwnership ? items : (T[]) items.Clone();
 			_count = items.Length;
 		}
 
@@ -93,7 +82,7 @@ namespace Boo.Lang
 
 		public static List<T> operator+(List<T> lhs, System.Collections.IEnumerable rhs)
 		{
-			List<T> result = lhs.NewConcreteList(lhs.ToArray(), true);
+			var result = lhs.NewConcreteList(lhs.ToArray(), true);
 			result.Extend(rhs);
 			return result;
 		}
@@ -101,15 +90,11 @@ namespace Boo.Lang
 		public List<T> Multiply(int count)
 		{
 			if (count < 0)
-			{
 				throw new ArgumentOutOfRangeException("count");
-			}
 
-			T[] items = new T[_count*count];
+			var items = new T[_count*count];
 			for (int i=0; i<count; ++i)
-			{
 				Array.Copy(_items, 0, items, i*_count, _count);
-			}
 			return NewConcreteList(items, true);
 		}
 
@@ -123,9 +108,7 @@ namespace Boo.Lang
 			get
 			{
 				for (int i=_count-1; i>=0; --i)
-				{
 					yield return _items[i];
-				}
 			}
 		}
 
@@ -139,7 +122,7 @@ namespace Boo.Lang
 			Push(item);
 		}
 
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return ((IEnumerable<T>) this).GetEnumerator();
 		}
@@ -199,53 +182,40 @@ namespace Boo.Lang
 		public List<T> AddUnique(T item)
 		{
 			if (!Contains(item))
-			{
 				Add(item);
-			}
 			return this;
 		}
 
-		public List<T> Extend(System.Collections.IEnumerable enumerable)
+		public List<T> Extend(IEnumerable enumerable)
 		{
 			foreach (T item in enumerable)
-			{
 				Add(item);
-			}
 			return this;
 		}
 
-		public List<T> ExtendUnique(System.Collections.IEnumerable enumerable)
+		public List<T> ExtendUnique(IEnumerable enumerable)
 		{
 			foreach (T item in enumerable)
-			{
 				AddUnique(item);
-			}
 			return this;
 		}
 
-		public List<T> Collect(System.Predicate<T> condition)
+		public List<T> Collect(Predicate<T> condition)
 		{
 			if (null == condition)
-			{
 				throw new ArgumentNullException("condition");
-			}
-
-			List<T> newList = NewConcreteList(new T[0], true);
+			var newList = NewConcreteList(new T[0], true);
 			InnerCollect(newList, condition);
 			return newList;
 		}
 
-		public List<T> Collect(List<T> target, System.Predicate<T> condition)
+		public List<T> Collect(List<T> target, Predicate<T> condition)
 		{
 			if (null == target)
-			{
 				throw new ArgumentNullException("target");
-			}
 
 			if (null == condition)
-			{
 				throw new ArgumentNullException("condition");
-			}
 
 			InnerCollect(target, condition);
 			return target;
@@ -273,7 +243,7 @@ namespace Boo.Lang
 			return this;
 		}
 
-		public List<T> Sort(System.Collections.IComparer comparer)
+		public List<T> Sort(IComparer comparer)
 		{
 			Array.Sort(_items, 0, _count, comparer);
 			return this;
@@ -298,22 +268,22 @@ namespace Boo.Lang
 			#endregion
 		}
 
-		public List<T> Sort(System.Comparison<T> comparison)
+		public List<T> Sort(Comparison<T> comparison)
 		{
 			return Sort(new ComparisonComparer(comparison));
 		}
 
-		public List<T> Sort(System.Collections.Generic.IComparer<T> comparer)
+		public List<T> Sort(IComparer<T> comparer)
 		{
 			Array.Sort(_items, 0, _count, comparer);
 			return this;
 		}
 
-		private sealed class ComparerImpl : System.Collections.IComparer
+		private sealed class ComparerImpl : IComparer
 		{
-			Comparer _comparer;
+			Comparison<object> _comparer;
 
-			public ComparerImpl(Comparer comparer)
+			public ComparerImpl(Comparison<object> comparer)
 			{
 				_comparer = comparer;
 			}
@@ -327,10 +297,9 @@ namespace Boo.Lang
 		public List<T> Sort(Comparer comparer)
 		{
 			if (null == comparer)
-			{
 				throw new ArgumentNullException("comparer");
-			}
-			return Sort(new ComparerImpl(comparer));
+			Array.Sort(_items, 0, _count, comparer);
+			return this;
 		}
 
 		override public string ToString()
@@ -351,9 +320,7 @@ namespace Boo.Lang
 			{
 				T item = _items[i];
 				if (null != item)
-				{
 					hash ^= item.GetHashCode();
-				}
 			}
 			return hash;
 		}
@@ -363,7 +330,7 @@ namespace Boo.Lang
 			if (null == other) return false;
 			if (this == other) return true;
 
-			List<T> list = other as List<T>;
+			var list = other as List<T>;
 			return Equals(list);
 		}
 
@@ -374,19 +341,15 @@ namespace Boo.Lang
 			if (_count != other.Count) return false;
 
 			for (int i=0; i < _count; ++i)
-			{
 				if (!RuntimeServices.EqualityOperator(_items[i], other[i]))
 					return false;
-			}
 			return true;
 		}
 
 		public void Clear()
 		{
 			for (int i=0; i<_count; ++i)
-			{
 				_items[i] = default(T);
-			}
 			_count = 0;
 		}
 
@@ -407,12 +370,12 @@ namespace Boo.Lang
 			return -1 != IndexOf(item);
 		}
 
-		public bool Contains(System.Predicate<T> condition)
+		public bool Contains(Predicate<T> condition)
 		{
 			return -1 != IndexOf(condition);
 		}
 
-		public bool Find(System.Predicate<T> condition, out T found)
+		public bool Find(Predicate<T> condition, out T found)
 		{
 			int index = IndexOf(condition);
 			if (-1 != index)
@@ -424,42 +387,30 @@ namespace Boo.Lang
 			return false;
 		}
 
-		public List<T> FindAll(System.Predicate<T> condition)
+		public List<T> FindAll(Predicate<T> condition)
 		{
-			List<T> result = NewConcreteList(new T[0], true);
+			var result = NewConcreteList(new T[0], true);
 			foreach (T item in this)
-			{
 				if (condition(item)) result.Add(item);
-			}
 			return result;
 		}
 
-		public int IndexOf(System.Predicate<T> condition)
+		public int IndexOf(Predicate<T> condition)
 		{
 			if (null == condition)
-			{
 				throw new ArgumentNullException("condition");
-			}
 
 			for (int i=0; i<_count; ++i)
-			{
 				if (condition(_items[i]))
-				{
 					return i;
-				}
-			}
 			return -1;
 		}
 
 		public int IndexOf(T item)
 		{
 			for (int i=0; i<_count; ++i)
-			{
 				if (RuntimeServices.EqualityOperator(_items[i], item))
-				{
 					return i;
-				}
-			}
 			return -1;
 		}
 
@@ -469,9 +420,7 @@ namespace Boo.Lang
 			EnsureCapacity(Math.Max(_count, actual) + 1);
 
 			if (actual < _count)
-			{
 				Array.Copy(_items, actual, _items, actual+1, _count-actual);
-			}
 
 			_items[actual] = item;
 			++_count;
@@ -496,9 +445,7 @@ namespace Boo.Lang
 			int actualIndex = AdjustIndex(NormalizeIndex(begin));
 			List<T> range = InnerGetRange(actualIndex, AdjustIndex(NormalizeIndex(_count)));
 			for (int i=actualIndex; i<_count; ++i)
-			{
 				_items[i] = default(T);
-			}
 			_count = actualIndex;
 			return range;
 		}
@@ -507,9 +454,7 @@ namespace Boo.Lang
 		{
 			if (null == match) throw new ArgumentNullException("match");
 			for (int i=0; i<_count; ++i)
-			{
 				if (match(_items[i])) InnerRemoveAt(i--);
-			}
 			return this;
 		}
 
@@ -561,9 +506,7 @@ namespace Boo.Lang
 			--_count;
 			_items[index] = default(T);
 			if (index != _count)
-			{
 				Array.Copy(_items, index+1, _items, index, _count-index);
-			}
 		}
 
 		bool InnerRemove(T item)
@@ -577,15 +520,13 @@ namespace Boo.Lang
 			return false;
 		}
 
-		void InnerCollect(List<T> target, System.Predicate<T> condition)
+		void InnerCollect(List<T> target, Predicate<T> condition)
 		{
 			for (int i=0; i<_count; ++i)
 			{
 				T item = _items[i];
 				if (condition(item))
-				{
 					target.Add(item);
-				}
 			}
 		}
 
@@ -594,7 +535,7 @@ namespace Boo.Lang
 			int targetLen = end-begin;
 			if (targetLen > 0)
 			{
-				T[] target = new T[targetLen];
+				var target = new T[targetLen];
 				Array.Copy(_items, begin, target, 0, targetLen);
 				return NewConcreteList(target, true);
 			}

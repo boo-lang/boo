@@ -68,7 +68,7 @@ namespace Boo.Lang.Parser
 
 		private static string ModuleNameFrom(string readerName)
 		{
-			return Boo.Lang.Parser.BooParser.ModuleNameFrom(readerName);
+			return CodeFactory.ModuleNameFrom(readerName);
 		}
 
 		public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader, Boo.Lang.Parser.ParserErrorHandler errorHandler)

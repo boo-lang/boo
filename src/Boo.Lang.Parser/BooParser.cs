@@ -89,13 +89,13 @@ namespace Boo.Lang.Parser
 		{
 			if (Readers.IsEmpty(reader))
 			{
-				var emptyModule = new Module(new LexicalInfo(readerName), ModuleNameFrom(readerName));
+				var emptyModule = new Module(new LexicalInfo(readerName), CodeFactory.ModuleNameFrom(readerName));
 				cu.Modules.Add(emptyModule);
 				return emptyModule;
 			}
 
 			var module = CreateParser(tabSize, readerName, reader, errorHandler).start(cu);
-			module.Name = ModuleNameFrom(readerName);
+			module.Name = CodeFactory.ModuleNameFrom(readerName);
 			return module;
 		}
 
@@ -144,29 +144,6 @@ namespace Boo.Lang.Parser
 			return deprecated.Name + leftDelimiter + Builtins.join(deprecated.Parameters, ", ") + rightDelimiter;
 		}
 
-		override protected Module NewQuasiquoteModule(LexicalInfo li)
-		{
-			return new Module(li) { Name = ModuleNameFrom(li.FileName) + "$" + li.Line };
-		}
 		
-		public static string ModuleNameFrom(string readerName)
-		{
-			if (readerName.IndexOfAny(Path.GetInvalidPathChars()) > -1)
-				return EncodeModuleName(readerName);
-			return Path.GetFileNameWithoutExtension(Path.GetFileName(readerName));
-		}
-	
-		static string EncodeModuleName(string name)
-		{
-			var buffer = new StringBuilder(name.Length);
-			foreach (var ch in name)
-			{
-				if (Char.IsLetterOrDigit(ch))
-					buffer.Append(ch);
-				else
-					buffer.Append("_");
-			}
-			return buffer.ToString();
-		}
 	}
 }

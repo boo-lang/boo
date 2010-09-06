@@ -26,7 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+using System;
+using System.IO;
+using System.Text;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Parser
@@ -38,6 +40,31 @@ namespace Boo.Lang.Parser
 			var result = new GenericTypeReference(tr.LexicalInfo, "System.Collections.Generic.IEnumerable");
 			result.GenericArguments.Add(tr);
 			return result;
+		}
+		
+		public static Module NewQuasiquoteModule(LexicalInfo li)
+		{
+			return new Module(li) { Name = ModuleNameFrom(li.FileName) + "$" + li.Line };
+		}
+		
+		public static string ModuleNameFrom(string readerName)
+		{
+			if (readerName.IndexOfAny(Path.GetInvalidPathChars()) > -1)
+				return EncodeModuleName(readerName);
+			return Path.GetFileNameWithoutExtension(Path.GetFileName(readerName));
+		}
+	
+		static string EncodeModuleName(string name)
+		{
+			var buffer = new StringBuilder(name.Length);
+			foreach (var ch in name)
+			{
+				if (Char.IsLetterOrDigit(ch))
+					buffer.Append(ch);
+				else
+					buffer.Append("_");
+			}
+			return buffer.ToString();
 		}
 	}
 }

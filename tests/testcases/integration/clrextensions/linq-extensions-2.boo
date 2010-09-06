@@ -4,7 +4,7 @@
 1 1 | 2 2 | 3 3
 """
 
-import System.Linq.Enumerable from "System.Core.dll"
+import System.Linq.Enumerable
 
 ints as int* = (of int: 1,2,3,1,2,3)
 

@@ -5412,7 +5412,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		string GetTargetDirectory(string fname)
 		{
-			return Path.GetDirectoryName(TryToGetFullPath(fname));
+			return Permissions.WithDiscoveryPermission(() => Path.GetDirectoryName(Path.GetFullPath(fname)));
 		}
 
 		string BuildOutputAssemblyName()

@@ -171,6 +171,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCE0022_15_strict()
+		{
+			RunCompilerTestCase(@"BCE0022-15-strict.boo");
+		}
+		
+		[Test]
+		public void BCE0022_16_strict()
+		{
+			RunCompilerTestCase(@"BCE0022-16-strict.boo");
+		}
+		
+		[Test]
 		public void BCE0022_2()
 		{
 			RunCompilerTestCase(@"BCE0022-2.boo");
@@ -1302,6 +1314,12 @@ namespace BooCompiler.Tests
 		public void BCE0175()
 		{
 			RunCompilerTestCase(@"BCE0175.boo");
+		}
+		
+		[Test]
+		public void CannotConvertFooToInt()
+		{
+			RunCompilerTestCase(@"CannotConvertFooToInt.boo");
 		}
 		
 		[Test]

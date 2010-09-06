@@ -145,8 +145,6 @@ tokens
 	{
 		return NodeType.MethodInvocationExpression == e.NodeType;
 	}
-	
-	protected abstract Module NewQuasiquoteModule(LexicalInfo li);
 
 	protected bool IsValidMacroArgument(int token)
 	{
@@ -925,20 +923,25 @@ modifiers
 {
 }:
 	{ _modifiers = TypeMemberModifiers.None; }
-	(
-		STATIC { _modifiers |= TypeMemberModifiers.Static; } |
-		PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
-		PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
-		PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
-		INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
-		FINAL { _modifiers |= TypeMemberModifiers.Final; } |
-		TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
-		OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
-		ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
-		VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |
-		NEW { _modifiers |= TypeMemberModifiers.New; } |
-		PARTIAL { _modifiers |= TypeMemberModifiers.Partial; }
-	)*
+	(type_member_modifier)*
+;
+
+protected
+type_member_modifier
+{
+}:
+	STATIC { _modifiers |= TypeMemberModifiers.Static; } |
+	PUBLIC { _modifiers |= TypeMemberModifiers.Public; } |
+	PROTECTED { _modifiers |= TypeMemberModifiers.Protected; } |
+	PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
+	INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
+	FINAL { _modifiers |= TypeMemberModifiers.Final; } |
+	TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
+	OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
+	ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
+	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |
+	NEW { _modifiers |= TypeMemberModifiers.New; } |
+	PARTIAL { _modifiers |= TypeMemberModifiers.Partial; }
 ;
 
 protected
@@ -1429,12 +1432,12 @@ stmt [StatementCollection container]
 		)
 	)
 	{
-		if (null != s)
+		if (s != null && container != null)
 		{
 			container.Add(s);
 		}
 	}
-	;		
+;		
 
 protected
 simple_stmt [StatementCollection container]
@@ -2126,15 +2129,9 @@ ast_literal_expression returns [QuasiquoteExpression e]
 	{ SetEndSourceLocation(e, end); }
 ;
 
-type_definition_member_prediction:
-	attributes
-	modifiers
-	(CLASS|INTERFACE|STRUCT|DEF|EVENT|((ID|(SPLICE_BEGIN atom)) (AS|ASSIGN|(COLON INDENT (GET|SET)))))
-;
-
 ast_literal_module[QuasiquoteExpression e]
 {
-	Module m = NewQuasiquoteModule(e.LexicalInfo);
+	var m = CodeFactory.NewQuasiquoteModule(e.LexicalInfo);
 	e.Node = m;
 }:
 	parse_module[m]
@@ -2144,24 +2141,29 @@ ast_literal_block[QuasiquoteExpression e]
 {
 	// TODO: either cache or construct these objects on demand
 	TypeMemberCollection collection = new TypeMemberCollection();
-	Block block = new Block();
-	StatementCollection statements = block.Statements;
+	Block b = new Block();
+	StatementCollection statements = b.Statements;
 	Node node = null;
 }: 
-	(type_definition_member_prediction)=>(
-		(type_definition_member[collection])+ {
+	(ast_literal_module_prediction)=>(ast_literal_module[e])
+	
+	| (attributes (type_member_modifier | (modifiers
+		(CLASS | STRUCT | INTERFACE | EVENT | DEF | CALLABLE
+		| ((ID | splice_expression) (AS type_reference)? begin_with_doc[null] (GET|SET))))))
+		
+		=>((type_definition_member[collection])+ {
 			if (collection.Count == 1) {
 				e.Node = collection[0];
 			} else {
-				Module m = NewQuasiquoteModule(e.LexicalInfo);
+				Module m = CodeFactory.NewQuasiquoteModule(e.LexicalInfo);
 				m.Members = collection;
 				e.Node = m;
 			}
 		}
 	)
-	| (ast_literal_module_prediction)=>(ast_literal_module[e])
-	| ((stmt[statements])+ { e.Node = block.Statements.Count > 1 ? block : block.Statements[0]; })
-;
+	| (stmt[statements])+ { e.Node = b.Statements.Count > 1 ? b : b.Statements[0]; }
+	
+;	
 
 ast_literal_module_prediction
 {
@@ -2181,10 +2183,7 @@ ast_literal_closure[QuasiquoteExpression e]
 		(
 			c:COLON node=expression
 			{
-				e.Node = new ExpressionPair(
-								ToLexicalInfo(c),
-								(Expression)e.Node,
-								(Expression)node);
+				e.Node = new ExpressionPair(ToLexicalInfo(c), (Expression)e.Node, (Expression)node);
 			}
 		)?
 	) 
@@ -2492,29 +2491,18 @@ exponentiation returns [Expression e]
 	}:
 	e=unary_expression
 	(
-		t:AS
-		tr=type_reference
-		{
-			TryCastExpression ae = new TryCastExpression(ToLexicalInfo(t));
-			ae.Target = e;
-			ae.Type = tr;
-			e = ae; 
-		}
-	)?
-	
+		t:AS tr=type_reference { e = new TryCastExpression(ToLexicalInfo(t)) { Target = e, Type = tr }; }
+		| c:CAST tr=type_reference { e = new CastExpression(ToLexicalInfo(c)) { Target = e, Type = tr }; }
+		|
+	)
 	( options { greedy = true; }:
 	 	token:EXPONENTIATION
 		r=exponentiation
 		{
-			BinaryExpression be = new BinaryExpression(ToLexicalInfo(token));
-			be.Operator = BinaryOperatorType.Exponentiation;
-			be.Left = e;
-			be.Right = r;
-			e = be;
+			e = new BinaryExpression(ToLexicalInfo(token)) { Operator = BinaryOperatorType.Exponentiation, Left = e, Right = r };
 		}
 	)*
-	;
-	
+;	
 	
 protected
 unary_expression returns [Expression e]

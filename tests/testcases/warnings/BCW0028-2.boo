@@ -1,5 +1,6 @@
 """
-BCW0028-2.boo(18,9): BCW0028: WARNING: Implicit downcast from 'Test' to 'System.Collections.IEnumerable'.
+BCW0028-2.boo(19,9): BCW0028: WARNING: Implicit downcast from 'Test' to 'System.Collections.IEnumerable'.
+BCW0028-2.boo(22,5): BCW0028: WARNING: Implicit downcast from 'object' to 'string'.
 """
 import System.Collections
 

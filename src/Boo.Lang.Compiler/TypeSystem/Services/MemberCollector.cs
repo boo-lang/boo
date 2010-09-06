@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Boo.Lang.Compiler.TypeSystem.Services
 {
@@ -6,14 +7,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	{
 		public static IEntity[] CollectAllMembers(INamespace entity)
 		{
-			List members = new List();
+			var members = new List<IEntity>();
 			CollectAllMembers(members, entity);
-			return (IEntity[])members.ToArray(new IEntity[members.Count]);
+			return members.ToArray();
 		}
 
-		private static void CollectAllMembers(List members, INamespace entity)
+		private static void CollectAllMembers(List<IEntity> members, INamespace entity)
 		{
-			IType type = entity as IType;
+			var type = entity as IType;
 			if (null != type)
 			{
 				members.ExtendUnique(type.GetMembers());
@@ -25,7 +26,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			}
 		}
 
-		private static void CollectBaseTypeMembers(List members, IType baseType)
+		private static void CollectBaseTypeMembers(List<IEntity> members, IType baseType)
 		{
 			if (null == baseType) return;
 
@@ -34,7 +35,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			CollectBaseTypeMembers(members, baseType.BaseType);
 		}
 
-		private static bool IsHiddenBy(IEntity entity, List members)
+		private static bool IsHiddenBy(IEntity entity, IEnumerable<IEntity> members)
 		{
 			var m = entity as IMethod;
 			if (m != null)
