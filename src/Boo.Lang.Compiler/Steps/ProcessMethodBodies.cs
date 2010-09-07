@@ -1361,7 +1361,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IType GeneratorItemTypeFor(InternalMethod generator)
 		{
-			return Context.Provide<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
+			return My<GeneratorItemTypeInferrer>.Instance.GeneratorItemTypeFor(generator);
 		}
 
 		void TryToResolveReturnType(InternalMethod entity)
@@ -4134,7 +4134,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
 		{
-			var genericService = Context.Environment.Provide<GenericsServices>();
+			var genericService = My<GenericsServices>.Instance;
 			var methods = entity.Entities
 				.OfType<IMethod>()
 				.Select(m => {

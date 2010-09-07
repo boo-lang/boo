@@ -333,15 +333,6 @@ namespace Boo.Lang.Compiler
 			component.Initialize(this);
 		}
 
-		///<summary>Gets a registered compiler service of a specific Type or registers a new instance of Type if not yet registered.</summary>
-		///<param name="T">The type of the requested service.</param>
-		///<returns>Returns the requested service instance.</returns>
-		///<exception cref="ArgumentException">Thrown when requested service of type <paramref name="T"/> has not been found.</exception>
-		public T Provide<T>() where T : class
-		{
-			return _environment.Provide<T>();
-		}
-
 		void OnCompilerWarning(object o, CompilerWarningEventArgs args)
 		{
 			CompilerWarning warning = args.Warning;
