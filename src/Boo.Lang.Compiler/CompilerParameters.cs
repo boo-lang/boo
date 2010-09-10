@@ -109,6 +109,10 @@ namespace Boo.Lang.Compiler
 		public CompilerParameters() : this(true)
 		{
 		}
+		
+		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider) : this(reflectionProvider, true)
+		{
+		}
 
 		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
 		{
