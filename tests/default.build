@@ -2,6 +2,7 @@
 <project name="tests" default="run">
 
 	<include buildfile="nunit.inc" />
+	<include buildfile="../build.properties" if="${file::exists('../build.properties')}" /> 
 	
 	<property name="test-bin-dir" value="../build" overwrite="false" />
 	
