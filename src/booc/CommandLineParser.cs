@@ -74,7 +74,7 @@ namespace booc
 				}
 				if (!IsFlag(arg))
 				{
-					_options.Input.Add(new FileInput(arg));
+					_options.Input.Add(new FileInput(StripQuotes(arg)));
 					continue;
 				}
 				if ("-utf8" == arg)
@@ -580,9 +580,14 @@ namespace booc
 
 		private static string StripQuotes(string s)
 		{
-			if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\""))
+			if (s.Length > 1 && (IsDelimitedBy(s, "\"") || IsDelimitedBy(s, "'")))
 				return s.Substring(1, s.Length - 2);
 			return s;
+		}
+
+		private static bool IsDelimitedBy(string s, string delimiter)
+		{
+			return s.StartsWith(delimiter) && s.EndsWith(delimiter);
 		}
 
 		private static string TrimAdditionalQuote(string s)
