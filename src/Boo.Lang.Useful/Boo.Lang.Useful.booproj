@@ -71,4 +71,7 @@
   <ItemGroup>
     <Folder Include="IO\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+  </ItemGroup>
 </Project>

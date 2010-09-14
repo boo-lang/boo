@@ -29,6 +29,7 @@
 namespace Boo.Lang.Useful.CommandLine.Tests
 
 import System
+import System.IO
 import Useful.CommandLine
 import NUnit.Framework
 
@@ -81,6 +82,24 @@ class JiraCommandLine(AbstractCommandLine):
 		
 [TestFixture]
 class AbstractCommandLineTestFixture:
+	
+	[Test]
+	def ResponseFilesWithQuotedArgumentsContainingSpacesPreserveQuotes():
+		
+		sourceFile = '"/foo/with space/src.boo"'
+		reference = '"/foo/with space/bar.dll"'
+		
+		rsp = Path.GetTempFileName()
+		File.WriteAllText(rsp, """
+#this is only a comment
+-r:$reference
+$sourceFile
+		""")
+		
+		cmdLine= BooCommandLine(("@$rsp",))
+		Assert.AreEqual([reference], cmdLine.References)
+		Assert.AreEqual([sourceFile], cmdLine.Arguments)
+		
 
 	[Test]
 	def TestParse():
