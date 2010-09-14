@@ -1,9 +1,5 @@
-build
-ide-build
-_ReSharper*
-obj
-external
-*.suo
-*.user
+/build.properties
+/build
+/ide-build
+test-results
 *.pidb
-
