@@ -315,9 +315,7 @@ namespace Boo.Lang.Compiler.Steps
 		void EmitAttributes(INodeWithAttributes node, CustomAttributeSetter setCustomAttribute)
 		{
 			foreach (Attribute attribute in node.Attributes)
-			{
 				setCustomAttribute(GetCustomAttributeBuilder(attribute));
-			}
 		}
 
 		void EmitPropertyAttributes(Property node)
@@ -356,33 +354,17 @@ namespace Boo.Lang.Compiler.Steps
 			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 
-		void EmitTypeAttributes(EnumDefinition node)
-		{
-			EnumBuilder builder = GetBuilder(node) as EnumBuilder;
-			if (null != builder)
-			{
-				EmitAttributes(node, builder.SetCustomAttribute);
-			}
-			else //nested enum
-			{
-				TypeBuilder typeBuilder = GetTypeBuilder(node);
-				EmitAttributes(node, typeBuilder.SetCustomAttribute);
-			}
-		}
-
 		void EmitFieldAttributes(TypeMember node)
 		{
 			FieldBuilder builder = GetFieldBuilder(node);
-			EmitAttributes(node, new CustomAttributeSetter(builder.SetCustomAttribute));
+			EmitAttributes(node, builder.SetCustomAttribute);
 		}
 
 		void EmitAttributes()
 		{
 			AttributeEmitVisitor visitor = new AttributeEmitVisitor(this);
 			foreach (Module module in CompileUnit.Modules)
-			{
 				module.Accept(visitor);
-			}
 		}
 
 		void CreateTypes(List<TypeDefinition> types)
@@ -465,19 +447,9 @@ namespace Boo.Lang.Compiler.Steps
 					CreateOuterTypeOf(type);
 
 				CreateRelatedTypes(type);
-				var typeBuilder = _emitter.GetBuilder(type) as TypeBuilder;
-				if (null != typeBuilder)
-					typeBuilder.CreateType();
-				else
-					HandleEnumCreation(type);
-
+				var typeBuilder = (TypeBuilder)_emitter.GetBuilder(type);
+				typeBuilder.CreateType();
 				Trace("type '{0}' successfully created", type);
-			}
-
-			private void HandleEnumCreation(TypeMember type)
-			{
-				var enumBuilder = (EnumBuilder) _emitter.GetBuilder(type);
-				enumBuilder.CreateType();
 			}
 
 			private void CreateOuterTypeOf(TypeMember type)
@@ -524,11 +496,15 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			bool IsNestedType(TypeMember type)
+			static bool IsNestedType(TypeMember type)
 			{
-				NodeType parent = type.ParentNode.NodeType;
-				return (NodeType.ClassDefinition == parent) ||
-					(NodeType.InterfaceDefinition == parent);
+				switch (type.ParentNode.NodeType)
+				{
+					case NodeType.ClassDefinition:
+					case NodeType.InterfaceDefinition:
+						return true;
+				}
+				return false;
 			}
 
 			void Trace(string format, params object[] args)
@@ -602,28 +578,16 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		override public void OnEnumDefinition(EnumDefinition node)
-		{
-			var builder = GetBuilder(node) as EnumBuilder;
-			if (null != builder)
+		{	
+			TypeBuilder typeBuilder = GetTypeBuilder(node);
+			foreach (EnumMember member in node.Members)
 			{
-				foreach (EnumMember member in node.Members)
-				{
-					var field = builder.DefineLiteral(member.Name, InitializerValueOf(member, node));
-					SetBuilder(member, field);
-				}
-			}
-			else //nested enum (have to go through regular TypeBuilder
-			{	 //since there is no DefineNestedEnum in SRE :-/
-				TypeBuilder typeBuilder = GetTypeBuilder(node);
-				foreach (EnumMember member in node.Members)
-				{
-					var field = typeBuilder.DefineField(member.Name, typeBuilder,
-														FieldAttributes.Public |
-														FieldAttributes.Static |
-														FieldAttributes.Literal);
-					field.SetConstant(InitializerValueOf(member, node));
-					SetBuilder(member, field);
-				}
+				var field = typeBuilder.DefineField(member.Name, typeBuilder,
+													FieldAttributes.Public |
+													FieldAttributes.Static |
+													FieldAttributes.Literal);
+				field.SetConstant(InitializerValueOf(member, node));
+				SetBuilder(member, field);
 			}
 		}
 
@@ -4475,18 +4439,14 @@ namespace Boo.Lang.Compiler.Steps
 		ConstructorInfo GetConstructorInfo(IConstructor entity)
 		{
 			// If constructor is external, get its existing ConstructorInfo
-			ExternalConstructor external = entity as ExternalConstructor;
+			var external = entity as ExternalConstructor;
 			if (null != external)
-			{
 				return external.ConstructorInfo;
-			}
 
 			// If constructor is mapped from a generic type, get its ConstructorInfo on the constructed type
-			GenericMappedConstructor mapped = entity as GenericMappedConstructor;
+			var mapped = entity as GenericMappedConstructor;
 			if (mapped != null)
-			{
 				return TypeBuilder.GetConstructor(GetSystemType(mapped.DeclaringType), GetConstructorInfo((IConstructor)mapped.SourceMember));
-			}
 
 			// If constructor is internal, get its MethodBuilder
 			return GetConstructorBuilder(((InternalMethod)entity).Method);
@@ -5126,28 +5086,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			TypeBuilder typeBuilder = null;
-			ClassDefinition enclosingType = type.ParentNode as ClassDefinition;
-			EnumDefinition enumDef = type as EnumDefinition;
+			var enclosingType = type.ParentNode as ClassDefinition;
+			var enumDef = type as EnumDefinition;
 
 			if (null == enclosingType)
 			{
-				if (IsEnumDefinition(type))
-				{
-					//have to normalize TypeAttributes for EnumBuilder only
-					EnumBuilder enumBuilder = _moduleBuilder.DefineEnum(
-						type.QualifiedName,
-						GetTypeVisibilityAttributes(type),
-						GetEnumUnderlyingType(enumDef));
-					enumBuilder.SetCustomAttribute(CreateSerializableAttribute());
-					return enumBuilder;
-				}
-				else
-				{
-					typeBuilder = _moduleBuilder.DefineType(
-						AnnotateGenericTypeName(type, type.QualifiedName),
-						GetTypeAttributes(type),
-						baseType);
-				}
+				typeBuilder = _moduleBuilder.DefineType(
+					AnnotateGenericTypeName(type, type.QualifiedName),
+					GetTypeAttributes(type),
+					baseType);
 			}
 			else
 			{
@@ -5206,12 +5153,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		CustomAttributeBuilder GetCustomAttributeBuilder(Attribute node)
 		{
-			IConstructor constructor = (IConstructor)GetEntity(node);
-			ConstructorInfo constructorInfo = GetConstructorInfo(constructor);
-			object[] constructorArgs = GetValues(constructor.GetParameters(),
-												 node.Arguments);
+			var constructor = (IConstructor)GetEntity(node);
+			var constructorInfo = GetConstructorInfo(constructor);
+			object[] constructorArgs = GetValues(constructor.GetParameters(), node.Arguments);
 
-			ExpressionPairCollection namedArgs = node.NamedArguments;
+			var namedArgs = node.NamedArguments;
 			if (namedArgs.Count > 0)
 			{
 				PropertyInfo[] namedProperties;
@@ -5328,7 +5274,6 @@ namespace Boo.Lang.Compiler.Steps
 					//If field.StaticValue is an AST Expression, call GetValue() on it
 					if (field.StaticValue is Expression)
 						return GetValue(expectedType, field.StaticValue as Expression);
-
 					return field.StaticValue;
 				}
 			}

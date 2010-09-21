@@ -1,3 +1,4 @@
+#ignore broken by SRE bug
 """
 Coffee
 Tea
