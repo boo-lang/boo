@@ -147,11 +147,11 @@ namespace Boo.Lang.Compiler.Steps
 		Dictionary<IType, Type> _typeCache = new Dictionary<IType, Type>();
 
 		// keeps track of types on the IL stack
-		Stack _types = new Stack();
+		readonly Stack<IType> _types = new Stack<IType>();
 
-		Stack _loopInfoStack = new Stack();
+		readonly Stack<LoopInfo> _loopInfoStack = new Stack<LoopInfo>();
 
-		AttributeCollection _assemblyAttributes = new AttributeCollection();
+		readonly AttributeCollection _assemblyAttributes = new AttributeCollection();
 
 		LoopInfo _currentLoopInfo;
 
@@ -168,7 +168,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void LeaveLoop()
 		{
-			_currentLoopInfo = (LoopInfo)_loopInfoStack.Pop();
+			_currentLoopInfo = _loopInfoStack.Pop();
 		}
 
 		void PushType(IType type)
@@ -188,20 +188,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		IType PopType()
 		{
-			return (IType)_types.Pop();
+			return _types.Pop();
 		}
 
 		IType PeekTypeOnStack()
 		{
-			return (_types.Count != 0) ? (IType) _types.Peek() : null;
+			return (_types.Count != 0) ? _types.Peek() : null;
 		}
 
 		override public void Run()
 		{
 			if (Errors.Count > 0)
-			{
 				return;
-			}
 
 			GatherAssemblyAttributes();
 			SetUpAssembly();
