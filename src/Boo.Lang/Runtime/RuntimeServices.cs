@@ -28,6 +28,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Collections;
 using System.IO;
@@ -419,7 +421,7 @@ namespace Boo.Lang.Runtime
 					case ((int)'M' << 8) + (int)'r':			// op_Member
 					case ((int)'N' << 8) + (int)'r':			// op_NotMember
 					default:
-						throw new ArgumentException(lhs + " " + operatorName + " " + rhs);
+						throw new MissingMethodException(MissingOperatorMessageFor(operatorName, lhsType, rhsType));
 				}
 			}
 			else
@@ -428,14 +430,10 @@ namespace Boo.Lang.Runtime
 				var duck = lhs as IQuackFu;
 				if (null != duck)
 					return duck.QuackInvoke(operatorName, args);
-				else
-				{
-					duck = rhs as IQuackFu;
-					if (null != duck)
-					{
-						return duck.QuackInvoke(operatorName, args);
-					}
-				}
+
+				duck = rhs as IQuackFu;
+				if (null != duck)
+					return duck.QuackInvoke(operatorName, args);
 
 				try
 				{
@@ -444,7 +442,7 @@ namespace Boo.Lang.Runtime
 					// and then cache the final information
 					return Invoke(lhsType, operatorName, args);
 				}
-				catch (MissingMethodException)
+				catch (MissingMethodException x)
 				{
 					try
 					{
@@ -461,9 +459,31 @@ namespace Boo.Lang.Runtime
 						}
 					}
 
-					throw; // always throw the original exception
+					throw new MissingMethodException(MissingOperatorMessageFor(operatorName, lhsType, rhsType), x); // always throw the original exception
 				}
 			}
+		}
+
+		private static string MissingOperatorMessageFor(string operatorName, Type lhsType, Type rhsType)
+		{
+			return string.Format("{0} is not applicable to operands '{1}' and '{2}'.", FormatOperatorName(operatorName), lhsType, rhsType);
+		}
+
+		private static string FormatOperatorName(string operatorName)
+		{
+			Debug.Assert(operatorName.StartsWith("op_"));
+
+			var result = new StringBuilder(operatorName.Length);
+			result.Append(operatorName[3]);
+			foreach (var ch in operatorName.Substring(4))
+				if (char.IsUpper(ch))
+				{
+					result.Append(" ");
+					result.Append(char.ToLower(ch));
+				}
+				else
+					result.Append(ch);
+			return result.ToString();
 		}
 
 		public static object InvokeUnaryOperator(string operatorName, object operand)
