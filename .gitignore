@@ -3,3 +3,6 @@
 /ide-build
 test-results
 *.pidb
+*.suo
+*.user
+_ReSharper*
