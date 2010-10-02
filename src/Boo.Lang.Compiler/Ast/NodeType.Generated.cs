@@ -110,6 +110,7 @@ namespace Boo.Lang.Compiler.Ast
 		SpliceTypeReference,
 		SpliceMemberReferenceExpression,
 		SpliceTypeMember,
+		SpliceTypeDefinitionBody,
 		SpliceParameterDeclaration,
 		ExpressionInterpolationExpression,
 		HashLiteralExpression,

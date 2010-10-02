@@ -2400,6 +2400,44 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		internal void SerializeSpliceTypeDefinitionBody(Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.Modifiers))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Modifiers"),
+						Serialize(node.Modifiers)));
+			}
+			if (ShouldSerialize(node.Name))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Name"),
+						Serialize(node.Name)));
+			}
+			if (ShouldSerialize(node.Attributes))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Attributes"),
+						SerializeCollection(node, "Boo.Lang.Compiler.Ast.AttributeCollection", node.Attributes)));
+			}
+			if (ShouldSerialize(node.Expression))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Expression"),
+						Serialize(node.Expression)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		internal void SerializeSpliceParameterDeclaration(Boo.Lang.Compiler.Ast.SpliceParameterDeclaration node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(

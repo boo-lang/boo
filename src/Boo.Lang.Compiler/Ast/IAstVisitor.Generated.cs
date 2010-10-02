@@ -109,6 +109,7 @@ namespace Boo.Lang.Compiler.Ast
 		void OnSpliceTypeReference(SpliceTypeReference node);
 		void OnSpliceMemberReferenceExpression(SpliceMemberReferenceExpression node);
 		void OnSpliceTypeMember(SpliceTypeMember node);
+		void OnSpliceTypeDefinitionBody(SpliceTypeDefinitionBody node);
 		void OnSpliceParameterDeclaration(SpliceParameterDeclaration node);
 		void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node);
 		void OnHashLiteralExpression(HashLiteralExpression node);

@@ -1364,6 +1364,28 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnSpliceTypeDefinitionBody(Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody node)
+		{				
+			if (EnterSpliceTypeDefinitionBody(node))
+			{
+				Visit(node.Attributes);
+				Visit(node.Expression);
+				LeaveSpliceTypeDefinitionBody(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterSpliceTypeDefinitionBody(Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveSpliceTypeDefinitionBody(Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnSpliceParameterDeclaration(Boo.Lang.Compiler.Ast.SpliceParameterDeclaration node)
 		{				
 			if (EnterSpliceParameterDeclaration(node))

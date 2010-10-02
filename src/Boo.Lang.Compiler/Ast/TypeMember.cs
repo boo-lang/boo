@@ -37,6 +37,28 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(Method))]
 	public abstract partial class TypeMember
 	{		
+		public static TypeMember Lift(TypeMember member)
+		{
+			return member;
+		}
+
+		public static TypeMember Lift(Statement stmt)
+		{
+			var typeMemberStatement = stmt as TypeMemberStatement;
+			if (null != typeMemberStatement)
+				return typeMemberStatement.TypeMember;
+
+			throw new NotImplementedException(stmt.ToCodeString());
+		}
+
+		public static TypeMemberCollection Lift(Block block)
+		{
+			var members = new TypeMemberCollection();
+			foreach (var stmt in block.Statements)
+				members.Add(TypeMember.Lift(stmt));
+			return members;
+		}
+
 		protected TypeMember()
 		{
  		}

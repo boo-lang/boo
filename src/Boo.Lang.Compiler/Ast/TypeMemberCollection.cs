@@ -26,10 +26,26 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections.Generic;
+
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class TypeMemberCollection
 	{
+		public static TypeMemberCollection FromArray(params object[] items)
+		{
+			var result = new TypeMemberCollection();
+			foreach (var item in items)
+			{
+				var typeMember = item as TypeMember;
+				if (typeMember != null)
+					result.Add(typeMember);
+				else
+					result.Extend((IEnumerable<TypeMember>)item);
+			}
+			return result;
+		}
+
 		public TypeMemberCollection()
 		{
 		}
@@ -43,9 +59,7 @@ namespace Boo.Lang.Compiler.Ast
 			get
 			{
 				foreach (TypeMember member in InnerList)
-				{
 					if (member.Name == name) return member;
-				}
 				return null;
 			}
 		}

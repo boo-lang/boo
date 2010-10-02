@@ -25,6 +25,24 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void class_body_splicing_1()
+		{
+			RunCompilerTestCase(@"class-body-splicing-1.boo");
+		}
+		
+		[Test]
+		public void class_name_splicing_1()
+		{
+			RunCompilerTestCase(@"class-name-splicing-1.boo");
+		}
+		
+		[Test]
+		public void class_name_splicing_2()
+		{
+			RunCompilerTestCase(@"class-name-splicing-2.boo");
+		}
+		
+		[Test]
 		public void CodeReifierMergeIntoWithEmptyArrayLiteral()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithEmptyArrayLiteral.boo");

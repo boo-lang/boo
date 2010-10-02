@@ -487,6 +487,9 @@ class SpliceTypeMember(TypeMember):
 	TypeMember as TypeMember
 	NameExpression as Expression
 	
+class SpliceTypeDefinitionBody(TypeMember):
+	Expression as Expression
+	
 class SpliceParameterDeclaration(ParameterDeclaration):
 	ParameterDeclaration as ParameterDeclaration
 	NameExpression as Expression
