@@ -788,7 +788,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.ContainsAnnotation("inline"))
 				AddOptionalReturnStatement(node.Body);
 
-			var explicitClosureName = node["ClosureName"] as string;
+			var explicitClosureName = node[BlockExpression.ClosureNameAnnotation] as string;
 
 			Method closure = CodeBuilder.CreateMethod(
 				ClosureName(explicitClosureName),

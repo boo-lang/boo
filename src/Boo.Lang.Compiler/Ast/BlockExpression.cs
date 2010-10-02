@@ -32,6 +32,8 @@ namespace Boo.Lang.Compiler.Ast
 	
 	public partial class BlockExpression
 	{
+		public static string ClosureNameAnnotation = "ClosureName";
+
 		public BlockExpression()
 		{
 		}

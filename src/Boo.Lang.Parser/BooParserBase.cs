@@ -8372,7 +8372,7 @@ _loop279_breakloop:						;
 										ToLexicalInfo(id),
 										name),
 									be);
-						be["ClosureName"] = name;
+						be[BlockExpression.ClosureNameAnnotation] = name;
 					
 			}
 		}

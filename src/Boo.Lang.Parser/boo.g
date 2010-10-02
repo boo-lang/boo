@@ -1449,7 +1449,7 @@ nested_function returns [Statement stmt]
 						ToLexicalInfo(id),
 						name),
 					be);
-		be["ClosureName"] = name;
+		be[BlockExpression.ClosureNameAnnotation] = name;
 	}
 ;
 	
