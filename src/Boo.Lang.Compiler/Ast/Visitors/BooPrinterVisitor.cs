@@ -879,16 +879,31 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnSpliceExpression(SpliceExpression e)
 		{
+			WriteSplicedExpression(e.Expression);
+		}
+
+		private void WriteSplicedExpression(Expression expression)
+		{
 			WriteOperator("$(");
-			Visit(e.Expression);
+			Visit(expression);
 			WriteOperator(")");
+		}
+
+		public override void OnSpliceTypeMember(SpliceTypeMember node)
+		{
+			WriteIndented();
+			Visit(node.TypeMember);
+			WriteLine();
+		}
+
+		public override void OnSpliceTypeDefinitionBody(SpliceTypeDefinitionBody node)
+		{
+			WriteSplicedExpression(node.Expression);
 		}
 		
 		override public void OnSpliceTypeReference(SpliceTypeReference node)
 		{
-			WriteOperator("$(");
-			Visit(node.Expression);
-			WriteOperator(")");
+			WriteSplicedExpression(node.Expression);
 		}
 		
 		void WriteIndentedOperator(string op)
@@ -1703,7 +1718,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented();
 			WriteKeyword(keyword);
 			Write(" ");
-			Write(td.Name);
+
+			var splice = td.ParentNode as SpliceTypeMember;
+			if (splice != null)
+				WriteSplicedExpression(splice.NameExpression);
+			else
+				Write(td.Name);
 
 			if (td.GenericParameters.Count != 0)
 			{
