@@ -35,6 +35,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(Field))]
 	[System.Xml.Serialization.XmlInclude(typeof(Property))]
 	[System.Xml.Serialization.XmlInclude(typeof(Method))]
+	[System.Xml.Serialization.XmlInclude(typeof(TypeMemberStatement))]
 	public abstract partial class TypeMember
 	{		
 		public static TypeMember Lift(TypeMember member)
@@ -46,9 +47,57 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			var typeMemberStatement = stmt as TypeMemberStatement;
 			if (null != typeMemberStatement)
-				return typeMemberStatement.TypeMember;
+				return TypeMember.Lift(typeMemberStatement);
+
+			var declaration = stmt as DeclarationStatement;
+			if (null != declaration)
+				return TypeMember.Lift(declaration);
+
+			var expressionStatement = stmt as ExpressionStatement;
+			if (null != expressionStatement)
+				return TypeMember.Lift(expressionStatement);
 
 			throw new NotImplementedException(stmt.ToCodeString());
+		}
+
+		public static TypeMember Lift(TypeMemberStatement stmt)
+		{
+			return stmt.TypeMember;
+		}
+
+		public static TypeMember Lift(DeclarationStatement stmt)
+		{
+			var closure = stmt.Initializer as BlockExpression;
+			if (closure != null && closure.ContainsAnnotation(BlockExpression.ClosureNameAnnotation))
+				return TypeMember.Lift(closure);
+
+			return new Field(stmt.LexicalInfo)
+			       	{
+			       		Name = stmt.Declaration.Name,
+						Type = stmt.Declaration.Type,
+						Initializer = stmt.Initializer
+			       	};
+		}
+
+		public static TypeMember Lift(ExpressionStatement stmt)
+		{
+			var e = stmt.Expression;
+			var closure = e as BlockExpression;
+			if (closure != null)
+				return TypeMember.Lift(closure);
+
+			throw new NotImplementedException(stmt.ToCodeString());
+		}
+
+		private static TypeMember Lift(BlockExpression closure)
+		{
+			return new Method(closure.LexicalInfo)
+			        	{
+							Name = (string)closure[BlockExpression.ClosureNameAnnotation],
+							Parameters = closure.Parameters,
+							ReturnType = closure.ReturnType,
+							Body = closure.Body
+			        	};
 		}
 
 		public static TypeMemberCollection Lift(Block block)

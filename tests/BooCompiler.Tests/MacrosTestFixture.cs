@@ -20,6 +20,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void custom_class_macro_with_simple_method_and_field()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-simple-method-and-field.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_simple_method()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-simple-method.boo");
+		}
+		
+		[Test]
 		public void debug_1()
 		{
 			RunCompilerTestCase(@"debug-1.boo");
