@@ -14,6 +14,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void custom_class_macro_with_method_override()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-method-override.boo");
+		}
+		
+		[Test]
 		public void debug_1()
 		{
 			RunCompilerTestCase(@"debug-1.boo");

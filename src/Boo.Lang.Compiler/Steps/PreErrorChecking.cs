@@ -239,17 +239,16 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void MakeStaticIfNeeded(TypeMember node)
 		{
-			if(node.DeclaringType.IsStatic)
+			var declaringType = node.DeclaringType;
+			if (declaringType != null && declaringType.IsStatic)
 			{
 				if(node.IsStatic)
-				{
-					Warnings.Add(CompilerWarningFactory.StaticClassMemberRedundantlyMarkedStatic(node, node.DeclaringType.Name, node.Name));
-				}
+					Warnings.Add(CompilerWarningFactory.StaticClassMemberRedundantlyMarkedStatic(node, declaringType.Name, node.Name));
 				
 				node.Modifiers |= TypeMemberModifiers.Static;
 			}
 		}
-				
+
 		void CheckExplicitImpl(IExplicitMember member)
 		{
 			ExplicitMemberInfo ei = member.ExplicitInfo;

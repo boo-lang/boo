@@ -259,6 +259,7 @@
     <Compile Include="Ast\Impl\SpliceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SpliceMemberReferenceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SpliceParameterDeclarationImpl.cs" />
+    <Compile Include="Ast\Impl\SpliceTypeDefinitionBodyImpl.cs" />
     <Compile Include="Ast\Impl\SpliceTypeMemberImpl.cs" />
     <Compile Include="Ast\Impl\SpliceTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\StatementCollectionImpl.cs" />
@@ -275,6 +276,7 @@
     <Compile Include="Ast\Impl\TypeDefinitionImpl.cs" />
     <Compile Include="Ast\Impl\TypeMemberCollectionImpl.cs" />
     <Compile Include="Ast\Impl\TypeMemberImpl.cs" />
+    <Compile Include="Ast\Impl\TypeMemberStatementImpl.cs" />
     <Compile Include="Ast\Impl\TypeofExpressionImpl.cs" />
     <Compile Include="Ast\Impl\TypeReferenceCollectionImpl.cs" />
     <Compile Include="Ast\Impl\TypeReferenceImpl.cs" />
@@ -328,6 +330,8 @@
     <Compile Include="Ast\SpliceExpression.cs" />
     <Compile Include="Ast\SpliceMemberReferenceExpression.cs" />
     <Compile Include="Ast\SpliceParameterDeclaration.cs" />
+    <Compile Include="Ast\SpliceTypeDefinitionBody.cs" />
+    <Compile Include="Ast\SpliceTypeDefinitionBody.Generated.cs" />
     <Compile Include="Ast\SpliceTypeMember.cs" />
     <Compile Include="Ast\SpliceTypeReference.cs" />
     <Compile Include="Ast\Statement.cs" />
@@ -346,6 +350,8 @@
     <Compile Include="Ast\TypeMember.cs" />
     <Compile Include="Ast\TypeMemberCollection.cs" />
     <Compile Include="Ast\TypeMemberModifiers.Generated.cs" />
+    <Compile Include="Ast\TypeMemberStatement.cs" />
+    <Compile Include="Ast\TypeMemberStatement.Generated.cs" />
     <Compile Include="Ast\TypeofExpression.cs" />
     <Compile Include="Ast\TypeReference.cs" />
     <Compile Include="Ast\TypeReferenceCollection.cs" />
@@ -459,10 +465,10 @@
     <Compile Include="Steps\IntroduceModuleClasses.cs" />
     <Compile Include="Steps\MacroAndAttributeExpansion.cs" />
     <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
+    <Compile Include="Steps\MacroProcessing\CustomTypeMemberStatement.cs" />
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
     <Compile Include="Steps\MacroProcessing\NodeGeneratorExpander.cs" />
-    <Compile Include="Steps\MacroProcessing\TypeMemberStatement.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
     <Compile Include="Steps\NormalizeExpressions.cs" />

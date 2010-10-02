@@ -1177,6 +1177,39 @@ closure_macro_stmt returns [MacroStatement returnValue]
 ;
 
 protected
+macro_block [StatementCollection container]
+{
+}:
+	(eos)?
+	(stmt[container] | type_member_stmt[container])+
+;
+
+protected
+type_member_stmt [StatementCollection container]
+{
+	TypeMemberCollection members = new TypeMemberCollection();
+}:
+	type_member[members]
+	{
+		container.Add(new TypeMemberStatement(members[0]));
+	}
+;
+
+protected
+macro_compound_stmt[Block b]
+{
+	StatementCollection statements = null;
+}:
+	begin:COLON
+	{
+		b.LexicalInfo = ToLexicalInfo(begin);
+		statements = b.Statements;
+	}
+	macro_block[statements]
+	end[b]
+;
+
+protected
 macro_stmt returns [MacroStatement returnValue]
 	{
 		returnValue = null;
@@ -1187,10 +1220,10 @@ macro_stmt returns [MacroStatement returnValue]
 	(
 		(
 			begin_with_doc[macro] 
-				block[macro.Body.Statements]
+				macro_block[macro.Body.Statements]
 			end[macro.Body] { macro.Annotate("compound" ); }
 		) | 
-		compound_stmt[macro.Body] { macro.Annotate("compound"); } |
+		macro_compound_stmt[macro.Body] { macro.Annotate("compound"); } |
 		eos |
 		modifier=stmt_modifier eos { macro.Modifier = modifier; }
 	)

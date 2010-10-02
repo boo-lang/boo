@@ -40,6 +40,7 @@ namespace Boo.Lang.Compiler.Ast
 	public enum NodeType
 	{
 		CompileUnit,
+		TypeMemberStatement,
 		ExplicitMemberInfo,
 		SimpleTypeReference,
 		ArrayTypeReference,

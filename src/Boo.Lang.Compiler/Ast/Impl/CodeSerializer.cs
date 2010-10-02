@@ -162,6 +162,30 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnTypeMemberStatement(Boo.Lang.Compiler.Ast.TypeMemberStatement node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.TypeMemberStatement"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.Modifier))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Modifier"),
+						Serialize(node.Modifier)));
+			}
+			if (ShouldSerialize(node.TypeMember))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TypeMember"),
+						Serialize(node.TypeMember)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public void OnExplicitMemberInfo(Boo.Lang.Compiler.Ast.ExplicitMemberInfo node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(

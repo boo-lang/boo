@@ -31,7 +31,6 @@ namespace BooCompiler.Tests
 	using System.Globalization;
 	using System.Threading;
 	using NUnit.Framework;
-	using Boo.Lang.Compiler;
 
 	/// <summary>	
 	/// </summary>
@@ -54,19 +53,19 @@ namespace BooCompiler.Tests
 
 		void AssertCultureDependentMessage(string message, CultureInfo culture)
 		{
-			CultureInfo savedCulture = Thread.CurrentThread.CurrentUICulture;			
+			var savedCulture = Thread.CurrentThread.CurrentUICulture;			
 			Thread.CurrentThread.CurrentUICulture = culture;
 
 			try
 			{
-				Boo.Lang.Compiler.BooCompiler compiler = new Boo.Lang.Compiler.BooCompiler();
-				CompilerParameters options = compiler.Parameters;
+				var compiler = new Boo.Lang.Compiler.BooCompiler();
+				var options = compiler.Parameters;
 				options.Input.Add(new Boo.Lang.Compiler.IO.StringInput("testcase", TestCase));
 				options.Pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
 				
-				CompilerErrorCollection errors = compiler.Run().Errors;
+				var errors = compiler.Run().Errors;
 	
-				Assert.AreEqual(1, errors.Count);
+				Assert.IsTrue(errors.Count >= 1);
 				Assert.AreEqual(message, errors[0].Message);
 			}
 			finally

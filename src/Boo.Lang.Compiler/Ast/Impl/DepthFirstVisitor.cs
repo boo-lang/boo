@@ -61,6 +61,28 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnTypeMemberStatement(Boo.Lang.Compiler.Ast.TypeMemberStatement node)
+		{				
+			if (EnterTypeMemberStatement(node))
+			{
+				Visit(node.Modifier);
+				Visit(node.TypeMember);
+				LeaveTypeMemberStatement(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterTypeMemberStatement(Boo.Lang.Compiler.Ast.TypeMemberStatement node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveTypeMemberStatement(Boo.Lang.Compiler.Ast.TypeMemberStatement node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnExplicitMemberInfo(Boo.Lang.Compiler.Ast.ExplicitMemberInfo node)
 		{				
 			if (EnterExplicitMemberInfo(node))

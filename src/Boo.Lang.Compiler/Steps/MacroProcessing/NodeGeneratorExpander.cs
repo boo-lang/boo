@@ -108,7 +108,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (_addTypeMembersToEnclosingTypeDefinition)
 				AddMemberToEnclosingTypeDef(member);
 			else
-				resultingBlock.Add(new TypeMemberStatement(member));
+				resultingBlock.Add(new CustomTypeMemberStatement(member));
 		}
 
 		private void AddMemberToEnclosingTypeDef(TypeMember member)

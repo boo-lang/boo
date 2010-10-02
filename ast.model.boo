@@ -55,6 +55,9 @@ abstract class TypeMember(Node, INodeWithAttributes):
 	Modifiers as TypeMemberModifiers
 	Name as string
 	Attributes as AttributeCollection
+	
+class TypeMemberStatement(Statement):
+	TypeMember as TypeMember
 
 class ExplicitMemberInfo(Node):
 	InterfaceType as SimpleTypeReference

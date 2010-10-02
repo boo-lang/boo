@@ -828,6 +828,18 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void method_declaration_in_macro_application()
+		{
+			RunCompilerTestCase(@"method-declaration-in-macro-application.boo");
+		}
+		
+		[Test]
+		public void method_declarations_in_nested_macro_application()
+		{
+			RunCompilerTestCase(@"method-declarations-in-nested-macro-application.boo");
+		}
+		
+		[Test]
 		public void module_1()
 		{
 			RunCompilerTestCase(@"module-1.boo");

@@ -61,11 +61,9 @@ namespace Boo.Lang.Compiler.Ast
 
 		private static TypeReference LiftGenericTypeDefinition(TypeDefinition node)
 		{
-			GenericTypeReference typeRef = new GenericTypeReference(node.LexicalInfo, node.QualifiedName);
+			var typeRef = new GenericTypeReference(node.LexicalInfo, node.QualifiedName);
 			foreach (GenericParameterDeclaration parameter in node.GenericParameters)
-			{
 				typeRef.GenericArguments.Add(Lift(parameter.Name));
-			}
 			return typeRef;
 		}
 
@@ -97,7 +95,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static TypeReference Lift(GenericReferenceExpression e)
 		{
-			GenericTypeReference typeRef = new GenericTypeReference(e.LexicalInfo);
+			var typeRef = new GenericTypeReference(e.LexicalInfo);
 			typeRef.Name = TypeNameFor(e.Target);
 			typeRef.GenericArguments.ExtendWithClones(e.GenericArguments);
 			return typeRef;

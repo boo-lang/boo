@@ -39,6 +39,7 @@ namespace Boo.Lang.Compiler.Ast
 	public interface IAstVisitor
 	{
 		void OnCompileUnit(CompileUnit node);
+		void OnTypeMemberStatement(TypeMemberStatement node);
 		void OnExplicitMemberInfo(ExplicitMemberInfo node);
 		void OnSimpleTypeReference(SimpleTypeReference node);
 		void OnArrayTypeReference(ArrayTypeReference node);
