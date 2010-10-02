@@ -75,7 +75,6 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		else:
 			raise Usage
 
-
 	private static def BuildMacroTypeName(name as string) as string:
 		return char.ToUpper(name[0]) + name[1:] + "Macro"
 

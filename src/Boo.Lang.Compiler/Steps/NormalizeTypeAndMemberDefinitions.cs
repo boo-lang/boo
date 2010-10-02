@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void NormalizePropertyModifiers(Property node)
 		{
-			if (IsInterface(node.DeclaringType))
+			if (IsInterfaceMember(node))
 				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
 			else if (!node.IsVisibilitySet && null == node.ExplicitInfo)
 				node.Modifiers |= Context.Parameters.DefaultPropertyVisibility;
@@ -163,6 +163,15 @@ namespace Boo.Lang.Compiler.Steps
 				SetPropertyAccessorModifiers(node, node.Setter);
 				node.Setter.Name = "set_" + node.Name;
 			}
+		}
+
+		private static bool IsInterfaceMember(TypeMember node)
+		{
+			var declaringType = node.DeclaringType;
+			if (null == declaringType)
+				throw CompilerErrorFactory.NotImplemented(node, string.Format("{0} '{1}' is not attached to any type. It should probably have been consumed by a macro but it hasn't.", node.GetType().Name, node.Name));
+
+			return NodeType.InterfaceDefinition == declaringType.NodeType;
 		}
 
 		void SetPropertyAccessorModifiers(Property property, Method accessor)
@@ -185,7 +194,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveEvent(Event node)
 		{
-			if (IsInterface(node.DeclaringType))
+			if (IsInterfaceMember(node))
 				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
 			else if (!node.IsVisibilitySet)
 				node.Modifiers |= Context.Parameters.DefaultEventVisibility;
@@ -194,7 +203,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveMethod(Method node)
 		{
-			if (IsInterface(node.DeclaringType))
+			if (IsInterfaceMember(node))
 				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
 			else if (!node.IsVisibilitySet && null == node.ExplicitInfo && node.ParentNode.NodeType != NodeType.Property)
 				node.Modifiers |= Context.Parameters.DefaultMethodVisibility;
@@ -229,15 +238,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		void LeaveMember(TypeMember node)
 		{
-			if (node.IsAbstract && !IsInterface(node.DeclaringType))
+			if (node.IsAbstract && !IsInterfaceMember(node))
 				node.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
 		}
 
-		bool IsInterface(TypeDefinition node)
-		{
-			return NodeType.InterfaceDefinition == node.NodeType;
-		}
-		
 		override public void LeaveConstructor(Constructor node)
 		{
 			if (node.IsVisibilitySet) return;
