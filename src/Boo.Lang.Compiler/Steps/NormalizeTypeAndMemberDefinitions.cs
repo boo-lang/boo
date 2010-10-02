@@ -51,14 +51,12 @@ namespace Boo.Lang.Compiler.Steps
 		void LeaveTypeDefinition(TypeDefinition node)
 		{
 			if (!node.IsVisibilitySet)
-			{
 				node.Modifiers |= Context.Parameters.DefaultTypeVisibility;
-			}
 		}
 
 		public override void LeaveExplicitMemberInfo(ExplicitMemberInfo node)
 		{
-			TypeMember member = (TypeMember) node.ParentNode;
+			var member = (TypeMember) node.ParentNode;
 			member.Modifiers |= TypeMemberModifiers.Private | TypeMemberModifiers.Virtual;
 		}
 		
@@ -76,9 +74,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			LeaveTypeDefinition(node);
 			if (!node.HasInstanceConstructor && !node.IsStatic)
-			{
 				node.Members.Add(AstUtil.CreateDefaultConstructor(node));
-			}
 		}
 
 		override public void LeaveStructDefinition(StructDefinition node)
@@ -96,9 +92,7 @@ namespace Boo.Lang.Compiler.Steps
 				//so let the compiler mark them private automatically in order to get 
 				//unused members warnings for free (and to make IL analysis tools happy as a bonus)
 				if (node.IsProtected && node.DeclaringType.IsFinal)
-				{
 					node.Visibility = TypeMemberModifiers.Private;
-				}
 			}
 
 			LeaveMember(node);
@@ -140,12 +134,8 @@ namespace Boo.Lang.Compiler.Steps
 		private static bool ContainsDefaultMemberAttribute(TypeDefinition t)
 		{
 			foreach (Attribute a in t.Attributes)
-			{
 				if (a.Name.IndexOf("DefaultMember") >= 0)
-				{
 					return true;
-				}
-			}
 			return false;
 		}
 
@@ -159,13 +149,9 @@ namespace Boo.Lang.Compiler.Steps
 		private void NormalizePropertyModifiers(Property node)
 		{
 			if (IsInterface(node.DeclaringType))
-			{
 				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
-			}
 			else if (!node.IsVisibilitySet && null == node.ExplicitInfo)
-			{
 				node.Modifiers |= Context.Parameters.DefaultPropertyVisibility;
-			}
 
 			if (null != node.Getter)
 			{
@@ -182,66 +168,38 @@ namespace Boo.Lang.Compiler.Steps
 		void SetPropertyAccessorModifiers(Property property, Method accessor)
 		{
 			if (!accessor.IsVisibilitySet)
-			{
 				accessor.Modifiers |= property.Visibility;
-			}
 			
 			if (property.IsStatic)
-			{
 				accessor.Modifiers |= TypeMemberModifiers.Static;
-			}
 			
 			if (property.IsVirtual)
-			{
 				accessor.Modifiers |= TypeMemberModifiers.Virtual;
-			}
-			
-			/*
-			if (property.IsOverride)
-			{
-				accessor.Modifiers |= TypeMemberModifiers.Override;
-			}
-			*/
 			
 			if (property.IsAbstract)
-			{
 				accessor.Modifiers |= TypeMemberModifiers.Abstract;
-			}
 			else if (accessor.IsAbstract)
-			{
 				// an abstract accessor makes the entire property abstract
 				property.Modifiers |= TypeMemberModifiers.Abstract;
-			}
 		}
 		
 		override public void LeaveEvent(Event node)
 		{
 			if (IsInterface(node.DeclaringType))
-			{
 				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
-			}
 			else if (!node.IsVisibilitySet)
-			{
 				node.Modifiers |= Context.Parameters.DefaultEventVisibility;
-			}
 			LeaveMember(node);
 		}
 		
 		override public void LeaveMethod(Method node)
 		{
 			if (IsInterface(node.DeclaringType))
-			{
 				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
-			}
-			else if (!node.IsVisibilitySet && null == node.ExplicitInfo
-				&& !(node.ParentNode.NodeType == NodeType.Property))
-			{
+			else if (!node.IsVisibilitySet && null == node.ExplicitInfo && node.ParentNode.NodeType != NodeType.Property)
 				node.Modifiers |= Context.Parameters.DefaultMethodVisibility;
-			}
 			if (node.Name != null && node.Name.StartsWith("op_"))
-			{
 				node.Modifiers |= TypeMemberModifiers.Static;
-			}
 			LeaveMember(node);
 		}
 
@@ -271,13 +229,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void LeaveMember(TypeMember node)
 		{
-			if (node.IsAbstract)
-			{
-				if (!IsInterface(node.DeclaringType))
-				{
-					node.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
-				}
-			}
+			if (node.IsAbstract && !IsInterface(node.DeclaringType))
+				node.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
 		}
 
 		bool IsInterface(TypeDefinition node)
