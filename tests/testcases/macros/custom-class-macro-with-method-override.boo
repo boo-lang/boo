@@ -1,15 +1,12 @@
 """
-21
+18
 Foo.ToString
 """
-import Boo.Lang.Compiler.Ast
-import Boo.Lang.PatternMatching
-
 interface CustomClass:
 	LineNumber as int:
 		get
 
-macro custom_class(name as ReferenceExpression):
+macro custom_class(name as Boo.Lang.Compiler.Ast.ReferenceExpression):
 	yield [|
 		class $name(CustomClass):
 			$(custom_class.Body)

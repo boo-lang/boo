@@ -8,7 +8,6 @@ line 'How do you bou?' contains unknown word 'bou'. Did you mean 'boo'?
 """
 import System
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.PatternMatching
 
 macro sum(numbers as int*):
 	s = 0

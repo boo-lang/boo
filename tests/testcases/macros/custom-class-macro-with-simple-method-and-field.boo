@@ -2,7 +2,6 @@
 test
 """
 import Boo.Lang.Compiler.Ast
-import Boo.Lang.PatternMatching
 
 macro custom_class(name as ReferenceExpression):
 	yield [|

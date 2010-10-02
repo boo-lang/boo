@@ -8,8 +8,6 @@ String 'foofoo' matched regex /foo/
 String 'barbar' DID NOT match regex /foo/
 86423 seconds (1.00:00:23) is longer than one day.
 """
-import Boo.Lang.PatternMatching
-
 macro printYOnlyIfZIs42(x as string, y as string, z as long):
 	yield [| print $x |]
 	yield [| print $y |] if z == 42
