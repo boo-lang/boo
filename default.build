@@ -186,7 +186,7 @@
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
-				<exclude name="booish.boo" /><!-- old booish --></sources>
+			</sources>
 
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Interpreter.dll" />

@@ -31,26 +31,27 @@ import System.Diagnostics
 import Boo.Lang.Compiler.Steps
 import Boo.Lang.Interpreter
 
-interpreter = InteractiveInterpreter(RememberLastValue: true)
+interpreter = InteractiveInterpreter2(RememberLastValue: true)
 
-if "--print-modules" in argv:
-	interpreter.Pipeline.Add(PrintBoo())
-	
-if "--debug" in argv:
-	Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
-if "-w" in argv:
-	interpreter.ShowWarnings = true
-print """Welcome to booish, an interpreter for the boo programming language.
+loadRequests = System.Collections.Generic.List[of string]()
 
-Running boo ${BooVersion} in CLR v${Environment.Version}.
+for arg in argv:
+	if arg == "--print-modules" or arg == "-print-modules":
+		interpreter.Pipeline.Add(PrintBoo())
+	if arg == "--debug" or arg == "-debug":
+		Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
+	if arg == "-w":
+		interpreter.ShowWarnings = true
+	if arg.StartsWith("-r:"):
+		loadRequests.Add(arg.Substring(3))
+	if arg == "--nologo" or arg == "-nologo":
+	    nologo = true
+	if not arg.StartsWith("-"):
+		loadRequests.Add(arg)
 
-The following builtin functions are available:
-    dir(Type): lists the members of a type
-    help(Type): prints detailed information about a type
-    load(string): evals an external boo file
-    globals(): returns the names of all variables known to the interpreter
-	getRootNamespace(): namespace navigation
+interpreter.DisplayLogo() unless nologo
 
-Enter boo code in the prompt below."""
+for req in loadRequests:
+	interpreter.load(req)
 
 interpreter.ConsoleLoopEval()
