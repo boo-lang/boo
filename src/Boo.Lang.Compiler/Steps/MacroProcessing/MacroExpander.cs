@@ -166,7 +166,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void BubbleResultingTypeMemberStatementsUp()
 		{
-			CompileUnit.Accept(new TypeMemberStatementBubbler());
+			CompileUnit.Accept(new GeneratedTypeMemberStatementBubbler());
 		}
 
 		private void ExpandKnownMacro(MacroStatement node, IType macroType)

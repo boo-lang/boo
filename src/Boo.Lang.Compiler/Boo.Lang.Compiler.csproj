@@ -465,11 +465,11 @@
     <Compile Include="Steps\IntroduceModuleClasses.cs" />
     <Compile Include="Steps\MacroAndAttributeExpansion.cs" />
     <Compile Include="Steps\MacroProcessing\BindAndApplyAttributes.cs" />
-    <Compile Include="Steps\MacroProcessing\CustomTypeMemberStatement.cs" />
+    <Compile Include="Steps\MacroProcessing\GeneratedTypeMemberStatement.cs" />
+    <Compile Include="Steps\MacroProcessing\GeneratedTypeMemberStatementBubbler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroCompiler.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
     <Compile Include="Steps\MacroProcessing\NodeGeneratorExpander.cs" />
-    <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
     <Compile Include="Steps\MergePartialClasses.cs" />
     <Compile Include="Steps\NormalizeExpressions.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
