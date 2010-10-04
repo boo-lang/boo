@@ -27,10 +27,7 @@
 #endregion
 
 
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
-
-class PerformTransactionMacro(AbstractAstMacro):
+macro performTransaction(connection as Boo.Lang.Compiler.Ast.Expression): 
 """
 performTransaction connection:
 	connection.Execute(cmd1)
@@ -47,50 +44,17 @@ ensure:
 	transaction.End()
 """
 
-	override def Expand(macro as MacroStatement):
-		
-		assert 1 == len(macro.Arguments)
-		
-		connection = macro.Arguments[0]
-		
-		block = Block()
-		block.Add(
-			BinaryExpression(
-				BinaryOperatorType.Assign,
-				ReferenceExpression("transaction"),
-				MethodInvocationExpression(
-					MemberReferenceExpression(
-						connection,
-						"BeginTransaction"))))
-					
-		stmt = TryStatement()
-		stmt.ProtectedBlock = macro.Body
-		stmt.ProtectedBlock.Add(
-			MethodInvocationExpression(
-				MemberReferenceExpression(
-					ReferenceExpression("transaction"),
-					"Commit")))
-					
-		handler = ExceptionHandler()
-		handler.Block.Add(
-			MethodInvocationExpression(
-				MemberReferenceExpression(
-					ReferenceExpression("transaction"),
-					"Revert")))
-		handler.Block.Add(
-			RaiseStatement())
-		stmt.ExceptionHandlers.Add(handler)
-		
-		stmt.EnsureBlock = Block()
-		stmt.EnsureBlock.Add(
-			MethodInvocationExpression(
-				MemberReferenceExpression(
-					ReferenceExpression("transaction"),
-					"End")))
-		
-		block.Add(stmt)			
-						
-		return block
+	yield [| transaction = $connection.BeginTransaction() |]
+	yield [|
+		try:
+			$(performTransaction.Body)
+			transaction.Commit()
+		except:
+			transaction.Revert()
+			raise
+		ensure:
+			transaction.End()
+	|]
 		
 		
 
