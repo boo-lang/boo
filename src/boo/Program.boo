@@ -102,8 +102,8 @@ class Program:
 	globals(): returns the names of all variables known to the interpreter
 
 Enter boo code in the prompt below."""
-		interpreter = InteractiveInterpreter(RememberLastValue: true)
-		interpreter.ConsoleLoopEval()
+		interpreter = InteractiveInterpreterConsole()
+		interpreter.ReadEvalPrintLoop()
 
 [STAThread]
 def Main(argv as (string)):

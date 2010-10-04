@@ -28,7 +28,6 @@
 namespace Boo.Lang.Interpreter.Tests
 
 import System
-import System.IO
 import NUnit.Framework
 import Boo.Lang.Interpreter
 import Boo.Lang.Compiler.TypeSystem
@@ -66,15 +65,7 @@ class InteractiveInterpreterTestFixture:
 			Eval("print(name);print(age)")
 		newLine = Environment.NewLine
 		Assert.AreEqual("boo${newLine}3${newLine}", console.ToString())
-		
-	[Test]
-	def LoopEvalCapturesConsoleOut():
-		lines = []
-		_interpreter.Print = { line | lines.Add(line) }
-		_interpreter.LoopEval("System.Console.WriteLine('Hello, world')")
-		Assert.AreEqual(1, len(lines))
-		Assert.AreEqual("Hello, world", lines[0])
-		
+				
 	[Test]
 	def Unpacking():
 		Eval("a, b = 1, 2")
@@ -386,20 +377,6 @@ except x as System.OverflowException:
 		assert _interpreter.GetValue("overflow") is not null
 		
 		
-	[Test]
-	def LoopEval():
-		
-		value = ""
-		_interpreter.RememberLastValue = true
-		_interpreter.Print = { item | value = item }		
-		_interpreter.LoopEval("3+3")
-		assert "6" == value
-		assert 6 == _interpreter.GetValue("_")
-		
-		_interpreter.LoopEval("'42'*3")
-		assert "'424242'" == value
-		assert "424242" == _interpreter.GetValue("_")
-		
 	class Customer:
 		
 		_fname as string
@@ -459,13 +436,12 @@ interface IDisposable():
 		assertHelp(expected, System.IDisposable)
 		
 	def assertHelp(expected as string, type as System.Type):
-		buffer = System.IO.StringWriter()
-		_interpreter.Print = { item | buffer.WriteLine(item) }		
-		_interpreter.help(type)
+		using console=ConsoleCapture():
+			_interpreter.help(type)
 		
 		# mono compatibility fix
 		# object.Equals arg on mono is called o
-		actual = buffer.ToString().Replace("o as object", "obj as object")
+		actual = console.ToString().Replace("o as object", "obj as object")
 		
 		Assert.AreEqual(ns(expected), ns(actual))
 		
@@ -569,55 +545,11 @@ def foo():
 value = foo()""")
 		assert "2" == _interpreter.GetValue("value")
 
-	[Test]
-	def MethodReturningDynamicallyDefinedClassInstance():
-		
-		code = """class Foo:
-	[getter(Value)] _value = null
-	def constructor(value):
-		_value = value
-
-def foo():
-	return Foo(42)	
-
-value = foo().Value
-"""
-		ConsoleLoopEval(code)			
-		assert 42 == _interpreter.GetValue("value")
-			
-	[Test]
-	def ValueType():
-		code = """
-import Boo.Lang.Interpreter.Tests from Boo.Lang.Interpreter.Tests
-
-v = AValueType()
-"""
-		_interpreter.RememberLastValue = true
-		ConsoleLoopEval(code)
-		assert AValueType().Equals(_interpreter.GetValue("v"))
-		
-	[Test]
-	def ConversionError():
-		_interpreter.RememberLastValue = true
-		output = ConsoleLoopEval("1 << 0x22")
-		assert output.Contains("Constant value `17179869184L' cannot be converted to a `int'"), output
 		
 	def Eval(code as string):
 		AssertNoErrors _interpreter.Eval(code)
 		
 	def AssertNoErrors(result as Boo.Lang.Compiler.CompilerContext):
 		assert 0 == len(result.Errors), result.Errors.ToString(true)
-		
-	def ConsoleLoopEval(code as string):
-		oldIn = Console.In
-		oldOut = Console.Out
-		try:
-			Console.SetIn(StringReader(code))
-			Console.SetOut(writer = StringWriter())
-			_interpreter.ConsoleLoopEval()		
-		ensure:
-			Console.SetIn(oldIn)
-			Console.SetOut(oldOut)
-		return writer.ToString()
 		
 

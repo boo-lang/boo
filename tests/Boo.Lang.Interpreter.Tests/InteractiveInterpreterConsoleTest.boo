@@ -1,3 +1,4 @@
+
 #region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
@@ -25,32 +26,64 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
+namespace Boo.Lang.Interpreter.Tests
 
 import System
-import System.Diagnostics
+import NUnit.Framework
 import Boo.Lang.Interpreter
 
-console = InteractiveInterpreterConsole()
+[TestFixture]
+class InteractiveInterpreterConsoleTest:
+	
+	_interpreter as InteractiveInterpreter
+	_console as InteractiveInterpreterConsole
+	
+	[SetUp]
+	def SetUp():
+		_interpreter = InteractiveInterpreter()
+		_console = InteractiveInterpreterConsole(_interpreter)
+		
+	[Test]
+	def EvalRemembersLastValueAsDash():
+		
+		_console.Eval("3+3")
+		assert 6 == _interpreter.GetValue("_")
+		
+		_console.Eval("'42'*3")
+		assert "424242" == _interpreter.GetValue("_")
+	
+	[Test]
+	def MethodReturningDynamicallyDefinedClassInstance():
+		
+		code = """class Foo:
+	[getter(Value)] _value = null
+	def constructor(value):
+		_value = value
 
-loadRequests = System.Collections.Generic.List[of string]()
+def foo():
+	return Foo(42)	
 
-for arg in argv:
-	if arg == "--print-modules" or arg == "-print-modules":
-		console.PrintModules = true
-	if arg == "--debug" or arg == "-debug":
-		Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
-	if arg == "-w":
-		console.ShowWarnings = true
-	if arg.StartsWith("-r:"):
-		loadRequests.Add(arg.Substring(3))
-	if arg == "--nologo" or arg == "-nologo":
-	    nologo = true
-	if not arg.StartsWith("-"):
-		loadRequests.Add(arg)
+value = foo().Value
+"""
+		ConsoleLoopEval(code)			
+		assert 42 == _interpreter.GetValue("value")
+			
+	[Test]
+	def ValueType():
+		code = """
+import Boo.Lang.Interpreter.Tests from Boo.Lang.Interpreter.Tests
 
-console.DisplayLogo() unless nologo
-
-for req in loadRequests:
-	console.Load(req)
-
-console.ReadEvalPrintLoop()
+v = AValueType()
+"""
+		ConsoleLoopEval(code)
+		assert AValueType().Equals(_interpreter.GetValue("v"))
+		
+	[Test]
+	def ConversionError():
+		output = ConsoleLoopEval("1 << 0x22")
+		assert output.Contains("Constant value `17179869184L' cannot be converted to a `int'"), output
+		
+	def ConsoleLoopEval(code as string):
+		using console=ConsoleCapture():
+			_console.Eval(code)
+		return console.ToString()

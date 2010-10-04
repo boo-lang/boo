@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="AbstractInterpreterTestFixture.boo" />
     <Compile Include="InteractiveInterpreterTestFixture.boo" />
+    <Compile Include="InteractiveInterpreterConsoleTest.boo" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj">

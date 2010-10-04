@@ -64,7 +64,7 @@
     <Compile Include="InteractiveInterpreter.boo" />
     <Compile Include="Help\Globals.boo" />
     <Compile Include="Help\HelpFormatter.boo" />
-    <Compile Include="InteractiveInterpreter2.boo" />
+    <Compile Include="InteractiveInterpreterConsole.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

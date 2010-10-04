@@ -32,104 +32,80 @@ import System
 import System.Collections
 import System.Collections.Generic
 import System.IO
-import System.Reflection
 import System.Text
 import System.Text.RegularExpressions
-import Boo.Lang
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
-import Boo.Lang.Compiler.IO
 
+class InteractiveInterpreterConsole:
+	
+	public final static HISTORY_FILENAME = "booish_history"
+	public final static HISTORY_CAPACITY = 100	
+	
+	_history = System.Collections.Generic.Queue of string(HISTORY_CAPACITY)
+	_historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
+	_historyIndex = 0
+	_session = System.Collections.Generic.List of string()
 
-class InteractiveInterpreter2(AbstractInterpreter):
-
-	_values = {}
-
-	_declarations = {}
-
-	_representers = []
-
-	[property(ShowWarnings)]
-	_showWarnings = false
+	_buffer = StringBuilder()	#buffer to be executed
+	_line = StringBuilder()		#line being edited
+	_multiline = false			#is the current line a multi-line?
 
 	[property(BlockStarters, value is not null)]
 	_blockStarters = (char(':'), char('\\'),)
+	
+	[property(ShowWarnings)]
+	_showWarnings = false
 
 	QQBegin = "[|"
 	QQEnd= "|]"
-
-	[getter(LastValue)]
-	_lastValue = null
-
-	[property(Print, value is not null)]
-	_print as Action[of object] = print
-
-	_entityNameComparer = EntityNameComparer()
-
+	
+	_interpreter as InteractiveInterpreter
+	
 	def constructor():
-		super()
-		Initialize()
+		self(InteractiveInterpreter())
 
-	def constructor(parser as ICompilerStep):
-		super(parser)
-		Initialize()
-
-	def Initialize():
-		_disableColors = true if Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS") is not null
+	def constructor(interpreter as InteractiveInterpreter):
+		_interpreter = interpreter
+		_interpreter.RememberLastValue = true
+		
+		_disableColors = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS"))
 		if not _disableColors: #make sure setting color does not throw an exception
 			try:
 				Console.ForegroundColor = ConsoleColor.DarkGray
 			except:
 				_disableColors = true
-		_disableAutocompletion = true if Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION") is not null
-		InitializeStandardReferences()
+		_disableAutocompletion = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION"))
+		
+		_interpreter.SetValue("load", Load)
+		
 		LoadHistory()
+	
+	Line:
+		get: return _line.ToString()
 
-	def Reset():
-		_values.Clear()
-		_declarations.Clear()
-		_lastValue = null
-		_indent = 0
-		InitializeStandardReferences()
+	LineLastChar:
+		get: return (_line.Chars[LineLen-1] if LineLen != 0 else char('\0'))
 
-	public final static HISTORY_FILENAME = "booish_history"
-	public final static HISTORY_CAPACITY = 100	
-	protected _history = System.Collections.Generic.Queue of string(HISTORY_CAPACITY)
-	protected _historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
-	protected _historyIndex = 0
-	protected _session = System.Collections.Generic.List of string()
+	LineLen:
+		get: return _line.Length
+		set: _line.Length = value
 
-	private _buffer = StringBuilder()	#buffer to be executed
-	private _line = StringBuilder()		#line being edited
-	private _multiline = false			#is the current line a multi-line?
-
-
-	Line as string:
-		get:
-			return _line.ToString()
-
-	LineLastChar as char:
-		get:
-			return _line.Chars[LineLen-1] if LineLen != 0
-			return char('\0')
-
-	LineLen as int:
-		get:
-			return _line.Length
-		set:
-			_line.Length = value
-
-	LineIndentLen as int:
-		get:
-			return IndentChars.Length * _indent
+	LineIndentLen:
+		get: return IndentChars.Length * _indent
 
 	CurrentPrompt as string:
-		get:
-			if _indent > 0:
-				return BlockPrompt
-			return DefaultPrompt
-
+		get: return (BlockPrompt if _indent > 0 else DefaultPrompt)
+		
+	PrintModules:
+		get: return _interpreter.Pipeline.Find(Boo.Lang.Compiler.Steps.PrintBoo) != -1
+		set:
+			if value:
+				if not PrintModules:
+					_interpreter.Pipeline.Add(Boo.Lang.Compiler.Steps.PrintBoo())
+			else:
+				_interpreter.Pipeline.Remove(Boo.Lang.Compiler.Steps.PrintBoo)
+				
 
 	[property(DefaultPrompt)]
 	_defaultPrompt = ">>>"
@@ -154,6 +130,12 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	[property(ExceptionColor)]
 	_exceptionColor = ConsoleColor.DarkRed
+	
+	[property(WarningColor)]
+	_warning = ConsoleColor.Yellow
+	
+	[property(ErrorColor)]
+	_errorColor = ConsoleColor.Red
 
 	[property(SuggestionsColor)]
 	_suggestionsColor = ConsoleColor.DarkYellow
@@ -168,40 +150,59 @@ class InteractiveInterpreter2(AbstractInterpreter):
 	_suggestions as (object)
 
 	CanAutoComplete as bool:
-		get:
-			return _selectedSuggIdx is not null
-
+		get: return _selectedSuggIdx is not null
 
 	private _builtins as (IEntity)
 	private _filter as string
-
+	
+	def Eval(code as string):
+		try:
+			result = _interpreter.Eval(code)
+			DisplayResults(result)
+			return result
+		except x as System.Reflection.TargetInvocationException:
+			ConsolePrintException(x.InnerException)
+		except x:
+			ConsolePrintException(x)
+		
+	private def DisplayResults(results as CompilerContext):
+		if ShowWarnings:
+			DisplayProblems(results.Warnings, WarningColor)
+		if not DisplayProblems(results.Errors, ErrorColor):
+			ProcessLastValue()
 
 	private def ConsolePrintPrompt():
 		ConsolePrintPrompt(true)
 
 	private def ConsolePrintPrompt(autoIndent as bool):
 		return if _quit
-		Console.ForegroundColor = _promptColor if not _disableColors
-		Console.Write(CurrentPrompt)
-		Console.ResetColor() if not _disableColors
+		WithColor _promptColor:
+			Console.Write(CurrentPrompt)
 		if autoIndent and CurrentPrompt == BlockPrompt:
 			for i in range(_indent):
 				WriteIndent()
+				
+	private def WithColor(color as ConsoleColor, block as System.Action):
+		if _disableColors:
+			block()
+		else:
+			Console.ForegroundColor = color
+			try:
+				block()
+			ensure:
+				Console.ResetColor()
 
 	private def ConsolePrintMessage(msg as string):
-		Console.ForegroundColor = _interpreterColor if not _disableColors
-		print msg
-		Console.ResetColor() if not _disableColors
+		WithColor _interpreterColor:
+			print msg
 
 	private def ConsolePrintException(e as Exception):
-		Console.ForegroundColor = _exceptionColor if not _disableColors
-		print e
-		Console.ResetColor() if not _disableColors
+		WithColor _exceptionColor:
+			print e
 
 	private def ConsolePrintError(msg as string):
-		Console.ForegroundColor = _exceptionColor if not _disableColors
-		print msg
-		Console.ResetColor() if not _disableColors
+		WithColor _exceptionColor:
+			print msg
 
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
@@ -209,11 +210,6 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		Console.Write(Environment.NewLine)
 
 		i = 0
-
-		Array.Sort(_suggestions) if _suggestions isa (string)
-		
-		entities = _suggestions as (IEntity)
-		Array.Sort[of IEntity](entities, _entityNameComparer) if entities is not null
 
 		for s in _suggestions:
 			Console.ForegroundColor = _suggestionsColor if not _disableColors
@@ -281,14 +277,14 @@ class InteractiveInterpreter2(AbstractInterpreter):
 			query = query.Split(" ,\t".ToCharArray(), 100)[-1]
 		if query.LastIndexOf('.') > 0:
 			codeToComplete = query[0:query.LastIndexOf('.')+1]
-			_suggestions = SuggestCodeCompletion(codeToComplete+"__codecomplete__")
+			_suggestions = _interpreter.SuggestCodeCompletion(codeToComplete+"__codecomplete__")
 			_filter = query[query.LastIndexOf('.')+1:]
 			_suggestions = array(e for e in _suggestions as (IEntity)
 								unless not e.Name.StartsWith(_filter)) as (IEntity)			
 
 		if not _suggestions or 0 == len(_suggestions): #suggest a  var		
 			_filter = query
-			_suggestions = array(var.ToString() for var in _values.Keys
+			_suggestions = array(var.Key.ToString() for var in _interpreter.Values
 									unless not var.ToString().StartsWith(_filter))
 
 		if not _suggestions or 0 == len(_suggestions):
@@ -326,8 +322,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 		Console.CursorLeft = len(CurrentPrompt)
 		Write(line)
 
-
-	def ConsoleLoopEval():
+	def ReadEvalPrintLoop():
 		Console.CursorVisible = true
 		ConsolePrintPrompt()
 
@@ -436,11 +431,7 @@ class InteractiveInterpreter2(AbstractInterpreter):
 					if _indent <= 0:
 						_indent = 0
 						try:
-							InternalLoopEval(_buffer.ToString())
-						except x as System.Reflection.TargetInvocationException:
-							ConsolePrintException(x.InnerException)
-						except x:
-							ConsolePrintException(x)
+							Eval(_buffer.ToString())
 						ensure:
 							_buffer.Length = 0 #truncate buffer
 
@@ -462,19 +453,19 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 		if len(cmd) == 1:
 			if cmd[0] == "/q" or cmd[0] == "/quit":						
-				quit()
+				Quit()
 			elif cmd[0] == "/?" or cmd[0] == "/h" or cmd[0] == "/help":
 				DisplayHelp()
 			elif cmd[0] == "/g" or cmd[0] == "/globals":
-				InternalLoopEval("globals()")
+				Eval("globals()")
 			else:
 				return false
 
 		elif len(cmd) == 2:
 			if cmd[0] == "/l" or cmd[0] == "/load":
-				load(cmd[1])
+				Load(cmd[1])
 			elif cmd[0] == "/s" or cmd[0] == "/save":
-				save(cmd[1])
+				Save(cmd[1])
 			else:
 				return false
 
@@ -485,98 +476,27 @@ class InteractiveInterpreter2(AbstractInterpreter):
 
 	private _indent as int = 0
 
-	def LoopEval(code as string):
-		using console = ConsoleCapture():
-			result = InternalLoopEval(code)
-			for line in System.IO.StringReader(console.ToString()):
-				_print(line)
-		return result
-
-	private def InternalLoopEval(code as string):
-		result = self.Eval(code)
-		if ShowWarnings:
-			self.DisplayProblems(result.Warnings)
-		if not self.DisplayProblems(result.Errors):
-			ProcessLastValue()
-			_session.Add(code)
-		return result
-
-	private def ProcessLastValue():
-		_ = self.LastValue
-		if _ is not null:
-			_print(repr(_))
-			SetValue("_", _)
-
-	override def Declare([required] name as string, [required] type as System.Type):
-		_declarations.Add(name, type)
-
-	override def SetLastValue(value):
-		_lastValue = value
-
-	override def SetValue(name as string, value):
-		_values[name] = value
-		return value
-
-	override def GetValue(name as string):
-		return _values[name]
-
-	override def Lookup([required] name as string):
-		type as System.Type = _declarations[name]
-		return type if type is not null
-
-		value = GetValue(name)
-		return value.GetType() if value is not null
-
-	def DisplayProblems(problems as ICollection):
-		return if problems is null or problems.Count == 0
-		Console.ForegroundColor = _exceptionColor if not _disableColors
-		for problem as duck in problems:
-			markLocation(problem.LexicalInfo)
-			type = ("WARNING", "ERROR")[problem isa CompilerError]
-			_print("${type}: ${problem.Message}")
-		Console.ResetColor() if not _disableColors
-		if problems.Count > 0:
-			return true
-		return false
-
-	private def markLocation(location as LexicalInfo):
-		pos = location.Column
-		_print("---" + "-" * pos + "^") if pos > 0
-
-	private def InitializeStandardReferences():
-		SetValue("interpreter", self)
-		SetValue("dir", dir)
-		SetValue("describe", describe)
-		SetValue("print", { value | _print(value) })
-		SetValue("load", load)
-		SetValue("globals", globals)
-		SetValue("quit", quit)
-		SetValue("getRootNamespace", Namespace.GetRootNamespace)
-
 	def DisplayLogo():
-		Console.ForegroundColor = _interpreterColor	if not _disableColors
-		print """Welcome to booish, an interactive interpreter for the boo programming language.
+		WithColor _interpreterColor:
+			print """Welcome to booish, an interactive interpreter for the boo programming language.
 Running boo ${BooVersion} on ${Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName}.
 
 Enter boo code in the prompt below (or type /help)."""
-		Console.ResetColor() if not _disableColors
 
 	def DisplayHelp():
-		Console.ForegroundColor = _interpreterColor	if not _disableColors
-		print """The following builtin functions are available :
+		WithColor _interpreterColor:
+			print """The following builtin functions are available :
     dir(type) : returns the members of a type
     describe(type) : describe a type as boo code
     globals() or /g : returns names of all variables known to interpreter
     load(file) or /l file : evals an external boo file
     save(file) or /s file : writes your current booish session into file
     quit() or /q : exits the interpreter"""
-		Console.ResetColor() if not _disableColors
 
 	def DisplayGoodbye():	// booish is friendly
-		Console.ForegroundColor = _interpreterColor if not _disableColors
-		print ""
-		print "All your boo are belong to us!"
-		Console.ResetColor() if not _disableColors
+		WithColor _interpreterColor:
+			print ""
+			print "All your boo are belong to us!"
 
 	def LoadHistory():
 		try:
@@ -600,33 +520,23 @@ Enter boo code in the prompt below (or type /help)."""
 					sw.WriteLine(line)
 		except:
 			ConsolePrintError("Cannot save history to '${_historyFile}'.")
-
-
-	def globals():
-		return array(key as string for key in _values.Keys)		
-
-	def dir([required] obj):
-		type = (obj as Type) or obj.GetType()
-		return array(member for member in type.GetMembers()
-						unless (method=(member as System.Reflection.MethodInfo))
-							and method.IsSpecialName)
-
-	def load([required] path as string):
+			
+	def Load([required] path as string):
 		if path.EndsWith(".boo"):
-			ConsolePrintMessage("Evaluating '${path}' ...")
-			result = EvalCompilerInput(FileInput(path))
-			if ShowWarnings:
-				DisplayProblems(result.Warnings)
-			if not DisplayProblems(result.Errors):
-				ProcessLastValue()
+			DisplayResults(_interpreter.EvalCompilerInput(Boo.Lang.Compiler.IO.FileInput(path)))
 		else:
 			try:
-				ConsolePrintMessage("Adding reference to '${path}'")
-				References.Add(System.Reflection.Assembly.LoadFrom(path))
-			except e:
-				ConsolePrintError(e.Message)
+				_interpreter.References.Add(System.Reflection.Assembly.LoadFrom(path))
+			except e:				
+				print e.Message
+				
+	private def ProcessLastValue():
+		_ = _interpreter.LastValue
+		if _ is not null:
+			Console.WriteLine(_interpreter.repr(_))
+			_interpreter.SetValue("_", _)
 
-	def save([required] path as string):
+	def Save([required] path as string):
 		if path is string.Empty:
 			path = "booish_session.boo"
 		elif not path.EndsWith(".boo"):
@@ -639,89 +549,27 @@ Enter boo code in the prompt below (or type /help)."""
 		except:
 			ConsolePrintError("Cannot save to '${path}'. Check if path is valid and has correct permissions.")
 
-	def describe(obj):
-		type = (obj as Type) or obj.GetType()
-		for line in Help.HelpFormatter("    ").GenerateFormattedLinesFor(type):
-			_print(line)
-
 	private _quit = false
 	
-	def quit():
+	def Quit():
 		_quit = true
 		
-	def repr(value):
-		writer = System.IO.StringWriter()
-		repr(value, writer)
-		return writer.ToString()
+	def DisplayProblems(problems as ICollection, color as ConsoleColor):
+		return if problems is null or problems.Count == 0
+		WithColor color:
+			for problem as duck in problems:
+				markLocation(problem.LexicalInfo)
+				type = ("WARNING", "ERROR")[problem isa CompilerError]
+				Console.WriteLine("${type}: ${problem.Message}")
+		return true
 
-	def repr(value, writer as System.IO.TextWriter):
-		return unless value is not null
-		InitializeRepresenters() if 0 == len(_representers)
-		GetBestRepresenter(value.GetType())(value, writer)
-
-	private def InitializeRepresenters():
-		AddRepresenter(string) do (value as string, writer as TextWriter):
-			Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
-
-		AddRepresenter(bool) do (value as bool, writer as TextWriter):
-			writer.Write(("false", "true")[value])
-
-		AddRepresenter(Array) do (a as Array, writer as TextWriter):
-			writer.Write("(")
-			RepresentItems(a, writer)
-			writer.Write(")")
-
-		AddRepresenter(Delegate) do (d as Delegate, writer as TextWriter):
-			method = d.Method
-			writer.Write(method.DeclaringType.FullName)
-			writer.Write(".")
-			writer.Write(method.Name)
-
-		AddRepresenter(IDictionary) do (value as IDictionary, writer as TextWriter):
-			writer.Write("{")
-			i = 0
-			for key in value.Keys:
-				writer.Write(", ") if i
-				repr(key, writer)
-				writer.Write(": ")
-				repr(value[key], writer)
-				++i
-			writer.Write("}")
-
-		AddRepresenter(IList) do (value as IList, writer as TextWriter):
-			writer.Write("[")
-			RepresentItems(value, writer)
-			writer.Write("]")
-
-		AddRepresenter(object) do (value, writer as TextWriter):
-			writer.Write(value)
-
-	private def RepresentItems(items, writer as TextWriter):
-		i = 0
-		for item in items:
-			writer.Write(", ") if i > 0				
-			repr(item, writer)
-			++i
-
-	callable Representer(value, writer as TextWriter)
-
-	private def AddRepresenter(type as Type, value as Representer):
-		_representers.Add((type, value))
-
-	def GetBestRepresenter(type as Type) as Representer:
-		for key as Type, value in _representers:
-			return value if key.IsAssignableFrom(type)
-		raise ArgumentException("An appropriate representer could not be found!")
-
+	private def markLocation(location as Ast.LexicalInfo):
+		pos = location.Column
+		Console.WriteLine("--" + "-" * pos + "^") if pos > 0
+		
 	private def CheckBooLangCompilerReferenced():
 		return if _blcReferenced
-		_compiler.Parameters.AddAssembly(typeof(Boo.Lang.Compiler.CompilerContext).Assembly)
+		_interpreter.References.Add(typeof(Boo.Lang.Compiler.CompilerContext).Assembly)
 		_blcReferenced = true
-
+		
 	_blcReferenced = false
-
-
-class EntityNameComparer(IComparer of IEntity):
-	def Compare(a as IEntity, b as IEntity) as int:
-		return string.Compare(a.Name, b.Name)
-
