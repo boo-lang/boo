@@ -220,7 +220,7 @@ class InteractiveInterpreterConsole:
 			if i == _selectedSuggIdx:
 				Console.ForegroundColor = _selectedSuggestionColor if not _disableColors
 			if s isa IEntity:
-				Console.Write(Help.DescribeEntity(s as IEntity))
+				Console.Write(Boo.Lang.Interpreter.Builtins.DescribeEntity(s as IEntity))
 			else:
 				Console.Write(s)
 			i++
@@ -533,7 +533,7 @@ Enter boo code in the prompt below (or type /help)."""
 	private def ProcessLastValue():
 		_ = _interpreter.LastValue
 		if _ is not null:
-			Console.WriteLine(_interpreter.repr(_))
+			Console.WriteLine(Boo.Lang.Interpreter.Builtins.repr(_))
 			_interpreter.SetValue("_", _)
 
 	def Save([required] path as string):

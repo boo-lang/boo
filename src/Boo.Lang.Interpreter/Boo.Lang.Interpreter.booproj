@@ -62,9 +62,13 @@
     <Compile Include="AbstractInterpreter.boo" />
     <Compile Include="ConsoleCapture.boo" />
     <Compile Include="InteractiveInterpreter.boo" />
-    <Compile Include="Help\Globals.boo" />
-    <Compile Include="Help\HelpFormatter.boo" />
     <Compile Include="InteractiveInterpreterConsole.boo" />
+    <Compile Include="Builtins\repr.boo" />
+    <Compile Include="Builtins\describe.boo" />
+    <Compile Include="Builtins\dir.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+  <ItemGroup>
+    <Folder Include="Builtins\" />
+  </ItemGroup>
 </Project>

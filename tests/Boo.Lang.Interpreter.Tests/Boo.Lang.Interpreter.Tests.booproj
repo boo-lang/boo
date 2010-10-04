@@ -40,6 +40,7 @@
     <Compile Include="AbstractInterpreterTestFixture.boo" />
     <Compile Include="InteractiveInterpreterTestFixture.boo" />
     <Compile Include="InteractiveInterpreterConsoleTest.boo" />
+    <Compile Include="DescribeBuiltinTest.boo" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj">

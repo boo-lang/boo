@@ -29,19 +29,14 @@
 namespace Boo.Lang.Interpreter
 
 import System
-import System.Collections
 import System.Collections.Generic
-import System.IO
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
 
 class InteractiveInterpreter(AbstractInterpreter):
 
 	_values = Dictionary[of string, object]()
 	
 	_declarations = {}
-	
-	_representers = []
 	
 	[getter(LastValue)]
 	_lastValue = null
@@ -88,87 +83,5 @@ class InteractiveInterpreter(AbstractInterpreter):
 	
 	private def InitializeStandardReferences():
 		SetValue("interpreter", self)
-		SetValue("dir", dir)
-		SetValue("help", help)
-		SetValue("globals", globals)
-		SetValue("getRootNamespace", Namespace.GetRootNamespace)
-		
-	def globals():
-		return array(key as string for key in _values.Keys)
+		SetValue("globals", { array(key for key in _values.Keys) })
 					
-	def dir([required] obj):
-		type = (obj as Type) or obj.GetType()
-		return array(
-				member for member in type.GetMembers()
-				unless (method=(member as System.Reflection.MethodInfo))
-				and method.IsSpecialName)
-				
-	def help(obj):		
-		type = (obj as Type) or obj.GetType()
-		for line in Help.HelpFormatter("    ").GenerateFormattedLinesFor(type):
-			Console.WriteLine(line)
-		
-	def repr(value):
-		writer = System.IO.StringWriter()
-		repr(value, writer)
-		return writer.ToString()
-	
-	def repr(value, writer as System.IO.TextWriter):
-		if value is null: return
-		InitializeRepresenters() if 0 == len(_representers)
-		GetBestRepresenter(value.GetType())(value, writer)
-
-	private def InitializeRepresenters():
-		AddRepresenter(string) do (value as string, writer as TextWriter):
-			Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
-			
-		AddRepresenter(bool) do (value as bool, writer as TextWriter):
-			writer.Write(("false", "true")[value])
-			
-		AddRepresenter(Array) do (a as Array, writer as TextWriter):
-			writer.Write("(")
-			RepresentItems(a, writer)
-			writer.Write(")")
-				
-		AddRepresenter(Delegate) do (d as Delegate, writer as TextWriter):
-			method = d.Method
-			if method.DeclaringType is not null:
-				writer.Write(method.DeclaringType.FullName)
-				writer.Write(".")
-			writer.Write(method.Name)
-		
-		AddRepresenter(IDictionary) do (value as IDictionary, writer as TextWriter):
-			writer.Write("{")
-			i = 0
-			for key in value.Keys:
-				writer.Write(", ") if i
-				repr(key, writer)
-				writer.Write(": ")
-				repr(value[key], writer)
-				++i
-			writer.Write("}")
-			
-		AddRepresenter(IList) do (value as IList, writer as TextWriter):
-			writer.Write("[")
-			RepresentItems(value, writer)
-			writer.Write("]")
-				
-		AddRepresenter(object) do (value, writer as TextWriter):
-			writer.Write(value)
-			
-	private def RepresentItems(items, writer as TextWriter):
-		i = 0
-		for item in items:
-			writer.Write(", ") if i > 0				
-			repr(item, writer)
-			++i
-			
-	callable Representer(value, writer as TextWriter)
-	
-	private def AddRepresenter(type as Type, value as Representer):
-		_representers.Add((type, value))
-		
-	def GetBestRepresenter(type as Type) as Representer:
-		for key as Type, value in _representers:
-			return value if key.IsAssignableFrom(type)
-		raise ArgumentException("An appropriate representer could not be found!")

@@ -53,4 +53,5 @@ console.DisplayLogo() unless nologo
 for req in loadRequests:
 	console.Load(req)
 
+console.Eval("import Boo.Lang.Interpreter.Builtins")
 console.ReadEvalPrintLoop()
