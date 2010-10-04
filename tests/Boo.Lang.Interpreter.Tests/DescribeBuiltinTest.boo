@@ -58,7 +58,7 @@ interface IDisposable():
 		Assert.AreEqual(ns(expected), ns(actual))
 		
 	static def ns(s as string):
-		return s.Trim().Replace("\r\n", Environment.NewLine)
+		return s.Trim().Replace("\r\n", "\n")
 		
 class Person:
 	
