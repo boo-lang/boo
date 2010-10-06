@@ -112,6 +112,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static Expression Lift(Expression e)
 		{
+			if (e == null) return null;
 			return e.CloneNode();
 		}
 

@@ -127,6 +127,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void field_splicing_null_initializer()
+		{
+			RunCompilerTestCase(@"field-splicing-null-initializer.boo");
+		}
+		
+		[Test]
 		public void generic_splicing_1()
 		{
 			RunCompilerTestCase(@"generic-splicing-1.boo");
