@@ -149,7 +149,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		{
 			EnsureCompilerAssemblyReference(Context);
 
-			IType macroType = ResolveMacroName(node) as IType;
+			var macroType = ResolveMacroName(node) as IType;
 			if (null != macroType)
 			{
 				ExpandKnownMacro(node, macroType);
