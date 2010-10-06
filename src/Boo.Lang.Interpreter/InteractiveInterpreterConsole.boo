@@ -69,15 +69,16 @@ class InteractiveInterpreterConsole:
 		_interpreter = interpreter
 		_interpreter.RememberLastValue = true
 		
-		_disableColors = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS"))
-		if not _disableColors: #make sure setting color does not throw an exception
+		DisableColors = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS"))
+		if not DisableColors: #make sure setting color does not throw an exception
 			try:
 				Console.ForegroundColor = ConsoleColor.DarkGray
 			except:
-				_disableColors = true
-		_disableAutocompletion = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION"))
+				DisableColors = true
+		DisableAutocompletion = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION"))
 		
 		_interpreter.SetValue("load", Load)
+		_interpreter.SetValue("save", Save)
 		
 		LoadHistory()
 	
@@ -107,50 +108,37 @@ class InteractiveInterpreterConsole:
 				_interpreter.Pipeline.Remove(Boo.Lang.Compiler.Steps.PrintBoo)
 				
 
-	[property(DefaultPrompt)]
-	_defaultPrompt = ">>>"
+	property DefaultPrompt = ">>>"
 
-	[property(BlockPrompt)]
-	_blockPrompt = "..."
+	property BlockPrompt = "..."
 
-	[property(IndentChars)]
-	_indentChars = "    "
+	property IndentChars = "    "
 
-	[property(DisableColors)]
-	_disableColors = false
+	property DisableColors = false
 
-	[property(DisableAutocompletion)]
-	_disableAutocompletion = false
+	property DisableAutocompletion = false
 
-	[property(InterpreterColor)] # messages from the interpreter (not from user code)
-	_interpreterColor = ConsoleColor.DarkGray
+	# messages from the interpreter (not from user code)
+	property InterpreterColor = ConsoleColor.DarkGray 
 
-	[property(PromptColor)]
-	_promptColor = ConsoleColor.DarkGreen
+	property PromptColor = ConsoleColor.DarkGreen
 
-	[property(ExceptionColor)]
-	_exceptionColor = ConsoleColor.DarkRed
+	property ExceptionColor = ConsoleColor.DarkRed
 	
-	[property(WarningColor)]
-	_warning = ConsoleColor.Yellow
+	property WarningColor = ConsoleColor.Yellow
 	
-	[property(ErrorColor)]
-	_errorColor = ConsoleColor.Red
+	property ErrorColor = ConsoleColor.Red
 
-	[property(SuggestionsColor)]
-	_suggestionsColor = ConsoleColor.DarkYellow
+	property SuggestionsColor = ConsoleColor.DarkYellow
 
-	[property(SelectedSuggestionColor)]
-	_selectedSuggestionColor = ConsoleColor.DarkMagenta
+	property SelectedSuggestionColor = ConsoleColor.DarkMagenta
 
-	[property(SelectedSuggestionIndex)]
-	_selectedSuggIdx as int?
+	_selectedSuggestionIndex as int?
 
-	[property(Suggestions)]
 	_suggestions as (object)
 
 	CanAutoComplete as bool:
-		get: return _selectedSuggIdx is not null
+		get: return _selectedSuggestionIndex is not null
 
 	private _builtins as (IEntity)
 	private _filter as string
@@ -176,14 +164,14 @@ class InteractiveInterpreterConsole:
 
 	private def ConsolePrintPrompt(autoIndent as bool):
 		return if _quit
-		WithColor _promptColor:
+		WithColor PromptColor:
 			Console.Write(CurrentPrompt)
 		if autoIndent and CurrentPrompt == BlockPrompt:
 			for i in range(_indent):
 				WriteIndent()
 				
 	private def WithColor(color as ConsoleColor, block as System.Action):
-		if _disableColors:
+		if DisableColors:
 			block()
 		else:
 			Console.ForegroundColor = color
@@ -193,41 +181,44 @@ class InteractiveInterpreterConsole:
 				Console.ResetColor()
 
 	private def ConsolePrintMessage(msg as string):
-		WithColor _interpreterColor:
+		WithColor InterpreterColor:
 			print msg
 
 	private def ConsolePrintException(e as Exception):
-		WithColor _exceptionColor:
+		WithColor ExceptionColor:
 			print e
 
 	private def ConsolePrintError(msg as string):
-		WithColor _exceptionColor:
+		WithColor ExceptionColor:
 			print msg
+			
+	private def NewLine():
+		Console.Write(Environment.NewLine)
 
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
 		#cursorTop = Console.CursorTop
-		Console.Write(Environment.NewLine)
+		NewLine()
 
 		i = 0
 
 		for s in _suggestions:
-			Console.ForegroundColor = _suggestionsColor if not _disableColors
+			Console.ForegroundColor = SuggestionsColor if not DisableColors
 			Console.Write(", ") if i > 0
 			if i > 20: #TODO: maxcandidates pref + paging?
 				Console.Write("... (too many candidates)")
 				break
-			if i == _selectedSuggIdx:
-				Console.ForegroundColor = _selectedSuggestionColor if not _disableColors
+			if i == _selectedSuggestionIndex:
+				Console.ForegroundColor = SelectedSuggestionColor if not DisableColors
 			if s isa IEntity:
 				Console.Write(Boo.Lang.Interpreter.Builtins.DescribeEntity(s as IEntity))
 			else:
 				Console.Write(s)
 			i++
 
-		Console.ResetColor() if not _disableColors
+		Console.ResetColor() if not DisableColors
 		#Console.CursorTop = cursorTop
-		Console.Write(Environment.NewLine)
+		NewLine()
 		ConsolePrintPrompt(false)
 		Console.Write(Line)
 		Console.CursorLeft = cursorLeft
@@ -288,7 +279,7 @@ class InteractiveInterpreterConsole:
 									unless not var.ToString().StartsWith(_filter))
 
 		if not _suggestions or 0 == len(_suggestions):
-			_selectedSuggIdx = null
+			_selectedSuggestionIndex = null
 			#Console.Beep() #TODO: flash background?
 		elif 1 == len(_suggestions):
 			AutoComplete()
@@ -297,17 +288,17 @@ class InteractiveInterpreterConsole:
 
 
 	def AutoComplete():
-		raise InvalidOperationException("no suggestions") if _suggestions is null or _selectedSuggIdx is null
+		raise InvalidOperationException("no suggestions") if _suggestions is null or _selectedSuggestionIndex is null
 
-		s = _suggestions[_selectedSuggIdx.Value] as IEntity
-		completion = (s.Name[len(_filter):] if s is not null else (_suggestions[_selectedSuggIdx.Value] as string)[len(_filter):])
+		s = _suggestions[_selectedSuggestionIndex.Value] as IEntity
+		completion = (s.Name[len(_filter):] if s is not null else (_suggestions[_selectedSuggestionIndex.Value] as string)[len(_filter):])
 		Write(completion)
 		if s and s.EntityType == EntityType.Method:
 			Write("(")
 			m = s as IMethod
 			Write(')') if m.GetParameters().Length == 0
 
-		_selectedSuggIdx = null
+		_selectedSuggestionIndex = null
 		_suggestions = null
 
 	private _beforeHistory = string.Empty
@@ -477,14 +468,14 @@ class InteractiveInterpreterConsole:
 	private _indent as int = 0
 
 	def DisplayLogo():
-		WithColor _interpreterColor:
+		WithColor InterpreterColor:
 			print """Welcome to booish, an interactive interpreter for the boo programming language.
 Running boo ${BooVersion} on ${Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName}.
 
 Enter boo code in the prompt below (or type /help)."""
 
 	def DisplayHelp():
-		WithColor _interpreterColor:
+		WithColor InterpreterColor:
 			print """The following builtin functions are available :
     dir(type) : returns the members of a type
     describe(type) : describe a type as boo code
@@ -494,7 +485,7 @@ Enter boo code in the prompt below (or type /help)."""
     quit() or /q : exits the interpreter"""
 
 	def DisplayGoodbye():	// booish is friendly
-		WithColor _interpreterColor:
+		WithColor InterpreterColor:
 			print ""
 			print "All your boo are belong to us!"
 
