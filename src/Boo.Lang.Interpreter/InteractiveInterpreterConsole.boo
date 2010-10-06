@@ -316,124 +316,120 @@ class InteractiveInterpreterConsole:
 	def ReadEvalPrintLoop():
 		Console.CursorVisible = true
 		ConsolePrintPrompt()
-
-		lastChar = char('0')
-		key = ConsoleKey.LeftArrow
-		while not _quit:						
-			cki = Console.ReadKey(true)
-			key = cki.Key
-			keyChar = cki.KeyChar
-			control = false
-
-			newLine = keyChar in Environment.NewLine
-
-			if char.IsControl(keyChar):
-				control = true
-				if keyChar == char('\t'):
-					if LineLen > 0 and (char.IsLetterOrDigit(LineLastChar) or LineLastChar == char('.')):
-						_selectedSuggIdx = 0
-						DisplaySuggestions()
-					else:
-						Indent()
-
-				#line-editing support
-				if not _multiline and LineLen > 0:
-					if Console.CursorLeft > len(CurrentPrompt):
-						if key == ConsoleKey.Backspace:
-							if _indent > 0 and LineLen == LineIndentLen:
-								Unindent()
-							else:
-								Delete(1)
-						elif key == ConsoleKey.LeftArrow:
-							Console.CursorLeft--
-					if key == ConsoleKey.Delete:
-						Delete(0)
-					elif key == ConsoleKey.RightArrow:
-						if Console.CursorLeft < (len(CurrentPrompt)+LineLen):
-							Console.CursorLeft++
-					elif key == ConsoleKey.Home:
-						Console.CursorLeft = len(CurrentPrompt)
-					elif key == ConsoleKey.End:
-						Console.CursorLeft = len(CurrentPrompt) + LineLen
-
-				#history support
-				if key == ConsoleKey.UpArrow:
-					if _historyIndex > 0:
-						_historyIndex--
-						DisplayHistory()
-				elif key == ConsoleKey.DownArrow:
-					if _historyIndex < _history.Count-1:
-						_historyIndex++
-						DisplayHistory()
-
-				#auto-completion support
-				if CanAutoComplete:
-					if key == ConsoleKey.LeftArrow:
-						if _selectedSuggIdx > 0:
-							_selectedSuggIdx--
-						else:
-							_selectedSuggIdx = len(_suggestions) - 1
-						DisplaySuggestions()
-					elif key == ConsoleKey.RightArrow:
-						if _selectedSuggIdx < len(_suggestions) - 1:
-							_selectedSuggIdx++
-						else:
-							_selectedSuggIdx = 0
-						DisplaySuggestions()
-					if newLine:
-						AutoComplete()
-						continue
-				if not newLine:
-					continue
-
-			_selectedSuggIdx = null
-
-			cx = Console.CursorLeft-len(CurrentPrompt)
-			#multi-line?
-			if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
-				cx = LineLen
-				_multiline = true
-
-			if not newLine:
-				#line-editing support
-				if cx < LineLen and not _multiline:
-					_line.Insert(cx, keyChar) if not control
-					Console.Write(_line.ToString(cx, LineLen-cx))
-					Console.CursorLeft = len(CurrentPrompt)+cx+1
-				else:
-					_line.Append(keyChar) if not control
-					Console.Write(keyChar)
-
-			if newLine:
-				_multiline = false
-				Console.Write(Environment.NewLine)
-
-				if not TryRunCommand(Line):
-					_buffer.Append(Line)
-					_buffer.Append(Environment.NewLine)
-					AddToHistory(Line)
-
-					_indent++ if LineLastChar in _blockStarters or Line.EndsWith(QQBegin)
-					_indent-- if Line.EndsWith(IndentChars+"pass")
-					if Line.EndsWith(QQEnd):
-						CheckBooLangCompilerReferenced()
-						_indent--
-
-					if _indent <= 0:
-						_indent = 0
-						try:
-							Eval(_buffer.ToString())
-						ensure:
-							_buffer.Length = 0 #truncate buffer
-
-				LineLen = 0 #truncate line
-				ConsolePrintPrompt()
-
-			lastChar = keyChar
-
+		while not _quit:
+			ReadEvalPrintLoopStep()
 		SaveHistory()
 		DisplayGoodbye()
+		
+	private def ReadEvalPrintLoopStep():
+		cki = Console.ReadKey(true)
+		key = cki.Key
+		keyChar = cki.KeyChar
+		control = false
 
+		newLine = keyChar in Environment.NewLine
+
+		if char.IsControl(keyChar):
+			control = true
+			if keyChar == char('\t'):
+				if LineLen > 0 and (char.IsLetterOrDigit(LineLastChar) or LineLastChar == char('.')):
+					_selectedSuggestionIndex = 0
+					DisplaySuggestions()
+				else:
+					Indent()
+
+			#line-editing support
+			if not _multiline and LineLen > 0:
+				if Console.CursorLeft > len(CurrentPrompt):
+					if key == ConsoleKey.Backspace:
+						if _indent > 0 and LineLen == LineIndentLen:
+							Unindent()
+						else:
+							Delete(1)
+					elif key == ConsoleKey.LeftArrow:
+						Console.CursorLeft--
+				if key == ConsoleKey.Delete:
+					Delete(0)
+				elif key == ConsoleKey.RightArrow:
+					if Console.CursorLeft < (len(CurrentPrompt)+LineLen):
+						Console.CursorLeft++
+				elif key == ConsoleKey.Home:
+					Console.CursorLeft = len(CurrentPrompt)
+				elif key == ConsoleKey.End:
+					Console.CursorLeft = len(CurrentPrompt) + LineLen
+
+			#history support
+			if key == ConsoleKey.UpArrow:
+				if _historyIndex > 0:
+					_historyIndex--
+					DisplayHistory()
+			elif key == ConsoleKey.DownArrow:
+				if _historyIndex < _history.Count-1:
+					_historyIndex++
+					DisplayHistory()
+
+			#auto-completion support
+			if CanAutoComplete:
+				if key == ConsoleKey.LeftArrow:
+					if _selectedSuggestionIndex > 0:
+						_selectedSuggestionIndex--
+					else:
+						_selectedSuggestionIndex = len(_suggestions) - 1
+					DisplaySuggestions()
+				elif key == ConsoleKey.RightArrow:
+					if _selectedSuggestionIndex < len(_suggestions) - 1:
+						_selectedSuggestionIndex++
+					else:
+						_selectedSuggestionIndex = 0
+					DisplaySuggestions()
+				if newLine:
+					AutoComplete()
+					return
+			if not newLine:
+				return
+
+		_selectedSuggestionIndex = null
+
+		cx = Console.CursorLeft-len(CurrentPrompt)
+		#multi-line?
+		if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
+			cx = LineLen
+			_multiline = true
+
+		if not newLine:
+			#line-editing support
+			if cx < LineLen and not _multiline:
+				_line.Insert(cx, keyChar) if not control
+				Console.Write(_line.ToString(cx, LineLen-cx))
+				Console.CursorLeft = len(CurrentPrompt)+cx+1
+			else:
+				_line.Append(keyChar) if not control
+				Console.Write(keyChar)
+
+		if newLine:
+			_multiline = false
+			Console.Write(Environment.NewLine)
+
+			if not TryRunCommand(Line):
+				_buffer.Append(Line)
+				_buffer.Append(Environment.NewLine)
+				AddToHistory(Line)
+
+				_indent++ if LineLastChar in _blockStarters or Line.EndsWith(QQBegin)
+				_indent-- if Line.EndsWith(IndentChars+"pass")
+				if Line.EndsWith(QQEnd):
+					CheckBooLangCompilerReferenced()
+					_indent--
+
+				if _indent <= 0:
+					_indent = 0
+					try:
+						Eval(_buffer.ToString())
+					ensure:
+						_buffer.Length = 0 #truncate buffer
+
+			LineLen = 0 #truncate line
+			ConsolePrintPrompt()
 
 	/* returns false if no command has been processed, true otherwise */
 	def TryRunCommand(line as string):
@@ -514,12 +510,14 @@ Enter boo code in the prompt below (or type /help)."""
 			
 	def Load([required] path as string):
 		if path.EndsWith(".boo"):
+			ConsolePrintMessage("Evaluating '${path}' ...")
 			DisplayResults(_interpreter.EvalCompilerInput(Boo.Lang.Compiler.IO.FileInput(path)))
 		else:
+			ConsolePrintMessage("Adding reference to '${path}'")
 			try:
 				_interpreter.References.Add(System.Reflection.Assembly.LoadFrom(path))
 			except e:				
-				print e.Message
+				ConsolePrintException(e)
 				
 	private def ProcessLastValue():
 		_ = _interpreter.LastValue
