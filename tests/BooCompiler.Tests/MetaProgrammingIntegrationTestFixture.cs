@@ -408,6 +408,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"typeref-splicing-5.boo");
 		}
 		
+		[Test]
+		public void typeref_splicing_null()
+		{
+			RunCompilerTestCase(@"typeref-splicing-null.boo");
+		}
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{

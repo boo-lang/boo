@@ -38,23 +38,26 @@ namespace Boo.Lang.Compiler.Ast
 	{	
 		public static TypeReference Lift(System.Type type)
 		{
-			if (type.IsGenericType)
-				return LiftGenericType(type);
+			if (type == null) return null;
+			if (type.IsGenericType) return LiftGenericType(type);
 			return new SimpleTypeReference(FullNameOf(type));
 		}
 
 		public static TypeReference Lift(string name)
 		{
+			if (name == null) return null;
 			return new SimpleTypeReference(name);
 		}
 		
-		public static TypeReference Lift(TypeReference typeRef)
+		public static TypeReference Lift(TypeReference node)
 		{
-			return typeRef.CloneNode();
+			if (node == null) return null;
+			return node.CloneNode();
 		}
 
 		public static TypeReference Lift(TypeDefinition node)
 		{
+			if (node == null) return null;
 			if (node.HasGenericParameters) return LiftGenericTypeDefinition(node);
 			return new SimpleTypeReference(node.FullName);
 		}
@@ -69,6 +72,8 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static TypeReference Lift(Expression e)
 		{
+			if (e == null) return null;
+			
 			switch (e.NodeType)
 			{
 				case NodeType.TypeofExpression:
@@ -85,16 +90,19 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static TypeReference Lift(ReferenceExpression e)
 		{
+			if (e == null) return null;
 			return new SimpleTypeReference(e.LexicalInfo, e.ToString());
 		}
 
 		public static TypeReference Lift(TypeofExpression e)
 		{
+			if (e == null) return null;
 			return e.Type.CloneNode();
 		}
 
 		public static TypeReference Lift(GenericReferenceExpression e)
 		{
+			if (e == null) return null;
 			var typeRef = new GenericTypeReference(e.LexicalInfo);
 			typeRef.Name = TypeNameFor(e.Target);
 			typeRef.GenericArguments.ExtendWithClones(e.GenericArguments);
