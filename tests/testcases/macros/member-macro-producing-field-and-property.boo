@@ -1,6 +1,5 @@
 """
 """
-import Boo.Lang.PatternMatching
 import System.Reflection
 
 class Song:
@@ -8,15 +7,14 @@ class Song:
 
 macro property:
 	case [| property $propertyName as $propertyType |]:
-		fieldName = "_" + propertyName
+		backingField = Boo.Lang.Compiler.Ast.ReferenceExpression("_" + propertyName)
 		yield [|
-			private $fieldName as $propertyType
-		|]
-		fieldRef = Boo.Lang.Compiler.Ast.ReferenceExpression(fieldName)
+			private $backingField as $propertyType
+		|] 
 		yield [|
 			$propertyName as $propertyType:
-				get: return $fieldRef
-				set: $fieldRef = value
+				get: return $backingField
+				set: $backingField = value
 		|]
 		
 assert string is typeof(Song).GetProperty("Name", BindingFlags.Public|BindingFlags.Instance).PropertyType

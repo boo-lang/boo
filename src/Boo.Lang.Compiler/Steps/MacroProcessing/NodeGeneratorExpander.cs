@@ -137,7 +137,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null == _typeMemberPrototype) return;
 
 			member.Attributes.ExtendWithClones(_typeMemberPrototype.Attributes);
-			member.Modifiers |= _typeMemberPrototype.Modifiers;
+			if (member.IsVisibilitySet)
+				member.Modifiers |= (_typeMemberPrototype.Modifiers & ~TypeMemberModifiers.VisibilityMask);
+			else
+				member.Modifiers |= _typeMemberPrototype.Modifiers;
 		}
 
 		private void ExpandImport(Import import)

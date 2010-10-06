@@ -200,6 +200,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void member_macro_nodes_inherit_visibility_only_when_not_set()
+		{
+			RunCompilerTestCase(@"member-macro-nodes-inherit-visibility-only-when-not-set.boo");
+		}
+		
+		[Test]
 		public void member_macro_producing_field_and_constructor()
 		{
 			RunCompilerTestCase(@"member-macro-producing-field-and-constructor.boo");
