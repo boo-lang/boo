@@ -7,12 +7,6 @@ namespace BooCompiler.Tests
 	{
 	
 		[Test]
-		public void array_linq()
-		{
-			RunCompilerTestCase(@"array-linq.boo");
-		}
-		
-		[Test]
 		public void array_polymorphic_foreach()
 		{
 			RunCompilerTestCase(@"array-polymorphic-foreach.boo");

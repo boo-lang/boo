@@ -144,6 +144,7 @@
     <Compile Include="ExtensionsIntegrationTestFixture.cs" />
     <Compile Include="GeneratorsIntegrationTestFixture.cs" />
     <Compile Include="GenericsTestFixture.cs" />
+    <Compile Include="LinqIntegrationTestFixture.cs" />
     <Compile Include="LocalizationTest.cs" />
     <Compile Include="MacrosTestFixture.cs" />
     <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />

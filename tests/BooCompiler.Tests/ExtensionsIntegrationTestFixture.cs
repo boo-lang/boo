@@ -121,12 +121,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void overload_resolution_extension()
-		{
-			RunCompilerTestCase(@"overload-resolution-extension.boo");
-		}
-		
-		[Test]
 		public void per_module_extensions()
 		{
 			RunCompilerTestCase(@"per-module-extensions.boo");
