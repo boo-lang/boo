@@ -293,9 +293,9 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError LValueExpected(Node node)
 		{
-			return Instantiate("BCE0049", node);
+			return Instantiate("BCE0049", node, StripSurroundingParens(node.ToCodeString()));
 		}
-		
+
 		public static CompilerError InvalidOperatorForType(Node node, string operatorName, string typeName)
 		{
 			return Instantiate("BCE0050", node, operatorName, typeName);
@@ -1023,6 +1023,11 @@ namespace Boo.Lang.Compiler
 			return (null != suggestion)
 				? ResourceManager.Format("BooC.DidYouMean", suggestion)
 				: null;
+		}
+
+		private static string StripSurroundingParens(string code)
+		{
+			return code.StartsWith("(") ? code.Substring(1, code.Length - 2) : code;
 		}
 	}
 }
