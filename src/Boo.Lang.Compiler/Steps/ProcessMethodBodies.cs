@@ -233,9 +233,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnProperty(Property node)
 		{
 			if (WasVisited(node))
-			{
 				return;
-			}
+
 			MarkVisited(node);
 
 			Method setter = node.Setter;
@@ -2504,9 +2503,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType type = GetConcreteExpressionType(node.Operand);
 			if (!type.IsArray)
-				Error(CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
-
-			BindExpressionType(node, type);
+				Error(node, CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
+			else
+				BindExpressionType(node, type);
 		}
 
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
@@ -2976,7 +2975,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (null != entity)
 					{
 						Bind(d, entity);
-						AssertLValue(d);
+						AssertLValue(d, entity);
 						continue;
 					}
 				}
@@ -3078,18 +3077,12 @@ namespace Boo.Lang.Compiler.Steps
 			if (AssertLValue(node.Operand))
 			{
 				if (!IsValidIncrementDecrementOperand(node.Operand))
-				{
 					InvalidOperatorForType(node);
-				}
 				else
-				{
 					ExpandIncrementDecrement(node);
-				}
 			}
 			else
-			{
 				Error(node);
-			}
 		}
 
 		void ExpandIncrementDecrement(UnaryExpression node)
@@ -4993,18 +4986,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindAssignmentToSliceProperty(BinaryExpression node)
 		{
-			SlicingExpression slice = (SlicingExpression)node.Left;
+			var slice = (SlicingExpression)node.Left;
 
-			IEntity lhs = GetEntity(node.Left);
-			IMethod setter = null;
+			var lhs = GetEntity(node.Left);
+			if (IsError(lhs))
+				return;
 
-			MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
-			foreach (Slice index in slice.Indices)
-			{
+			var mie = new MethodInvocationExpression(node.Left.LexicalInfo);
+			foreach (var index in slice.Indices)
 				mie.Arguments.Add(index.Begin);
-			}
 			mie.Arguments.Add(node.Right);
 
+			IMethod setter = null;
 			if (EntityType.Property == lhs.EntityType)
 			{
 				IMethod setMethod = ((IProperty)lhs).GetSetMethod();
@@ -5014,9 +5007,7 @@ namespace Boo.Lang.Compiler.Steps
 					return;
 				}
 				if (AssertParameters(node.Left, setMethod, mie.Arguments))
-				{
 					setter = setMethod;
-				}
 			}
 			else if (EntityType.Ambiguous == lhs.EntityType)
 			{
@@ -5029,9 +5020,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (null == setter)
-			{
 				Error(node, CompilerErrorFactory.LValueExpected(node.Left));
-			}
 			else
 			{
 				mie.Target = CodeBuilder.CreateMemberReference(
@@ -5064,20 +5053,24 @@ namespace Boo.Lang.Compiler.Steps
 		virtual protected void ProcessAssignment(BinaryExpression node)
 		{
 			TryToResolveAmbiguousAssignment(node);
-			ValidateAssignment(node);
-			BindExpressionType(node, GetExpressionType(node.Right));
+			if (ValidateAssignment(node))
+				BindExpressionType(node, GetExpressionType(node.Right));
+			else
+				Error(node);
 		}
 
-		virtual protected void ValidateAssignment(BinaryExpression node)
+		virtual protected bool ValidateAssignment(BinaryExpression node)
 		{
-			IEntity lhs = node.Left.Entity;
-			if (AssertLValue(node.Left, lhs))
-			{
-				IType lhsType = GetExpressionType(node.Left);
-				IType rtype = GetExpressionType(node.Right);
-				AssertTypeCompatibility(node.Right, lhsType, rtype);
-				CheckAssignmentToIndexedProperty(node.Left, lhs);
-			}
+			if (!AssertLValue(node.Left))
+				return false;
+
+			IType lhsType = GetExpressionType(node.Left);
+			IType rhsType = GetExpressionType(node.Right);
+			if (!AssertTypeCompatibility(node.Right, lhsType, rhsType))
+				return false;
+
+			CheckAssignmentToIndexedProperty(node.Left, node.Left.Entity);
+			return true;
 		}
 
 		virtual protected void TryToResolveAmbiguousAssignment(BinaryExpression node)
@@ -5100,7 +5093,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void CheckAssignmentToIndexedProperty(Node node, IEntity lhs)
 		{
-			IProperty property = lhs as IProperty;
+			var property = lhs as IProperty;
 			if (null != property && IsIndexedProperty(property))
 			{
 				Error(CompilerErrorFactory.PropertyRequiresParameters(AstUtil.GetMemberAnchor(node), property.FullName));
@@ -6399,14 +6392,28 @@ namespace Boo.Lang.Compiler.Steps
 			DeclareLocal(d, true);
 		}
 
-		protected virtual bool AssertLValue(Node node)
+		private bool AssertLValue(Expression node)
 		{
-			IEntity entity = node.Entity;
-			if (null != entity) return AssertLValue(node, entity);
+			if (IsError(GetExpressionType(node)))
+				return false;
 
-			if (IsArraySlicing(node)) return true;
-			Error(CompilerErrorFactory.LValueExpected(node));
+			var entity = node.Entity;
+			if (null != entity)
+				return AssertLValue(node, entity);
+
+			if (IsArraySlicing(node))
+				return true;
+
+			LValueExpected(node);
 			return false;
+		}
+
+		private void LValueExpected(Node node)
+		{
+			var entity = node.Entity;
+			if (null != entity && IsError(entity))
+				return;
+			Error(CompilerErrorFactory.LValueExpected(node));
 		}
 
 		protected virtual bool AssertLValue(Node node, IEntity entity)
@@ -6415,12 +6422,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				switch (entity.EntityType)
 				{
+					case EntityType.Error:
+						return false;
+
 					case EntityType.Parameter:
 					case EntityType.Local:
 					case EntityType.Event: //for Event=null case (other => EventIsNotAnExpression)
-						{
-							return true;
-						}
+						return true;
 
 					case EntityType.Property:
 						{
@@ -6455,7 +6463,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 				}
 			}
-			Error(CompilerErrorFactory.LValueExpected(node));
+			LValueExpected(node);
 			return false;
 		}
 
