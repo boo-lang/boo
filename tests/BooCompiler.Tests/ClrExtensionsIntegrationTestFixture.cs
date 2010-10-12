@@ -24,18 +24,6 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"infer-closure-singature.boo");
 		}
 		
-		[Test]
-		public void linq_extensions_1()
-		{
-			RunCompilerTestCase(@"linq-extensions-1.boo");
-		}
-		
-		[Ignore("Inferring closure signatures when used as an argument in an overloaded method invocation is not yet supported.")][Test]
-		public void linq_extensions_2()
-		{
-			RunCompilerTestCase(@"linq-extensions-2.boo");
-		}
-		
 
 		override protected string GetRelativeTestCasesPath()
 		{
