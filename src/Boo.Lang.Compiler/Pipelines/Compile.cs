@@ -26,12 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
+using Boo.Lang.Compiler.Steps;
 
 namespace Boo.Lang.Compiler.Pipelines
 {
-	using Boo.Lang.Compiler.Steps;
-	
 	public class Compile : ResolveExpressions
 	{
 		public Compile()

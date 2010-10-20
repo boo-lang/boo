@@ -36,25 +36,24 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			if (0 == Errors.Count)
-			{
-				Visit(CompileUnit);
-			}
+			if (Errors.Count != 0)
+				return;
+			Visit(CompileUnit);
 		}
 
-		public override void LeaveMethodInvocationExpression(Boo.Lang.Compiler.Ast.MethodInvocationExpression node)
+		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			IMethod method = node.Target.Entity as IMethod;
+			var method = node.Target.Entity as IMethod;
 			if (null != method && method.AcceptVarArgs)
 			{
 				ExpandInvocation(node, method.GetParameters());
 				return;
 			}
 
-			ICallableType callable = node.Target.ExpressionType as ICallableType;
+			var callable = node.Target.ExpressionType as ICallableType;
 			if (callable != null)
 			{
-				CallableSignature signature = callable.GetSignature();
+				var signature = callable.GetSignature();
 				if (!signature.AcceptVarArgs) return;
 				
 				ExpandInvocation(node, signature.Parameters);
@@ -71,10 +70,10 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			int lastParameterIndex = parameters.Length-1;
-			IType varArgType = parameters[lastParameterIndex].Type;
+			var lastParameterIndex = parameters.Length-1;
+			var varArgType = parameters[lastParameterIndex].Type;
 
-			ExpressionCollection varArgs = node.Arguments.PopRange(lastParameterIndex);
+			var varArgs = node.Arguments.PopRange(lastParameterIndex);
 			node.Arguments.Add(CodeBuilder.CreateArray(varArgType, varArgs));
 		}
 	}
