@@ -82,7 +82,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		}
 
-		private bool IsVarArgsInvocation(MethodInvocationExpression node, IEntityWithParameters entityWithParameters)
+		private static bool IsVarArgsInvocation(MethodInvocationExpression node, IEntityWithParameters entityWithParameters)
 		{
 			return entityWithParameters.AcceptVarArgs && !AstUtil.InvocationEndsWithExplodeExpression(node);
 		}
