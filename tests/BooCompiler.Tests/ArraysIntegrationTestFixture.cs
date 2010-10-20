@@ -283,12 +283,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void empty_array_inference_2()
-		{
-			RunCompilerTestCase(@"empty-array-inference-2.boo");
-		}
-		
-		[Test]
 		public void empty_array_inference_as_enumerable_of_int()
 		{
 			RunCompilerTestCase(@"empty-array-inference-as-enumerable-of-int.boo");
@@ -310,6 +304,12 @@ namespace BooCompiler.Tests
 		public void empty_array_inference_in_closure()
 		{
 			RunCompilerTestCase(@"empty-array-inference-in-closure.boo");
+		}
+		
+		[Test]
+		public void empty_array_inference_with_varargs()
+		{
+			RunCompilerTestCase(@"empty-array-inference-with-varargs.boo");
 		}
 		
 		[Test]

@@ -457,7 +457,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (type.HasGenericParameters)
 			{
 				nameBuilder.Append("_");
-				string[] parameterNames = Array.ConvertAll<GenericParameterDeclaration, string>(
+				string[] parameterNames = Array.ConvertAll(
 					type.GenericParameters.ToArray(),
 					delegate(GenericParameterDeclaration gpd) { return gpd.Name; });
 				foreach (string parameterName in parameterNames)
@@ -550,7 +550,7 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			RegexOptions ro = RegexOptions.None;
 
-			if (string.IsNullOrEmpty(re.Options))
+			if (String.IsNullOrEmpty(re.Options))
 				return ro;
 
 			foreach (char opt in re.Options)
@@ -606,6 +606,16 @@ namespace Boo.Lang.Compiler.Ast
 			if (parent == null)
 				return false;
 			return parent.Target == node;
+		}
+
+		public static bool InvocationEndsWithExplodeExpression(MethodInvocationExpression node)
+		{
+			return EndsWithExplodeExpression(node.Arguments);
+		}
+
+		public static bool EndsWithExplodeExpression(ExpressionCollection expressionCollection)
+		{
+			return expressionCollection.Count > 0 && IsExplodeExpression(expressionCollection[-1]);
 		}
 	}
 }

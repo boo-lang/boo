@@ -64,7 +64,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected virtual void ExpandInvocation(MethodInvocationExpression node, IParameter[] parameters)
 		{
-			if (node.Arguments.Count > 0 && AstUtil.IsExplodeExpression(node.Arguments[-1]))
+			if (AstUtil.InvocationEndsWithExplodeExpression(node))
 			{
 				// explode the arguments
 				node.Arguments.ReplaceAt(-1, ((UnaryExpression)node.Arguments[-1]).Operand);

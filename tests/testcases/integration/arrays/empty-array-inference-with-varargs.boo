@@ -3,6 +3,8 @@ System.String
 System.Int32
 System.String
 System.Int32
+System.String
+System.Int32
 System.Int32
 """
 def pa(a):
@@ -17,4 +19,5 @@ def withArrayVarArgs(o as (string), *aa as ((int))):
 	for a in aa: pa(a)
 	
 withVarArgs((,))
+withVarArgs((,), *(,))
 withArrayVarArgs((,), (,), (,))
