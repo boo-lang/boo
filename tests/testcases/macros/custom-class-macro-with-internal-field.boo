@@ -10,8 +10,8 @@ macro custom_class(name as ReferenceExpression):
 	|]
 	
 custom_class Foo:
-	internal property Value as int
+	internal Value as int
 		
 f = Foo(Value: 42)
 print f.Value
-	
+

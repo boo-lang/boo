@@ -1351,9 +1351,10 @@ type_member_stmt [StatementCollection container]
 {
 	TypeMemberCollection members = new TypeMemberCollection();
 }:
-	type_member[members]
+	type_definition_member[members]
 	{
-		container.Add(new TypeMemberStatement(members[0]));
+		foreach (var member in members)
+			container.Add(new TypeMemberStatement(member));
 	}
 ;
 

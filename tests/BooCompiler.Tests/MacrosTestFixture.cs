@@ -13,7 +13,13 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"assert-1.boo");
 		}
 		
-		[Ignore("work in progress")][Test]
+		[Test]
+		public void custom_class_macro_with_internal_field()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-internal-field.boo");
+		}
+		
+		[Test]
 		public void custom_class_macro_with_internal_property()
 		{
 			RunCompilerTestCase(@"custom-class-macro-with-internal-property.boo");
