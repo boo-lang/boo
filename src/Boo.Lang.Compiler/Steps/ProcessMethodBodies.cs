@@ -4475,6 +4475,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var accessible = member as IAccessibleMember;
 			if (accessible == null) return true;
+			return IsAccessible(accessible);
+		}
+
+		private bool IsAccessible(IAccessibleMember accessible)
+		{
 			return GetAccessibilityChecker().IsAccessible(accessible);
 		}
 
@@ -5587,35 +5592,44 @@ namespace Boo.Lang.Compiler.Steps
 			Error(CompilerErrorFactory.UnknownIdentifier(node, name));
 		}
 
-		private bool IsPublicEvent(IEntity tag)
+		private static bool IsPublicEvent(IEntity tag)
 		{
 			return (EntityType.Event == tag.EntityType) && ((IMember)tag).IsPublic;
 		}
 
-		private bool IsPublicFieldPropertyEvent(IEntity entity)
+		private static bool IsVisibleFieldPropertyOrEvent(IEntity entity)
 		{
-			if (!IsFieldPropertyOrEvent(entity) || !((IMember) entity).IsPublic)
-				return false;
-
-			IField field = entity as IField;
-			return (null == field) || (!field.IsInitOnly && !field.IsLiteral);
+			switch (entity.EntityType)
+			{
+				case EntityType.Field:
+					var field = (IField)entity;
+					return !TypeSystemServices.IsReadOnlyField(field) && IsVisible(field);
+				case EntityType.Event:
+					var @event = (IEvent)entity;
+					return IsVisible(@event.GetAddMethod());
+				case EntityType.Property:
+					var property = (IProperty)entity;
+					return IsVisible(property);
+			}
+			return false;
 		}
 
-		private static bool IsFieldPropertyOrEvent(IEntity entity)
+		private static bool IsVisible(IAccessibleMember member)
 		{
-			return ((EntityType.Field|EntityType.Property|EntityType.Event) & entity.EntityType) > 0;
+			// TODO: should it just be IsAccessible(member) here?
+			return member.IsPublic || member.IsInternal;
 		}
 
-		private IMember ResolvePublicFieldPropertyEvent(Expression sourceNode, IType type, string name)
+		private IMember ResolveVisibleFieldPropertyOrEvent(Expression sourceNode, IType type, string name)
 		{
 			IEntity candidate = ResolveFieldPropertyEvent(type, name);
 			if (null == candidate) return null;
 
-			if (IsPublicFieldPropertyEvent(candidate)) return (IMember)candidate;
+			if (IsVisibleFieldPropertyOrEvent(candidate)) return (IMember)candidate;
 
 			if (candidate.EntityType != EntityType.Ambiguous) return null;
 
-			IList found = ((Ambiguous)candidate).Select(IsPublicFieldPropertyEvent);
+			IList found = ((Ambiguous)candidate).Select(IsVisibleFieldPropertyOrEvent);
 			if (found.Count == 0) return null;
 			if (found.Count == 1) return (IMember)found[0];
 
@@ -5650,7 +5664,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ResolveNamedArgument(IType type, ReferenceExpression name, Expression value)
 		{
-			IMember member = ResolvePublicFieldPropertyEvent(name, type, name.Name);
+			IMember member = ResolveVisibleFieldPropertyOrEvent(name, type, name.Name);
 			if (null == member)
 			{
 				NamedArgumentNotFound(type, name);

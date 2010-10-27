@@ -685,6 +685,24 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void internal_event_initializer()
+		{
+			RunCompilerTestCase(@"internal-event-initializer.boo");
+		}
+		
+		[Test]
+		public void internal_field_initializer()
+		{
+			RunCompilerTestCase(@"internal-field-initializer.boo");
+		}
+		
+		[Test]
+		public void internal_property_initializer()
+		{
+			RunCompilerTestCase(@"internal-property-initializer.boo");
+		}
+		
+		[Test]
 		public void local_hiding_field()
 		{
 			RunCompilerTestCase(@"local-hiding-field.boo");
