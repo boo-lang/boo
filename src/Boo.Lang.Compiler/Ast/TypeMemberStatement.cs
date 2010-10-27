@@ -28,14 +28,14 @@
 
 namespace Boo.Lang.Compiler.Ast
 {
-	using System;
-
 	public partial class TypeMemberStatement
 	{
 		public TypeMemberStatement(TypeMember typeMember) : base(typeMember.LexicalInfo)
 		{
 			TypeMember = typeMember;
 		}
+
+		public TypeMember InsertionPoint { get; set; }
 	}
 }
 

@@ -13,10 +13,34 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"assert-1.boo");
 		}
 		
+		[Ignore("work in progress")][Test]
+		public void custom_class_macro_with_internal_property()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-internal-property.boo");
+		}
+		
 		[Test]
 		public void custom_class_macro_with_method_override()
 		{
 			RunCompilerTestCase(@"custom-class-macro-with-method-override.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_properties_and_field()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-properties-and-field.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_properties()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-properties.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_property_macro()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-property-macro.boo");
 		}
 		
 		[Test]
@@ -281,6 +305,12 @@ namespace BooCompiler.Tests
 		public void print_2()
 		{
 			RunCompilerTestCase(@"print-2.boo");
+		}
+		
+		[Test]
+		public void type_member_macro_yielding_member_with_member_generating_attribute()
+		{
+			RunCompilerTestCase(@"type-member-macro-yielding-member-with-member-generating-attribute.boo");
 		}
 		
 		[Test]

@@ -38,14 +38,11 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 	sealed class NodeGeneratorExpander
 	{
 		private readonly MacroStatement _node;
-		private readonly bool _addTypeMembersToEnclosingTypeDefinition;
 		private readonly StatementTypeMember _typeMemberPrototype;
-		private TypeDefinition _enclosingTypeDefCache;
 
-		public NodeGeneratorExpander(MacroStatement node, bool addTypeMembersToEnclosingTypeDefinition)
+		public NodeGeneratorExpander(MacroStatement node)
 		{
 			_node = node;
-			_addTypeMembersToEnclosingTypeDefinition = addTypeMembersToEnclosingTypeDefinition;
 			_typeMemberPrototype = node.ParentNode as StatementTypeMember;
 		}
 
@@ -105,31 +102,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ExpandTypeMember(TypeMember member, Block resultingBlock)
 		{
 			ApplyPrototypeModifiersAndAttributesTo(member);
-			if (_addTypeMembersToEnclosingTypeDefinition)
-				AddMemberToEnclosingTypeDef(member);
-			else
-				resultingBlock.Add(new GeneratedTypeMemberStatement(member));
-		}
-
-		private void AddMemberToEnclosingTypeDef(TypeMember member)
-		{
-			if (null == _typeMemberPrototype)
-				EnclosingTypeDef().Members.Add(member);
-			else
-				EnclosingTypeDef().Members.Insert(TypeMemberInsertionPoint(), member);
-		}
-
-		private int TypeMemberInsertionPoint()
-		{
-			TypeMemberCollection members = EnclosingTypeDef().Members;
-			return members.IndexOf(_typeMemberPrototype);
-		}
-
-		private TypeDefinition EnclosingTypeDef()
-		{
-			if (null == _enclosingTypeDefCache)
-				_enclosingTypeDefCache = _node.GetAncestor<TypeDefinition>();
-			return _enclosingTypeDefCache;
+			resultingBlock.Add(new TypeMemberStatement(member) { InsertionPoint = _typeMemberPrototype });
 		}
 
 		private void ApplyPrototypeModifiersAndAttributesTo(TypeMember member)

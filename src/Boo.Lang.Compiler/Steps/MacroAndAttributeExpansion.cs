@@ -57,12 +57,20 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				bool expanded = ApplyAttributesAndExpandMacros();
 				if (!expanded)
-					break;
+				{
+					if (!BubbleResultingTypeMemberStatementsUp())
+						break;
+				}
 
 				++iteration;
 				if (iteration > Parameters.MaxExpansionIterations)
 					throw new CompilerError("Too many expansions.");
 			}
+		}
+
+		private bool BubbleResultingTypeMemberStatementsUp()
+		{
+			return TypeMemberStatementBubbler.BubbleTypeMemberStatementsUp(CompileUnit);
 		}
 
 		private bool ApplyAttributesAndExpandMacros()

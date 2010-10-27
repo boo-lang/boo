@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
@@ -44,17 +45,21 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private Set<Node> _visited = new Set<Node>();
 
+		private Queue<Statement> _pendingExpansions = new Queue<Statement>();
+
 		private DynamicVariable<bool> _ignoringUnknownMacros = new DynamicVariable<bool>(false);
 
 		public bool ExpandAll()
 		{
 			Reset();
 			Run();
+			BubbleUpPendingTypeMembers();
 			return _expanded > 0;
 		}
 
 		private void Reset()
 		{
+			_pendingExpansions.Clear();
 			_visited.Clear();
 			_expanded = 0;
 		}
@@ -87,7 +92,14 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void VisitGlobalsAllowingCancellation(Module module)
 		{
-			VisitAllowingCancellation(module.Globals);
+			var globals = module.Globals.Statements;
+			foreach (var stmt in globals.ToArray())
+			{
+				Node resultingNode;
+				if (VisitAllowingCancellation(stmt, out resultingNode) && resultingNode != stmt)
+					globals.Replace(stmt, (Statement) resultingNode);
+				BubbleUpPendingTypeMembers();
+			}
 		}
 
 		private void VisitModule(Module module)
@@ -139,12 +151,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			_referenced = true;
 		}
 
-		override public void LeaveStatementTypeMember(StatementTypeMember node)
-		{
-			if (node.Statement == null)
-				RemoveCurrentNode();
-		}
-
 		override public void OnMacroStatement(MacroStatement node)
 		{
 			EnsureCompilerAssemblyReference(Context);
@@ -153,8 +159,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null != macroType)
 			{
 				ExpandKnownMacro(node, macroType);
-				if (_expansionDepth == 0)
-					BubbleResultingTypeMemberStatementsUp();
 				return;
 			}
 
@@ -164,9 +168,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			ExpandUnknownMacro(node);
 		}
 
-		private void BubbleResultingTypeMemberStatementsUp()
+		private bool IsTopLevelExpansion()
 		{
-			CompileUnit.Accept(new GeneratedTypeMemberStatementBubbler());
+			return _expansionDepth == 0;
+		}
+
+		private void BubbleUpPendingTypeMembers()
+		{
+			while (_pendingExpansions.Count > 0)
+				TypeMemberStatementBubbler.BubbleTypeMemberStatementsUp(_pendingExpansions.Dequeue());
 		}
 
 		private void ExpandKnownMacro(MacroStatement node, IType macroType)
@@ -177,7 +187,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void ExpandChildrenOfMacroOnMacroNamespace(MacroStatement node, IType macroType)
 		{
-			EnterNamespace(new NamespaceDelegator(CurrentNamespace, macroType));
+			EnterMacroNamespace(macroType);
 			try
 			{	
 				ExpandChildrenOf(node);
@@ -186,6 +196,20 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			{
 				LeaveNamespace();
 			}
+		}
+
+		private void EnterMacroNamespace(IType macroType)
+		{
+			EnsureNestedMacrosCanBeSeenAsMembers(macroType);
+
+			EnterNamespace(new NamespaceDelegator(CurrentNamespace, macroType));
+		}
+
+		private void EnsureNestedMacrosCanBeSeenAsMembers(IType macroType)
+		{
+			var internalMacroType = macroType as InternalClass;
+			if (null != internalMacroType)
+				TypeMemberStatementBubbler.BubbleTypeMemberStatementsUp(internalMacroType.TypeDefinition);
 		}
 
 		private void ExpandUnknownMacro(MacroStatement node)
@@ -197,7 +221,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				TreatMacroAsMethodInvocation(node);
 		}
 
-		private bool IsTypeMemberMacro(MacroStatement node)
+		private static bool IsTypeMemberMacro(MacroStatement node)
 		{
 			return node.ParentNode.NodeType == NodeType.StatementTypeMember;
 		}
@@ -210,7 +234,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				ProcessingError(CompilerErrorFactory.UnknownMacro(node, node.Name));
 		}
 
-		private bool LooksLikeOldStyleFieldDeclaration(MacroStatement node)
+		private static bool LooksLikeOldStyleFieldDeclaration(MacroStatement node)
 		{
 			return node.Arguments.Count == 0 && node.Body.IsEmpty;
 		}
@@ -255,7 +279,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)
 		{
 			TypeDefinition macroDefinition = klass.TypeDefinition;
-
 			if (MacroDefinitionContainsMacroApplication(macroDefinition, node))
 			{
 				ProcessingError(CompilerErrorFactory.InvalidMacro(node, klass.FullName));
@@ -267,25 +290,17 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null == macroType)
 			{
 				if (firstTry)
-				{
 					ProcessingError(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
-				}
 				else
-				{
 					RemoveCurrentNode();
-				}
 				return;
 			}
 			ProcessMacro(macroType, node);
 		}
 
-		private bool MacroDefinitionContainsMacroApplication(TypeDefinition definition, MacroStatement statement)
+		private static bool MacroDefinitionContainsMacroApplication(TypeDefinition definition, MacroStatement statement)
 		{
-			foreach (TypeDefinition ancestor in statement.GetAncestors<TypeDefinition>())
-				if (ancestor == definition)
-					return true;
-
-			return false;
+			return statement.GetAncestors<TypeDefinition>().Any(ancestor => ancestor == definition);
 		}
 
 		private int _expansionDepth;
@@ -313,8 +328,11 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			
 			try
 			{
-				Statement expansion = ExpandMacro(actualType, node);
-				ReplaceCurrentNode(ExpandMacroExpansion(node, expansion));
+				var macroExpansion = ExpandMacro(actualType, node);
+				var completeExpansion = ExpandMacroExpansion(node, macroExpansion);
+				ReplaceCurrentNode(completeExpansion);
+				if (completeExpansion != null && IsTopLevelExpansion())
+					_pendingExpansions.Enqueue(completeExpansion);
 			}
 			catch (LongJumpException)
 			{
@@ -370,7 +388,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 			//use new-style BOO-1077 generator macro interface if available
 			var gm = macro as IAstGeneratorMacro;
-			if (null != gm)
+			if (gm != null)
 				return ExpandGeneratorMacro(gm, node);
 
 			return macro.Expand(node);
@@ -382,7 +400,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null == generatedNodes)
 				return null;
 
-			return new NodeGeneratorExpander(node, _expansionDepth == 0).Expand(generatedNodes);
+			return new NodeGeneratorExpander(node).Expand(generatedNodes);
 		}
 
 		private IEntity ResolveMacroName(MacroStatement node)

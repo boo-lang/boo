@@ -26,33 +26,45 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	sealed class GeneratedTypeMemberStatementBubbler : DepthFirstTransformer
+	sealed class TypeMemberStatementBubbler : DepthFirstTransformer
 	{
-		#region Implementation of ITypeMemberStatementVisitor
-
-		override public void OnCustomStatement(CustomStatement node)
+		public static bool BubbleTypeMemberStatementsUp(Node node)
 		{
-			var typeMemberStmt = node as GeneratedTypeMemberStatement;
-			if (null == typeMemberStmt)
-				return;
-			
-			TypeMember typeMember = typeMemberStmt.TypeMember;
-			InsertTypeMemberAt(typeMember, node);
-			Visit(typeMember);
+			var bubbler = new TypeMemberStatementBubbler();
+			bubbler.VisitNode(node);
+			return bubbler._bubbled;
+		}
+
+		bool _bubbled;
+
+		public override void LeaveTypeMemberStatement(TypeMemberStatement node)
+		{
+			if (node.TypeMember != null)
+			{
+				_bubbled = true;
+
+				var enclosingType = node.GetAncestor<TypeDefinition>();
+
+				var insertionPoint = node.InsertionPoint;
+				if (insertionPoint != null)
+					enclosingType.Members.Insert(enclosingType.Members.IndexOf(insertionPoint), node.TypeMember);
+				else
+					enclosingType.Members.Add(node.TypeMember);
+
+				node.TypeMember = null;
+			}
 
 			RemoveCurrentNode();
 		}
 
-		private void InsertTypeMemberAt(TypeMember typeMember, CustomStatement anchor)
+		override public void LeaveStatementTypeMember(StatementTypeMember node)
 		{
-			var members = anchor.GetAncestor<TypeDefinition>().Members;
-			members.Add(typeMember);
+			if (node.Statement == null)
+				RemoveCurrentNode();
 		}
-		#endregion
 	}
 }
