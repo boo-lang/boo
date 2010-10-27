@@ -102,9 +102,20 @@ namespace Boo.Lang.Compiler.Ast
 		public static TypeMemberCollection Lift(Block block)
 		{
 			var members = new TypeMemberCollection();
-			foreach (var stmt in block.Statements)
-				members.Add(TypeMember.Lift(stmt));
+			LiftBlockInto(members, block);
 			return members;
+		}
+
+		private static void LiftBlockInto(TypeMemberCollection collection, Block block)
+		{
+			foreach (var stmt in block.Statements)
+			{
+				var childBlock = stmt as Block;
+				if (childBlock != null)
+					LiftBlockInto(collection, childBlock);
+				else
+					collection.Add(TypeMember.Lift(stmt));
+			}
 		}
 
 		protected TypeMember()
