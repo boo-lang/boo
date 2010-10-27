@@ -44,9 +44,9 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			if (null == node) throw new ArgumentNullException("node");
 			if (ReferenceEquals(this, node)) return;
-			this.Attributes.Extend(node.Attributes);
-			this.BaseTypes.Extend(node.BaseTypes);
-			this.Members.Extend(node.Members);
+			Attributes.Extend(node.Attributes);
+			BaseTypes.Extend(node.BaseTypes);
+			Members.Extend(node.Members);
 		}
 	}
 }
