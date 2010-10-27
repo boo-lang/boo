@@ -27,17 +27,13 @@
 #endregion
 
 using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Inheritance;
-using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.TypeSystem;
-
 	public class BindBaseTypes : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
 		override public void Run()
@@ -144,18 +140,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override INamespace ParentNamespace
 		{
-			get 
-			{ 
-				return _parent; 
-			}
+			get { return _parent; }
 		}
 
 		public override IEnumerable<IEntity> GetMembers()
 		{
 			if (_type.GenericInfo != null)
-			{
 				return _type.GenericInfo.GenericParameters;
-			}
 			return NullNamespace.EmptyEntityArray;
 		}
 	}
