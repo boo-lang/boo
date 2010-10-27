@@ -889,6 +889,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteOperator(")");
 		}
 
+		public override void OnStatementTypeMember(StatementTypeMember node)
+		{
+			WriteModifiers(node);
+			Visit(node.Statement);
+		}
+
 		public override void OnSpliceTypeMember(SpliceTypeMember node)
 		{
 			WriteIndented();
