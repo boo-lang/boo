@@ -218,6 +218,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void nested_macros_1()
+		{
+			RunCompilerTestCase(@"nested-macros-1.boo");
+		}
+		
+		[Test]
 		public void nested_macros_2()
 		{
 			RunCompilerTestCase(@"nested-macros-2.boo");

@@ -19,13 +19,7 @@ macro choco:
 			yield [| print "yummy" |]
 	yield choco.Body
 
-code = [|
-	import NestedMacros
-	foo:
-		bar # foo.bar
-	choco 2:
-		bar # yummy
-|]
-result = compile(code, typeof(FooMacro).Assembly)
-result.EntryPoint.Invoke(null, (null,))
-
+foo:
+	bar # foo.bar
+choco 2:
+	bar # yummy
