@@ -35,7 +35,6 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(Field))]
 	[System.Xml.Serialization.XmlInclude(typeof(Property))]
 	[System.Xml.Serialization.XmlInclude(typeof(Method))]
-	[System.Xml.Serialization.XmlInclude(typeof(TypeMemberStatement))]
 	public abstract partial class TypeMember
 	{		
 		public static TypeMember Lift(TypeMember member)
