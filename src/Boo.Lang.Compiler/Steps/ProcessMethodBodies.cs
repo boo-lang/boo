@@ -4183,11 +4183,14 @@ namespace Boo.Lang.Compiler.Steps
 			return NameResolutionService.ResolveExtension(extensionNamespace, targetReference.Name);
 		}
 
-		private bool ResolvedAsExtension(MethodInvocationExpression node)
+		private static bool ResolvedAsExtension(MethodInvocationExpression node)
 		{
-			return
-				node.ContainsAnnotation(ResolvedAsExtensionAnnotation) ||
-				node.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation);
+			if (node.ContainsAnnotation(ResolvedAsExtensionAnnotation)
+				|| node.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation))
+				return true;
+
+			var genericReference = node.Target as GenericReferenceExpression;
+			return genericReference != null && genericReference.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation);
 		}
 
 		protected virtual IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
