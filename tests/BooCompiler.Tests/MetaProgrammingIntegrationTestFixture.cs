@@ -127,6 +127,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void field_splicing_in_expression_becomes_reference_to_field()
+		{
+			RunCompilerTestCase(@"field-splicing-in-expression-becomes-reference-to-field.boo");
+		}
+		
+		[Test]
 		public void field_splicing_null_initializer()
 		{
 			RunCompilerTestCase(@"field-splicing-null-initializer.boo");
