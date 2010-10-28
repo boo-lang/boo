@@ -453,10 +453,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public MethodInvocationExpression CreateMethodInvocation(Expression target, IMethod entity)
 		{
-			MethodInvocationExpression mie = new MethodInvocationExpression(target.LexicalInfo);
-			mie.Target = CreateMemberReference(target, entity);
-			mie.ExpressionType = entity.ReturnType;
-			return mie;
+			return new MethodInvocationExpression(target.LexicalInfo)
+			       	{
+			       		Target = CreateMemberReference(target, entity),
+			       		ExpressionType = entity.ReturnType
+			       	};
 		}
 
 		public ReferenceExpression CreateReference(LexicalInfo info, IType type)

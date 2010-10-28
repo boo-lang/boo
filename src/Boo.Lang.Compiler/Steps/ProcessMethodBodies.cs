@@ -1371,9 +1371,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (CanResolveReturnType(entity))
-			{
 				ResolveReturnType(entity);
-			}
 		}
 
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
@@ -1396,23 +1394,21 @@ namespace Boo.Lang.Compiler.Steps
 				Error(node,
 				CompilerErrorFactory.MethodIsNotOverride(node, _currentMethod.ToString()));
 				return;
-		}
+			}
 
 			node.Entity = _currentMethod.Overriden;
 		}
 
-		bool CanResolveReturnType(InternalMethod tag)
+		static bool CanResolveReturnType(InternalMethod method)
 		{
-			ExpressionCollection expressions = tag.ReturnExpressions;
+			var expressions = method.ReturnExpressions;
 			if (null != expressions)
 			{
-				foreach (Expression expression in expressions)
+				foreach (var expression in expressions)
 				{
 					IType type = expression.ExpressionType;
-					if (null == type || TypeSystemServices.IsUnknown(type))
-					{
+					if (type == null || TypeSystemServices.IsUnknown(type))
 						return false;
-					}
 				}
 			}
 			return true;
@@ -3207,25 +3203,28 @@ namespace Boo.Lang.Compiler.Steps
 					operand.CloneNode());
 		}
 
-		BinaryOperatorType GetEquivalentBinaryOperator(UnaryOperatorType op)
-		{
-			return op == UnaryOperatorType.Increment || op == UnaryOperatorType.PostIncrement
-				? BinaryOperatorType.Addition
-				: BinaryOperatorType.Subtraction;
-		}
-
-		UnaryOperatorType GetRelatedPreOperator(UnaryOperatorType op)
+		static BinaryOperatorType GetEquivalentBinaryOperator(UnaryOperatorType op)
 		{
 			switch (op)
 			{
 				case UnaryOperatorType.PostIncrement:
-					{
-						return UnaryOperatorType.Increment;
-					}
+				case UnaryOperatorType.Increment:
+					return BinaryOperatorType.Addition;
 				case UnaryOperatorType.PostDecrement:
-					{
-						return UnaryOperatorType.Decrement;
-					}
+				case UnaryOperatorType.Decrement:
+					return BinaryOperatorType.Subtraction;
+			}
+			throw new ArgumentException("op");
+		}
+
+		static UnaryOperatorType GetRelatedPreOperator(UnaryOperatorType op)
+		{
+			switch (op)
+			{
+				case UnaryOperatorType.PostIncrement:
+					return UnaryOperatorType.Increment;
+				case UnaryOperatorType.PostDecrement:
+					return UnaryOperatorType.Decrement;
 			}
 			throw new ArgumentException("op");
 		}
@@ -3418,19 +3417,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool IsInaccessible(IEntity info)
 		{
-			IAccessibleMember accessible = info as IAccessibleMember;
-			if (accessible != null && accessible.IsPrivate
-				&& accessible.DeclaringType != CurrentType)
-			{
+			var accessible = info as IAccessibleMember;
+			if (accessible != null && accessible.IsPrivate && accessible.DeclaringType != CurrentType)
 				return true;
-			}
 			return false;
 		}
 
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
-			if (TypeSystemServices.IsUnknown(node.Left) ||
-				TypeSystemServices.IsUnknown(node.Right))
+			if (TypeSystemServices.IsUnknown(node.Left)
+				|| TypeSystemServices.IsUnknown(node.Right))
 			{
 				BindExpressionType(node, Unknown.Default);
 				return;
@@ -3463,15 +3459,10 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.Addition:
 					{
-						if (GetExpressionType(node.Left).IsArray &&
-							GetExpressionType(node.Right).IsArray)
-						{
+						if (GetExpressionType(node.Left).IsArray && GetExpressionType(node.Right).IsArray)
 							BindArrayAddition(node);
-						}
 						else
-						{
 							BindArithmeticOperator(node);
-						}
 						break;
 					}
 
