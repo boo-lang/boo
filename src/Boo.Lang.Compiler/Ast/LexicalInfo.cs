@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -36,10 +36,27 @@ namespace Boo.Lang.Compiler.Ast
 
 		private readonly int _column;
 		
+		private readonly int _position;
+		
+		public SourceLocation(int position)
+		{
+			_line = -1;
+			_column = -1;
+			_position = position;
+		}
+		
 		public SourceLocation(int line, int column)
 		{
 			_line = line;
 			_column = column;
+			_position = -1;
+		}
+		
+		public SourceLocation(int line, int column, int position)
+		{
+			_line = line;
+			_column = column;
+			_position = position;
 		}
 		
 		public int Line
@@ -52,6 +69,11 @@ namespace Boo.Lang.Compiler.Ast
 			get { return _column; }
 		}
 		
+		public int Position
+		{
+			get { return _position; }
+		}
+		
 		public virtual bool IsValid
 		{
 			get { return (_line > 0) && (_column > 0); }
@@ -59,7 +81,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		override public string ToString()
 		{
-			return string.Format("({0},{1})", _line, _column);
+			return string.Format("(L{0},C{1})", _line, _column);
 		}
 		
 		public int CompareTo(SourceLocation other)
@@ -67,7 +89,10 @@ namespace Boo.Lang.Compiler.Ast
 			int result = _line.CompareTo(other._line);
 			if (result != 0) return result;
 
-			return _column.CompareTo(other._column);
+			result = _column.CompareTo(other._column);
+			if (result != 0) return result;
+			
+			return _position.CompareTo(other._position);
 		}
 		
 		public bool Equals(SourceLocation other)
@@ -84,6 +109,12 @@ namespace Boo.Lang.Compiler.Ast
 		
 		private string _fullPath;
 		
+		public LexicalInfo(string filename, int line, int column, int position)
+			: base(line, column, position)
+		{
+			_filename = filename;
+		}
+		
 		public LexicalInfo(string filename, int line, int column)
 			: base(line, column)
 		{
@@ -94,7 +125,8 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 
-		public LexicalInfo(LexicalInfo other) : this(other.FileName, other.Line, other.Column)
+		public LexicalInfo(LexicalInfo other) 
+			: this(other.FileName, other.Line, other.Column, other.Position)
 		{	
 		}
 		
