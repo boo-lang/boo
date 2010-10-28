@@ -38,7 +38,6 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Ast.Visitors;
 using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -6110,17 +6109,15 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod FindOperator(IType type, string operatorName, ExpressionCollection args)
 		{
 			IEntity entity = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
-			if (null != entity)
+			if (entity != null)
 			{
 				IMethod method = ResolveOperatorEntity(entity, args);
 				if (null != method) return method;
 			}
 
 			entity = NameResolutionService.ResolveExtension(type, operatorName);
-			if (null != entity)
-			{
+			if (entity != null)
 				return ResolveOperatorEntity(entity, args);
-			}
 
 			return null;
 		}
@@ -6128,17 +6125,13 @@ namespace Boo.Lang.Compiler.Steps
 		private IMethod ResolveOperatorEntity(IEntity op, ExpressionCollection args)
 		{
 			if (EntityType.Ambiguous == op.EntityType)
-			{
 				return ResolveAmbiguousOperator(((Ambiguous)op).Entities, args);
-			}
 
 			if (EntityType.Method == op.EntityType)
 			{
 				IMethod candidate = (IMethod)op;
 				if (HasOperatorSignature(candidate, args))
-				{
 					return candidate;
-				}
 			}
 			return null;
 		}

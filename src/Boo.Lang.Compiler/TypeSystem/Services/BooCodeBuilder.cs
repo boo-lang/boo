@@ -486,16 +486,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private static MethodInvocationExpression CreateBuiltinInvocation(LexicalInfo li, BuiltinFunction builtin)
 		{
-			MethodInvocationExpression eval = new MethodInvocationExpression(li);
-			eval.Target = CreateBuiltinReference(builtin);
-			return eval;
+			return new MethodInvocationExpression(li) { Target = CreateBuiltinReference(builtin) };
 		}
 
 		public static ReferenceExpression CreateBuiltinReference(BuiltinFunction builtin)
 		{
-			ReferenceExpression target = new ReferenceExpression(builtin.Name);
-			target.Entity = builtin;
-			return target;
+			return new ReferenceExpression(builtin.Name) { Entity = builtin };
 		}
 
 		public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li, Expression arg, Expression value)
