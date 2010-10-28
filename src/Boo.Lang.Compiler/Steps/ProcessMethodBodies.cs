@@ -2822,32 +2822,11 @@ namespace Boo.Lang.Compiler.Steps
 			throw new ArgumentException("entity");
 		}
 
-		override public void LeaveUnlessStatement(UnlessStatement node)
-		{
-			node.Condition = AssertBoolContext(node.Condition);
-		}
-
-		override public void LeaveIfStatement(IfStatement node)
-		{
-			node.Condition = AssertBoolContext(node.Condition);
-		}
-
 		override public void LeaveConditionalExpression(ConditionalExpression node)
 		{
-			node.Condition = AssertBoolContext(node.Condition);
 			IType trueType = GetExpressionType(node.TrueValue);
 			IType falseType = GetExpressionType(node.FalseValue);
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
-		}
-
-		override public bool EnterWhileStatement(WhileStatement node)
-		{
-			return true;
-		}
-
-		override public void LeaveWhileStatement(WhileStatement node)
-		{
-			node.Condition = AssertBoolContext(node.Condition);
 		}
 
 		override public void LeaveYieldStatement(YieldStatement node)
@@ -3302,13 +3281,9 @@ namespace Boo.Lang.Compiler.Steps
 		private void LeaveOnesComplement(UnaryExpression node)
 		{
 			if (IsPrimitiveOnesComplementOperand(node.Operand))
-			{
 				BindExpressionType(node, GetExpressionType(node.Operand));
-			}
 			else
-			{
 				ProcessOperatorOverload(node);
-			}
 		}
 
 		private bool IsPrimitiveOnesComplementOperand(Expression operand)
@@ -3319,20 +3294,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void LeaveLogicalNot(UnaryExpression node)
 		{
-			node.Operand = AssertBoolContext(node.Operand);
 			BindExpressionType(node, TypeSystemServices.BoolType);
 		}
 
 		private void LeaveUnaryNegation(UnaryExpression node)
 		{
 			if (IsPrimitiveNumber(node.Operand))
-			{
 				BindExpressionType(node, GetExpressionType(node.Operand));
-			}
 			else
-			{
 				ProcessOperatorOverload(node);
-			}
 		}
 
 		private void LeaveAddressOf(UnaryExpression node)
@@ -3497,7 +3467,7 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.Or:
 				case BinaryOperatorType.And:
 					{
-						BindLogicalOperator(node);
+						BindExpressionType(node, GetMostGenericType(node));
 						break;
 					}
 
@@ -3555,9 +3525,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IType GetMostGenericType(BinaryExpression node)
 		{
-			return GetMostGenericType(
-				GetExpressionType(node.Left),
-				GetExpressionType(node.Right));
+			return GetMostGenericType(GetExpressionType(node.Left), GetExpressionType(node.Right));
 		}
 
 		bool IsNullableOperation(BinaryExpression node)
@@ -3775,46 +3743,6 @@ namespace Boo.Lang.Compiler.Steps
 		private static bool IsNull(Expression node)
 		{
 			return NodeType.NullLiteralExpression == node.NodeType;
-		}
-
-		void BindLogicalOperator(BinaryExpression node)
-		{
-			var conditionalStatement = node.ParentNode as ConditionalStatement;
-			if (conditionalStatement != null && conditionalStatement.Condition == node)
-				BindLogicalOperatorCondition(node);
-			else
-				BindLogicalOperatorExpression(node);
-		}
-
-		private void BindLogicalOperatorExpression(BinaryExpression node)
-		{
-			var condition = AssertBoolContext(node.Left);
-			if (condition != node.Left)
-			{
-				// implicit conversion, original value has to be preserved
-				// a and b => (b if op_Implicit(a) else a)
-				// a or b => (a if op_Implicit(a) else b)
-				var local = DeclareTempLocal(GetExpressionType(node.Left));
-				var a = CodeBuilder.CreateReference(local);
-				var b = node.Right;
-				var e = node.Operator == BinaryOperatorType.And
-				        	? new ConditionalExpression(node.LexicalInfo) { Condition = condition, TrueValue = b, FalseValue = a }
-				        	: new ConditionalExpression(node.LexicalInfo) { Condition = condition, TrueValue = a, FalseValue = b };
-
-				if (condition.ReplaceNodes((n) => n == node.Left, CodeBuilder.CreateAssignment(a.CloneNode(), node.Left)) != 1)
-					throw new InvalidOperationException();
-
-				BindExpressionType(e, GetMostGenericType(node));
-				node.ParentNode.Replace(node, e);
-			}
-			BindExpressionType(node, GetMostGenericType(node));
-		}
-
-		private void BindLogicalOperatorCondition(BinaryExpression node)
-		{
-			node.Left = AssertBoolContext(node.Left);
-			node.Right = AssertBoolContext(node.Right);
-			BindExpressionType(node, GetMostGenericType(node));
 		}
 
 		void BindInPlaceAddSubtract(BinaryExpression node)
@@ -6146,47 +6074,6 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 
-		Expression AssertBoolContext(Expression expression)
-		{
-			var type = GetExpressionType(expression);
-			if (TypeSystemServices.IsNumberOrBool(type) || type.IsEnum)
-				return expression;
-
-			var op_Implicit = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
-			if (op_Implicit != null)
-			{
-				//return [| $op_Implicit($expression) |]
-				return CodeBuilder.CreateMethodInvocation(op_Implicit, expression);
-			}
-
-			// nullable types can be used in bool context
-			if (TypeSystemServices.IsNullable(type))
-			{
-				//return [| $(expression).HasValue |]
-				var mre = new MemberReferenceExpression(expression, "HasValue");
-				Visit(mre);
-				return mre;
-			}
-
-			// string in a boolean context means string.IsNullOrEmpty (BOO-1035)
-			if (TypeSystemServices.StringType == type)
-			{
-				//return [| not string.IsNullOrEmpty($expression) |]
-				var notIsNullOrEmpty = new UnaryExpression(
-					UnaryOperatorType.LogicalNot,
-					CodeBuilder.CreateMethodInvocation(String_IsNullOrEmpty, expression));
-				Visit(notIsNullOrEmpty);
-				return notIsNullOrEmpty;
-			}
-
-			// reference types can be used in bool context
-			if (!type.IsValueType)
-				return expression;
-
-			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.ToString()));
-			return expression;
-		}
-
 		ReferenceExpression CreateTempLocal(LexicalInfo li, IType type)
 		{
 			InternalLocal local = DeclareTempLocal(type);
@@ -6625,11 +6512,6 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod String_get_Length
 		{
 			get { return CachedMethod("String_get_Length", () => Methods.GetterOf<string, int>(s => s.Length)); }
-		}
-
-		IMethod String_IsNullOrEmpty
-		{
-			get { return CachedMethod("String_IsNullOrEmpty", () => Methods.Of<string, bool>(string.IsNullOrEmpty)); }
 		}
 
 		IMethod String_Substring_Int

@@ -461,6 +461,7 @@
     <Compile Include="Steps\InitializeNameResolutionService.cs" />
     <Compile Include="Steps\InjectCallableConversions.cs" />
     <Compile Include="Steps\InjectCastsAndConversions.cs" />
+    <Compile Include="Steps\InjectImplicitBooleanConversions.cs" />
     <Compile Include="Steps\IntroduceGlobalNamespaces.cs" />
     <Compile Include="Steps\IntroduceModuleClasses.cs" />
     <Compile Include="Steps\MacroAndAttributeExpansion.cs" />
