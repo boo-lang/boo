@@ -34,11 +34,6 @@ namespace Boo.Lang.Compiler.Steps
     [Serializable]
     public class CheckGenericConstraints : AbstractVisitorCompilerStep
     {
-        public override void Run()
-        {
-            Visit(CompileUnit.Modules);
-        }
-
         public override void OnClassDefinition(ClassDefinition node)
         {
             CheckConstraints(node);

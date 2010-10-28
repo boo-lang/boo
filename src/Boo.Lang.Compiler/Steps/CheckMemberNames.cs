@@ -42,11 +42,6 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		protected Hashtable _members = new Hashtable();
 		
-		public override void Run()
-		{
-			Visit(this.CompileUnit);
-		}
-
 		override public void Dispose()
 		{
 			_members.Clear();

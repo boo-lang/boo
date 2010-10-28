@@ -36,11 +36,6 @@ namespace Boo.Lang.Compiler.Steps
 	/// </summary>
 	public class VerifyExtensionMethods : AbstractVisitorCompilerStep
 	{
-		public override void Run()
-		{
-			Visit(CompileUnit);
-		}
-
 		public override void OnConstructor(Constructor node)
 		{
 			CheckExtensionSemantics(node);

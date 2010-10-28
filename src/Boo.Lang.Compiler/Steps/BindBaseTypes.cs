@@ -36,11 +36,6 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class BindBaseTypes : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit.Modules);
-		}
-		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 		}

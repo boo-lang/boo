@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
@@ -35,15 +34,11 @@ using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public abstract class AbstractVisitorCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstVisitor, ICompilerStep
+	public abstract class AbstractVisitorCompilerStep : DepthFirstVisitor, ICompilerStep
 	{
 		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
 		protected CompilerContext _context;
-		
-		protected AbstractVisitorCompilerStep()
-		{
-		}
-		
+
 		protected CompilerContext Context
 		{
 			get { return _context; }
@@ -54,7 +49,7 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _context.CodeBuilder; }
 		}
 		
-		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
+		protected CompileUnit CompileUnit
 		{
 			get { return _context.CompileUnit; }
 		}
@@ -86,7 +81,7 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _typeSystemServices; }
 		}
 
-		public override void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
+		public override void OnQuasiquoteExpression(QuasiquoteExpression node)
 		{
 			// ignore quasi-quotes
 		}
@@ -178,9 +173,7 @@ namespace Boo.Lang.Compiler.Steps
 			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
 			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 		}
-		
-		public abstract void Run();
-		
+
 		public virtual void Dispose()
 		{
 			_context = null;
@@ -223,6 +216,11 @@ namespace Boo.Lang.Compiler.Steps
 		protected bool WasVisited(Node node)
 		{
 			return node.ContainsAnnotation(VisitedAnnotationKey);
+		}
+
+		public virtual void Run()
+		{
+			Visit(CompileUnit);
 		}
 	}
 }

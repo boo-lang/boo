@@ -26,23 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Reflection;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-
 	public class NormalizeTypeAndMemberDefinitions : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit.Modules);
-		}
-
 		override public void OnModule(Module node)
 		{
 			Visit(node.Members);
@@ -118,7 +110,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!ContainsDefaultMemberAttribute(type))
 			{
-				Ast.Attribute attribute = CodeBuilder.CreateAttribute(
+				Attribute attribute = CodeBuilder.CreateAttribute(
 					DefaultMemberAttributeStringConstructor(), 
 					new StringLiteralExpression(node.Name));
 				attribute.LexicalInfo = node.LexicalInfo;
@@ -128,7 +120,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IConstructor DefaultMemberAttributeStringConstructor()
 		{
-			return TypeSystemServices.Map(Methods.ConstructorOf(() => new DefaultMemberAttribute(default(string))));
+			return TypeSystemServices.Map(Methods.ConstructorOf(() => new System.Reflection.DefaultMemberAttribute(default(string))));
 		}
 
 		private static bool ContainsDefaultMemberAttribute(TypeDefinition t)

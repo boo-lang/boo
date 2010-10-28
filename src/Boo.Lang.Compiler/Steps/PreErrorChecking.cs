@@ -42,11 +42,6 @@ namespace Boo.Lang.Compiler.Steps
 														"remove_",
 														"raise_" };
 		
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-		
 		override public void LeaveField(Field node)
 		{
 			MakeStaticIfNeeded(node);

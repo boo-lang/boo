@@ -38,11 +38,6 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		private IAccessibilityChecker _checker = AccessibilityChecker.Global;
 
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-
 		override public void OnClassDefinition(ClassDefinition node)
 		{
 			IAccessibilityChecker saved = _checker;

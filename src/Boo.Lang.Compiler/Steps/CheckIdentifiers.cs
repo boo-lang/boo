@@ -33,11 +33,6 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class CheckIdentifiers : AbstractVisitorCompilerStep
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-		
 		internal static bool IsValidName(string name)
 		{
 			if (string.IsNullOrEmpty(name))

@@ -147,11 +147,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		private MethodBodyState _state = new MethodBodyState();
 
-		public override void Run()
-		{
-			Visit(CompileUnit);
-		}
-
 		override public void OnTryStatement(TryStatement node)
 		{
 			_state.EnterTryBlock(node);

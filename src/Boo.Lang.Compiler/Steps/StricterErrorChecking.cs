@@ -43,11 +43,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		int _ensureBlock;
 		
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-		
 		override public void Dispose()
 		{
 			base.Dispose();

@@ -37,11 +37,6 @@ namespace Boo.Lang.Compiler.Steps
 	[Serializable]
 	public class BindGenericParameters : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit.Modules);
-		}
-
 		public override void OnGenericParameterDeclaration(GenericParameterDeclaration node)
 		{
 			if (node.Entity == null)
