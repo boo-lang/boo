@@ -445,6 +445,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void implicit_bool_with_shortcircuited_and()
+		{
+			RunCompilerTestCase(@"implicit-bool-with-shortcircuited-and.boo");
+		}
+		
+		[Test]
 		public void innerclasses_1()
 		{
 			RunCompilerTestCase(@"innerclasses-1.boo");

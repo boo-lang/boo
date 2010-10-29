@@ -71,11 +71,36 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindLogicalOperator(BinaryExpression node)
 		{
-			var conditionalStatement = node.ParentNode as ConditionalStatement;
-			if (conditionalStatement != null && conditionalStatement.Condition == node)
+			if (IsLogicalCondition(node))
 				BindLogicalOperatorCondition(node);
 			else
 				BindLogicalOperatorExpression(node);
+		}
+
+		public static bool IsLogicalCondition(Expression node)
+		{
+			Node condition = node;
+			while (IsLogicalExpression(condition.ParentNode))
+				condition = condition.ParentNode;
+			return IsConditionOfConditionalStatement(condition);
+		}
+
+		private static bool IsConditionOfConditionalStatement(Node condition)
+		{
+			var conditionalStatement = condition.ParentNode as ConditionalStatement;
+			return conditionalStatement != null && conditionalStatement.Condition == condition;
+		}
+
+		static bool IsLogicalExpression(Node node)
+		{
+			switch (node.NodeType)
+			{
+				case NodeType.BinaryExpression:
+					return AstUtil.GetBinaryOperatorKind((BinaryExpression)node) == BinaryOperatorKind.Logical;
+				case NodeType.UnaryExpression:
+					return ((UnaryExpression) node).Operator == UnaryOperatorType.LogicalNot;
+			}
+			return false;
 		}
 
 		private void BindLogicalOperatorExpression(BinaryExpression node)
