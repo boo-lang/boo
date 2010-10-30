@@ -38,7 +38,7 @@ class ConsoleCapture(IDisposable):
 		
 	def constructor():
 		Console.SetOut(_console)
-		Console.SetOut(_console)
+		Console.SetError(_console)
 			
 	override def ToString():
 		return _console.ToString()
