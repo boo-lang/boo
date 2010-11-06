@@ -85,7 +85,7 @@ class CacheTextFixture:
 	[Test]
 	def Keys():
 		AddThreeValues()
-		coll= cache.Keys as List
+		coll= cache.Keys as Boo.Lang.List
 		assert coll[0] == 3
 		assert coll[1] == 2
 		assert coll[2] == 1
@@ -93,7 +93,7 @@ class CacheTextFixture:
 		s = cache[2] as string #put 2 in front
 		assert s == "two"
 		
-		coll= cache.Keys as List
+		coll= cache.Keys as Boo.Lang.List
 		assert coll[0] == 2
 		assert coll[1] == 3
 		assert coll[2] == 1
@@ -101,7 +101,7 @@ class CacheTextFixture:
 	[Test]	
 	def Values():
 		AddThreeValues()
-		coll= cache.Values as List
+		coll= cache.Values as Boo.Lang.List
 		assert coll[0] == "three"
 		assert coll[1] == "two"
 		assert coll[2] == "one"
@@ -109,7 +109,7 @@ class CacheTextFixture:
 		s = cache[2] as string #put 2 in front
 		assert s == "two"
 		
-		coll= cache.Values as List
+		coll= cache.Values as Boo.Lang.List
 		assert coll[0] == "two"
 		assert coll[1] == "three"
 		assert coll[2] == "one"

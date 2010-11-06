@@ -5430,8 +5430,8 @@ namespace Boo.Lang.Compiler.Steps
 			var assemblyBuilderAccess = GetAssemblyBuilderAccess();
 			var targetDirectory = GetTargetDirectory(outputFile);
 			_asmBuilder = string.IsNullOrEmpty(targetDirectory)
-				? AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess)
-				: AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, targetDirectory);
+				? AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, Parameters.Evidence)
+				: AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, targetDirectory, Parameters.Evidence);
 
 			if (Parameters.Debug)
 			{

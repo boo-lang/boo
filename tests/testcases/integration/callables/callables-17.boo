@@ -12,7 +12,7 @@ def hyphenate(fn as ICallable):
 def upper(fn as ICallable):
 	return fn().ToString().ToUpper()
 	
-def test(expectedValues as List, decorator as ICallable):
+def test(expectedValues as Boo.Lang.List, decorator as ICallable):
 	Assert.AreEqual(expectedValues[0], decorator(foo))
 	Assert.AreEqual(expectedValues[1], decorator(bar))
 	

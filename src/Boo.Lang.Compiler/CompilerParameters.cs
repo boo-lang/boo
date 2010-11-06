@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Util;
@@ -64,6 +65,8 @@ namespace Boo.Lang.Compiler
 		private string _outputAssembly;
 
 		private CompilerOutputType _outputType;
+		
+		private Evidence _evidence;
 
 		private bool _debug;
 
@@ -444,6 +447,16 @@ namespace Boo.Lang.Compiler
 			get { return _outputType; }
 
 			set { _outputType = value; }
+		}
+
+		/// <summary>
+		/// The evidence to assign to the resulting in-memory assembly
+		/// </summary>
+		public Evidence Evidence
+		{
+			get { return _evidence; }
+
+			set { _evidence = value; }
 		}
 
 		public bool GenerateInMemory

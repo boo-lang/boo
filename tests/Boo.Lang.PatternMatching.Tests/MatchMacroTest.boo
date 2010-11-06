@@ -7,7 +7,7 @@ class Container[of T]:
 	public value as T
 	
 class Collection:
-	public Items as List
+	public Items as Boo.Lang.List
 	
 [TestFixture]
 class MatchMacroTest:
