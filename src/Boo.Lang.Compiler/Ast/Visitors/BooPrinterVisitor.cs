@@ -98,14 +98,19 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 
 			if (null != m.Globals)
-			{
 				Visit(m.Globals.Statements);
-			}
+			
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in m.Attributes)
+				WriteModuleAttribute(attribute);
 
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in m.AssemblyAttributes)
-			{
 				WriteAssemblyAttribute(attribute);
-			}
+		}
+		
+		private void WriteModuleAttribute(Attribute attribute)
+		{
+			WriteAttribute(attribute, "module: ");
+			WriteLine();
 		}
 
 		private void WriteAssemblyAttribute(Attribute attribute)
