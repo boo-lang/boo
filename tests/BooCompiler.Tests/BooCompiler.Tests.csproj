@@ -121,6 +121,7 @@
     <Compile Include="AbstractCompilerTestCase.cs" />
     <Compile Include="ArraysIntegrationTestFixture.cs" />
     <Compile Include="Ast\AstAssert.cs" />
+    <Compile Include="Ast\ParameterDeclarationTest.cs" />
     <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />
     <Compile Include="AttributesIntegrationTestFixture.cs" />
     <Compile Include="AttributesTestFixture.cs" />

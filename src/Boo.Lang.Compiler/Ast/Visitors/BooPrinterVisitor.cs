@@ -487,11 +487,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteAttributes(p.Attributes, false);
 			
 			if (p.IsByRef)
-			{
 				WriteKeyword("ref ");
-			}
 			
-			if (p.ParentNode.NodeType == NodeType.CallableTypeReference)
+			if (IsCallableTypeReferenceParameter(p))
 			{
 				if (p.IsParamArray) Write("*");
 				Visit(p.Type);
@@ -501,6 +499,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Write(p.Name);
 				WriteTypeReference(p.Type);
 			}
+		}
+
+		private static bool IsCallableTypeReferenceParameter(ParameterDeclaration p)
+		{
+			var parentNode = p.ParentNode;
+			return parentNode != null && parentNode.NodeType == NodeType.CallableTypeReference;
 		}
 
 		override public void OnGenericParameterDeclaration(GenericParameterDeclaration gp)
