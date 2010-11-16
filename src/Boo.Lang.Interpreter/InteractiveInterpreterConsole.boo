@@ -473,6 +473,7 @@ Enter boo code in the prompt below (or type /help)."""
 	def DisplayHelp():
 		WithColor InterpreterColor:
 			print """The following builtin functions are available :
+    /? or /h or /help : display this help
     dir(type) : returns the members of a type
     describe(type) : describe a type as boo code
     globals() or /g : returns names of all variables known to interpreter
