@@ -79,7 +79,8 @@ class InteractiveInterpreterConsole:
 		
 		_interpreter.SetValue("load", Load)
 		_interpreter.SetValue("save", Save)
-		
+		_interpreter.SetValue("quit", Quit)
+
 		LoadHistory()
 	
 	Line:
