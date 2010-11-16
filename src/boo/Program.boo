@@ -96,6 +96,7 @@ class Program:
 
 Enter boo code in the prompt below."""
 		interpreter = InteractiveInterpreterConsole()
+		interpreter.Eval("import Boo.Lang.Interpreter.Builtins")
 		interpreter.ReadEvalPrintLoop()
 
 [STAThread]
