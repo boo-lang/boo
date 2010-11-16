@@ -34,11 +34,6 @@ namespace Boo.Lang.Compiler.Steps
 	
 	public class ImplementICallableOnCallableDefinitions : AbstractVisitorCompilerStep
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-		
 		override public void OnModule(Module node)
 		{
 			Visit(node.Members, NodeType.ClassDefinition);

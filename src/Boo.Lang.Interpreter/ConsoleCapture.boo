@@ -33,13 +33,16 @@ import System.IO
 
 class ConsoleCapture(IDisposable):	
 	_console = StringWriter()
-	_old = Console.Out
+	_oldOut = Console.Out
+	_oldError = Console.Error
 		
 	def constructor():
 		Console.SetOut(_console)
+		Console.SetError(_console)
 			
 	override def ToString():
 		return _console.ToString()
 		
 	def Dispose():
-		Console.SetOut(_old)
+		Console.SetOut(_oldOut)
+		Console.SetError(_oldError)

@@ -98,14 +98,19 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			}
 
 			if (null != m.Globals)
-			{
 				Visit(m.Globals.Statements);
-			}
+			
+			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in m.Attributes)
+				WriteModuleAttribute(attribute);
 
 			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in m.AssemblyAttributes)
-			{
 				WriteAssemblyAttribute(attribute);
-			}
+		}
+		
+		private void WriteModuleAttribute(Attribute attribute)
+		{
+			WriteAttribute(attribute, "module: ");
+			WriteLine();
 		}
 
 		private void WriteAssemblyAttribute(Attribute attribute)
@@ -482,11 +487,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteAttributes(p.Attributes, false);
 			
 			if (p.IsByRef)
-			{
 				WriteKeyword("ref ");
-			}
 			
-			if (p.ParentNode.NodeType == NodeType.CallableTypeReference)
+			if (IsCallableTypeReferenceParameter(p))
 			{
 				if (p.IsParamArray) Write("*");
 				Visit(p.Type);
@@ -496,6 +499,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				Write(p.Name);
 				WriteTypeReference(p.Type);
 			}
+		}
+
+		private static bool IsCallableTypeReferenceParameter(ParameterDeclaration p)
+		{
+			var parentNode = p.ParentNode;
+			return parentNode != null && parentNode.NodeType == NodeType.CallableTypeReference;
 		}
 
 		override public void OnGenericParameterDeclaration(GenericParameterDeclaration gp)
@@ -879,16 +888,37 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnSpliceExpression(SpliceExpression e)
 		{
+			WriteSplicedExpression(e.Expression);
+		}
+
+		private void WriteSplicedExpression(Expression expression)
+		{
 			WriteOperator("$(");
-			Visit(e.Expression);
+			Visit(expression);
 			WriteOperator(")");
+		}
+
+		public override void OnStatementTypeMember(StatementTypeMember node)
+		{
+			WriteModifiers(node);
+			Visit(node.Statement);
+		}
+
+		public override void OnSpliceTypeMember(SpliceTypeMember node)
+		{
+			WriteIndented();
+			Visit(node.TypeMember);
+			WriteLine();
+		}
+
+		public override void OnSpliceTypeDefinitionBody(SpliceTypeDefinitionBody node)
+		{
+			WriteSplicedExpression(node.Expression);
 		}
 		
 		override public void OnSpliceTypeReference(SpliceTypeReference node)
 		{
-			WriteOperator("$(");
-			Visit(node.Expression);
-			WriteOperator(")");
+			WriteSplicedExpression(node.Expression);
 		}
 		
 		void WriteIndentedOperator(string op)
@@ -1703,7 +1733,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteIndented();
 			WriteKeyword(keyword);
 			Write(" ");
-			Write(td.Name);
+
+			var splice = td.ParentNode as SpliceTypeMember;
+			if (splice != null)
+				WriteSplicedExpression(splice.NameExpression);
+			else
+				Write(td.Name);
 
 			if (td.GenericParameters.Count != 0)
 			{

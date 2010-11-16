@@ -1,8 +1,6 @@
 """
 foo.bar
 yummy
-foo.bar
-yummy
 yummy
 """
 namespace NestedMacros
@@ -20,11 +18,6 @@ macro choco:
 		if choco.Arguments.Count > 0:
 			yield [| print "yummy" |]
 	yield choco.Body
-
-foo:
-	bar # foo.bar
-choco:
-	bar # yummy
 
 code = [|
 	import NestedMacros

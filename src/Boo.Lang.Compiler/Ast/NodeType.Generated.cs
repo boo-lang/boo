@@ -40,6 +40,7 @@ namespace Boo.Lang.Compiler.Ast
 	public enum NodeType
 	{
 		CompileUnit,
+		TypeMemberStatement,
 		ExplicitMemberInfo,
 		SimpleTypeReference,
 		ArrayTypeReference,
@@ -110,6 +111,7 @@ namespace Boo.Lang.Compiler.Ast
 		SpliceTypeReference,
 		SpliceMemberReferenceExpression,
 		SpliceTypeMember,
+		SpliceTypeDefinitionBody,
 		SpliceParameterDeclaration,
 		ExpressionInterpolationExpression,
 		HashLiteralExpression,

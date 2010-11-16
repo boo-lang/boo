@@ -265,7 +265,7 @@
     <value>Type '{0}' does not support slicing.</value>
   </data>
   <data name="BCE0049" xml:space="preserve">
-    <value>Expression cannot be assigned to.</value>
+    <value>Expression '{0}' cannot be assigned to.</value>
   </data>
   <data name="BCE0050" xml:space="preserve">
     <value>Operator '{0}' cannot be used with an expression of type '{1}'.</value>

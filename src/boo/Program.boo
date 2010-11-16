@@ -31,6 +31,7 @@ import System.IO
 import System.Text
 import Boo.Lang.Useful.CommandLine
 import Boo.Lang.Interpreter
+import Boo.Lang.PatternMatching
 		
 class Program:
 	
@@ -72,21 +73,13 @@ class Program:
 	
 	def process():
 		banner()
-#		given _cmdLine.Style:
-#			when BooCommandLineStyle.InteractiveInterpreter:
-#				booish()
-#			when BooCommandLineStyle.Interpreter:
-#				booi()
-#			when BooCommandLineStyle.Compiler:
-#				booc()
-#			otherwise:
-#				assert false
-		if _cmdLine.Style == BooCommandLineStyle.InteractiveInterpreter:
-			booish()
-		elif _cmdLine.Style == BooCommandLineStyle.Interpreter:
-			booi()
-		else:
-			booc()
+		match _cmdLine.Style:
+			case BooCommandLineStyle.InteractiveInterpreter:
+				booish()
+			case BooCommandLineStyle.Interpreter:
+				booi()
+			case BooCommandLineStyle.Compiler:
+				booc()
 
 	def booc():
 		pass
@@ -102,8 +95,8 @@ class Program:
 	globals(): returns the names of all variables known to the interpreter
 
 Enter boo code in the prompt below."""
-		interpreter = InteractiveInterpreter(RememberLastValue: true)
-		interpreter.ConsoleLoopEval()
+		interpreter = InteractiveInterpreterConsole()
+		interpreter.ReadEvalPrintLoop()
 
 [STAThread]
 def Main(argv as (string)):

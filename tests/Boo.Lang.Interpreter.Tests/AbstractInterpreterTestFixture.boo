@@ -25,11 +25,28 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
+
 namespace Boo.Lang.Interpreter.Tests
 
 import System
 import NUnit.Framework
 import Boo.Lang.Interpreter
+
+[TestFixture]
+class AbstractInterpreterTestFixture:
+	
+	[Test]
+	def TestEval():
+		mi = MockInterpreter()
+		mi.Expect("Lookup(foo)")
+		mi.Expect("Lookup(bar)")
+		mi.Expect("SetValue(foo)")
+		mi.Expect("GetValue(bar)")
+		mi.Expect("SetValue(foo)")
+		
+		result = mi.Eval("foo = 'foo'; foo = bar")
+		Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)
+		Assert.IsNull(mi.PopExpected())
 
 class MockInterpreter(AbstractInterpreter):
 	
@@ -59,19 +76,3 @@ class MockInterpreter(AbstractInterpreter):
 	def AssertExpected(call as string):
 		Assert.AreEqual(_Expected.Pop(0), call)
 
-[TestFixture]
-class AbstractInterpreterTestFixture:
-	[Test]
-	def TestEval():
-		mi = MockInterpreter()
-		mi.Expect("Lookup(foo)")
-		mi.Expect("Lookup(bar)")
-		mi.Expect("SetValue(foo)")
-		mi.Expect("GetValue(bar)")
-		mi.Expect("SetValue(foo)")
-		
-		result = mi.Eval("foo = 'foo'; foo = bar")
-		Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)
-		Assert.IsNull(mi.PopExpected())
-		
-		

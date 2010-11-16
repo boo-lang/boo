@@ -29,32 +29,18 @@
 namespace Boo.Lang.Interpreter
 
 import System
-import System.Collections
-import System.IO
+import System.Collections.Generic
 import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Ast
-import Boo.Lang.Compiler.IO
 
 class InteractiveInterpreter(AbstractInterpreter):
 
-	_values = {}
+	_values = Dictionary[of string, object]()
 	
 	_declarations = {}
 	
-	_representers = []
-	
-	[property(ShowWarnings)]
-	_showWarnings = false
-	
-	[property(BlockStarters, value is not null)]
-	_blockStarters = ":", "\\"
-	
 	[getter(LastValue)]
 	_lastValue = null
-	
-	[property(Print, value is not null)]
-	_print as Action[of object] = print
-	
+
 	def constructor():
 		super()
 		InitializeStandardReferences()
@@ -63,46 +49,16 @@ class InteractiveInterpreter(AbstractInterpreter):
 		super(parser)
 		InitializeStandardReferences()
 		
+	Values as KeyValuePair[of string, object]*:
+		get: return _values
+		
 	def Reset():
 		_values.Clear()
 		_declarations.Clear()
 		_lastValue = null
 		InitializeStandardReferences()
-		
-	def ConsoleLoopEval():			
-		while (line=prompt(">>> ")) is not null:
-			try:		
-				line = ReadBlock(line) if line[-1:] in _blockStarters
-				InternalLoopEval(line)
-			except x as System.Reflection.TargetInvocationException:
-				print(x.InnerException)
-			except x:
-				print(x)
-		print
-		
-	def LoopEval(code as string):
-		using console = ConsoleCapture():
-			result = InternalLoopEval(code)
-			for line in System.IO.StringReader(console.ToString()):
-				_print(line)
-		return result
-			
-	private def InternalLoopEval(code as string):
-		result = self.Eval(code)
-		if ShowWarnings:
-			self.DisplayProblems(result.Warnings)
-		if not self.DisplayProblems(result.Errors):
-			ProcessLastValue()
-		return result
-		
-	private def ProcessLastValue():
-		_ = self.LastValue
-		if _ is not null:
-			_print(repr(_))
-			SetValue("_", _)
 	
-	override def Declare([required] name as string,
-				[required] type as System.Type):
+	override def Declare([required] name as string, [required] type as System.Type):
 		_declarations.Add(name, type)
 		
 	override def SetLastValue(value):
@@ -113,7 +69,10 @@ class InteractiveInterpreter(AbstractInterpreter):
 		return value
 
 	override def GetValue(name as string):
-		return _values[name]
+		value as object
+		if _values.TryGetValue(name, value):
+			return value
+		return null
 		
 	override def Lookup([required] name as string):
 		type as System.Type = _declarations[name]
@@ -122,129 +81,7 @@ class InteractiveInterpreter(AbstractInterpreter):
 		value = GetValue(name)
 		return value.GetType() if value is not null
 	
-	def DisplayProblems(problems as ICollection):
-		return if problems is null or problems.Count == 0
-		for problem as duck in problems:
-			markLocation(problem.LexicalInfo)
-			type = ("WARNING", "ERROR")[problem isa CompilerError]
-			_print("${type}: ${problem.Message}")
-		if problems.Count > 0:
-			return true
-		return false
-
-	private def markLocation(location as LexicalInfo):
-		pos = location.Column
-		_print("---" + "-" * pos + "^") if pos > 0
-		
 	private def InitializeStandardReferences():
 		SetValue("interpreter", self)
-		SetValue("dir", dir)
-		SetValue("help", help)
-		SetValue("print", { value | _print(value) })
-		SetValue("load", load)
-		SetValue("globals", globals)
-		SetValue("getRootNamespace", Namespace.GetRootNamespace)
-		
-	def globals():
-		return array(key as string for key in _values.Keys)
+		SetValue("globals", { array(key for key in _values.Keys) })
 					
-	def dir([required] obj):
-		type = (obj as Type) or obj.GetType()
-		return array(
-				member for member in type.GetMembers()
-				unless (method=(member as System.Reflection.MethodInfo))
-				and method.IsSpecialName)
-				
-	def load([required] path as string):
-		if path.EndsWith(".boo"):
-			result = EvalCompilerInput(FileInput(path))
-			if ShowWarnings:
-				DisplayProblems(result.Warnings)
-			if not DisplayProblems(result.Errors):
-				ProcessLastValue()			
-		else:
-			try:
-				References.Add(System.Reflection.Assembly.LoadFrom(path))
-			except e:				
-				print e.Message
-		
-	def help(obj):		
-		type = (obj as Type) or obj.GetType()
-		for line in Help.HelpFormatter("    ").GenerateFormattedLinesFor(type):
-			_print(line)
-		
-	def repr(value):
-		writer = System.IO.StringWriter()
-		repr(value, writer)
-		return writer.ToString()
-	
-	def repr(value, writer as System.IO.TextWriter):
-		if value is null: return
-		InitializeRepresenters() if 0 == len(_representers)
-		GetBestRepresenter(value.GetType())(value, writer)
-
-	private def InitializeRepresenters():
-		AddRepresenter(string) do (value as string, writer as TextWriter):
-			Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
-			
-		AddRepresenter(bool) do (value as bool, writer as TextWriter):
-			writer.Write(("false", "true")[value])
-			
-		AddRepresenter(Array) do (a as Array, writer as TextWriter):
-			writer.Write("(")
-			RepresentItems(a, writer)
-			writer.Write(")")
-				
-		AddRepresenter(Delegate) do (d as Delegate, writer as TextWriter):
-			method = d.Method
-			if method.DeclaringType is not null:
-				writer.Write(method.DeclaringType.FullName)
-				writer.Write(".")
-			writer.Write(method.Name)
-		
-		AddRepresenter(IDictionary) do (value as IDictionary, writer as TextWriter):
-			writer.Write("{")
-			i = 0
-			for key in value.Keys:
-				writer.Write(", ") if i
-				repr(key, writer)
-				writer.Write(": ")
-				repr(value[key], writer)
-				++i
-			writer.Write("}")
-			
-		AddRepresenter(IList) do (value as IList, writer as TextWriter):
-			writer.Write("[")
-			RepresentItems(value, writer)
-			writer.Write("]")
-				
-		AddRepresenter(object) do (value, writer as TextWriter):
-			writer.Write(value)
-			
-	private def RepresentItems(items, writer as TextWriter):
-		i = 0
-		for item in items:
-			writer.Write(", ") if i > 0				
-			repr(item, writer)
-			++i
-			
-	callable Representer(value, writer as TextWriter)
-	
-	private def AddRepresenter(type as Type, value as Representer):
-		_representers.Add((type, value))
-		
-	def GetBestRepresenter(type as Type) as Representer:
-		for key as Type, value in _representers:
-			return value if key.IsAssignableFrom(type)
-		raise ArgumentException("An appropriate representer could not be found!")
-
-def ReadBlock(line as string):
-	newLine = System.Environment.NewLine
-	buffer = System.Text.StringBuilder()
-	buffer.Append(line)
-	buffer.Append(newLine)
-	while line=prompt("... "):
-		break if 0 == len(line)
-		buffer.Append(line)
-		buffer.Append(newLine)
-	return buffer.ToString()

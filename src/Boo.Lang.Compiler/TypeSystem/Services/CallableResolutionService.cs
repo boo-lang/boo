@@ -429,7 +429,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private void InferGenericMethods()
 		{
-			var gs = Context.Provide<GenericsServices>();
+			var gs = My<GenericsServices>.Instance;
 			foreach (Candidate candidate in _candidates)
 			{
 				if (candidate.Method.GenericInfo != null)

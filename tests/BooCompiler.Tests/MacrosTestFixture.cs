@@ -14,6 +14,54 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void custom_class_macro_with_internal_field()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-internal-field.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_internal_property()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-internal-property.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_method_override()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-method-override.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_properties_and_field()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-properties-and-field.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_properties()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-properties.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_property_macro()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-property-macro.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_simple_method_and_field()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-simple-method-and-field.boo");
+		}
+		
+		[Test]
+		public void custom_class_macro_with_simple_method()
+		{
+			RunCompilerTestCase(@"custom-class-macro-with-simple-method.boo");
+		}
+		
+		[Test]
 		public void debug_1()
 		{
 			RunCompilerTestCase(@"debug-1.boo");
@@ -182,6 +230,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void member_macro_nodes_inherit_visibility_only_when_not_set()
+		{
+			RunCompilerTestCase(@"member-macro-nodes-inherit-visibility-only-when-not-set.boo");
+		}
+		
+		[Test]
 		public void member_macro_producing_field_and_constructor()
 		{
 			RunCompilerTestCase(@"member-macro-producing-field-and-constructor.boo");
@@ -191,6 +245,12 @@ namespace BooCompiler.Tests
 		public void member_macro_producing_field_and_property()
 		{
 			RunCompilerTestCase(@"member-macro-producing-field-and-property.boo");
+		}
+		
+		[Test]
+		public void nested_macros_1()
+		{
+			RunCompilerTestCase(@"nested-macros-1.boo");
 		}
 		
 		[Test]
@@ -251,6 +311,12 @@ namespace BooCompiler.Tests
 		public void print_2()
 		{
 			RunCompilerTestCase(@"print-2.boo");
+		}
+		
+		[Test]
+		public void type_member_macro_yielding_member_with_member_generating_attribute()
+		{
+			RunCompilerTestCase(@"type-member-macro-yielding-member-with-member-generating-attribute.boo");
 		}
 		
 		[Test]

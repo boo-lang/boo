@@ -109,6 +109,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void generic_extension_overloads_in_generic_invocations()
+		{
+			RunCompilerTestCase(@"generic-extension-overloads-in-generic-invocations.boo");
+		}
+		
+		[Test]
 		public void implicit_conversion_extension_1()
 		{
 			RunCompilerTestCase(@"implicit-conversion-extension-1.boo");
@@ -118,12 +124,6 @@ namespace BooCompiler.Tests
 		public void implicit_conversion_extension_2()
 		{
 			RunCompilerTestCase(@"implicit-conversion-extension-2.boo");
-		}
-		
-		[Test]
-		public void overload_resolution_extension()
-		{
-			RunCompilerTestCase(@"overload-resolution-extension.boo");
 		}
 		
 		[Test]

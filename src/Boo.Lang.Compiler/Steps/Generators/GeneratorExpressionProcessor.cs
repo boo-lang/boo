@@ -32,6 +32,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps.Generators
@@ -60,7 +61,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
 			_collector = collector;
 			_generator = node;
-			_skeleton = context.Provide<GeneratorSkeletonBuilder>().SkeletonFor(node, node.GetAncestor<Method>());
+			_skeleton = My<GeneratorSkeletonBuilder>.Instance.SkeletonFor(node, node.GetAncestor<Method>());
 			Initialize(context);
 		}
 		

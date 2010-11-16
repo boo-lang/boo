@@ -163,7 +163,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-1076.boo");
 		}
 		
-		[Test]
+		[Ignore("broken by SRE bug")][Test]
 		public void BOO_1078_1()
 		{
 			RunCompilerTestCase(@"BOO-1078-1.boo");

@@ -25,6 +25,24 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void class_body_splicing_1()
+		{
+			RunCompilerTestCase(@"class-body-splicing-1.boo");
+		}
+		
+		[Test]
+		public void class_name_splicing_1()
+		{
+			RunCompilerTestCase(@"class-name-splicing-1.boo");
+		}
+		
+		[Test]
+		public void class_name_splicing_2()
+		{
+			RunCompilerTestCase(@"class-name-splicing-2.boo");
+		}
+		
+		[Test]
 		public void CodeReifierMergeIntoWithEmptyArrayLiteral()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithEmptyArrayLiteral.boo");
@@ -106,6 +124,18 @@ namespace BooCompiler.Tests
 		public void field_splicing_1()
 		{
 			RunCompilerTestCase(@"field-splicing-1.boo");
+		}
+		
+		[Test]
+		public void field_splicing_in_expression_becomes_reference_to_field()
+		{
+			RunCompilerTestCase(@"field-splicing-in-expression-becomes-reference-to-field.boo");
+		}
+		
+		[Test]
+		public void field_splicing_null_initializer()
+		{
+			RunCompilerTestCase(@"field-splicing-null-initializer.boo");
 		}
 		
 		[Test]
@@ -382,6 +412,12 @@ namespace BooCompiler.Tests
 		public void typeref_splicing_5()
 		{
 			RunCompilerTestCase(@"typeref-splicing-5.boo");
+		}
+		
+		[Test]
+		public void typeref_splicing_null()
+		{
+			RunCompilerTestCase(@"typeref-splicing-null.boo");
 		}
 		
 

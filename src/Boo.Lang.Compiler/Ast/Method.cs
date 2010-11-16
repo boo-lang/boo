@@ -63,13 +63,10 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				if (null != ParentNode)
 				{
-					if (NodeType.Property == ParentNode.NodeType ||
-						NodeType.Event == ParentNode.NodeType)
-					{
-						return (TypeDefinition)ParentNode.ParentNode;
-					}					
+					if (NodeType.Property == ParentNode.NodeType || NodeType.Event == ParentNode.NodeType)
+						return ParentNode.ParentNode as TypeDefinition;
 				}
-				return (TypeDefinition)ParentNode;
+				return base.DeclaringType;
 			}
 		}
 	}

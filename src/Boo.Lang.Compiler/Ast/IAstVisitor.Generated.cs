@@ -39,6 +39,7 @@ namespace Boo.Lang.Compiler.Ast
 	public interface IAstVisitor
 	{
 		void OnCompileUnit(CompileUnit node);
+		void OnTypeMemberStatement(TypeMemberStatement node);
 		void OnExplicitMemberInfo(ExplicitMemberInfo node);
 		void OnSimpleTypeReference(SimpleTypeReference node);
 		void OnArrayTypeReference(ArrayTypeReference node);
@@ -109,6 +110,7 @@ namespace Boo.Lang.Compiler.Ast
 		void OnSpliceTypeReference(SpliceTypeReference node);
 		void OnSpliceMemberReferenceExpression(SpliceMemberReferenceExpression node);
 		void OnSpliceTypeMember(SpliceTypeMember node);
+		void OnSpliceTypeDefinitionBody(SpliceTypeDefinitionBody node);
 		void OnSpliceParameterDeclaration(SpliceParameterDeclaration node);
 		void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node);
 		void OnHashLiteralExpression(HashLiteralExpression node);

@@ -62,6 +62,45 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnTypeMemberStatement(Boo.Lang.Compiler.Ast.TypeMemberStatement node)
+		{	
+			if (EnterTypeMemberStatement(node))
+			{
+				StatementModifier currentModifierValue = node.Modifier;
+				if (null != currentModifierValue)
+				{			
+					StatementModifier newValue = (StatementModifier)VisitNode(currentModifierValue);
+					if (!object.ReferenceEquals(newValue, currentModifierValue))
+					{
+						node.Modifier = newValue;
+					}
+				}
+				TypeMember currentTypeMemberValue = node.TypeMember;
+				if (null != currentTypeMemberValue)
+				{			
+					TypeMember newValue = (TypeMember)VisitNode(currentTypeMemberValue);
+					if (!object.ReferenceEquals(newValue, currentTypeMemberValue))
+					{
+						node.TypeMember = newValue;
+					}
+				}
+
+				LeaveTypeMemberStatement(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterTypeMemberStatement(Boo.Lang.Compiler.Ast.TypeMemberStatement node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveTypeMemberStatement(Boo.Lang.Compiler.Ast.TypeMemberStatement node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnExplicitMemberInfo(Boo.Lang.Compiler.Ast.ExplicitMemberInfo node)
 		{	
 			if (EnterExplicitMemberInfo(node))
@@ -2182,6 +2221,37 @@ namespace Boo.Lang.Compiler.Ast
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void LeaveSpliceTypeMember(Boo.Lang.Compiler.Ast.SpliceTypeMember node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnSpliceTypeDefinitionBody(Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody node)
+		{	
+			if (EnterSpliceTypeDefinitionBody(node))
+			{
+				Visit(node.Attributes);
+				Expression currentExpressionValue = node.Expression;
+				if (null != currentExpressionValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentExpressionValue);
+					if (!object.ReferenceEquals(newValue, currentExpressionValue))
+					{
+						node.Expression = newValue;
+					}
+				}
+
+				LeaveSpliceTypeDefinitionBody(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterSpliceTypeDefinitionBody(Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveSpliceTypeDefinitionBody(Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody node)
 		{
 		}
 

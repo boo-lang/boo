@@ -86,20 +86,14 @@ namespace Boo.Lang.Compiler.Ast
 		public void Visit(Node[] array, NodeType nodeType)
 		{
 			foreach (Node node in array)
-			{
 				if (node.NodeType == nodeType)
-				{
 					Visit(node);
-				}
-			}
 		}
 		
 		public void VisitCollection(System.Collections.IEnumerable collection)
 		{
 			foreach (Node node in collection)
-			{
 				Visit(node);
-			}
 		}
 
 		public bool Visit<T>(NodeCollection<T> collection, NodeType nodeType) where T : Node
@@ -115,9 +109,7 @@ namespace Boo.Lang.Compiler.Ast
 		public void Visit(Node[] array)
 		{
 			foreach (Node node in array)
-			{
 				Visit(node);
-			}
 		}
 
 		public bool Visit<T>(NodeCollection<T> collection) where T : Node

@@ -112,12 +112,18 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static Expression Lift(Expression e)
 		{
+			if (e == null) return null;
 			return e.CloneNode();
 		}
 
 		public static Expression Lift(ParameterDeclaration p)
 		{
 			return new ReferenceExpression(p.LexicalInfo, p.Name);
+		}
+		
+		public static Expression Lift(Field f)
+		{
+			return new ReferenceExpression(f.LexicalInfo, f.Name);
 		}
 		
 		public static Expression Lift(TypeDefinition type)

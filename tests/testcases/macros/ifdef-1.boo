@@ -19,8 +19,6 @@ not BAR
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
-import Boo.Lang.PatternMatching
-
 def compileWithDefines(module as Module, *defines as (string)):
 	compiler = BooCompiler()
 	compiler.Parameters.Pipeline = Pipelines.CompileToMemory()

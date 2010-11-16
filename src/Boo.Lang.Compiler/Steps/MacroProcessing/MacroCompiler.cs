@@ -75,14 +75,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private Type RunCompiler(TypeDefinition node)
 		{
 			TraceInfo("Compiling macro '{0}'", node.FullName);
+
 			CompilerContext result = Compilation.compile_(CompileUnitFor(node), _references);
 			if (0 == result.Errors.Count)
 			{
 				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node.FullName, result.GeneratedAssembly);
 				return result.GeneratedAssembly.GetType(node.FullName);
 			}
-			ReportErrors(result.Errors);
-			ReportWarnings(result.Warnings);
+			Errors.Extend(result.Errors);
+			Warnings.Extend(result.Warnings);
 			return null;
 		}
 
@@ -115,12 +116,12 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			}
 		}
 
-		private Module ModuleFor(TypeDefinition node)
+		private static Module ModuleFor(TypeDefinition node)
 		{
 			Module m = new Module();
 			m.Namespace = SafeCleanClone(node.EnclosingModule.Namespace);
 			m.Name = node.Name;
-			foreach (Import i in node.EnclosingModule.Imports)
+			foreach (var i in node.EnclosingModule.Imports)
 				m.Imports.Add(i.CleanClone());
 			m.Members.Add(node.CleanClone());
 			return m;
@@ -128,21 +129,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		static T SafeCleanClone<T>(T node) where T:Node
 		{
-			return null != node
-				? (T) node.CleanClone()
-				: null;                 
-		}
-		
-		private void ReportErrors(CompilerErrorCollection errors)
-		{
-			foreach (CompilerError e in errors)
-				Errors.Add(e);
-		}
-
-		private void ReportWarnings(CompilerWarningCollection warnings)
-		{
-			foreach (CompilerWarning w in warnings)
-				Warnings.Add(w);
+			return null != node ? (T) node.CleanClone() : null;                 
 		}
 
 		private static void CacheType(TypeDefinition node, Type type)

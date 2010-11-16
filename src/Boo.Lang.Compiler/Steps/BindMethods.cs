@@ -79,11 +79,6 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Members);
 		}
 		
-		override public void Run()
-		{			
-			Visit(CompileUnit.Modules);
-		}
-
         public virtual TypeMember Reify(TypeMember member)
         {
         	member.Accept(this);

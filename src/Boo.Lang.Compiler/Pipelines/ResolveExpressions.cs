@@ -56,6 +56,9 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new CheckMemberNames());
 			
 			Add(new ProcessMethodBodiesWithDuckTyping());
+
+			Add(new InjectImplicitBooleanConversions());
+
 			Add(new ReifyTypes());
 			
 			Add(new VerifyExtensionMethods());

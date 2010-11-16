@@ -46,13 +46,13 @@ class CompilerContextTestFixture:
 	[Test]
 	def ComponentsAreInitialized():
 		context = CompilerContext()
-		component = context.Provide[of SomeComponent]()
+		component = context.Environment.Provide[of SomeComponent]()
 		assert component.Context is context
 		
 		
 	[Test]
 	def ComponentsAreCached():
 		context = CompilerContext()
-		first = context.Provide[of SomeComponent]()
-		second = context.Provide[of SomeComponent]()
+		first = context.Environment.Provide[of SomeComponent]()
+		second = context.Environment.Provide[of SomeComponent]()
 		assert first is second

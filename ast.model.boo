@@ -55,6 +55,9 @@ abstract class TypeMember(Node, INodeWithAttributes):
 	Modifiers as TypeMemberModifiers
 	Name as string
 	Attributes as AttributeCollection
+	
+class TypeMemberStatement(Statement):
+	TypeMember as TypeMember
 
 class ExplicitMemberInfo(Node):
 	InterfaceType as SimpleTypeReference
@@ -486,6 +489,9 @@ class SpliceMemberReferenceExpression(Expression):
 class SpliceTypeMember(TypeMember):
 	TypeMember as TypeMember
 	NameExpression as Expression
+	
+class SpliceTypeDefinitionBody(TypeMember):
+	Expression as Expression
 	
 class SpliceParameterDeclaration(ParameterDeclaration):
 	ParameterDeclaration as ParameterDeclaration

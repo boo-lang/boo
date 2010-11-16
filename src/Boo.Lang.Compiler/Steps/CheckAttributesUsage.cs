@@ -39,11 +39,6 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class CheckAttributesUsage: AbstractVisitorCompilerStep
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
 			OnReferenceExpression(node);

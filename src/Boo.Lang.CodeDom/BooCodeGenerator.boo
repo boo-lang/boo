@@ -282,15 +282,18 @@ class BooCodeGenerator(CodeGenerator):
 		Output.Write("event ${e.Name} as ")
 		OutputType(e.Type)
 		Output.WriteLine()
-	protected override def GenerateField(e as CodeMemberField) :
 		
-		ModifiersAndAttributes(e)
-		Output.Write("${e.Name} as ")
-		OutputType(e.Type)
+	protected override def GenerateField(e as CodeMemberField):
+		if CurrentClass.IsEnum:
+			Output.Write(e.Name)
+		else:
+			ModifiersAndAttributes(e)
+			Output.Write("${e.Name} as ")
+			OutputType(e.Type)
+			
 		if e.InitExpression:
 			Output.Write(" = ")
-			GenerateExpression(e.InitExpression)		
-		Output.WriteLine()
+			GenerateExpression(e.InitExpression)
 		
 	protected override def GenerateSnippetMember(e as CodeSnippetTypeMember) :
 		if e.CustomAttributes:
@@ -415,13 +418,16 @@ class BooCodeGenerator(CodeGenerator):
 		OutputTypeAttributes(e.TypeAttributes, e.IsStruct, e.IsEnum)
 		/////////////////////////////////////
 		
-		Output.Write("${e.Name}(")
-		for index in range(len(e.BaseTypes)):
-			var as CodeTypeReference = e.BaseTypes[index]
-			OutputType(var)
-			continue unless index + 1 != e.BaseTypes.Count
-			Output.Write(",")
-		Output.Write(")")
+		Output.Write("${e.Name}")
+		if len(e.BaseTypes):
+			Output.Write("(")
+			for index in range(len(e.BaseTypes)):
+				var as CodeTypeReference = e.BaseTypes[index]
+				OutputType(var)
+				continue unless index + 1 != e.BaseTypes.Count
+				Output.Write(",")
+			Output.Write(")")
+			
 		BeginBlock()
 		#Ah hah hah, yeah, no. Empty class.
 		passcheck(e.Members)

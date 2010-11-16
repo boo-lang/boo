@@ -31,4 +31,4 @@ import System.IO
 fname, = argv
 using stream = File.OpenText(fname):
 	for index, line in enumerate(stream):
-		print("${index}: ${line}")
+		print "$index: $line"

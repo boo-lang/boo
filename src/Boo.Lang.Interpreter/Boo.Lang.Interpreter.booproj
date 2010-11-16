@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.Interpreter</RootNamespace>
@@ -14,6 +14,7 @@
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UsePartialTypes>false</UsePartialTypes>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
@@ -61,14 +62,13 @@
     <Compile Include="AbstractInterpreter.boo" />
     <Compile Include="ConsoleCapture.boo" />
     <Compile Include="InteractiveInterpreter.boo" />
-    <Compile Include="Help\Globals.boo" />
-    <Compile Include="Help\HelpFormatter.boo" />
-    <Compile Include="InteractiveInterpreter2.boo" />
+    <Compile Include="InteractiveInterpreterConsole.boo" />
+    <Compile Include="Builtins\repr.boo" />
+    <Compile Include="Builtins\describe.boo" />
+    <Compile Include="Builtins\dir.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
-  <ProjectExtensions>
-    <MonoDevelop>
-      <Properties InternalTargetFrameworkVersion="3.5" />
-    </MonoDevelop>
-  </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Builtins\" />
+  </ItemGroup>
 </Project>

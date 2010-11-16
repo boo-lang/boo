@@ -33,13 +33,6 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class CheckLiteralValues : AbstractVisitorCompilerStep
 	{
-		override public void Run()
-		{
-			if (Errors.Count > 0)
-				return;
-			Visit(CompileUnit);
-		}
-
 		override public void OnModule(Module node)
 		{
 			Visit(node.Members);

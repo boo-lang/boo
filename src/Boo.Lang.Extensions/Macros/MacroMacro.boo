@@ -44,6 +44,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 	_name as string
 
 	_apb as ArgumentsPatternBuilder
+	_usingPatternMatching = false
 
 	ArgumentsPattern:
 		get:
@@ -67,6 +68,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		if arg.NodeType == NodeType.ReferenceExpression:
 			_name = cast(ReferenceExpression, arg).Name
 			yield CreateMacroType()
+			yield [| import Boo.Lang.PatternMatching |] if _usingPatternMatching
 		elif arg.NodeType == NodeType.MemberReferenceExpression:
 			if macro.GetAncestor[of MacroStatement]() is not null:
 				raise "Nested macro extension cannot be itself a nested macro"
@@ -74,7 +76,6 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			CreateMacroExtensionType(cast(MemberReferenceExpression, arg))
 		else:
 			raise Usage
-
 
 	private static def BuildMacroTypeName(name as string) as string:
 		return char.ToUpper(name[0]) + name[1:] + "Macro"
@@ -289,7 +290,10 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		for stmt in body.Statements:
 			return true if stmt isa CaseStatement
 
-	private static def ExpandWithPatternMatching(name as string, body as Block):
+	private def ExpandWithPatternMatching(name as string, body as Block):
+		
+		_usingPatternMatching = true
+		
 		matchBlock = [|
 			match $(ReferenceExpression(name)):
 				pass

@@ -38,7 +38,6 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Ast.Visitors;
 using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -233,9 +232,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnProperty(Property node)
 		{
 			if (WasVisited(node))
-			{
 				return;
-			}
+
 			MarkVisited(node);
 
 			Method setter = node.Setter;
@@ -788,7 +786,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.ContainsAnnotation("inline"))
 				AddOptionalReturnStatement(node.Body);
 
-			var explicitClosureName = node["ClosureName"] as string;
+			var explicitClosureName = node[BlockExpression.ClosureNameAnnotation] as string;
 
 			Method closure = CodeBuilder.CreateMethod(
 				ClosureName(explicitClosureName),
@@ -1361,7 +1359,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IType GeneratorItemTypeFor(InternalMethod generator)
 		{
-			return Context.Provide<GeneratorItemTypeInferrer>().GeneratorItemTypeFor(generator);
+			return My<GeneratorItemTypeInferrer>.Instance.GeneratorItemTypeFor(generator);
 		}
 
 		void TryToResolveReturnType(InternalMethod entity)
@@ -1373,9 +1371,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (CanResolveReturnType(entity))
-			{
 				ResolveReturnType(entity);
-			}
 		}
 
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
@@ -1398,23 +1394,21 @@ namespace Boo.Lang.Compiler.Steps
 				Error(node,
 				CompilerErrorFactory.MethodIsNotOverride(node, _currentMethod.ToString()));
 				return;
-		}
+			}
 
 			node.Entity = _currentMethod.Overriden;
 		}
 
-		bool CanResolveReturnType(InternalMethod tag)
+		static bool CanResolveReturnType(InternalMethod method)
 		{
-			ExpressionCollection expressions = tag.ReturnExpressions;
+			var expressions = method.ReturnExpressions;
 			if (null != expressions)
 			{
-				foreach (Expression expression in expressions)
+				foreach (var expression in expressions)
 				{
 					IType type = expression.ExpressionType;
-					if (null == type || TypeSystemServices.IsUnknown(type))
-					{
+					if (type == null || TypeSystemServices.IsUnknown(type))
 						return false;
-					}
 				}
 			}
 			return true;
@@ -2504,9 +2498,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType type = GetConcreteExpressionType(node.Operand);
 			if (!type.IsArray)
-				Error(CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
-
-			BindExpressionType(node, type);
+				Error(node, CompilerErrorFactory.ExplodedExpressionMustBeArray(node));
+			else
+				BindExpressionType(node, type);
 		}
 
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
@@ -2828,32 +2822,11 @@ namespace Boo.Lang.Compiler.Steps
 			throw new ArgumentException("entity");
 		}
 
-		override public void LeaveUnlessStatement(UnlessStatement node)
-		{
-			node.Condition = AssertBoolContext(node.Condition);
-		}
-
-		override public void LeaveIfStatement(IfStatement node)
-		{
-			node.Condition = AssertBoolContext(node.Condition);
-		}
-
 		override public void LeaveConditionalExpression(ConditionalExpression node)
 		{
-			node.Condition = AssertBoolContext(node.Condition);
 			IType trueType = GetExpressionType(node.TrueValue);
 			IType falseType = GetExpressionType(node.FalseValue);
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
-		}
-
-		override public bool EnterWhileStatement(WhileStatement node)
-		{
-			return true;
-		}
-
-		override public void LeaveWhileStatement(WhileStatement node)
-		{
-			node.Condition = AssertBoolContext(node.Condition);
 		}
 
 		override public void LeaveYieldStatement(YieldStatement node)
@@ -2976,7 +2949,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (null != entity)
 					{
 						Bind(d, entity);
-						AssertLValue(d);
+						AssertLValue(d, entity);
 						continue;
 					}
 				}
@@ -3078,18 +3051,12 @@ namespace Boo.Lang.Compiler.Steps
 			if (AssertLValue(node.Operand))
 			{
 				if (!IsValidIncrementDecrementOperand(node.Operand))
-				{
 					InvalidOperatorForType(node);
-				}
 				else
-				{
 					ExpandIncrementDecrement(node);
-				}
 			}
 			else
-			{
 				Error(node);
-			}
 		}
 
 		void ExpandIncrementDecrement(UnaryExpression node)
@@ -3215,25 +3182,28 @@ namespace Boo.Lang.Compiler.Steps
 					operand.CloneNode());
 		}
 
-		BinaryOperatorType GetEquivalentBinaryOperator(UnaryOperatorType op)
-		{
-			return op == UnaryOperatorType.Increment || op == UnaryOperatorType.PostIncrement
-				? BinaryOperatorType.Addition
-				: BinaryOperatorType.Subtraction;
-		}
-
-		UnaryOperatorType GetRelatedPreOperator(UnaryOperatorType op)
+		static BinaryOperatorType GetEquivalentBinaryOperator(UnaryOperatorType op)
 		{
 			switch (op)
 			{
 				case UnaryOperatorType.PostIncrement:
-					{
-						return UnaryOperatorType.Increment;
-					}
+				case UnaryOperatorType.Increment:
+					return BinaryOperatorType.Addition;
 				case UnaryOperatorType.PostDecrement:
-					{
-						return UnaryOperatorType.Decrement;
-					}
+				case UnaryOperatorType.Decrement:
+					return BinaryOperatorType.Subtraction;
+			}
+			throw new ArgumentException("op");
+		}
+
+		static UnaryOperatorType GetRelatedPreOperator(UnaryOperatorType op)
+		{
+			switch (op)
+			{
+				case UnaryOperatorType.PostIncrement:
+					return UnaryOperatorType.Increment;
+				case UnaryOperatorType.PostDecrement:
+					return UnaryOperatorType.Decrement;
 			}
 			throw new ArgumentException("op");
 		}
@@ -3311,13 +3281,9 @@ namespace Boo.Lang.Compiler.Steps
 		private void LeaveOnesComplement(UnaryExpression node)
 		{
 			if (IsPrimitiveOnesComplementOperand(node.Operand))
-			{
 				BindExpressionType(node, GetExpressionType(node.Operand));
-			}
 			else
-			{
 				ProcessOperatorOverload(node);
-			}
 		}
 
 		private bool IsPrimitiveOnesComplementOperand(Expression operand)
@@ -3328,20 +3294,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void LeaveLogicalNot(UnaryExpression node)
 		{
-			node.Operand = AssertBoolContext(node.Operand);
 			BindExpressionType(node, TypeSystemServices.BoolType);
 		}
 
 		private void LeaveUnaryNegation(UnaryExpression node)
 		{
 			if (IsPrimitiveNumber(node.Operand))
-			{
 				BindExpressionType(node, GetExpressionType(node.Operand));
-			}
 			else
-			{
 				ProcessOperatorOverload(node);
-			}
 		}
 
 		private void LeaveAddressOf(UnaryExpression node)
@@ -3426,19 +3387,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool IsInaccessible(IEntity info)
 		{
-			IAccessibleMember accessible = info as IAccessibleMember;
-			if (accessible != null && accessible.IsPrivate
-				&& accessible.DeclaringType != CurrentType)
-			{
+			var accessible = info as IAccessibleMember;
+			if (accessible != null && accessible.IsPrivate && accessible.DeclaringType != CurrentType)
 				return true;
-			}
 			return false;
 		}
 
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
-			if (TypeSystemServices.IsUnknown(node.Left) ||
-				TypeSystemServices.IsUnknown(node.Right))
+			if (TypeSystemServices.IsUnknown(node.Left)
+				|| TypeSystemServices.IsUnknown(node.Right))
 			{
 				BindExpressionType(node, Unknown.Default);
 				return;
@@ -3471,15 +3429,10 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.Addition:
 					{
-						if (GetExpressionType(node.Left).IsArray &&
-							GetExpressionType(node.Right).IsArray)
-						{
+						if (GetExpressionType(node.Left).IsArray && GetExpressionType(node.Right).IsArray)
 							BindArrayAddition(node);
-						}
 						else
-						{
 							BindArithmeticOperator(node);
-						}
 						break;
 					}
 
@@ -3514,7 +3467,7 @@ namespace Boo.Lang.Compiler.Steps
 				case BinaryOperatorType.Or:
 				case BinaryOperatorType.And:
 					{
-						BindLogicalOperator(node);
+						BindExpressionType(node, GetMostGenericType(node));
 						break;
 					}
 
@@ -3572,9 +3525,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IType GetMostGenericType(BinaryExpression node)
 		{
-			return GetMostGenericType(
-				GetExpressionType(node.Left),
-				GetExpressionType(node.Right));
+			return GetMostGenericType(GetExpressionType(node.Left), GetExpressionType(node.Right));
 		}
 
 		bool IsNullableOperation(BinaryExpression node)
@@ -3792,46 +3743,6 @@ namespace Boo.Lang.Compiler.Steps
 		private static bool IsNull(Expression node)
 		{
 			return NodeType.NullLiteralExpression == node.NodeType;
-		}
-
-		void BindLogicalOperator(BinaryExpression node)
-		{
-			var conditionalStatement = node.ParentNode as ConditionalStatement;
-			if (conditionalStatement != null && conditionalStatement.Condition == node)
-				BindLogicalOperatorCondition(node);
-			else
-				BindLogicalOperatorExpression(node);
-		}
-
-		private void BindLogicalOperatorExpression(BinaryExpression node)
-		{
-			var condition = AssertBoolContext(node.Left);
-			if (condition != node.Left)
-			{
-				// implicit conversion, original value has to be preserved
-				// a and b => (b if op_Implicit(a) else a)
-				// a or b => (a if op_Implicit(a) else b)
-				var local = DeclareTempLocal(GetExpressionType(node.Left));
-				var a = CodeBuilder.CreateReference(local);
-				var b = node.Right;
-				var e = node.Operator == BinaryOperatorType.And
-				        	? new ConditionalExpression(node.LexicalInfo) { Condition = condition, TrueValue = b, FalseValue = a }
-				        	: new ConditionalExpression(node.LexicalInfo) { Condition = condition, TrueValue = a, FalseValue = b };
-
-				if (condition.ReplaceNodes((n) => n == node.Left, CodeBuilder.CreateAssignment(a.CloneNode(), node.Left)) != 1)
-					throw new InvalidOperationException();
-
-				BindExpressionType(e, GetMostGenericType(node));
-				node.ParentNode.Replace(node, e);
-			}
-			BindExpressionType(node, GetMostGenericType(node));
-		}
-
-		private void BindLogicalOperatorCondition(BinaryExpression node)
-		{
-			node.Left = AssertBoolContext(node.Left);
-			node.Right = AssertBoolContext(node.Right);
-			BindExpressionType(node, GetMostGenericType(node));
 		}
 
 		void BindInPlaceAddSubtract(BinaryExpression node)
@@ -4134,7 +4045,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
 		{
-			var genericService = Context.Environment.Provide<GenericsServices>();
+			var genericService = My<GenericsServices>.Instance;
 			var methods = entity.Entities
 				.OfType<IMethod>()
 				.Select(m => {
@@ -4190,11 +4101,14 @@ namespace Boo.Lang.Compiler.Steps
 			return NameResolutionService.ResolveExtension(extensionNamespace, targetReference.Name);
 		}
 
-		private bool ResolvedAsExtension(MethodInvocationExpression node)
+		private static bool ResolvedAsExtension(MethodInvocationExpression node)
 		{
-			return
-				node.ContainsAnnotation(ResolvedAsExtensionAnnotation) ||
-				node.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation);
+			if (node.ContainsAnnotation(ResolvedAsExtensionAnnotation)
+				|| node.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation))
+				return true;
+
+			var genericReference = node.Target as GenericReferenceExpression;
+			return genericReference != null && genericReference.Target.ContainsAnnotation(ResolvedAsExtensionAnnotation);
 		}
 
 		protected virtual IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
@@ -4479,6 +4393,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var accessible = member as IAccessibleMember;
 			if (accessible == null) return true;
+			return IsAccessible(accessible);
+		}
+
+		private bool IsAccessible(IAccessibleMember accessible)
+		{
 			return GetAccessibilityChecker().IsAccessible(accessible);
 		}
 
@@ -4993,18 +4912,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindAssignmentToSliceProperty(BinaryExpression node)
 		{
-			SlicingExpression slice = (SlicingExpression)node.Left;
+			var slice = (SlicingExpression)node.Left;
 
-			IEntity lhs = GetEntity(node.Left);
-			IMethod setter = null;
+			var lhs = GetEntity(node.Left);
+			if (IsError(lhs))
+				return;
 
-			MethodInvocationExpression mie = new MethodInvocationExpression(node.Left.LexicalInfo);
-			foreach (Slice index in slice.Indices)
-			{
+			var mie = new MethodInvocationExpression(node.Left.LexicalInfo);
+			foreach (var index in slice.Indices)
 				mie.Arguments.Add(index.Begin);
-			}
 			mie.Arguments.Add(node.Right);
 
+			IMethod setter = null;
 			if (EntityType.Property == lhs.EntityType)
 			{
 				IMethod setMethod = ((IProperty)lhs).GetSetMethod();
@@ -5014,9 +4933,7 @@ namespace Boo.Lang.Compiler.Steps
 					return;
 				}
 				if (AssertParameters(node.Left, setMethod, mie.Arguments))
-				{
 					setter = setMethod;
-				}
 			}
 			else if (EntityType.Ambiguous == lhs.EntityType)
 			{
@@ -5029,9 +4946,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (null == setter)
-			{
 				Error(node, CompilerErrorFactory.LValueExpected(node.Left));
-			}
 			else
 			{
 				mie.Target = CodeBuilder.CreateMemberReference(
@@ -5064,20 +4979,24 @@ namespace Boo.Lang.Compiler.Steps
 		virtual protected void ProcessAssignment(BinaryExpression node)
 		{
 			TryToResolveAmbiguousAssignment(node);
-			ValidateAssignment(node);
-			BindExpressionType(node, GetExpressionType(node.Right));
+			if (ValidateAssignment(node))
+				BindExpressionType(node, GetExpressionType(node.Right));
+			else
+				Error(node);
 		}
 
-		virtual protected void ValidateAssignment(BinaryExpression node)
+		virtual protected bool ValidateAssignment(BinaryExpression node)
 		{
-			IEntity lhs = node.Left.Entity;
-			if (AssertLValue(node.Left, lhs))
-			{
-				IType lhsType = GetExpressionType(node.Left);
-				IType rtype = GetExpressionType(node.Right);
-				AssertTypeCompatibility(node.Right, lhsType, rtype);
-				CheckAssignmentToIndexedProperty(node.Left, lhs);
-			}
+			if (!AssertLValue(node.Left))
+				return false;
+
+			IType lhsType = GetExpressionType(node.Left);
+			IType rhsType = GetExpressionType(node.Right);
+			if (!AssertTypeCompatibility(node.Right, lhsType, rhsType))
+				return false;
+
+			CheckAssignmentToIndexedProperty(node.Left, node.Left.Entity);
+			return true;
 		}
 
 		virtual protected void TryToResolveAmbiguousAssignment(BinaryExpression node)
@@ -5100,7 +5019,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void CheckAssignmentToIndexedProperty(Node node, IEntity lhs)
 		{
-			IProperty property = lhs as IProperty;
+			var property = lhs as IProperty;
 			if (null != property && IsIndexedProperty(property))
 			{
 				Error(CompilerErrorFactory.PropertyRequiresParameters(AstUtil.GetMemberAnchor(node), property.FullName));
@@ -5591,35 +5510,44 @@ namespace Boo.Lang.Compiler.Steps
 			Error(CompilerErrorFactory.UnknownIdentifier(node, name));
 		}
 
-		private bool IsPublicEvent(IEntity tag)
+		private static bool IsPublicEvent(IEntity tag)
 		{
 			return (EntityType.Event == tag.EntityType) && ((IMember)tag).IsPublic;
 		}
 
-		private bool IsPublicFieldPropertyEvent(IEntity entity)
+		private static bool IsVisibleFieldPropertyOrEvent(IEntity entity)
 		{
-			if (!IsFieldPropertyOrEvent(entity) || !((IMember) entity).IsPublic)
-				return false;
-
-			IField field = entity as IField;
-			return (null == field) || (!field.IsInitOnly && !field.IsLiteral);
+			switch (entity.EntityType)
+			{
+				case EntityType.Field:
+					var field = (IField)entity;
+					return !TypeSystemServices.IsReadOnlyField(field) && IsVisible(field);
+				case EntityType.Event:
+					var @event = (IEvent)entity;
+					return IsVisible(@event.GetAddMethod());
+				case EntityType.Property:
+					var property = (IProperty)entity;
+					return IsVisible(property);
+			}
+			return false;
 		}
 
-		private static bool IsFieldPropertyOrEvent(IEntity entity)
+		private static bool IsVisible(IAccessibleMember member)
 		{
-			return ((EntityType.Field|EntityType.Property|EntityType.Event) & entity.EntityType) > 0;
+			// TODO: should it just be IsAccessible(member) here?
+			return member.IsPublic || member.IsInternal;
 		}
 
-		private IMember ResolvePublicFieldPropertyEvent(Expression sourceNode, IType type, string name)
+		private IMember ResolveVisibleFieldPropertyOrEvent(Expression sourceNode, IType type, string name)
 		{
 			IEntity candidate = ResolveFieldPropertyEvent(type, name);
 			if (null == candidate) return null;
 
-			if (IsPublicFieldPropertyEvent(candidate)) return (IMember)candidate;
+			if (IsVisibleFieldPropertyOrEvent(candidate)) return (IMember)candidate;
 
 			if (candidate.EntityType != EntityType.Ambiguous) return null;
 
-			IList found = ((Ambiguous)candidate).Select(IsPublicFieldPropertyEvent);
+			IList found = ((Ambiguous)candidate).Select(IsVisibleFieldPropertyOrEvent);
 			if (found.Count == 0) return null;
 			if (found.Count == 1) return (IMember)found[0];
 
@@ -5654,7 +5582,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ResolveNamedArgument(IType type, ReferenceExpression name, Expression value)
 		{
-			IMember member = ResolvePublicFieldPropertyEvent(name, type, name.Name);
+			IMember member = ResolveVisibleFieldPropertyOrEvent(name, type, name.Name);
 			if (null == member)
 			{
 				NamedArgumentNotFound(type, name);
@@ -6100,17 +6028,15 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod FindOperator(IType type, string operatorName, ExpressionCollection args)
 		{
 			IEntity entity = NameResolutionService.Resolve(type, operatorName, EntityType.Method);
-			if (null != entity)
+			if (entity != null)
 			{
 				IMethod method = ResolveOperatorEntity(entity, args);
 				if (null != method) return method;
 			}
 
 			entity = NameResolutionService.ResolveExtension(type, operatorName);
-			if (null != entity)
-			{
+			if (entity != null)
 				return ResolveOperatorEntity(entity, args);
-			}
 
 			return null;
 		}
@@ -6118,17 +6044,13 @@ namespace Boo.Lang.Compiler.Steps
 		private IMethod ResolveOperatorEntity(IEntity op, ExpressionCollection args)
 		{
 			if (EntityType.Ambiguous == op.EntityType)
-			{
 				return ResolveAmbiguousOperator(((Ambiguous)op).Entities, args);
-			}
 
 			if (EntityType.Method == op.EntityType)
 			{
 				IMethod candidate = (IMethod)op;
 				if (HasOperatorSignature(candidate, args))
-				{
 					return candidate;
-				}
 			}
 			return null;
 		}
@@ -6150,47 +6072,6 @@ namespace Boo.Lang.Compiler.Steps
 			node.ParentNode.Replace(node, mie);
 
 			return true;
-		}
-
-		Expression AssertBoolContext(Expression expression)
-		{
-			var type = GetExpressionType(expression);
-			if (TypeSystemServices.IsNumberOrBool(type) || type.IsEnum)
-				return expression;
-
-			var op_Implicit = TypeSystemServices.FindImplicitConversionOperator(type, TypeSystemServices.BoolType);
-			if (op_Implicit != null)
-			{
-				//return [| $op_Implicit($expression) |]
-				return CodeBuilder.CreateMethodInvocation(op_Implicit, expression);
-			}
-
-			// nullable types can be used in bool context
-			if (TypeSystemServices.IsNullable(type))
-			{
-				//return [| $(expression).HasValue |]
-				var mre = new MemberReferenceExpression(expression, "HasValue");
-				Visit(mre);
-				return mre;
-			}
-
-			// string in a boolean context means string.IsNullOrEmpty (BOO-1035)
-			if (TypeSystemServices.StringType == type)
-			{
-				//return [| not string.IsNullOrEmpty($expression) |]
-				var notIsNullOrEmpty = new UnaryExpression(
-					UnaryOperatorType.LogicalNot,
-					CodeBuilder.CreateMethodInvocation(String_IsNullOrEmpty, expression));
-				Visit(notIsNullOrEmpty);
-				return notIsNullOrEmpty;
-			}
-
-			// reference types can be used in bool context
-			if (!type.IsValueType)
-				return expression;
-
-			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.ToString()));
-			return expression;
 		}
 
 		ReferenceExpression CreateTempLocal(LexicalInfo li, IType type)
@@ -6399,14 +6280,28 @@ namespace Boo.Lang.Compiler.Steps
 			DeclareLocal(d, true);
 		}
 
-		protected virtual bool AssertLValue(Node node)
+		private bool AssertLValue(Expression node)
 		{
-			IEntity entity = node.Entity;
-			if (null != entity) return AssertLValue(node, entity);
+			if (IsError(GetExpressionType(node)))
+				return false;
 
-			if (IsArraySlicing(node)) return true;
-			Error(CompilerErrorFactory.LValueExpected(node));
+			var entity = node.Entity;
+			if (null != entity)
+				return AssertLValue(node, entity);
+
+			if (IsArraySlicing(node))
+				return true;
+
+			LValueExpected(node);
 			return false;
+		}
+
+		private void LValueExpected(Node node)
+		{
+			var entity = node.Entity;
+			if (null != entity && IsError(entity))
+				return;
+			Error(CompilerErrorFactory.LValueExpected(node));
 		}
 
 		protected virtual bool AssertLValue(Node node, IEntity entity)
@@ -6415,12 +6310,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				switch (entity.EntityType)
 				{
+					case EntityType.Error:
+						return false;
+
 					case EntityType.Parameter:
 					case EntityType.Local:
 					case EntityType.Event: //for Event=null case (other => EventIsNotAnExpression)
-						{
-							return true;
-						}
+						return true;
 
 					case EntityType.Property:
 						{
@@ -6455,7 +6351,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 				}
 			}
-			Error(CompilerErrorFactory.LValueExpected(node));
+			LValueExpected(node);
 			return false;
 		}
 
@@ -6616,11 +6512,6 @@ namespace Boo.Lang.Compiler.Steps
 		IMethod String_get_Length
 		{
 			get { return CachedMethod("String_get_Length", () => Methods.GetterOf<string, int>(s => s.Length)); }
-		}
-
-		IMethod String_IsNullOrEmpty
-		{
-			get { return CachedMethod("String_IsNullOrEmpty", () => Methods.Of<string, bool>(string.IsNullOrEmpty)); }
 		}
 
 		IMethod String_Substring_Int

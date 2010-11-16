@@ -35,12 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class ResolveTypeReferences : AbstractNamespaceSensitiveVisitorCompilerStep, ITypeMemberReifier, ITypeReferenceReifier
-	{
-		override public void Run()
-		{
-			Visit(CompileUnit.Modules);
-		}
-		
+	{	
 		public override void OnMethod(Method node)
 		{
 			// If method is generic, enter its namespace			

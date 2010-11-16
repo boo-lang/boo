@@ -83,17 +83,24 @@ namespace Boo.Lang.Compiler.Ast
 			return null;
 		}
 
-		protected bool VisitAllowingCancellation(Node node)
+		protected bool VisitAllowingCancellation(Node node, out Node resultingNode)
 		{
 			try
 			{
-				Visit(node);
+				resultingNode = VisitNode(node);
 				return true;
 			}
 			catch (LongJumpException)
-			{	
+			{
+				resultingNode = null;
 			}
 			return false;
+		}
+
+		protected bool VisitAllowingCancellation(Node node)
+		{
+			Node resultingNode;
+			return VisitAllowingCancellation(node, out resultingNode);
 		}
 
 		static readonly LongJumpException CancellationException = new LongJumpException();
@@ -137,9 +144,7 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				T resultingNode = (T)VisitNode(currentNode);
 				if (currentNode != resultingNode)
-				{
 					collection.Replace(currentNode, resultingNode);
-				}
 			}
 			return true;
 		}

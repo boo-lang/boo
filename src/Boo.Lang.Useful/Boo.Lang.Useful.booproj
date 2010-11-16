@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectGuid>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</ProjectGuid>
@@ -70,9 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IO\" />
-    <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser-VS2008.csproj">
-      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
-      <Name>Boo.Lang.Parser-VS2008</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
   </ItemGroup>
 </Project>

@@ -445,6 +445,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void implicit_bool_with_shortcircuited_and_condition()
+		{
+			RunCompilerTestCase(@"implicit-bool-with-shortcircuited-and-condition.boo");
+		}
+		
+		[Test]
 		public void innerclasses_1()
 		{
 			RunCompilerTestCase(@"innerclasses-1.boo");
@@ -682,6 +688,24 @@ namespace BooCompiler.Tests
 		public void internal_base_type_is_preferred()
 		{
 			RunCompilerTestCase(@"internal-base-type-is-preferred.boo");
+		}
+		
+		[Test]
+		public void internal_event_initializer()
+		{
+			RunCompilerTestCase(@"internal-event-initializer.boo");
+		}
+		
+		[Test]
+		public void internal_field_initializer()
+		{
+			RunCompilerTestCase(@"internal-field-initializer.boo");
+		}
+		
+		[Test]
+		public void internal_property_initializer()
+		{
+			RunCompilerTestCase(@"internal-property-initializer.boo");
 		}
 		
 		[Test]

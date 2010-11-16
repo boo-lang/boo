@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			IParameter[] parameters = entityWithParameters.GetParameters();
-			if (entityWithParameters.AcceptVarArgs)
+			if (IsVarArgsInvocation(node, entityWithParameters))
 			{
 				var lastParamIndex = parameters.Length - 1;
 				for (int i=0; i < lastParamIndex; ++i)
@@ -80,6 +80,11 @@ namespace Boo.Lang.Compiler.Steps
 				for (int i = 0; i < parameters.Length; i++)
 					TryToReify(node.Arguments[i], parameters[i].Type);
 
+		}
+
+		private static bool IsVarArgsInvocation(MethodInvocationExpression node, IEntityWithParameters entityWithParameters)
+		{
+			return entityWithParameters.AcceptVarArgs && !AstUtil.InvocationEndsWithExplodeExpression(node);
 		}
 
 		private void TryToReify(Expression candidate, IType expectedType)
@@ -110,8 +115,24 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ReifyArrayLiteralType(IArrayType expectedArrayType, Expression array)
 		{
-			((ArrayLiteralExpression)array).Type = (ArrayTypeReference)CodeBuilder.CreateTypeReference(expectedArrayType);
+			var explodeExpression = array as UnaryExpression;
+			if (explodeExpression != null)
+				ReifyExplodeExpression(expectedArrayType, explodeExpression);
+			else
+				ReifyArrayLiteralExpression(expectedArrayType, (ArrayLiteralExpression)array);
 			BindExpressionType(array, expectedArrayType);
+		}
+
+		private void ReifyExplodeExpression(IArrayType expectedArrayType, UnaryExpression explodeExpression)
+		{
+			if (explodeExpression.Operator != UnaryOperatorType.Explode)
+				throw new InvalidOperationException();
+			ReifyArrayLiteralType(expectedArrayType, explodeExpression.Operand);
+		}
+
+		private void ReifyArrayLiteralExpression(IArrayType expectedArrayType, ArrayLiteralExpression arrayLiteralExpression)
+		{
+			arrayLiteralExpression.Type = (ArrayTypeReference)CodeBuilder.CreateTypeReference(expectedArrayType);
 		}
 
 		private static bool IsEmptyArrayLiteral(Expression e)

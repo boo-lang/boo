@@ -42,5 +42,20 @@ namespace Boo.Lang.Runtime.Tests
 		{
 			((Func<object, IConvertible>) RuntimeServices.CheckNumericPromotion)(DateTime.Now);
 		}
+
+		[Test]
+		public void RuntimeGivesUsefulMessageForMissingOperator()
+		{
+			try
+			{
+				RuntimeServices.InvokeBinaryOperator("op_BitwiseAnd", "", 42);
+			}
+			catch (MissingMethodException x)
+			{
+				Assert.AreEqual("Bitwise and is not applicable to operands 'System.String' and 'System.Int32'.", x.Message);
+				return;
+			}
+			Assert.Fail("Exception expected");
+		}
 	}
 }

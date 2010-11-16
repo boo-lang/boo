@@ -461,11 +461,24 @@ class_definition [TypeMemberCollection container]
 		(PASS eos) |
 		(
 			(eos)?
-			(type_definition_member[members])+			
+			(
+				(splice_expression eos)=>splice_type_definition_body[members] |
+				type_definition_member[members]
+			)+			
 		)
 	)
 	end[td]
-	;
+;
+
+splice_type_definition_body[TypeMemberCollection container]
+{
+	Expression e = null;
+}:
+	begin:SPLICE_BEGIN e=atom eos
+	{
+		container.Add(new SpliceTypeDefinitionBody(e));
+	}
+;
 	
 type_definition_member[TypeMemberCollection container]
 {
@@ -1276,31 +1289,37 @@ end[Node node] :
 protected
 compound_stmt[Block b]
 {
+	StatementCollection statements = null;
+}:
+	single_line_block[b] |
+	(
+		COLON begin:INDENT
+		{
+			b.LexicalInfo = ToLexicalInfo(begin);
+			statements = b.Statements;
+		}
+		block[statements]
+		end[b]
+	)
+;
+
+protected
+single_line_block[Block b]
+{
 	StatementCollection statements = b != null ? b.Statements : null;
 	IToken lastEOL = null;
 }:
+	COLON
+	(
+		PASS |
 		(
-			COLON
-			(
-				PASS
-				|
-				(
-				simple_stmt[statements]
-				(options { greedy = true; }: EOS (simple_stmt[statements])?)*
-				)
-			)
-			(options { greedy = true; }: eolToken:EOL { lastEOL = eolToken; })+
-			{ SetEndSourceLocation(b, lastEOL); }
-		) |
-		(
-			COLON begin:INDENT
-			{
-				b.LexicalInfo = ToLexicalInfo(begin);
-			}
-			block[statements]
-			end[b]
+			simple_stmt[statements]
+			(options { greedy = true; }: EOS (simple_stmt[statements])?)*
 		)
-		;
+	)
+	(options { greedy = true; }: eolToken:EOL { lastEOL = eolToken; })+
+	{ SetEndSourceLocation(b, lastEOL); }
+;
 
 protected
 closure_macro_stmt returns [MacroStatement returnValue]
@@ -1316,6 +1335,45 @@ closure_macro_stmt returns [MacroStatement returnValue]
 	}
 ;
 
+protected
+macro_block [StatementCollection container]
+{
+}:
+	(eos)?
+	(
+		(PASS eos) |
+		(stmt[container] | type_member_stmt[container])+
+	)
+;
+
+protected
+type_member_stmt [StatementCollection container]
+{
+	TypeMemberCollection members = new TypeMemberCollection();
+}:
+	type_definition_member[members]
+	{
+		foreach (var member in members)
+			container.Add(new TypeMemberStatement(member));
+	}
+;
+
+protected
+macro_compound_stmt[Block b]
+{
+	StatementCollection statements = null;
+}:
+	single_line_block[b] |
+	(
+		COLON begin:INDENT
+		{
+			b.LexicalInfo = ToLexicalInfo(begin);
+			statements = b.Statements;
+		}
+		macro_block[statements]
+		end[b]
+	)
+;
 		
 protected
 macro_stmt returns [MacroStatement returnValue]
@@ -1326,12 +1384,12 @@ macro_stmt returns [MacroStatement returnValue]
 	}:
 	id:ID expression_list[macro.Arguments]
 	(
-		compound_stmt[macro.Body] { macro.Annotate("compound"); } |
+		macro_compound_stmt[macro.Body] { macro.Annotate("compound"); } |
 		eos |
 		modifier=stmt_modifier eos { macro.Modifier = modifier; } |
 		(
 			begin_with_doc[macro] 
-				block[macro.Body.Statements]
+				macro_block[macro.Body.Statements]
 			end[macro.Body] { macro.Annotate("compound" ); }
 		) 
 	)
@@ -1392,7 +1450,7 @@ nested_function returns [Statement stmt]
 						ToLexicalInfo(id),
 						name),
 					be);
-		be["ClosureName"] = name;
+		be[BlockExpression.ClosureNameAnnotation] = name;
 	}
 ;
 	
