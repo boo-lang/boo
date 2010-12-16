@@ -56,8 +56,16 @@
       <Project>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</Project>
       <Name>Boo.Lang.Useful</Name>
     </ProjectReference>
-    <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>mono-nunit</Package>
+    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
     </Reference>
+    <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
+      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
+      <Name>Boo.Lang.Parser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Boo.Lang.Extensions\Boo.Lang.Extensions.booproj">
+      <Project>{48E18542-C08D-4BAF-99D0-BA2882259F40}</Project>
+      <Name>Boo.Lang.Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
