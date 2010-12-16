@@ -36,8 +36,6 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public interface ICompilerComponent
 	{
-		/// <summary>
-		/// </summary> 
 		void Initialize(CompilerContext context);
 	}
 }
