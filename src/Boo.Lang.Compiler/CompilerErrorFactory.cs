@@ -39,6 +39,11 @@ namespace Boo.Lang.Compiler
 	
 	public static class CompilerErrorFactory
 	{	
+		public static CompilerError CustomError(Node anchor, string msg)
+		{
+			return CustomError(AstUtil.SafeLexicalInfo(anchor), msg);
+		}
+		
 		public static CompilerError CustomError(LexicalInfo lexicalInfo, string msg)
 		{
 			return new CompilerError(lexicalInfo, msg);
