@@ -88,14 +88,9 @@ class Program:
 		pass
 	
 	def booish():
-		print """The following builtin functions are available:
-	dir(Type): lists the members of a type
-	help(Type): prints detailed information about a type
-	load(string): evals an external boo file
-	globals(): returns the names of all variables known to the interpreter
-
-Enter boo code in the prompt below."""
 		interpreter = InteractiveInterpreterConsole()
+		interpreter.Eval("import Boo.Lang.Interpreter.Builtins")
+		interpreter.DisplayHelp()
 		interpreter.ReadEvalPrintLoop()
 
 [STAThread]
