@@ -30,6 +30,7 @@ namespace Boo.NAnt
 
 import System
 import System.IO
+import System.Linq.Enumerable
 import NAnt.Core
 import NAnt.Core.Attributes
 import NAnt.Core.Types
@@ -71,13 +72,19 @@ class PrepareScriptStep(AbstractCompilerStep):
 		method.Body = module.Globals
 		module.Globals = Block()
 		
+		if module.Members["Main"] isa Method:
+			method.Body = [|
+				$(method.Body)
+				Main(argv)
+			|]
+		
 		script = ClassDefinition(Name: "__Script__")
 		script.BaseTypes.Add(SimpleTypeReference("Boo.NAnt.AbstractScript"))
 		script.Members.Add(method)
 		script.Members.Extend(module.Members)
 		
 		module.Members.Clear()
-		module.Members.Add(script)		
+		module.Members.Add(script)
 		
 def WithWorkingDir(dir as string, block as callable()):
 	_saved = Environment.CurrentDirectory
@@ -143,20 +150,18 @@ class BooTask(AbstractBooTask):
 			return Code.Xml.InnerText
 		return XmlNode.InnerText
 			
-def ReIndent(code as string):	
-	lines = NonEmptyLines(code)
 
-	firstLine = lines[0]
-	indentation = /(\s*)/.Match(firstLine).Groups[0].Value
+def ReIndent(code as string):	
+	lines = code.Replace("\r\n", "\n").Split(char('\n'))
+	nonEmptyLines = line for line in lines if len(line.Trim())
+
+	indentation = /(\s*)/.Match(nonEmptyLines.First()).Groups[0].Value
 	return code if len(indentation) == 0
 
 	buffer = System.Text.StringBuilder()
 	for line in lines:
-		if not line.StartsWith(indentation):
-			return code // let the parser complain about it
-		buffer.AppendLine(line[len(indentation):])
+		if line.StartsWith(indentation):
+			buffer.AppendLine(line[len(indentation):])
+		else:
+			buffer.AppendLine(line)
 	return buffer.ToString()
-	
-def NonEmptyLines(s as string):
-	lines = s.Replace("\r\n", "\n").Split(char('\n'))
-	return array(line for line in lines if len(line.Trim()))
