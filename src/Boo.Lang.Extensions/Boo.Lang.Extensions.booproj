@@ -10,7 +10,7 @@
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UsePartialTypes>false</UsePartialTypes>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -30,12 +30,14 @@
     <ducky>false</ducky>
     <culture />
     <genwarnings>false</genwarnings>
+    <nostdlib>true</nostdlib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <ducky>false</ducky>
     <culture />
     <genwarnings>false</genwarnings>
+    <nostdlib>true</nostdlib>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
@@ -61,5 +63,11 @@
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
   <ItemGroup>
     <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
+      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
+      <Name>Boo.Lang</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
