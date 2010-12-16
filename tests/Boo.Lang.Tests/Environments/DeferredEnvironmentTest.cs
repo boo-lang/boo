@@ -35,7 +35,7 @@ namespace Boo.Lang.Tests.Environments
 			{
 				try
 				{
-					var bar = My<Bar>.Instance;
+					My<Bar>.Instance.ToString();
 				}
 				catch (InvalidOperationException)
 				{
