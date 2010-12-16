@@ -14,6 +14,7 @@ namespace BooCompiler.Tests
 			return pipeline;
 		}
 
+
 		[Test]
 		public void BCW0001_10()
 		{

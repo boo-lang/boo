@@ -13,6 +13,7 @@ namespace BooCompiler.Tests
 			return new CompileToBoo();
 		}
 
+
 		[Test]
 		public void abstract_method0()
 		{

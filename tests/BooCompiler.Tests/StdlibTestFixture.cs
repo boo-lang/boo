@@ -7,6 +7,7 @@ namespace BooCompiler.Tests
 	public class StdlibTestFixture : AbstractCompilerTestCase
 	{
 
+
 		[Test]
 		public void cat_1()
 		{

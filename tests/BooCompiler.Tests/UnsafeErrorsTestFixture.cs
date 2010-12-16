@@ -11,6 +11,7 @@ namespace BooCompiler.Tests
 			_parameters.Unsafe = true;
 		}
 
+
 		[Test]
 		public void BCE0168_1()
 		{

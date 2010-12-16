@@ -25,6 +25,7 @@ namespace BooCompiler.Tests
 			CopyAssembliesFromTestCasePath();
 		}
 
+
 		[Test]
 		public void ambiguous_1()
 		{

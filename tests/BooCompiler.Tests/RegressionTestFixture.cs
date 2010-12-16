@@ -7,6 +7,7 @@ namespace BooCompiler.Tests
 	public class RegressionTestFixture : AbstractCompilerTestCase
 	{
 
+
 		[Test]
 		public void array_ldelem()
 		{

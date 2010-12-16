@@ -29,6 +29,7 @@
 
 import System
 import System.IO
+import System.Linq.Enumerable
 import Boo.Lang.Compiler.Ast.Visitors
 import Boo.Lang.PatternMatching
 import Boo.Lang.Parser
@@ -330,7 +331,7 @@ def FirstLineOf(fname as string):
 
 def GenerateTestFixture(srcDir as string, targetFile as string, fixtureAssembly as string, header as string):
 	using writer=StreamWriter(MapPath(targetFile)):
-		writer.Write(header)
+		writer.Write(ReIndent(header))
 		WriteTestCases(writer, srcDir)
 		writer.Write("""
 
@@ -367,6 +368,20 @@ def GenerateIntegrationTestFixture(dir as string):
 	public class ${fixtureName} : AbstractCompilerTestCase
 	{
 	"""
-	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.cs", "BooCompiler.${fixtureName.Replace('TestFixture', '')}", header)
+	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.cs", "BooCompiler.$(fixtureName.Replace('TestFixture', ''))", header)
 
+def ReIndent(code as string):	
+	lines = code.Replace("\r\n", "\n").Split(char('\n'))
+	nonEmptyLines = line for line in lines if len(line.Trim())
 
+	indentation = /(\s*)/.Match(nonEmptyLines.First()).Groups[0].Value
+	return code if len(indentation) == 0
+
+	buffer = System.Text.StringBuilder()
+	for line in lines:
+		if line.StartsWith(indentation):
+			buffer.AppendLine(line[len(indentation):])
+		else:
+			buffer.AppendLine(line)
+	return buffer.ToString()
+	

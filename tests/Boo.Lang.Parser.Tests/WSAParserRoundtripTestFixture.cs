@@ -11,6 +11,7 @@ namespace Boo.Lang.Parser.Tests
 			RunParserTestCase(fname);
 		}
 
+
 		[Test]
 		public void and_or_1()
 		{

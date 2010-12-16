@@ -12,6 +12,7 @@ namespace BooCompiler.Tests
 			base.RunCompilerTestCase(name);
 		}
 
+
 		[Test]
 		public void BCE0138_1()
 		{

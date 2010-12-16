@@ -7,6 +7,7 @@ namespace BooCompiler.Tests
 	public class MacrosTestFixture : AbstractCompilerTestCase
 	{
 
+
 		[Test]
 		public void assert_1()
 		{

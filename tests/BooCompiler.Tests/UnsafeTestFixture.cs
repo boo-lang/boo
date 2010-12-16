@@ -16,6 +16,7 @@ namespace BooCompiler.Tests
 			get { return false; }
 		}
 
+
 		[Test]
 		public void sizeof_1()
 		{

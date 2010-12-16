@@ -13,6 +13,7 @@ namespace BooCompiler.Tests
 			_parameters.Ducky = true;
 		}
 
+
 		[Test]
 		public void BOO_827_1()
 		{

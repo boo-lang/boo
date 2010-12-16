@@ -8,6 +8,7 @@ namespace BooCompiler.Tests
 	public class CompilerErrorsTestFixture : AbstractCompilerErrorsTestFixture
 	{
 
+
 		[Test]
 		public void BCE0000_1()
 		{
