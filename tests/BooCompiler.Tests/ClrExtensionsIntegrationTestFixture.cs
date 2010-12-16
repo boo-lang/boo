@@ -3,7 +3,7 @@ namespace BooCompiler.Tests
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class ClrextensionsIntegrationTestFixture : AbstractCompilerTestCase
+	public class ClrExtensionsIntegrationTestFixture : AbstractCompilerTestCase
 	{
 	
 		[Test]
@@ -27,7 +27,7 @@ namespace BooCompiler.Tests
 
 		override protected string GetRelativeTestCasesPath()
 		{
-			return "integration/clrextensions";
+			return "integration/clr-extensions";
 		}
 	}
 }
