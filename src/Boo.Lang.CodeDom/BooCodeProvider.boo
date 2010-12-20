@@ -34,8 +34,8 @@ namespace Boo.Lang.CodeDom
 
 import System
 import System.CodeDom.Compiler
+
 class BooCodeProvider(CodeDomProvider):
-"""Description of BooCodeProvider"""
 	[getter(FileExtension)]
 	_ext = "boo"
 	

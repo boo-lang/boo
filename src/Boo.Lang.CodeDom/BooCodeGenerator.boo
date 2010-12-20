@@ -447,8 +447,9 @@ class BooCodeGenerator(CodeGenerator):
 		EndBlock()
 
 	protected override def GenerateNamespaceStart(e as CodeNamespace) :
-		if e and e.Name and e.Name != string.Empty:
-			Output.WriteLine("namespace ${e.Name}")	
+		if e is null or string.IsNullOrEmpty(e.Name):
+			return
+		Output.WriteLine("namespace ${e.Name}")	
 		
 	protected override def GenerateNamespaceEnd(e as CodeNamespace) :
 		pass
@@ -604,6 +605,9 @@ class BooCodeGenerator(CodeGenerator):
 	
 	private def OutputAttribute(attribute as CodeAttributeDeclaration):
 		Output.Write(attribute.Name.Replace ('+', '.'))
+		if len(attribute.Arguments) == 0:
+			return
+			
 		Output.Write('(')
 		first = true
 		for argument as CodeAttributeArgument in attribute.Arguments:
@@ -663,7 +667,7 @@ class BooCodeGenerator(CodeGenerator):
 			Output.WriteLine("//option WhiteSpaceAgnostic")
 			Output.WriteLine()
 			
-		super.GenerateCompileUnitStart(compileUnit)
+		//super.GenerateCompileUnitStart(compileUnit)
 
 	protected override def GenerateCompileUnit(compileUnit as CodeCompileUnit):
 		GenerateCompileUnitStart(compileUnit)

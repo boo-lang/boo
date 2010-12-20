@@ -36,12 +36,14 @@
     <genwarnings>false</genwarnings>
     <culture />
     <ducky>false</ducky>
+    <nostdlib>false</nostdlib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <genwarnings>false</genwarnings>
     <culture />
     <ducky>false</ducky>
+    <nostdlib>false</nostdlib>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />

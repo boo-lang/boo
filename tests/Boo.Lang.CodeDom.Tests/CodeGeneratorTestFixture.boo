@@ -32,6 +32,8 @@ import System
 import System.CodeDom
 import System.CodeDom.Compiler
 import System.IO
+import System.Linq.Enumerable
+
 import NUnit.Framework
 import Boo.Lang.CodeDom
 
@@ -44,6 +46,28 @@ class CodeGeneratorTestFixture:
 	def SetUp():		
 		_generator = BooCodeProvider().CreateGenerator()
 		Assert.IsNotNull(_generator)
+		
+	[Test]
+	def ImportsComeAfterNamespaceDeclaration():
+		ns = CodeNamespace("A.B.C")
+		ns.Imports.Add(CodeNamespaceImport("D.E.F"))
+		unit = CodeCompileUnit()
+		unit.Namespaces.Add(ns)
+		AssertCompileUnitIgnoringComments "namespace A.B.C\nimport D.E.F", unit
+		
+	[Test]
+	def AttributesWithoutArgumentsAreGeneratedWithoutParens():
+		type = CodeTypeDeclaration("Foo")
+		type.CustomAttributes.Add(CodeAttributeDeclaration("Test"))
+		AssertTypeDeclaration "[Test]\nclass Foo:\n    pass", type
+		
+	[Test]
+	def AttributesWithArgumentsAreGeneratedWithParens():
+		attribute = CodeAttributeDeclaration("Test")
+		attribute.Arguments.Add(CodeAttributeArgument(CodePrimitiveExpression(42)))
+		type = CodeTypeDeclaration("Foo")
+		type.CustomAttributes.Add(attribute)
+		AssertTypeDeclaration "[Test(42)]\nclass Foo:\n    pass", type
 		
 	[Test]
 	def Enums():
@@ -78,24 +102,11 @@ class CodeGeneratorTestFixture:
 					
 		AssertStatement "anArray as (int)", stmt
 		
-	def AssertStatement(expected as string, stmt as CodeStatement):
-		buffer = StringWriter()
-		_generator.GenerateCodeFromStatement(stmt, buffer, CodeGeneratorOptions())
-		AssertWriter expected, buffer
-		
 	[Test]
 	def TestArrayCreateSize():
 		e = CodeArrayCreateExpression(CodeTypeReference(int), 10)
 		
 		AssertExpression "array(int, 10)", e
-		
-	def AssertExpression(expected as string, e as CodeExpression):
-		buffer = StringWriter()
-		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())		
-		AssertWriter expected, buffer
-		
-	def AssertWriter(expected as string, buffer as StringWriter):
-		Assert.AreEqual(expected, buffer.ToString().Trim().Replace("\r\n", "\n"))
 		
 	[Test]
 	def TestArrayCreateSizeExpression():
@@ -120,11 +131,6 @@ class CodeGeneratorTestFixture:
 	def TestPartial():
 		expected = "partial class PartialType:\n    pass"
 		AssertTypeDeclaration expected, CodeTypeDeclaration("PartialType", IsPartial: true)
-		
-	def AssertTypeDeclaration(expected as string, type as CodeTypeDeclaration):
-		buffer = StringWriter()
-		_generator.GenerateCodeFromType(type, buffer, CodeGeneratorOptions())
-		AssertWriter(expected, buffer)
 	
 	[Test]
 	def TestCharType():
@@ -188,7 +194,46 @@ class CodeGeneratorTestFixture:
 """
 		
 		result = Boo.Lang.CodeDom.BooCodeGenerator.FixIndent(code, "    ", 2, false)
-		result = result.Replace("\r\n","\n").Trim()
-		expected = expected.Replace("\r\n","\n").Trim()
-		Assert.AreEqual(expected, result)
+		AssertEqualsIgnoringNewLines expected, result
+		
+	def AssertEqualsIgnoringNewLines(expected as string, actual as string):
+		Assert.AreEqual(NormalizeNewLines(expected), NormalizeNewLines(actual))
+	
+	def NormalizeNewLines(s as string):
+		return s.Trim().Replace("\r\n", "\n")
+		
+	def AssertCompileUnitIgnoringComments(expected as string, unit as CodeCompileUnit):
+		code = CodeFromCompileUnit(unit)
+		AssertEqualsIgnoringNewLines expected, RemoveCommentedLines(code)
+		
+	def RemoveCommentedLines(code as string):
+		return string.Join("\n", code.Split(char('\n')).Where({ line | not line.StartsWith("#") }).ToArray())
+		
+	def CodeFromCompileUnit(unit as CodeCompileUnit):
+		buffer = StringWriter()
+		_generator.GenerateCodeFromCompileUnit(unit, buffer, CodeGeneratorOptions())
+		return buffer.ToString()
 
+	def AssertTypeDeclaration(expected as string, type as CodeTypeDeclaration):
+		AssertEqualsIgnoringNewLines expected, CodeFromTypeDeclaration(type)
+		
+	def CodeFromTypeDeclaration(type as CodeTypeDeclaration):
+		buffer = StringWriter()
+		_generator.GenerateCodeFromType(type, buffer, CodeGeneratorOptions())
+		return buffer.ToString()
+		
+	def AssertStatement(expected as string, stmt as CodeStatement):
+		AssertEqualsIgnoringNewLines expected, CodeFromStatement(stmt)
+		
+	def CodeFromStatement(stmt as CodeStatement):
+		buffer = StringWriter()
+		_generator.GenerateCodeFromStatement(stmt, buffer, CodeGeneratorOptions())
+		return buffer.ToString()
+		
+	def AssertExpression(expected as string, e as CodeExpression):
+		AssertEqualsIgnoringNewLines expected, CodeFromExpression(e)
+		
+	def CodeFromExpression(e as CodeExpression):
+		buffer = StringWriter()
+		_generator.GenerateCodeFromExpression(e, buffer, CodeGeneratorOptions())		
+		return buffer.ToString()
