@@ -26,6 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Reflection;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	public class RunAssembly : AbstractCompilerStep
@@ -36,8 +39,21 @@ namespace Boo.Lang.Compiler.Steps
 				|| CompilerOutputType.Library == Parameters.OutputType
 				|| Context.GeneratedAssembly == null)
 				return;
-			
-			Context.GeneratedAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
+
+			AppDomain.CurrentDomain.AssemblyResolve += ResolveGeneratedAssembly;
+			try
+			{
+				Context.GeneratedAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
+			}
+			finally
+			{
+				AppDomain.CurrentDomain.AssemblyResolve -= ResolveGeneratedAssembly;
+			}
+		}
+
+		private Assembly ResolveGeneratedAssembly(object sender, ResolveEventArgs args)
+		{
+			return args.Name == Context.GeneratedAssembly.FullName ? Context.GeneratedAssembly : null;
 		}
 	}
 }
