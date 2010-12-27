@@ -657,7 +657,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Constructor CreateStaticConstructor(TypeDefinition type)
 		{
-			Constructor constructor = new Constructor();
+			var constructor = new Constructor();
 			constructor.IsSynthetic = true;
 			constructor.Modifiers = TypeMemberModifiers.Private | TypeMemberModifiers.Static;
 			EnsureEntityFor(constructor);
@@ -1013,6 +1013,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			EnsureEntityFor(property);
 			return property;
+		}
+
+		public Constructor GetOrCreateStaticConstructorFor(TypeDefinition type)
+		{
+			return type.GetStaticConstructor() ?? CreateStaticConstructor(type);
 		}
 	}
 }

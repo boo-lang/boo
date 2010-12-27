@@ -596,20 +596,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		Constructor GetStaticConstructor(TypeDefinition type)
 		{
-			Constructor constructor = type.GetStaticConstructor();
-			if (null == constructor)
-			{
-				constructor = CodeBuilder.CreateStaticConstructor(type);
-			}
-			return constructor;
-		}
-
-		void AddFieldInitializerToStaticConstructor(int index, Field node)
-		{
-			Constructor constructor = GetStaticConstructor(node.DeclaringType);
-			Statement stmt = CodeBuilder.CreateFieldAssignment(node, node.Initializer);
-			constructor.Body.Statements.Insert(index, stmt);
-			node.Initializer = null;
+			return CodeBuilder.GetOrCreateStaticConstructorFor(type);
 		}
 
 		void CheckRuntimeMethod(Method method)
@@ -2233,31 +2220,10 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnRELiteralExpression(RELiteralExpression node)
 		{
 			if (null != node.Entity)
-			{
 				return;
-			}
 
 			IType type = TypeSystemServices.RegexType;
 			BindExpressionType(node, type);
-
-			if (NodeType.Field != node.ParentNode.NodeType)
-			{
-				ReplaceByStaticFieldReference(node, Context.GetUniqueName("re"), type);
-			}
-		}
-
-		void ReplaceByStaticFieldReference(Expression node, string fieldName, IType type)
-		{
-			Node parent = node.ParentNode;
-
-			Field field = CodeBuilder.CreateField(fieldName, type);
-			field.Modifiers = TypeMemberModifiers.Internal|TypeMemberModifiers.Static;
-			field.Initializer = node;
-
-			_currentMethod.Method.DeclaringType.Members.Add(field);
-			parent.Replace(node, CodeBuilder.CreateReference(field));
-
-			AddFieldInitializerToStaticConstructor(0, field);
 		}
 
 		override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)

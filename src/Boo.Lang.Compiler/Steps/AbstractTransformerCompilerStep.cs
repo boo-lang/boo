@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
@@ -35,9 +34,14 @@ using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public abstract class AbstractTransformerCompilerStep : Boo.Lang.Compiler.Ast.DepthFirstTransformer, ICompilerStep
+	public abstract class AbstractTransformerCompilerStep : DepthFirstTransformer, ICompilerStep
 	{
 		private CompilerContext _context;
+
+		public virtual void Run()
+		{
+			Visit(CompileUnit);
+		}
 		
 		protected CompilerContext Context
 		{
@@ -56,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private EnvironmentProvision<NameResolutionService> _nameResolutionService;
 		
-		protected Boo.Lang.Compiler.Ast.CompileUnit CompileUnit
+		protected CompileUnit CompileUnit
 		{
 			get { return _context.CompileUnit; }
 		}
@@ -83,7 +87,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
 
-		public override void OnQuasiquoteExpression(Boo.Lang.Compiler.Ast.QuasiquoteExpression node)
+		public override void OnQuasiquoteExpression(QuasiquoteExpression node)
 		{
 			// ignore quasi-quotes
 		}
@@ -122,8 +126,6 @@ namespace Boo.Lang.Compiler.Steps
 			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
 			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
 		}
-		
-		public abstract void Run();
 		
 		public virtual void Dispose()
 		{

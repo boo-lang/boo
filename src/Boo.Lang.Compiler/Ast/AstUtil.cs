@@ -314,13 +314,18 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static bool IsLhsOfAssignment(Expression node)
 		{
-			if (NodeType.BinaryExpression == node.ParentNode.NodeType)
-			{
-				BinaryExpression be = (BinaryExpression)node.ParentNode;
-				if (node == be.Left)
-					return IsAssignment(be);
-			}
-			return false;
+			var parentExpression = node.ParentNode as BinaryExpression;
+			if (parentExpression == null)
+				return false;
+			return node == parentExpression.Left && IsAssignment(parentExpression);
+		}
+
+		public static bool IsRhsOfAssignment(Expression node)
+		{
+			var parentExpression = node.ParentNode as BinaryExpression;
+			if (parentExpression == null)
+				return false;
+			return node == parentExpression.Right && IsAssignment(parentExpression);
 		}
 		
 		public static bool IsLhsOfInPlaceAddSubtract(Expression node)
@@ -331,8 +336,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (node == be.Left)
 				{
 					BinaryOperatorType op = be.Operator;
-					return op == BinaryOperatorType.InPlaceAddition ||
-							op == BinaryOperatorType.InPlaceSubtraction;
+					return op == BinaryOperatorType.InPlaceAddition || op == BinaryOperatorType.InPlaceSubtraction;
 				}
 			}
 			return false;

@@ -66,6 +66,7 @@ namespace Boo.Lang.Compiler.Pipelines
 
 			Add(new RemoveDeadCode());
 			Add(new CheckNeverUsedMembers());
+			Add(new CacheRegularExpressionsInStaticFields());
 
 			// TODO:
 			//Add(new InjectCastsAndConversions());

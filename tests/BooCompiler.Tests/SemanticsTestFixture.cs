@@ -273,6 +273,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void regex_is_cached_in_static_field_unless_assigned()
+		{
+			RunCompilerTestCase(@"regex-is-cached-in-static-field-unless-assigned.boo");
+		}
+		
+		[Test]
 		public void slice_property()
 		{
 			RunCompilerTestCase(@"slice_property.boo");

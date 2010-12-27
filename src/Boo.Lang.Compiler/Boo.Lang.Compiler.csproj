@@ -430,6 +430,7 @@
     <Compile Include="Steps\BindTypeDefinitions.cs" />
     <Compile Include="Steps\BindTypeMembers.cs" />
     <Compile Include="Steps\BranchChecking.cs" />
+    <Compile Include="Steps\CacheRegularExpressionsInStaticFields.cs" />
     <Compile Include="Steps\CheckAttributesUsage.cs" />
     <Compile Include="Steps\CheckGenericConstraints.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
