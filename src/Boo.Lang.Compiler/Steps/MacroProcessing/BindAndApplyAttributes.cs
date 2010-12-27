@@ -200,9 +200,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			while (iteration < Parameters.MaxExpansionIterations)
 			{
 				if (!BindAndApply())
-				{
 					break;
-				}
 				++iteration;
 			}
 		}

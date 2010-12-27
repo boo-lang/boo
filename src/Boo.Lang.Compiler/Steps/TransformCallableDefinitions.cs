@@ -26,22 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-	
+
 	public class TransformCallableDefinitions : AbstractTransformerCompilerStep, ITypeMemberReifier
-	{
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-		
+	{	
 		override public void OnMethod(Method node)
 		{
 		}

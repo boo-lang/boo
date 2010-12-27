@@ -26,22 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
-using System;
-using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem;
-
 namespace Boo.Lang.Compiler.Steps
 {
 	public class InjectCastsAndConversions : AbstractTransformerCompilerStep
-	{	
-		public InjectCastsAndConversions()
-		{
-		}
-
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
+	{
 	}
 }

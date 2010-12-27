@@ -50,11 +50,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		int _closureDepth;
 		
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-		
 		override public void Dispose()
 		{
 			_shared.Clear();

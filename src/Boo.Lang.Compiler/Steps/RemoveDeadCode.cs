@@ -26,19 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-	using System.Collections.Generic;
-
 	public class RemoveDeadCode : AbstractTransformerCompilerStep
 	{
-		override public void Run()
-		{
-			Visit(CompileUnit);
-		}
-
 		override public bool EnterRaiseStatement(RaiseStatement node)
 		{
 			RemoveUnreachableCode(node);
