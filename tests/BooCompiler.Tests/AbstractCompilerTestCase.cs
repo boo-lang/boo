@@ -27,7 +27,6 @@
 #endregion
 
 using System.Reflection;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 
 namespace BooCompiler.Tests
 {
@@ -62,6 +61,12 @@ namespace BooCompiler.Tests
 			}
 		}
 
+#if !MSBUILD
+		static bool GetEnvironmentFlag(string name, bool defaultValue)		{			var value = Environment.GetEnvironmentVariable(name);
+			return value == null ? defaultValue : bool.Parse(value);
+		}
+#endif
+
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
@@ -72,7 +77,7 @@ namespace BooCompiler.Tests
 			_parameters = _compiler.Parameters;
 			_parameters.OutputWriter = _output = new StringWriter();
 			_parameters.Pipeline = SetUpCompilerPipeline();
-			_parameters.References.Add(typeof(NUnit.Framework.Assert).Assembly);
+			_parameters.References.Add(typeof(Assert).Assembly);
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
 			Directory.CreateDirectory(TestOutputPath);
@@ -109,8 +114,8 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Compiler.Ast.Node).Assembly);
 			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
-			CopyAssembly(typeof(NUnit.Framework.Assert).Assembly);
-			CopyAssembly(System.Reflection.Assembly.Load("BooSupportingClasses"));
+			CopyAssembly(typeof(Assert).Assembly);
+			CopyAssembly(Assembly.Load("BooSupportingClasses"));
 #if !MSBUILD
 			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
 #endif
@@ -122,7 +127,7 @@ namespace BooCompiler.Tests
 				CopyAssembly(fname);
 		}
 
-		public void CopyAssembly(System.Reflection.Assembly assembly)
+		public void CopyAssembly(Assembly assembly)
 		{
 			if (null == assembly) throw new ArgumentNullException("assembly");
 			CopyAssembly(assembly.Location);
@@ -172,16 +177,6 @@ namespace BooCompiler.Tests
 
 			pipeline.Add(new RunAssembly());
 			return pipeline;
-		}
-
-		bool GetEnvironmentFlag(string name, bool defaultValue)
-		{
-			string value = Environment.GetEnvironmentVariable(name);
-			if (null == value)
-			{
-				return defaultValue;
-			}
-			return bool.Parse(value);
 		}
 
 		protected virtual void RunCompilerTestCase(string name)
@@ -246,7 +241,7 @@ namespace BooCompiler.Tests
 					Assert.Fail(GetFirstInputName(context)
 								+ ": "
 								+ context.Errors.ToString(true)
-								+ context.Warnings.ToString());				
+								+ context.Warnings);				
 				}
 				return _output.ToString().Replace("\r\n", "\n");
 			}
@@ -288,7 +283,7 @@ namespace BooCompiler.Tests
 				_path = path;
 			}
 
-			public System.Reflection.Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+			public Assembly AssemblyResolve(object sender, ResolveEventArgs args)
 			{
 				string simpleName = GetSimpleName(args.Name);
 				string basePath = Path.Combine(_path, simpleName);
@@ -317,14 +312,14 @@ namespace BooCompiler.Tests
 			}
 		}
 
-		protected System.ResolveEventHandler InstallAssemblyResolver(string path)
+		protected ResolveEventHandler InstallAssemblyResolver(string path)
 		{
-			ResolveEventHandler handler = new ResolveEventHandler(new AssemblyResolver(path).AssemblyResolve);
+			ResolveEventHandler handler = new AssemblyResolver(path).AssemblyResolve;
 			AppDomain.CurrentDomain.AssemblyResolve += handler;
 			return handler;
 		}
 
-		protected void RemoveAssemblyResolver(System.ResolveEventHandler handler)
+		protected void RemoveAssemblyResolver(ResolveEventHandler handler)
 		{
 			AppDomain.CurrentDomain.AssemblyResolve -= handler;
 		}
