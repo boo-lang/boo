@@ -242,7 +242,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-1147-1.boo");
 		}
 		
-		[Ignore("Boo's SRE of generic base type constraint of constraint's declaring type does not work on MS.NET (2.0 at least)")][Test]
+		[Test]
 		public void BOO_1147_2()
 		{
 			RunCompilerTestCase(@"BOO-1147-2.boo");

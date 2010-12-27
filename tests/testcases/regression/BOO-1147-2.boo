@@ -1,12 +1,13 @@
-#ignore Boo's SRE of generic base type constraint of constraint's declaring type does not work on MS.NET (2.0 at least)
 """
+Internal
 """
 
 class Base[of T(Base[of T])]:
-	pass
+	def Run():
+		print typeof(T).Name
 
 class Internal(Base[of Internal]):
 	pass
 
-assert Internal() != null
+Internal().Run()
 
