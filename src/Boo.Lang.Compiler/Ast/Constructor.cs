@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class Constructor
