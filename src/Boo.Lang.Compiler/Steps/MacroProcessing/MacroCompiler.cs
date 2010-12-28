@@ -30,60 +30,60 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.MetaProgramming;
-using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
 using Module=Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	sealed class MacroCompiler : AbstractCompilerComponent
+	public class MacroCompiler
 	{
 		private static readonly object CachedTypeAnnotation = new object();
-		private ICompileUnit[] _references;
 
-		public MacroCompiler(CompilerContext context)
+		public virtual bool AlreadyCompiled(TypeDefinition node)
 		{
-			_references = context.Parameters.References.ToArray();
-			Initialize(context);
+			return node.ContainsAnnotation(CachedTypeAnnotation);
 		}
 
-		public Type Compile(TypeDefinition node)
+		public virtual Type Compile(TypeDefinition node)
 		{
-			if (node.DeclaringType is ClassDefinition)
-				return CompileNestedMacro(node);
+			var cached = CachedType(node);
+			if (cached != null)
+				return cached;
 
-			Type type = CachedType(node);
-			if (type != null) return type;
+			if (AlreadyCompiled(node))
+				return null;
 
-			if (AlreadyCompiled(node)) return null;
-
-			Type compiledType = RunCompiler(node);
+			var compiledType = IsNestedMacro(node) ? CompileNestedMacro(node) : CompileRegularMacro(node);
 			CacheType(node, compiledType);
 			return compiledType;
+		}
+
+		private static bool IsNestedMacro(TypeDefinition node)
+		{
+			return node.DeclaringType is ClassDefinition;
 		}
 
 		private Type CompileNestedMacro(TypeDefinition node)
 		{
 			Type enclosingType = Compile(node.DeclaringType);
-			if (null == enclosingType)
+			if (enclosingType == null)
 				return null;
-			Type nestedType = enclosingType.GetNestedType(node.Name);
-			CacheType(node, nestedType);
-			return nestedType;
+			return enclosingType.GetNestedType(node.Name);
 		}
 
-		private Type RunCompiler(TypeDefinition node)
+		private Type CompileRegularMacro(TypeDefinition node)
 		{
 			TraceInfo("Compiling macro '{0}'", node.FullName);
 
-			CompilerContext result = Compilation.compile_(CompileUnitFor(node), _references);
+			CompilerContext result = Compilation.compile_(CompileUnitFor(node), Context.Parameters.References.ToArray());
 			if (0 == result.Errors.Count)
 			{
 				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node.FullName, result.GeneratedAssembly);
 				return result.GeneratedAssembly.GetType(node.FullName);
 			}
-			Errors.Extend(result.Errors);
-			Warnings.Extend(result.Warnings);
+			Context.Errors.Extend(result.Errors);
+			Context.Warnings.Extend(result.Warnings);
 			return null;
 		}
 
@@ -91,14 +91,21 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		{
 			Context.TraceInfo(format, args);
 		}
-		
-		private CompileUnit CompileUnitFor(TypeDefinition node)
+
+		private EnvironmentProvision<CompilerContext> _context = new EnvironmentProvision<CompilerContext>();
+
+		protected CompilerContext Context
+		{
+			get { return _context; }
+		}
+
+		protected CompileUnit CompileUnitFor(TypeDefinition node)
 		{
 			CompileUnit unit = new CompileUnit();
 			GetModuleFor(unit, node);
 			return unit;
 		}
-		
+
 		private void GetModuleFor(CompileUnit unit, TypeDefinition node)
 		{
 			unit.Modules.Add(ModuleFor(node));
@@ -118,33 +125,30 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private static Module ModuleFor(TypeDefinition node)
 		{
-			Module m = new Module();
-			m.Namespace = SafeCleanClone(node.EnclosingModule.Namespace);
-			m.Name = node.Name;
+			var m = new Module
+						{
+							Namespace = SafeCleanClone(node.EnclosingModule.Namespace),
+							Name = node.Name
+						};
 			foreach (var i in node.EnclosingModule.Imports)
 				m.Imports.Add(i.CleanClone());
 			m.Members.Add(node.CleanClone());
 			return m;
 		}
 
-		static T SafeCleanClone<T>(T node) where T:Node
+		private static T SafeCleanClone<T>(T node) where T : Node
 		{
-			return null != node ? (T) node.CleanClone() : null;                 
+			return node != null ? (T) node.CleanClone() : null;                 
 		}
 
-		private static void CacheType(TypeDefinition node, Type type)
+		protected static void CacheType(TypeDefinition node, Type type)
 		{
 			node[CachedTypeAnnotation] = type;
 		}
 
-		private static Type CachedType(TypeDefinition node)
+		protected static Type CachedType(TypeDefinition node)
 		{
-			return node[CachedTypeAnnotation] as System.Type;
-		}
-
-		public static bool AlreadyCompiled(TypeDefinition node)
-		{
-			return node.ContainsAnnotation(CachedTypeAnnotation);
+			return node[CachedTypeAnnotation] as Type;
 		}
 	}
 }

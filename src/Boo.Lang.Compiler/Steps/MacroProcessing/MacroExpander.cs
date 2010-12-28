@@ -36,10 +36,11 @@ using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	internal sealed class MacroExpander : AbstractNamespaceSensitiveTransformerCompilerStep
+	public sealed class MacroExpander : AbstractNamespaceSensitiveTransformerCompilerStep
 	{
 		private int _expanded;
 
@@ -108,7 +109,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			Visit(module.Members);
 		}
 		
-		void ExpandOnModuleNamespace(Boo.Lang.Compiler.Ast.Module module, System.Action<Module> action)
+		void ExpandOnModuleNamespace(Module module, Action<Module> action)
 		{
 			EnterModuleNamespace(module);
 			try
@@ -205,7 +206,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			EnterNamespace(new NamespaceDelegator(CurrentNamespace, macroType));
 		}
 
-		private void EnsureNestedMacrosCanBeSeenAsMembers(IType macroType)
+		private static void EnsureNestedMacrosCanBeSeenAsMembers(IType macroType)
 		{
 			var internalMacroType = macroType as InternalClass;
 			if (null != internalMacroType)
@@ -228,10 +229,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void UnknownTypeMemberMacro(MacroStatement node)
 		{
-			if (LooksLikeOldStyleFieldDeclaration(node))
-				ProcessingError(CompilerErrorFactory.UnknownClassMacroWithFieldHint(node, node.Name));
-			else
-				ProcessingError(CompilerErrorFactory.UnknownMacro(node, node.Name));
+			var error = LooksLikeOldStyleFieldDeclaration(node)
+				? CompilerErrorFactory.UnknownClassMacroWithFieldHint(node, node.Name)
+				: CompilerErrorFactory.UnknownMacro(node, node.Name);
+			ProcessingError(error);
 		}
 
 		private static bool LooksLikeOldStyleFieldDeclaration(MacroStatement node)
@@ -265,15 +266,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void ProcessMacro(IType macroType, MacroStatement node)
 		{
-			ExternalType type = macroType as ExternalType;
-			if (null == type)
+			var externalType = macroType as ExternalType;
+			if (externalType == null)
 			{
-				InternalClass klass = (InternalClass) macroType;
-				ProcessInternalMacro(klass, node);
+				InternalClass internalType = (InternalClass) macroType;
+				ProcessInternalMacro(internalType, node);
 				return;
 			}
 
-			ProcessMacro(type.ActualType, node);
+			ProcessMacro(externalType.ActualType, node);
 		}
 
 		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)
@@ -285,9 +286,10 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				return;
 			}
 
-			bool firstTry = ! MacroCompiler.AlreadyCompiled(macroDefinition);
-			Type macroType = new MacroCompiler(Context).Compile(macroDefinition);
-			if (null == macroType)
+			var macroCompiler = My<MacroCompiler>.Instance;
+			bool firstTry = !macroCompiler.AlreadyCompiled(macroDefinition);
+			Type macroType = macroCompiler.Compile(macroDefinition);
+			if (macroType == null)
 			{
 				if (firstTry)
 					ProcessingError(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
@@ -354,25 +356,19 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			return Visit(modifiedExpansion);
 		}
 
-		private Statement ApplyMacroModifierToExpansion(MacroStatement node, Statement expansion)
+		private static Statement ApplyMacroModifierToExpansion(MacroStatement node, Statement expansion)
 		{
-			if (null == node.Modifier)
+			if (node.Modifier == null)
 				return expansion;
 			return NormalizeStatementModifiers.CreateModifiedStatement(node.Modifier, expansion);
 		}
 
 		private void TreatMacroAsMethodInvocation(MacroStatement node)
 		{
-			MethodInvocationExpression invocation = new MethodInvocationExpression(
-				node.LexicalInfo,
-				new ReferenceExpression(node.LexicalInfo, node.Name));
-			invocation.Arguments = node.Arguments;
-			if (node.ContainsAnnotation("compound")
-			    || !IsNullOrEmpty(node.Body))
-			{
+			var invocation = new MethodInvocationExpression(node.LexicalInfo, new ReferenceExpression(node.LexicalInfo, node.Name))
+			                 	{ Arguments = node.Arguments };
+			if (node.ContainsAnnotation("compound") || !IsNullOrEmpty(node.Body))
 				invocation.Arguments.Add(new BlockExpression(node.Body));
-			}
-
 			ReplaceCurrentNode(new ExpressionStatement(node.LexicalInfo, invocation, node.Modifier));
 		}
 		
@@ -394,7 +390,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			return macro.Expand(node);
 		}
 
-		private Statement ExpandGeneratorMacro(IAstGeneratorMacro macroType, MacroStatement node)
+		private static Statement ExpandGeneratorMacro(IAstGeneratorMacro macroType, MacroStatement node)
 		{
 			IEnumerable<Node> generatedNodes = macroType.ExpandGenerator(node);
 			if (null == generatedNodes)
@@ -405,16 +401,13 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private IEntity ResolveMacroName(MacroStatement node)
 		{
-			string macroTypeName = BuildMacroTypeName(node.Name);
-			IEntity entity = ResolvePreferringInternalMacros(macroTypeName);
-			if (entity is IType)
-				return entity;
-			else if (null == entity)
-				entity = ResolvePreferringInternalMacros(node.Name);
+			var macroTypeName = BuildMacroTypeName(node.Name);
+			var entity = ResolvePreferringInternalMacros(macroTypeName)
+				?? ResolvePreferringInternalMacros(node.Name);
 
 			if (entity is IType)
 				return entity;
-			else if (null == entity)
+			if (entity == null)
 				return null;
 
 			//we got something interesting, check if it is/has an extension method
@@ -437,9 +430,9 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		{
 			if (null == extensions)
 				return null;
-			foreach (IEntity entity in extensions.Entities)
+			foreach (var entity in extensions.Entities)
 			{
-				IEntity extensionType = ResolveMacroExtensionType(node, entity as IMethod);
+				var extensionType = ResolveMacroExtensionType(node, entity as IMethod);
 				if (null != extensionType)
 					return extensionType;
 			}

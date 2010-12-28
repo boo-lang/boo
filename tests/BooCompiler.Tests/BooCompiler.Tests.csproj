@@ -162,6 +162,7 @@
     <Compile Include="StatementsIntegrationTestFixture.cs" />
     <Compile Include="StdlibTestFixture.cs" />
     <Compile Include="Steps\InjectImplicitBooleanConversionsTest.cs" />
+    <Compile Include="Steps\MacroProcessing\MacroExpanderTest.cs" />
     <Compile Include="SupportingClasses\AbstractClass.cs" />
     <Compile Include="SupportingClasses\BaseInterface.cs" />
     <Compile Include="SupportingClasses\BOO313BaseClass.cs" />
