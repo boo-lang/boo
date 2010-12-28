@@ -27,8 +27,8 @@
 #endregion
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security;
-using System.Security.Permissions;
 
 [assembly: AssemblyTitle("boo - an extensible programming language for the CLI")]
 [assembly: AssemblyDescription("")]

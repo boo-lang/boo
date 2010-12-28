@@ -93,9 +93,6 @@ namespace Boo.Lang.Compiler
 		{
 		}
 
-		/// <summary>
-		/// Error code.
-		/// </summary>
 		public string Code
 		{
 			get { return _code; }
