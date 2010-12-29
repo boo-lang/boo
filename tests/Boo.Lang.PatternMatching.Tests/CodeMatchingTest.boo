@@ -82,6 +82,35 @@ class CodeMatchingTest:
 		match code:
 			case [| foo |]:
 				pass
+				
+	[Test]
+	def TypeExtractionFromGenericReference():
+		code = [| array of int |]
+		match code:
+			case [| array of $type |]:
+				assert type.Matches(SimpleTypeReference("int"))
+				
+	[Test]
+	def TypeAndArgumentExtractionFromGenericInvocation():
+		code = [| array of int(42) |]
+		match code:
+			case [| array of $type($count) |]:
+				assert type.Matches(SimpleTypeReference("int"))
+				assert count.Matches([| 42 |])
+				
+	[Test]
+	def TypeExtractionFromGenericTypeReference():
+		code = [| typeof(List of int) |]
+		match code:
+			case [| typeof(List of $type) |]:
+				assert type.Matches(SimpleTypeReference("int"))
+				
+	[Test]
+	def TypeExtractionFromDeepGenericTypeReference():
+		code = [| typeof(List of List of int) |]
+		match code:
+			case [| typeof(List of List of $type) |]:
+				assert type.Matches(SimpleTypeReference("int"))
 		
 	[Test]
 	def FullyQualifiedNameMatching():

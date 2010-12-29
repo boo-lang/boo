@@ -256,9 +256,14 @@ class PatternExpander:
 		override def OnMemberReferenceExpression(node as MemberReferenceExpression):
 			Push node, [| $Ast.MemberReferenceExpression(Target: $(Expand(node.Target)), Name: $(node.Name)) |] 
 			
+		override def OnGenericReferenceExpression(node as GenericReferenceExpression):
+			Push node, [| $Ast.GenericReferenceExpression(Target: $(Expand(node.Target)), GenericArguments: $(ExpandFixedSize(node.GenericArguments))) |]
+			
 		override def OnSimpleTypeReference(node as SimpleTypeReference):
 			Push node, [| $Ast.SimpleTypeReference(Name: $(node.Name)) |]
 			
+		override def OnGenericTypeReference(node as GenericTypeReference):
+			Push node, [| $Ast.GenericTypeReference(Name: $(node.Name), GenericArguments: $(ExpandFixedSize(node.GenericArguments))) |]
 		
 	def ObjectPatternFor(node as QuasiquoteExpression):
 		return QuasiquotePatternBuilder(self).Build(node)
