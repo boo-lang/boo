@@ -150,6 +150,22 @@ class CodeMatchingTest:
 				assert SimpleTypeReference("Foo").Matches(type)
 				
 	[Test]
+	def SimpleTypeReferenceSuccess():
+		code = [| typeof(Foo) |]
+		match code:
+			case [| typeof(Foo) |]:
+				pass
+				
+	[Test]
+	def SimpleTypeReferenceFailure():
+		code = [| typeof(Foo) |]
+		match code:
+			case [| typeof(Bar) |]:
+				Assert.Fail("wrong match")
+			otherwise:
+				pass
+				
+	[Test]
 	def Self():
 		code = [| self |]
 		match code:
