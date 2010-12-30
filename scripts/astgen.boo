@@ -218,6 +218,7 @@ start = date.Now
 model = Model(parse("ast.model.boo"))
 applyModelTemplate(model, "IAstVisitor.cs", "IAstVisitor.Generated.cs", true)
 applyModelTemplate(model, "DepthFirstVisitor.cs", "Impl/DepthFirstVisitor.cs", true)
+applyModelTemplate(model, "FastDepthFirstVisitor.cs", "Impl/FastDepthFirstVisitor.cs", true)
 applyModelTemplate(model, "DepthFirstTransformer.cs", "Impl/DepthFirstTransformer.cs", true)
 applyModelTemplate(model, "CodeSerializer.cs", "Impl/CodeSerializer.cs", true)
 applyModelTemplate(model, "NodeType.cs", "NodeType.Generated.cs", true)
