@@ -23,8 +23,26 @@ for item in model.GetConcreteAstNodes():
 		{				
 <%
 		for field in fields:
-%>			Visit(node.${field.Name});
+			localName = GetParameterName(field)
+			if model.IsCollectionField(field):
+%>			{
+				var ${localName} = node.${field.Name};
+				if (${localName} != null)
+				{
+					var count = ${localName}.Count;
+					for (var i=0; i<count; ++i)
+						${localName}[i].Accept(this);
+				}
+			}
 <%
+			else:
+%>			{
+				var ${localName} = node.${field.Name};
+				if (${localName} != null)
+					${localName}.Accept(this);
+			}
+<%
+			end
 		end
 %>		}
 <%
