@@ -154,7 +154,7 @@ class CodeTemplate(AbstractTemplate):
 		name = field.Name
 		name = name[0:1].ToLower() + name[1:]
 		if name in ("namespace", "operator"):
-			name += "_"
+			return "@" + name
 		return name
 
 def read(fname as string):
@@ -217,6 +217,7 @@ start = date.Now
 
 model = Model(parse("ast.model.boo"))
 applyModelTemplate(model, "IAstVisitor.cs", "IAstVisitor.Generated.cs", true)
+applyModelTemplate(model, "DepthFirstGuide.cs", "Impl/DepthFirstGuide.cs", true)
 applyModelTemplate(model, "DepthFirstVisitor.cs", "Impl/DepthFirstVisitor.cs", true)
 applyModelTemplate(model, "FastDepthFirstVisitor.cs", "Impl/FastDepthFirstVisitor.cs", true)
 applyModelTemplate(model, "DepthFirstTransformer.cs", "Impl/DepthFirstTransformer.cs", true)
