@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 	/// Pre-binds methods and constructors before resolving type references, 
 	/// to enable correct resolution of generic type references.
 	/// </summary>
-	public class BindMethods : AbstractVisitorCompilerStep, ITypeMemberReifier
+	public class BindMethods : AbstractFastVisitorCompilerStep, ITypeMemberReifier
 	{
 		private InternalTypeSystemProvider _internalTypeSystemProvider;
 

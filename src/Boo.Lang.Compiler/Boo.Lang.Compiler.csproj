@@ -197,6 +197,7 @@
     <Compile Include="Ast\Impl\DeclarationCollectionImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationImpl.cs" />
     <Compile Include="Ast\Impl\DeclarationStatementImpl.cs" />
+    <Compile Include="Ast\Impl\DepthFirstGuide.cs" />
     <Compile Include="Ast\Impl\DepthFirstTransformer.cs" />
     <Compile Include="Ast\Impl\DepthFirstVisitor.cs" />
     <Compile Include="Ast\Impl\DestructorImpl.cs" />
@@ -214,6 +215,7 @@
     <Compile Include="Ast\Impl\ExpressionPairImpl.cs" />
     <Compile Include="Ast\Impl\ExpressionStatementImpl.cs" />
     <Compile Include="Ast\Impl\ExtendedGeneratorExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\FastDepthFirstVisitor.cs" />
     <Compile Include="Ast\Impl\FieldImpl.cs" />
     <Compile Include="Ast\Impl\ForStatementImpl.cs" />
     <Compile Include="Ast\Impl\GeneratorExpressionCollectionImpl.cs" />
@@ -417,6 +419,7 @@
     <Compile Include="Services\LanguageAmbiance.cs" />
     <Compile Include="Services\UniqueNameProvider.cs" />
     <Compile Include="Steps\AbstractCompilerStep.cs" />
+    <Compile Include="Steps\AbstractFastVisitorCompilerStep.cs" />
     <Compile Include="Steps\AbstractNamespaceSensitiveCompilerStep.cs" />
     <Compile Include="Steps\AbstractNamespaceSensitiveVisitorCompilerStep.cs" />
     <Compile Include="Steps\AbstractTransformerCompilerStep.cs" />

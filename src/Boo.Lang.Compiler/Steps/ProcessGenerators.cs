@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var collector = new ForeignReferenceCollector();
 			collector.CurrentType = (IType) AstUtil.GetParentClass(node).Entity;
-			collector.Visit(node);
+			node.Accept(collector);
 
 			var processor = new GeneratorExpressionProcessor(Context, collector, node);
 			processor.Run();

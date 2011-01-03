@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Steps
 {
 	/// <summary>
 	/// </summary>
-	public class VerifyExtensionMethods : AbstractVisitorCompilerStep
+	public class VerifyExtensionMethods : AbstractFastVisitorCompilerStep
 	{
 		public override void OnConstructor(Constructor node)
 		{

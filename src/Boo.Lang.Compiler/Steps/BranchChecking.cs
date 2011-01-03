@@ -141,7 +141,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 	}
 	
-	public class BranchChecking : AbstractVisitorCompilerStep
+	public class BranchChecking : AbstractFastVisitorCompilerStep
 	{
 		private InternalMethod _currentMethod;
 
@@ -170,8 +170,10 @@ namespace Boo.Lang.Compiler.Steps
 			_state.LeaveExceptionHandler();
 		}
 
-		override public void LeaveRaiseStatement(RaiseStatement node)
+		override public void OnRaiseStatement(RaiseStatement node)
 		{
+			base.OnRaiseStatement(node);
+
 			if (node.Exception != null) return;
 			if (_state.InExceptionHandler) return;
 			Error(CompilerErrorFactory.ReRaiseOutsideExceptionHandler(node));

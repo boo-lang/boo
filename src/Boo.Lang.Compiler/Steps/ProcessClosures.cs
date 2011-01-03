@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				collector.CurrentMethod = closureEntity.Method;
 				collector.CurrentType = (IType)closureEntity.DeclaringType;
-				collector.Visit(closureEntity.Method.Body);
+				closureEntity.Method.Body.Accept(collector);
 				
 				if (collector.ContainsForeignLocalReferences)
 				{

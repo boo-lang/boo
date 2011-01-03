@@ -35,8 +35,7 @@ using Boo.Lang.Environments;
 namespace Boo.Lang.Compiler.Steps
 {
 	public abstract class AbstractVisitorCompilerStep : DepthFirstVisitor, ICompilerStep
-	{
-		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
+	{	
 		protected CompilerContext _context;
 
 		protected CompilerContext Context
@@ -81,6 +80,8 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _typeSystemServices; }
 		}
 
+		private EnvironmentProvision<TypeSystemServices> _typeSystemServices;
+
 		public override void OnQuasiquoteExpression(QuasiquoteExpression node)
 		{
 			// ignore quasi-quotes
@@ -114,22 +115,22 @@ namespace Boo.Lang.Compiler.Steps
 			node.Entity = tag;
 		}
 
-		public IType GetEntity(TypeReference node)
+		protected IType GetEntity(TypeReference node)
 		{
 			return (IType)TypeSystemServices.GetEntity(node);
 		}
-		
-		public IEntity GetEntity(Node node)
+
+		protected IEntity GetEntity(Node node)
 		{
 			return TypeSystemServices.GetEntity(node);
 		}
 
-		public IMethod GetEntity(Method node)
+		protected IMethod GetEntity(Method node)
 		{
 			return (IMethod)TypeSystemServices.GetEntity(node);
 		}
 
-		public IProperty GetEntity(Property node)
+		protected IProperty GetEntity(Property node)
 		{
 			return (IProperty)TypeSystemServices.GetEntity(node);
 		}
@@ -153,11 +154,6 @@ namespace Boo.Lang.Compiler.Steps
 		public IType GetType(Node node)
 		{
 			return TypeSystemServices.GetType(node);
-		}
-		
-		public InternalLocal GetInternalLocal(Node local)
-		{
-			return (InternalLocal)GetEntity(local);
 		}
 		
 		protected void NotImplemented(Node node, string feature)

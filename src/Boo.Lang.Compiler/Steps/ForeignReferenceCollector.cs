@@ -38,7 +38,7 @@ using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ForeignReferenceCollector : DepthFirstVisitor
+	public class ForeignReferenceCollector : FastDepthFirstVisitor
 	{
 		IType _currentType;
 		

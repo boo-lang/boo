@@ -31,15 +31,17 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class CheckLiteralValues : AbstractVisitorCompilerStep
+	public class CheckLiteralValues : AbstractFastVisitorCompilerStep
 	{
 		override public void OnModule(Module node)
 		{
 			Visit(node.Members);
 		}
 
-		override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
+		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
+			base.OnArrayLiteralExpression(node);
+
 			IType expectedType = GetExpressionType(node).ElementType;
 			if (!TypeSystemServices.IsPrimitiveNumber(expectedType))
 				return;
@@ -57,8 +59,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		override public void LeaveBinaryExpression(BinaryExpression node)
+		override public void OnBinaryExpression(BinaryExpression node)
 		{
+			base.OnBinaryExpression(node);
+
 			if (node.Operator != BinaryOperatorType.Assign
 			    || node.Right.NodeType != NodeType.IntegerLiteralExpression)
 				return;
@@ -70,8 +74,10 @@ namespace Boo.Lang.Compiler.Steps
 			AssertLiteralInRange((IntegerLiteralExpression) node.Right, expectedType);
 		}
 
-		override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
+		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
+			base.OnMethodInvocationExpression(node);
+
 			if (0 == node.Arguments.Count)
 				return;
 
@@ -93,8 +99,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		public override void LeaveExpressionStatement(ExpressionStatement node)
+		public override void OnExpressionStatement(ExpressionStatement node)
 		{
+			base.OnExpressionStatement(node);
+
 			IntegerLiteralExpression literal = node.Expression as IntegerLiteralExpression;
 			if (null == literal)
 				return;

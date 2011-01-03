@@ -73,7 +73,7 @@ namespace Boo.Lang.Compiler.Ast
 		}
 	}
 
-	public partial class CodeSerializer : DepthFirstVisitor
+	public partial class CodeSerializer : FastDepthFirstVisitor
 	{
 		public static string LiftName(string value)
 		{

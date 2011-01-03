@@ -193,7 +193,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		}
 		
 		
-		sealed class LabelCollector : DepthFirstVisitor
+		sealed class LabelCollector : FastDepthFirstVisitor
 		{
 			public static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
 

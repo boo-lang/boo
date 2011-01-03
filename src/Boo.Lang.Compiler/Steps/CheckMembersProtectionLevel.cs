@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Steps
 
 	/// <summary>
 	/// </summary>
-	public class CheckMembersProtectionLevel : AbstractVisitorCompilerStep
+	public class CheckMembersProtectionLevel : AbstractFastVisitorCompilerStep
 	{
 		private IAccessibilityChecker _checker = AccessibilityChecker.Global;
 
@@ -46,8 +46,10 @@ namespace Boo.Lang.Compiler.Steps
 			_checker = saved;
 		}
 		
-		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
+			base.OnMemberReferenceExpression(node);
+
 			OnReferenceExpression(node);
 		}
 		

@@ -1148,7 +1148,7 @@ namespace Boo.Lang.Compiler.Steps
 			_context.TraceInfo("{0}: Method '{1}' overrides '{2}'", method.LexicalInfo, method.Name, baseMethod);
 		}
 
-		sealed class ReturnExpressionFinder : DepthFirstVisitor
+		sealed class ReturnExpressionFinder : FastDepthFirstVisitor
 		{
 			bool _hasReturnStatements;
 

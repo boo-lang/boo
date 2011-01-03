@@ -32,7 +32,7 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ExpandVarArgsMethodInvocations : AbstractVisitorCompilerStep
+	public class ExpandVarArgsMethodInvocations : AbstractFastVisitorCompilerStep
 	{
 		override public void Run()
 		{
@@ -41,8 +41,10 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit);
 		}
 
-		public override void LeaveMethodInvocationExpression(MethodInvocationExpression node)
+		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
+			base.OnMethodInvocationExpression(node);
+
 			var method = node.Target.Entity as IMethod;
 			if (null != method && method.AcceptVarArgs)
 			{

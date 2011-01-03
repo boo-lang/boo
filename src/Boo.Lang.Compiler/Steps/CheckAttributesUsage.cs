@@ -37,10 +37,11 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.TypeSystem;
 
 
-	public class CheckAttributesUsage: AbstractVisitorCompilerStep
+	public class CheckAttributesUsage: AbstractFastVisitorCompilerStep
 	{
-		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
+			base.OnMemberReferenceExpression(node);
 			OnReferenceExpression(node);
 		}
 

@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Inheritance;
@@ -34,7 +35,7 @@ using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class BindBaseTypes : AbstractVisitorCompilerStep, ITypeMemberReifier
+	public class BindBaseTypes : AbstractFastVisitorCompilerStep, ITypeMemberReifier
 	{
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
@@ -60,6 +61,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ResolveBaseTypes(new Boo.Lang.List(), node);
 			CheckInterfaceBaseTypes(node);
+		}
+
+		public override void OnMethod(Method node)
+		{
+			// skip method bodies
 		}
 		
 		void CheckBaseTypes(ClassDefinition node)

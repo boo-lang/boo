@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.TypeSystem;
 
 	[Serializable]
-	public class BindGenericParameters : AbstractVisitorCompilerStep, ITypeMemberReifier
+	public class BindGenericParameters : AbstractFastVisitorCompilerStep, ITypeMemberReifier
 	{
 		public override void OnGenericParameterDeclaration(GenericParameterDeclaration node)
 		{

@@ -49,9 +49,10 @@ namespace Boo.Lang.Compiler.Ast
 				var modules = node.Modules;
 				if (modules != null)
 				{
-					var count = modules.Count;
+					var innerList = modules.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						modules[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnCompileUnit;
@@ -129,9 +130,10 @@ namespace Boo.Lang.Compiler.Ast
 				var parameters = node.Parameters;
 				if (parameters != null)
 				{
-					var count = parameters.Count;
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						parameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -152,9 +154,10 @@ namespace Boo.Lang.Compiler.Ast
 				var genericArguments = node.GenericArguments;
 				if (genericArguments != null)
 				{
-					var count = genericArguments.Count;
+					var innerList = genericArguments.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericArguments[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnGenericTypeReference;
@@ -180,27 +183,30 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var parameters = node.Parameters;
 				if (parameters != null)
 				{
-					var count = parameters.Count;
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						parameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -212,9 +218,10 @@ namespace Boo.Lang.Compiler.Ast
 				var returnTypeAttributes = node.ReturnTypeAttributes;
 				if (returnTypeAttributes != null)
 				{
-					var count = returnTypeAttributes.Count;
+					var innerList = returnTypeAttributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						returnTypeAttributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnCallableDefinition;
@@ -259,36 +266,40 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var members = node.Members;
 				if (members != null)
 				{
-					var count = members.Count;
+					var innerList = members.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						members[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var baseTypes = node.BaseTypes;
 				if (baseTypes != null)
 				{
-					var count = baseTypes.Count;
+					var innerList = baseTypes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						baseTypes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -300,9 +311,10 @@ namespace Boo.Lang.Compiler.Ast
 				var imports = node.Imports;
 				if (imports != null)
 				{
-					var count = imports.Count;
+					var innerList = imports.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						imports[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -314,9 +326,10 @@ namespace Boo.Lang.Compiler.Ast
 				var assemblyAttributes = node.AssemblyAttributes;
 				if (assemblyAttributes != null)
 				{
-					var count = assemblyAttributes.Count;
+					var innerList = assemblyAttributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						assemblyAttributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnModule;
@@ -332,36 +345,40 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var members = node.Members;
 				if (members != null)
 				{
-					var count = members.Count;
+					var innerList = members.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						members[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var baseTypes = node.BaseTypes;
 				if (baseTypes != null)
 				{
-					var count = baseTypes.Count;
+					var innerList = baseTypes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						baseTypes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnClassDefinition;
@@ -377,36 +394,40 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var members = node.Members;
 				if (members != null)
 				{
-					var count = members.Count;
+					var innerList = members.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						members[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var baseTypes = node.BaseTypes;
 				if (baseTypes != null)
 				{
-					var count = baseTypes.Count;
+					var innerList = baseTypes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						baseTypes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnStructDefinition;
@@ -422,36 +443,40 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var members = node.Members;
 				if (members != null)
 				{
-					var count = members.Count;
+					var innerList = members.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						members[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var baseTypes = node.BaseTypes;
 				if (baseTypes != null)
 				{
-					var count = baseTypes.Count;
+					var innerList = baseTypes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						baseTypes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnInterfaceDefinition;
@@ -467,36 +492,40 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var members = node.Members;
 				if (members != null)
 				{
-					var count = members.Count;
+					var innerList = members.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						members[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var baseTypes = node.BaseTypes;
 				if (baseTypes != null)
 				{
-					var count = baseTypes.Count;
+					var innerList = baseTypes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						baseTypes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnEnumDefinition;
@@ -512,9 +541,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -535,9 +565,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -563,18 +594,20 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var parameters = node.Parameters;
 				if (parameters != null)
 				{
-					var count = parameters.Count;
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						parameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -610,9 +643,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -658,9 +692,10 @@ namespace Boo.Lang.Compiler.Ast
 				var parameters = node.Parameters;
 				if (parameters != null)
 				{
-					var count = parameters.Count;
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						parameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -686,27 +721,30 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var parameters = node.Parameters;
 				if (parameters != null)
 				{
-					var count = parameters.Count;
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						parameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -718,9 +756,10 @@ namespace Boo.Lang.Compiler.Ast
 				var returnTypeAttributes = node.ReturnTypeAttributes;
 				if (returnTypeAttributes != null)
 				{
-					var count = returnTypeAttributes.Count;
+					var innerList = returnTypeAttributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						returnTypeAttributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -732,9 +771,10 @@ namespace Boo.Lang.Compiler.Ast
 				var locals = node.Locals;
 				if (locals != null)
 				{
-					var count = locals.Count;
+					var innerList = locals.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						locals[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -755,27 +795,30 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var parameters = node.Parameters;
 				if (parameters != null)
 				{
-					var count = parameters.Count;
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						parameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -787,9 +830,10 @@ namespace Boo.Lang.Compiler.Ast
 				var returnTypeAttributes = node.ReturnTypeAttributes;
 				if (returnTypeAttributes != null)
 				{
-					var count = returnTypeAttributes.Count;
+					var innerList = returnTypeAttributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						returnTypeAttributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -801,9 +845,10 @@ namespace Boo.Lang.Compiler.Ast
 				var locals = node.Locals;
 				if (locals != null)
 				{
-					var count = locals.Count;
+					var innerList = locals.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						locals[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -824,27 +869,30 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var parameters = node.Parameters;
 				if (parameters != null)
 				{
-					var count = parameters.Count;
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						parameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var genericParameters = node.GenericParameters;
 				if (genericParameters != null)
 				{
-					var count = genericParameters.Count;
+					var innerList = genericParameters.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericParameters[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -856,9 +904,10 @@ namespace Boo.Lang.Compiler.Ast
 				var returnTypeAttributes = node.ReturnTypeAttributes;
 				if (returnTypeAttributes != null)
 				{
-					var count = returnTypeAttributes.Count;
+					var innerList = returnTypeAttributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						returnTypeAttributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -870,9 +919,10 @@ namespace Boo.Lang.Compiler.Ast
 				var locals = node.Locals;
 				if (locals != null)
 				{
-					var count = locals.Count;
+					var innerList = locals.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						locals[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -898,9 +948,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnParameterDeclaration;
@@ -916,9 +967,10 @@ namespace Boo.Lang.Compiler.Ast
 				var baseTypes = node.BaseTypes;
 				if (baseTypes != null)
 				{
-					var count = baseTypes.Count;
+					var innerList = baseTypes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						baseTypes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnGenericParameterDeclaration;
@@ -948,18 +1000,20 @@ namespace Boo.Lang.Compiler.Ast
 				var arguments = node.Arguments;
 				if (arguments != null)
 				{
-					var count = arguments.Count;
+					var innerList = arguments.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						arguments[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var namedArguments = node.NamedArguments;
 				if (namedArguments != null)
 				{
-					var count = namedArguments.Count;
+					var innerList = namedArguments.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						namedArguments[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnAttribute;
@@ -1027,9 +1081,10 @@ namespace Boo.Lang.Compiler.Ast
 				var statements = node.Statements;
 				if (statements != null)
 				{
-					var count = statements.Count;
+					var innerList = statements.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						statements[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnBlock;
@@ -1074,9 +1129,10 @@ namespace Boo.Lang.Compiler.Ast
 				var arguments = node.Arguments;
 				if (arguments != null)
 				{
-					var count = arguments.Count;
+					var innerList = arguments.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						arguments[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1107,9 +1163,10 @@ namespace Boo.Lang.Compiler.Ast
 				var exceptionHandlers = node.ExceptionHandlers;
 				if (exceptionHandlers != null)
 				{
-					var count = exceptionHandlers.Count;
+					var innerList = exceptionHandlers.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						exceptionHandlers[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1217,9 +1274,10 @@ namespace Boo.Lang.Compiler.Ast
 				var declarations = node.Declarations;
 				if (declarations != null)
 				{
-					var count = declarations.Count;
+					var innerList = declarations.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						declarations[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1379,9 +1437,10 @@ namespace Boo.Lang.Compiler.Ast
 				var declarations = node.Declarations;
 				if (declarations != null)
 				{
-					var count = declarations.Count;
+					var innerList = declarations.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						declarations[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1455,18 +1514,20 @@ namespace Boo.Lang.Compiler.Ast
 				var arguments = node.Arguments;
 				if (arguments != null)
 				{
-					var count = arguments.Count;
+					var innerList = arguments.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						arguments[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
 				var namedArguments = node.NamedArguments;
 				if (namedArguments != null)
 				{
-					var count = namedArguments.Count;
+					var innerList = namedArguments.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						namedArguments[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnMethodInvocationExpression;
@@ -1568,9 +1629,10 @@ namespace Boo.Lang.Compiler.Ast
 				var genericArguments = node.GenericArguments;
 				if (genericArguments != null)
 				{
-					var count = genericArguments.Count;
+					var innerList = genericArguments.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						genericArguments[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnGenericReferenceExpression;
@@ -1743,9 +1805,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1771,9 +1834,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1799,9 +1863,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1827,9 +1892,10 @@ namespace Boo.Lang.Compiler.Ast
 				var expressions = node.Expressions;
 				if (expressions != null)
 				{
-					var count = expressions.Count;
+					var innerList = expressions.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						expressions[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnExpressionInterpolationExpression;
@@ -1845,9 +1911,10 @@ namespace Boo.Lang.Compiler.Ast
 				var items = node.Items;
 				if (items != null)
 				{
-					var count = items.Count;
+					var innerList = items.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						items[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnHashLiteralExpression;
@@ -1863,9 +1930,10 @@ namespace Boo.Lang.Compiler.Ast
 				var items = node.Items;
 				if (items != null)
 				{
-					var count = items.Count;
+					var innerList = items.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						items[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnListLiteralExpression;
@@ -1900,9 +1968,10 @@ namespace Boo.Lang.Compiler.Ast
 				var items = node.Items;
 				if (items != null)
 				{
-					var count = items.Count;
+					var innerList = items.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						items[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1928,9 +1997,10 @@ namespace Boo.Lang.Compiler.Ast
 				var declarations = node.Declarations;
 				if (declarations != null)
 				{
-					var count = declarations.Count;
+					var innerList = declarations.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						declarations[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{
@@ -1956,9 +2026,10 @@ namespace Boo.Lang.Compiler.Ast
 				var items = node.Items;
 				if (items != null)
 				{
-					var count = items.Count;
+					var innerList = items.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						items[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnExtendedGeneratorExpression;
@@ -2003,9 +2074,10 @@ namespace Boo.Lang.Compiler.Ast
 				var indices = node.Indices;
 				if (indices != null)
 				{
-					var count = indices.Count;
+					var innerList = indices.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						indices[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			var handler = OnSlicingExpression;
@@ -2097,9 +2169,10 @@ namespace Boo.Lang.Compiler.Ast
 				var attributes = node.Attributes;
 				if (attributes != null)
 				{
-					var count = attributes.Count;
+					var innerList = attributes.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						attributes[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 			{

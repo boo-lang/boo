@@ -35,7 +35,7 @@ namespace Boo.Lang.Compiler.Steps
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
-	public class IntroduceModuleClasses : AbstractVisitorCompilerStep
+	public class IntroduceModuleClasses : AbstractFastVisitorCompilerStep
 	{
 		public const string ModuleAttributeName = "System.Runtime.CompilerServices.CompilerGlobalScopeAttribute";
 		

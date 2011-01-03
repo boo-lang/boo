@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 {
 	/// <summary>
 	/// </summary>
-	public class TextEmitter : Boo.Lang.Compiler.Ast.DepthFirstVisitor
+	public class TextEmitter : FastDepthFirstVisitor
 	{
 		protected TextWriter _writer;
 		

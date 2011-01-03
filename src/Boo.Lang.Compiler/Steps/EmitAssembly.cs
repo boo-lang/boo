@@ -72,7 +72,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 	}
 
-	public class EmitAssembly : AbstractVisitorCompilerStep
+	public class EmitAssembly : AbstractFastVisitorCompilerStep
 	{
 		static ConstructorInfo DebuggableAttribute_Constructor = Methods.ConstructorOf(() => new DebuggableAttribute(true, true));
 
@@ -215,13 +215,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		void GatherAssemblyAttributes()
 		{
-			foreach (Module module in CompileUnit.Modules)
-			{
-				foreach (Attribute attribute in module.AssemblyAttributes)
-				{
+			foreach (var module in CompileUnit.Modules)
+				foreach (var attribute in module.AssemblyAttributes)
 					_assemblyAttributes.Add(attribute);
-				}
-			}
 		}
 
 		void DefineTypes()
@@ -246,7 +242,7 @@ namespace Boo.Lang.Compiler.Steps
 			CreateTypes(types);
 		}
 
-		sealed class AttributeEmitVisitor : DepthFirstVisitor
+		sealed class AttributeEmitVisitor : FastDepthFirstVisitor
 		{
 			EmitAssembly _emitter;
 
@@ -294,18 +290,21 @@ namespace Boo.Lang.Compiler.Steps
 				_emitter.EmitParameterAttributes(node);
 			}
 
-			public override void LeaveClassDefinition(ClassDefinition node)
+			public override void OnClassDefinition(ClassDefinition node)
 			{
+				base.OnClassDefinition(node);
 				_emitter.EmitTypeAttributes(node);
 			}
 
-			public override void LeaveInterfaceDefinition(InterfaceDefinition node)
+			public override void OnInterfaceDefinition(InterfaceDefinition node)
 			{
+				base.OnInterfaceDefinition(node);
 				_emitter.EmitTypeAttributes(node);
 			}
 
-			public override void LeaveEnumDefinition(EnumDefinition node)
+			public override void OnEnumDefinition(EnumDefinition node)
 			{
+				base.OnEnumDefinition(node);
 				_emitter.EmitTypeAttributes(node);
 			}
 		}
@@ -972,14 +971,12 @@ namespace Boo.Lang.Compiler.Steps
 			NotImplemented("Unpacking");
 		}
 
-		override public bool EnterExpressionStatement(ExpressionStatement node)
+		override public void OnExpressionStatement(ExpressionStatement node)
 		{
 			EmitDebugInfo(node);
-			return true;
-		}
 
-		override public void LeaveExpressionStatement(ExpressionStatement node)
-		{
+			base.OnExpressionStatement(node);
+
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
 			// the stack sane
@@ -2334,7 +2331,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (string conditionalSymbol in GetConditionalSymbols(method))
 				if (!Parameters.Defines.ContainsKey(conditionalSymbol))
 				{
-					_context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), conditionalSymbol);
+					Context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), conditionalSymbol);
 					return false;
 				}
 			return true;
@@ -3545,7 +3542,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			// ensure there is no duplicate emitted
 			if (_dbgSymbols.Contains(start)) {
-				_context.TraceInfo("duplicate symbol emit attempt for '{0}' : '{1}'.", start.ToString(), startNode.ToString());
+				Context.TraceInfo("duplicate symbol emit attempt for '{0}' : '{1}'.", start.ToString(), startNode.ToString());
 				return false;
 			}
 			if (_dbgSymbols.Count >= _DBG_SYMBOLS_QUEUE_CAPACITY) _dbgSymbols.Dequeue();
@@ -4100,7 +4097,7 @@ namespace Boo.Lang.Compiler.Steps
 			EmitRuntimeCoercionIfNeeded(expectedType, actualType);
 
 			// In order to cast to a reference type we emit a castclass opcode
-			_context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
+			Context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
 			_il.Emit(OpCodes.Castclass, GetSystemType(expectedType));
 		}
 
@@ -5071,6 +5068,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			IType entity = type.Entity as IType;
 			return null != entity && entity.IsValueType;
+		}
+
+		InternalLocal GetInternalLocal(Node local)
+		{
+			return (InternalLocal)GetEntity(local);
 		}
 
 		object CreateTypeBuilder(TypeDefinition type)

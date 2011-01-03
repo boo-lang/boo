@@ -359,7 +359,7 @@ namespace Boo.Lang.Compiler.Ast
 		public string ToCodeString()
 		{
 			System.IO.StringWriter writer = new System.IO.StringWriter();
-			new Visitors.BooPrinterVisitor(writer).Visit(this);
+			Accept(new Visitors.BooPrinterVisitor(writer));
 			return writer.ToString();
 		}
 
