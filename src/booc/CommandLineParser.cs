@@ -573,9 +573,14 @@ namespace booc
 
 		private void ConfigurePipeline()
 		{
-			_options.Pipeline = _pipelineName != null ? CompilerPipeline.GetPipeline(_pipelineName) : new CompileToFile();
+			var pipeline = _pipelineName != null ? CompilerPipeline.GetPipeline(_pipelineName) : new CompileToFile();
+			_options.Pipeline = pipeline;
 			if (_debugSteps)
-				_options.Pipeline.AfterStep += new StepDebugger().AfterStep;
+			{
+				var stepDebugger = new StepDebugger();
+				pipeline.BeforeStep += stepDebugger.BeforeStep;
+				pipeline.AfterStep += stepDebugger.AfterStep;
+			}
 		}
 
 		private static string StripQuotes(string s)
@@ -597,11 +602,18 @@ namespace booc
 
 		private class StepDebugger
 		{
-			string _last;
+			private string _last;
+			private Stopwatch _stopWatch;
+
+			public void BeforeStep(object sender, CompilerStepEventArgs args)
+			{
+				_stopWatch = Stopwatch.StartNew();
+			}
 
 			public void AfterStep(object sender, CompilerStepEventArgs args)
 			{
-				Console.WriteLine("********* {0} *********", args.Step);
+				_stopWatch.Stop();
+				Console.WriteLine("********* {0} - {1} *********", args.Step, _stopWatch.Elapsed);
 
 				var writer = new StringWriter();
 				args.Context.CompileUnit.Accept(new BooPrinterVisitor(writer, BooPrinterVisitor.PrintOptions.PrintLocals));
