@@ -247,7 +247,7 @@ namespace Boo.Lang.Compiler.Ast
 				node.ClearTypeSystemBindings();
 		}
 
-		protected List<T> InnerList
+		internal List<T> InnerList
 		{
 			get { return _list; }
 		}

@@ -162,8 +162,12 @@ namespace Boo.Lang
 		public T this[int index]
 		{
 			get { return _items[CheckIndex(NormalizeIndex(index))]; }
-
 			set { _items[CheckIndex(NormalizeIndex(index))] = value; }
+		}
+		
+		public T FastAt(int normalizedIndex)
+		{
+			return _items[normalizedIndex];
 		}
 
 		public List<T> Push(T item)

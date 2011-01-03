@@ -29,9 +29,10 @@ for item in model.GetConcreteAstNodes():
 				var ${localName} = node.${field.Name};
 				if (${localName} != null)
 				{
-					var count = ${localName}.Count;
+					var innerList = ${localName}.InnerList;
+					var count = innerList.Count;
 					for (var i=0; i<count; ++i)
-						${localName}[i].Accept(this);
+						innerList.FastAt(i).Accept(this);
 				}
 			}
 <%
@@ -59,8 +60,10 @@ end
 		{
 			if (nodes == null)
 				return;
-			for (var i = 0; i<nodes.Count; ++i)
-				nodes[i].Accept(this);
+			var innerList = nodes.InnerList;
+			var count = innerList.Count;
+			for (var i = 0; i<count; ++i)
+				innerList.FastAt(i).Accept(this);
 		}
 	}
 }
