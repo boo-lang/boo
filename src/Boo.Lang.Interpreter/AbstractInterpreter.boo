@@ -29,7 +29,6 @@
 namespace Boo.Lang.Interpreter
 
 import System
-import System.Collections.Generic
 import System.Linq.Enumerable
 import Boo.Lang
 import Boo.Lang.Environments
@@ -337,7 +336,7 @@ class AbstractInterpreter:
 			_declarations.Add(name, entity)
 			return entity
 	
-		override def Resolve(targetList as ICollection of IEntity, name as string, flags as EntityType) as bool:
+		override def Resolve(targetList as System.Collections.Generic.ICollection of IEntity, name as string, flags as EntityType) as bool:
 			return false unless flags == EntityType.Any
 	
 			entity as IEntity = _declarations[name]
@@ -401,7 +400,7 @@ class AbstractInterpreter:
 			return unless len(types)
 			
 			debug "caching", len(types), "callable types"
-			for type as InternalCallableType in types:
+			for type in types:
 				debug type
 				services.CachedCallableTypes.Add(GetGeneratedType(self.Context.GeneratedAssembly, type))
 				
