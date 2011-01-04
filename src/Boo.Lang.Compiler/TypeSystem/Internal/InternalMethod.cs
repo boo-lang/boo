@@ -26,7 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
@@ -239,10 +238,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public Local ResolveLocal(string name)
 		{
-			foreach (Local local in _node.Locals)
+			var locals = _node.Locals;
+			for (int i = 0; i < locals.Count; i++)
 			{
+				var local = locals[i];
 				if (local.PrivateScope) continue;
-				if (name == local.Name) return local;
+				if (string.CompareOrdinal(name, local.Name) == 0) return local;
 			}
 			return null;
 		}
