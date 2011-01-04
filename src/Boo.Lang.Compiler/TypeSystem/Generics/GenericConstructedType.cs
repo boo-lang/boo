@@ -336,6 +336,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return _signature;
 		}
 
+		public bool IsAnonymous
+		{
+			get { return false; }
+		}
+
 		override public bool IsAssignableFrom(IType other)
 		{
 			return My<TypeSystemServices>.Instance.IsCallableTypeAssignableFrom(this, other);

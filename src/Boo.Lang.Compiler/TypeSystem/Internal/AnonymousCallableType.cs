@@ -80,7 +80,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return _signature;
 		}
-		
+
+		public bool IsAnonymous
+		{
+			get { return true; }
+		}
+
 		override public string Name
 		{
 			get { return _signature.ToString();  }

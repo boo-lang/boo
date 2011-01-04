@@ -23,7 +23,7 @@ try:
 	d = Deadlocker()
 	d.Foo()
 	lock d.DaLock:
-		res = d.Foo.BeginInvoke()
+		res = d.Foo.BeginInvoke(null, null)
 		d.Foo.EndInvoke(res)
 except as System.TimeoutException:
 	print "DEADLOCK DETECTED"

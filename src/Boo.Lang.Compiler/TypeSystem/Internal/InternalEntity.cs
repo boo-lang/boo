@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
-using System;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem
@@ -56,7 +54,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public virtual string FullName
 		{
-			get { return _node.DeclaringType.FullName + "." + _node.Name; }
+			get { return DeclaringType + "." + _node.Name; }
 		}
 		#endregion
 

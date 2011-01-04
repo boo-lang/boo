@@ -26,17 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Builders;
-using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem
-{
-	using System;
-	using System.Collections.Generic;
-	using Boo.Lang.Compiler.Ast;
-	using Module = Boo.Lang.Compiler.Ast.Module;
-
+{	
 	internal class AnonymousCallablesManager
 	{
 		private TypeSystemServices _tss;
@@ -60,7 +58,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ICallableType GetCallableType(CallableSignature signature)
 		{
 			AnonymousCallableType type = GetCachedCallableType(signature);
-
 			if (type == null)
 			{
 				type = new AnonymousCallableType(TypeSystemServices, signature);
@@ -71,7 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private AnonymousCallableType GetCachedCallableType(CallableSignature signature)
 		{
-			AnonymousCallableType result = null;
+			AnonymousCallableType result;
 			_cache.TryGetValue(signature, out result);
 			return result;
 		}
@@ -93,32 +90,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			var module = TypeSystemServices.GetCompilerGeneratedTypesModule();
 			
-			var enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.InterfaceDefinition) ?? sourceNode.GetAncestor(NodeType.EnumDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
-			string prefix = "";
-			string postfix = "";
-			if(enclosing != null)
-			{
-				prefix += enclosing.Name;
-				enclosing = (sourceNode.GetAncestor(NodeType.Method) 
-						?? sourceNode.GetAncestor(NodeType.Property) 
-						?? sourceNode.GetAncestor(NodeType.Event) 
-						?? sourceNode.GetAncestor(NodeType.Field)) as TypeMember;
-				if(enclosing != null)
-				{
-					prefix += "_" + enclosing.Name;
-				}
-				prefix += "$";
-			}
-			else if (!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
-			{
-				prefix += System.IO.Path.GetFileNameWithoutExtension(sourceNode.LexicalInfo.FileName) + "$";
-			}
-			if(!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
-			{
-				postfix = "$" + sourceNode.LexicalInfo.Line + "_" + sourceNode.LexicalInfo.Column + postfix;
-			}
-			string name = "__" + prefix + "callable" + module.Members.Count + postfix + "__";
+			var name = GenerateCallableTypeNameFrom(sourceNode, module);
+
 			ClassDefinition cd = My<CallableTypeBuilder>.Instance.CreateEmptyCallableDefinition(name);
+			cd.Annotate(AnonymousCallableTypeAnnotation);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
 
@@ -130,16 +105,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
 			module.Members.Add(cd);
 
-			CreateCallableTypeBeginInvokeExtensions(anonymousType, beginInvoke);
-
 			return (IType)cd.Entity;
 		}
 
-		private void CreateCallableTypeBeginInvokeExtensions(AnonymousCallableType anonymousType, Method beginInvoke)
+		private string GenerateCallableTypeNameFrom(Node sourceNode, Module module)
 		{
-			ClassDefinition extensions = TypeSystemServices.GetCompilerGeneratedExtensionsClass();
-			extensions.Members.Add(CreateBeginInvokeCallbackOnlyExtension(anonymousType, beginInvoke));
-			extensions.Members.Add(CreateBeginInvokeSimplerExtension(anonymousType, beginInvoke));
+			var enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.InterfaceDefinition) ?? sourceNode.GetAncestor(NodeType.EnumDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
+			string prefix = "";
+			string postfix = "";
+			if(enclosing != null)
+			{
+				prefix += enclosing.Name;
+				enclosing = (sourceNode.GetAncestor(NodeType.Method) 
+				             ?? sourceNode.GetAncestor(NodeType.Property) 
+				             ?? sourceNode.GetAncestor(NodeType.Event) 
+				             ?? sourceNode.GetAncestor(NodeType.Field)) as TypeMember;
+				if(enclosing != null)
+				{
+					prefix += "_" + enclosing.Name;
+				}
+				prefix += "$";
+			}
+			else if (!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
+			{
+				prefix += Path.GetFileNameWithoutExtension(sourceNode.LexicalInfo.FileName) + "$";
+			}
+			if(!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
+			{
+				postfix = "$" + sourceNode.LexicalInfo.Line + "_" + sourceNode.LexicalInfo.Column + postfix;
+			}
+			return "__" + prefix + "callable" + module.Members.Count + postfix + "__";
 		}
 
 		Method CreateBeginInvokeMethod(ICallableType anonymousType)
@@ -153,62 +148,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			method.Parameters.Add(
 					CodeBuilder.CreateParameterDeclaration(delta + 1, "asyncState", TypeSystemServices.ObjectType));
 			return method;
-		}
-
-		Method CreateBeginInvokeExtension(ICallableType anonymousType, Method beginInvoke, out MethodInvocationExpression mie)
-		{
-			InternalMethod beginInvokeEntity = (InternalMethod)beginInvoke.Entity;
-
-			Method extension = CodeBuilder.CreateMethod("BeginInvoke", TypeSystemServices.Map(typeof(IAsyncResult)),
-										TypeMemberModifiers.Public | TypeMemberModifiers.Static);
-			extension.Attributes.Add(CodeBuilder.CreateAttribute(Types.BooExtensionAttribute));
-			if (MetadataUtil.HasClrExtensions())
-			{
-				extension.Attributes.Add(CodeBuilder.CreateAttribute(Types.ClrExtensionAttribute));
-			}
-
-			ParameterDeclaration self = CodeBuilder.CreateParameterDeclaration(0, "self", beginInvokeEntity.DeclaringType);
-
-			extension.Parameters.Add(self);
-			CodeBuilder.DeclareParameters(extension, anonymousType.GetSignature().Parameters, 1);
-
-			mie = CodeBuilder.CreateMethodInvocation(
-						CodeBuilder.CreateReference(self),
-						beginInvokeEntity);
-
-			ParameterDeclarationCollection parameters = extension.Parameters;
-			for (int i = 1; i < parameters.Count; ++i)
-			{
-				mie.Arguments.Add(CodeBuilder.CreateReference(parameters[i]));
-			}
-			extension.Body.Add(new ReturnStatement(mie));
-			return extension;
-		}
-
-		Method CreateBeginInvokeSimplerExtension(ICallableType anonymousType, Method beginInvoke)
-		{
-			MethodInvocationExpression mie;
-			Method overload = CreateBeginInvokeExtension(anonymousType, beginInvoke, out mie);
-
-			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
-			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
-
-			return overload;
-		}
-
-		Method CreateBeginInvokeCallbackOnlyExtension(ICallableType anonymousType, Method beginInvoke)
-		{
-			MethodInvocationExpression mie;
-
-			Method overload = CreateBeginInvokeExtension(anonymousType, beginInvoke, out mie);
-			ParameterDeclaration callback = CodeBuilder.CreateParameterDeclaration(overload.Parameters.Count,
-										"callback", TypeSystemServices.Map(typeof(AsyncCallback)));
-			overload.Parameters.Add(callback);
-
-			mie.Arguments.Add(CodeBuilder.CreateReference(callback));
-			mie.Arguments.Add(CodeBuilder.CreateNullLiteral());
-
-			return overload;
 		}
 
 		public Method CreateEndInvokeMethod(ICallableType anonymousType)
@@ -239,6 +178,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			CallableSignature signature = anonymousType.GetSignature();
 			return CodeBuilder.CreateRuntimeMethod("Invoke", signature.ReturnType, signature.Parameters, signature.AcceptVarArgs);
 		}
+
+		public static readonly object AnonymousCallableTypeAnnotation = new object();
 	}
 }
 

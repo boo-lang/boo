@@ -1,5 +1,5 @@
 """
-BOO-736-1.boo(15,42): No appropriate version of 'CompilerGeneratedExtensions.BeginInvoke' for the argument list '(callable(string) as int)' was found.
+BOO-736-1.boo(15,42): The best overload for the method 'callable(string) as int.BeginInvoke(string, System.AsyncCallback, object)' is not compatible with the argument list '()'.
 """
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast

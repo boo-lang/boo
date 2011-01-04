@@ -23,16 +23,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 
 		public ClassDefinition CreateEmptyCallableDefinition(string name)
 		{
-			var cd = new ClassDefinition();
-			cd.IsSynthetic = true;
+			var cd = new ClassDefinition { IsSynthetic = true, Name = name, Modifiers = TypeMemberModifiers.Final };
+			cd.Entity = new InternalCallableType(My<InternalTypeSystemProvider>.Instance, cd);
 			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(TypeSystemServices.MulticastDelegateType));
 			cd.BaseTypes.Add(CodeBuilder.CreateTypeReference(TypeSystemServices.ICallableType));
-			cd.Name = name;
-			cd.Modifiers = TypeMemberModifiers.Final;
+			cd.Attributes.Add(CodeBuilder.CreateAttribute(typeof(CompilerGeneratedAttribute)));
 			cd.Members.Add(CreateCallableConstructor());
 			cd.Members.Add(CreateCallMethod());
-			cd.Entity = new InternalCallableType(My<InternalTypeSystemProvider>.Instance, cd);
-			cd.Attributes.Add(CodeBuilder.CreateAttribute(typeof(CompilerGeneratedAttribute)));
 			return cd;
 		}
 

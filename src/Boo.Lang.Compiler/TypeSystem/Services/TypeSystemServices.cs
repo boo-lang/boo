@@ -117,8 +117,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType ValueTypeType;
 		public IType VoidType;
 
-		private ClassDefinition _compilerGeneratedExtensionsClass;
-		private Module _compilerGeneratedExtensionsModule;
 		private Module _compilerGeneratedTypesModule;
 		private readonly Set<string> _literalPrimitives = new Set<string>();
 		private readonly Dictionary<string, IEntity> _primitives = new Dictionary<string, IEntity>(StringComparer.Ordinal);
@@ -517,31 +515,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return Entities.EntityFromList(buffer);
 		}
 
-		public ClassDefinition GetCompilerGeneratedExtensionsClass()
-		{
-			if (null == _compilerGeneratedExtensionsClass)
-			{
-				BooClassBuilder builder = CodeBuilder.CreateClass("CompilerGeneratedExtensions");
-				builder.Modifiers = TypeMemberModifiers.Private | TypeMemberModifiers.Static | TypeMemberModifiers.Transient;
-				builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(CompilerGeneratedAttribute)));
-
-				ClassDefinition cd = builder.ClassDefinition;
-				Module module = GetCompilerGeneratedExtensionsModule();
-				module.Members.Add(cd);
-				((InternalModule) module.Entity).InitializeModuleClass(cd);
-
-				_compilerGeneratedExtensionsClass = cd;
-			}
-			return _compilerGeneratedExtensionsClass;
-		}
-
-		public Module GetCompilerGeneratedExtensionsModule()
-		{
-			if (null != _compilerGeneratedExtensionsModule) return _compilerGeneratedExtensionsModule;
-			_compilerGeneratedExtensionsModule = NewModule(null, "CompilerGeneratedExtensions");
-			return _compilerGeneratedExtensionsModule;
-		}
-
 		public void AddCompilerGeneratedType(TypeDefinition type)
 		{
 			GetCompilerGeneratedTypesModule().Members.Add(type);
@@ -923,8 +896,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IReflectionTypeSystemProvider TypeSystemProvider()
 		{
-			return My<IReflectionTypeSystemProvider>.Instance;
+			return _typeSystemProvider.Instance;
 		}
+
+		private EnvironmentProvision<IReflectionTypeSystemProvider> _typeSystemProvider;
 
 		public IParameter[] Map(ParameterInfo[] parameters)
 		{

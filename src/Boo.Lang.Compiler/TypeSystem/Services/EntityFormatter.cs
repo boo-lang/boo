@@ -5,7 +5,7 @@
 		public virtual string FormatType(IType type)
 		{
 			var callableType = type as ICallableType;
-			if (callableType != null)
+			if (callableType != null && callableType.IsAnonymous)
 				return callableType.GetSignature().ToString();
 			return type.FullName;
 		}

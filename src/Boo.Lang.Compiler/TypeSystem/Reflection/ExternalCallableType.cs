@@ -46,10 +46,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return _invoke.CallableType.GetSignature();
 		}
-		
+
+		public bool IsAnonymous
+		{
+			get { return false; }
+		}
+
 		override public bool IsAssignableFrom(IType other)
 		{	
 			return My<TypeSystemServices>.Instance.IsCallableTypeAssignableFrom(this, other);
 		}
+
+
 	}
 }
