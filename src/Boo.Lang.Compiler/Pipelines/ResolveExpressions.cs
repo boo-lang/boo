@@ -57,12 +57,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			
 			Add(new ProcessMethodBodiesWithDuckTyping());
 
-			Add(new InjectImplicitBooleanConversions());
-
 			Add(new ReifyTypes());
-			
-			Add(new VerifyExtensionMethods());
-
 			Add(new TypeInference()); // marks the end of the type inference phase
 		}
 	}

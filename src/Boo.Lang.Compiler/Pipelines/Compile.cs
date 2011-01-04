@@ -33,7 +33,9 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class Compile : ResolveExpressions
 	{
 		public Compile()
-		{
+		{	
+			Add(new InjectImplicitBooleanConversions());
+
 			Add(new ConstantFolding());
 
 			Add(new CheckLiteralValues());
@@ -41,6 +43,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new OptimizeIterationStatements());
 
 			Add(new BranchChecking());
+
+			Add(new VerifyExtensionMethods());
 
 			Add(new CheckIdentifiers());
 			Add(new StricterErrorChecking());
