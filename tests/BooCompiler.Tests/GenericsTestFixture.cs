@@ -195,6 +195,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void generic_list_of_callable()
+		{
+			RunCompilerTestCase(@"generic-list-of-callable.boo");
+		}
+		
+		[Test]
 		public void generic_method_1()
 		{
 			RunCompilerTestCase(@"generic-method-1.boo");
