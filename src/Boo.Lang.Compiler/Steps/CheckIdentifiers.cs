@@ -91,30 +91,36 @@ namespace Boo.Lang.Compiler.Steps
 			CheckName(node,node.Name);
 		}
 		
-		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			CheckName(node,node.Name);
+			base.OnMemberReferenceExpression(node);
+
+			CheckName(node, node.Name);
 		}
 		
-		override public void LeaveLabelStatement(LabelStatement node)
+		override public void OnLabelStatement(LabelStatement node)
 		{
-			CheckName(node,node.Name);
+			base.OnLabelStatement(node);
+
+			CheckName(node, node.Name);
 		}
 		
-		override public void LeaveDeclaration(Declaration node)
+		override public void OnDeclaration(Declaration node)
 		{
-			// Special exemption made for anonymous exception handlers
+			base.OnDeclaration(node);
+
+			// Special exemption made for anonymous exception handlers);
 			if(!(node.ParentNode is ExceptionHandler) ||
 			   ((node.ParentNode as ExceptionHandler).Flags 
 			    & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.None)
 			{
-				CheckName(node,node.Name);
+				CheckName(node, node.Name);
 			}
 		}
 		
 		override public void LeaveAttribute(Attribute node)
 		{
-			CheckName(node,node.Name);
+			CheckName(node, node.Name);
 		}
 
 		public override void LeaveConstructor(Constructor node)

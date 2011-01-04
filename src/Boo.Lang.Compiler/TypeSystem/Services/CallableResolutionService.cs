@@ -528,12 +528,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private int CalculateArgumentScore(IType parameterType, IType argumentType)
 		{
-			if (parameterType == argumentType
-			    || (TypeSystemServices.IsSystemObject(argumentType) && 
-			        TypeSystemServices.IsSystemObject(parameterType)))
-				return parameterType is ICallableType
-				       	? CallableExactMatchScore
-				       	: ExactMatchScore;
+			if (parameterType == argumentType || (TypeSystemServices.IsSystemObject(argumentType) &&  TypeSystemServices.IsSystemObject(parameterType)))
+				return parameterType is ICallableType ? CallableExactMatchScore : ExactMatchScore;
 
 			if (TypeCompatibilityRules.IsAssignableFrom(parameterType, argumentType))
 			{				
@@ -548,9 +544,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ImplicitConversionScore;
 
 			if (TypeSystemServices.CanBeReachedByPromotion(parameterType, argumentType))
-				return IsWideningPromotion(parameterType, argumentType)
-				       	? WideningPromotion
-				       	: NarrowingPromotion;
+				return IsWideningPromotion(parameterType, argumentType) ? WideningPromotion : NarrowingPromotion;
 
 			if (MyDowncastPermissions().CanBeReachedByDowncast(parameterType, argumentType))
 				return DowncastScore;

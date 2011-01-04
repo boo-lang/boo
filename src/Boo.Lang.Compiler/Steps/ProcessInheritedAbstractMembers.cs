@@ -133,24 +133,22 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 
-		public override bool EnterInterfaceDefinition(InterfaceDefinition node)
+		public override void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			return !WasVisited(node);
-		}
-
-		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
-		{
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
+
+			base.OnInterfaceDefinition(node);
 		}
 
-		public override bool EnterClassDefinition(ClassDefinition node)
+		public override void OnClassDefinition(ClassDefinition node)
 		{
-			return !WasVisited(node);
-		}
-
-		override public void LeaveClassDefinition(ClassDefinition node)
-		{
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
+
+			base.OnClassDefinition(node);
 			
 			if (!_classDefinitionList.Contains(node.Name))
 				_classDefinitionList.Add(node.Name, node);
@@ -422,7 +420,7 @@ namespace Boo.Lang.Compiler.Steps
 			MakeVirtualFinal(ev.Remove);
 			MakeVirtualFinal(ev.Remove);
 			AssertValidInterfaceImplementation(ev, baseEvent);
-			_context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, baseEvent);
+			Context.TraceInfo("{0}: Event {1} implements {2}", ev.LexicalInfo, ev, baseEvent);
 		}
 
 		private static void MakeVirtualFinal(Method method)
@@ -491,7 +489,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void TraceImplements(TypeMember member, IEntity baseMember)
 		{
-			_context.TraceInfo("{0}: Member {1} implements {2}", member.LexicalInfo, member, baseMember);
+			Context.TraceInfo("{0}: Member {1} implements {2}", member.LexicalInfo, member, baseMember);
 		}
 
 		private static bool IsUnknown(IType type)
