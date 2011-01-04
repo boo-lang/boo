@@ -45,6 +45,14 @@ class CodeMatchingTest:
 				assert type.ToString() == "int"
 				
 	[Test]
+	def Cast():
+		code = [| a cast int |]
+		match code:
+			case [| $name cast $type |]:
+				assert name.ToString() == "a"
+				assert type.ToString() == "int"
+				
+	[Test]
 	def NoArgInvocationPatternMatchesAnyInvocation():
 		assert methodTarget([| foo() |]) == "foo"
 		assert methodTarget([| bar(42) |]) == "bar"

@@ -216,6 +216,9 @@ class PatternExpander:
 		override def OnTryCastExpression(node as TryCastExpression):
 			Push node, [| $Ast.TryCastExpression(Target: $(Expand(node.Target)), Type: $(Expand(node.Type))) |]
 			
+		override def OnCastExpression(node as CastExpression):
+			Push node, [| $Ast.CastExpression(Target: $(Expand(node.Target)), Type: $(Expand(node.Type))) |]
+			
 		override def OnMethodInvocationExpression(node as MethodInvocationExpression):
 			if len(node.Arguments) > 0:
 				pattern = [| $Ast.MethodInvocationExpression(Target: $(Expand(node.Target)), Arguments: $(ExpandFixedSize(node.Arguments))) |]
