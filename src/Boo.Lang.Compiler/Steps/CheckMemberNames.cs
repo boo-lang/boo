@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -36,11 +35,9 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	/// <summary>
-	/// </summary>
 	public class CheckMemberNames : AbstractVisitorCompilerStep
 	{
-		protected Hashtable _members = new Hashtable();
+		protected Dictionary<string, List<TypeMember>> _members = new Dictionary<string, List<TypeMember>>(StringComparer.Ordinal);
 		
 		override public void Dispose()
 		{
@@ -67,7 +64,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (member.NodeType == NodeType.StatementTypeMember)
 					continue;
 
-				List list = GetMemberList(member.Name);
+				var list = GetMemberList(member.Name);
 				CheckMember(list, member);
 				list.Add(member);
 			}
@@ -79,17 +76,13 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (TypeMember member in node.Members)
 			{
 				if (_members.ContainsKey(member.Name))
-				{
 					MemberNameConflict(member);
-				}
 				else
-				{
-					_members[member.Name] = member;
-				}
+					_members[member.Name] = new List<TypeMember>() { member };
 			}
 		}
 
-		protected void CheckMember(List list, TypeMember member)
+		protected void CheckMember(List<TypeMember> list, TypeMember member)
 		{
 			switch (member.NodeType)
 			{
@@ -118,7 +111,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 
-		protected void CheckNonOverloadableMember(List existing, TypeMember member)
+		protected void CheckNonOverloadableMember(List<TypeMember> existing, TypeMember member)
 		{
 			if (existing.Count > 0)
 			{
@@ -126,7 +119,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		protected void CheckOverloadableMember(List existing, TypeMember member)
+		protected void CheckOverloadableMember(List<TypeMember> existing, TypeMember member)
 		{
 			var expectedNodeType = member.NodeType;
 			foreach (TypeMember existingMember in existing)
@@ -217,14 +210,13 @@ namespace Boo.Lang.Compiler.Steps
 			Error(CompilerErrorFactory.MemberNameConflict(member, member.DeclaringType.FullName, memberName));
 		}
 		
-		List GetMemberList(string name)
+		List<TypeMember> GetMemberList(string name)
 		{
-			List list = (List)_members[name];
-			if (null == list)
-			{
-				list = new List();
-				_members[name] = list;
-			}
+			List<TypeMember> list;
+			if (_members.TryGetValue(name, out list))
+				return list;
+			list = new List<TypeMember>();
+			_members[name] = list;
 			return list;
 		}
 
