@@ -398,13 +398,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return resolved;
 		}
 
-		public IType ResolveGenericTypeReference(GenericTypeReference gtr, IEntity definition)
+		public IEntity ResolveGenericTypeReference(GenericTypeReference gtr, IEntity definition)
 		{
 			ResolveTypeReferenceCollection(gtr.GenericArguments);
 			IType[] typeArguments = GetTypes(gtr.GenericArguments);
 			
-			return (IType)My<GenericsServices>.Instance.ConstructEntity(
-			              	gtr, definition, typeArguments);
+			return My<GenericsServices>.Instance.ConstructEntity(gtr, definition, typeArguments);
 		}
 
 		public IEntity ResolveGenericReferenceExpression(GenericReferenceExpression gre, IEntity definition)
