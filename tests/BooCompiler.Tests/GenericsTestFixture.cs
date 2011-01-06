@@ -201,6 +201,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void generic_matrix_1()
+		{
+			RunCompilerTestCase(@"generic-matrix-1.boo");
+		}
+		
+		[Test]
 		public void generic_method_1()
 		{
 			RunCompilerTestCase(@"generic-method-1.boo");

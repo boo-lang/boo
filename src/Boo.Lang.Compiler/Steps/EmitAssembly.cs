@@ -2229,6 +2229,44 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool InvokeOptimizedMethod(IMethod method, MethodInfo mi, MethodInvocationExpression node)
 		{
+			if (Array_get_Length == mi)
+			{
+				// don't use ldlen for System.Array
+				if (!GetType(node.Target).IsArray)
+					return false;
+
+				// optimize constructs such as:
+				//		len(anArray)
+				//		anArray.Length
+				Visit(node.Target);
+				PopType();
+				_il.Emit(OpCodes.Ldlen);
+				PushType(TypeSystemServices.IntType);
+				return true;
+			}
+
+			if (mi.DeclaringType != Builtins_ArrayTypedConstructor.DeclaringType)
+				return false;
+
+			if (mi.IsGenericMethod)
+			{
+				if (Builtins_ArrayGenericConstructor == mi.GetGenericMethodDefinition())
+				{
+					// optimize constructs such as:
+					//		array[of int](2)
+					IType type = method.ConstructedInfo.GenericArguments[0];
+					EmitNewArray(type, node.Arguments[0]);
+					return true;
+				}
+
+				if (mi.Name == "matrix")
+				{
+					EmitNewMatrix(node);
+					return true;
+				}
+				return false;
+			}
+
 			if (Builtins_ArrayTypedConstructor == mi)
 			{
 				// optimize constructs such as:
@@ -2237,17 +2275,6 @@ namespace Boo.Lang.Compiler.Steps
 				if (null != type)
 				{
 					EmitNewArray(type, node.Arguments[1]);
-					return true;
-				}
-			}
-			else if (mi.IsGenericMethod && Builtins_ArrayGenericConstructor == mi.GetGenericMethodDefinition())
-			{
-				// optimize constructs such as:
-				//		array[of int](2)
-				IType type = method.ConstructedInfo.GenericArguments[0];
-				if (null != type)
-				{
-					EmitNewArray(type, node.Arguments[0]);
 					return true;
 				}
 			}
@@ -2268,23 +2295,36 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				}
 			}
-			else if (Array_get_Length == mi)
-			{
-				// don't use ldlen for System.Array
-				if (!GetType(node.Target).IsArray)
-					return false;
-
-				// optimize constructs such as:
-				//		len(anArray)
-				//		anArray.Length
-				Visit(node.Target);
-				PopType();
-				_il.Emit(OpCodes.Ldlen);
-				PushType(TypeSystemServices.IntType);
-				return true;
-			}
 			return false;
 		}
+
+		private void EmitNewMatrix(MethodInvocationExpression node)
+		{
+			var expressionType = GetExpressionType(node);
+			var matrixType = GetSystemType(expressionType);
+			
+			// matrix of type(dimensions)
+			EmitGetTypeFromHandle(matrixType.GetElementType());
+			PopType();
+
+			EmitArray(TypeSystemServices.IntType, node.Arguments);
+
+			_il.EmitCall(OpCodes.Call, Array_CreateInstance, null);
+			_il.Emit(OpCodes.Castclass, matrixType);
+			PushType(expressionType);
+		}
+
+		MethodInfo Array_CreateInstance
+		{
+			get
+			{
+				if (_Builtins_TypedMatrixConstructor != null)
+					return _Builtins_TypedMatrixConstructor;
+				return (_Builtins_TypedMatrixConstructor = Types.Array.GetMethod("CreateInstance", new Type[] { Types.Type, typeof(int[]) }));
+			}
+		}
+
+		private MethodInfo _Builtins_TypedMatrixConstructor;
 
 		void EmitNewArray(IType type, Expression length)
 		{
@@ -4454,10 +4494,7 @@ namespace Boo.Lang.Compiler.Steps
 		/// </summary>
 		private MethodInfo GetConstructedMethodInfo(IConstructedMethodInfo constructedInfo)
 		{
-			Type[] arguments = Array.ConvertAll<IType, Type>(
-				constructedInfo.GenericArguments,
-				GetSystemType);
-
+			Type[] arguments = Array.ConvertAll<IType, Type>(constructedInfo.GenericArguments, GetSystemType);
 			return GetMethodInfo(constructedInfo.GenericDefinition).MakeGenericMethod(arguments);
 		}
 

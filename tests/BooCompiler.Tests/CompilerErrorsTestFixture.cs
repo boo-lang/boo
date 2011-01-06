@@ -1354,6 +1354,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void single_error_on_missing_import_namespace()
+		{
+			RunCompilerTestCase(@"single-error-on-missing-import-namespace.boo");
+		}
+		
+		[Test]
 		public void strict_1()
 		{
 			RunCompilerTestCase(@"strict-1.boo");

@@ -213,24 +213,17 @@ namespace Boo.Lang
 
 		public static T[,] matrix<T>(int length0, int length1)
 		{
-			if (length0 < 0)
-				throw new ArgumentException("`length0' cannot be negative", "length0");
-			if (length1 < 0)
-				throw new ArgumentException("`length1' cannot be negative", "length1");
-
-			return new T[length0, length1];
+			throw new NotSupportedException("Operation should have been optimized away by the compiler!");
 		}
 
 		public static T[,,] matrix<T>(int length0, int length1, int length2)
 		{
-			if (length0 < 0)
-				throw new ArgumentException("`length0' cannot be negative", "length0");
-			if (length1 < 0)
-				throw new ArgumentException("`length1' cannot be negative", "length1");
-			if (length2 < 0)
-				throw new ArgumentException("`length2' cannot be negative", "length2");
+			throw new NotSupportedException("Operation should have been optimized away by the compiler!");
+		}
 
-			return new T[length0, length1, length2];
+		public static T[,,,] matrix<T>(int length0, int length1, int length2, int length3)
+		{
+			throw new NotSupportedException("Operation should have been optimized away by the compiler!");
 		}
 		#endregion
 
