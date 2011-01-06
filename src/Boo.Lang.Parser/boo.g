@@ -232,7 +232,7 @@ import_directive[Module container]
 }: 
 	node=import_directive_
 	{
-		container.Imports.Add(node);
+		if (node != null) container.Imports.Add(node);
 	}
 	eos
 ;
@@ -245,8 +245,11 @@ import_directive_ returns [Import returnValue]
 }:
 	IMPORT id=identifier
 	{
-		returnValue = new Import(ToLexicalInfo(id));
-		returnValue.Namespace = id.getText();
+		if (id != null)
+		{
+			returnValue = new Import(ToLexicalInfo(id));
+			returnValue.Namespace = id.getText();
+		}
 	}
 	(
 		FROM

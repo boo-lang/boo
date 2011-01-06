@@ -670,7 +670,7 @@ _loop22_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						container.Imports.Add(node);
+						if (node != null) container.Imports.Add(node);
 					
 			}
 			eos();
@@ -1114,8 +1114,11 @@ _loop181_breakloop:				;
 			if (0==inputState.guessing)
 			{
 				
-						returnValue = new Import(ToLexicalInfo(id));
-						returnValue.Namespace = id.getText();
+						if (id != null)
+						{
+							returnValue = new Import(ToLexicalInfo(id));
+							returnValue.Namespace = id.getText();
+						}
 					
 			}
 			{
