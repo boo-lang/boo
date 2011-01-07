@@ -32,7 +32,7 @@ using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class MergePartialClasses : AbstractNamespaceSensitiveTransformerCompilerStep
+	public class MergePartialClasses : AbstractTransformerCompilerStep
 	{
 		Dictionary<string, TypeDefinition> _partials = new Dictionary<string, TypeDefinition>();
 		TypeDefinition _current;
@@ -51,6 +51,12 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public bool EnterClassDefinition(ClassDefinition node)
 		{
+			if (_current != null)
+			{
+				_current.Members.Add(node);
+				return false;
+			}
+
 			if (!node.IsPartial)
 				return false;
 
