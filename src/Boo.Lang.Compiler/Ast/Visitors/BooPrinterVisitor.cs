@@ -913,7 +913,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 		public override void OnSpliceTypeDefinitionBody(SpliceTypeDefinitionBody node)
 		{
+			WriteIndented();
 			WriteSplicedExpression(node.Expression);
+			WriteLine();
 		}
 		
 		override public void OnSpliceTypeReference(SpliceTypeReference node)

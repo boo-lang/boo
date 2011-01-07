@@ -961,6 +961,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void splicing_class_body()
+		{
+			RunCompilerTestCase(@"splicing-class-body.boo");
+		}
+		
+		[Test]
 		public void string_literals_1()
 		{
 			RunCompilerTestCase(@"string-literals-1.boo");

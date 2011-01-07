@@ -419,9 +419,22 @@ class_definition [TypeMemberCollection container]
 	(LBRACK (OF)? generic_parameter_declaration_list[genericParameters] RBRACK)?
 	(base_types[baseTypes])?
 	begin_with_doc[td]					
-	(type_definition_member[members])*
+	(
+		(splice_expression eos)=>splice_type_definition_body[members] |
+		type_definition_member[members]
+	)*	
 	end[td]
-	;
+;
+
+splice_type_definition_body[TypeMemberCollection container]
+{
+	Expression e = null;
+}:
+	begin:SPLICE_BEGIN e=atom eos
+	{
+		container.Add(new SpliceTypeDefinitionBody(e));
+	}
+;
 	
 type_definition_member[TypeMemberCollection container]
 {
