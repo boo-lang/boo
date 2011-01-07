@@ -26,19 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
+using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using System.Collections;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-	using Attribute=Boo.Lang.Compiler.Ast.Attribute;
-
 	public class MergePartialClasses : AbstractNamespaceSensitiveTransformerCompilerStep
 	{
-		Hashtable _partials = new Hashtable();
-		ClassDefinition _current = null;
+		Dictionary<string, TypeDefinition> _partials = new Dictionary<string, TypeDefinition>();
+		TypeDefinition _current;
 		
 		override public void Run()
 		{			
@@ -55,25 +52,20 @@ namespace Boo.Lang.Compiler.Steps
 		override public bool EnterClassDefinition(ClassDefinition node)
 		{
 			if (!node.IsPartial)
-			{
 				return false;
-			}
 
-			if (_partials.Contains(node.FullName))
+			if (_partials.TryGetValue(node.FullName, out _current))
 			{
-				_current = (ClassDefinition)_partials[node.FullName];
 				MergeImports(node, _current);
 				RemoveCurrentNode();
 				return true;
 			}
-			else
-			{
-				_partials[node.FullName] = node;
-				return false;
-			}
+
+			_partials[node.FullName] = node;
+			return false;
 		}
-		
-		void MergeImports(ClassDefinition from, ClassDefinition to)
+
+		static void MergeImports(TypeDefinition from, TypeDefinition to)
 		{
 			Module fromModule = from.EnclosingModule;
 			Module toModule = to.EnclosingModule;
@@ -128,9 +120,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnSimpleTypeReference(SimpleTypeReference node) 
 		{
 			if (_current != null && !_current.BaseTypes.Contains(node.Name))
-			{
 				_current.BaseTypes.Add(node);
-			}
 		}
 	}
 }
