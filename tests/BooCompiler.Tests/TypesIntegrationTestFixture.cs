@@ -901,6 +901,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void partial_interfaces()
+		{
+			RunCompilerTestCase(@"partial-interfaces.boo");
+		}
+		
+		[Test]
 		public void properties_1()
 		{
 			RunCompilerTestCase(@"properties-1.boo");

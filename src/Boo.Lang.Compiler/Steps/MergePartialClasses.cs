@@ -57,6 +57,11 @@ namespace Boo.Lang.Compiler.Steps
 			OnCandidatePartialDefinition(node);
 		}
 
+		override public void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+			OnCandidatePartialDefinition(node);
+		}
+
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 			OnCandidatePartialDefinition(node);

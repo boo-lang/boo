@@ -85,6 +85,17 @@ namespace Boo.Lang.Compiler.Ast
 				return qualifiedName.ToString();
 			}
 		}
+
+		public bool IsNested
+		{
+			get
+			{
+				var declaringType = DeclaringType;
+				if (declaringType == null || declaringType.NodeType == NodeType.Module)
+					return false;
+				return true;
+			}
+		}
 		
 		public bool HasMethods
 		{
@@ -99,9 +110,7 @@ namespace Boo.Lang.Compiler.Ast
 		public bool HasMemberOfType(NodeType memberType)
 		{
 			foreach (TypeMember member in _members)
-			{
 				if (memberType == member.NodeType) return true;
-			}
 			return false;
 		}
 

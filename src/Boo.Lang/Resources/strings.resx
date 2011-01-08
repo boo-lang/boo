@@ -511,7 +511,7 @@
     <value>Invalid extension definition, only static methods with at least one argument are allowed.</value>
   </data>
   <data name="BCE0130" xml:space="preserve">
-    <value>'partial' can only be applied to class definitions.</value>
+    <value>'partial' can only be applied to top level class, interface and enum definitions.</value>
   </data>
   <data name="BCE0131" xml:space="preserve">
     <value>Invalid combination of modifiers on '{0}': {1}.</value>

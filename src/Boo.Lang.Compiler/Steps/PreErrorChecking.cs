@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
-			CantBeMarkedPartial(node);
+			CantBeMarkedPartialIfNested(node);
 			CantBeMarkedFinal(node);
 			CantBeMarkedStatic(node);
 		}
@@ -120,6 +120,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
+			CantBeMarkedPartialIfNested(node);
 			CantBeMarkedFinal(node);
 			CantBeMarkedStatic(node);
 		}
@@ -128,11 +129,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			CheckModifierCombination(node);
 			CheckMemberName(node);
+			CantBeMarkedPartialIfNested(node);
 			
-			if(node.IsStatic)
-			{
+			if (node.IsStatic)
 				node.Modifiers |= TypeMemberModifiers.Abstract | TypeMemberModifiers.Final;
-			}
 		}
 		
 		override public void LeaveTryStatement(TryStatement node)
@@ -284,22 +284,23 @@ namespace Boo.Lang.Compiler.Steps
 					member.FullName,
 					string.Format("{0}, {1}", mod1.ToString().ToLower(), mod2.ToString().ToLower())));
 		}
-		
+
+		void CantBeMarkedPartialIfNested(TypeDefinition type)
+		{
+			if (type.IsNested)
+				CantBeMarkedPartial(type);
+		}
 		
 		void CantBeMarkedPartial(TypeMember member)
 		{
 			if (member.IsPartial)
-			{
 				Error(CompilerErrorFactory.CantBeMarkedPartial(member));
-			}
 		}
 		
 		void CantBeMarkedStatic(TypeMember member)
 		{
 			if (member.IsStatic)
-			{
 				Error(CompilerErrorFactory.CantBeMarkedStatic(member));
-			}
 		}
 	}
 }
