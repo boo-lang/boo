@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class ClassDefinition
@@ -38,15 +36,6 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public ClassDefinition(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
-		}
-
-		public void Merge(ClassDefinition node)
-		{
-			if (null == node) throw new ArgumentNullException("node");
-			if (ReferenceEquals(this, node)) return;
-			Attributes.Extend(node.Attributes);
-			BaseTypes.Extend(node.BaseTypes);
-			Members.Extend(node.Members);
 		}
 	}
 }

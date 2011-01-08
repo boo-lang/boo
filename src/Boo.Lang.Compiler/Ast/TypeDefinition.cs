@@ -136,6 +136,24 @@ namespace Boo.Lang.Compiler.Ast
 			return GetConstructor(0, true, null);
 		}
 
+		public void Merge(TypeDefinition node)
+		{
+			if (null == node) throw new ArgumentNullException("node");
+			if (NodeType != node.NodeType) throw new ArgumentException(string.Format("Cannot merge {0} into a {1}.", node.NodeType, NodeType));
+			if (ReferenceEquals(this, node)) return;
+			Attributes.Extend(node.Attributes);
+			AddNonMatchingBaseTypes(node);
+			Members.Extend(node.Members);
+		}
+
+		private void AddNonMatchingBaseTypes(TypeDefinition node)
+		{
+			var baseTypes = BaseTypes;
+			foreach (var baseType in node.BaseTypes)
+				if (!baseTypes.Contains(baseType.Matches))
+					baseTypes.Add(baseType);
+		}
+
 		protected Constructor GetConstructor(int index, bool? isStatic, bool? isSynthetic)
 		{
 			int current = 0;

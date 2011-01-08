@@ -124,6 +124,7 @@
     <Compile Include="Ast\NodeMatchingTest.cs" />
     <Compile Include="Ast\ParameterDeclarationTest.cs" />
     <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />
+    <Compile Include="Ast\TypeDefinitionTest.cs" />
     <Compile Include="AttributesIntegrationTestFixture.cs" />
     <Compile Include="AttributesTestFixture.cs" />
     <Compile Include="BooCompilerTest.cs" />

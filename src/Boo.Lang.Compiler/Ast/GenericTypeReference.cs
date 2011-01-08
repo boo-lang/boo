@@ -34,8 +34,6 @@
 
 namespace Boo.Lang.Compiler.Ast
 {
-	using System;
-	
 	public partial class GenericTypeReference
 	{
 		public GenericTypeReference()
@@ -49,6 +47,11 @@ namespace Boo.Lang.Compiler.Ast
 		public GenericTypeReference(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
 		{
 			this.Name = name;
+		}
+
+		public GenericTypeReference(string name, params TypeReference[] genericArguments) : base(name)
+		{
+			GenericArguments.Extend(genericArguments);
 		}
 		
 		override public string ToString()
