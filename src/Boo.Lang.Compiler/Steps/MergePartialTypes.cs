@@ -31,7 +31,7 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class MergePartialClasses : AbstractTransformerCompilerStep
+	public class MergePartialTypes : AbstractTransformerCompilerStep
 	{
 		Dictionary<string, TypeDefinition> _partials = new Dictionary<string, TypeDefinition>();
 		
@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			TypeDefinition originalDefinition;
 			if (_partials.TryGetValue(typeName, out originalDefinition))
 			{
-				if (node == originalDefinition) // MergePartialClasses can be executed more than once
+				if (node == originalDefinition) // MergePartialTypes can be executed more than once
 					return;
 
 				if (originalDefinition.NodeType != node.NodeType)

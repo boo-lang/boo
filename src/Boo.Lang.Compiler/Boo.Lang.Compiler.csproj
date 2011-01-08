@@ -474,7 +474,7 @@
     <Compile Include="Steps\MacroProcessing\MacroExpander.cs" />
     <Compile Include="Steps\MacroProcessing\NodeGeneratorExpander.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
-    <Compile Include="Steps\MergePartialClasses.cs" />
+    <Compile Include="Steps\MergePartialTypes.cs" />
     <Compile Include="Steps\NormalizeExpressions.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
