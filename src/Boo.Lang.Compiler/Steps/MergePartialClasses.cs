@@ -37,14 +37,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{
-			try
-			{
-				Visit(CompileUnit.Modules);
-			}
-			finally
-			{
-				_partials.Clear();
-			}
+			Visit(CompileUnit.Modules);
+		}
+
+		public override void Dispose()
+		{
+			base.Dispose();
+
+			_partials.Clear();
 		}
 
 		public override void OnModule(Module node)
@@ -72,6 +72,9 @@ namespace Boo.Lang.Compiler.Steps
 			TypeDefinition originalDefinition;
 			if (_partials.TryGetValue(typeName, out originalDefinition))
 			{
+				if (node == originalDefinition) // MergePartialClasses can be executed more than once
+					return;
+
 				if (originalDefinition.NodeType != node.NodeType)
 				{
 					Errors.Add(CompilerErrorFactory.IncompatiblePartialDefinition(node, typeName, AstUtil.TypeKeywordFor(originalDefinition), AstUtil.TypeKeywordFor(node)));

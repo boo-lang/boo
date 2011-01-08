@@ -38,7 +38,8 @@ namespace Boo.Lang.Compiler.Pipelines
 		{
 			Add(new PreErrorChecking());
 
-			Add(new MergePartialClasses());
+			var mergePartialClasses = new MergePartialClasses();
+			Add(mergePartialClasses);
 
 			Add(new InitializeNameResolutionService());
 			Add(new IntroduceGlobalNamespaces());
@@ -50,6 +51,8 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindBaseTypes());
 
 			Add(new MacroAndAttributeExpansion());
+
+			Add(mergePartialClasses);
 		}
 	}
 }

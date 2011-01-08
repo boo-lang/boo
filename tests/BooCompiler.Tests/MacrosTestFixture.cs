@@ -207,6 +207,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void macro_yielding_partial_enum_with_existing_partial_definition()
+		{
+			RunCompilerTestCase(@"macro-yielding-partial-enum-with-existing-partial-definition.boo");
+		}
+		
+		[Test]
+		public void macro_yielding_partial_enums()
+		{
+			RunCompilerTestCase(@"macro-yielding-partial-enums.boo");
+		}
+		
+		[Test]
 		public void member_macro_changing_all_sibling_method_bodies()
 		{
 			RunCompilerTestCase(@"member-macro-changing-all-sibling-method-bodies.boo");
