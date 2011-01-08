@@ -76,8 +76,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			MacroStatement other = node as MacroStatement;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( MacroStatement)node;
 			if (!Node.Matches(_modifier, other._modifier)) return NoMatch("MacroStatement._modifier");
 			if (_name != other._name) return NoMatch("MacroStatement._name");
 			if (!Node.AllMatch(_arguments, other._arguments)) return NoMatch("MacroStatement._arguments");

@@ -74,8 +74,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			UnaryExpression other = node as UnaryExpression;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( UnaryExpression)node;
 			if (_operator != other._operator) return NoMatch("UnaryExpression._operator");
 			if (!Node.Matches(_operand, other._operand)) return NoMatch("UnaryExpression._operand");
 			return true;

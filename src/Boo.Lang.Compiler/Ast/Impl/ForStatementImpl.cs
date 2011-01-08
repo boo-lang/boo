@@ -80,8 +80,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			ForStatement other = node as ForStatement;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( ForStatement)node;
 			if (!Node.Matches(_modifier, other._modifier)) return NoMatch("ForStatement._modifier");
 			if (!Node.AllMatch(_declarations, other._declarations)) return NoMatch("ForStatement._declarations");
 			if (!Node.Matches(_iterator, other._iterator)) return NoMatch("ForStatement._iterator");

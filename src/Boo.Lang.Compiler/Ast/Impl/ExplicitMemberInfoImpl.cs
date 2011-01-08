@@ -72,8 +72,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			ExplicitMemberInfo other = node as ExplicitMemberInfo;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( ExplicitMemberInfo)node;
 			if (!Node.Matches(_interfaceType, other._interfaceType)) return NoMatch("ExplicitMemberInfo._interfaceType");
 			return true;
 		}

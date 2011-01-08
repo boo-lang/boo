@@ -74,8 +74,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			CollectionInitializationExpression other = node as CollectionInitializationExpression;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( CollectionInitializationExpression)node;
 			if (!Node.Matches(_collection, other._collection)) return NoMatch("CollectionInitializationExpression._collection");
 			if (!Node.Matches(_initializer, other._initializer)) return NoMatch("CollectionInitializationExpression._initializer");
 			return true;

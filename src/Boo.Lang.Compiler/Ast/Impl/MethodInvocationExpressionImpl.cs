@@ -76,8 +76,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			MethodInvocationExpression other = node as MethodInvocationExpression;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( MethodInvocationExpression)node;
 			if (!Node.Matches(_target, other._target)) return NoMatch("MethodInvocationExpression._target");
 			if (!Node.AllMatch(_arguments, other._arguments)) return NoMatch("MethodInvocationExpression._arguments");
 			if (!Node.AllMatch(_namedArguments, other._namedArguments)) return NoMatch("MethodInvocationExpression._namedArguments");

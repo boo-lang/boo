@@ -72,8 +72,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			ExpressionInterpolationExpression other = node as ExpressionInterpolationExpression;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( ExpressionInterpolationExpression)node;
 			if (!Node.AllMatch(_expressions, other._expressions)) return NoMatch("ExpressionInterpolationExpression._expressions");
 			return true;
 		}

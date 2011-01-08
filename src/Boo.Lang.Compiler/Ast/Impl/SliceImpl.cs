@@ -76,8 +76,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			Slice other = node as Slice;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( Slice)node;
 			if (!Node.Matches(_begin, other._begin)) return NoMatch("Slice._begin");
 			if (!Node.Matches(_end, other._end)) return NoMatch("Slice._end");
 			if (!Node.Matches(_step, other._step)) return NoMatch("Slice._step");

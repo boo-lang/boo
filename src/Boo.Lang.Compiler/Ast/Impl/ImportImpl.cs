@@ -76,8 +76,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			Import other = node as Import;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( Import)node;
 			if (_namespace != other._namespace) return NoMatch("Import._namespace");
 			if (!Node.Matches(_assemblyReference, other._assemblyReference)) return NoMatch("Import._assemblyReference");
 			if (!Node.Matches(_alias, other._alias)) return NoMatch("Import._alias");

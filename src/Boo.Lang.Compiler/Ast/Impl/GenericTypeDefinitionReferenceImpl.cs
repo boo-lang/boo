@@ -72,8 +72,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			GenericTypeDefinitionReference other = node as GenericTypeDefinitionReference;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( GenericTypeDefinitionReference)node;
 			if (_isPointer != other._isPointer) return NoMatch("GenericTypeDefinitionReference._isPointer");
 			if (_name != other._name) return NoMatch("GenericTypeDefinitionReference._name");
 			if (_genericPlaceholders != other._genericPlaceholders) return NoMatch("GenericTypeDefinitionReference._genericPlaceholders");

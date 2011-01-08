@@ -74,8 +74,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			GenericReferenceExpression other = node as GenericReferenceExpression;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( GenericReferenceExpression)node;
 			if (!Node.Matches(_target, other._target)) return NoMatch("GenericReferenceExpression._target");
 			if (!Node.AllMatch(_genericArguments, other._genericArguments)) return NoMatch("GenericReferenceExpression._genericArguments");
 			return true;

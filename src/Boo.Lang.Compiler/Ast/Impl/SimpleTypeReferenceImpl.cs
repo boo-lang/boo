@@ -72,8 +72,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			SimpleTypeReference other = node as SimpleTypeReference;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( SimpleTypeReference)node;
 			if (_isPointer != other._isPointer) return NoMatch("SimpleTypeReference._isPointer");
 			if (_name != other._name) return NoMatch("SimpleTypeReference._name");
 			return true;

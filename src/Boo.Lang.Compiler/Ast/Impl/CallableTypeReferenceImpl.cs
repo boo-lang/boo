@@ -74,8 +74,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			CallableTypeReference other = node as CallableTypeReference;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( CallableTypeReference)node;
 			if (_isPointer != other._isPointer) return NoMatch("CallableTypeReference._isPointer");
 			if (!Node.AllMatch(_parameters, other._parameters)) return NoMatch("CallableTypeReference._parameters");
 			if (!Node.Matches(_returnType, other._returnType)) return NoMatch("CallableTypeReference._returnType");

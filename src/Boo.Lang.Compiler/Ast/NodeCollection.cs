@@ -203,7 +203,7 @@ namespace Boo.Lang.Compiler.Ast
 			return Contains(node);
 		}
 
-		public bool Contains(System.Predicate<T> condition)
+		public bool Contains(Predicate<T> condition)
 		{
 			return _list.Contains(condition);
 		}
@@ -259,7 +259,7 @@ namespace Boo.Lang.Compiler.Ast
 				node.InitializeParent(_parent);
 		}
 
-		public void Reject(System.Predicate<T> condition)
+		public void Reject(Predicate<T> condition)
 		{
 			if (null == condition)
 				throw new ArgumentNullException("condition");

@@ -72,8 +72,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			SpliceTypeReference other = node as SpliceTypeReference;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( SpliceTypeReference)node;
 			if (_isPointer != other._isPointer) return NoMatch("SpliceTypeReference._isPointer");
 			if (!Node.Matches(_expression, other._expression)) return NoMatch("SpliceTypeReference._expression");
 			return true;

@@ -72,8 +72,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			CompileUnit other = node as CompileUnit;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( CompileUnit)node;
 			if (!Node.AllMatch(_modules, other._modules)) return NoMatch("CompileUnit._modules");
 			return true;
 		}

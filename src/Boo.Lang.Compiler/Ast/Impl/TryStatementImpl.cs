@@ -78,8 +78,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			TryStatement other = node as TryStatement;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( TryStatement)node;
 			if (!Node.Matches(_modifier, other._modifier)) return NoMatch("TryStatement._modifier");
 			if (!Node.Matches(_protectedBlock, other._protectedBlock)) return NoMatch("TryStatement._protectedBlock");
 			if (!Node.AllMatch(_exceptionHandlers, other._exceptionHandlers)) return NoMatch("TryStatement._exceptionHandlers");

@@ -70,8 +70,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			Constructor other = node as Constructor;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( Constructor)node;
 			if (_modifiers != other._modifiers) return NoMatch("Constructor._modifiers");
 			if (_name != other._name) return NoMatch("Constructor._name");
 			if (!Node.AllMatch(_attributes, other._attributes)) return NoMatch("Constructor._attributes");

@@ -74,8 +74,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			ArrayTypeReference other = node as ArrayTypeReference;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( ArrayTypeReference)node;
 			if (_isPointer != other._isPointer) return NoMatch("ArrayTypeReference._isPointer");
 			if (!Node.Matches(_elementType, other._elementType)) return NoMatch("ArrayTypeReference._elementType");
 			if (!Node.Matches(_rank, other._rank)) return NoMatch("ArrayTypeReference._rank");

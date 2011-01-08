@@ -76,8 +76,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			WhileStatement other = node as WhileStatement;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( WhileStatement)node;
 			if (!Node.Matches(_modifier, other._modifier)) return NoMatch("WhileStatement._modifier");
 			if (!Node.Matches(_condition, other._condition)) return NoMatch("WhileStatement._condition");
 			if (!Node.Matches(_block, other._block)) return NoMatch("WhileStatement._block");

@@ -74,8 +74,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			SpliceParameterDeclaration other = node as SpliceParameterDeclaration;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( SpliceParameterDeclaration)node;
 			if (_name != other._name) return NoMatch("SpliceParameterDeclaration._name");
 			if (!Node.Matches(_type, other._type)) return NoMatch("SpliceParameterDeclaration._type");
 			if (_modifiers != other._modifiers) return NoMatch("SpliceParameterDeclaration._modifiers");

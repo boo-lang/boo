@@ -58,8 +58,9 @@ end
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			${node.Name} other = node as ${node.Name};
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( ${node.Name})node;
 <%
 	for field in allFields:
 		fieldName = GetPrivateName(field)

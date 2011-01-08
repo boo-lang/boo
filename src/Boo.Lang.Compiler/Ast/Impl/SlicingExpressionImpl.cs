@@ -74,8 +74,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			SlicingExpression other = node as SlicingExpression;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( SlicingExpression)node;
 			if (!Node.Matches(_target, other._target)) return NoMatch("SlicingExpression._target");
 			if (!Node.AllMatch(_indices, other._indices)) return NoMatch("SlicingExpression._indices");
 			return true;

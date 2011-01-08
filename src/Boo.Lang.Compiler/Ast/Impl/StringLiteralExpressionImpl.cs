@@ -72,8 +72,9 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public bool Matches(Node node)
 		{	
-			StringLiteralExpression other = node as StringLiteralExpression;
-			if (null == other) return false;
+			if (node == null) return false;
+			if (NodeType != node.NodeType) return false;
+			var other = ( StringLiteralExpression)node;
 			if (_value != other._value) return NoMatch("StringLiteralExpression._value");
 			return true;
 		}
