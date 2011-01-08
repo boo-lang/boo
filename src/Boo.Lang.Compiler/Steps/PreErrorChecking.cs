@@ -26,12 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Ast;
+	
 namespace Boo.Lang.Compiler.Steps
 {	
-	using System.Text;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	
 	public class PreErrorChecking : AbstractVisitorCompilerStep
 	{
 		static string[] InvalidMemberPrefixes = new string[] {

@@ -31,9 +31,10 @@ using System.Collections.Generic;
 using System.IO;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Environments;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Services
 {	
 	internal class AnonymousCallablesManager
 	{

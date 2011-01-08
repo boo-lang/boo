@@ -29,6 +29,7 @@
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps

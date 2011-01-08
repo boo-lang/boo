@@ -34,11 +34,10 @@ using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
-using Attribute=Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
-	public abstract class AbstractInternalType : InternalEntity<TypeDefinition>, IType, INamespace, IGenericTypeInfo
+	public abstract class AbstractInternalType : InternalEntity<TypeDefinition>, IType, IGenericTypeInfo
 	{
 		protected InternalTypeSystemProvider _provider;
 
@@ -281,9 +280,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		{
 			get
 			{
-				return Array.ConvertAll<GenericParameterDeclaration, IGenericParameter>(
-					_node.GenericParameters.ToArray(),
-					gpd => (IGenericParameter) gpd.Entity);
+				return Array.ConvertAll(_node.GenericParameters.ToArray(), gpd => (IGenericParameter) gpd.Entity);
 			}
 		}
 

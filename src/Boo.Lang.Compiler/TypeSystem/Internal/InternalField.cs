@@ -26,10 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
-{
-	using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Ast;
 
+namespace Boo.Lang.Compiler.TypeSystem.Internal
+{
 	public class InternalField : InternalEntity<Field>, IField
 	{
 		private object _staticValue;

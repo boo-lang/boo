@@ -28,12 +28,8 @@
 
 using Boo.Lang.Compiler.TypeSystem.Generics;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
-	using System;
-	using System.Text;
-	using System.Collections.Generic;
-
 	/// <summary>
 	/// Maps entities onto their constructed counterparts, substituting type arguments for generic parameters.
 	/// </summary>

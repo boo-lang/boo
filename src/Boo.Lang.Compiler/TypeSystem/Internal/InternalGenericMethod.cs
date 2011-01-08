@@ -40,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 	/// </summary>
 	internal class InternalGenericMethod : InternalMethod, IGenericMethodInfo
 	{
-		IGenericParameter[] _genericParameters = null;
+		IGenericParameter[] _genericParameters;
 		Dictionary<IType[], IMethod> _constructedMethods = new Dictionary<IType[], IMethod>(ArrayEqualityComparer<IType>.Default);
 		
 		public InternalGenericMethod(InternalTypeSystemProvider provider, Method method) : base(provider, method)
@@ -54,21 +54,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public IGenericParameter[] GenericParameters
 		{
-			get 
-			{ 
-				if (_genericParameters == null)
-				{
-					_genericParameters = Array.ConvertAll<GenericParameterDeclaration, IGenericParameter>(
-						Method.GenericParameters.ToArray(),
-						delegate(GenericParameterDeclaration gpd) { return (IGenericParameter)gpd.Entity; });
-				}
-				return _genericParameters; 
+			get {
+				return _genericParameters ??
+				       (_genericParameters =
+				        Array.ConvertAll(Method.GenericParameters.ToArray(), gpd => (IGenericParameter) gpd.Entity));
 			}
 		}
 		
 		public IMethod ConstructMethod(IType[] arguments)
 		{
-			IMethod constructed = null;
+			IMethod constructed;
 			if (!_constructedMethods.TryGetValue(arguments, out constructed))
 			{
 				constructed = new GenericConstructedMethod(this, arguments);

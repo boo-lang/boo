@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,67 +26,77 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System.Collections.Generic;
-using Boo.Lang.Compiler.TypeSystem.Core;
+using System;
+using System.Diagnostics;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Core
 {
-	public class AliasedNamespace : IEntity, INamespace
+	public class AnonymousCallableType : AbstractType, ICallableType
 	{
-		string _alias;
-		IEntity _subject;
+		TypeSystemServices _typeSystemServices;
+		CallableSignature _signature;
+		IType _concreteType;
 		
-		public AliasedNamespace(string alias, IEntity subject)
+		internal AnonymousCallableType(TypeSystemServices services, CallableSignature signature)
 		{
-			_alias = alias;			
-			_subject = subject;
+			if (null == services)
+				throw new ArgumentNullException("services");
+			if (null == signature)
+				throw new ArgumentNullException("signature");
+			_typeSystemServices = services;
+			_signature = signature;
 		}
 		
-		public string Name
+		public IType ConcreteType
 		{
-			get
+			get { return _concreteType; }
+			
+			set
 			{
-				return _alias;
+				Debug.Assert(null != value);
+				_concreteType = value;
 			}
 		}
 		
-		public string FullName
+		override public IType BaseType
 		{
-			get
-			{
-				return _subject.FullName;
-			}
+			get { return _typeSystemServices.MulticastDelegateType; }
 		}
 		
-		public EntityType EntityType
-		{
-			get
-			{
-				return EntityType.Namespace;
-			}
+		override public bool IsSubclassOf(IType other)
+		{			
+			return BaseType.IsSubclassOf(other) || other == BaseType ||
+				other == _typeSystemServices.ICallableType;				
 		}
 		
-		public INamespace ParentNamespace
+		override public bool IsAssignableFrom(IType other)
 		{
-			get
-			{
-				return ((INamespace)_subject).ParentNamespace;
-			}
+			return _typeSystemServices.IsCallableTypeAssignableFrom(this, other);
 		}
 		
-		public bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
+		public CallableSignature GetSignature()
 		{
-			if (name == _alias && Entities.IsFlagSet(typesToConsider, _subject.EntityType))
-			{
-				resultingSet.Add(_subject);
-				return true;
-			}
-			return false;
+			return _signature;
+		}
+
+		public bool IsAnonymous
+		{
+			get { return true; }
+		}
+
+		override public string Name
+		{
+			get { return _signature.ToString();  }
 		}
 		
-		public IEnumerable<IEntity> GetMembers()
+		override public EntityType EntityType
 		{
-			return ((INamespace)_subject).GetMembers();
+			get { return EntityType.Type; }
+		}
+		
+		override public int GetTypeDepth()
+		{
+			return 3;
 		}
 	}
 }

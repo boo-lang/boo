@@ -28,13 +28,13 @@
 
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
 	public abstract class InternalEntity<T> : IInternalEntity, IEntityWithAttributes where T : TypeMember
 	{
 		protected readonly T _node;
 
-		public InternalEntity(T node)
+		protected InternalEntity(T node)
 		{
 			_node = node;
 		}

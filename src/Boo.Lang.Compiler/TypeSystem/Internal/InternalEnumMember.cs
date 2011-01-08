@@ -26,13 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem.Internal;
+using System;
+using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-
 	public class InternalEnumMember : InternalEntity<EnumMember>, IField
 	{	
 		public InternalEnumMember(EnumMember member) : base(member)

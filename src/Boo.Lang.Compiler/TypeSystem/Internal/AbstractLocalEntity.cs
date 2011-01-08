@@ -26,38 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
 	public abstract class AbstractLocalEntity
 	{
-		protected bool _shared = false;
-		
-		protected bool _used = false;
-		
-		public bool IsUsed
-		{
-			get
-			{
-				return _used;
-			}
-			
-			set
-			{
-				_used = value;
-			}
-		}
-		
-		public bool IsShared
-		{
-			get
-			{
-				return _shared;
-			}
-			
-			set
-			{
-				_shared = value;
-			}
-		}
+		public bool IsUsed { get; set; }
+
+		public bool IsShared { get; set; }
 	}
 }

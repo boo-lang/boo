@@ -160,7 +160,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				if (null == _node.ReturnType)
 					return _node.DeclaringType.NodeType == NodeType.ClassDefinition
 					       	? Unknown.Default
-					       	: (IType)_provider.VoidType;
+					       	: _provider.VoidType;
 				return TypeSystemServices.GetType(_node.ReturnType);
 			}
 		}
@@ -191,10 +191,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			}
 		}
 		
-		
 		sealed class LabelCollector : FastDepthFirstVisitor
 		{
-			public static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
+			private static readonly InternalLabel[] EmptyInternalLabelArray = new InternalLabel[0];
 
 			List _labels;
 

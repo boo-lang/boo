@@ -26,28 +26,27 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Reflection.Emit;
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {	
-	public class InternalLocal : AbstractLocalEntity, ITypedEntity, ILocalEntity, IInternalEntity
+	public class InternalLocal : AbstractLocalEntity, ILocalEntity, IInternalEntity
 	{		
-		Boo.Lang.Compiler.Ast.Local _local;
+		Local _local;
 		
 		IType _type;
-		
-		System.Reflection.Emit.LocalBuilder _builder;
 
 		private Declaration _originalDeclaration;
 
-		public InternalLocal(Boo.Lang.Compiler.Ast.Local local, IType type)
+		public InternalLocal(Local local, IType type)
 		{			
 			_local = local;
 			_type = type;
-			_shared = false;
+			IsShared = false;
 		}
 
-		public Boo.Lang.Compiler.Ast.Node Node
+		public Node Node
 		{
 			get { return _local;  }
 		}
@@ -74,7 +73,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			set { _local.PrivateScope = value; }
 		}
 		
-		public Boo.Lang.Compiler.Ast.Local Local
+		public Local Local
 		{
 			get { return _local; }
 		}
@@ -83,13 +82,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get { return _type; }
 		}
-		
-		public System.Reflection.Emit.LocalBuilder LocalBuilder
-		{
-			get { return _builder; }
-			
-			set { _builder = value; }
-		}
+
+		public LocalBuilder LocalBuilder { get; set; }
 
 		public Declaration OriginalDeclaration
 		{

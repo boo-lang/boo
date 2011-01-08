@@ -28,11 +28,9 @@
 
 using System;
 using Boo.Lang.Compiler.Ast;
-using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem.Internal;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
     /// <summary>
     /// A generic type parameter of an internal generic type or method.

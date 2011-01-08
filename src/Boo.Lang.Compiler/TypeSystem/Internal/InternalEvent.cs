@@ -26,17 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
-	using Boo.Lang.Compiler.Ast;
-
 	public class InternalEvent : InternalEntity<Event>, IEvent
-	{	
-		private InternalField _backingField;
-		
-		public InternalEvent(InternalTypeSystemProvider tagManager, Event event_) : base(event_)
+	{
+		public InternalEvent(Event event_) : base(event_)
 		{
 		}
 		
@@ -86,18 +82,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
-		public InternalField BackingField
-		{
-			get
-			{
-				return _backingField;
-			}
-			
-			set
-			{
-				_backingField = value;
-			}
-		}
+		public InternalField BackingField { get; set; }
 
 		public bool IsDuckTyped
 		{

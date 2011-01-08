@@ -28,18 +28,16 @@
 
 using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {	
 	public class InternalParameter : AbstractLocalEntity, IParameter, ILocalEntity, IInternalEntity
 	{
 		ParameterDeclaration _parameter;
-		
-		int _index;
-		
+
 		public InternalParameter(ParameterDeclaration parameter, int index)
 		{
 			_parameter = parameter;
-			_index = index;
+			Index = index;
 		}
 
 		public Node Node
@@ -71,14 +69,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get { return (IType)TypeSystemServices.GetEntity(_parameter.Type); }
 		}
-		
-		public int Index
-		{
-			get { return _index; }
-			
-			set { _index = value; }
-		}
-		
+
+		public int Index { get; set; }
+
 		public bool IsPrivateScope
 		{
 			get { return false; }

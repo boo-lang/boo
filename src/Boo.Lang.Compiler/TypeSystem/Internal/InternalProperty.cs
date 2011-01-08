@@ -26,12 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
-	using Boo.Lang.Compiler.Ast;
-
 	public class InternalProperty : InternalEntity<Property>, IProperty
 	{
 		private InternalTypeSystemProvider _provider;
@@ -115,13 +113,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IParameter[] GetParameters()
 		{
-			if (null == _parameters)
-			{
-				_parameters = _provider.Map(_node.Parameters);				
-			}
-			return _parameters;
+			return _parameters ?? (_parameters = _provider.Map(_node.Parameters));
 		}
-		
+
 		public IProperty Override
 		{
 			get
@@ -178,7 +172,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				return this.Type == _provider.DuckType 
+				return Type == _provider.DuckType 
 					|| _node.Attributes.Contains("Boo.Lang.DuckTypedAttribute");
 			}
 		}

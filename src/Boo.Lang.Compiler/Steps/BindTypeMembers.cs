@@ -28,6 +28,7 @@
 
 
 using System;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps

@@ -93,9 +93,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			{
 				IType baseType = TypeSystemServices.GetType(baseTypeReference);
 				if (type == baseType || baseType.IsSubclassOf(type))
-				{
 					return true;
-				}
 			}
 			return My<TypeSystemServices>.Instance.IsSystemObject(type);
 		}

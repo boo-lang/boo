@@ -1,5 +1,5 @@
-#region license
-// Copyright (c) 2009, Rodrigo B. de Oliveira (rbo@acm.org)
+﻿#region license
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,41 +26,66 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Extensions
+using System.Collections.Generic;
 
-import System
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.TypeSystem
-import Boo.Lang.Compiler.TypeSystem.Internal
-import Boo.Lang.Compiler.TypeSystem.Services
-import Boo.Lang.Environments
-
-[meta]
-def sizeof(e as Expression):
-	ue = e as UnaryExpression
-	e = ue.Operand if ue and ue.Operator == UnaryOperatorType.Indirection
-
-	re = e as ReferenceExpression
-	if not re:
-		goto invalid
-
-	entity = my(NameResolutionService).Resolve(re.Name, EntityType.Type | EntityType.Local)
-	if not entity:
-		goto invalid
-	if entity.EntityType == EntityType.Local:
-		entity = cast(InternalLocal, entity).Type
-
-	if entity.EntityType == EntityType.Type or entity.EntityType == EntityType.Array:
-		type = entity as IType
-		size = my(TypeSystemServices).SizeOf(type)
-
-	if not size:
-		my(CompilerErrorCollection).Add(CompilerErrorFactory.PointerIncompatibleType(e, type))
-		return IntegerLiteralExpression(0)
-
-	return IntegerLiteralExpression(size)
-
-	:invalid
-	my(CompilerErrorCollection).Add(CompilerErrorFactory.NameNotType(e, e.ToCodeString(), null, null));
-	return IntegerLiteralExpression(0)
-
+namespace Boo.Lang.Compiler.TypeSystem.Core
+{
+	public class AliasedNamespace : INamespace
+	{
+		string _alias;
+		IEntity _subject;
+		
+		public AliasedNamespace(string alias, IEntity subject)
+		{
+			_alias = alias;			
+			_subject = subject;
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return _alias;
+			}
+		}
+		
+		public string FullName
+		{
+			get
+			{
+				return _subject.FullName;
+			}
+		}
+		
+		public EntityType EntityType
+		{
+			get
+			{
+				return EntityType.Namespace;
+			}
+		}
+		
+		public INamespace ParentNamespace
+		{
+			get
+			{
+				return ((INamespace)_subject).ParentNamespace;
+			}
+		}
+		
+		public bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
+		{
+			if (name == _alias && Entities.IsFlagSet(typesToConsider, _subject.EntityType))
+			{
+				resultingSet.Add(_subject);
+				return true;
+			}
+			return false;
+		}
+		
+		public IEnumerable<IEntity> GetMembers()
+		{
+			return ((INamespace)_subject).GetMembers();
+		}
+	}
+}

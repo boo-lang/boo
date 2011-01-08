@@ -26,18 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.TypeSystem
-{
-	using System;
-	using System.Reflection.Emit;
-	using Boo.Lang.Compiler.Ast;
+using System;
+using System.Reflection.Emit;
+using Boo.Lang.Compiler.Ast;
 
+namespace Boo.Lang.Compiler.TypeSystem.Internal
+{
 	public class InternalLabel : IEntity
 	{
 		LabelStatement _labelStatement;
-		
-		Label _label;
-		
+
 		public InternalLabel(LabelStatement labelStatement)
 		{
 			if (null == labelStatement)
@@ -79,18 +77,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return _labelStatement.Name;
 			}
 		}
-		
-		public Label Label
-		{
-			get
-			{
-				return _label;
-			}
-			
-			set
-			{
-				_label = value;
-			}
-		}
+
+		public Label Label { get; set; }
 	}
 }

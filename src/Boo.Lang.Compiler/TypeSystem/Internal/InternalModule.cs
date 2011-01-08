@@ -26,13 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
-using Boo.Lang.Compiler.TypeSystem.Services;
-using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
@@ -82,7 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			get { return _namespace; }
 		}
 		
-		public Boo.Lang.Compiler.Ast.ClassDefinition ModuleClass
+		public ClassDefinition ModuleClass
 		{
 			get { return _moduleClass; }
 		}
@@ -98,7 +94,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			}
 		}
 		
-		public void InitializeModuleClass(Boo.Lang.Compiler.Ast.ClassDefinition moduleClass)
+		public void InitializeModuleClass(ClassDefinition moduleClass)
 		{
 			_moduleClassNamespace = (INamespace) _provider.EntityFor(moduleClass);
 			_moduleClass = moduleClass;

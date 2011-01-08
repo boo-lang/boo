@@ -83,7 +83,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				case NodeType.Property:
 					return new InternalProperty(this, (Property)member);
 				case NodeType.Event:
-					return new InternalEvent(this, (Event)member);
+					return new InternalEvent((Event)member);
 			}
 			throw new ArgumentException("Member type not supported: " + member.GetType());
 		}

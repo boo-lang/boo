@@ -1973,7 +1973,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Iterator);
 			node.Iterator = ProcessIterator(node.Iterator, node.Declarations);
 
-			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
+			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, node.Declarations));
 			Visit(node.Filter);
 			Visit(node.Expression);
 			LeaveNamespace();
@@ -2890,7 +2890,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void EnterForNamespace(ForStatement node)
 		{
-			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declarations));
+			EnterNamespace(new DeclarationsNamespace(CurrentNamespace, node.Declarations));
 		}
 
 		override public void OnUnpackStatement(UnpackStatement node)
@@ -2973,7 +2973,7 @@ namespace Boo.Lang.Compiler.Steps
 				// If the exception is not anonymous, place it into a
 				// local variable and enter a new namespace
 				DeclareLocal(node.Declaration, true);
-				EnterNamespace(new DeclarationsNamespace(CurrentNamespace, TypeSystemServices, node.Declaration));
+				EnterNamespace(new DeclarationsNamespace(CurrentNamespace, node.Declaration));
 			}
 
 			try
