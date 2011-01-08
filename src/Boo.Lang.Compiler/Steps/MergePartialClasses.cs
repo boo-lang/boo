@@ -26,28 +26,25 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
-using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	public class MergePartialClasses : AbstractTransformerCompilerStep
 	{
 		Dictionary<string, TypeDefinition> _partials = new Dictionary<string, TypeDefinition>();
-		TypeDefinition _current;
 		
 		override public void Run()
-		{			
-			Visit(CompileUnit.Modules);
-		}
-		
-		override public void Dispose()
 		{
-			base.Dispose();
-			_current = null;
-			_partials.Clear();
+			try
+			{
+				Visit(CompileUnit.Modules);
+			}
+			finally
+			{
+				_partials.Clear();
+			}
 		}
 
 		public override void OnModule(Module node)
@@ -55,42 +52,38 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Members);
 		}
 		
-		override public bool EnterClassDefinition(ClassDefinition node)
+		override public void OnClassDefinition(ClassDefinition node)
 		{
-			return EnterCandidatePartialDefinition(node);
+			OnCandidatePartialDefinition(node);
 		}
 
-		override public bool EnterEnumDefinition(EnumDefinition node)
+		override public void OnEnumDefinition(EnumDefinition node)
 		{
-			return EnterCandidatePartialDefinition(node);
+			OnCandidatePartialDefinition(node);
 		}
 
-		private bool EnterCandidatePartialDefinition(TypeDefinition node)
+		private void OnCandidatePartialDefinition(TypeDefinition node)
 		{
-			if (_current != null)
-			{
-				_current.Members.Add(node);
-				return false;
-			}
-
 			if (!node.IsPartial)
-				return false;
+				return;
 
 			var typeName = node.FullName;
-			if (_partials.TryGetValue(typeName, out _current))
-			{
-				if (_current.NodeType != node.NodeType)
-				{
-					Errors.Add(CompilerErrorFactory.IncompatiblePartialDefinition(node, typeName, AstUtil.TypeKeywordFor(_current), AstUtil.TypeKeywordFor(node)));
-					return false;
-				}
-				MergeImports(node, _current);
-				RemoveCurrentNode();
-				return true;
-			}
 
-			_partials[typeName] = node;
-			return false;
+			TypeDefinition originalDefinition;
+			if (_partials.TryGetValue(typeName, out originalDefinition))
+			{
+				if (originalDefinition.NodeType != node.NodeType)
+				{
+					Errors.Add(CompilerErrorFactory.IncompatiblePartialDefinition(node, typeName, AstUtil.TypeKeywordFor(originalDefinition), AstUtil.TypeKeywordFor(node)));
+					return;
+				}
+
+				MergeImports(node, originalDefinition);
+				originalDefinition.Merge(node);
+				RemoveCurrentNode();
+			}
+			else
+				_partials[typeName] = node;
 		}
 
 		static void MergeImports(TypeDefinition from, TypeDefinition to)
@@ -111,44 +104,6 @@ namespace Boo.Lang.Compiler.Steps
 				fromModule.Annotate("merged-module");
 			if (!toModule.ContainsAnnotation("merged-module"))
 				toModule.Annotate("merged-module");
-		}
-		
-		override public void LeaveClassDefinition(ClassDefinition node)
-		{
-			_current = null;
-		}
-		
-		override public void OnAttribute(Attribute node)
-		{
-			if (_current == null) return;
-			
-			//attributes for the merged class contain any and all attributes declared on each partial definition
-			_current.Attributes.Add(node);
-		}
-		
-		private void AddMember(TypeMember member)
-		{
-			if (_current == null) return;
-			
-			_current.Members.Add(member);
-		}
-		
-		override public void OnStructDefinition(StructDefinition node) { AddMember(node); }
-		override public void OnInterfaceDefinition(InterfaceDefinition node) { AddMember(node); }
-		override public void OnEnumMember(EnumMember node) { AddMember(node); }
-		override public void OnField(Field node) { AddMember(node); }
-		override public void OnProperty(Property node) { AddMember(node); }
-		override public void OnEvent(Event node) { AddMember(node); }
-		override public void OnMethod(Method node) { AddMember(node); }
-		override public void OnConstructor(Constructor node) { AddMember(node); }
-		
-		/* the simple type references that happen while visiting a 
-		 * class defintion are its base class and implemented interfaces
-		 * */
-		override public void OnSimpleTypeReference(SimpleTypeReference node) 
-		{
-			if (_current != null && !_current.BaseTypes.Contains(node.Name))
-				_current.BaseTypes.Add(node);
 		}
 	}
 }

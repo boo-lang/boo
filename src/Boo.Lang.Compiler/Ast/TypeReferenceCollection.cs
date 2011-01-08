@@ -34,17 +34,8 @@ namespace Boo.Lang.Compiler.Ast
 		{
 		}
 		
-		public TypeReferenceCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
+		public TypeReferenceCollection(Node parent) : base(parent)
 		{
-		}
-		
-		public bool Contains(string name)
-		{
-			foreach (SimpleTypeReference item in this)
-			{
-				if (name == item.Name) return true;
-			}
-			return false;
 		}
 	}
 }
