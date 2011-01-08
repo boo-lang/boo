@@ -621,6 +621,23 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			return expressionCollection.Count > 0 && IsExplodeExpression(expressionCollection[-1]);
 		}
+
+		public static string TypeKeywordFor(TypeDefinition node)
+		{
+			switch (node.NodeType)
+			{
+				case NodeType.ClassDefinition:
+					return "class";
+				case NodeType.InterfaceDefinition:
+					return "interface";
+				case NodeType.StructDefinition:
+					return "struct";
+				case NodeType.EnumDefinition:
+					return "enum";
+				default:
+					throw new ArgumentException("Unsupported type definition kind: " + node.NodeType, "node");
+			}
+		}
 	}
 }
 

@@ -1318,6 +1318,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCE0176_1()
+		{
+			RunCompilerTestCase(@"BCE0176-1.boo");
+		}
+		
+		[Test]
 		public void CannotConvertFooToInt()
 		{
 			RunCompilerTestCase(@"CannotConvertFooToInt.boo");

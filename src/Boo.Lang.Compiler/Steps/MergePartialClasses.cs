@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
@@ -48,8 +49,23 @@ namespace Boo.Lang.Compiler.Steps
 			_current = null;
 			_partials.Clear();
 		}
+
+		public override void OnModule(Module node)
+		{
+			Visit(node.Members);
+		}
 		
 		override public bool EnterClassDefinition(ClassDefinition node)
+		{
+			return EnterCandidatePartialDefinition(node);
+		}
+
+		override public bool EnterEnumDefinition(EnumDefinition node)
+		{
+			return EnterCandidatePartialDefinition(node);
+		}
+
+		private bool EnterCandidatePartialDefinition(TypeDefinition node)
 		{
 			if (_current != null)
 			{
@@ -60,14 +76,20 @@ namespace Boo.Lang.Compiler.Steps
 			if (!node.IsPartial)
 				return false;
 
-			if (_partials.TryGetValue(node.FullName, out _current))
+			var typeName = node.FullName;
+			if (_partials.TryGetValue(typeName, out _current))
 			{
+				if (_current.NodeType != node.NodeType)
+				{
+					Errors.Add(CompilerErrorFactory.IncompatiblePartialDefinition(node, typeName, AstUtil.TypeKeywordFor(_current), AstUtil.TypeKeywordFor(node)));
+					return false;
+				}
 				MergeImports(node, _current);
 				RemoveCurrentNode();
 				return true;
 			}
 
-			_partials[node.FullName] = node;
+			_partials[typeName] = node;
 			return false;
 		}
 
@@ -113,7 +135,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void OnStructDefinition(StructDefinition node) { AddMember(node); }
 		override public void OnInterfaceDefinition(InterfaceDefinition node) { AddMember(node); }
-		override public void OnEnumDefinition(EnumDefinition node) { AddMember(node); }
+		override public void OnEnumMember(EnumMember node) { AddMember(node); }
 		override public void OnField(Field node) { AddMember(node); }
 		override public void OnProperty(Property node) { AddMember(node); }
 		override public void OnEvent(Event node) { AddMember(node); }

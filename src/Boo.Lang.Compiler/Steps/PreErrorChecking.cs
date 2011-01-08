@@ -122,7 +122,6 @@ namespace Boo.Lang.Compiler.Steps
 			CantBeMarkedAbstract(node);
 			CantBeMarkedFinal(node);
 			CantBeMarkedStatic(node);
-			CantBeMarkedPartial(node);
 		}
 
 		override public void LeaveClassDefinition(ClassDefinition node)

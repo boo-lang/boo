@@ -956,6 +956,11 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0175", node, nestedTypeName, enclosingTypeName);
 		}
 
+		public static CompilerError IncompatiblePartialDefinition(Node node, string typeName, string expectedType, string actualType)
+		{
+			return Instantiate("BCE0176", node, typeName, expectedType, actualType);
+		}
+
 		public static CompilerError Instantiate(string code, Exception error, params object[] args)
 		{
 			return new CompilerError(code, error, args);

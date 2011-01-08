@@ -895,6 +895,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void partial_enums()
+		{
+			RunCompilerTestCase(@"partial-enums.boo");
+		}
+		
+		[Test]
 		public void properties_1()
 		{
 			RunCompilerTestCase(@"properties-1.boo");
