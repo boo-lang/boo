@@ -26,12 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class EnumMember
-	{		
+	{	
+		public static EnumMember Lift(ReferenceExpression node)
+		{	
+			return new EnumMember(node.LexicalInfo, node.Name);
+		}
+
 		public EnumMember()
 		{
  		}
@@ -49,5 +52,11 @@ namespace Boo.Lang.Compiler.Ast
 		public EnumMember(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
+
+		public EnumMember(LexicalInfo lexicalInfoProvider, string name) : base(lexicalInfoProvider)
+		{
+			this.Name = name;
+		}
+
 	}
 }

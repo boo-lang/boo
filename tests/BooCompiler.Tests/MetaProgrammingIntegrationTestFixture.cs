@@ -379,6 +379,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void splicing_reference_into_enum_body()
+		{
+			RunCompilerTestCase(@"splicing-reference-into-enum-body.boo");
+		}
+		
+		[Test]
 		public void typedef_splicing_1()
 		{
 			RunCompilerTestCase(@"typedef-splicing-1.boo");

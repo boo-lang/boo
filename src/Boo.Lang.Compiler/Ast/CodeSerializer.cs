@@ -270,7 +270,10 @@ namespace Boo.Lang.Compiler.Ast
 				SerializeSpliceTypeDefinitionBody(node);
 				return;
 			}
-			Push(LiftTypeMember(node.Expression));
+			if (node.ParentNode is EnumDefinition)
+				Push(LiftEnumMember(node.Expression));
+			else
+				Push(LiftTypeMember(node.Expression));
 		}
 
 		public override void OnSpliceTypeMember(SpliceTypeMember node)
@@ -359,6 +362,11 @@ namespace Boo.Lang.Compiler.Ast
 		private MethodInvocationExpression LiftTypeMember(Expression node)
 		{
 			return Lift("Boo.Lang.Compiler.Ast.TypeMember.Lift", node);
+		}
+
+		private MethodInvocationExpression LiftEnumMember(Expression node)
+		{
+			return Lift("Boo.Lang.Compiler.Ast.EnumMember.Lift", node);
 		}
 
 		private MethodInvocationExpression Lift(string methodName, Expression node)
