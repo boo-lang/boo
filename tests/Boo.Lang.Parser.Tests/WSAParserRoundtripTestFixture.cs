@@ -67,6 +67,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void ast_literal_enum()
+		{
+			RunCompilerTestCase(@"ast-literal-enum.boo");
+		}
+		
+		[Test]
 		public void ast_literals_1()
 		{
 			RunCompilerTestCase(@"ast-literals-1.boo");
@@ -964,6 +970,12 @@ namespace Boo.Lang.Parser.Tests
 		public void splicing_class_body()
 		{
 			RunCompilerTestCase(@"splicing-class-body.boo");
+		}
+		
+		[Test]
+		public void splicing_enum_body()
+		{
+			RunCompilerTestCase(@"splicing-enum-body.boo");
 		}
 		
 		[Test]

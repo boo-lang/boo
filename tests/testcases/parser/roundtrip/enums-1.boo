@@ -18,6 +18,9 @@ enum YetAnother:
 	Foo
 
 	Bar
+
+enum Empty:
+	pass
 """
 enum AnEnum:
 	Foo
@@ -30,4 +33,7 @@ enum AnotherEnum:
 enum YetAnother:
 	Foo
 	Bar
+
+enum Empty:
+	pass
 

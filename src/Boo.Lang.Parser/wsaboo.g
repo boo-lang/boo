@@ -300,6 +300,7 @@ protected
 enum_definition [TypeMemberCollection container]
 	{
 		EnumDefinition ed = null;
+		TypeMemberCollection members = null;
 	}:
 	ENUM id:ID { ed = new EnumDefinition(SourceLocationFactory.ToLexicalInfo(id)); }
 	begin_with_doc[ed]
@@ -308,15 +309,16 @@ enum_definition [TypeMemberCollection container]
 		ed.Modifiers = _modifiers;
 		AddAttributes(ed.Attributes);
 		container.Add(ed);
+		members = ed.Members;
 	}
 	(
-		(enum_member[ed])+
+		(enum_member[members] | splice_type_definition_body[members])+
 	)
 	end[ed]
 	;
 	
 protected
-enum_member [EnumDefinition container]
+enum_member [TypeMemberCollection container]
 	{	
 		EnumMember em = null;	
 		IntegerLiteralExpression initializer = null;
@@ -333,7 +335,7 @@ enum_member [EnumDefinition container]
 			initializer.Value *= -1;
 		}
 		AddAttributes(em.Attributes);
-		container.Members.Add(em);
+		container.Add(em);
 	}
 	eos
 	docstring[em]
@@ -1997,7 +1999,7 @@ ast_literal_block[QuasiquoteExpression e]
 	(ast_literal_module_prediction)=>(ast_literal_module[e])
 	
 	| (attributes (type_member_modifier | (modifiers
-		(CLASS | STRUCT | INTERFACE | EVENT | DEF | CALLABLE
+		(CLASS | ENUM | STRUCT | INTERFACE | EVENT | DEF | CALLABLE
 		| (ID (AS type_reference)? begin_with_doc[null] (GET|SET))))))
 		
 		=>((type_definition_member[collection])+ {

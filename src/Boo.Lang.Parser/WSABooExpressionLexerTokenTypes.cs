@@ -85,10 +85,10 @@ namespace Boo.Lang.Parser
 		public const int SUBTRACT = 80;
 		public const int COMMA = 81;
 		public const int ASSEMBLY_ATTRIBUTE_BEGIN = 82;
-		public const int DOT = 83;
-		public const int COLON = 84;
-		public const int MULTIPLY = 85;
-		public const int SPLICE_BEGIN = 86;
+		public const int SPLICE_BEGIN = 83;
+		public const int DOT = 84;
+		public const int COLON = 85;
+		public const int MULTIPLY = 86;
 		public const int NULLABLE_SUFFIX = 87;
 		public const int EXPONENTIATION = 88;
 		public const int BITWISE_OR = 89;

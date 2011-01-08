@@ -335,23 +335,26 @@ protected
 enum_definition [TypeMemberCollection container]
 	{
 		EnumDefinition ed = null;
+		TypeMemberCollection members = null;
 	}:
 	ENUM id:ID { ed = new EnumDefinition(ToLexicalInfo(id)); }
 	begin_with_doc[ed]
-	{
-		ed.Name = id.getText();
-		ed.Modifiers = _modifiers;
-		AddAttributes(ed.Attributes);
-		container.Add(ed);
-	}
-	(
-		(enum_member[ed])+
-	)
+		{
+			ed.Name = id.getText();
+			ed.Modifiers = _modifiers;
+			AddAttributes(ed.Attributes);
+			container.Add(ed);
+			members = ed.Members;
+		}
+		(
+			(PASS eos)
+			| (enum_member[members] | splice_type_definition_body[members])+
+		)
 	end[ed]
 	;
 	
 protected
-enum_member [EnumDefinition container]
+enum_member [TypeMemberCollection container]
 	{	
 		EnumMember em = null;
 		Expression initializer = null;
@@ -363,7 +366,7 @@ enum_member [EnumDefinition container]
 		em.Name = id.getText();
 		em.Initializer = initializer;
 		AddAttributes(em.Attributes);
-		container.Members.Add(em);
+		container.Add(em);
 	}
 	eos
 	docstring[em]
@@ -914,7 +917,7 @@ property_accessor[Property p]
 		m.Modifiers = _modifiers;
 		body = m.Body;
 	}
-	compound_stmt[body]
+	(eos | compound_stmt[body])
 	;
 	
 protected
@@ -2209,7 +2212,7 @@ ast_literal_block[QuasiquoteExpression e]
 	(ast_literal_module_prediction)=>(ast_literal_module[e])
 	
 	| (attributes (type_member_modifier | (modifiers
-		(CLASS | STRUCT | INTERFACE | EVENT | DEF | CALLABLE
+		(CLASS | ENUM | STRUCT | INTERFACE | EVENT | DEF | CALLABLE
 		| ((ID | splice_expression) (AS type_reference)? begin_with_doc[null] (GET|SET))))))
 		
 		=>((type_definition_member[collection])+ {
