@@ -401,7 +401,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		public IEntity ResolveGenericTypeReference(GenericTypeReference gtr, IEntity definition)
 		{
 			ResolveTypeReferenceCollection(gtr.GenericArguments);
-			IType[] typeArguments = GetTypes(gtr.GenericArguments);
+			IType[] typeArguments = gtr.GenericArguments.ToArray(t => TypeSystemServices.GetType(t));
 			
 			return My<GenericsServices>.Instance.ConstructEntity(gtr, definition, typeArguments);
 		}
@@ -409,17 +409,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		public IEntity ResolveGenericReferenceExpression(GenericReferenceExpression gre, IEntity definition)
 		{
 			ResolveTypeReferenceCollection(gre.GenericArguments);
-			IType[] typeArguments = GetTypes(gre.GenericArguments);
+			IType[] typeArguments = gre.GenericArguments.ToArray(t => TypeSystemServices.GetType(t));
 			
 			return My<GenericsServices>.Instance.ConstructEntity(
 				gre, definition, typeArguments);
-		}
-
-		private IType[] GetTypes(TypeReferenceCollection typeReferences)
-		{
-			return Array.ConvertAll<TypeReference, IType>(
-				typeReferences.ToArray(),
-				TypeSystemServices.GetType);
 		}
 
 		private void FilterGenericTypes(Set<IEntity> types, SimpleTypeReference node)		

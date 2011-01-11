@@ -142,6 +142,11 @@ namespace Boo.Lang.Compiler.Ast
 			return _list.ToArray();
 		}
 
+		public TOut[] ToArray<TOut>(Func<T, TOut> selector)
+		{
+			return _list.ToArray(selector);
+		}
+
 		public T[] ToReverseArray()
 		{
 			T[] array = ToArray();

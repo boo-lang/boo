@@ -241,6 +241,14 @@ namespace Boo.Lang
 			return array;
 		}
 
+		public TOut[] ToArray<TOut>(Func<T, TOut> selector)
+		{
+			var result = new TOut[_count];
+			for (var i = 0; i < _count; ++i)
+				result[i] = selector(_items[i]);
+			return result;
+		}
+
 		public List<T> Sort()
 		{
 			Array.Sort(_items, 0, _count, BooComparer.Default);
