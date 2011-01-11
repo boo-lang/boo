@@ -47,9 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 			
 			_internalTypeSystemProvider = My<InternalTypeSystemProvider>.Instance;
 			_codeBuilder = My<BooCodeBuilder>.Instance;
-			_cd = new ClassDefinition();
-			_cd.Name = name;
-			_cd.IsSynthetic = true;
+			_cd = new ClassDefinition { Name = name, IsSynthetic = true };
 			EnsureEntityFor(_cd);
 		}
 		
@@ -150,8 +148,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 
 		public GenericParameterDeclaration AddGenericParameter(string name)
 		{
-			GenericParameterDeclarationCollection genericParameters = ClassDefinition.GenericParameters;
-			GenericParameterDeclaration declaration = _codeBuilder.CreateGenericParameterDeclaration(genericParameters.Count, name);
+			var genericParameters = ClassDefinition.GenericParameters;
+			var declaration = _codeBuilder.CreateGenericParameterDeclaration(genericParameters.Count, name);
 			genericParameters.Add(declaration);
 			return declaration;
 		}
