@@ -31,6 +31,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void automatic_stubs_for_interface_methods()
+		{
+			RunCompilerTestCase(@"automatic-stubs-for-interface-methods.boo");
+		}
+		
+		[Test]
 		public void baseclass_1()
 		{
 			RunCompilerTestCase(@"baseclass-1.boo");
@@ -604,12 +610,6 @@ namespace BooCompiler.Tests
 		public void interfaces_17()
 		{
 			RunCompilerTestCase(@"interfaces-17.boo");
-		}
-		
-		[Test]
-		public void interfaces_18()
-		{
-			RunCompilerTestCase(@"interfaces-18.boo");
 		}
 		
 		[Test]
