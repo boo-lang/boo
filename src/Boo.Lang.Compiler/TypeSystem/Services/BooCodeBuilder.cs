@@ -959,15 +959,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		Method CreateMethodStub(IMethod baseMethod)
 		{
-			Method stub = CreateMethodFromPrototype(baseMethod, TypeSystemServices.GetAccess(baseMethod) | TypeMemberModifiers.Virtual);
+			var stub = CreateMethodFromPrototype(baseMethod, TypeSystemServices.GetAccess(baseMethod) | TypeMemberModifiers.Virtual);
 
-			MethodInvocationExpression x = new MethodInvocationExpression();
-			x.Target = new MemberReferenceExpression(
-								new ReferenceExpression("System"),
-								"NotImplementedException");
-			RaiseStatement rs = new RaiseStatement(x);
-			rs.LexicalInfo = LexicalInfo.Empty;
-			stub.Body.Statements.Insert(0, rs);
+			var notImplementedException = new MethodInvocationExpression
+			        	{
+			        		Target = new MemberReferenceExpression(new ReferenceExpression("System"), "NotImplementedException")
+			        	};
+			stub.Body.Statements.Add(new RaiseStatement(notImplementedException) { LexicalInfo = LexicalInfo.Empty });
 
 			return stub;
 		}
