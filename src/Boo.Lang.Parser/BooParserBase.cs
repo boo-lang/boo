@@ -5157,7 +5157,7 @@ _loop137_breakloop:					;
 								e=expression();
 								if (0==inputState.guessing)
 								{
-									ec.Add(e);
+									if (e != null) ec.Add(e);
 								}
 							}
 							else
