@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		
 		Field _externalEnumeratorSelf;
 
-		readonly List _labels;
+		readonly List<LabelStatement> _labels;
 
 		readonly System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
 
@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
 		{
-			_labels = new List();
+			_labels = new List<LabelStatement>();
 			_mapping = new Hashtable();
 			_generator = method;
 
