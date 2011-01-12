@@ -45,6 +45,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void automatic_generic_method_stub()
+		{
+			RunCompilerTestCase(@"automatic-generic-method-stub.boo");
+		}
+		
+		[Test]
 		public void callable_1()
 		{
 			RunCompilerTestCase(@"callable-1.boo");
