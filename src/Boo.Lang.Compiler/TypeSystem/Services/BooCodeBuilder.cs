@@ -592,38 +592,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ReferenceExpression CreateReference(ParameterDeclaration parameter)
 		{
-			return CreateReference((InternalParameter)TypeSystem.TypeSystemServices.GetEntity(parameter));
+			return CreateReference((InternalParameter)TypeSystemServices.GetEntity(parameter));
 		}
 
 		public ReferenceExpression CreateReference(InternalParameter parameter)
 		{
-			ReferenceExpression reference = new ReferenceExpression(parameter.Name);
-			reference.Entity = parameter;
-			reference.ExpressionType = parameter.Type;
-			return reference;
+			return new ReferenceExpression(parameter.Name)
+			       	{
+			       		Entity = parameter,
+			       		ExpressionType = parameter.Type
+			       	};
 		}
 
 		public UnaryExpression CreateNotExpression(Expression node)
 		{
-			UnaryExpression notNode = new UnaryExpression();
-			notNode.LexicalInfo = node.LexicalInfo;
-			notNode.Operand = node;
-			notNode.Operator = UnaryOperatorType.LogicalNot;
-
-			notNode.ExpressionType = TypeSystemServices.BoolType;
-			return notNode;
+			return new UnaryExpression
+			       	{
+			       		LexicalInfo = node.LexicalInfo,
+			       		Operand = node,
+			       		Operator = UnaryOperatorType.LogicalNot,
+			       		ExpressionType = TypeSystemServices.BoolType
+			       	};
 		}
 
 		public ParameterDeclaration CreateParameterDeclaration(int index, string name, IType type, bool byref)
 		{
-			ParameterModifiers modifiers = ParameterModifiers.None;
-			if (byref)
-			{
-				modifiers |= ParameterModifiers.Ref;
-			}
-			ParameterDeclaration parameter = new ParameterDeclaration(name,
-								CreateTypeReference(type),
-								modifiers);
+			var modifiers = byref ? ParameterModifiers.Ref : ParameterModifiers.None;
+			var parameter = new ParameterDeclaration(name, CreateTypeReference(type), modifiers);
 			parameter.Entity = new InternalParameter(parameter, index);
 			return parameter;
 		}
@@ -745,9 +740,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public Method CreateVirtualMethod(string name, TypeReference returnType)
 		{
-			return CreateMethod(name,
-							returnType,
-							TypeMemberModifiers.Public|TypeMemberModifiers.Virtual);
+			return CreateMethod(name, returnType, TypeMemberModifiers.Public|TypeMemberModifiers.Virtual);
 		}
 
 		public Method CreateMethod(string name, IType returnType, TypeMemberModifiers modifiers)
