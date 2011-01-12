@@ -154,6 +154,7 @@
     <Compile Include="ModulesIntegrationTestFixture.cs" />
     <Compile Include="MyTest.cs" />
     <Compile Include="Net2ErrorsTestFixture.cs" />
+    <Compile Include="NotImplementedErrorsTestFixture.cs" />
     <Compile Include="OperatorsIntegrationTestFixture.cs" />
     <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
     <Compile Include="Pipeline\ViewStateAttribute.cs" />

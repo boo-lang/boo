@@ -211,7 +211,7 @@
     <value>The node '{0}' is not in the collection.</value>
   </data>
   <data name="BCE0031" xml:space="preserve">
-    <value>Language feature still not implemented: '{0}'.</value>
+    <value>Language feature not implemented: {0}.</value>
   </data>
   <data name="BCE0032" xml:space="preserve">
     <value>The event '{0}' expects a {2} reference compatible with '{1}'.</value>

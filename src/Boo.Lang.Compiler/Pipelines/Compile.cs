@@ -48,6 +48,7 @@ namespace Boo.Lang.Compiler.Pipelines
 
 			Add(new CheckIdentifiers());
 			Add(new StricterErrorChecking());
+			Add(new DetectNotImplementedFeatureUsage());
 			Add(new CheckAttributesUsage());
 			
 			Add(new ExpandDuckTypedExpressions());

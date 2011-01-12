@@ -60,6 +60,16 @@ def Main(argv as (string)):
 		{
 	""")
 	
+	GenerateTestFixture("not-implemented", "BooCompiler.Tests/NotImplementedErrorsTestFixture.cs", "BooCompiler.NotImplementedErrors", """
+	namespace BooCompiler.Tests
+	{
+		using NUnit.Framework;
+	
+		[TestFixture]
+		public class NotImplementedErrorsTestFixture : AbstractCompilerErrorsTestFixture
+		{
+	""")
+	
 	GenerateTestFixture("warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.cs", "BooCompiler.CompilerWarnings", """
 	namespace BooCompiler.Tests
 	{
