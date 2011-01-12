@@ -26,25 +26,31 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
+using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Collections;
-	using System.Diagnostics;
-	using System.Reflection;
-	using Boo.Lang.Compiler.Ast;
-	using Attribute = Boo.Lang.Compiler.Ast.Attribute;
-
-	public class BooCodeBuilder
+	public class BooCodeBuilder : ICodeBuilder
 	{
 		private readonly EnvironmentProvision<TypeSystemServices> _tss = new EnvironmentProvision<TypeSystemServices>();
 		private readonly EnvironmentProvision<InternalTypeSystemProvider> _internalTypeSystemProvider = new EnvironmentProvision<InternalTypeSystemProvider>();
+
+		private readonly DynamicVariable<ITypeReferenceFactory> _typeReferenceFactory;
+
+		public BooCodeBuilder()
+		{
+			_typeReferenceFactory = new DynamicVariable<ITypeReferenceFactory>(new StandardTypeReferenceFactory(this));
+		}
 
 		public TypeSystemServices TypeSystemServices
 		{
@@ -313,47 +319,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return reference;
 		}
 
-		public TypeReference CreateTypeReference(IType tag)
+		public TypeReference CreateTypeReference(IType type)
 		{
-			TypeReference typeReference = null;
-
-			if (tag.IsArray)
-			{
-				IArrayType arrayType = (IArrayType) tag;
-				IType elementType = arrayType.ElementType;
-				//typeReference = new ArrayTypeReference();
-				//((ArrayTypeReference)typeReference).ElementType = CreateTypeReference(elementType);
-				// FIXME: This is what it *should* be, but it causes major breakage. ??
-				typeReference = new ArrayTypeReference(CreateTypeReference(elementType), CreateIntegerLiteral(arrayType.Rank));
-			}
-			else
-			{
-				typeReference = new SimpleTypeReference(tag.FullName);
-			}
-
-			typeReference.Entity = tag;
-			return typeReference;
+			return TypeReferenceFactory.TypeReferenceFor(type);
 		}
 
-		public SuperLiteralExpression CreateSuperReference(IType super)
+		private ITypeReferenceFactory TypeReferenceFactory
 		{
-			SuperLiteralExpression expression = new SuperLiteralExpression();
-			expression.ExpressionType = super;
-			return expression;
+			get { return _typeReferenceFactory.Value; }
+		}
+
+		public SuperLiteralExpression CreateSuperReference(IType expressionType)
+		{
+			return new SuperLiteralExpression { ExpressionType = expressionType };
 		}
 		
-		public SelfLiteralExpression CreateSelfReference(LexicalInfo location, IType self)
+		public SelfLiteralExpression CreateSelfReference(LexicalInfo location, IType expressionType)
 		{
-			var reference = CreateSelfReference(self);
+			var reference = CreateSelfReference(expressionType);
 			reference.LexicalInfo = location;
 			return reference;
 		}
 
-		public SelfLiteralExpression CreateSelfReference(IType self)
+		public SelfLiteralExpression CreateSelfReference(IType expressionType)
 		{
-			SelfLiteralExpression expression = new SelfLiteralExpression();
-			expression.ExpressionType = self;
-			return expression;
+			return new SelfLiteralExpression { ExpressionType = expressionType };
 		}
 
 		public ReferenceExpression CreateLocalReference(string name, InternalLocal entity)
@@ -863,14 +853,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 			method.Modifiers = newModifiers;
 			method.IsSynthetic = true;
 
-			if (null != baseMethod.GenericInfo)
-				DeclareGenericParameters(method, baseMethod.GenericInfo.GenericParameters);
-
-			DeclareParameters(method, baseMethod.GetParameters(), baseMethod.IsStatic ? 0 : 1);
-
-			method.ReturnType = CreateTypeReference(baseMethod.ReturnType);
+			var optionalTypeMappings = DeclareGenericParametersFromPrototype(method, baseMethod);
+			var typeReferenceFactory = optionalTypeMappings != null
+			                           	? new MappedTypeReferenceFactory(TypeReferenceFactory, optionalTypeMappings)
+			                           	: TypeReferenceFactory;
+			_typeReferenceFactory.With(typeReferenceFactory, ()=>
+			{
+				DeclareParameters(method, baseMethod.GetParameters(), baseMethod.IsStatic ? 0 : 1);
+				method.ReturnType = CreateTypeReference(baseMethod.ReturnType);
+			});
 			EnsureEntityFor(method);
 			return method;
+		}
+
+		private IDictionary<IType, IType> DeclareGenericParametersFromPrototype(Method method, IMethod baseMethod)
+		{	
+			var genericMethodInfo = baseMethod.GenericInfo;
+			if (genericMethodInfo == null) return null;
+			var prototypeParameters = genericMethodInfo.GenericParameters;
+			DeclareGenericParameters(method, prototypeParameters);
+
+			var newGenericParameters = method.GenericParameters.ToArray(p => (IGenericParameter)p.Entity);
+			return CreateDictionaryMapping(prototypeParameters, newGenericParameters);
+		}
+
+		private static IDictionary<IType, IType> CreateDictionaryMapping(IGenericParameter[] from, IGenericParameter[] to)
+		{
+			var mappings = new Dictionary<IType, IType>(from.Length);
+			for (int i=0; i<from.Length; ++i)
+				mappings.Add(from[i], to[i]);
+			return mappings;
 		}
 
 		public Event CreateAbstractEvent(LexicalInfo lexicalInfo, IEvent baseEvent)

@@ -512,6 +512,10 @@
     <Compile Include="TypeSystem\Builders\BooClassBuilder.cs" />
     <Compile Include="TypeSystem\Builders\BooMethodBuilder.cs" />
     <Compile Include="TypeSystem\Builders\CallableTypeBuilder.cs" />
+    <Compile Include="TypeSystem\Builders\ICodeBuilder.cs" />
+    <Compile Include="TypeSystem\Builders\ITypeReferenceFactory.cs" />
+    <Compile Include="TypeSystem\Builders\MappedTypeReferenceFactory.cs" />
+    <Compile Include="TypeSystem\Builders\StandardTypeReferenceFactory.cs" />
     <Compile Include="TypeSystem\BuiltinFunction.cs" />
     <Compile Include="TypeSystem\BuiltinFunctionType.cs" />
     <Compile Include="TypeSystem\CallableSignature.cs" />
