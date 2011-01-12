@@ -3185,7 +3185,7 @@ expression_list[ExpressionCollection ec]
 		e=expression { ec.Add(e); }
 		(
 			COMMA
-			e=expression { ec.Add(e); }
+			e=expression { if (e != null) ec.Add(e); }
 		)*
 	)?
 	;
