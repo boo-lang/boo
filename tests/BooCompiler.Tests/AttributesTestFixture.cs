@@ -4,7 +4,6 @@ namespace BooCompiler.Tests
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Steps;
-	using Boo.Lang.Compiler.Steps.MacroProcessing;
 
 	[TestFixture]
 	public class AttributesTestFixture : AbstractCompilerTestCase

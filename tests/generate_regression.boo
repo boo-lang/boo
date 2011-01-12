@@ -54,7 +54,6 @@ def Main(argv as (string)):
 	namespace BooCompiler.Tests
 	{
 		using NUnit.Framework;
-		using Boo.Lang.Compiler;
 	
 		[TestFixture]
 		public class CompilerErrorsTestFixture : AbstractCompilerErrorsTestFixture
@@ -104,7 +103,6 @@ def Main(argv as (string)):
 		using NUnit.Framework;
 		using Boo.Lang.Compiler;
 		using Boo.Lang.Compiler.Steps;
-		using Boo.Lang.Compiler.Steps.MacroProcessing;
 	
 		[TestFixture]
 		public class AttributesTestFixture : AbstractCompilerTestCase
