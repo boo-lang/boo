@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+
 namespace Boo.Lang
 {
 	public class DynamicVariable<T>
@@ -47,13 +49,19 @@ namespace Boo.Lang
 			get { return _current;  }
 		}
 
-		public void With(T value, System.Action<T> code)
+		[Obsolete("Use With(T, System.Action) and access the variable value directly from the closure")]
+		public void With(T value, Action<T> code)
+		{
+			With(value, () => code(value));
+		}
+
+		public void With(T value, Action code)
 		{
 			T saved = _current;
 			_current = value;
 			try
 			{
-				code(value);
+				code();
 			}
 			finally
 			{

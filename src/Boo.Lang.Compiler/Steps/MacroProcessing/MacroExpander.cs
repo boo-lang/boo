@@ -85,10 +85,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private void ExpandModuleGlobalsIgnoringUnknownMacros(Module current)
 		{
-			_ignoringUnknownMacros.With(true, delegate
-          	{
-          		ExpandOnModuleNamespace(current, VisitGlobalsAllowingCancellation);	
-          	});
+			_ignoringUnknownMacros.With(true, ()=> ExpandOnModuleNamespace(current, VisitGlobalsAllowingCancellation));
 		}
 
 		private void VisitGlobalsAllowingCancellation(Module module)
