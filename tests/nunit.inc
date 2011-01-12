@@ -6,15 +6,7 @@
 		value="${path::combine(nant::get-base-directory(), 'lib')}"
 		dynamic="true" />
 
-    <property name="lib.family.dir"
-		value="${path::combine(lib.dir,framework::get-family(framework::get-target-framework()))}"
-		dynamic="true" />
-
-    <property name="lib.framework.dir"
-		value="${path::combine(lib.family.dir, version::to-string(framework::get-version(framework::get-target-framework())))}"
-		dynamic="true" />
-
-	<property name="nunit.framework.dll"
-			value="${path::combine(lib.framework.dir, 'nunit.framework.dll')}" />
+    <property name="nunit.framework.dll"
+			value="${path::combine(lib.dir, 'common/2.0/nunit.framework.dll')}" />
 
 </project>
