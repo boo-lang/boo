@@ -772,30 +772,6 @@
 		</insertLicense>
 	</target>
 	
-	<target name="update-stable-branch" depends="SVNUtil">
-		<boo src="scripts/update-stable-branch.boo">
-			<references basedir="${build.dir}">
-				<include name="SVNUtil.dll" />
-			</references>
-		</boo>		
-	</target>
-	
-	<target name="create-distro-tag" depends="SVNUtil">
-		<boo src="scripts/create-distro-tag.boo">
-			<references basedir="${build.dir}">
-				<include name="SVNUtil.dll" />
-			</references>
-		</boo>
-	</target>
-	
-	<target name="SVNUtil" depends="core">
-		<booc target="library" output="${build.dir}/SVNUtil.dll">
-			<sources basedir="scripts">
-				<include name="SVNUtil.boo" />
-			</sources>
-		</booc>
-	</target>
-	
 	<target name="upload-distro" depends="make-bin-dist">
 		<exec program="scp">
 			<arg value="-B" />
@@ -1098,28 +1074,6 @@
 		</if>
 	</target>
 	
-	<target name="update-svn-revision-number" depends="SVNUtil, Boo.Lang.Useful">
-	    <boo>
-			<references basedir="${build.dir}">
-				<include name="SVNUtil.dll" />
-				<include name="Boo.Lang.Useful.dll" />
-			</references>
-			
-			import System.IO
-			
-			output = svn("info")
-			revision = /Revision:\s+(\d+)/.Match(output).Groups[1].Value
-			Project.Properties["boo.svn.revision"] = revision
-			print Project.Properties["boo.version"]
-			
-			contents = File.ReadAllText("default.build")
-			newContents = /property\s+name="boo.svn.revision"\s+value="\d*"/.Replace(
-								contents,
-								"property name=\"boo.svn.revision\" value=\"${revision}\"")
-			File.WriteAllText("default.build", newContents) if contents != newContents
-		</boo>
-	</target>
-	
 	<target name="update-sharpdevelop" depends="all">
 		<copy todir="${sharpdevelop.dir}/AddIns/AddIns/BackendBindings/BooBinding">
 			<fileset basedir="${build.dir}">
@@ -1129,7 +1083,7 @@
 		</copy>
 	</target>
 	
-	<target name="update-assembly-attributes" depends="core, update-svn-revision-number">	
+	<target name="update-assembly-attributes" depends="core">	
 		<boo>
 		import System.IO
 		
