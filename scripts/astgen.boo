@@ -27,6 +27,7 @@
 #endregion
 
 import System
+import System.Linq.Enumerable
 import System.IO
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Pipelines
@@ -115,7 +116,7 @@ class Model:
 		return false
 
 	def GetCollectionItemType(node as ClassDefinition):
-		attribute = node.Attributes.Get("collection")[0]
+		attribute = node.Attributes.Get("collection").First()
 		reference as ReferenceExpression = attribute.Arguments[0]
 		return reference.Name
 
