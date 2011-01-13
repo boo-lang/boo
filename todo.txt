@@ -14,3 +14,55 @@ Named parameters:
 	logHistoryFile(to: "foo.txt", since: date.Now - 10s)
 
 All the issues on this file will be eventually moved there.
+
+Scopes Refactoring
+==================
+
+The goal is to clarify and optimize the way name resolution works by formalizing the concept of scopes.
+
+A scope is the set of mappings from names to entities in a specific program region.
+
+A scope should have clear dependencies that invalidate name resolution decisions to provide for much better
+and longer lived caching behavior.
+
+When a scope fails to resolve a name it delegates the resolution to its parent scope and as result
+its resolution cache always implicitly depends on its parent scope.
+
+From the outward in the scopes in the boo programming language are: 
+
+* ExternalScope: the virtual region outside the CompileUnit
+** resolves names against references
+** resolution cache dependencies: Parameters.References
+** parent scope: null
+
+* CompileUnitScope: the virtual region inside a CompileUnit but outside any modules
+** resolves names against all the internal namespaces (defined in modules)
+** modules with no namespace contribute all members to the CompileUnitScope
+** resolution cache dependencies: CompileUnit.Modules, Module.Namespace, Module.Members forall Module where Module.Namespace is null
+** parent scope: ExternalScope
+
+* ModuleScope: the region inside a module but outside any members
+** resolves names against Module.Members and Module.Imports
+** resolution cache dependencies: Module.Members
+** parent scope: CompileUnitScope
+
+* ClassDefinitionScope: the region inside a class but outside any member
+** resolves names against ClassDefinition.Members, ClassDefinition.BaseTypes and ClassDefinition.GenericParameters
+** resolution cache dependencies: Members, BaseTypes, GenericParameters and BaseType.Members forall BaseType where BaseType isa InternalTypeDefinition
+** parent scope: ModuleScope or outer ClassDefinitionScope
+
+* MethodScope: method bodies
+** resolves names against the set of parameters and local variables defined in the method
+** resolution cache dependencies: Method.Parameters, Method.Locals
+** parent scope: ClassDefinitionScope
+
+* ClosureScope: closure bodies
+** resolves names against the set of parameters and local variables defined in the closure
+** resolution cache dependencies: BlockExpression.Parameters, BlockExpression.Locals
+
+* remove InitializeNameResolutionService.EnsureModulesImportEnclosingNamespace
+** ModuleScope should deal with that
+
+* Additional Considerations
+** renaming types and members must be disallowed otherwise cache validity tracking becomes too complex.
+** type compatibility decisions can be cached per scope (or maybe at the enclosing ClassDefinitionScope)
