@@ -803,8 +803,7 @@
 		
 		<!-- We call nant externally so we can target multiple frameworks. -->		
 		<exec program="${nant.location}/NAnt.exe">
-			<arg value="-t:net-2.0" />
-			<arg value="distro-net-2.0" />
+			<arg value="rebuild-and-update-bin" />
 			<arg value="-D:skip.vs=true" />
 		</exec>
 		
@@ -812,7 +811,7 @@
 		<call target="src-distro" />
 	</target>
 
-	<target name="distro-net-2.0">
+	<target name="rebuild-and-update-bin">
 		<call target="rebuild" />
 		<call target="update-bin" />
 	</target>
