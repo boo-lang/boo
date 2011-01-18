@@ -1,5 +1,5 @@
 boodir = $(libdir)/boo
-boo_DATA = booc.exe booi.exe booish.exe booc.rsp booc.exe.config booi.exe.config booish.exe.config
+boo_DATA = booc.exe booi.exe booish.exe booc.rsp booc.exe.config booi.exe.config booish.exe.config Boo.NAnt.Tasks.dll
 
 BOO_GAC_DLLS = Boo.Lang.dll \
                Boo.Lang.Useful.dll \
