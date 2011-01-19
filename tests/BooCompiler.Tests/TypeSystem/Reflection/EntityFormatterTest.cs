@@ -21,7 +21,7 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 
 		protected override IType CallableType()
 		{
-			return Map(typeof(Action));
+			return Map(typeof(System.Action));
 		}
 
 		protected override IType GenericType()
