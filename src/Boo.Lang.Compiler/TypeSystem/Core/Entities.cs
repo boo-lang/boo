@@ -28,6 +28,7 @@
 
 
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.Util;
 
@@ -56,7 +57,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 				case 0:
 					return null;
 				case 1:
-					return Collections.First(entities);
+					return entities.First();
 				default:
 					return new Ambiguous(entities);
 			}

@@ -28,6 +28,7 @@
 
 
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem.Core
@@ -82,7 +83,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 				case 0:
 					return null;
 				case 1:
-					return Collections.First(namespaces);
+					return namespaces.First();
 				default:
 					return new ResolvedNamespaces(name, parent, namespaces.ToArray());
 			}

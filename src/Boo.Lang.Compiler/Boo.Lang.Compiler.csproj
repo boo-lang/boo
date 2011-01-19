@@ -650,7 +650,6 @@
     <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />
     <Compile Include="Util\ArrayEqualityComparer.cs" />
-    <Compile Include="Util\Collections.cs" />
     <Compile Include="Util\ITask.cs" />
     <Compile Include="Util\MemoizedFunction.cs" />
     <Compile Include="Util\Methods.cs" />

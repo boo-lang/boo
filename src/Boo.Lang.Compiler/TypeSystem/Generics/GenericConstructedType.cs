@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Services;
@@ -240,7 +241,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		public IEnumerable<IEntity> GetMembers()
 		{
-			return Collections.Select<IEntity, IEntity>(_definition.GetMembers(), GenericMapping.Map);
+			return _definition.GetMembers().Select<IEntity, IEntity>(GenericMapping.Map);
 		}
 
 		public string Name

@@ -28,7 +28,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -230,12 +230,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool HasNonInternalCandidate()
 		{
-			return Collections.Any(ValidCandidates, IsNonInternalCandidate);
+			return ValidCandidates.Any(IsNonInternalCandidate);
 		}
 
 		private bool HasInternalCandidate()
 		{
-			return Collections.Any(ValidCandidates, IsInternalCandidate);
+			return ValidCandidates.Any(IsInternalCandidate);
 		}
 
 		private static bool IsInternalCandidate(Candidate c)
@@ -250,7 +250,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private IEnumerable<Candidate> GetNonInternalCandidates()
 		{
-			return new List<Candidate>(Collections.Where(ValidCandidates, IsNonInternalCandidate));
+			return ValidCandidates.Where(IsNonInternalCandidate).ToList();
 		}
 
 		private List<Candidate> FindDataPreservingCandidates()
