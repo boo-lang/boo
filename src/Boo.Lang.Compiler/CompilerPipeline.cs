@@ -266,7 +266,7 @@ namespace Boo.Lang.Compiler
 
         virtual public void Run(CompilerContext context)
         {
-            context.Environment.Run(() =>
+			ActiveEnvironment.With(context.Environment, () =>
             {
                 OnBefore(context);
                 try
