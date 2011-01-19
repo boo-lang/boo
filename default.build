@@ -491,6 +491,7 @@
 				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="System.dll" />
+				<include name="System.Core.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
