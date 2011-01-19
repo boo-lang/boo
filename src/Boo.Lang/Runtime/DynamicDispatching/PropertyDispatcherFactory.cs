@@ -129,9 +129,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 				case SetOrGet.Set:
 					return (target, args) =>
 					       	{
-					       		var value = args[args.Length - 1];
-					       		property.SetValue(target, RuntimeServices.Coerce(value, property.PropertyType), args.Take(args.Length - 1).ToArray());
-					       		return value;
+								var value = args[args.Length - 1];
+								var remainingArgs = new object[args.Length - 1];
+								Array.Copy(args, remainingArgs, remainingArgs.Length);
+								property.SetValue(target, RuntimeServices.Coerce(value, property.PropertyType), remainingArgs);
+								return value;
 					       	};
 				default:
 					throw new ArgumentException();
