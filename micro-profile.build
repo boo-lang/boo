@@ -42,6 +42,7 @@ The following symbol is defined when compiling for the micro profile:
 	
 		<exec program="${xbuild}">
 			<arg file="${cecil.dir}/Mono.Cecil.csproj" />
+			<arg value="-property:OutputPath=bin/Debug" />
 		</exec>
 		
 	</target>
