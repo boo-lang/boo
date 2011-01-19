@@ -28,7 +28,6 @@
 
 
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace Boo.Lang.Runtime
@@ -138,7 +137,7 @@ namespace Boo.Lang.Runtime
 				var newArguments = new object[minimumArgumentCount + 1];
 				for (int i = 0; i < minimumArgumentCount; ++i)
 					newArguments[i] = RequiresConversion(ArgumentScores[i]) ? RuntimeServices.Coerce(arguments[i], GetParameterType(i)) : arguments[i];
-				newArguments[minimumArgumentCount] = Builtins.array(varArgsParameterType, arguments.Skip(minimumArgumentCount).Select(arg => RuntimeServices.Coerce(arg, varArgsParameterType)));
+				newArguments[minimumArgumentCount] = CreateVarArgsArray(arguments, minimumArgumentCount, varArgsParameterType);
 				return newArguments;
 			}
 
@@ -146,6 +145,15 @@ namespace Boo.Lang.Runtime
 				for (int i = 0; i < arguments.Length; ++i)
 					arguments[i] = RequiresConversion(ArgumentScores[i]) ? RuntimeServices.Coerce(arguments[i], GetParameterType(i)) : arguments[i];
 			return arguments;
+		}
+
+		private static Array CreateVarArgsArray(object[] arguments, int minimumArgumentCount, Type varArgsParameterType)
+		{
+			var length = arguments.Length - minimumArgumentCount;
+			var result = Array.CreateInstance(varArgsParameterType, length);
+			for (int i=0; i<result.Length; ++i)
+				result.SetValue(RuntimeServices.Coerce(arguments[minimumArgumentCount + i], varArgsParameterType), i);
+			return result;
 		}
 	}
 }
