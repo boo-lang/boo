@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections;
+using Boo.Lang.Compiler.Util;
 using NUnit.Framework;
 
-namespace Boo.Lang.Runtime.Tests
+namespace BooCompiler.Tests.Util
 {
 	[TestFixture]
 	public class MethodsTest

@@ -26,12 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Compiler.Util
 {
 	public static class Methods
 	{

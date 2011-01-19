@@ -217,6 +217,8 @@
     <Compile Include="UnsafeErrorsTestFixture.cs" />
     <Compile Include="UnsafeTestFixture.cs" />
     <Compile Include="Util\ArrayEqualityComparerTest.cs" />
+    <Compile Include="Util\MethodsTest.cs" />
+    <Compile Include="Util\PropertiesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">

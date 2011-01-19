@@ -1,7 +1,8 @@
 ﻿using System;
+using Boo.Lang.Compiler.Util;
 using NUnit.Framework;
 
-namespace Boo.Lang.Runtime.Tests
+namespace BooCompiler.Tests.Util
 {
 	[TestFixture]
 	public class PropertiesTest

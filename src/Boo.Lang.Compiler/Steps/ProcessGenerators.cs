@@ -30,6 +30,7 @@ using System.Collections;
 using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.Util;
 using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
