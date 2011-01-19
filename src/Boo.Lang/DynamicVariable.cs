@@ -55,7 +55,7 @@ namespace Boo.Lang
 			With(value, () => code(value));
 		}
 
-		public void With(T value, Action code)
+		public void With(T value, Procedure code)
 		{
 			T saved = _current;
 			_current = value;

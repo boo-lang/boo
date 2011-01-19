@@ -52,7 +52,7 @@ namespace Boo.Lang.Environments
 		/// </summary>
 		/// <param name="environment">environment that should be made active during the execution of <paramref name="code"/></param>
 		/// <param name="code">code to execute</param>
-		public static void With(IEnvironment environment, Action code)
+		public static void With(IEnvironment environment, Procedure code)
 		{
 			var previous = _instance;
 			try

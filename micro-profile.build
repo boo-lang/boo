@@ -2,18 +2,16 @@
 <project name="boo micro profile" default="test" description="Boo.Lang.dll with no System.Reflection.Emit references">
 <!--
 
-Micro profile currently means no System.Reflection.Emit and no System.Core (Linq)
-dependencies for Boo.Lang.
+Micro profile currently means no System.Reflection.Emit dependencies for Boo.Lang.
 
 The following symbols are defined when compiling for the micro profile: 
 
 	NO_SYSTEM_REFLECTION_EMIT
-	NO_SYSTEM_CORE
 
 -->
 
 	<property name="cecil.dir" value="external/cecil" />
-	<property name="csc.define.custom" value="NO_SYSTEM_REFLECTION_EMIT,NO_SYSTEM_CORE" />
+	<property name="csc.define.custom" value="NO_SYSTEM_REFLECTION_EMIT" />
 
 	<target name="test" depends="verify-Boo.Lang.dll">
 		<nant buildfile="default.build" target="test" inheritall="true" />

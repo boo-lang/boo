@@ -33,16 +33,18 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Environments
 {
-	public class DeferredEnvironment : IEnumerable<KeyValuePair<Type, Func<object>>>, IEnvironment
-	{
-		private readonly List<KeyValuePair<Type, Func<object>>> _bindings = new List<KeyValuePair<Type, Func<object>>>();
+	public delegate object ObjectFactory();
 
-		public void Add(Type need, Func<object> binder)
+	public class DeferredEnvironment : IEnumerable<KeyValuePair<Type, ObjectFactory>>, IEnvironment
+	{
+		private readonly List<KeyValuePair<Type, ObjectFactory>> _bindings = new List<KeyValuePair<Type, ObjectFactory>>();
+
+		public void Add(Type need, ObjectFactory binder)
 		{
-			_bindings.Add(new KeyValuePair<Type, Func<object>>(need, binder));
+			_bindings.Add(new KeyValuePair<Type, ObjectFactory>(need, binder));
 		}
 
-		IEnumerator<KeyValuePair<Type, Func<object>>> IEnumerable<KeyValuePair<Type, Func<object>>>.GetEnumerator()
+		IEnumerator<KeyValuePair<Type, ObjectFactory>> IEnumerable<KeyValuePair<Type, ObjectFactory>>.GetEnumerator()
 		{
 			return _bindings.GetEnumerator();
 		}

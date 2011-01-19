@@ -34,6 +34,8 @@ namespace Boo.Lang
 	using System.Collections;
 	using System.Collections.Generic;
 
+	public delegate TOut Function<TIn, TOut>(TIn o);
+
 	[Serializable]
 	public class List<T> : IList<T>, IList, IEquatable<List<T>>
 	{
@@ -241,7 +243,7 @@ namespace Boo.Lang
 			return array;
 		}
 
-		public TOut[] ToArray<TOut>(Func<T, TOut> selector)
+		public TOut[] ToArray<TOut>(Function<T, TOut> selector)
 		{
 			var result = new TOut[_count];
 			for (var i = 0; i < _count; ++i)

@@ -122,6 +122,7 @@
     <Compile Include="List.cs" />
     <Compile Include="MetaAttribute.cs" />
     <Compile Include="ModuleAttribute.cs" />
+    <Compile Include="Procedure.cs" />
     <Compile Include="QuackFuMember.cs" />
     <Compile Include="ResourceManager.cs" />
     <Compile Include="Runtime\AssertionFailedException.cs" />
@@ -148,7 +149,6 @@
     <Compile Include="Runtime\RuntimeException.cs" />
     <Compile Include="Runtime\RuntimeServices.cs" />
     <Compile Include="Runtime\TextReaderEnumerator.cs" />
-    <Compile Include="SystemCoreReplacements.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\strings.resx">
@@ -157,7 +157,6 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />
