@@ -27,12 +27,11 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using System;
+using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Builders
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-
 	public class BooMethodBuilder
 	{
 		private BooCodeBuilder _codeBuilder;
@@ -65,55 +64,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public Method Method
 		{
-			get
-			{
-				return _method;
-			}
+			get { return _method; }
 		}
 		
 		public InternalMethod Entity
 		{
-			get
-			{
-				return (InternalMethod)_method.Entity;
-			}
+			get { return (InternalMethod)_method.Entity; }
 		}
 		
 		public Block Body
 		{
-			get
-			{
-				return _method.Body;
-			}
+			get { return _method.Body; }
 		}
 		
 		public ParameterDeclarationCollection Parameters
 		{
-			get
-			{
-				return _method.Parameters;
-			}
+			get { return _method.Parameters; }
 		}
 		
 		public LocalCollection Locals
 		{
-			get
-			{
-				return _method.Locals;
-			}
+			get { return _method.Locals; }
 		}
 		
 		public TypeMemberModifiers Modifiers
 		{
-			get
-			{
-				return _method.Modifiers;
-			}
+			get { return _method.Modifiers; }
 			
-			set
-			{
-				_method.Modifiers = value;
-			}
+			set { _method.Modifiers = value; }
 		}
 		
 		public ParameterDeclaration AddParameter(string name, IType type)
