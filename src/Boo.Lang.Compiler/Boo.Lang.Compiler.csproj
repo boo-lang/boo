@@ -653,7 +653,9 @@
     <Compile Include="Util\Collections.cs" />
     <Compile Include="Util\ITask.cs" />
     <Compile Include="Util\MemoizedFunction.cs" />
+    <Compile Include="Util\Methods.cs" />
     <Compile Include="Util\Permissions.cs" />
+    <Compile Include="Util\Properties.cs" />
     <Compile Include="Util\Set.cs" />
     <Compile Include="Util\StringUtilities.cs" />
     <Compile Include="Util\TaskList.cs" />

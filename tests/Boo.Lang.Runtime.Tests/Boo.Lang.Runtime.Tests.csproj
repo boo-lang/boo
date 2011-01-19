@@ -68,9 +68,7 @@
   <ItemGroup>
     <Compile Include="AbstractDispatcherFactoryTestCase.cs" />
     <Compile Include="MethodDispatcherFactoryTestCase.cs" />
-    <Compile Include="MethodsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertiesTest.cs" />
     <Compile Include="PropertyDispatcherFactoryTestCase.cs" />
     <Compile Include="RuntimeCoercionTestCase.cs" />
     <Compile Include="RuntimeServicesTest.cs" />
