@@ -1123,6 +1123,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void static_CompilerGlobalScope_class_is_sealed_and_abstract()
+		{
+			RunCompilerTestCase(@"static-CompilerGlobalScope-class-is-sealed-and-abstract.boo");
+		}
+		
+		[Test]
 		public void static_final_1()
 		{
 			RunCompilerTestCase(@"static-final-1.boo");
