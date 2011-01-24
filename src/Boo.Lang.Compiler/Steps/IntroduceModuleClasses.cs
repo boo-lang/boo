@@ -27,13 +27,12 @@
 #endregion
 
 using System.Text;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class IntroduceModuleClasses : AbstractFastVisitorCompilerStep
 	{
@@ -43,21 +42,13 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public static bool IsModuleClass(TypeMember member)
 		{
-			return NodeType.ClassDefinition == member.NodeType &&
-					member.Attributes.Contains(ModuleAttributeName);
+			return NodeType.ClassDefinition == member.NodeType && member.Attributes.Contains(ModuleAttributeName);
 		}
 		
 		protected IType _booModuleAttributeType;
-		
-		protected bool _forceModuleClass = false;
-		
-		public bool ForceModuleClass
-		{
-			get { return _forceModuleClass; }
-			
-			set { _forceModuleClass = value; }
-		}
-		
+
+		public bool ForceModuleClass { get; set; }
+
 		override public void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
@@ -93,16 +84,10 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		override public void OnModule(Module node)
-		{
-			bool hasModuleClass = true;
-			ClassDefinition moduleClass = FindModuleClass(node);
-			if (null == moduleClass)
-			{
-				moduleClass = new ClassDefinition(node.LexicalInfo);
-				moduleClass.IsSynthetic = true;
-				hasModuleClass = false;
-			}
-			
+		{	
+			var existingModuleClass = FindModuleClass(node);
+			var moduleClass = existingModuleClass ?? NewModuleClassFor(node);
+
 			Method entryPoint = moduleClass.Members["Main"] as Method;
 			
 			int removed = 0;
@@ -142,28 +127,35 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			SetEntryPointIfNecessary(entryPoint);
-			
-			if (hasModuleClass || _forceModuleClass || (moduleClass.Members.Count > 0))
+
+			if (existingModuleClass != null || ForceModuleClass || (moduleClass.Members.Count > 0))
 			{
-				if (!hasModuleClass)
+				if (moduleClass != existingModuleClass)
 				{
-					moduleClass.Name = BuildModuleClassName(node);
-					moduleClass.Attributes.Add(CreateBooModuleAttribute());
+					moduleClass.Members.Add(AstUtil.CreateConstructor(node, TypeMemberModifiers.Private));
 					node.Members.Add(moduleClass);
 				}
-
-				if (!moduleClass.HasInstanceConstructor)
-					moduleClass.Members.Add(AstUtil.CreateDefaultConstructor(node));
-
-				moduleClass.Modifiers = TypeMemberModifiers.Public |
-										TypeMemberModifiers.Final |
-										TypeMemberModifiers.Transient;
-										
-				moduleClass.EndSourceLocation = node.EndSourceLocation;
-				
-				InternalModule entity = ((InternalModule)node.Entity);
-				if (null != entity) entity.InitializeModuleClass(moduleClass);
+				InitializeModuleClassEntity(node, moduleClass);
 			}
+		}
+
+		private ClassDefinition NewModuleClassFor(Module node)
+		{
+			var moduleClass = new ClassDefinition(node.LexicalInfo)
+			              	{
+			              		IsSynthetic = true,
+			              		Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Final | TypeMemberModifiers.Transient,
+			              		EndSourceLocation = node.EndSourceLocation,
+			              		Name = BuildModuleClassName(node)
+			              	};
+			moduleClass.Attributes.Add(CreateBooModuleAttribute());
+			return moduleClass;
+		}
+
+		private void InitializeModuleClassEntity(Module node, ClassDefinition moduleClass)
+		{
+			InternalModule entity = ((InternalModule)node.Entity);
+			if (null != entity) entity.InitializeModuleClass(moduleClass);
 		}
 
 		private void SetEntryPointIfNecessary(Method entryPoint)
