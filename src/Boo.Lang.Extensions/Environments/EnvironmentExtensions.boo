@@ -55,3 +55,5 @@ static class EnvironmentExtensions:
 		public Result as TResult
 		def Action():
 			Result = Function()
+			
+[assembly: Extension]
