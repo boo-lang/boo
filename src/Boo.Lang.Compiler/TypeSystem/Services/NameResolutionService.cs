@@ -342,6 +342,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				node.Entity = NameNotType(node, "not found");
 				return;
 			}
+
 			GenericTypeReference gtr = node as GenericTypeReference;
 			if (null != gtr)
 			{
@@ -430,7 +431,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return type != null && type.GenericInfo != null;
 		}
 
-		private bool IsNotGenericType(IEntity entity)
+		private static bool IsNotGenericType(IEntity entity)
 		{
 			IType type = entity as IType;
 			return type != null && type.GenericInfo == null;
@@ -439,7 +440,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		private IEntity NameNotType(SimpleTypeReference node, string whatItIs)
 		{
 			string suggestion = GetMostSimilarTypeName(node.Name);
-			CompilerErrors().Add(CompilerErrorFactory.NameNotType(node, node.ToCodeString(), whatItIs, suggestion));
+			CompilerErrors().Add(CompilerErrorFactory.NameNotType(node, node.Name, whatItIs, suggestion));
 			return TypeSystemServices.ErrorEntity;
 		}
 
