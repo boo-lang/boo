@@ -399,6 +399,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void interface_with_generic_method()
+		{
+			RunCompilerTestCase(@"interface-with-generic-method.boo");
+		}
+		
+		[Test]
 		public void internal_generic_callable_type_1()
 		{
 			RunCompilerTestCase(@"internal-generic-callable-type-1.boo");
