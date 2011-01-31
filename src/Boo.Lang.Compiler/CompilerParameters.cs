@@ -154,25 +154,22 @@ namespace Boo.Lang.Compiler
 
 		public void LoadDefaultReferences()
 		{
-			//mscorlib
-			_compilerReferences.Add(LoadAssembly("mscorlib", true));
-			//System
-			_compilerReferences.Add(LoadAssembly("System", true));
-			//System.Core
-			_compilerReferences.Add(LoadAssembly("System.Core", true));
 			//boo.lang.dll
 			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
 			_compilerReferences.Add(_booAssembly);
 
 			//boo.lang.extensions.dll
 			//try loading extensions next to Boo.Lang (in the same directory)
-			const string booLangExtensionsDll = "Boo.Lang.Extensions.dll";
-			var tentative = Permissions.WithDiscoveryPermission(() => Path.Combine(Path.GetDirectoryName(_booAssembly.Location), booLangExtensionsDll))
-				?? booLangExtensionsDll;
-
-			var extensionsAssembly = LoadAssembly(tentative, false) ?? LoadAssembly("Boo.Lang.Extensions", false);
+			var extensionsAssembly = TryToLoadExtensionsAssembly();
 			if (extensionsAssembly != null)
 				_compilerReferences.Add(extensionsAssembly);
+
+			//mscorlib
+			_compilerReferences.Add(LoadAssembly("mscorlib", true));
+			//System
+			_compilerReferences.Add(LoadAssembly("System", true));
+			//System.Core
+			_compilerReferences.Add(LoadAssembly("System.Core", true));
 
 			if (TraceInfo)
 			{
@@ -180,6 +177,15 @@ namespace Boo.Lang.Compiler
 				Trace.WriteLine("BOO COMPILER EXTENSIONS DLL: " + 
 				                (extensionsAssembly != null ? extensionsAssembly.ToString() : "NOT FOUND!"));
 			}
+		}
+
+		private IAssemblyReference TryToLoadExtensionsAssembly()
+		{
+			const string booLangExtensionsDll = "Boo.Lang.Extensions.dll";
+			var tentative = Permissions.WithDiscoveryPermission(() => Path.Combine(Path.GetDirectoryName(_booAssembly.Location), booLangExtensionsDll))
+			                ?? booLangExtensionsDll;
+
+			return LoadAssembly(tentative, false) ?? LoadAssembly("Boo.Lang.Extensions", false);
 		}
 
 		public Assembly BooAssembly
