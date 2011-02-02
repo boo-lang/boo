@@ -162,13 +162,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return expression;
 		}
 
-		public Expression CreateTypeofExpression(IType type)
+		public TypeofExpression CreateTypeofExpression(IType type)
 		{
-			var expression = new TypeofExpression();
-			expression.Type = CreateTypeReference(type);
-			expression.ExpressionType = TypeSystemServices.TypeType;
-			expression.Entity = type;
-			return expression;
+			return new TypeofExpression
+					{
+						Type = CreateTypeReference(type),
+						ExpressionType = TypeSystemServices.TypeType
+					};
 		}
 
 		public Expression CreateTypeofExpression(System.Type type)
