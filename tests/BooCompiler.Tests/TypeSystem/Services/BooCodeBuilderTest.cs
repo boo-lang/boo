@@ -28,6 +28,26 @@ namespace BooCompiler.Tests.TypeSystem.Services
 			});
 		}
 
+		[Test]
+		public void CreateTypeofExpression()
+		{
+			RunInCompilerContextEnvironment(() =>
+			{
+				var type = Map(typeof(string));
+
+				var e = CodeBuilder.CreateTypeofExpression(type);
+				Assert.IsNull(e.Entity);
+				Assert.AreSame(Map(typeof(Type)), e.ExpressionType);
+
+				Assert.AreSame(type, e.Type.Entity);
+			});
+		}
+
+		private static IType Map(Type type)
+		{
+			return TypeSystemServices().Map(type);
+		}
+
 		public T GenericMethodPrototype<T>(T[] arrayOfT)
 		{
 			throw new NotImplementedException();
@@ -35,8 +55,12 @@ namespace BooCompiler.Tests.TypeSystem.Services
 
 		private IMethod GetMethod(string methodName)
 		{
-			var typeSystemServices = My<TypeSystemServices>.Instance;
-			return typeSystemServices.Map(GetType().GetMethod(methodName));
+			return TypeSystemServices().Map(GetType().GetMethod(methodName));
+		}
+
+		private static TypeSystemServices TypeSystemServices()
+		{
+			return My<TypeSystemServices>.Instance;
 		}
 	}
 }
