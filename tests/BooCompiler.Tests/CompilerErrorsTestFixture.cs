@@ -885,6 +885,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCE0103_cannot_extend_array()
+		{
+			RunCompilerTestCase(@"BCE0103-cannot-extend-array.boo");
+		}
+		
+		[Test]
 		public void BCE0104_1()
 		{
 			RunCompilerTestCase(@"BCE0104-1.boo");

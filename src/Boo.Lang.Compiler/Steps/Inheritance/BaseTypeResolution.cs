@@ -89,9 +89,9 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
                 visitedInterfaces = new List<TypeDefinition>();
             }
             
-			foreach (SimpleTypeReference baseTypeRef in _typeDefinition.BaseTypes.ToArray())
+			foreach (var baseTypeRef in _typeDefinition.BaseTypes.ToArray())
 			{
-				NameResolutionService.ResolveSimpleTypeReference(baseTypeRef);
+				NameResolutionService.ResolveTypeReference(baseTypeRef);
 
 				++_index;
 
@@ -138,7 +138,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 				                                     	type, NameResolutionService.CurrentNamespace));
 		}
 
-		private void CheckForCycles(SimpleTypeReference baseTypeRef, AbstractInternalType baseType, List<TypeDefinition> visited)
+		private void CheckForCycles(TypeReference baseTypeRef, AbstractInternalType baseType, List<TypeDefinition> visited)
 		{
 			if (visited.Contains(baseType.TypeDefinition))
 			{
