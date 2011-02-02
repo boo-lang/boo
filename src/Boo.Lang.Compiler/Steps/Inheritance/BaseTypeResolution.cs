@@ -26,8 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
-using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -39,12 +37,12 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 	class BaseTypeResolution : AbstractCompilerComponent
 	{
 		private readonly TypeDefinition _typeDefinition;
-		private readonly List _visited;
+		private readonly List<TypeDefinition> _visited;
 		private int _removed;
 		private int _index;
 		private Set<TypeDefinition> _ancestors;
 
-		public BaseTypeResolution(CompilerContext context, TypeDefinition typeDefinition, List visited) : base(context)
+		public BaseTypeResolution(CompilerContext context, TypeDefinition typeDefinition, List<TypeDefinition> visited) : base(context)
 		{
 			_typeDefinition = typeDefinition;
 			_visited = visited;
@@ -77,8 +75,8 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 
 			EnterGenericParametersNamespace(type);
 
-            Boo.Lang.List visitedNonInterfaces = null;
-            Boo.Lang.List visitedInterfaces = null;
+            List<TypeDefinition> visitedNonInterfaces = null;
+            List<TypeDefinition> visitedInterfaces;
 
 			if (_typeDefinition is InterfaceDefinition)
             {
@@ -88,7 +86,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
             else
             {
                 visitedNonInterfaces = _visited;
-                visitedInterfaces = new Boo.Lang.List();
+                visitedInterfaces = new List<TypeDefinition>();
             }
             
 			foreach (SimpleTypeReference baseTypeRef in _typeDefinition.BaseTypes.ToArray())
@@ -124,9 +122,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 
 		private Set<TypeDefinition> GetAncestors()
 		{
-			if (null == _ancestors)
-				_ancestors = new Set<TypeDefinition>(_typeDefinition.GetAncestors<TypeDefinition>());
-			return _ancestors;
+			return _ancestors ?? (_ancestors = new Set<TypeDefinition>(_typeDefinition.GetAncestors<TypeDefinition>()));
 		}
 
 		private void LeaveGenericParametersNamespace(IType type)
@@ -142,7 +138,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 				                                     	type, NameResolutionService.CurrentNamespace));
 		}
 
-		private void CheckForCycles(SimpleTypeReference baseTypeRef, AbstractInternalType baseType, List visited)
+		private void CheckForCycles(SimpleTypeReference baseTypeRef, AbstractInternalType baseType, List<TypeDefinition> visited)
 		{
 			if (visited.Contains(baseType.TypeDefinition))
 			{

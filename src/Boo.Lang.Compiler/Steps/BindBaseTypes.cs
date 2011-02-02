@@ -26,7 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Inheritance;
@@ -44,10 +43,10 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnClassDefinition(ClassDefinition node)
 		{
 			// Visit type definition's members to resolve base types on nested types
-			base.OnClassDefinition(node);
+			Visit(node.Members);
 
 			// Resolve and check base types
-			ResolveBaseTypes(new Boo.Lang.List(), node);
+			ResolveBaseTypesOf(node);
 			CheckBaseTypes(node);
 			
 			if (node.IsFinal)
@@ -56,10 +55,15 @@ namespace Boo.Lang.Compiler.Steps
 			if (((IType)node.Entity).IsFinal)
 				node.Modifiers |= TypeMemberModifiers.Final;
 		}
-		
+
+		private void ResolveBaseTypesOf(TypeDefinition node)
+		{
+			ResolveBaseTypes(new List<TypeDefinition>(), node);
+		}
+
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			ResolveBaseTypes(new Boo.Lang.List(), node);
+			ResolveBaseTypesOf(node);
 			CheckInterfaceBaseTypes(node);
 		}
 
@@ -113,7 +117,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void ResolveBaseTypes(Boo.Lang.List visited, TypeDefinition node)
+		void ResolveBaseTypes(List<TypeDefinition> visited, TypeDefinition node)
 		{
 			new BaseTypeResolution(Context, node, visited);
 		}
