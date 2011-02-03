@@ -45,10 +45,6 @@ namespace Boo.Lang.Compiler.Steps
 		protected IMethod RuntimeServices_SetSlice;
 		protected IMethod RuntimeServices_GetSlice;
 		protected IType _duckTypingServicesType;
-		
-		public ExpandDuckTypedExpressions()
-		{
-		}
 
 		public override void Initialize(CompilerContext context)
 		{
@@ -227,15 +223,18 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			if (!AstUtil.IsOverloadableOperator(node.Operator)) return;
-			if (!TypeSystemServices.IsDuckTyped(node.Left) && !TypeSystemServices.IsDuckTyped(node.Right)) return;
+			if (!AstUtil.IsOverloadableOperator(node.Operator))
+				return;
 
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+			if (!TypeSystemServices.IsDuckTyped(node.Left) && !TypeSystemServices.IsDuckTyped(node.Right))
+				return;
+
+			var mie = CodeBuilder.CreateMethodInvocation(
 				node.LexicalInfo,
 				RuntimeServices_InvokeBinaryOperator,
-				CodeBuilder.CreateStringLiteral(
-				AstUtil.GetMethodNameForOperator(node.Operator)),
+				CodeBuilder.CreateStringLiteral(AstUtil.GetMethodNameForOperator(node.Operator)),
 				node.Left, node.Right);
+
 			Replace(mie);
 		}
 
