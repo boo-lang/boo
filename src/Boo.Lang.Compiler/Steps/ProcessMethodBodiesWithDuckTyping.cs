@@ -33,14 +33,14 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
 	{
-		protected virtual bool DuckyMode
+		private bool Ducky
 		{
 			get { return _context.Parameters.Ducky; }
 		}
 		
 		override protected IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
 		{
-			if (!DuckyMode || CallableResolutionService.ValidCandidates.Count == 0)
+			if (!Ducky || CallableResolutionService.ValidCandidates.Count == 0)
 			{				
 				return base.CantResolveAmbiguousMethodInvocation(node, entities);
 			}
