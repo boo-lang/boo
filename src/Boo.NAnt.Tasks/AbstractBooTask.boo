@@ -29,7 +29,6 @@
 namespace Boo.NAnt
 
 import System
-import System.Text
 import System.IO
 import NAnt.Core
 import NAnt.Core.Attributes
@@ -149,16 +148,8 @@ abstract class AbstractBooTask(Task):
 		self.Log(Level.Error, "${message}")
 		
 def read(fname as string):
-	try:
-		reader=File.OpenText(fname)
-		return reader.ReadToEnd()
-	ensure:
-		reader.Dispose() unless reader is null
+	return File.ReadAllText(fname)
 	
 def write(fname as string, contents as string):
-	try:
-		writer=StreamWriter(fname, false, System.Text.Encoding.UTF8)
-		writer.Write(contents)
-	ensure:
-		writer.Dispose() unless writer is null
+	File.WriteAllText(fname, contents)
 
