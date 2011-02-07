@@ -906,7 +906,7 @@ namespace Boo.Lang.Compiler.Steps
 
 					// Duplicate it.  If it is null, then it will be used to
 					// skip the filter.
-					_il.Emit(OpCodes.Dup);
+					Dup();
 
 					// If the exception is of the right type, branch
 					// to test the filter condition.
@@ -1585,7 +1585,7 @@ namespace Boo.Lang.Compiler.Steps
 			LocalBuilder temp = null;
 			if (leaveValueOnStack)
 			{
-				_il.Emit(OpCodes.Dup);
+				Dup();
 				temp = StoreTempLocal(elementType);
 			}
 
@@ -1687,7 +1687,7 @@ namespace Boo.Lang.Compiler.Steps
 
 						if (leaveValueOnStack)
 						{
-							_il.Emit(OpCodes.Dup);
+							Dup();
 							PushType(param.Type);
 						}
 						_il.Emit(OpCodes.Starg, param.Index);
@@ -1860,7 +1860,7 @@ namespace Boo.Lang.Compiler.Steps
 			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
 			Visit(node.Right);
 			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
-			_il.EmitCall(OpCodes.Call, Math_Pow, null);
+			Call(Math_Pow);
 			PushType(TypeSystemServices.DoubleType);
 		}
 
@@ -1892,14 +1892,14 @@ namespace Boo.Lang.Compiler.Steps
 			IType type = GetExpressionType(expression);
 			if (TypeSystemServices.ObjectType == type || TypeSystemServices.DuckType == type)
 			{
-				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Object, null);
+				Call(RuntimeServices_ToBool_Object);
 				return true;
 			}
 			else if (TypeSystemServices.IsNullable(type))
 			{
 				_il.Emit(OpCodes.Ldloca, _currentLocal);
 				Type sType = GetSystemType(TypeSystemServices.GetNullableUnderlyingType(type));
-				_il.EmitCall(OpCodes.Call, GetNullableHasValue(sType), null);
+				Call(GetNullableHasValue(sType));
 				LocalBuilder hasValue = StoreTempLocal(TypeSystemServices.BoolType);
 				_il.Emit(OpCodes.Pop); //pop nullable address (ldloca)
 				_il.Emit(OpCodes.Ldloc, hasValue);
@@ -1907,7 +1907,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (TypeSystemServices.StringType == type)
 			{
-				_il.EmitCall(OpCodes.Call, String_IsNullOrEmpty, null);
+				Call(String_IsNullOrEmpty);
 				if (!inNotContext)
 					EmitIntNot(); //reverse result (true for not empty)
 				else
@@ -1942,7 +1942,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (TypeSystemServices.DecimalType == type)
 			{
-				_il.EmitCall(OpCodes.Call, RuntimeServices_ToBool_Decimal, null);
+				Call(RuntimeServices_ToBool_Decimal);
 				return true;
 			}
 			else if (!type.IsValueType)
@@ -1990,7 +1990,7 @@ namespace Boo.Lang.Compiler.Steps
 				Label evalRhs = _il.DefineLabel();
 				Label end = _il.DefineLabel();
 
-				_il.Emit(OpCodes.Dup);
+				Dup();
 				EmitToBoolIfNeeded(node.Left);	// may need to convert decimal to bool
 				_il.Emit(brForValueType, evalRhs);
 				EmitCastIfNeeded(type, lhsType);
@@ -2008,7 +2008,7 @@ namespace Boo.Lang.Compiler.Steps
 				Label end = _il.DefineLabel();
 
 				EmitCastIfNeeded(type, lhsType);
-				_il.Emit(OpCodes.Dup);
+				Dup();
 
 				EmitToBoolIfNeeded(node.Left);
 
@@ -2216,8 +2216,13 @@ namespace Boo.Lang.Compiler.Steps
 			Type type = GetSystemType(node.Type);
 
 			node.Target.Accept(this); PopType();
-			_il.Emit(OpCodes.Isinst, type);
+			Isinst(type);
 			PushType(node.ExpressionType);
+		}
+
+		private void Isinst(Type type)
+		{
+			_il.Emit(OpCodes.Isinst, type);
 		}
 
 		void InvokeMethod(IMethod method, MethodInvocationExpression node)
@@ -2309,8 +2314,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			EmitArray(TypeSystemServices.IntType, node.Arguments);
 
-			_il.EmitCall(OpCodes.Call, Array_CreateInstance, null);
-			_il.Emit(OpCodes.Castclass, matrixType);
+			Call(Array_CreateInstance);
+			Castclass(matrixType);
 			PushType(expressionType);
 		}
 
@@ -2488,14 +2493,14 @@ namespace Boo.Lang.Compiler.Steps
 			else
 				_il.Emit(OpCodes.Ldarg_0); // this
 			PushArguments(super, node.Arguments);
-			_il.EmitCall(OpCodes.Call, superMI, null);
+			Call(superMI);
 			PushType(super.ReturnType);
 		}
 
 		void EmitGetTypeFromHandle(Type type)
 		{
 			_il.Emit(OpCodes.Ldtoken, type);
-			_il.EmitCall(OpCodes.Call, Type_GetTypeFromHandle, null);
+			Call(Type_GetTypeFromHandle);
 			PushType(TypeSystemServices.TypeType);
 		}
 
@@ -2517,7 +2522,7 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInfo method = GetMethodInfo((IMethod)GetEntity(methodRef));
 			if (method.IsVirtual)
 			{
-				_il.Emit(OpCodes.Dup);
+				Dup();
 				_il.Emit(OpCodes.Ldvirtftn, method);
 			}
 			else
@@ -2802,7 +2807,7 @@ namespace Boo.Lang.Compiler.Steps
 			IType objType = TypeSystemServices.ObjectType;
 			foreach (ExpressionPair pair in node.Items)
 			{
-				_il.Emit(OpCodes.Dup);
+				Dup();
 
 				Visit(pair.First);
 				EmitCastIfNeeded(objType, PopType());
@@ -2922,16 +2927,16 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (isNegative)
 				{
-					_il.Emit(OpCodes.Dup);
+					Dup();
 					_il.Emit(OpCodes.Ldlen);
 					EmitLoadInt(index);
 					_il.Emit(OpCodes.Add);
 				}
 				else
 				{
-					_il.Emit(OpCodes.Dup);
+					Dup();
 					EmitLoadInt(index);
-					_il.EmitCall(OpCodes.Call, RuntimeServices_NormalizeArrayIndex, null);
+					Call(RuntimeServices_NormalizeArrayIndex);
 				}
 			}
 			else
@@ -3010,20 +3015,20 @@ namespace Boo.Lang.Compiler.Steps
 				if (!string.IsNullOrEmpty(formatString))
 				{
 					EmitCastIfNeeded(TypeSystemServices.ObjectType, argType);
-					_il.EmitCall(OpCodes.Call, StringFormat, null);
+					Call(StringFormat);
 				}
 
 				if (TypeSystemServices.StringType == argType || !string.IsNullOrEmpty(formatString))
 				{
-					_il.EmitCall(OpCodes.Call, appendString, null);
+					Call(appendString);
 				}
 				else
 				{
 					EmitCastIfNeeded(TypeSystemServices.ObjectType, argType);
-					_il.EmitCall(OpCodes.Call, appendObject, null);
+					Call(appendObject);
 				}
 			}
-			_il.EmitCall(OpCodes.Call, stringBuilderType.GetMethod("ToString", Type.EmptyTypes), null);
+			Call(stringBuilderType.GetMethod("ToString", Type.EmptyTypes));
 			PushType(TypeSystemServices.StringType);
 		}
 
@@ -3441,7 +3446,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (leaveValueOnStack)
 			{
 				typeOnStack = PeekTypeOnStack();
-				_il.Emit(OpCodes.Dup);
+				Dup();
 			}
 			else
 			{
@@ -3495,7 +3500,7 @@ namespace Boo.Lang.Compiler.Steps
 			LocalBuilder local = null;
 			if (leaveValueOnStack)
 			{
-				_il.Emit(OpCodes.Dup);
+				Dup();
 				local = _il.DeclareLocal(GetSystemType(field.Type));
 				_il.Emit(OpCodes.Stloc, local);
 			}
@@ -3540,7 +3545,7 @@ namespace Boo.Lang.Compiler.Steps
 			LocalBuilder local = null;
 			if (leaveValueOnStack)
 			{
-				_il.Emit(OpCodes.Dup);
+				Dup();
 				local = _il.DeclareLocal(GetSystemType(property.Type));
 				_il.Emit(OpCodes.Stloc, local);
 			}
@@ -3731,9 +3736,9 @@ namespace Boo.Lang.Compiler.Steps
 				_packedArrays.Add(ba, fb);
 			}
 
-			_il.Emit(OpCodes.Dup); //dup (newarr)
+			Dup(); //dup (newarr)
 			_il.Emit(OpCodes.Ldtoken, fb);
-			_il.EmitCall(OpCodes.Call, RuntimeHelpers_InitializeArray, null);
+			Call(RuntimeHelpers_InitializeArray);
 		}
 
 		Dictionary<byte[], FieldBuilder> _packedArrays = new Dictionary<byte[], FieldBuilder>(ValueTypeArrayEqualityComparer<byte>.Default);
@@ -4093,7 +4098,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (method != null)
 			{
 				EmitBoxIfNeeded(method.GetParameters()[0].Type, actualType);
-				_il.EmitCall(OpCodes.Call, GetMethodInfo(method), null);
+				Call(GetMethodInfo(method));
 				return;
 			}
 
@@ -4117,9 +4122,13 @@ namespace Boo.Lang.Compiler.Steps
 
 				// numeric promotion
 				if (TypeSystemServices.DecimalType == expectedType)
-					_il.EmitCall(OpCodes.Call, GetToDecimalConversionMethod(actualType), null);
+				{
+					Call(GetToDecimalConversionMethod(actualType));
+				}
 				else if (TypeSystemServices.DecimalType == actualType)
-					_il.EmitCall(OpCodes.Call, GetFromDecimalConversionMethod(expectedType), null);
+				{
+					Call(GetFromDecimalConversionMethod(expectedType));
+				}
 				else
 				{
 					//we need to get the real underlying type here and no earlier
@@ -4150,6 +4159,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		private void Call(MethodInfo method)
+		{
+			_il.EmitCall(OpCodes.Call, method, null);
+		}
+
+		private void Castclass(Type expectedSystemType)
+		{
+			_il.Emit(OpCodes.Castclass, expectedSystemType);
+		}
+
 		private MethodInfo _RuntimeServices_Coerce;
 
 		private MethodInfo RuntimeServices_Coerce
@@ -4177,7 +4196,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var unboxMethod = UnboxMethodFor(expectedType);
 			if (null != unboxMethod)
-				_il.EmitCall(OpCodes.Call, unboxMethod, null);
+			{
+				Call(unboxMethod);
+			}
 			else
 			{
 				Type type = GetSystemType(expectedType);
@@ -4270,7 +4291,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void StoreEntity(OpCode opcode, int index, Node value, IType elementType)
 		{
-			_il.Emit(OpCodes.Dup);	// array reference
+			// array reference
+			Dup();
 			EmitLoadLiteral(index); // element index
 
 			bool stobj = IsStobj(opcode); // value type sequence?
@@ -4288,6 +4310,11 @@ namespace Boo.Lang.Compiler.Steps
 				EmitCastIfNeeded(elementType, PopType());
 				_il.Emit(opcode);
 			}
+		}
+
+		private void Dup()
+		{
+			_il.Emit(OpCodes.Dup);
 		}
 
 		bool IsStobj(OpCode code)
