@@ -22,7 +22,7 @@ assert foo[0] == true
 		
 	yield [|
 		try:
-			$(preserving.Block)
+			$(preserving.Body)
 		ensure:
 			$restoration
 	|]
