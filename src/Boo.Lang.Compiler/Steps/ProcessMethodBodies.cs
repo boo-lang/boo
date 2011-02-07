@@ -5831,7 +5831,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (EntityType.Property == entity.EntityType
 							|| TypeSystemServices.IsUnknown(memberEntity.Type))
 						{
-							VisitMemberForTypeResolution(node);
+							EnsureMemberWasVisited(node);
 							AssertTypeIsKnown(sourceNode, memberEntity, memberEntity.Type);
 						}
 						break;
@@ -5848,7 +5848,7 @@ namespace Boo.Lang.Compiler.Steps
 							if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
 							{
 								// still unknown?
-								VisitMemberForTypeResolution(node);
+								EnsureMemberWasVisited(node);
 								AssertTypeIsKnown(sourceNode, methodEntity, methodEntity.ReturnType);
 							}
 						}
@@ -5858,19 +5858,22 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.StructDefinition:
 				case NodeType.InterfaceDefinition:
 					{
-						if (WasVisited(node)) break;
-						VisitInParentNamespace(node);
-						//visit dependent attributes such as EnumeratorItemType
-						//foreach (Attribute att in ((TypeDefinition)node).Attributes)
-						{
-							//VisitMemberForTypeResolution(att);
-						}
+						EnsureMemberWasVisited(node);
 						break;
 					}
 			}
 		}
 
-		private void VisitInParentNamespace(Node node)
+		private void EnsureMemberWasVisited(Node node)
+		{
+			if (WasVisited(node))
+				return;
+
+			_context.TraceVerbose("Info {0} needs resolving.", node.Entity.Name);
+			VisitMemberPreservingContext(node);
+		}
+
+		protected virtual void VisitMemberPreservingContext(Node node)
 		{
 			INamespace saved = NameResolutionService.CurrentNamespace;
 			try
@@ -5884,7 +5887,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-
 		private void AssertTypeIsKnown(Node sourceNode, IEntity sourceEntity, IType type)
 		{
 			if (TypeSystemServices.IsUnknown(type))
@@ -5894,22 +5896,6 @@ namespace Boo.Lang.Compiler.Steps
 						sourceNode,
 						CurrentMember.FullName,
 						sourceEntity.FullName));
-			}
-		}
-
-		void VisitMemberForTypeResolution(Node node)
-		{
-			if (WasVisited(node)) return;
-
-			_context.TraceVerbose("Info {0} needs resolving.", node.Entity.Name);
-			INamespace saved = NameResolutionService.CurrentNamespace;
-			try
-			{
-				Visit(node);
-			}
-			finally
-			{
-				NameResolutionService.EnterNamespace(saved);
 			}
 		}
 
