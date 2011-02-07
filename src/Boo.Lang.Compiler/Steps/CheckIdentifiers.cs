@@ -45,10 +45,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private void CheckName(Node node, string name)
 		{
-			if (!IsValidName(name))
-			{
-				Errors.Add(CompilerErrorFactory.InvalidName(node, name));
-			}
+			if (node.IsSynthetic || IsValidName(name))
+				return;
+			Errors.Add(CompilerErrorFactory.InvalidName(node, name));
 		}
 
 		private void CheckParameterUniqueness(Method method)
