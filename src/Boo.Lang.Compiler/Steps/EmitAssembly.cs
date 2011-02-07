@@ -4144,19 +4144,27 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			EmitRuntimeCoercionIfNeeded(expectedType, actualType);
-
-			// In order to cast to a reference type we emit a castclass opcode
-			Context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
-			_il.Emit(OpCodes.Castclass, GetSystemType(expectedType));
 		}
 
 		private void EmitRuntimeCoercionIfNeeded(IType expectedType, IType actualType)
 		{
-			if (TypeSystemServices.IsDuckType(actualType))
+			// In order to cast to a reference type we emit a castclass opcode
+			Context.TraceInfo("castclass: expected type='{0}', type on stack='{1}'", expectedType, actualType);
+			var expectedSystemType = GetSystemType(expectedType);
+			if (TypeSystemServices.IsSystemObject(actualType))
 			{
-				EmitGetTypeFromHandle(GetSystemType(expectedType)); PopType();
-				_il.EmitCall(OpCodes.Call, RuntimeServices_Coerce, null);
+				Dup();
+				Isinst(expectedSystemType);
+
+				var afterCoerce = _il.DefineLabel();
+				_il.Emit(OpCodes.Brtrue, afterCoerce);
+
+				EmitGetTypeFromHandle(expectedSystemType); PopType();
+				Call(RuntimeServices_Coerce);
+
+				_il.MarkLabel(afterCoerce);
 			}
+			Castclass(expectedSystemType);
 		}
 
 		private void Call(MethodInfo method)
