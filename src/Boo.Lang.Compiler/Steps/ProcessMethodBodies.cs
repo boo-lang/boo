@@ -166,7 +166,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			if (WasVisited(node)) return;
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
 
 			VisitTypeDefinition(node);
@@ -1200,13 +1201,8 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				CheckIfIsMethodOverride(entity);
-				if (TypeSystemServices.IsUnknown(entity.ReturnType))
-				{
-					if (HasNeitherReturnNorYield(node))
-					{
-						node.ReturnType = CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.VoidType);
-					}
-				}
+				if (TypeSystemServices.IsUnknown(entity.ReturnType) && HasNeitherReturnNorYield(node))
+					node.ReturnType = CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.VoidType);
 			}
 		}
 
@@ -2625,7 +2621,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void MarkRelatedImportAsUsed(MemberReferenceExpression node)
 		{
 			string ns = null;
-			foreach (Import import in _currentModule.Imports)
+			foreach (var import in _currentModule.Imports)
 			{
 				if (ImportAnnotations.IsUsedImport(import)) continue;
 				if (null == ns) ns = node.ToCodeString();

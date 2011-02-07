@@ -26,26 +26,25 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Reflection;
 using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
-	using System;
-
 	class AssemblyReference : IAssemblyReference, IEquatable<AssemblyReference>
 	{
-		private readonly System.Reflection.Assembly _assembly;
+		private readonly Assembly _assembly;
 		private readonly ReflectionTypeSystemProvider _provider;
 		private INamespace _rootNamespace;
 
 		private readonly MemoizedFunction<Type, IType> _typeEntityCache;
 		private readonly MemoizedFunction<MemberInfo, IEntity> _memberCache;
 
-		internal AssemblyReference(ReflectionTypeSystemProvider provider, System.Reflection.Assembly assembly)
+		internal AssemblyReference(ReflectionTypeSystemProvider provider, Assembly assembly)
 		{
 			if (null == assembly)
-				throw new System.ArgumentNullException("assembly");
+				throw new ArgumentNullException("assembly");
 			_provider = provider;
 			_assembly = assembly;
 			_typeEntityCache = new MemoizedFunction<Type, IType>(NewType);
@@ -69,7 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			get { return EntityType.Assembly; }
 		}
 		
-		public System.Reflection.Assembly Assembly
+		public Assembly Assembly
 		{
 			get { return _assembly; }
 		}
