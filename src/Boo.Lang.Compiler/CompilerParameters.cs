@@ -67,8 +67,6 @@ namespace Boo.Lang.Compiler
 
 		private bool _debug;
 
-		private bool _ducky;
-
 		private bool _checked;
 
 		private bool _strict;
@@ -480,45 +478,38 @@ namespace Boo.Lang.Compiler
 		public bool Debug
 		{
 			get { return _debug; }
-
 			set { _debug = value; }
 		}
 
 		/// <summary>
-		/// Use duck instead of object as the most generic type.
+		/// Treat System.Object as duck
 		/// </summary>
-		public bool Ducky
+		public virtual bool Ducky
 		{
-			get { return _ducky; }
-
-			set { _ducky = value; }
+			get; set;
 		}
 
 		public bool Checked
 		{
 			get { return _checked; }
-
 			set { _checked = value; }
 		}
 
 		public string KeyFile
 		{
 			get { return _keyFile; }
-
 			set { _keyFile = value; }
 		}
 
 		public string KeyContainer
 		{
 			get { return _keyContainer; }
-
 			set { _keyContainer = value; }
 		}
 
 		public bool DelaySign
 		{
 			get { return _delaySign; }
-
 			set { _delaySign = value; }
 		}
 		

@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static readonly object ResolvedAsExtensionAnnotation = new object();
 
-		protected Stack _methodStack;
+		protected Stack<InternalMethod> _methodStack;
 
 		protected Stack _memberStack;
 		// for accurate error reporting during type inference
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			_currentModule = null;
 			_currentMethod = null;
-			_methodStack = new Stack();
+			_methodStack = new Stack<InternalMethod>();
 			_memberStack = new Stack();
 			_callableResolutionService = new EnvironmentProvision<CallableResolutionService>();
 
@@ -166,7 +166,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			if (WasVisited(node)) return;
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
 
 			VisitTypeDefinition(node);
@@ -1200,13 +1201,8 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				CheckIfIsMethodOverride(entity);
-				if (TypeSystemServices.IsUnknown(entity.ReturnType))
-				{
-					if (HasNeitherReturnNorYield(node))
-					{
-						node.ReturnType = CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.VoidType);
-					}
-				}
+				if (TypeSystemServices.IsUnknown(entity.ReturnType) && HasNeitherReturnNorYield(node))
+					node.ReturnType = CodeBuilder.CreateTypeReference(node.LexicalInfo, TypeSystemServices.VoidType);
 			}
 		}
 
@@ -2625,7 +2621,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void MarkRelatedImportAsUsed(MemberReferenceExpression node)
 		{
 			string ns = null;
-			foreach (Import import in _currentModule.Imports)
+			foreach (var import in _currentModule.Imports)
 			{
 				if (ImportAnnotations.IsUsedImport(import)) continue;
 				if (null == ns) ns = node.ToCodeString();
@@ -5835,7 +5831,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (EntityType.Property == entity.EntityType
 							|| TypeSystemServices.IsUnknown(memberEntity.Type))
 						{
-							VisitMemberForTypeResolution(node);
+							EnsureMemberWasVisited(node);
 							AssertTypeIsKnown(sourceNode, memberEntity, memberEntity.Type);
 						}
 						break;
@@ -5852,7 +5848,7 @@ namespace Boo.Lang.Compiler.Steps
 							if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
 							{
 								// still unknown?
-								VisitMemberForTypeResolution(node);
+								EnsureMemberWasVisited(node);
 								AssertTypeIsKnown(sourceNode, methodEntity, methodEntity.ReturnType);
 							}
 						}
@@ -5862,19 +5858,22 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.StructDefinition:
 				case NodeType.InterfaceDefinition:
 					{
-						if (WasVisited(node)) break;
-						VisitInParentNamespace(node);
-						//visit dependent attributes such as EnumeratorItemType
-						//foreach (Attribute att in ((TypeDefinition)node).Attributes)
-						{
-							//VisitMemberForTypeResolution(att);
-						}
+						EnsureMemberWasVisited(node);
 						break;
 					}
 			}
 		}
 
-		private void VisitInParentNamespace(Node node)
+		private void EnsureMemberWasVisited(Node node)
+		{
+			if (WasVisited(node))
+				return;
+
+			_context.TraceVerbose("Info {0} needs resolving.", node.Entity.Name);
+			VisitMemberPreservingContext(node);
+		}
+
+		protected virtual void VisitMemberPreservingContext(Node node)
 		{
 			INamespace saved = NameResolutionService.CurrentNamespace;
 			try
@@ -5888,7 +5887,6 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-
 		private void AssertTypeIsKnown(Node sourceNode, IEntity sourceEntity, IType type)
 		{
 			if (TypeSystemServices.IsUnknown(type))
@@ -5898,22 +5896,6 @@ namespace Boo.Lang.Compiler.Steps
 						sourceNode,
 						CurrentMember.FullName,
 						sourceEntity.FullName));
-			}
-		}
-
-		void VisitMemberForTypeResolution(Node node)
-		{
-			if (WasVisited(node)) return;
-
-			_context.TraceVerbose("Info {0} needs resolving.", node.Entity.Name);
-			INamespace saved = NameResolutionService.CurrentNamespace;
-			try
-			{
-				Visit(node);
-			}
-			finally
-			{
-				NameResolutionService.EnterNamespace(saved);
 			}
 		}
 
@@ -6098,16 +6080,16 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack.Pop();
 		}
 
-		void PushMethodInfo(InternalMethod tag)
+		void PushMethodInfo(InternalMethod entity)
 		{
 			_methodStack.Push(_currentMethod);
 
-			_currentMethod = tag;
+			_currentMethod = entity;
 		}
 
 		void PopMethodInfo()
 		{
-			_currentMethod = (InternalMethod)_methodStack.Pop();
+			_currentMethod = _methodStack.Pop();
 		}
 
 		void AssertHasSideEffect(Expression expression)

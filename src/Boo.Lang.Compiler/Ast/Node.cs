@@ -400,10 +400,10 @@ namespace Boo.Lang.Compiler.Ast
 		///<param name="TAncestor">The type of node you request.</param>
 		public TAncestor GetAncestor<TAncestor>() where TAncestor : Node
 		{
-			Node parent = this.ParentNode;
+			var parent = ParentNode;
 			while (parent != null)
 			{
-				TAncestor ancestor = parent as TAncestor;
+				var ancestor = parent as TAncestor;
 				if (null != ancestor)
 					return ancestor;
 				parent = parent.ParentNode;
@@ -430,10 +430,10 @@ namespace Boo.Lang.Compiler.Ast
 		///<param name="TAncestor">The type of node you request.</param>
 		public IEnumerable<TAncestor> GetAncestors<TAncestor>() where TAncestor : Node
 		{
-			Node parent = this.ParentNode;
+			var parent = ParentNode;
 			while (parent != null)
 			{
-				TAncestor ancestor = parent as TAncestor;
+				var ancestor = parent as TAncestor;
 				if (null != ancestor)
 					yield return ancestor;
 				parent = parent.ParentNode;

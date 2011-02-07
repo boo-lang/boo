@@ -156,7 +156,7 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 		
-		public virtual Module EnclosingModule
+		public Module EnclosingModule
 		{
 			get { return GetAncestor<Module>(); }
 		}
