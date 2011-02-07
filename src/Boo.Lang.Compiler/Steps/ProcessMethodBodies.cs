@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static readonly object ResolvedAsExtensionAnnotation = new object();
 
-		protected Stack _methodStack;
+		protected Stack<InternalMethod> _methodStack;
 
 		protected Stack _memberStack;
 		// for accurate error reporting during type inference
@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			_currentModule = null;
 			_currentMethod = null;
-			_methodStack = new Stack();
+			_methodStack = new Stack<InternalMethod>();
 			_memberStack = new Stack();
 			_callableResolutionService = new EnvironmentProvision<CallableResolutionService>();
 
@@ -6098,16 +6098,16 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack.Pop();
 		}
 
-		void PushMethodInfo(InternalMethod tag)
+		void PushMethodInfo(InternalMethod entity)
 		{
 			_methodStack.Push(_currentMethod);
 
-			_currentMethod = tag;
+			_currentMethod = entity;
 		}
 
 		void PopMethodInfo()
 		{
-			_currentMethod = (InternalMethod)_methodStack.Pop();
+			_currentMethod = _methodStack.Pop();
 		}
 
 		void AssertHasSideEffect(Expression expression)
