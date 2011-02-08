@@ -134,10 +134,15 @@ namespace Boo.Lang.Runtime
 
 		private static object Dispatch(object target, string cacheKeyName, Type[] cacheKeyTypes, object[] args, DispatcherCache.DispatcherFactory factory)
 		{
+			var dispatcher = GetDispatcher(target, cacheKeyName, cacheKeyTypes, factory);
+			return dispatcher(target, args);
+		}
+
+		private static Dispatcher GetDispatcher(object target, string cacheKeyName, Type[] cacheKeyTypes, DispatcherCache.DispatcherFactory factory)
+		{
 			var targetType = (target as Type) ?? target.GetType();
 			var key = new DispatcherKey(targetType, cacheKeyName, cacheKeyTypes);
-			var dispatcher = _cache.Get(key, factory);
-			return dispatcher(target, args);
+			return _cache.Get(key, factory);
 		}
 
 		public static object GetProperty(object target, string name)
@@ -229,7 +234,9 @@ namespace Boo.Lang.Runtime
 		{
 			if (value == null) return null;
 
-			return Dispatch(value, "$Coerce$", new[] {toType}, new object[] {toType}, () => CreateCoerceDispatcher(value, toType));
+			var args = new object[] {toType};
+			var dispatcher = GetDispatcher(value, "$Coerce$", new[] {toType}, () => CreateCoerceDispatcher(value, toType));
+			return dispatcher(value, args);
 		}
 
 		private static Dispatcher CreateCoerceDispatcher(object value, Type toType)
