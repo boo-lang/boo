@@ -5831,7 +5831,7 @@ namespace Boo.Lang.Compiler.Steps
 						if (EntityType.Property == entity.EntityType
 							|| TypeSystemServices.IsUnknown(memberEntity.Type))
 						{
-							EnsureMemberWasVisited(node);
+							EnsureMemberWasVisited((TypeMember)node);
 							AssertTypeIsKnown(sourceNode, memberEntity, memberEntity.Type);
 						}
 						break;
@@ -5848,7 +5848,7 @@ namespace Boo.Lang.Compiler.Steps
 							if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
 							{
 								// still unknown?
-								EnsureMemberWasVisited(node);
+								EnsureMemberWasVisited(method);
 								AssertTypeIsKnown(sourceNode, methodEntity, methodEntity.ReturnType);
 							}
 						}
@@ -5858,13 +5858,13 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.StructDefinition:
 				case NodeType.InterfaceDefinition:
 					{
-						EnsureMemberWasVisited(node);
+						EnsureMemberWasVisited((TypeDefinition)node);
 						break;
 					}
 			}
 		}
 
-		private void EnsureMemberWasVisited(Node node)
+		private void EnsureMemberWasVisited(TypeMember node)
 		{
 			if (WasVisited(node))
 				return;
@@ -5873,12 +5873,12 @@ namespace Boo.Lang.Compiler.Steps
 			VisitMemberPreservingContext(node);
 		}
 
-		protected virtual void VisitMemberPreservingContext(Node node)
+		protected virtual void VisitMemberPreservingContext(TypeMember node)
 		{
 			INamespace saved = NameResolutionService.CurrentNamespace;
 			try
 			{
-				NameResolutionService.EnterNamespace((INamespace)node.ParentNode.Entity);
+				NameResolutionService.EnterNamespace((INamespace)node.DeclaringType.Entity);
 				Visit(node);
 			}
 			finally
