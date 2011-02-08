@@ -92,8 +92,9 @@ namespace Boo.Lang.Runtime
 		}
 
 		public static object Invoke(object target, string name, object[] args)
-		{	
-			return Dispatch(target, name, args, () => CreateMethodDispatcher(target, name, args));
+		{
+			var dispatcher = GetDispatcher(target, args, name, () => CreateMethodDispatcher(target, name, args));
+			return dispatcher(target, args);
 		}
 
 		private static Dispatcher CreateMethodDispatcher(object target, string name, object[] args)
@@ -126,16 +127,10 @@ namespace Boo.Lang.Runtime
 			return new MethodDispatcherFactory(_extensions, target, targetType, name, args).Create();
 		}
 
-		private static object Dispatch(object target, string cacheKeyName, object[] args, DispatcherCache.DispatcherFactory factory)
+		private static Dispatcher GetDispatcher(object target, object[] args, string cacheKeyName, DispatcherCache.DispatcherFactory factory)
 		{
 			var cacheKeyTypes = MethodResolver.GetArgumentTypes(args);
-			return Dispatch(target, cacheKeyName, cacheKeyTypes, args, factory);
-		}
-
-		private static object Dispatch(object target, string cacheKeyName, Type[] cacheKeyTypes, object[] args, DispatcherCache.DispatcherFactory factory)
-		{
-			var dispatcher = GetDispatcher(target, cacheKeyName, cacheKeyTypes, factory);
-			return dispatcher(target, args);
+			return GetDispatcher(target, cacheKeyName, cacheKeyTypes, factory);
 		}
 
 		private static Dispatcher GetDispatcher(object target, string cacheKeyName, Type[] cacheKeyTypes, DispatcherCache.DispatcherFactory factory)
@@ -147,7 +142,8 @@ namespace Boo.Lang.Runtime
 
 		public static object GetProperty(object target, string name)
 		{
-			return Dispatch(target, name, NoArguments, () => CreatePropGetDispatcher(target, name));
+			var dispatcher = GetDispatcher(target, NoArguments, name, () => CreatePropGetDispatcher(target, name));
+			return dispatcher(target, NoArguments);
 		}
 
 		private static Dispatcher CreatePropGetDispatcher(object target, string name)
@@ -174,7 +170,9 @@ namespace Boo.Lang.Runtime
 
 		public static object SetProperty(object target, string name, object value)
 		{
-			return Dispatch(target, name, new[] { value }, () => CreatePropSetDispatcher(target, name, value));
+			object[] args = new[] { value };
+			var dispatcher = GetDispatcher(target, args, name, () => CreatePropSetDispatcher(target, name, value));
+			return dispatcher(target, args);
 		}
 
 		private static Dispatcher CreatePropSetDispatcher(object target, string name, object value)
@@ -285,7 +283,8 @@ namespace Boo.Lang.Runtime
 
 		public static object GetSlice(object target, string name, object[] args)
 		{
-			return Dispatch(target, name + "[]", args, () => CreateGetSliceDispatcher(target, name, args));
+			var dispatcher = GetDispatcher(target, args, name + "[]", () => CreateGetSliceDispatcher(target, name, args));
+			return dispatcher(target, args);
 		}
 
 		private static Dispatcher CreateGetSliceDispatcher(object target, string name, object[] args)
@@ -309,7 +308,8 @@ namespace Boo.Lang.Runtime
 
 		public static object SetSlice(object target, string name, object[] args)
 		{
-			return Dispatch(target, name + "[]=", args, () => CreateSetSliceDispatcher(target, name, args));
+			var dispatcher = GetDispatcher(target, args, name + "[]=", () => CreateSetSliceDispatcher(target, name, args));
+			return dispatcher(target, args);
 		}
 
 		static Dispatcher CreateSetSliceDispatcher(object target, string name, object[] args)
@@ -1687,9 +1687,10 @@ namespace Boo.Lang.Runtime
 				return !string.IsNullOrEmpty((string) value);
 
 			Type type = value.GetType();
+			var dispatcher = GetDispatcher(value, "$ToBool$", new[] {type}, () => CreateBoolConverter(type));
 			return
 				(bool)
-				Dispatch(value, "$ToBool$", new[] {type}, new[] {value}, () => CreateBoolConverter(type));
+				dispatcher(value, new[] {value});
 		}
 
 		public static bool ToBool(decimal value)
