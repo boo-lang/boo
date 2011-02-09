@@ -84,10 +84,9 @@ namespace Boo.Lang.Compiler.Steps
 			_methodStack = new Stack<InternalMethod>();
 			_memberStack = new Stack();
 			_callableResolutionService = new EnvironmentProvision<CallableResolutionService>();
+			_invocationTypeReferenceRules = new EnvironmentProvision<InvocationTypeInferenceRules>();
 
 			InitializeMemberCache();
-
-			RegisterTypeInferenceRules();
 		}
 
 		override public void Run()
@@ -106,7 +105,6 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack = null;
 
 			_methodCache = null;
-			_invocationTypeInferenceRules.Clear();
 		}
 
 		protected CallableResolutionService CallableResolutionService
@@ -2015,7 +2013,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			IArrayType type = InferArrayType(node);
 			BindExpressionType(node, type);
-			if (null == node.Type)
+
+			if (node.Type == null)
 				node.Type = (ArrayTypeReference)CodeBuilder.CreateTypeReference(type);
 			else
 				CheckItems(type.ElementType, node.Items);
@@ -3926,39 +3925,15 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void CheckListLiteralArgumentInArrayConstructor(IType expectedElementType, MethodInvocationExpression constructor)
-		{
-			ListLiteralExpression elements = constructor.Arguments[1] as ListLiteralExpression;
-			if (null == elements || AstUtil.IsListGenerator(elements)) return;
-			CheckItems(expectedElementType, elements.Items);
-		}
-
 		private void CheckItems(IType expectedElementType, ExpressionCollection items)
 		{
 			foreach (Expression element in items)
 				AssertTypeCompatibility(element, expectedElementType, GetExpressionType(element));
 		}
 
-		public delegate IType InvocationTypeInferenceRule(MethodInvocationExpression invocation, IMethod method);
-
-		protected void RegisterTypeInferenceRuleFor(IMethod method, InvocationTypeInferenceRule rule)
-		{
-			_invocationTypeInferenceRules.Add(method, rule);
-		}
-
-		protected void RegisterTypeInferenceRuleFor(IMethod[] methods, InvocationTypeInferenceRule rule)
-		{
-			foreach (var method in methods)
-				RegisterTypeInferenceRuleFor(method, rule);
-		}
-
 		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
-			InvocationTypeInferenceRule rule;
-			if (!_invocationTypeInferenceRules.TryGetValue(method, out rule))
-				return;
-
-			var inferredType = rule(expression, method);
+			var inferredType = _invocationTypeReferenceRules.Instance.ApplyTypeInferenceRuleTo(expression, method);
 			if (inferredType != null)
 			{
 				var parent = expression.ParentNode;
@@ -3966,43 +3941,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		Dictionary<IMethod, InvocationTypeInferenceRule> _invocationTypeInferenceRules = new Dictionary<IMethod, InvocationTypeInferenceRule>();
-
-		protected virtual void RegisterTypeInferenceRules()
-		{
-			RegisterTypeInferenceRuleFor(
-				new[] { Array_TypedEnumerableConstructor, Array_TypedIntConstructor },
-				(expression, method) =>
-					{
-						IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
-						if (type == null) return null;
-						if (Array_TypedEnumerableConstructor == method) CheckListLiteralArgumentInArrayConstructor(type, expression);
-						return type.MakeArrayType(1);
-					});
-
-			RegisterTypeInferenceRuleFor(
-				MultiDimensionalArray_TypedConstructor,
-				(expression, method) =>
-					{
-						IType type = TypeSystemServices.GetReferencedType(expression.Arguments[0]);
-						if (type == null) return null;
-						return type.MakeArrayType(expression.Arguments.Count - 1);
-					});
-
-			RegisterTypeInferenceRuleFor(
-				Array_EnumerableConstructor,
-				(expression, method) =>
-					{
-						IType enumeratorItemType = GetEnumeratorItemType(GetExpressionType(expression.Arguments[0]));
-						if (TypeSystemServices.ObjectType == enumeratorItemType)
-							return null;
-						
-						expression.Target.Entity = Array_TypedEnumerableConstructor;
-						expression.ExpressionType = Array_TypedEnumerableConstructor.ReturnType;
-						expression.Arguments.Insert(0, CodeBuilder.CreateReference(enumeratorItemType));
-						return enumeratorItemType.MakeArrayType(1);
-					});
-		}
+		private EnvironmentProvision<InvocationTypeInferenceRules> _invocationTypeReferenceRules;
 
 		protected virtual IEntity ResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity entity)
 		{
@@ -4184,7 +4123,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(replacement);
 		}
 
-		private System.Collections.Generic.IEnumerable<System.Reflection.MethodInfo> EnumerateMetaMethods(IEntity entity)
+		private IEnumerable<System.Reflection.MethodInfo> EnumerateMetaMethods(IEntity entity)
 		{
 			if (entity.EntityType == EntityType.Method)
 			{
@@ -4997,10 +4936,8 @@ namespace Boo.Lang.Compiler.Steps
 		private void CheckAssignmentToIndexedProperty(Node node, IEntity lhs)
 		{
 			var property = lhs as IProperty;
-			if (null != property && IsIndexedProperty(property))
-			{
+			if (property != null && IsIndexedProperty(property))
 				Error(CompilerErrorFactory.PropertyRequiresParameters(AstUtil.GetMemberAnchor(node), property.FullName));
-			}
 		}
 
 		bool CheckIsaArgument(Expression e)
@@ -6443,29 +6380,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get { return CachedMethod("Array_GetLength", () => Methods.InstanceFunctionOf<Array, int, int>(a => a.GetLength)); }
 		}
-
-		IMethod Array_EnumerableConstructor
-		{
-			get
-			{
-				return CachedMethod("Array_EnumerableConstructor", () => Methods.Of<IEnumerable, Array>(Builtins.array));
-			}
-		}
-
-		IMethod Array_TypedEnumerableConstructor
-		{
-			get { return CachedMethod("Array_TypedEnumerableConstructor", () => Methods.Of<Type, IEnumerable, Array>(Builtins.array)); }
-		}
-
-		IMethod Array_TypedIntConstructor
-		{
-			get { return CachedMethod("Array_TypedIntConstructor", () => Methods.Of<Type, int, Array>(Builtins.array)); }
-		}
-
-		IMethod MultiDimensionalArray_TypedConstructor
-		{
-			get { return CachedMethod("MultiDimensionalArray_TypedConstructor",  () => Methods.Of<Type, int[], Array>(Builtins.matrix)); }
-		}
+		
 
 		IMethod String_get_Length
 		{

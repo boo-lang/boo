@@ -638,6 +638,7 @@
     <Compile Include="TypeSystem\Services\CurrentScope.cs" />
     <Compile Include="TypeSystem\Services\DowncastPermissions.cs" />
     <Compile Include="TypeSystem\Services\EntityFormatter.cs" />
+    <Compile Include="TypeSystem\Services\InvocationTypeInferenceRules.cs" />
     <Compile Include="TypeSystem\Services\MemberCollector.cs" />
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
