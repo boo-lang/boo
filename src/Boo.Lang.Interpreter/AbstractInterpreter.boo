@@ -423,6 +423,7 @@ class AbstractInterpreter:
 			
 		override def Dispose():
 			_namespace = null
+			super()
 
 	class ProcessVariableDeclarations(ProcessExpressionsWithInterpreterNamespace):
 	

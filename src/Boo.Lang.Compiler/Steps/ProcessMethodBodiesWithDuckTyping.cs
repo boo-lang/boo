@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Steps
 							((CallableResolutionService.Candidate)CallableResolutionService.ValidCandidates[0]).Method);
 		}
 		
-		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
+		override protected void ProcessBuiltinInvocation(MethodInvocationExpression node, BuiltinFunction function)
 		{
 			if (TypeSystemServices.IsQuackBuiltin(function))
 			{
@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				base.ProcessBuiltinInvocation(function, node);
+				base.ProcessBuiltinInvocation(node, function);
 			}
 		}
 		
