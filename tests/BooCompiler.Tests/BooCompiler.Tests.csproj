@@ -212,6 +212,7 @@
     <Compile Include="TypeSystem\Services\BooCodeBuilderTest.cs" />
     <Compile Include="TypeSystem\Services\CodeReifierTest.cs" />
     <Compile Include="TypeSystem\Services\DowncastPermissionsTest.cs" />
+    <Compile Include="TypeSystem\Services\InvocationTypeInferenceRulesTest.cs" />
     <Compile Include="TypeSystem\Services\MemberCollectorTest.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionServiceTest.cs" />
     <Compile Include="UnsafeErrorsTestFixture.cs" />

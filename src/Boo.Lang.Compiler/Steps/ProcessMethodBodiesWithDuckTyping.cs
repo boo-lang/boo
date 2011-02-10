@@ -33,14 +33,14 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
 	{
-		protected virtual bool DuckyMode
+		private bool Ducky
 		{
 			get { return _context.Parameters.Ducky; }
 		}
 		
 		override protected IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
 		{
-			if (!DuckyMode || CallableResolutionService.ValidCandidates.Count == 0)
+			if (!Ducky || CallableResolutionService.ValidCandidates.Count == 0)
 			{				
 				return base.CantResolveAmbiguousMethodInvocation(node, entities);
 			}
@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Steps
 							((CallableResolutionService.Candidate)CallableResolutionService.ValidCandidates[0]).Method);
 		}
 		
-		override protected void ProcessBuiltinInvocation(BuiltinFunction function, MethodInvocationExpression node)
+		override protected void ProcessBuiltinInvocation(MethodInvocationExpression node, BuiltinFunction function)
 		{
 			if (TypeSystemServices.IsQuackBuiltin(function))
 			{
@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else
 			{
-				base.ProcessBuiltinInvocation(function, node);
+				base.ProcessBuiltinInvocation(node, function);
 			}
 		}
 		

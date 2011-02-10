@@ -392,7 +392,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool IsDuckTyped(Expression expression)
 		{
 			IType type = expression.ExpressionType;
-			return null != type && IsDuckType(type);
+			return type != null && IsDuckType(type);
 		}
 
 		public bool IsQuackBuiltin(Expression node)
@@ -406,16 +406,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 		}
 
 		public bool IsDuckType(IType type)
-		{
-			if (null == type)
-			{
-				throw new ArgumentNullException("type");
-			}
-			return (
-			       	(type == DuckType)
-			       	|| KnowsQuackFu(type)
-			       	|| (_context.Parameters.Ducky
-			       	    && (type == ObjectType)));
+		{	
+			if (type == null) throw new ArgumentNullException("type");
+			if (type == DuckType) return true;
+			if (type == ObjectType && _context.Parameters.Ducky) return true;
+			return KnowsQuackFu(type);
 		}
 
 		public bool KnowsQuackFu(IType type)

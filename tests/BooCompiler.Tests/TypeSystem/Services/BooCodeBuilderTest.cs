@@ -43,11 +43,6 @@ namespace BooCompiler.Tests.TypeSystem.Services
 			});
 		}
 
-		private static IType Map(Type type)
-		{
-			return TypeSystemServices().Map(type);
-		}
-
 		public T GenericMethodPrototype<T>(T[] arrayOfT)
 		{
 			throw new NotImplementedException();
@@ -55,12 +50,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 
 		private IMethod GetMethod(string methodName)
 		{
-			return TypeSystemServices().Map(GetType().GetMethod(methodName));
-		}
-
-		private static TypeSystemServices TypeSystemServices()
-		{
-			return My<TypeSystemServices>.Instance;
+			return TypeSystemServices.Map(GetType().GetMethod(methodName));
 		}
 	}
 }

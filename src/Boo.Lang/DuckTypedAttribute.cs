@@ -38,9 +38,6 @@ namespace Boo.Lang
 	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Field)]
 	public class DuckTypedAttribute : Attribute
 	{
-		public DuckTypedAttribute()
-		{
-		}
 	}
 }
 

@@ -156,6 +156,7 @@ namespace Boo.Lang
 			return array;
 		}
 
+		[TypeInferenceRule("ArrayOfTypeReferencedByFirstArgument")]
 		public static Array array(Type elementType, IEnumerable enumerable)
 		{
 			if (null == elementType)
@@ -186,6 +187,7 @@ namespace Boo.Lang
 			return l.ToArray(elementType);
 		}
 
+		[TypeInferenceRule("ArrayOfTypeReferencedByFirstArgument")]
 		public static Array array(Type elementType, int length)
 		{
 			if (length < 0)

@@ -315,6 +315,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void preserving_1()
+		{
+			RunCompilerTestCase(@"preserving-1.boo");
+		}
+		
+		[Test]
 		public void print_1()
 		{
 			RunCompilerTestCase(@"print-1.boo");

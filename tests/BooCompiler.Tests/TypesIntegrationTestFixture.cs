@@ -457,6 +457,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void implicit_runtime_conversion()
+		{
+			RunCompilerTestCase(@"implicit-runtime-conversion.boo");
+		}
+		
+		[Test]
 		public void innerclasses_1()
 		{
 			RunCompilerTestCase(@"innerclasses-1.boo");

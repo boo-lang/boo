@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.LeaveNamespace();
 		}
 
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
+		override public void OnModule(Module module)
 		{
 			EnterNamespace(InternalModule.ScopeFor(module));
 			VisitTypeDefinitionBody(module);

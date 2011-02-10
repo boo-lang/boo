@@ -32,7 +32,6 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.Util;
-using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
