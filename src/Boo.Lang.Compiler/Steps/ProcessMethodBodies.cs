@@ -3933,7 +3933,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ApplyBuiltinMethodTypeInference(MethodInvocationExpression expression, IMethod method)
 		{
-			var inferredType = _invocationTypeReferenceRules.Instance.ApplyTypeInferenceRuleTo(expression, method);
+			var inferredType = _invocationTypeReferenceRules.Instance.ApplyTo(expression, method);
 			if (inferredType != null)
 			{
 				var parent = expression.ParentNode;

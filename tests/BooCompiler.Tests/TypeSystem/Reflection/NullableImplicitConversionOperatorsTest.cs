@@ -12,10 +12,9 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 		{
 			RunInCompilerContextEnvironment(delegate
         	{
-        		var typeSystemServices = My<TypeSystemServices>.Instance;
-        		var nullableDouble = typeSystemServices.Map(typeof(double?));
-        		var doubleType = typeSystemServices.Map(typeof(double));
-        		var conversionOperator = typeSystemServices.FindExplicitConversionOperator(nullableDouble, doubleType);
+        		var nullableDouble = Map(typeof(double?));
+        		var doubleType = Map(typeof(double));
+        		var conversionOperator = TypeSystemServices.FindExplicitConversionOperator(nullableDouble, doubleType);
 				Assert.IsNotNull(conversionOperator);
         	});
 		}

@@ -1,3 +1,4 @@
+using System;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
@@ -19,6 +20,11 @@ namespace BooCompiler.Tests.TypeSystem
 		protected BooCodeBuilder CodeBuilder
 		{
 			get { return Context.CodeBuilder;  }
+		}
+
+		protected static TypeSystemServices TypeSystemServices
+		{
+			get { return My<TypeSystemServices>.Instance; }
 		}
 
 		[SetUp]
@@ -49,6 +55,11 @@ namespace BooCompiler.Tests.TypeSystem
 			classModule.Members.Add(classBuilder.ClassDefinition);
 			Context.CompileUnit.Modules.Add(classModule);
 			return classBuilder;
+		}
+
+		protected static IType Map(Type type)
+		{
+			return TypeSystemServices.Map(type);
 		}
 	}
 }
