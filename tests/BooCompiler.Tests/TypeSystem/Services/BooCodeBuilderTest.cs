@@ -1,7 +1,6 @@
 ﻿using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Environments;
 using NUnit.Framework;
 
 namespace BooCompiler.Tests.TypeSystem.Services
@@ -33,11 +32,11 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		{
 			RunInCompilerContextEnvironment(() =>
 			{
-				var type = Map(typeof(string));
+				var type = TypeSystemServices.Map(typeof(string));
 
 				var e = CodeBuilder.CreateTypeofExpression(type);
 				Assert.IsNull(e.Entity);
-				Assert.AreSame(Map(typeof(Type)), e.ExpressionType);
+				Assert.AreSame(TypeSystemServices.Map(typeof(Type)), e.ExpressionType);
 
 				Assert.AreSame(type, e.Type.Entity);
 			});

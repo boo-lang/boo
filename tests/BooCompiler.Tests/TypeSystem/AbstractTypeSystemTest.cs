@@ -56,10 +56,5 @@ namespace BooCompiler.Tests.TypeSystem
 			Context.CompileUnit.Modules.Add(classModule);
 			return classBuilder;
 		}
-
-		protected static IType Map(Type type)
-		{
-			return TypeSystemServices.Map(type);
-		}
 	}
 }
