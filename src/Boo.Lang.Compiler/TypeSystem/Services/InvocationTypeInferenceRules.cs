@@ -25,6 +25,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				return TypeSystemServices.GetReferencedType(invocation.Arguments[0]);
 			}
 
+			public static IType TypeReferencedBySecondArgument(MethodInvocationExpression invocation, IMethod method)
+			{
+				return TypeSystemServices.GetReferencedType(invocation.Arguments[1]);
+			}
+
 			public static IType TypeOfFirstArgument(MethodInvocationExpression invocation, IMethod method)
 			{
 				return TypeSystemServices.GetExpressionType(invocation.Arguments[0]);

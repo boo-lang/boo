@@ -2,6 +2,29 @@
 
 namespace Boo.Lang
 {
+	public enum TypeInferenceRules
+	{	
+		/// <summary>
+		/// (typeof(T)) as T
+		/// </summary>
+		TypeReferencedByFirstArgument,
+
+		/// <summary>
+		/// (, typeof(T)) as T
+		/// </summary>
+		TypeReferencedBySecondArgument,
+
+		/// <summary>
+		/// (typeof(T)) as (T)
+		/// </summary>
+		ArrayOfTypeReferencedByFirstArgument,
+
+		/// <summary>
+		/// (T) as T
+		/// </summary>
+		TypeOfFirstArgument,
+	}
+
 	/// <summary>
 	/// Adds a special type inference rule to a method.
 	/// 
@@ -12,6 +35,10 @@ namespace Boo.Lang
 	public class TypeInferenceRuleAttribute : Attribute
 	{
 		private readonly string _rule;
+
+		public TypeInferenceRuleAttribute(TypeInferenceRules rule) : this(rule.ToString())
+		{	
+		}
 
 		public TypeInferenceRuleAttribute(string rule)
 		{
