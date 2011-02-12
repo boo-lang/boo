@@ -3937,7 +3937,8 @@ namespace Boo.Lang.Compiler.Steps
 			if (inferredType != null)
 			{
 				var parent = expression.ParentNode;
-				parent.Replace(expression, CodeBuilder.CreateCast(inferredType, expression));
+				if (parent.NodeType != NodeType.ExpressionStatement)
+					parent.Replace(expression, CodeBuilder.CreateCast(inferredType, expression));
 			}
 		}
 

@@ -1407,6 +1407,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void method_with_type_inference_rule_as_statement()
+		{
+			RunCompilerTestCase(@"method-with-type-inference-rule-as-statement.boo");
+		}
+		
+		[Test]
 		public void nullables_and_generators()
 		{
 			RunCompilerTestCase(@"nullables-and-generators.boo");
