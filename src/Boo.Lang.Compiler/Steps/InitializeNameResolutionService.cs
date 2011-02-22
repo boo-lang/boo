@@ -29,8 +29,6 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Core;
-using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -38,7 +36,6 @@ namespace Boo.Lang.Compiler.Steps
 	{	
 		override public void Run()
 		{
-			NameResolutionService.GlobalNamespace = My<GlobalNamespace>.Instance;
 			EnsureModulesImportEnclosingNamespace();
 			ResolveImportAssemblyReferences();
 		}
