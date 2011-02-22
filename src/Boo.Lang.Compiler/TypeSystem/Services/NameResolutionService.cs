@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	{
 		public static readonly char[] DotArray = new char[] { '.' };
 		
-		protected INamespace _global = NullNamespace.Default;
+		protected INamespace _global;
 
 		private EntityNameMatcher _entityNameMatcher = Matches;
 
@@ -56,6 +56,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			_resolveExtensionFor = new MemoizedFunction<string, IType, IEntity>(StringComparer.Ordinal, ResolveExtensionFor);
 			_resolveName = new MemoizedFunction<string, EntityType, IEntity>(StringComparer.Ordinal, ResolveImpl);
 			_current.Changed += (sender, args) => ClearResolutionCache();
+
+			_global = My<GlobalNamespace>.Instance;
+			Reset();
 		}
 
 		public EntityNameMatcher EntityNameMatcher

@@ -1,5 +1,8 @@
 ﻿using System.IO;
 using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 using NUnit.Framework;
 
 namespace booc.Tests
@@ -41,6 +44,36 @@ namespace booc.Tests
 			var compilerParameters = new CompilerParameters();
 			CommandLineParser.ParseInto(compilerParameters, string.Format(@"'{0}'", fileName));
 			Assert.AreEqual(fileName, compilerParameters.Input[0].Name);
+		}
+
+		[Test]
+		public void CustomTypeInferenceRuleAttribute()
+		{
+			var customAttributeName = typeof(CustomAttribute).FullName.Replace('+', '.');
+			
+			var parameters = new CompilerParameters();
+			parameters.References.Add(typeof(CustomAttribute).Assembly);
+
+			CommandLineParser.ParseInto(parameters, "-x-type-inference-rule-attribute:" + customAttributeName);
+			ActiveEnvironment.With(new CompilerContext(parameters).Environment, () =>
+			{
+				var m = Methods.Of<object>(MethodWithCustomTypeInferenceRule);
+				Assert.AreEqual("custom", My<TypeInferenceRuleProvider>.Instance.TypeInferenceRuleFor(m));	
+			});
+		}
+
+		[CustomAttribute]
+		public static object MethodWithCustomTypeInferenceRule()
+		{
+			return null; 
+		}
+
+		public class CustomAttribute : System.Attribute
+		{
+			override public string ToString()
+			{
+				return "custom";
+			}
 		}
 	}
 }
