@@ -40,7 +40,9 @@ using Boo.Lang.Compiler.Ast.Visitors;
 using Boo.Lang.Compiler.IO;
 using Boo.Lang.Compiler.Pipelines;
 using Boo.Lang.Compiler.Resources;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 
 namespace booc
 {
@@ -481,6 +483,20 @@ namespace booc
 								_options.Unsafe = true;
 							else
 								InvalidOption(arg);
+							break;
+						}
+
+					case 'x':
+						{
+							if (arg.Substring(1).StartsWith("x-type-inference-rule-attribute"))
+							{
+								var attribute = ValueOf(arg);
+								_options.Environment = new DeferredEnvironment { { typeof(TypeInferenceRuleProvider), () => new CustomTypeInferenceRuleProvider(attribute) } };
+							}
+							else
+							{
+								InvalidOption(arg);
+							}
 							break;
 						}
 

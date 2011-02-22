@@ -3,11 +3,52 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Services
 {
 	public delegate IType InvocationTypeInferenceRule(MethodInvocationExpression invocation, IMethod method);
+
+	public class TypeInferenceRuleProvider
+	{
+		public virtual string TypeInferenceRuleFor(MethodBase method)
+		{
+			return TypeInferenceRuleFor(method, typeof(TypeInferenceRuleAttribute));
+		}
+
+		protected string TypeInferenceRuleFor(MethodBase method, Type attributeType)
+		{
+			var rule = System.Attribute.GetCustomAttribute(method, attributeType);
+			if (rule != null)
+				return rule.ToString();
+			return null;
+		}
+	}
+
+	public class CustomTypeInferenceRuleProvider : TypeInferenceRuleProvider
+	{
+		private readonly Type _attribute;
+
+		public CustomTypeInferenceRuleProvider(string attribute)
+		{
+			_attribute = ResolveAttribute(attribute);
+		}
+
+		public override string TypeInferenceRuleFor(MethodBase method)
+		{
+			return base.TypeInferenceRuleFor(method) ?? TypeInferenceRuleFor(method, _attribute);
+		}
+
+		private static Type ResolveAttribute(string attribute)
+		{
+			var externalType = (My<NameResolutionService>.Instance.ResolveQualifiedName(attribute) as ExternalType);
+			if (externalType == null)
+				throw new InvalidOperationException(string.Format("Type '{0}' could not be found!", attribute));
+			return externalType.ActualType;
+		}
+	}
 
 	public class InvocationTypeInferenceRules : AbstractCompilerComponent
 	{
@@ -65,6 +106,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		Dictionary<IMethod, InvocationTypeInferenceRule> _invocationTypeInferenceRules = new Dictionary<IMethod, InvocationTypeInferenceRule>();
 
+		TypeInferenceRuleProvider _provider = My<TypeInferenceRuleProvider>.Instance;
+ 
 		public InvocationTypeInferenceRules() : base(CompilerContext.Current)
 		{
 			var Array_EnumerableConstructor = Map(Methods.Of<IEnumerable, Array>(Builtins.array));
@@ -105,11 +148,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			var external = method as ExternalMethod;
 			if (external != null)
 			{
-				var rule = (TypeInferenceRuleAttribute)System.Attribute.GetCustomAttribute(external.MethodInfo, typeof(TypeInferenceRuleAttribute));
-				if (rule != null)
-					return ResolveRule(invocation, method, rule.ToString());
+				var ruleName = TypeInferenceRuleFor(external.MethodInfo);
+				if (ruleName != null)
+					return ResolveRule(invocation, method, ruleName);
 			}
 			return BuiltinRules.NoTypeInference;
+		}
+
+		private string TypeInferenceRuleFor(MethodBase method)
+		{
+			return _provider.TypeInferenceRuleFor(method);
 		}
 
 		private InvocationTypeInferenceRule ResolveRule(MethodInvocationExpression invocation, IMethod method, string rule)
