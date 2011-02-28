@@ -2243,19 +2243,13 @@ namespace Boo.Lang.Compiler.Steps
 			if (entity.EntityType == EntityType.Type)
 			{
 				BindTypeReferenceExpressionType(node, (IType)entity);
+				return;
 			}
-			else if (entity.EntityType == EntityType.Method)
-			{
-				if (null == (node.Target as MemberReferenceExpression)) //no self.
-				{
-					MemberReferenceExpression target =
-						CodeBuilder.MemberReferenceForEntity(
-							CreateSelfReference(),
-							entity);
-					node.Replace(node.Target, target);
-				}
+			if (entity.EntityType == EntityType.Method)
 				BindExpressionType(node, ((IMethod)entity).Type);
-			}
+
+			if (!(node.Target is MemberReferenceExpression)) //no self.
+				node.Target = CodeBuilder.MemberReferenceForEntity(CreateSelfReference(), entity);
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)

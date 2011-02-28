@@ -201,6 +201,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void generic_instance_overload()
+		{
+			RunCompilerTestCase(@"generic-instance-overload.boo");
+		}
+		
+		[Test]
 		public void generic_list_of_callable()
 		{
 			RunCompilerTestCase(@"generic-list-of-callable.boo");
