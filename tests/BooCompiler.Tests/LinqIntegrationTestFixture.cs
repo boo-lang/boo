@@ -13,6 +13,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void linq_aggregate()
+		{
+			RunCompilerTestCase(@"linq-aggregate.boo");
+		}
+		
+		[Test]
 		public void linq_extensions_1()
 		{
 			RunCompilerTestCase(@"linq-extensions-1.boo");
