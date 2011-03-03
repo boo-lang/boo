@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Services;
 
@@ -93,12 +94,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		private void ShortenDependencies()
 		{
-			foreach (InferredType dependant in new List<InferredType>(_dependants.Keys))
+			foreach (var dependant in _dependants.Keys.ToList())
 			{
-				foreach (InferredType dependency in _dependencies.Keys)
-				{
+				foreach (var dependency in _dependencies.Keys.ToList())
 					dependant.SetDependencyOn(dependency);
-				}
 				dependant.RemoveDependencyOn(this);
 			}
 		}
