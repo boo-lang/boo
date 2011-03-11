@@ -98,7 +98,7 @@ namespace booc
 				if (context.Warnings.Count > 0)
 				{
 					Console.Error.WriteLine(context.Warnings);
-					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
+					Console.Error.WriteLine(ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
 				}
 
 				if (context.Errors.Count == 0)
@@ -115,7 +115,7 @@ namespace booc
 			}
 			catch (Exception x)
 			{
-				var message = (parameters.TraceWarning) ? (object)x : (object)x.Message;
+				var message = (parameters.TraceWarning) ? x : (object)x.Message;
 				Console.Error.WriteLine(ResourceManager.Format("BooC.FatalError", message));
 			}
 			return resultCode;
