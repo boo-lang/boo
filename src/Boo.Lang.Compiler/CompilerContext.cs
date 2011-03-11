@@ -167,10 +167,12 @@ namespace Boo.Lang.Compiler
 			get { return _unit; }
 		}
 
-		public TypeSystem.BooCodeBuilder CodeBuilder
+		public BooCodeBuilder CodeBuilder
 		{
-			get { return My<BooCodeBuilder>.Instance; }
+			get { return _codeBuilder; }
 		}
+
+		private EnvironmentProvision<BooCodeBuilder> _codeBuilder;
 		
 		public Assembly GeneratedAssembly
 		{
