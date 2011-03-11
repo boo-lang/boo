@@ -94,24 +94,6 @@ def sourceFilesFor(project as Project):
 		if not item.EndsWith(".cs"): continue
 		yield baseURI.MakeRelativeUri(System.Uri(item)).ToString()
 
-def updateStringResources(txtFile as string):
-	fname = Path.ChangeExtension(txtFile, ".resx")
-	File.Delete(fname)
-
-	using resourceFile = ResXResourceWriter(fname):
-
-		using file=File.OpenText(txtFile):
-			for line in file:
-				if line.StartsWith(";"): continue
-				line = line.Trim()
-				if len(line) == 0: continue
-				index = line.IndexOf('=')
-				key = line[:index]
-				value = line[index+1:]
-
-				resourceFile.AddResource(key, value)
-
-	print fname
 
 def rebase(fname as string):
 	#return Path.Combine("c:/projects/boo/", fname)
@@ -126,5 +108,3 @@ fnames = (
 )
 for fname in fnames:
 	updateProjectFile(rebase(fname))
-
-updateStringResources(rebase("src/Boo.Lang/Resources/strings.txt"))

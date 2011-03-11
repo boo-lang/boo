@@ -43,6 +43,7 @@ using Boo.Lang.Compiler.Resources;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
+using Boo.Lang.Resources;
 
 namespace booc
 {
@@ -529,7 +530,7 @@ namespace booc
 			var paths = TrimAdditionalQuote(ValueOf(arg)); // TrimAdditionalQuote to work around nant bug with spaces on lib path
 			if (string.IsNullOrEmpty(paths))
 			{
-				Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
+				Console.Error.WriteLine(string.Format(Boo.Lang.Resources.StringResources.BooC_BadLibPath, arg));
 				return;
 			}
 			foreach (var dir in paths.Split(','))
@@ -537,7 +538,7 @@ namespace booc
 				if (Directory.Exists(dir))
 					_options.LibPaths.Add(dir);
 				else
-					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
+					Console.Error.WriteLine(string.Format(Boo.Lang.Resources.StringResources.BooC_BadLibPath, dir));
 			}
 		}
 
@@ -673,10 +674,10 @@ namespace booc
 		{
 			file = Path.GetFullPath(file);
 			if (_processedResponseFiles.Contains(file))
-				throw new ApplicationException(FormatResource("BCE0500", file));
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BCE0500, file));
 			_processedResponseFiles.Add(file);
 			if (!File.Exists(file))
-				throw new ApplicationException(FormatResource("BCE0501", file));
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BCE0501, file));
 
 			var arglist = new List<string>();
 			try
@@ -703,14 +704,9 @@ namespace booc
 			}
 			catch (Exception x)
 			{
-				throw new ApplicationException(FormatResource("BCE0502", file), x);
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BCE0502, file), x);
 			}
 			return arglist;
-		}
-
-		private static string FormatResource(string id, string arg)
-		{
-			return Boo.Lang.ResourceManager.Format(id, arg);
 		}
 
 		List<string> ExpandResponseFiles(IEnumerable<string> args)
@@ -757,7 +753,7 @@ namespace booc
 
 		void InvalidOption(string arg, string message)
 		{
-			Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.InvalidOption", arg, message));
+			Console.Error.WriteLine(StringResources.BooC_InvalidOption, arg, message);
 		}
 
 		static bool IsFlag(string arg)

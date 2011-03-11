@@ -39,6 +39,7 @@ using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Environments;
+using Boo.Lang.Resources;
 
 namespace Boo.Lang.Compiler
 {
@@ -248,17 +249,17 @@ namespace Boo.Lang.Compiler
 			catch (BadImageFormatException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(ResourceManager.Format("BooC.BadFormat", e.FusionLog), e);
+					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_BadFormat, e.FusionLog), e);
 			}
 			catch (FileLoadException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(ResourceManager.Format("BooC.UnableToLoadAssembly", e.FusionLog), e);
+					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_UnableToLoadAssembly, e.FusionLog), e);
 			}
 			catch (ArgumentNullException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(ResourceManager.Format("BooC.NullAssembly"), e);
+					throw new ApplicationException(Boo.Lang.Resources.StringResources.BooC_NullAssembly, e);
 			}
 			return a ?? LoadAssemblyFromLibPaths(assembly, false);
 		}
@@ -290,9 +291,7 @@ namespace Boo.Lang.Compiler
 			}
 			if (throwOnError)
 			{
-				throw new ApplicationException(ResourceManager.Format(
-				                               	"BooC.CannotFindAssembly",
-				                               	assembly));
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_CannotFindAssembly, assembly));
 				//assembly, total_log)); //total_log contains the fusion log
 			}
 			return a;
@@ -359,13 +358,12 @@ namespace Boo.Lang.Compiler
 			}
 			catch (Exception e)
 			{
-				throw new ApplicationException(ResourceManager.GetString("BooC.PkgConfigNotFound"), e);
+				throw new ApplicationException(StringResources.BooC_PkgConfigNotFound, e);
 			}
 			process.WaitForExit();
 			if (process.ExitCode != 0)
 			{
-				throw new ApplicationException(
-					ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
+				throw new ApplicationException(string.Format(StringResources.BooC_PkgConfigReportedErrors, process.StandardError.ReadToEnd()));
 			}
 			return process.StandardOutput.ReadToEnd();
 #endif

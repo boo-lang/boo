@@ -33,6 +33,7 @@ using System.Reflection;
 using System.Collections;
 using System.IO;
 using System.Text;
+using Boo.Lang.Resources;
 using Boo.Lang.Runtime.DynamicDispatching;
 
 namespace Boo.Lang.Runtime
@@ -544,8 +545,14 @@ namespace Boo.Lang.Runtime
 
 		public static object MoveNext(IEnumerator enumerator)
 		{
-			if (null == enumerator) Error("CantUnpackNull");
-			if (!enumerator.MoveNext()) Error("UnpackListOfWrongSize");
+			if (null == enumerator)
+			{
+				throw new ApplicationException(StringResources.CantUnpackNull);
+			}
+			if (!enumerator.MoveNext())
+			{
+				throw new ApplicationException(StringResources.UnpackListOfWrongSize);
+			}
 			return enumerator.Current;
 		}
 
@@ -600,7 +607,7 @@ namespace Boo.Lang.Runtime
 					ranges[2 * i + 1] < ranges[2 * i])
 				{
 					// FIXME: Better error reporting
-					Error("InvalidArray");
+					throw new ApplicationException("Invalid array.");
 				}
 			}
 
@@ -616,7 +623,7 @@ namespace Boo.Lang.Runtime
 			if (source.Rank != sourceRank)
 			{
 				// FIXME: Better error reporting
-				Error("InvalidArray");
+				throw new ApplicationException("Invalid array.");
 			}
 
 			int[] lensDest = new int[dest.Rank];
@@ -631,7 +638,7 @@ namespace Boo.Lang.Runtime
 					if (lensSrc[rankIndex] != source.GetLength(rankIndex))
 					{
 						// FIXME: Better error reporting
-						Error("InvalidArray");
+						throw new ApplicationException("Invalid array.");
 					}
 					rankIndex++;
 				}
@@ -742,11 +749,11 @@ namespace Boo.Lang.Runtime
 		{
 			if (null == array)
 			{
-				Error("CantUnpackNull");
+				throw new ApplicationException(StringResources.CantUnpackNull);
 			}
 			if (expected > array.Length)
 			{
-				Error("UnpackArrayOfWrongSize", expected, array.Length);
+				Error(StringResources.UnpackArrayOfWrongSize, expected, array.Length);
 			}
 		}
 
@@ -779,7 +786,8 @@ namespace Boo.Lang.Runtime
 
 		public static IEnumerable GetEnumerable(object enumerable)
 		{
-			if (null == enumerable) Error("CantEnumerateNull");
+			if (null == enumerable)
+				throw new ApplicationException(StringResources.CantEnumerateNull);
 
 			IEnumerable iterator = enumerable as IEnumerable;
 			if (null != iterator) return iterator;
@@ -787,8 +795,7 @@ namespace Boo.Lang.Runtime
 			TextReader reader = enumerable as TextReader;
 			if (null != reader) return TextReaderEnumerator.lines(reader);
 
-			Error("ArgumentNotEnumerable");
-			return null;
+			throw new ApplicationException(StringResources.ArgumentNotEnumerable);
 		}
 
 		#region global operators
@@ -1763,14 +1770,9 @@ namespace Boo.Lang.Runtime
 
 		#endregion
 
-		static void Error(string name, params object[] args)
+		static void Error(string format, params object[] args)
 		{
-			throw new ApplicationException(Boo.Lang.ResourceManager.Format(name, args));
-		}
-
-		static void Error(string name)
-		{
-			throw new ApplicationException(Boo.Lang.ResourceManager.GetString(name));
+			throw new ApplicationException(string.Format(format, args));
 		}
 
 		public static string RuntimeDisplayName

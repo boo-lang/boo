@@ -31,6 +31,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Collections;
 using System.IO;
+using Boo.Lang.Resources;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
 using Boo.Lang;
@@ -86,7 +87,7 @@ namespace booc
 				CommandLineParser.ParseInto(parameters, args);
 
 				if (0 == parameters.Input.Count)
-					throw new ApplicationException(ResourceManager.GetString("BooC.NoInputSpecified"));
+					throw new ApplicationException(StringResources.BooC_NoInputSpecified);
 				
 				var compiler = new BooCompiler(parameters);
 				setupTime.Stop();
@@ -98,7 +99,7 @@ namespace booc
 				if (context.Warnings.Count > 0)
 				{
 					Console.Error.WriteLine(context.Warnings);
-					Console.Error.WriteLine(ResourceManager.Format("BooC.Warnings", context.Warnings.Count));
+					Console.Error.WriteLine(StringResources.BooC_Warnings, context.Warnings.Count);
 				}
 
 				if (context.Errors.Count == 0)
@@ -107,16 +108,17 @@ namespace booc
 				{
 					foreach (CompilerError error in context.Errors)
 						Console.Error.WriteLine(error.ToString(parameters.TraceInfo));
-					Console.Error.WriteLine(ResourceManager.Format("BooC.Errors", context.Errors.Count));
+					Console.Error.WriteLine(StringResources.BooC_Errors, context.Errors.Count);
 				}
 
 				if (parameters.TraceWarning)
-					Console.Error.WriteLine(ResourceManager.Format("BooC.ProcessingTime", parameters.Input.Count, processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds));
+					Console.Error.WriteLine(StringResources.BooC_ProcessingTime, parameters.Input.Count,
+					                        processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds);
 			}
 			catch (Exception x)
 			{
 				var message = (parameters.TraceWarning) ? x : (object)x.Message;
-				Console.Error.WriteLine(ResourceManager.Format("BooC.FatalError", message));
+				Console.Error.WriteLine(string.Format(Boo.Lang.Resources.StringResources.BooC_FatalError, message));
 			}
 			return resultCode;
 		}

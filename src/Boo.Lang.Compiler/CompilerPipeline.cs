@@ -100,7 +100,7 @@ namespace Boo.Lang.Compiler
 		private static CompilerPipeline LoadCustomPipeline(string typeName)
 		{
             if (typeName.IndexOf(',') < 0)
-            	throw new ArgumentException(Boo.Lang.ResourceManager.Format("BooC.InvalidPipeline", typeName));
+            	throw new ArgumentException(string.Format(Boo.Lang.Resources.StringResources.BooC_InvalidPipeline, typeName));
 			return (CompilerPipeline)Activator.CreateInstance(FindPipelineType(typeName));
 		}
 		

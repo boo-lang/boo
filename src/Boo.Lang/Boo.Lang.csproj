@@ -125,6 +125,7 @@
     <Compile Include="Procedure.cs" />
     <Compile Include="QuackFuMember.cs" />
     <Compile Include="ResourceManager.cs" />
+    <Compile Include="Resources\StringResources.cs" />
     <Compile Include="Runtime\AssertionFailedException.cs" />
     <Compile Include="Runtime\CandidateMethod.cs" />
     <Compile Include="Runtime\DynamicDispatching\AbstractDispatcherFactory.cs" />
@@ -150,11 +151,6 @@
     <Compile Include="Runtime\RuntimeServices.cs" />
     <Compile Include="Runtime\TextReaderEnumerator.cs" />
     <Compile Include="TypeInferenceRuleAttribute.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\strings.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
