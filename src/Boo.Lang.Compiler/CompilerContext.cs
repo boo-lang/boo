@@ -57,8 +57,6 @@ namespace Boo.Lang.Compiler
 		
 		protected CompilerWarningCollection _warnings;
 		
-		protected TraceSwitch _traceSwitch;
-
 		protected Assembly _generatedAssembly;
 		
 		protected string _generatedAssemblyFileName;

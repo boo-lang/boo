@@ -89,8 +89,6 @@ namespace Boo.Lang.Compiler
 		
 		private bool _whiteSpaceAgnostic;
 
-		private TraceSwitch _traceSwitch;
-
 		private readonly Dictionary<string, string> _defines = new Dictionary<string, string>(StringComparer.Ordinal);
 
 		private bool _unsafe;
@@ -134,13 +132,10 @@ namespace Boo.Lang.Compiler
 			_checked = true;
 			_generateInMemory = true;
 			_stdLib = true;
-
-			if (Permissions.WithEnvironmentPermission(() => System.Environment.GetEnvironmentVariable("TRACE") != null))
-				EnableTraceSwitch();
-
 			_delaySign = false;
 
 			Strict = false;
+			TraceLevel = TraceLevel.Off;
 
 			if (loadDefaultReferences)
 				LoadDefaultReferences();
@@ -153,7 +148,7 @@ namespace Boo.Lang.Compiler
 		public void LoadDefaultReferences()
 		{
 			//boo.lang.dll
-			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
+			_booAssembly = typeof(Builtins).Assembly;
 			_compilerReferences.Add(_booAssembly);
 
 			//boo.lang.extensions.dll
@@ -594,57 +589,31 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		internal TraceSwitch TraceSwitch
-		{
-			get { return _traceSwitch; }
-			set
-			{
-				if (null == _traceSwitch)
-					_traceSwitch = value;
-			}
-		}
-
 		public bool TraceInfo
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceInfo); }
+			get { return TraceLevel >= TraceLevel.Info; }
 		}
 
 		public bool TraceWarning
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceWarning); }
+			get { return TraceLevel >= TraceLevel.Warning; }
 		}
 
 		public bool TraceError
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceError); }
+			get { return TraceLevel >= TraceLevel.Error; }
 		}
 
 		public bool TraceVerbose
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceVerbose); }
+			get { return TraceLevel >= TraceLevel.Verbose; }
 		}
 
-		public TraceLevel TraceLevel
-		{
-			get {
-				return (null != _traceSwitch)
-							? _traceSwitch.Level : TraceLevel.Off;
-			}
-			set {
-				EnableTraceSwitch();
-				_traceSwitch.Level = value;
-			}
-		}
-
-		public void EnableTraceSwitch()
-		{
-			if (null == _traceSwitch)
-				_traceSwitch = new TraceSwitch("booc", "boo compiler");
-		}
+		public TraceLevel TraceLevel { get; set; }
 		
 		private void ReadDefaultVisibilitySettings()
 		{
-			string visibility = null;
+			string visibility;
 
 			if (_defines.TryGetValue("DEFAULT_TYPE_VISIBILITY", out visibility))
 				DefaultTypeVisibility = ParseVisibility(visibility);

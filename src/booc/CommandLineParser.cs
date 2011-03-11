@@ -145,7 +145,6 @@ namespace booc
 
 					case 'v':
 						{
-							_options.EnableTraceSwitch();
 							_options.TraceLevel = TraceLevel.Warning;
 							Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
 							if (arg.Length > 2)
