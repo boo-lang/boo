@@ -30,6 +30,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
+using Boo.Lang.Resources;
 
 namespace Boo.Lang.Compiler
 {
@@ -185,8 +186,8 @@ namespace Boo.Lang.Compiler
 		public static CompilerWarning VisibleMemberDoesNotDeclareTypeExplicitely(TypeMember node, string argument)
 		{
 			string details = (null == argument)
-				? ResourceManager.Format("BooC.Return")
-				: ResourceManager.Format("BooC.NamedArgument", argument);
+				? StringResources.BooC_Return
+				: string.Format(StringResources.BooC_NamedArgument, argument);
 			return new CompilerWarning(Codes.VisibleMemberDoesNotDeclareTypeExplicitely, AstUtil.SafeLexicalInfo(node), NodeTypeString(node), details);
 		}
 

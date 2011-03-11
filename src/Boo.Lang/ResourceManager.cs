@@ -26,39 +26,21 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-
 namespace Boo.Lang
 {
 	/// <summary>
 	/// Resource manager.
 	/// </summary>
-	public sealed class ResourceManager
+	public static class ResourceManager
 	{
-#if MSBUILD
-        const string StringsResourceId = "Boo.Lang.Resources.strings";
-#else
-        const string StringsResourceId = "strings";
-#endif
-		static System.Resources.ResourceManager _rm = new System.Resources.ResourceManager(StringsResourceId, typeof(ResourceManager).Assembly);
-
-		private ResourceManager()
-		{
-		}
-
-		public static string GetString(string name)
-		{
-			return _rm.GetString(name);
-		}
-
 		public static string Format(string name, params object[] args)
 		{
 			return string.Format(GetString(name), args);
 		}
 
-		public static string Format(string name, object param)
+		private static string GetString(string name)
 		{
-			return string.Format(GetString(name), param);
+			return (string)typeof(Boo.Lang.Resources.StringResources).GetField(name).GetValue(null);
 		}
 	}
 }

@@ -43,6 +43,7 @@ using Boo.Lang.Compiler.Resources;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
+using Boo.Lang.Resources;
 
 namespace booc
 {
@@ -145,9 +146,7 @@ namespace booc
 
 					case 'v':
 						{
-							_options.EnableTraceSwitch();
 							_options.TraceLevel = TraceLevel.Warning;
-							Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
 							if (arg.Length > 2)
 							{
 								switch (arg.Substring(1))
@@ -439,12 +438,12 @@ namespace booc
 												if (_options.Defines.ContainsKey(s_v[0]))
 												{
 													_options.Defines[s_v[0]] = (s_v.Length > 1) ? s_v[1] : null;
-													Trace.WriteLine("REPLACED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
+													TraceInfo("REPLACED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
 												}
 												else
 												{
 													_options.Defines.Add(s_v[0], (s_v.Length > 1) ? s_v[1] : null);
-													Trace.WriteLine("ADDED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
+													TraceInfo("ADDED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
 												}
 											}
 										}
@@ -531,7 +530,7 @@ namespace booc
 			var paths = TrimAdditionalQuote(ValueOf(arg)); // TrimAdditionalQuote to work around nant bug with spaces on lib path
 			if (string.IsNullOrEmpty(paths))
 			{
-				Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", arg));
+				Console.Error.WriteLine(string.Format(Boo.Lang.Resources.StringResources.BooC_BadLibPath, arg));
 				return;
 			}
 			foreach (var dir in paths.Split(','))
@@ -539,7 +538,7 @@ namespace booc
 				if (Directory.Exists(dir))
 					_options.LibPaths.Add(dir);
 				else
-					Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.BadLibPath", dir));
+					Console.Error.WriteLine(string.Format(Boo.Lang.Resources.StringResources.BooC_BadLibPath, dir));
 			}
 		}
 
@@ -675,10 +674,10 @@ namespace booc
 		{
 			file = Path.GetFullPath(file);
 			if (_processedResponseFiles.Contains(file))
-				throw new ApplicationException(FormatResource("BCE0500", file));
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BCE0500, file));
 			_processedResponseFiles.Add(file);
 			if (!File.Exists(file))
-				throw new ApplicationException(FormatResource("BCE0501", file));
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BCE0501, file));
 
 			var arglist = new List<string>();
 			try
@@ -705,14 +704,9 @@ namespace booc
 			}
 			catch (Exception x)
 			{
-				throw new ApplicationException(FormatResource("BCE0502", file), x);
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BCE0502, file), x);
 			}
 			return arglist;
-		}
-
-		private string FormatResource(string id, string arg)
-		{
-			return Boo.Lang.ResourceManager.Format(id, arg);
 		}
 
 		List<string> ExpandResponseFiles(IEnumerable<string> args)
@@ -759,7 +753,7 @@ namespace booc
 
 		void InvalidOption(string arg, string message)
 		{
-			Console.Error.WriteLine(Boo.Lang.ResourceManager.Format("BooC.InvalidOption", arg, message));
+			Console.Error.WriteLine(StringResources.BooC_InvalidOption, arg, message);
 		}
 
 		static bool IsFlag(string arg)
@@ -780,9 +774,9 @@ namespace booc
 		}
 
 
-		static void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+		void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
 		{
-			Trace.WriteLine("ASSEMBLY LOADED: " + GetAssemblyLocation(args.LoadedAssembly));
+			TraceInfo("ASSEMBLY LOADED: " + GetAssemblyLocation(args.LoadedAssembly));
 		}
 
 		static string GetAssemblyLocation(Assembly a)
@@ -804,10 +798,16 @@ namespace booc
 		{
 			if (_options.TraceInfo)
 			{
-				AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(OnAssemblyLoad);
+				AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 				foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-					Trace.WriteLine("ASSEMBLY AT STARTUP: " + GetAssemblyLocation(a));
+					TraceInfo("ASSEMBLY AT STARTUP: " + GetAssemblyLocation(a));
 			}
+		}
+
+		private void TraceInfo(string s)
+		{
+			if (_options.TraceInfo)
+				Console.Error.WriteLine(s);
 		}
 
 		static string Consume(TextReader reader)

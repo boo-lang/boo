@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler
 			if (null == compileUnit)
 				throw new ArgumentNullException("compileUnit");
 			if (null == _parameters.Pipeline)
-				throw new InvalidOperationException(Boo.Lang.ResourceManager.GetString("BooC.CantRunWithoutPipeline"));
+				throw new InvalidOperationException(Boo.Lang.Resources.StringResources.BooC_CantRunWithoutPipeline);
 			
 			var context = new CompilerContext(_parameters, compileUnit);
 			_parameters.Pipeline.Run(context);

@@ -39,6 +39,7 @@ using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Environments;
+using Boo.Lang.Resources;
 
 namespace Boo.Lang.Compiler
 {
@@ -89,8 +90,6 @@ namespace Boo.Lang.Compiler
 		
 		private bool _whiteSpaceAgnostic;
 
-		private TraceSwitch _traceSwitch;
-
 		private readonly Dictionary<string, string> _defines = new Dictionary<string, string>(StringComparer.Ordinal);
 
 		private bool _unsafe;
@@ -134,13 +133,10 @@ namespace Boo.Lang.Compiler
 			_checked = true;
 			_generateInMemory = true;
 			_stdLib = true;
-
-			if (Permissions.WithEnvironmentPermission(() => System.Environment.GetEnvironmentVariable("TRACE") != null))
-				EnableTraceSwitch();
-
 			_delaySign = false;
 
 			Strict = false;
+			TraceLevel = TraceLevel.Off;
 
 			if (loadDefaultReferences)
 				LoadDefaultReferences();
@@ -153,7 +149,7 @@ namespace Boo.Lang.Compiler
 		public void LoadDefaultReferences()
 		{
 			//boo.lang.dll
-			_booAssembly = typeof(Boo.Lang.Builtins).Assembly;
+			_booAssembly = typeof(Builtins).Assembly;
 			_compilerReferences.Add(_booAssembly);
 
 			//boo.lang.extensions.dll
@@ -169,12 +165,9 @@ namespace Boo.Lang.Compiler
 			//System.Core
 			_compilerReferences.Add(LoadAssembly("System.Core", true));
 
-			if (TraceInfo)
-			{
-				Trace.WriteLine("BOO LANG DLL: " + _booAssembly.Location);
-				Trace.WriteLine("BOO COMPILER EXTENSIONS DLL: " + 
+			WriteTraceInfo("BOO LANG DLL: " + _booAssembly.Location);
+			WriteTraceInfo("BOO COMPILER EXTENSIONS DLL: " + 
 				                (extensionsAssembly != null ? extensionsAssembly.ToString() : "NOT FOUND!"));
-			}
 		}
 
 		private IAssemblyReference TryToLoadExtensionsAssembly()
@@ -256,17 +249,17 @@ namespace Boo.Lang.Compiler
 			catch (BadImageFormatException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(ResourceManager.Format("BooC.BadFormat", e.FusionLog), e);
+					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_BadFormat, e.FusionLog), e);
 			}
 			catch (FileLoadException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(ResourceManager.Format("BooC.UnableToLoadAssembly", e.FusionLog), e);
+					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_UnableToLoadAssembly, e.FusionLog), e);
 			}
 			catch (ArgumentNullException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(ResourceManager.Format("BooC.NullAssembly"), e);
+					throw new ApplicationException(Boo.Lang.Resources.StringResources.BooC_NullAssembly, e);
 			}
 			return a ?? LoadAssemblyFromLibPaths(assembly, false);
 		}
@@ -298,9 +291,7 @@ namespace Boo.Lang.Compiler
 			}
 			if (throwOnError)
 			{
-				throw new ApplicationException(ResourceManager.Format(
-				                               	"BooC.CannotFindAssembly",
-				                               	assembly));
+				throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_CannotFindAssembly, assembly));
 				//assembly, total_log)); //total_log contains the fusion log
 			}
 			return a;
@@ -343,9 +334,16 @@ namespace Boo.Lang.Compiler
 			{
 				string reference = r.Trim();
 				if (reference.Length == 0) continue;
-				Trace.WriteLine("LOADING REFERENCE FROM PKGCONFIG '" + package + "' : " + reference);
+				WriteTraceInfo("LOADING REFERENCE FROM PKGCONFIG '" + package + "' : " + reference);
 				References.Add(LoadAssembly(reference));
 			}
+		}
+
+		[Conditional("TRACE")]
+		private void WriteTraceInfo(string message)
+		{
+			if (TraceInfo)
+				Console.Error.WriteLine(message);
 		}
 
 		private static string pkgconfig(string package)
@@ -360,13 +358,12 @@ namespace Boo.Lang.Compiler
 			}
 			catch (Exception e)
 			{
-				throw new ApplicationException(ResourceManager.GetString("BooC.PkgConfigNotFound"), e);
+				throw new ApplicationException(StringResources.BooC_PkgConfigNotFound, e);
 			}
 			process.WaitForExit();
 			if (process.ExitCode != 0)
 			{
-				throw new ApplicationException(
-					ResourceManager.Format("BooC.PkgConfigReportedErrors", process.StandardError.ReadToEnd()));
+				throw new ApplicationException(string.Format(StringResources.BooC_PkgConfigReportedErrors, process.StandardError.ReadToEnd()));
 			}
 			return process.StandardOutput.ReadToEnd();
 #endif
@@ -594,57 +591,31 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		internal TraceSwitch TraceSwitch
-		{
-			get { return _traceSwitch; }
-			set
-			{
-				if (null == _traceSwitch)
-					_traceSwitch = value;
-			}
-		}
-
 		public bool TraceInfo
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceInfo); }
+			get { return TraceLevel >= TraceLevel.Info; }
 		}
 
 		public bool TraceWarning
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceWarning); }
+			get { return TraceLevel >= TraceLevel.Warning; }
 		}
 
 		public bool TraceError
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceError); }
+			get { return TraceLevel >= TraceLevel.Error; }
 		}
 
 		public bool TraceVerbose
 		{
-			get { return (null != _traceSwitch && _traceSwitch.TraceVerbose); }
+			get { return TraceLevel >= TraceLevel.Verbose; }
 		}
 
-		public TraceLevel TraceLevel
-		{
-			get {
-				return (null != _traceSwitch)
-							? _traceSwitch.Level : TraceLevel.Off;
-			}
-			set {
-				EnableTraceSwitch();
-				_traceSwitch.Level = value;
-			}
-		}
-
-		public void EnableTraceSwitch()
-		{
-			if (null == _traceSwitch)
-				_traceSwitch = new TraceSwitch("booc", "boo compiler");
-		}
+		public TraceLevel TraceLevel { get; set; }
 		
 		private void ReadDefaultVisibilitySettings()
 		{
-			string visibility = null;
+			string visibility;
 
 			if (_defines.TryGetValue("DEFAULT_TYPE_VISIBILITY", out visibility))
 				DefaultTypeVisibility = ParseVisibility(visibility);

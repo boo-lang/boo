@@ -148,8 +148,7 @@ namespace BooCompiler.Tests
 
 		[TestFixtureTearDown]
 		public virtual void TearDownFixture()
-		{
-			Trace.Listeners.Clear();
+		{	
 		}
 
 		[SetUp]

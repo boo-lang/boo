@@ -71,10 +71,7 @@ namespace Boo.Lang
 						IEnumerable lhsEnumerable = lhs as IEnumerable;
 						IEnumerable rhsEnumerable = rhs as IEnumerable;
 						if (null != lhsEnumerable && null != rhsEnumerable)
-						{
 							return CompareEnumerables(lhsEnumerable, rhsEnumerable);
-						}
-						//throw new ArgumentException(ResourceManager.GetString("CantCompareItems"));
 						return lhs.Equals(rhs) ? 0 : 1;
 					}
 					return -1*(rhsComparable.CompareTo(lhs));
