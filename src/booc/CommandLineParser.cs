@@ -146,7 +146,6 @@ namespace booc
 					case 'v':
 						{
 							_options.TraceLevel = TraceLevel.Warning;
-							Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
 							if (arg.Length > 2)
 							{
 								switch (arg.Substring(1))
@@ -438,12 +437,12 @@ namespace booc
 												if (_options.Defines.ContainsKey(s_v[0]))
 												{
 													_options.Defines[s_v[0]] = (s_v.Length > 1) ? s_v[1] : null;
-													Trace.WriteLine("REPLACED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
+													TraceInfo("REPLACED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
 												}
 												else
 												{
 													_options.Defines.Add(s_v[0], (s_v.Length > 1) ? s_v[1] : null);
-													Trace.WriteLine("ADDED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
+													TraceInfo("ADDED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
 												}
 											}
 										}
@@ -709,7 +708,7 @@ namespace booc
 			return arglist;
 		}
 
-		private string FormatResource(string id, string arg)
+		private static string FormatResource(string id, string arg)
 		{
 			return Boo.Lang.ResourceManager.Format(id, arg);
 		}
@@ -779,9 +778,9 @@ namespace booc
 		}
 
 
-		static void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+		void OnAssemblyLoad(object sender, AssemblyLoadEventArgs args)
 		{
-			Trace.WriteLine("ASSEMBLY LOADED: " + GetAssemblyLocation(args.LoadedAssembly));
+			TraceInfo("ASSEMBLY LOADED: " + GetAssemblyLocation(args.LoadedAssembly));
 		}
 
 		static string GetAssemblyLocation(Assembly a)
@@ -803,10 +802,16 @@ namespace booc
 		{
 			if (_options.TraceInfo)
 			{
-				AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(OnAssemblyLoad);
+				AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 				foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-					Trace.WriteLine("ASSEMBLY AT STARTUP: " + GetAssemblyLocation(a));
+					TraceInfo("ASSEMBLY AT STARTUP: " + GetAssemblyLocation(a));
 			}
+		}
+
+		private void TraceInfo(string s)
+		{
+			if (_options.TraceInfo)
+				Console.Error.WriteLine(s);
 		}
 
 		static string Consume(TextReader reader)

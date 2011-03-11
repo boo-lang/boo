@@ -164,12 +164,9 @@ namespace Boo.Lang.Compiler
 			//System.Core
 			_compilerReferences.Add(LoadAssembly("System.Core", true));
 
-			if (TraceInfo)
-			{
-				Trace.WriteLine("BOO LANG DLL: " + _booAssembly.Location);
-				Trace.WriteLine("BOO COMPILER EXTENSIONS DLL: " + 
+			WriteTraceInfo("BOO LANG DLL: " + _booAssembly.Location);
+			WriteTraceInfo("BOO COMPILER EXTENSIONS DLL: " + 
 				                (extensionsAssembly != null ? extensionsAssembly.ToString() : "NOT FOUND!"));
-			}
 		}
 
 		private IAssemblyReference TryToLoadExtensionsAssembly()
@@ -338,9 +335,16 @@ namespace Boo.Lang.Compiler
 			{
 				string reference = r.Trim();
 				if (reference.Length == 0) continue;
-				Trace.WriteLine("LOADING REFERENCE FROM PKGCONFIG '" + package + "' : " + reference);
+				WriteTraceInfo("LOADING REFERENCE FROM PKGCONFIG '" + package + "' : " + reference);
 				References.Add(LoadAssembly(reference));
 			}
+		}
+
+		[Conditional("TRACE")]
+		private void WriteTraceInfo(string message)
+		{
+			if (TraceInfo)
+				Console.Error.WriteLine(message);
 		}
 
 		private static string pkgconfig(string package)

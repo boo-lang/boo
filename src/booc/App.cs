@@ -27,9 +27,9 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
