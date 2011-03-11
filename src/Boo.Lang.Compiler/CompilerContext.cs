@@ -172,7 +172,7 @@ namespace Boo.Lang.Compiler
 			get { return _codeBuilder; }
 		}
 
-		private EnvironmentProvision<BooCodeBuilder> _codeBuilder;
+		private EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
 		
 		public Assembly GeneratedAssembly
 		{
