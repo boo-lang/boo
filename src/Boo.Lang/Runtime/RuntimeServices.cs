@@ -206,9 +206,9 @@ namespace Boo.Lang.Runtime
 
 			public ValueTypeChange(object target, string member, object value)
 			{
-				this.Target = target;
-				this.Member = member;
-				this.Value = value;
+				Target = target;
+				Member = member;
+				Value = value;
 			}
 		}
 
@@ -221,7 +221,7 @@ namespace Boo.Lang.Runtime
 				{
 					SetProperty(change.Target, change.Member, change.Value);
 				}
-				catch (System.MissingFieldException)
+				catch (MissingFieldException)
 				{
 					// hit a readonly property
 					break;
@@ -296,7 +296,7 @@ namespace Boo.Lang.Runtime
 
 			if ("" == name
 				&& args.Length == 1
-				&& target is System.Array) return GetArraySlice;
+				&& target is Array) return GetArraySlice;
 			
 			return new SliceDispatcherFactory(_extensions, target, target.GetType(), name, args).CreateGetter();
 		}
@@ -318,15 +318,14 @@ namespace Boo.Lang.Runtime
 			var duck = target as IQuackFu;
 			if (null != duck)
 			{
-				return delegate(object o, object[] arguments)
-				{
-					return ((IQuackFu) o).QuackSet(name, (object[]) GetRange2(arguments, 0, arguments.Length - 1), arguments[arguments.Length - 1]);
-				};
+				return
+					(o, arguments) =>
+					((IQuackFu) o).QuackSet(name, (object[]) GetRange2(arguments, 0, arguments.Length - 1), arguments[arguments.Length - 1]);
 			}
 
 			if ("" == name
 				&& 2 == args.Length
-				&& target is System.Array) return SetArraySlice;
+				&& target is Array) return SetArraySlice;
 
 			return new SliceDispatcherFactory(_extensions, target, target.GetType(), name, args).CreateSetter();
 		}
@@ -657,12 +656,11 @@ namespace Boo.Lang.Runtime
 				}
 			}
 
-			int counter;
 			int[] indexDest = new int[dest.Rank];
 			int[] indexSrc = new int[sourceRank];
 			for (int i = 0; i < source.Length; i++)
 			{
-				counter = 0;
+				int counter = 0;
 				for (int j = 0; j < dest.Rank; j++)
 				{
 					int index = (i % modInd[j]) / (modInd[j] / lensDest[j]);
@@ -916,7 +914,7 @@ namespace Boo.Lang.Runtime
 
 		public static string op_Modulus(string lhs, IEnumerable rhs)
 		{
-			return string.Format(lhs, Boo.Lang.Builtins.array(rhs));
+			return string.Format(lhs, Builtins.array(rhs));
 		}
 
 		public static string op_Modulus(string lhs, object[] rhs)
@@ -1145,7 +1143,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) * rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) * rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) * rhsConvertible.ToInt32(null);
 			}
@@ -1171,7 +1168,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) / rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) / rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) / rhsConvertible.ToInt32(null);
 			}
@@ -1197,7 +1193,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) + rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) + rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) + rhsConvertible.ToInt32(null);
 			}
@@ -1223,7 +1218,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) - rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) - rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) - rhsConvertible.ToInt32(null);
 			}
@@ -1249,7 +1243,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) == rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) == rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) == rhsConvertible.ToInt32(null);
 			}
@@ -1275,7 +1268,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) > rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) > rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) > rhsConvertible.ToInt32(null);
 			}
@@ -1301,7 +1293,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) >= rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) >= rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) >= rhsConvertible.ToInt32(null);
 			}
@@ -1327,7 +1318,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) < rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) < rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) < rhsConvertible.ToInt32(null);
 			}
@@ -1353,7 +1343,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) <= rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) <= rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) <= rhsConvertible.ToInt32(null);
 			}
@@ -1379,14 +1368,12 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) % rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) % rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) % rhsConvertible.ToInt32(null);
 			}
 		}
 
-		private static double op_Exponentiation(object lhs, TypeCode lhsTypeCode,
-										  object rhs, TypeCode rhsTypeCode)
+		private static double op_Exponentiation(object lhs, TypeCode lhsTypeCode, object rhs, TypeCode rhsTypeCode)
 		{
 			IConvertible lhsConvertible = (IConvertible)lhs;
 			IConvertible rhsConvertible = (IConvertible)rhs;
@@ -1412,7 +1399,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) & rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) & rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) & rhsConvertible.ToInt32(null);
 			}
@@ -1436,7 +1422,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) | rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) | rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) | rhsConvertible.ToInt32(null);
 			}
@@ -1460,7 +1445,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) ^ rhsConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) ^ rhsConvertible.ToUInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) ^ rhsConvertible.ToInt32(null);
 			}
@@ -1494,7 +1478,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) << rhsConvertible.ToInt32(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) << rhsConvertible.ToInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) << rhsConvertible.ToInt32(null);
 			}
@@ -1528,7 +1511,6 @@ namespace Boo.Lang.Runtime
 					return lhsConvertible.ToInt64(null) >> rhsConvertible.ToInt32(null);
 				case TypeCode.UInt32:
 					return lhsConvertible.ToUInt32(null) >> rhsConvertible.ToInt32(null);
-				case TypeCode.Int32:
 				default:
 					return lhsConvertible.ToInt32(null) >> rhsConvertible.ToInt32(null);
 			}
@@ -1552,7 +1534,6 @@ namespace Boo.Lang.Runtime
 					return -operandConvertible.ToInt64(null);
 				case TypeCode.UInt32:
 					return -operandConvertible.ToInt64(null);
-				case TypeCode.Int32:
 				default:
 					return -operandConvertible.ToInt32(null);
 			}
@@ -1705,12 +1686,12 @@ namespace Boo.Lang.Runtime
 			return 0 != value;
 		}
 
-		public static bool ToBool(System.Single value)
+		public static bool ToBool(float value)
 		{
 			return 0 != value;
 		}
 
-		public static bool ToBool(System.Double value)
+		public static bool ToBool(double value)
 		{
 			return 0 != value;
 		}
@@ -1754,7 +1735,7 @@ namespace Boo.Lang.Runtime
 					yield return (MethodInfo) member;
 		}
 
-		private static MethodInfo FindImplicitConversionMethod(System.Collections.Generic.IEnumerable<MethodInfo> candidates, Type from, Type to)
+		private static MethodInfo FindImplicitConversionMethod(IEnumerable<MethodInfo> candidates, Type from, Type to)
 		{
 			foreach (MethodInfo m in candidates)
 			{
