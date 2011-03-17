@@ -39,3 +39,4 @@ import System.Security
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.5")]
 [assembly: AllowPartiallyTrustedCallers]
+[assembly: SecurityRules(SecurityRuleSet.Level1)]
