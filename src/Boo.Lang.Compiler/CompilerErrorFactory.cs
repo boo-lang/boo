@@ -26,17 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Text;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
+using Boo.Lang.Resources;
 
 namespace Boo.Lang.Compiler
 {
-	using System;
-	using System.Text;
-	using Boo.Lang.Compiler.Ast;
-	
 	public static class CompilerErrorFactory
 	{	
 		public static CompilerError CustomError(Node anchor, string msg)
@@ -99,7 +98,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0008", node, error, type, GetSignature(parameters));
 		}
 		
-		public static CompilerError AttributeApplicationError(Exception error, Boo.Lang.Compiler.Ast.Attribute attribute, Type attributeType)
+		public static CompilerError AttributeApplicationError(Exception error, Ast.Attribute attribute, Type attributeType)
 		{
 			return Instantiate("BCE0009", attribute, error, attributeType, error.Message);
 		}
@@ -278,7 +277,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerError MacroExpansionError(Node node)
 		{
-			return Instantiate("BCE0045", node, ResourceManager.Format("BooC.InvalidNestedMacroContext"));
+			return Instantiate("BCE0045", node, StringResources.BooC_InvalidNestedMacroContext);
 		}
 
 		public static CompilerError OperatorCantBeUsedWithValueType(Node node, string operatorName, string typeName)
@@ -370,7 +369,7 @@ namespace Boo.Lang.Compiler
 		public static CompilerError NoMethodToOverride(Node node, string signature, bool incompatibleSignature)
 		{
 			return Instantiate("BCE0060", node, signature,
-				incompatibleSignature ? ResourceManager.Format("BCE0060.IncompatibleSignature") : null);
+				incompatibleSignature ? StringResources.BCE0060_IncompatibleSignature : null);
 		}
 		
 		public static CompilerError NoMethodToOverride(Node node, string signature, string suggestion)
@@ -988,7 +987,7 @@ namespace Boo.Lang.Compiler
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
-			return Boo.Lang.Builtins.join(names, ", ");
+			return Builtins.join(names, ", ");
 		}
 		
 		public static string ToAssemblyQualifiedNameList(List types)
@@ -1031,7 +1030,7 @@ namespace Boo.Lang.Compiler
 		private static string DidYouMeanOrNull(string suggestion)
 		{
 			return (null != suggestion)
-				? ResourceManager.Format("BooC.DidYouMean", suggestion)
+				? string.Format(StringResources.BooC_DidYouMean, suggestion)
 				: null;
 		}
 

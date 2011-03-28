@@ -90,7 +90,7 @@
 		<property name="nosign" value="true" overwrite="true" />
 	</target>
 
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, boo, Boo.Microsoft.Build.Tasks, update-vs-env, Boo.Lang.PatternMatching">
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, Boo.Microsoft.Build.Tasks, update-vs-env, Boo.Lang.PatternMatching">
 		<call target="gendarme" if="${gendarme.dir != ''}" />
 		<call target="verify-assemblies" />
 	</target>
@@ -156,25 +156,6 @@
 			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
 			<arg value="compile" />
 		</exec>
-	</target>
-	
-	<target name="boo" depends="Boo.Lang.Useful, Boo.Lang.Interpreter">
-		<booc
-			target="exe"
-			output="${build.dir}/boo.exe"
-			verbose="${verbose}"
-			debug="${debug}">
-			
-			<sources basedir="src/boo">
-				<include name="*.boo" />
-			</sources>
-			
-			<references basedir="${build.dir}">
-				<include name="Boo.Lang.Useful.dll" />
-				<include name="Boo.Lang.Interpreter.dll" /> 
-			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
-		</booc>
 	</target>
 	
 	<target name="booish" depends="Boo.Lang.Interpreter">
@@ -534,7 +515,7 @@
 		</csc-->
 	</target>
 	
-	<target name="Boo.Lang" depends="resources">
+	<target name="Boo.Lang" depends="init">
 		<csc
 			target="library"
 			output="${build.dir}/Boo.Lang.dll"
@@ -546,10 +527,6 @@
 			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />
 			</sources>
-			
-			<resources basedir="${build.dir}">
-				<include name="strings.resources" />
-			</resources>
 			<nowarn>
 				<warning if="${nant-csc-keyfile-bug}" number="1699"/>
 			</nowarn>
@@ -886,7 +863,6 @@
 				<include name="src/**/*.prjx" />
 				<include name="src/**/*.cmbx" />
 				<include name="src/**/*.targets" />
-				<include name="src/Boo.Lang/Resources/**/*.txt" />
 				
 				<include name="tests/nunit.inc" />
 				<include name="tests/test.snk" />
@@ -964,14 +940,6 @@
 			</fileset>
 		</delete>
 	</target>
-	
-	<target name="resources" depends="init">
-	
-		<resgen
-			input="src/Boo.Lang/Resources/strings.txt"
-			output="${build.dir}/strings.resources" />
-		
-	</target>
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
 	
@@ -1038,7 +1006,7 @@
 		</if>
 	</target>
 	
-	<target name="update-vs-env" depends="resources" unless="${skip.vs}">
+	<target name="update-vs-env" unless="${skip.vs}">
 		<exec program="bin/booi.exe" failonerror="false" useruntimeengine="true">
 			<arg value="scripts/update-vs2005-env.boo" />
 		</exec>	

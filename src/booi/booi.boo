@@ -102,7 +102,7 @@ class Program:
 				try:
 					asm = _compiler.Parameters.LoadAssembly(arg[3:])
 					if asm is null:
-						print Boo.Lang.ResourceManager.Format("BooC.UnableToLoadAssembly", arg[3:])
+						print string.Format(Boo.Lang.Resources.StringResources.BooC_UnableToLoadAssembly, arg[3:])
 					else:
 						_compiler.Parameters.References.Add(asm)
 						_assemblyResolver.AddAssembly(asm.Assembly)
