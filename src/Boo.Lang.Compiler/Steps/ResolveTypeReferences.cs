@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		override public void OnArrayTypeReference(ArrayTypeReference node)
+		override public void LeaveArrayTypeReference(ArrayTypeReference node)
 		{
 			NameResolutionService.ResolveArrayTypeReference(node);
 		}
@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.Steps
 			NameResolutionService.ResolveSimpleTypeReference(node);
 		}
 
-		override public void OnGenericTypeReference(GenericTypeReference node)
+		override public void LeaveGenericTypeReference(GenericTypeReference node)
 		{
 			NameResolutionService.ResolveSimpleTypeReference(node);
 		}
