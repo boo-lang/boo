@@ -165,9 +165,12 @@ namespace Boo.Lang.Compiler
 			//System.Core
 			_compilerReferences.Add(LoadAssembly("System.Core", true));
 
-			WriteTraceInfo("BOO LANG DLL: " + _booAssembly.Location);
-			WriteTraceInfo("BOO COMPILER EXTENSIONS DLL: " + 
-				                (extensionsAssembly != null ? extensionsAssembly.ToString() : "NOT FOUND!"));
+			Permissions.WithDiscoveryPermission<object>(() =>
+			{
+				WriteTraceInfo("BOO LANG DLL: " + _booAssembly.Location);
+				WriteTraceInfo("BOO COMPILER EXTENSIONS DLL: " + (extensionsAssembly != null ? extensionsAssembly.ToString() : "NOT FOUND!"));
+				return null;
+			});
 		}
 
 		private IAssemblyReference TryToLoadExtensionsAssembly()
@@ -369,7 +372,7 @@ namespace Boo.Lang.Compiler
 #endif
 		}
 
-		private string GetSystemDir()
+		private static string GetSystemDir()
 		{
 			return Path.GetDirectoryName(typeof(string).Assembly.Location);
 		}
