@@ -120,6 +120,7 @@
     <Compile Include="AbstractCompilerErrorsTestFixture.cs" />
     <Compile Include="AbstractCompilerTestCase.cs" />
     <Compile Include="ArraysIntegrationTestFixture.cs" />
+    <Compile Include="AssemblyEmitterTest.cs" />
     <Compile Include="Ast\AstAssert.cs" />
     <Compile Include="Ast\NodeMatchingTest.cs" />
     <Compile Include="Ast\ParameterDeclarationTest.cs" />
