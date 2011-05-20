@@ -83,6 +83,11 @@ v = AValueType()
 		output = ConsoleLoopEval("1 << 0x22")
 		assert output.Contains("Constant value `17179869184L' cannot be converted to a `int'"), output
 		
+	[Test]
+	def DontPrintArrayLengthInForLoop():
+		output = ConsoleLoopEval("for i in (-1, 42): print i")
+		Assert.AreEqual("-1\n42\n", output.Replace("\r\n", "\n"))
+		
 	def ConsoleLoopEval(code as string):
 		using console=ConsoleCapture():
 			_console.Eval(code)

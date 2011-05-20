@@ -528,7 +528,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public BinaryExpression CreateBoundBinaryExpression(IType expressionType, BinaryOperatorType op, Expression lhs, Expression rhs)
 		{
-			return new BinaryExpression(op, lhs, rhs) { ExpressionType = expressionType };
+			return new BinaryExpression(op, lhs, rhs) { ExpressionType = expressionType, IsSynthetic = true };
 		}
 
 		public BoolLiteralExpression CreateBoolLiteral(bool value)
