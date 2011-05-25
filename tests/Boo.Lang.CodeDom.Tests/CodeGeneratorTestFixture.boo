@@ -195,6 +195,33 @@ class CodeGeneratorTestFixture:
 		
 		result = Boo.Lang.CodeDom.BooCodeGenerator.FixIndent(code, "    ", 2, false)
 		AssertEqualsIgnoringNewLines expected, result
+
+	[Test]
+	def CodeSnippetTypeMemberTest():
+		compileUnit = CodeCompileUnit()
+		nspace = CodeNamespace("TestNamespace")
+		compileUnit.Namespaces.Add(nspace)
+		cls = CodeTypeDeclaration("Test", IsClass: true)
+		mem = CodeSnippetTypeMember()
+		mem.Text = """
+def TestFunc():
+	pass
+"""
+		cls.Members.Add(mem)
+		nspace.Types.Add(cls)
+
+		codegen = BooCodeGenerator()
+		expected = """namespace TestNamespace
+
+
+class Test:
+    
+
+    def TestFunc():
+        pass
+"""
+
+		AssertCompileUnitIgnoringComments expected, compileUnit
 		
 	def AssertEqualsIgnoringNewLines(expected as string, actual as string):
 		Assert.AreEqual(NormalizeNewLines(expected), NormalizeNewLines(actual))
