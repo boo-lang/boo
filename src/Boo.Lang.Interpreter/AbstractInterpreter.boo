@@ -530,7 +530,7 @@ class AbstractInterpreter:
 				ReplaceCurrentNode(CreateSetValue(node))
 				
 		override def LeaveExpressionStatement(node as ExpressionStatement):
-			
+			return if node.IsSynthetic or node.Expression.IsSynthetic
 			return unless _interpreter.RememberLastValue and _isEntryPoint
 			
 			if node.Expression.ExpressionType is not TypeSystemServices.VoidType:

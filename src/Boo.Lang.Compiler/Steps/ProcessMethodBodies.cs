@@ -910,23 +910,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void CheckIfIsMethodOverride(InternalMethod internalMethod)
+		void CheckIfIsMethodOverride(InternalMethod method)
 		{
-			if (internalMethod.IsStatic) return;
-			if (internalMethod.IsNew) return;
+			if (method.IsStatic) return;
+			if (method.IsNew) return;
 
-			IMethod overriden = FindMethodOverride(internalMethod);
-			if (null == overriden) return;
+			var overriden = FindMethodOverridenBy(method);
+			if (overriden == null) return;
 
 			if (CanBeOverriden(overriden))
-				ProcessMethodOverride(internalMethod, overriden);
+				ProcessMethodOverride(method, overriden);
+			else if (InStrictMode())
+				CantOverrideNonVirtual(method.Method, overriden);
 			else
-			{
-				if (InStrictMode())
-					CantOverrideNonVirtual(internalMethod.Method, overriden);
-				else
-					MethodHidesInheritedNonVirtual(internalMethod, overriden);
-			}
+				MethodHidesInheritedNonVirtual(method, overriden);
 		}
 
 		private bool InStrictMode()
@@ -939,80 +936,56 @@ namespace Boo.Lang.Compiler.Steps
 			Warnings.Add(CompilerWarningFactory.MethodHidesInheritedNonVirtual(hidingMethod.Method, hidingMethod.ToString(), hiddenMethod.ToString()));
 		}
 
-		IMethod FindPropertyAccessorOverride(Property property, Method accessor)
+		IMethod FindPropertyAccessorOverridenBy(Property property, Method accessor)
 		{
-			IProperty baseProperty = ((InternalProperty)property.Entity).Override;
-			if (null == baseProperty) return null;
+			var baseProperty = ((InternalProperty)property.Entity).Overriden;
+			if (baseProperty == null)
+				return null;
 
-			IMethod baseMethod = null;
-			if (property.Getter == accessor)
-			{
-				baseMethod = baseProperty.GetGetMethod();
-			}
-			else
-			{
-				baseMethod = baseProperty.GetSetMethod();
-			}
-
-			if (null != baseMethod)
-			{
-				IMethod accessorEntity = (IMethod)accessor.Entity;
-				if (TypeSystemServices.CheckOverrideSignature(accessorEntity, baseMethod))
-				{
-					return baseMethod;
-				}
-			}
+			var baseAccessor = property.Getter == accessor ? baseProperty.GetGetMethod() : baseProperty.GetSetMethod();
+			if (baseAccessor != null && TypeSystemServices.CheckOverrideSignature((IMethod) accessor.Entity, baseAccessor))
+				return baseAccessor;
 
 			return null;
 		}
 
-		IMethod FindMethodOverride(InternalMethod entity)
+		IMethod FindMethodOverridenBy(InternalMethod entity)
 		{
-			Method method = entity.Method;
-			if (NodeType.Property == method.ParentNode.NodeType)
-				return FindPropertyAccessorOverride((Property)method.ParentNode, method);
+			var method = entity.Method;
+			if (method.ParentNode.NodeType == NodeType.Property)
+				return FindPropertyAccessorOverridenBy((Property)method.ParentNode, method);
 
-			IType baseType = entity.DeclaringType.BaseType;
-			IEntity candidates = NameResolutionService.Resolve(baseType, entity.Name, EntityType.Method);
-			if (null == candidates)
+			var baseType = entity.DeclaringType.BaseType;
+			var candidates = NameResolutionService.Resolve(baseType, entity.Name, EntityType.Method);
+			if (candidates == null)
 				return null;
 
-			IMethod baseMethod = FindMethodOverride(entity, candidates);
-			if (null != baseMethod)
-				EnsureRelatedNodeWasVisited(method, baseMethod);
+			var baseMethod = FindMethodOverridenBy(entity, candidates);
+			if (baseMethod != null) EnsureRelatedNodeWasVisited(method, baseMethod);
 			return baseMethod;
 		}
 
-		private static IMethod FindMethodOverride(InternalMethod entity, IEntity candidates)
+		private static IMethod FindMethodOverridenBy(InternalMethod entity, IEntity candidates)
 		{
 			if (EntityType.Method == candidates.EntityType)
 			{
 				var candidate = (IMethod)candidates;
 				if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
-				{
 					return candidate;
-				}
 			}
 
 			if (EntityType.Ambiguous == candidates.EntityType)
-			{
-				IEntity[] entities = ((Ambiguous)candidates).Entities;
-				foreach (IMethod candidate in entities)
-				{
+				foreach (IMethod candidate in ((Ambiguous) candidates).Entities)
 					if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
-					{
 						return candidate;
-					}
-				}
-			}
 
 			return null;
 		}
 
 		void ResolveMethodOverride(InternalMethod entity)
 		{
-			var baseMethod = FindMethodOverride(entity);
-			if (null == baseMethod)
+			var baseMethod = FindMethodOverridenBy(entity);
+			if (baseMethod == null)
 			{
 				var suggestion = GetMostSimilarBaseMethodName(entity);
 				if (suggestion == entity.Name) //same name => incompatible signature
@@ -1066,12 +1039,10 @@ namespace Boo.Lang.Compiler.Steps
 			Error(CompilerErrorFactory.CantOverrideNonVirtual(method, baseMethod.ToString()));
 		}
 
-		void SetPropertyAccessorOverride(Method accessor)
+		static void SetPropertyAccessorOverride(Method accessor)
 		{
-			if (null != accessor)
-			{
-				accessor.Modifiers |= TypeMemberModifiers.Override;
-			}
+			if (null == accessor) return;
+			accessor.Modifiers |= TypeMemberModifiers.Override;
 		}
 
 		IProperty ResolvePropertyOverride(IProperty p, IEntity[] candidates)
@@ -1095,50 +1066,55 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ResolvePropertyOverride(Property property)
 		{
-			InternalProperty entity = (InternalProperty)property.Entity;
-			IType baseType = entity.DeclaringType.BaseType;
-			IEntity baseProperties = NameResolutionService.Resolve(baseType, property.Name, EntityType.Property);
-			if (null != baseProperties)
+			var overriden = FindPropertyOverridenBy(property);
+			if (overriden == null)
+				return;
+
+			EntityFor(property).Overriden = overriden;
+			EnsureRelatedNodeWasVisited(property, overriden);
+			PropagateOverrideToAccessors(property);
+
+			if (property.Type == null)
+				property.Type = CodeBuilder.CreateTypeReference(EntityFor(property).Overriden.Type);
+		}
+
+		private void PropagateOverrideToAccessors(Property property)
+		{
+			if (property.IsOverride)
 			{
-				if (EntityType.Property == baseProperties.EntityType)
-				{
-					IProperty candidate = (IProperty)baseProperties;
-					if (CheckOverrideSignature(entity, candidate))
-					{
-						entity.Override = candidate;
-					}
-				}
-				else if (EntityType.Ambiguous == baseProperties.EntityType)
-				{
-					entity.Override = ResolvePropertyOverride(entity, ((Ambiguous)baseProperties).Entities);
-				}
+				SetPropertyAccessorOverride(property.Getter);
+				SetPropertyAccessorOverride(property.Setter);
+				return;
 			}
 
-			if (null != entity.Override)
-			{
-				EnsureRelatedNodeWasVisited(property, entity.Override);
-				if (property.IsOverride)
-				{
-					SetPropertyAccessorOverride(property.Getter);
-					SetPropertyAccessorOverride(property.Setter);
-				}
-				else
-				{
-					if (null != entity.Override.GetGetMethod())
-					{
-						SetPropertyAccessorOverride(property.Getter);
-					}
-					if (null != entity.Override.GetSetMethod())
-					{
-						SetPropertyAccessorOverride(property.Setter);
-					}
-				}
+			var overridenProperty = EntityFor(property).Overriden;
+			if (overridenProperty.GetGetMethod() != null)
+				SetPropertyAccessorOverride(property.Getter);
+			if (overridenProperty.GetSetMethod() != null)
+				SetPropertyAccessorOverride(property.Setter);
+		}
 
-				if (null == property.Type)
+		private InternalProperty EntityFor(Property property)
+		{
+			return ((InternalProperty) property.Entity);
+		}
+
+		private IProperty FindPropertyOverridenBy(Property property)
+		{
+			var baseType = EntityFor(property).DeclaringType.BaseType;
+			var candidates = NameResolutionService.Resolve(baseType, property.Name, EntityType.Property);
+			if (candidates != null)
+			{
+				if (EntityType.Property == candidates.EntityType)
 				{
-					property.Type = CodeBuilder.CreateTypeReference(entity.Override.Type);
+					var candidate = (IProperty)candidates;
+					if (CheckOverrideSignature(EntityFor(property), candidate))
+						return candidate;
 				}
+				else if (EntityType.Ambiguous == candidates.EntityType)
+					return ResolvePropertyOverride(EntityFor(property), ((Ambiguous)candidates).Entities);
 			}
+			return null;
 		}
 
 		void SetOverride(InternalMethod entity, IMethod baseMethod)

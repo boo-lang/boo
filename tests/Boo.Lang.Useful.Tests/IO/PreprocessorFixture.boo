@@ -52,6 +52,59 @@ print 'else'
 		AssertPreProcessor("\nprint 'else'\n", code)
 		
 	[Test]
+	def Elif():
+		code = """
+#if FOO
+print 'foo'
+#elif BAR
+print 'bar'
+#else
+print 'else'
+#endif
+"""
+		
+		AssertPreProcessor("\nprint 'foo'\n", code, "FOO")
+		AssertPreProcessor("\nprint 'else'\n", code)
+		AssertPreProcessor("\nprint 'bar'\n", code, "BAR")
+		
+	[Test]
+	def ElifSequence():
+		code = """
+#if FOO
+print 'foo'
+#elif BAR
+print 'bar'
+#elif BAZ
+print 'baz'
+#endif
+"""
+		AssertPreProcessor("\nprint 'foo'\n", code, "FOO")
+		AssertPreProcessor("\nprint 'bar'\n", code, "BAR")
+		AssertPreProcessor("\nprint 'baz'\n", code, "BAZ")
+		AssertPreProcessor("\n", code)
+		
+	[Test]
+	def NestedElif():
+		code = """
+#if FOO
+print 'foo'
+#elif BAR
+#if BAZ
+print 'bar-baz'
+#elif GAZONG
+print 'bar-gazong'
+#endif
+#elif BAZ
+print 'baz'
+#endif
+"""
+		AssertPreProcessor("\nprint 'foo'\n", code, "FOO")
+		AssertPreProcessor("\n", code, "BAR")
+		AssertPreProcessor("\nprint 'bar-baz'\n", code, "BAR", "BAZ")
+		AssertPreProcessor("\nprint 'bar-gazong'\n", code, "BAR", "GAZONG")
+		AssertPreProcessor("\n", code)
+		
+	[Test]
 	def NestedIfs():
 		code = """
 #if FOO

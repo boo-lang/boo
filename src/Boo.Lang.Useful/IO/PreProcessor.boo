@@ -73,6 +73,7 @@ Example:
 		
 	class Parser:
 		IfPattern = /^\s*#if\s+((.|\s)+)$/	
+		ElifPattern = /^\s*#elif\s+((.|\s)+)$/	
 		ElsePattern = /^\s*#else\s*$/	
 		EndIfPattern = /^\s*#endif\s*$/
 		
@@ -112,11 +113,14 @@ Example:
 			while (line = _reader.ReadLine()) is not null:
 				if EndIfPattern.IsMatch(line):
 					SkippedLine()
-					break			
-							
-				if ElsePattern.IsMatch(line):
+					break
+				elif ElsePattern.IsMatch(line):
 					localContext = context and not localContext
 					SkippedLine()
+				elif (elifMatch = ElifPattern.Match(line)).Success:
+					SkippedLine()
+					ParseIfBlock(context and not localContext, elifMatch.Groups[1].Value)
+					break
 				else:
 					ParseLine(localContext, line)
 					
