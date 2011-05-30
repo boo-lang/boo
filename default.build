@@ -2,7 +2,6 @@
 <project name="boo" default="all">
 
 
-	<property name="nant.settings.currentframework" value="net-3.5"/>
 	<property name="boo.major.minor.release.version" value="0.9.5" />
 	<property name="boo.build.number" value="1" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.build.number}" dynamic="True" />
@@ -13,6 +12,7 @@
 	<property name="verbose" value="false" />
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
+	<property name="nant.settings.currentframework" value="net-3.5" unless="${mono}" />
 
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
 	<property name="java" value="java" />	
