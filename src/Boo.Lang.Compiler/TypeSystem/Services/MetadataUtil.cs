@@ -99,11 +99,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static bool IsAttributeDefined(MemberInfo member, Type attributeType)
 		{
-			if (Types.ClrExtensionAttribute == attributeType && null != member.DeclaringType)
+			if (Types.ClrExtensionAttribute == attributeType && member.DeclaringType != null)
 			{
 				MemberInfo[] members;
 				if (_clrExtensionsMembers.TryGetValue(member.DeclaringType, out members))
-					return ((ICollection<MemberInfo>) members).Contains(member);
+					return Array.IndexOf(members, member) != -1;
 			}
 			return System.Attribute.IsDefined(member, attributeType);
 		}

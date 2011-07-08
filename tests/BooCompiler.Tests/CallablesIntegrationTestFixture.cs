@@ -499,6 +499,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void generic_dict_of_anonymous_callable()
+		{
+			RunCompilerTestCase(@"generic-dict-of-anonymous-callable.boo");
+		}
+		
+		[Test]
 		public void method_as_macro_1()
 		{
 			RunCompilerTestCase(@"method-as-macro-1.boo");

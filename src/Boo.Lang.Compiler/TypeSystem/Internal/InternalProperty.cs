@@ -32,12 +32,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
 	public class InternalProperty : InternalEntity<Property>, IProperty
 	{
-		private InternalTypeSystemProvider _provider;
-		
+		private readonly InternalTypeSystemProvider _provider;
 		private IParameter[] _parameters;
-		
-		private IProperty _override;
-
 		private bool? _isBooExtension;
 		private bool? _isClrExtension;
 
@@ -48,20 +44,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public bool IsExtension
 		{
-			get
-			{
-				return IsBooExtension || IsClrExtension;
-			}
+			get { return IsBooExtension || IsClrExtension; }
 		}
 
 		public bool IsBooExtension
 		{
 			get
 			{
-				if (null == _isBooExtension)
-				{
+				if (_isBooExtension == null)
 					_isBooExtension = IsAttributeDefined(Types.BooExtensionAttribute);
-				}
 				return _isBooExtension.Value;
 			}
 		}
@@ -87,28 +78,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		override public EntityType EntityType
 		{
-			get
-			{
-				return EntityType.Property;
-			}
+			get { return EntityType.Property; }
 		}
 		
 		public IType Type
 		{
-			get
-			{
-				return null != _node.Type 
-					? TypeSystemServices.GetType(_node.Type)
-					: Unknown.Default;
-			}
+			get { return _node.Type != null  ? TypeSystemServices.GetType(_node.Type) : Unknown.Default; }
 		}
 
 		public bool AcceptVarArgs
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 		
 		public IParameter[] GetParameters()
@@ -116,51 +96,25 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			return _parameters ?? (_parameters = _provider.Map(_node.Parameters));
 		}
 
-		public IProperty Override
-		{
-			get
-			{
-				return _override;
-			}
-			
-			set
-			{
-				_override = value;
-			}
-		}
+		public IProperty Overriden { get; set; }
 
 		public IMethod GetGetMethod()
 		{
-			if (null != _node.Getter)
-			{
+			if (_node.Getter != null)
 				return (IMethod)TypeSystemServices.GetEntity(_node.Getter);
-			}
-			if (null != _override)
-			{
-				return _override.GetGetMethod();
-			}
-			return null;
+			return Overriden != null ? Overriden.GetGetMethod() : null;
 		}
 		
 		public IMethod GetSetMethod()
 		{
-			if (null != _node.Setter)
-			{
+			if (_node.Setter != null)
 				return (IMethod)TypeSystemServices.GetEntity(_node.Setter);
-			}
-			if (null != _override)
-			{
-				return _override.GetSetMethod();
-			}
-			return null;
+			return Overriden != null ? Overriden.GetSetMethod() : null;
 		}
 
 		public Property Property
 		{
-			get
-			{
-				return _node;
-			}
+			get { return _node; }
 		}
 		
 		override public string ToString()
@@ -170,11 +124,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public bool IsDuckTyped
 		{
-			get
-			{
-				return Type == _provider.DuckType 
-					|| _node.Attributes.Contains("Boo.Lang.DuckTypedAttribute");
-			}
+			get { return Type == _provider.DuckType || _node.Attributes.Contains("Boo.Lang.DuckTypedAttribute"); }
 		}
 	}
 }

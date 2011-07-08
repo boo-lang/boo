@@ -27,7 +27,6 @@
 #endregion
 
 using System;
-using System.Security;
 using System.Security.Permissions;
 
 namespace Boo.Lang.Compiler.Util

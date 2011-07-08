@@ -884,9 +884,13 @@ namespace Boo.Lang.Runtime
 		public static bool op_Member(string lhs, string rhs)
 		{
 			if (null == lhs || null == rhs)
-			{
 				return false;
-			}
+			return rhs.IndexOf(lhs) > -1;
+		}
+		
+		public static bool op_Member(char lhs, string rhs)
+		{
+			if (rhs == null) return false;
 			return rhs.IndexOf(lhs) > -1;
 		}
 

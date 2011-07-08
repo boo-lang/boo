@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <project name="tests" default="run">
-
+	
+	<property name="nant.settings.currentframework" value="net-3.5"/>
+	
 	<include buildfile="nunit.inc" />
 	<include buildfile="../build.properties" if="${file::exists('../build.properties')}" /> 
 	

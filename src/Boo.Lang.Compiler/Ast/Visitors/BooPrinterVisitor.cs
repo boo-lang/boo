@@ -1714,7 +1714,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteKeyword("internal ");
 			if (member.IsStatic)
 				WriteKeyword("static ");
-			else if (member.IsModifierSet(TypeMemberModifiers.Override))
+			else if (member.IsOverride)
 				WriteKeyword("override ");
 			else if (member.IsModifierSet(TypeMemberModifiers.Virtual))
 				WriteKeyword("virtual ");
