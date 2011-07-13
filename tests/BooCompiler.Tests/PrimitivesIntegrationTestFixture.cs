@@ -7,6 +7,12 @@ namespace BooCompiler.Tests
 	{
 	
 		[Test]
+		public void __switch___1()
+		{
+			RunCompilerTestCase(@"__switch__-1.boo");
+		}
+		
+		[Test]
 		public void at_operator()
 		{
 			RunCompilerTestCase(@"at-operator.boo");
@@ -214,12 +220,6 @@ namespace BooCompiler.Tests
 		public void unsigned_2()
 		{
 			RunCompilerTestCase(@"unsigned-2.boo");
-		}
-		
-		[Test]
-		public void __switch___1()
-		{
-			RunCompilerTestCase(@"__switch__-1.boo");
 		}
 		
 
