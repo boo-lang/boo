@@ -473,7 +473,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			string name = AstUtil.BuildUniqueTypeMemberName(type, "initialized");
 			Field field= (Field) type.Members[name];
-
+			
 			if (null == field)
 			{
 				field = CodeBuilder.CreateField(name, TypeSystemServices.BoolType);
@@ -4038,7 +4038,6 @@ namespace Boo.Lang.Compiler.Steps
 				ProcessGenericMethodInvocation(node);
 				return;
 			}
-
 			ProcessMethodInvocationExpression(node, targetEntity);
 		}
 
@@ -4135,12 +4134,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessMethodInvocationExpression(MethodInvocationExpression node, IEntity targetEntity)
 		{
+			
 			if (ResolvedAsExtension(node) || IsExtensionMethod(targetEntity))
 			{
 				PreNormalizeExtensionInvocation(node, targetEntity as IEntityWithParameters);
 			}
 
 			targetEntity = ResolveAmbiguousMethodInvocation(node, targetEntity);
+			
 			if (targetEntity == null)
 				return;
 
@@ -4234,7 +4235,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				AssertParameters(node, targetMethod, node.Arguments);
 			}
-
+			
 			AssertTargetContext(node.Target, targetMethod);
 			NamedArgumentsNotAllowed(node);
 
@@ -4671,6 +4672,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool CheckIsNotValueType(BinaryExpression node, Expression expression)
 		{
+			
 			IType tag = GetExpressionType(expression);
 			if (!TypeSystemServices.IsReferenceType(tag) && !TypeSystemServices.IsAnyType(tag))
 			{
@@ -5586,11 +5588,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (CheckParameters(method, args, true))
 				return true;
-
-			if (IsLikelyMacroExtensionMethodInvocation(sourceNode, sourceEntity, args))
+							
+			if (IsLikelyMacroExtensionMethodInvocation(sourceNode, sourceEntity, args)) {		
 				Error(CompilerErrorFactory.MacroExpansionError(sourceNode));
-			else
+			}
+			else {
 				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity.ToString(), GetSignature(args)));
+			}	
 			return false;
 		}
 

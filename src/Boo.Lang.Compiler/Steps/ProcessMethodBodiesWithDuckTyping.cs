@@ -157,7 +157,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			BindExpressionType(node, TypeSystemServices.DuckType);
 		}
-
 		override protected bool ProcessMethodInvocationWithInvalidParameters(MethodInvocationExpression node, IMethod targetMethod)
 		{
 			if (!TypeSystemServices.IsSystemObject(targetMethod.DeclaringType))

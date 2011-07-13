@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -77,44 +77,42 @@
     <OutputPath>..\build\</OutputPath>
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,MSBUILD</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <FileAlignment>4096</FileAlignment>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Micro-Release|AnyCPU' ">
     <OutputPath>..\build\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
-    <FileAlignment>4096</FileAlignment>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Boo.Lang.Extensions, Version=2.0.9.2, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
+    <Reference Include="nunit.framework">
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Boo.Lang.Extensions, Version=2.0.9.5, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\build\Boo.Lang.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="Boo.Lang.PatternMatching, Version=2.0.9.2, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
+    <Reference Include="Boo.Lang.PatternMatching, Version=2.0.9.5, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\build\Boo.Lang.PatternMatching.dll</HintPath>
     </Reference>
-    <Reference Include="Moq, Version=3.1.416.3, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+    <Reference Include="Moq, Version=3.1.416.3, Culture=neutral, PublicKeyToken=69f491c39445e920">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\moq-3.1.416.3\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <Package>mono-nunit</Package>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+    <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
       <HintPath>..\..\..\..\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractCompilerErrorsTestFixture.cs" />

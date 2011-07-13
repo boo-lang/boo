@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -77,19 +77,18 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Micro-Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,MSBUILD,NO_SYSTEM_REFLECTION_EMIT</DefineConstants>
-    <FileAlignment>4096</FileAlignment>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Micro-Release|AnyCPU' ">
     <OutputPath>bin\Micro-Release\</OutputPath>
     <DefineConstants>TRACE;MSBUILD,NO_SYSTEM_REFLECTION_EMIT</DefineConstants>
     <Optimize>true</Optimize>
-    <FileAlignment>4096</FileAlignment>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AbstractGenerator.cs" />

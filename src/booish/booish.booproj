@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>booish</RootNamespace>
@@ -36,12 +36,14 @@
     <genwarnings>false</genwarnings>
     <culture />
     <ducky>false</ducky>
+    <nostdlib>false</nostdlib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <genwarnings>false</genwarnings>
     <culture />
     <ducky>false</ducky>
+    <nostdlib>false</nostdlib>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Drawing" />
