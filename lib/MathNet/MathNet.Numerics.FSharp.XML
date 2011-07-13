@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>MathNet.Numerics.FSharp</name></assembly>
+<members>
+<member name="M:MathNet.Numerics.FSharp.vector(Microsoft.FSharp.Collections.FSharpList{System.Double})">
+<summary>
+ Construct a dense vector from a list of floating point numbers.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.FSharp.matrix(Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Collections.FSharpList{System.Double}})">
+<summary>
+ Construct a dense matrix from a list of floating point numbers.
+</summary>
+</member>
+<member name="T:MathNet.Numerics.FSharp">
+<summary>
+ A module which implements some F# utility functions.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.initCol``1(System.Int32,System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,``0})">
+<summary>
+ Initialize a matrix by calling a construction function for every column.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.initRow``1(System.Int32,System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,``0})">
+<summary>
+ Initialize a matrix by calling a construction function for every row.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.diag``1(``0)">
+<summary>
+ Create a square matrix with the vector elements on the diagonal.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.constDiag(System.Int32,System.Double)">
+<summary>
+ Create a square matrix with constant diagonal entries.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.initDense``1(System.Int32,System.Int32,``0)">
+<summary>
+ Create a matrix with the given entries.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.ofArray2(System.Double[0:,0:])">
+<summary>
+ Create a matrix from a 2D array of floating point numbers.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.ofSeq``2(``0)">
+<summary>
+ Create a matrix from a list of sequences. Every sequence in the master sequence specifies a row.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.ofList(Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Collections.FSharpList{System.Double}})">
+<summary>
+ Create a matrix from a list of float lists. Every list in the master list specifies a row.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix.init(System.Int32,System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,System.Double}})">
+<summary>
+ Initialize a matrix by calling a construction function for every element.
+</summary>
+</member>
+<member name="T:MathNet.Numerics.LinearAlgebra.Double.DenseMatrix">
+<summary>
+ A module which implements functional dense vector operations.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseVector.range(System.Int32,System.Int32)">
+<summary>
+ Create a vector with integer entries in the given range.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseVector.rangef(System.Double,System.Double,System.Double)">
+<summary>
+ Create a vector with evenly spaced entries: e.g. rangef -1.0 0.5 1.0 = [-1.0 -0.5 0.0 0.5 1.0]
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseVector.ofSeq``1(``0)">
+<summary>
+ Create a vector from a sequences.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseVector.ofList(Microsoft.FSharp.Collections.FSharpList{System.Double})">
+<summary>
+ Create a vector from a float list.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.DenseVector.init(System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,System.Double})">
+<summary>
+ Initialize a vector by calling a construction function for every element.
+</summary>
+</member>
+<member name="T:MathNet.Numerics.LinearAlgebra.Double.DenseVector">
+<summary>
+ A module which implements functional dense vector operations.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.foldByRow``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},System.Double,``0)">
+<summary>
+ Fold all rows into one column vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.foldByCol``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},System.Double,``0)">
+<summary>
+ Fold all columns into one row vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.foldRow``2(Microsoft.FSharp.Core.FSharpFunc`2{``0,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,``0}},``0,``1,System.Int32)">
+<summary>
+ Fold one row.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.foldCol``2(Microsoft.FSharp.Core.FSharpFunc`2{``0,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,``0}},``0,``1,System.Int32)">
+<summary>
+ Fold one column.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.iteri``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.Unit}}},``0)">
+<summary>
+ Iterates over all elements of a matrix using the element indices.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.iter``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.Unit},``0)">
+<summary>
+ Iterates over all elements of a matrix.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.sum``1(``0)">
+<summary>
+ Returns the sum of all elements of a matrix.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.nonZeroEntries``1(``0)">
+<summary>
+ Creates a sequence that iterates the non-zero entries in the matrix.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.inplaceMapi``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}}},``0)">
+<summary>
+ In-place map of every matrix element using a position dependent function.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.inplaceAssign``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,System.Double}},``0)">
+<summary>
+ In-place assignment.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.mapi``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}}},``0)">
+<summary>
+ Map every matrix element using the given position dependent function.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.map``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double},``0)">
+<summary>
+ Map every matrix element using the given function.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.existsi``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean}}},``0)">
+<summary>
+ Checks whether a position dependent predicate holds for at least one element of a matrix.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.foralli``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean}}},``0)">
+<summary>
+ Checks whether a position dependent predicate holds for all elements of a matrix.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.exists``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean},``0)">
+<summary>
+ Chechks whether a predicate holds for at least one element of a matrix.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.forall``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean},``0)">
+<summary>
+ Checks whether a predicate holds for all elements of a matrix.  
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.toArray2``1(``0)">
+<summary>
+ Create a 2D array from a matrix.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.foldi``2(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{``0,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,``0}}}},``0,``1)">
+<summary>
+ Fold a matrix by applying a given function to all matrix elements.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Matrix.fold``2(Microsoft.FSharp.Core.FSharpFunc`2{``0,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,``0}},``0,``1)">
+<summary>
+ Fold a function over all matrix elements.
+</summary>
+</member>
+<member name="T:MathNet.Numerics.LinearAlgebra.Double.Matrix">
+<summary>
+ A module which implements functional matrix operations.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseMatrix.initCol``1(System.Int32,System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,``0})">
+<summary>
+ Initialize a matrix by calling a construction function for every column.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseMatrix.initRow``1(System.Int32,System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,``0})">
+<summary>
+ Initialize a matrix by calling a construction function for every row.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseMatrix.diag``1(``0)">
+<summary>
+ Create a square matrix with the vector elements on the diagonal.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseMatrix.constDiag(System.Int32,System.Double)">
+<summary>
+ Create a square matrix with constant diagonal entries.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseMatrix.ofSeq``1(System.Int32,System.Int32,``0)">
+<summary>
+ Create a matrix from a list of sequences. Every sequence in the master sequence specifies a row.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseMatrix.ofList(System.Int32,System.Int32,Microsoft.FSharp.Collections.FSharpList{System.Tuple`3{System.Int32,System.Int32,System.Double}})">
+<summary>
+ Create a matrix from a list of float lists. Every list in the master list specifies a row.
+</summary>
+</member>
+<member name="T:MathNet.Numerics.LinearAlgebra.Double.SparseMatrix">
+<summary>
+ A module which implements functional sparse vector operations.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseVector.ofSeq``1(System.Int32,``0)">
+<summary>
+ Create a sparse vector with a given dimension from a sequence of entry, value pairs.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.SparseVector.ofList(System.Int32,Microsoft.FSharp.Collections.FSharpList{System.Tuple`2{System.Int32,System.Double}})">
+<summary>
+ Create a sparse vector with a given dimension from a list of entry, value pairs.
+</summary>
+</member>
+<member name="T:MathNet.Numerics.LinearAlgebra.Double.SparseVector">
+<summary>
+ A module which implements functional sparse vector operations.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.reduceBack``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},``0)">
+<summary>
+ Reduces a vector: the result of this function will be f(v[1], ..., f(v[n-2], f(v[n-1],v[n]))...).
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.reduce``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},``0)">
+<summary>
+ Reduces a vector: the result of this function will be f(...f(f(v[0],v[1]), v[2]),..., v[n]).
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.scanBack``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},``0)">
+<summary>
+ Scans a vector; like fold but returns the intermediate result.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.scan``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},``0)">
+<summary>
+ Scans a vector; like fold but returns the intermediate result.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.existsi``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean}},``0)">
+<summary>
+ Checks whether there is an entry in the vector that satisfies a given position dependent predicate.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.foralli``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean}},``0)">
+<summary>
+ Checks whether a predicate is true for all entries in a vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.exists``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean},``0)">
+<summary>
+ Checks whether there is an entry in the vector that satisfies a given predicate.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.forall``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Boolean},``0)">
+<summary>
+ Checks whether a predicate is satisfied for every element in the vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.foldi``2(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{``0,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,``0}}},``0,``1)">
+<summary>
+ Fold all entries of a vector using a position dependent folding function.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.fold``2(Microsoft.FSharp.Core.FSharpFunc`2{``0,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,``0}},``0,``1)">
+<summary>
+ Fold all entries of a vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.mapi``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},``0)">
+<summary>
+ Maps a vector to a new vector by applying a function to every element.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.iteri``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.Unit}},``0)">
+<summary>
+ Applies a function to all elements of the vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.iter``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,Microsoft.FSharp.Core.Unit},``0)">
+<summary>
+ Applies a function to all elements of the vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.map``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double},``0)">
+<summary>
+ Functional map operator for vectors.
+ &lt;include file=&apos;../../../../FSharpExamples/DenseVector.xml&apos; path=&apos;example&apos;/&gt; 
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.subInPlace``2(``0,``1)">
+<summary>
+ In place vector subtraction.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.addInPlace``2(``0,``1)">
+<summary>
+ In-place vector addition.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.mapiInPlace``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Int32,Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double}},``0)">
+<summary>
+ In-place mutation by applying a function to every element of the vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.mapInPlace``1(Microsoft.FSharp.Core.FSharpFunc`2{System.Double,System.Double},``0)">
+<summary>
+ In-place mutation by applying a function to every element of the vector.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.toList``1(``0)">
+<summary>
+ Transform a vector into an array.
+</summary>
+</member>
+<member name="M:MathNet.Numerics.LinearAlgebra.Double.Vector.toArray``1(``0)">
+<summary>
+ Transform a vector into an array.
+</summary>
+</member>
+<member name="T:MathNet.Numerics.LinearAlgebra.Double.Vector">
+<summary>
+ A module which implements functional vector operations.
+</summary>
+</member>
+</members>
+</doc>

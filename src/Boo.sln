@@ -41,6 +41,8 @@ Project("{B3672514-7503-4B01-B4B4-B44E87061EA2}") = "booish", "booish\booish.boo
 EndProject
 Project("{B3672514-7503-4B01-B4B4-B44E87061EA2}") = "Statsia.Lang.Compiler", "Statsia.Lang.Compiler\Statsia.Lang.Compiler.booproj", "{1A886BA3-F84A-4A3B-878B-D058581A0CBD}"
 EndProject
+Project("{B3672514-7503-4B01-B4B4-B44E87061EA2}") = "Statsia", "Statsia\Statsia.booproj", "{2A02D8A2-B187-401D-88BB-109F2243DD01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Net-1.1|Any CPU = Debug Net-1.1|Any CPU
@@ -80,6 +82,16 @@ Global
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Micro-Release|Any CPU.Build.0 = Release|Any CPU
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Debug Net-1.1|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Debug Net-1.1|Any CPU.Build.0 = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Micro-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Micro-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Micro-Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Micro-Release|Any CPU.Build.0 = Debug|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A02D8A2-B187-401D-88BB-109F2243DD01}.Release|Any CPU.Build.0 = Release|Any CPU
 		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Debug Net-1.1|Any CPU.ActiveCfg = Debug|Any CPU
 		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Debug Net-1.1|Any CPU.Build.0 = Debug|Any CPU
 		{366B4AFE-C4E9-46DF-9CFF-57C62D414D4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

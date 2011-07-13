@@ -7,3 +7,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 mono --debug /usr/local/lib/nunit/nunit-console.exe build/statsiac.Tests.dll
+rm TestResults.xml

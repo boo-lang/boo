@@ -21,7 +21,6 @@ class SampleFixture:
         d = System.Math.Cos(a)
         Assert.AreEqual(d, c)
         
-        
     [Test]
     def LogTest():
         // Log is overloaded math function

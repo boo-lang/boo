@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1A886BA3-F84A-4A3B-878B-D058581A0CBD}</ProjectGuid>
+    <ProjectGuid>{2A02D8A2-B187-401D-88BB-109F2243DD01}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Statsia.Lang.Compiler</RootNamespace>
-    <AssemblyName>Statsia.Lang.Compiler</AssemblyName>
+    <RootNamespace>Statsia</RootNamespace>
+    <AssemblyName>Statsia</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -34,24 +34,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="MathNet.Numerics, Version=2011.4.17.0, Culture=neutral, PublicKeyToken=cd8b63ad3d691a37">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\MathNet\MathNet.Numerics.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Steps\ProcessMethodBodies.boo" />
-    <Compile Include="Pipelines\CompileToFile.boo" />
-    <Compile Include="TransformHelpers.boo" />
+    <Compile Include="Math.boo" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Steps\" />
-    <Folder Include="Pipelines\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
-      <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
-      <Name>Boo.Lang.Compiler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
-      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
-      <Name>Boo.Lang</Name>
-    </ProjectReference>
+    <Folder Include="Modeling\" />
   </ItemGroup>
 </Project>
