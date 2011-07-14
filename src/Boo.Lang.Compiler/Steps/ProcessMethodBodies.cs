@@ -6090,18 +6090,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		IEntity DeclareLocal(Declaration d, bool privateScope)
+		void DeclareLocal(Declaration d, bool privateScope)
 		{
 			AssertIdentifierName(d, d.Name);
 
-			IEntity local = DeclareLocal(d, d.Name, GetType(d.Type), privateScope);
+			var local = DeclareLocal(d, d.Name, GetType(d.Type), privateScope);
 			d.Entity = local;
 
-			InternalLocal internalLocal = local as InternalLocal;
-			if (null != internalLocal)
+			var internalLocal = local as InternalLocal;
+			if (internalLocal != null)
 				internalLocal.OriginalDeclaration = d;
-
-			return local;
 		}
 
 		protected IType GetEnumeratorItemType(IType iteratorType)
