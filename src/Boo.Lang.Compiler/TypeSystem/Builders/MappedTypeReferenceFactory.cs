@@ -28,6 +28,7 @@
 
 
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem.Builders
@@ -60,6 +61,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 				var mappedElementType = Map(arrayType.ElementType);
 				return mappedElementType.MakeArrayType(arrayType.Rank);
 			}
+
+			var constructedTypeInfo = type.ConstructedInfo;
+			if (constructedTypeInfo != null)
+				return
+					constructedTypeInfo.GenericDefinition.GenericInfo.ConstructType(
+						constructedTypeInfo.GenericArguments.Select(a => Map(a)).ToArray());
 			return type;
 		}
 	}

@@ -96,6 +96,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core">
       <SpecificVersion>False</SpecificVersion>
@@ -312,6 +313,7 @@
     <Compile Include="Ast\NamespaceDeclaration.cs" />
     <Compile Include="Ast\Node.cs" />
     <Compile Include="Ast\NodeCollection.cs" />
+    <Compile Include="Ast\NodeExtensions.cs" />
     <Compile Include="Ast\NodeType.Generated.cs" />
     <Compile Include="Ast\NullLiteralExpression.cs" />
     <Compile Include="Ast\OmittedExpression.cs" />

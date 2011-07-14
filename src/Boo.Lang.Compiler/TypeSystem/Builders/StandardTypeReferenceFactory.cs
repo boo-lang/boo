@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem.Builders
@@ -42,14 +42,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 
 		public TypeReference TypeReferenceFor(IType type)
 		{
+			return CreateTypeReferenceFor(type).WithEntity(type);
+		}
+
+		private TypeReference CreateTypeReferenceFor(IType type)
+		{
 			if (type.IsArray)
 			{
 				IArrayType arrayType = (IArrayType)type;
-				return new ArrayTypeReference(TypeReferenceFor(arrayType.ElementType), CreateIntegerLiteral(arrayType.Rank))
-				{ Entity = type };
+				return new ArrayTypeReference(TypeReferenceFor(arrayType.ElementType), CreateIntegerLiteral(arrayType.Rank));
 			}
-			// TODO: support for generic types
-			return new SimpleTypeReference(DisplayNameFor(type)) { Entity = type };
+
+			var constructedTypeInfo = type.ConstructedInfo;
+			if (constructedTypeInfo != null)
+				return new GenericTypeReference(DisplayNameFor(constructedTypeInfo.GenericDefinition),
+												constructedTypeInfo.GenericArguments.Select(a => TypeReferenceFor(a)).ToArray());
+
+			return new SimpleTypeReference(DisplayNameFor(type));
 		}
 
 		private static string DisplayNameFor(IType type)
