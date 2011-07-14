@@ -175,6 +175,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void string_yields_chars()
+		{
+			RunCompilerTestCase(@"string-yields-chars.boo");
+		}
+		
+		[Test]
 		public void typeof_1()
 		{
 			RunCompilerTestCase(@"typeof-1.boo");
