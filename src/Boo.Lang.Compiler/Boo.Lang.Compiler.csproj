@@ -536,6 +536,7 @@
     <Compile Include="TypeSystem\Core\SimpleNamespace.cs" />
     <Compile Include="TypeSystem\EntityType.cs" />
     <Compile Include="TypeSystem\Error.cs" />
+    <Compile Include="TypeSystem\ITypeExtensions.cs" />
     <Compile Include="TypeSystem\Generics\AbstractGenericParameter.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructedMethod.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructedType.cs" />
@@ -688,6 +689,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Steps\MethodProcessing\" />
+    <Folder Include="TypeSystem\Extensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

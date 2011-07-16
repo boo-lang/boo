@@ -626,7 +626,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
 		{
 			if (lhs == rhs) return true;
-			if (Null.Default == rhs) return true;
+			if (rhs.IsNull()) return true;
 
 			var other = rhs as ICallableType;
 			if (null == other) return false;
@@ -687,7 +687,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool CanBeReachedByPromotionImpl(IType expectedType, IType actualType)
 		{
-			if (IsNullable(expectedType) && Null.Default == actualType)
+			if (IsNullable(expectedType) && actualType.IsNull())
 				return true;
 			if (IsIntegerNumber(actualType) && CanBeExplicitlyCastToInteger(expectedType))
 				return true;

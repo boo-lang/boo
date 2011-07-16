@@ -226,9 +226,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public virtual bool IsAssignableFrom(IType other)
 		{
-			return this == other ||
-			       (!IsValueType && Null.Default == other) ||
-			       other.IsSubclassOf(this);
+			return this == other
+				|| (!IsValueType && other.IsNull())
+				|| other.IsSubclassOf(this);
 		}
 
 		public IType[] GetInterfaces()

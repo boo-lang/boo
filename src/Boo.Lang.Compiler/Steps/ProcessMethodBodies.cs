@@ -1402,7 +1402,7 @@ namespace Boo.Lang.Compiler.Steps
 		IType MapNullToObject(IType type)
 		{
 			// FIXME: refactor to TypeSystemServices
-			if (Null.Default == type)
+			if (type.IsNull())
 				return TypeSystemServices.ObjectType;
 			if (EmptyArrayType.Default == type)
 				return TypeSystemServices.ObjectArrayType;
@@ -5501,7 +5501,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (expectedType.IsPointer && actualType.IsPointer)
 				return true; //if both types are unmanaged pointers casting is always possible
 
-			if (TypeSystemServices.IsNullable(expectedType) && Null.Default == actualType)
+			if (TypeSystemServices.IsNullable(expectedType) && actualType.IsNull())
 				return true;
 
 			if (!CanBeReachedFrom(sourceNode, expectedType, actualType))

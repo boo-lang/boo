@@ -4634,7 +4634,7 @@ namespace Boo.Lang.Compiler.Steps
 				return GetSystemType(entity.ConstructedInfo.GenericDefinition).MakeGenericType(arguments);
 			}
 
-			if (Null.Default == entity)
+			if (entity.IsNull())
 				return Types.Object;
 
 			if (entity is InternalGenericParameter)
