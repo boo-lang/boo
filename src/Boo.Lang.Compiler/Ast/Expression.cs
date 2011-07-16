@@ -131,7 +131,7 @@ namespace Boo.Lang.Compiler.Ast
 			return new ReferenceExpression(type.LexicalInfo, type.FullName);
 		}
 
-		public static Expression Lift(System.Type type)
+		public static Expression Lift(Type type)
 		{
 			if (type.IsGenericType)
 				return LiftGenericType(type);
