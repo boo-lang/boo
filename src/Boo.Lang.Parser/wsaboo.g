@@ -2994,7 +2994,9 @@ options
 	TokenStreamRecorder _erecorder;
 	
 	antlr.TokenStreamSelector _selector;
-	
+
+	bool _preserveComments;
+
 	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, antlr.TokenCreator tokenCreator)
 	{
 		setTabSize(tabSize);
@@ -3023,6 +3025,12 @@ options
 		{
 			return _skipWhitespaceRegion > 0;
 		}
+	}
+
+	public bool PreserveComments
+	{
+		get { return _preserveComments; }
+		set { _preserveComments = value; }
 	}
 
 	void ParseInterpolatedExpression(int tokenClose, int tokenOpen)
@@ -3167,13 +3175,23 @@ MULTIPLY: '*' ('=' { $setType(ASSIGN); })?;
 EXPONENTIATION: "**";
 
 DIVISION: 
-	("/*")=> ML_COMMENT { $setType(Token.SKIP); } |
-	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |	
+	("/*")=> ML_COMMENT
+	{
+		if (!_preserveComments)
+			$setType(Token.SKIP);
+	} |
+	(RE_LITERAL)=> RE_LITERAL { $setType(RE_LITERAL); } |
 	'/' (
-		('/' (~('\r'|'\n'))* { $setType(Token.SKIP); }) |			
+			('/' (~('\r'|'\n'))*
+			{
+				if (_preserveComments)
+					$setType(SL_COMMENT);
+				else
+					$setType(Token.SKIP);
+			}) |
 			('=' { $setType(ASSIGN); }) |
 		)
-	;
+;
 
 LESS_THAN: '<';
 
@@ -3277,7 +3295,10 @@ SINGLE_QUOTED_STRING :
 
 SL_COMMENT:
 	"#" (~('\r'|'\n'))*
-	{ $setType(Token.SKIP); }
+	{
+		if (!_preserveComments)
+			$setType(Token.SKIP);
+	}
 	;
 	
 protected
@@ -3290,7 +3311,10 @@ ML_COMMENT:
 		~('*'|'\r'|'\n')
     )*
     "*/"
-    { $setType(Token.SKIP); }
+	{
+		if (!_preserveComments)
+			$setType(Token.SKIP);
+	}
 	;   
 			
 WS :
