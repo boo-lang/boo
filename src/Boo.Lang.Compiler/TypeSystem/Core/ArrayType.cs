@@ -161,7 +161,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public virtual bool IsAssignableFrom(IType other)
 		{			
-			if (other == this || other == Null.Default)
+			if (other == this || other.IsNull())
 				return true;
 
 			if (!other.IsArray)
@@ -213,7 +213,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		
 		override public string ToString()
 		{
-			return My<EntityFormatter>.Instance.FormatType(this);
+			return this.DisplayName();
 		}
 
 		IGenericTypeInfo IType.GenericInfo

@@ -198,7 +198,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				return false;
 			}
 
-			if (other == this || other.IsSubclassOf(this) || (other == Null.Default && !IsValueType))
+			if (other == this || other.IsSubclassOf(this) || (other.IsNull() && !IsValueType))
 			{
 				return true;
 			}
