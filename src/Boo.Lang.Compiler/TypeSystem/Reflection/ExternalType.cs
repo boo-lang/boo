@@ -82,13 +82,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			get
 			{
 				if (null != _name) return _name;
-				return _name = TypeName();
+				return _name = TypeUtilities.TypeName(_type);
 			}
-		}
-
-		private string TypeName()
-		{
-			return TypeUtilities.TypeName(_type);
 		}
 
 		public EntityType EntityType
