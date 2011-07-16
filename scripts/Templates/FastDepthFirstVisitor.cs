@@ -49,14 +49,14 @@ for item in model.GetConcreteAstNodes():
 <%
 end
 %>
-		protected void Visit(Node node)
+		protected virtual void Visit(Node node)
 		{
 			if (node == null)
 				return;
 			node.Accept(this);
 		}
 		
-		protected void Visit<T>(NodeCollection<T> nodes) where T: Node
+		protected virtual void Visit<T>(NodeCollection<T> nodes) where T: Node
 		{
 			if (nodes == null)
 				return;
