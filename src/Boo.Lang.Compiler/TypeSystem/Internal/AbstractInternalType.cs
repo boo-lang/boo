@@ -127,15 +127,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			}
 		}
 
-		protected bool _isByRef;
-
-		public bool IsByRef
-		{
-			get
-			{
-				return _isByRef;
-			}
-		}
+		public bool IsByRef { get; protected set; }
 
 		protected IType _elementType;
 
