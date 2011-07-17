@@ -33,13 +33,12 @@ using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
-using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 using Module = Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
-	sealed class ApplyAttributeTask : ITask
+	sealed class ApplyAttributeTask
 	{
 		CompilerContext _context;
 
@@ -72,11 +71,11 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		{
 			try
 			{
-				var aa = CreateAstAttributeInstance();
-				if (null != aa)
+				var attribute = CreateAstAttributeInstance();
+				if (attribute != null)
 				{
-					aa.Initialize(_context);
-					aa.Apply(_targetNode);
+					attribute.Initialize(_context);
+					attribute.Apply(_targetNode);
 				}
 			}
 			catch (Exception x)
@@ -105,18 +104,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 			if (_attribute.NamedArguments.Count > 0)
 			{
-				bool initialized = true;
-
-				foreach (ExpressionPair p in _attribute.NamedArguments)
+				var initialized = true;
+				foreach (var p in _attribute.NamedArguments)
 				{
 					bool success = SetFieldOrProperty(aa, p);
 					initialized = initialized && success;
 				}
 
 				if (!initialized)
-				{
 					return null;
-				}
 			}
 
 			return aa;
@@ -173,16 +169,11 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 	/// </summary>
 	public class BindAndApplyAttributes : AbstractNamespaceSensitiveTransformerCompilerStep
 	{	
-		TaskList _tasks;
+		private readonly List<ApplyAttributeTask> _pendingApplications = new List<ApplyAttributeTask>();
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 		
 		IType _astAttributeInterface;
-
-		public BindAndApplyAttributes()
-		{
-			_tasks = new TaskList();
-		}
 
 		public override void Initialize(CompilerContext context)
 		{
@@ -209,13 +200,23 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		public bool BindAndApply(Node node)
 		{
 			Visit(node);
-			if (_tasks.Count == 0)
+			return FlushPendingApplications();
+		}
+
+		private bool FlushPendingApplications()
+		{
+			if (_pendingApplications.Count == 0)
 				return false;
-			_tasks.Flush();
+
+			foreach (var application in _pendingApplications)
+				application.Execute();
+
+			_pendingApplications.Clear();
+
 			return true;
 		}
 
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
+		override public void OnModule(Module module)
 		{
 			EnterNamespace(InternalModule.ScopeFor(module));
 			try
@@ -326,27 +327,22 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		}
 		
-		private void CheckAttributeParameters(Boo.Lang.Compiler.Ast.Attribute node)
+		private void CheckAttributeParameters(Ast.Attribute node)
 		{
-			foreach(Expression e in node.Arguments)
-			{
-				if (e.NodeType == NodeType.BinaryExpression
-				    && ((BinaryExpression)e).Operator == BinaryOperatorType.Assign)
-				{
+			foreach (var e in node.Arguments)
+				if (e.NodeType == NodeType.BinaryExpression && ((BinaryExpression) e).Operator == BinaryOperatorType.Assign)
 					Error(node, CompilerErrorFactory.ColonInsteadOfEquals(node));
-				}
-			}
 		}
 		
-		void Error(Boo.Lang.Compiler.Ast.Attribute node, CompilerError error)
+		void Error(Ast.Attribute node, CompilerError error)
 		{
 			node.Entity = TypeSystemServices.ErrorEntity;
 			Errors.Add(error);
 		}
 
-		void ScheduleAttributeApplication(Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
+		void ScheduleAttributeApplication(Ast.Attribute attribute, Type type)
 		{
-			_tasks.Add(new ApplyAttributeTask(Context, attribute, type));
+			_pendingApplications.Add(new ApplyAttributeTask(Context, attribute, type));
 		}
 
 		string BuildAttributeName(string name, bool forcePascalNaming)
