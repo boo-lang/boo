@@ -27,6 +27,7 @@
 #endregion
 
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
@@ -94,6 +95,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			get { return _node.IsInternal; }
 		}
 
-		public abstract EntityType EntityType { get; }
+		public abstract EntityType EntityType
+		{
+			get;
+		}
 	}
 }

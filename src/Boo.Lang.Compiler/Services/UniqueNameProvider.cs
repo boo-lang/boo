@@ -39,13 +39,11 @@ namespace Boo.Lang.Compiler.Services
 		public string GetUniqueName(params string[] components)
 		{
 			var suffix = string.Concat("$", (++_localIndex).ToString());
-
-			var len = null != components ? components.Length : 0;
-			if (0 == len)
+			if (components == null || components.Length == 0)
 				return suffix;
 
 			var sb = new System.Text.StringBuilder();
-			foreach (string component in components)
+			foreach (var component in components)
 			{
 				sb.Append("$");
 				sb.Append(component);

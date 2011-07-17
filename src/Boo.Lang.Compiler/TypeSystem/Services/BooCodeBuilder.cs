@@ -452,7 +452,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ReferenceExpression CreateReference(LexicalInfo info, IType type)
 		{
-			ReferenceExpression expression = CreateReference(type);
+			var expression = CreateReference(type);
 			expression.LexicalInfo = info;
 			return expression;
 		}

@@ -272,38 +272,31 @@ namespace Boo.Lang.Compiler.Steps
 		Expression Convert(IType expectedType, Expression argument)
 		{
 			if (IsStandaloneMethodReference(argument))
+				return ConvertMethodReference(expectedType, argument);
+
+			var callableType = expectedType as ICallableType;
+			if (callableType != null)
 			{
-				if (IsCallableType(expectedType))
-				{
-					ICallableType argumentType = (ICallableType)GetExpressionType(argument);
-					if (argumentType.GetSignature() !=
-						((ICallableType)expectedType).GetSignature())
-					{
-						return Adapt((ICallableType)expectedType,
-							CreateDelegate(GetConcreteExpressionType(argument), argument));
-					}
-					return CreateDelegate(expectedType, argument);
-				}
-				else
-				{
-					return CreateDelegate(GetConcreteExpressionType(argument), argument);
-				}
-			}
-			else
-			{
-				if (IsCallableType(expectedType))
-				{
-					IType argumentType = GetExpressionType(argument);
-					if (Null.Default != argumentType &&
-						expectedType != argumentType)
-					{
-						return Adapt((ICallableType)expectedType, argument);
-					}
-				}
+				var argumentType = GetExpressionType(argument);
+				if (expectedType != argumentType && !argumentType.IsNull())
+					return Adapt(callableType, argument);
 			}
 			return null;
 		}
-		
+
+		private Expression ConvertMethodReference(IType expectedType, Expression argument)
+		{
+			var expectedCallable = expectedType as ICallableType;
+			if (expectedCallable != null)
+			{
+				var argumentType = (ICallableType) GetExpressionType(argument);
+				if (argumentType.GetSignature() != expectedCallable.GetSignature())
+					return Adapt(expectedCallable, CreateDelegate(GetConcreteExpressionType(argument), argument));
+				return CreateDelegate(expectedType, argument);
+			}
+			return CreateDelegate(GetConcreteExpressionType(argument), argument);
+		}
+
 		Expression Adapt(ICallableType expected, Expression callable)
 		{
 			ICallableType actual = GetExpressionType(callable) as ICallableType;
@@ -437,12 +430,7 @@ namespace Boo.Lang.Compiler.Steps
 										CodeBuilder.CreateCast(_asyncResultType, asyncResult.CloneNode()),
 										_asyncResultTypeAsyncDelegateGetter));
 		}
-		
-		bool IsCallableType(IType type)
-		{
-			return type is ICallableType;
-		}
-		
+
 		Expression CreateDelegate(IType type, Expression source)
 		{
 			var method = (IMethod)GetEntity(source);

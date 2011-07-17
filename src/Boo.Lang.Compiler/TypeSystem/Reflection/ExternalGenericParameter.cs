@@ -51,10 +51,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public override string FullName 
 		{
-			get 
-			{
-				return string.Format("{0}.{1}", DeclaringEntity.FullName, Name);
-			}
+			get { return string.Format("{0}.{1}", DeclaringEntity.FullName, Name); }
 		}
 		
 		public override IEntity DeclaringEntity

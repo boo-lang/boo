@@ -33,16 +33,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 {
 	public class AnonymousCallableType : AbstractType, ICallableType
 	{
-		TypeSystemServices _typeSystemServices;
-		CallableSignature _signature;
+		private readonly TypeSystemServices _typeSystemServices;
+		private readonly CallableSignature _signature;
 		IType _concreteType;
 		
 		internal AnonymousCallableType(TypeSystemServices services, CallableSignature signature)
 		{
-			if (null == services)
-				throw new ArgumentNullException("services");
-			if (null == signature)
-				throw new ArgumentNullException("signature");
 			_typeSystemServices = services;
 			_signature = signature;
 		}
@@ -53,7 +49,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			
 			set
 			{
-				Debug.Assert(null != value);
+				if (value == null || _concreteType != null) throw new InvalidOperationException();	
 				_concreteType = value;
 			}
 		}

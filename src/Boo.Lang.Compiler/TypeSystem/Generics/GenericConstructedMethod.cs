@@ -47,8 +47,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		
 		GenericMapping _genericMapping;		
 		bool _fullyConstructed;
-		string _fullName = null;
-		IParameter[] _parameters = null;		
+		string _fullName;
+		IParameter[] _parameters;		
 		
 		public GenericConstructedMethod(IMethod definition, IType[] arguments)
 		{

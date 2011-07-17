@@ -30,19 +30,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IEntity
 	{	
-		string Name
-		{
-			get;
-		}
+		string Name { get; }
 		
-		string FullName
-		{
-			get;
-		}
+		string FullName { get; }
 		
-		EntityType EntityType
-		{
-			get;
-		}
+		EntityType EntityType { get; }
 	}
 }

@@ -111,26 +111,24 @@ namespace Boo.Lang.Compiler.Steps
 		private bool HasInternalsVisibleToAttribute
 		{
 			get {
-				if (null == hasInternalsVisibleToAttribute)
-				{
-					//we don't know yet if we have that attribute
-					foreach (Module module in CompileUnit.Modules)
-					{
-						foreach (Attribute attribute in module.AssemblyAttributes)
-						{
-							IType attrType = ((IMethod) attribute.Entity).DeclaringType;
-							if (attrType.FullName == "System.Runtime.CompilerServices.InternalsVisibleToAttribute")
-							{
-								hasInternalsVisibleToAttribute = true;
-								return true;
-							}
-						}
-					}
-					hasInternalsVisibleToAttribute = false;
-				}
+				if (hasInternalsVisibleToAttribute == null)
+					hasInternalsVisibleToAttribute = FindInternalsVisibleToAttribute();
 				return hasInternalsVisibleToAttribute.Value;
 			}
 		}
+
+		private bool FindInternalsVisibleToAttribute()
+		{
+			foreach (var module in CompileUnit.Modules)
+				foreach (var attribute in module.AssemblyAttributes)
+				{
+					var attrType = ((IMethod) attribute.Entity).DeclaringType;
+					if (attrType.FullName == "System.Runtime.CompilerServices.InternalsVisibleToAttribute")
+						return true;
+				}
+			return false;
+		}
+
 		bool? hasInternalsVisibleToAttribute;
 
 	}
