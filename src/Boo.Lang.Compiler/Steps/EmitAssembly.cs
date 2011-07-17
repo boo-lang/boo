@@ -433,7 +433,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				catch (Exception e)
 				{
-					throw CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type.FullName), e);
+					throw CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type), e);
 				}
 				_current = saved;
 			}

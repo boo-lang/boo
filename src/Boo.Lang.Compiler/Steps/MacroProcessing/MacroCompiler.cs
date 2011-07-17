@@ -74,12 +74,12 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		private Type CompileRegularMacro(TypeDefinition node)
 		{
-			TraceInfo("Compiling macro '{0}'", node.FullName);
+			TraceInfo("Compiling macro '{0}'", node);
 
-			CompilerContext result = Compilation.compile_(CompileUnitFor(node), Context.Parameters.References.ToArray());
-			if (0 == result.Errors.Count)
+			var result = Compilation.compile_(CompileUnitFor(node), Context.Parameters.References.ToArray());
+			if (result.Errors.Count == 0)
 			{
-				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node.FullName, result.GeneratedAssembly);
+				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node, result.GeneratedAssembly);
 				return result.GeneratedAssembly.GetType(node.FullName);
 			}
 			Context.Errors.Extend(result.Errors);

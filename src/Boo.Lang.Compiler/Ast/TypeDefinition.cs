@@ -67,7 +67,7 @@ namespace Boo.Lang.Compiler.Ast
 					{
 						var parentType = ParentNode as TypeDefinition;
 						if (parentType != null)
-							qualifiedName.Append(parentType.FullName).Append(".");
+							qualifiedName.Append(parentType.QualifiedName).Append(".");
 					}
 				}
 				qualifiedName.Append(Name);
