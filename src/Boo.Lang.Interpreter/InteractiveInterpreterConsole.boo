@@ -109,9 +109,9 @@ class InteractiveInterpreterConsole:
 				_interpreter.Pipeline.Remove(Boo.Lang.Compiler.Steps.PrintBoo)
 				
 
-	property DefaultPrompt = ">>>"
+	property DefaultPrompt = ">>> "
 
-	property BlockPrompt = "..."
+	property BlockPrompt = "... "
 
 	property IndentChars = "    "
 
