@@ -128,8 +128,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!typeIsCallable)
 			{
 				Errors.Add(
-					CompilerErrorFactory.EventTypeIsNotCallable(node.Type,
-					type.ToString()));
+					CompilerErrorFactory.EventTypeIsNotCallable(node.Type, type));
 			}
 			
 			if (declaringType.IsInterface)

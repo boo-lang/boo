@@ -208,7 +208,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!type.IsValueType)
 				return expression;
 
-			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type.ToString()));
+			Error(CompilerErrorFactory.BoolExpressionRequired(expression, type));
 			return expression;
 		}
 

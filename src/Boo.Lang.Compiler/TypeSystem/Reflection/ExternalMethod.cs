@@ -274,7 +274,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public string ToString()
 		{
-			return TypeSystemServices.GetSignature(this);
+			return _memberInfo.ToString();
 		}
 		
 		ExternalGenericMethodInfo _genericMethodDefinitionInfo = null;		

@@ -536,7 +536,6 @@
     <Compile Include="TypeSystem\Core\SimpleNamespace.cs" />
     <Compile Include="TypeSystem\EntityType.cs" />
     <Compile Include="TypeSystem\Error.cs" />
-    <Compile Include="TypeSystem\ITypeExtensions.cs" />
     <Compile Include="TypeSystem\Generics\AbstractGenericParameter.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructedMethod.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructedType.cs" />
@@ -607,6 +606,7 @@
     <Compile Include="TypeSystem\IProperty.cs" />
     <Compile Include="TypeSystem\IType.cs" />
     <Compile Include="TypeSystem\ITypedEntity.cs" />
+    <Compile Include="TypeSystem\ITypeExtensions.cs" />
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\Reflection\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyEqualityComparer.cs" />

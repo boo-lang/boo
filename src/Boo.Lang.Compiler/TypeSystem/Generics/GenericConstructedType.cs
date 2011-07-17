@@ -69,11 +69,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		protected string BuildFullName()
 		{
-			string baseName = _definition.FullName;
-			int typeParametersPosition = baseName.LastIndexOf("[");
-			if (typeParametersPosition >= 0) baseName = baseName.Remove(typeParametersPosition);
-			string[] argumentNames = Array.ConvertAll<IType, string>(ConstructedInfo.GenericArguments, t => t.ToString());
-			return string.Format("{0}[of {1}]", baseName, string.Join(", ", argumentNames));
+			return _definition.FullName;
 		}
 
 		protected GenericMapping GenericMapping
@@ -259,7 +255,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			get { return EntityType.Type; }
 		}
 
-		IType[] IConstructedTypeInfo.GenericArguments
+		IType[] IGenericArgumentsProvider.GenericArguments
 		{
 			get { return _arguments; }
 		}

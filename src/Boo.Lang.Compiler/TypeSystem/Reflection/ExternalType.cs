@@ -302,7 +302,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		override public string ToString()
 		{
-			return My<EntityFormatter>.Instance.FormatType(this);
+			return this.DisplayName();
 		}
 
 		static int GetTypeDepth(Type type)
@@ -356,7 +356,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			// keep builtin names pretty ('ref int' instead of 'ref System.Int32')
 			if (_type.IsByRef) return "ref " + ElementType.FullName;
 
-			return Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(_type);
+			return TypeUtilities.GetFullName(_type);
 		}
 
 		ExternalGenericTypeInfo _genericTypeDefinitionInfo = null;

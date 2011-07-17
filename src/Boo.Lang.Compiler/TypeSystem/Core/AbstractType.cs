@@ -151,7 +151,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		override sealed public string ToString()
 		{
-			return My<EntityFormatter>.Instance.FormatType(this);
+			return this.DisplayName();
 		}
 
 		IGenericTypeInfo IType.GenericInfo

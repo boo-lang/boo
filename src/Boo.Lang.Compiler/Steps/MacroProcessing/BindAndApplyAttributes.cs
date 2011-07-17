@@ -27,12 +27,15 @@
 #endregion
 
 using System;
+using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
+using Boo.Lang.Environments;
+using Module = Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
@@ -40,35 +43,36 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 	{
 		CompilerContext _context;
 
-		Boo.Lang.Compiler.Ast.Attribute _attribute;
+		Ast.Attribute _attribute;
 
 		Type _type;
 		
 		Node _targetNode;
 
-		public ApplyAttributeTask(CompilerContext context, Boo.Lang.Compiler.Ast.Attribute attribute, Type type)
+		public ApplyAttributeTask(CompilerContext context, Ast.Attribute attribute, Type type)
 		{
 			_context = context;
 			_attribute = attribute;
 			_type = type;
-			_targetNode = GetTargetNode();
+			_targetNode = TargetNode();
 		}
 		
-		private Node GetTargetNode()
+		private Node TargetNode()
 		{
-			Module module = _attribute.ParentNode as Module;
-			if (module != null && module.AssemblyAttributes.Contains(_attribute))
-			{
-				return module.ParentNode;
-			}
-			return _attribute.ParentNode;
+			return IsAssemblyAttribute() ? _context.CompileUnit : _attribute.ParentNode;
+		}
+
+		private bool IsAssemblyAttribute()
+		{
+			var module = _attribute.ParentNode as Module;
+			return module != null && module.AssemblyAttributes.Contains(_attribute);
 		}
 
 		public void Execute()
 		{
 			try
 			{
-				IAstAttribute aa = CreateAstAttributeInstance();
+				var aa = CreateAstAttributeInstance();
 				if (null != aa)
 				{
 					aa.Initialize(_context);
@@ -79,7 +83,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			{
 				_context.TraceError(x);
 				_context.Errors.Add(CompilerErrorFactory.AttributeApplicationError(x, _attribute, _type));
-				System.Console.WriteLine(x.StackTrace);
 			}
 		}
 
@@ -87,7 +90,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		{
 			object[] parameters = _attribute.Arguments.Count > 0 ? _attribute.Arguments.ToArray() : new object[0];
 
-			IAstAttribute aa = null;
+			IAstAttribute aa;
 			try
 			{
 				aa = (IAstAttribute)Activator.CreateInstance(_type, parameters);
@@ -121,54 +124,47 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		bool SetFieldOrProperty(IAstAttribute aa, ExpressionPair p)
 		{
-			ReferenceExpression name = p.First as ReferenceExpression;
-			if (null == name)
+			var name = p.First as ReferenceExpression;
+			if (name == null)
 			{
 				_context.Errors.Add(CompilerErrorFactory.NamedParameterMustBeIdentifier(p));
 				return false;
 			}
-			else
+
+			var members = FindMembers(name);
+			if (members.Length <= 0)
 			{
-				System.Reflection.MemberInfo[] members = _type.FindMembers(
-					System.Reflection.MemberTypes.Property | System.Reflection.MemberTypes.Field,
-					System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public,
-					Type.FilterName, name.Name);
-				if (members.Length > 0)
-				{
-					if (members.Length > 1)
-					{
-						_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(name, members));
-						return false;
-					}
-					else
-					{
-						System.Reflection.MemberInfo m = members[0];
-						System.Reflection.PropertyInfo property = m as System.Reflection.PropertyInfo;
-						if (null != property)
-						{
-							property.SetValue(aa, p.Second, null);
-						}
-						else
-						{
-							System.Reflection.FieldInfo field = m as System.Reflection.FieldInfo;
-							if (null != field)
-							{
-								field.SetValue(aa, p.Second);
-							}
-							else
-							{
-								throw new InvalidOperationException();
-							}
-						}
-					}
-				}
-				else
-				{
-					_context.Errors.Add(CompilerErrorFactory.NotAPublicFieldOrProperty(name, name.Name, _type.FullName));
-					return false;
-				}
+				_context.Errors.Add(CompilerErrorFactory.NotAPublicFieldOrProperty(name, name.Name, Type()));
+				return false;
 			}
+
+			if (members.Length > 1)
+			{
+				_context.Errors.Add(CompilerErrorFactory.AmbiguousReference(name, members));
+				return false;
+			}
+
+			var member = members[0];
+			var property = member as PropertyInfo;
+			if (property != null)
+			{
+				property.SetValue(aa, p.Second, null);
+				return true;
+			}
+
+			var field = (FieldInfo)member;
+			field.SetValue(aa, p.Second);
 			return true;
+		}
+
+		private IType Type()
+		{
+			return My<TypeSystemServices>.Instance.Map(_type);
+		}
+
+		private MemberInfo[] FindMembers(ReferenceExpression name)
+		{
+			return _type.FindMembers(MemberTypes.Property | MemberTypes.Field, BindingFlags.Instance | BindingFlags.Public, System.Type.FilterName, name.Name);
 		}
 	}
 
@@ -266,7 +262,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			// No need to visit blocks
 		}
 
-		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute attribute)
+		override public void OnAttribute(Ast.Attribute attribute)
 		{
 			if (null != attribute.Entity)
 				return;
@@ -295,7 +291,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 			if (EntityType.Type != entity.EntityType)
 			{
-				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name, entity.ToString(), null));
+				Error(attribute, CompilerErrorFactory.NameNotType(attribute, attribute.Name, entity, null));
 				return;
 			}
 			
@@ -305,7 +301,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				ExternalType externalType = attributeType as ExternalType;
 				if (null == externalType)
 				{
-					Error(attribute, CompilerErrorFactory.AstAttributeMustBeExternal(attribute, attributeType.FullName));
+					Error(attribute, CompilerErrorFactory.AstAttributeMustBeExternal(attribute, attributeType));
 				}
 				else
 				{
@@ -317,7 +313,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			{
 				if (!IsSystemAttribute(attributeType))
 				{
-					Error(attribute, CompilerErrorFactory.TypeNotAttribute(attribute, attributeType.FullName));
+					Error(attribute, CompilerErrorFactory.TypeNotAttribute(attribute, attributeType));
 				}
 				else
 				{

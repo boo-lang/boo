@@ -48,39 +48,28 @@ namespace Boo.Lang.Compiler.Ast
 		
 		override public string FullName
 		{
-			get
-			{
-				if (HasGenericParameters)
-				{
-					return string.Format(
-						"{0}[of {1}]", 
-						QualifiedName, 
-						GenericParameters.ToCodeString());
-				}
-				return QualifiedName;
-			}
+			get { return QualifiedName; }
 		}
 
 		public string QualifiedName
 		{
 			get
 			{
-				StringBuilder qualifiedName = new StringBuilder();
-
-				TypeDefinition parentType = ParentNode as TypeDefinition;
-
-				if (ParentNode != null && ParentNode.NodeType == NodeType.Module)
+				var qualifiedName = new StringBuilder();
+				if (ParentNode != null)
 				{
-					if (EnclosingNamespace != null)
+					if (ParentNode.NodeType == NodeType.Module)
 					{
-						qualifiedName.Append(EnclosingNamespace.Name).Append(".");
+						if (EnclosingNamespace != null)
+							qualifiedName.Append(EnclosingNamespace.Name).Append(".");
+					}
+					else
+					{
+						var parentType = ParentNode as TypeDefinition;
+						if (parentType != null)
+							qualifiedName.Append(parentType.FullName).Append(".");
 					}
 				}
-				else if (parentType != null)
-				{
-					qualifiedName.Append(parentType.FullName).Append(".");
-				}
-
 				qualifiedName.Append(Name);
 				return qualifiedName.ToString();
 			}

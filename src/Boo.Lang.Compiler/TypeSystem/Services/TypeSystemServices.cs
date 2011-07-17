@@ -923,33 +923,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static string GetSignature(IEntityWithParameters method)
 		{
-			return GetSignature(method, true);
-		}
-
-		public static string GetSignature(IEntityWithParameters method, bool includeFullName)
-		{
-			var buffer = new StringBuilder(includeFullName ? method.FullName : method.Name);
-			buffer.Append("(");
-
-			IParameter[] parameters = method.GetParameters();
-			for (int i = 0; i < parameters.Length; ++i)
-			{
-				if (i > 0)
-					buffer.Append(", ");
-
-				if (method.AcceptVarArgs && i == parameters.Length - 1)
-					buffer.Append('*');
-
-				buffer.Append(parameters[i].Type);
-			}
-
-			buffer.Append(")");
-			return buffer.ToString();
-		}
-
-		public object GetCacheKey(MemberInfo mi)
-		{
-			return mi;
+			return My<EntityFormatter>.Instance.FormatSignature(method);
 		}
 
 		public IEntity ResolvePrimitive(string name)

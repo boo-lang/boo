@@ -7,8 +7,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 {
 	[TestFixture]
 	public class BooCodeBuilderTest : AbstractTypeSystemTest
-	{
-		
+	{	
 		[Test]
 		public void GenericTypeReference()
 		{

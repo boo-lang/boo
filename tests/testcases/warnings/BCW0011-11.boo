@@ -1,5 +1,5 @@
 """
-BCW0011-11.boo(33,12): BCW0011: WARNING: Type 'Foo' does not provide an implementation for 'IFoo[of string].Bla()()', a stub has been created.
+BCW0011-11.boo(33,12): BCW0011: WARNING: Type 'Foo' does not provide an implementation for 'IFoo[of string].Bla()', a stub has been created.
 BCW0011-11.boo(33,12): BCW0011: WARNING: Type 'Foo' does not provide an implementation for 'IFoo[of string].Bar', a stub has been created.
 BCW0011-11.boo(33,12): BCW0011: WARNING: Type 'Foo' does not provide an implementation for 'IFoo[of string].Baz', a stub has been created.
 BCW0011-11.boo(33,12): BCW0011: WARNING: Type 'Foo' does not provide an implementation for 'IFoo[of string].Half', a stub has been created.

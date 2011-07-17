@@ -55,17 +55,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 
 			var constructedTypeInfo = type.ConstructedInfo;
 			if (constructedTypeInfo != null)
-				return new GenericTypeReference(DisplayNameFor(constructedTypeInfo.GenericDefinition),
+				return new GenericTypeReference(constructedTypeInfo.GenericDefinition.QualifiedName(),
 												constructedTypeInfo.GenericArguments.Select(a => TypeReferenceFor(a)).ToArray());
 
-			return new SimpleTypeReference(DisplayNameFor(type));
-		}
-
-		private static string DisplayNameFor(IType type)
-		{
-			if (type is IGenericParameter)
-				return type.Name;
-			return type.FullName;
+			return new SimpleTypeReference(type.QualifiedName());
 		}
 
 		private IntegerLiteralExpression CreateIntegerLiteral(int value)

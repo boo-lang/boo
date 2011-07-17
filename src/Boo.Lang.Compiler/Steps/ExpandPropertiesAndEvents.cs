@@ -80,10 +80,7 @@ namespace Boo.Lang.Compiler.Steps
             if (expected != actual)
             {
                 Warnings.Add(
-                    CompilerWarningFactory.InvalidEventUnsubscribe(
-                        node,
-                        eventInfo.FullName,
-                        expected));
+                    CompilerWarningFactory.InvalidEventUnsubscribe(node, eventInfo, expected));
             }
         }
 

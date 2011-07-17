@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -45,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 			OnReferenceExpression(node);
 		}
 
-		override public void OnAttribute(Boo.Lang.Compiler.Ast.Attribute node)
+		override public void OnAttribute(Ast.Attribute node)
 		{
 			Type attrType = AttributeType(node);
 			if (attrType == null) return;
@@ -120,26 +121,31 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			IExternalEntity member = node.Entity as IExternalEntity;
-			if (member == null) {//extract to OnInternalReferenceExpression
-				OnInternalReferenceExpression(node);
-				return;
-			}
-			
-			System.Attribute[] attributes = System.Attribute.GetCustomAttributes(member.MemberInfo, typeof(ObsoleteAttribute));
-			foreach (ObsoleteAttribute attr in attributes)
+			var member = node.Entity as IMember;
+			if (member == null) return;
+
+			foreach (var attr in ObsoleteAttributesIn(member))
 			{
 				if (attr.IsError)
 					Errors.Add(
-						CompilerErrorFactory.Obsolete(node, member.ToString(), attr.Message));
+						CompilerErrorFactory.Obsolete(node, member, attr.Message));
 				else
 					Warnings.Add(
-						CompilerWarningFactory.Obsolete(node, member.ToString(), attr.Message));
+						CompilerWarningFactory.Obsolete(node, member, attr.Message));
 			}
+		}
+
+		private static IEnumerable<ObsoleteAttribute> ObsoleteAttributesIn(IMember member)
+		{
+			var external = member as IExternalEntity;
+			if (external == null)
+				return new ObsoleteAttribute[0]; // TODO:
+			return System.Attribute.GetCustomAttributes(external.MemberInfo, typeof(ObsoleteAttribute)).Cast<ObsoleteAttribute>();
 		}
 
 		protected void OnInternalReferenceExpression(ReferenceExpression node)
 		{
+			// TODO:
 		}
 
 		private static Dictionary<Type, AttributeTargets> _nodesUsageTargets = null;

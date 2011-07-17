@@ -39,14 +39,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			_node = node;
 		}
 
-		#region IInternalEntity Members
 		public Node Node
 		{
 			get { return _node; }
 		}
-		#endregion
 
-		#region IEntity Members
 		public string Name
 		{
 			get { return _node.Name; }
@@ -54,13 +51,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public virtual string FullName
 		{
-			get { return DeclaringType + "." + _node.Name; }
+			get { return _node.FullName; }
 		}
-		#endregion
 
 		public IType DeclaringType
 		{
-			get { return (IType)TypeSystemServices.GetEntity(_node.DeclaringType); }
+			get { return (IType)EntityFor(_node.DeclaringType); }
+		}
+
+		private IEntity EntityFor(TypeMember member)
+		{
+			return My<InternalTypeSystemProvider>.Instance.EntityFor(member);
 		}
 
 		public bool IsDefined(IType type)

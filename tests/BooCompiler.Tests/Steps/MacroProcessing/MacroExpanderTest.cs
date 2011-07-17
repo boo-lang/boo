@@ -33,7 +33,7 @@ namespace BooCompiler.Tests.Steps.MacroProcessing
 
 				var errors = CompilerErrors();
 				Assert.AreEqual(1, errors.Count);
-				Assert.AreEqual(CompilerErrorFactory.AstMacroMustBeExternal(macroApplication, "FooMacro").ToString(), errors[0].ToString());
+				Assert.AreEqual(CompilerErrorFactory.AstMacroMustBeExternal(macroApplication, (IType) macroDefinition.Entity).ToString(), errors[0].ToString());
 			});
 
 			compiler.VerifyAll();

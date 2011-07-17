@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -39,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
 	public abstract class AbstractInternalType : InternalEntity<TypeDefinition>, IType, IGenericTypeInfo
 	{
-		protected InternalTypeSystemProvider _provider;
+		protected readonly InternalTypeSystemProvider _provider;
 
 		private readonly Dictionary<IType[], IType> _constructedTypes = new Dictionary<IType[], IType>(ArrayEqualityComparer<IType>.Default);
 
@@ -51,14 +52,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			typeDefinition.Members.Changed += (sender, args) => ClearMemberEntitiesCache();
 		}
 
-		protected virtual string BuildFullName()
-		{
-			return _node.FullName;
-		}
-
 		override public string FullName
 		{
 			get { return BuildFullName();  }
+		}
+
+		protected virtual string BuildFullName()
+		{
+			return _node.FullName;
 		}
 
 		public IEntity DeclaringEntity
@@ -68,10 +69,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public virtual INamespace ParentNamespace
 		{
-			get
-			{
-				return (INamespace)TypeSystemServices.GetEntity(_node.ParentNode);
-			}
+			get { return (INamespace)TypeSystemServices.GetEntity(_node.ParentNode); }
 		}
 
 		public virtual bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
@@ -88,43 +86,30 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		protected bool ResolveGenericParameter(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
-			// Try to resolve name as a generic parameter
-			if (Entities.IsFlagSet(flags, EntityType.Type))
+			if (!Entities.IsFlagSet(flags, EntityType.Type))
+				return false;
+
+			foreach (var p in _node.GenericParameters.Where(gpd => gpd.Name == name))
 			{
-				foreach (GenericParameterDeclaration gpd in _node.GenericParameters)
-				{
-					if (gpd.Name == name)
-					{
-						targetList.Add(gpd.Entity);
-						return true;
-					}
-				}
+				targetList.Add(p.Entity);
+				return true;
 			}
 			return false;
 		}
 
 		public virtual IType BaseType
 		{
-			get
-			{
-				return null;
-			}
+			get { return null; }
 		}
 
 		public TypeDefinition TypeDefinition
 		{
-			get
-			{
-				return _node;
-			}
+			get { return _node; }
 		}
 
 		public IType Type
 		{
-			get
-			{
-				return this;
-			}
+			get { return this; }
 		}
 
 		public bool IsByRef { get; protected set; }
@@ -255,7 +240,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		override sealed public string ToString()
 		{
-			return My<EntityFormatter>.Instance.FormatType(this);
+			return this.DisplayName();
 		}
 
 		public IGenericTypeInfo GenericInfo
@@ -268,12 +253,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			get { return null; }
 		}
 
-		IGenericParameter[] IGenericTypeInfo.GenericParameters
+		IGenericParameter[] IGenericParametersProvider.GenericParameters
 		{
-			get
-			{
-				return Array.ConvertAll(_node.GenericParameters.ToArray(), gpd => (IGenericParameter) gpd.Entity);
-			}
+			get { return Array.ConvertAll(_node.GenericParameters.ToArray(), gpd => (IGenericParameter) gpd.Entity); }
 		}
 
 		IType IGenericTypeInfo.ConstructType(IType[] arguments)

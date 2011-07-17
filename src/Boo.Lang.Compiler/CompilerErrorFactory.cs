@@ -27,6 +27,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
@@ -53,7 +55,7 @@ namespace Boo.Lang.Compiler
 			return new CompilerError(msg);
 		}
 		
-		public static CompilerError ClassAlreadyHasBaseType(Node node, string className, string baseType)
+		public static CompilerError ClassAlreadyHasBaseType(Node node, string className, IType baseType)
 		{
 			return Instantiate("BCE0001", node, className, baseType);
 		}
@@ -73,9 +75,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0004", reference, reference.Name, ToNameList(members));
 		}
 		
-		public static CompilerError AmbiguousReference(Node node, string name, System.Collections.IEnumerable names)
+		public static CompilerError AmbiguousReference(Node node, string name, IEnumerable<IEntity> entities)
 		{
-			return Instantiate("BCE0004", node, name, ToStringList(names));
+			return Instantiate("BCE0004", node, name, ToStringList(entities));
 		}
 		
 		public static CompilerError UnknownIdentifier(Node node, string name)
@@ -83,14 +85,14 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0005", node, name);
 		}
 		
-		public static CompilerError CantCastToValueType(Node node, string typeName)
+		public static CompilerError CantCastToValueType(Node node, IType typeName)
 		{
 			return Instantiate("BCE0006", node, typeName);
 		}
 
-		public static CompilerError NotAPublicFieldOrProperty(Node node, string name, string typeName)
+		public static CompilerError NotAPublicFieldOrProperty(Node node, string name, IType type)
 		{
-			return Instantiate("BCE0007", node, typeName, name);
+			return Instantiate("BCE0007", node, name, type);
 		}
 		
 		public static CompilerError MissingConstructor(Exception error, Node node, Type type, object[] parameters)
@@ -103,7 +105,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0009", attribute, error, attributeType, error.Message);
 		}
 		
-		public static CompilerError AstAttributeMustBeExternal(Node node, string attributeType)
+		public static CompilerError AstAttributeMustBeExternal(Node node, IType attributeType)
 		{
 			return Instantiate("BCE0010", node, attributeType);
 		}
@@ -138,24 +140,24 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0016", node, name, count);
 		}
 		
-		public static CompilerError MethodSignature(Node node, string expectedSignature, string actualSignature)
+		public static CompilerError MethodSignature(Node node, IEntity expectedSignature, string actualSignature)
 		{
 			return Instantiate("BCE0017", node, expectedSignature, actualSignature);
 		}
 		
-		public static CompilerError NameNotType(Node node, string typeName, string whatItIs, string suggestion)
+		public static CompilerError NameNotType(Node node, string typeName, IEntity whatItIs, string suggestion)
 		{
-			return Instantiate("BCE0018", node, typeName, whatItIs, DidYouMeanOrNull(suggestion));
+			return Instantiate("BCE0018", node, typeName, whatItIs == null ? "not found" : (object)whatItIs, DidYouMeanOrNull(suggestion));
 		}
 		
-		public static CompilerError MemberNotFound(MemberReferenceExpression node, string @namespace, string suggestion)
+		public static CompilerError MemberNotFound(MemberReferenceExpression node, INamespace @namespace, string suggestion)
 		{
 			return Instantiate("BCE0019", node, node.Name, @namespace, DidYouMeanOrNull(suggestion));
 		}
 
-		public static CompilerError InstanceRequired(Node node, string typeName, string memberName)
+		public static CompilerError InstanceRequired(Node node, IMember member)
 		{
-			return Instantiate("BCE0020", node, typeName, memberName);
+			return Instantiate("BCE0020", node, member.DeclaringType, member.Name);
 		}
 		
 		public static CompilerError InvalidNamespace(Import import)
@@ -165,7 +167,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0021", import, import.Namespace);
 		}
 		
-		public static CompilerError IncompatibleExpressionType(Node node, string expectedType, string actualType)
+		public static CompilerError IncompatibleExpressionType(Node node, IType expectedType, IType actualType)
 		{
 			return Instantiate("BCE0022", node, expectedType, actualType);
 		}
@@ -175,7 +177,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0023", node, signature, memberName);
 		}
 		
-		public static CompilerError NoApropriateConstructorFound(Node node, string typeName, string signature)
+		public static CompilerError NoApropriateConstructorFound(Node node, IType typeName, string signature)
 		{
 			return Instantiate("BCE0024", node, typeName, signature);
 		}
@@ -185,7 +187,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0025", node);
 		}
 		
-		public static CompilerError BoolExpressionRequired(Node node, string typeName)
+		public static CompilerError BoolExpressionRequired(Node node, IType typeName)
 		{
 			return Instantiate("BCE0026", node, typeName);
 		}
@@ -205,12 +207,12 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0031", node, message);
 		}
 		
-		public static CompilerError EventArgumentMustBeAMethod(Node node, string eventName, string eventType)
+		public static CompilerError EventArgumentMustBeAMethod(Node node, ITypedEntity eventMember)
 		{
-			return Instantiate("BCE0032", node, eventName, eventType, LanguageAmbiance.CallableKeyword);
+			return Instantiate("BCE0032", node, eventMember, eventMember.Type, LanguageAmbiance.CallableKeyword);
 		}
 		
-		public static CompilerError TypeNotAttribute(Node node, string attributeType)
+		public static CompilerError TypeNotAttribute(Node node, IType attributeType)
 		{
 			return Instantiate("BCE0033", node, attributeType);
 		}
@@ -220,7 +222,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0034", node);
 		}
 
-		public static CompilerError ConflictWithInheritedMember(Node node, string member, string baseMember)
+		public static CompilerError ConflictWithInheritedMember(Node node, IMember member, IMember baseMember)
 		{
 			return Instantiate("BCE0035", node, member, baseMember);
 		}
@@ -235,14 +237,14 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0037", node, name);
 		}
 		
-		public static CompilerError InvalidMacro(Node node, string name)
+		public static CompilerError InvalidMacro(Node node, IType type)
 		{
-			return Instantiate("BCE0038", node, name);
+			return Instantiate("BCE0038", node, type);
 		}
 		
-		public static CompilerError AstMacroMustBeExternal(Node node, string typeName)
+		public static CompilerError AstMacroMustBeExternal(Node node, IType type)
 		{
-			return Instantiate("BCE0039", node, typeName);
+			return Instantiate("BCE0039", node, type);
 		}
 		
 		public static CompilerError UnableToLoadAssembly(Node node, string name, Exception error)
@@ -280,17 +282,17 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0045", node, StringResources.BooC_InvalidNestedMacroContext);
 		}
 
-		public static CompilerError OperatorCantBeUsedWithValueType(Node node, string operatorName, string typeName)
+		public static CompilerError OperatorCantBeUsedWithValueType(Node node, string operatorName, IType typeName)
 		{
 			return Instantiate("BCE0046", node, operatorName, typeName);
 		}
 		
-		public static CompilerError CantOverrideNonVirtual(Node node, string fullName)
+		public static CompilerError CantOverrideNonVirtual(Node node, IMethod method)
 		{
-			return Instantiate("BCE0047", node, fullName);
+			return Instantiate("BCE0047", node, method);
 		}
 		
-		public static CompilerError TypeDoesNotSupportSlicing(Node node, string fullName)
+		public static CompilerError TypeDoesNotSupportSlicing(Node node, IType fullName)
 		{
 			return Instantiate("BCE0048", node, fullName);
 		}
@@ -300,24 +302,24 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0049", node, StripSurroundingParens(node.ToCodeString()));
 		}
 
-		public static CompilerError InvalidOperatorForType(Node node, string operatorName, string typeName)
+		public static CompilerError InvalidOperatorForType(Node node, string operatorName, IType typeName)
 		{
 			return Instantiate("BCE0050", node, operatorName, typeName);
 		}
 		
-		public static CompilerError InvalidOperatorForTypes(Node node, string operatorName, string lhs, string rhs)
+		public static CompilerError InvalidOperatorForTypes(Node node, string operatorName, IType lhs, IType rhs)
 		{
 			return Instantiate("BCE0051", node, operatorName, lhs, rhs);
 		}
 		
-		public static CompilerError InvalidLen(Node node, string typeName)
+		public static CompilerError InvalidLen(Node node, IType typeName)
 		{
 			return Instantiate("BCE0052", node, typeName);
 		}
 		
-		public static CompilerError PropertyIsReadOnly(Node node, string propertyName)
+		public static CompilerError PropertyIsReadOnly(Node node, IProperty property)
 		{
-			return Instantiate("BCE0053", node, propertyName);
+			return Instantiate("BCE0053", node, property);
 		}
 		
 		public static CompilerError IsaArgument(Node node)
@@ -366,20 +368,20 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0059", node);
 		}
 
-		public static CompilerError NoMethodToOverride(Node node, string signature, bool incompatibleSignature)
+		public static CompilerError NoMethodToOverride(Node node, IMethod signature, bool incompatibleSignature)
 		{
 			return Instantiate("BCE0060", node, signature,
 				incompatibleSignature ? StringResources.BCE0060_IncompatibleSignature : null);
 		}
 		
-		public static CompilerError NoMethodToOverride(Node node, string signature, string suggestion)
+		public static CompilerError NoMethodToOverride(Node node, IMethod signature, string suggestion)
 		{
 			return Instantiate("BCE0060", node, signature, DidYouMeanOrNull(suggestion));
 		}
 		
-		public static CompilerError MethodIsNotOverride(Node node, string signature)
+		public static CompilerError MethodIsNotOverride(Node node, IMethod method)
 		{
-			return Instantiate("BCE0061", node, signature);
+			return Instantiate("BCE0061", node, method);
 		}
 		
 		public static CompilerError CouldNotInferReturnType(Node node, string signature)
@@ -412,34 +414,34 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0067", node, name);
 		}
 		
-		public static CompilerError PropertyRequiresParameters(Node node, string name)
+		public static CompilerError PropertyRequiresParameters(Node node, IEntity name)
 		{
 			return Instantiate("BCE0068", node, name);
 		}
 		
-		public static CompilerError InterfaceCanOnlyInheritFromInterface(Node node, string interfaceName, string baseType)
+		public static CompilerError InterfaceCanOnlyInheritFromInterface(Node node, IType interfaceType, IType baseType)
 		{
-			return Instantiate("BCE0069", node, interfaceName, baseType);
+			return Instantiate("BCE0069", node, interfaceType, baseType);
 		}
 		
-		public static CompilerError UnresolvedDependency(Node node, string source, string target)
+		public static CompilerError UnresolvedDependency(Node node, IEntity source, IEntity target)
 		{
 			return Instantiate("BCE0070", node, source, target);
 		}
 		
-		public static CompilerError InheritanceCycle(Node node, string typeName)
+		public static CompilerError InheritanceCycle(Node node, IType type)
 		{
-			return Instantiate("BCE0071", node, typeName);
+			return Instantiate("BCE0071", node, type);
 		}
 		
-		public static CompilerError InvalidOverrideReturnType(Node node, string methodName, string expectedReturnType, string actualReturnType)
+		public static CompilerError InvalidOverrideReturnType(Node node, IMethod method, IType expectedReturnType, IType actualReturnType)
 		{
-			return Instantiate("BCE0072", node, methodName, expectedReturnType, actualReturnType);
+			return Instantiate("BCE0072", node, method, expectedReturnType, actualReturnType);
 		}
 		
-		public static CompilerError AbstractMethodCantHaveBody(Node node, string methodName)
+		public static CompilerError AbstractMethodCantHaveBody(Node node, IMethod method)
 		{
-			return Instantiate("BCE0073", node, methodName);
+			return Instantiate("BCE0073", node, method);
 		}
 		
 		public static CompilerError SelfOutsideMethod(Node node)
@@ -452,12 +454,12 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0075", node, name);
 		}
 		
-		public static CompilerError RuntimeMethodBodyMustBeEmpty(Node node, string name)
+		public static CompilerError RuntimeMethodBodyMustBeEmpty(Node node, IMethod method)
 		{
-			return Instantiate("BCE0076", node, name);
+			return Instantiate("BCE0076", node, method);
 		}
 		
-		public static CompilerError TypeIsNotCallable(Node node, string name)
+		public static CompilerError TypeIsNotCallable(Node node, IType name)
 		{
 			return Instantiate("BCE0077", node, name);
 		}
@@ -482,7 +484,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0081", node, LanguageAmbiance.RaiseKeyword);
 		}
 		
-		public static CompilerError EventTypeIsNotCallable(Node node, string typeName)
+		public static CompilerError EventTypeIsNotCallable(Node node, IType typeName)
 		{
 			return Instantiate("BCE0082", node, typeName, LanguageAmbiance.CallableKeyword);
 		}
@@ -497,17 +499,17 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0084", node);
 		}
 		
-		public static CompilerError CantCreateInstanceOfAbstractType(Node node, string typeName)
+		public static CompilerError CantCreateInstanceOfAbstractType(Node node, IType typeName)
 		{
 			return Instantiate("BCE0085", node, typeName);
 		}
 		
-		public static CompilerError CantCreateInstanceOfInterface(Node node, string typeName)
+		public static CompilerError CantCreateInstanceOfInterface(Node node, IType typeName)
 		{
 			return Instantiate("BCE0086", node, typeName);
 		}
 		
-		public static CompilerError CantCreateInstanceOfEnum(Node node, string typeName)
+		public static CompilerError CantCreateInstanceOfEnum(Node node, IType typeName)
 		{
 			return Instantiate("BCE0087", node, typeName);
 		}
@@ -517,22 +519,22 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0088", node, prefix);
 		}
 		
-		public static CompilerError MemberNameConflict(Node node, string typeName, string memberName)
+		public static CompilerError MemberNameConflict(Node node, IType declaringType, string memberName)
 		{
-			return Instantiate("BCE0089", node, typeName, memberName);
+			return Instantiate("BCE0089", node, declaringType, memberName);
 		}
 		
-		public static CompilerError DerivedMethodCannotReduceAccess(Node node, string derivedMethod, string superMethod, TypeMemberModifiers derivedAccess, TypeMemberModifiers superAccess)
+		public static CompilerError DerivedMethodCannotReduceAccess(Node node, IMethod derivedMethod, IMethod superMethod, TypeMemberModifiers derivedAccess, TypeMemberModifiers superAccess)
 		{
 			return Instantiate("BCE0090", node, derivedMethod, superMethod, superAccess.ToString().ToLower(), derivedAccess.ToString().ToLower());
 		}
 		
-		public static CompilerError EventIsNotAnExpression(Node node, string eventName)
+		public static CompilerError EventIsNotAnExpression(Node node, IEntity eventMember)
 		{
-			return Instantiate("BCE0091", node, eventName);
+			return Instantiate("BCE0091", node, eventMember);
 		}
 		
-		public static CompilerError InvalidRaiseArgument(Node node, string typeName)
+		public static CompilerError InvalidRaiseArgument(Node node, IType typeName)
 		{
 			return Instantiate("BCE0092", node, typeName, LanguageAmbiance.RaiseKeyword);
 		}
@@ -552,9 +554,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0095", node, label);
 		}
 		
-		public static CompilerError LabelAlreadyDefined(Node node, string methodName, string label)
+		public static CompilerError LabelAlreadyDefined(Node node, IMethod method, string label)
 		{
-			return Instantiate("BCE0096", node, methodName, label);
+			return Instantiate("BCE0096", node, method, label);
 		}
 		
 		public static CompilerError CannotBranchIntoTry(Node node)
@@ -577,9 +579,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0100", node);
 		}
 		
-		public static CompilerError InvalidGeneratorReturnType(Node node, string typeName)
+		public static CompilerError InvalidGeneratorReturnType(Node node, IType type)
 		{
-			return Instantiate("BCE0101", node, typeName, LanguageAmbiance.DefaultGeneratorTypeFor(typeName));
+			return Instantiate("BCE0101", node, type, LanguageAmbiance.DefaultGeneratorTypeFor(type.DisplayName()));
 		}
 
 		public static CompilerError GeneratorCantReturnValue(Node node)
@@ -587,7 +589,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0102", node);
 		}
 		
-		public static CompilerError CannotExtendFinalType(Node node, string typeName)
+		public static CompilerError CannotExtendFinalType(Node node, IType typeName)
 		{
 			return Instantiate("BCE0103", node, typeName);
 		}
@@ -622,9 +624,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0109", node, arrayName, real, given);
 		}
 		
-		public static CompilerError NotANamespace(Node node, string name)
+		public static CompilerError NotANamespace(Node node, IEntity entity)
 		{
-			return Instantiate("BCE0110", node, name);
+			return Instantiate("BCE0110", node, entity);
 		}
 
 		public static CompilerError InvalidDestructorModifier(Node node)
@@ -672,7 +674,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0119", node, LanguageAmbiance.CallableKeyword);
 		}
 
-		public static CompilerError UnaccessibleMember(Node node, string name)
+		public static CompilerError UnaccessibleMember(Node node, IAccessibleMember name)
 		{
 			return Instantiate("BCE0120", node, name);
 		}
@@ -682,12 +684,12 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0121", node);
 		}
 
-		public static CompilerError ValueTypeCantHaveAbstractMember(Node node, string typeName, string memberName)
+		public static CompilerError ValueTypeCantHaveAbstractMember(Node node, IType type, IMember abstractMember)
 		{
-			return Instantiate("BCE0122", node, typeName, memberName);
+			return Instantiate("BCE0122", node, type, abstractMember);
 		}
 
-		public static CompilerError InvalidParameterType(Node node, string typeName)
+		public static CompilerError InvalidParameterType(Node node, IType typeName)
 		{
 			return Instantiate("BCE0123", node, typeName, string.Empty);
 		}
@@ -697,24 +699,24 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0123", node, type, "generic ");
 		}
 
-		public static CompilerError InvalidFieldType(Node node, string typeName)
+		public static CompilerError InvalidFieldType(Node node, IType typeName)
 		{
 			return Instantiate("BCE0124", node, typeName);
 		}
 
-		public static CompilerError InvalidDeclarationType(Node node, string typeName)
+		public static CompilerError InvalidDeclarationType(Node node, IType type)
 		{
-			return Instantiate("BCE0125", node, typeName);
+			return Instantiate("BCE0125", node, type);
 		}
 
-		public static CompilerError InvalidExpressionType(Node node, string typeName)
+		public static CompilerError InvalidExpressionType(Node node, IType type)
 		{
-			return Instantiate("BCE0126", node, typeName);
+			return Instantiate("BCE0126", node, type);
 		}
 		
 		public static CompilerError RefArgTakesLValue(Node node)
 		{
-			return Instantiate("BCE0127", node, node.ToString());
+			return Instantiate("BCE0127", node, node.ToCodeString());
 		}
 
 		public static CompilerError InvalidTryStatement(Node node)
@@ -732,9 +734,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0130", node);
 		}
 		
-		public static CompilerError InvalidCombinationOfModifiers(Node node, string name, string modifiers)
+		public static CompilerError InvalidCombinationOfModifiers(Node node, IEntity member, string modifiers)
 		{
-			return Instantiate("BCE0131", node, name, modifiers);
+			return Instantiate("BCE0131", node, member, modifiers);
 		}
 		
 		public static CompilerError NamespaceAlreadyContainsMember(Node node, string container, string member)
@@ -762,9 +764,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0136", node);
 		}
 		
-		public static CompilerError PropertyIsWriteOnly(Node node, string propertyName)
+		public static CompilerError PropertyIsWriteOnly(Node node, IEntity property)
 		{
-			return Instantiate("BCE0137", node, propertyName);
+			return Instantiate("BCE0137", node, property);
 		}
 
 		public static CompilerError NotAGenericDefinition(Node node, string name)
@@ -772,17 +774,17 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0138", node, name);
 		}
 
-		public static CompilerError GenericDefinitionArgumentCount(Node node, string name, int expectedCount)
+		public static CompilerError GenericDefinitionArgumentCount(Node node, IEntity genericDefinition, int expectedCount)
 		{
-			return Instantiate("BCE0139", node, name, expectedCount);
+			return Instantiate("BCE0139", node, genericDefinition, expectedCount);
 		}
 				
-		public static CompilerError YieldTypeDoesNotMatchReturnType(Node node, string yieldType, string returnType)
+		public static CompilerError YieldTypeDoesNotMatchReturnType(Node node, IType yieldType, IType returnType)
 		{
 			return Instantiate("BCE0140", node, yieldType, returnType);
 		}
 		
-		public static CompilerError DuplicateParameterName(Node node, string parameter, string method)
+		public static CompilerError DuplicateParameterName(Node node, string parameter, IMethod method)
 		{
 			return Instantiate("BCE0141", node, parameter, method);
 		}
@@ -798,12 +800,12 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0143", node, LanguageAmbiance.EnsureKeyword);
 		}
 		
-		public static CompilerError Obsolete(Node node, string memberName, string message)
+		public static CompilerError Obsolete(Node node, IMember member, string message)
 		{
-			return Instantiate("BCE0144", node, memberName, message);
+			return Instantiate("BCE0144", node, member, message);
 		}
 
-		public static CompilerError InvalidExceptArgument(Node node, string exceptionType)
+		public static CompilerError InvalidExceptArgument(Node node, IType exceptionType)
 		{
 			return Instantiate("BCE0145", node, exceptionType, LanguageAmbiance.ExceptKeyword);
 		}
@@ -838,9 +840,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0151", node);
 		}
 		
-		public static CompilerError ConstructorCantBePolymorphic(Node node, string memberName)
+		public static CompilerError ConstructorCantBePolymorphic(Node node, IMethod ctor)
 		{
-			return Instantiate("BCE0152", node, memberName);
+			return Instantiate("BCE0152", node, ctor);
 		}
 
 		public static CompilerError InvalidAttributeTarget(Node node, Type attrType, AttributeTargets validOn)
@@ -853,7 +855,7 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0154", node, attrType);
 		}
 
-		public static CompilerError CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(Node node, string type)
+		public static CompilerError CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(Node node, IType type)
 		{
 			return Instantiate("BCE0155", node, type);
 		}
@@ -950,9 +952,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0174", node, type);
 		}
 
-		public static CompilerError NestedTypeCannotExtendEnclosingType(Node node, string nestedTypeName, string enclosingTypeName)
+		public static CompilerError NestedTypeCannotExtendEnclosingType(Node node, IType nestedType, IType enclosingType)
 		{
-			return Instantiate("BCE0175", node, nestedTypeName, enclosingTypeName);
+			return Instantiate("BCE0175", node, nestedType, enclosingType);
 		}
 
 		public static CompilerError IncompatiblePartialDefinition(Node node, string typeName, string expectedType, string actualType)
@@ -982,12 +984,20 @@ namespace Boo.Lang.Compiler
 
 		private static CompilerError Instantiate(string code, LexicalInfo location, params object[] args)
 		{
-			return new CompilerError(code, location, args);
+			return new CompilerError(code, location, Array.ConvertAll<object, string>(args, DisplayStringFor));
+		}
+
+		internal static string DisplayStringFor(object o)
+		{
+			if (o == null) return "";
+
+			var entity = o as IEntity;
+			return entity != null ? entity.DisplayName() : o.ToString();
 		}
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
-			return Builtins.join(names, ", ");
+			return Builtins.join(names.Cast<object>().Select(o => DisplayStringFor(o)), ", ");
 		}
 		
 		public static string ToAssemblyQualifiedNameList(List types)

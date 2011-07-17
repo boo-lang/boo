@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 
 				if (IsEnclosingType(baseType.TypeDefinition))
 				{
-					BaseTypeError(CompilerErrorFactory.NestedTypeCannotExtendEnclosingType(baseTypeRef, _typeDefinition.FullName, baseType.FullName));
+					BaseTypeError(CompilerErrorFactory.NestedTypeCannotExtendEnclosingType(baseTypeRef, type, baseType));
 					continue;
 				}
 
@@ -142,7 +142,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 		{
 			if (visited.Contains(baseType.TypeDefinition))
 			{
-				BaseTypeError(CompilerErrorFactory.InheritanceCycle(baseTypeRef, baseType.FullName));
+				BaseTypeError(CompilerErrorFactory.InheritanceCycle(baseTypeRef, baseType));
 				return;
 			}
 			

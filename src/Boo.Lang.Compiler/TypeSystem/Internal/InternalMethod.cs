@@ -288,7 +288,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		override public string ToString()
 		{
-			return TypeSystemServices.GetSignature(this);
+			return _node.FullName;
 		}
 		
 		public virtual IConstructedMethodInfo ConstructedInfo

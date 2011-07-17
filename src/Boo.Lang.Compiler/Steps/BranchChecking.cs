@@ -238,17 +238,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			AstAnnotations.SetTryBlockDepth(node, _state.TryBlockDepth);
 
-			if (null == _state.ResolveLabel(node.Name))
-			{
-				_state.AddLabel(new InternalLabel(node));
+			if (_state.ResolveLabel(node.Name) != null)
+			{	
+				Error(CompilerErrorFactory.LabelAlreadyDefined(node, _currentMethod, node.Name));
+				return;
 			}
-			else
-			{
-				Error(
-					CompilerErrorFactory.LabelAlreadyDefined(node,
-											_currentMethod.FullName,
-											node.Name));
-			}
+
+			_state.AddLabel(new InternalLabel(node));
 		}
 
 		override public void OnYieldStatement(YieldStatement node)

@@ -1,6 +1,6 @@
 """
-'Fail.GetEnumerator' conflicts with inherited member 'System.Collections.Generic.IEnumerable[of B].GetEnumerator()'.
-'Fail2.GetEnumerator' conflicts with inherited member 'System.Collections.Generic.IEnumerable[of B].GetEnumerator()'.
+'Fail.GetEnumerator()' conflicts with inherited member 'System.Collections.Generic.IEnumerable[of B].GetEnumerator()'.
+'Fail2.GetEnumerator()' conflicts with inherited member 'System.Collections.Generic.IEnumerable[of B].GetEnumerator()'.
 """
 
 import Boo.Lang.Compiler.MetaProgramming

@@ -93,7 +93,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 			if (typeParameters.Length != TypeArguments.Length)
 			{
-				Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(ConstructionNode, definition.FullName, typeParameters.Length));
+				Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(ConstructionNode, definition, typeParameters.Length));
 				return false;
 			}
 			return true;
