@@ -177,7 +177,9 @@ using Boo.Lang.Parser.Util;
 	TokenStreamRecorder _erecorder;
 	
 	antlr.TokenStreamSelector _selector;
-	
+
+	bool _preserveComments;
+
 	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, antlr.TokenCreator tokenCreator)
 	{
 		setTabSize(tabSize);
@@ -206,6 +208,12 @@ using Boo.Lang.Parser.Util;
 		{
 			return _skipWhitespaceRegion > 0;
 		}
+	}
+
+	public bool PreserveComments
+	{
+		get { return _preserveComments; }
+		set { _preserveComments = value; }
 	}
 
 	void ParseInterpolatedExpression(int tokenClose, int tokenOpen)
@@ -1965,7 +1973,10 @@ _loop769_breakloop:			;
 			mML_COMMENT(false);
 			if (0==inputState.guessing)
 			{
-				_ttype = Token.SKIP;
+				
+						if (!_preserveComments)
+							_ttype = Token.SKIP;
+					
 			}
 		}
 		else {
@@ -2023,7 +2034,12 @@ _loop672_breakloop:								;
 							}    // ( ... )*
 							if (0==inputState.guessing)
 							{
-								_ttype = Token.SKIP;
+								
+												if (_preserveComments)
+													_ttype = SL_COMMENT;
+												else
+													_ttype = Token.SKIP;
+											
 							}
 						}
 						break;
@@ -2113,7 +2129,10 @@ _loop721_breakloop:				;
 			match("*/");
 			if (0==inputState.guessing)
 			{
-				_ttype = Token.SKIP;
+				
+						if (!_preserveComments)
+							_ttype = Token.SKIP;
+					
 			}
 			if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 			{
@@ -2840,7 +2859,10 @@ _loop715_breakloop:			;
 		}    // ( ... )*
 		if (0==inputState.guessing)
 		{
-			_ttype = Token.SKIP;
+			
+					if (!_preserveComments)
+						_ttype = Token.SKIP;
+				
 		}
 		if (_createToken && (null == _token) && (_ttype != Token.SKIP))
 		{
