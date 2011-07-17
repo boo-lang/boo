@@ -54,12 +54,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		override public string FullName
 		{
-			get { return BuildFullName();  }
-		}
-
-		protected virtual string BuildFullName()
-		{
-			return _node.FullName;
+			get { return _node.FullName; }
 		}
 
 		public IEntity DeclaringEntity
