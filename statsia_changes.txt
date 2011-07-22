@@ -6,6 +6,7 @@ Proposed changes:
    - Implement via Ometa as an expansion?
 - int/int => float (following python 3.0, 1/0 = inf, -1/0 = -inf, 0/0 = NaN, mimic R exactly)
 - Implicit broadcasting for IRandom.  cos(x) => RandomVariable(x.Simulations.Select({z | cos(z) }))
+    - For data model see: http://www.stat.columbia.edu/~gelman/research/unpublished/fullybayesiancomputing-nonblinded.pdf
 - implicit looped if and for loops for IRandom.
 - implicit broadcasting for IEnumerable or IList?
 - Something to enable fluent interfaces across multiple lines:
