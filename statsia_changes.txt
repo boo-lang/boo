@@ -1,0 +1,31 @@
+Proposed changes:
+
+- OMeta based compiler pipeline.
+- new getter/setter syntax for keyed data objects (dataframes / dictionaries / json / key-value stores).
+   - data:Income <-> data.Data.Income (typed or dynamic) (implement IKeyData[of T] which as Data property)
+   - Implement via Ometa as an expansion?
+- int/int => float (following python 3.0, 1/0 = inf, -1/0 = -inf, 0/0 = NaN, mimic R exactly)
+- Implicit broadcasting for IRandom.  cos(x) => RandomVariable(x.Simulations.Select({z | cos(z) }))
+- implicit looped if and for loops for IRandom.
+- implicit broadcasting for IEnumerable or IList?
+- Something to enable fluent interfaces across multiple lines:
+    - Plot.Scatter(x:Income, x:Age):
+        Title "Income vs Age"
+- Lowercase static methods in global namespace, i.e. import System.Math => cos(1.0)
+- Enable new operators or operator macros.  .* vs *
+- Transpose expansion: x'b => x.T*b (ometa?)
+- Shadowing of variables in REPL rather than type errors? follow F#, this is already done on scoping.
+- TypeProviders (follow F# API)
+    - http://strangelights.com/blog/archive/2010/11/15/the-future-of-f-type-providers.aspx
+- F# option types instead of Nullable.  Make this syntax friendly, automatic conversion for better NA handing.
+- Async support following C#.
+- Dynamic, eliminate IQuackFu and Duck. Follow C#.
+- ToHtml for HTML representation.  Add to object.
+- interpreter.Ducky -> interpreter.Dynamic
+- Better lambda syntax?  x => x * x, multiline lambdas?
+- Eliminate boo's matrix functionality, replace with Statsia
+- F#'s named and optional parameters syntax.
+- Optional parenthesis support?
+
+
+

@@ -38,11 +38,19 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MathNet\MathNet.Numerics.dll</HintPath>
     </Reference>
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Math.boo" />
+    <Compile Include="Control.boo" />
+    <Compile Include="Random\RandomVariable.boo" />
+    <Compile Include="Random\IRandomVariable.boo" />
+    <Compile Include="Random\Bernoulli.boo" />
+    <Compile Include="Random\Beta.boo" />
+    <Compile Include="Random\Normal.boo" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modeling\" />
+    <Folder Include="Random\" />
   </ItemGroup>
 </Project>

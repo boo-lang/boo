@@ -91,7 +91,7 @@
 		<property name="nosign" value="true" overwrite="true" />
 	</target>
 
-	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, Boo.Microsoft.Build.Tasks, update-vs-env, Boo.Lang.PatternMatching, Statsia.Lang.Compiler">
+	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, Boo.Microsoft.Build.Tasks, update-vs-env, Boo.Lang.PatternMatching, Statsia, Statsia.Lang.Compiler">
 		<call target="gendarme" if="${gendarme.dir != ''}" />
 		<call target="verify-assemblies" />
 	</target>
@@ -1173,4 +1173,20 @@
 		</booc>
 	</target>
 	
+	<target name="Statsia" depends="core">
+	    <copy file="lib/MathNet/MathNet.Numerics.dll" tofile="${build.dir}/MathNet.Numerics.dll"></copy>
+		
+		<booc target="library"
+		      output="${build.dir}/Statsia.dll"
+		      verbose="${verbose}"
+		      debug="${debug}">
+			<sources basedir="src/Statsia">
+				<include name="**/*.boo" />
+			</sources>
+			<references basedir="lib/MathNet">
+				<include name="MathNet.Numerics.dll" />
+			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+		</booc>
+	</target>
 </project>

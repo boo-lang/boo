@@ -45,6 +45,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		IType[] _interfaces;
 
 		IEntity[] _members;
+		IEntity[] _staticMembers;
 
 		int _typeDepth = -1;
 
@@ -244,7 +245,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			}
 			return _interfaces;
 		}
-
+		
 		public virtual IEnumerable<IEntity> GetMembers()
 		{
 			if (null == _members)
@@ -254,18 +255,45 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			}
 			return _members;
 		}
-
+		
+		public virtual IEnumerable<IEntity> GetStaticMembers()
+		{
+			if (null == _staticMembers)
+			{
+				IEntity[] staticMembers = CreateStaticMembers();
+				_staticMembers = staticMembers;
+			}
+			return _staticMembers;
+		}
+		
 		protected virtual IEntity[] CreateMembers()
 		{
 			List<IEntity> result = new List<IEntity>();
 			foreach (MemberInfo member in DeclaredMembers())
+			{
 				result.Add(_provider.Map(member));
+			}
 			return result.ToArray();
 		}
-
+		
+		protected virtual IEntity[] CreateStaticMembers()
+		{
+			List<IEntity> result = new List<IEntity>();
+			foreach (MemberInfo member in DeclaredStaticMembers())
+			{
+				result.Add(_provider.Map(member));
+			}
+			return result.ToArray();
+		}
+		
 		private MemberInfo[] DeclaredMembers()
 		{
 			return _type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+		}
+		
+		private MemberInfo[] DeclaredStaticMembers()
+		{
+			return _type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 		}
 
 		public int GetTypeDepth()
@@ -284,7 +312,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public virtual bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			bool found = My<NameResolutionService>.Instance.Resolve(name, GetMembers(), typesToConsider, resultingSet);
+			bool found1 = My<NameResolutionService>.Instance.Resolve(name, GetMembers(), typesToConsider, resultingSet);
+			
+			// Promote camelCase static members.
+			bool found2 = false;
+			if (char.IsLower(name[0]))
+			{
+				var camelName = char.ToUpperInvariant(name[0]) + name.Substring(1);
+				found2 = My<NameResolutionService>.Instance.Resolve(camelName, GetStaticMembers(), typesToConsider, resultingSet);
+			}
+			bool found = found1 || found2;
 
 			if (IsInterface)
 			{

@@ -2234,6 +2234,7 @@ namespace Boo.Lang.Compiler.Steps
                 return;
 
 			IEntity entity = ResolveName(node, node.Name);
+
 			if (null == entity)
 			{
 				Error(node);

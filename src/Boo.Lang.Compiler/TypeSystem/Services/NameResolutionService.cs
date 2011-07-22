@@ -486,7 +486,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		public IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
 			foreach (IEntity member in type.GetMembers())
-			{				
+			{
 				if (elementType == member.EntityType && _entityNameMatcher(member, name))
 				{
 					return member;
@@ -597,6 +597,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				if (lastMemberName == member.Name)
 					continue;//no need to check this name again
 				//TODO: try Levenshtein distance or Metaphone instead of Soundex.
+				//TODO: link into help system here.
 				if (expectedSoundex == StringUtilities.GetSoundex(member.Name))
 				{
 					//return properties without get_/set_ prefix

@@ -80,6 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public IType Map(Type type)
 		{
+
 			return AssemblyReferenceFor(type.Assembly).Map(type);
 		}
 
