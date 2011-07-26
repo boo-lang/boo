@@ -1,7 +1,10 @@
 " Vim syntax file
-" Language:     boo
-" Maintainer:   Rodrigo B. de Oliveira
-" Based on python syntax file by Neil Schemenauer
+" Language: boo
+" Maintainer: nsf <no.smile.face@gmail.com>
+" Latest Revision: 22 July 2011
+"
+" Based on boo.vim by Rodrigo B. de Oliveira which is based on python syntax
+" file by Neil Schemenauer.
 "
 " Options to control syntax highlighting:
 "
@@ -24,9 +27,10 @@
 " If you want all possible highlighting (the same as setting the
 " preceding options):
 "
-    let boo_highlight_all = 1
-"
 
+let boo_highlight_all = 1
+
+"
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
 if version < 600
@@ -35,104 +39,128 @@ elseif exists("b:current_syntax")
   finish
 endif
 
+syn keyword booConstant         true false null
 
-syn keyword booStatement        break continue 
-syn keyword booStatement        except exec ensure
-syn keyword booStatement        pass print raise
-syn keyword booStatement        return try
-syn keyword booStatement        assert
-syn keyword booStatement        self
-syn keyword booStatement        internal final private new override static public protected virtual partial
-syn keyword booStatement        ref
-syn keyword booStatement        yield
-syn keyword booStatement        enum
-syn keyword booStatement        of def class constructor destructor nextgroup=booFunction skipwhite
-syn keyword booStatement        def interface nextgroup=booFunction skipwhite
-syn keyword booStatement        def struct nextgroup=booFunction skipwhite
-syn keyword booStatement        namespace event delegate
-syn keyword booRepeat   	for while
-syn keyword booConditional      if unless elif else
-syn keyword booOperator 	and in is not or
-syn keyword booPreCondit        import from as
+syn keyword booAccess           public protected private
+
+syn keyword booModifier         abstract final internal override ref new
+syn keyword booModifier         partial static transient virtual event
+
+syn region  booImportRegion     start="^import" end="$" contains=booImport
+syn keyword booImport           import as from contained
+
+syn keyword booRepeat           for while then
+
+syn keyword booConditional      if elif else unless
+
+syn keyword booStatement        break continue return pass yield goto
+syn keyword booStatement        get set
+syn keyword booStatement        constructor destructor typeof super
+
+syn keyword booOperator         and in is isa in not or of cast as
+
+syn keyword booExceptionKWs     try except raise ensure failure
+
+syn keyword booStorage          callable class def enum do
+syn keyword booStorage          interface namespace struct
+
 syn keyword booTodo             WARNING TODO FIXME XXX contained
-syn keyword booCast		cast
-
-syn match   booFunction 	"[a-zA-Z_][a-zA-Z0-9_]*" contained
-"syn match   booFunction 	"[a-zA-Z_][a-zA-Z0-9_]*" contained
-syn match   booComment  	"#.*$" contains=booTodo
-syn match   booComment2  	"//.*$" contains=booTodo
+syn match   booComment          "#.*$" contains=booTodo
+syn match   booComment2         "//.*$" contains=booTodo
 syn region  booRegionComment    start="/\*"  end="\*/" contains=booTodo
 
 " strings
-syn region booString            matchgroup=Normal start=+[uU]\='+ end=+'+ skip=+\\\\\|\\'+ contains=booEscape
-syn region booString            matchgroup=Normal start=+[uU]\="+ end=+"+ skip=+\\\\\|\\"+ contains=booEscape
-syn region booString            matchgroup=Normal start=+[uU]\="""+ end=+"""+ contains=booEscape
-syn region booString            matchgroup=Normal start=+[uU]\='''+ end=+'''+ contains=booEscape
-syn region booRawString 	matchgroup=Normal start=+[uU]\=[rR]'+ end=+'+ skip=+\\\\\|\\'+
-syn region booRawString 	matchgroup=Normal start=+[uU]\=[rR]"+ end=+"+ skip=+\\\\\|\\"+
-syn region booRawString 	matchgroup=Normal start=+[uU]\=[rR]"""+ end=+"""+
-syn region booRawString 	matchgroup=Normal start=+[uU]\=[rR]'''+ end=+'''+
-syn match  booEscape            +\\[abfnrtv'"\\]+ contained
-syn match  booEscape            "\\\o\{1,3}" contained
-syn match  booEscape            "\\x\x\{2}" contained
-syn match  booEscape            "\(\\u\x\{4}\|\\U\x\{8}\)" contained
-syn match  booEscape            "\\$"
-syn match  booProperty          "^\s*get:"
-syn match  booProperty          "^\s*set:"
+syn region  booString           matchgroup=Normal start=+[uU]\='+ end=+'+ skip=+\\\\\|\\'+ contains=booEscape
+syn region  booString           matchgroup=Normal start=+[uU]\="+ end=+"+ skip=+\\\\\|\\"+ contains=booEscape
+syn region  booString           matchgroup=Normal start=+[uU]\="""+ end=+"""+ contains=booEscape
+syn region  booString           matchgroup=Normal start=+[uU]\='''+ end=+'''+ contains=booEscape
+syn region  booRawString        matchgroup=Normal start=+[uU]\=[rR]'+ end=+'+ skip=+\\\\\|\\'+
+syn region  booRawString        matchgroup=Normal start=+[uU]\=[rR]"+ end=+"+ skip=+\\\\\|\\"+
+syn region  booRawString        matchgroup=Normal start=+[uU]\=[rR]"""+ end=+"""+
+syn region  booRawString        matchgroup=Normal start=+[uU]\=[rR]'''+ end=+'''+
+syn match   booEscape           +\\[abfnrtv'"\\]+ contained
+syn match   booEscape           "\\\o\{1,3}" contained
+syn match   booEscape           "\\x\x\{2}" contained
+syn match   booEscape           "\(\\u\x\{4}\|\\U\x\{8}\)" contained
+syn match   booEscape           "\\$"
+" TODO: regexp?
 
 if exists("boo_highlight_all")
-  let boo_highlight_numbers = 1
-  let boo_highlight_builtins = 1
-  let boo_highlight_exceptions = 1
-  let boo_highlight_space_errors = 1
+        let boo_highlight_numbers = 1
+        let boo_highlight_builtins = 1
+        let boo_highlight_exceptions = 1
+        let boo_highlight_space_errors = 1
 endif
 
-if exists("boo_highlight_numbers")
-  " numbers (including longs and complex)
-  syn match   booNumber "\<0x\x\+[Ll]\=\>"
-  syn match   booNumber "\<\d\+[LljJ]\=\>"
-  syn match   booNumber "\.\d\+\([eE][+-]\=\d\+\)\=[jJ]\=\>"
-  syn match   booNumber "\<\d\+\.\([eE][+-]\=\d\+\)\=[jJ]\=\>"
-  syn match   booNumber "\<\d\+\.\d\+\([eE][+-]\=\d\+\)\=[jJ]\=\>"
-endif
+"------------------------------------------------------------------------------
+" Built-ins
+"------------------------------------------------------------------------------
 
 if exists("boo_highlight_builtins")
-  " builtin functions, types and objects, not really part of the syntax
-  syn keyword booBuiltin        Ellipsis string NotImplemented false true abs
-  syn keyword booBuiltin        apply regex buffer callable chr classmethod cmp
-  syn keyword booBuiltin        coerce compile complex delattr dict divmod
-  syn keyword booBuiltin        eval execfile float globals duck
-  syn keyword booBuiltin        hasattr hash hex id input bool int intern isa
-  syn keyword booBuiltin        issubclass len locals long map max
-  syn keyword booBuiltin        min object oct open ord pow property range
-  syn keyword booBuiltin        raw_input reduce reload repr round setattr
-  syn keyword booBuiltin        slice staticmethod str super tuple typeof unichr
-  syn keyword booBuiltin        unicode vars xrange zip null
+        " built-in macros from:
+        " grep "^macro" Boo.Lang.Extensions/Macros/*.boo
+        syn keyword booBuiltin assert unchecked checked debug lock preserving print
+        syn keyword booBuiltin property normalArrayIndexing rawArrayIndexing using
+        syn keyword booBuiltin yieldAll
+
+        " built-in functions from booish:
+        " dir(Boo.Lang.Builtins)
+        syn keyword booBuiltin print gets prompt join map array matrix iterator
+        syn keyword booBuiltin shellp shell shellm enumerate range reversed zip cat
+
+        " built-in types from:
+        " Boo.Lang.Compiler/TypeSystem/Services/TypeSystemServices.cs:997
+        syn keyword booType    duck void object callable decimal date
+        syn keyword booType    bool sbyte byte short ushort int uint long ulong
+        syn keyword booType    single double char string regex timespan
+
+        " self
+        syn keyword booBuiltin self
+endif
+
+"------------------------------------------------------------------------------
+" Numbers from:
+" Boo.Lang.Parser/booel.g:67
+"------------------------------------------------------------------------------
+
+" holy shit, if anyone wants to edit this, good luck :D
+"                                     digits                ([eE][+-]? digits)?                       ([lL]   |  [fF]   |    (('.' digits               ([eE][+-]? digits)?                    [fF]?   )?     ([smhd] | ms)?))
+"syn match   booNumber           "\<  \d\%(\%(_\d\)\|\d\)*  \%([eE][+-]\=\d\%(\%(_\d\)\|\d\)*\)\=   \%([lL]  \|  [fF]  \|  \%(\%(\.\d\%(\%(_\d\)\|\d\)* \%([eE][+-]\=\d\%(\%(_\d\)\|\d\)*\)\=  [fF]\=  \)\=   \%([smhd]\|ms\)\=\) \)\>"
+"
+if exists("boo_highlight_numbers")
+        syn match booNumber "\<0x\x\+[lL]\=\>"
+        syn match booNumber "\<\d\%(\%(_\d\)\|\d\)*\%([eE][+-]\=\d\%(\%(_\d\)\|\d\)*\)\=\%([lL]\|[fF]\|\%(\%(\.\d\%(\%(_\d\)\|\d\)*\%([eE][+-]\=\d\%(\%(_\d\)\|\d\)*\)\=[fF]\=\)\=\%([smhd]\|ms\)\=\)\)\>"
+        syn match booNumber "\.\d\%(\%(_\d\)\|\d\)*\%([eE][+-]\=\d\%(\%(_\d\)\|\d\)*\)\=\%([fF]\|\%([smhd]\|ms\)\)\=\>"
 endif
 
 if exists("boo_highlight_exceptions")
-  " builtin exceptions and warnings
-  syn keyword booException      ArithmeticError AssertionError AttributeError
-  syn keyword booException      DeprecationWarning EOFError EnvironmentError
-  syn keyword booException      Exception FloatingPointError IOError
-  syn keyword booException      ImportError IndentationError IndexError
-  syn keyword booException      KeyError KeyboardInterrupt LookupError
-  syn keyword booException      MemoryError NameError NotImplementedError
-  syn keyword booException      OSError OverflowError OverflowWarning
-  syn keyword booException      ReferenceError RuntimeError RuntimeWarning
-  syn keyword booException      StandardError StopIteration SyntaxError
-  syn keyword booException      SyntaxWarning SystemError SystemExit TabError
-  syn keyword booException      TypeError UnboundLocalError UnicodeError
-  syn keyword booException      UserWarning ValueError Warning WindowsError
-  syn keyword booException      ZeroDivisionError
+        " common .NET exceptions
+        syn keyword booException Exception SystemException ArgumentException
+        syn keyword booException ArgumentNullException ArgumentOutOfRangeException
+        syn keyword booException DuplicateWaitObjectException ArithmeticException
+        syn keyword booException DivideByZeroException OverflowException
+        syn keyword booException NotFiniteNumberException ArrayTypeMismatchException
+        syn keyword booException ExecutionEngineException FormatException
+        syn keyword booException IndexOutOfRangeException InvalidCastException
+        syn keyword booException InvalidOperationException ObjectDisposedException
+        syn keyword booException InvalidProgramException IOException
+        syn keyword booException DirectoryNotFoundException EndOfStreamException
+        syn keyword booException FileLoadException FileNotFoundException
+        syn keyword booException PathTooLongException NotImplementedException
+        syn keyword booException NotSupportedException NullReferenceException
+        syn keyword booException OutOfMemoryException RankException
+        syn keyword booException SecurityException VerificationException
+        syn keyword booException StackOverflowException SynchronizationLockException
+        syn keyword booException ThreadAbortException ThreadStateException
+        syn keyword booException TypeInitializationException UnauthorizedAccessException
 endif
 
 if exists("boo_highlight_space_errors")
-  " trailing whitespace
-  syn match   booSpaceError   display excludenl "\S\s\+$"ms=s+1
-  " mixed tabs and spaces
-  syn match   booSpaceError   display " \+\t"
-  syn match   booSpaceError   display "\t\+ "
+        " trailing whitespace
+        syn match booSpaceError display excludenl "\S\s\+$"ms=s+1
+        " mixed tabs and spaces
+        syn match booSpaceError display " \+\t"
+        syn match booSpaceError display "\t\+ "
 endif
 
 " This is fast but code inside triple quoted strings screws it up. It
@@ -145,45 +173,48 @@ syn sync maxlines=200
 "syn sync minlines=2000
 
 if version >= 508 || !exists("did_boo_syn_inits")
-  if version <= 508
-    let did_boo_syn_inits = 1
-    command -nargs=+ HiLink hi link <args>
-  else
-    command -nargs=+ HiLink hi def link <args>
-  endif
+        if version <= 508
+                let did_boo_syn_inits = 1
+                command -nargs=+ HiLink hi link <args>
+        else
+                command -nargs=+ HiLink hi def link <args>
+        endif
 
-  " The default methods for highlighting.  Can be overridden later
-  HiLink booStatement   	Statement
-  HiLink booProperty	   	Function
-  HiLink booFunction            Function
-  HiLink booCast		Statement	
-  HiLink booConditional		Conditional
-  HiLink booRepeat              Repeat
-  HiLink booString              String
-  HiLink booRawString   	String
-  HiLink booEscape              Special
-  HiLink booOperator            Operator
-  HiLink booPreCondit   	PreCondit
-  HiLink booComment             Comment
-  HiLink booComment2		Comment
-  HiLink booRegionComment	Comment
-  HiLink booTodo                Todo
-  if exists("boo_highlight_numbers")
-    HiLink booNumber    Number
-  endif
-  if exists("boo_highlight_builtins")
-    HiLink booBuiltin   Function
-  endif
-  if exists("boo_highlight_exceptions")
-    HiLink booException Exception
-  endif
-  if exists("boo_highlight_space_errors")
-    HiLink booSpaceError        Error
-  endif
+        " The default methods for highlighting.  Can be overridden later
+        HiLink booConstant            Constant
+        HiLink booAccess              StorageClass
+        HiLink booModifier            StorageClass
+        HiLink booImport              Include
+        HiLink booRepeat              Repeat
+        HiLink booConditional         Conditional
+        HiLink booStatement           Statement
+        HiLink booOperator            Operator
+        HiLink booExceptionKWs        Exception
+        if exists("boo_highlight_exceptions")
+                HiLink booException   Exception
+        endif
+        HiLink booStorage             StorageClass
+        HiLink booTodo                Todo
+        HiLink booComment             Comment
+        HiLink booComment2            Comment
+        HiLink booRegionComment       Comment
+        HiLink booString              String
+        HiLink booRawString           String
+        HiLink booRegex               String
+        HiLink booEscape              Special
+        if exists("boo_highlight_builtins")
+                HiLink booBuiltin     Function
+                HiLink booType        Type
+        endif
+        if exists("boo_highlight_numbers")
+                HiLink booNumber      Number
+        endif
+        if exists("boo_highlight_space_errors")
+                HiLink booSpaceError  Error
+        endif
 
-  delcommand HiLink
+        delcommand HiLink
 endif
 
 let b:current_syntax = "boo"
-
 " vim: ts=8
