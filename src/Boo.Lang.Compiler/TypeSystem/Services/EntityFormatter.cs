@@ -26,6 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Boo.Lang.Compiler.TypeSystem.Services
 {
@@ -33,10 +36,90 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	{
 		public virtual string FormatType(IType type)
 		{
+			if (type is IGenericParameter)
+				return type.Name;
+			
 			var callableType = type as ICallableType;
 			if (callableType != null && callableType.IsAnonymous)
 				return callableType.GetSignature().ToString();
+
+			var generics = GenericsFrom(type.ConstructedInfo, type.GenericInfo);
+			if (generics != null)
+				return FormatGenericType(type.FullName, generics);
+
 			return type.FullName;
+		}
+
+		public virtual string FormatTypeMember(IMember member)
+		{
+			var method = member as IMethod;
+			if (method != null)
+				return FormatMethod(method);
+			return FormatType(member.DeclaringType) + "." + member.Name;
+		}
+
+		protected virtual string FormatMethod(IMethod method)
+		{
+			return FormatType(method.DeclaringType) + "." + FormatSignature(method);
+		}
+
+		protected virtual string FormatGenericType(string typeName, IEnumerable<string> genericArgs)
+		{
+			return typeName + FormatGenericArguments(genericArgs);
+		}
+
+		protected virtual string FormatGenericArguments(IEnumerable<string> genericArgs)
+		{
+			return string.Format("[of {0}]", Builtins.@join(genericArgs, ", "));
+		}
+
+		public virtual string FormatSignature(IEntityWithParameters method)
+		{
+			var buffer = new StringBuilder(method.Name);
+
+			var genericArgs = GenericArgumentsOf(method);
+			if (genericArgs != null)
+				buffer.Append(FormatGenericArguments(genericArgs));
+
+			buffer.Append("(");
+			var parameters = method.GetParameters();
+			var varArgsIndex = method.AcceptVarArgs ? parameters.Length - 1 : -1;
+			for (var i = 0; i < parameters.Length; ++i)
+			{
+				if (i > 0)
+					buffer.Append(", ");
+
+				if (i == varArgsIndex)
+					buffer.Append('*');
+
+				buffer.Append(FormatType(parameters[i].Type));
+			}
+			buffer.Append(")");
+			return buffer.ToString();
+		}
+
+		private IEnumerable<string> GenericsFrom(IGenericArgumentsProvider genericArgumentsProvider, IGenericParametersProvider genericParametersProvider)
+		{
+			if (genericArgumentsProvider != null)
+				return FormatTypes(genericArgumentsProvider.GenericArguments);
+
+			if (genericParametersProvider != null)
+				return genericParametersProvider.GenericParameters.Select(p => p.Name);
+
+			return null;
+		}
+
+		private IEnumerable<string> GenericArgumentsOf(IEntityWithParameters entity)
+		{
+			var method = entity as IMethod;
+			if (method != null)
+				return GenericsFrom(method.ConstructedInfo, method.GenericInfo);
+			return null;
+		}
+
+		private IEnumerable<string> FormatTypes(IEnumerable<IType> genericArguments)
+		{
+			return genericArguments.Select(a => FormatType(a));
 		}
 	}
 }

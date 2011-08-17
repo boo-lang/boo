@@ -98,21 +98,21 @@ namespace Boo.Lang.Parser.Util
 
 			_indentStack.Push(0); // current indent level is zero
 		}
+		
+		public antlr.TokenStream InnerStream
+		{
+			get { return _istream; }
+		}
 
 		protected int CurrentIndentLevel
 		{
-			get
-			{
-				return (int)_indentStack.Peek();
-			}
+			get { return (int)_indentStack.Peek(); }
 		}
 
 		public antlr.IToken nextToken()
 		{
-			if (0 == _pendingTokens.Count)
-			{
+			if (_pendingTokens.Count == 0)
 				ProcessNextTokens();
-			}
 			return (antlr.IToken)_pendingTokens.Dequeue();
 		}
 		
@@ -130,9 +130,7 @@ namespace Boo.Lang.Parser.Util
 				
 				int ttype = token.Type;
 				if (antlr.Token.SKIP == ttype)
-				{
 					continue;
-				}
 				
 				if (_wsTokenType == ttype)
 				{			

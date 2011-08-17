@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		internal InternalEnum(InternalTypeSystemProvider provider, TypeDefinition enumDefinition, bool isByRef) :
 			base(provider, enumDefinition)
 		{
-			_isByRef = isByRef;
+			IsByRef = isByRef;
 		}
 
 		public EnumDefinition EnumDefinition

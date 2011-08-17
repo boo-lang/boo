@@ -81,7 +81,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public abstract EntityType EntityType { get; }
 
-		protected abstract System.Type MemberType { get; }
+		protected abstract Type MemberType { get; }
 
 		public override string ToString()
 		{

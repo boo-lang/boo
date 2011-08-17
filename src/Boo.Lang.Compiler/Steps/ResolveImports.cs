@@ -65,7 +65,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (HandledAsImportError(import, entity) || HandledAsDuplicatedNamespace(import, entity))
 				return;
 
-			Context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity.FullName);
+			Context.TraceInfo("{1}: import reference '{0}' bound to {2}.", import, import.LexicalInfo, entity);
 			import.Entity = ImportedNamespaceFor(import, entity);
 		}
 
@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!IsValidNamespace(entity))
 			{
-				Errors.Add(CompilerErrorFactory.NotANamespace(import, entity.FullName));
+				Errors.Add(CompilerErrorFactory.NotANamespace(import, entity));
 				BindError(import);
 				return true;
 			}
@@ -214,9 +214,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (asm != null)
 			{
 				Parameters.References.Add(asm);
-				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, asm.FullName);
-				import.AssemblyReference.Entity = asm;
-
+				import.AssemblyReference = new ReferenceExpression(import.LexicalInfo, asm.FullName).WithEntity(asm);
 				NameResolutionService.ClearResolutionCacheFor(asm.Name);
 				return true;
 			}

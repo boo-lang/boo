@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem;
@@ -58,24 +59,24 @@ namespace Boo.Lang.Compiler
 			return new CompilerWarning(msg);
 		}
 		
-		public static CompilerWarning AbstractMemberNotImplemented(Node node, string typeName, string memberName)
+		public static CompilerWarning AbstractMemberNotImplemented(Node node, IType type, IMember member)
 		{
-			return new CompilerWarning("BCW0001", AstUtil.SafeLexicalInfo(node), typeName, memberName);
+			return Instantiate("BCW0001", AstUtil.SafeLexicalInfo(node), type, member);
 		}
 		
 		public static CompilerWarning ModifiersInLabelsHaveNoEffect(Node node)
 		{
-			return new CompilerWarning("BCW0002", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0002", AstUtil.SafeLexicalInfo(node));
 		}
 		
 		public static CompilerWarning UnusedLocalVariable(Node node, string name)
 		{
-			return new CompilerWarning("BCW0003", AstUtil.SafeLexicalInfo(node), name);
+			return Instantiate("BCW0003", AstUtil.SafeLexicalInfo(node), name);
 		}
 		
 		public static CompilerWarning IsInsteadOfIsa(Node node)
 		{
-			return new CompilerWarning("BCW0004", AstUtil.SafeLexicalInfo(node), LanguageAmbiance.IsKeyword, LanguageAmbiance.IsaKeyword);
+			return Instantiate("BCW0004", AstUtil.SafeLexicalInfo(node), LanguageAmbiance.IsKeyword, LanguageAmbiance.IsaKeyword);
 		}
 
 		private static LanguageAmbiance LanguageAmbiance
@@ -83,99 +84,99 @@ namespace Boo.Lang.Compiler
 			get { return My<LanguageAmbiance>.Instance; }
 		}
 
-		public static CompilerWarning InvalidEventUnsubscribe(Node node, string eventName, CallableSignature expected)
+		public static CompilerWarning InvalidEventUnsubscribe(Node node, IEvent eventName, CallableSignature expected)
 		{
-			return new CompilerWarning("BCW0005", AstUtil.SafeLexicalInfo(node), eventName, expected);
+			return Instantiate("BCW0005", AstUtil.SafeLexicalInfo(node), eventName, expected);
 		}
 
 		public static CompilerWarning AssignmentToTemporary(Node node)
 		{
-			return new CompilerWarning("BCW0006", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0006", AstUtil.SafeLexicalInfo(node));
 		}
 		
 		public static CompilerWarning EqualsInsteadOfAssign(BinaryExpression node)
 		{
-			return new CompilerWarning("BCW0007", AstUtil.SafeLexicalInfo(node), node.ToCodeString());
+			return Instantiate("BCW0007", AstUtil.SafeLexicalInfo(node), node.ToCodeString());
 		}
 		
 		public static CompilerWarning DuplicateNamespace(Import import, string name)
 		{
-			return new CompilerWarning("BCW0008", AstUtil.SafeLexicalInfo(import), name);
+			return Instantiate("BCW0008", AstUtil.SafeLexicalInfo(import), name);
 		}
 		
 		public static CompilerWarning HaveBothKeyFileAndAttribute(Node node)
 		{
-			return new CompilerWarning("BCW0009", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0009", AstUtil.SafeLexicalInfo(node));
 		}
 		
 		public static CompilerWarning HaveBothKeyNameAndAttribute(Node node)
 		{
-			return new CompilerWarning("BCW0010", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0010", AstUtil.SafeLexicalInfo(node));
 		}
 
-		public static CompilerWarning AbstractMemberNotImplementedStubCreated(Node node, string typeName, string memberName)
+		public static CompilerWarning AbstractMemberNotImplementedStubCreated(Node node, IType type, IMember abstractMember)
 		{
-			return new CompilerWarning("BCW0011", AstUtil.SafeLexicalInfo(node), typeName, memberName);
+			return Instantiate("BCW0011", AstUtil.SafeLexicalInfo(node), type, abstractMember);
 		}
 		
-		public static CompilerWarning Obsolete(Node node, string memberName, string message)
+		public static CompilerWarning Obsolete(Node node, IMember member, string message)
 		{
-			return new CompilerWarning("BCW0012", AstUtil.SafeLexicalInfo(node), memberName, message);
+			return Instantiate("BCW0012", AstUtil.SafeLexicalInfo(node), member, message);
 		}
 		
 		public static CompilerWarning StaticClassMemberRedundantlyMarkedStatic(Node node, string typeName, string memberName)
 		{
-			return new CompilerWarning("BCW0013", AstUtil.SafeLexicalInfo(node), typeName, memberName);
+			return Instantiate("BCW0013", AstUtil.SafeLexicalInfo(node), typeName, memberName);
 		}
 
 		public static CompilerWarning PrivateMemberNeverUsed(TypeMember member)
 		{
-			return new CompilerWarning("BCW0014", AstUtil.SafeLexicalInfo(member), MemberVisibilityString(member), NodeTypeString(member), member.FullName);
+			return Instantiate("BCW0014", AstUtil.SafeLexicalInfo(member), MemberVisibilityString(member), NodeTypeString(member), member.FullName);
 		}
 
 		public static CompilerWarning UnreachableCodeDetected(Node node)
 		{
-			return new CompilerWarning("BCW0015", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0015", AstUtil.SafeLexicalInfo(node));
 		}
 
 		public static CompilerWarning NamespaceNeverUsed(Import node)
 		{
-			return new CompilerWarning("BCW0016", AstUtil.SafeLexicalInfo(node), node.Namespace);
+			return Instantiate("BCW0016", AstUtil.SafeLexicalInfo(node), node.Namespace);
 		}
 
 		public static CompilerWarning NewProtectedMemberInSealedType(TypeMember member)
 		{
-			return new CompilerWarning("BCW0017", AstUtil.SafeLexicalInfo(member), NodeTypeString(member), member.Name, member.DeclaringType.Name);
+			return Instantiate("BCW0017", AstUtil.SafeLexicalInfo(member), NodeTypeString(member), member.Name, member.DeclaringType.Name);
 		}
 
 		public static CompilerWarning OverridingFinalizeIsBadPractice(TypeMember member)
 		{
-			return new CompilerWarning("BCW0018", AstUtil.SafeLexicalInfo(member));
+			return Instantiate("BCW0018", AstUtil.SafeLexicalInfo(member));
 		}
 
 		public static CompilerWarning AmbiguousExceptionName(ExceptionHandler node)
 		{
-			return new CompilerWarning("BCW0019", AstUtil.SafeLexicalInfo(node), node.Declaration.Name);
+			return Instantiate("BCW0019", AstUtil.SafeLexicalInfo(node), node.Declaration.Name);
 		}
 
 		public static CompilerWarning AssignmentToSameVariable(BinaryExpression node)
 		{
-			return new CompilerWarning("BCW0020", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0020", AstUtil.SafeLexicalInfo(node));
 		}
 
 		public static CompilerWarning ComparisonWithSameVariable(BinaryExpression node)
 		{
-			return new CompilerWarning("BCW0021", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0021", AstUtil.SafeLexicalInfo(node));
 		}
 
 		public static CompilerWarning ConstantExpression(Expression node)
 		{
-			return new CompilerWarning("BCW0022", AstUtil.SafeLexicalInfo(node));
+			return Instantiate("BCW0022", AstUtil.SafeLexicalInfo(node));
 		}
 
 		public static CompilerWarning ImplicitReturn(Method node)
 		{
-			return new CompilerWarning(Codes.ImplicitReturn, AstUtil.SafeLexicalInfo(node));
+			return Instantiate(Codes.ImplicitReturn, AstUtil.SafeLexicalInfo(node));
 		}
 
 		public static CompilerWarning VisibleMemberDoesNotDeclareTypeExplicitely(TypeMember node)
@@ -188,32 +189,37 @@ namespace Boo.Lang.Compiler
 			string details = (null == argument)
 				? StringResources.BooC_Return
 				: string.Format(StringResources.BooC_NamedArgument, argument);
-			return new CompilerWarning(Codes.VisibleMemberDoesNotDeclareTypeExplicitely, AstUtil.SafeLexicalInfo(node), NodeTypeString(node), details);
+			return Instantiate(Codes.VisibleMemberDoesNotDeclareTypeExplicitely, AstUtil.SafeLexicalInfo(node), NodeTypeString(node), details);
 		}
 
 		public static CompilerWarning AmbiguousVariableName(Local node, string localName, string baseName)
 		{
-			return new CompilerWarning("BCW0025", AstUtil.SafeLexicalInfo(node), localName, baseName);
+			return Instantiate("BCW0025", AstUtil.SafeLexicalInfo(node), localName, baseName);
 		}
 
 		public static CompilerWarning LikelyTypoInTypeMemberName(TypeMember node, string suggestion)
 		{
-			return new CompilerWarning("BCW0026", AstUtil.SafeLexicalInfo(node), node.Name, suggestion);
+			return Instantiate("BCW0026", AstUtil.SafeLexicalInfo(node), node.Name, suggestion);
 		}
 
 		public static CompilerWarning ObsoleteSyntax(Node anchor, string obsoleteSyntax, string newSyntax)
 		{
-			return new CompilerWarning("BCW0027", AstUtil.SafeLexicalInfo(anchor), obsoleteSyntax, newSyntax);
+			return Instantiate("BCW0027", AstUtil.SafeLexicalInfo(anchor), obsoleteSyntax, newSyntax);
 		}
 
 		public static CompilerWarning ImplicitDowncast(Node node, IType expectedType, IType actualType)
 		{
-			return new CompilerWarning(Codes.ImplicitDowncast, AstUtil.SafeLexicalInfo(node), actualType, expectedType);
+			return Instantiate(Codes.ImplicitDowncast, AstUtil.SafeLexicalInfo(node), actualType, expectedType);
 		}
 
-		public static CompilerWarning MethodHidesInheritedNonVirtual(Node anchor, string hidingMethod, string hiddenMethod)
+		public static CompilerWarning MethodHidesInheritedNonVirtual(Node anchor, IMethod hidingMethod, IMethod hiddenMethod)
 		{
-			return new CompilerWarning("BCW0029", AstUtil.SafeLexicalInfo(anchor), hidingMethod, hiddenMethod);
+			return Instantiate("BCW0029", AstUtil.SafeLexicalInfo(anchor), hidingMethod, hiddenMethod);
+		}
+
+		private static CompilerWarning Instantiate(string code, LexicalInfo location, params object[] args)
+		{
+			return new CompilerWarning(code, location, Array.ConvertAll<object, string>(args, CompilerErrorFactory.DisplayStringFor));
 		}
 
 		private static string NodeTypeString(Node node)

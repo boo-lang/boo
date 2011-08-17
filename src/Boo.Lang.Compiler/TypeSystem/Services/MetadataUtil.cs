@@ -94,7 +94,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private static bool ClrExtensionFilter(MemberInfo member, object memberName)
 		{
-			return TypeUtilities.TypeName(member.Name).Equals(memberName) && IsAttributeDefined(member, Types.ClrExtensionAttribute);
+			return TypeUtilities.RemoveGenericSuffixFrom(member.Name).Equals(memberName) && IsAttributeDefined(member, Types.ClrExtensionAttribute);
 		}
 
 		public static bool IsAttributeDefined(MemberInfo member, Type attributeType)

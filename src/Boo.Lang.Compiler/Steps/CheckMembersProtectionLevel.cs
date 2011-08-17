@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!IsAccessible(member))
 			{
-				Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
+				Error(CompilerErrorFactory.UnaccessibleMember(node, member));
 				return;
 			}
 
@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		    member = AstUtil.IsLhsOfAssignment(node) ? property.GetSetMethod() : property.GetGetMethod();
 		    if (!IsAccessible(member))
-		        Error(CompilerErrorFactory.UnaccessibleMember(node, member.FullName));
+		        Error(CompilerErrorFactory.UnaccessibleMember(node, member));
 		}
 
 	    private bool IsAccessible(IAccessibleMember member)

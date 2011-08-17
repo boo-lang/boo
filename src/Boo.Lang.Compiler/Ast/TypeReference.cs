@@ -111,12 +111,12 @@ namespace Boo.Lang.Compiler.Ast
 
 		private static string TypeNameFor(Expression target)
 		{
-			return ((ReferenceExpression) target).ToString();
+			return target.ToString();
 		}
 
 		private static string FullNameOf(Type type)
 		{
-			return Boo.Lang.Compiler.Util.TypeUtilities.GetFullName(type);
+			return Util.TypeUtilities.GetFullName(type);
 		}
 
 		private static TypeReference LiftGenericType(Type type)

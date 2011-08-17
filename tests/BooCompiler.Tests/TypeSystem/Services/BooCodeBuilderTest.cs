@@ -7,7 +7,24 @@ namespace BooCompiler.Tests.TypeSystem.Services
 {
 	[TestFixture]
 	public class BooCodeBuilderTest : AbstractTypeSystemTest
-	{
+	{	
+		[Test]
+		public void GenericTypeReference()
+		{
+			RunInCompilerContextEnvironment(() =>
+			{
+				var genericType = TypeSystemServices.Map(typeof(System.Collections.Generic.List<int>));
+				var resultingTypeRef = CodeBuilder.CreateTypeReference(genericType);
+				Assert.IsInstanceOfType(typeof(GenericTypeReference), resultingTypeRef);
+
+				var genericTypeRef = (GenericTypeReference)resultingTypeRef;
+				Assert.AreEqual(1, genericTypeRef.GenericArguments.Count);
+				Assert.AreSame(TypeSystemServices.IntType, genericTypeRef.GenericArguments[0].Entity);
+
+				Assert.AreSame(genericType, resultingTypeRef.Entity);
+			});
+		}
+
 		[Test]
 		public void CreateMethodFromPrototypeRemapsGenericMethodParametersAndReturnType()
 		{

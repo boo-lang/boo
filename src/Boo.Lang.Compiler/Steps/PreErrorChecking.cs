@@ -27,7 +27,10 @@
 #endregion
 
 using Boo.Lang.Compiler.Ast;
-	
+using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Environments;
+
 namespace Boo.Lang.Compiler.Steps
 {	
 	public class PreErrorChecking : AbstractVisitorCompilerStep
@@ -179,9 +182,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void ConstructorCannotBePolymorphic(Constructor node)
 		{
-			if(node.IsAbstract || node.IsOverride || node.IsVirtual)
+			if (node.IsAbstract || node.IsOverride || node.IsVirtual)
 			{
-				Error(CompilerErrorFactory.ConstructorCantBePolymorphic(node, node.FullName));
+				Error(CompilerErrorFactory.ConstructorCantBePolymorphic(node, EntityFor(node)));
 			}
 		}
 
@@ -279,8 +282,18 @@ namespace Boo.Lang.Compiler.Steps
 			Error(
 				CompilerErrorFactory.InvalidCombinationOfModifiers(
 					member,
-					member.FullName,
+					EntityFor(member),
 					string.Format("{0}, {1}", mod1.ToString().ToLower(), mod2.ToString().ToLower())));
+		}
+
+		private IEntity EntityFor(TypeMember member)
+		{
+			return My<InternalTypeSystemProvider>.Instance.EntityFor(member);
+		}
+
+		private IMethod EntityFor(Constructor node)
+		{
+			return (IMethod)EntityFor((TypeMember)node);
 		}
 
 		void CantBeMarkedPartialIfNested(TypeDefinition type)

@@ -49,11 +49,9 @@ namespace Boo.Lang.Compiler
 		
 		public string ToString(bool verbose)
 		{
-			System.IO.StringWriter writer = new System.IO.StringWriter();
-			foreach (CompilerError error in this)
-			{
+			var writer = new System.IO.StringWriter();
+			foreach (var error in this)
 				writer.WriteLine(error.ToString(verbose));
-			}
 			return writer.ToString();
 		}		
 	}

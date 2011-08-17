@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Errors.Add(
 						CompilerErrorFactory.DuplicateParameterName(
-							parameter, parameter.Name, GetEntity(method).ToString()));
+							parameter, parameter.Name, GetEntity(method)));
 				}				
 				parameters.Add(parameter.Name);
 			}

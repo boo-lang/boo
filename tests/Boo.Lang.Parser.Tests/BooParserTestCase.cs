@@ -26,9 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Xml.Serialization;
-using System.Reflection;
 using NUnit.Framework;
 using Boo.Lang.Compiler.Ast;
 
@@ -43,21 +40,21 @@ namespace Boo.Lang.Parser.Tests
 		[Test]
 		public void TestEndSourceLocationForInlineClosures()
 		{
-			string code = @"foo = { a = 3;
+			const string code = @"foo = { a = 3;
 return a; }";
 			EnsureClosureEndSourceLocation(code, 2, 11);
 		}
-		
+
 		[Test]
 		public void TestEndSourceLocationForBlockClosures()
 		{
-			string code = @"
+			const string code = @"
 foo = def():
     return a
 ";
 			EnsureClosureEndSourceLocation(code, 3, 13);
 		}
-		
+
 		void EnsureClosureEndSourceLocation(string code, int line, int column)
 		{
 			CompileUnit cu = BooParser.ParseString("closures", code);
@@ -71,7 +68,7 @@ foo = def():
 		[Test]
 		public void TestParseExpression()
 		{
-			string code = @"3 + 2 * 5";
+			const string code = @"3 + 2 * 5";
 			Expression e = BooParser.ParseExpression("test", code);
 			Assert.AreEqual("3 + (2 * 5)", e.ToString());
 		}
@@ -112,8 +109,8 @@ foo = def():
 			TypeMember cd = module.Members[0];
 			Assert.IsTrue(cd is ClassDefinition);
 			Assert.AreEqual("Customer", cd.Name);
-			Assert.AreEqual("Foo.Bar.Customer", ((TypeDefinition)cd).FullName);
-			Assert.AreSame(module.Namespace, ((TypeDefinition)cd).EnclosingNamespace);
+			Assert.AreEqual("Foo.Bar.Customer", cd.FullName);
+			Assert.AreSame(module.Namespace, cd.EnclosingNamespace);
 
 			cd = module.Members[1];
 			Assert.AreEqual("Person", cd.Name);
@@ -189,7 +186,7 @@ foo = def():
 		[Test]
 		public void TestSimpleGlobalDefs()
 		{
-			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("simple_global_defs.boo");
+			var module = ParseTestCase("simple_global_defs.boo");
 			Assert.AreEqual("Math", module.Namespace.Name);
 			Assert.AreEqual(3, module.Members.Count);
 			Assert.AreEqual("Rational", module.Members[0].Name);

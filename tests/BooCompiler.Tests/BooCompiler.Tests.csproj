@@ -203,6 +203,7 @@
     <Compile Include="TypeSystem\Core\GlobalNamespaceTest.cs" />
     <Compile Include="TypeSystem\Core\NamespaceAssert.cs" />
     <Compile Include="TypeSystem\EntityFormatterTestBase.cs" />
+    <Compile Include="TypeSystem\Generics\GenericTypeTest.cs" />
     <Compile Include="TypeSystem\Internal\EntityFormatterTest.cs" />
     <Compile Include="TypeSystem\Internal\InternalCompileUnitTest.cs" />
     <Compile Include="TypeSystem\Reflection\BeanPropertyFinder.cs" />

@@ -29,9 +29,8 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public interface IConstructedMethodInfo
+	public interface IConstructedMethodInfo : IGenericArgumentsProvider
 	{
-		IType[] GenericArguments { get; }
 		IMethod GenericDefinition { get; }
 		bool FullyConstructed { get; }
 	}

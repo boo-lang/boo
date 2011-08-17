@@ -258,7 +258,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return _parameters;
 		}
 
-		IGenericParameter[] IGenericMethodInfo.GenericParameters
+		IGenericParameter[] IGenericParametersProvider.GenericParameters
 		{
 			get 
 			{

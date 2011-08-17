@@ -1,5 +1,5 @@
 """
-BCE0035-1.boo(9,9): BCE0035: 'A.Foo' conflicts with inherited member 'Base.Foo'.
+BCE0035-1.boo(9,9): BCE0035: 'A.Foo()' conflicts with inherited member 'Base.Foo()'.
 """
 class Base:
 	abstract def Foo() as int:

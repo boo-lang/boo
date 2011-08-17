@@ -1,5 +1,5 @@
 """
-strict-1.boo(15,7): BCE0120: 'Foo.Bar' is inaccessible due to its protection level.
+strict-1.boo(15,7): BCE0120: 'Foo.Bar()' is inaccessible due to its protection level.
 """
 import Boo.Lang.Compiler
 

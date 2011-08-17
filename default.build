@@ -3,7 +3,7 @@
 
 
 	<property name="boo.major.minor.release.version" value="0.9.5" />
-	<property name="boo.build.number" value="1" />
+	<property name="boo.build.number" value="2" />
 	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.build.number}" dynamic="True" />
 	<property name="boo.assembly.version" value="2.${boo.major.minor.release.version}" />
 	

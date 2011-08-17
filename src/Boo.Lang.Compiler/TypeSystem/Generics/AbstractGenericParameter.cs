@@ -145,7 +145,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			if (other == this)
                 return true;
 		
-			if (other == Null.Default)
+			if (other.IsNull())
 				return IsClass;
 
 			var otherParameter = other as IGenericParameter;

@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		internal InternalInterface(InternalTypeSystemProvider provider, TypeDefinition typeDefinition, bool isByRef) :
 			base(provider, typeDefinition)
 		{
-			_isByRef = isByRef;
+			IsByRef = isByRef;
 		}
 
 		override public IType BaseType

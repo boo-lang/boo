@@ -132,7 +132,7 @@ namespace Boo.Lang.Compiler.Steps
 						continue; // only check instance constructors against each other
 
 					if (IsConflictingOverload(member, existingMember))
-						MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters) member.Entity, false));
+						MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters) member.Entity));
 				}
 			}
 		}
@@ -207,7 +207,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void MemberConflict(TypeMember member, string memberName)
 		{
-			Error(CompilerErrorFactory.MemberNameConflict(member, member.DeclaringType.FullName, memberName));
+			Error(CompilerErrorFactory.MemberNameConflict(member, GetType(member.DeclaringType), memberName));
 		}
 		
 		List<TypeMember> GetMemberList(string name)

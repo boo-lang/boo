@@ -279,7 +279,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			TypeDefinition macroDefinition = klass.TypeDefinition;
 			if (MacroDefinitionContainsMacroApplication(macroDefinition, node))
 			{
-				ProcessingError(CompilerErrorFactory.InvalidMacro(node, klass.FullName));
+				ProcessingError(CompilerErrorFactory.InvalidMacro(node, klass));
 				return;
 			}
 
@@ -289,7 +289,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (macroType == null)
 			{
 				if (firstTry)
-					ProcessingError(CompilerErrorFactory.AstMacroMustBeExternal(node, klass.FullName));
+					ProcessingError(CompilerErrorFactory.AstMacroMustBeExternal(node, klass));
 				else
 					RemoveCurrentNode();
 				return;
@@ -319,7 +319,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		{
 			if (!typeof(IAstMacro).IsAssignableFrom(actualType))
 			{
-				ProcessingError(CompilerErrorFactory.InvalidMacro(node, actualType.FullName));
+				ProcessingError(CompilerErrorFactory.InvalidMacro(node, Map(actualType)));
 				return;
 			}
 
@@ -341,6 +341,11 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			{
 				ProcessingError(CompilerErrorFactory.MacroExpansionError(node, error));
 			}
+		}
+
+		private IType Map(Type actualType)
+		{
+			return TypeSystemServices.Map(actualType);
 		}
 
 		private Statement ExpandMacroExpansion(MacroStatement node, Statement expansion)

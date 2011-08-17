@@ -1,8 +1,8 @@
 """
-BCE0120-5.boo(24,9): BCE0120: 'PrivateSetter.set_PrivateSet' is inaccessible due to its protection level.
-BCE0120-5.boo(29,19): BCE0120: 'ProtectedSetter.set_ProtectedSet' is inaccessible due to its protection level.
-BCE0120-5.boo(32,17): BCE0120: 'ProtectedSetter.set_ProtectedSet' is inaccessible due to its protection level.
-BCE0120-5.boo(34,17): BCE0120: 'PrivateSetter.set_PrivateSet' is inaccessible due to its protection level.
+BCE0120-5.boo(24,9): BCE0120: 'PrivateSetter.set_PrivateSet(int)' is inaccessible due to its protection level.
+BCE0120-5.boo(29,19): BCE0120: 'ProtectedSetter.set_ProtectedSet(int)' is inaccessible due to its protection level.
+BCE0120-5.boo(32,17): BCE0120: 'ProtectedSetter.set_ProtectedSet(int)' is inaccessible due to its protection level.
+BCE0120-5.boo(34,17): BCE0120: 'PrivateSetter.set_PrivateSet(int)' is inaccessible due to its protection level.
 """
 class ProtectedSetter:
 	ProtectedSet:

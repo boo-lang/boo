@@ -29,9 +29,13 @@
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public interface IGenericMethodInfo
+	public interface IGenericParametersProvider
 	{
 		IGenericParameter[] GenericParameters { get; }
+	}
+
+	public interface IGenericMethodInfo : IGenericParametersProvider
+	{	
 		IMethod ConstructMethod(params IType[] arguments);
 	}
 }

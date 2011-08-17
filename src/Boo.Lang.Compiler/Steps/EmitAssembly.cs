@@ -433,7 +433,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				catch (Exception e)
 				{
-					throw CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type.FullName), e);
+					throw CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type), e);
 				}
 				_current = saved;
 			}
@@ -2376,7 +2376,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (string conditionalSymbol in GetConditionalSymbols(method))
 				if (!Parameters.Defines.ContainsKey(conditionalSymbol))
 				{
-					Context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method.ToString(), conditionalSymbol);
+					Context.TraceInfo("call to method '{0}' not emitted because the symbol '{1}' is not defined.", method, conditionalSymbol);
 					return false;
 				}
 			return true;
@@ -3587,7 +3587,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			// ensure there is no duplicate emitted
 			if (_dbgSymbols.Contains(start)) {
-				Context.TraceInfo("duplicate symbol emit attempt for '{0}' : '{1}'.", start.ToString(), startNode.ToString());
+				Context.TraceInfo("duplicate symbol emit attempt for '{0}' : '{1}'.", start, startNode);
 				return false;
 			}
 			if (_dbgSymbols.Count >= _DBG_SYMBOLS_QUEUE_CAPACITY) _dbgSymbols.Dequeue();
@@ -4634,7 +4634,7 @@ namespace Boo.Lang.Compiler.Steps
 				return GetSystemType(entity.ConstructedInfo.GenericDefinition).MakeGenericType(arguments);
 			}
 
-			if (Null.Default == entity)
+			if (entity.IsNull())
 				return Types.Object;
 
 			if (entity is InternalGenericParameter)

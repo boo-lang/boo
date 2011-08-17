@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
     {
     	public void GenericArgumentsCountMismatch(Node anchor, IType type)
         {
-            CompilerErrors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(anchor, type.FullName, type.GenericInfo.GenericParameters.Length));
+            CompilerErrors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(anchor, type, type.GenericInfo.GenericParameters.Length));
         }
 
     	private static CompilerErrorCollection CompilerErrors

@@ -114,10 +114,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				if (i > 0) { buffer.Append(", "); }
 				if (_parameters[i].IsByRef) buffer.Append("ref ");
 				if (_acceptVarArgs && i == _parameters.Length-1) buffer.Append('*');
-				buffer.Append(_parameters[i].Type.ToString());
+				buffer.Append(_parameters[i].Type.DisplayName());
 			}
 			buffer.Append(") as ");
-			buffer.Append(_returnType.ToString());
+			buffer.Append(_returnType.DisplayName());
 			return buffer.ToString();
 		}
 

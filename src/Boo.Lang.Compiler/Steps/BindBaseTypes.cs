@@ -83,21 +83,14 @@ namespace Boo.Lang.Compiler.Steps
 
 				if (null != baseClass)
 				{
-					Error(
-					    CompilerErrorFactory.ClassAlreadyHasBaseType(baseTypeRef,
-							node.Name,
-							baseClass.FullName)
-						);
+					Error(CompilerErrorFactory.ClassAlreadyHasBaseType(baseTypeRef, node.Name, baseClass));
 					continue;
 				}
 				
 				baseClass = baseType;
 				if (baseClass.IsFinal && !TypeSystemServices.IsError(baseClass))
 				{
-					Error(
-						CompilerErrorFactory.CannotExtendFinalType(
-							baseTypeRef,
-							baseClass.FullName));
+					Error(CompilerErrorFactory.CannotExtendFinalType(baseTypeRef, baseClass));
 				}
 			}
 			
@@ -107,13 +100,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void CheckInterfaceBaseTypes(InterfaceDefinition node)
 		{
-			foreach (TypeReference baseType in node.BaseTypes)
+			foreach (var baseTypeRef in node.BaseTypes)
 			{
-				IType tag = GetType(baseType);
-				if (!tag.IsInterface)
-				{
-					Error(CompilerErrorFactory.InterfaceCanOnlyInheritFromInterface(baseType, node.FullName, tag.FullName));
-				}
+				var baseType = GetType(baseTypeRef);
+				if (!baseType.IsInterface)
+					Error(CompilerErrorFactory.InterfaceCanOnlyInheritFromInterface(baseTypeRef, GetType(node), baseType));
 			}
 		}
 

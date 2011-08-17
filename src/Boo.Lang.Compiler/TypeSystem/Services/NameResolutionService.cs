@@ -339,21 +339,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			if (null != node.Entity) return;
 			
-			IEntity entity = ResolveTypeName(node);
-			if (null == entity)
+			var entity = ResolveTypeName(node);
+			if (entity == null)
 			{
-				node.Entity = NameNotType(node, "not found");
+				node.Entity = NameNotType(node, null);
 				return;
 			}
 
 			GenericTypeReference gtr = node as GenericTypeReference;
-			if (null != gtr)
+			if (gtr != null)
 			{
 				entity = ResolveGenericTypeReference(gtr, entity);
 			}
 
 			GenericTypeDefinitionReference gtdr = node as GenericTypeDefinitionReference;
-			if (null != gtdr)
+			if (gtdr != null)
 			{
 				IType type = (IType)entity;
 				if (gtdr.GenericPlaceholders != type.GenericInfo.GenericParameters.Length)
@@ -373,7 +373,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				}
 				else if (EntityType.Error != entity.EntityType)
 				{
-					entity = NameNotType(node, entity.ToString());
+					entity = NameNotType(node, entity);
 				}
 			}
 			else
@@ -440,10 +440,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return type != null && type.GenericInfo == null;
 		}
 
-		private IEntity NameNotType(SimpleTypeReference node, string whatItIs)
+		private IEntity NameNotType(SimpleTypeReference node, IEntity actual)
 		{
 			string suggestion = GetMostSimilarTypeName(node.Name);
-			CompilerErrors().Add(CompilerErrorFactory.NameNotType(node, node.Name, whatItIs, suggestion));
+			CompilerErrors().Add(CompilerErrorFactory.NameNotType(node, node.Name, actual, suggestion));
 			return TypeSystemServices.ErrorEntity;
 		}
 

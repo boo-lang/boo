@@ -52,49 +52,23 @@ namespace Boo.Lang.Compiler
 
 		private TextWriter _outputWriter;
 
-		private CompilerPipeline _pipeline;
-
 		private readonly CompilerInputCollection _input;
 
 		private readonly CompilerResourceCollection _resources;
 
 		private CompilerReferenceCollection _compilerReferences;
 
-		private int _maxExpansionIterations;
-
 		private string _outputAssembly;
 
-		private CompilerOutputType _outputType;
-
-		private bool _debug;
-
-		private bool _checked;
-
 		private bool _strict;
-
-		private bool _generateInMemory;
-
-		private bool _stdLib;
-
-		private string _keyFile;
-
-		private string _keyContainer;
-
-		private bool _delaySign;
 
 		private readonly List<string> _libPaths;
 
 		private readonly string _systemDir;
 
 		private Assembly _booAssembly;
-		
-		private bool _whiteSpaceAgnostic;
 
 		private readonly Dictionary<string, string> _defines = new Dictionary<string, string>(StringComparer.Ordinal);
-
-		private bool _unsafe;
-
-		private string _platform;
 
 		private TypeMemberModifiers _defaultTypeVisibility = TypeMemberModifiers.Public;
 		private TypeMemberModifiers _defaultMethodVisibility = TypeMemberModifiers.Public;
@@ -120,20 +94,20 @@ namespace Boo.Lang.Compiler
 				_libPaths.Add(_systemDir);
 				_libPaths.Add(Directory.GetCurrentDirectory());
 			}
-			_pipeline = null;
+			Pipeline = null;
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
 			_compilerReferences = new CompilerReferenceCollection(reflectionProvider);
 
-			_maxExpansionIterations = 12;
+			MaxExpansionIterations = 12;
 			_outputAssembly = String.Empty;
-			_outputType = CompilerOutputType.Auto;
+			OutputType = CompilerOutputType.Auto;
 			_outputWriter = Console.Out;
-			_debug = true;
-			_checked = true;
-			_generateInMemory = true;
-			_stdLib = true;
-			_delaySign = false;
+			Debug = true;
+			Checked = true;
+			GenerateInMemory = true;
+			StdLib = true;
+			DelaySign = false;
 
 			Strict = false;
 			TraceLevel = TraceLevel.Off;
@@ -381,12 +355,7 @@ namespace Boo.Lang.Compiler
 		/// Max number of iterations for the application of AST attributes and the
 		/// expansion of macros.		
 		/// </summary>
-		public int MaxExpansionIterations
-		{
-			get { return _maxExpansionIterations; }
-
-			set { _maxExpansionIterations = value; }
-		}
+		public int MaxExpansionIterations { get; set; }
 
 		public CompilerInputCollection Input
 		{
@@ -417,12 +386,7 @@ namespace Boo.Lang.Compiler
 		/// <summary>
 		/// The compilation pipeline.
 		/// </summary>
-		public CompilerPipeline Pipeline
-		{
-			get { return _pipeline; }
-
-			set { _pipeline = value; }
-		}
+		public CompilerPipeline Pipeline { get; set; }
 
 		/// <summary>
 		/// The name (full or partial) for the file
@@ -443,26 +407,11 @@ namespace Boo.Lang.Compiler
 		/// Type and execution subsystem for the generated portable
 		/// executable file.
 		/// </summary>
-		public CompilerOutputType OutputType
-		{
-			get { return _outputType; }
+		public CompilerOutputType OutputType { get; set; }
 
-			set { _outputType = value; }
-		}
+		public bool GenerateInMemory { get; set; }
 
-		public bool GenerateInMemory
-		{
-			get { return _generateInMemory; }
-
-			set { _generateInMemory = value; }
-		}
-
-		public bool StdLib
-		{
-			get { return _stdLib; }
-
-			set { _stdLib = value; }
-		}
+		public bool StdLib { get; set; }
 
 		public TextWriter OutputWriter
 		{
@@ -475,11 +424,7 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
-		public bool Debug
-		{
-			get { return _debug; }
-			set { _debug = value; }
-		}
+		public bool Debug { get; set; }
 
 		/// <summary>
 		/// Treat System.Object as duck
@@ -489,35 +434,15 @@ namespace Boo.Lang.Compiler
 			get; set;
 		}
 
-		public bool Checked
-		{
-			get { return _checked; }
-			set { _checked = value; }
-		}
+		public bool Checked { get; set; }
 
-		public string KeyFile
-		{
-			get { return _keyFile; }
-			set { _keyFile = value; }
-		}
+		public string KeyFile { get; set; }
 
-		public string KeyContainer
-		{
-			get { return _keyContainer; }
-			set { _keyContainer = value; }
-		}
+		public string KeyContainer { get; set; }
 
-		public bool DelaySign
-		{
-			get { return _delaySign; }
-			set { _delaySign = value; }
-		}
-		
-		public bool WhiteSpaceAgnostic
-		{
-			get { return _whiteSpaceAgnostic; }
-			set { _whiteSpaceAgnostic = value; }
-		}
+		public bool DelaySign { get; set; }
+
+		public bool WhiteSpaceAgnostic { get; set; }
 
 		public Dictionary<string, string> Defines
 		{
@@ -658,22 +583,12 @@ namespace Boo.Lang.Compiler
 			throw new ArgumentException("visibility", String.Format("Invalid visibility: '{0}'", visibility));
 		}
 
-		bool _noWarn = false;
-		bool _warnAsError = false;
 		Util.Set<string> _disabledWarnings = new Util.Set<string>();
 		Util.Set<string> _promotedWarnings = new Util.Set<string>();
 
-		public bool NoWarn
-		{
-			get { return _noWarn; }
-			set { _noWarn = value; }
-		}
+		public bool NoWarn { get; set; }
 
-		public bool WarnAsError
-		{
-			get { return _warnAsError; }
-			set { _warnAsError = value; }
-		}
+		public bool WarnAsError { get; set; }
 
 		public ICollection<string> DisabledWarnings
 		{
@@ -698,7 +613,7 @@ namespace Boo.Lang.Compiler
 
 		public void ResetWarnings()
 		{
-			_noWarn = false;
+			NoWarn = false;
 			_disabledWarnings.Clear();
 			Strict = _strict;
 		}
@@ -716,7 +631,7 @@ namespace Boo.Lang.Compiler
 
 		public void ResetWarningsAsErrors()
 		{
-			_warnAsError = false;
+			WarnAsError = false;
 			_promotedWarnings.Clear();
 		}
 
@@ -726,52 +641,45 @@ namespace Boo.Lang.Compiler
 			set {
 				_strict = value;
 				if (_strict)
-				{
-					/*strict mode*/
-					_defaultTypeVisibility = TypeMemberModifiers.Private;
-					_defaultMethodVisibility = TypeMemberModifiers.Private;
-					_defaultPropertyVisibility = TypeMemberModifiers.Private;
-					_defaultEventVisibility = TypeMemberModifiers.Private;
-					_defaultFieldVisibility = TypeMemberModifiers.Private;
-
-                    EnableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
-                    EnableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
-					DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
-                   //by default strict mode forbids implicit downcasts
-                   //disable warning so we get only the regular incompatible type error
-				}
+					OnStrictMode();
 				else
-				{
-					/*default mode*/
-					_defaultTypeVisibility = TypeMemberModifiers.Public;
-					_defaultMethodVisibility = TypeMemberModifiers.Public;
-					_defaultPropertyVisibility = TypeMemberModifiers.Public;
-					_defaultEventVisibility = TypeMemberModifiers.Public;
-					_defaultFieldVisibility = TypeMemberModifiers.Protected;
-
-                    DisableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
-                    DisableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
-                    DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
-				}
+					OnNonStrictMode();
 			}
 		}
 
-		public bool Unsafe
+		protected virtual void OnNonStrictMode()
 		{
-			get { return _unsafe; }
-			set { _unsafe = value; }
+			_defaultTypeVisibility = TypeMemberModifiers.Public;
+			_defaultMethodVisibility = TypeMemberModifiers.Public;
+			_defaultPropertyVisibility = TypeMemberModifiers.Public;
+			_defaultEventVisibility = TypeMemberModifiers.Public;
+			_defaultFieldVisibility = TypeMemberModifiers.Protected;
+
+			DisableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
+			DisableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
+			DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
 		}
 
-		public string Platform
+		protected virtual void OnStrictMode()
 		{
-			get { return _platform; }
-			set { _platform = value; }
+			_defaultTypeVisibility = TypeMemberModifiers.Private;
+			_defaultMethodVisibility = TypeMemberModifiers.Private;
+			_defaultPropertyVisibility = TypeMemberModifiers.Private;
+			_defaultEventVisibility = TypeMemberModifiers.Private;
+			_defaultFieldVisibility = TypeMemberModifiers.Private;
+
+			EnableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
+			EnableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
+
+			//by default strict mode forbids implicit downcasts
+			//disable warning so we get only the regular incompatible type error
+			DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
 		}
 
-		public IEnvironment Environment
-		{
-			get;
-			set;
-		}
+		public bool Unsafe { get; set; }
+
+		public string Platform { get; set; }
+
+		public IEnvironment Environment { get; set; }
 	}
 }

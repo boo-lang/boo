@@ -422,8 +422,8 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					Error(CompilerErrorFactory.DerivedMethodCannotReduceAccess(
 								node,
-								derived.FullName,
-								super.FullName,
+								derived,
+								super,
 								derivedAccess,
 								superAccess));
 				}
@@ -461,7 +461,7 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod conflicting = FindConflictingMember(method, entity);
 			if (null == conflicting || !conflicting.IsPublic) return;
 
-			Error(CompilerErrorFactory.MemberNameConflict(node, extendedType.ToString(), TypeSystemServices.GetSignature(conflicting, false)));
+			Error(CompilerErrorFactory.MemberNameConflict(node, extendedType, TypeSystemServices.GetSignature(conflicting)));
 		}
 
 		private IMethod FindConflictingMember(IMethod extension, IEntity entity)
@@ -496,13 +496,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void CheckAbstractMethodCantHaveBody(Method node)
 		{
-			if (node.IsAbstract)
-			{
-				if (!node.Body.IsEmpty)
-				{
-					Error(CompilerErrorFactory.AbstractMethodCantHaveBody(node, node.FullName));
-				}
-			}
+			if (node.IsAbstract && !node.Body.IsEmpty)
+				Error(CompilerErrorFactory.AbstractMethodCantHaveBody(node, GetEntity(node)));
 		}
 
 		void CheckUnusedLocals(Method node)
@@ -667,11 +662,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool CheckExpressionType(Expression node)
 		{
-			IType type = node.ExpressionType;
+			var type = node.ExpressionType;
 			if (type != TypeSystemServices.VoidType)
 				return true;
 
-			Error(CompilerErrorFactory.InvalidExpressionType(node, type.ToString()));
+			Error(CompilerErrorFactory.InvalidExpressionType(node, type));
 			return false;
 		}
 	}

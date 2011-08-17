@@ -626,7 +626,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)
 		{
 			if (lhs == rhs) return true;
-			if (Null.Default == rhs) return true;
+			if (rhs.IsNull()) return true;
 
 			var other = rhs as ICallableType;
 			if (null == other) return false;
@@ -687,7 +687,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private bool CanBeReachedByPromotionImpl(IType expectedType, IType actualType)
 		{
-			if (IsNullable(expectedType) && Null.Default == actualType)
+			if (IsNullable(expectedType) && actualType.IsNull())
 				return true;
 			if (IsIntegerNumber(actualType) && CanBeExplicitlyCastToInteger(expectedType))
 				return true;
@@ -842,14 +842,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static IEntity GetEntity(Node node)
 		{
-			IEntity entity = node.Entity;
-			if (null == entity)
-			{
-				if (My<CompilerParameters>.Instance.Pipeline.BreakOnErrors)
-					InvalidNode(node);
-				return Error.Default;
-			}
-			return entity;
+			var entity = node.Entity;
+			if (entity != null)
+				return entity;
+
+			if (My<CompilerParameters>.Instance.Pipeline.BreakOnErrors)
+				InvalidNode(node);
+
+			return Error.Default;
 		}
 
 		public static IType GetReferencedType(Expression typeref)
@@ -923,33 +923,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static string GetSignature(IEntityWithParameters method)
 		{
-			return GetSignature(method, true);
-		}
-
-		public static string GetSignature(IEntityWithParameters method, bool includeFullName)
-		{
-			var buffer = new StringBuilder(includeFullName ? method.FullName : method.Name);
-			buffer.Append("(");
-
-			IParameter[] parameters = method.GetParameters();
-			for (int i = 0; i < parameters.Length; ++i)
-			{
-				if (i > 0)
-					buffer.Append(", ");
-
-				if (method.AcceptVarArgs && i == parameters.Length - 1)
-					buffer.Append('*');
-
-				buffer.Append(parameters[i].Type);
-			}
-
-			buffer.Append(")");
-			return buffer.ToString();
-		}
-
-		public object GetCacheKey(MemberInfo mi)
-		{
-			return mi;
+			return My<EntityFormatter>.Instance.FormatSignature(method);
 		}
 
 		public IEntity ResolvePrimitive(string name)

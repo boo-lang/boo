@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Ast
@@ -477,11 +478,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (method.Locals.Count == 0)
 				return null;
 
-			foreach (Local local in method.Locals) {
-				if (!local.PrivateScope && local.Name == name)
-					return local;
-			}
-			return null;
+			return method.Locals.FirstOrDefault(local => !local.PrivateScope && local.Name == name);
 		}
 
 		public static LexicalInfo SafeLexicalInfo(Node node)

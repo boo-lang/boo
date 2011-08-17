@@ -96,6 +96,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core">
       <SpecificVersion>False</SpecificVersion>
@@ -312,6 +313,7 @@
     <Compile Include="Ast\NamespaceDeclaration.cs" />
     <Compile Include="Ast\Node.cs" />
     <Compile Include="Ast\NodeCollection.cs" />
+    <Compile Include="Ast\NodeExtensions.cs" />
     <Compile Include="Ast\NodeType.Generated.cs" />
     <Compile Include="Ast\NullLiteralExpression.cs" />
     <Compile Include="Ast\OmittedExpression.cs" />
@@ -604,6 +606,7 @@
     <Compile Include="TypeSystem\IProperty.cs" />
     <Compile Include="TypeSystem\IType.cs" />
     <Compile Include="TypeSystem\ITypedEntity.cs" />
+    <Compile Include="TypeSystem\ITypeExtensions.cs" />
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\Reflection\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyEqualityComparer.cs" />
@@ -651,14 +654,12 @@
     <Compile Include="TypeSystem\Unknown.cs" />
     <Compile Include="TypeSystem\Variance.cs" />
     <Compile Include="Util\ArrayEqualityComparer.cs" />
-    <Compile Include="Util\ITask.cs" />
     <Compile Include="Util\MemoizedFunction.cs" />
     <Compile Include="Util\Methods.cs" />
     <Compile Include="Util\Permissions.cs" />
     <Compile Include="Util\Properties.cs" />
     <Compile Include="Util\Set.cs" />
     <Compile Include="Util\StringUtilities.cs" />
-    <Compile Include="Util\TaskList.cs" />
     <Compile Include="Util\TypeUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -686,6 +687,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Steps\MethodProcessing\" />
+    <Folder Include="TypeSystem\Extensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -35,42 +35,24 @@ namespace Boo.Lang.Compiler.Util
 	{
 		public static string GetFullName(Type type)
 		{
-			if (type.IsByRef) return "ref " + GetFullName(type.GetElementType());
-			if (type.DeclaringType != null) return GetFullName(type.DeclaringType) + "." + TypeName(type);		
-			
-			// HACK: Some constructed generic types report a FullName of null
-			if (type.FullName == null) 
-			{
-				string[] argumentNames = Array.ConvertAll<Type, string>(
-					type.GetGenericArguments(),
-					GetFullName);
-				
-				return string.Format(
-					"{0}[{1}]",
-					GetFullName(type.GetGenericTypeDefinition()),
-					string.Join(", ", argumentNames));
-				
-			}
-			string name = TypeName(type.FullName);
-			if (type.IsGenericTypeDefinition)
-			{
-				name = string.Format(
-					"{0}[of {1}]", 
-					name, 
-					string.Join(", ", Array.ConvertAll<Type, string>(
-						type.GetGenericArguments(), 
-						TypeName)));
-			}
-			return name;
+			if (type.IsByRef)
+				return "ref " + GetFullName(type.GetElementType());
+
+			if (type.DeclaringType != null)
+				return GetFullName(type.DeclaringType) + "." + TypeName(type);
+
+			var nameSpace = type.Namespace;
+			if (string.IsNullOrEmpty(nameSpace))
+				return TypeName(type);
+			return nameSpace + "." + TypeName(type);
 		}
 
 	    public static string TypeName(Type type)
-		{
-			if (!type.IsGenericTypeDefinition) return type.Name;
-			return TypeName(type.Name);
+		{	
+			return RemoveGenericSuffixFrom(type.Name);
 		}
 
-		public static string TypeName(string typeName)
+		public static string RemoveGenericSuffixFrom(string typeName)
 		{
 			int index = typeName.LastIndexOf('`');
 			if (index < 0) return typeName;

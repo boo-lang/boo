@@ -1,6 +1,6 @@
 """
-BCE0120-6.boo(9,32): BCE0120: 'BooSupportingClasses.Setters.set_ProtectedSet' is inaccessible due to its protection level.
-BCE0120-6.boo(12,32): BCE0120: 'BooSupportingClasses.Setters.set_MacroProtectedSet' is inaccessible due to its protection level.
+BCE0120-6.boo(9,32): BCE0120: 'BooSupportingClasses.Setters.set_ProtectedSet(bool)' is inaccessible due to its protection level.
+BCE0120-6.boo(12,32): BCE0120: 'BooSupportingClasses.Setters.set_MacroProtectedSet(int)' is inaccessible due to its protection level.
 """
 import BooSupportingClasses
 
