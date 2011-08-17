@@ -87,35 +87,40 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 
 		public IAstAttribute CreateAstAttributeInstance()
 		{
-			object[] parameters = _attribute.Arguments.Count > 0 ? _attribute.Arguments.ToArray() : new object[0];
+			var attribute = CreateInstance(ConstructorArguments());
+			if (attribute == null) return null;
+			return _attribute.NamedArguments.Count > 0 ? InitializeProperties(attribute) : attribute;
+		}
 
-			IAstAttribute aa;
+		private object[] ConstructorArguments()
+		{
+			return _attribute.Arguments.Count > 0 ? _attribute.Arguments.ToArray() : new object[0];
+		}
+
+		private IAstAttribute CreateInstance(object[] arguments)
+		{
 			try
 			{
-				aa = (IAstAttribute)Activator.CreateInstance(_type, parameters);
+				var aa = (IAstAttribute)Activator.CreateInstance(_type, arguments);
+				aa.Attribute = _attribute;
+				return aa;
 			}
 			catch (MissingMethodException x)
 			{
-				_context.Errors.Add(CompilerErrorFactory.MissingConstructor(x, _attribute, _type, parameters));
+				_context.Errors.Add(CompilerErrorFactory.MissingConstructor(x, _attribute, _type, arguments));
 				return null;
 			}
+		}
 
-			aa.Attribute = _attribute;
-
-			if (_attribute.NamedArguments.Count > 0)
+		private IAstAttribute InitializeProperties(IAstAttribute aa)
+		{
+			var initialized = true;
+			foreach (var p in _attribute.NamedArguments)
 			{
-				var initialized = true;
-				foreach (var p in _attribute.NamedArguments)
-				{
-					bool success = SetFieldOrProperty(aa, p);
-					initialized = initialized && success;
-				}
-
-				if (!initialized)
-					return null;
+				var success = SetFieldOrProperty(aa, p);
+				initialized = initialized && success;
 			}
-
-			return aa;
+			return initialized ? aa : null;
 		}
 
 		bool SetFieldOrProperty(IAstAttribute aa, ExpressionPair p)
