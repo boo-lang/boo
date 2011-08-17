@@ -641,48 +641,39 @@ namespace Boo.Lang.Compiler
 			set {
 				_strict = value;
 				if (_strict)
-				{
-					/*strict mode*/
-					_defaultTypeVisibility = TypeMemberModifiers.Private;
-					_defaultMethodVisibility = TypeMemberModifiers.Private;
-					_defaultPropertyVisibility = TypeMemberModifiers.Private;
-					_defaultEventVisibility = TypeMemberModifiers.Private;
-					_defaultFieldVisibility = TypeMemberModifiers.Private;
-
-                    EnableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
-                    EnableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
-					DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
-                   //by default strict mode forbids implicit downcasts
-                   //disable warning so we get only the regular incompatible type error
-				}
+					OnStrictMode();
 				else
-				{
-					/*default mode*/
-					_defaultTypeVisibility = TypeMemberModifiers.Public;
-					_defaultMethodVisibility = TypeMemberModifiers.Public;
-					_defaultPropertyVisibility = TypeMemberModifiers.Public;
-					_defaultEventVisibility = TypeMemberModifiers.Public;
-					_defaultFieldVisibility = TypeMemberModifiers.Protected;
-
-                    DisableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
-                    DisableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
-                    DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
-				}
+					OnNonStrictMode();
 			}
 		}
 
 		protected virtual void OnNonStrictMode()
 		{
+			_defaultTypeVisibility = TypeMemberModifiers.Public;
+			_defaultMethodVisibility = TypeMemberModifiers.Public;
+			_defaultPropertyVisibility = TypeMemberModifiers.Public;
+			_defaultEventVisibility = TypeMemberModifiers.Public;
+			_defaultFieldVisibility = TypeMemberModifiers.Protected;
 
 			DisableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
 			DisableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
 			DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
 		}
 
-		public IEnvironment Environment
+		protected virtual void OnStrictMode()
 		{
-			get;
-			set;
+			_defaultTypeVisibility = TypeMemberModifiers.Private;
+			_defaultMethodVisibility = TypeMemberModifiers.Private;
+			_defaultPropertyVisibility = TypeMemberModifiers.Private;
+			_defaultEventVisibility = TypeMemberModifiers.Private;
+			_defaultFieldVisibility = TypeMemberModifiers.Private;
+
+			EnableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
+			EnableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
+
+			//by default strict mode forbids implicit downcasts
+			//disable warning so we get only the regular incompatible type error
+			DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
 		}
 
 		public bool Unsafe { get; set; }
