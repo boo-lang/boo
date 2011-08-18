@@ -176,6 +176,8 @@ tokens
 	}
 	
 	protected abstract void EmitIndexedPropertyDeprecationWarning(Property deprecated);
+	
+	protected abstract void EmitTransientKeywordDeprecationWarning(LexicalInfo location);
 }
 
 protected
@@ -398,7 +400,7 @@ attribute
 		antlr.IToken id = null;
 		Boo.Lang.Compiler.Ast.Attribute attr = null;
 	}:	
-	id=identifier
+	(id=identifier | t:TRANSIENT { id=t; })
 	{
 		attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText());
 		_attributes.Add(attr);
@@ -955,7 +957,10 @@ type_member_modifier
 	PRIVATE { _modifiers |= TypeMemberModifiers.Private; } |
 	INTERNAL { _modifiers |= TypeMemberModifiers.Internal; } |			
 	FINAL { _modifiers |= TypeMemberModifiers.Final; } |
-	TRANSIENT { _modifiers |= TypeMemberModifiers.Transient; } |
+	t:TRANSIENT {
+		_modifiers |= TypeMemberModifiers.Transient;
+		EmitTransientKeywordDeprecationWarning(ToLexicalInfo(t));
+	} |
 	OVERRIDE { _modifiers |= TypeMemberModifiers.Override; } |
 	ABSTRACT { _modifiers |= TypeMemberModifiers.Abstract; } |
 	VIRTUAL { _modifiers |= TypeMemberModifiers.Virtual; } |

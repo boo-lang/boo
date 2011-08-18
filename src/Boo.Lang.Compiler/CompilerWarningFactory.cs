@@ -204,7 +204,12 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerWarning ObsoleteSyntax(Node anchor, string obsoleteSyntax, string newSyntax)
 		{
-			return Instantiate("BCW0027", AstUtil.SafeLexicalInfo(anchor), obsoleteSyntax, newSyntax);
+			return ObsoleteSyntax(AstUtil.SafeLexicalInfo(anchor), obsoleteSyntax, newSyntax);
+		}
+
+		public static CompilerWarning ObsoleteSyntax(LexicalInfo location, string obsoleteSyntax, string newSyntax)
+		{
+			return Instantiate("BCW0027", location, obsoleteSyntax, newSyntax);
 		}
 
 		public static CompilerWarning ImplicitDowncast(Node node, IType expectedType, IType actualType)
