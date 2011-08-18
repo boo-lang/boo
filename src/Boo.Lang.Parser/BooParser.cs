@@ -131,12 +131,34 @@ namespace Boo.Lang.Parser
 
 		protected override void EmitIndexedPropertyDeprecationWarning(Property deprecated)
 		{
-			if (ActiveEnvironment.Instance == null)
+			if (OutsideCompilationEnvironment())
 				return;
-			My<CompilerWarningCollection>.Instance.Add(
-				CompilerWarningFactory.ObsoleteSyntax(deprecated,
+			EmitWarning(
+				CompilerWarningFactory.ObsoleteSyntax(
+					deprecated,
 					FormatPropertyWithDelimiters(deprecated, "(", ")"),
 					FormatPropertyWithDelimiters(deprecated, "[", "]")));
+		}
+
+		protected override void EmitTransientKeywordDeprecationWarning(LexicalInfo location)
+		{
+			if (OutsideCompilationEnvironment())
+				return;
+			EmitWarning(
+				CompilerWarningFactory.ObsoleteSyntax(
+					location,
+					"transient keyword",
+					"[Transient] attribute"));
+		}
+
+		private void EmitWarning(CompilerWarning warning)
+		{
+			My<CompilerWarningCollection>.Instance.Add(warning);
+		}
+
+		private bool OutsideCompilationEnvironment()
+		{
+			return ActiveEnvironment.Instance == null;
 		}
 
 		private string FormatPropertyWithDelimiters(Property deprecated, string leftDelimiter, string rightDelimiter)

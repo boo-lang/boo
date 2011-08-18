@@ -96,6 +96,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"ns_alias_on_attribute.boo");
 		}
 		
+		[Test]
+		public void transient()
+		{
+			RunCompilerTestCase(@"transient.boo");
+		}
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{
