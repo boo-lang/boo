@@ -100,13 +100,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			AssemblyReference aref = other as AssemblyReference;
 			return Equals(aref);
 		}
-	
+
 		public bool Equals(AssemblyReference other)
 		{
 			if (null == other) return false;
 			if (this == other) return true;
 
-			return AssemblyEqualityComparer.Default.Equals(_assembly, other._assembly);
+			return IsReferencing(other._assembly);
+		}
+
+		private bool IsReferencing(Assembly assembly)
+		{
+			return AssemblyEqualityComparer.Default.Equals(_assembly, assembly);
 		}
 
 		public override int GetHashCode()
@@ -135,7 +140,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		private void AssertAssembly(MemberInfo member)
 		{
-			if (_assembly != member.Module.Assembly)
+			if (!IsReferencing(member.Module.Assembly))
 				throw new ArgumentException(string.Format("{0} doesn't belong to assembly '{1}'.", member, _assembly));
 		}
 
