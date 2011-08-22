@@ -131,6 +131,7 @@
 			program="NAnt.exe"
 			workingdir="tests"
 			useruntimeengine="true">
+			<arg value="-t:${framework::get-target-framework()}" />
 			<arg value="-D:fixture=${fixture}" if="${fixture != ''}" />
 			<arg value="run" />
 		</exec>
