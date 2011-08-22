@@ -193,6 +193,7 @@
     <Compile Include="SupportingClasses\ReturnDucks.cs" />
     <Compile Include="SupportingClasses\SByteEnum.cs" />
     <Compile Include="SupportingClasses\TestEnum.cs" />
+    <Compile Include="SupportingClasses\ThisReturnTypeIsAttribute.cs" />
     <Compile Include="SupportingClasses\Transform.cs" />
     <Compile Include="SupportingClasses\ValueTypeOverrideBoolOperator.cs" />
     <Compile Include="SupportingClasses\VarArgs.cs" />

@@ -1,4 +1,6 @@
-import System.Xml.Serialization
+import BooCompiler.Tests.SupportingClasses
 
-def foo() [SoapElementAttribute("fooReturn")] as string:
+def foo() [ThisReturnTypeIs("null")] as string:
 	pass
+	
+
