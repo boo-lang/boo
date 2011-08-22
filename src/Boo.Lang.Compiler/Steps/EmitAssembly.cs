@@ -3590,7 +3590,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		private System.Collections.Generic.Queue<LexicalInfo> _dbgSymbols = new System.Collections.Generic.Queue<LexicalInfo>(_DBG_SYMBOLS_QUEUE_CAPACITY);
 
-		[ReflectionPermission(SecurityAction.Demand, ReflectionEmit=true)]
 		bool EmitDebugInfo(Node startNode, Node endNode)
 		{
 			LexicalInfo start = startNode.LexicalInfo;

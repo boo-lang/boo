@@ -30,12 +30,8 @@
 // Arron Washington
 // Ian MacLean (original C# version)
 
-import System.Reflection;
-import System.Security;
-import System.Security.Permissions;
-[assembly: ReflectionPermission(SecurityAction.RequestMinimum,
-								ReflectionEmit: true,
-								TypeInformation: true)]
+import System.Reflection
+
 [assembly: AssemblyTitle("Boo CodeDom")]
 [assembly: AssemblyDescription("An implementation of System.CodeDom for Boo.")]
 [assembly: AssemblyConfiguration("")]
@@ -44,4 +40,3 @@ import System.Security.Permissions;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyVersion("2.0.9.5")]
-[assembly: AllowPartiallyTrustedCallers]

@@ -27,7 +27,6 @@
 #endregion
 
 using System.Reflection;
-using System.Security;
 
 [assembly: AssemblyTitle("boo antlr based parser")]
 [assembly: AssemblyDescription("")]
@@ -39,5 +38,3 @@ using System.Security;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.5")]
 [assembly: AssemblyDelaySign(false)]
-[assembly: AllowPartiallyTrustedCallers]
-
