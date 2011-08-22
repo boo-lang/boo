@@ -46,15 +46,13 @@ namespace Boo.Lang.Compiler.Steps
 			if (!TypeSystemServices.IsPrimitiveNumber(expectedType))
 				return;
 
-			foreach (Expression item in node.Items)
+			foreach (var item in node.Items)
 			{
-				IType itemType = item.ExpressionType;
-				if (item is LiteralExpression)
+				var integerLiteral = item as IntegerLiteralExpression;
+				if (integerLiteral != null)
 				{
-					if (item.NodeType == NodeType.IntegerLiteralExpression)
-						AssertLiteralInRange((IntegerLiteralExpression) item, expectedType);
-					if (expectedType != itemType)
-						BindExpressionType(item, expectedType);
+					AssertLiteralInRange(integerLiteral, expectedType);
+					continue;
 				}
 			}
 		}

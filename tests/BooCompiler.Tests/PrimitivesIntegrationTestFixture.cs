@@ -103,6 +103,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void int_shift_overflow_checked()
+		{
+			RunCompilerTestCase(@"int-shift-overflow-checked.boo");
+		}
+		
+		[Test]
 		public void interpolation_1()
 		{
 			RunCompilerTestCase(@"interpolation-1.boo");

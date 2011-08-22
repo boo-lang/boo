@@ -1418,20 +1418,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitDefaultValue(IType type)
 		{
-			bool isGenericParameter = GenericsServices.IsGenericParameter(type);
+			var isGenericParameter = GenericsServices.IsGenericParameter(type);
 
 			if (!type.IsValueType && !isGenericParameter)
-			{
 				_il.Emit(OpCodes.Ldnull);
-			}
 			else if (type == TypeSystemServices.BoolType)
-			{
 				_il.Emit(OpCodes.Ldc_I4_0);
-			}
+			else if (type == TypeSystemServices.SingleType || type == TypeSystemServices.DoubleType)
+				EmitLoadLiteral(type, 0.0);
 			else if (TypeSystemServices.IsPrimitiveNumber(type) || type == TypeSystemServices.CharType)
-			{
 				EmitLoadLiteral(type, 0);
-			}
 			else if (isGenericParameter && TypeSystemServices.IsReferenceType(type))
 			{
 				_il.Emit(OpCodes.Ldnull);
@@ -1505,12 +1501,12 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				_il.Emit(OpCodes.Ldc_I4_0);
-				if (operandType == TypeSystemServices.LongType || operandType == TypeSystemServices.ULongType)
+				if (IsLong(operandType) || operandType == TypeSystemServices.ULongType)
 					_il.Emit(OpCodes.Conv_I8);
 				node.Operand.Accept(this);
 				_il.Emit(TypeSystemServices.IsSignedNumber(operandType)
 						 ? OpCodes.Sub_Ovf : OpCodes.Sub_Ovf_Un);
-				if (operandType != TypeSystemServices.LongType && operandType != TypeSystemServices.ULongType)
+				if (!IsLong(operandType) && operandType != TypeSystemServices.ULongType)
 					EmitCastIfNeeded(operandType, TypeSystemServices.IntType);
 			}
 		}
@@ -1916,7 +1912,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (TypeSystemServices.IsIntegerNumber(type))
 			{
-				if (TypeSystemServices.LongType == type || TypeSystemServices.ULongType == type)
+				if (IsLong(type) || TypeSystemServices.ULongType == type)
 					_il.Emit(OpCodes.Conv_I4);
 				return true;
 			}
@@ -2030,7 +2026,7 @@ namespace Boo.Lang.Compiler.Steps
 					// BOO-705
 				case BinaryOperatorType.ShiftLeft:
 				case BinaryOperatorType.ShiftRight:
-					return TypeSystemServices.IntType;
+					return GetExpressionType(node.Left);
 			}
 			return GetExpressionType(node);
 		}
@@ -2688,103 +2684,121 @@ namespace Boo.Lang.Compiler.Steps
 			EmitLoadLiteral(TypeSystemServices.LongType, l);
 		}
 
-		void EmitLoadLiteral(IType type, long l)
-		{
-			EmitLoadLiteral(type, l, l);
-		}
-
 		void EmitLoadLiteral(IType type, double d)
 		{
-			EmitLoadLiteral(type, (long) d, d);
-		}
-
-		void EmitLoadLiteral(IType type, long l, double d)
-		{
-			if (type.IsEnum)
-				type = TypeSystemServices.Map(GetEnumUnderlyingType(type));
-
-			if (TypeSystemServices.IsIntegerNumber(type) || type == TypeSystemServices.CharType)
-			{
-				bool needsLongConv = true;
-				switch (l)
-				{
-					case -1L:
-						{
-							if (type == TypeSystemServices.LongType || type == TypeSystemServices.ULongType)
-							{
-								_il.Emit(OpCodes.Ldc_I8, -1L);
-								needsLongConv = false;
-							}
-							else
-							{
-								_il.Emit(OpCodes.Ldc_I4_M1);
-							}
-						}
-						break;
-					case 0L: _il.Emit(OpCodes.Ldc_I4_0); break;
-					case 1L: _il.Emit(OpCodes.Ldc_I4_1); break;
-					case 2L: _il.Emit(OpCodes.Ldc_I4_2); break;
-					case 3L: _il.Emit(OpCodes.Ldc_I4_3); break;
-					case 4L: _il.Emit(OpCodes.Ldc_I4_4); break;
-					case 5L: _il.Emit(OpCodes.Ldc_I4_5); break;
-					case 6L: _il.Emit(OpCodes.Ldc_I4_6); break;
-					case 7L: _il.Emit(OpCodes.Ldc_I4_7); break;
-					case 8L: _il.Emit(OpCodes.Ldc_I4_8); break;
-					default:
-						{
-							if (l == (sbyte) l) //fits in an signed i1
-							{
-								_il.Emit(OpCodes.Ldc_I4_S, (sbyte) l);
-							}
-							else if (l == (int) l || l == (uint) l) //fits in an i4
-							{
-								if ((int) l == -1)
-									_il.Emit(OpCodes.Ldc_I4_M1);
-								else
-									_il.Emit(OpCodes.Ldc_I4, (int) l);
-							}
-							else
-							{
-								_il.Emit(OpCodes.Ldc_I8, l);
-								needsLongConv = false;
-							}
-						}
-						break;
-				}
-
-				if (needsLongConv && type == TypeSystemServices.LongType)
-					_il.Emit(OpCodes.Conv_I8);
-				else if (type == TypeSystemServices.ULongType)
-					_il.Emit(OpCodes.Conv_U8);
-			}
-			else if (type == TypeSystemServices.SingleType)
+			if (type == TypeSystemServices.SingleType)
 			{
 				if (d != 0)
-				{
 					_il.Emit(OpCodes.Ldc_R4, (float) d);
-				}
 				else
 				{
 					_il.Emit(OpCodes.Ldc_I4_0);
 					_il.Emit(OpCodes.Conv_R4);
 				}
+				return;
 			}
-			else if (type == TypeSystemServices.DoubleType)
+			
+			if (type == TypeSystemServices.DoubleType)
 			{
 				if (d != 0)
-				{
 					_il.Emit(OpCodes.Ldc_R8, d);
-				}
 				else
 				{
 					_il.Emit(OpCodes.Ldc_I4_0);
 					_il.Emit(OpCodes.Conv_R8);
 				}
+				return;
 			}
-			else
+
+			throw new InvalidOperationException(string.Format("`{0}' is not a literal", type));
+		}
+
+		void EmitLoadLiteral(IType type, long l)
+		{
+			if (type.IsEnum)
+				type = TypeSystemServices.Map(GetEnumUnderlyingType(type));
+
+			if (!(TypeSystemServices.IsIntegerNumber(type) || type == TypeSystemServices.CharType))
+				throw new InvalidOperationException();
+
+			var needsLongConv = true;
+			switch (l)
 			{
-				throw new InvalidOperationException(string.Format("`{0}' is not a literal", type));
+				case -1L:
+					{
+						if (IsLong(type) || type == TypeSystemServices.ULongType)
+						{
+							_il.Emit(OpCodes.Ldc_I8, -1L);
+							needsLongConv = false;
+						}
+						else
+							_il.Emit(OpCodes.Ldc_I4_M1);
+					}
+					break;
+				case 0L:
+					_il.Emit(OpCodes.Ldc_I4_0);
+					break;
+				case 1L:
+					_il.Emit(OpCodes.Ldc_I4_1);
+					break;
+				case 2L:
+					_il.Emit(OpCodes.Ldc_I4_2);
+					break;
+				case 3L:
+					_il.Emit(OpCodes.Ldc_I4_3);
+					break;
+				case 4L:
+					_il.Emit(OpCodes.Ldc_I4_4);
+					break;
+				case 5L:
+					_il.Emit(OpCodes.Ldc_I4_5);
+					break;
+				case 6L:
+					_il.Emit(OpCodes.Ldc_I4_6);
+					break;
+				case 7L:
+					_il.Emit(OpCodes.Ldc_I4_7);
+					break;
+				case 8L:
+					_il.Emit(OpCodes.Ldc_I4_8);
+					break;
+				default:
+					{
+						if (IsLong(type))
+						{
+							_il.Emit(OpCodes.Ldc_I8, l);
+							return;
+						}
+
+						if (l == (sbyte) l) //fits in an signed i1
+						{
+							_il.Emit(OpCodes.Ldc_I4_S, (sbyte) l);
+						}
+						else if (l == (int) l || l == (uint) l) //fits in an i4
+						{
+							if ((int) l == -1)
+								_il.Emit(OpCodes.Ldc_I4_M1);
+							else
+								_il.Emit(OpCodes.Ldc_I4, (int) l);
+						}
+						else
+						{
+							_il.Emit(OpCodes.Ldc_I8, l);
+							needsLongConv = false;
+						}
+					}
+					break;
 			}
+
+			if (needsLongConv && IsLong(type))
+				_il.Emit(OpCodes.Conv_I8);
+			else if (type == TypeSystemServices.ULongType)
+				_il.Emit(OpCodes.Conv_U8);
+		}
+
+		private bool IsLong(IType type)
+		{
+			return type == TypeSystemServices.LongType;
 		}
 
 		override public void OnBoolLiteralExpression(BoolLiteralExpression node)
@@ -3134,7 +3148,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				EmitLoadLiteral(type, unchecked((long)(uint) value));
 			}
-			else if (type == TypeSystemServices.LongType)
+			else if (IsLong(type))
 			{
 				EmitLoadLiteral(type, (long) value);
 			}
@@ -3759,7 +3773,7 @@ namespace Boo.Lang.Compiler.Steps
 								writer.Write(Convert.ToInt32(literal.Value));
 							else if (type == TypeSystemServices.UIntType)
 								writer.Write(Convert.ToUInt32(literal.Value));
-							else if (type == TypeSystemServices.LongType)
+							else if (IsLong(type))
 								writer.Write(Convert.ToInt64(literal.Value));
 							else if (type == TypeSystemServices.ULongType)
 								writer.Write(Convert.ToUInt64(literal.Value));
@@ -3789,7 +3803,7 @@ namespace Boo.Lang.Compiler.Steps
 								writer.Write(Convert.ToInt32(literal.Value));
 							else if (type == TypeSystemServices.UIntType)
 								writer.Write(Convert.ToUInt32(literal.Value));
-							else if (type == TypeSystemServices.LongType)
+							else if (IsLong(type))
 								writer.Write(Convert.ToInt64(literal.Value));
 							else if (type == TypeSystemServices.ULongType)
 								writer.Write(Convert.ToUInt64(literal.Value));
@@ -3815,7 +3829,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsInteger(IType type)
 		{
 			return type == TypeSystemServices.IntType ||
-				type == TypeSystemServices.LongType ||
+				IsLong(type) ||
 				type == TypeSystemServices.ShortType ||
 				type == TypeSystemServices.ByteType;
 		}
@@ -3902,7 +3916,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				return OpCodes.Ldelem_U4;
 			}
-			if (TypeSystemServices.LongType == type)
+			if (IsLong(type))
 			{
 				return OpCodes.Ldelem_I8;
 			}
@@ -3949,7 +3963,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Stelem_I4;
 				}
-				else if (TypeSystemServices.LongType == tag ||
+				else if (IsLong(tag) ||
 					TypeSystemServices.ULongType == tag)
 				{
 					return OpCodes.Stelem_I8;
@@ -3990,7 +4004,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Ldind_I4;
 				}
-				if (TypeSystemServices.LongType == tag ||
+				if (IsLong(tag) ||
 					TypeSystemServices.ULongType == tag)
 				{
 					return OpCodes.Ldind_I8;
@@ -4039,7 +4053,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					return OpCodes.Stind_I4;
 				}
-				if (TypeSystemServices.LongType == tag
+				if (IsLong(tag)
 					|| TypeSystemServices.ULongType == tag)
 				{
 					return OpCodes.Stind_I8;
@@ -4223,7 +4237,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (type == TypeSystemServices.UShortType) return Methods.Of<object, ushort>(RuntimeServices.UnboxUInt16);
 			if (type == TypeSystemServices.IntType) return Methods.Of<object, int>(RuntimeServices.UnboxInt32);
 			if (type == TypeSystemServices.UIntType) return Methods.Of<object, uint>(RuntimeServices.UnboxUInt32);
-			if (type == TypeSystemServices.LongType) return Methods.Of<object, long>(RuntimeServices.UnboxInt64);
+			if (IsLong(type)) return Methods.Of<object, long>(RuntimeServices.UnboxInt64);
 			if (type == TypeSystemServices.ULongType) return Methods.Of<object, ulong>(RuntimeServices.UnboxUInt64);
 			if (type == TypeSystemServices.SingleType) return Methods.Of<object, float>(RuntimeServices.UnboxSingle);
 			if (type == TypeSystemServices.DoubleType) return Methods.Of<object, double>(RuntimeServices.UnboxDouble);
@@ -4268,32 +4282,11 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private TypeCode TypeCodeFor(IType type)
+		private static TypeCode TypeCodeFor(IType type)
 		{
-			if (type == TypeSystemServices.IntType)
-				return TypeCode.Int32;
-			if (type == TypeSystemServices.SingleType)
-				return TypeCode.Single;
-			if (type == TypeSystemServices.DoubleType)
-				return TypeCode.Double;
-			if (type.IsEnum)
-				return Type.GetTypeCode(GetEnumUnderlyingType(type));
-			if (type == TypeSystemServices.SByteType)
-				return TypeCode.SByte;
-			if (type == TypeSystemServices.ByteType)
-				return TypeCode.Byte;
-			if (type == TypeSystemServices.ShortType)
-				return TypeCode.Int16;
-			if (type == TypeSystemServices.UShortType)
-				return TypeCode.UInt16;
-			if (type == TypeSystemServices.CharType)
-				return TypeCode.Char;
-			if (type == TypeSystemServices.UIntType)
-				return TypeCode.UInt32;
-			if (type == TypeSystemServices.LongType)
-				return TypeCode.Int64;
-			if (type == TypeSystemServices.ULongType)
-				return TypeCode.UInt64;
+			var externalType = type as ExternalType;
+			if (externalType != null)
+				return Type.GetTypeCode(externalType.ActualType);
 			throw new NotImplementedException(string.Format("TypeCodeFor({0}) not implemented!", type));
 		}
 
