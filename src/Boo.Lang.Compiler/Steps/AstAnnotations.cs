@@ -46,12 +46,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			node[AstAnnotations.Checked] = false;
 		}
-		
-		public static bool IsChecked(Node node)
-		{
-			return IsChecked(node, true);
-		}
-		
+
 		public static bool IsChecked(Node node, bool defaultValue)
 		{
 			return GetBoolAnnotationValue(node, AstAnnotations.Checked, defaultValue);
