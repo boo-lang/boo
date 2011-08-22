@@ -84,6 +84,10 @@ static class Repr:
 			writer.Write("[")
 			RepresentItems(value, writer)
 			writer.Write("]")
+			
+		AddRepresenter(long) do (value, writer as TextWriter):
+			writer.Write(value)
+			writer.Write("L")
 				
 		AddRepresenter(object) do (value, writer as TextWriter):
 			writer.Write(value)
