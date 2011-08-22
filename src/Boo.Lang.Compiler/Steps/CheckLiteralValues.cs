@@ -33,16 +33,31 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class CheckLiteralValues : AbstractFastVisitorCompilerStep
 	{
+		private bool _checked;
+
 		override public void OnModule(Module node)
 		{
 			Visit(node.Members);
 		}
 
+		override public void OnBlock(Block block)
+		{
+			var currentChecked = _checked;
+			_checked = AstAnnotations.IsChecked(block, Parameters.Checked);
+
+			Visit(block.Statements);
+
+			_checked = currentChecked;
+		}
+
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
+			if (!_checked)
+				return;
+
 			base.OnArrayLiteralExpression(node);
 
-			IType expectedType = GetExpressionType(node).ElementType;
+			var expectedType = GetExpressionType(node).ElementType;
 			if (!TypeSystemServices.IsPrimitiveNumber(expectedType))
 				return;
 
@@ -59,6 +74,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnBinaryExpression(BinaryExpression node)
 		{
+			if (!_checked)
+				return;
+
 			base.OnBinaryExpression(node);
 
 			if (node.Operator != BinaryOperatorType.Assign
@@ -74,6 +92,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
+			if (!_checked)
+				return;
+
 			base.OnMethodInvocationExpression(node);
 
 			if (0 == node.Arguments.Count)
@@ -99,6 +120,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void OnExpressionStatement(ExpressionStatement node)
 		{
+			if (!_checked)
+				return;
+
 			base.OnExpressionStatement(node);
 
 			IntegerLiteralExpression literal = node.Expression as IntegerLiteralExpression;
