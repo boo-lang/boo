@@ -34,59 +34,64 @@ import Boo.Lang.Compiler.Ast
 
 internal class MatchExpansion:
 	
-	node as MacroStatement
-	expression as Expression
-	context as CompilerContext
-	[getter(Value)] final value as Statement
+	final _match as MacroStatement
+	final _matchValues as (Expression)
+	public final Value as Statement
 	
-	def constructor(context as CompilerContext, node as MacroStatement):
-		self.context = context
-		self.node = node
-		self.expression = node.Arguments[0]
-		self.value = Expand(NewTemp(expression))
+	def constructor(match as MacroStatement):
+		_match = match
+		_matchValues = array(NewTemp(e) for e in _match.Arguments)
+		self.Value = Expand()
 		
-	def Expand(matchValue as Expression):
-		
-		topLevel = expanded = ExpandCase(matchValue, caseListFor(node)[0])
-		for case in caseListFor(node)[1:]:
-			caseExpansion = ExpandCase(matchValue, case)
+	def Expand():
+		topLevel = expanded = ExpandCase(caseListFor(_match)[0])
+		for case in caseListFor(_match)[1:]:
+			caseExpansion = ExpandCase(case)
 			expanded.FalseBlock = caseExpansion.ToBlock()
 			expanded = caseExpansion		
-		expanded.FalseBlock = ExpandOtherwise(matchValue)
+		expanded.FalseBlock = ExpandOtherwise()
 		
-		return [|
-			$matchValue = $expression
-			$topLevel
-		|]
+		result = Block()
+		for matchValue as Expression, expression as Expression in zip(_matchValues, _match.Arguments):
+			result.Add([| $matchValue = $expression |])
+		result.Add(topLevel)
+		return result
 		
-	def ExpandOtherwise(matchValue as Expression):
-		otherwise as MacroStatement = node["otherwise"]
-		if otherwise is null: return DefaultOtherwise(matchValue)
+	def ExpandOtherwise():
+		otherwise as MacroStatement = _match["otherwise"]
+		if otherwise is null: return DefaultOtherwise()
 		return ExpandOtherwise(otherwise)
 		
-	def ExpandOtherwise(node as MacroStatement):
-		assert 0 == len(node.Arguments)
-		return node.Body
+	def ExpandOtherwise(otherwise as MacroStatement):
+		assert 0 == len(otherwise.Arguments)
+		return otherwise.Body
 		
-	def DefaultOtherwise(matchValue as Expression):
-		
-		errorMessage = ExpressionInterpolationExpression(matchValue.LexicalInfo)
-		errorMessage.Expressions.Add(StringLiteralExpression.Lift("`$(expression.ToCodeString())` failed to match `"))
-		errorMessage.Expressions.Add(matchValue.CloneNode())
-		errorMessage.Expressions.Add(StringLiteralExpression.Lift("`"))
-		
+	def DefaultOtherwise():
+		errorMessage = ExpressionInterpolationExpression(_match.Arguments[0].LexicalInfo)
+		for matchValue as Expression, expression as Expression in zip(_matchValues, _match.Arguments):
+			if len(errorMessage.Expressions) > 0:
+				errorMessage.Expressions.Add(StringLiteralExpression.Lift(" or "))
+			errorMessage.Expressions.Add(StringLiteralExpression.Lift("`$(expression.ToCodeString())` failed to match `"))
+			errorMessage.Expressions.Add(matchValue.CloneNode())
+			errorMessage.Expressions.Add(StringLiteralExpression.Lift("`"))
 		matchError = [| raise MatchError($errorMessage) |]
-		matchError.LexicalInfo = node.LexicalInfo
-		
+		matchError.LexicalInfo = _match.LexicalInfo
 		return matchError.ToBlock()
 		
-	def ExpandCase(matchValue as Expression, node as MacroStatement):
-		assert 1 == len(node.Arguments)
-		pattern = node.Arguments[0]
-		condition = ExpandPattern(matchValue, pattern)
+	def ExpandCase(case as MacroStatement):
+		assert len(_match.Arguments) == len(case.Arguments)
+		
+		condition as Expression
+		for matchValue, pattern in zip(_matchValues, case.Arguments):
+			expansion = ExpandPattern(matchValue, pattern)
+			if condition is null:
+				condition = expansion
+			else:
+				condition = [| $condition and $expansion |]
+			
 		return [| 
 			if $condition:
-				$(node.Body)
+				$(case.Body)
 		|]
 		
 	def ExpandPattern(matchValue as Expression, pattern as Expression) as Expression:

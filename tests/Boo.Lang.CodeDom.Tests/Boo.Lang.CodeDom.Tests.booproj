@@ -64,4 +64,6 @@
       <Name>Boo.Lang.PatternMatching</Name>
     </ProjectReference>
   </ItemGroup>
+  
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

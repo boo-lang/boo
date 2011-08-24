@@ -13,6 +13,29 @@ class Collection:
 class MatchMacroTest:
 	
 	[Test]
+	def DoubleMatch():
+		Assert.AreEqual("int int", doubleMatch(1, 2))
+		Assert.AreEqual("int string", doubleMatch(1, '2'))
+		Assert.AreEqual("_ string", doubleMatch(1.0, '2'))
+		
+	[Test]
+	def DoubleMatchErrorIncludesBothArguments():
+		try:
+			doubleMatch('2', 42)
+			Assert.Fail("MatchError expected")	
+		except e as MatchError:
+			Assert.AreEqual("`a` failed to match `2` or `b` failed to match `42`", e.Message)
+		
+	def doubleMatch(a, b):
+		match a, b:
+			case int(), int():
+				return "int int"
+			case int(), string():
+				return "int string"
+			case _, string():
+				return "_ string"
+	
+	[Test]
 	def TestFixedSizeCollection():
 		Assert.AreEqual(1, lastItem(Collection(Items: [1])))
 		Assert.AreEqual(2, lastItem(Collection(Items: [1, 2])))

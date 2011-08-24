@@ -34,30 +34,32 @@ namespace Boo.Lang.Compiler.Util
 {
 	public class MemoizedFunction<TArg, TResult>
 	{
+		private readonly IEqualityComparer<TArg> _comparer;
 		private readonly Func<TArg, TResult> _function;
 		private readonly IDictionary<TArg, TResult> _cachedValues;
 
-		public MemoizedFunction(IEqualityComparer<TArg> comparer, Func<TArg, TResult> function)
-		{
-			_function = function;
-			_cachedValues = new Dictionary<TArg, TResult>(comparer);
-		}
-
-		public MemoizedFunction(Func<TArg, TResult> function) : this(SafeComparer<TArg>.Instance, function)
+		public MemoizedFunction(Func<TArg, TResult> function)
+			: this(SafeComparer<TArg>.Instance, function)
 		{
 			//NB: SafeComparer is required to workaround a weird RuntimeMethodInfo.Equals bug
-			//    when TKey is a MemberInfo on .NET 3.5 (not reproducible on 2.0, 4.0b1 and mono)
+			//	  when TKey is a MemberInfo on .NET 3.5 (not reproducible on 2.0, 4.0b1 and mono)
 		}
 
-		private MemoizedFunction(IDictionary<TArg, TResult> cachedValues, Func<TArg, TResult> function)
+		public MemoizedFunction(IEqualityComparer<TArg> comparer, Func<TArg, TResult> function)
+			: this(comparer, function, new Dictionary<TArg, TResult>(comparer))
+		{
+		}
+
+		private MemoizedFunction(IEqualityComparer<TArg> comparer, Func<TArg, TResult> function, IDictionary<TArg, TResult> cachedValues)
 		{
 			_cachedValues = cachedValues;
 			_function = function;
+			_comparer = comparer;
 		}
 
 		public MemoizedFunction<TArg, TResult> Clone()
 		{
-			return new MemoizedFunction<TArg, TResult>(new Dictionary<TArg, TResult>(_cachedValues), _function);
+			return new MemoizedFunction<TArg, TResult>(_comparer, _function, new Dictionary<TArg, TResult>(_cachedValues, _comparer));
 		}
 
 		public ICollection<TResult> Values
@@ -122,7 +124,8 @@ namespace Boo.Lang.Compiler.Util
 		readonly Dictionary<T1, Dictionary<T2, TResult>> _cache;
 		readonly Func<T1, T2, TResult> _func;
 
-		public MemoizedFunction(Func<T1, T2, TResult> func) : this(SafeComparer<T1>.Instance, func)
+		public MemoizedFunction(Func<T1, T2, TResult> func)
+			: this(SafeComparer<T1>.Instance, func)
 		{
 		}
 

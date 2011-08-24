@@ -26,12 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System.Reflection;
-import System.Security.Permissions;
-import System.Security;
+import System.Reflection
 
-[assembly: ReflectionPermission(SecurityAction.RequestMinimum,
-								ReflectionEmit: true)]
 [assembly: AssemblyTitle("Boo Compiler Extensions")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -41,5 +37,3 @@ import System.Security;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.5")]
-[assembly: AllowPartiallyTrustedCallers]
-

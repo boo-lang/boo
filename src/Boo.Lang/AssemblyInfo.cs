@@ -27,7 +27,6 @@
 #endregion
 
 using System.Reflection;
-using System.Security;
 
 [assembly: AssemblyTitle("boo - an extensible programming language for the CLI")]
 [assembly: AssemblyDescription("")]
@@ -45,4 +44,3 @@ using System.Security;
 [assembly: AssemblyKeyName("")]
 
 [assembly: System.Resources.NeutralResourcesLanguage("en")]
-[assembly: AllowPartiallyTrustedCallers]
