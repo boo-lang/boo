@@ -36,13 +36,13 @@ macro match:
 """
 Pattern matching facility:
 
-	match <expression>:
-		case <Pattern1>:
+	match <expression>+:
+		case <Pattern1>+:
 			<block1>
 			.
 			.
 			.
-		case <PatternN>:
+		case <PatternN>+:
 			<blockN>
 		otherwise:
 			<blockOtherwise>
@@ -76,5 +76,5 @@ If no pattern matches MatchError is raised.
 
 	assert 0 == len(match.Body.Statements), "Only `case' or `otherwise' are allowed in `match'. Offending statement at: ${match.Body.Statements[0].LexicalInfo}"
 	assert 0 != len(caseListFor(match)), "`match' must contain at least one `case'"
-	return MatchExpansion(Context, match).Value
+	return MatchExpansion(match).Value
 
