@@ -25,8 +25,8 @@
 	
 	<property name="build.dir" value="build" dynamic="True"/>
 	<property name="distrobuild.dir" value="distrobuild"/>
-	<property name="docs.dir" valuel="docs" />
-	<property name="examples.dir" valuel="examples" />
+	<property name="docs.dir" value="docs" />
+	<property name="examples.dir" value="examples" />
 
 	<property name="install.prefix" value="/usr/local" />
 	<property name="install.destdir" value="/" />
