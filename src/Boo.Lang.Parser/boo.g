@@ -1495,7 +1495,7 @@ stmt [StatementCollection container]
 				s=expression_stmt				
 			)
 			(			
-				m=stmt_modifier { s.Modifier = m; }
+				m=stmt_modifier { if (s != null) s.Modifier = m; }
 			)?
 			eos
 		)

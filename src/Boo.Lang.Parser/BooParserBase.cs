@@ -6491,7 +6491,7 @@ _loop418_breakloop:										;
 											m=stmt_modifier();
 											if (0==inputState.guessing)
 											{
-												s.Modifier = m;
+												if (s != null) s.Modifier = m;
 											}
 											break;
 										}
