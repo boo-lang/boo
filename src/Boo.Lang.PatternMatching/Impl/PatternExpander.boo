@@ -242,10 +242,10 @@ class PatternExpander:
 			Push node, [| $Ast.NullLiteralExpression() |]
 			
 		override def OnUnaryExpression(node as UnaryExpression):
-			Push node, [| $Ast.UnaryExpression(Operator: UnaryOperatorType.$(node.Operator.ToString()), Operand: $(Expand(node.Operand))) |]
+			Push node, [| $Ast.UnaryExpression(Operator: $Ast.UnaryOperatorType.$(node.Operator.ToString()), Operand: $(Expand(node.Operand))) |]
 			
 		override def OnBinaryExpression(node as BinaryExpression):
-			Push node, [| $Ast.BinaryExpression(Operator: BinaryOperatorType.$(node.Operator.ToString()), Left: $(Expand(node.Left)), Right: $(Expand(node.Right))) |]
+			Push node, [| $Ast.BinaryExpression(Operator: $Ast.BinaryOperatorType.$(node.Operator.ToString()), Left: $(Expand(node.Left)), Right: $(Expand(node.Right))) |]
 		
 		override def OnReferenceExpression(node as ReferenceExpression):
 			Push node, [| $Ast.ReferenceExpression(Name: $(node.Name)) |]
