@@ -275,8 +275,14 @@ class PatternExpander:
 		return ExpandObjectPattern(matchValue, ObjectPatternFor(node))
 		
 	def ExpandMemberPattern(matchValue as Expression, member as ExpressionPair):
-		memberRef = MemberReferenceExpression(member.First.LexicalInfo, matchValue, member.First.ToString())	
+		memberRef = ExpandMemberReference(member.First, matchValue)	
 		return Expand(memberRef, member.Second)
+		
+	def ExpandMemberReference(member as Expression, target as Expression) as Expression:
+		memberRef = member as MemberReferenceExpression
+		if memberRef is not null:
+			return MemberReferenceExpression(member.LexicalInfo, ExpandMemberReference(memberRef.Target, target), memberRef.Name)
+		return MemberReferenceExpression(member.LexicalInfo, target, member.ToString())
 		
 	def ExpandFixedSizePattern(matchValue as Expression, pattern as ArrayLiteralExpression):
 		patternLen = len(pattern.Items)
