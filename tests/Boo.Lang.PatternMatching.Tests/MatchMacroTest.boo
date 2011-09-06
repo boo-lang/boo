@@ -13,6 +13,17 @@ class Collection:
 class MatchMacroTest:
 	
 	[Test]
+	def MemberReferenceTarget():
+		expected = 42
+		actual = singleItemOfContainedList(Container of Collection(value: Collection(Items: [expected])))
+		Assert.AreEqual(expected, actual)
+		
+	def singleItemOfContainedList(container):
+		match container:
+			case Container of Collection(value.Items: (item,)):
+				return item
+	
+	[Test]
 	def DoubleMatch():
 		Assert.AreEqual("int int", doubleMatch(1, 2))
 		Assert.AreEqual("int string", doubleMatch(1, '2'))

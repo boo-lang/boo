@@ -1495,7 +1495,7 @@ stmt [StatementCollection container]
 				s=expression_stmt				
 			)
 			(			
-				m=stmt_modifier { s.Modifier = m; }
+				m=stmt_modifier { if (s != null) s.Modifier = m; }
 			)?
 			eos
 		)
@@ -3210,22 +3210,16 @@ protected
 argument[INodeWithArguments node]
 	{		
 		Expression value = null;
+		ExpressionPair pair = null;
 	}:
-	(ID COLON)=>(
-		id:ID colon:COLON value=expression
-		{
-			node.NamedArguments.Add(
-				new ExpressionPair(
-					ToLexicalInfo(colon),
-					new ReferenceExpression(ToLexicalInfo(id), id.getText()),
-					value));
-		}
-	) |
-	(
+	(expression_pair)=>(
+		pair=expression_pair
+		{ if (pair != null) node.NamedArguments.Add(pair); }
+	) | (
 		value=expression
-		{ if (null != value) { node.Arguments.Add(value); } }
+		{ if (value != null) node.Arguments.Add(value); }
 	)
-	;
+;
 
 protected
 identifier returns [IToken value]
