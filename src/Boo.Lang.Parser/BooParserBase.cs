@@ -13910,23 +13910,21 @@ _loop560_breakloop:							;
 	) //throws RecognitionException, TokenStreamException
 {
 		
-		IToken  id = null;
-		IToken  colon = null;
 				
 				Expression value = null;
+				ExpressionPair pair = null;
 			
 		
 		try {      // for error handling
 			bool synPredMatched643 = false;
-			if (((LA(1)==ID) && (LA(2)==COLON)))
+			if (((tokenSet_5_.member(LA(1))) && (tokenSet_120_.member(LA(2)))))
 			{
 				int _m643 = mark();
 				synPredMatched643 = true;
 				inputState.guessing++;
 				try {
 					{
-						match(ID);
-						match(COLON);
+						expression_pair();
 					}
 				}
 				catch (RecognitionException)
@@ -13939,29 +13937,19 @@ _loop560_breakloop:							;
 			if ( synPredMatched643 )
 			{
 				{
-					id = LT(1);
-					match(ID);
-					colon = LT(1);
-					match(COLON);
-					value=expression();
+					pair=expression_pair();
 					if (0==inputState.guessing)
 					{
-						
-									node.NamedArguments.Add(
-										new ExpressionPair(
-											ToLexicalInfo(colon),
-											new ReferenceExpression(ToLexicalInfo(id), id.getText()),
-											value));
-								
+						if (pair != null) node.NamedArguments.Add(pair);
 					}
 				}
 			}
-			else if ((tokenSet_5_.member(LA(1))) && (tokenSet_120_.member(LA(2)))) {
+			else if ((tokenSet_5_.member(LA(1))) && (tokenSet_121_.member(LA(2)))) {
 				{
 					value=expression();
 					if (0==inputState.guessing)
 					{
-						if (null != value) { node.Arguments.Add(value); }
+						if (value != null) node.Arguments.Add(value);
 					}
 				}
 			}
@@ -14330,7 +14318,7 @@ _loop617_breakloop:							;
 			if (0 == inputState.guessing)
 			{
 				reportError(ex);
-				recover(ex,tokenSet_121_);
+				recover(ex,tokenSet_122_);
 			}
 			else
 			{
@@ -14938,7 +14926,7 @@ _loop610_breakloop:				;
 			if (0 == inputState.guessing)
 			{
 				reportError(ex);
-				recover(ex,tokenSet_122_);
+				recover(ex,tokenSet_123_);
 			}
 			else
 			{
@@ -15819,22 +15807,28 @@ _loop610_breakloop:				;
 	public static readonly BitSet tokenSet_119_ = new BitSet(mk_tokenSet_119_());
 	private static long[] mk_tokenSet_120_()
 	{
-		long[] data = { 2283859197768702224L, 72057592942689164L, 0L, 0L};
+		long[] data = { 2283859197768702224L, 72057592946817932L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_120_ = new BitSet(mk_tokenSet_120_());
 	private static long[] mk_tokenSet_121_()
 	{
-		long[] data = { 0L, 268451840L, 0L, 0L};
+		long[] data = { 2283859197768702224L, 72057592942689164L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_121_ = new BitSet(mk_tokenSet_121_());
 	private static long[] mk_tokenSet_122_()
 	{
-		long[] data = { 0L, 268697600L, 0L, 0L};
+		long[] data = { 0L, 268451840L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_122_ = new BitSet(mk_tokenSet_122_());
+	private static long[] mk_tokenSet_123_()
+	{
+		long[] data = { 0L, 268763136L, 0L, 0L};
+		return data;
+	}
+	public static readonly BitSet tokenSet_123_ = new BitSet(mk_tokenSet_123_());
 	
 }
 }
