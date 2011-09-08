@@ -76,9 +76,12 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private BooClassBuilder SetUpEnumerableClassBuilder(Node sourceNode, Method enclosingMethod, IType generatorItemType)
 		{
-			BooClassBuilder builder = CodeBuilder.CreateClass(
+			var builder = CodeBuilder.CreateClass(
 				Context.GetUniqueName(enclosingMethod.Name),
 				TypeMemberModifiers.Internal | TypeMemberModifiers.Final);
+
+			if (enclosingMethod.DeclaringType.IsTransient)
+				builder.Modifiers |= TypeMemberModifiers.Transient;
 
 			builder.LexicalInfo = new LexicalInfo(sourceNode.LexicalInfo);
   			builder.AddBaseType(

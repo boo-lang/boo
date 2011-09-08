@@ -181,8 +181,8 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		
 		void CreateEnumerator()
 		{
-			IType abstractEnumeratorType =
-				TypeSystemServices.Map(typeof(Boo.Lang.GenericGeneratorEnumerator<>)).
+			var abstractEnumeratorType =
+				TypeSystemServices.Map(typeof(GenericGeneratorEnumerator<>)).
 					GenericInfo.ConstructType(new IType[] {_generatorItemType});
 			
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
@@ -191,7 +191,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			
 			_enumerator = CodeBuilder.CreateClass("$");
 			_enumerator.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
-			_enumerator.Modifiers |= TypeMemberModifiers.Final;
+			_enumerator.Modifiers |= _enumerable.Modifiers;
 			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
