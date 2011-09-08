@@ -47,21 +47,21 @@ namespace Boo.Lang.Compiler
 			get { return ActiveEnvironment.Instance != null ? My<CompilerContext>.Instance : null; }
 		}
 
-		protected CompilerParameters _parameters;
+		private readonly CompilerParameters _parameters;
 
-		protected CompileUnit _unit;
+		private readonly CompileUnit _unit;
 
-		protected CompilerReferenceCollection _references;
+		private readonly CompilerReferenceCollection _references;
 
-		protected CompilerErrorCollection _errors;
-		
-		protected CompilerWarningCollection _warnings;
-		
-		protected Assembly _generatedAssembly;
-		
-		protected string _generatedAssemblyFileName;
-		
-		protected Hash _properties;
+		private readonly CompilerErrorCollection _errors;
+
+		private readonly CompilerWarningCollection _warnings;
+
+		private Assembly _generatedAssembly;
+
+		private string _generatedAssemblyFileName;
+
+		private readonly Hash _properties;
 		
 		public CompilerContext() : this(new CompileUnit())
 		{
