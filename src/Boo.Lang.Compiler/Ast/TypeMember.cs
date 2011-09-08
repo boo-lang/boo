@@ -248,9 +248,14 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public bool IsTransient
 		{
+			get { return HasTransientModifier || IsStatic; }
+		}
+
+		public bool HasTransientModifier
+		{
 			get { return IsModifierSet(TypeMemberModifiers.Transient); }
 		}
-		
+
 		public bool IsPartial
 		{
 			get { return IsModifierSet(TypeMemberModifiers.Partial); }

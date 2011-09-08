@@ -1724,7 +1724,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteKeyword("final ");
 			if (member.IsNew)
 				WriteKeyword("new ");
-			if (member.IsTransient)
+			if (member.HasTransientModifier)
 				WriteKeyword("transient ");
 		}
 

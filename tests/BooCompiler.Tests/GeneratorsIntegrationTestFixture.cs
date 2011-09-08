@@ -37,6 +37,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void generator_of_static_class_is_transient()
+		{
+			RunCompilerTestCase(@"generator-of-static-class-is-transient.boo");
+		}
+		
+		[Test]
 		public void generator_of_transient_class_is_transient()
 		{
 			RunCompilerTestCase(@"generator-of-transient-class-is-transient.boo");

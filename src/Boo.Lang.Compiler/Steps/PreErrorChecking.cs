@@ -214,10 +214,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void CantBeMarkedTransient(TypeMember member)
 		{
-			if (member.IsTransient)
-			{
+			if (member.HasTransientModifier)
 				Error(CompilerErrorFactory.CantBeMarkedTransient(member));
-			}
 		}
 		
 		void CheckMemberName(TypeMember node)

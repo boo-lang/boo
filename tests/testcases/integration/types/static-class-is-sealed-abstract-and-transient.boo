@@ -10,5 +10,6 @@ assert type.IsSealed
 assert type.IsAbstract
 assert type.Attributes & TypeAttributes.Sealed
 assert type.Attributes & TypeAttributes.Abstract
+assert not type.IsSerializable
 
 

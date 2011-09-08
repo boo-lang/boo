@@ -1123,9 +1123,9 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void static_class_is_sealed_and_abstract()
+		public void static_class_is_sealed_abstract_and_transient()
 		{
-			RunCompilerTestCase(@"static-class-is-sealed-and-abstract.boo");
+			RunCompilerTestCase(@"static-class-is-sealed-abstract-and-transient.boo");
 		}
 		
 		[Test]
