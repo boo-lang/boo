@@ -28,6 +28,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
@@ -47,21 +48,21 @@ namespace Boo.Lang.Compiler
 			get { return ActiveEnvironment.Instance != null ? My<CompilerContext>.Instance : null; }
 		}
 
-		protected CompilerParameters _parameters;
+		private readonly CompilerParameters _parameters;
 
-		protected CompileUnit _unit;
+		private readonly CompileUnit _unit;
 
-		protected CompilerReferenceCollection _references;
+		private readonly CompilerReferenceCollection _references;
 
-		protected CompilerErrorCollection _errors;
-		
-		protected CompilerWarningCollection _warnings;
-		
-		protected Assembly _generatedAssembly;
-		
-		protected string _generatedAssemblyFileName;
-		
-		protected Hash _properties;
+		private readonly CompilerErrorCollection _errors;
+
+		private readonly CompilerWarningCollection _warnings;
+
+		private Assembly _generatedAssembly;
+
+		private string _generatedAssemblyFileName;
+
+		private readonly Hash _properties;
 		
 		public CompilerContext() : this(new CompileUnit())
 		{
@@ -319,18 +320,23 @@ namespace Boo.Lang.Compiler
 		private void TraceLine(object o)
 		{
 			WriteIndentation();
-			Console.Error.WriteLine(o);
+			TraceWriter.WriteLine(o);
 		}
 
 		private void WriteIndentation()
 		{
-			for (var i=0; i<_indentation; ++i) Console.Error.Write('\t');
+			for (var i=0; i<_indentation; ++i) TraceWriter.Write('\t');
+		}
+
+		private TextWriter TraceWriter
+		{
+			get { return Console.Out; }
 		}
 
 		private void TraceLine(string format, params object[] args)
 		{
 			WriteIndentation();
-			Console.Error.WriteLine(format, args);
+			TraceWriter.WriteLine(format, args);
 		}
 
 		private readonly CachingEnvironment _environment;
@@ -356,8 +362,10 @@ namespace Boo.Lang.Compiler
 
 		private void InitializeService(object service)
 		{
+			TraceInfo("Compiler component '{0}' instantiated.", service);
+
 			var component = service as ICompilerComponent;
-			if (null == component)
+			if (component == null)
 				return;
 			component.Initialize(this);
 		}

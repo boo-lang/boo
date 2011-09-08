@@ -110,10 +110,16 @@ namespace Boo.Lang.Compiler
 			DelaySign = false;
 
 			Strict = false;
-			TraceLevel = TraceLevel.Off;
+			TraceLevel = DefaultTraceLevel();
 
 			if (loadDefaultReferences)
 				LoadDefaultReferences();
+		}
+
+		private static TraceLevel DefaultTraceLevel()
+		{
+			var booTraceLevel = Permissions.WithEnvironmentPermission(() => System.Environment.GetEnvironmentVariable("BOO_TRACE_LEVEL"));
+			return string.IsNullOrEmpty(booTraceLevel) ? TraceLevel.Off : (TraceLevel)Enum.Parse(typeof(TraceLevel), booTraceLevel);
 		}
 
 		public CompilerParameters(bool loadDefaultReferences) : this(SharedTypeSystemProvider, loadDefaultReferences)

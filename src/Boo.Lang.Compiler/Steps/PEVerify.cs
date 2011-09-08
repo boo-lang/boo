@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System.ComponentModel;
 	using System.Diagnostics;
 	using Boo.Lang.Compiler;
 
@@ -59,12 +58,10 @@ namespace Boo.Lang.Compiler.Steps
 			
 			try
 			{
-				Process p = Boo.Lang.Builtins.shellp(command, arguments);
+				var p = Builtins.shellp(command, arguments);
 				p.WaitForExit();
 				if (0 != p.ExitCode)
-				{
-					Errors.Add(new CompilerError(Boo.Lang.Compiler.Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
-				}
+					Errors.Add(new CompilerError(Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
 			}
 			catch (System.Exception e)
             {
