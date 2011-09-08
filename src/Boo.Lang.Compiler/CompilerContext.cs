@@ -356,8 +356,10 @@ namespace Boo.Lang.Compiler
 
 		private void InitializeService(object service)
 		{
+			TraceInfo("Compiler component '{0}' instantiated.", service);
+
 			var component = service as ICompilerComponent;
-			if (null == component)
+			if (component == null)
 				return;
 			component.Initialize(this);
 		}
