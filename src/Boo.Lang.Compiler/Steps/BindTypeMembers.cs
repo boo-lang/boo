@@ -154,14 +154,10 @@ namespace Boo.Lang.Compiler.Steps
 			Field backingField = CodeBuilder.CreateField("$event$" + node.Name, type);
 			backingField.IsSynthetic = true;
 			backingField.Modifiers = TypeMemberModifiers.Private;
-			if (node.IsTransient)
-			{
+			if (node.HasTransientModifier)
 				backingField.Modifiers |= TypeMemberModifiers.Transient;
-			}
 			if (node.IsStatic)
-			{
 				backingField.Modifiers |= TypeMemberModifiers.Static;
-			}
 			node.DeclaringType.Members.Add(backingField);
 			
 			((InternalEvent)node.Entity).BackingField = (InternalField)backingField.Entity;
