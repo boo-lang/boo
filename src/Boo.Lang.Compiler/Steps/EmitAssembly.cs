@@ -4684,10 +4684,6 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							attributes |= TypeAttributes.BeforeFieldInit;
 						}
-						if (!type.IsTransient)
-						{
-							attributes |= TypeAttributes.Serializable;
-						}
 						if (type.IsAbstract)
 						{
 							attributes |= TypeAttributes.Abstract;
@@ -4696,10 +4692,12 @@ namespace Boo.Lang.Compiler.Steps
 						{
 							attributes |= TypeAttributes.Sealed;
 						}
+						
 						if (type.IsStatic) //static type is Sealed+Abstract in SRE
-						{
 							attributes |= TypeAttributes.Sealed | TypeAttributes.Abstract;
-						}
+						else if (!type.IsTransient)
+							attributes |= TypeAttributes.Serializable;
+
 						if (((IType)type.Entity).IsValueType)
 						{
 							attributes |= TypeAttributes.SequentialLayout;
