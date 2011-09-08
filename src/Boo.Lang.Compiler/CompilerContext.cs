@@ -28,6 +28,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
@@ -319,18 +320,23 @@ namespace Boo.Lang.Compiler
 		private void TraceLine(object o)
 		{
 			WriteIndentation();
-			Console.Error.WriteLine(o);
+			TraceWriter.WriteLine(o);
 		}
 
 		private void WriteIndentation()
 		{
-			for (var i=0; i<_indentation; ++i) Console.Error.Write('\t');
+			for (var i=0; i<_indentation; ++i) TraceWriter.Write('\t');
+		}
+
+		private TextWriter TraceWriter
+		{
+			get { return Console.Out; }
 		}
 
 		private void TraceLine(string format, params object[] args)
 		{
 			WriteIndentation();
-			Console.Error.WriteLine(format, args);
+			TraceWriter.WriteLine(format, args);
 		}
 
 		private readonly CachingEnvironment _environment;
