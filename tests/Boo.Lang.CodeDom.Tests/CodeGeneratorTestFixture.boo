@@ -32,7 +32,7 @@ import System
 import System.CodeDom
 import System.CodeDom.Compiler
 import System.IO
-import System.Linq.Enumerable
+import System.Linq
 
 import NUnit.Framework
 import Boo.Lang.CodeDom

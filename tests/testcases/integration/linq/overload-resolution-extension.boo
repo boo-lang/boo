@@ -2,7 +2,7 @@
 1
 """
 import System.Collections.Generic
-import System.Linq.Enumerable
+import System.Linq
 
 class TestList[of T](List[of T]):
 	public First as T:

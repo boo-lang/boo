@@ -180,9 +180,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private static bool IsModule(Type type)
 		{
 			return type.IsClass
-			       && type.IsSealed
-			       && !type.IsNestedPublic
-			       && MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
+				&& type.IsSealed
+				&& !type.IsNestedPublic
+				&& HasModuleMarkerAttribute(type);
+		}
+
+		private static bool HasModuleMarkerAttribute(Type type)
+		{
+			return MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute)
+				|| MetadataUtil.IsAttributeDefined(type, Types.ClrExtensionAttribute);
 		}
 
 		private static List<Type> NewTypeList(string name)
