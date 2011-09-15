@@ -3,7 +3,7 @@
 1 1 | 2 2 | 3 3
 """
 
-import System.Linq.Enumerable
+import System.Linq
 
 ints as int* = (1, 2, 3, 1, 2, 3)
 

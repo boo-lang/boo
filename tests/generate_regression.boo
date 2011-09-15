@@ -29,7 +29,7 @@
 
 import System
 import System.IO
-import System.Linq.Enumerable
+import System.Linq
 import Boo.Lang.Compiler.Ast.Visitors
 import Boo.Lang.PatternMatching
 import Boo.Lang.Parser
