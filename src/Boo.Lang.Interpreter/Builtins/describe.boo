@@ -94,7 +94,7 @@ def DescribeEntity(entity as IEntity):
 		case e = ExternalEvent():
 			return DescribeEvent(e.EventInfo)
 		otherwise:
-			entity.ToString()
+			return entity.ToString()
 		
 def DescribeEvent(e as EventInfo):
 	return "${DescribeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}"
