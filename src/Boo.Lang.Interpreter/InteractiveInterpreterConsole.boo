@@ -48,8 +48,7 @@ class InteractiveInterpreterConsole:
 	_session = System.Collections.Generic.List of string()
 
 	_buffer = StringBuilder()	#buffer to be executed
-	_line = StringBuilder()		#line being edited
-	_multiline = false			#is the current line a multi-line?
+	_line = PromtLine() #line being edited
 
 	[property(BlockStarters, value is not null)]
 	_blockStarters = (char(':'), char('\\'),)
@@ -87,11 +86,10 @@ class InteractiveInterpreterConsole:
 		get: return _line.ToString()
 
 	LineLastChar:
-		get: return (_line.Chars[LineLen-1] if LineLen != 0 else char('\0'))
+		get: return (_line.Text.Chars[LineLen-1] if LineLen != 0 else char('\0'))
 
 	LineLen:
 		get: return _line.Length
-		set: _line.Length = value
 
 	LineIndentLen:
 		get: return IndentChars.Length * _indent
@@ -225,7 +223,6 @@ class InteractiveInterpreterConsole:
 		Console.CursorLeft = cursorLeft
 
 	protected def Write(s as string):
-		Console.Write(s)
 		_line.Append(s)
 
 	protected def WriteIndent():
@@ -241,15 +238,12 @@ class InteractiveInterpreterConsole:
 		_indent--
 
 	protected def Delete(count as int): #if count is 0, forward-delete
-		cx = Console.CursorLeft-len(CurrentPrompt)-count
-		return if cx < LineLen and count == 0
-		dcount = (count if count != 0 else 1)
-		_line.Remove(cx, dcount)
-		curX = Console.CursorLeft - dcount
-		Console.CursorLeft = curX
-		Console.Write("${_line.ToString(cx, LineLen-cx)} ")
-		Console.CursorLeft = curX
-
+		if count == 0:
+			count = 1
+		else:
+			return unless _line.Position
+			_line.Position -= count
+		_line.Remove(count)
 
 	private static re_open = Regex("\\(", RegexOptions.Singleline)
 	private static re_close = Regex("\\)", RegexOptions.Singleline)
@@ -307,12 +301,7 @@ class InteractiveInterpreterConsole:
 	def DisplayHistory():
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
-		Console.CursorLeft = len(CurrentPrompt)
-		Console.Write(string.Empty.PadLeft(LineLen, char(' ')))
-		line = _history.ToArray()[_historyIndex]
-		LineLen = 0
-		Console.CursorLeft = len(CurrentPrompt)
-		Write(line)
+		_line.Text = _history.ToArray()[_historyIndex]
 
 	def ReadEvalPrintLoop():
 		Console.CursorVisible = true
@@ -340,24 +329,21 @@ class InteractiveInterpreterConsole:
 					Indent()
 
 			#line-editing support
-			if not _multiline and LineLen > 0:
-				if Console.CursorLeft > len(CurrentPrompt):
-					if key == ConsoleKey.Backspace:
-						if _indent > 0 and LineLen == LineIndentLen:
-							Unindent()
-						else:
-							Delete(1)
-					elif key == ConsoleKey.LeftArrow:
-						Console.CursorLeft--
-				if key == ConsoleKey.Delete:
-					Delete(0)
-				elif key == ConsoleKey.RightArrow:
-					if Console.CursorLeft < (len(CurrentPrompt)+LineLen):
-						Console.CursorLeft++
-				elif key == ConsoleKey.Home:
-					Console.CursorLeft = len(CurrentPrompt)
-				elif key == ConsoleKey.End:
-					Console.CursorLeft = len(CurrentPrompt) + LineLen
+			if key == ConsoleKey.Backspace:
+				if _indent > 0 and LineLen == LineIndentLen:
+					Unindent()
+				else:
+					Delete(1)
+			if key == ConsoleKey.Delete:
+				Delete(0)
+			elif key == ConsoleKey.LeftArrow:
+				_line.Position--
+			elif key == ConsoleKey.RightArrow:
+				_line.Position++
+			elif key == ConsoleKey.Home:
+				_line.Position = 0
+			elif key == ConsoleKey.End:
+				_line.Position = _line.Length
 
 			#history support
 			if key == ConsoleKey.UpArrow:
@@ -391,24 +377,12 @@ class InteractiveInterpreterConsole:
 
 		_selectedSuggestionIndex = null
 
-		cx = Console.CursorLeft-len(CurrentPrompt)
-		#multi-line?
-		if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
-			cx = LineLen
-			_multiline = true
-
 		if not newLine:
 			#line-editing support
-			if cx < LineLen and not _multiline:
-				_line.Insert(cx, keyChar) if not control
-				Console.Write(_line.ToString(cx, LineLen-cx))
-				Console.CursorLeft = len(CurrentPrompt)+cx+1
-			else:
-				_line.Append(keyChar) if not control
-				Console.Write(keyChar)
+			if not control:
+				_line.Append(keyChar)
 
 		if newLine:
-			_multiline = false
 			Console.Write(Environment.NewLine)
 
 			if not TryRunCommand(Line):
@@ -429,7 +403,7 @@ class InteractiveInterpreterConsole:
 					ensure:
 						_buffer.Length = 0 #truncate buffer
 
-			LineLen = 0 #truncate line
+			_line = PromtLine() #truncate line
 			ConsolePrintPrompt()
 
 	/* returns false if no command has been processed, true otherwise */
