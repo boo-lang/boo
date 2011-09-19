@@ -1301,7 +1301,7 @@ _loop184_breakloop:				;
 			if (0==inputState.guessing)
 			{
 									
-						_sbuilder.Append(id1.getText());
+						if (id1 != null) _sbuilder.Append(id1.getText());
 						value = id1;
 					
 			}
@@ -1314,7 +1314,10 @@ _loop184_breakloop:				;
 						id2=member();
 						if (0==inputState.guessing)
 						{
-							_sbuilder.Append('.'); _sbuilder.Append(id2.getText());
+							
+										_sbuilder.Append('.');
+										if (id2 != null) _sbuilder.Append(id2.getText());
+									
 						}
 					}
 					else
@@ -1327,7 +1330,7 @@ _loop649_breakloop:				;
 			}    // ( ... )*
 			if (0==inputState.guessing)
 			{
-				value.setText(_sbuilder.ToString());
+				if (value != null) value.setText(_sbuilder.ToString());
 			}
 		}
 		catch (RecognitionException ex)

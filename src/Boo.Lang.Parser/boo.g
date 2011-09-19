@@ -3241,15 +3241,18 @@ identifier returns [IToken value]
 	}:
 	id1=macro_name
 	{					
-		_sbuilder.Append(id1.getText());
+		if (id1 != null) _sbuilder.Append(id1.getText());
 		value = id1;
 	}
 	( options { greedy = true; } :
 		DOT
 		id2=member
-		{ _sbuilder.Append('.'); _sbuilder.Append(id2.getText()); }
+		{
+			_sbuilder.Append('.');
+			if (id2 != null) _sbuilder.Append(id2.getText());
+		}
 	)*
-	{ value.setText(_sbuilder.ToString()); }
+	{ if (value != null) value.setText(_sbuilder.ToString()); }
 	;
 {
 using Boo.Lang.Parser.Util;
