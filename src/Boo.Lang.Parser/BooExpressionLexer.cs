@@ -102,11 +102,11 @@ namespace Boo.Lang.Parser
 		public const int VIRTUAL = 69;
 		public const int WHILE = 70;
 		public const int YIELD = 71;
-		public const int ID = 72;
-		public const int TRIPLE_QUOTED_STRING = 73;
-		public const int EOS = 74;
-		public const int DOUBLE_QUOTED_STRING = 75;
-		public const int SINGLE_QUOTED_STRING = 76;
+		public const int TRIPLE_QUOTED_STRING = 72;
+		public const int EOS = 73;
+		public const int DOUBLE_QUOTED_STRING = 74;
+		public const int SINGLE_QUOTED_STRING = 75;
+		public const int ID = 76;
 		public const int LBRACK = 77;
 		public const int RBRACK = 78;
 		public const int LPAREN = 79;
