@@ -333,6 +333,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void then_can_be_used_as_macro_name()
+		{
+			RunCompilerTestCase(@"then-can-be-used-as-macro-name.boo");
+		}
+		
+		[Test]
 		public void type_member_macro_yielding_member_with_member_generating_attribute()
 		{
 			RunCompilerTestCase(@"type-member-macro-yielding-member-with-member-generating-attribute.boo");
