@@ -5219,7 +5219,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var constructor = (IConstructor)GetEntity(node);
 			var constructorInfo = GetConstructorInfo(constructor);
-			object[] constructorArgs = GetValues(constructor.GetParameters(), node.Arguments);
+			object[] constructorArgs = ArgumentsForAttributeConstructor(constructor, node.Arguments);
 
 			var namedArgs = node.NamedArguments;
 			if (namedArgs.Count > 0)
@@ -5229,8 +5229,10 @@ namespace Boo.Lang.Compiler.Steps
 				FieldInfo[] namedFields;
 				object[] fieldValues;
 				GetNamedValues(namedArgs,
-							   out namedProperties, out propertyValues,
-							   out namedFields, out fieldValues);
+							   out namedProperties,
+							   out propertyValues,
+							   out namedFields,
+							   out fieldValues);
 				return new CustomAttributeBuilder(
 					constructorInfo, constructorArgs,
 					namedProperties, propertyValues,
@@ -5271,14 +5273,28 @@ namespace Boo.Lang.Compiler.Steps
 			outFieldValues = fieldValues.ToArray();
 		}
 
-		object[] GetValues(IParameter[] targetParameters, ExpressionCollection expressions)
+		object[] ArgumentsForAttributeConstructor(IConstructor ctor, ExpressionCollection args)
 		{
-			object[] values = new object[expressions.Count];
-			for (int i=0; i<values.Length; ++i)
-			{
-				values[i] = GetValue(targetParameters[i].Type, expressions[i]);
+			var varargs = ctor.AcceptVarArgs;
+			var parameters = ctor.GetParameters();
+			var result = new object[parameters.Length];
+			var lastIndex = parameters.Length - 1;
+			var fixedParameters = (varargs ? parameters.Take(lastIndex) : parameters);
+
+			var i = 0;
+			foreach (var parameter in fixedParameters)
+			{	
+				result[i] = GetValue(parameter.Type, args[i]);
+				++i;
 			}
-			return values;
+
+			if (varargs)
+			{
+				var varArgType = parameters[lastIndex].Type.ElementType;
+				result[lastIndex] = args.Skip(lastIndex).Select(e => GetValue(varArgType, e)).ToArray();
+			}
+
+			return result;
 		}
 
 		object GetValue(IType expectedType, Expression expression)

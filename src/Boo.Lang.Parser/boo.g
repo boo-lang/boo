@@ -202,7 +202,7 @@ parse_module[Module module]
 	(namespace_directive[module])?
 	(import_directive[module])*
 	(
-		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? module_macro[module] |
+		(macro_name (expression)?)=>{IsValidMacroArgument(LA(2))}? module_macro[module] |
 		type_member[module.Members]
 	)*	
 	globals[module]
@@ -821,7 +821,7 @@ field_or_property [TypeMemberCollection container]
 		)
 	)
 	|
-	(ID expression_list[null] (eos | begin_with_doc[null]))
+	(macro_name expression_list[null] (eos | begin_with_doc[null]))
 		=> tm=member_macro
 	|	
 	(
@@ -1336,9 +1336,10 @@ protected
 closure_macro_stmt returns [MacroStatement returnValue]
 	{
 		returnValue = null;
+		antlr.IToken id = null;
 		MacroStatement macro = new MacroStatement();
 	}:
-	id:ID expression_list[macro.Arguments]
+	id=macro_name expression_list[macro.Arguments]
 	{
 		macro.Name = id.getText();
 		macro.LexicalInfo = ToLexicalInfo(id);		
@@ -1392,8 +1393,9 @@ macro_stmt returns [MacroStatement returnValue]
 		returnValue = null;
 		MacroStatement macro = new MacroStatement();
 		StatementModifier modifier = null;
+		antlr.IToken id = null;
 	}:
-	id:ID expression_list[macro.Arguments]
+	id=macro_name expression_list[macro.Arguments]
 	(
 		macro_compound_stmt[macro.Body] { macro.Annotate("compound"); } |
 		eos |
@@ -1410,6 +1412,15 @@ macro_stmt returns [MacroStatement returnValue]
 		
 		returnValue = macro;
 	}
+;
+
+protected
+macro_name returns [antlr.IToken name]
+{
+	name = null;
+}:
+	id:ID { name = id; }
+	| then:THEN { name = then; }
 ;
 
 protected
@@ -1479,7 +1490,7 @@ stmt [StatementCollection container]
 		s=if_stmt |
 		s=unless_stmt |
 		s=try_stmt |
-		(ID (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
+		(macro_name (expression)?)=>{IsValidMacroArgument(LA(2))}? s=macro_stmt |
 		(slicing_expression (ASSIGN|(COLON|DO|DEF)))=> s=assignment_or_method_invocation_with_block_stmt |
 		s=return_stmt |
 		(declaration COMMA)=> s=unpack_stmt |
@@ -2711,7 +2722,7 @@ reference_expression returns [ReferenceExpression e]
 	IToken t = null;
 }:
 	(
-		id:ID { t = id; } |
+		t=macro_name |
 		ch:CHAR { t = ch; }
 	)
 	{
@@ -3225,19 +3236,23 @@ protected
 identifier returns [IToken value]
 	{
 		value = null; _sbuilder.Length = 0;
+		IToken id1 = null;
 		IToken id2 = null;
 	}:
-	id1:ID
+	id1=macro_name
 	{					
-		_sbuilder.Append(id1.getText());
+		if (id1 != null) _sbuilder.Append(id1.getText());
 		value = id1;
 	}
 	( options { greedy = true; } :
 		DOT
 		id2=member
-		{ _sbuilder.Append('.'); _sbuilder.Append(id2.getText()); }
+		{
+			_sbuilder.Append('.');
+			if (id2 != null) _sbuilder.Append(id2.getText());
+		}
 	)*
-	{ value.setText(_sbuilder.ToString()); }
+	{ if (value != null) value.setText(_sbuilder.ToString()); }
 	;
 {
 using Boo.Lang.Parser.Util;

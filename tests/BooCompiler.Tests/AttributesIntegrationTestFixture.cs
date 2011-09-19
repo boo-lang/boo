@@ -102,6 +102,18 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"transient.boo");
 		}
 		
+		[Test]
+		public void varargs_attribute_external()
+		{
+			RunCompilerTestCase(@"varargs-attribute-external.boo");
+		}
+		
+		[Test]
+		public void varargs_attribute_internal()
+		{
+			RunCompilerTestCase(@"varargs-attribute-internal.boo");
+		}
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{
