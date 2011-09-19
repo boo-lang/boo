@@ -12,21 +12,18 @@ class PromptLineTest:
 	class StubPromtLine(PromptLine):
 
 		stream = MemoryStream()
-		windowWidth as int
-		left as int
-		top as int
 
 		Buffer as string:
 			get:
 				return Encoding.UTF8.GetString(stream.ToArray()).Trim()
 
-		override property WindowWidth as int
+		property WindowWidth as int
 
-		override property Left as int
+		property Left as int
 
-		override property Top as int
+		property Top as int
 
-		override def Write(data as string):
+		def Write(data as string):
 			stream.Position = Left + Top * WindowWidth
 			buffer = Encoding.UTF8.GetBytes(data)
 			stream.Write(buffer, 0, buffer.Length)

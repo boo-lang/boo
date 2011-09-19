@@ -96,6 +96,6 @@ handle multiline editing
 	protected virtual def Write(data as string):
 		Console.Write(data)
 
-	override def ToString():
+	def ToString():
 		return text
 
