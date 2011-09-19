@@ -7,9 +7,9 @@ import NUnit.Framework
 import Boo.Lang.Interpreter
 
 [TestFixture]
-class PromtLineTest:
+class PromptLineTest:
 
-	class StubPromtLine(PromtLine):
+	class StubPromtLine(PromptLine):
 
 		stream = MemoryStream()
 		windowWidth as int
@@ -20,23 +20,11 @@ class PromtLineTest:
 			get:
 				return Encoding.UTF8.GetString(stream.ToArray()).Trim()
 
-		override WindowWidth as int:
-			get:
-				return windowWidth
-			set:
-				windowWidth = value
+		override property WindowWidth as int
 
-		override Left as int:
-			get:
-				return left
-			set:
-				left = value
+		override property Left as int
 
-		override Top as int:
-			get:
-				return top
-			set:
-				top = value
+		override property Top as int
 
 		override def Write(data as string):
 			stream.Position = Left + Top * WindowWidth

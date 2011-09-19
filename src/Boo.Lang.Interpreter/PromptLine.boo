@@ -2,7 +2,7 @@
 
 import System
 
-class PromtLine:
+class PromptLine:
 """
 current line edit wrapper
 handle multiline editing
@@ -90,11 +90,8 @@ handle multiline editing
 				Write(" ")
 
 	private def RestorePosition(action as Action):
-		left = Left
-		top = Top
-		action()
-		Left = left
-		Top = top
+		preserving Top, Left:
+			action()
 
 	protected virtual def Write(data as string):
 		Console.Write(data)

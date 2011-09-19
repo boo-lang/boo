@@ -48,7 +48,7 @@ class InteractiveInterpreterConsole:
 	_session = System.Collections.Generic.List of string()
 
 	_buffer = StringBuilder()	#buffer to be executed
-	_line = PromtLine() #line being edited
+	_line = PromptLine() #line being edited
 
 	[property(BlockStarters, value is not null)]
 	_blockStarters = (char(':'), char('\\'),)
@@ -403,7 +403,7 @@ class InteractiveInterpreterConsole:
 					ensure:
 						_buffer.Length = 0 #truncate buffer
 
-			_line = PromtLine() #truncate line
+			_line = PromptLine() #truncate line
 			ConsolePrintPrompt()
 
 	/* returns false if no command has been processed, true otherwise */
