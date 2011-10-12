@@ -163,6 +163,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void macro_yielding_varargs()
+		{
+			RunCompilerTestCase(@"macro-yielding-varargs.boo");
+		}
+		
+		[Test]
 		public void meta_methods_1()
 		{
 			RunCompilerTestCase(@"meta-methods-1.boo");

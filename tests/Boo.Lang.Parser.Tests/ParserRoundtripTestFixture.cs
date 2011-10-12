@@ -73,6 +73,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void ast_literal_varargs_method()
+		{
+			RunCompilerTestCase(@"ast-literal-varargs-method.boo");
+		}
+		
+		[Test]
 		public void ast_literals_1()
 		{
 			RunCompilerTestCase(@"ast-literals-1.boo");

@@ -32,11 +32,18 @@ namespace Boo.Lang.Compiler.Ast
 {
 	public partial class ParameterDeclarationCollection
 	{
+		public static ParameterDeclarationCollection FromArray(bool hasParamArray, params ParameterDeclaration[] parameters)
+		{
+			var result = FromArray(parameters);
+			result.HasParamArray = hasParamArray;
+			return result;
+		}
+
 		public ParameterDeclarationCollection()
 		{
 		}
 		
-		public ParameterDeclarationCollection(Boo.Lang.Compiler.Ast.Node parent) : base(parent)
+		public ParameterDeclarationCollection(Node parent) : base(parent)
 		{
 		}
 
@@ -47,12 +54,7 @@ namespace Boo.Lang.Compiler.Ast
 			return c;
 		}
 
-		public bool HasParamArray
-		{
-			get { return _hasParamArray; }
-			set { _hasParamArray = value; }
-		}
-		bool _hasParamArray;
+		public bool HasParamArray { get; set; }
 
 		[Obsolete("Use HasParamArray instead.")]
 		public bool VariableNumber
