@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 import System.Reflection
 
 class Person:
@@ -15,25 +15,25 @@ flags = BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic
 type = Person
 
 fname = type.GetField("FirstName", flags)
-Assert.IsNotNull(fname, "FirstName")
-Assert.IsTrue(fname.IsPublic)
-Assert.AreSame(string, fname.FieldType)
-Assert.IsFalse(fname.IsNotSerialized, "IsNotSerialized")
+assert fname is not null
+assert fname.IsPublic
+assert string is fname.FieldType
+assert not fname.IsNotSerialized, "IsNotSerialized"
 
 address = type.GetField("_address", flags)
-Assert.IsNotNull(address, "_address")
-Assert.IsTrue(address.IsFamily)
-Assert.AreSame(object, address.FieldType)
-Assert.IsFalse(address.IsNotSerialized, "IsNotSerialized")
+assert address is not null
+assert address.IsFamily
+assert object is address.FieldType
+assert not address.IsNotSerialized, "IsNotSerialized"
 
 age = type.GetField("_age", flags)
-Assert.IsNotNull(age, "_age")
-Assert.IsTrue(age.IsPrivate)
-Assert.AreSame(int, age.FieldType)
-Assert.IsTrue(age.IsNotSerialized, "IsNotSerialized must return true for transient field")
+assert age is not null
+assert age.IsPrivate
+assert int is age.FieldType
+assert age.IsNotSerialized, "IsNotSerialized must return true for transient field"
 
 birthdate = type.GetField("_birthdate", flags)
-Assert.IsNotNull(birthdate, "_birthdate")
-Assert.IsTrue(birthdate.IsAssembly)
-Assert.AreSame(date, birthdate.FieldType)
-Assert.IsFalse(birthdate.IsNotSerialized, "IsNotSerialized")
+assert birthdate is not null
+assert birthdate.IsAssembly
+assert date is birthdate.FieldType
+assert not birthdate.IsNotSerialized, "IsNotSerialized"

@@ -14,9 +14,9 @@ class RegexMatchingTest:
 		Assert.AreEqual("bar", FooOrBar("baabar"))
 		
 	[Test]
-	[ExpectedException(MatchError)]
 	def FailedRegexMatch():
-		FooOrBar("baz")
+		expectingMatchError:
+			FooOrBar("baz")
 	
 	[Test]
 	def RegexCapture():

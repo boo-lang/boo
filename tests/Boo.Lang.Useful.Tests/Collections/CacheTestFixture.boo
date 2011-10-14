@@ -1,6 +1,6 @@
 namespace Boo.Lang.Useful.Tests.Collections
 
-import NUnit.Framework
+import NUnit.Framework(TestFixtureAttribute, TestAttribute, SetUpAttribute, Assert)
 import Useful.Collections
 
 [TestFixture]

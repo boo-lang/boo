@@ -1,4 +1,3 @@
-import NUnit.Framework
 import System
 import System.Xml.Serialization from System.Xml
 
@@ -14,17 +13,17 @@ type = Customer
 fname = type.GetField("FirstName")
 lname = type.GetField("LastName")
 
-Assert.IsNotNull(fname, "FirstName")
-Assert.IsNotNull(lname, "LastName")
+assert fname is not null
+assert lname is not null
 
 attribute as XmlAttributeAttribute = Attribute.GetCustomAttribute(fname, XmlAttributeAttribute)
-Assert.IsNotNull(attribute, "Custom attribute not found on field FirstName!")
-Assert.AreEqual("fname", attribute.AttributeName)
+assert attribute is not null
+assert "fname" == attribute.AttributeName
 
 
 attribute = Attribute.GetCustomAttribute(lname, XmlAttributeAttribute)
-Assert.IsNotNull(attribute, "Custom attribute not found on field LastName!")
-Assert.AreEqual("lname", attribute.AttributeName)
+assert attribute is not null
+assert "lname" == attribute.AttributeName
 
 
 

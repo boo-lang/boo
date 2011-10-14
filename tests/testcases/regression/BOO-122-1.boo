@@ -5,7 +5,6 @@ Level 3 cleared.
 bleh
 Level 4 cleared.
 """
-import NUnit.Framework
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
@@ -16,7 +15,7 @@ def run(src as string, references):
 	compiler.Parameters.References.Extend(references)
 	compiler.Parameters.Pipeline = Run()
 	result = compiler.Run()
-	Assert.Fail(result.Errors.ToString()) if len(result.Errors)
+	assert len(result.Errors) == 0, result.Errors.ToString()
 	return result.GeneratedAssembly
 
 level1 = """

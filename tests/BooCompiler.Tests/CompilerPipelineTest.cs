@@ -26,14 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using NUnit.Framework;
 using Boo.Lang;
+using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Steps;
 
 namespace BooCompiler.Tests
 {
-	using NUnit.Framework;
-	using Boo.Lang.Compiler;
-
 	/// <summary>	
 	/// </summary>
 	[TestFixture]
@@ -67,7 +66,7 @@ namespace BooCompiler.Tests
 			step2 = new ActionStep(() => Assert.AreSame(step2, pipeline.CurrentStep));
 			pipeline.Add(step2);
 
-			var currentSteps = new List();
+			var currentSteps = new Boo.Lang.List();
 			pipeline.Before += (sender, args) => currentSteps.Add(pipeline.CurrentStep);
 			pipeline.BeforeStep += (sender, args) => currentSteps.Add(pipeline.CurrentStep);
 			pipeline.AfterStep += (sender, args) => currentSteps.Add(pipeline.CurrentStep);
