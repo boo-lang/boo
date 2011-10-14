@@ -276,6 +276,15 @@ namespace Boo.Lang.Compiler.Ast
 		{	
 			if (EnterImport(node))
 			{
+				Expression currentExpressionValue = node.Expression;
+				if (null != currentExpressionValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentExpressionValue);
+					if (!object.ReferenceEquals(newValue, currentExpressionValue))
+					{
+						node.Expression = newValue;
+					}
+				}
 				ReferenceExpression currentAssemblyReferenceValue = node.AssemblyReference;
 				if (null != currentAssemblyReferenceValue)
 				{			
