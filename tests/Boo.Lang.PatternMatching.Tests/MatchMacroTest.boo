@@ -1,6 +1,6 @@
 namespace Boo.Lang.PatternMatching.Tests
 
-import NUnit.Framework
+import NUnit.Framework(TestFixtureAttribute, TestAttribute, ExpectedExceptionAttribute, Assert)
 import Boo.Lang.PatternMatching
 	
 class Container[of T]:
