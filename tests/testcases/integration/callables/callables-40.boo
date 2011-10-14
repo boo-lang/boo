@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 foo = def ():
 	return "foo"
@@ -7,5 +7,5 @@ bar = def ():
 	return "bar"
 	
 a = foo, bar
-Assert.AreEqual("foo", a[0]())
-Assert.AreEqual("bar", a[-1]())
+assert "foo" == a[0]()
+assert "bar" == a[-1]()

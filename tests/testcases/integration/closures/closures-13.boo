@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class App:
@@ -15,4 +15,4 @@ class App:
 
 app = App()
 app.Run()
-Assert.AreEqual(2, app.Times)
+assert 2 == app.Times

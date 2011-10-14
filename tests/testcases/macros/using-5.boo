@@ -7,7 +7,7 @@ inside block
 1: Dispose
 after block
 """
-import NUnit.Framework
+
 
 class Disposable(System.IDisposable):
 	_tag as object
@@ -22,4 +22,4 @@ print("before block")
 using Disposable(1), d1=Disposable(2):
 	print("inside block")
 print("after block")
-Assert.IsNotNull(d1)
+assert d1 is not null

@@ -5,7 +5,6 @@ import BooCompiler.Tests from BooCompiler.Tests
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
-import NUnit.Framework
 
 assemblyKeyFile = Path.Combine(BooTestCaseUtil.TestCasesPath, "../test.snk").Replace("\\", "//")
 
@@ -22,10 +21,10 @@ compiler.Parameters.OutputType = CompilerOutputType.Library
 compiler.Parameters.Pipeline = CompileToMemory()
 
 result = compiler.Run()
-Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)
+assert len(result.Errors) == 0, result.Errors.ToString(true)
 
 name = result.GeneratedAssembly.GetName()
-Assert.AreEqual("test", name.Name)
-Assert.AreEqual("1.0.0.0", name.Version.ToString())
-Assert.IsNotNull(name.GetPublicKeyToken(), "AssemblyKeyFileAttribute must result in strongly named assembly")
+assert "test" == name.Name
+assert "1.0.0.0" == name.Version.ToString()
+assert name.GetPublicKeyToken() is not null, "AssemblyKeyFileAttribute must result in strongly named assembly"
 

@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 interface IFoo:
 

@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class A:
 	virtual def Foo():
@@ -17,7 +17,7 @@ class B(A):
 a as A = A()
 b as A = B()
 
-Assert.AreEqual("A.Foo", a.Foo())
-Assert.AreEqual("B.Foo", b.Foo())
-Assert.AreEqual("A.Bar", a.Bar())
-Assert.AreEqual("B.Bar: A.Foo", b.Bar())
+assert "A.Foo" == a.Foo()
+assert "B.Foo" == b.Foo()
+assert "A.Bar" == a.Bar()
+assert "B.Bar: A.Foo" == b.Bar()

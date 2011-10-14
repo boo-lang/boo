@@ -1,5 +1,5 @@
 import System
-import NUnit.Framework
+
 
 functions = Math.Sin, Math.Cos
 
@@ -10,4 +10,4 @@ for f in functions:
 for generator, function as callable(double) as double in zip(generators, functions):
 	expected = join(function(i) for i in range(3))
 	actual = join(generator)
-	Assert.AreEqual(expected, actual)
+	assert expected == actual

@@ -1,5 +1,3 @@
-import NUnit.Framework from "nunit.framework"
-
 class InstanceCount:
 	
 	[getter(Instances)]
@@ -11,5 +9,5 @@ class InstanceCount:
 type = InstanceCount
 property = type.GetProperty("Instances")
 getter = property.GetGetMethod()
-Assert.IsTrue(getter.IsStatic, "static property getter must be static")
-Assert.IsNull(property.GetSetMethod(), "setter must be null")
+assert getter.IsStatic, "static property getter must be static"
+assert property.GetSetMethod() is null

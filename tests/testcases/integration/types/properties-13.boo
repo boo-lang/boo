@@ -2,7 +2,7 @@
 A.Foo.set
 A.Foo.set
 """
-import NUnit.Framework
+
 
 class A:
 
@@ -20,10 +20,10 @@ class B(A):
 
 a = A()
 a.Foo = "foo"
-Assert.AreEqual("A.Foo", a.Foo)
+assert "A.Foo" == a.Foo
 
 
 a = B()
 a.Foo = "foo"
-Assert.AreEqual("B.Foo", a.Foo)
+assert "B.Foo" == a.Foo
 			

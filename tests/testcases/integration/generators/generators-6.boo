@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class Task:
 
@@ -35,5 +35,5 @@ list.Add(Task("generator methods", false))
 list.Add(Task("mixins", false))
 list.Add(Task("attributes", true))
 
-Assert.AreEqual("classes, attributes", join(list.GetDone(), ", "))
-Assert.AreEqual("generator expressions, generator methods, mixins", join(list.GetToDo(), ", "))
+assert "classes, attributes", join(list.GetDone(), " == ")
+assert "generator expressions, generator methods, mixins", join(list.GetToDo(), " == ")

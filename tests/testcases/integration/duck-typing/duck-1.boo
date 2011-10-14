@@ -1,5 +1,4 @@
 import System
-import NUnit.Framework
 
 class LooksLikeADuck:
 	def Quack():
@@ -15,14 +14,14 @@ class NotExactlyADuck:
 		return "au!"
 
 def quack(obj as duck):
-	Assert.AreEqual("quack!", obj.Quack())	
+	assert "quack!" == obj.Quack()	
 	
 quack(LooksLikeADuck())
 quack(QuacksLikeADuck())
 
 try:
 	quack(NotExactlyADuck())
-	Assert.Fail("Expected MissingMethodException!")
+	raise "Expected MissingMethodException!"
 except x as MissingMethodException:
 	pass
 	
