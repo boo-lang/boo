@@ -163,6 +163,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void macro_yielding_selective_import()
+		{
+			RunCompilerTestCase(@"macro-yielding-selective-import.boo");
+		}
+		
+		[Test]
 		public void macro_yielding_varargs()
 		{
 			RunCompilerTestCase(@"macro-yielding-varargs.boo");

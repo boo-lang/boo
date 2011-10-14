@@ -152,7 +152,12 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerError MemberNotFound(MemberReferenceExpression node, INamespace @namespace, string suggestion)
 		{
-			return Instantiate("BCE0019", node, node.Name, @namespace, DidYouMeanOrNull(suggestion));
+			return MemberNotFound(node, node.Name, @namespace, suggestion);
+		}
+
+		public static CompilerError MemberNotFound(Node node, string memberName, INamespace @namespace, string suggestion)
+		{
+			return Instantiate("BCE0019", node, memberName, @namespace, DidYouMeanOrNull(suggestion));
 		}
 
 		public static CompilerError InstanceRequired(Node node, IMember member)
@@ -163,8 +168,8 @@ namespace Boo.Lang.Compiler
 		public static CompilerError InvalidNamespace(Import import)
 		{
 			if (import.AssemblyReference != null)
-				return Instantiate("BCE0167", import, import.Namespace, import.AssemblyReference);
-			return Instantiate("BCE0021", import, import.Namespace);
+				return Instantiate("BCE0167", import.Expression, import.Namespace, import.AssemblyReference);
+			return Instantiate("BCE0021", import.Expression, import.Namespace);
 		}
 		
 		public static CompilerError IncompatibleExpressionType(Node node, IType expectedType, IType actualType)

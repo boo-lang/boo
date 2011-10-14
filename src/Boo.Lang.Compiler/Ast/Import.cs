@@ -35,26 +35,55 @@ namespace Boo.Lang.Compiler.Ast
 		public Import()
 		{
  		}
+ 		
+ 		public Import(string namespace_) : this(LexicalInfo.Empty, namespace_)
+ 		{
+ 		}
 		
-		public Import(string namespace_, ReferenceExpression assemblyReference, ReferenceExpression alias)
+		public Import(Expression namespace_, ReferenceExpression assemblyReference, ReferenceExpression alias)
 		{
-			this.Namespace = namespace_;
-			this.AssemblyReference = assemblyReference;
-			this.Alias = alias;
+			Expression = namespace_;
+			AssemblyReference = assemblyReference;
+			Alias = alias;
+		}
+
+		public Import(LexicalInfo lexicalInfo, string namespace_) : this(lexicalInfo, new StringLiteralExpression(namespace_))
+		{
 		}
 		
-		public Import(LexicalInfo lexicalInfo, string namespace_) : base(lexicalInfo)
+		public Import(LexicalInfo lexicalInfo, Expression namespace_) : base(lexicalInfo)
 		{
-			this.Namespace = namespace_;
+			Expression = namespace_;
 		}
 		
 		public Import(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
-		
+
+		public string Namespace
+		{
+			get { return NamespaceFrom(Expression); }
+		}
+
+		private string NamespaceFrom(Expression e)
+		{
+			if (e == null)
+				return null;
+
+			var reference = e as ReferenceExpression;
+			if (reference != null)
+				return reference.ToString();
+
+			var s = e as StringLiteralExpression;
+			if (s != null)
+				return s.Value;
+
+			return NamespaceFrom(((MethodInvocationExpression) e).Target);
+		}
+
 		override public string ToString()
 		{
-			return _namespace;
+			return Namespace;
 		}
 	}
 }

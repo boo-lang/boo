@@ -40,7 +40,7 @@ class TemplateCompiler:
 	_baseClass = AbstractTemplate
 	
 	[getter(DefaultImports)]
-	_imports = System.Collections.Specialized.StringCollection()
+	_imports = List of string()
 	
 	def CompileFile([required] fname as string):
 		return Compile(Boo.Lang.Compiler.IO.FileInput(fname))
