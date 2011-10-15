@@ -169,6 +169,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void macro_yielding_types_shouldnt_cause_module_class_to_be_defined()
+		{
+			RunCompilerTestCase(@"macro-yielding-types-shouldnt-cause-module-class-to-be-defined.boo");
+		}
+		
+		[Test]
 		public void macro_yielding_varargs()
 		{
 			RunCompilerTestCase(@"macro-yielding-varargs.boo");
