@@ -824,10 +824,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessClosureInMethodInvocation(GenericParameterInferrer inferrer, BlockExpression closure, ICallableType formalType)
 		{
-			CallableSignature sig = formalType.GetSignature();
+			var sig = formalType.GetSignature();
 
-			TypeReplacer replacer = new TypeReplacer();
-			TypeCollector collector = new TypeCollector(delegate(IType t)
+			var replacer = new TypeReplacer();
+			var collector = new TypeCollector(delegate(IType t)
 			{
 				IGenericParameter gp = t as IGenericParameter;
 				if (gp == null) return false;
@@ -835,18 +835,16 @@ namespace Boo.Lang.Compiler.Steps
 			});
 
 			collector.Visit(formalType);
-			foreach (IType typeParameter in collector.Matches)
+			foreach (var typeParameter in collector.Matches)
 			{
-				IType inferredType = inferrer.GetInferredType((IGenericParameter)typeParameter);
+				var inferredType = inferrer.GetInferredType((IGenericParameter)typeParameter);
 				if (inferredType != null)
-				{
 					replacer.Replace(typeParameter, inferredType);
-				}
 			}
 
-			for (int i = 0; i < sig.Parameters.Length; i++)
+			for (var i = 0; i < sig.Parameters.Length; i++)
 			{
-				ParameterDeclaration pd = closure.Parameters[i];
+				var pd = closure.Parameters[i];
 				if (pd.Type != null) continue;
 				pd.Type = CodeBuilder.CreateTypeReference(replacer.MapType(sig.Parameters[i].Type));
 			}
@@ -856,11 +854,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		private TypeMemberModifiers ClosureModifiers()
 		{
-			TypeMemberModifiers modifiers = TypeMemberModifiers.Internal;
+			var modifiers = TypeMemberModifiers.Internal;
 			if (_currentMethod.IsStatic)
-			{
 				modifiers |= TypeMemberModifiers.Static;
-			}
 			return modifiers;
 		}
 

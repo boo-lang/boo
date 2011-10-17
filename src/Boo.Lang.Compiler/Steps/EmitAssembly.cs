@@ -4169,13 +4169,13 @@ namespace Boo.Lang.Compiler.Steps
 				Dup();
 				Isinst(expectedSystemType);
 
-				var afterCoerce = _il.DefineLabel();
-				_il.Emit(OpCodes.Brtrue, afterCoerce);
+				var skipCoercion = _il.DefineLabel();
+				_il.Emit(OpCodes.Brtrue, skipCoercion);
 
 				EmitGetTypeFromHandle(expectedSystemType); PopType();
 				Call(RuntimeServices_Coerce);
 
-				_il.MarkLabel(afterCoerce);
+				_il.MarkLabel(skipCoercion);
 			}
 			Castclass(expectedSystemType);
 		}

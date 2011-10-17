@@ -51,33 +51,29 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 		public virtual IType MapType(IType sourceType)
 		{
-			if (sourceType == null) return null;
+			if (sourceType == null)
+				return null;
 
-			if (_cache.ContainsKey(sourceType)) return (IType)_cache[sourceType];
+			if (_cache.ContainsKey(sourceType))
+				return (IType)_cache[sourceType];
 
 			if (sourceType.IsByRef)
-			{
 				return MapByRefType(sourceType);
-			}
 
 			if (sourceType.ConstructedInfo != null)
-			{
 				return MapConstructedType(sourceType);
-			}
 
 			// TODO: Map nested types
 			// GenericType[of T].NestedType => GenericType[of int].NestedType
 
-			IArrayType array = (sourceType as IArrayType);
-			if (array != null) return MapArrayType(array);
+			var array = sourceType as IArrayType;
+			if (array != null)
+				return MapArrayType(array);
 
-			AnonymousCallableType anonymousCallableType = sourceType as AnonymousCallableType;
-			if (anonymousCallableType != null)
-			{
-				return MapCallableType(anonymousCallableType);
-			}
-
-			return sourceType;
+			var anonymousCallableType = sourceType as AnonymousCallableType;
+			return anonymousCallableType != null
+				? MapCallableType(anonymousCallableType)
+				: sourceType;
 		}
 
 		public virtual IType MapByRefType(IType sourceType)
