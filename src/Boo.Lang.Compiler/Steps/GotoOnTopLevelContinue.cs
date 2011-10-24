@@ -67,8 +67,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		public GotoStatement NewGoto(Node sourceNode)
 		{
-			ReferenceExpression reference = new ReferenceExpression(sourceNode.LexicalInfo, _label.Name);
-			reference.Entity = _label.Entity;
+			var reference = new ReferenceExpression(sourceNode.LexicalInfo, _label.Name) { Entity = _label.Entity };
 			return new GotoStatement(sourceNode.LexicalInfo, reference);
 		}
 	}
