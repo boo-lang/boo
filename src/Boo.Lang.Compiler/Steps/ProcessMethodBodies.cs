@@ -1709,7 +1709,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			// target[indices]
-			IType targetType = GetExpressionType(node.Target);
+			var targetType = GetExpressionType(node.Target);
 			if (IsError(targetType))
 			{
 				Error(node);
@@ -1719,71 +1719,49 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsIndexedProperty(node.Target))
 			{
 				BindIndexedPropertySlicing(node);
+				return;
 			}
-			else
-			{
-				if (targetType.IsArray)
-				{
-					IArrayType arrayType = (IArrayType)targetType;
-					if (arrayType.Rank != node.Indices.Count)
-					{
-						Error(node, CompilerErrorFactory.InvalidArrayRank(node, node.Target.ToCodeString(), arrayType.Rank, node.Indices.Count));
-					}
 
-					if (AstUtil.IsComplexSlicing(node))
-					{
-						BindComplexArraySlicing(node);
-					}
-					else
-					{
-						if (arrayType.Rank > 1)
-						{
-							BindMultiDimensionalArraySlicing(node);
-						}
-						else
-						{
-							BindExpressionType(node, arrayType.ElementType);
-						}
-					}
-				}
+			if (targetType.IsArray)
+			{
+				var arrayType = (IArrayType)targetType;
+				if (arrayType.Rank != node.Indices.Count)
+					Error(node,
+					      CompilerErrorFactory.InvalidArrayRank(node, node.Target.ToCodeString(), arrayType.Rank, node.Indices.Count));
+
+				if (AstUtil.IsComplexSlicing(node))
+					BindComplexArraySlicing(node);
 				else
-				{
-					if (AstUtil.IsComplexSlicing(node))
-					{
-						if (TypeSystemServices.StringType == targetType)
-						{
-							BindComplexStringSlicing(node);
-						}
-						else
-						{
-							if (IsAssignableFrom(TypeSystemServices.ListType, targetType))
-							{
-								BindComplexListSlicing(node);
-							}
-							else
-							{
-								NotImplemented(node, "complex slicing for anything but lists, arrays and strings");
-							}
-						}
-					}
-					else
-					{
-						IEntity member = TypeSystemServices.GetDefaultMember(targetType);
-						if (null == member)
-						{
-							Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType));
-						}
-						else
-						{
-							node.Target = new MemberReferenceExpression(node.LexicalInfo, node.Target, member.Name);
-							node.Target.Entity = member;
-							// to be resolved later
-							node.Target.ExpressionType = Null.Default;
-							SliceMember(node, member);
-						}
-					}
-				}
+					BindExpressionType(node, arrayType.ElementType);
+
+				return;
 			}
+
+			if (AstUtil.IsComplexSlicing(node))
+			{
+				if (TypeSystemServices.StringType == targetType)
+					BindComplexStringSlicing(node);
+				else if (IsAssignableFrom(TypeSystemServices.ListType, targetType))
+					BindComplexListSlicing(node);
+				else
+					NotImplemented(node, "complex slicing for anything but lists, arrays and strings");
+
+				return;
+			}
+
+			var member = TypeSystemServices.GetDefaultMember(targetType);
+			if (member == null)
+			{
+				Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, targetType));
+				return;
+			}
+
+			node.Target = new MemberReferenceExpression(node.LexicalInfo, node.Target, member.Name)
+							{
+								Entity = member,
+								ExpressionType = Null.Default // to be resolved later
+							};
+			SliceMember(node, member);
 		}
 
 		private void BindIndexedPropertySlicing(SlicingExpression node)
@@ -1801,26 +1779,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return EntityType.Property == tag.EntityType &&
 				((IProperty)tag).GetParameters().Length > 0;
-		}
-
-		void BindMultiDimensionalArraySlicing(SlicingExpression node)
-		{
-			if (AstUtil.IsLhsOfAssignment(node))
-			{
-				// leave it to LeaveBinaryExpression to resolve
-				return;
-			}
-
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-				node.Target,
-				CachedMethod("Array_GetValue", () => Methods.InstanceFunctionOf<Array, int[], object>(a => a.GetValue)));
-			for (int i = 0; i < node.Indices.Count; i++)
-			{
-				mie.Arguments.Add(node.Indices[i].Begin);
-			}
-
-			IType elementType = node.Target.ExpressionType.ElementType;
-			node.ParentNode.Replace(node, CodeBuilder.CreateCast(elementType, mie));
 		}
 
 		void SliceMember(SlicingExpression node, IEntity member)
@@ -4658,13 +4616,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool CheckIsNotValueType(BinaryExpression node, Expression expression)
 		{
-			IType tag = GetExpressionType(expression);
-			if (!TypeSystemServices.IsReferenceType(tag) && !TypeSystemServices.IsAnyType(tag))
+			var type = GetExpressionType(expression);
+			if (!TypeSystemServices.IsReferenceType(type) && !TypeSystemServices.IsAnyType(type))
 			{
 				Error(CompilerErrorFactory.OperatorCantBeUsedWithValueType(
 					expression,
 					GetBinaryOperatorText(node.Operator),
-					tag));
+					type));
 
 				return false;
 			}
@@ -4673,92 +4631,58 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindAssignmentToSlice(BinaryExpression node)
 		{
-			SlicingExpression slice = (SlicingExpression)node.Left;
+			var slice = (SlicingExpression)node.Left;
 
-			if (!IsAmbiguous(slice.Target.Entity)
-				&& GetExpressionType(slice.Target).IsArray)
-			{
+			var expression = slice.Target;
+			if (!IsAmbiguous(expression.Entity) && IsArray(expression))
 				BindAssignmentToSliceArray(node);
-			}
-			else if (TypeSystemServices.IsDuckTyped(slice.Target))
-			{
+			else if (TypeSystemServices.IsDuckTyped(expression))
 				BindExpressionType(node, TypeSystemServices.DuckType);
-			}
 			else
-			{
 				BindAssignmentToSliceProperty(node);
-			}
+		}
+
+		private bool IsArray(Expression expression)
+		{
+			return GetExpressionType(expression).IsArray;
 		}
 
 		void BindAssignmentToSliceArray(BinaryExpression node)
 		{
-			SlicingExpression slice = (SlicingExpression)node.Left;
-
-			IArrayType sliceTargetType = (IArrayType)GetExpressionType(slice.Target);
-			IType lhsType = GetExpressionType(node.Right);
-
-			foreach (Slice item in slice.Indices)
+			var slice = (SlicingExpression)node.Left;
+			if (AstUtil.IsComplexSlicing(slice))
 			{
-				if (!AssertTypeCompatibility(item.Begin, TypeSystemServices.IntType, GetExpressionType(item.Begin)))
-				{
-					Error(node);
-					return;
-				}
+				// FIXME: Check type compatibility
+				BindAssignmentToComplexSliceArray(node);
+				return;
 			}
-
-			if (slice.Indices.Count > 1)
+			
+			CheckArrayIndices(slice);
+			var elementType = GetExpressionType(slice.Target).ElementType;
+			var expressionType = GetExpressionType(node.Right);
+			if (!AssertTypeCompatibility(node.Right, elementType, expressionType))
 			{
-				if (AstUtil.IsComplexSlicing(slice))
-				{
-					// FIXME: Check type compatibility
-					BindAssignmentToComplexSliceArray(node);
-				}
-				else
-				{
-					if (!AssertTypeCompatibility(node.Right, sliceTargetType.ElementType, lhsType))
-					{
-						Error(node);
-						return;
-					}
-					BindAssignmentToSimpleSliceArray(node);
-				}
+				Error(node);
+				return;
 			}
-			else
-			{
-				if (!AssertTypeCompatibility(node.Right, sliceTargetType.ElementType, lhsType))
-				{
-					Error(node);
-					return;
-				}
-				node.ExpressionType = sliceTargetType.ElementType;
-			}
+			node.ExpressionType = elementType;
 		}
 
-		void BindAssignmentToSimpleSliceArray(BinaryExpression node)
+		private void CheckArrayIndices(SlicingExpression slice)
 		{
-			SlicingExpression slice = (SlicingExpression)node.Left;
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
-				slice.Target,
-				CachedMethod("Array_SetValue", () => Methods.InstanceActionOf<Array, object, int[]>(a => a.SetValue)),
-				node.Right);
-			for (int i = 0; i < slice.Indices.Count; i++)
-			{
-				mie.Arguments.Add(slice.Indices[i].Begin);
-			}
-			BindExpressionType(mie, TypeSystemServices.VoidType);
-			node.ParentNode.Replace(node, mie);
+			foreach (var item in slice.Indices)
+				AssertTypeCompatibility(item.Begin, TypeSystemServices.IntType, GetExpressionType(item.Begin));
 		}
 
 		void BindAssignmentToComplexSliceArray(BinaryExpression node)
 		{
-			SlicingExpression slice = (SlicingExpression)node.Left;
-			ArrayLiteralExpression ale = new ArrayLiteralExpression();
-			ArrayLiteralExpression collapse = new ArrayLiteralExpression();
+			var slice = (SlicingExpression)node.Left;
+			var ale = new ArrayLiteralExpression();
+			var collapse = new ArrayLiteralExpression();
 			for (int i = 0; i < slice.Indices.Count; i++)
 			{
 				ale.Items.Add(slice.Indices[i].Begin);
-				if (null == slice.Indices[i].End ||
-					OmittedExpression.Default == slice.Indices[i].End)
+				if (slice.Indices[i].End == null || OmittedExpression.Default == slice.Indices[i].End)
 				{
 					ale.Items.Add(new IntegerLiteralExpression(1 + (int)((IntegerLiteralExpression)slice.Indices[i].Begin).Value));
 					collapse.Items.Add(new BoolLiteralExpression(true));
