@@ -74,7 +74,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool HasEntryPoint()
 		{
-			return null != ContextAnnotations.GetEntryPoint(Context);
+			return ContextAnnotations.GetEntryPoint(Context) != null;
 		}
 
 		override public void Dispose()
@@ -90,11 +90,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			MoveModuleMembersToModuleClass(module, moduleClass);
 
-			var entryPoint = module.Globals.IsEmpty
-				? moduleClass.Members[EntryPointMethodName] as Method
-				: TransformModuleGlobalsIntoEntryPoint(module, moduleClass);
-
-			SetEntryPointIfNecessary(entryPoint);
+			DetectEntryPoint(module, moduleClass);
 
 			if (existingModuleClass != null || ForceModuleClass || (moduleClass.Members.Count > 0))
 			{
@@ -105,6 +101,21 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				InitializeModuleClassEntity(module, moduleClass);
 			}
+		}
+
+		private void DetectEntryPoint(Module module, ClassDefinition moduleClass)
+		{
+			var entryPoint = module.Globals.IsEmpty
+             	? moduleClass.Members[EntryPointMethodName] as Method
+             	: TransformModuleGlobalsIntoEntryPoint(module, moduleClass);
+
+			if (entryPoint == null)
+				return;
+
+			if (Parameters.OutputType == CompilerOutputType.Library)
+				return;
+
+			ContextAnnotations.SetEntryPoint(Context, entryPoint);
 		}
 
 		private Method TransformModuleGlobalsIntoEntryPoint(Module node, ClassDefinition moduleClass)
@@ -157,17 +168,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			InternalModule entity = ((InternalModule)node.Entity);
 			if (null != entity) entity.InitializeModuleClass(moduleClass);
-		}
-
-		private void SetEntryPointIfNecessary(Method entryPoint)
-		{
-			if (null == entryPoint)
-				return;
-
-			if (Parameters.OutputType == CompilerOutputType.Library)
-				return;
-
-			ContextAnnotations.SetEntryPoint(Context, entryPoint);
 		}
 
 		static ClassDefinition ExistingModuleClassFor(Module node)

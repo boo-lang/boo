@@ -784,15 +784,16 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnReturnStatement(ReturnStatement node)
 		{
 			EmitDebugInfo(node);
-			OpCode retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
-			Label label = _returnLabel;
 
-			if (null != node.Expression)
+			var retOpCode = _tryBlock > 0 ? OpCodes.Leave : OpCodes.Br;
+			var label = _returnLabel;
+
+			var expression = node.Expression;
+			if (expression != null)
 			{
 				++_returnStatements;
 
-				Visit(node.Expression);
-				EmitCastIfNeeded(_returnType, PopType());
+				LoadExpressionWithType(_returnType, expression);
 
 				if (retOpCode == OpCodes.Leave)
 				{
@@ -813,8 +814,14 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (_method.Body.LastStatement != node)
 				_il.Emit(retOpCode, label);
-			else if (null != node.Expression)
+			else if (null != expression)
 				_returnStatements = -1; //instruct epilogue to branch last ret only if necessary
+		}
+
+		private void LoadExpressionWithType(IType expectedType, Expression expression)
+		{
+			Visit(expression);
+			EmitCastIfNeeded(expectedType, PopType());
 		}
 
 		override public void OnRaiseStatement(RaiseStatement node)
@@ -1005,18 +1012,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		void OnSwitch(MethodInvocationExpression node)
 		{
-			ExpressionCollection args = node.Arguments;
-			Visit(args[0]);
-			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
-
-			Label[] labels = new Label[args.Count-1];
-			for (int i=0; i<labels.Length; ++i)
-			{
-				labels[i] = ((InternalLabel)args[i+1].Entity).Label;
-			}
-			_il.Emit(OpCodes.Switch, labels);
+			var args = node.Arguments;
+			LoadExpressionWithType(TypeSystemServices.IntType, args[0]);
+			_il.Emit(OpCodes.Switch, args.Skip(1).Select(e => LabelFor(e)).ToArray());
 
 			PushVoid();
+		}
+
+		private static Label LabelFor(Expression expression)
+		{
+			return ((InternalLabel) expression.Entity).Label;
 		}
 
 		override public void OnGotoStatement(GotoStatement node)
@@ -1050,16 +1055,14 @@ namespace Boo.Lang.Compiler.Steps
 			Label endLabel = _il.DefineLabel();
 
 			EmitBranchFalse(node.Condition, endLabel);
-			node.TrueValue.Accept(this);
-			EmitCastIfNeeded(type, PopType());
+			LoadExpressionWithType(type, node.TrueValue);
 
 			Label elseEndLabel = _il.DefineLabel();
 			_il.Emit(OpCodes.Br, elseEndLabel);
 			_il.MarkLabel(endLabel);
 
 			endLabel = elseEndLabel;
-			node.FalseValue.Accept(this);
-			EmitCastIfNeeded(type, PopType());
+			LoadExpressionWithType(type, node.FalseValue);
 
 			_il.MarkLabel(endLabel);
 
@@ -1539,7 +1542,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		bool ShouldLeaveValueOnStack(Expression node)
+		static bool ShouldLeaveValueOnStack(Expression node)
 		{
 			return node.ParentNode.NodeType != NodeType.ExpressionStatement;
 		}
@@ -1558,50 +1561,65 @@ namespace Boo.Lang.Compiler.Steps
 
 		void OnAssignmentToSlice(BinaryExpression node)
 		{
-			SlicingExpression slice = (SlicingExpression)node.Left;
+			var slice = (SlicingExpression)node.Left;
 			Visit(slice.Target);
 
-			IArrayType arrayType = (IArrayType)PopType();
-			IType elementType = arrayType.ElementType;
-			OpCode opcode = GetStoreEntityOpCode(elementType);
+			var arrayType = (IArrayType)PopType();
+			if (arrayType.Rank == 1)
+				EmitAssignmentToSingleDimensionalArrayElement(arrayType, slice, node);
+			else
+				EmitAssignmentToMultiDimensionalArrayElement(arrayType, slice, node);
+		}
 
-			Slice index = slice.Indices[0];
+		private void EmitAssignmentToMultiDimensionalArrayElement(IArrayType arrayType, SlicingExpression slice, BinaryExpression node)
+		{
+			var elementType = arrayType.ElementType;
+			LoadArrayIndices(slice);
+			var temp = LoadAssignmentOperand(elementType, node);
+			CallArrayMethod(arrayType, "Set", typeof(void), ParameterTypesForArraySet(arrayType));
+			FlushAssignmentOperand(elementType, temp);
+		}
+
+		private void EmitAssignmentToSingleDimensionalArrayElement(IArrayType arrayType, SlicingExpression slice, BinaryExpression node)
+		{
+			var elementType = arrayType.ElementType;
+
+			var index = slice.Indices[0];
 			EmitNormalizedArrayIndex(slice, index.Begin);
 
+			var opcode = GetStoreEntityOpCode(elementType);
 			bool stobj = IsStobj(opcode);
+			if (stobj) _il.Emit(OpCodes.Ldelema, GetSystemType(elementType));
+
+			var temp = LoadAssignmentOperand(elementType, node);
+
 			if (stobj)
-			{
-				_il.Emit(OpCodes.Ldelema, GetSystemType(elementType));
-			}
+				_il.Emit(opcode, GetSystemType(elementType));
+			else
+				_il.Emit(opcode);
 
-			Visit(node.Right);
-			EmitCastIfNeeded(elementType, PopType());
+			FlushAssignmentOperand(elementType, temp);
+		}
 
-			bool leaveValueOnStack = ShouldLeaveValueOnStack(node);
+		private void FlushAssignmentOperand(IType elementType, LocalBuilder temp)
+		{
+			if (temp != null)
+				LoadLocal(temp, elementType);
+			else
+				PushVoid();
+		}
+
+		private LocalBuilder LoadAssignmentOperand(IType elementType, BinaryExpression node)
+		{
+			LoadExpressionWithType(elementType, node.Right);
+			var leaveValueOnStack = ShouldLeaveValueOnStack(node);
 			LocalBuilder temp = null;
 			if (leaveValueOnStack)
 			{
 				Dup();
 				temp = StoreTempLocal(elementType);
 			}
-
-			if (stobj)
-			{
-				_il.Emit(opcode, GetSystemType(elementType));
-			}
-			else
-			{
-				_il.Emit(opcode);
-			}
-
-			if (leaveValueOnStack)
-			{
-				LoadLocal(temp, elementType);
-			}
-			else
-			{
-				PushVoid();
-			}
+			return temp;
 		}
 
 		LocalBuilder _currentLocal = null;
@@ -1678,8 +1696,7 @@ namespace Boo.Lang.Compiler.Steps
 							break;
 						}
 
-						Visit(node.Right);
-						EmitCastIfNeeded(param.Type, PopType());
+						LoadExpressionWithType(param.Type, node.Right);
 
 						if (leaveValueOnStack)
 						{
@@ -1739,28 +1756,19 @@ namespace Boo.Lang.Compiler.Steps
 			if (temp != null)
 			{
 				LoadLocal(temp, tempType);
+				PopType();
 			}
 			else
-			{
-				Visit(right);
-			}
+				LoadExpressionWithType(param.Type, right);
 
-			EmitCastIfNeeded(param.Type, PopType());
-
-			OpCode storecode = GetStoreRefParamCode(param.Type);
+			var storecode = GetStoreRefParamCode(param.Type);
 			if (IsStobj(storecode)) //passing struct/decimal byref
-			{
 				_il.Emit(storecode, GetSystemType(param.Type));
-			}
 			else
-			{
 				_il.Emit(storecode);
-			}
 
 			if (null != temp)
-			{
 				LoadLocal(temp, tempType);
-			}
 		}
 
 		void EmitTypeTest(BinaryExpression node)
@@ -1789,16 +1797,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		void LoadCmpOperands(BinaryExpression node)
 		{
-			IType lhs = node.Left.ExpressionType;
-			IType rhs = node.Right.ExpressionType;
-
+			var lhs = node.Left.ExpressionType;
+			var rhs = node.Right.ExpressionType;
 			if (lhs != rhs)
 			{
-				IType type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
-				Visit(node.Left);
-				EmitCastIfNeeded(type, PopType());
-				Visit(node.Right);
-				EmitCastIfNeeded(type, PopType());
+				var type = TypeSystemServices.GetPromotedNumberType(lhs, rhs);
+				LoadExpressionWithType(type, node.Left);
+				LoadExpressionWithType(type, node.Right);
 			}
 			else //no need for conversion
 			{
@@ -1852,24 +1857,25 @@ namespace Boo.Lang.Compiler.Steps
 
 		void OnExponentiation(BinaryExpression node)
 		{
-			Visit(node.Left);
-			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
-			Visit(node.Right);
-			EmitCastIfNeeded(TypeSystemServices.DoubleType, PopType());
+			var doubleType = TypeSystemServices.DoubleType;
+			LoadOperandsWithType(doubleType, node);
 			Call(Math_Pow);
-			PushType(TypeSystemServices.DoubleType);
+			PushType(doubleType);
+		}
+
+		private void LoadOperandsWithType(IType type, BinaryExpression node)
+		{
+			LoadExpressionWithType(type, node.Left);
+			LoadExpressionWithType(type, node.Right);
 		}
 
 		void OnArithmeticOperator(BinaryExpression node)
 		{
-			IType type = node.ExpressionType;
-			node.Left.Accept(this); EmitCastIfNeeded(type, PopType());
-			node.Right.Accept(this); EmitCastIfNeeded(type, PopType());
+			var type = node.ExpressionType;
+			LoadOperandsWithType(type, node);
 			_il.Emit(GetArithmeticOpCode(type, node.Operator));
-
 			PushType(type);
 		}
-
 
 		bool EmitToBoolIfNeeded(Expression expression)
 		{
@@ -1974,12 +1980,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitLogicalOperator(BinaryExpression node, OpCode brForValueType, OpCode brForRefType)
 		{
-			IType type = GetExpressionType(node);
+			var type = GetExpressionType(node);
 			Visit(node.Left);
 
-			IType lhsType = PopType();
+			var lhsType = PopType();
 
-			if (null != lhsType && lhsType.IsValueType && !type.IsValueType)
+			if (lhsType != null && lhsType.IsValueType && !type.IsValueType)
 			{
 				// if boxing, first evaluate the value
 				// as it is and then box it...
@@ -1994,8 +2000,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				_il.MarkLabel(evalRhs);
 				_il.Emit(OpCodes.Pop);
-				Visit(node.Right);
-				EmitCastIfNeeded(type, PopType());
+				LoadExpressionWithType(type, node.Right);
 
 				_il.MarkLabel(end);
 			}
@@ -2011,8 +2016,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(brForRefType, end);
 
 				_il.Emit(OpCodes.Pop);
-				Visit(node.Right);
-				EmitCastIfNeeded(type, PopType());
+				LoadExpressionWithType(type, node.Right);
 				_il.MarkLabel(end);
 			}
 
@@ -2033,15 +2037,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitBitwiseOperator(BinaryExpression node)
 		{
-			IType type = node.ExpressionType;
-
-			Visit(node.Left);
-			EmitCastIfNeeded(type, PopType());
-
-			Visit(node.Right);
-			EmitCastIfNeeded(
-				GetExpectedTypeForBitwiseRightOperand(node),
-				PopType());
+			var type = node.ExpressionType;
+			LoadExpressionWithType(type, node.Left);
+			LoadExpressionWithType(GetExpectedTypeForBitwiseRightOperand(node), node.Right);
 
 			switch (node.Operator)
 			{
@@ -2201,16 +2199,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnCastExpression(CastExpression node)
 		{
-			IType type = GetType(node.Type);
-			Visit(node.Target);
-			EmitCastIfNeeded(type, PopType());
+			var type = GetType(node.Type);
+			LoadExpressionWithType(type, node.Target);
 			PushType(type);
 		}
 
 		override public void OnTryCastExpression(TryCastExpression node)
 		{
-			Type type = GetSystemType(node.Type);
-
+			var type = GetSystemType(node.Type);
 			node.Target.Accept(this); PopType();
 			Isinst(type);
 			PushType(node.ExpressionType);
@@ -2329,8 +2325,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitNewArray(IType type, Expression length)
 		{
-			Visit(length);
-			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
+			LoadIntExpression(length);
 			_il.Emit(OpCodes.Newarr, GetSystemType(type));
 			PushType(type.MakeArrayType(1));
 		}
@@ -2351,7 +2346,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				target = GetTargetObject(node);
 				targetType = target.ExpressionType;
-				PushTargetObject(node, mi);
+				PushTargetObjectFor(mi, target, targetType);
 			}
 
 			PushArguments(method, node.Arguments);
@@ -2420,33 +2415,30 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void PushTargetObject(MethodInvocationExpression node, MethodInfo mi)
+		private void PushTargetObjectFor(MethodInfo methodToBeInvoked, Expression target, IType targetType)
 		{
-			var target = GetTargetObject(node);
-			var targetType = target.ExpressionType;
-
-			// If target is a generic parameter, its address must be loaded
-			// to allow a constrained method call
 			if (targetType is IGenericParameter)
 			{
+				// If target is a generic parameter, its address must be loaded
+				// to allow a constrained method call
 				LoadAddress(target);
 				return;
 			}
 
 			if (targetType.IsValueType)
 			{
-				if (mi.DeclaringType.IsValueType)
+				if (methodToBeInvoked.DeclaringType.IsValueType)
 					LoadAddress(target);
 				else
 				{
-					Visit(node.Target);
+					Visit(target);
 					EmitBox(PopType());
 				}
 				return;
 			}
 
 			// pushes target reference
-			Visit(node.Target);
+			Visit(target);
 			PopType();
 		}
 
@@ -2818,16 +2810,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_il.Emit(OpCodes.Newobj, Hash_Constructor);
 
-			IType objType = TypeSystemServices.ObjectType;
+			var objType = TypeSystemServices.ObjectType;
 			foreach (ExpressionPair pair in node.Items)
 			{
 				Dup();
 
-				Visit(pair.First);
-				EmitCastIfNeeded(objType, PopType());
-
-				Visit(pair.Second);
-				EmitCastIfNeeded(objType, PopType());
+				LoadExpressionWithType(objType, pair.First);
+				LoadExpressionWithType(objType, pair.Second);
 				_il.EmitCall(OpCodes.Callvirt, Hash_Add, null);
 			}
 
@@ -2856,7 +2845,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			IArrayType type = (IArrayType)node.ExpressionType;
+			var type = (IArrayType)node.ExpressionType;
 			EmitArray(type.ElementType, node.Items);
 			PushType(type);
 		}
@@ -2898,7 +2887,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnCharLiteralExpression(CharLiteralExpression node)
 		{
-			EmitLoadLiteral((int) node.Value[0]);
+			EmitLoadLiteral(node.Value[0]);
 			PushType(TypeSystemServices.CharType);
 		}
 
@@ -2908,75 +2897,109 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			Visit(node.Target);
+			var type = (IArrayType)PopType();
 
-			IArrayType type = (IArrayType)PopType();
+			if (type.Rank == 1)
+				LoadSingleDimensionalArrayElement(node, type);
+			else
+				LoadMultiDimensionalArrayElement(node, type);
+
+			PushType(type.ElementType);
+		}
+
+		private void LoadMultiDimensionalArrayElement(SlicingExpression node, IArrayType arrayType)
+		{
+			LoadArrayIndices(node);
+			CallArrayMethod(arrayType, "Get", GetSystemType(arrayType.ElementType), ParameterTypesForArrayGet(arrayType));
+		}
+
+		private static Type[] ParameterTypesForArrayGet(IArrayType arrayType)
+		{
+			return Enumerable.Range(0, arrayType.Rank).Select(_ => typeof(int)).ToArray();
+		}
+
+		private Type[] ParameterTypesForArraySet(IArrayType arrayType)
+		{
+			var types = new Type[arrayType.Rank + 1];
+			for (var i = 0; i < arrayType.Rank; ++i)
+				types[i] = typeof(int);
+			types[arrayType.Rank] = GetSystemType(arrayType.ElementType);
+			return types;
+		}
+
+		private void CallArrayMethod(IType arrayType, string methodName, Type returnType, Type[] parameterTypes)
+		{
+			var method = _moduleBuilder.GetArrayMethod(
+				GetSystemType(arrayType), methodName, CallingConventions.HasThis,returnType, parameterTypes);
+			Call(method);
+			//Call(GetSystemType(arrayType).GetMethod(methodName));
+		}
+
+		private void LoadArrayIndices(SlicingExpression node)
+		{
+			foreach (var index in node.Indices.Select(index => index.Begin))
+				LoadIntExpression(index);
+		}
+
+		private void LoadSingleDimensionalArrayElement(SlicingExpression node, IType arrayType)
+		{
 			EmitNormalizedArrayIndex(node, node.Indices[0].Begin);
 
-			IType elementType = type.ElementType;
-			OpCode opcode = GetLoadEntityOpCode(elementType);
+			var elementType = arrayType.ElementType;
+			var opcode = GetLoadEntityOpCode(elementType);
 			if (OpCodes.Ldelema.Value == opcode.Value)
 			{
-				Type systemType = GetSystemType(elementType);
+				var systemType = GetSystemType(elementType);
 				_il.Emit(opcode, systemType);
 				if (!IsByAddress(elementType))
 					_il.Emit(OpCodes.Ldobj, systemType);
 			}
 			else if (OpCodes.Ldelem.Value == opcode.Value)
-			{
 				_il.Emit(opcode, GetSystemType(elementType));
-			}
 			else
-			{
 				_il.Emit(opcode);
-			}
-			PushType(elementType);
 		}
 
 		void EmitNormalizedArrayIndex(SlicingExpression sourceNode, Expression index)
 		{
 			bool isNegative = false;
 			if (CanBeNegative(index, ref isNegative)
-				&& !_rawArrayIndexing
-				&& !AstAnnotations.IsRawIndexing(sourceNode))
+			    && !_rawArrayIndexing
+			    && !AstAnnotations.IsRawIndexing(sourceNode))
 			{
 				if (isNegative)
 				{
 					Dup();
 					_il.Emit(OpCodes.Ldlen);
-					EmitLoadInt(index);
+					LoadIntExpression(index);
 					_il.Emit(OpCodes.Add);
 				}
 				else
 				{
 					Dup();
-					EmitLoadInt(index);
+					LoadIntExpression(index);
 					Call(RuntimeServices_NormalizeArrayIndex);
 				}
 			}
 			else
-			{
-				EmitLoadInt(index);
-			}
+				LoadIntExpression(index);
 		}
 
 		bool CanBeNegative(Expression expression, ref bool isNegative)
 		{
-			IntegerLiteralExpression integer = expression as IntegerLiteralExpression;
-			if (null != integer)
+			var integer = expression as IntegerLiteralExpression;
+			if (integer != null)
 			{
 				if (integer.Value >= 0)
-				{
 					return false;
-				}
 				isNegative = true;
 			}
 			return true;
 		}
 
-		void EmitLoadInt(Expression expression)
+		void LoadIntExpression(Expression expression)
 		{
-			Visit(expression);
-			EmitCastIfNeeded(TypeSystemServices.IntType, PopType());
+			LoadExpressionWithType(TypeSystemServices.IntType, expression);
 		}
 
 		override public void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
@@ -3245,45 +3268,37 @@ namespace Boo.Lang.Compiler.Steps
 
 		void LoadAddress(Expression expression)
 		{
-			if (NodeType.SelfLiteralExpression == expression.NodeType)
+			if (expression.NodeType == NodeType.SelfLiteralExpression && expression.ExpressionType.IsValueType)
 			{
-				if (expression.ExpressionType.IsValueType)
-				{
-					_il.Emit(OpCodes.Ldarg_0);
-					return;
-				}
+				_il.Emit(OpCodes.Ldarg_0);
+				return;
 			}
 
-			IEntity tag = expression.Entity;
-			if (null != tag)
+			var entity = expression.Entity;
+			if (entity != null)
 			{
-				switch (tag.EntityType)
+				switch (entity.EntityType)
 				{
 					case EntityType.Local:
 						{
-							InternalLocal local =  ((InternalLocal) tag);
-							_il.Emit(!local.Type.IsPointer ? OpCodes.Ldloca : OpCodes.Ldloc,
-									local.LocalBuilder);
+							var local =  ((InternalLocal) entity);
+							_il.Emit(!local.Type.IsPointer ? OpCodes.Ldloca : OpCodes.Ldloc, local.LocalBuilder);
 							return;
 						}
 
 					case EntityType.Parameter:
 						{
-							InternalParameter param = (InternalParameter)tag;
+							var param = (InternalParameter)entity;
 							if (param.Parameter.IsByRef)
-							{
 								LoadParam(param);
-							}
 							else
-							{
 								_il.Emit(OpCodes.Ldarga, param.Index);
-							}
 							return;
 						}
 
 					case EntityType.Field:
 						{
-							IField field = (IField)tag;
+							var field = (IField)entity;
 							if (!field.IsLiteral)
 							{
 								EmitLoadFieldAddress(expression, field);
@@ -3296,32 +3311,49 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (IsValueTypeArraySlicing(expression))
 			{
-				SlicingExpression slicing = (SlicingExpression)expression;
-				Visit(slicing.Target);
-				IArrayType arrayType = (IArrayType)PopType();
-				EmitNormalizedArrayIndex(slicing, slicing.Indices[0].Begin);
-				_il.Emit(OpCodes.Ldelema, GetSystemType(arrayType.ElementType));
+				LoadArrayElementAddress((SlicingExpression)expression);
+				return;
 			}
-			else
-			{
-				Visit(expression);
 
-				if (!AstUtil.IsIndirection(expression))
-				{
-					// declare local to hold value type
-					LocalBuilder temp = _il.DeclareLocal(GetSystemType(PopType()));
-					_il.Emit(OpCodes.Stloc, temp);
-					_il.Emit(OpCodes.Ldloca, temp);
-				}
+			Visit(expression);
+			if (!AstUtil.IsIndirection(expression))
+			{
+				// declare local to hold value type
+				var temp = _il.DeclareLocal(GetSystemType(PopType()));
+				_il.Emit(OpCodes.Stloc, temp);
+				_il.Emit(OpCodes.Ldloca, temp);
 			}
+		}
+
+		private void LoadArrayElementAddress(SlicingExpression slicing)
+		{
+			Visit(slicing.Target);
+			var arrayType = (IArrayType)PopType();
+
+			if (arrayType.Rank == 1)
+				LoadSingleDimensionalArrayElementAddress(slicing, arrayType);
+			else
+				LoadMultiDimensionalArrayElementAddress(slicing, arrayType);
+		}
+
+		private void LoadMultiDimensionalArrayElementAddress(SlicingExpression slicing, IArrayType arrayType)
+		{
+			LoadArrayIndices(slicing);
+			CallArrayMethod(arrayType, "Address", GetSystemType(arrayType.ElementType).MakeByRefType(), ParameterTypesForArrayGet(arrayType));
+		}
+
+		private void LoadSingleDimensionalArrayElementAddress(SlicingExpression slicing, IArrayType arrayType)
+		{
+			EmitNormalizedArrayIndex(slicing, slicing.Indices[0].Begin);
+			_il.Emit(OpCodes.Ldelema, GetSystemType(arrayType.ElementType));
 		}
 
 		bool IsValueTypeArraySlicing(Expression expression)
 		{
-			SlicingExpression slicing = expression as SlicingExpression;
-			if (null != slicing)
+			var slicing = expression as SlicingExpression;
+			if (slicing != null)
 			{
-				IArrayType type = (IArrayType)slicing.Target.ExpressionType;
+				var type = (IArrayType)slicing.Target.ExpressionType;
 				return type.ElementType.IsValueType;
 			}
 			return false;
@@ -3329,21 +3361,19 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
-			_il.Emit(OpCodes.Ldarg_0);
-			if (node.ExpressionType.IsValueType)
-			{
-				_il.Emit(OpCodes.Ldobj, GetSystemType(node.ExpressionType));
-			}
-			PushType(node.ExpressionType);
+			LoadSelf(node);
 		}
 
 		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{
+			LoadSelf(node);
+		}
+
+		private void LoadSelf(Expression node)
+		{
 			_il.Emit(OpCodes.Ldarg_0);
 			if (node.ExpressionType.IsValueType)
-			{
 				_il.Emit(OpCodes.Ldobj, GetSystemType(node.ExpressionType));
-			}
 			PushType(node.ExpressionType);
 		}
 
@@ -3355,33 +3385,30 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
-			IEntity info = TypeSystem.TypeSystemServices.GetEntity(node);
-			switch (info.EntityType)
+			var entity = TypeSystemServices.GetEntity(node);
+			switch (entity.EntityType)
 			{
 				case EntityType.Local:
 					{
 						if (!AstUtil.IsIndirection(node.ParentNode))
-							LoadLocal((InternalLocal)info);
+							LoadLocal((InternalLocal)entity);
 						else
-							LoadIndirectLocal((InternalLocal)info);
+							LoadIndirectLocal((InternalLocal)entity);
 						break;
 					}
 
 				case EntityType.Parameter:
 					{
-						InternalParameter param = (InternalParameter)info;
+						var param = (InternalParameter)entity;
 						LoadParam(param);
 
 						if (param.Parameter.IsByRef)
 						{
-							OpCode code = GetLoadRefParamCode(param.Type);
+							var code = GetLoadRefParamCode(param.Type);
 							if (code.Value == OpCodes.Ldobj.Value)
-							{
 								_il.Emit(code, GetSystemType(param.Type));
-							}
-							else {
+							else
 								_il.Emit(code);
-							}
 						}
 						PushType(param.Type);
 						break;
@@ -3396,7 +3423,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				default:
 					{
-						NotImplemented(node, info.ToString());
+						NotImplemented(node, entity.ToString());
 						break;
 					}
 
@@ -3482,14 +3509,14 @@ namespace Boo.Lang.Compiler.Steps
 			_il.Emit(OpCodes.Stloc, local);
 		}
 
-		void EmitIndirectAssignment(InternalLocal tag, IType typeOnStack)
+		void EmitIndirectAssignment(InternalLocal local, IType typeOnStack)
 		{
-			IType et = tag.Type.ElementType;
-			EmitCastIfNeeded(et, typeOnStack);
+			var elementType = local.Type.ElementType;
+			EmitCastIfNeeded(elementType, typeOnStack);
 
-			OpCode code = GetStoreRefParamCode(et);
+			var code = GetStoreRefParamCode(elementType);
 			if (code == OpCodes.Stobj)
-				_il.Emit(code, GetSystemType(et));
+				_il.Emit(code, GetSystemType(elementType));
 			else
 				_il.Emit(code);
 		}
@@ -3508,8 +3535,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			value.Accept(this);
-			EmitCastIfNeeded(field.Type, PopType());
+			LoadExpressionWithType(field.Type, value);
 
 			LocalBuilder local = null;
 			if (leaveValueOnStack)
@@ -3553,8 +3579,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			value.Accept(this);
-			EmitCastIfNeeded(property.Type, PopType());
+			LoadExpressionWithType(property.Type, value);
 
 			LocalBuilder local = null;
 			if (leaveValueOnStack)
@@ -3651,27 +3676,15 @@ namespace Boo.Lang.Compiler.Steps
 
 		void PushArguments(IMethodBase entity, ExpressionCollection args)
 		{
-			IParameter[] parameters = entity.GetParameters();
-			for (int i=0; i<args.Count; ++i)
+			var parameters = entity.GetParameters();
+			for (var i=0; i<args.Count; ++i)
 			{
-				IType parameterType = parameters[i].Type;
-				Expression arg = args[i];
-				/*
-				InternalParameter internalparam = parameters[i] as InternalParameter;
-				if ((parameterType.IsByRef) ||
-					(internalparam != null &&
-					internalparam.Parameter.IsByRef)
-					)
-				 */
+				var parameterType = parameters[i].Type;
+				var arg = args[i];
 				if (parameters[i].IsByRef)
-				{
 					LoadAddress(arg);
-				}
 				else
-				{
-					arg.Accept(this);
-					EmitCastIfNeeded(parameterType, PopType());
-				}
+					LoadExpressionWithType(parameterType, arg);
 			}
 		}
 
@@ -3687,12 +3700,11 @@ namespace Boo.Lang.Compiler.Steps
 			EmitLoadLiteral(items.Count);
 			_il.Emit(OpCodes.Newarr, GetSystemType(type));
 
-			if (0 == items.Count)
+			if (items.Count == 0)
 				return;
 
-			int inlineStores = 0;
-			if (items.Count > InlineArrayItemCountLimit
-				&& TypeSystemServices.IsPrimitiveNumber(type))
+			var inlineStores = 0;
+			if (items.Count > InlineArrayItemCountLimit && TypeSystemServices.IsPrimitiveNumber(type))
 			{
 				//packed array are only supported for a literal array of
 				//an unique primitive type. check that all items are literal
@@ -4094,7 +4106,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitCastIfNeeded(IType expectedType, IType actualType)
 		{
-			if (null == actualType) // see NullLiteralExpression
+			if (actualType == null) // see NullLiteralExpression
+				return;
+
+			if (expectedType == actualType)
 				return;
 
 			if (expectedType.IsPointer || actualType.IsPointer) //no cast needed for addresses
@@ -4169,13 +4184,13 @@ namespace Boo.Lang.Compiler.Steps
 				Dup();
 				Isinst(expectedSystemType);
 
-				var afterCoerce = _il.DefineLabel();
-				_il.Emit(OpCodes.Brtrue, afterCoerce);
+				var skipCoercion = _il.DefineLabel();
+				_il.Emit(OpCodes.Brtrue, skipCoercion);
 
 				EmitGetTypeFromHandle(expectedSystemType); PopType();
 				Call(RuntimeServices_Coerce);
 
-				_il.MarkLabel(afterCoerce);
+				_il.MarkLabel(skipCoercion);
 			}
 			Castclass(expectedSystemType);
 		}
@@ -4289,7 +4304,7 @@ namespace Boo.Lang.Compiler.Steps
 			throw new NotImplementedException(string.Format("TypeCodeFor({0}) not implemented!", type));
 		}
 
-		void StoreEntity(OpCode opcode, int index, Node value, IType elementType)
+		void StoreEntity(OpCode opcode, int index, Expression value, IType elementType)
 		{
 			// array reference
 			Dup();
@@ -4300,14 +4315,12 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				Type systemType = GetSystemType(elementType);
 				_il.Emit(OpCodes.Ldelema, systemType);
-				value.Accept(this);
-				EmitCastIfNeeded(elementType, PopType());	// might need to cast to decimal
+				LoadExpressionWithType(elementType, value);	// might need to cast to decimal
 				_il.Emit(opcode, systemType);
 			}
 			else
 			{
-				value.Accept(this);
-				EmitCastIfNeeded(elementType, PopType());
+				LoadExpressionWithType(elementType, value);
 				_il.Emit(opcode);
 			}
 		}

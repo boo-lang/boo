@@ -82,13 +82,9 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static bool IsComplexSlicing(SlicingExpression node)
 		{
-			foreach (Slice slice in node.Indices)
-			{
+			foreach (var slice in node.Indices)
 				if (IsComplexSlice(slice))
-				{
 					return true;
-				}
-			}
 			return false;
 		}
 		
@@ -405,7 +401,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public static bool IsIndirection(Node node)
 		{
-			UnaryExpression e = node as UnaryExpression;
+			var e = node as UnaryExpression;
 			return null == e ? false : e.Operator == UnaryOperatorType.Indirection;
 		}
 
