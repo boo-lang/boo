@@ -305,13 +305,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		public static IGenericParameter[] GetGenericParameters(IEntity definition)
 		{
 			if (IsGenericType(definition))
-			{
-				return ((IType)definition).GenericInfo.GenericParameters;
-			}
+				return ((IType) definition).GenericInfo.GenericParameters;
 			if (IsGenericMethod(definition))
-			{
-				return ((IMethod)definition).GenericInfo.GenericParameters;
-			}
+				return ((IMethod) definition).GenericInfo.GenericParameters;
 			return null;
 		}
 
@@ -321,14 +317,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		public static int GetTypeGenerity(IType type)
 		{
 			if (type.IsByRef || type.IsArray)
-			{
 				return GetTypeGenerity(type.ElementType);
-			}
 
 			if (type is IGenericParameter)
-			{
 				return 1;
-			}
 
 			// Generic parameters and generic arguments both contribute 
 			// to a types genrity. Note that a nested type can be both a generic definition 
@@ -336,17 +328,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			int generity = 0;
 
 			if (type.GenericInfo != null)
-			{
 				generity += type.GenericInfo.GenericParameters.Length;
-			}
 
 			if (type.ConstructedInfo != null)
-			{
 				foreach (IType typeArg in type.ConstructedInfo.GenericArguments)
-				{
 					generity += GetTypeGenerity(typeArg);
-				}
-			}
 
 			return generity;
 		}

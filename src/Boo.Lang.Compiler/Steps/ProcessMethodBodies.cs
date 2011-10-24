@@ -3141,14 +3141,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public bool EnterUnaryExpression(UnaryExpression node)
 		{
-			if (AstUtil.IsPostUnaryOperator(node.Operator))
+			if (AstUtil.IsPostUnaryOperator(node.Operator) && NodeType.ExpressionStatement == node.ParentNode.NodeType)
 			{
-				if (NodeType.ExpressionStatement == node.ParentNode.NodeType)
-				{
-					// nothing to do, a post operator inside a statement
-					// behaves just like its equivalent pre operator
-					node.Operator = GetRelatedPreOperator(node.Operator);
-				}
+				// nothing to do, a post operator inside a statement
+				// behaves just like its equivalent pre operator
+				node.Operator = GetRelatedPreOperator(node.Operator);
 			}
 			return true;
 		}
@@ -4773,7 +4770,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+			var mie = CodeBuilder.CreateMethodInvocation(
 				RuntimeServices_SetMultiDimensionalRange1,
 				node.Right,
 				slice.Target,
@@ -6030,18 +6027,16 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.CantCreateInstanceOfEnum(sourceNode, type));
 				return false;
 			}
+
 			if (type.IsAbstract)
 			{
 				Error(CompilerErrorFactory.CantCreateInstanceOfAbstractType(sourceNode, type));
 				return false;
 			}
+
 			if (!(type is GenericConstructedType)
-				&&
-				  ((type.GenericInfo != null
-				   && type.GenericInfo.GenericParameters.Length > 0)
-			   || (type.ConstructedInfo != null
-				   && !type.ConstructedInfo.FullyConstructed))
-			   )
+				&& ((type.GenericInfo != null && type.GenericInfo.GenericParameters.Length > 0)
+					|| (type.ConstructedInfo != null && !type.ConstructedInfo.FullyConstructed)))
 			{
 				Error(CompilerErrorFactory.GenericTypesMustBeConstructedToBeInstantiated(sourceNode));
 				return false;

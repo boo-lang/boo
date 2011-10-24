@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 	/// </remarks>
 	public class GenericConstructedType : IType, IConstructedTypeInfo
 	{
-		protected IType _definition;
+		protected readonly IType _definition;
 		IType[] _arguments;
 		GenericMapping _genericMapping;
 		bool _fullyConstructed;
