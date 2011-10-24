@@ -27,14 +27,15 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
 	class DeclarationsNamespace : AbstractNamespace
 	{
-		INamespace _parent;
-		DeclarationCollection _declarations;
+		readonly INamespace _parent;
+		readonly DeclarationCollection _declarations;
 		
 		public DeclarationsNamespace(INamespace parent, DeclarationCollection declarations)
 		{
@@ -55,8 +56,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		
 		public override IEnumerable<IEntity> GetMembers()
 		{
-			foreach (Declaration d in _declarations)
-				yield return TypeSystemServices.GetEntity(d);
+			return _declarations.Select(d => TypeSystemServices.GetEntity(d));
 		}
 	}
 }

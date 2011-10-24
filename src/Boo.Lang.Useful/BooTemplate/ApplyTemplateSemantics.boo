@@ -47,7 +47,7 @@ class ApplyTemplateSemantics(AbstractCompilerStep):
 		module = CompileUnit.Modules[0]
 		
 		for ns in _compiler.DefaultImports:
-			module.Imports.Add(Import(Namespace:ns))
+			module.Imports.Add(Import(ns))
 			
 		template = ClassDefinition(Name: _compiler.TemplateClassName)
 		template.BaseTypes.Add(CodeBuilder.CreateTypeReference(_compiler.TemplateBaseClass))

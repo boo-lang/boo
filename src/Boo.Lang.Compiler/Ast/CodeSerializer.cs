@@ -28,6 +28,7 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Ast
@@ -187,27 +188,36 @@ namespace Boo.Lang.Compiler.Ast
 				new SimpleTypeReference("Boo.Lang.Compiler.Ast." + enumType));
 		}
 		
-		protected Expression SerializeCollection(Node sourceNode, string typeName, StatementCollection items)
+		protected Expression SerializeCollection(Node sourceNode, string typeName, StatementCollection nodes)
 		{
-			MethodInvocationExpression mie = CreateFromArrayInvocation(sourceNode, typeName);
-			foreach (Statement item in items)
-				mie.Arguments.Add(LiftStatement(Serialize(item)));
-			return mie;
+			return SerializeCollectionWith((item) => LiftStatement(Serialize(item)), sourceNode, typeName, nodes);
 		}
-		
+
+		protected Expression SerializeCollection(Node sourceNode, string typeName, ParameterDeclarationCollection nodes)
+		{
+			var result = SerializeCollectionWith(Serialize, sourceNode, typeName, nodes);
+			result.Arguments.Insert(0, new BoolLiteralExpression(nodes.HasParamArray));
+			return result;
+		}
+
+		protected Expression SerializeCollection(Node sourceNode, string typeName, IEnumerable nodes)
+		{
+			return SerializeCollectionWith(Serialize, sourceNode, typeName, nodes);
+		}
+
+		private MethodInvocationExpression SerializeCollectionWith(Func<Node, Expression> serialize, Node sourceNode, string typeName, IEnumerable nodes)
+		{
+			var result = CreateFromArrayInvocation(sourceNode, typeName);
+			foreach (Node node in nodes)
+				result.Arguments.Add(serialize(node));
+			return result;
+		}
+
 		private MethodInvocationExpression CreateFromArrayInvocation(Node sourceNode, string typeName)
 		{
 			return CreateInvocation(sourceNode, typeName + ".FromArray");
 		}
 
-		protected Expression SerializeCollection(Node sourceNode, string typeName, System.Collections.IEnumerable items)
-		{
-			MethodInvocationExpression mie = CreateFromArrayInvocation(sourceNode, typeName);
-			foreach (Node item in items)
-				mie.Arguments.Add(Serialize(item));
-			return mie;
-		}
-		
 		public override void OnExpressionStatement(ExpressionStatement node)
 		{
 			Visit(node.Expression);

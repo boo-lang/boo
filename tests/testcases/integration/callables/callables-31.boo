@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 callable Function(item) as object
 
@@ -19,5 +19,5 @@ class Adder:
 		
 generator as FunctionGenerator = Adder.Create
 plus3 = generator(3)
-Assert.AreSame(Function, plus3.GetType())
-Assert.AreEqual(5, plus3(2))
+assert Function is plus3.GetType()
+assert 5 == plus3(2)

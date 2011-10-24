@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler
 		
 		public static CompilerWarning DuplicateNamespace(Import import, string name)
 		{
-			return Instantiate("BCW0008", AstUtil.SafeLexicalInfo(import), name);
+			return Instantiate("BCW0008", AstUtil.SafeLexicalInfo(import.Expression), name);
 		}
 		
 		public static CompilerWarning HaveBothKeyFileAndAttribute(Node node)
@@ -141,7 +141,7 @@ namespace Boo.Lang.Compiler
 
 		public static CompilerWarning NamespaceNeverUsed(Import node)
 		{
-			return Instantiate("BCW0016", AstUtil.SafeLexicalInfo(node), node.Namespace);
+			return Instantiate("BCW0016", AstUtil.SafeLexicalInfo(node.Expression), node.Expression.ToCodeString());
 		}
 
 		public static CompilerWarning NewProtectedMemberInSealedType(TypeMember member)

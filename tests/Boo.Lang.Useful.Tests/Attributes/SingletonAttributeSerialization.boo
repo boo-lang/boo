@@ -54,26 +54,21 @@ class SingletonAttributeSerializationFixture:
 		AssertSingletonInvariant(a1, a2)
 
 	[Test]
-	[ExpectedException(typeof(Boo.Lang.Runtime.AssertionFailedException))]
 	def BadSingleton():
 		a1 = (BadSingletonObject.Instance, BadSingletonObject.Instance)
-		
 		a2 = SerializeAndDeserialize(a1)
-		
-		AssertSingletonInvariant(a1, a2)
-		
-		
-		
+		try:
+			AssertSingletonInvariant(a1, a2)
+			Assert.Fail()
+		except _ as Boo.Lang.Runtime.AssertionFailedException:
+			pass
 	
 	private def SerializeAndDeserialize(a1 as (object)):
 		formatter = BinaryFormatter()
 		using stream = MemoryStream():
 			formatter.Serialize(stream, a1)
-		
 			stream.Seek(0, SeekOrigin.Begin)
-		
 			a2 = formatter.Deserialize(stream)
-		
 		return a2
 	
 	private def AssertSingletonInvariant([required] a1 as (object), [required] a2 as (object)):

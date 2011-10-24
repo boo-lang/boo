@@ -240,19 +240,43 @@ import_directive[Module container]
 ;
 
 protected
+identifier_expression returns [ReferenceExpression result]
+{
+	result = null;
+	IToken id = null;
+}:
+	id=identifier
+	{ if (id != null) result = new ReferenceExpression(ToLexicalInfo(id), id.getText()); }
+;
+
+protected
+namespace_expression returns [Expression result]
+{
+	result = null;
+	ExpressionCollection names = null;
+}:
+	result=identifier_expression
+	(
+		LPAREN
+		{
+			var mie = new MethodInvocationExpression(result);
+			names = mie.Arguments;
+			result = mie;
+		}
+		expression_list[names]
+		RPAREN
+	)? 
+;
+
+protected
 import_directive_ returns [Import returnValue]
 {
-	IToken id;
+	Expression ns = null;
+	IToken id = null;
 	returnValue = null;
 }:
-	IMPORT id=identifier
-	{
-		if (id != null)
-		{
-			returnValue = new Import(ToLexicalInfo(id));
-			returnValue.Namespace = id.getText();
-		}
-	}
+	imp:IMPORT ns=namespace_expression
+	{ if (ns != null) returnValue = new Import(ToLexicalInfo(imp), ns); }
 	(
 		FROM
 			(
@@ -261,8 +285,7 @@ import_directive_ returns [Import returnValue]
 					sqs:SINGLE_QUOTED_STRING { id=sqs; }
 			)
 		{
-			returnValue.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id));
-			returnValue.AssemblyReference.Name = id.getText();
+			returnValue.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id), id.getText());
 		}				
 	)?
 	(
@@ -3191,7 +3214,7 @@ timespan_literal returns [TimeSpanLiteralExpression tsle] { tsle = null; }:
 		tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(value, val)); 
 	}
 	;
-
+	
 protected
 expression_list[ExpressionCollection ec]
 	{

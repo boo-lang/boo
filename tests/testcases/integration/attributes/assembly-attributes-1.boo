@@ -3,7 +3,6 @@ import System.Reflection
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
-import NUnit.Framework
 
 code = """
 import System.Reflection
@@ -18,16 +17,16 @@ compiler.Parameters.OutputType = CompilerOutputType.Library
 compiler.Parameters.Pipeline = CompileToMemory()
 
 result = compiler.Run()
-Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)
+assert len(result.Errors) == 0, result.Errors.ToString(true)
 
 asm = result.GeneratedAssembly
 title as AssemblyTitleAttribute = Attribute.GetCustomAttribute(asm, AssemblyTitleAttribute)
-Assert.IsNotNull(title, "AssemblyTitleAttribute")
-Assert.AreEqual("foo", title.Title)
+assert title is not null, "AssemblyTitleAttribute"
+assert "foo" == title.Title
 
 description as AssemblyDescriptionAttribute = Attribute.GetCustomAttribute(asm, AssemblyDescriptionAttribute)
-Assert.IsNotNull(description, "AssemblyDescriptionAttribute")
-Assert.AreEqual("bar", description.Description)
+assert description is not null, "AssemblyDescriptionAttribute"
+assert "bar" == description.Description
 
 key = asm.GetName().GetPublicKeyToken()
 assert key is null or 0 == len(key)

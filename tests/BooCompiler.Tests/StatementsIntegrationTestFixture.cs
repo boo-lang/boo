@@ -265,6 +265,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void for_var_reuse()
+		{
+			RunCompilerTestCase(@"for-var-reuse.boo");
+		}
+		
+		[Test]
 		public void for_or_1()
 		{
 			RunCompilerTestCase(@"for_or-1.boo");

@@ -6101,22 +6101,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected void ProcessDeclarationsForIterator(DeclarationCollection declarations, IType iteratorType)
 		{
-			IType defaultDeclType = GetEnumeratorItemType(iteratorType);
+			var defaultDeclType = GetEnumeratorItemType(iteratorType);
 			if (declarations.Count > 1)
 				// will enumerate (unpack) each item
 				defaultDeclType = GetEnumeratorItemType(defaultDeclType);
-			else if (declarations.Count == 1) //local reuse (BOO-1111)
-			{
-				var d = declarations[0];
-				var local = LocalToReuseFor(d);
-				if (local != null)
-				{
-					GetDeclarationType(defaultDeclType, d);
-					AssertTypeCompatibility(d, GetType(d.Type), ((InternalLocal) local.Entity).Type);
-					d.Entity = local.Entity;
-					return; //okay we reuse a previously declared local
-				}
-			}
 
 			foreach (var d in declarations)
 				ProcessDeclarationForIterator(d, defaultDeclType);
@@ -6124,12 +6112,9 @@ namespace Boo.Lang.Compiler.Steps
 		
 		protected virtual Local LocalToReuseFor(Declaration d)
 		{
-			if (d.Type != null)
-				return null;
-			
-			return LocalByName(d.Name);
+			return d.Type != null ? null : LocalByName(d.Name);
 		}
-		
+
 		protected Local LocalByName(string name)
 		{
 			return AstUtil.GetLocalByName(_currentMethod.Method, name);
@@ -6137,6 +6122,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected void ProcessDeclarationForIterator(Declaration d, IType defaultDeclType)
 		{
+			var local = LocalToReuseFor(d);
+			if (local != null)
+			{
+				var localType = ((InternalLocal)GetEntity(local)).Type;
+				AssertTypeCompatibility(d, localType, defaultDeclType);
+
+				d.Type = CodeBuilder.CreateTypeReference(localType);
+				d.Entity = local.Entity;
+				return;
+			}
 			GetDeclarationType(defaultDeclType, d);
 			DeclareLocal(d, true);
 		}

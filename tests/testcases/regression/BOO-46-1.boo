@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class Foo:
 
@@ -16,4 +16,4 @@ class Foo:
 	def run():
 		return call(foo)
 
-Assert.AreEqual("bar - foo", Foo("bar").run())
+assert "bar - foo" == Foo("bar").run()

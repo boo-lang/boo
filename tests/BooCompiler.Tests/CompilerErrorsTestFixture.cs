@@ -1365,6 +1365,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void selective_import_2()
+		{
+			RunCompilerTestCase(@"selective-import-2.boo");
+		}
+		
+		[Test]
+		public void selective_import()
+		{
+			RunCompilerTestCase(@"selective-import.boo");
+		}
+		
+		[Test]
 		public void single_error_on_missing_import_namespace()
 		{
 			RunCompilerTestCase(@"single-error-on-missing-import-namespace.boo");

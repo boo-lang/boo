@@ -11,10 +11,17 @@ namespace BooCompiler.Tests
 	public class MyTest
 	{  
 	    [Test]
-		[ExpectedException(typeof(InvalidOperationException))]
 		public void MyOutsideContext()
 		{
-			NameResolutionService service = My<NameResolutionService>.Instance;
+
+	    	try
+	    	{
+	    		NameResolutionService service = My<NameResolutionService>.Instance;
+				Assert.Fail();
+	    	}
+			catch (InvalidOperationException e)
+	    	{	
+	    	}
 		}
 
 		[Test]

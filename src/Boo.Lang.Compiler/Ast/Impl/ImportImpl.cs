@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Serializable]
 	public partial class Import : Node
 	{
-		protected string _namespace;
+		protected Expression _expression;
 
 		protected ReferenceExpression _assemblyReference;
 
@@ -79,7 +79,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( Import)node;
-			if (_namespace != other._namespace) return NoMatch("Import._namespace");
+			if (!Node.Matches(_expression, other._expression)) return NoMatch("Import._expression");
 			if (!Node.Matches(_assemblyReference, other._assemblyReference)) return NoMatch("Import._assemblyReference");
 			if (!Node.Matches(_alias, other._alias)) return NoMatch("Import._alias");
 			return true;
@@ -90,6 +90,11 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			if (base.Replace(existing, newNode))
 			{
+				return true;
+			}
+			if (_expression == existing)
+			{
+				this.Expression = (Expression)newNode;
 				return true;
 			}
 			if (_assemblyReference == existing)
@@ -115,7 +120,11 @@ namespace Boo.Lang.Compiler.Ast
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 		
-			clone._namespace = _namespace;
+			if (null != _expression)
+			{
+				clone._expression = _expression.Clone() as Expression;
+				clone._expression.InitializeParent(clone);
+			}
 			if (null != _assemblyReference)
 			{
 				clone._assemblyReference = _assemblyReference.Clone() as ReferenceExpression;
@@ -134,6 +143,10 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			_annotations = null;
 			_entity = null;
+			if (null != _expression)
+			{
+				_expression.ClearTypeSystemBindings();
+			}
 			if (null != _assemblyReference)
 			{
 				_assemblyReference.ClearTypeSystemBindings();
@@ -148,11 +161,21 @@ namespace Boo.Lang.Compiler.Ast
 
 		[System.Xml.Serialization.XmlElement]
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public string Namespace
+		public Expression Expression
 		{
 			
-			get { return _namespace; }
-			set { _namespace = value; }
+			get { return _expression; }
+			set
+			{
+				if (_expression != value)
+				{
+					_expression = value;
+					if (null != _expression)
+					{
+						_expression.InitializeParent(this);
+					}
+				}
+			}
 
 		}
 		

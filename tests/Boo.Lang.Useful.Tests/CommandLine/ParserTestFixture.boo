@@ -72,18 +72,25 @@ class ParserTestFixture:
 		assert arguments == ["foo.boo", "bar.boo"]
 		
 	[Test]
-	[ExpectedException(CommandLineException)]
 	def TestMinOccurs():
 		parser = Parser()
 		parser.AddOption(OptionAttribute(ShortForm: "b", LongForm: "boo", MinOccurs: 1), DoNothing)
-		parser.Parse(("f", ))
+		expectingCommandLineException:
+			parser.Parse(("f", ))
 		
 	[Test]
-	[ExpectedException(CommandLineException)]
 	def TestMaxOccurs():
 		parser = Parser()
 		parser.AddOption(OptionAttribute(ShortForm: "b", LongForm: "boo", MaxOccurs: 1), DoNothing)
-		parser.Parse(("-b", "-b"))
+		expectingCommandLineException:
+			parser.Parse(("-b", "-b"))
+			
+	def expectingCommandLineException(action as System.Action):
+		try: 
+			action()
+			Assert.Fail()
+		except CommandLineException:
+			pass
 		
 	def DoNothing(value as string):
 		pass

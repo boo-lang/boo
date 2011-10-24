@@ -1,6 +1,6 @@
 namespace Boo.Lang.PatternMatching.Tests
 
-import NUnit.Framework
+import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.PatternMatching
 	
 class Container[of T]:
@@ -67,9 +67,9 @@ class MatchMacroTest:
 		Assert.AreEqual(2, lastIntItemBeforeCatchAll(Collection(Items: [1, 2, "_", "__"])))
 
 	[Test]
-	[ExpectedException(MatchError)]
 	def TestMatchErrorOnFixedSize():
-		lastItem(Collection(Items: [1, 2, 3]))
+		expectingMatchError:
+			lastItem(Collection(Items: [1, 2, 3]))
 	
 	[Test]
 	def TestGenericMatch():
@@ -102,10 +102,10 @@ class MatchMacroTest:
 	def TestImplicitPropertyPattern():
 		Assert.AreEqual("FOO", itemByImplicitNameReference(Item(Name: "foo")))
 											
-	[Test]
-	[ExpectedException(MatchError)]
+	[Test]	
 	def TestMatchErrorOnPropertyPattern():
-		itemByName(42)
+		expectingMatchError:
+			itemByName(42)
 		
 	[Test]
 	def TestMatchErrorMessageIncludesValue():
@@ -114,10 +114,10 @@ class MatchMacroTest:
 		except e as MatchError:
 			Assert.AreEqual("`o` failed to match `42`", e.Message)
 		
-	[Test]
-	[ExpectedException(MatchError)]
+	[Test]	
 	def TestMatchErrorOnNestedPropertyPattern():
-		nestedByName(42)
+		expectingMatchError:
+			nestedByName(42)
 		
 	[Test]
 	def TestCaseCapture():
@@ -195,9 +195,9 @@ class MatchMacroTest:
 		Assert.AreEqual("Baz", matchMemberRef(Foo.Baz))
 		
 	[Test]
-	[ExpectedException(MatchError)]
 	def TestMatchErrorOnMemberReferencePattern():
-		matchMemberRef(Foo.None)
+		expectingMatchError:
+			matchMemberRef(Foo.None)
 
 	def itemByName(o):
 		match o:

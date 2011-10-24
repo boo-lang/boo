@@ -41,7 +41,7 @@ namespace BooCompiler.Tests
 
 	public abstract class AbstractCompilerTestCase
 	{
-		protected BooCompiler _compiler;
+		private BooCompiler _compiler;
 
 		protected CompilerParameters _parameters;
 
@@ -77,7 +77,6 @@ namespace BooCompiler.Tests
 			_parameters = _compiler.Parameters;
 			_parameters.OutputWriter = _output = new StringWriter();
 			_parameters.Pipeline = SetUpCompilerPipeline();
-			_parameters.References.Add(typeof(Assert).Assembly);
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
 			Directory.CreateDirectory(TestOutputPath);
@@ -114,7 +113,6 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Compiler.Ast.Node).Assembly);
 			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
-			CopyAssembly(typeof(Assert).Assembly);
 			CopyAssembly(Assembly.Load("BooSupportingClasses"));
 #if !MSBUILD
 			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
@@ -222,16 +220,14 @@ namespace BooCompiler.Tests
 
 		protected string Run(string stdin, out CompilerContext context)
 		{
-			TextWriter oldStdOut = Console.Out;
-			TextReader oldStdIn = Console.In;
+			var oldStdOut = Console.Out;
+			var oldStdIn = Console.In;
 
 			try
 			{
 				Console.SetOut(_output);
-				if (null != stdin)
-				{
+				if (stdin != null)
 					Console.SetIn(new StringReader(stdin));
-				}
 
 				context = _compiler.Run();
 

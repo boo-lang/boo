@@ -213,6 +213,7 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterImport(node))
 			{
+				Visit(node.Expression);
 				Visit(node.AssemblyReference);
 				Visit(node.Alias);
 				LeaveImport(node);

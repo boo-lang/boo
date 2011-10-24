@@ -1,5 +1,5 @@
 import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
-import NUnit.Framework
+
 
 class Foo:
 	public static value = 0
@@ -7,9 +7,9 @@ class Foo:
 
 for i in -1, 0, 5:
 	ByRef.ReturnValue(i, Foo.value)
-	Assert.AreEqual(i, Foo.value)
+	assert i == Foo.value
 	
 
 for o in object(), "", object():
 	ByRef.ReturnRef(o, Foo.reference)
-	Assert.AreSame(o, Foo.reference)
+	assert o is Foo.reference

@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 def foo():
 	return "foo"
@@ -9,4 +9,4 @@ def bar():
 i = -1
 expected = "foo", "bar"
 for f in foo, bar:
-	Assert.AreEqual(expected[++i], f())
+	assert expected[++i] == f()

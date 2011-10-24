@@ -1,4 +1,3 @@
-import NUnit.Framework
 
 abstract class FooProtocol:
 	abstract def Bar() as string:
@@ -12,4 +11,4 @@ class Foo2(Foo1):
 		return "Foo2.Bar"
 
 foo as FooProtocol = Foo2()
-Assert.AreEqual("Foo2.Bar", foo.Bar())
+assert "Foo2.Bar" == foo.Bar()

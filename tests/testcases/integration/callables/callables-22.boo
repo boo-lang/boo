@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 callable OutputHandler(message as string) as string
 
@@ -18,4 +18,4 @@ call = handler.BeginInvoke("Testing...", null, null)
 call.AsyncWaitHandle.WaitOne()
 value = handler.EndInvoke(call)
 
-Assert.AreEqual("-Testing...", value)
+assert "-Testing..." == value

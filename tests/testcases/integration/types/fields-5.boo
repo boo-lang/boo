@@ -1,4 +1,3 @@
-import NUnit.Framework
 
 class Foo:
 
@@ -8,7 +7,7 @@ class Foo:
 	
 f = Foo()
 
-Assert.AreEqual("0 2 4", join(f.spam))
-Assert.AreEqual(2, f.eggs)
+assert "0 2 4" == join(f.spam)
+assert 2 == f.eggs
 f.eggs = 3
-Assert.AreEqual("0 3 6", join(f.spam))
+assert "0 3 6" == join(f.spam)

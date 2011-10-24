@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class Path:
@@ -9,7 +9,7 @@ class AmbiguousSub3(AmbiguousSub2):
 		return Path
 
 s = AmbiguousSub2()
-Assert.AreEqual("Sub1", s.Path)
+assert "Sub1" == s.Path
 
 s = AmbiguousSub3()
-Assert.AreEqual("Sub1", s.ToString())
+assert "Sub1" == s.ToString()

@@ -1,7 +1,6 @@
-import NUnit.Framework
 
 def same(expected, actual):
-	Assert.AreSame(expected, actual)
+	assert expected is actual
 	
 same(System.Void, void)
 same(System.Object, duck)

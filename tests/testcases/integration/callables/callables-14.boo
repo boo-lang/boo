@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class Computer:
 	_prefix as string
@@ -13,6 +13,6 @@ class Computer:
 compute = Computer("The answer is").Compute
 handle = compute.BeginInvoke(null, null)
 
-Assert.AreEqual("The answer is 42", compute.EndInvoke(handle))
+assert "The answer is 42" == compute.EndInvoke(handle)
 	
 	
