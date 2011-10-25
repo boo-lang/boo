@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class Man:
 	Speak:
@@ -8,4 +8,4 @@ class Man:
 	private def run():
 		return "albatross!"
 		
-Assert.AreEqual("albatross!", Man().Speak())
+assert "albatross!" == Man().Speak()

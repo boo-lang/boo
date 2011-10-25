@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 def xrange(begin as int, end as int):
 	assert end >= begin
@@ -7,5 +7,5 @@ def xrange(begin as int, end as int):
 		yield i
 		++i
 		
-Assert.AreEqual("0, 1, 2", join(xrange(0, 3), ", "))
-Assert.AreEqual("5, 6, 7", join(xrange(5, 8), ", "))
+assert "0, 1, 2", join(xrange(0, 3), " == ")
+assert "5, 6, 7", join(xrange(5, 8), " == ")

@@ -1,5 +1,4 @@
 import System
-import NUnit.Framework
 
 a as object = 1
 b as object = 1L
@@ -13,6 +12,6 @@ assert cast(int, a) == cast(int, d)
 
 try:
 	f = cast(int, e)
-	Assert.Fail("Cannot cast string to int!")
+	raise "Cannot cast string to int!"
 except x as InvalidCastException:
 	pass

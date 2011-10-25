@@ -78,13 +78,9 @@ namespace Boo.Lang.Compiler.Steps
 		override protected void ProcessAssignment(BinaryExpression node)
 		{
 			if (TypeSystemServices.IsQuackBuiltin(node.Left.Entity))
-			{
 				BindDuck(node);
-			}
 			else
-			{
 				ProcessStaticallyTypedAssignment(node);
-			}
 		}
 
 		virtual protected void ProcessStaticallyTypedAssignment(BinaryExpression node)
@@ -188,13 +184,9 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
 			if (IsDuckTyped(node.Target) && !HasDefaultMember(node.Target))
-			{
 				BindDuck(node);
-			}
 			else
-			{
 				base.LeaveSlicingExpression(node);
-			}
 		}
 		
 		override public void LeaveUnaryExpression(UnaryExpression node)

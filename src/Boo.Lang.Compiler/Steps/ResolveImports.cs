@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Core;
@@ -35,7 +37,7 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class ResolveImports : AbstractTransformerCompilerStep
 	{
-		private readonly Hash _namespaces = new Hash();
+		private readonly Dictionary<string, Import> _namespaces = new Dictionary<string, Import>();
 		
 		override public void Run()
 		{
@@ -44,18 +46,18 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit.Modules);
 		}
 		
-		override public void OnModule(Boo.Lang.Compiler.Ast.Module module)
+		override public void OnModule(Module module)
 		{
 			Visit(module.Imports);
 			_namespaces.Clear();
 		}
 		
-		public override void OnImport(Boo.Lang.Compiler.Ast.Import import)
+		public override void OnImport(Import import)
 		{
 			if (IsAlreadyBound(import))
 				return;
 
-			if (null != import.AssemblyReference)
+			if (import.AssemblyReference != null)
 			{
 				ImportFromAssemblyReference(import);
 				return;
@@ -71,20 +73,25 @@ namespace Boo.Lang.Compiler.Steps
 
 		private bool HandledAsImportError(Import import, IEntity entity)
 		{
-			if (null == entity)
+			if (entity == null)
 			{
-				Errors.Add(CompilerErrorFactory.InvalidNamespace(import));
-				BindError(import);
+				ImportError(import, CompilerErrorFactory.InvalidNamespace(import));
 				return true;
 			}
 
 			if (!IsValidNamespace(entity))
 			{
-				Errors.Add(CompilerErrorFactory.NotANamespace(import, entity));
-				BindError(import);
+				ImportError(import, CompilerErrorFactory.NotANamespace(import, entity));
 				return true;
 			}
+
 			return false;
+		}
+
+		private void ImportError(Import import, CompilerError error)
+		{
+			Errors.Add(error);
+			BindError(import);
 		}
 
 		private void BindError(Import import)
@@ -100,9 +107,10 @@ namespace Boo.Lang.Compiler.Steps
 		private bool HandledAsDuplicatedNamespace(Import import, IEntity resolvedEntity)
 		{
 			var actualName = EffectiveNameForImportedNamespace(import);
+
 			//only add unique namespaces
-			var cachedImport = _namespaces[actualName] as Import;
-			if (cachedImport == null)
+			Import cachedImport;
+			if (!_namespaces.TryGetValue(actualName, out cachedImport))
 			{
 				_namespaces[actualName] = import;
 				return false;
@@ -122,13 +130,30 @@ namespace Boo.Lang.Compiler.Steps
 			if (ns == null)
 				return entity;
 
-			var actualNamespace = null != import.Alias ? AliasedNamespaceFor(entity, import) : ns;
+			var selectiveImportSpec = import.Expression as MethodInvocationExpression;
+			var imported = selectiveImportSpec != null ? SelectiveImportFor(ns, selectiveImportSpec) : ns;
+			var actualNamespace = null != import.Alias ? AliasedNamespaceFor(imported, import) : imported;
 			return new ImportedNamespace(import, actualNamespace);
+		}
+
+		private INamespace SelectiveImportFor(INamespace ns, MethodInvocationExpression selectiveImportSpec)
+		{
+			var importedNames = selectiveImportSpec.Arguments;
+			var entities = new List<IEntity>(importedNames.Count);
+			foreach (ReferenceExpression nameExpression in importedNames)
+			{	
+				var name = nameExpression.Name;
+				if (!ns.Resolve(entities, name, EntityType.Any))
+					Errors.Add(
+						CompilerErrorFactory.MemberNotFound(
+							nameExpression, name, ns, NameResolutionService.GetMostSimilarMemberName(ns, name, EntityType.Any)));
+			}
+			return new SimpleNamespace(null, entities);
 		}
 
 		private INamespace AliasedNamespaceFor(IEntity entity, Import import)
 		{
-			INamespace aliasedNamespace = new AliasedNamespace(import.Alias.Name, entity);
+			var aliasedNamespace = new AliasedNamespace(import.Alias.Name, entity);
 			import.Alias.Entity = aliasedNamespace;
 			return aliasedNamespace;
 		}
@@ -155,8 +180,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveImport(Import import)
 		{
-			IEntity entity = ResolveImportOnParentNamespace(import)
-			                  ?? NameResolutionService.ResolveQualifiedName(import.Namespace);
+			var entity = ResolveImportOnParentNamespace(import) ?? NameResolutionService.ResolveQualifiedName(import.Namespace);
 			if (null != entity)
 				return entity;
 

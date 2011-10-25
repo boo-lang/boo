@@ -40,6 +40,7 @@
 	<property name="install.boodocs" value="${path::combine(install.docsdir,'boo')}" />
 	<property name="install.booexamples" value="${path::combine(install.examplesdir,'boo')}" />
 
+	<property name="fakeroot" value="${install.destdir}" />
 	<property name="fakeroot.boolib" value="${install.destdir}/${install.boolib}" />
 	<property name="fakeroot.boodocs" value="${install.destdir}/${install.boodocs}" />
 	<property name="fakeroot.booexamples" value="${install.destdir}/${install.booexamples}" />
@@ -567,9 +568,9 @@
 		-->
 
 		<property name="sharedmime.prefix" value="${pkg-config::get-variable('shared-mime-info','prefix')}" />
-		<property name="fakeroot.sharedmime" value="${install.destdir}/${sharedmime.prefix}" />
+		<property name="fakeroot.sharedmime" value="${fakeroot}/${sharedmime.prefix}" />
 		<property name="gsv.prefix" value="${pkg-config::get-variable(gsv.name,'prefix')}" />
-		<property name="fakeroot.gsv" value="${install.destdir}/${gsv.prefix}" />
+		<property name="fakeroot.gsv" value="${fakeroot}/${gsv.prefix}" />
 
 		<mkdir dir="${fakeroot.boolib}"/>
 		<mkdir dir="${fakeroot.bindir}"/>
@@ -705,9 +706,9 @@
 		-->
 
 		<property name="sharedmime.prefix" value="${pkg-config::get-variable('shared-mime-info','prefix')}" />
-		<property name="fakeroot.sharedmime" value="${install.destdir}/${sharedmime.prefix}" />
+		<property name="fakeroot.sharedmime" value="${fakeroot}/${sharedmime.prefix}" />
 		<property name="gsv.prefix" value="${pkg-config::get-variable(gsv.name,'prefix')}" />
-		<property name="fakeroot.gsv" value="${install.destdir}/${gsv.prefix}" />
+		<property name="fakeroot.gsv" value="${fakeroot}/${gsv.prefix}" />
 		
 		<foreach item="File" property="filename">
 		<in>

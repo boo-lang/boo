@@ -23,24 +23,34 @@ namespace Boo.Lang.Runtime.Tests
 		}
 
 		[Test]
-		[ExpectedException(typeof(NullReferenceException))]
 		public void CheckNumericPromotionWithNull()
 		{
-			((Func<object, IConvertible>) RuntimeServices.CheckNumericPromotion)(null);
+			AssertNumericPromotionThrows<NullReferenceException>(null);
 		}
 
 		[Test]
-		[ExpectedException(typeof(InvalidCastException))]
 		public void CheckNumericPromotionWithString()
 		{
-			((Func<object, IConvertible>) RuntimeServices.CheckNumericPromotion)("");
+			AssertNumericPromotionThrows<InvalidCastException>("");
 		}
 
 		[Test]
-		[ExpectedException(typeof(InvalidCastException))]
 		public void CheckNumericPromotionWithDate()
 		{
-			((Func<object, IConvertible>) RuntimeServices.CheckNumericPromotion)(DateTime.Now);
+			AssertNumericPromotionThrows<InvalidCastException>(DateTime.Now);
+		}
+
+		private void AssertNumericPromotionThrows<TException>(IConvertible value)
+		{
+			try
+			{
+				RuntimeServices.CheckNumericPromotion(value);
+				Assert.Fail();
+			}
+			catch (Exception e)
+			{
+				Assert.IsInstanceOfType(typeof(TException), e);
+			}
 		}
 
 		[Test]

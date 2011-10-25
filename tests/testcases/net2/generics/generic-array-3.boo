@@ -9,5 +9,5 @@ assert a[0] is null
 
 
 b = matrix(List of Foo, 2, 3)
-b[0,1] = null
-assert b[0,1] is null
+b[0, 1] = null
+assert b[0, 1] is null

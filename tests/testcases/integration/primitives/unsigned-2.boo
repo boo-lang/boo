@@ -1,5 +1,5 @@
-import NUnit.Framework
+
 import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
-Assert.AreEqual(28, Person(Age: 28).Age)
-Assert.AreEqual(30, Person(Age: 30L).Age)
+assert 28 == Person(Age: 28).Age
+assert 30 == Person(Age: 30L).Age

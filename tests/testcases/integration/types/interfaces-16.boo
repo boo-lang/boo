@@ -1,5 +1,3 @@
-import NUnit.Framework
-
 interface IFoo:
 	def Bar() as string
 		
@@ -11,4 +9,4 @@ class Foo2(Foo1):
 		return "Foo2.Bar"
 
 foo as IFoo = Foo2()
-Assert.AreEqual("Foo2.Bar", foo.Bar())
+assert "Foo2.Bar" == foo.Bar()

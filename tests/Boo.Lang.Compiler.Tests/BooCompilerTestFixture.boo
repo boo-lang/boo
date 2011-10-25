@@ -79,9 +79,12 @@ class CompilerTestFixture:
 		Assert.IsNull(_compiler.Parameters.Pipeline, "Pipeline must be null!")
 	
 	[Test]
-	[ExpectedException(InvalidOperationException)]
 	def RunWithoutPipeline():
-		_compiler.Run()
+		try:
+			_compiler.Run()
+			Assert.Fail()
+		except InvalidOperationException:
+			pass
 	
 	[Test]
 	def RunWithPipeline():

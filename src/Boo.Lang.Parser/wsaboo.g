@@ -205,16 +205,53 @@ eos : EOF | (options { greedy = true; }: (EOS | NEWLINE))+;
 
 protected
 import_directive[Module container]
+{
+	Import node = null;
+}: 
+	node=import_directive_ eos
 	{
-		IToken id;
-		Import usingNode = null;
-	}: 
-	IMPORT id=identifier
-	{
-		usingNode = new Import(SourceLocationFactory.ToLexicalInfo(id));
-		usingNode.Namespace = id.getText();
-		container.Imports.Add(usingNode);
+		if (node != null) container.Imports.Add(node);
 	}
+;
+
+protected
+namespace_expression returns [Expression result]
+{
+	result = null;
+	ExpressionCollection names = null;
+}:
+	result=identifier_expression
+	(
+		LPAREN
+		{
+			var mie = new MethodInvocationExpression(result);
+			names = mie.Arguments;
+			result = mie;
+		}
+		expression_list[names]
+		RPAREN
+	)? 
+;
+
+protected
+identifier_expression returns [ReferenceExpression result]
+{
+	result = null;
+	IToken id = null;
+}:
+	id=identifier
+	{ if (id != null) result = new ReferenceExpression(ToLexicalInfo(id), id.getText()); }
+;
+
+protected
+import_directive_ returns [Import returnValue]
+{
+	Expression ns = null;
+	IToken id = null;
+	returnValue = null;
+}:
+	imp:IMPORT ns=namespace_expression
+	{ if (ns != null) returnValue = new Import(ToLexicalInfo(imp), ns); }
 	(
 		FROM
 			(
@@ -223,19 +260,17 @@ import_directive[Module container]
 					sqs:SINGLE_QUOTED_STRING { id=sqs; }
 			)
 		{
-			usingNode.AssemblyReference = new ReferenceExpression(SourceLocationFactory.ToLexicalInfo(id));
-			usingNode.AssemblyReference.Name = id.getText();
+			returnValue.AssemblyReference = new ReferenceExpression(ToLexicalInfo(id), id.getText());
 		}				
 	)?
 	(
 		AS alias:ID
 		{
-			usingNode.Alias = new ReferenceExpression(SourceLocationFactory.ToLexicalInfo(alias));
-			usingNode.Alias.Name = alias.getText();
+			returnValue.Alias = new ReferenceExpression(ToLexicalInfo(alias));
+			returnValue.Alias.Name = alias.getText();
 		}
 	)?
-	eos
-	;
+;
 
 protected
 namespace_directive[Module container]

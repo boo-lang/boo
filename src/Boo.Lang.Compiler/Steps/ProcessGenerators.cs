@@ -27,21 +27,17 @@
 #endregion
 
 using System.Collections;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Generators;
-using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.Util;
-using Boo.Lang.Runtime;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-	
 	public class ProcessGenerators : AbstractTransformerCompilerStep
 	{
-		public static System.Reflection.ConstructorInfo List_IEnumerableConstructor = Methods.ConstructorOf(() => new List(default(IEnumerable)));
+		public static readonly System.Reflection.ConstructorInfo List_IEnumerableConstructor = Methods.ConstructorOf(() => new List(default(IEnumerable)));
 		
 		Method _current;
 		
@@ -83,32 +79,35 @@ namespace Boo.Lang.Compiler.Steps
 			InternalMethod entity = (InternalMethod)method.Entity;
 			if (!entity.IsGenerator) return;
 
-			GeneratorMethodProcessor processor = new GeneratorMethodProcessor(Context, entity);
+			var processor = new GeneratorMethodProcessor(Context, entity);
 			processor.Run();
 		}
 
 		override public void OnListLiteralExpression(ListLiteralExpression node)
 		{
-			bool generator = AstUtil.IsListGenerator(node);
+			var generator = AstUtil.IsListGenerator(node);
 			Visit(node.Items);
 			if (generator)
-			{
 				ReplaceCurrentNode(
 					CodeBuilder.CreateConstructorInvocation(
 						TypeSystemServices.Map(List_IEnumerableConstructor),
 						node.Items[0]));
-			}
 		}
 		
 		override public void LeaveGeneratorExpression(GeneratorExpression node)
 		{
-			var collector = new ForeignReferenceCollector();
-			collector.CurrentType = (IType) AstUtil.GetParentClass(node).Entity;
+			var collector = new ForeignReferenceCollector { CurrentType = TypeContaining(node) };
 			node.Accept(collector);
 
 			var processor = new GeneratorExpressionProcessor(Context, collector, node);
 			processor.Run();
+
 			ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());
+		}
+
+		private IType TypeContaining(GeneratorExpression node)
+		{
+			return (IType) AstUtil.GetParentClass(node).Entity;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 import System
-import NUnit.Framework
+
 
 callable Function(item) as object
 
@@ -8,4 +8,4 @@ def identity(item):
 	
 d as MulticastDelegate = cast(Function, identity)
 f as Function = d
-Assert.AreEqual("foo", f("foo"))
+assert "foo" == f("foo")

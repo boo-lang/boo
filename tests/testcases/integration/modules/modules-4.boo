@@ -3,7 +3,6 @@ import System.Reflection
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
-import NUnit.Framework
 
 code = """
 print(sqrt(4))
@@ -16,4 +15,4 @@ compiler.Parameters.Input.Add(StringInput("test", code))
 compiler.Parameters.Pipeline = Compile()
 
 result = compiler.Run()
-Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)
+assert len(result.Errors) == 0, result.Errors.ToString(true) 

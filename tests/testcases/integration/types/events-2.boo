@@ -7,7 +7,6 @@ clicked again!
 clicked!
 """
 import System
-import NUnit.Framework
 
 class Button:
 	event Click as EventHandler
@@ -26,8 +25,8 @@ print("nothing printed")
 
 b.Click += def (sender, args):
 	print("clicked!")
-	Assert.AreSame(sender, b)
-	Assert.AreSame(EventArgs.Empty, args)
+	assert sender is b
+	assert EventArgs.Empty is args
 	
 b.RaiseClick()
 

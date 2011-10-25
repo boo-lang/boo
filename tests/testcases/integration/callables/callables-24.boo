@@ -1,5 +1,4 @@
 import System
-import NUnit.Framework
 
 callable BinaryFunction(a, b) as object
 
@@ -15,11 +14,11 @@ def click3(sender as string):
 handler as BinaryFunction
 
 handler = click1
-Assert.AreEqual("clicked!", handler(null, null))
+assert "clicked!" == handler(null, null)
 
 handler = click2
-Assert.AreEqual("foo clicked!", handler("foo", null))
+assert "foo clicked!" == handler("foo", null)
 
 handler = click3
-Assert.AreEqual("And bar clicked!", handler("bar", null))
+assert "And bar clicked!" == handler("bar", null)
 

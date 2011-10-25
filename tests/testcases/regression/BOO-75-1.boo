@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
@@ -13,7 +13,7 @@ def compile(code as string, references):
 		compiler.Parameters.References.Add(reference)
 	
 	result = compiler.Run()
-	Assert.Fail(result.Errors.ToString(true)) if len(result.Errors)
+	assert len(result.Errors) == 0, result.Errors.ToString(true)
 	return result.GeneratedAssembly	
 	
 library1 = """
@@ -29,14 +29,14 @@ class Bar(Foo):
 """
 
 asm1 = compile(library1, [])
-Assert.IsNotNull(asm1)
+assert asm1 is not null
 
 asm2 = compile(library2, [asm1])
-Assert.IsNotNull(asm2)
+assert asm2 is not null
 
 bar = asm2.GetType("Bar")
-Assert.IsNotNull(bar)
-Assert.AreEqual("Foo! Bar!", bar().ToString())
+assert bar is not null
+assert "Foo! Bar!" == bar().ToString()
 
 
 

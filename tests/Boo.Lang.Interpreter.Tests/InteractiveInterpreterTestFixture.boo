@@ -129,9 +129,12 @@ class InteractiveInterpreterTestFixture:
 		assert "33" == _interpreter.GetValue("value2")
 		
 	[Test]
-	[ExpectedException(System.Reflection.TargetInvocationException)]
 	def RaiseInsideEval():
-		Eval("raise System.ApplicationException()")
+		try:
+			Eval("raise System.ApplicationException()")
+			Assert.Fail()
+		except _ as System.Reflection.TargetInvocationException:
+			pass
 		
 	[Test]
 	def TreatObjectsAsDucks():

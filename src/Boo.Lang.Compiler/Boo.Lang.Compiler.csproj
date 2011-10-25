@@ -412,6 +412,7 @@
     <Compile Include="Pipelines\ParseAndPrint.cs" />
     <Compile Include="Pipelines\ParseAndPrintAst.cs" />
     <Compile Include="Pipelines\ParseAndPrintXml.cs" />
+    <Compile Include="Pipelines\RemoveEmptyBlocks.cs" />
     <Compile Include="Pipelines\ResolveExpressions.cs" />
     <Compile Include="Pipelines\Run.cs" />
     <Compile Include="Resources\EmbeddedFileResource.cs" />

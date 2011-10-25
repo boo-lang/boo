@@ -244,6 +244,11 @@ namespace Boo.Lang.Compiler.Ast
 		void IAstVisitor.OnImport(Boo.Lang.Compiler.Ast.Import node)
 		{	
 			{
+				var expression = node.Expression;
+				if (expression != null)
+					expression.Accept(this);
+			}
+			{
 				var assemblyReference = node.AssemblyReference;
 				if (assemblyReference != null)
 					assemblyReference.Accept(this);

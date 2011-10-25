@@ -1,10 +1,10 @@
-import NUnit.Framework
+
 
 fname, lname = @/ /.Split("Eric Idle")
-Assert.AreEqual("Eric", fname)
-Assert.AreEqual("Idle", lname)
+assert "Eric" == fname
+assert "Idle" == lname
 
 fname, lname = /\u0020/.Split("John Cleese")
-Assert.AreEqual("John", fname)
-Assert.AreEqual("Cleese", lname)
+assert "John" == fname
+assert "Cleese" == lname
 

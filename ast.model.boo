@@ -109,7 +109,7 @@ class NamespaceDeclaration(Node):
 	Name as string
 
 class Import(Node):
-	Namespace as string
+	Expression as Expression
 	AssemblyReference as ReferenceExpression
 	Alias as ReferenceExpression
 

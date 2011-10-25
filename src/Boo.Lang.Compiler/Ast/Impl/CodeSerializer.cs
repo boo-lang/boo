@@ -433,12 +433,12 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.Import"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
-			if (ShouldSerialize(node.Namespace))
+			if (ShouldSerialize(node.Expression))
 			{
 				mie.NamedArguments.Add(
 					new ExpressionPair(
-						CreateReference(node, "Namespace"),
-						Serialize(node.Namespace)));
+						CreateReference(node, "Expression"),
+						Serialize(node.Expression)));
 			}
 			if (ShouldSerialize(node.AssemblyReference))
 			{
