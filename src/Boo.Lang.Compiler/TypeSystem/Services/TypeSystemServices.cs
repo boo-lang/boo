@@ -866,14 +866,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		public virtual bool IsModule(Type type)
-		{
-			return type.IsClass
-			       && type.IsSealed
-			       && !type.IsNestedPublic
-			       && MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
-		}
-
 		public bool IsAttribute(IType type)
 		{
 			return type.IsSubclassOf(SystemAttribute);
