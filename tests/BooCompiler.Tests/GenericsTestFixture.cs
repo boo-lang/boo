@@ -368,7 +368,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"inference-7.boo");
 		}
 		
-		[Ignore("Anonymous callable types involving generic type arguments are not handled correctly yet (BOO-854)")][Test]
+		[Test]
 		public void inference_8()
 		{
 			RunCompilerTestCase(@"inference-8.boo");

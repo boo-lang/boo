@@ -29,17 +29,20 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Compiler.TypeSystem.Generics;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Services
 {	
 	internal class AnonymousCallablesManager
 	{
-		private TypeSystemServices _tss;
-		private IDictionary<CallableSignature, AnonymousCallableType> _cache = new Dictionary<CallableSignature, AnonymousCallableType>();
+		private readonly TypeSystemServices _tss;
+		private readonly IDictionary<CallableSignature, AnonymousCallableType> _cache = new Dictionary<CallableSignature, AnonymousCallableType>();
 		
 		public AnonymousCallablesManager(TypeSystemServices tss)
 		{
@@ -94,6 +97,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			var name = GenerateCallableTypeNameFrom(sourceNode, module);
 
 			ClassDefinition cd = My<CallableTypeBuilder>.Instance.CreateEmptyCallableDefinition(name);
+
+			var mapping = CreateGenericParametersMappingForCallableType(anonymousType);
+			if (mapping.Count > 0)
+			{
+				cd.GenericParameters = GenericParameterDeclarationCollection.FromArray(mapping.Values.ToArray());
+				anonymousType = MapAnonymousType(anonymousType, mapping);
+			}
+
 			cd.Annotate(AnonymousCallableTypeAnnotation);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
@@ -105,23 +116,72 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
 			module.Members.Add(cd);
-
+            
 			return (IType)cd.Entity;
 		}
 
-		private string GenerateCallableTypeNameFrom(Node sourceNode, Module module)
+		private AnonymousCallableType MapAnonymousType(AnonymousCallableType anonymousType, Dictionary<InternalGenericParameter, GenericParameterDeclaration> mapping)
 		{
-			var enclosing = (sourceNode.GetAncestor(NodeType.ClassDefinition) ?? sourceNode.GetAncestor(NodeType.InterfaceDefinition) ?? sourceNode.GetAncestor(NodeType.EnumDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
+			var mapper = new SimpleTypeMapper(mapping.Keys.ToArray(), Array.ConvertAll(mapping.Values.ToArray(), gpd => ((InternalGenericParameter) gpd.Entity).Type));
+			var anonymousTypeSignatue = anonymousType.GetSignature();
+			
+			var newSignature = new CallableSignature(MapParameters(mapper, anonymousTypeSignatue.Parameters),
+					mapper.MapType(anonymousTypeSignatue.ReturnType),
+					anonymousTypeSignatue.AcceptVarArgs);
+
+			var result = new AnonymousCallableType(TypeSystemServices, newSignature);
+			return result;
+		}
+
+		private IParameter[] MapParameters(SimpleTypeMapper mapper, IEnumerable<IParameter> parameters)
+		{
+			var result = new IParameter[parameters.Count()];
+			var i = 0;
+			foreach (var parameter in parameters)
+			{
+				var mappedType = mapper.MapType(parameter.Type);
+				var pd = CodeBuilder.CreateParameterDeclaration(i, "arg" + (i + 1), mappedType, parameter.IsByRef);
+				result[i] = new InternalParameter(pd, i);
+				i++;
+			}
+			return result;
+		}
+
+		private Dictionary<InternalGenericParameter, GenericParameterDeclaration> CreateGenericParametersMappingForCallableType(AnonymousCallableType anonymousType)
+		{
+			var mapping = new Dictionary<InternalGenericParameter, GenericParameterDeclaration>();
+			var collector = new TypeCollector(t => t is InternalGenericParameter);
+
+			collector.Visit(anonymousType);
+			var i = 1;
+			foreach (var igp in collector.Matches)
+			{
+				if (mapping.ContainsKey((InternalGenericParameter) igp)) continue;
+
+				var gdp = new GenericParameterDeclaration("T" + i);
+				gdp.Entity = new InternalGenericParameter(TypeSystemServices, gdp, i);
+				mapping.Add((InternalGenericParameter) igp, gdp);
+				i++;
+			}
+			return mapping;
+		}
+
+		private static string GenerateCallableTypeNameFrom(Node sourceNode, Module module)
+		{
+			var enclosing =
+				(sourceNode.GetAncestor(NodeType.ClassDefinition) ??
+				 sourceNode.GetAncestor(NodeType.InterfaceDefinition) ??
+				 sourceNode.GetAncestor(NodeType.EnumDefinition) ?? sourceNode.GetAncestor(NodeType.Module)) as TypeMember;
 			string prefix = "";
 			string postfix = "";
-			if(enclosing != null)
+			if (enclosing != null)
 			{
 				prefix += enclosing.Name;
-				enclosing = (sourceNode.GetAncestor(NodeType.Method) 
-				             ?? sourceNode.GetAncestor(NodeType.Property) 
-				             ?? sourceNode.GetAncestor(NodeType.Event) 
+				enclosing = (sourceNode.GetAncestor(NodeType.Method)
+				             ?? sourceNode.GetAncestor(NodeType.Property)
+				             ?? sourceNode.GetAncestor(NodeType.Event)
 				             ?? sourceNode.GetAncestor(NodeType.Field)) as TypeMember;
-				if(enclosing != null)
+				if (enclosing != null)
 				{
 					prefix += "_" + enclosing.Name;
 				}
@@ -131,7 +191,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			{
 				prefix += Path.GetFileNameWithoutExtension(sourceNode.LexicalInfo.FileName) + "$";
 			}
-			if(!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
+			if (!sourceNode.LexicalInfo.Equals(LexicalInfo.Empty))
 			{
 				postfix = "$" + sourceNode.LexicalInfo.Line + "_" + sourceNode.LexicalInfo.Column + postfix;
 			}
@@ -182,5 +242,45 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public static readonly object AnonymousCallableTypeAnnotation = new object();
 	}
+
+	/// <summary>
+	/// Maps types, substituting type arguments for generic parameters using "IGenericParameter to IType" mapping.
+	/// </summary>
+	internal class SimpleTypeMapper : TypeMapper
+	{
+		readonly IDictionary<IGenericParameter, IType> _map = new Dictionary<IGenericParameter, IType>();
+
+		/// <summary>
+		/// Constrcuts a new GenericMapping for a specific mapping of generic parameters to type arguments.
+		/// </summary>
+		/// <param name="parameters">The generic parameters that should be mapped.</param>
+		/// <param name="arguments">The type arguments to map generic parameters to.</param>
+		public SimpleTypeMapper(IGenericParameter[] parameters, IType[] arguments)
+		{
+			for (int i = 0; i < parameters.Length; i++)
+			{
+				_map.Add(parameters[i], arguments[i]);
+			}
+		}
+
+		/// <summary>
+		/// Maps a type involving generic parameters to the corresponding type after substituting concrete
+		/// arguments for generic parameters.
+		/// </summary>
+		/// <remarks>
+		/// If the source type is a generic parameter, it is mapped to the corresponding argument.
+		/// </remarks>
+		override public IType MapType(IType sourceType)
+		{
+			var gp = sourceType as IGenericParameter;
+			if (gp != null)
+			{
+				// Map type parameters declared on our source
+				if (_map.ContainsKey(gp)) return _map[gp];
+			}
+			return base.MapType(sourceType);
+		}
+	}
+
 }
 
