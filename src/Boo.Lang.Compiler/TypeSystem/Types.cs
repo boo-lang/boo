@@ -26,14 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections;
+using System.Text.RegularExpressions;
+using Boo.Lang.Runtime;
+	
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-	using System.Collections;
-	using System.Text.RegularExpressions;
-	using Boo.Lang.Runtime;
-
-	public class Types
+	public static class Types
 	{
 		public static readonly Type RuntimeServices = typeof(RuntimeServices);
 
@@ -47,17 +47,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type ICollection = typeof(ICollection);
 
-		public static readonly Type IList = typeof(IList);
-
-		public static readonly Type IDictionary = typeof(IDictionary);
-
 		public static readonly Type IEnumerable = typeof(IEnumerable);
 
 		public static readonly Type IEnumerableGeneric = typeof(System.Collections.Generic.IEnumerable<>);
-
-		public static readonly Type IEnumerator = typeof(IEnumerator);
-
-		public static readonly Type IDisposable = typeof(IDisposable);
 
 		public static readonly Type Object = typeof(object);
 
@@ -67,7 +59,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type Array = typeof(Array);
 
-		public static readonly Type ObjectArray = Type.GetType("System.Object[]");
+		public static readonly Type ObjectArray = typeof(object[]);
 
 		public static readonly Type Void = typeof(void);
 
@@ -101,8 +93,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type Decimal = typeof(decimal);
 
-		public static readonly Type Date = typeof(DateTime);
-
 		public static readonly Type Bool = typeof(bool);
 
 		public static readonly Type IntPtr = typeof(IntPtr);
@@ -115,11 +105,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type Delegate = typeof(Delegate);
 
-		public static readonly Type DuckTypedAttribute = typeof(Boo.Lang.DuckTypedAttribute);
+		public static readonly Type DuckTypedAttribute = typeof(DuckTypedAttribute);
 
-		public static readonly Type BooExtensionAttribute = typeof(Boo.Lang.ExtensionAttribute);
+		public static readonly Type BooExtensionAttribute = typeof(ExtensionAttribute);
 
-		public static readonly Type ClrExtensionAttribute = Type.GetType("System.Runtime.CompilerServices.ExtensionAttribute, System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+		public static readonly Type ClrExtensionAttribute = typeof(System.Runtime.CompilerServices.ExtensionAttribute);
 
 		public static readonly Type DllImportAttribute = typeof(System.Runtime.InteropServices.DllImportAttribute);
 
