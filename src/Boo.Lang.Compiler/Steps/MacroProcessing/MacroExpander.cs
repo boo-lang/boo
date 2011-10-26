@@ -474,9 +474,9 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 						return type;
 				}
 			}
-			else if (method is ExternalMethod && method.IsBooExtension)
+			else if (method is ExternalMethod && method.IsExtension)
 			{
-				IParameter[] parameters = method.GetParameters();
+				var parameters = method.GetParameters();
 				if (parameters.Length == 2 && TypeSystemServices.IsMacro(parameters[0].Type))
 					return parameters[0].Type;
 			}

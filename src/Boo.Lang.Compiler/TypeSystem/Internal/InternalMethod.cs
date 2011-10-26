@@ -43,42 +43,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		protected List _yieldStatements;
 
-		private bool? _isBooExtension;
-		private bool? _isClrExtension;
-
 		internal InternalMethod(InternalTypeSystemProvider provider, Method method) : base(method)
 		{
 			_provider = provider;
-		}
-
-		public bool IsExtension
-		{
-			get { return IsBooExtension || IsClrExtension; }
-		}
-
-		public bool IsBooExtension
-		{
-			get
-			{
-				if (null == _isBooExtension)
-				{
-					_isBooExtension = IsAttributeDefined(Types.BooExtensionAttribute);
-				}
-				return _isBooExtension.Value;
-			}
-		}
-
-		public bool IsClrExtension
-		{
-			get
-			{
-				if (null == _isClrExtension)
-				{
-					_isClrExtension = MetadataUtil.HasClrExtensions()
-					                  && IsAttributeDefined(Types.ClrExtensionAttribute);
-				}
-				return _isClrExtension.Value;
-			}
 		}
 
 		public bool IsDuckTyped
@@ -89,11 +56,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public bool IsPInvoke
 		{
 			get { return IsAttributeDefined(Types.DllImportAttribute); }
-		}
-		
-		private bool IsAttributeDefined(System.Type attributeType)
-		{
-			return IsDefined(My<TypeSystemServices>.Instance.Map(attributeType));
 		}
 
 		public bool IsAbstract

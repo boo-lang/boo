@@ -5509,10 +5509,10 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsLikelyMacroExtensionMethodInvocation(IEntity entity)
 		{
 			IMethod extension = entity as IMethod;
-			return null != extension
-				&& extension.IsBooExtension
+			return extension != null
+				&& extension.IsExtension
 				&& TypeSystemServices.IsMacro(extension.ReturnType)
-				&& 2 == extension.GetParameters().Length
+				&& extension.GetParameters().Length == 2
 				&& TypeSystemServices.IsMacro(extension.GetParameters()[0].Type);
 		}
 
