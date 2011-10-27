@@ -949,12 +949,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return IsPrimitiveNumber(type) || (type.IsValueType && 0 != SizeOf(type));
 		}
 
-		public bool RequiresBoxing(IType expectedType, IType actualType)
-		{
-			if (!actualType.IsValueType) return false;
-			return IsSystemObject(expectedType);
-		}
-
 		protected virtual void PreparePrimitives()
 		{
 			AddPrimitiveType("duck", DuckType);
