@@ -13,13 +13,12 @@ namespace BooCompiler.Tests
 	    [Test]
 		public void MyOutsideContext()
 		{
-
-	    	try
+			try
 	    	{
 	    		NameResolutionService service = My<NameResolutionService>.Instance;
 				Assert.Fail();
 	    	}
-			catch (InvalidOperationException e)
+			catch (InvalidOperationException)
 	    	{	
 	    	}
 		}
