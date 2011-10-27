@@ -53,7 +53,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static readonly IType ErrorEntity = Error.Default;
 		
 		public IType ArrayType;
-		public IType AstNodeType;
 
 		public IType BoolType;
 		public IType BuiltinsType;
@@ -191,7 +190,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IListType = Map(typeof (IList));
 			IAstMacroType = Map(typeof(IAstMacro));
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
-			AstNodeType = Map(typeof(Node));
 
 			ObjectArrayType = ObjectType.MakeArrayType(1);
 
@@ -1089,11 +1087,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool IsMacro(IType type)
 		{
 			return type.IsSubclassOf(IAstMacroType) || type.IsSubclassOf(IAstGeneratorMacroType);
-		}
-
-		public virtual bool IsAstNode(IType type)
-		{
-			return type == AstNodeType || type.IsSubclassOf(AstNodeType);
 		}
 
 		public virtual int SizeOf(IType type)
