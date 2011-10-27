@@ -44,7 +44,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		IMethod _asyncResultTypeAsyncDelegateGetter;
 		
-		List _adaptors = new List();
+		List<AdaptorRecord> _adaptors = new List<AdaptorRecord>();
 		
 		override public void Run()
 		{
