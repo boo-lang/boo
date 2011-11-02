@@ -197,16 +197,6 @@ namespace BooCompiler.Tests.TypeSystem.Reflection
 			get { throw new System.NotImplementedException(); }
 		}
 
-		public bool IsBooExtension
-		{
-			get { throw new System.NotImplementedException(); }
-		}
-
-		public bool IsClrExtension
-		{
-			get { throw new System.NotImplementedException(); }
-		}
-
 		#endregion
 
 		#region Implementation of IProperty

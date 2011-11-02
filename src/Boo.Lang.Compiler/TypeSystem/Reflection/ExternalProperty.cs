@@ -36,9 +36,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		private IParameter[] _parameters;
 		
-		private bool? _isBooExtension;
-		private bool? _isClrExtension;
-
 	    private System.Reflection.MethodInfo _accessor = null;
 
 	    private CachedMethod _getter = null;
@@ -48,35 +45,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public ExternalProperty(IReflectionTypeSystemProvider typeSystemServices, System.Reflection.PropertyInfo property)
 			: base(typeSystemServices, property)
 		{
-		}
-
-		public bool IsExtension
-		{
-			get { return IsBooExtension || IsClrExtension; }
-		}
-
-		public bool IsBooExtension
-		{
-			get
-			{
-				if (null == _isBooExtension)
-					_isBooExtension = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
-				return _isBooExtension.Value;
-			}
-		}
-
-		public bool IsClrExtension
-		{
-			get
-			{
-				if (null == _isClrExtension)
-				{
-					_isClrExtension = MetadataUtil.HasClrExtensions()
-							&& IsStatic
-							&& MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute);
-				}
-				return _isClrExtension.Value;
-			}
 		}
 
 		public virtual IType DeclaringType

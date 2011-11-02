@@ -1143,13 +1143,9 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.Equality:
 					if (IsZeroEquivalent(expression.Left))
-					{
 						EmitBranch(!branchOnTrue, expression.Right, label);
-					}
 					else if (IsZeroEquivalent(expression.Right))
-					{
 						EmitBranch(!branchOnTrue, expression.Left, label);
-					}
 					else
 					{
 						LoadCmpOperands(expression);
@@ -1267,51 +1263,78 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void EmitRawBranch(bool branch, Expression expression, Label label)
+		void EmitRawBranch(bool branch, Expression condition, Label label)
 		{
-			expression.Accept(this); PopType();
+			condition.Accept(this); PopType();
 			_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
 		}
 
-		void EmitDefaultBranch(bool branch, Expression expression, Label label)
-		{
-			expression.Accept(this);
-			IType type = PopType();
+		void EmitDefaultBranch(bool branch, Expression condition, Label label)
+		{	
+			if (branch && IsOneEquivalent(condition))
+			{
+				_il.Emit(OpCodes.Br, label);
+				return;
+			}
+
+			if (!branch && IsZeroEquivalent(condition))
+			{
+				_il.Emit(OpCodes.Br, label);
+				return;
+			}
+
+			condition.Accept(this);
+
+			var type = PopType();
 			if (type == TypeSystemServices.DoubleType || type == TypeSystemServices.SingleType)
 			{
 				EmitDefaultValue(type);
 				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
+				return;
 			}
-			else
-			{
-				EmitToBoolIfNeeded(expression);
-				_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
-			}
+
+			EmitToBoolIfNeeded(condition);
+			_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
 		}
 
-		private bool IsZeroEquivalent(Expression expression)
+		private static bool IsZeroEquivalent(Expression expression)
 		{
 			return (IsNull(expression) || IsZero(expression) || IsFalse(expression));
 		}
 
-		private bool IsNull(Expression expression)
+		private static bool IsOneEquivalent(Expression expression)
+		{
+			return IsBooleanLiteral(expression, true) || IsNumberLiteral(expression, 1);
+		}
+
+		private static bool IsNull(Expression expression)
 		{
 			return NodeType.NullLiteralExpression == expression.NodeType;
 		}
 
-		private bool IsFalse(Expression expression)
+		private static bool IsFalse(Expression expression)
 		{
-			return NodeType.BoolLiteralExpression == expression.NodeType
-				&& (false == ((BoolLiteralExpression)expression).Value);
+			return IsBooleanLiteral(expression, false);
 		}
 
-		private bool IsZero(Expression expression)
+		private static bool IsBooleanLiteral(Expression expression, bool value)
+		{
+			return NodeType.BoolLiteralExpression == expression.NodeType
+			       && (value == ((BoolLiteralExpression)expression).Value);
+		}
+
+		private static bool IsZero(Expression expression)
+		{
+			return IsNumberLiteral(expression, 0);
+		}
+
+		private static bool IsNumberLiteral(Expression expression, int value)
 		{
 			return (NodeType.IntegerLiteralExpression == expression.NodeType
-					&& (0 == ((IntegerLiteralExpression)expression).Value))
-				   ||
-				   (NodeType.DoubleLiteralExpression == expression.NodeType
-					&& (0 == ((DoubleLiteralExpression)expression).Value));
+			        && (value == ((IntegerLiteralExpression)expression).Value))
+			       ||
+			       (NodeType.DoubleLiteralExpression == expression.NodeType
+			        && (value == ((DoubleLiteralExpression)expression).Value));
 		}
 
 		override public void OnBreakStatement(BreakStatement node)

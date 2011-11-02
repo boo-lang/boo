@@ -34,11 +34,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -56,7 +53,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static readonly IType ErrorEntity = Error.Default;
 		
 		public IType ArrayType;
-		public IType AstNodeType;
 
 		public IType BoolType;
 		public IType BuiltinsType;
@@ -194,7 +190,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IListType = Map(typeof (IList));
 			IAstMacroType = Map(typeof(IAstMacro));
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
-			AstNodeType = Map(typeof(Node));
 
 			ObjectArrayType = ObjectType.MakeArrayType(1);
 
@@ -866,14 +861,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		public virtual bool IsModule(Type type)
-		{
-			return type.IsClass
-			       && type.IsSealed
-			       && !type.IsNestedPublic
-			       && MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute);
-		}
-
 		public bool IsAttribute(IType type)
 		{
 			return type.IsSubclassOf(SystemAttribute);
@@ -960,12 +947,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool IsPointerCompatible(IType type)
 		{
 			return IsPrimitiveNumber(type) || (type.IsValueType && 0 != SizeOf(type));
-		}
-
-		public bool RequiresBoxing(IType expectedType, IType actualType)
-		{
-			if (!actualType.IsValueType) return false;
-			return IsSystemObject(expectedType);
 		}
 
 		protected virtual void PreparePrimitives()
@@ -1100,11 +1081,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool IsMacro(IType type)
 		{
 			return type.IsSubclassOf(IAstMacroType) || type.IsSubclassOf(IAstGeneratorMacroType);
-		}
-
-		public virtual bool IsAstNode(IType type)
-		{
-			return type == AstNodeType || type.IsSubclassOf(AstNodeType);
 		}
 
 		public virtual int SizeOf(IType type)
