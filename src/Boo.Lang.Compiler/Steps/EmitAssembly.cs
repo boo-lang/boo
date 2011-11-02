@@ -1143,13 +1143,9 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.Equality:
 					if (IsZeroEquivalent(expression.Left))
-					{
 						EmitBranch(!branchOnTrue, expression.Right, label);
-					}
 					else if (IsZeroEquivalent(expression.Right))
-					{
 						EmitBranch(!branchOnTrue, expression.Left, label);
-					}
 					else
 					{
 						LoadCmpOperands(expression);
