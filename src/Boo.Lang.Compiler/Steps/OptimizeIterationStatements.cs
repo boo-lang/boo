@@ -54,10 +54,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		Method _currentMethod;
 
-		public OptimizeIterationStatements()
-		{
-		}
-		
 		override public void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);

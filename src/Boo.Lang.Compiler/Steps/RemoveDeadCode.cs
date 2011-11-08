@@ -73,19 +73,14 @@ namespace Boo.Lang.Compiler.Steps
 		//else it returns the index of the first unreachable in block.Statements 
 		private int DetectUnreachableCode(Block block, Statement limit)
 		{
-			bool unreachable = false;
-			int idx = 0;
-			foreach (Statement stmt in block.Statements)
+			var unreachable = false;
+			var idx = 0;
+			foreach (var stmt in block.Statements)
 			{
 				//HACK: __switch__ builtin function is hard to detect/handle
 				//		within this context, let's ignore whatever is after __switch__
-				ExpressionStatement est = stmt as ExpressionStatement;
-				if (null != est)
-				{
-					MethodInvocationExpression mie = est.Expression as MethodInvocationExpression;
-					if (null != mie && TypeSystem.BuiltinFunction.Switch == mie.Target.Entity)
-						return -1;//ignore followings
-				}
+				if (IsSwitchBuiltin(stmt))
+					return -1;//ignore followings
 
 				if (unreachable && stmt is LabelStatement)
 					return -1;
@@ -103,6 +98,18 @@ namespace Boo.Lang.Compiler.Steps
 				idx++;
 			}
 			return -1;
+		}
+
+		private static bool IsSwitchBuiltin(Statement stmt)
+		{	
+			var est = stmt as ExpressionStatement;
+			if (est != null)
+			{
+				MethodInvocationExpression mie = est.Expression as MethodInvocationExpression;
+				if (mie != null && TypeSystem.BuiltinFunction.Switch == mie.Target.Entity)
+					return true;
+			}
+			return false;
 		}
 
 		private static void RemoveStatements(Block block, int fromIndex)
