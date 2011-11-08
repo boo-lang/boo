@@ -83,7 +83,6 @@ namespace Boo.Lang.Compiler.Ast
 			get { return IsEmpty ? null : Statements.Last; }
 		}
 
-
 		public override Block ToBlock()
 		{
 			return this;
@@ -110,17 +109,22 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public void Add(Expression expression)
 		{
-			this.Statements.Add(new ExpressionStatement(expression));
+			Statements.Add(StatementFor(expression));
 		}
-		
+
 		public void Insert(int index, Expression expression)
 		{
-			this.Statements.Insert(index, new ExpressionStatement(expression));
+			Statements.Insert(index, StatementFor(expression));
 		}
-		
+
 		public void Insert(int index, Statement stmt)
 		{
 			Statements.Insert(index, stmt);
+		}
+
+		private static Statement StatementFor(Expression expression)
+		{
+			return Statement.Lift(expression);
 		}
 
 		public Statement Simplify()

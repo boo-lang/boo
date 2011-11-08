@@ -346,6 +346,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void no_unreacheable_code_warning_for_compiler_generated_code()
+		{
+			RunCompilerTestCase(@"no-unreacheable-code-warning-for-compiler-generated-code.boo");
+		}
+		
+		[Test]
 		public void nowarn_1()
 		{
 			RunCompilerTestCase(@"nowarn-1.boo");

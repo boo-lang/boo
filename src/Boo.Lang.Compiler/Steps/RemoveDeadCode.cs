@@ -86,15 +86,14 @@ namespace Boo.Lang.Compiler.Steps
 					return -1;
 
 				if (stmt == limit)
-				{
 					unreachable = true;
-				}
 				else if (unreachable)
 				{
-					Warnings.Add(
-						CompilerWarningFactory.UnreachableCodeDetected(stmt) );
+					if (!stmt.IsSynthetic)
+						Warnings.Add(CompilerWarningFactory.UnreachableCodeDetected(stmt));
 					return idx;
 				}
+
 				idx++;
 			}
 			return -1;
