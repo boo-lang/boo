@@ -250,6 +250,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCW0015_5()
+		{
+			RunCompilerTestCase(@"BCW0015-5.boo");
+		}
+		
+		[Test]
 		public void BCW0016_1()
 		{
 			RunCompilerTestCase(@"BCW0016-1.boo");
