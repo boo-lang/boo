@@ -91,7 +91,6 @@ namespace Boo.Lang.Resources
 		public const string BCE0085 = "Cannot create instance of abstract class '{0}'.";
 		public const string BCE0086 = "Cannot create instance of interface '{0}'.";
 		public const string BCE0087 = "Cannot create instance of enum '{0}'.";
-		public const string BCE0088 = "Sorry but the '{0}' prefix is reserved by the compiler. Friends?";
 		public const string BCE0089 = "Type '{0}' already has a definition for '{1}'.";
 		public const string BCE0090 = "Derived method '{0}' can not reduce the accessibility of '{1}' from '{2}' to '{3}'.";
 		public const string BCE0091 = "Event reference '{0}' cannot be used as an expression.";
