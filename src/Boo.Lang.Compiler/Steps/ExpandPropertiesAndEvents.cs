@@ -43,10 +43,27 @@ namespace Boo.Lang.Compiler.Steps
             Visit(CompileUnit);
         }
 
-        public override void LeaveBinaryExpression(BinaryExpression node)
+    	public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+    	{
+    		var property = node.Entity as IProperty;
+    		if (property == null || AstUtil.IsLhsOfAssignment(node))
+    			return;
+
+    		var getter = CodeBuilder.CreatePropertyGet(node.Target, property);
+
+    		// preserve duck typing...
+    		if (property.IsDuckTyped)
+    			ReplaceCurrentNode(
+    				CodeBuilder.CreateCast(
+    					TypeSystemServices.DuckType, getter));
+    		else
+    			ReplaceCurrentNode(getter);
+    	}
+
+    	public override void LeaveBinaryExpression(BinaryExpression node)
         {
             var eventInfo = node.Left.Entity as IEvent;
-            if (null == eventInfo)
+            if (eventInfo == null)
                 return;
 
             IMethod method;
@@ -62,51 +79,22 @@ namespace Boo.Lang.Compiler.Steps
                 MethodInvocationForEventSubscription(node, method));
         }
 
-        private MethodInvocationExpression MethodInvocationForEventSubscription(BinaryExpression node, IMethod method)
+    	private MethodInvocationExpression MethodInvocationForEventSubscription(BinaryExpression node, IMethod method)
         {
-            var methodTarget = CodeBuilder.CreateMemberReference(node.Left.LexicalInfo,
-                ((MemberReferenceExpression)node.Left).Target, method);
-
-            var mie = new MethodInvocationExpression(methodTarget);
-            mie.Arguments.Add(node.Right);
-            BindExpressionType(mie, method.ReturnType);
-            return mie;
+        	var target = ((MemberReferenceExpression) node.Left).Target;
+        	return CodeBuilder.CreateMethodInvocation(node.LexicalInfo, target, method, node.Right);
         }
 
-        private void CheckEventUnsubscribe(BinaryExpression node, IEvent eventInfo)
+    	private void CheckEventUnsubscribe(BinaryExpression node, IEvent eventInfo)
         {
-            CallableSignature expected = ((ICallableType) eventInfo.Type).GetSignature();
-            CallableSignature actual = GetCallableSignature(node.Right);
-            if (expected != actual)
-            {
-                Warnings.Add(
-                    CompilerWarningFactory.InvalidEventUnsubscribe(node, eventInfo, expected));
-            }
+            var expected = ((ICallableType) eventInfo.Type).GetSignature();
+            var actual = GetCallableSignature(node.Right);
+        	if (expected != actual)
+        		Warnings.Add(
+        			CompilerWarningFactory.InvalidEventUnsubscribe(node, eventInfo, expected));
         }
 
-        public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
-        {
-            if (null == node.Entity) return;
-            if (EntityType.Property != node.Entity.EntityType) return;
-            if (AstUtil.IsLhsOfAssignment(node)) return;
-
-            var property = (IProperty) node.Entity;
-            MethodInvocationExpression getter = CodeBuilder.CreatePropertyGet(node.Target, property);
-
-            // preserve duck typing...
-            if (property.IsDuckTyped)
-            {
-                ReplaceCurrentNode(
-                    CodeBuilder.CreateCast(
-                        TypeSystemServices.DuckType, getter));
-            }
-            else
-            {
-                ReplaceCurrentNode(getter);
-            }
-        }
-
-        private CallableSignature GetCallableSignature(Expression node)
+    	private CallableSignature GetCallableSignature(Expression node)
         {
             return ((ICallableType) GetExpressionType(node)).GetSignature();
         }
