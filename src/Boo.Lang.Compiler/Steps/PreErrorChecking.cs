@@ -34,19 +34,10 @@ using Boo.Lang.Environments;
 namespace Boo.Lang.Compiler.Steps
 {	
 	public class PreErrorChecking : AbstractVisitorCompilerStep
-	{
-		static string[] InvalidMemberPrefixes = new string[] {
-														"___",
-														"get_",
-														"set_",
-														"add_",
-														"remove_",
-														"raise_" };
-		
+	{	
 		override public void LeaveField(Field node)
 		{
 			MakeStaticIfNeeded(node);
-			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedPartial(node);
 		}
@@ -54,7 +45,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveProperty(Property node)
 		{
 			MakeStaticIfNeeded(node);
-			CheckMemberName(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
@@ -74,7 +64,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveMethod(Method node)
 		{
 			MakeStaticIfNeeded(node);
-			CheckMemberName(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
 			CheckExplicitImpl(node);
@@ -84,14 +73,12 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveEvent(Event node)
 		{
 			MakeStaticIfNeeded(node);
-			CheckMemberName(node);
 			CantBeMarkedPartial(node);
 			CheckModifierCombination(node);
 		}
 		
 		override public void LeaveInterfaceDefinition(InterfaceDefinition node)
 		{
-			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartialIfNested(node);
@@ -102,7 +89,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveCallableDefinition(CallableDefinition node)
 		{
 			MakeStaticIfNeeded(node);
-			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedTransient(node);
 			CantBeMarkedPartial(node);
@@ -110,7 +96,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public override void LeaveStructDefinition(StructDefinition node)
 		{
-			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedFinal(node);
 			CantBeMarkedStatic(node);
@@ -119,7 +104,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void LeaveEnumDefinition(EnumDefinition node)
 		{
-			CheckMemberName(node);
 			CantBeMarkedAbstract(node);
 			CantBeMarkedPartialIfNested(node);
 			CantBeMarkedFinal(node);
@@ -129,7 +113,6 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveClassDefinition(ClassDefinition node)
 		{
 			CheckModifierCombination(node);
-			CheckMemberName(node);
 			CantBeMarkedPartialIfNested(node);
 			
 			if (node.IsStatic)
@@ -216,18 +199,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (member.HasTransientModifier)
 				Error(CompilerErrorFactory.CantBeMarkedTransient(member));
-		}
-		
-		void CheckMemberName(TypeMember node)
-		{
-			foreach (string prefix in InvalidMemberPrefixes)
-			{
-				if (node.Name.StartsWith(prefix))
-				{
-					Error(CompilerErrorFactory.ReservedPrefix(node, prefix));
-					break;
-				}
-			}
 		}
 		
 		void MakeStaticIfNeeded(TypeMember node)

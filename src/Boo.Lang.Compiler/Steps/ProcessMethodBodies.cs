@@ -2950,16 +2950,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ExpandIncrementDecrement(UnaryExpression node)
 		{
-			Node expansion = null;
-			if (IsArraySlicing(node.Operand))
-			{
-				expansion = ExpandIncrementDecrementArraySlicing(node);
-			}
-			else
-			{
-				expansion = ExpandSimpleIncrementDecrement(node);
-			}
+			var expansion = IsArraySlicing(node.Operand)
+				? ExpandIncrementDecrementArraySlicing(node)
+				: ExpandSimpleIncrementDecrement(node);
+
 			node.ParentNode.Replace(node, expansion);
+
 			Visit(expansion);
 		}
 
@@ -3037,16 +3033,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		Expression ExpandSimpleIncrementDecrement(UnaryExpression node)
 		{
-			InternalLocal oldValue = DeclareOldValueTempIfNeeded(node);
-			IType type = GetExpressionType(node.Operand);
+			var oldValue = DeclareOldValueTempIfNeeded(node);
+			var type = GetExpressionType(node.Operand);
 
-			BinaryExpression addition = CodeBuilder.CreateBoundBinaryExpression(
+			var addition = CodeBuilder.CreateBoundBinaryExpression(
 				type,
 				GetEquivalentBinaryOperator(node.Operator),
 				CloneOrAssignToTemp(oldValue, node.Operand),
 				CodeBuilder.CreateIntegerLiteral(1));
 
-			BinaryExpression assign = CodeBuilder.CreateAssignment(
+			var assign = CodeBuilder.CreateAssignment(
 				node.LexicalInfo,
 				node.Operand,
 				addition);
@@ -3054,7 +3050,7 @@ namespace Boo.Lang.Compiler.Steps
 			// Resolve operator overloads if any
 			BindArithmeticOperator(addition);
 
-			return null == oldValue
+			return oldValue == null
 				? (Expression) assign
 				: CodeBuilder.CreateEvalInvocation(
 					node.LexicalInfo,
@@ -5509,10 +5505,10 @@ namespace Boo.Lang.Compiler.Steps
 		bool IsLikelyMacroExtensionMethodInvocation(IEntity entity)
 		{
 			IMethod extension = entity as IMethod;
-			return null != extension
-				&& extension.IsBooExtension
+			return extension != null
+				&& extension.IsExtension
 				&& TypeSystemServices.IsMacro(extension.ReturnType)
-				&& 2 == extension.GetParameters().Length
+				&& extension.GetParameters().Length == 2
 				&& TypeSystemServices.IsMacro(extension.GetParameters()[0].Type);
 		}
 

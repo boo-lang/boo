@@ -26,7 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
 namespace Boo.Lang.Compiler.TypeSystem
 {
 	public interface IEntityWithAttributes

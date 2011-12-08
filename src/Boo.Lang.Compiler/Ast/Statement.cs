@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public static Statement Lift(Expression node)
 		{
-			return new ExpressionStatement(node);
+			return new ExpressionStatement(node) { IsSynthetic =  node.IsSynthetic };
 		}
 		
 		public Statement()

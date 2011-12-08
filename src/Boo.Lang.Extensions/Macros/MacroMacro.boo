@@ -449,22 +449,24 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			if IsBodyArgument and not IsLastArgument:
 				raise "`${_arg.Name}` argument must be the last argument"
 
-			if not type:
+			if type is null:
 				AppendDefaultNode()
-			elif TypeSystemServices.IsAstNode(type):
+			elif IsAstNode(type):
 				AppendNode(type)
 			elif TypeSystemServices.IsLiteralPrimitive(type):
 				AppendPrimitive(type)
-			elif not _enumerable and null != (etype = TypeSystemServices.GetEnumeratorItemType(type)):
+			elif not _enumerable and (etype = TypeSystemServices.GetEnumeratorItemType(type)) is not null:
 				if not IsLastArgument:
 					raise "Enumerable or array type argument `${_arg.Name}` must be the last argument"
 				if not IsBodyArgument and _pattern.Count > 0:
-					_pattern.Add(SpliceExpression(UnaryExpression(UnaryOperatorType.Explode, [| _ |])))
+					_pattern.Add(SpliceExpression([| *_ |]))
 				_enumerable = true
 				Append(etype)
 			else:
 				raise "Unsupported type `${type.FullName}` for argument `${_arg.Name}`, a macro argument type must be a literal-able primitive or an AST node"
-
+				
+		private def IsAstNode(type as IType):
+			return type.IsSubclassOf(TypeSystemServices.Map(Boo.Lang.Compiler.Ast.Node))
 
 		private def AppendDefaultNode():
 			if IsBodyArgument:
