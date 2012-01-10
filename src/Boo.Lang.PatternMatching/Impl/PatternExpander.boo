@@ -229,6 +229,9 @@ class PatternExpander:
 		override def OnTypeofExpression(node as TypeofExpression):
 			Push node, [| $Ast.TypeofExpression(Type: $(Expand(node.Type))) |]
 			
+		override def OnListLiteralExpression(node as ListLiteralExpression):
+			Push node, [| $Ast.ListLiteralExpression(Items: $(ExpandFixedSize(node.Items))) |]
+			
 		override def OnBoolLiteralExpression(node as BoolLiteralExpression):
 			Push node, [| $Ast.BoolLiteralExpression(Value: $node) |]
 			

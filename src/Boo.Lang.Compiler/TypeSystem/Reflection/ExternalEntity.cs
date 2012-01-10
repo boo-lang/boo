@@ -43,6 +43,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		protected readonly IReflectionTypeSystemProvider _provider;
 
 		private bool? _isDuckTyped;
+		private bool? _isExtension;
 
 		public ExternalEntity(IReflectionTypeSystemProvider typeSystemServices, T memberInfo)
 		{
@@ -93,14 +94,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get
 			{
 				if (!_isDuckTyped.HasValue)
-				{
 					_isDuckTyped =
 						!MemberType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DuckTypedAttribute);
-				}
 				return _isDuckTyped.Value;
 			}
 		}
 
+		public bool IsExtension
+		{
+			get
+			{
+				if (!_isExtension.HasValue)
+					_isExtension = IsBooExtension || IsClrExtension;
+				return _isExtension.Value;
+			}
+		}
+
+		private bool IsBooExtension
+		{
+			get { return MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute); }
+		}
+
+		private bool IsClrExtension
+		{
+			get { return MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute); }
+		}
 
 		public bool IsDefined(IType attributeType)
 		{

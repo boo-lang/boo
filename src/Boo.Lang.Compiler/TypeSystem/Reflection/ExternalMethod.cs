@@ -37,15 +37,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 	public class ExternalMethod : ExternalEntity<MethodBase>, IMethod, IEquatable<ExternalMethod>
 	{
 		protected IParameter[] _parameters;
-
 		private bool? _acceptVarArgs;
-
-		private bool? _isBooExtension;
-		private bool? _isClrExtension;
-
 		private bool? _isPInvoke;
 		private bool? _isMeta;
-
 
 		internal ExternalMethod(IReflectionTypeSystemProvider provider, MethodBase mi) : base(provider, mi)
 		{
@@ -55,45 +49,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (null == _isMeta)
-				{
+				if (_isMeta == null)
 					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, typeof(Boo.Lang.MetaAttribute));
-				}
 				return _isMeta.Value;
-			}
-		}
-
-		public bool IsExtension
-		{
-			get
-			{
-				return IsBooExtension || IsClrExtension;
-			}
-		}
-
-		public bool IsBooExtension
-		{
-			get
-			{
-				if (null == _isBooExtension)
-				{
-					_isBooExtension = MetadataUtil.IsAttributeDefined(_memberInfo, Types.BooExtensionAttribute);
-				}
-				return _isBooExtension.Value;
-			}
-		}
-
-		public bool IsClrExtension
-		{
-			get
-			{
-				if (null == _isClrExtension)
-				{
-					_isClrExtension = MetadataUtil.HasClrExtensions()
-							&& IsStatic
-							&& MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute);
-				}
-				return _isClrExtension.Value;
 			}
 		}
 
@@ -101,10 +59,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			get
 			{
-				if (null == _isPInvoke)
-				{
-					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo,  Types.DllImportAttribute);
-				}
+				if (_isPInvoke == null)
+					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DllImportAttribute);
 				return _isPInvoke.Value;
 			}
 		}

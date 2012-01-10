@@ -37,9 +37,6 @@ namespace Boo.Lang
 	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
 	public class ExtensionAttribute : Attribute
 	{
-		public ExtensionAttribute()
-		{
-		}
 	}
 }
 

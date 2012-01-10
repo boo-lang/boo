@@ -35,9 +35,9 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class CheckMemberNames : AbstractVisitorCompilerStep
+	public sealed class CheckMemberNames : AbstractVisitorCompilerStep
 	{
-		protected Dictionary<string, List<TypeMember>> _members = new Dictionary<string, List<TypeMember>>(StringComparer.Ordinal);
+		private Dictionary<string, List<TypeMember>> _members = new Dictionary<string, List<TypeMember>>(StringComparer.Ordinal);
 		
 		override public void Dispose()
 		{
@@ -74,15 +74,13 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_members.Clear();
 			foreach (TypeMember member in node.Members)
-			{
 				if (_members.ContainsKey(member.Name))
 					MemberNameConflict(member);
 				else
 					_members[member.Name] = new List<TypeMember>() { member };
-			}
 		}
 
-		protected void CheckMember(List<TypeMember> list, TypeMember member)
+		private void CheckMember(List<TypeMember> list, TypeMember member)
 		{
 			switch (member.NodeType)
 			{
@@ -111,15 +109,13 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 
-		protected void CheckNonOverloadableMember(List<TypeMember> existing, TypeMember member)
+		private void CheckNonOverloadableMember(List<TypeMember> existing, TypeMember member)
 		{
 			if (existing.Count > 0)
-			{
 				MemberNameConflict(member);
-			}
 		}
 
-		protected void CheckOverloadableMember(List<TypeMember> existing, TypeMember member)
+		private void CheckOverloadableMember(List<TypeMember> existing, TypeMember member)
 		{
 			var expectedNodeType = member.NodeType;
 			foreach (TypeMember existingMember in existing)
@@ -167,40 +163,24 @@ namespace Boo.Lang.Compiler.Steps
 		bool AreDifferentInterfaceMembers(IExplicitMember lhs, IExplicitMember rhs)
 		{
 			if (lhs.ExplicitInfo == null && rhs.ExplicitInfo == null)
-			{
 				return false;
-			}
-			
-			if (
-				lhs.ExplicitInfo != null &&
-				rhs.ExplicitInfo != null &&
-				lhs.ExplicitInfo.InterfaceType.Entity == rhs.ExplicitInfo.InterfaceType.Entity
-				)
-			{
-				return false;
-			}
-
-			return true;
+			return lhs.ExplicitInfo == null || rhs.ExplicitInfo == null || lhs.ExplicitInfo.InterfaceType.Entity != rhs.ExplicitInfo.InterfaceType.Entity;
 		}
 
 		bool AreDifferentConversionOperators(TypeMember existing, TypeMember actual)
 		{
 			if ((existing.Name == "op_Implicit" || existing.Name == "op_Explicit")
 				&& existing.Name == actual.Name
-				&& existing.NodeType == NodeType.Method
-				&& existing.IsStatic && actual.IsStatic)
+				&& existing.NodeType == NodeType.Method && existing.IsStatic && actual.IsStatic)
 			{
 				IMethod one = existing.Entity as IMethod;
 				IMethod two = actual.Entity as IMethod;
-				if (one != null && two != null && one.ReturnType != two.ReturnType)
-				{
-					return true;
-				}
+				return one != null && two != null && one.ReturnType != two.ReturnType;
 			}
 			return false;
  		}
 
-		protected void MemberNameConflict(TypeMember member)
+		private void MemberNameConflict(TypeMember member)
 		{
 			MemberConflict(member, member.Name);
 		}
@@ -220,7 +200,7 @@ namespace Boo.Lang.Compiler.Steps
 			return list;
 		}
 
-		protected void CheckLikelyTypoInTypeMemberName(TypeMember member)
+		private void CheckLikelyTypoInTypeMemberName(TypeMember member)
 		{
 			foreach (string name in GetLikelyTypoNames(member))
 			{
@@ -237,7 +217,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		protected virtual IEnumerable<string> GetLikelyTypoNames(TypeMember member)
+		private IEnumerable<string> GetLikelyTypoNames(TypeMember member)
 		{
 			char first = member.Name[0];
 			if (first == 'c' || first == 'C')

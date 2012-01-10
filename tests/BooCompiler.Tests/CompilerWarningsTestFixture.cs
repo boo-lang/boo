@@ -250,6 +250,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCW0015_5()
+		{
+			RunCompilerTestCase(@"BCW0015-5.boo");
+		}
+		
+		[Test]
 		public void BCW0016_1()
 		{
 			RunCompilerTestCase(@"BCW0016-1.boo");
@@ -343,6 +349,12 @@ namespace BooCompiler.Tests
 		public void BCW0029_1()
 		{
 			RunCompilerTestCase(@"BCW0029-1.boo");
+		}
+		
+		[Test]
+		public void no_unreacheable_code_warning_for_compiler_generated_code()
+		{
+			RunCompilerTestCase(@"no-unreacheable-code-warning-for-compiler-generated-code.boo");
 		}
 		
 		[Test]

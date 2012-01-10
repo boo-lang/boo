@@ -34,6 +34,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 	public abstract class InternalEntity<T> : IInternalEntity, IEntityWithAttributes where T : TypeMember
 	{
 		protected readonly T _node;
+		private bool? _isExtension;
 
 		protected InternalEntity(T node)
 		{
@@ -60,7 +61,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			get { return (IType)EntityFor(_node.DeclaringType); }
 		}
 
-		private IEntity EntityFor(TypeMember member)
+		private static IEntity EntityFor(TypeMember member)
 		{
 			return My<InternalTypeSystemProvider>.Instance.EntityFor(member);
 		}
@@ -98,6 +99,31 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public abstract EntityType EntityType
 		{
 			get;
+		}
+
+		public bool IsExtension
+		{
+			get
+			{
+				if (!_isExtension.HasValue)
+					_isExtension = IsBooExtension || IsClrExtension;
+				return _isExtension.Value;
+			}
+		}
+
+		private bool IsBooExtension
+		{
+			get { return IsAttributeDefined(Types.BooExtensionAttribute); }
+		}
+
+		private bool IsClrExtension
+		{
+			get { return IsAttributeDefined(Types.ClrExtensionAttribute); }
+		}
+
+		protected bool IsAttributeDefined(System.Type attributeType)
+		{
+			return IsDefined(My<TypeSystemServices>.Instance.Map(attributeType));
 		}
 	}
 }

@@ -47,12 +47,12 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public void Clear()
 		{
-			if (null != _statements) _statements = null;
+			_statements = null;
 		}
 		
 		public bool IsEmpty
 		{
-			get { return (null == _statements || Statements.IsEmpty); }
+			get { return (_statements == null || Statements.IsEmpty); }
 		}
 
 		[Obsolete("HasStatements is Obsolete, use IsEmpty instead")]
@@ -83,7 +83,6 @@ namespace Boo.Lang.Compiler.Ast
 			get { return IsEmpty ? null : Statements.Last; }
 		}
 
-
 		public override Block ToBlock()
 		{
 			return this;
@@ -91,36 +90,41 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public void Add(Statement stmt)
 		{
-			Block block = stmt as Block;
-			if (null != block)
+			var block = stmt as Block;
+			if (block != null)
 				Add(block);
 			else
-				this.Statements.Add(stmt);
+				Statements.Add(stmt);
 		}
 		
 		public void Add(Block block)
 		{
 			if (block.HasAnnotations)
 			{
-				this.Statements.Add(block);
+				Statements.Add(block);
 				return;
 			}
-			this.Statements.Extend(block.Statements);
+			Statements.Extend(block.Statements);
 		}
 		
 		public void Add(Expression expression)
 		{
-			this.Statements.Add(new ExpressionStatement(expression));
+			Statements.Add(StatementFor(expression));
 		}
-		
+
 		public void Insert(int index, Expression expression)
 		{
-			this.Statements.Insert(index, new ExpressionStatement(expression));
+			Statements.Insert(index, StatementFor(expression));
 		}
-		
+
 		public void Insert(int index, Statement stmt)
 		{
-			this.Statements.Insert(index, stmt);
+			Statements.Insert(index, stmt);
+		}
+
+		private static Statement StatementFor(Expression expression)
+		{
+			return Statement.Lift(expression);
 		}
 
 		public Statement Simplify()

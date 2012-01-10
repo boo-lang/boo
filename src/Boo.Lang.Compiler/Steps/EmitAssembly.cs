@@ -1143,13 +1143,9 @@ namespace Boo.Lang.Compiler.Steps
 
 				case BinaryOperatorType.Equality:
 					if (IsZeroEquivalent(expression.Left))
-					{
 						EmitBranch(!branchOnTrue, expression.Right, label);
-					}
 					else if (IsZeroEquivalent(expression.Right))
-					{
 						EmitBranch(!branchOnTrue, expression.Left, label);
-					}
 					else
 					{
 						LoadCmpOperands(expression);
@@ -1267,51 +1263,78 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void EmitRawBranch(bool branch, Expression expression, Label label)
+		void EmitRawBranch(bool branch, Expression condition, Label label)
 		{
-			expression.Accept(this); PopType();
+			condition.Accept(this); PopType();
 			_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
 		}
 
-		void EmitDefaultBranch(bool branch, Expression expression, Label label)
-		{
-			expression.Accept(this);
-			IType type = PopType();
+		void EmitDefaultBranch(bool branch, Expression condition, Label label)
+		{	
+			if (branch && IsOneEquivalent(condition))
+			{
+				_il.Emit(OpCodes.Br, label);
+				return;
+			}
+
+			if (!branch && IsZeroEquivalent(condition))
+			{
+				_il.Emit(OpCodes.Br, label);
+				return;
+			}
+
+			condition.Accept(this);
+
+			var type = PopType();
 			if (type == TypeSystemServices.DoubleType || type == TypeSystemServices.SingleType)
 			{
 				EmitDefaultValue(type);
 				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
+				return;
 			}
-			else
-			{
-				EmitToBoolIfNeeded(expression);
-				_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
-			}
+
+			EmitToBoolIfNeeded(condition);
+			_il.Emit(branch ? OpCodes.Brtrue : OpCodes.Brfalse, label);
 		}
 
-		private bool IsZeroEquivalent(Expression expression)
+		private static bool IsZeroEquivalent(Expression expression)
 		{
 			return (IsNull(expression) || IsZero(expression) || IsFalse(expression));
 		}
 
-		private bool IsNull(Expression expression)
+		private static bool IsOneEquivalent(Expression expression)
+		{
+			return IsBooleanLiteral(expression, true) || IsNumberLiteral(expression, 1);
+		}
+
+		private static bool IsNull(Expression expression)
 		{
 			return NodeType.NullLiteralExpression == expression.NodeType;
 		}
 
-		private bool IsFalse(Expression expression)
+		private static bool IsFalse(Expression expression)
 		{
-			return NodeType.BoolLiteralExpression == expression.NodeType
-				&& (false == ((BoolLiteralExpression)expression).Value);
+			return IsBooleanLiteral(expression, false);
 		}
 
-		private bool IsZero(Expression expression)
+		private static bool IsBooleanLiteral(Expression expression, bool value)
+		{
+			return NodeType.BoolLiteralExpression == expression.NodeType
+			       && (value == ((BoolLiteralExpression)expression).Value);
+		}
+
+		private static bool IsZero(Expression expression)
+		{
+			return IsNumberLiteral(expression, 0);
+		}
+
+		private static bool IsNumberLiteral(Expression expression, int value)
 		{
 			return (NodeType.IntegerLiteralExpression == expression.NodeType
-					&& (0 == ((IntegerLiteralExpression)expression).Value))
-				   ||
-				   (NodeType.DoubleLiteralExpression == expression.NodeType
-					&& (0 == ((DoubleLiteralExpression)expression).Value));
+			        && (value == ((IntegerLiteralExpression)expression).Value))
+			       ||
+			       (NodeType.DoubleLiteralExpression == expression.NodeType
+			        && (value == ((DoubleLiteralExpression)expression).Value));
 		}
 
 		override public void OnBreakStatement(BreakStatement node)
@@ -4740,15 +4763,11 @@ namespace Boo.Lang.Compiler.Steps
 			return attributes;
 		}
 
-		PropertyAttributes GetPropertyAttributes(Property property)
+		PropertyAttributes PropertyAttributesFor(Property property)
 		{
-			PropertyAttributes attributes = PropertyAttributes.None;
-
-			if (property.ExplicitInfo != null)
-			{
-				attributes |= PropertyAttributes.SpecialName | PropertyAttributes.RTSpecialName;
-			}
-			return attributes;
+			return property.ExplicitInfo != null
+				? PropertyAttributes.SpecialName | PropertyAttributes.RTSpecialName
+				: PropertyAttributes.None;
 		}
 
 		MethodAttributes MethodAttributesFor(TypeMember member)
@@ -4775,28 +4794,21 @@ namespace Boo.Lang.Compiler.Steps
 			return attributes;
 		}
 
-		private MethodAttributes MethodVisibilityAttributesFor(TypeMember member)
+		private static MethodAttributes MethodVisibilityAttributesFor(TypeMember member)
 		{
-			MethodAttributes attributes = (MethodAttributes)0;
-			
 			if (member.IsPublic)
-				attributes = MethodAttributes.Public;
-			else if (member.IsProtected)
-				attributes = member.IsInternal
-				             	? MethodAttributes.FamORAssem
-				             	: MethodAttributes.Family;
-			else if (member.IsPrivate)
-				attributes = MethodAttributes.Private;
-			else if (member.IsInternal)
-				attributes = MethodAttributes.Assembly;
-			return attributes;
+				return MethodAttributes.Public;
+			if (member.IsProtected)
+				return member.IsInternal ? MethodAttributes.FamORAssem : MethodAttributes.Family;
+			if (member.IsInternal)
+				return MethodAttributes.Assembly;
+			return MethodAttributes.Private;
 		}
 
-		MethodAttributes GetPropertyMethodAttributes(TypeMember property)
+		MethodAttributes PropertyAccessorAttributesFor(TypeMember property)
 		{
-			MethodAttributes attributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
-			attributes |= MethodAttributesFor(property);
-			return attributes;
+			const MethodAttributes defaultPropertyAccessorAttributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+			return defaultPropertyAccessorAttributes | MethodAttributesFor(property);
 		}
 
 		MethodAttributes GetMethodAttributes(Method method)
@@ -4813,54 +4825,41 @@ namespace Boo.Lang.Compiler.Steps
 			return attributes;
 		}
 
-		FieldAttributes GetFieldAttributes(Field field)
+		static FieldAttributes FieldAttributesFor(Field field)
 		{
-			FieldAttributes attributes = 0;
-			if (field.IsProtected)
-			{
-				attributes |= FieldAttributes.Family;
-			}
-			else if (field.IsPublic)
-			{
-				attributes |= FieldAttributes.Public;
-			}
-			else if (field.IsPrivate)
-			{
-				attributes |= FieldAttributes.Private;
-			}
-			else if (field.IsInternal)
-			{
-				attributes |= FieldAttributes.Assembly;
-			}
+			var attributes = FieldVisibilityAttributeFor(field);
 			if (field.IsStatic)
-			{
 				attributes |= FieldAttributes.Static;
-			}
 			if (field.IsTransient)
-			{
 				attributes |= FieldAttributes.NotSerialized;
-			}
 			if (field.IsFinal)
 			{
 				IField entity = (IField)field.Entity;
 				if (entity.IsLiteral)
-				{
 					attributes |= FieldAttributes.Literal;
-				}
 				else
-				{
 					attributes |= FieldAttributes.InitOnly;
-				}
 			}
 			return attributes;
 		}
 
+		private static FieldAttributes FieldVisibilityAttributeFor(Field field)
+		{
+			if (field.IsProtected)
+				return FieldAttributes.Family;
+			if (field.IsPublic)
+				return FieldAttributes.Public;
+			if (field.IsInternal)
+				return FieldAttributes.Assembly;
+			return FieldAttributes.Private;
+		}
+
 		static readonly Type IsVolatileType = typeof(System.Runtime.CompilerServices.IsVolatile);
 
-		Type[] GetFieldRequiredCustomModifiers(Field field)
+		static Type[] GetFieldRequiredCustomModifiers(Field field)
 		{
 			if (field.IsVolatile)
-				return new Type[] { IsVolatileType };
+				return new[] { IsVolatileType };
 			return Type.EmptyTypes;
 		}
 
@@ -4871,88 +4870,70 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineEvent(TypeBuilder typeBuilder, Event node)
 		{
-			EventBuilder builder = typeBuilder.DefineEvent(node.Name,
-														   EventAttributes.None,
-														   GetSystemType(node.Type));
-			//MethodAttributes attribs = GetPropertyMethodAttributes(node);
-			MethodAttributes baseAttributes = MethodAttributes.SpecialName;
-			builder.SetAddOnMethod(DefineMethod(typeBuilder, node.Add, baseAttributes|GetMethodAttributes(node.Add)));
-			builder.SetRemoveOnMethod(DefineMethod(typeBuilder, node.Remove, baseAttributes|GetMethodAttributes(node.Remove)));
-
-			if (null != node.Raise)
-			{
-				builder.SetRaiseMethod(DefineMethod(typeBuilder, node.Raise, baseAttributes|GetMethodAttributes(node.Raise)));
-			}
-
+			var builder = typeBuilder.DefineEvent(node.Name, EventAttributes.None, GetSystemType(node.Type));
+			builder.SetAddOnMethod(DefineEventMethod(typeBuilder, node.Add));
+			builder.SetRemoveOnMethod(DefineEventMethod(typeBuilder, node.Remove));
+			if (node.Raise != null)
+				builder.SetRaiseMethod(DefineEventMethod(typeBuilder, node.Raise));
 			SetBuilder(node, builder);
+		}
+
+		private MethodBuilder DefineEventMethod(TypeBuilder typeBuilder, Method method)
+		{
+			return DefineMethod(typeBuilder, method, MethodAttributes.SpecialName | GetMethodAttributes(method));
 		}
 
 		void DefineProperty(TypeBuilder typeBuilder, Property property)
 		{
-			string name;
-			if (property.ExplicitInfo != null)
-			{
-				name = property.ExplicitInfo.InterfaceType.Name + "." + property.Name;
-			}
-			else
-			{
-				name = property.Name;
-			}
+			var name = property.ExplicitInfo != null
+				? property.ExplicitInfo.InterfaceType.Name + "." + property.Name
+				: property.Name;
 
-			PropertyBuilder builder = typeBuilder.DefineProperty(name,
-																 GetPropertyAttributes(property),
-																 GetSystemType(property.Type),
-																 GetParameterTypes(property.Parameters));
-			Method getter = property.Getter;
-			Method setter = property.Setter;
+			var builder = typeBuilder.DefineProperty(name,
+													PropertyAttributesFor(property),
+													GetSystemType(property.Type),
+													GetParameterTypes(property.Parameters));
+			var getter = property.Getter;
+			if (getter != null)
+				builder.SetGetMethod(DefinePropertyAccessor(typeBuilder, property, getter));
 
-			if (null != getter)
-			{
-				if (!getter.IsVisibilitySet)
-					getter.Visibility = property.Visibility;
+			var setter = property.Setter;
+			if (setter != null)
+				builder.SetSetMethod(DefinePropertyAccessor(typeBuilder, property, setter));
 
-				MethodBuilder getterBuilder =
-					DefineMethod(typeBuilder, getter, GetPropertyMethodAttributes(getter));
-				builder.SetGetMethod(getterBuilder);
-			}
-			if (null != setter)
-			{
-				if (!setter.IsVisibilitySet)
-					setter.Visibility = property.Visibility;
-
-				MethodBuilder setterBuilder =
-					DefineMethod(typeBuilder, setter, GetPropertyMethodAttributes(setter));
-				builder.SetSetMethod(setterBuilder);
-			}
-			bool isDuckTyped = GetEntity(property).IsDuckTyped;
-			if (isDuckTyped)
-			{
+			if (GetEntity(property).IsDuckTyped)
 				builder.SetCustomAttribute(CreateDuckTypedCustomAttribute());
-			}
 
 			SetBuilder(property, builder);
 		}
 
+		private MethodBuilder DefinePropertyAccessor(TypeBuilder typeBuilder, Property property, Method accessor)
+		{
+			if (!accessor.IsVisibilitySet)
+				accessor.Visibility = property.Visibility;
+			return DefineMethod(typeBuilder, accessor, PropertyAccessorAttributesFor(accessor));
+		}
+
 		void DefineField(TypeBuilder typeBuilder, Field field)
 		{
-			FieldBuilder builder = typeBuilder.DefineField(field.Name,
-														   GetSystemType(field),
-														   GetFieldRequiredCustomModifiers(field),
-														   Type.EmptyTypes,
-														   GetFieldAttributes(field));
+			var builder = typeBuilder.DefineField(field.Name,
+												GetSystemType(field),
+												GetFieldRequiredCustomModifiers(field),
+												Type.EmptyTypes,
+												FieldAttributesFor(field));
 			SetBuilder(field, builder);
 		}
 
-		delegate ParameterBuilder ParameterFactory(int index, System.Reflection.ParameterAttributes attributes, string name);
+		delegate ParameterBuilder ParameterFactory(int index, ParameterAttributes attributes, string name);
 
 		void DefineParameters(ConstructorBuilder builder, ParameterDeclarationCollection parameters)
 		{
-			DefineParameters(parameters, new ParameterFactory(builder.DefineParameter));
+			DefineParameters(parameters, builder.DefineParameter);
 		}
 
 		void DefineParameters(MethodBuilder builder, ParameterDeclarationCollection parameters)
 		{
-			DefineParameters(parameters, new ParameterFactory(builder.DefineParameter));
+			DefineParameters(parameters, builder.DefineParameter);
 		}
 
 		void DefineParameters(ParameterDeclarationCollection parameters, ParameterFactory defineParameter)
@@ -4977,14 +4958,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		}
 
-		MethodImplAttributes GetImplementationFlags(Method method)
+		static MethodImplAttributes ImplementationFlagsFor(Method method)
 		{
-			MethodImplAttributes flags = MethodImplAttributes.Managed;
-			if (method.IsRuntime)
-			{
-				flags |= MethodImplAttributes.Runtime;
-			}
-			return flags;
+			return method.IsRuntime
+				? MethodImplAttributes.Runtime
+				: MethodImplAttributes.Managed;
 		}
 
 		MethodBuilder DefineMethod(TypeBuilder typeBuilder, Method method, MethodAttributes attributes)
@@ -5020,7 +4998,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			builder.SetReturnType(GetSystemType(returnType));
 
-			builder.SetImplementationFlags(GetImplementationFlags(method));
+			builder.SetImplementationFlags(ImplementationFlagsFor(method));
 
 			DefineParameters(builder, parameters);
 
@@ -5123,7 +5101,7 @@ namespace Boo.Lang.Compiler.Steps
 																	   CallingConventions.Standard,
 																	   GetParameterTypes(constructor.Parameters));
 
-			builder.SetImplementationFlags(GetImplementationFlags(constructor));
+			builder.SetImplementationFlags(ImplementationFlagsFor(constructor));
 			DefineParameters(builder, constructor.Parameters);
 
 			SetBuilder(constructor, builder);

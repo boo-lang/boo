@@ -9,6 +9,26 @@ import Boo.Lang.Compiler.Ast
 class CodeMatchingTest:
 	
 	[Test]
+	def ListPatterns():
+		Assert.AreEqual("42", firstElementOfNestedTwoElementList([| [[42, "foo"]] |]).ToString())
+		
+	[Test]
+	def MismatchedListSize():
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [] |])
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [[]] |])
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [[1]] |])
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [[1, 2], []] |])
+		
+	def firstElementOfNestedTwoElementList(code):
+		match code:
+			case [| [[$first, $_]] |]:
+				return first
+	
+	[Test]
 	def MacroApplication():
 		Assert.AreEqual("42", firstPrintArgument([| print 42 |]).ToString())
 		

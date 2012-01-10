@@ -53,7 +53,7 @@ The following patterns are supported:
     Type(Property1: Pattern1, ...) -- object pattern
     Pattern1 | Pattern2 -- either pattern
 	Pattern1 & Pattern2 -- both pattern (NOT IMPLEMENTED)
-    Pattern1 and condition -- constrained pattern  (NOT IMPLEMENTED)
+    Pattern1 and condition -- constrained pattern
     Pattern1 or condition -- constrained pattern  (NOT IMPLEMENTED)
     (Pattern1, Pattern2) -- fixed size iteration pattern
     [Pattern1, Pattern2] -- arbitrary size iteration pattern (NOT IMPLEMENTED)

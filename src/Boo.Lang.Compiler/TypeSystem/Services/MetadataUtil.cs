@@ -31,7 +31,6 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -64,47 +63,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return constructor != null && constructor.DeclaringType == attributeType;
 		}
 
-		private static readonly MemberInfo[] NoExtensions = new MemberInfo[0];
-		private static Dictionary<Type, MemberInfo[]> _clrExtensionsMembers = new Dictionary<Type, MemberInfo[]>();
-
-		public static MemberInfo[] GetClrExtensions(Type type, string memberName)
-		{
-			if (!HasClrExtensions()) return NoExtensions;
-
-			MemberInfo[] members = null;
-			if (!_clrExtensionsMembers.TryGetValue(type, out members))
-			{
-				if (!IsAttributeDefined(type, Types.ClrExtensionAttribute))
-				{
-					_clrExtensionsMembers.Add(type, NoExtensions);
-				}
-				else
-				{
-					members = type.FindMembers(MemberTypes.Method, BindingFlags.Public | BindingFlags.Static, ClrExtensionFilter, memberName);
-					_clrExtensionsMembers.Add(type, members);
-				}
-			}
-			return members ?? NoExtensions;
-		}
-
-		public static bool HasClrExtensions()
-		{
-			return Types.ClrExtensionAttribute != null;
-		}
-
-		private static bool ClrExtensionFilter(MemberInfo member, object memberName)
-		{
-			return TypeUtilities.RemoveGenericSuffixFrom(member.Name).Equals(memberName) && IsAttributeDefined(member, Types.ClrExtensionAttribute);
-		}
-
 		public static bool IsAttributeDefined(MemberInfo member, Type attributeType)
-		{
-			if (Types.ClrExtensionAttribute == attributeType && member.DeclaringType != null)
-			{
-				MemberInfo[] members;
-				if (_clrExtensionsMembers.TryGetValue(member.DeclaringType, out members))
-					return Array.IndexOf(members, member) != -1;
-			}
+		{	
 			return System.Attribute.IsDefined(member, attributeType);
 		}
 	}
