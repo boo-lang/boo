@@ -2059,10 +2059,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (node.Operator)
 			{
-					// BOO-705
 				case BinaryOperatorType.ShiftLeft:
 				case BinaryOperatorType.ShiftRight:
-					return GetExpressionType(node.Left);
+					return TypeSystemServices.IntType;
 			}
 			return GetExpressionType(node);
 		}
