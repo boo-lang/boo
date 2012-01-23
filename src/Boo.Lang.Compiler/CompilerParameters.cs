@@ -80,7 +80,11 @@ namespace Boo.Lang.Compiler
 		public CompilerParameters() : this(true)
 		{
 		}
-		
+
+		public CompilerParameters(bool loadDefaultReferences) : this(SharedTypeSystemProvider, loadDefaultReferences)
+		{	
+		}
+
 		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider) : this(reflectionProvider, true)
 		{
 		}
@@ -94,7 +98,6 @@ namespace Boo.Lang.Compiler
 				_libPaths.Add(_systemDir);
 				_libPaths.Add(Directory.GetCurrentDirectory());
 			}
-			Pipeline = null;
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
 			_compilerReferences = new CompilerReferenceCollection(reflectionProvider);
@@ -120,10 +123,6 @@ namespace Boo.Lang.Compiler
 		{
 			var booTraceLevel = Permissions.WithEnvironmentPermission(() => System.Environment.GetEnvironmentVariable("BOO_TRACE_LEVEL"));
 			return string.IsNullOrEmpty(booTraceLevel) ? TraceLevel.Off : (TraceLevel)Enum.Parse(typeof(TraceLevel), booTraceLevel);
-		}
-
-		public CompilerParameters(bool loadDefaultReferences) : this(SharedTypeSystemProvider, loadDefaultReferences)
-		{	
 		}
 
 		public void LoadDefaultReferences()
