@@ -165,15 +165,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private void Resolve(ICollection<IEntity> targetList, string name, EntityType flags)
 		{
-			IEntity entity = My<TypeSystemServices>.Instance.ResolvePrimitive(name);
-			if (null != entity)
+			var entity = My<TypeSystemServices>.Instance.ResolvePrimitive(name);
+			if (entity != null)
 			{
 				targetList.Add(entity);
 				return;
 			}
 
 			AssertInNamespace();
-			INamespace current = CurrentNamespace;
+			var current = CurrentNamespace;
 			do
 			{
 				if (Namespaces.ResolveCoalescingNamespaces(current.ParentNamespace, current, name, flags, targetList))
