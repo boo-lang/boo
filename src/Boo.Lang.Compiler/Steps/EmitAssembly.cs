@@ -752,10 +752,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineLabels(Method method)
 		{
-			foreach (InternalLabel label in ((InternalMethod)method.Entity).Labels)
-			{
+			foreach (var label in LabelsOn(method))
 				label.Label = _il.DefineLabel();
-			}
+		}
+
+		private InternalLabel[] LabelsOn(Method method)
+		{
+			return ((InternalMethod) method.Entity).Labels;
 		}
 
 		override public void OnConstructor(Constructor constructor)
