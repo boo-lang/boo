@@ -41,6 +41,9 @@ namespace Boo.Lang.Environments
 
 		public void Add(Type need, ObjectFactory binder)
 		{
+			// workaround mono 2.6 issue affecting unity runtime tests
+			GC.KeepAlive(need.ToString());
+			
 			_bindings.Add(new KeyValuePair<Type, ObjectFactory>(need, binder));
 		}
 
