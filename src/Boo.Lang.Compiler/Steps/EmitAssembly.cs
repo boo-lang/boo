@@ -752,10 +752,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineLabels(Method method)
 		{
-			foreach (InternalLabel label in ((InternalMethod)method.Entity).Labels)
-			{
+			foreach (var label in LabelsOn(method))
 				label.Label = _il.DefineLabel();
-			}
+		}
+
+		private InternalLabel[] LabelsOn(Method method)
+		{
+			return ((InternalMethod) method.Entity).Labels;
 		}
 
 		override public void OnConstructor(Constructor constructor)
@@ -1517,24 +1520,30 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void EmitUnaryNegation(UnaryExpression node)
 		{
-			IType operandType = GetExpressionType(node.Operand);
-			if (!_checked || !TypeSystemServices.IsIntegerNumber(operandType))
-			{
-				//a single/double unary negation never overflow
-				node.Operand.Accept(this);
-				_il.Emit(OpCodes.Neg);
-			}
-			else
+			var operandType = GetExpressionType(node.Operand);
+			if (IsCheckedIntegerOperand(operandType))
 			{
 				_il.Emit(OpCodes.Ldc_I4_0);
 				if (IsLong(operandType) || operandType == TypeSystemServices.ULongType)
 					_il.Emit(OpCodes.Conv_I8);
 				node.Operand.Accept(this);
 				_il.Emit(TypeSystemServices.IsSignedNumber(operandType)
-						 ? OpCodes.Sub_Ovf : OpCodes.Sub_Ovf_Un);
+				         	? OpCodes.Sub_Ovf
+				         	: OpCodes.Sub_Ovf_Un);
 				if (!IsLong(operandType) && operandType != TypeSystemServices.ULongType)
 					EmitCastIfNeeded(operandType, TypeSystemServices.IntType);
 			}
+			else
+			{
+				//a single/double unary negation never overflow
+				node.Operand.Accept(this);
+				_il.Emit(OpCodes.Neg);
+			}
+		}
+
+		private bool IsCheckedIntegerOperand(IType operandType)
+		{
+			return _checked && IsInteger(operandType);
 		}
 
 		void EmitAddressOf(UnaryExpression node)
@@ -1939,7 +1948,7 @@ namespace Boo.Lang.Compiler.Steps
 					notContext = true;
 				return true;
 			}
-			else if (TypeSystemServices.IsIntegerNumber(type))
+			else if (IsInteger(type))
 			{
 				if (IsLong(type) || TypeSystemServices.ULongType == type)
 					_il.Emit(OpCodes.Conv_I4);
@@ -2050,10 +2059,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			switch (node.Operator)
 			{
-					// BOO-705
 				case BinaryOperatorType.ShiftLeft:
 				case BinaryOperatorType.ShiftRight:
-					return GetExpressionType(node.Left);
+					return TypeSystemServices.IntType;
 			}
 			return GetExpressionType(node);
 		}
@@ -2091,8 +2099,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 				case BinaryOperatorType.ShiftRight:
 					{
-						_il.Emit(TypeSystemServices.IsSignedNumber(type)
-								 ? OpCodes.Shr : OpCodes.Shr_Un);
+						_il.Emit(TypeSystemServices.IsSignedNumber(type) ? OpCodes.Shr : OpCodes.Shr_Un);
 						break;
 					}
 			}
@@ -2733,7 +2740,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (type.IsEnum)
 				type = TypeSystemServices.Map(GetEnumUnderlyingType(type));
 
-			if (!(TypeSystemServices.IsIntegerNumber(type) || type == TypeSystemServices.CharType))
+			if (!(IsInteger(type) || type == TypeSystemServices.CharType))
 				throw new InvalidOperationException();
 
 			var needsLongConv = true;
@@ -3862,10 +3869,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool IsInteger(IType type)
 		{
-			return type == TypeSystemServices.IntType ||
-				IsLong(type) ||
-				type == TypeSystemServices.ShortType ||
-				type == TypeSystemServices.ByteType;
+			return TypeSystemServices.IsIntegerNumber(type);
 		}
 
 		MethodInfo GetToDecimalConversionMethod(IType type)
@@ -3900,7 +3904,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		OpCode GetArithmeticOpCode(IType type, BinaryOperatorType op)
 		{
-			if (IsInteger(type) && _checked)
+			if (IsCheckedIntegerOperand(type))
 			{
 				switch (op)
 				{

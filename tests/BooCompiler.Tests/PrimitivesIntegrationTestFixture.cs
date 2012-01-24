@@ -223,6 +223,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void ulong_bitshift()
+		{
+			RunCompilerTestCase(@"ulong-bitshift.boo");
+		}
+		
+		[Test]
 		public void unsigned_1()
 		{
 			RunCompilerTestCase(@"unsigned-1.boo");
