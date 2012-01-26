@@ -43,7 +43,11 @@ namespace Boo.Lang.Compiler.Steps
 			AppDomain.CurrentDomain.AssemblyResolve += ResolveGeneratedAssembly;
 			try
 			{
-				Context.GeneratedAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
+				var entryPoint = Context.GeneratedAssembly.EntryPoint;
+				if (entryPoint.GetParameters().Length == 1)
+					entryPoint.Invoke(null, new object[] { new string[0] });
+				else
+					entryPoint.Invoke(null, null);
 			}
 			finally
 			{

@@ -40,21 +40,14 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Steps
 
-class AbstractScript:
+class ScriptBase:
 	
-	_project as Project
-	_task as BooTask
+	public Project as Project
 	
-	Project:
-		get: return _project
-		set: _project = value
-		
-	Task:
-		get: return _task
-		set: _task = value
+	public Task as BooTask
 	
 	def print(msg):
-		_task.LogInfo(msg)
+		Task.LogInfo(msg)
 	
 	abstract def Run(argv as (string)):
 		pass
@@ -64,27 +57,28 @@ class PrepareScriptStep(AbstractCompilerStep):
 	override def Run():
 		module = CompileUnit.Modules[0]
 		
-		method = [|
-			override def Run(argv as (string)):
-				pass
-		|]
-					
-		method.Body = module.Globals
-		module.Globals = Block()
-		
-		if module.Members["Main"] isa Method:
-			method.Body = [|
-				$(method.Body)
-				Main(argv)
-			|]
-		
 		script = ClassDefinition(Name: "__Script__")
-		script.BaseTypes.Add(SimpleTypeReference("Boo.NAnt.AbstractScript"))
-		script.Members.Add(method)
+		script.BaseTypes.Add(SimpleTypeReference("Boo.NAnt.ScriptBase"))
+		script.Members.Add(RunMethodFor(module))
 		script.Members.Extend(module.Members)
 		
 		module.Members.Clear()
 		module.Members.Add(script)
+		module.Globals = Block()
+		
+	def RunMethodFor(module as Module):	
+		return [|
+			override def Run(argv as (string)):
+				$(RunMethodBodyFor(module))
+		|]
+		
+	def RunMethodBodyFor(module as Module) as Statement:
+		mainMethod = module.Members["Main"] as Method 
+		if mainMethod is not null:
+			if not module.Globals.IsEmpty: raise "Either provide a Main method or global statements but not both!"
+			mainInvocation = ([| Main(argv) |] if len(mainMethod.Parameters) > 0 else [| Main() |])
+			return ExpressionStatement(mainInvocation)
+		return module.Globals
 		
 def WithWorkingDir(dir as string, block as callable()):
 	_saved = Environment.CurrentDirectory
@@ -132,7 +126,7 @@ class BooTask(AbstractBooTask):
 		print("script successfully compiled.")
 		try:
 			scriptType = result.GeneratedAssembly.GetType("__Script__", true)
-			script as AbstractScript = scriptType()
+			script as ScriptBase = scriptType()
 			script.Project = Project
 			script.Task = self
 			WithWorkingDir(Project.BaseDirectory) do:

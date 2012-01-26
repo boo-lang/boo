@@ -573,12 +573,13 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnModule(Module module)
 		{
 			_perModuleRawArrayIndexing = AstAnnotations.IsRawIndexing(module);
+			_checked = AstAnnotations.IsChecked(module, Parameters.Checked);
 			Visit(module.Members);
 		}
 
 		override public void OnEnumDefinition(EnumDefinition node)
 		{	
-			TypeBuilder typeBuilder = GetTypeBuilder(node);
+			var typeBuilder = GetTypeBuilder(node);
 			foreach (EnumMember member in node.Members)
 			{
 				var field = typeBuilder.DefineField(member.Name, typeBuilder,
@@ -738,10 +739,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnBlock(Block block)
 		{
-			bool currentChecked = _checked;
-			_checked = AstAnnotations.IsChecked(block, Parameters.Checked);
+			var currentChecked = _checked;
+			_checked = AstAnnotations.IsChecked(block, currentChecked);
 
-			bool currentArrayIndexing = _rawArrayIndexing;
+			var currentArrayIndexing = _rawArrayIndexing;
 			_rawArrayIndexing = _perModuleRawArrayIndexing || AstAnnotations.IsRawIndexing(block);
 
 			Visit(block.Statements);
