@@ -2,7 +2,8 @@
 j: OverflowException
 no exception and k is -2147483648
 l: OverflowException
-m was just fine
+m1 was just fine
+m2 still fine
 n: OverflowException
 no exception for o
 p: OverflowException
@@ -32,8 +33,12 @@ unchecked:
 	checked:
 		
 		unchecked:
-			m = i + 1
-			print "m was just fine"
+			m1 = i + 1
+			print "m1 was just fine"
+			if true:
+				m2 = i + 1
+				print "m2 still fine"
+				
 			
 		// back to checked block
 		try:
