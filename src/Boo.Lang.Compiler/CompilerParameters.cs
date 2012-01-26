@@ -434,10 +434,7 @@ namespace Boo.Lang.Compiler
 		/// <summary>
 		/// Treat System.Object as duck
 		/// </summary>
-		public virtual bool Ducky
-		{
-			get; set;
-		}
+		public virtual bool Ducky { get; set; }
 
 		public bool Checked { get; set; }
 
