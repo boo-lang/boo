@@ -579,7 +579,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnEnumDefinition(EnumDefinition node)
 		{	
-			TypeBuilder typeBuilder = GetTypeBuilder(node);
+			var typeBuilder = GetTypeBuilder(node);
 			foreach (EnumMember member in node.Members)
 			{
 				var field = typeBuilder.DefineField(member.Name, typeBuilder,
