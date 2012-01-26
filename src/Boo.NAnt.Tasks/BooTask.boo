@@ -42,9 +42,9 @@ import Boo.Lang.Compiler.Steps
 
 class ScriptBase:
 	
-	property Project as Project
+	public Project as Project
 	
-	property Task as BooTask
+	public Task as BooTask
 	
 	def print(msg):
 		Task.LogInfo(msg)
@@ -75,7 +75,7 @@ class PrepareScriptStep(AbstractCompilerStep):
 	def RunMethodBodyFor(module as Module) as Statement:
 		mainMethod = module.Members["Main"] as Method 
 		if mainMethod is not null:
-			assert module.Globals.IsEmpty, "Either provide a Main method or global statements but not both!"
+			if not module.Globals.IsEmpty: raise "Either provide a Main method or global statements but not both!"
 			mainInvocation = ([| Main(argv) |] if len(mainMethod.Parameters) > 0 else [| Main() |])
 			return ExpressionStatement(mainInvocation)
 		return module.Globals
