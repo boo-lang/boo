@@ -28,7 +28,7 @@
 
 using System;
 using System.Collections.Generic;
-using Systme.Linq;
+using System.Linq;
 using System.Reflection;
 
 namespace Boo.Lang.Runtime.DynamicDispatching
