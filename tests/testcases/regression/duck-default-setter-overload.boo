@@ -1,24 +1,21 @@
+"""
+string: the string indexer value
+object: the object indexer value
+"""
 [System.Reflection.DefaultMember("Item")]
 class Container:
-	private _value as object
-
 	Item(index as object):
-		get:
-			return _value
 		set:
-			_value = value
+			print "object: $value"
 
 	Item(index as string):
-		get:
-			return _value
 		set:
-			_value = value
-
+			print "string: $value"
 
 d = Container() as duck
 
 str = "index"
-obj = Object()
+obj = object()
 
 d[str] = "the string indexer value"
 d[obj] = "the object indexer value"
