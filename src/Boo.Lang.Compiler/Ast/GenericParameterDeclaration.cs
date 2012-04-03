@@ -26,12 +26,21 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+
 namespace Boo.Lang.Compiler.Ast
 {
-	using System;
-	
 	public partial class GenericParameterDeclaration
 	{
+		public static GenericParameterDeclaration Lift(SimpleTypeReference simpleTypeRef)
+		{
+			return new GenericParameterDeclaration(simpleTypeRef.Name);
+		}
+
+		public static GenericParameterDeclaration Lift(ReferenceExpression referenceExpression)
+		{
+			return new GenericParameterDeclaration(referenceExpression.Name);
+		}
 
 		public GenericParameterDeclaration()
 		{
@@ -45,7 +54,6 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			this.Name = name;
 		}
-
 	}
 
 }
