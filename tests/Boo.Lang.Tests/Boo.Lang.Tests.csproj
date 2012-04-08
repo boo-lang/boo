@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Environments\CachingEnvironmentTest.cs" />
     <Compile Include="Environments\DeferredEnvironmentTest.cs" />
+    <Compile Include="Environments\EnvironmentBoundValueTest.cs" />
     <Compile Include="Environments\EnvironmentProvisionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
