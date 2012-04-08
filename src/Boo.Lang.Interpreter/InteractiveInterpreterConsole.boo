@@ -82,6 +82,9 @@ class InteractiveInterpreterConsole:
 		_interpreter.SetValue("quit", Quit)
 
 		LoadHistory()
+		
+	def SetValue(name as string, value):
+		_interpreter.SetValue(name, value)
 	
 	Line:
 		get: return _line.ToString()
