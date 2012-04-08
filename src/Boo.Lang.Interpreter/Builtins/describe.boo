@@ -157,4 +157,17 @@ def GetBooTypeName(type as System.Type) as string:
 	return "date" if date is type
 	return "timespan" if timespan is type
 	return "regex" if regex is type
-	return type.FullName
+	return GenericTypeNameFor(type) if type.IsGenericType
+	return FullNameOf(type)
+	
+def FullNameOf(type as System.Type):
+	fullName = type.FullName
+	if string.IsNullOrEmpty(fullName):
+		return type.Name
+	return fullName
+	
+def GenericTypeNameFor(type as System.Type):
+	fullName = FullNameOf(type.GetGenericTypeDefinition())
+	simpleName = fullName[:fullName.IndexOf('`')]
+	parameterNames = (GetBooTypeName(t) for t in type.GetGenericArguments())
+	return "$simpleName[of $(join(parameterNames, ', '))]"
