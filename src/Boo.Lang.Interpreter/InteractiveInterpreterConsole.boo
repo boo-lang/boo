@@ -313,7 +313,7 @@ class InteractiveInterpreterConsole:
 	def AutoComplete():
 		raise InvalidOperationException("no suggestions") if _suggestions.Value is null or _selectedSuggestionIndex is null
 
-		Console.Write(_suggestions.Select[of string]({ ss | AutoCompletionFor(ss[_selectedSuggestionIndex.Value]) }).Value)
+		Write(_suggestions.Select[of string]({ ss | AutoCompletionFor(ss[_selectedSuggestionIndex.Value]) }).Value)
 		
 		_selectedSuggestionIndex = null
 		_suggestions = EnvironmentBoundValue[of (object)](null, null)
