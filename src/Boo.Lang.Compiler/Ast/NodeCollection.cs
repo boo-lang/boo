@@ -203,7 +203,7 @@ namespace Boo.Lang.Compiler.Ast
 			return _list.Contains(condition);
 		}
 
-		public bool ContainsEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
+		public bool ContainsEntity(TypeSystem.IEntity entity)
 		{
 			foreach (T node in _list)
 				if (entity == node.Entity)
@@ -211,7 +211,7 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
-		public Node RemoveByEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
+		public Node RemoveByEntity(TypeSystem.IEntity entity)
 		{
 			if (null == entity)
 				throw new ArgumentNullException("entity");
@@ -259,7 +259,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (null == condition)
 				throw new ArgumentNullException("condition");
 
-			int index = 0;
+			var index = 0;
 			foreach (T node in ToArray())
 				if (condition(node))
 					RemoveAt(index);
@@ -336,17 +336,13 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
-		public event System.EventHandler Changed
-		{
-			add { _changed += value; }
-			remove { _changed -= value; }
-		}
+		public event EventHandler Changed;
 
 		private void OnChanged()
 		{
-			if (_changed == null)
-				return;
-			_changed(this, EventArgs.Empty);
+			var changed = Changed;
+			if (changed != null)
+				changed(this, EventArgs.Empty);
 		}
 
 		override public int GetHashCode()
@@ -356,11 +352,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		override public bool Equals(object other)
 		{
-			if (null == other) return false;
-			if (this == other) return true;
-
-			NodeCollection<T> collection = other as NodeCollection<T>;
-			return Equals(collection);
+			return Equals(other as NodeCollection<T>);
 		}
 
 		public bool Equals(NodeCollection<T> other)
