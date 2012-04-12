@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public Block(params Statement[] statements)
 		{
-			Statements.Extend(statements);
+			Statements.AddRange(statements);
 		}
 		
 		public void Clear()
@@ -104,7 +104,7 @@ namespace Boo.Lang.Compiler.Ast
 				Statements.Add(block);
 				return;
 			}
-			Statements.Extend(block.Statements);
+			Statements.AddRange(block.Statements);
 		}
 		
 		public void Add(Expression expression)

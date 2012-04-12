@@ -45,13 +45,11 @@ class ApplyTemplateSemantics(AbstractCompilerStep):
 		assert 1 == len(CompileUnit.Modules)
 		
 		module = CompileUnit.Modules[0]
-		
-		for ns in _compiler.DefaultImports:
-			module.Imports.Add(Import(ns))
+		module.Imports.AddRange(Import(ns) for ns in _compiler.DefaultImports)
 			
 		template = ClassDefinition(Name: _compiler.TemplateClassName)
 		template.BaseTypes.Add(CodeBuilder.CreateTypeReference(_compiler.TemplateBaseClass))
-		template.Members.Extend(module.Members)
+		template.Members.AddRange(module.Members)
 		
 		execute = [|
 			override public def Execute() as void:
@@ -59,8 +57,7 @@ class ApplyTemplateSemantics(AbstractCompilerStep):
 		|]
 		template.Members.Add(execute)
 		
-		module.Members.Clear()
 		module.Globals = Block()
-		
+		module.Members.Clear()
 		module.Members.Add(template)
 

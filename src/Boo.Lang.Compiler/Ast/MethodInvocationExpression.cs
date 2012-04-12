@@ -49,13 +49,13 @@ namespace Boo.Lang.Compiler.Ast
 		public MethodInvocationExpression(LexicalInfo li, Expression target, params Expression[] args) : base(li)
 		{
 			this.Target = target;
-			this.Arguments.Extend(args);
+			this.Arguments.AddRange(args);
 		}
 		
 		public MethodInvocationExpression(Expression target, params Expression[] args)
 		{
 			this.Target = target;
-			this.Arguments.Extend(args);
+			this.Arguments.AddRange(args);
 		}
 		
 		public MethodInvocationExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)

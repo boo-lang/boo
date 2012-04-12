@@ -4585,7 +4585,7 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(Activator_CreateInstance, node.Target);
 			if (Activator_CreateInstance.AcceptVarArgs)
 			{
-				invocation.Arguments.Extend(node.Arguments);
+				invocation.Arguments.AddRange(node.Arguments);
 			}
 			else
 			{

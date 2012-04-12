@@ -139,9 +139,9 @@ namespace Boo.Lang.Compiler.Ast
 			if (null == node) throw new ArgumentNullException("node");
 			if (NodeType != node.NodeType) throw new ArgumentException(string.Format("Cannot merge {0} into a {1}.", node.NodeType, NodeType));
 			if (ReferenceEquals(this, node)) return;
-			Attributes.Extend(node.Attributes);
+			Attributes.AddRange(node.Attributes);
 			AddNonMatchingBaseTypes(node);
-			Members.Extend(node.Members);
+			Members.AddRange(node.Members);
 		}
 
 		private void AddNonMatchingBaseTypes(TypeDefinition node)

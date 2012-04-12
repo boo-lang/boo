@@ -29,7 +29,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Boo.Lang;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -40,10 +39,8 @@ namespace Boo.Lang.Compiler.Ast
 	public class NodeCollection<T> : ICollection<T>, ICollection, ICloneable, IEquatable<NodeCollection<T>>
 		where T : Node
 	{
-		protected Node _parent;
-
-		protected List<T> _list;
-		private EventHandler _changed;
+		private Node _parent;
+		private readonly List<T> _list;
 
 		protected NodeCollection()
 		{
@@ -295,7 +292,13 @@ namespace Boo.Lang.Compiler.Ast
 			OnChanged();
 		}
 
+		[Obsolete("Use AddRange")]
 		public void Extend(IEnumerable<T> items)
+		{
+			AddRange(items);
+		}
+
+		public void AddRange(IEnumerable<T> items)
 		{
 			AssertNotNull("items", items);
 			foreach (T item in items)
@@ -377,7 +380,7 @@ namespace Boo.Lang.Compiler.Ast
 				item.InitializeParent(_parent);
 		}
 
-		private void AssertNotNull(string descrip, object o)
+		private static void AssertNotNull(string descrip, object o)
 		{
 			if (o == null)
 				throw new ArgumentException(String.Format("null reference for: {0}", descrip));

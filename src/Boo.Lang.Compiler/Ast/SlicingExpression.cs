@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Ast
 		public SlicingExpression(Expression target, params Slice[] indices) : base(target.LexicalInfo)
 		{
 			this.Target = target;
-			this.Indices.Extend(indices);
+			this.Indices.AddRange(indices);
 		}
 	}
 }

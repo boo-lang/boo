@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Ast
 				if (typeMember != null)
 					result.Add(typeMember);
 				else
-					result.Extend((IEnumerable<TypeMember>)item);
+					result.AddRange((IEnumerable<TypeMember>)item);
 			}
 			return result;
 		}

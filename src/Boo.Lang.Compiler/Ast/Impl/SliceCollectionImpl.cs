@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class SliceCollection : NodeCollection<Boo.Lang.Compiler.Ast.Slice>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static SliceCollection FromArray(params Boo.Lang.Compiler.Ast.Slice[] items)
 		{
-			SliceCollection collection = new SliceCollection();
-			collection.Extend(items);
+			var collection = new SliceCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.SliceCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.SliceCollection range = new Boo.Lang.Compiler.Ast.SliceCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.SliceCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}

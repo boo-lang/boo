@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class ImportCollection : NodeCollection<Boo.Lang.Compiler.Ast.Import>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static ImportCollection FromArray(params Boo.Lang.Compiler.Ast.Import[] items)
 		{
-			ImportCollection collection = new ImportCollection();
-			collection.Extend(items);
+			var collection = new ImportCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.ImportCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.ImportCollection range = new Boo.Lang.Compiler.Ast.ImportCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.ImportCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}
