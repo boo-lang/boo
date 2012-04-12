@@ -294,21 +294,6 @@ namespace Boo.Lang
 			return this;
 		}
 
-		private sealed class ComparerImpl : IComparer
-		{
-			Comparison<object> _comparer;
-
-			public ComparerImpl(Comparison<object> comparer)
-			{
-				_comparer = comparer;
-			}
-
-			public int Compare(object lhs, object rhs)
-			{
-				return _comparer(lhs, rhs);
-			}
-		}
-
 		public List<T> Sort(Comparer comparer)
 		{
 			if (null == comparer)
