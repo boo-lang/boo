@@ -15,9 +15,9 @@ namespace Boo.Lang.Tests.Environments
 			var v = default(EnvironmentBoundValue<string>);
 			ActiveEnvironment.With(environment, () => v = EnvironmentBoundValue.Capture<string>());
 			
-			var actual = v.Select(value => Tuple.Create(value, ActiveEnvironment.Instance)).Value;
-			Assert.AreEqual("42", actual.Item1);
-			Assert.AreSame(environment, actual.Item2);
+			var valueEnvironmentPair = v.Select(value => new object[] { value, ActiveEnvironment.Instance }).Value;
+			Assert.AreEqual("42", valueEnvironmentPair[0]);
+			Assert.AreSame(environment, valueEnvironmentPair[1]);
 		}
 	}
 }
