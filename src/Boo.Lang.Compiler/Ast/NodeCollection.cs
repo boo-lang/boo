@@ -167,15 +167,6 @@ namespace Boo.Lang.Compiler.Ast
 					yield return node;
 		}
 
-		public T[] Select(NodeType type)
-		{
-			List<T> result = new List<T>();
-			foreach (T node in _list)
-				if (node.NodeType == type)
-					result.Add(node);
-			return result.ToArray();
-		}
-
 		protected IEnumerable InternalPopRange(int begin)
 		{
 			OnChanged();
