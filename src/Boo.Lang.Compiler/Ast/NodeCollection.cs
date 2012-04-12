@@ -142,7 +142,7 @@ namespace Boo.Lang.Compiler.Ast
 			return _list.ToArray();
 		}
 
-		public TOut[] ToArray<TOut>(Function<T, TOut> selector)
+		public TOut[] ToArray<TOut>(Func<T, TOut> selector)
 		{
 			return _list.ToArray(selector);
 		}
