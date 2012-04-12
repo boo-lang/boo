@@ -53,10 +53,10 @@ class ApplyTemplateSemantics(AbstractCompilerStep):
 		template.BaseTypes.Add(CodeBuilder.CreateTypeReference(_compiler.TemplateBaseClass))
 		template.Members.Extend(module.Members)
 		
-		execute = Method(Name: "Execute",
-					ReturnType: CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType),
-					Modifiers: TypeMemberModifiers.Public|TypeMemberModifiers.Override)
-		execute.Body = module.Globals
+		execute = [|
+			override public def Execute() as void:
+				$(module.Globals)
+		|]
 		template.Members.Add(execute)
 		
 		module.Members.Clear()
