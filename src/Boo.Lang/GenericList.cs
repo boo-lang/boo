@@ -195,9 +195,14 @@ namespace Boo.Lang
 
 		public List<T> Extend(IEnumerable enumerable)
 		{
+			AddRange(enumerable);
+			return this;
+		}
+
+		public void AddRange(IEnumerable enumerable)
+		{
 			foreach (T item in enumerable)
 				Add(item);
-			return this;
 		}
 
 		public List<T> ExtendUnique(IEnumerable enumerable)
