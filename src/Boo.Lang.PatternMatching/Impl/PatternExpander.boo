@@ -129,7 +129,8 @@ class PatternExpander:
 		pattern = node.Right
 		if pattern isa RELiteralExpression:
 			return ExpandRegexPatternWithBinding(matchValue, pattern, name)
-			
+
+		assert pattern isa MethodInvocationExpression, "Invalid capture pattern '${node}'."			
 		return ExpandObjectPattern(matchValue, name, pattern)
 		
 	def ExpandObjectPattern(matchValue as Expression, node as MethodInvocationExpression) as Expression:
