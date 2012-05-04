@@ -80,13 +80,6 @@ namespace Boo.Lang.Compiler.Ast
 			return "op_" + op;
 		}
 
-		public static bool IsComplexSlice(Slice slice)
-		{
-			return slice.End != null
-				|| slice.Step != null
-				|| slice.Begin == OmittedExpression.Default;
-		}
-
 		public static Node GetMemberAnchor(Node node)
 		{
 			var member = node as MemberReferenceExpression;

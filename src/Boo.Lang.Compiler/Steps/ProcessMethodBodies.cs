@@ -84,6 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack = new Stack();
 			_callableResolutionService = new EnvironmentProvision<CallableResolutionService>();
 			_invocationTypeReferenceRules = new EnvironmentProvision<InvocationTypeInferenceRules>();
+			_typeChecker = new EnvironmentProvision<TypeChecker>();
 			_methodCache = new EnvironmentProvision<RuntimeMethodCache>();
 		}
 
@@ -1437,248 +1438,41 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnCharLiteralExpression(CharLiteralExpression node)
 		{
-			string value = node.Value;
-			if (null == value || 1 != value.Length)
-			{
-				Errors.Add(CompilerErrorFactory.InvalidCharLiteral(node, value));
-			}
+			CheckCharLiteralValue(node);
 			BindExpressionType(node, TypeSystemServices.CharType);
 		}
 
-		IEntity[] GetSetMethods(IEntity[] entities)
+		private void CheckCharLiteralValue(CharLiteralExpression node)
 		{
-			List setMethods = new List();
-			for (int i=0; i<entities.Length; ++i)
-			{
-				IProperty property = entities[i] as IProperty;
-				if (null != property)
-				{
-					IMethod setter = property.GetSetMethod();
-					if (null != setter)
-					{
-						setMethods.AddUnique(setter);
-					}
-				}
-			}
-			return ToEntityArray(setMethods);
+			var value = node.Value;
+			if (value == null || value.Length != 1)
+				Errors.Add(CompilerErrorFactory.InvalidCharLiteral(node, value));
 		}
 
-		IEntity[] GetGetMethods(IEntity[] entities)
+		static IEntity[] GetSetMethods(IEntity[] entities)
 		{
-			List getMethods = new List();
-			for (int i=0; i<entities.Length; ++i)
-			{
-				IProperty property = entities[i] as IProperty;
-				if (null != property)
-				{
-					IMethod getter = property.GetGetMethod();
-					if (null != getter)
-					{
-						getMethods.AddUnique(getter);
-					}
-				}
-			}
-			return ToEntityArray(getMethods);
+			return GetPropertyAccessors(entities, p => p.GetSetMethod());
 		}
 
-		private static IEntity[] ToEntityArray(List entities)
+		private static IEntity[] GetGetMethods(IEntity[] entities)
 		{
-			return (IEntity[])entities.ToArray(new IEntity[entities.Count]);
+			return GetPropertyAccessors(entities, p => p.GetGetMethod());
 		}
 
-		void CheckNoComplexSlicing(SlicingExpression node)
+		private static IEntity[] GetPropertyAccessors(IEntity[] entities, Func<IProperty, IMethod> selector)
 		{
-			if (AstUtil.IsComplexSlicing(node))
-			{
+			return entities.OfType<IProperty>().Select(selector).Distinct().ToArray<IEntity>();
+		}
+
+		void AssertIsNotComplexSlicing(SlicingExpression node)
+		{
+			if (node.IsComplexSlicing())
 				NotImplemented(node, "complex slicing");
-			}
 		}
 
 		protected MethodInvocationExpression CreateEquals(BinaryExpression node)
 		{
-			return CodeBuilder.CreateMethodInvocation(RuntimeServices_EqualityOperator, node.Left, node.Right);
-		}
-
-		IntegerLiteralExpression CreateIntegerLiteral(long value)
-		{
-			IntegerLiteralExpression expression = new IntegerLiteralExpression(value);
-			Visit(expression);
-			return expression;
-		}
-
-		bool CheckComplexSlicingParameters(SlicingExpression node)
-		{
-			foreach (Slice slice in node.Indices)
-			{
-				if (!CheckComplexSlicingParameters(slice))
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-
-		bool CheckComplexSlicingParameters(Slice node)
-		{
-			if (null != node.Step)
-			{
-				NotImplemented(node, "slicing step");
-				return false;
-			}
-
-			if (OmittedExpression.Default == node.Begin)
-				node.Begin = CreateIntegerLiteral(0);
-			else if (!AssertTypeCompatibility(node.Begin, TypeSystemServices.IntType, GetExpressionType(node.Begin)))
-				return false;
-
-			if (null != node.End && OmittedExpression.Default != node.End)
-				return AssertTypeCompatibility(node.End, TypeSystemServices.IntType, GetExpressionType(node.End));
-
-			return true;
-		}
-
-		void BindComplexListSlicing(SlicingExpression node)
-		{
-			Slice slice = node.Indices[0];
-
-			if (CheckComplexSlicingParameters(slice))
-			{
-				MethodInvocationExpression mie = null;
-
-				if (null == slice.End || slice.End == OmittedExpression.Default)
-				{
-					mie = CodeBuilder.CreateMethodInvocation(node.Target, List_GetRange1);
-					mie.Arguments.Add(slice.Begin);
-				}
-				else
-				{
-					mie = CodeBuilder.CreateMethodInvocation(node.Target, List_GetRange2);
-					mie.Arguments.Add(slice.Begin);
-					mie.Arguments.Add(slice.End);
-				}
-				node.ParentNode.Replace(node, mie);
-			}
-		}
-
-		void BindComplexArraySlicing(SlicingExpression node)
-		{
-			if (AstUtil.IsLhsOfAssignment(node))
-			{
-				return;
-			}
-
-			if (CheckComplexSlicingParameters(node))
-			{
-				if (node.Indices.Count > 1)
-				{
-					IArrayType arrayType = (IArrayType)GetExpressionType(node.Target);
-					MethodInvocationExpression mie = null;
-					ArrayLiteralExpression collapse = new ArrayLiteralExpression();
-					ArrayLiteralExpression ranges = new ArrayLiteralExpression();
-					int collapseCount = 0;
-					for (int i = 0; i < node.Indices.Count; i++)
-					{
-						ranges.Items.Add(node.Indices[i].Begin);
-						if (node.Indices[i].End == null ||
-							node.Indices[i].End == OmittedExpression.Default)
-						{
-							BinaryExpression end = new BinaryExpression(BinaryOperatorType.Addition,
-																		node.Indices[i].Begin,
-																		new IntegerLiteralExpression(1));
-							ranges.Items.Add(end);
-							BindExpressionType(end, GetExpressionType(node.Indices[i].Begin));
-							collapse.Items.Add(new BoolLiteralExpression(true));
-							collapseCount++;
-						}
-						else
-						{
-							ranges.Items.Add(node.Indices[i].End);
-							collapse.Items.Add(new BoolLiteralExpression(false));
-						}
-					}
-					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetMultiDimensionalRange1, node.Target, ranges);
-					mie.Arguments.Add(collapse);
-
-					BindExpressionType(ranges, TypeSystemServices.Map(typeof(int[])));
-					BindExpressionType(collapse, TypeSystemServices.Map(typeof(bool[])));
-					BindExpressionType(mie, arrayType.ElementType.MakeArrayType(node.Indices.Count - collapseCount));
-					node.ParentNode.Replace(node, mie);
-				}
-				else
-				{
-					Slice slice = node.Indices[0];
-
-					if (CheckComplexSlicingParameters(slice))
-					{
-						MethodInvocationExpression mie = null;
-
-						if (null == slice.End || slice.End == OmittedExpression.Default)
-						{
-							mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange1, node.Target, slice.Begin);
-						}
-						else
-						{
-							mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_GetRange2, node.Target, slice.Begin, slice.End);
-						}
-
-						BindExpressionType(mie, GetExpressionType(node.Target));
-						node.ParentNode.Replace(node, mie);
-					}
-				}
-			}
-		}
-
-		bool NeedsNormalization(Expression index)
-		{
-			if (NodeType.IntegerLiteralExpression == index.NodeType)
-			{
-				return ((IntegerLiteralExpression)index).Value < 0;
-			}
-			return true;
-		}
-
-		void BindComplexStringSlicing(SlicingExpression node)
-		{
-			Slice slice = node.Indices[0];
-
-			if (CheckComplexSlicingParameters(slice))
-			{
-				MethodInvocationExpression mie = null;
-
-				if (null == slice.End || slice.End == OmittedExpression.Default)
-				{
-					if (NeedsNormalization(slice.Begin))
-					{
-						mie = CodeBuilder.CreateEvalInvocation(node.LexicalInfo);
-						mie.ExpressionType = TypeSystemServices.StringType;
-
-						InternalLocal temp = DeclareTempLocal(TypeSystemServices.StringType);
-						mie.Arguments.Add(
-							CodeBuilder.CreateAssignment(
-								CodeBuilder.CreateReference(temp),
-								node.Target));
-
-						mie.Arguments.Add(
-							CodeBuilder.CreateMethodInvocation(
-								CodeBuilder.CreateReference(temp),
-								String_Substring_Int,
-								CodeBuilder.CreateMethodInvocation(
-									RuntimeServices_NormalizeStringIndex,
-									CodeBuilder.CreateReference(temp),
-									slice.Begin)));
-					}
-					else
-					{
-						mie = CodeBuilder.CreateMethodInvocation(node.Target, String_Substring_Int, slice.Begin);
-					}
-				}
-				else
-				{
-					mie = CodeBuilder.CreateMethodInvocation(RuntimeServices_Mid, node.Target, slice.Begin, slice.End);
-				}
-
-				node.ParentNode.Replace(node, mie);
-			}
+			return CodeBuilder.CreateMethodInvocation(MethodCache.RuntimeServices_EqualityOperator, node.Left, node.Right);
 		}
 
 		protected bool IsIndexedProperty(Expression expression)
@@ -1702,6 +1496,12 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
+			if (node.IsComplexSlicing())
+			{
+				BindExpressionType(node, ResultingTypeForComplexSlicing(node));
+				return;
+			}
+
 			if (IsIndexedProperty(node.Target))
 			{
 				BindIndexedPropertySlicing(node);
@@ -1709,29 +1509,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (targetType.IsArray)
-			{
-				var arrayType = (IArrayType)targetType;
-				if (arrayType.Rank != node.Indices.Count)
-					Error(node,
-					      CompilerErrorFactory.InvalidArrayRank(node, node.Target.ToCodeString(), arrayType.Rank, node.Indices.Count));
-
-				if (AstUtil.IsComplexSlicing(node))
-					BindComplexArraySlicing(node);
-				else
-					BindExpressionType(node, arrayType.ElementType);
-
-				return;
-			}
-
-			if (AstUtil.IsComplexSlicing(node))
-			{
-				if (TypeSystemServices.StringType == targetType)
-					BindComplexStringSlicing(node);
-				else if (IsAssignableFrom(TypeSystemServices.ListType, targetType))
-					BindComplexListSlicing(node);
-				else
-					NotImplemented(node, "complex slicing for anything but lists, arrays and strings");
-
+			{	
+				BindExpressionType(node, targetType.ElementType);
 				return;
 			}
 
@@ -1750,21 +1529,27 @@ namespace Boo.Lang.Compiler.Steps
 			SliceMember(node, member);
 		}
 
+		private IType ResultingTypeForComplexSlicing(SlicingExpression node)
+		{
+			var targetType = GetExpressionType(node.Target);
+			return targetType.IsArray ? ResultingTypeForArraySlicing(node) : targetType;
+		}
+
+		IType ResultingTypeForArraySlicing(SlicingExpression node)
+		{
+			var arrayType = GetExpressionType(node.Target);
+			if (node.Indices.Count > 1)
+			{
+				var collapseCount = node.Indices.Count(t => t.End == null || t.End == OmittedExpression.Default);
+				return arrayType.ElementType.MakeArrayType(node.Indices.Count - collapseCount);
+			}
+			return arrayType;
+		}
+
 		private void BindIndexedPropertySlicing(SlicingExpression node)
 		{
-			CheckNoComplexSlicing(node);
+			AssertIsNotComplexSlicing(node);
 			SliceMember(node, node.Target.Entity);
-		}
-
-		private bool IsAmbiguous(IEntity entity)
-		{
-			return null != entity && EntityType.Ambiguous == entity.EntityType;
-		}
-
-		bool IsIndexedProperty(IEntity tag)
-		{
-			return EntityType.Property == tag.EntityType &&
-				((IProperty)tag).GetParameters().Length > 0;
 		}
 
 		void SliceMember(SlicingExpression node, IEntity member)
@@ -2955,7 +2740,7 @@ namespace Boo.Lang.Compiler.Steps
 		Expression ExpandIncrementDecrementArraySlicing(UnaryExpression node)
 		{
 			SlicingExpression slicing = (SlicingExpression)node.Operand;
-			CheckNoComplexSlicing(slicing);
+			AssertIsNotComplexSlicing(slicing);
 			Visit(slicing);
 			return CreateSideEffectAwareSlicingOperation(
 				node.LexicalInfo,
@@ -4642,8 +4427,7 @@ namespace Boo.Lang.Compiler.Steps
 				BindAssignmentToComplexSliceArray(node);
 				return;
 			}
-			
-			CheckArrayIndices(slice);
+
 			var elementType = GetExpressionType(slice.Target).ElementType;
 			var expressionType = GetExpressionType(node.Right);
 			if (!AssertTypeCompatibility(node.Right, elementType, expressionType))
@@ -4652,12 +4436,6 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			node.ExpressionType = elementType;
-		}
-
-		private void CheckArrayIndices(SlicingExpression slice)
-		{
-			foreach (var item in slice.Indices)
-				AssertTypeCompatibility(item.Begin, TypeSystemServices.IntType, GetExpressionType(item.Begin));
 		}
 
 		void BindAssignmentToComplexSliceArray(BinaryExpression node)
@@ -5389,23 +5167,20 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool AssertTypeCompatibility(Node sourceNode, IType expectedType, IType actualType)
 		{
-			if (IsError(expectedType) || IsError(actualType))
-				return false;
-
-			if (expectedType.IsPointer && actualType.IsPointer)
-				return true; //if both types are unmanaged pointers casting is always possible
-
-			if (TypeSystemServices.IsNullable(expectedType) && actualType.IsNull())
-				return true;
-
-			if (!CanBeReachedFrom(sourceNode, expectedType, actualType))
-			{
-				Error(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType, actualType));
-				return false;
-			}
-
-			return true;
+			return TypeChecker.AssertTypeCompatibility(sourceNode, expectedType, actualType);
 		}
+
+		bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType)
+		{
+			return TypeChecker.CanBeReachedFrom(anchor, expectedType, actualType);
+		}
+
+		private TypeChecker TypeChecker
+		{
+			get { return _typeChecker.Instance; }
+		}
+
+		private EnvironmentProvision<TypeChecker> _typeChecker;
 
 		bool AssertDelegateArgument(Node sourceNode, ITypedEntity delegateMember, ITypedEntity argumentInfo)
 		{
@@ -6149,19 +5924,6 @@ namespace Boo.Lang.Compiler.Steps
 																	 GetBinaryOperatorText(node.Operator),
 																	 GetExpressionType(node.Left),
 																	 GetExpressionType(node.Right)));
-		}
-
-		bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType)
-		{
-			bool byDowncast;
-			bool result = TypeSystemServices.CanBeReachedFrom(expectedType, actualType, out byDowncast);
-			if (!result)
-				return false;
-
-            if (byDowncast)
-                Warnings.Add(CompilerWarningFactory.ImplicitDowncast(anchor, expectedType, actualType));
-
-			return true;
 		}
 
 	    void TraceReturnType(Method method, IMethod tag)

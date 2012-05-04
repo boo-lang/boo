@@ -447,6 +447,7 @@
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
     <Compile Include="Steps\CheckMemberTypes.cs" />
     <Compile Include="Steps\CheckNeverUsedMembers.cs" />
+    <Compile Include="Steps\CheckSlicingExpressions.cs" />
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
     <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
@@ -455,6 +456,7 @@
     <Compile Include="Steps\EmitAssembly.cs" />
     <Compile Include="Steps\EntityPredicates.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />
+    <Compile Include="Steps\ExpandComplexSlicingExpressions.cs" />
     <Compile Include="Steps\ExpandDuckTypedExpressions.cs" />
     <Compile Include="Steps\ExpandPropertiesAndEvents.cs" />
     <Compile Include="Steps\ExpandVarArgsMethodInvocations.cs" />
@@ -481,6 +483,7 @@
     <Compile Include="Steps\MacroProcessing\NodeGeneratorExpander.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
     <Compile Include="Steps\MergePartialTypes.cs" />
+    <Compile Include="Steps\MethodTrackingVisitorCompilerStep.cs" />
     <Compile Include="Steps\NormalizeExpressions.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
@@ -649,6 +652,7 @@
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
     <Compile Include="TypeSystem\Services\RuntimeMethodCache.cs" />
+    <Compile Include="TypeSystem\Services\TypeChecker.cs" />
     <Compile Include="TypeSystem\Services\TypeCompatibilityRules.cs" />
     <Compile Include="TypeSystem\Services\TypeSystemServices.cs" />
     <Compile Include="TypeSystem\TypeCollector.cs" />

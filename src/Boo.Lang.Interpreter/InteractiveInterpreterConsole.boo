@@ -580,7 +580,7 @@ Enter boo code in the prompt below (or type /help)."""
 		WithColor color:
 			for problem as duck in problems:
 				markLocation(problem.LexicalInfo)
-				type = ("WARNING", "ERROR")[problem isa CompilerError]
+				type = ("ERROR" if problem isa CompilerError else "WARNING")
 				Console.WriteLine("${type}: ${problem.Message}")
 		return true
 
