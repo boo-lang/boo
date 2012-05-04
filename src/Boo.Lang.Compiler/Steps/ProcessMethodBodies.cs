@@ -43,11 +43,10 @@ using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
-using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
-using Module=Boo.Lang.Compiler.Ast.Module;
+using Module = Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -85,8 +84,7 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack = new Stack();
 			_callableResolutionService = new EnvironmentProvision<CallableResolutionService>();
 			_invocationTypeReferenceRules = new EnvironmentProvision<InvocationTypeInferenceRules>();
-
-			InitializeMemberCache();
+			_methodCache = new EnvironmentProvision<RuntimeMethodCache>();
 		}
 
 		override public void Run()
@@ -103,8 +101,6 @@ namespace Boo.Lang.Compiler.Steps
 			_currentMethod = null;
 			_methodStack = null;
 			_memberStack = null;
-
-			_methodCache = null;
 		}
 
 		protected CallableResolutionService CallableResolutionService
@@ -122,11 +118,6 @@ namespace Boo.Lang.Compiler.Steps
 		protected IProperty ResolveProperty(IType type, string name)
 		{
 			return NameResolutionService.ResolveProperty(type, name);
-		}
-
-		virtual protected void InitializeMemberCache()
-		{
-			_methodCache = new Dictionary<string, IMethodBase>(StringComparer.Ordinal);
 		}
 
 		override public void OnModule(Module module)
@@ -2774,11 +2765,18 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (IsRuntimeIterator(type))
 					return IsTextReader(type)
-					       	? CodeBuilder.CreateMethodInvocation(TextReaderEnumerator_lines, iterator)
-					       	: CodeBuilder.CreateMethodInvocation(RuntimeServices_GetEnumerable, iterator);
+					       	? CodeBuilder.CreateMethodInvocation(MethodCache.TextReaderEnumerator_lines, iterator)
+					       	: CodeBuilder.CreateMethodInvocation(MethodCache.RuntimeServices_GetEnumerable, iterator);
 			}
 			return iterator;
 		}
+
+		protected RuntimeMethodCache MethodCache
+		{
+			get { return _methodCache; }
+		}
+
+		private EnvironmentProvision<RuntimeMethodCache> _methodCache;
 
 		/// <summary>
 		/// Process a iterator and its declarations and returns a new iterator
@@ -2859,7 +2857,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				node.Exception = CodeBuilder.CreateConstructorInvocation(
 					node.Exception.LexicalInfo,
-					Exception_StringConstructor,
+					MethodCache.Exception_StringConstructor,
 					node.Exception);
 			}
 			else if (!TypeSystemServices.IsValidException(exceptionType))
@@ -3804,22 +3802,22 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			if (TypeSystemServices.IsSystemObject(type))
 			{
-				resultingNode = CodeBuilder.CreateMethodInvocation(RuntimeServices_Len, target);
+				resultingNode = CodeBuilder.CreateMethodInvocation(MethodCache.RuntimeServices_Len, target);
 			}
 			else if (TypeSystemServices.StringType == type)
 			{
-				resultingNode = CodeBuilder.CreateMethodInvocation(target, String_get_Length);
+				resultingNode = CodeBuilder.CreateMethodInvocation(target, MethodCache.String_get_Length);
 			}
 			else if (isArray)
 			{
 				if (node.Arguments.Count == 1)
-					resultingNode = CodeBuilder.CreateMethodInvocation(target, Array_get_Length);
+					resultingNode = CodeBuilder.CreateMethodInvocation(target, MethodCache.Array_get_Length);
 				else
-					resultingNode = CodeBuilder.CreateMethodInvocation(target, Array_GetLength, node.Arguments[1]);
+					resultingNode = CodeBuilder.CreateMethodInvocation(target, MethodCache.Array_GetLength, node.Arguments[1]);
 			}
 			else if (IsAssignableFrom(TypeSystemServices.ICollectionType, type))
 			{
-				resultingNode = CodeBuilder.CreateMethodInvocation(target, ICollection_get_Count);
+				resultingNode = CodeBuilder.CreateMethodInvocation(target, MethodCache.ICollection_get_Count);
 			}
 			else if (GenericsServices.HasConstructedType(type, TypeSystemServices.ICollectionGenericType))
 			{
@@ -4539,12 +4537,12 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (IsAssignableFrom(TypeSystemServices.ICallableType, type))
 			{
-				node.Target = CodeBuilder.CreateMemberReference(node.Target, ICallable_Call);
+				node.Target = CodeBuilder.CreateMemberReference(node.Target, MethodCache.ICallable_Call);
 				ArrayLiteralExpression arg = CodeBuilder.CreateObjectArray(node.Arguments);
 				node.Arguments.Clear();
 				node.Arguments.Add(arg);
 
-				BindExpressionType(node, ICallable_Call.ReturnType);
+				BindExpressionType(node, MethodCache.ICallable_Call.ReturnType);
 			}
 			else if (TypeSystemServices.TypeType == type)
 			{
@@ -4579,8 +4577,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private MethodInvocationExpression CreateInstanceInvocationFor(MethodInvocationExpression node)
 		{
-			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(Activator_CreateInstance, node.Target);
-			if (Activator_CreateInstance.AcceptVarArgs)
+			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(MethodCache.Activator_CreateInstance, node.Target);
+			if (MethodCache.Activator_CreateInstance.AcceptVarArgs)
 			{
 				invocation.Arguments.AddRange(node.Arguments);
 			}
@@ -4688,7 +4686,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			var mie = CodeBuilder.CreateMethodInvocation(
-				RuntimeServices_SetMultiDimensionalRange1,
+				MethodCache.RuntimeServices_SetMultiDimensionalRange1,
 				node.Right,
 				slice.Target,
 				ale);
@@ -5191,7 +5189,7 @@ namespace Boo.Lang.Compiler.Steps
 					CodeBuilder.CreateCast(
 						lhs,
 						CodeBuilder.CreateMethodInvocation(
-							RuntimeServices_AddArrays,
+							MethodCache.RuntimeServices_AddArrays,
 							CodeBuilder.CreateTypeofExpression(lhs.ElementType),
 							node.Left,
 							node.Right)));
@@ -6180,151 +6178,6 @@ namespace Boo.Lang.Compiler.Steps
 			_context.TraceInfo("{0}: return type for method {1} bound to {2}", method.LexicalInfo, method.Name, tag.ReturnType);
 		}
 
-		#region Method bindings cache
-		IMethod RuntimeServices_Len
-		{
-			get { return CachedRuntimeServicesMethod("Len", () => Methods.Of<object, int>(RuntimeServices.Len)); }
-		}
-
-		IMethod RuntimeServices_Mid
-		{
-			get { return CachedRuntimeServicesMethod("Mid", () => Methods.Of<string, int, int, string>(RuntimeServices.Mid)); }
-		}
-
-		IMethod RuntimeServices_NormalizeStringIndex
-		{
-			get { return CachedRuntimeServicesMethod("NormalizeStringIndex", () => Methods.Of<string, int, int>(RuntimeServices.NormalizeStringIndex)); }
-		}
-
-		IMethod RuntimeServices_AddArrays
-		{
-			get { return CachedRuntimeServicesMethod("AddArrays", () => Methods.Of<Type, Array, Array, Array>(RuntimeServices.AddArrays)); }
-		}
-
-		IMethod RuntimeServices_GetRange1
-		{
-			get { return CachedRuntimeServicesMethod("GetRange1", () => Methods.Of<Array, int, Array>(RuntimeServices.GetRange1)); }
-		}
-
-		IMethod RuntimeServices_GetRange2
-		{
-			get { return CachedRuntimeServicesMethod("GetRange2", () => Methods.Of<Array, int, int, Array>(RuntimeServices.GetRange2)); }
-		}
-
-		IMethod RuntimeServices_GetMultiDimensionalRange1
-		{
-			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1", () => Methods.Of<Array, int[], bool[], Array>(RuntimeServices.GetMultiDimensionalRange1)); }
-		}
-
-		IMethod RuntimeServices_SetMultiDimensionalRange1
-		{
-			get { return CachedRuntimeServicesMethod("SetMultiDimensionalRange1", () => Methods.Of<Array, Array, int[], bool[]>(RuntimeServices.SetMultiDimensionalRange1)); }
-		}
-
-		IMethod RuntimeServices_GetEnumerable
-		{
-			get { return CachedRuntimeServicesMethod("GetEnumerable", () => Methods.Of<object, IEnumerable>(RuntimeServices.GetEnumerable)); }
-		}
-
-		private IMethod CachedRuntimeServicesMethod(string methodName, Func<MethodInfo> producer)
-		{
-			return CachedMethod("RuntimeServices_" + methodName, producer);
-		}
-
-		IMethod RuntimeServices_EqualityOperator
-		{
-			get { return CachedMethod("RuntimeServices_EqualityOperator", () => Methods.Of<object, object, bool>(RuntimeServices.EqualityOperator)); }
-		}
-
-		IMethod Array_get_Length
-		{
-			get { return CachedMethod("Array_get_Length", () => Methods.GetterOf<Array, int>(a => a.Length)); }
-		}
-
-		IMethod Array_GetLength
-		{
-			get { return CachedMethod("Array_GetLength", () => Methods.InstanceFunctionOf<Array, int, int>(a => a.GetLength)); }
-		}
-		
-
-		IMethod String_get_Length
-		{
-			get { return CachedMethod("String_get_Length", () => Methods.GetterOf<string, int>(s => s.Length)); }
-		}
-
-		IMethod String_Substring_Int
-		{
-			get { return CachedMethod("String_Substring_Int", () => Methods.InstanceFunctionOf<string, int, string>(s => s.Substring)); }
-		}
-
-		IMethod ICollection_get_Count
-		{
-			get { return CachedMethod("ICollection_get_Count", () => Methods.GetterOf<ICollection, int>(c => c.Count)); }
-		}
-
-		IMethod List_GetRange1
-		{
-			get { return CachedMethod("List_GetRange1", () => Methods.InstanceFunctionOf<List<object>, int, List<object>>(l => l.GetRange)); }
-		}
-
-		IMethod List_GetRange2
-		{
-			get { return CachedMethod("List_GetRange2", () => Methods.InstanceFunctionOf<List<object>, int, int, List<object>>(l => l.GetRange)); }
-		}
-
-		IMethod ICallable_Call
-		{
-			get { return CachedMethod("ICallable_Call", () => Methods.InstanceFunctionOf<ICallable, object[], object>(c => c.Call)); }
-		}
-
-		Dictionary<string, IMethodBase> _methodCache;
-	    
-		IMethod CachedMethod(string key, Func<MethodInfo> producer)
-		{
-			return (IMethod)CachedMethodBase(key, () => TypeSystemServices.Map(producer()));
-		}
-
-		IConstructor CachedConstructor(string key, Func<IMethodBase> producer)
-		{
-			return (IConstructor)CachedMethodBase(key, producer);
-		}
-
-		private IMethodBase CachedMethodBase(string key, Func<IMethodBase> producer)
-		{
-			IMethodBase method;
-			if (!_methodCache.TryGetValue(key, out method))
-			{
-				method = producer();
-				_methodCache.Add(key, method);
-			}
-			return method;
-		}
-
-		IMethod Activator_CreateInstance
-		{
-			get
-			{
-				return CachedMethod("Activator_CreateInstance", () => Methods.Of<Type, object[], object>(Activator.CreateInstance));
-			}
-		}
-
-		IConstructor Exception_StringConstructor
-		{
-			get
-			{
-				return CachedConstructor("Exception_StringConstructor", delegate
-				{
-					return TypeSystemServices.GetStringExceptionConstructor();
-				});
-			}
-		}
-
-		IMethod TextReaderEnumerator_lines
-		{
-			get { return CachedMethod("TextReaderEnumerator_lines", () => Methods.Of<TextReader, IEnumerable<string>>(TextReaderEnumerator.lines)); }
-		}
-		#endregion
-
 
 		public bool OptimizeNullComparisons
 		{
@@ -6344,4 +6197,3 @@ namespace Boo.Lang.Compiler.Steps
 		}
 	}
 }
-
