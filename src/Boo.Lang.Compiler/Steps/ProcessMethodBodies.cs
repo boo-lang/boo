@@ -1683,17 +1683,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected bool IsIndexedProperty(Expression expression)
 		{
-			IEntity entity = expression.Entity;
-			if (null != entity)
-			{
-				return IsIndexedProperty(entity);
-			}
-			return false;
+			return expression.Entity.IsIndexedProperty();
 		}
 
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
-			if (IsAmbiguous(node.Target.Entity))
+			if (node.Target.Entity.IsAmbiguous())
 			{
 				BindIndexedPropertySlicing(node);
 				return;
@@ -2488,7 +2483,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (EntityType.Property == entity.EntityType)
 			{
 				IProperty property = (IProperty)entity;
-				if (IsIndexedProperty(property))
+				if (property.IsIndexedProperty())
 				{
 					if (!AstUtil.IsTargetOfSlicing(node)
 						&& (!property.IsExtension || property.GetParameters().Length > 1))
@@ -4625,7 +4620,7 @@ namespace Boo.Lang.Compiler.Steps
 			var slice = (SlicingExpression)node.Left;
 
 			var expression = slice.Target;
-			if (!IsAmbiguous(expression.Entity) && IsArray(expression))
+			if (!expression.Entity.IsAmbiguous() && IsArray(expression))
 				BindAssignmentToSliceArray(node);
 			else if (TypeSystemServices.IsDuckTyped(expression))
 				BindExpressionType(node, TypeSystemServices.DuckType);
@@ -4757,13 +4752,9 @@ namespace Boo.Lang.Compiler.Steps
 			BindNullableOperation(node);
 
 			if (NodeType.SlicingExpression == node.Left.NodeType)
-			{
 				BindAssignmentToSlice(node);
-			}
 			else
-			{
 				ProcessAssignment(node);
-			}
 		}
 
 		virtual protected void ProcessAssignment(BinaryExpression node)
@@ -4810,7 +4801,7 @@ namespace Boo.Lang.Compiler.Steps
 		private void CheckAssignmentToIndexedProperty(Node node, IEntity lhs)
 		{
 			var property = lhs as IProperty;
-			if (property != null && IsIndexedProperty(property))
+			if (property != null && property.IsIndexedProperty())
 				Error(CompilerErrorFactory.PropertyRequiresParameters(MemberAnchorFor(node), property));
 		}
 
@@ -6121,8 +6112,8 @@ namespace Boo.Lang.Compiler.Steps
 		public static bool IsArraySlicing(Node node)
 		{
 			if (node.NodeType != NodeType.SlicingExpression) return false;
-			IType type = ((SlicingExpression)node).Target.ExpressionType;
-			return null != type && type.IsArray;
+			var type = ((SlicingExpression)node).Target.ExpressionType;
+			return type != null && type.IsArray;
 		}
 
 		private static bool IsStandaloneReference(Node node)

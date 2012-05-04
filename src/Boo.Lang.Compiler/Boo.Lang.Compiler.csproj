@@ -537,6 +537,7 @@
     <Compile Include="TypeSystem\Core\Namespaces.cs" />
     <Compile Include="TypeSystem\Core\ResolvedNamespaces.cs" />
     <Compile Include="TypeSystem\Core\SimpleNamespace.cs" />
+    <Compile Include="TypeSystem\EntityExtensions.cs" />
     <Compile Include="TypeSystem\EntityType.cs" />
     <Compile Include="TypeSystem\Error.cs" />
     <Compile Include="TypeSystem\Generics\AbstractGenericParameter.cs" />
@@ -609,7 +610,6 @@
     <Compile Include="TypeSystem\IProperty.cs" />
     <Compile Include="TypeSystem\IType.cs" />
     <Compile Include="TypeSystem\ITypedEntity.cs" />
-    <Compile Include="TypeSystem\ITypeExtensions.cs" />
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\Reflection\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyEqualityComparer.cs" />
@@ -652,6 +652,7 @@
     <Compile Include="TypeSystem\Services\TypeCompatibilityRules.cs" />
     <Compile Include="TypeSystem\Services\TypeSystemServices.cs" />
     <Compile Include="TypeSystem\TypeCollector.cs" />
+    <Compile Include="TypeSystem\TypeExtensions.cs" />
     <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\TypeSystemExtensions.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />
