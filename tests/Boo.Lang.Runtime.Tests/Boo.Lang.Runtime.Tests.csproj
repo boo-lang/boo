@@ -57,14 +57,8 @@
       <HintPath>..\..\lib\moq-3.1.416.3\Moq.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <Package>mono-nunit</Package>
+      <HintPath>..\build\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractDispatcherFactoryTestCase.cs" />
@@ -77,15 +71,15 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
       <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
-      <Name>Boo.Lang.Compiler-VS2008</Name>
+      <Name>Boo.Lang.Compiler</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
       <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
-      <Name>Boo.Lang.Parser-VS2008</Name>
+      <Name>Boo.Lang.Parser</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Boo.Lang\Boo.Lang.csproj">
       <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
-      <Name>Boo.Lang-VS2008</Name>
+      <Name>Boo.Lang</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
