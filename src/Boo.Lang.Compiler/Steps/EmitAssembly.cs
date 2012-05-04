@@ -39,8 +39,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Security;
-using System.Security.Permissions;
-
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
@@ -4390,15 +4388,6 @@ namespace Boo.Lang.Compiler.Steps
 			return new CustomAttributeBuilder(Methods.ConstructorOf(() => new UnverifiableCodeAttribute()), new object[0]);
 		}
 
-		CustomAttributeBuilder CreateSecurityPermissionAttribute(string permission)
-		{
-			return new CustomAttributeBuilder(
-				Methods.ConstructorOf(() => new SecurityPermissionAttribute(default(SecurityAction))),
-				new object[] { SecurityAction.RequestMinimum },
-				new[] { Properties.Of<SecurityPermissionAttribute, bool>(p => p.SkipVerification) },
-				new object[] { true });
-		}
-
 		void DefineEntryPoint()
 		{
 			if (Context.Parameters.GenerateInMemory)
@@ -5514,10 +5503,7 @@ namespace Boo.Lang.Compiler.Steps
 			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), Parameters.Debug);
 
 			if (Parameters.Unsafe)
-			{
-				_asmBuilder.SetCustomAttribute(CreateSecurityPermissionAttribute("SkipVerification"));
 				_moduleBuilder.SetCustomAttribute(CreateUnverifiableCodeAttribute());
-			}
 
 			_sreResourceService = new SREResourceService (_asmBuilder, _moduleBuilder);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
