@@ -1459,9 +1459,9 @@ namespace Boo.Lang.Compiler.Steps
 			return GetPropertyAccessors(entities, p => p.GetGetMethod());
 		}
 
-		private static IEntity[] GetPropertyAccessors(IEntity[] entities, Func<IProperty, IMethod> selector)
+		private static IEntity[] GetPropertyAccessors(IEntity[] entities, Func<IProperty, IEntity> selector)
 		{
-			return entities.OfType<IProperty>().Select(selector).Distinct().ToArray<IEntity>();
+			return entities.OfType<IProperty>().Select(selector).Distinct().ToArray();
 		}
 
 		void AssertIsNotComplexSlicing(SlicingExpression node)
