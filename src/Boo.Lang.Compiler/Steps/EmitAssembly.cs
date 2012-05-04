@@ -2924,7 +2924,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnSlicingExpression(SlicingExpression node)
 		{
-			if (AstUtil.IsLhsOfAssignment(node))
+			if (node.IsTargetOfAssignment())
 				return;
 
 			Visit(node.Target);

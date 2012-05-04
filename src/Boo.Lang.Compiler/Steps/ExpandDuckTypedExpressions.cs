@@ -146,7 +146,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveSlicingExpression(SlicingExpression node)
 		{
 			if (!IsDuckTyped(node.Target)) return;
-			if (AstUtil.IsLhsOfAssignment(node)) return;
+			if (node.IsTargetOfAssignment()) return;
 
 			// todo
 			// a[foo]
@@ -258,7 +258,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!TypeSystemServices.IsQuackBuiltin(node)) return;
 			
-			if (AstUtil.IsLhsOfAssignment(node)
+			if (node.IsTargetOfAssignment()
 				|| AstUtil.IsTargetOfSlicing(node)) return;
 
 			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(

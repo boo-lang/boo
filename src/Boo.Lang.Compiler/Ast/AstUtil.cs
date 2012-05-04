@@ -80,19 +80,11 @@ namespace Boo.Lang.Compiler.Ast
 			return "op_" + op;
 		}
 
-		public static bool IsComplexSlicing(SlicingExpression node)
-		{
-			foreach (var slice in node.Indices)
-				if (IsComplexSlice(slice))
-					return true;
-			return false;
-		}
-		
 		public static bool IsComplexSlice(Slice slice)
 		{
-			return null != slice.End
-				|| null != slice.Step
-				|| OmittedExpression.Default == slice.Begin;
+			return slice.End != null
+				|| slice.Step != null
+				|| slice.Begin == OmittedExpression.Default;
 		}
 
 		public static Node GetMemberAnchor(Node node)
@@ -309,12 +301,10 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 		
+		[Obsolete("Use node.IsTargetOfAssignment()")]
 		public static bool IsLhsOfAssignment(Expression node)
 		{
-			var parentExpression = node.ParentNode as BinaryExpression;
-			if (parentExpression == null)
-				return false;
-			return node == parentExpression.Left && IsAssignment(parentExpression);
+			return node.IsTargetOfAssignment();
 		}
 
 		public static bool IsRhsOfAssignment(Expression node)

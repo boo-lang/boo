@@ -520,13 +520,15 @@ class AbstractInterpreter:
 	
 		override def OnReferenceExpression(node as ReferenceExpression):
 			
-			if (InterpreterEntity.IsInterpreterEntity(GetOptionalEntity(node)) and
-					not AstUtil.IsLhsOfAssignment(node)):	
+			if ReferencesInterpreterEntity(node) and not node.IsTargetOfAssignment():	
 				ReplaceCurrentNode(CreateGetValue(node))
 	
 		override def LeaveBinaryExpression(node as BinaryExpression):
-			if InterpreterEntity.IsInterpreterEntity(GetOptionalEntity(node.Left)):
+			if ReferencesInterpreterEntity(node.Left):
 				ReplaceCurrentNode(CreateSetValue(node))
+				
+		def ReferencesInterpreterEntity(e as Expression):
+			return InterpreterEntity.IsInterpreterEntity(GetOptionalEntity(e))
 				
 		override def LeaveExpressionStatement(node as ExpressionStatement):
 			return if node.IsSynthetic or node.Expression.IsSynthetic

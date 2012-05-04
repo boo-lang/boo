@@ -113,6 +113,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Ast\ArrayLiteralExpression.cs" />
     <Compile Include="Ast\ArrayTypeReference.cs" />
+    <Compile Include="Ast\AstNodePredicates.cs" />
     <Compile Include="Ast\AstUtil.cs" />
     <Compile Include="Ast\Attribute.cs" />
     <Compile Include="Ast\AttributeCollection.cs" />

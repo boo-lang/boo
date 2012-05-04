@@ -131,8 +131,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnModule(Module module)
 		{
-			if (WasVisited(module)) return;
+			if (WasVisited(module))
+				return;
 			MarkVisited(module);
+
 			_currentModule = module;
 
 			EnterNamespace(InternalModule.ScopeFor(module));
@@ -153,15 +155,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void VisitBaseTypes(TypeDefinition node)
 		{
-			foreach (TypeReference typeRef in node.BaseTypes)
-			{
-				EnsureRelatedNodeWasVisited(typeRef, typeRef.Entity);
-			}
+			foreach (var baseTypeRef in node.BaseTypes)
+				EnsureRelatedNodeWasVisited(baseTypeRef, baseTypeRef.Entity);
 		}
 
 		private void VisitTypeDefinition(TypeDefinition node)
 		{
-			INamespace ns = (INamespace)GetEntity(node);
+			var ns = (INamespace)GetEntity(node);
 			EnterNamespace(ns);
 			VisitBaseTypes(node);
 			Visit(node.Attributes);
@@ -1784,7 +1784,7 @@ namespace Boo.Lang.Compiler.Steps
 		void SliceMember(SlicingExpression node, IEntity member)
 		{
 			EnsureRelatedNodeWasVisited(node, member);
-			if (AstUtil.IsLhsOfAssignment(node))
+			if (node.IsTargetOfAssignment())
 			{
 				// leave it to LeaveBinaryExpression to resolve
 				Bind(node, member);
@@ -2288,7 +2288,7 @@ namespace Boo.Lang.Compiler.Steps
 						}
 						if (!AstUtil.IsTargetOfMethodInvocation(node)
 						    && !AstUtil.IsTargetOfSlicing(node)
-						    && !AstUtil.IsLhsOfAssignment(node))
+						    && !node.IsTargetOfAssignment())
 						{
 							Error(node, CompilerErrorFactory.AmbiguousReference(
 								node,
@@ -2524,7 +2524,7 @@ namespace Boo.Lang.Compiler.Steps
 						BindExpressionType(node, ev.BackingField.Type);
 						return;
 					}
-					else if (!AstUtil.IsLhsOfAssignment(node)
+					else if (!node.IsTargetOfAssignment()
 							 || !IsNull(((BinaryExpression)node.ParentNode).Right))
 					{
 						Error(node, CompilerErrorFactory.EventIsNotAnExpression(node, entity));
@@ -2610,7 +2610,7 @@ namespace Boo.Lang.Compiler.Steps
 			var resolved = ResolveAmbiguousReferenceByAccessibility(candidates);
 			var accessibleCandidates = resolved as Ambiguous;
 
-			if (accessibleCandidates == null || AstUtil.IsTargetOfSlicing(node) || AstUtil.IsLhsOfAssignment(node))
+			if (accessibleCandidates == null || AstUtil.IsTargetOfSlicing(node) || node.IsTargetOfAssignment())
 				return resolved;
 
 			if (accessibleCandidates.AllEntitiesAre(EntityType.Property))
@@ -2630,7 +2630,7 @@ namespace Boo.Lang.Compiler.Steps
 			//BOO-656
 			if (!AstUtil.IsTargetOfMethodInvocation(node)
 				&& !AstUtil.IsTargetOfSlicing(node)
-				&& !AstUtil.IsLhsOfAssignment(node))
+				&& !node.IsTargetOfAssignment())
 			{
 				return candidates.Entities[0];
 			}
@@ -4643,7 +4643,7 @@ namespace Boo.Lang.Compiler.Steps
 		void BindAssignmentToSliceArray(BinaryExpression node)
 		{
 			var slice = (SlicingExpression)node.Left;
-			if (AstUtil.IsComplexSlicing(slice))
+			if (slice.IsComplexSlicing())
 			{
 				// FIXME: Check type compatibility
 				BindAssignmentToComplexSliceArray(node);
