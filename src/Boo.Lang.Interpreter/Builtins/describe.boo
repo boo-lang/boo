@@ -169,7 +169,7 @@ def FullNameOf(type as System.Type):
 def GenericTypeNameFor(type as System.Type):
 	parameterList = join(GetBooTypeName(t) for t in type.GetGenericArguments(), ', ')
 	definition = type.GetGenericTypeDefinition()
-	if definition is typeof(System.Collections.Generic.IEnumerable of *):
+	if definition == typeof(System.Collections.Generic.IEnumerable of *):
 		return "$parameterList*"
 	fullName = FullNameOf(definition)
 	simpleName = fullName[:fullName.IndexOf('`')]

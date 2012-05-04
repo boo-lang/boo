@@ -433,7 +433,7 @@ class AbstractInterpreter:
 			
 		InEntryPoint:
 			get:
-				return _currentMethod.Method is _entryPoint
+				return CurrentMethod is _entryPoint
 	
 		override def Initialize(context as CompilerContext):
 			super(context)

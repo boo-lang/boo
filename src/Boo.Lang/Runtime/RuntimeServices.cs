@@ -511,12 +511,10 @@ namespace Boo.Lang.Runtime
 			}
 			else
 			{
-				object[] args = new object[] { operand };
-				IQuackFu duck = operand as IQuackFu;
-				if (null != duck)
-				{
+				var args = new[] { operand };
+				var duck = operand as IQuackFu;
+				if (duck != null)
 					return duck.QuackInvoke(operatorName, args);
-				}
 
 				try
 				{
@@ -544,26 +542,22 @@ namespace Boo.Lang.Runtime
 
 		public static object MoveNext(IEnumerator enumerator)
 		{
-			if (null == enumerator)
-			{
+			if (enumerator == null)
 				throw new ApplicationException(StringResources.CantUnpackNull);
-			}
 			if (!enumerator.MoveNext())
-			{
 				throw new ApplicationException(StringResources.UnpackListOfWrongSize);
-			}
 			return enumerator.Current;
 		}
 
 		public static int Len(object obj)
 		{
-			if (null != obj)
+			if (obj != null)
 			{
 				var collection = obj as ICollection;
-				if (null != collection) return collection.Count;
+				if (collection != null) return collection.Count;
 
 				var s = obj as string;
-				if (null != s) return s.Length;
+				if (s != null) return s.Length;
 			}
 			throw new ArgumentException();
 		}
@@ -763,23 +757,17 @@ namespace Boo.Lang.Runtime
 		 */
 		public static int NormalizeIndex(int len, int index)
 		{
-			if (index < 0)
-				return Math.Max(0, index + len);
-			return Math.Min(index, len);
+			return index < 0 ? Math.Max(0, index + len) : Math.Min(index, len);
 		}
 
 		public static int NormalizeArrayIndex(Array array, int index)
 		{
-			if (index < 0)
-				return Math.Max(0, index + array.Length);
-			return Math.Min(index, array.Length);
+			return index < 0 ? Math.Max(0, index + array.Length) : Math.Min(index, array.Length);
 		}
 
 		public static int NormalizeStringIndex(string s, int index)
 		{
-			if (index < 0)
-				return Math.Max(0, index + s.Length);
-			return Math.Min(index, s.Length);
+			return index < 0 ? Math.Max(0, index + s.Length) : Math.Min(index, s.Length);
 		}
 
 		public static IEnumerable GetEnumerable(object enumerable)
@@ -787,10 +775,10 @@ namespace Boo.Lang.Runtime
 			if (null == enumerable)
 				throw new ApplicationException(StringResources.CantEnumerateNull);
 
-			IEnumerable iterator = enumerable as IEnumerable;
+			var iterator = enumerable as IEnumerable;
 			if (null != iterator) return iterator;
 
-			TextReader reader = enumerable as TextReader;
+			var reader = enumerable as TextReader;
 			if (null != reader) return TextReaderEnumerator.lines(reader);
 
 			throw new ApplicationException(StringResources.ArgumentNotEnumerable);
@@ -1724,12 +1712,10 @@ namespace Boo.Lang.Runtime
 		#region conversion proxy helpers
 		internal static MethodInfo FindImplicitConversionOperator(Type from, Type to)
 		{
-			const BindingFlags ConversionOperatorFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy;
-			MethodInfo found = FindImplicitConversionMethod(from.GetMethods(ConversionOperatorFlags), from, to);
-			if (null != found) return found;
-			found = FindImplicitConversionMethod(to.GetMethods(ConversionOperatorFlags), from, to);
-			if (null != found) return found;
-			return FindImplicitConversionMethod(GetExtensionMethods(), from, to);
+			const BindingFlags conversionOperatorFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy;
+			return FindImplicitConversionMethod(from.GetMethods(conversionOperatorFlags), from, to)
+				?? FindImplicitConversionMethod(to.GetMethods(conversionOperatorFlags), from, to)
+				?? FindImplicitConversionMethod(GetExtensionMethods(), from, to);
 		}
 
 		private static IEnumerable<MethodInfo> GetExtensionMethods()
@@ -1762,9 +1748,10 @@ namespace Boo.Lang.Runtime
 
 		public static string RuntimeDisplayName
 		{
-			get {
-				Type runtime = Type.GetType("Mono.Runtime");
-				return (null != runtime)
+			get
+			{
+				var runtime = Type.GetType("Mono.Runtime");
+				return (runtime != null)
 					? (string) runtime.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null)
 					: string.Concat("CLR ", Environment.Version.ToString());
 			}

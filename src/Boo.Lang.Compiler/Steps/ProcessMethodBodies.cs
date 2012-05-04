@@ -62,16 +62,16 @@ namespace Boo.Lang.Compiler.Steps
 
 		static readonly object ResolvedAsExtensionAnnotation = new object();
 
-		protected Stack<InternalMethod> _methodStack;
+		private Stack<InternalMethod> _methodStack;
 
-		protected Stack _memberStack;
+		private Stack _memberStack;
 		// for accurate error reporting during type inference
 
-		protected Module _currentModule;
+		private Module _currentModule;
 
-		protected InternalMethod _currentMethod;
+		private InternalMethod _currentMethod;
 
-		protected bool _optimizeNullComparisons = true;
+		private bool _optimizeNullComparisons = true;
 
 		const string TempInitializerName = "$___temp_initializer";
 
@@ -204,12 +204,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessStatementTypeMemberInitializer(ClassDefinition node, StatementTypeMember statementTypeMember)
 		{
-			Statement stmt = statementTypeMember.Statement;
+			var stmt = statementTypeMember.Statement;
 
-			Method initializer = GetInitializerFor(node, node.IsStatic);
+			var initializer = GetInitializerFor(node, node.IsStatic);
 			initializer.Body.Add(stmt);
 
-			InternalMethod entity = (InternalMethod) GetEntity(initializer);
+			var entity = (InternalMethod) GetEntity(initializer);
 			ProcessNodeInMethodContext(entity, entity, stmt);
 
 			node.Members.Remove(statementTypeMember);
@@ -217,7 +217,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnAttribute(Attribute node)
 		{
-			IType tag = node.Entity as IType;
+			var tag = node.Entity as IType;
 			if (null != tag && !IsError(tag))
 			{
 				Visit(node.Arguments);
@@ -379,7 +379,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private TypeReference CreateTypeReference(LexicalInfo info, IType type)
 		{
-			TypeReference reference = CodeBuilder.CreateTypeReference(type);
+			var reference = CodeBuilder.CreateTypeReference(type);
 			reference.LexicalInfo = info;
 			return reference;
 		}
@@ -798,7 +798,7 @@ namespace Boo.Lang.Compiler.Steps
 			closure.Parameters = node.Parameters;
 			closure.Body = node.Body;
 
-			_currentMethod.Method.DeclaringType.Members.Add(closure);
+			CurrentMethod.DeclaringType.Members.Add(closure);
 
 			CodeBuilder.BindParameterDeclarations(_currentMethod.IsStatic, closure);
 
@@ -820,6 +820,11 @@ namespace Boo.Lang.Compiler.Steps
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+		}
+
+		protected Method CurrentMethod
+		{
+			get { return _currentMethod.Method; }
 		}
 
 		private void ProcessClosureInMethodInvocation(GenericParameterInferrer inferrer, BlockExpression closure, ICallableType formalType)
@@ -1189,12 +1194,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		static readonly object PreProcessedKey = new object();
 
-		private bool WasAlreadyPreProcessed(Method node)
+		private static bool WasAlreadyPreProcessed(Method node)
 		{
 			return node.ContainsAnnotation(PreProcessedKey);
 		}
 
-		private void MarkPreProcessed(Method node)
+		private static void MarkPreProcessed(Method node)
 		{
 			node[PreProcessedKey] = PreProcessedKey;
 		}
@@ -1203,7 +1208,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			PreProcessMethod(node);
 
-			InternalMethod entity = (InternalMethod) GetEntity(node);
+			var entity = (InternalMethod) GetEntity(node);
 			ProcessMethodBody(entity);
 
 			PostProcessMethod(node);
@@ -1379,24 +1384,19 @@ namespace Boo.Lang.Compiler.Steps
 			return true;
 		}
 
-		TypeReference GetMostGenericTypeReference(ExpressionCollection expressions)
-		{
-			IType type = MapNullToObject(GetMostGenericType(expressions));
-			return CodeBuilder.CreateTypeReference(type);
-		}
-
 		void ResolveReturnType(InternalMethod entity)
 		{
-			Method method = entity.Method;
-			if (null == entity.ReturnExpressions)
-			{
-				method.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
-			}
-			else
-			{
-				method.ReturnType = GetMostGenericTypeReference(entity.ReturnExpressions);
-			}
+			var method = entity.Method;
+			method.ReturnType = entity.ReturnExpressions == null
+				? CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType)
+				: GetMostGenericTypeReference(entity.ReturnExpressions);
 			TraceReturnType(method, entity);
+		}
+
+		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions)
+		{
+			var type = MapNullToObject(GetMostGenericType(expressions));
+			return CodeBuilder.CreateTypeReference(type);
 		}
 
 		IType MapNullToObject(IType type)
@@ -3277,19 +3277,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{
-			if (TypeSystemServices.IsUnknown(node.Left)
-				|| TypeSystemServices.IsUnknown(node.Right))
+			if (TypeSystemServices.IsUnknown(node.Left) || TypeSystemServices.IsUnknown(node.Right))
 			{
 				BindExpressionType(node, Unknown.Default);
 				return;
 			}
 
-			if (TypeSystemServices.IsError(node.Left)
-				|| TypeSystemServices.IsError(node.Right))
+			if (TypeSystemServices.IsError(node.Left) || TypeSystemServices.IsError(node.Right))
 			{
 				Error(node);
 				return;
 			}
+
 			BindBinaryExpression(node);
 		}
 
@@ -4314,9 +4313,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ReplaceTypeInvocationByEval(IType type, MethodInvocationExpression node)
 		{
-			Node parent = node.ParentNode;
-
-			parent.Replace(node, EvalForTypeInvocation(type, node));
+			node.ParentNode.Replace(node, EvalForTypeInvocation(type, node));
 		}
 
 		private MethodInvocationExpression EvalForTypeInvocation(IType type, MethodInvocationExpression node)
@@ -5861,7 +5858,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected InternalLocal DeclareTempLocal(IType localType)
 		{
-			return CodeBuilder.DeclareTempLocal(_currentMethod.Method, localType);
+			return CodeBuilder.DeclareTempLocal(CurrentMethod, localType);
 		}
 
 		IEntity DeclareLocal(Node sourceNode, string name, IType localType)
@@ -5877,7 +5874,7 @@ namespace Boo.Lang.Compiler.Steps
 			local.LexicalInfo = sourceNode.LexicalInfo;
 			var entity = new InternalLocal(local, localType);
 			local.Entity = entity;
-			_currentMethod.Method.Locals.Add(local);
+			CurrentMethod.Locals.Add(local);
 			return entity;
 		}
 
@@ -6028,7 +6025,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected Local LocalByName(string name)
 		{
-			return AstUtil.GetLocalByName(_currentMethod.Method, name);
+			return AstUtil.GetLocalByName(CurrentMethod, name);
 		}
 
 		protected void ProcessDeclarationForIterator(Declaration d, IType defaultDeclType)

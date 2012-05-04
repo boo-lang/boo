@@ -4385,13 +4385,6 @@ namespace Boo.Lang.Compiler.Steps
 					RuntimeCompatibilityAttribute_Property, new object[] { true });
 		}
 
-		CustomAttributeBuilder CreateSerializableAttribute()
-		{
-			return new CustomAttributeBuilder(
-				SerializableAttribute_Constructor,
-				new object[0]);
-		}
-
 		CustomAttributeBuilder CreateUnverifiableCodeAttribute()
 		{
 			return new CustomAttributeBuilder(Methods.ConstructorOf(() => new UnverifiableCodeAttribute()), new object[0]);
