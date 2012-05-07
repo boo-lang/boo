@@ -34,6 +34,7 @@ using Boo.Lang.Runtime;
 
 namespace Boo.Lang
 {
+	public delegate TResult Function<in T1, out TResult>(T1 arg);
 
 	[Serializable]
 	public class List<T> : IList<T>, IList, IEquatable<List<T>>
@@ -246,7 +247,7 @@ namespace Boo.Lang
 			return array;
 		}
 
-		public TOut[] ToArray<TOut>(Func<T, TOut> selector)
+		public TOut[] ToArray<TOut>(Function<T, TOut> selector)
 		{
 			var result = new TOut[_count];
 			for (var i = 0; i < _count; ++i)
