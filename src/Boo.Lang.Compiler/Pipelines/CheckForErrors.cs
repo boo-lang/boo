@@ -26,16 +26,17 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Steps;
+
 namespace Boo.Lang.Compiler.Pipelines
 {
-	using Boo.Lang.Compiler.Steps;
-
 	public class CheckForErrors : ResolveExpressions
 	{
 		public CheckForErrors()
 		{
-			this.BreakOnErrors = false;
-			this.Add(new StricterErrorChecking());
+			BreakOnErrors = false;
+			Add(new CheckSlicingExpressions());
+			Add(new StricterErrorChecking());
 		}
 	}
 }

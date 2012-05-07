@@ -7,9 +7,8 @@
 class Table:
 	_table = ((0, 0), (0,0))
 	
-	Row(index as int):
-		get:
-			return _table[index]
+	Row[index as int]:
+		get: return _table[index]
 	
 	def SetValue(row as int, col as int, value as int):
 		_table[row][col] = value

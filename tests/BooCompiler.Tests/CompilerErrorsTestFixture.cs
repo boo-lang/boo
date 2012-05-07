@@ -1341,6 +1341,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void invalid_array_slice()
+		{
+			RunCompilerTestCase(@"invalid-array-slice.boo");
+		}
+		
+		[Test]
 		public void invalid_generic_extension_1()
 		{
 			RunCompilerTestCase(@"invalid-generic-extension-1.boo");
@@ -1350,6 +1356,12 @@ namespace BooCompiler.Tests
 		public void invalid_generic_extension_2()
 		{
 			RunCompilerTestCase(@"invalid-generic-extension-2.boo");
+		}
+		
+		[Test]
+		public void invalid_matrix_index()
+		{
+			RunCompilerTestCase(@"invalid-matrix-index.boo");
 		}
 		
 		[Test]

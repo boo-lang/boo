@@ -51,7 +51,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		public GenericTypeReference(string name, params TypeReference[] genericArguments) : base(name)
 		{
-			GenericArguments.Extend(genericArguments);
+			GenericArguments.AddRange(genericArguments);
 		}
 		
 		override public string ToString()

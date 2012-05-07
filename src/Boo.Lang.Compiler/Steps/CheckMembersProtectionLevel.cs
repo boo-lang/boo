@@ -69,7 +69,7 @@ namespace Boo.Lang.Compiler.Steps
 		    if (null == property)
                 return;
 
-		    member = AstUtil.IsLhsOfAssignment(node) ? property.GetSetMethod() : property.GetGetMethod();
+		    member = node.IsTargetOfAssignment() ? property.GetSetMethod() : property.GetGetMethod();
 		    if (!IsAccessible(member))
 		        Error(CompilerErrorFactory.UnaccessibleMember(node, member));
 		}

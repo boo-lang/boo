@@ -4,7 +4,7 @@ using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
-	public static class IEntityExtensions
+	public static class EntityExtensions
 	{
 		public static string DisplayName(this IEntity entity)
 		{
@@ -24,20 +24,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			throw new NotSupportedException(entity.GetType().ToString());
 		}
-	}
 
-	public static class ITypeExtensions
-	{
-		public static string QualifiedName(this IType type)
+		public static bool IsAmbiguous(this IEntity entity)
 		{
-			if (type is IGenericParameter)
-				return type.Name;
-			return type.FullName;
+			return entity != null && EntityType.Ambiguous == entity.EntityType;
 		}
 
-		public static bool IsNull(this IType other)
+		public static bool IsIndexedProperty(this IEntity entity)
 		{
-			return other == Null.Default;
+			var property = entity as IProperty;
+			return property != null && property.GetParameters().Length > 0;
 		}
 	}
 }

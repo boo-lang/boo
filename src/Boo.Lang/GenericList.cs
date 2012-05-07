@@ -27,15 +27,13 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Boo.Lang.Resources;
 using Boo.Lang.Runtime;
 
 namespace Boo.Lang
 {
-	using System.Collections;
-	using System.Collections.Generic;
-
-	public delegate TOut Function<TIn, TOut>(TIn o);
 
 	[Serializable]
 	public class List<T> : IList<T>, IList, IEquatable<List<T>>
@@ -43,7 +41,6 @@ namespace Boo.Lang
 		private static readonly T[] EmptyArray = new T[0];
 
 		protected T[] _items;
-
 		protected int _count;
 
 		public List()
@@ -83,7 +80,7 @@ namespace Boo.Lang
 			return rhs.Multiply(count);
 		}
 
-		public static List<T> operator+(List<T> lhs, System.Collections.IEnumerable rhs)
+		public static List<T> operator+(List<T> lhs, IEnumerable rhs)
 		{
 			var result = lhs.NewConcreteList(lhs.ToArray(), true);
 			result.Extend(rhs);
@@ -195,9 +192,14 @@ namespace Boo.Lang
 
 		public List<T> Extend(IEnumerable enumerable)
 		{
+			AddRange(enumerable);
+			return this;
+		}
+
+		public void AddRange(IEnumerable enumerable)
+		{
 			foreach (T item in enumerable)
 				Add(item);
-			return this;
 		}
 
 		public List<T> ExtendUnique(IEnumerable enumerable)
@@ -244,7 +246,7 @@ namespace Boo.Lang
 			return array;
 		}
 
-		public TOut[] ToArray<TOut>(Function<T, TOut> selector)
+		public TOut[] ToArray<TOut>(Func<T, TOut> selector)
 		{
 			var result = new TOut[_count];
 			for (var i = 0; i < _count; ++i)
@@ -294,21 +296,6 @@ namespace Boo.Lang
 			return this;
 		}
 
-		private sealed class ComparerImpl : IComparer
-		{
-			Comparison<object> _comparer;
-
-			public ComparerImpl(Comparison<object> comparer)
-			{
-				_comparer = comparer;
-			}
-
-			public int Compare(object lhs, object rhs)
-			{
-				return _comparer(lhs, rhs);
-			}
-		}
-
 		public List<T> Sort(Comparer comparer)
 		{
 			if (null == comparer)
@@ -329,12 +316,11 @@ namespace Boo.Lang
 
 		override public int GetHashCode()
 		{
-			int hash = _count;
-
-			for (int i=0; i<_count; ++i)
+			var hash = _count;
+			for (var i=0; i<_count; ++i)
 			{
-				T item = _items[i];
-				if (null != item)
+				var item = _items[i];
+				if (item != null)
 					hash ^= item.GetHashCode();
 			}
 			return hash;
@@ -465,7 +451,7 @@ namespace Boo.Lang
 			return range;
 		}
 
-		public List<T> RemoveAll(System.Predicate<T> match)
+		public List<T> RemoveAll(Predicate<T> match)
 		{
 			if (null == match) throw new ArgumentNullException("match");
 			for (int i=0; i<_count; ++i)

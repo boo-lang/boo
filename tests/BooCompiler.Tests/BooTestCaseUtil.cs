@@ -49,7 +49,7 @@ namespace BooCompiler.Tests
 		{
 			get
 			{
-				Uri codebase = new Uri(Assembly.GetExecutingAssembly().CodeBase);
+				var codebase = new Uri(Assembly.GetExecutingAssembly().CodeBase);
 				return new Uri(codebase, "../..").LocalPath;
 			}
 		}

@@ -89,7 +89,7 @@ class ParserTestFixture:
 		try: 
 			action()
 			Assert.Fail()
-		except CommandLineException:
+		except as CommandLineException:
 			pass
 		
 	def DoNothing(value as string):

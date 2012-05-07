@@ -15,6 +15,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void custom_class_macro_as_generic_argument()
+		{
+			RunCompilerTestCase(@"custom-class-macro-as-generic-argument.boo");
+		}
+		
+		[Test]
 		public void custom_class_macro_with_internal_field()
 		{
 			RunCompilerTestCase(@"custom-class-macro-with-internal-field.boo");

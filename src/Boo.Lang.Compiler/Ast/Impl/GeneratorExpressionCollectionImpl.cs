@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class GeneratorExpressionCollection : NodeCollection<Boo.Lang.Compiler.Ast.GeneratorExpression>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static GeneratorExpressionCollection FromArray(params Boo.Lang.Compiler.Ast.GeneratorExpression[] items)
 		{
-			GeneratorExpressionCollection collection = new GeneratorExpressionCollection();
-			collection.Extend(items);
+			var collection = new GeneratorExpressionCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.GeneratorExpressionCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.GeneratorExpressionCollection range = new Boo.Lang.Compiler.Ast.GeneratorExpressionCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.GeneratorExpressionCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}

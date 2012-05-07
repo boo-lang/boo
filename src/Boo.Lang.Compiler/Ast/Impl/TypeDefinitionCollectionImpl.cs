@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class TypeDefinitionCollection : NodeCollection<Boo.Lang.Compiler.Ast.TypeDefinition>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static TypeDefinitionCollection FromArray(params Boo.Lang.Compiler.Ast.TypeDefinition[] items)
 		{
-			TypeDefinitionCollection collection = new TypeDefinitionCollection();
-			collection.Extend(items);
+			var collection = new TypeDefinitionCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.TypeDefinitionCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.TypeDefinitionCollection range = new Boo.Lang.Compiler.Ast.TypeDefinitionCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.TypeDefinitionCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}

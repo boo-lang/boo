@@ -46,7 +46,7 @@ namespace Boo.Lang.Compiler.Steps
     	public override void LeaveMemberReferenceExpression(MemberReferenceExpression node)
     	{
     		var property = node.Entity as IProperty;
-    		if (property == null || AstUtil.IsLhsOfAssignment(node))
+    		if (property == null || node.IsTargetOfAssignment())
     			return;
 
     		var getter = CodeBuilder.CreatePropertyGet(node.Target, property);

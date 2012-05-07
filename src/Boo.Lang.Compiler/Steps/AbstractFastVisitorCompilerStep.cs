@@ -36,12 +36,30 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class AbstractFastVisitorCompilerStep : FastDepthFirstVisitor, ICompilerStep
 	{
-		private CompilerContext _context;
+		public virtual void Run()
+		{
+			CompileUnit.Accept(this);
+		}
+
+		public virtual void Initialize(CompilerContext context)
+		{
+			_context = context;
+			_codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
+			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
+			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
+		}
+
+		public virtual void Dispose()
+		{
+			_context = null;
+		}
 
 		protected CompilerContext Context
 		{
 			get { return _context; }
 		}
+
+		private CompilerContext _context;
 
 		protected CompilerErrorCollection Errors
 		{
@@ -134,24 +152,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_context.TraceVerbose("{0}: Type of expression '{1}' bound to '{2}'.", node.LexicalInfo, node, type);
 			node.ExpressionType = type;
-		}
-
-		public virtual void Initialize(CompilerContext context)
-		{
-			_context = context;
-			_codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
-			_typeSystemServices = new EnvironmentProvision<TypeSystemServices>();
-			_nameResolutionService = new EnvironmentProvision<NameResolutionService>();
-		}
-
-		public virtual void Dispose()
-		{
-			_context = null;
-		}
-
-		public virtual void Run()
-		{
-			CompileUnit.Accept(this);
 		}
 
 		protected CompileUnit CompileUnit

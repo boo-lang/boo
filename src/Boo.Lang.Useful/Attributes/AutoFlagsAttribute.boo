@@ -27,6 +27,7 @@
 #endregion
 namespace Boo.Lang.Useful.Attributes
 
+import System.Linq
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
@@ -48,7 +49,7 @@ enum Ninjas:
 			return
 		#Set the values of the enum members to base 2 values.
 		enumDef = node as EnumDefinition
-		members = array(EnumMember, enumDef.Members.Select(NodeType.EnumMember))
+		members = enumDef.Members.OfType of EnumMember().ToArray()
 		lastVal = 1
 		for member in members:
 			continue unless member.Initializer is null
