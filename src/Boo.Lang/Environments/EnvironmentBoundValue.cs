@@ -35,7 +35,7 @@ namespace Boo.Lang.Environments
 			Value = value;
 		}
 
-		public EnvironmentBoundValue<TResult> Select<TResult>(Func<T, TResult> selector)
+		public EnvironmentBoundValue<TResult> Select<TResult>(Function<T, TResult> selector)
 		{
 			var v = Value;
 			var r = default(EnvironmentBoundValue<TResult>);
