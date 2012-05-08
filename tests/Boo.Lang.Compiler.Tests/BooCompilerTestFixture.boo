@@ -83,7 +83,7 @@ class CompilerTestFixture:
 		try:
 			_compiler.Run()
 			Assert.Fail()
-		except InvalidOperationException:
+		except as InvalidOperationException:
 			pass
 	
 	[Test]
