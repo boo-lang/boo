@@ -26,11 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Steps;
+
 namespace Boo.Lang.Compiler.Pipelines
 {
-	using System;
-	using Boo.Lang.Compiler.Steps;
-	
 	public class ParseAndPrintXml : Parse
 	{
 		public ParseAndPrintXml()
