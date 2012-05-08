@@ -232,11 +232,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (WasVisited(node))
 				return;
-
 			MarkVisited(node);
-
-			Method setter = node.Setter;
-			Method getter = node.Getter;
 
 			Visit(node.Attributes);
 			Visit(node.Type);
@@ -244,51 +240,62 @@ namespace Boo.Lang.Compiler.Steps
 
 			ResolvePropertyOverride(node);
 
-			if (null != getter)
-			{
-				if (null != node.Type)
-				{
-					getter.ReturnType = node.Type.CloneNode();
-				}
-				getter.Parameters.ExtendWithClones(node.Parameters);
+			ProcessGetter(node);
 
-				Visit(getter);
-			}
+			if (node.Type == null)
+				node.Type = CodeBuilder.CreateTypeReference(node.LexicalInfo, InferTypeOfProperty(node));
 
-			IType typeInfo = null;
-			if (null != node.Type)
-			{
-				typeInfo = GetType(node.Type);
-			}
-			else
-			{
-				if (null != getter)
-				{
-					typeInfo = GetEntity(node.Getter).ReturnType;
-					if (typeInfo == TypeSystemServices.VoidType)
-					{
-						typeInfo = TypeSystemServices.ObjectType;
-						node.Getter.ReturnType = CodeBuilder.CreateTypeReference(getter.LexicalInfo, typeInfo);
-					}
-				}
-				else
-				{
-					typeInfo = TypeSystemServices.ObjectType;
-				}
-				node.Type = CodeBuilder.CreateTypeReference(node.LexicalInfo, typeInfo);
-			}
+			if (node.Getter != null)
+				node.Getter.ReturnType = node.Type.CloneNode();
 
-			if (null != setter)
+			ProcessSetter(node);
+		}
+
+		private void ProcessSetter(Property node)
+		{
+			if (node.Setter != null)
 			{
-				ParameterDeclaration parameter = new ParameterDeclaration();
-				parameter.Type = CodeBuilder.CreateTypeReference(typeInfo);
-				parameter.Name = "value";
-				parameter.Entity = new InternalParameter(parameter, node.Parameters.Count+CodeBuilder.GetFirstParameterIndex(setter));
-				setter.Parameters.ExtendWithClones(node.Parameters);
-				setter.Parameters.Add(parameter);
-				setter.Name = "set_" + node.Name;
-				Visit(setter);
+				NormalizeSetterOf(node);
+				Visit(node.Setter);
 			}
+		}
+
+		private void ProcessGetter(Property node)
+		{
+			if (node.Getter != null)
+			{
+				NormalizeGetterOf(node);
+				Visit(node.Getter);
+			}
+		}
+
+		private static void NormalizeGetterOf(Property node)
+		{
+			node.Getter.Parameters.ExtendWithClones(node.Parameters);
+			if (node.Getter.ReturnType == null && node.Type != null)
+				node.Getter.ReturnType = node.Type.CloneNode();
+		}
+
+		private IType InferTypeOfProperty(Property node)
+		{
+			if (node.Getter == null)
+				return TypeSystemServices.ObjectType;
+
+			var getterType = GetEntity(node.Getter).ReturnType;
+			if (getterType != TypeSystemServices.VoidType)
+				return getterType;
+
+			return TypeSystemServices.ObjectType;
+		}
+
+		private void NormalizeSetterOf(Property node)
+		{
+			var setter = node.Setter;
+			setter.Name = "set_" + node.Name;
+
+			var setterParameters = setter.Parameters;
+			setterParameters.ExtendWithClones(node.Parameters);
+			setterParameters.Add(CodeBuilder.CreateParameterDeclaration(CodeBuilder.GetFirstParameterIndex(setter) + setterParameters.Count, "value", GetType(node.Type)));
 		}
 
 		override public void OnStatementTypeMember(StatementTypeMember node)
@@ -337,7 +344,7 @@ namespace Boo.Lang.Compiler.Steps
 			CheckFieldType(node.Type);
 		}
 
-		bool IsValidLiteralInitializer(Expression e)
+		static bool IsValidLiteralInitializer(Expression e)
 		{
 			switch (e.NodeType)
 			{
@@ -346,9 +353,7 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.DoubleLiteralExpression:
 				case NodeType.NullLiteralExpression:
 				case NodeType.StringLiteralExpression:
-					{
-						return true;
-					}
+					return true;
 			}
 			return false;
 		}
@@ -1056,7 +1061,7 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 
-		bool CheckOverrideSignature(IProperty p, IProperty candidate)
+		static bool CheckOverrideSignature(IProperty p, IProperty candidate)
 		{
 			return TypeSystemServices.CheckOverrideSignature(p.GetParameters(), candidate.GetParameters());
 		}
