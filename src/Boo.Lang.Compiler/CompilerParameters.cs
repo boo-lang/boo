@@ -137,6 +137,9 @@ namespace Boo.Lang.Compiler
 			if (extensionsAssembly != null)
 				_compilerReferences.Add(extensionsAssembly);
 
+			//boo.lang.compiler.dll
+			_compilerReferences.Add(GetType().Assembly);
+
 			//mscorlib
 			_compilerReferences.Add(LoadAssembly("mscorlib", true));
 			//System
