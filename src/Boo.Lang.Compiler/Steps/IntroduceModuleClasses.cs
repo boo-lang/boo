@@ -89,6 +89,7 @@ namespace Boo.Lang.Compiler.Steps
 			var moduleClass = existingModuleClass ?? NewModuleClassFor(module);
 
 			MoveModuleMembersToModuleClass(module, moduleClass);
+			MoveModuleAttributesToModuleClass(module, moduleClass);
 
 			DetectEntryPoint(module, moduleClass);
 
@@ -101,6 +102,12 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				InitializeModuleClassEntity(module, moduleClass);
 			}
+		}
+
+		private static void MoveModuleAttributesToModuleClass(Module module, ClassDefinition moduleClass)
+		{
+			moduleClass.Attributes.AddRange(module.Attributes);
+			module.Attributes.Clear();
 		}
 
 		private void DetectEntryPoint(Module module, ClassDefinition moduleClass)

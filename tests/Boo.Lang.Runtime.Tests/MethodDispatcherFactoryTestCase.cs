@@ -17,16 +17,14 @@ namespace Boo.Lang.Runtime.Tests
 		}
 	}
 
-	class FooExtensions
+	static class FooExtensions
 	{
-		[Boo.Lang.Extension]
-		public static string ExtensionEcho(Foo self, string value)
+		public static string ExtensionEcho(this Foo self, string value)
 		{
 			return "ExtensionEcho: " + self.Echo(value);
 		}
 
-		[Boo.Lang.Extension]
-		public static string ExtensionEchoVar(Foo self, int i, params string[] value)
+		public static string ExtensionEchoVar(this Foo self, int i, params string[] value)
 		{
 			return "ExtensionEchoVar(" + i + ", " + string.Join(", ", value) + ")";
 		}

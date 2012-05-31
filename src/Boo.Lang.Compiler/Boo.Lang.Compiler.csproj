@@ -370,6 +370,7 @@
     <Compile Include="Ast\Visitors\TreePrinterVisitor.cs" />
     <Compile Include="Ast\WhileStatement.cs" />
     <Compile Include="Ast\YieldStatement.cs" />
+    <Compile Include="Attributes\ExtensionAttribute.cs" />
     <Compile Include="Attributes\StrictModeAttribute.cs" />
     <Compile Include="BooCompiler.cs" />
     <Compile Include="CancellableEventArgs.cs" />
@@ -420,6 +421,7 @@
     <Compile Include="Resources\FileResource.cs" />
     <Compile Include="Resources\NamedEmbeddedFileResource.cs" />
     <Compile Include="Resources\NamedFileResource.cs" />
+    <Compile Include="Services\ExtensionTagger.cs" />
     <Compile Include="Services\LanguageAmbiance.cs" />
     <Compile Include="Services\UniqueNameProvider.cs" />
     <Compile Include="Steps\AbstractCompilerStep.cs" />

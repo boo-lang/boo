@@ -26,18 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System;
-	using System.Reflection;
-	using System.Collections.Generic;
-	using Boo.Lang.Compiler;
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-
-
 	public class CheckAttributesUsage: AbstractFastVisitorCompilerStep
 	{
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
@@ -46,77 +44,110 @@ namespace Boo.Lang.Compiler.Steps
 			OnReferenceExpression(node);
 		}
 
-		override public void OnAttribute(Ast.Attribute node)
+		override public void OnAttribute(Attribute node)
 		{
-			Type attrType = AttributeType(node);
-			if (attrType == null) return;
+			var attrType = AttributeType(node);
+			if (attrType == null)
+				return;
 
-			// check allowed attribute usage(s)
-			System.Attribute[] usages = System.Attribute.GetCustomAttributes(attrType, typeof(AttributeUsageAttribute));
-			if (usages.Length == 0) return;
+			var usage = AttributeUsageFor(attrType);
+			if (usage == null)
+				return;
 
-			//only one AttributeUsage is allowed anyway
-			AttributeUsageAttribute usage = (AttributeUsageAttribute)usages[0];
-			if (AttributeTargets.All != usage.ValidOn)
-			{
-				AttributeTargets? target = TargetFor(node);
-				if (target.HasValue && !IsValid(usage, target.Value))
-				{
-					Errors.Add(
-						CompilerErrorFactory.InvalidAttributeTarget(node, attrType, usage.ValidOn));
-				}
-			}
-			if (!usage.AllowMultiple)
-			{
-				INodeWithAttributes m = node.ParentNode as INodeWithAttributes;
-				foreach (Boo.Lang.Compiler.Ast.Attribute mAttr in m.Attributes)
-				{
-					if (mAttr == node) continue;
-					IExternalEntity mAttrEnt = mAttr.Entity as IExternalEntity;
-					if (null != mAttrEnt && mAttrEnt.MemberInfo.DeclaringType == attrType)
-						Errors.Add(
-							CompilerErrorFactory.MultipleAttributeUsage(node, attrType));
-				}
-			}
-
-			// handle special compiler-supported attributes
-			//TODO: ObsoleteAttribute
+			CheckAttributeUsage(node, attrType, usage);
 		}
 
-		private static AttributeTargets? TargetFor(Ast.Attribute node)
-		{	
-			if (node.ParentNode is Method)
+		private void CheckAttributeUsage(Attribute node, Type attrType, AttributeUsageAttribute usage)
+		{
+			CheckAttributeUsageTarget(node, attrType, usage);
+			CheckAttributeUsageCardinality(node, attrType, usage);
+		}
+
+		private void CheckAttributeUsageTarget(Attribute node, Type attrType, AttributeUsageAttribute usage)
+		{
+			var validAttributeTargets = ValidAttributeTargetsFor(attrType, usage);
+			if (validAttributeTargets == AttributeTargets.All)
+				return;
+
+			var target = AttributeTargetsFor(node);
+			if (target.HasValue && !IsValid(target.Value, validAttributeTargets))
+				Errors.Add(CompilerErrorFactory.InvalidAttributeTarget(node, attrType, validAttributeTargets));
+		}
+
+		private static AttributeTargets ValidAttributeTargetsFor(Type attrType, AttributeUsageAttribute usage)
+		{
+			return IsExtensionAttribute(attrType)
+				? usage.ValidOn | AttributeTargets.Property
+				: usage.ValidOn;
+		}
+
+		private void CheckAttributeUsageCardinality(Attribute node, Type attrType, AttributeUsageAttribute usage)
+		{
+			if (usage.AllowMultiple)
+				return;
+
+			if (HasSiblingAttributesOfSameType(node, attrType))
+				MultipleAttributeUsageError(node, attrType);
+		}
+
+		private static bool HasSiblingAttributesOfSameType(Attribute node, Type attrType)
+		{
+			return SiblingAttributesOfSameType(node, attrType).Any();
+		}
+
+		private static IEnumerable<Attribute> SiblingAttributesOfSameType(Attribute node, Type attrType)
+		{
+			var attributeContainer = ((INodeWithAttributes) node.ParentNode);
+			return attributeContainer.Attributes.Where(_ => _ != node && IsAttributeOfType(attrType, _));
+		}
+
+		private void MultipleAttributeUsageError(Attribute attribute, Type attrType)
+		{
+			Errors.Add(CompilerErrorFactory.MultipleAttributeUsage(attribute, attrType));
+		}
+
+		private static bool IsAttributeOfType(Type attrType, Attribute attribute)
+		{
+			var entity = attribute.Entity as IExternalEntity;
+			return entity != null && entity.MemberInfo.DeclaringType == attrType;
+		}
+
+		private static bool IsExtensionAttribute(Type attrType)
+		{
+			return attrType == Types.ClrExtensionAttribute;
+		}
+
+		private static AttributeUsageAttribute AttributeUsageFor(Type attrType)
+		{
+			return (AttributeUsageAttribute) System.Attribute.GetCustomAttributes(attrType, typeof(AttributeUsageAttribute)).FirstOrDefault();
+		}
+
+		private static AttributeTargets? AttributeTargetsFor(Attribute node)
+		{
+			var parentNode = node.ParentNode as Method;
+			if (parentNode != null)
 			{
-				AttributeCollection returnTypeAttributes = ((Method)node.ParentNode).ReturnTypeAttributes;
+				var returnTypeAttributes = (parentNode).ReturnTypeAttributes;
 				if (returnTypeAttributes.Contains(node))
-				{
 					return AttributeTargets.ReturnValue;
-				}
 			}
+
 			AttributeTargets target;
 			if (NodeUsageTargets().TryGetValue(node.ParentNode.GetType(), out target))
-			{
 				return target;
-			}
+
 			return null;
 		}
 
-		private static Dictionary<Type, AttributeTargets> NodeUsageTargets()
+		private static bool IsValid(AttributeTargets target, AttributeTargets validAttributeTargets)
 		{
-			if (null == _nodesUsageTargets) SetupNodesUsageTargetsDictionary();
-			return _nodesUsageTargets;
+			return target == (validAttributeTargets & target);
 		}
 
-		private static bool IsValid(AttributeUsageAttribute usage, AttributeTargets target)
+		private static Type AttributeType(Attribute node)
 		{
-			return target == (usage.ValidOn & target);
-		}
-
-		private static Type AttributeType(Ast.Attribute node)
-		{
-			IExternalEntity attr = node.Entity as IExternalEntity;
-			if (null == attr) return null;
-			return attr.MemberInfo.DeclaringType;
+			var attr = node.Entity as IExternalEntity;
+			return attr == null ? null : attr.MemberInfo.DeclaringType;
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -125,21 +156,17 @@ namespace Boo.Lang.Compiler.Steps
 			if (member == null) return;
 
 			foreach (var attr in ObsoleteAttributesIn(member))
-			{
 				if (attr.IsError)
-					Errors.Add(
-						CompilerErrorFactory.Obsolete(node, member, attr.Message));
+					Errors.Add(CompilerErrorFactory.Obsolete(node, member, attr.Message));
 				else
-					Warnings.Add(
-						CompilerWarningFactory.Obsolete(node, member, attr.Message));
-			}
+					Warnings.Add(CompilerWarningFactory.Obsolete(node, member, attr.Message));
 		}
 
 		private static IEnumerable<ObsoleteAttribute> ObsoleteAttributesIn(IMember member)
 		{
 			var external = member as IExternalEntity;
 			if (external == null)
-				return new ObsoleteAttribute[0]; // TODO:
+				return new ObsoleteAttribute[0];
 			return System.Attribute.GetCustomAttributes(external.MemberInfo, typeof(ObsoleteAttribute)).Cast<ObsoleteAttribute>();
 		}
 
@@ -148,27 +175,33 @@ namespace Boo.Lang.Compiler.Steps
 			// TODO:
 		}
 
-		private static Dictionary<Type, AttributeTargets> _nodesUsageTargets = null;
-
-		private static void SetupNodesUsageTargetsDictionary()
+		private static Dictionary<Type, AttributeTargets> NodeUsageTargets()
 		{
-			_nodesUsageTargets = new Dictionary<Type, AttributeTargets>();
-			_nodesUsageTargets.Add(typeof(Assembly), AttributeTargets.Assembly);
-			_nodesUsageTargets.Add(typeof(Ast.Module), AttributeTargets.Assembly);
-			_nodesUsageTargets.Add(typeof(ClassDefinition), AttributeTargets.Class);
-			_nodesUsageTargets.Add(typeof(StructDefinition), AttributeTargets.Struct);
-			_nodesUsageTargets.Add(typeof(EnumDefinition), AttributeTargets.Enum);
-			_nodesUsageTargets.Add(typeof(Constructor), AttributeTargets.Constructor);
-			_nodesUsageTargets.Add(typeof(Method), AttributeTargets.Method);
-			_nodesUsageTargets.Add(typeof(Property), AttributeTargets.Property);
-			_nodesUsageTargets.Add(typeof(Field), AttributeTargets.Field);
-			_nodesUsageTargets.Add(typeof(Ast.Event), AttributeTargets.Event);
-			_nodesUsageTargets.Add(typeof(InterfaceDefinition), AttributeTargets.Interface);
-			_nodesUsageTargets.Add(typeof(ParameterDeclaration), AttributeTargets.Parameter);
-			_nodesUsageTargets.Add(typeof(CallableDefinition), AttributeTargets.Delegate);
-			_nodesUsageTargets.Add(typeof(GenericParameterDeclaration), AttributeTargets.GenericParameter);
+			return _nodesUsageTargets ?? (_nodesUsageTargets = NewUsageTargetsDictionary());
 		}
 
+		private static Dictionary<Type, AttributeTargets> NewUsageTargetsDictionary()
+		{
+			return new Dictionary<Type, AttributeTargets>
+			{
+				{typeof(Assembly), AttributeTargets.Assembly},
+				{typeof(Ast.Module), AttributeTargets.Assembly},
+				{typeof(ClassDefinition), AttributeTargets.Class},
+				{typeof(StructDefinition), AttributeTargets.Struct},
+				{typeof(EnumDefinition), AttributeTargets.Enum},
+				{typeof(Constructor), AttributeTargets.Constructor},
+				{typeof(Method), AttributeTargets.Method},
+				{typeof(Property), AttributeTargets.Property},
+				{typeof(Field), AttributeTargets.Field},
+				{typeof(Event), AttributeTargets.Event},
+				{typeof(InterfaceDefinition), AttributeTargets.Interface},
+				{typeof(ParameterDeclaration), AttributeTargets.Parameter},
+				{typeof(CallableDefinition), AttributeTargets.Delegate},
+				{typeof(GenericParameterDeclaration), AttributeTargets.GenericParameter}
+			};
+		}
+
+		private static Dictionary<Type, AttributeTargets> _nodesUsageTargets;
 	}
 }
 

@@ -463,8 +463,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null != internalMethod)
 			{
 				Method extension = internalMethod.Method;
-				if (!extension.Attributes.Contains(Types.BooExtensionAttribute.FullName)
-					|| !extension.Attributes.Contains(Types.CompilerGeneratedAttribute.FullName))
+				if (!extension.Attributes.Contains(Types.CompilerGeneratedAttribute.FullName))
 					return null;
 				SimpleTypeReference sref = extension.Parameters[0].Type as SimpleTypeReference;
 				if (null != sref && extension.Parameters.Count == 2)
