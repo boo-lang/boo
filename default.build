@@ -603,12 +603,6 @@
 		</do>
 		</foreach>
 		
-		<copy todir="${fakeroot.boolib}/pt">
-			<fileset basedir="${build.dir}/pt">
-				<include name="*"/>
-			</fileset>
-		</copy>
-
 		<copy todir="${fakeroot.bindir}">
 			<fileset basedir="${build.dir}">
 				<include name="booc"/>
