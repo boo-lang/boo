@@ -331,6 +331,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void slicing_md_1()
+		{
+			RunCompilerTestCase(@"slicing-md-1.boo");
+		}
+		
+		[Test]
 		public void unary_1()
 		{
 			RunCompilerTestCase(@"unary-1.boo");
