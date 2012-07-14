@@ -669,37 +669,39 @@ namespace Boo.Lang.Runtime
 			}
 		}
 
-		public static Array GetMultiDimensionalRange1(Array source, int[] ranges, bool[] collapse)
+		public static Array GetMultiDimensionalRange1(Array source, int[] ranges, bool[] compute_end, bool[] collapse)
 		{
 			int rankSrc = source.Rank;
-			int collapseSize = 0;
-
-			foreach (bool val in collapse)
-			{
-				if (val)
-				{
-					collapseSize++;
-				}
-			}
-
-			int rankDest = rankSrc - collapseSize;
-			int[] lensDest = new int[rankDest];
 			int[] lensSrc = new int[rankSrc];
-
-			int rankIndex = 0;
+			int collapseSize = 0;	
 			for (int i = 0; i < rankSrc; i++)
 			{
 				ranges[2 * i] = NormalizeIndex(source.GetLength(i), ranges[2 * i]);
-				ranges[2 * i + 1] = NormalizeIndex(source.GetLength(i), ranges[2 * i + 1]);
+				if (compute_end[i]) 
+					ranges[2*i + 1] = source.GetLength(i);	
+				else 
+					ranges[2 * i + 1] = NormalizeIndex(source.GetLength(i), ranges[2 * i + 1]);					
 
 				lensSrc[i] = ranges[2 * i + 1] - ranges[2 * i];
+				collapseSize += collapse[i] ? 1 : 0;
+			}
+			
+			int rankDest = rankSrc - collapseSize;
+			int[] lensDest = new int[rankDest];
+			int rankIndex = 0;
+			for (int i = 0; i < rankSrc; i++)
+			{
 				if (!collapse[i])
 				{
-					lensDest[rankIndex] = ranges[2 * i + 1] - ranges[2 * i];
+					lensDest[rankIndex] = lensSrc[i];
 					rankIndex++;
 				}
 			}
-
+			if (rankDest == 0) {
+				rankDest = 1;
+				lensDest = new int[1];
+				lensDest[0] = 1;
+			}
 			Array dest = Array.CreateInstance(source.GetType().GetElementType(), lensDest);
 
 			int[] modInd = new int[rankSrc];

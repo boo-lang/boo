@@ -1545,7 +1545,7 @@ namespace Boo.Lang.Compiler.Steps
 			var arrayType = GetExpressionType(node.Target);
 			if (node.Indices.Count > 1)
 			{
-				var collapseCount = node.Indices.Count(t => t.End == null || t.End == OmittedExpression.Default);
+				var collapseCount = node.Indices.Count(t => t.End == null);
 				return arrayType.ElementType.MakeArrayType(node.Indices.Count - collapseCount);
 			}
 			return arrayType;

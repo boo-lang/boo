@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IMethod RuntimeServices_GetMultiDimensionalRange1
 		{
-			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1", () => Methods.Of<Array, int[], bool[], Array>(RuntimeServices.GetMultiDimensionalRange1)); }
+			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1", () => Methods.Of<Array, int[], bool[], bool[], Array>(RuntimeServices.GetMultiDimensionalRange1)); }
 		}
 
 		public IMethod RuntimeServices_Len

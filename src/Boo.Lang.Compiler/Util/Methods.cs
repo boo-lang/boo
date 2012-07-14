@@ -54,6 +54,11 @@ namespace Boo.Lang.Compiler.Util
 		{
 			return value.Method;
 		}
+		
+		public static MethodInfo Of<T1, T2, T3, T4, TRet>(Func<T1, T2, T3, T4, TRet> value)
+		{
+			return value.Method;
+		}
 
 		public static MethodInfo Of(Action value)
 		{
