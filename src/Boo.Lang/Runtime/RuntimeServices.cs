@@ -585,7 +585,7 @@ namespace Boo.Lang.Runtime
 			return target;
 		}
 
-		public static void SetMultiDimensionalRange1(Array source, Array dest, int[] ranges, bool[] collapse)
+		public static void SetMultiDimensionalRange1(Array source, Array dest, int[] ranges, bool[] compute_end, bool[] collapse)
 		{
 			if (dest.Rank != ranges.Length / 2)
 			{
@@ -594,6 +594,9 @@ namespace Boo.Lang.Runtime
 
 			for (int i = 0; i < dest.Rank; i++)
 			{
+                if (compute_end[i])
+                    ranges[2 * i + 1] = dest.GetLength(i);
+
 				if (ranges[2 * i] < 0 ||
 					ranges[2 * i] >= dest.GetLength(i) ||
 					ranges[2 * i + 1] > dest.GetLength(i) ||

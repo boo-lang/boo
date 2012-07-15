@@ -4448,19 +4448,28 @@ namespace Boo.Lang.Compiler.Steps
 			var slice = (SlicingExpression)node.Left;
 			var ale = new ArrayLiteralExpression();
 			var collapse = new ArrayLiteralExpression();
+            var compute_end = new ArrayLiteralExpression();
 			for (int i = 0; i < slice.Indices.Count; i++)
 			{
 				ale.Items.Add(slice.Indices[i].Begin);
-				if (slice.Indices[i].End == null || OmittedExpression.Default == slice.Indices[i].End)
+				if (slice.Indices[i].End == null)
 				{
 					ale.Items.Add(new IntegerLiteralExpression(1 + (int)((IntegerLiteralExpression)slice.Indices[i].Begin).Value));
 					collapse.Items.Add(new BoolLiteralExpression(true));
+                    compute_end.Items.Add(new BoolLiteralExpression(false));
 				}
-				else
-				{
-					ale.Items.Add(slice.Indices[i].End);
-					collapse.Items.Add(new BoolLiteralExpression(false));
-				}
+                else if (slice.Indices[i].End == OmittedExpression.Default)
+                {
+                    ale.Items.Add(new IntegerLiteralExpression(0));
+                    collapse.Items.Add(new BoolLiteralExpression(false));
+                    compute_end.Items.Add(new BoolLiteralExpression(true));
+                }
+                else
+                {
+                    ale.Items.Add(slice.Indices[i].End);
+                    collapse.Items.Add(new BoolLiteralExpression(false));
+                    compute_end.Items.Add(new BoolLiteralExpression(false));
+                }
 			}
 
 			var mie = CodeBuilder.CreateMethodInvocation(
@@ -4469,11 +4478,14 @@ namespace Boo.Lang.Compiler.Steps
 				slice.Target,
 				ale);
 
+            mie.Arguments.Add(compute_end);
 			mie.Arguments.Add(collapse);
 
 			BindExpressionType(mie, TypeSystemServices.VoidType);
 			BindExpressionType(ale, TypeSystemServices.Map(typeof(int[])));
+            BindExpressionType(compute_end, TypeSystemServices.Map(typeof(bool[])));
 			BindExpressionType(collapse, TypeSystemServices.Map(typeof(bool[])));
+
 			node.ParentNode.Replace(node, mie);
 		}
 

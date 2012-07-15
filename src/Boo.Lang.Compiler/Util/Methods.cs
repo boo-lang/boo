@@ -80,6 +80,11 @@ namespace Boo.Lang.Compiler.Util
 			return value.Method;
 		}
 
+        public static MethodInfo Of<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> value)
+        {
+            return value.Method;
+        }
+
 		public static MethodInfo InstanceActionOf<TInstance>(Expression<Func<TInstance, Action>> func)
 		{
 			return MethodInfoFromLambdaExpressionBody(func.Body);
