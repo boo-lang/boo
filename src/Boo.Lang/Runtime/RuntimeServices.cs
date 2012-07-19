@@ -587,15 +587,13 @@ namespace Boo.Lang.Runtime
 
 		public static void SetMultiDimensionalRange1(Array source, Array dest, int[] ranges, bool[] compute_end, bool[] collapse)
 		{
-			if (dest.Rank != ranges.Length / 2)
-			{
-				throw new Exception("invalid range passed: " + ranges.Length / 2 + ", expected " + dest.Rank * 2);
-			}
+			if (dest.Rank != ranges.Length/2)
+				throw new Exception("invalid range passed: " + ranges.Length/2 + ", expected " + dest.Rank*2);
 
-			for (int i = 0; i < dest.Rank; i++)
+			for (var i = 0; i < dest.Rank; i++)
 			{
-                if (compute_end[i])
-                    ranges[2 * i + 1] = dest.GetLength(i);
+				if (compute_end[i])
+					ranges[2 * i + 1] = dest.GetLength(i);
 
 				if (ranges[2 * i] < 0 ||
 					ranges[2 * i] >= dest.GetLength(i) ||
@@ -607,59 +605,58 @@ namespace Boo.Lang.Runtime
 				}
 			}
 
-			int destSubsetRank = 0;
-			foreach (bool val in collapse)
+			var destSubsetRank = 0;
+			foreach (var val in collapse)
 			{
 				if (!val)
-				{
 					destSubsetRank++;
-				}
 			}
-            if (destSubsetRank == 0)
-                destSubsetRank = 1;
+
+			if (destSubsetRank == 0)
+				destSubsetRank = 1;
 
 			if (source.Rank != destSubsetRank)
 			{
 				throw new ApplicationException(String.Format("Cannot assign array of rank {0} into an array subset of rank {1}.",source.Rank,destSubsetRank));
 			}
-
-            int[] lensDest = new int[dest.Rank];
+			
+			int[] lensDest = new int[dest.Rank];
 			int[] lensDestSubset = new int[destSubsetRank];
 			int[] lensSrc = new int[source.Rank];
 			int rankIndex = 0;
-            bool length_mismatch = false;
+			bool length_mismatch = false;
 			for (int i = 0; i < dest.Rank; i++)
 			{
 				lensDest[i] = ranges[2 * i + 1] - ranges[2 * i];
 				if (!collapse[i])
 				{
-                    lensDestSubset[rankIndex] = lensDest[i];
-                    lensSrc[rankIndex] = source.GetLength(rankIndex);
+					lensDestSubset[rankIndex] = lensDest[i];
+					lensSrc[rankIndex] = source.GetLength(rankIndex);
 					if (lensSrc[rankIndex] != lensDest[i])
 					{
-                        length_mismatch = true;
+						length_mismatch = true;
 					}
 					rankIndex++;
 				}
 			}
-
-            if (length_mismatch)
-            {
-                StringBuilder source_dims = new StringBuilder(lensSrc[0]);
-                StringBuilder dest_subset_dims = new StringBuilder(lensDestSubset[0]);
-                for (int i = 1; i < source.Rank; i++)
-                {
-                    source_dims.Append(" x ");
-                    source_dims.Append(lensSrc[i]);
-
-                    dest_subset_dims.Append(" x ");
-                    dest_subset_dims.Append(lensDestSubset[i]);
-                }
-                throw new ApplicationException(String.Format("Cannot assign array with dimensions {0} into array subset of dimensions {1}.",source_dims.ToString(),dest_subset_dims.ToString()));
-            }
+			
+			if (length_mismatch)
+			{
+				StringBuilder source_dims = new StringBuilder(lensSrc[0]);
+				StringBuilder dest_subset_dims = new StringBuilder(lensDestSubset[0]);
+				for (int i = 1; i < source.Rank; i++)
+				{
+					source_dims.Append(" x ");
+					source_dims.Append(lensSrc[i]);
+					
+					dest_subset_dims.Append(" x ");
+					dest_subset_dims.Append(lensDestSubset[i]);
+				}
+				throw new ApplicationException(String.Format("Cannot assign array with dimensions {0} into array subset of dimensions {1}.",source_dims.ToString(),dest_subset_dims.ToString()));
+			}
 
 			int[] prodInd = new int[source.Rank];
-            prodInd[0] = lensSrc[0];
+			prodInd[0] = lensSrc[0];
 			for (int i = 1; i < source.Rank; i++)
 				prodInd[i] = prodInd[i - 1]*lensSrc[i];
 
@@ -670,18 +667,16 @@ namespace Boo.Lang.Runtime
 				int counter = 0;
 				for (int j = 0; j < dest.Rank; j++)
 				{
-                    if (collapse[j])
-                    {
-                        indexDest[j] = ranges[2 * j];
-                    }
+					if (collapse[j])
+						indexDest[j] = ranges[2*j];
 					else
 					{
-                        indexSrc[counter] = i % prodInd[counter];
-                        indexDest[j] = indexSrc[counter] + ranges[2 * j];
+						indexSrc[counter] = i%prodInd[counter];
+						indexDest[j] = indexSrc[counter] + ranges[2*j];
 						counter++;
 					}
 				}
-                dest.SetValue(source.GetValue(indexSrc), indexDest);
+				dest.SetValue(source.GetValue(indexSrc), indexDest);
 			}
 		}
 
@@ -713,7 +708,8 @@ namespace Boo.Lang.Runtime
 					rankIndex++;
 				}
 			}
-			if (rankDest == 0) {
+			if (rankDest == 0)
+			{
 				rankDest = 1;
 				lensDest = new int[1];
 				lensDest[0] = 1;
@@ -727,13 +723,9 @@ namespace Boo.Lang.Runtime
 			for (int i = 0; i < rankSrc; i++)
 			{
 				if (i == 0)
-				{
 					modInd[i] = dest.Length;
-				}
 				else
-				{
-					modInd[i] = modInd[i - 1] / lensSrc[i - 1];
-				}
+					modInd[i] = modInd[i - 1]/lensSrc[i - 1];
 			}
 
 			for (int i = 0; i < dest.Length; i++)
