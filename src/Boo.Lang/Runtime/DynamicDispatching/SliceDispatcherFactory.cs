@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Boo.Lang.Runtime.DynamicDispatching
@@ -115,8 +116,20 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		public Dispatcher CreateSetter()
 		{
 			MemberInfo[] candidates = ResolveMember();
-			if (candidates.Length > 1) throw new AmbiguousMatchException(Builtins.join(candidates, ", "));
-			return CreateSetter(candidates[0]);
+			if (candidates.Length == 1) return CreateSetter(candidates[0]);
+			return EmitMethodDispatcher(Setters(candidates));
+		}
+
+		private IEnumerable<MethodInfo> Setters(MemberInfo[] candidates)
+		{
+			foreach (MemberInfo info in candidates)
+			{
+				PropertyInfo p = info as PropertyInfo;
+				if (null == p) continue;
+				MethodInfo setter = p.GetSetMethod(true);
+				if (null == setter) continue;
+				yield return setter;
+			}
 		}
 
 		private Dispatcher CreateSetter(MemberInfo member)

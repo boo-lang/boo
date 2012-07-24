@@ -47,11 +47,14 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new VerifyExtensionMethods());
 
 			Add(new CheckIdentifiers());
+			Add(new CheckSlicingExpressions());
 			Add(new StricterErrorChecking());
 			Add(new DetectNotImplementedFeatureUsage());
 			Add(new CheckAttributesUsage());
-			
+
 			Add(new ExpandDuckTypedExpressions());
+
+			Add(new ExpandComplexSlicingExpressions());
 
 			Add(new ProcessAssignmentsToValueTypeMembers());
 			Add(new ExpandPropertiesAndEvents());

@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public CompileUnit(params Module[] modules)
 		{
-			Modules.Extend(modules);
+			Modules.AddRange(modules);
 		}
 		
 		internal CompileUnit(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)

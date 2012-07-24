@@ -38,9 +38,6 @@ using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler
 {
-	/// <summary>
-	/// boo compilation context.
-	/// </summary>
 	public class CompilerContext
 	{
 		public static CompilerContext Current

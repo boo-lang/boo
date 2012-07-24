@@ -110,11 +110,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			if (null == mixin)
 				throw new ArgumentNullException("mixin");
 
-			targetType.BaseTypes.Extend(mixin.BaseTypes);
+			targetType.BaseTypes.AddRange(mixin.BaseTypes);
 			foreach (var baseType in mixin.BaseTypes)
 				Reify(baseType);
 
-			targetType.Members.Extend(mixin.Members);
+			targetType.Members.AddRange(mixin.Members);
 			foreach (var member in mixin.Members)
 				ReifyNode(member);
 		}

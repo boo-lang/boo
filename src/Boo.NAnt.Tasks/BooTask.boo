@@ -60,7 +60,7 @@ class PrepareScriptStep(AbstractCompilerStep):
 		script = ClassDefinition(Name: "__Script__")
 		script.BaseTypes.Add(SimpleTypeReference("Boo.NAnt.ScriptBase"))
 		script.Members.Add(RunMethodFor(module))
-		script.Members.Extend(module.Members)
+		script.Members.AddRange(module.Members)
 		
 		module.Members.Clear()
 		module.Members.Add(script)

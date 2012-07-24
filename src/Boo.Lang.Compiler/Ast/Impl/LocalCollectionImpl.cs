@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class LocalCollection : NodeCollection<Boo.Lang.Compiler.Ast.Local>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static LocalCollection FromArray(params Boo.Lang.Compiler.Ast.Local[] items)
 		{
-			LocalCollection collection = new LocalCollection();
-			collection.Extend(items);
+			var collection = new LocalCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.LocalCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.LocalCollection range = new Boo.Lang.Compiler.Ast.LocalCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.LocalCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}

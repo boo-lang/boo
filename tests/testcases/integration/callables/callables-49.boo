@@ -13,9 +13,9 @@ def foo(msg):
 def wait(result as IAsyncResult):
 	result.AsyncWaitHandle.WaitOne()
 	
-wait(foo.BeginInvoke("1st", { result | print result.AsyncState }, "finished"))
+wait foo.BeginInvoke("1st", { result | print result.AsyncState }, "finished")
 
-wait(foo.BeginInvoke("2nd", { print "finished again" }, null))
+wait foo.BeginInvoke("2nd", { print "finished again" }, null)
 
-wait(foo.BeginInvoke("3rd", null, null))
+wait foo.BeginInvoke("3rd", null, null)
 

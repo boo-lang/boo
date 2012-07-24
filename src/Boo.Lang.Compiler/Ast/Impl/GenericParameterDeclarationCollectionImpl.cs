@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class GenericParameterDeclarationCollection : NodeCollection<Boo.Lang.Compiler.Ast.GenericParameterDeclaration>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static GenericParameterDeclarationCollection FromArray(params Boo.Lang.Compiler.Ast.GenericParameterDeclaration[] items)
 		{
-			GenericParameterDeclarationCollection collection = new GenericParameterDeclarationCollection();
-			collection.Extend(items);
+			var collection = new GenericParameterDeclarationCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.GenericParameterDeclarationCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.GenericParameterDeclarationCollection range = new Boo.Lang.Compiler.Ast.GenericParameterDeclarationCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.GenericParameterDeclarationCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}

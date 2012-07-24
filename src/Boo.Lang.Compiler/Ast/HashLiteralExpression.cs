@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.Ast
 		
 		public HashLiteralExpression(params ExpressionPair[] items)
 		{
-			this.Items.Extend(items);
+			this.Items.AddRange(items);
 		}
 	}
 }

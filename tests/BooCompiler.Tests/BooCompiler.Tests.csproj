@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -14,8 +14,8 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <PublishUrl>publish\</PublishUrl>
@@ -33,6 +33,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -109,11 +110,6 @@
       <Package>mono-nunit</Package>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-      <HintPath>..\..\..\..\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +118,7 @@
     <Compile Include="ArraysIntegrationTestFixture.cs" />
     <Compile Include="AssemblyEmitterTest.cs" />
     <Compile Include="Ast\AstAssert.cs" />
+    <Compile Include="Ast\GenericParameterDeclarationTest.cs" />
     <Compile Include="Ast\NodeMatchingTest.cs" />
     <Compile Include="Ast\ParameterDeclarationTest.cs" />
     <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />

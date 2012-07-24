@@ -94,7 +94,7 @@ def DescribeEntity(entity as IEntity):
 		case e = ExternalEvent():
 			return DescribeEvent(e.EventInfo)
 		otherwise:
-			entity.ToString()
+			return entity.ToString()
 		
 def DescribeEvent(e as EventInfo):
 	return "${DescribeModifiers(e)}event ${e.Name} as ${e.EventHandlerType}"
@@ -157,4 +157,20 @@ def GetBooTypeName(type as System.Type) as string:
 	return "date" if date is type
 	return "timespan" if timespan is type
 	return "regex" if regex is type
-	return type.FullName
+	return GenericTypeNameFor(type) if type.IsGenericType
+	return FullNameOf(type)
+	
+def FullNameOf(type as System.Type):
+	fullName = type.FullName
+	if string.IsNullOrEmpty(fullName):
+		return type.Name
+	return fullName
+	
+def GenericTypeNameFor(type as System.Type):
+	parameterList = join(GetBooTypeName(t) for t in type.GetGenericArguments(), ', ')
+	definition = type.GetGenericTypeDefinition()
+	if definition == typeof(System.Collections.Generic.IEnumerable of *):
+		return "$parameterList*"
+	fullName = FullNameOf(definition)
+	simpleName = fullName[:fullName.IndexOf('`')]
+	return "$simpleName[of $parameterList]"

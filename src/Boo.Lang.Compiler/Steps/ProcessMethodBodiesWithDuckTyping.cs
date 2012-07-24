@@ -26,11 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
+
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
-
 	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
 	{
 		private bool Ducky
@@ -60,19 +60,15 @@ namespace Boo.Lang.Compiler.Steps
 			
 			node.Target = MemberReferenceFromReference(
 							(ReferenceExpression)node.Target,
-							((CallableResolutionService.Candidate)CallableResolutionService.ValidCandidates[0]).Method);
+							CallableResolutionService.ValidCandidates[0].Method);
 		}
 		
 		override protected void ProcessBuiltinInvocation(MethodInvocationExpression node, BuiltinFunction function)
 		{
 			if (TypeSystemServices.IsQuackBuiltin(function))
-			{
 				BindDuck(node);
-			}
 			else
-			{
 				base.ProcessBuiltinInvocation(node, function);
-			}
 		}
 		
 		override protected void ProcessAssignment(BinaryExpression node)
@@ -113,7 +109,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			MemberReferenceExpression memberRef = new MemberReferenceExpression(
+			var memberRef = new MemberReferenceExpression(
 				pair.First.LexicalInfo,
 				instance.CloneNode(),
 				((ReferenceExpression)pair.First).Name);
@@ -129,13 +125,9 @@ namespace Boo.Lang.Compiler.Steps
 		override protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
 			if (IsDuckTyped(node.Target))
-			{	
 				BindQuack(node);
-			}
 			else
-			{
 				base.MemberNotFound(node, ns);
-			}
 		}
 
 		protected virtual bool IsDuckTyped(Expression e)
@@ -159,7 +151,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (!TypeSystemServices.IsSystemObject(targetMethod.DeclaringType))
 				return false;
 
-			MemberReferenceExpression target = node.Target as MemberReferenceExpression;
+			var target = node.Target as MemberReferenceExpression;
 			if (null == target) return false;
 			if (!IsDuckTyped(target.Target)) return false;
 
@@ -191,21 +183,15 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
-			if (IsDuckTyped(node.Operand) &&
-			   node.Operator == UnaryOperatorType.UnaryNegation)
-			{
+			if (IsDuckTyped(node.Operand) && node.Operator == UnaryOperatorType.UnaryNegation)
 				BindDuck(node);
-			}
 			else
-			{
 				base.LeaveUnaryExpression(node);
-			}
 		}
 
 		protected override bool ResolveRuntimeOperator(BinaryExpression node, string operatorName, MethodInvocationExpression mie)
 		{			
-			if (IsDuckTyped(node.Left)
-				|| IsDuckTyped(node.Right))
+			if (IsDuckTyped(node.Left) || IsDuckTyped(node.Right))
 			{
 				if (AstUtil.IsOverloadableOperator(node.Operator)
 					|| BinaryOperatorType.Or == node.Operator

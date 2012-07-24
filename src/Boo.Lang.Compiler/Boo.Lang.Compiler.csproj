@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -17,8 +17,8 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <PublishUrl>publish\</PublishUrl>
@@ -36,6 +36,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -96,7 +97,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core">
       <SpecificVersion>False</SpecificVersion>
@@ -112,6 +112,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Ast\ArrayLiteralExpression.cs" />
     <Compile Include="Ast\ArrayTypeReference.cs" />
+    <Compile Include="Ast\AstNodePredicates.cs" />
     <Compile Include="Ast\AstUtil.cs" />
     <Compile Include="Ast\Attribute.cs" />
     <Compile Include="Ast\AttributeCollection.cs" />
@@ -445,6 +446,7 @@
     <Compile Include="Steps\CheckMembersProtectionLevel.cs" />
     <Compile Include="Steps\CheckMemberTypes.cs" />
     <Compile Include="Steps\CheckNeverUsedMembers.cs" />
+    <Compile Include="Steps\CheckSlicingExpressions.cs" />
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
     <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
@@ -453,6 +455,7 @@
     <Compile Include="Steps\EmitAssembly.cs" />
     <Compile Include="Steps\EntityPredicates.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />
+    <Compile Include="Steps\ExpandComplexSlicingExpressions.cs" />
     <Compile Include="Steps\ExpandDuckTypedExpressions.cs" />
     <Compile Include="Steps\ExpandPropertiesAndEvents.cs" />
     <Compile Include="Steps\ExpandVarArgsMethodInvocations.cs" />
@@ -479,6 +482,7 @@
     <Compile Include="Steps\MacroProcessing\NodeGeneratorExpander.cs" />
     <Compile Include="Steps\MacroProcessing\TypeMemberStatementBubbler.cs" />
     <Compile Include="Steps\MergePartialTypes.cs" />
+    <Compile Include="Steps\MethodTrackingVisitorCompilerStep.cs" />
     <Compile Include="Steps\NormalizeExpressions.cs" />
     <Compile Include="Steps\NormalizeIterationStatements.cs" />
     <Compile Include="Steps\NormalizeStatementModifiers.cs" />
@@ -535,6 +539,7 @@
     <Compile Include="TypeSystem\Core\Namespaces.cs" />
     <Compile Include="TypeSystem\Core\ResolvedNamespaces.cs" />
     <Compile Include="TypeSystem\Core\SimpleNamespace.cs" />
+    <Compile Include="TypeSystem\EntityExtensions.cs" />
     <Compile Include="TypeSystem\EntityType.cs" />
     <Compile Include="TypeSystem\Error.cs" />
     <Compile Include="TypeSystem\Generics\AbstractGenericParameter.cs" />
@@ -607,7 +612,6 @@
     <Compile Include="TypeSystem\IProperty.cs" />
     <Compile Include="TypeSystem\IType.cs" />
     <Compile Include="TypeSystem\ITypedEntity.cs" />
-    <Compile Include="TypeSystem\ITypeExtensions.cs" />
     <Compile Include="TypeSystem\Null.cs" />
     <Compile Include="TypeSystem\Reflection\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyEqualityComparer.cs" />
@@ -646,9 +650,12 @@
     <Compile Include="TypeSystem\Services\MemberCollector.cs" />
     <Compile Include="TypeSystem\Services\MetadataUtil.cs" />
     <Compile Include="TypeSystem\Services\NameResolutionService.cs" />
+    <Compile Include="TypeSystem\Services\RuntimeMethodCache.cs" />
+    <Compile Include="TypeSystem\Services\TypeChecker.cs" />
     <Compile Include="TypeSystem\Services\TypeCompatibilityRules.cs" />
     <Compile Include="TypeSystem\Services\TypeSystemServices.cs" />
     <Compile Include="TypeSystem\TypeCollector.cs" />
+    <Compile Include="TypeSystem\TypeExtensions.cs" />
     <Compile Include="TypeSystem\Types.cs" />
     <Compile Include="TypeSystem\TypeSystemExtensions.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />

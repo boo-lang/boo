@@ -31,22 +31,57 @@ using System;
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class ParameterDeclaration
-	{		
+	{
+		public static ParameterDeclaration Lift(Expression e)
+		{
+			if (e == null) return null;
+			switch (e.NodeType)
+			{
+				case NodeType.TryCastExpression:
+					return Lift((TryCastExpression)e);
+				case NodeType.ReferenceExpression:
+					return Lift((ReferenceExpression)e);
+			}
+			throw new NotImplementedException(e.ToCodeString());
+		}
+
+		public static ParameterDeclaration Lift(ReferenceExpression referenceExpression)
+		{
+			return new ParameterDeclaration(referenceExpression.Name, null);
+		}
+
+		public static ParameterDeclaration Lift(TryCastExpression castExpression)
+		{
+			return new ParameterDeclaration(ParameterNameFrom(castExpression.Target), castExpression.Type.CloneNode());
+		}
+
+		private static string ParameterNameFrom(Expression target)
+		{
+			switch (target.NodeType)
+			{
+				case NodeType.ReferenceExpression:
+					return ((ReferenceExpression) target).Name;
+				case NodeType.SelfLiteralExpression:
+					return "self";
+			}
+			throw new ArgumentException(target.ToCodeString());
+		}
+
 		public ParameterDeclaration()
 		{			
  		}
-		
+
 		public ParameterDeclaration(string name, TypeReference type, ParameterModifiers modifiers)
 		{
 			this.Name = name;
 			this.Type = type;
 			this.Modifiers = modifiers;
 		}
-		
+
 		public ParameterDeclaration(string name, TypeReference type) : this(name, type, ParameterModifiers.None)
 		{
 		}
-		
+
 		public ParameterDeclaration(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}

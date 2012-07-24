@@ -268,5 +268,5 @@ def expectingMatchError(code as callable()):
 	try:
 		code()
 		Assert.Fail()
-	except MatchError:
+	except as MatchError:
 		pass

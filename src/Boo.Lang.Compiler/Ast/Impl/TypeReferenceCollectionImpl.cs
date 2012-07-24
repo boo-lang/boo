@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class TypeReferenceCollection : NodeCollection<Boo.Lang.Compiler.Ast.TypeReference>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static TypeReferenceCollection FromArray(params Boo.Lang.Compiler.Ast.TypeReference[] items)
 		{
-			TypeReferenceCollection collection = new TypeReferenceCollection();
-			collection.Extend(items);
+			var collection = new TypeReferenceCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.TypeReferenceCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.TypeReferenceCollection range = new Boo.Lang.Compiler.Ast.TypeReferenceCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.TypeReferenceCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}
