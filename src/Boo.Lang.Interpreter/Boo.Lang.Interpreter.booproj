@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.Interpreter</RootNamespace>
@@ -14,7 +14,8 @@
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UsePartialTypes>false</UsePartialTypes>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
@@ -52,8 +53,6 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml" />
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang.Useful, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
@@ -70,5 +69,11 @@
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
   <ItemGroup>
     <Folder Include="Builtins\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang.PatternMatching\Boo.Lang.PatternMatching.booproj">
+      <Project>{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}</Project>
+      <Name>Boo.Lang.PatternMatching</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
