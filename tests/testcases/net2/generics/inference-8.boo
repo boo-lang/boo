@@ -1,5 +1,3 @@
-#ignore Anonymous callable types involving generic type arguments are not handled correctly yet (BOO-854)
- 
 """
 Int32
 String

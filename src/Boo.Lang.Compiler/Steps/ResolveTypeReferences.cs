@@ -27,15 +27,18 @@
 #endregion
 
 using System;
+using System.Linq;
+using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Services;
+
 
 namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
-	
-	public class ResolveTypeReferences : AbstractNamespaceSensitiveVisitorCompilerStep, ITypeMemberReifier, ITypeReferenceReifier
+
+	public class ResolveTypeReferences : AbstractNamespaceSensitiveTransformerCompilerStep, ITypeMemberReifier, ITypeReferenceReifier
 	{	
 		public override void OnMethod(Method node)
 		{
@@ -49,6 +52,57 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				base.OnMethod(node);
+			}
+		}
+
+		override public void OnClassDefinition(ClassDefinition node)
+		{
+			EnterNamespace((INamespace)GetEntity(node));
+			VisitTypeDefinitionBody(node);
+			LeaveNamespace();
+		}
+
+		public override void OnInterfaceDefinition(InterfaceDefinition node)
+		{
+			EnterNamespace((INamespace)GetEntity(node));
+			VisitTypeDefinitionBody(node);
+			LeaveNamespace();
+		}
+
+		public override void OnStructDefinition(StructDefinition node)
+		{
+			EnterNamespace((INamespace)GetEntity(node));
+			VisitTypeDefinitionBody(node);
+			LeaveNamespace();
+		}
+
+		public override void OnEnumDefinition(EnumDefinition node)
+		{
+			EnterNamespace((INamespace)GetEntity(node));
+			VisitTypeDefinitionBody(node);
+			LeaveNamespace();
+		}
+
+		void VisitTypeDefinitionBody(TypeDefinition node)
+		{
+			Visit(node.Attributes);
+			Visit(node.GenericParameters);
+			Visit(node.Members);
+		}
+
+		override public void OnModule(Module module)
+		{
+			EnterNamespace(InternalModule.ScopeFor(module));
+			try
+			{
+				Visit(module.Members);
+				Visit(module.Globals);
+				Visit(module.Attributes);
+				Visit(module.AssemblyAttributes);
+			}
+			finally
+			{
+				LeaveNamespace();
 			}
 		}
 
@@ -71,24 +125,45 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NameResolutionService.ResolveSimpleTypeReference(node);
 		}
-		
+
 		override public void LeaveCallableTypeReference(CallableTypeReference node)
 		{
-		    node.Entity = TypeSystemServices.GetConcreteCallableType(node, CallableSignatureFor(node));
+			var collector = new TypeCollector(t => t is InternalGenericParameter);
+			collector.Visit(new AnonymousCallableType(TypeSystemServices, CallableSignatureFor(node)));
+
+			var entity = TypeSystemServices.GetConcreteCallableType(node, CallableSignatureFor(node));
+
+			var tr = TypeReference.Lift(( (InternalCallableType) entity).Node as ClassDefinition);
+
+			if (tr is GenericTypeReference)
+			{
+				(tr as GenericTypeReference).GenericArguments =
+					TypeReferenceCollection.FromArray(Array.ConvertAll(collector.Matches.ToArray(),
+					                                                   genericParameter =>
+					                                                   CodeBuilder.CreateTypeReference(genericParameter)));
+				NameResolutionService.ResolveSimpleTypeReference(tr as GenericTypeReference);
+
+				ReplaceCurrentNode(tr);
+			}
+			else
+			{
+				node.Entity = entity;
+			}
+
 		}
 
-	    private CallableSignature CallableSignatureFor(CallableTypeReference node)
-	    {
-	        var parameters = new IParameter[node.Parameters.Count];
-	        for (int i=0; i<parameters.Length; ++i)
-	            parameters[i] = new InternalParameter(node.Parameters[i], i);
-			
-	        var returnType = node.ReturnType != null
-                   ? GetType(node.ReturnType)
-                   : TypeSystemServices.VoidType;
+		private CallableSignature CallableSignatureFor(CallableTypeReference node)
+		{
+			var parameters = new IParameter[node.Parameters.Count];
+			for (int i = 0; i < parameters.Length; ++i)
+				parameters[i] = new InternalParameter(node.Parameters[i], i);
 
-	        return new CallableSignature(parameters, returnType, node.Parameters.HasParamArray);
-	    }
+			var returnType = node.ReturnType != null
+			                 	? GetType(node.ReturnType)
+			                 	: TypeSystemServices.VoidType;
+
+			return new CallableSignature(parameters, returnType, node.Parameters.HasParamArray);
+		}
 
 		public TypeMember Reify(TypeMember member)
 		{
