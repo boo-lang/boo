@@ -24,6 +24,12 @@ class MatchMacroTest:
 				return item
 	
 	[Test]
+	def TestEmptyArrayMatch():
+		a = Collection(Items: [])
+		match a:
+			case Collection(Items: (,))
+	
+	[Test]
 	def DoubleMatch():
 		Assert.AreEqual("int int", doubleMatch(1, 2))
 		Assert.AreEqual("int string", doubleMatch(1, '2'))
