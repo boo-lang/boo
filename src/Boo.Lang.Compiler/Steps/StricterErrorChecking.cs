@@ -452,45 +452,42 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void CheckValidExtension(Method node)
 		{
-			IMethod method = GetEntity(node);
+			var method = GetEntity(node);
 			if (!method.IsExtension) return;
 
-			IType extendedType = method.GetParameters()[0].Type;
-			IEntity entity = NameResolutionService.Resolve(extendedType, method.Name, EntityType.Method);
-			if (null == entity) return;
-			IMethod conflicting = FindConflictingMember(method, entity);
-			if (null == conflicting || !conflicting.IsPublic) return;
+			var extendedType = method.GetParameters()[0].Type;
+			var entity = NameResolutionService.Resolve(extendedType, method.Name, EntityType.Method);
+			if (entity == null) return;
+
+			var conflicting = FindConflictingMember(method, entity);
+			if (conflicting == null || !conflicting.IsPublic) return;
 
 			Error(CompilerErrorFactory.MemberNameConflict(node, extendedType, TypeSystemServices.GetSignature(conflicting)));
 		}
 
 		private IMethod FindConflictingMember(IMethod extension, IEntity entity)
 		{
-			if (EntityType.Ambiguous == entity.EntityType) return FindConflictingMember(extension, ((Ambiguous)entity).Entities);
+			if (EntityType.Ambiguous == entity.EntityType)
+				return FindConflictingMember(extension, ((Ambiguous)entity).Entities);
 
-			IMethod method = (IMethod)entity;
-			if (IsConflictingMember(extension, method)) return method;
-			return null;
+			var method = (IMethod)entity;
+			return IsConflictingMember(extension, method) ? method : null;
 		}
 
 		private IMethod FindConflictingMember(IMethod extension, IEntity[] methods)
 		{
 			foreach (IMethod m in methods)
-			{
 				if (IsConflictingMember(extension, m)) return m;
-			}
 			return null;
 		}
 
-		private bool IsConflictingMember(IMethod extension, IMethod method)
+		private static bool IsConflictingMember(IMethod extension, IMethod method)
 		{
-			IParameter[] xp = extension.GetParameters();
-			IParameter[] mp = method.GetParameters();
+			var xp = extension.GetParameters();
+			var mp = method.GetParameters();
 			if (mp.Length != (xp.Length-1)) return false;
-			for (int i=0; i<mp.Length; ++i)
-			{
-				if (xp[i+1].Type != mp[i].Type) return false;
-			}
+			for (int i = 0; i < mp.Length; ++i)
+				if (xp[i + 1].Type != mp[i].Type) return false;
 			return true;
 		}
 

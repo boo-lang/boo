@@ -1,4 +1,3 @@
-import NUnit.Framework
 
 interface IFoo:
 	pass
@@ -10,5 +9,5 @@ class Foo(IBar):
 	pass
 
 foo = Foo()
-Assert.IsTrue(foo isa IBar)
-Assert.IsTrue(foo isa IFoo)
+assert foo isa IBar
+assert foo isa IFoo

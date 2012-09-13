@@ -463,8 +463,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (null != internalMethod)
 			{
 				Method extension = internalMethod.Method;
-				if (!extension.Attributes.Contains(Types.BooExtensionAttribute.FullName)
-					|| !extension.Attributes.Contains(Types.CompilerGeneratedAttribute.FullName))
+				if (!extension.Attributes.Contains(Types.CompilerGeneratedAttribute.FullName))
 					return null;
 				SimpleTypeReference sref = extension.Parameters[0].Type as SimpleTypeReference;
 				if (null != sref && extension.Parameters.Count == 2)
@@ -474,9 +473,9 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 						return type;
 				}
 			}
-			else if (method is ExternalMethod && method.IsBooExtension)
+			else if (method is ExternalMethod && method.IsExtension)
 			{
-				IParameter[] parameters = method.GetParameters();
+				var parameters = method.GetParameters();
 				if (parameters.Length == 2 && TypeSystemServices.IsMacro(parameters[0].Type))
 					return parameters[0].Type;
 			}

@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class A:
 
@@ -17,9 +17,9 @@ class B(A):
 		return "B.Foo"
 		
 a = A()
-Assert.AreEqual("A.Foo", a.Foo())
-Assert.AreEqual("A.Foo(3)", a.Foo(3))
+assert "A.Foo" == a.Foo()
+assert "A.Foo(3)" == a.Foo(3)
 
 a = B()
-Assert.AreEqual("B.Foo", a.Foo())
-Assert.AreEqual("B.Foo(5)", a.Foo(5))
+assert "B.Foo" == a.Foo()
+assert "B.Foo(5)" == a.Foo(5)

@@ -49,7 +49,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new BindBaseTypes());
 
 			Add(new MacroAndAttributeExpansion());
-
+			Add(new RemoveEmptyBlocks());
 			Add(mergePartialTypes);
 		}
 	}

@@ -29,7 +29,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Boo.Lang;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -40,10 +39,8 @@ namespace Boo.Lang.Compiler.Ast
 	public class NodeCollection<T> : ICollection<T>, ICollection, ICloneable, IEquatable<NodeCollection<T>>
 		where T : Node
 	{
-		protected Node _parent;
-
-		protected List<T> _list;
-		private EventHandler _changed;
+		private Node _parent;
+		private readonly List<T> _list;
 
 		protected NodeCollection()
 		{
@@ -154,16 +151,6 @@ namespace Boo.Lang.Compiler.Ast
 			return array;
 		}
 
-		public IEnumerable<TNode> OfType<TNode>() where TNode : Node
-		{
-			foreach (Node node in _list)
-			{
-				TNode match = node as TNode;
-				if (null != match)
-					yield return match;
-			}
-		}
-
 		public IEnumerable<T> Except<UnwantedNodeType>() where UnwantedNodeType : T
 		{
 			foreach (T node in _list)
@@ -178,15 +165,6 @@ namespace Boo.Lang.Compiler.Ast
 			foreach (T node in _list)
 				if (!(node is UnwantedNodeType) && !(node is UnwantedNodeType2))
 					yield return node;
-		}
-
-		public T[] Select(NodeType type)
-		{
-			List<T> result = new List<T>();
-			foreach (T node in _list)
-				if (node.NodeType == type)
-					result.Add(node);
-			return result.ToArray();
 		}
 
 		protected IEnumerable InternalPopRange(int begin)
@@ -213,7 +191,7 @@ namespace Boo.Lang.Compiler.Ast
 			return _list.Contains(condition);
 		}
 
-		public bool ContainsEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
+		public bool ContainsEntity(TypeSystem.IEntity entity)
 		{
 			foreach (T node in _list)
 				if (entity == node.Entity)
@@ -221,7 +199,7 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
-		public Node RemoveByEntity(Boo.Lang.Compiler.TypeSystem.IEntity entity)
+		public Node RemoveByEntity(TypeSystem.IEntity entity)
 		{
 			if (null == entity)
 				throw new ArgumentNullException("entity");
@@ -269,7 +247,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (null == condition)
 				throw new ArgumentNullException("condition");
 
-			int index = 0;
+			var index = 0;
 			foreach (T node in ToArray())
 				if (condition(node))
 					RemoveAt(index);
@@ -305,7 +283,13 @@ namespace Boo.Lang.Compiler.Ast
 			OnChanged();
 		}
 
+		[Obsolete("Use AddRange")]
 		public void Extend(IEnumerable<T> items)
+		{
+			AddRange(items);
+		}
+
+		public void AddRange(IEnumerable<T> items)
 		{
 			AssertNotNull("items", items);
 			foreach (T item in items)
@@ -346,17 +330,13 @@ namespace Boo.Lang.Compiler.Ast
 			return false;
 		}
 
-		public event System.EventHandler Changed
-		{
-			add { _changed += value; }
-			remove { _changed -= value; }
-		}
+		public event EventHandler Changed;
 
 		private void OnChanged()
 		{
-			if (_changed == null)
-				return;
-			_changed(this, EventArgs.Empty);
+			var changed = Changed;
+			if (changed != null)
+				changed(this, EventArgs.Empty);
 		}
 
 		override public int GetHashCode()
@@ -366,11 +346,7 @@ namespace Boo.Lang.Compiler.Ast
 
 		override public bool Equals(object other)
 		{
-			if (null == other) return false;
-			if (this == other) return true;
-
-			NodeCollection<T> collection = other as NodeCollection<T>;
-			return Equals(collection);
+			return Equals(other as NodeCollection<T>);
 		}
 
 		public bool Equals(NodeCollection<T> other)
@@ -395,7 +371,7 @@ namespace Boo.Lang.Compiler.Ast
 				item.InitializeParent(_parent);
 		}
 
-		private void AssertNotNull(string descrip, object o)
+		private static void AssertNotNull(string descrip, object o)
 		{
 			if (o == null)
 				throw new ArgumentException(String.Format("null reference for: {0}", descrip));

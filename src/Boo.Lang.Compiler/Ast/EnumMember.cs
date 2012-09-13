@@ -58,5 +58,14 @@ namespace Boo.Lang.Compiler.Ast
 			this.Name = name;
 		}
 
+		public EnumMember(string name)
+		{
+			this.Name = name;
+		}
+
+		public override bool IsStatic
+		{
+			get { return true; }
+		}
 	}
 }

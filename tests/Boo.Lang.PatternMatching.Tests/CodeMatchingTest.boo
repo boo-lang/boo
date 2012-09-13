@@ -9,18 +9,38 @@ import Boo.Lang.Compiler.Ast
 class CodeMatchingTest:
 	
 	[Test]
+	def ListPatterns():
+		Assert.AreEqual("42", firstElementOfNestedTwoElementList([| [[42, "foo"]] |]).ToString())
+		
+	[Test]
+	def MismatchedListSize():
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [] |])
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [[]] |])
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [[1]] |])
+		expectingMatchError:
+			firstElementOfNestedTwoElementList([| [[1, 2], []] |])
+		
+	def firstElementOfNestedTwoElementList(code):
+		match code:
+			case [| [[$first, $_]] |]:
+				return first
+	
+	[Test]
 	def MacroApplication():
 		Assert.AreEqual("42", firstPrintArgument([| print 42 |]).ToString())
 		
 	[Test]
-	[ExpectedException(MatchError)]
 	def MacroApplicationWithMismatchedArguments():
-		firstPrintArgument([| print "arg1", "arg2" |])
+		expectingMatchError:
+			firstPrintArgument([| print "arg1", "arg2" |])
 		
 	[Test]
-	[ExpectedException(MatchError)]
 	def WrongMacroApplicationNae():
-		firstPrintArgument([| print_ "arg" |])
+		expectingMatchError:
+			firstPrintArgument([| print_ "arg" |])
 		
 	[Test]
 	def Assignment():
@@ -62,9 +82,9 @@ class CodeMatchingTest:
 		assert delegateMethod([| ThreadStart(null, __addressof__(foo)) |]) == "foo"
 	
 	[Test]
-	[ExpectedException(MatchError)]
 	def InvocationPatternWithArgumentsMismatch():
-		delegateMethod([| ThreadStart(null) |])
+		expectingMatchError:
+			delegateMethod([| ThreadStart(null) |])
 		
 		
 	[Test]
@@ -157,12 +177,12 @@ class CodeMatchingTest:
 				pass
 				
 	[Test]
-	[ExpectedException(MatchError)]
 	def StringLiteralExpressionMismatch():
-		code = [| "foo" |]
-		match code:
-			case [| "bar" |]:
-				pass
+		expectingMatchError:
+			code = [| "foo" |]
+			match code:
+				case [| "bar" |]:
+					pass
 				
 	[Test]
 	def IntegerLiteralExpression():
@@ -171,13 +191,13 @@ class CodeMatchingTest:
 			case [| 42 |]:
 				pass
 	
-	[Test]
-	[ExpectedException(MatchError)]
+	[Test]	
 	def IntegerLiteralExpressionMismatch():
-		code = [| 42 |]
-		match code:
-			case [| 1 |]:
-				pass
+		expectingMatchError:
+			code = [| 42 |]
+			match code:
+				case [| 1 |]:
+					pass
 				
 	[Test]
 	def Typeof():
@@ -243,3 +263,10 @@ class CodeMatchingTest:
 		match code:
 			case [| print $arg |]:
 				return arg 
+				
+def expectingMatchError(code as callable()):
+	try:
+		code()
+		Assert.Fail()
+	except as MatchError:
+		pass

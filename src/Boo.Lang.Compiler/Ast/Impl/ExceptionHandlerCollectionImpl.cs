@@ -35,7 +35,6 @@
 namespace Boo.Lang.Compiler.Ast
 {
 	using System;
-	using Boo.Lang.Compiler.Ast;
 	
 	[Serializable]
 	public partial class ExceptionHandlerCollection : NodeCollection<Boo.Lang.Compiler.Ast.ExceptionHandler>
@@ -43,16 +42,16 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public static ExceptionHandlerCollection FromArray(params Boo.Lang.Compiler.Ast.ExceptionHandler[] items)
 		{
-			ExceptionHandlerCollection collection = new ExceptionHandlerCollection();
-			collection.Extend(items);
+			var collection = new ExceptionHandlerCollection();
+			collection.AddRange(items);
 			return collection;
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public Boo.Lang.Compiler.Ast.ExceptionHandlerCollection PopRange(int begin)
 		{
-			Boo.Lang.Compiler.Ast.ExceptionHandlerCollection range = new Boo.Lang.Compiler.Ast.ExceptionHandlerCollection(_parent);
-			range.InnerList.Extend(InternalPopRange(begin));
+			var range = new Boo.Lang.Compiler.Ast.ExceptionHandlerCollection(ParentNode);
+			range.InnerList.AddRange(InternalPopRange(begin));
 			return range;
 		}
 	}

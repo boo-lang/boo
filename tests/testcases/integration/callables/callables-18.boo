@@ -2,7 +2,6 @@
 MakeItUpper:foo:FOO
 MakeItLower:BaR:bar
 """
-import NUnit.Framework
 
 def upper(s as string):
 	return s.ToUpper()
@@ -27,6 +26,6 @@ for line in /\n/.Split(text):
 	continue unless len(line.Trim())	
 	
 	command, arg, expected = /\s+/.Split(line)	
-	Assert.AreEqual(expected, invoke(commandMap[command], arg))
+	assert expected == invoke(commandMap[command], arg)
 	
 	print("${command}:${arg}:${expected}")

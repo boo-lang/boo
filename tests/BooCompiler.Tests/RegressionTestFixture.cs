@@ -1395,6 +1395,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void duck_default_setter_overload()
+		{
+			RunCompilerTestCase(@"duck-default-setter-overload.boo");
+		}
+		
+		[Test]
 		public void for_re_Split()
 		{
 			RunCompilerTestCase(@"for-re-Split.boo");

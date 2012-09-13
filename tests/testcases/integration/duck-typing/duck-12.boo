@@ -24,12 +24,12 @@ assert _duck == -10
 _1ul as ulong = 1
 _2ul as ulong = 2
 _ulong as ulong = 1
-for i in range(63):
+for i in range(5):
 	_ulong *= _2ul
 _ulong -= _1ul
 
 _decimal as decimal = 1
-for i in range(63):
+for i in range(5):
 	_decimal *= 2
 _decimal -= 1
 _decimal *= -1

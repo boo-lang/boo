@@ -1,6 +1,5 @@
 import System
 import System.Reflection
-import NUnit.Framework
 
 class Button:
 	event Click as EventHandler
@@ -8,13 +7,13 @@ class Button:
 	transient event Clicked as EventHandler
 	
 def CheckEventMethod(expectedName, method as MethodInfo):
-	Assert.IsNotNull(method, expectedName)
-	Assert.AreEqual(expectedName, method.Name)
-	Assert.AreEqual(1, len(method.GetParameters()))
-	Assert.AreSame(EventHandler, method.GetParameters()[0].ParameterType)
-	Assert.AreSame(void, method.ReturnType)
-	Assert.IsTrue(method.IsSpecialName, "IsSpecialName")
-	Assert.IsTrue(method.IsPublic, "IsPublic")
+	assert method is not null, expectedName
+	assert expectedName == method.Name
+	assert 1 == len(method.GetParameters())
+	assert EventHandler is method.GetParameters()[0].ParameterType
+	assert void is method.ReturnType
+	assert method.IsSpecialName
+	assert method.IsPublic
 	
 def CheckEventField(field as FieldInfo, serializable as bool, eventType as Type):
 	assert field.IsPrivate
@@ -25,8 +24,8 @@ def CheckEvent(name, serializable):
 
 	type = Button
 	eventInfo = type.GetEvent(name)
-	Assert.IsNotNull(eventInfo, name)
-	Assert.AreSame(EventHandler, eventInfo.EventHandlerType)
+	assert eventInfo is not null, name 
+	assert EventHandler is eventInfo.EventHandlerType
 
 	CheckEventMethod("add_$name", eventInfo.GetAddMethod())
 	CheckEventMethod("remove_$name", eventInfo.GetRemoveMethod())

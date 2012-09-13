@@ -1,4 +1,3 @@
-import NUnit.Framework
 
 a as object = 3
 b as byte = a
@@ -11,13 +10,13 @@ h as uint = a
 i as ulong = a
 j as ushort = a
 
-Assert.AreEqual(3, a)
-Assert.AreEqual(3, b)
-Assert.AreEqual(3, c)
-Assert.AreEqual(3, d)
-Assert.AreEqual(3, e)
-Assert.AreEqual(3, f)
-Assert.AreEqual(3, g)
-Assert.AreEqual(3, h)
-Assert.AreEqual(3, i)
-Assert.AreEqual(3, j)
+assert 3 == a
+assert 3 == b
+assert 3 == c
+assert 3 == d
+assert 3 == e
+assert 3 == f
+assert 3 == g
+assert 3 == h
+assert 3 == i
+assert 3 == j

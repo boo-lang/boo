@@ -29,10 +29,9 @@ namespace Boo.Lang.Runtime.Tests
 		}
 	}
 
-	class IntegerExtensions
-	{
-		[Boo.Lang.Extension]
-		public static int op_Implicit(Integer i)
+	static class IntegerExtensions
+	{	
+		public static int op_Implicit(this Integer i)
 		{
 			return i.Value;
 		}

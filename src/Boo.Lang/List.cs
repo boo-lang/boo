@@ -68,7 +68,7 @@ namespace Boo.Lang
 
 		public Array ToArray(Type targetType)
 		{
-			Array target = Array.CreateInstance(targetType, _count);
+			var target = Array.CreateInstance(targetType, _count);
 			Array.Copy(_items, 0, target, 0, _count);
 			return target;
 		}

@@ -79,9 +79,12 @@ class CompilerTestFixture:
 		Assert.IsNull(_compiler.Parameters.Pipeline, "Pipeline must be null!")
 	
 	[Test]
-	[ExpectedException(InvalidOperationException)]
 	def RunWithoutPipeline():
-		_compiler.Run()
+		try:
+			_compiler.Run()
+			Assert.Fail()
+		except as InvalidOperationException:
+			pass
 	
 	[Test]
 	def RunWithPipeline():
@@ -107,12 +110,13 @@ class CompilerTestFixture:
 	def DefaultAssemblyReferences():
 		parameters = _compiler.Parameters
 		references = parameters.References
-		Assert.AreEqual(5, references.Count)
+		Assert.AreEqual(6, references.Count)
 		Assert.IsTrue(references.Contains(typeof(string).Assembly), "(ms)corlib.dll must be referenced by default!")
 		Assert.IsTrue(references.Contains(parameters.LoadAssembly("System")), "System.dll must be referenced by default!")
 		Assert.IsTrue(references.Contains(parameters.LoadAssembly("System.Core")), "System.Core.dll must be referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Builtins).Assembly), "Boo.dll must referenced by default!")
 		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Extensions.PrintMacro).Assembly), "Boo.Lang.Extensions.dll must be referenced by default!")
+		Assert.IsTrue(references.Contains(typeof(Boo.Lang.Compiler.Ast.Node).Assembly), "Boo.Lang.Compiler.dll must be referenced by default!")
 		
 	[Test]
 	def DefaultGenerateInMemory():

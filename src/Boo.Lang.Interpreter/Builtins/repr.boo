@@ -55,7 +55,7 @@ static class Repr:
 			Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.WriteStringLiteral(value, writer)
 			
 		AddRepresenter(bool) do (value as bool, writer as TextWriter):
-			writer.Write(("false", "true")[value])
+			writer.Write(("true" if value else "false"))
 			
 		AddRepresenter(Array) do (a as Array, writer as TextWriter):
 			writer.Write("(")

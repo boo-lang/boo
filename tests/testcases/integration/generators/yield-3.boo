@@ -3,7 +3,7 @@
 2
 3
 """
-import NUnit.Framework
+
 
 def onetwothree():
 	yield 1
@@ -12,4 +12,4 @@ def onetwothree():
 	
 for expected, actual in zip(range(1, 4), onetwothree()):
 	print(actual)
-	Assert.AreEqual(expected, actual)
+	assert expected == actual

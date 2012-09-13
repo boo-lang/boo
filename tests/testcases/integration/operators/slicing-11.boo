@@ -1,9 +1,8 @@
-import NUnit.Framework
 
 a = "Gooooooooood niiiiiiiiight ding ding ding ding ding ding"
-Assert.AreEqual("Go", a[:2])
-Assert.AreEqual("Go", a[0:2])
-Assert.AreEqual("ding", a[-4:])
-Assert.AreEqual("din", a[-4:-1])
+assert "Go" == a[:2]
+assert "Go" == a[0:2]
+assert "ding" == a[-4:]
+assert "din" == a[-4:-1]
 
 

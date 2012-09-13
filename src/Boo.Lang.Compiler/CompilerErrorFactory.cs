@@ -519,11 +519,6 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0087", node, typeName);
 		}
 		
-		public static CompilerError ReservedPrefix(Node node, string prefix)
-		{
-			return Instantiate("BCE0088", node, prefix);
-		}
-		
 		public static CompilerError MemberNameConflict(Node node, IType declaringType, string memberName)
 		{
 			return Instantiate("BCE0089", node, declaringType, memberName);

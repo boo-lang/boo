@@ -1,5 +1,5 @@
 import System.IO
-import NUnit.Framework
+
 
 def PathJoin(files):
 	buffer = System.Text.StringBuilder()
@@ -10,4 +10,4 @@ def PathJoin(files):
 
 files = "foo.bar", "spam.eggs"
 separator = string((Path.PathSeparator,))
-Assert.AreEqual(PathJoin(files), join(files, separator))
+assert PathJoin(files) == join(files, separator)

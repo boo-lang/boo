@@ -1274,8 +1274,13 @@ macro_stmt returns [MacroStatement returnValue]
 			end[macro.Body] { macro.Annotate("compound" ); }
 		) | 
 		macro_compound_stmt[macro.Body] { macro.Annotate("compound"); } |
-		eos |
-		modifier=stmt_modifier eos { macro.Modifier = modifier; }
+		(
+			(
+				eos |
+				modifier=stmt_modifier eos { macro.Modifier = modifier; }
+			)
+			docstring[macro]
+		)
 	)
 	{
 		macro.Name = id.getText();

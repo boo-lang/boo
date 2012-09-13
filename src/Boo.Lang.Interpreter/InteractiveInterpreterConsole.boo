@@ -32,10 +32,13 @@ import System
 import System.Collections
 import System.Collections.Generic
 import System.IO
+import System.Linq
 import System.Text
 import System.Text.RegularExpressions
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.TypeSystem
+import PatternMatching
+import Environments
 
 class InteractiveInterpreterConsole:
 	
@@ -82,6 +85,9 @@ class InteractiveInterpreterConsole:
 		_interpreter.SetValue("quit", Quit)
 
 		LoadHistory()
+		
+	def SetValue(name as string, value):
+		_interpreter.SetValue(name, value)
 	
 	Line:
 		get: return _line.ToString()
@@ -136,7 +142,7 @@ class InteractiveInterpreterConsole:
 
 	_selectedSuggestionIndex as int?
 
-	_suggestions as (object)
+	_suggestions as EnvironmentBoundValue[of (object)]
 
 	CanAutoComplete as bool:
 		get: return _selectedSuggestionIndex is not null
@@ -203,7 +209,7 @@ class InteractiveInterpreterConsole:
 
 		i = 0
 
-		for s in _suggestions:
+		for s in SuggestionDescriptions():
 			Console.ForegroundColor = SuggestionsColor if not DisableColors
 			Console.Write(", ") if i > 0
 			if i > 20: #TODO: maxcandidates pref + paging?
@@ -211,10 +217,7 @@ class InteractiveInterpreterConsole:
 				break
 			if i == _selectedSuggestionIndex:
 				Console.ForegroundColor = SelectedSuggestionColor if not DisableColors
-			if s isa IEntity:
-				Console.Write(Boo.Lang.Interpreter.Builtins.DescribeEntity(s as IEntity))
-			else:
-				Console.Write(s)
+			Console.Write(s)
 			i++
 
 		Console.ResetColor() if not DisableColors
@@ -223,6 +226,19 @@ class InteractiveInterpreterConsole:
 		ConsolePrintPrompt(false)
 		Console.Write(Line)
 		Console.CursorLeft = cursorLeft
+		
+	def SuggestionDescriptions():
+		return _suggestions.Select(DescriptionsFor).Value
+		
+	def DescriptionsFor(suggestions as (object)):
+		return array((DescriptionFor(s) for s in suggestions).Distinct())
+		
+	def DescriptionFor(s):
+		match s:
+			case e = IEntity():
+				return Boo.Lang.Interpreter.Builtins.DescribeEntity(e)
+			otherwise:
+				return s.ToString()
 
 	protected def Write(s as string):
 		Console.Write(s)
@@ -269,38 +285,52 @@ class InteractiveInterpreterConsole:
 			query = query.Split(" ,\t".ToCharArray(), 100)[-1]
 		if query.LastIndexOf('.') > 0:
 			codeToComplete = query[0:query.LastIndexOf('.')+1]
-			_suggestions = _interpreter.SuggestCodeCompletion(codeToComplete+"__codecomplete__")
 			_filter = query[query.LastIndexOf('.')+1:]
-			_suggestions = array(e for e in _suggestions as (IEntity)
-								unless not e.Name.StartsWith(_filter)) as (IEntity)			
+			_suggestions = (
+				_interpreter
+				.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
+				.Select[of (object)](
+					{ es | array(e as object for e in es if e.Name.StartsWith(_filter)) }))			
 
-		if not _suggestions or 0 == len(_suggestions): #suggest a  var		
+		if _suggestions.Value is null or 0 == len(_suggestions.Value): #suggest a  var		
 			_filter = query
-			_suggestions = array(var.Key.ToString() for var in _interpreter.Values
-									unless not var.ToString().StartsWith(_filter))
+			_suggestions = EnvironmentBoundValue.Create(
+							null,
+							array(
+								var.Key.ToString() as object
+								for var in _interpreter.Values
+								if var.ToString().StartsWith(_filter)))
 
-		if not _suggestions or 0 == len(_suggestions):
+		if _suggestions.Value is null or 0 == len(_suggestions.Value):
 			_selectedSuggestionIndex = null
 			#Console.Beep() #TODO: flash background?
-		elif 1 == len(_suggestions):
+		elif 1 == len(_suggestions.Value):
 			AutoComplete()
 		else:
 			ConsolePrintSuggestions()
 
 
 	def AutoComplete():
-		raise InvalidOperationException("no suggestions") if _suggestions is null or _selectedSuggestionIndex is null
+		raise InvalidOperationException("no suggestions") if _suggestions.Value is null or _selectedSuggestionIndex is null
 
-		s = _suggestions[_selectedSuggestionIndex.Value] as IEntity
-		completion = (s.Name[len(_filter):] if s is not null else (_suggestions[_selectedSuggestionIndex.Value] as string)[len(_filter):])
-		Write(completion)
-		if s and s.EntityType == EntityType.Method:
-			Write("(")
-			m = s as IMethod
-			Write(')') if m.GetParameters().Length == 0
-
+		Write(_suggestions.Select[of string]({ ss | AutoCompletionFor(ss[_selectedSuggestionIndex.Value]) }).Value)
+		
 		_selectedSuggestionIndex = null
-		_suggestions = null
+		_suggestions = EnvironmentBoundValue[of (object)](null, null)
+		
+	def AutoCompletionFor(s):
+		match s:
+			case m = IMethod(Name: name):
+				if len(m.GetParameters()) == 0:
+					return "$(TrimFilter(name))()"
+				return "$(TrimFilter(name))("
+			case IEntity(Name: name):
+				return TrimFilter(name)
+			otherwise:
+				return TrimFilter(s.ToString())
+				
+	def TrimFilter(s as string):
+		return s[len(_filter):]
 
 	private _beforeHistory = string.Empty
 
@@ -375,10 +405,10 @@ class InteractiveInterpreterConsole:
 					if _selectedSuggestionIndex > 0:
 						_selectedSuggestionIndex--
 					else:
-						_selectedSuggestionIndex = len(_suggestions) - 1
+						_selectedSuggestionIndex = len(_suggestions.Value) - 1
 					DisplaySuggestions()
 				elif key == ConsoleKey.RightArrow:
-					if _selectedSuggestionIndex < len(_suggestions) - 1:
+					if _selectedSuggestionIndex < len(_suggestions.Value) - 1:
 						_selectedSuggestionIndex++
 					else:
 						_selectedSuggestionIndex = 0
@@ -550,7 +580,7 @@ Enter boo code in the prompt below (or type /help)."""
 		WithColor color:
 			for problem as duck in problems:
 				markLocation(problem.LexicalInfo)
-				type = ("WARNING", "ERROR")[problem isa CompilerError]
+				type = ("ERROR" if problem isa CompilerError else "WARNING")
 				Console.WriteLine("${type}: ${problem.Message}")
 		return true
 

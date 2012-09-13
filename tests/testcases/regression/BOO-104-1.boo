@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class Person:
 	[getter(FirstName)]
@@ -20,7 +20,7 @@ class Employee(Person):
 		_hourly_rate = hourly_rate
 
 emp = Employee("Joe", "Blow", 10)
-Assert.AreEqual("Blow", emp.FirstName)
-Assert.AreEqual("Joe", emp.LastName)
-Assert.AreEqual(10, emp.HourlyRate)
+assert "Blow" == emp.FirstName
+assert "Joe" == emp.LastName
+assert 10 == emp.HourlyRate
 

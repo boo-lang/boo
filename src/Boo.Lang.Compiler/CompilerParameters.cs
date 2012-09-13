@@ -80,7 +80,11 @@ namespace Boo.Lang.Compiler
 		public CompilerParameters() : this(true)
 		{
 		}
-		
+
+		public CompilerParameters(bool loadDefaultReferences) : this(SharedTypeSystemProvider, loadDefaultReferences)
+		{	
+		}
+
 		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider) : this(reflectionProvider, true)
 		{
 		}
@@ -94,7 +98,6 @@ namespace Boo.Lang.Compiler
 				_libPaths.Add(_systemDir);
 				_libPaths.Add(Directory.GetCurrentDirectory());
 			}
-			Pipeline = null;
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
 			_compilerReferences = new CompilerReferenceCollection(reflectionProvider);
@@ -122,10 +125,6 @@ namespace Boo.Lang.Compiler
 			return string.IsNullOrEmpty(booTraceLevel) ? TraceLevel.Off : (TraceLevel)Enum.Parse(typeof(TraceLevel), booTraceLevel);
 		}
 
-		public CompilerParameters(bool loadDefaultReferences) : this(SharedTypeSystemProvider, loadDefaultReferences)
-		{	
-		}
-
 		public void LoadDefaultReferences()
 		{
 			//boo.lang.dll
@@ -137,6 +136,9 @@ namespace Boo.Lang.Compiler
 			var extensionsAssembly = TryToLoadExtensionsAssembly();
 			if (extensionsAssembly != null)
 				_compilerReferences.Add(extensionsAssembly);
+
+			//boo.lang.compiler.dll
+			_compilerReferences.Add(GetType().Assembly);
 
 			//mscorlib
 			_compilerReferences.Add(LoadAssembly("mscorlib", true));
@@ -435,10 +437,7 @@ namespace Boo.Lang.Compiler
 		/// <summary>
 		/// Treat System.Object as duck
 		/// </summary>
-		public virtual bool Ducky
-		{
-			get; set;
-		}
+		public virtual bool Ducky { get; set; }
 
 		public bool Checked { get; set; }
 

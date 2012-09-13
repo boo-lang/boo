@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class Factory:
 
@@ -13,5 +13,5 @@ class Factory:
 c1 = Factory("-").Create()
 c2 = Factory("|").Create()
 
-Assert.AreEqual("-Yellow!", c1("Yellow!"))
-Assert.AreEqual("|Zeng!", c2("Zeng!"))
+assert "-Yellow!" == c1("Yellow!")
+assert "|Zeng!" == c2("Zeng!")

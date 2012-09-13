@@ -1,12 +1,11 @@
-import NUnit.Framework
 
 a = false or 5
 b = true or 3
 
-Assert.AreSame(int, a.GetType())
-Assert.AreSame(int, b.GetType())
-Assert.AreEqual(5, a*b)
-Assert.AreEqual(5, a)
-Assert.AreEqual(1, b)
-Assert.AreEqual(0, false and 3)
+assert int is a.GetType()
+assert int is b.GetType()
+assert 5 == a*b
+assert 5 == a
+assert 1 == b
+assert 0 == (false and 3)
 

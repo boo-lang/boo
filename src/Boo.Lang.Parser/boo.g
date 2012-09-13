@@ -222,7 +222,7 @@ protected docstring[Node node]:
 		doc:TRIPLE_QUOTED_STRING { node.Documentation = DocStringFormatter.Format(doc.getText()); }
 		(eos)?
 	)?
-	;
+;
 			
 protected
 eos : (options { greedy = true; }: (EOL|EOS))+;
@@ -1420,14 +1420,20 @@ macro_stmt returns [MacroStatement returnValue]
 	}:
 	id=macro_name expression_list[macro.Arguments]
 	(
-		macro_compound_stmt[macro.Body] { macro.Annotate("compound"); } |
-		eos |
-		modifier=stmt_modifier eos { macro.Modifier = modifier; } |
 		(
 			begin_with_doc[macro] 
 				macro_block[macro.Body.Statements]
 			end[macro.Body] { macro.Annotate("compound" ); }
-		) 
+		) |
+		macro_compound_stmt[macro.Body] { macro.Annotate("compound"); } |
+		(
+			(
+				eos |
+				modifier=stmt_modifier eos { macro.Modifier = modifier; }
+			)
+			docstring[macro]
+		)
+		
 	)
 	{
 		macro.Name = id.getText();

@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class BaseClass:
     def Test1() as int:
@@ -19,9 +19,9 @@ class ExtendedClass(BaseClass):
 
 ebase = ExtendedClass()
 
-Assert.AreEqual(55, ebase.Test1())
-Assert.AreEqual(33, ebase.Test2())
-Assert.AreEqual(5, ebase.Test2(6))
-Assert.AreEqual(11, ebase.Test1(5))
-Assert.AreEqual(110, ebase.Test3(2))
-Assert.AreEqual(11, ebase.Test2(3))
+assert 55 == ebase.Test1()
+assert 33 == ebase.Test2()
+assert 5 == ebase.Test2(6)
+assert 11 == ebase.Test1(5)
+assert 110 == ebase.Test3(2)
+assert 11 == ebase.Test2(3)

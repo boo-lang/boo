@@ -34,46 +34,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 	{
 		private readonly InternalTypeSystemProvider _provider;
 		private IParameter[] _parameters;
-		private bool? _isBooExtension;
-		private bool? _isClrExtension;
 
 		public InternalProperty(InternalTypeSystemProvider provider, Property property) : base(property)
 		{
 			_provider = provider;
-		}
-
-		public bool IsExtension
-		{
-			get { return IsBooExtension || IsClrExtension; }
-		}
-
-		public bool IsBooExtension
-		{
-			get
-			{
-				if (_isBooExtension == null)
-					_isBooExtension = IsAttributeDefined(Types.BooExtensionAttribute);
-				return _isBooExtension.Value;
-			}
-		}
-
-		public bool IsClrExtension
-		{
-			get
-			{
-				if (null == _isClrExtension)
-				{
-					_isClrExtension = MetadataUtil.HasClrExtensions()
-							&& IsStatic
-							&& IsAttributeDefined(Types.ClrExtensionAttribute);
-				}
-				return _isClrExtension.Value;
-			}
-		}
-
-		private bool IsAttributeDefined(System.Type attributeType)
-		{
-			return MetadataUtil.IsAttributeDefined(_node, _provider.Map(attributeType));
 		}
 		
 		override public EntityType EntityType

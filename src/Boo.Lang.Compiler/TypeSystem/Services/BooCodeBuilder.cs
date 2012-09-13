@@ -497,7 +497,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public UnpackStatement CreateUnpackStatement(DeclarationCollection declarations, Expression expression)
 		{
 			UnpackStatement unpack = new UnpackStatement(expression.LexicalInfo);
-			unpack.Declarations.Extend(declarations);
+			unpack.Declarations.AddRange(declarations);
 			unpack.Expression = expression;
 			return unpack;
 		}
@@ -558,7 +558,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			var array = new ArrayLiteralExpression();
 			array.ExpressionType = arrayType;
-			array.Items.Extend(items);
+			array.Items.AddRange(items);
 			TypeSystemServices.MapToConcreteExpressionTypes(array.Items);
 			return array;
 		}
@@ -675,7 +675,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			MethodInvocationExpression mie = CreateConstructorInvocation(constructor);
 			mie.LexicalInfo = lexicalInfo;
-			mie.Arguments.Extend(args);
+			mie.Arguments.AddRange(args);
 			return mie;
 		}
 

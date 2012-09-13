@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class A:
 	virtual def Foo():
@@ -13,6 +13,6 @@ class C(B):
 		return super() + "C"
 		
 
-Assert.AreEqual("A", A().Foo())
-Assert.AreEqual("AB", B().Foo())
-Assert.AreEqual("ABC", C().Foo())
+assert "A" == A().Foo()
+assert "AB" == B().Foo()
+assert "ABC" == C().Foo()

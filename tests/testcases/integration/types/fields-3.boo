@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 class Sketch:
 	public Name as string
@@ -10,11 +10,11 @@ class Favorites:
 						Sketch(Name: "Silly Job Interview"))
 s = Favorites.Sketches
 
-Assert.AreEqual(3, len(s))
+assert 3 == len(s)
 for index, name in enumerate(("The Ministry of Silly Walks",
 							"Dirty Hungarian Phrase Book",
 							"Silly Job Interview")):
 							
-	Assert.AreEqual(name, s[index].Name)
+	assert name == s[index].Name
 
 	

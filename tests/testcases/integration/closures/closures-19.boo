@@ -1,4 +1,4 @@
-import NUnit.Framework
+
 
 a = 2
 b = do ():
@@ -8,15 +8,15 @@ b = do ():
 	return r, w
 	
 reader, writer = b()
-Assert.AreEqual(8, reader())
+assert 8 == reader()
 
 writer(3)
-Assert.AreEqual(6, reader())
+assert 6 == reader()
 
 a = 5
-Assert.AreEqual(15, reader())
+assert 15 == reader()
 
 writer(2)
-Assert.AreEqual(10, reader())
+assert 10 == reader()
 
 

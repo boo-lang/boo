@@ -1,3 +1,3 @@
-import NUnit.Framework
 
-Assert.AreSame(Boo.Lang.ICallable, typeof(callable))
+
+assert Boo.Lang.ICallable is typeof(callable)
