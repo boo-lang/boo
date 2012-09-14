@@ -89,26 +89,43 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		override public bool Equals(object other)
 		{
-			if (null == other) return false;
-			if (this == other) return true;
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
-			CallableSignature signature = other as CallableSignature;
+			var signature = other as CallableSignature;
 			return Equals(signature);
 		}
 
 		public bool Equals(CallableSignature other)
 		{
-			if (null == other) return false;
-			if (this == other) return true;
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
 			return _returnType.Equals(other._returnType)
 			       && _acceptVarArgs == other._acceptVarArgs
 			       && AreSameParameters(_parameters, other._parameters);
 		}
 
-		override public string ToString()
+        public static bool operator == (CallableSignature s1, CallableSignature s2)
+        {
+            return OperatorEquals(s1,s2);
+        }
+	    
+	    public static bool operator !=(CallableSignature s1, CallableSignature s2)
+	    {
+            return !OperatorEquals(s1, s2);
+	    }
+
+        private static bool OperatorEquals(CallableSignature s1, CallableSignature s2)
+        {
+            if (Equals(s1, null) && Equals(s2, null)) return true;
+            if (Equals(s1, null) || Equals(s2, null)) return false;
+            return s1.Equals(s2);
+        }
+
+	    override public string ToString()
 		{
-			StringBuilder buffer = new StringBuilder("callable(");
+			var buffer = new StringBuilder("callable(");
 			for (int i=0; i<_parameters.Length; ++i)
 			{
 				if (i > 0) { buffer.Append(", "); }

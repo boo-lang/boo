@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 	{
 		Predicate<IType> _predicate;
 		List<IType> _matches = new List<IType>();
+        List<object> _history = new List<object>();
 
 		public TypeCollector(Predicate<IType> predicate)
 		{
@@ -49,6 +50,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public override void Visit(IType type)
 		{
+            if (_history.IndexOf(type) != -1) return; //Preventing infinite loop.
+		    _history.Add(type);
+
 			if (_predicate(type)) _matches.AddUnique(type);
 			
 			base.Visit(type);

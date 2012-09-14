@@ -129,7 +129,8 @@ class PatternExpander:
 		pattern = node.Right
 		if pattern isa RELiteralExpression:
 			return ExpandRegexPatternWithBinding(matchValue, pattern, name)
-			
+
+		assert pattern isa MethodInvocationExpression, "Invalid capture pattern '${node}'."			
 		return ExpandObjectPattern(matchValue, name, pattern)
 		
 	def ExpandObjectPattern(matchValue as Expression, node as MethodInvocationExpression) as Expression:
@@ -290,6 +291,8 @@ class PatternExpander:
 	def ExpandFixedSizePattern(matchValue as Expression, pattern as ArrayLiteralExpression):
 		patternLen = len(pattern.Items)
 		condition = [| $(patternLen) == len($matchValue) |]
+
+		if patternLen == 0: return condition
 
 		if IsCatchAllPattern(last = pattern.Items[patternLen-1]):
 			pattern.Items.Remove(last)
