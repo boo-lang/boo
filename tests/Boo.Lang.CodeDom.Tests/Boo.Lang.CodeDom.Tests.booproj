@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,8 @@
     <RootNamespace>Boo.Lang.CodeDom.Tests</RootNamespace>
     <UsePartialTypes>false</UsePartialTypes>
     <AssemblyName>Boo.Lang.CodeDom.Tests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,36 +35,11 @@
     <nostdlib>false</nostdlib>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework" />
     <Reference Include="System" />
-    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>nunit</Package>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeGeneratorTestFixture.boo" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Boo.Lang.CodeDom\Boo.Lang.CodeDom.booproj">
-      <Project>{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}</Project>
-      <Name>Boo.Lang.CodeDom</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang\Boo.Lang.csproj">
-      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
-      <Name>Boo.Lang</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
-      <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
-      <Name>Boo.Lang.Compiler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
-      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
-      <Name>Boo.Lang.Parser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang.PatternMatching\Boo.Lang.PatternMatching.booproj">
-      <Project>{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}</Project>
-      <Name>Boo.Lang.PatternMatching</Name>
-    </ProjectReference>
-  </ItemGroup>
-  
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "PreProcessorExpressions.g" -> "PreProcessorExpressionParser.boo"$
+// $ANTLR 2.7.5 (20050517): "src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" -> "PreProcessorExpressionParser.boo"$
 
 namespace Boo.Lang.Useful.IO.Impl
 class PreProcessorExpressionParserTokenTypes:
