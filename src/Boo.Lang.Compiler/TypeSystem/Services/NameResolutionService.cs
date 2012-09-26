@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -339,22 +340,49 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			if (null != node.Entity) return;
 			
-			var entity = ResolveTypeName(node);
+			var entity = ResolveQualifiedName(node.Name, EntityType.Type);
+			
 			if (entity == null)
 			{
 				node.Entity = NameNotType(node, null);
 				return;
 			}
-
-			GenericTypeReference gtr = node as GenericTypeReference;
-			if (gtr != null)
+			
+			IEntity firstCandidate = null;
+			if (EntityType.Ambiguous == entity.EntityType)
 			{
+				// Remove from the buffer types that do not match requested generity
+				var resultingSet = new Set<IEntity>(((Ambiguous)entity).Entities);
+				firstCandidate = resultingSet.First();
+				FilterGenericTypes(resultingSet, node);
+				entity = Entities.EntityFromList(resultingSet);
+			}		
+
+			if (NodeType.SimpleTypeReference == node.NodeType)
+			{
+				if (IsGenericType(entity)) {
+					firstCandidate = entity;
+					entity = null;
+				}
+				
+				if (entity == null)
+				{
+					//Generic parameters are missing because there is no candidates after filtering out generic types
+					node.Entity = GenericParametersRequired(node, firstCandidate.ToString(), (firstCandidate as IType).GenericInfo.GenericParameters.Count());
+					return;
+				}
+			}
+			
+			if (NodeType.GenericTypeReference == node.NodeType)
+			{				
+				var gtr = node as GenericTypeReference;
 				entity = ResolveGenericTypeReference(gtr, entity);
 			}
 
-			GenericTypeDefinitionReference gtdr = node as GenericTypeDefinitionReference;
-			if (gtdr != null)
+			
+			if (NodeType.GenericTypeDefinitionReference == node.NodeType)
 			{
+				var gtdr = node as GenericTypeDefinitionReference;
 				IType type = (IType)entity;
 				if (gtdr.GenericPlaceholders != type.GenericInfo.GenericParameters.Length)
 				{
@@ -447,6 +475,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return TypeSystemServices.ErrorEntity;
 		}
 
+		private IEntity GenericParametersRequired(SimpleTypeReference node, string fullName, int paramCount)
+		{			
+			CompilerErrors().Add(CompilerErrorFactory.GenericParametersRequired(node, fullName, paramCount));
+			return TypeSystemServices.ErrorEntity;
+		}
+		
+		
 		private CompilerErrorCollection CompilerErrors()
 		{
             return My<CompilerErrorCollection>.Instance;

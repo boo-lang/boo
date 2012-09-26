@@ -179,6 +179,7 @@ namespace Boo.Lang.Resources
 		public const string BCE0174 = "'{0}' is not an interface. Only interface members can be explicitly implemented.";
 		public const string BCE0175 = "Nested type '{0}' cannot extend enclosing type '{1}'.";
 		public const string BCE0176 = "Incompatible partial definition for type '{0}', expecting '{1}' but got '{2}'.";
+		public const string BCE0177 = "Using the generic type '{0}' requires {1} type arguments.";
 		public const string BCW0000 = "WARNING: {0}";
 		public const string BCW0001 = "WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.";
 		public const string BCW0002 = "WARNING: Statement modifiers have no effect in labels.";
