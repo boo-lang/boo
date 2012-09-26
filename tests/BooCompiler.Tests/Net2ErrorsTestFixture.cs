@@ -56,6 +56,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BCE0139_5()
+		{
+			RunCompilerTestCase(@"BCE0139-5.boo");
+		}
+		
+		[Test]
 		public void BCE0147_external()
 		{
 			RunCompilerTestCase(@"BCE0147-external.boo");
