@@ -962,11 +962,6 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0176", node, typeName, expectedType, actualType);
 		}
 
-		public static CompilerError GenericParametersRequired(Node node, string typeName, int paramCount)
-		{
-			return Instantiate("BCE0177", node, typeName, paramCount);
-		}	
-
 		public static CompilerError Instantiate(string code, Exception error, params object[] args)
 		{
 			return new CompilerError(code, error, args);

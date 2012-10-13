@@ -368,7 +368,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				if (entity == null)
 				{
 					//Generic parameters are missing because there is no candidates after filtering out generic types
-					node.Entity = GenericParametersRequired(node, firstCandidate.ToString(), (firstCandidate as IType).GenericInfo.GenericParameters.Count());
+					GenericArgumentsCountMismatch(node, firstCandidate as IType);
+					node.Entity = TypeSystemServices.ErrorEntity;
 					return;
 				}
 			}
@@ -387,6 +388,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				if (gtdr.GenericPlaceholders != type.GenericInfo.GenericParameters.Length)
 				{
 					GenericArgumentsCountMismatch(gtdr, type);
+					node.Entity = TypeSystemServices.ErrorEntity;
 					return;
 				}
 			}
@@ -475,13 +477,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return TypeSystemServices.ErrorEntity;
 		}
 
-		private IEntity GenericParametersRequired(SimpleTypeReference node, string fullName, int paramCount)
-		{			
-			CompilerErrors().Add(CompilerErrorFactory.GenericParametersRequired(node, fullName, paramCount));
-			return TypeSystemServices.ErrorEntity;
-		}
-		
-		
 		private CompilerErrorCollection CompilerErrors()
 		{
             return My<CompilerErrorCollection>.Instance;
