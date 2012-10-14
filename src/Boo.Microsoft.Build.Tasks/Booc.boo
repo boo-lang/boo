@@ -221,9 +221,9 @@ class Booc(ToolTask):
                 type = resource.GetMetadata('Type')
                 if type == 'Resx':
                     commandLine.AppendSwitchIfNotNull("-resource:", resource.ItemSpec + "," + resource.GetMetadata("LogicalName"))
-                elif type == 'Non-Resx':
+                else:  # if type == 'Non-Resx':
                     commandLine.AppendSwitchIfNotNull("-embedres:", resource.ItemSpec + "," + resource.GetMetadata("LogicalName"))
-    
+
         if not String.IsNullOrEmpty(Verbosity):
             verbosity = Verbosity.ToLower()
             if verbosity == 'normal':       pass
