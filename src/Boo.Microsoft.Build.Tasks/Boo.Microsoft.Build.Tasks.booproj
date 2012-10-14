@@ -22,17 +22,12 @@
     <DebugType>None</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.Build.Utilities, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.Build.Tasks, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractScript.boo" />
     <Compile Include="Booc.boo" />
-    <Compile Include="ExecBoo.boo" />
-    <Compile Include="PrepareScriptStep.boo" />
     <Compile Include="Properties\AssemblyInfo.boo" />
-    <Compile Include="CreateBooManifestResourceName.boo" />
     <None Include="Boo.Microsoft.Build.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
