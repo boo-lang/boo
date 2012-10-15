@@ -28,500 +28,296 @@
 
 namespace Boo.Microsoft.Build.Tasks
 
-import Microsoft.Build.Framework
-import Microsoft.Build.Tasks
-import Microsoft.Build.Utilities
 import System
-import System.Diagnostics
 import System.IO
-import System.Globalization
 import System.Text.RegularExpressions
-import System.Threading
+import Microsoft.Build.Utilities
+import Microsoft.Build.Framework
 
-class Booc(ManagedCompiler):
-"""
-Represents the Boo compiler MSBuild task.
+class Booc(ToolTask):
 
-Authors:
-	Sorin Ionescu (sorin.ionescu@gmail.com)
-	Daniel Grunwald (daniel.grunwald@gmail.com)
-"""
-	def constructor():
-		NoLogo = true
-	
-	Pipeline:
-	"""
-	Gets/sets a specific pipeline to add to the compiler process.
-	"""
-		get:
-			return Bag['Pipelines'] as string
-		set:
-			Bag['Pipelines'] = value
-	NoStandardLib:
-	"""
-	Gets/sets if we want to link to the standard libraries or not.
-	"""
-		get:
-			return GetBoolParameterWithDefault("NoStandardLib", false)
-		set:
-			Bag['NoStandardLib'] = value
-	WhiteSpaceAgnostic:
-	"""
-	Gets/sets if we want to use whitespace agnostic mode.
-	"""
-		get:
-			return GetBoolParameterWithDefault("WhiteSpaceAgnostic", false)
-		set:
-			Bag['WhiteSpaceAgnostic'] = value
-	Ducky:
-	"""
-	Gets/sets if we want to use ducky mode.
-	"""
-		get:
-			return GetBoolParameterWithDefault("Ducky", false)
-		set:
-			Bag['Ducky'] = value
-	Verbosity:
-	"""
-	Gets/sets the verbosity level.
-	"""
-		get:
-			return Bag['Verbosity'] as string
-		set:
-			Bag['Verbosity'] = value
-	
-	Culture:
-	"""
-	Gets/sets the culture.
-	"""
-		get:
-			return Bag['Culture'] as string
-		set:
-			Bag['Culture'] = value
-	
-	SourceDirectory:
-	"""
-	Gets/sets the source directory.
-	"""
-		get:
-			return Bag['Source Directory'] as string
-		set:
-			Bag['Source Directory'] = value
-	
-	DefineSymbols:
-	"""
-	Gets/sets the conditional compilation symbols.
-	"""
-		get:
-			return Bag['DefineSymbols'] as string
-		set:
-			Bag['DefineSymbols'] = value
-	
-	CheckForOverflowUnderflow:
-	"""
-	Gets/sets if integer overlow checking is enabled.
-	"""
-		get:
-			return GetBoolParameterWithDefault("CheckForOverflowUnderflow", true)
-		set:
-			Bag['CheckForOverflowUnderflow'] = value
-	
-	DisabledWarnings:
-	"""
-	Gets/sets a comma-separated list of warnings that should be disabled.
-	"""
-		get:
-			return Bag['DisabledWarnings'] as string
-		set:
-			Bag['DisabledWarnings'] = value
-	
-	OptionalWarnings:
-	"""
-	Gets/sets a comma-separated list of optional warnings that should be enabled.
-	"""
-		get:
-			return Bag['OptionalWarnings'] as string
-		set:
-			Bag['OptionalWarnings'] = value
-	
-	WarningsAsErrors:
-	"""
-	Gets/sets a comma-separated list of warnings that should be treated as errors.
-	"""
-		get:
-			return Bag['WarningsAsErrors'] as string
-		set:
-			Bag['WarningsAsErrors'] = value
-	
-	Strict:
-	"""
-	Gets/sets whether strict mode is enabled.
-	"""
-		get:
-			return GetBoolParameterWithDefault("Strict", false)
-		set:
-			Bag['Strict'] = value
-	AllowUnsafeBlocks:
-	"""
-	Allows to compile unsafe code.
-	"""
-		get:
-			return GetBoolParameterWithDefault("AllowUnsafeBlocks", false)
-		set:
-			Bag['AllowUnsafeBlocks'] = value
-	Platform:
-	"""
-	Specifies target platform (anycpu, x86, x64 or itanium)
-	"""
-		get:
-			return Bag['Platform'] as string
-		set:
-			Bag['Platform'] = value
-	
-	ToolName:
-	"""
-	Gets the tool name.
-	"""
-		get:
-			return "booc.exe"
-			
-	GenerateFullPaths:
-	"""
-	If set to true the task will output warnings and errors with full file paths
-	"""
-		get:
-			return GetBoolParameterWithDefault("GenerateFullPaths", false)
-		set:
-			Bag["GenerateFullPaths"] = value
-		
-	
-	override def Execute():
-	"""
-	Executes the task.
-	
-	Returns:
-		true if the task completed successfully; otherwise, false.
-	"""
-		boocCommandLine = CommandLineBuilderExtension()
-		AddResponseFileCommands(boocCommandLine)
-		
-		warningPattern = regex(
-			'^(?<file>.*?)(\\((?<line>\\d+),(?<column>\\d+)\\):)?' +
-				'(\\s?)(?<code>BCW\\d{4}):(\\s)WARNING:(\\s)(?<message>.*)$',
-			RegexOptions.Compiled)
-		# Captures the file, line, column, code, and message from a BOO warning
-		# in the form of: Program.boo(1,1): BCW0000: WARNING: This is a warning.
-		
-		errorPattern = regex(
-			'^(((?<file>.*?)\\((?<line>\\d+),(?<column>\\d+)\\): )?' +
-				'(?<code>BCE\\d{4})|(?<errorType>Fatal) error):' +
-				'( Boo.Lang.Compiler.CompilerError:)?' + 
-				' (?<message>.*?)($| --->)',
-			RegexOptions.Compiled |
-				RegexOptions.ExplicitCapture |
-				RegexOptions.Multiline)
-		/* 
-		 * Captures the file, line, column, code, error type, and message from a
-		 * BOO error of the form of:
-		 * 1. Program.boo(1,1): BCE0000: This is an error.
-		 * 2. Program.boo(1,1): BCE0000: Boo.Lang.Compiler.CompilerError:
-		 *    	This is an error. ---> Program.boo:4:19: This is an error
-		 * 3. BCE0000: This is an error.
-		 * 4. Fatal error: This is an error.
-		 *
-		 * The second line of the following error format is not cought because 
-		 * .NET does not support if|then|else in regular expressions,
-		 * and the regex will be horrible complicated.  
-		 * The second line is as worthless as the first line.
-		 * Therefore, it is not worth implementing it.
-		 *
-		 * 	Fatal error: This is an error.
-		 * 	Parameter name: format.
-		 */
-		
-		buildSuccess = true
-		outputLine = String.Empty
-		errorLine = String.Empty
-		readingDoneEvents = (ManualResetEvent(false), ManualResetEvent(false))
-		
-		boocProcessStartInfo = ProcessStartInfo(
-			FileName: GenerateFullPathToTool(),
-			Arguments: boocCommandLine.ToString(),
-			ErrorDialog: false,
-			CreateNoWindow: true,
-			RedirectStandardError: true,
-			RedirectStandardInput: false,
-			RedirectStandardOutput: true,
-			UseShellExecute: false)
-		
-		boocProcess = Process(StartInfo: boocProcessStartInfo)
-		
-		parseOutput = def(line as string):
-			warningPatternMatch = warningPattern.Match(line)
-			errorPatternMatch = errorPattern.Match(line)
-		
-			if warningPatternMatch.Success:
-				lineOut = 0
-				columnOut = 0
-				int.TryParse(warningPatternMatch.Groups['line'].Value, lineOut)
-				int.TryParse(warningPatternMatch.Groups['column'].Value, columnOut)
-				Log.LogWarning(
-					null,
-					warningPatternMatch.Groups['code'].Value,
-					null,
-					GetFilePathToWarningOrError(warningPatternMatch.Groups['file'].Value),
-					lineOut,
-					columnOut,
-					0,
-					0,
-					warningPatternMatch.Groups['message'].Value)
-		
-			elif errorPatternMatch.Success:					
-				code = errorPatternMatch.Groups['code'].Value
-				code = 'BCE0000' if string.IsNullOrEmpty(code)
-				file = GetFilePathToWarningOrError(errorPatternMatch.Groups['file'].Value)
-				file = 'BOOC' if string.IsNullOrEmpty(file)
-				
-				try:
-					lineNumber = int.Parse(
-						errorPatternMatch.Groups['line'].Value,
-						NumberStyles.Integer)
-						
-				except as FormatException:
-					lineNumber = 0
+    private bag = {}
 
-				try:
-					columnNumber = int.Parse(
-						errorPatternMatch.Groups['column'].Value,
-						NumberStyles.Integer)
-						
-				except as FormatException:
-					columnNumber = 0
+    [property(AdditionalLibPaths)]
+    additionalLibPaths as (string)
+    # Allows to compile unsafe code.
+    [property(AllowUnsafeBlocks)]
+    allowUnsafeBlocks as bool
+    # Gets/sets if integer overlow checking is enabled.
+    [property(CheckForOverflowUnderflow)]
+    checkForOverflowUnderflow as bool
+    # Gets/sets the culture.
+    [property(Culture)]
+    culture as string
+    # Gets/sets the conditional compilation symbols.
+    [property(DefineSymbols)]
+    defineSymbols as string
+    [property(DelaySign)]
+    delaySign as bool
+    # Gets/sets a comma-separated list of warnings that should be disabled.
+    [property(DisabledWarnings)]
+    disabledWarnings as string
+    # Gets/sets if we want to use ducky mode.
+    [property(Ducky)]
+    ducky as bool
+    [property(EmitDebugInformation)]
+    emitDebugInformation as bool
+    # If set to true the task will output warnings and errors with full file paths
+    [property(GenerateFullPaths)]
+    generateFullPaths as bool
+    [property(KeyContainer)]
+    keyContainer as string
+    [property(KeyFile)]
+    keyFile as string
+    [property(NoConfig)]
+    noConfig as bool
+    [property(NoLogo)]
+    noLogo as bool
+    # Gets/sets if we want to link to the standard libraries or not.
+    [property(NoStandardLib)]
+    noStandardLib as bool
+    # Gets/sets a comma-separated list of optional warnings that should be enabled.
+    [property(OptionalWarnings)]
+    optionalWarnings as string
+    # Gets/sets a specific pipeline to add to the compiler process.
+    [property(Pipeline)]
+    pipeline as string
+    # Specifies target platform.
+    [property(Platform)]
+    platform as string
+    # Gets/sets the source directory.
+    [property(SourceDirectory)]
+    sourceDirectory as string
+    # Gets/sets whether strict mode is enabled.
+    [property(Strict)]
+    strict as bool
+    [property(TargetType)]
+    targetType as string
+    [property(TargetFrameworkVersion)]
+    targetFrameworkVersion as string
+    [property(TreatWarningsAsErrors)]
+    treatWarningsAsErrors as bool
+    [property(Utf8Output)]
+    utf8Output as bool
+    # Gets/sets the verbosity level.
+    [property(Verbosity)]
+    verbosity as string
+    # Gets/sets a comma-separated list of warnings that should be treated as errors.
+    [property(WarningsAsErrors)]
+    warningsAsErrors as string
+    # Gets/sets if we want to use whitespace agnostic mode.
+    [property(WhiteSpaceAgnostic)]
+    whiteSpaceAgnostic as bool
 
-				Log.LogError(
-					errorPatternMatch.Groups['errorType'].Value.ToLower(),
-					code,
-					null,
-					file,
-					lineNumber,
-					columnNumber,
-					0,
-					0,
-					errorPatternMatch.Groups['message'].Value)
-		
-				buildSuccess = false
-		
-			else:
-				Log.LogMessage(MessageImportance.Normal, line)
-				
-		readStandardOutput = def():
-			while true:
-				outputLine = boocProcess.StandardOutput.ReadLine()
-		
-				if outputLine:
-					parseOutput(outputLine)
-					
-				else:
-					readingDoneEvents[0].Set()
-					break
+    [Output]
+    OutputAssembly as ITaskItem:
+        get: return bag['output-assembly']
+        set: bag['output-assembly'] = value
 
-		readStandardError = def():
-			while true:
-				errorLine = boocProcess.StandardError.ReadLine()
+    [Required]
+    References as (ITaskItem):
+        get: return bag['references']
+        set: bag['references'] = value
 
-				if errorLine:
-					parseOutput(errorLine)
-					
-				else:
-					readingDoneEvents[1].Set()
-					break
-		
-		standardOutputReadingThread = Thread(readStandardOutput as ThreadStart)	
-		standardErrorReadingThread = Thread(readStandardError as ThreadStart)
-		# Two threads are required (MSDN); otherwise, a deadlock WILL occur.
-		
-		try:
-			boocProcess.Start()
-			
-			Log.LogMessage(
-				MessageImportance.High,
-				"${ToolName} ${boocProcess.StartInfo.Arguments}",
-				null)
-				
-			standardOutputReadingThread.Start()
-			standardErrorReadingThread.Start()
-			
-			WaitHandle.WaitAny((readingDoneEvents[0],))
-			WaitHandle.WaitAny((readingDoneEvents[1],))
-			# MSBuild runs on an STA thread, and WaitHandle.WaitAll()
-			# is not supported.
-			
-			boocProcess.WaitForExit()
-			if boocProcess.ExitCode != 0:
-				if buildSuccess:
-					// Report an error if booc exits with error code but we didn't
-					// receive any error.
-					Log.LogError("booc exited with code ${boocProcess.ExitCode}")
-				buildSuccess = false
-		except e as Exception:
-			Log.LogErrorFromException(e)
-			buildSuccess = false
-			
-		ensure:
-			boocProcess.Close()
+    [Required]
+    ResponseFiles as (ITaskItem):
+        get: return bag['response-files']
+        set: bag['response-files'] = value
 
-		return buildSuccess
-	
-	protected override def AddCommandLineCommands(
-		commandLine as CommandLineBuilderExtension):
-	"""
-	Adds command line commands.
-	
-	Remarks:
-		It prevents <ManagedCompiler> from adding the standard commands.
-	"""
-			pass
-	
-	protected override def AddResponseFileCommands(
-		commandLine as CommandLineBuilderExtension):
-	"""
-	Generates the Boo compiler command line.
-	
-	Returns:
-		The Boo compiler command line.
-	"""	
-		commandLine.AppendSwitchIfNotNull('-t:', TargetType)
-		commandLine.AppendSwitchIfNotNull('-o:', OutputAssembly)
-		commandLine.AppendSwitchIfNotNull('-c:', Culture)
-		commandLine.AppendSwitchIfNotNull('-srcdir:', SourceDirectory)
-		commandLine.AppendSwitchIfNotNull('-keyfile:', KeyFile)
-		commandLine.AppendSwitchIfNotNull('-keycontainer:', KeyContainer)
-		commandLine.AppendSwitchIfNotNull('-p:', Pipeline)
-		commandLine.AppendSwitchIfNotNull('-define:', DefineSymbols)
-		commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
-		commandLine.AppendSwitchIfNotNull('-nowarn:', DisabledWarnings)
-		commandLine.AppendSwitchIfNotNull('-warn:', OptionalWarnings)
-		commandLine.AppendSwitchIfNotNull('-platform:', Platform)
-		
-		if TreatWarningsAsErrors:
-			commandLine.AppendSwitch('-warnaserror') // all warnings are errors
-		else:
-			commandLine.AppendSwitchIfNotNull('-warnaserror:', WarningsAsErrors) // only specific warnings are errors
-		
-		if NoLogo:
-			commandLine.AppendSwitch('-nologo')
-		if NoConfig:
-			commandLine.AppendSwitch('-noconfig')
-		if NoStandardLib:
-			commandLine.AppendSwitch('-nostdlib')
-		if DelaySign:
-			commandLine.AppendSwitch('-delaysign')
-		if WhiteSpaceAgnostic:
-			commandLine.AppendSwitch('-wsa')
-		if Ducky:
-			commandLine.AppendSwitch('-ducky')
-		if Utf8Output:
-			commandLine.AppendSwitch('-utf8')
-		if Strict:
-			commandLine.AppendSwitch('-strict')
-		if AllowUnsafeBlocks:
-			commandLine.AppendSwitch('-unsafe')
-		
-		if EmitDebugInformation:
-			commandLine.AppendSwitch('-debug+')
-		else:
-			commandLine.AppendSwitch('-debug-')
-		
-		if CheckForOverflowUnderflow:
-			commandLine.AppendSwitch('-checked+')
-		else:
-			commandLine.AppendSwitch('-checked-')
-		
-		if ResponseFiles:
-			for rsp in ResponseFiles:
-				commandLine.AppendSwitchIfNotNull("@", rsp.ItemSpec)				
+    [Required]
+    Resources as (ITaskItem):
+        get: return bag['resources']
+        set: bag['resources'] = value
 
-		if References:
-			for reference in References:
-				commandLine.AppendSwitchIfNotNull('-r:', reference.ItemSpec)
-				
-		if Resources:
-			for resource in Resources:
-				commandLine.AppendSwitchIfNotNull('-resource:', resource.ItemSpec)
-		
-		if Verbosity:
-			if string.Compare(
-					Verbosity,
-					'Normal',
-					StringComparison.InvariantCultureIgnoreCase) == 0:
-				pass
-				
-			elif string.Compare(
-					Verbosity,
-					'Warning',
-					StringComparison.InvariantCultureIgnoreCase) == 0:
-					
-				commandLine.AppendSwitch('-v')
-				
-			elif string.Compare(
-					Verbosity,
-					'Info',
-					StringComparison.InvariantCultureIgnoreCase) == 0:
-					
-				commandLine.AppendSwitch('-vv')
-				
-			elif string.Compare(
-					Verbosity,
-					'Verbose',
-					StringComparison.InvariantCultureIgnoreCase) == 0:
-					
-				commandLine.AppendSwitch('-vvv')
-			
-			else:
-				Log.LogErrorWithCodeFromResources(
-					'Vbc.EnumParameterHasInvalidValue',
-					'Verbosity',
-					Verbosity,
-					'Normal, Warning, Info, Verbose')
-					
-		commandLine.AppendFileNamesIfNotNull(Sources, ' ')
-		
-	protected override def GenerateFullPathToTool():
-	"""
-	Generats the full path to booc.exe.
-	"""
-		path = ""
-		
-		if ToolPath:
-			path = Path.Combine(ToolPath, ToolName)
-		
-		return path if File.Exists(path)
-		
-		path = Path.Combine(
-			Path.GetDirectoryName(typeof(Booc).Assembly.Location),
-			ToolName)
-		
-		return path if File.Exists(path)
-		
-		path = ToolLocationHelper.GetPathToDotNetFrameworkFile(
-			ToolName,
-			TargetDotNetFrameworkVersion.VersionLatest)
-		
-		return path if File.Exists(path)
-		
-		/* //removed this error message for mono compatibility
-		Log.LogErrorWithCodeFromResources(
-			"General.FrameworksFileNotFound",
-			ToolName,
-			ToolLocationHelper.GetDotNetFrameworkVersionFolderPrefix(
-				TargetDotNetFrameworkVersion.Version20))
-		*/
-		path = "booc"
-						
-		return path
-	
-	private def GetFilePathToWarningOrError(file as string):
-		if GenerateFullPaths:
-			return Path.GetFullPath(file)
-		else:
-			return file
+    [Required]
+    Sources as (ITaskItem):
+        get: return bag['sources']
+        set: bag['sources'] = value
+
+
+    protected override def GenerateFullPathToTool():
+        path = ""
+        if ToolPath:
+            path = Path.Combine(ToolPath, ToolName)
+        return path if File.Exists(path)
+
+        path = Path.Combine(
+            Path.GetDirectoryName(GetType().Assembly.Location),
+            ToolName)
+        return path if File.Exists(path)
+
+        path = ToolLocationHelper.GetPathToDotNetFrameworkFile(
+            ToolName,
+            TargetDotNetFrameworkVersion.VersionLatest)
+        return path if File.Exists(path)
+
+        return "booc"
+
+    protected override ToolName:
+        get: return 'booc.exe'
+
+    protected override def GenerateCommandLineCommands():
+        commandLine = CommandLineBuilder()
+
+        commandLine.AppendSwitchIfNotNull("-t:", TargetType.ToLower())
+        commandLine.AppendSwitchIfNotNull("-o:", OutputAssembly)
+        commandLine.AppendSwitchIfNotNull("-c:", Culture)
+        commandLine.AppendSwitchIfNotNull("-srcdir:", SourceDirectory)
+        commandLine.AppendSwitchIfNotNull("-keyfile:", KeyFile)
+        commandLine.AppendSwitchIfNotNull("-keycontainer:", KeyContainer)
+        commandLine.AppendSwitchIfNotNull("-p:", Pipeline)
+        commandLine.AppendSwitchIfNotNull("-define:", DefineSymbols)
+        commandLine.AppendSwitchIfNotNull("-lib:", AdditionalLibPaths, ",")
+        commandLine.AppendSwitchIfNotNull("-nowarn:", DisabledWarnings)
+        commandLine.AppendSwitchIfNotNull("-warn:", OptionalWarnings)
+        commandLine.AppendSwitchIfNotNull("-platform:", Platform)
+ 
+        if TreatWarningsAsErrors:
+            commandLine.AppendSwitch("-warnaserror");  # all warnings are errors
+        else:
+            commandLine.AppendSwitchIfNotNull("-warnaserror:", WarningsAsErrors)  # only specific warnings are errors
+    
+        if NoLogo:
+            commandLine.AppendSwitch("-nologo")
+
+        if NoConfig:
+            commandLine.AppendSwitch("-noconfig")
+
+        if NoStandardLib:
+            commandLine.AppendSwitch("-nostdlib")
+
+        if DelaySign:
+            commandLine.AppendSwitch("-delaysign")
+
+        if WhiteSpaceAgnostic:
+            commandLine.AppendSwitch("-wsa")
+
+        if Ducky:
+            commandLine.AppendSwitch("-ducky")
+
+        if Utf8Output:
+            commandLine.AppendSwitch("-utf8")
+
+        if Strict:
+            commandLine.AppendSwitch("-strict")
+
+        if AllowUnsafeBlocks:
+            commandLine.AppendSwitch("-unsafe")
+
+        commandLine.AppendSwitch(('-debug+' if EmitDebugInformation else '-debug-'))
+
+        commandLine.AppendSwitch(('-checked+' if CheckForOverflowUnderflow else '-checked-'))
+
+        if ResponseFiles:
+            for rsp in ResponseFiles:
+                commandLine.AppendSwitchIfNotNull('@', rsp.ItemSpec)        
+
+        if References:
+            for reference in References:
+                commandLine.AppendSwitchIfNotNull('-r:', reference.ItemSpec)
+            
+        if Resources:
+            for resource in Resources:
+                type = resource.GetMetadata('Type')
+                if type == 'Resx':
+                    commandLine.AppendSwitchIfNotNull("-resource:", resource.ItemSpec + "," + resource.GetMetadata("LogicalName"))
+                else:  # if type == 'Non-Resx':
+                    commandLine.AppendSwitchIfNotNull("-embedres:", resource.ItemSpec + "," + resource.GetMetadata("LogicalName"))
+
+        if not String.IsNullOrEmpty(Verbosity):
+            verbosity = Verbosity.ToLower()
+            if verbosity == 'normal':       pass
+            elif verbosity == 'warning':    commandLine.AppendSwitch("-v")
+            elif verbosity == 'info':       commandLine.AppendSwitch("-vv")
+            elif verbosity == 'verbose':    commandLine.AppendSwitch("-vvv");
+            else:
+                Log.LogErrorWithCodeFromResources(
+                    "Vbc.EnumParameterHasInvalidValue",
+                    "Verbosity",
+                    Verbosity,
+                    "Normal, Warning, Info, Verbose")
+
+        commandLine.AppendFileNamesIfNotNull(Sources, " ")
+
+        return commandLine.ToString()
+
+    # Captures the file, line, column, code, and message from a BOO warning
+    # in the form of: Program.boo(1,1): BCW0000: WARNING: This is a warning.
+    private warningPattern = Regex(
+            "^(?<file>.*?)(\\((?<line>\\d+),(?<column>\\d+)\\):)?" +
+            "(\\s?)(?<code>BCW\\d{4}):(\\s)WARNING:(\\s)(?<message>.*)$",
+            RegexOptions.Compiled
+    )
+
+    # Captures the file, line, column, code, error type, and message from a
+    # BOO error of the form of:
+    # 1. Program.boo(1,1): BCE0000: This is an error.
+    # 2. Program.boo(1,1): BCE0000: Boo.Lang.Compiler.CompilerError:
+    #            This is an error. ---> Program.boo:4:19: This is an error
+    # 3. BCE0000: This is an error.
+    # 4. Fatal error: This is an error.
+    #
+    #  The second line of the following error format is not cought because 
+    # .NET does not support if|then|else in regular expressions,
+    #  and the regex will be horrible complicated.  
+    #  The second line is as worthless as the first line.
+    #  Therefore, it is not worth implementing it.
+    #
+    #            Fatal error: This is an error.
+    #            Parameter name: format.
+    private errorPattern = Regex(
+            "^(((?<file>.*?)\\((?<line>\\d+),(?<column>\\d+)\\): )?" +
+            "(?<code>BCE\\d{4})|(?<errorType>Fatal) error):" +
+            "( Boo.Lang.Compiler.CompilerError:)?" +
+            " (?<message>.*?)($| --->)",
+            RegexOptions.Compiled |
+            RegexOptions.ExplicitCapture |
+            RegexOptions.Multiline
+        )
+
+    protected override def LogEventsFromTextOutput(singleLine as string, messageImportance as MessageImportance) as void:
+        if messageImportance == MessageImportance.Normal:
+            wMatch = warningPattern.Match(singleLine)
+            eMatch = errorPattern.Match(singleLine)
+            line as int = 0
+            column as int = 0
+
+            if wMatch.Success:
+                int.TryParse(wMatch.Groups["line"].Value, line)
+                int.TryParse(wMatch.Groups["column"].Value, column)
+
+                Log.LogWarning(
+                    null,
+                    wMatch.Groups["code"].Value,
+                    null,
+                    wMatch.Groups["file"].Value,
+                    line,
+                    column,
+                    0,
+                    0,
+                    wMatch.Groups["message"].Value
+                )
+            elif eMatch.Success:
+                code = eMatch.Groups["code"].Value
+                if string.IsNullOrEmpty(code):
+                    code = "BCE0000";
+                file = eMatch.Groups["file"].Value
+                if string.IsNullOrEmpty(file):
+                    file = "BOOC"
+
+                int.TryParse(eMatch.Groups["line"].Value, line)
+                int.TryParse(eMatch.Groups["column"].Value, column)
+
+                Log.LogError(
+                    eMatch.Groups["errorType"].Value.ToLower(),
+                    code,
+                    null,
+                    file,
+                    line,
+                    column,
+                    0,
+                    0,
+                    eMatch.Groups["message"].Value
+                )
+        
+        super(singleLine, messageImportance)
