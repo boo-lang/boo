@@ -133,7 +133,7 @@ namespace BooCompiler.Tests
 		
 		public void CopyAssembly(string location)
 		{
-			string destFileName = Path.Combine(TestOutputPath, Path.GetFileName(location));
+			var destFileName = Path.Combine(TestOutputPath, Path.GetFileName(location));
 			if (File.Exists(destFileName) && !IsNewer(location, destFileName))
 				return;
 			File.Copy(location, destFileName, true);

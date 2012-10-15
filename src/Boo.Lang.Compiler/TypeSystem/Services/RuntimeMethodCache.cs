@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IMethod RuntimeServices_GetMultiDimensionalRange1
 		{
-			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1", () => Methods.Of<Array, int[], bool[], Array>(RuntimeServices.GetMultiDimensionalRange1)); }
+			get { return CachedRuntimeServicesMethod("GetMultiDimensionalRange1", () => Methods.Of<Array, int[], bool[], bool[], Array>(RuntimeServices.GetMultiDimensionalRange1)); }
 		}
 
 		public IMethod RuntimeServices_Len
@@ -72,7 +72,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IMethod RuntimeServices_SetMultiDimensionalRange1
 		{
-			get { return CachedRuntimeServicesMethod("SetMultiDimensionalRange1", () => Methods.Of<Array, Array, int[], bool[]>(RuntimeServices.SetMultiDimensionalRange1)); }
+			get { return CachedRuntimeServicesMethod("SetMultiDimensionalRange1", () => Methods.Of<Array, Array, int[], bool[], bool[]>(RuntimeServices.SetMultiDimensionalRange1)); }
 		}
 
 		public IMethod RuntimeServices_GetEnumerable

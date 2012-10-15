@@ -216,7 +216,7 @@ namespace Boo.Lang.Compiler.Ast
 			get { return IsModifierSet(TypeMemberModifiers.New); }
 		}
 
-		public bool IsStatic
+		public virtual bool IsStatic
 		{
 			get { return IsModifierSet(TypeMemberModifiers.Static); }
 		}
