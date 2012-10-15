@@ -77,3 +77,9 @@ More Information
 http://boo.codehaus.org/
 http://boo.codehaus.org/Mailing+Lists
 
+Contributors
+============
+
+See: https://github.com/bamboo/boo/graphs/contributors
+
+
