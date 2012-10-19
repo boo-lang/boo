@@ -259,68 +259,6 @@ namespace Boo.Lang
 		}
 #endif
 
-		internal class AssemblyExecutor : MarshalByRefObject
-		{
-			string _filename;
-			string[] _arguments;
-			string _capturedOutput = "";
-
-			public AssemblyExecutor(string filename, string[] arguments)
-			{
-				_filename = filename;
-				_arguments = arguments;
-			}
-
-			public string CapturedOutput
-			{
-				get
-				{
-					return _capturedOutput;
-				}
-			}
-
-			public void Execute()
-			{
-				StringWriter output = new System.IO.StringWriter();
-				TextWriter saved = Console.Out;
-				try
-				{
-					Console.SetOut(output);
-					//AppDomain.CurrentDomain.ExecuteAssembly(_filename, null, _arguments);
-					Assembly.LoadFrom(_filename).EntryPoint.Invoke(null, new object[1] { _arguments });
-				}
-				finally
-				{
-					Console.SetOut(saved);
-					_capturedOutput = output.ToString();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Execute the specified MANAGED application in a new AppDomain.
-		///
-		/// The base directory for the new application domain will be set to
-		/// directory containing filename (Path.GetDirectoryName(Path.GetFullPath(filename))).
-		/// </summary>
-		public static string shellm(string filename, params string[] arguments)
-		{
-			AppDomainSetup setup = new AppDomainSetup();
-			setup.ApplicationBase = Path.GetDirectoryName(Path.GetFullPath(filename));
-
-			AppDomain domain = AppDomain.CreateDomain("shellm", null, setup);
-			try
-			{
-				AssemblyExecutor executor = new AssemblyExecutor(filename, arguments);
-				domain.DoCallBack(new CrossAppDomainDelegate(executor.Execute));
-				return executor.CapturedOutput;
-			}
-			finally
-			{
-				AppDomain.Unload(domain);
-			}
-		}
-
 		public static IEnumerable<object[]> enumerate(object enumerable)
 		{
 			int i = 0;
