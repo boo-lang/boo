@@ -297,7 +297,7 @@ namespace Boo.Lang
 			return this;
 		}
 
-		public List<T> Sort(Comparer comparer)
+		public List<T> Sort(Comparer<T> comparer)
 		{
 			if (null == comparer)
 				throw new ArgumentNullException("comparer");
