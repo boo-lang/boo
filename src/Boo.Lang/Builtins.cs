@@ -221,10 +221,10 @@ namespace Boo.Lang
 			return RuntimeServices.GetEnumerable(enumerable);
 		}
 
-#if !NO_SYSTEM_DLL
+#if !NO_SYSTEM_DLL && !WINDOWS_PHONE
 		public static System.Diagnostics.Process shellp(string filename, string arguments)
 		{
-            System.Diagnostics.Process p = new System.Diagnostics.Process();
+			var p = new System.Diagnostics.Process();
 			p.StartInfo.Arguments = arguments;
 			p.StartInfo.CreateNoWindow = true;
 			p.StartInfo.UseShellExecute = false;
@@ -238,8 +238,8 @@ namespace Boo.Lang
 
 		public static string shell(string filename, string arguments)
 		{
-            System.Diagnostics.Process p = shellp(filename, arguments);
-			string output = p.StandardOutput.ReadToEnd();
+			var p = shellp(filename, arguments);
+			var output = p.StandardOutput.ReadToEnd();
 			p.WaitForExit();
 			return output;
 		}
