@@ -71,8 +71,8 @@ namespace Boo.Lang
 
 		public static string join(IEnumerable enumerable, string separator)
 		{
-			StringBuilder sb = new StringBuilder();
-			IEnumerator enumerator = enumerable.GetEnumerator();
+			var sb = new StringBuilder();
+			var enumerator = enumerable.GetEnumerator();
 			using (enumerator as IDisposable)
 			{
 				if (enumerator.MoveNext())
@@ -90,26 +90,12 @@ namespace Boo.Lang
 
 		public static string join(IEnumerable enumerable, char separator)
 		{
-			StringBuilder sb = new StringBuilder();
-			IEnumerator enumerator = enumerable.GetEnumerator();
-			using (enumerator as IDisposable)
-			{
-				if (enumerator.MoveNext())
-				{
-					sb.Append(enumerator.Current);
-					while (enumerator.MoveNext())
-					{
-						sb.Append(separator);
-						sb.Append(enumerator.Current);
-					}
-				}
-			}
-			return sb.ToString();
+		    return join(enumerable, separator.ToString());
 		}
 
 		public static string join(IEnumerable enumerable)
 		{
-			return join(enumerable, ' ');
+			return join(enumerable, " ");
 		}
 
 		public static IEnumerable map(object enumerable, ICallable function)
