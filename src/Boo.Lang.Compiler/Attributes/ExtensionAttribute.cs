@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -27,51 +27,27 @@
 #endregion
 
 
-namespace Boo.Microsoft.Build.Tasks
+using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Services;
+using Boo.Lang.Environments;
 
-abstract class AbstractScript:
-	[property(Task)]    _task as ExecBoo
-	[property(Arguments)] _args = System.Collections.Generic.Dictionary[of string,string]()
-	[property(Success)] _success = true
-	Output:
-		get:
-			return Task.ScriptResult
-		set:
-			Task.ScriptResult = value
-	
-	protected def PrepareArgumentDictionary():
-		for arg in Task.Arguments:
-			delimeter = arg.IndexOf(char(':'))
-			param = arg.Substring(0, delimeter)
-			val = arg.Substring(delimeter + 1)
-			Arguments.Add(param, val)
-	
-	def print([default(string.Empty)] msg as string):
-		_task.Log.LogMessage(msg)
-	
-	def print([default(string.Empty)] obj):
-		print(obj.ToString())
-	
-	def warn([default(string.Empty)] msg as string):
-		_task.Log.LogWarning(msg)
-	
-	def warn([default(string.Empty)] obj):
-		warn(obj.ToString())
-	
-	def warn([required] ex as System.Exception):
-		_task.Log.LogWarningFromException(ex)
+// ReSharper disable CheckNamespace
+namespace Boo.Lang
+// ReSharper restore CheckNamespace
+{
+	public class ExtensionAttribute : AbstractAstAttribute
+	{
+		public override void Apply(Node targetNode)
+		{
+			var typeMember = targetNode as TypeMember;
+			if (typeMember == null)
+			{
+				Errors.Add(CompilerErrorFactory.InvalidExtensionDefinition(targetNode));
+				return;
+			}
 
-	def error([default(string.Empty)] msg as string):
-		_task.Log.LogError(msg)
-		_success = false
-	
-	def error([default(string.Empty)] obj):
-		error(obj.ToString())
-		_success = false
-	
-	def error([required] ex as System.Exception):
-		_task.Log.LogErrorFromException(ex)
-		_success = false
-
-	abstract def Run():
-		pass
+			My<ExtensionTagger>.Instance.TagAsExtension(typeMember);
+		}
+	}
+}

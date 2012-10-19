@@ -28,21 +28,22 @@ How to Start
 ============
 
 For a brief description of the project and its goals
-take a look at docs/BooManifesto.sxw.
+take a look at `docs/BooManifesto.sxw`.
 
-extras/boox contains a sweet little tool you can use
+`extras/boox` contains a sweet little tool you can use
 to get yourself acquainted with the language.
 
-src/ contains all the source code for the runtime and
+`src/` contains all the source code for the runtime and
 compiler components.
 
-tests/ contains all the unit tests
-	testcases/integration is a good source of information
-	on the language features.
+`tests/` contains all the unit tests.
 
-lib/ contains project dependencies such as antlr.
+`testcases/integration` is a good source of information
+on the language features.
 
-bin/ contains the latest version that passed all the tests
+`lib/` contains project dependencies such as antlr.
+
+`bin/` contains the latest version that passed all the tests
 and could be successfully used to rebuild the system.
 
 Running and compiling code
@@ -60,8 +61,8 @@ You can also have booi to read from stdin by typing:
 
 	booi -
 	
-You can generate .net assemblies by using booc (either
-the booc.exe utility or the booc nant task):
+You can generate .net assemblies by using `booc` (either
+the `booc.exe` utility or the `booc nant` task):
 
 	booc -output:build/hello.exe examples/hw.boo	
 	
@@ -75,4 +76,10 @@ More Information
 
 http://boo.codehaus.org/
 http://boo.codehaus.org/Mailing+Lists
+
+Contributors
+============
+
+See: https://github.com/bamboo/boo/graphs/contributors
+
 

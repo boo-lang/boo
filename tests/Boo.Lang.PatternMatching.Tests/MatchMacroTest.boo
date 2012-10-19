@@ -22,7 +22,13 @@ class MatchMacroTest:
 		match container:
 			case Container of Collection(value.Items: (item,)):
 				return item
-	
+
+	[Test]
+	def TestEmptyArrayMatch():
+		a = Collection(Items: [])
+		match a:
+			case Collection(Items: (,))	
+
 	[Test]
 	def DoubleMatch():
 		Assert.AreEqual("int int", doubleMatch(1, 2))
