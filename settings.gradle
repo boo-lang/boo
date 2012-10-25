@@ -1,0 +1,19 @@
+
+def srcProjects = [
+	'Boo.Lang',
+	'Boo.Lang.Compiler',
+	'Boo.Lang.Parser',
+	'booc',
+	'Boo.Lang.Extensions',
+	'Boo.Lang.PatternMatching',
+	'Boo.Lang.Useful',
+	'Boo.Lang.CodeDom',
+]
+srcProjects.each { include it }
+
+def srcDir = file('src')
+rootProject.children.each {
+  it.projectDir = new File(srcDir, it.name)
+  it.buildFileName = "${it.name}.gradle"
+}
+
