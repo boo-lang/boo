@@ -892,7 +892,7 @@ namespace Boo.Lang.Runtime
 			return rhs.IndexOf(lhs) > -1;
 		}
 
-#if !NO_SYSTEM_DLL
+#if !NO_REGEX
 		public static bool op_Match(string input, System.Text.RegularExpressions.Regex pattern)
 		{
 			return pattern.IsMatch(input);

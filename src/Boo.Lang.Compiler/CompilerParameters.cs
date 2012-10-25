@@ -333,7 +333,7 @@ namespace Boo.Lang.Compiler
 
 		private static string pkgconfig(string package)
 		{
-#if NO_SYSTEM_DLL
+#if NO_SYSTEM_PROCESS
 	        throw new System.NotSupportedException();
 #else
 			Process process;

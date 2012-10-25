@@ -43,7 +43,7 @@ namespace Boo.Lang.Runtime
 		{
 		}
 
-#if !WINDOWS_PHONE
+#if !NO_SERIALIZATION_INFO
 		protected AssertionFailedException(SerializationInfo si, StreamingContext sc) : base(si, sc)
 		{
 		}

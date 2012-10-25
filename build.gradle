@@ -48,8 +48,8 @@ project(':Boo.Lang') {
 		windowsPhone8
 		iOS
 	}
-	compileWindowsPhone8.defines = ['NO_SERIALIZATION_INFO']
-	compileIOS.defines = ['NO_SYSTEM_REFLECTION_EMIT', 'NO_SYSTEM_DLL']
+	compileWindowsPhone8.defines = ['NO_SERIALIZATION_INFO', 'NO_SYSTEM_PROCESS']
+	compileIOS.defines = ['NO_SYSTEM_REFLECTION_EMIT', 'NO_SYSTEM_PROCESS', 'NO_REGEX']
 }
 
 project(':Boo.Lang.Compiler') {
