@@ -26,13 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Boo.Lang
 {
-	using System;
-	using System.Collections;
-
 	[Serializable]
-	public class BooHashCodeProvider : IEqualityComparer
+	public class BooHashCodeProvider : IEqualityComparer, IEqualityComparer<object>
 	{
 		public static readonly IEqualityComparer Default = new BooHashCodeProvider();
 
@@ -42,16 +43,10 @@ namespace Boo.Lang
 
 		public int GetHashCode(object o)
 		{
-			if (null != o)
-			{
-				Array array = o as Array;
-				if (null != array)
-				{
-					return GetArrayHashCode(array);
-				}
-				return o.GetHashCode();
-			}
-			return 0;
+		    if (o == null)
+		        return 0;
+		    var array = o as Array;
+		    return null != array ? GetArrayHashCode(array) : o.GetHashCode();
 		}
 		
 		public new bool Equals(object lhs, object rhs)
@@ -61,12 +56,10 @@ namespace Boo.Lang
 		
 		public int GetArrayHashCode(Array array)
 		{
-			int code = 1;
-			int position = 0;
-			foreach (object item in array)
-			{
-				code ^= GetHashCode(item)*(++position);
-			}
+			var code = 1;
+			var position = 0;
+			foreach (var item in array)
+				code ^= GetHashCode(item) * (++position);
 			return code;
 		}
 	}
