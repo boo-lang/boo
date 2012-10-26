@@ -27,7 +27,12 @@ project(':booc').afterEvaluate { boocProject ->
 	def compileTask = boocProject.tasks.compileDefault
 	rootProject.unity.mono.booc.executable = compileTask.assemblyFile
 
-	def booProjects = [':Boo.Lang.Extensions', ':Boo.Lang.PatternMatching', ':Boo.Lang.CodeDom']
+	def booProjects = [
+		':Boo.Lang.Extensions',
+		':Boo.Lang.PatternMatching',
+		':Boo.Lang.Interpreter',
+		':Boo.Lang.CodeDom',
+	]
 	booProjects.each {
 		rootProject.project(it).tasks.compileDefault.dependsOn compileTask
 	}
@@ -82,6 +87,37 @@ project(':Boo.Lang.CodeDom') {
 	dependencies {
 		'default' project(':Boo.Lang')
 		'default' project(':Boo.Lang.Compiler')
+	}
+}
+
+project(':Boo.Lang.Interpreter') {
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Compiler')
+		'default' project(':Boo.Lang.Parser')
+		'default' project(':Boo.Lang.PatternMatching')
+	}
+}
+
+project(':booish') {
+	assembly {
+		target = 'exe'
+	}
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Interpreter')
+	}
+}
+
+project(':booi') {
+	assembly {
+		target = 'exe'
+	}
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Useful')
+		'default' project(':Boo.Lang.Compiler')
+		'default' project(':Boo.Lang.Parser')
 	}
 }
 

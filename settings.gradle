@@ -3,11 +3,14 @@ def srcProjects = [
 	'Boo.Lang',
 	'Boo.Lang.Compiler',
 	'Boo.Lang.Parser',
-	'booc',
+	'Boo.Lang.Interpreter',
 	'Boo.Lang.Extensions',
 	'Boo.Lang.PatternMatching',
 	'Boo.Lang.Useful',
 	'Boo.Lang.CodeDom',
+	'booc',
+	'booi',
+	'booish',
 ]
 srcProjects.each { include it }
 
