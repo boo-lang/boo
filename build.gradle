@@ -6,7 +6,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'kaizen:kaizen:latest.integration'
+		classpath 'kaizen:kaizen:0.2.0'
 	}
 }
 
