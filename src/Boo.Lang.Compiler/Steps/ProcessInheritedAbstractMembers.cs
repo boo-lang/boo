@@ -196,6 +196,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IMember FindBaseMemberOf(IMember member, IType inType)
 		{
+			if (member.DeclaringType == inType) return null;
+
 			foreach (var candidate in ImplementationCandidatesFor(member, inType))
 			{
 				if (candidate == member)
