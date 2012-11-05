@@ -40,7 +40,10 @@ namespace Boo.Lang
 	/// </summary>
 	[Serializable]
 	[EnumeratorItemType(typeof(DictionaryEntry))]
-	public class Hash : IDictionary, IEquatable<Hash>, ICloneable
+	public class Hash : IDictionary, IEquatable<Hash>
+#if !NO_ICLONEABLE
+		, ICloneable
+#endif
 	{
 		private readonly Dictionary<object, object> _dictionary;
 
@@ -86,7 +89,13 @@ namespace Boo.Lang
 			AddAll(dictionary);
 		}
 
+		[Obsolete("Prefer ShallowCopy method.")]
 		public object Clone()
+		{
+			return ShallowCopy();
+		}
+
+		public Hash ShallowCopy()
 		{
 			return new Hash(_dictionary.Comparer, _dictionary);
 		}
