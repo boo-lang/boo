@@ -144,12 +144,3 @@ dependencies {
 	}
 }
 
-task bundle(type: Zip) {
-	from projectDir
-	include 'README.md'
-	include 'license.txt'
-}
-
-artifacts {
-	'default' bundle
-}
