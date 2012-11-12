@@ -3069,14 +3069,17 @@ string_literal returns [Expression e]
 	dqs:DOUBLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(dqs), dqs.getText());
+		e.Annotate("quote", "\"");
 	} |
 	sqs:SINGLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(sqs), sqs.getText());
+		e.Annotate("quote", "'");
 	} |
 	tqs:TRIPLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(tqs), tqs.getText());
+		e.Annotate("quote", "\"\"\"");
 	}
 	;
 	
