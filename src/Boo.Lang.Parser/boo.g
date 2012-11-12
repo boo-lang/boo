@@ -3080,6 +3080,11 @@ string_literal returns [Expression e]
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(tqs), tqs.getText());
 		e.Annotate("quote", "\"\"\"");
+	} |
+	bqs:BACKTICK_QUOTED_STRING
+	{
+		e = new StringLiteralExpression(ToLexicalInfo(bqs), bqs.getText());
+		e.Annotate("quote", "`");
 	}
 	;
 	
@@ -3604,6 +3609,15 @@ SINGLE_QUOTED_STRING :
 		~('\'' | '\\' | '\r' | '\n')
 	)*
 	'\''!
+	;
+
+BACKTICK_QUOTED_STRING :
+	'`'!
+	(
+		~('`' | '\r' | '\n') |
+		NEWLINE
+	)*
+	'`'!
 	;
 
 SL_COMMENT:
