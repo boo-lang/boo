@@ -413,6 +413,7 @@ enum UnaryOperatorType:
 	OnesComplement
 	AddressOf
 	Indirection
+	SafeAccess
 
 class UnaryExpression(Expression):
 	Operator as UnaryOperatorType
