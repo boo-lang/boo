@@ -37,7 +37,13 @@ class PatternExpander:
 	private static final Dummy = '_'
 
 	def Expand(matchValue as Expression, pattern as Expression) as Expression:
-		if pattern isa MethodInvocationExpression:
+		if mie = pattern as MethodInvocationExpression:
+			if mie.Target.ToString() == 'array':
+				lst = ArrayLiteralExpression()
+				for arg in mie.Arguments:
+					lst.Items.Add(arg)
+				return ExpandFixedSizePattern(matchValue, lst)
+
 			return ExpandObjectPattern(matchValue, pattern)
 				
 		if pattern isa MemberReferenceExpression:
@@ -295,7 +301,7 @@ class PatternExpander:
 
 		if IsCatchAllPattern(last = pattern.Items[patternLen-1]):
 			pattern.Items.Remove(last)
-			condition = [| $(patternLen) <= len($matchValue)+1 |]
+			condition = [| $(patternLen-1) <= len($matchValue) |]
 
 		i = 0
 		for item in pattern.Items:
