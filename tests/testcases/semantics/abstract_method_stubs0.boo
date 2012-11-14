@@ -1,16 +1,16 @@
 """
 public abstract class Foo(object):
 
-	public virtual def Pub() as void:
+	public abstract def Pub() as void:
 		pass
 
-	protected virtual def Pro() as void:
+	protected abstract def Pro() as void:
 		pass
 
-	private virtual def Pri() as void:
+	private abstract def Pri() as void:
 		pass
 
-	internal virtual def Int() as void:
+	internal abstract def Int() as void:
 		pass
 
 	protected def constructor():
