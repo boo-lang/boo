@@ -44,7 +44,7 @@ class PatternExpander:
 					lst.Items.Add(arg)
 		
 				temp = NewTemp(matchValue) 
-				condition = [| $temp = $matchValue as (object) |] #System.Collections.IList |]
+				condition = [| $temp = $matchValue as (object) |]
 				return [| $condition and $(ExpandFixedSizePattern(temp, lst)) |]
 
 			return ExpandObjectPattern(matchValue, pattern)
