@@ -42,7 +42,10 @@ class PatternExpander:
 				lst = ArrayLiteralExpression()
 				for arg in mie.Arguments:
 					lst.Items.Add(arg)
-				return ExpandFixedSizePattern(matchValue, lst)
+		
+				temp = NewTemp(matchValue) 
+				condition = [| $temp = $matchValue as (object) |] #System.Collections.IList |]
+				return [| $condition and $(ExpandFixedSizePattern(temp, lst)) |]
 
 			return ExpandObjectPattern(matchValue, pattern)
 				
