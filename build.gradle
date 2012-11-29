@@ -29,6 +29,7 @@ project(':booc').afterEvaluate { boocProject ->
 
 	def booProjects = [
 		':Boo.Lang.Extensions',
+    ':Boo.Lang.Useful',
 		':Boo.Lang.PatternMatching',
 		':Boo.Lang.Interpreter',
 		':Boo.Lang.CodeDom',
@@ -93,6 +94,7 @@ project(':Boo.Lang.CodeDom') {
 project(':Boo.Lang.Interpreter') {
 	dependencies {
 		'default' project(':Boo.Lang')
+    'default' project(':Boo.Lang.Extensions')
 		'default' project(':Boo.Lang.Compiler')
 		'default' project(':Boo.Lang.Parser')
 		'default' project(':Boo.Lang.PatternMatching')
@@ -115,6 +117,7 @@ project(':booi') {
 	}
 	dependencies {
 		'default' project(':Boo.Lang')
+    'default' project(':Boo.Lang.Extensions')
 		'default' project(':Boo.Lang.Useful')
 		'default' project(':Boo.Lang.Compiler')
 		'default' project(':Boo.Lang.Parser')
