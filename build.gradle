@@ -142,24 +142,21 @@ subprojects {
 }
 
 dependencies {
-	subprojects.each {
+	subprojects.findAll { it.projectDir.parentFile.name == 'src' }.each {
 		'default' project(it.path)
 	}
 }
 
-task rewriteWindowsPhone8AssemblyReferences(type: Exec) {
-  def wp8BooLangTask = project(':Boo.Lang').tasks.compileWindowsPhone8
-  def compileBooi = project(':booi').tasks.compileDefault
-  dependsOn compileBooi
-  dependsOn wp8BooLangTask 
-  inputs.source compileBooi.assemblyFile
-  inputs.source file('scripts/rewrite-wp8-references.boo')
-  inputs.source wp8BooLangTask.assemblyFile
-  executable rootProject.extensions.unity.monoBleedingEdge.cli
-  args inputs.files
-}
 project(':Boo.Lang') {
-  tasks.assembleWindowsPhone8 {
-    dependsOn rewriteWindowsPhone8AssemblyReferences
+  def retargetAssemblyTask = project(':RetargetAssembly').tasks.compileDefault
+  tasks.compileWindowsPhone8 {
+    dependsOn retargetAssemblyTask
+    doLast {
+      project.exec {
+        executable rootProject.extensions.unity.monoBleedingEdge.cli
+        args retargetAssemblyTask.assemblyFile
+        args assemblyFile
+      }
+    }
   }
 }

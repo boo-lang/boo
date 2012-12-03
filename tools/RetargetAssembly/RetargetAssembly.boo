@@ -1,4 +1,4 @@
-# rewrites all assembly references to match wp8 assemblies:
+# rewrites all system assembly references to match wp8 assemblies:
 #   Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e
 # and change the assembly runtime to net-4.0
 
@@ -18,10 +18,17 @@ class AssemblyReferenceRewriter:
   def RewriteReferencesOf(assembly as string):
     m = ModuleDefinition.ReadModule(assembly)
     m.Runtime = _runtime
-    for assemblyRef in m.AssemblyReferences:
+    for assemblyRef in RetargetableAssemblyReferencesOf(m):
       assemblyRef.Version = _version
       assemblyRef.PublicKeyToken = _publicKeyToken
     m.Write(assembly, WriterParameters(StrongNameKeyPair: _strongNameKeyPair))
+
+  def RetargetableAssemblyReferencesOf(m as ModuleDefinition):
+    return (asmRef for asmRef in m.AssemblyReferences if IsRetargetable(asmRef))
+
+  def IsRetargetable(asmRef as AssemblyNameReference):
+    name = asmRef.Name
+    return name.StartsWith('System') or name == 'mscorlib'
 
 def ParsePublicKeyToken(token as string):
   return array(ParseHexByte(token[i:i+2]) for i in range(0, len(token), 2))
