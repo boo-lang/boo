@@ -170,7 +170,7 @@ namespace Boo.Lang
 
 		IDictionaryEnumerator IDictionary.GetEnumerator()
 		{
-			return _dictionary.GetEnumerator();
+			return ((IDictionary)_dictionary).GetEnumerator();
 		}
 
 		public void Remove(object key)
