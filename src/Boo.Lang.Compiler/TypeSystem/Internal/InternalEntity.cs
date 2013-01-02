@@ -106,14 +106,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			get
 			{
 				if (!_isExtension.HasValue)
-					_isExtension = IsBooExtension || IsClrExtension;
+					_isExtension = IsClrExtension;
 				return _isExtension.Value;
 			}
-		}
-
-		private bool IsBooExtension
-		{
-			get { return IsAttributeDefined(Types.BooExtensionAttribute); }
 		}
 
 		private bool IsClrExtension

@@ -117,8 +117,12 @@
     <Compile Include="AbstractCompilerTestCase.cs" />
     <Compile Include="ArraysIntegrationTestFixture.cs" />
     <Compile Include="AssemblyEmitterTest.cs" />
+    <Compile Include="Ast\AncestorsTest.cs" />
     <Compile Include="Ast\AstAssert.cs" />
+    <Compile Include="Ast\CloningTest.cs" />
+    <Compile Include="Ast\EnumMemberTest.cs" />
     <Compile Include="Ast\GenericParameterDeclarationTest.cs" />
+    <Compile Include="Ast\MethodXmlSerializationTest.cs" />
     <Compile Include="Ast\NodeMatchingTest.cs" />
     <Compile Include="Ast\ParameterDeclarationTest.cs" />
     <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />

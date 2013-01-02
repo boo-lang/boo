@@ -29,7 +29,6 @@
 
 namespace Boo.Lang.PatternMatching.Impl
 
-import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
 internal class MatchExpansion:

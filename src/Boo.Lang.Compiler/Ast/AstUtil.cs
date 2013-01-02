@@ -387,8 +387,7 @@ namespace Boo.Lang.Compiler.Ast
 		public static string ToXml(Node node)
 		{
 			var writer = new StringWriter();
-			var serializer = new XmlSerializer(node.GetType());
-			serializer.Serialize(writer, node);
+			new XmlSerializer(node.GetType()).Serialize(writer, node);
 			return writer.ToString();
 		}
 

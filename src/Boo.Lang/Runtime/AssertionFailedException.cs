@@ -42,11 +42,12 @@ namespace Boo.Lang.Runtime
 		public AssertionFailedException(string message) : base(message)
 		{
 		}
-		
-		protected AssertionFailedException(
-			SerializationInfo si, StreamingContext sc) : base(si, sc)
+
+#if !NO_SERIALIZATION_INFO
+		protected AssertionFailedException(SerializationInfo si, StreamingContext sc) : base(si, sc)
 		{
 		}
+#endif
 	}
 }
 

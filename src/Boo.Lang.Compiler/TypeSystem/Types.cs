@@ -107,8 +107,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type DuckTypedAttribute = typeof(DuckTypedAttribute);
 
-		public static readonly Type BooExtensionAttribute = typeof(ExtensionAttribute);
-
 		public static readonly Type ClrExtensionAttribute = typeof(System.Runtime.CompilerServices.ExtensionAttribute);
 
 		public static readonly Type DllImportAttribute = typeof(System.Runtime.InteropServices.DllImportAttribute);

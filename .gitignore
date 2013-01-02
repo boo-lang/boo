@@ -1,8 +1,13 @@
 /build.properties
-/build
-/ide-build
+build
+ide-build
 test-results
 *.pidb
 *.suo
 *.user
 _ReSharper*
+*.iml
+*.ipr
+*.iws
+.gradle
+.DS_Store

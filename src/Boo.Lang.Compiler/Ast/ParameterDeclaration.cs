@@ -94,18 +94,13 @@ namespace Boo.Lang.Compiler.Ast
 			}
 		}
 
-		[System.Xml.Serialization.XmlAttribute]
+		[System.Xml.Serialization.XmlIgnore]
 		public bool IsParamArray
 		{
 			get
 			{
-				INodeWithParameters parent = ParentNode as INodeWithParameters;
+				var parent = ParentNode as INodeWithParameters;
 				return null != parent && parent.Parameters.HasParamArray && this == parent.Parameters.Last;
-			}
-			protected set //for deserialization
-			{
-				INodeWithParameters parent = ParentNode as INodeWithParameters;
-				parent.Parameters.HasParamArray = value;
 			}
 		}
 	}

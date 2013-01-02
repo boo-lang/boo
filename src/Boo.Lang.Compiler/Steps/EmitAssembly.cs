@@ -72,7 +72,7 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class EmitAssembly : AbstractFastVisitorCompilerStep
 	{
-		static ConstructorInfo DebuggableAttribute_Constructor = Methods.ConstructorOf(() => new DebuggableAttribute(true, true));
+		static ConstructorInfo DebuggableAttribute_Constructor = Methods.ConstructorOf(() => new DebuggableAttribute(DebuggableAttribute.DebuggingModes.Default));
 
 		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = Methods.ConstructorOf(() => new System.Runtime.CompilerServices.RuntimeCompatibilityAttribute());
 
@@ -4373,7 +4373,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return new CustomAttributeBuilder(
 				DebuggableAttribute_Constructor,
-				new object[] { true, true });
+				new object[] { DebuggableAttribute.DebuggingModes.Default | DebuggableAttribute.DebuggingModes.DisableOptimizations });
 		}
 
 		CustomAttributeBuilder CreateRuntimeCompatibilityAttribute()

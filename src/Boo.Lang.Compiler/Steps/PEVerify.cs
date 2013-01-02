@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override public void Run()
 		{			
-#if !NO_SYSTEM_DLL
+#if !NO_SYSTEM_PROCESS
 			if (Errors.Count > 0)
 				return;
 
