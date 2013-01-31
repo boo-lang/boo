@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.major.minor.release.version" value="0.9.5" />
-	<property name="boo.build.number" value="6" />
-	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.build.number}" dynamic="True" />
-	<property name="boo.assembly.version" value="2.${boo.major.minor.release.version}" />
+	<property name="boo.version" value="0.9.6" />
+	<property name="boo.assembly.version" value="2.${boo.version}" />
 	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
@@ -195,7 +193,7 @@
 			</filterchain>
 		</copy>
 
-		<if test="${not(platform::is-win32())}">
+		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booish.in" tofile="${build.dir}/booish" inputencoding="ASCII">
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
@@ -233,7 +231,7 @@
 			</filterchain>
 		</copy>
 		
-		<if test="${not(platform::is-win32())}">
+		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booi.in" tofile="${build.dir}/booi" inputencoding="ASCII">
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
@@ -334,7 +332,7 @@
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</csc>
 
-		<if test="${not(platform::is-win32())}">
+		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booc.in" tofile="${build.dir}/booc" inputencoding="ASCII">
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
@@ -548,7 +546,7 @@
 	</target>
 	
 	<target name="boo-pkgconfig">
-		<copy file="extras/boo.pc.in" tofile="${build.dir}/boo.pc" if="${not(platform::is-win32())}" inputencoding="ASCII">
+		<copy file="extras/boo.pc.in" tofile="${build.dir}/boo.pc" if="${not(platform::is-windows())}" inputencoding="ASCII">
 			<filterchain>
 				<replacestring from="@prefix@" to="${install.prefix}" />
 				<replacestring from="@VERSION@" to="${boo.version}" />
@@ -557,8 +555,8 @@
 	</target>
 
 	<target name="install" depends="booc, booish, booi">
-		<call target="install-win32" if="${platform::is-win32()}"/>
-		<call target="install-linux" if="${not(platform::is-win32())}"/>
+		<call target="install-win32" if="${platform::is-windows()}"/>
+		<call target="install-linux" if="${not(platform::is-windows())}"/>
 	</target>
 
 	<target name="install-linux" depends="booc, booish, booi">
@@ -689,8 +687,8 @@
 	</target>
 	
 	<target name="uninstall">
-		<call target="uninstall-linux" if="${not(platform::is-win32())}"/>
-		<call target="uninstall-win32" if="${platform::is-win32()}"/>
+		<call target="uninstall-linux" if="${not(platform::is-windows())}"/>
+		<call target="uninstall-win32" if="${platform::is-windows()}"/>
 	</target>
 
 	<target name="uninstall-linux">
@@ -791,8 +789,8 @@
 	</target>
 	
 	<target name="distro">
-		<call target="distro-win32" if="${platform::is-win32()}"/>
-		<call target="distro-linux" if="${not(platform::is-win32())}"/>
+		<call target="distro-win32" if="${platform::is-windows()}"/>
+		<call target="distro-linux" if="${not(platform::is-windows())}"/>
 	</target>
 	
 	<!-- Deprecated, now that binaries are built for multiple frameworks. -->
@@ -1087,7 +1085,7 @@
 		builtins = File.ReadAllText(fname)
 		
 		version = Project.Properties["boo.version"]
-		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}\")")
+		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}.0\")")
 		if builtins != newBuiltins:
 			print fname
 			File.WriteAllText(fname, newBuiltins) 

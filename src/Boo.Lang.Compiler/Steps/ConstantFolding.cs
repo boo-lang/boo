@@ -27,12 +27,11 @@
 #endregion
 
 using System;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-
 	//TODO: constant propagation (which allows precise unreachable branch detection)
 	public class ConstantFolding : AbstractTransformerCompilerStep
 	{
