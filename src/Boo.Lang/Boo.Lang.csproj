@@ -78,7 +78,6 @@
     <Compile Include="AbstractGeneratorEnumerator.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="BooComparer.cs" />
-    <Compile Include="BooEqualityComparers.cs" />
     <Compile Include="BooHashCodeProvider.cs" />
     <Compile Include="Builtins.cs" />
     <Compile Include="DuckTypedAttribute.cs" />

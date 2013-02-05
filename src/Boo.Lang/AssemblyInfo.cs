@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -36,7 +36,7 @@ using System.Reflection;
 [assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.9.5")]
+[assembly: AssemblyVersion("2.0.9.6")]
 [assembly: AssemblyDelaySign(false)]
 #if !IGNOREKEYFILE
 [assembly: AssemblyKeyFile("../src/boo.snk")]
