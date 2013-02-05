@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 //
@@ -39,4 +39,4 @@ import System.Reflection
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyVersion("2.0.9.5")]
+[assembly: AssemblyVersion("2.0.9.6")]
