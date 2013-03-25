@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.version" value="0.9.6" />
-	<property name="boo.assembly.version" value="2.${boo.version}" />
+  <property name="boo.version" value="0.9.6" />
+
+  <!-- freeze AssemblyVersion to avoid backwards compatibility issues -->
+	<property name="boo.assembly.version" value="2.0.9.5" />
 	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
