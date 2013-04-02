@@ -3038,8 +3038,8 @@ namespace Boo.Lang.Compiler.Steps
 			ConstructorInfo constructor = stringBuilderType.GetConstructor(Type.EmptyTypes);
 			ConstructorInfo constructorString = stringBuilderType.GetConstructor(new Type[] { typeof(string) });
 
-			MethodInfo appendObject = Methods.InstanceFunctionOf<StringBuilder, object, StringBuilder>(sb => sb.Append);
-			MethodInfo appendString = Methods.InstanceFunctionOf<StringBuilder, string, StringBuilder>(sb => sb.Append);
+			MethodInfo appendObject = typeof(StringBuilder).GetMethod("Append", new Type[] {typeof(object)});
+			MethodInfo appendString = typeof(StringBuilder).GetMethod("Append", new Type[] { typeof(string)});
 			Expression arg0 = node.Expressions[0];
 			IType argType = arg0.ExpressionType;
 

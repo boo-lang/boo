@@ -8,17 +8,7 @@ namespace BooCompiler.Tests.Util
 	[TestFixture]
 	public class MethodsTest
 	{
-		[Test]
-		public void InstanceActionOfNoArgs()
-		{
-			Assert.AreSame(typeof(IDisposable).GetMethod("Dispose"), Methods.InstanceActionOf<IDisposable>(d => d.Dispose));
-		}
 
-		[Test]
-		public void InstanceMethodOfForFunction()
-		{
-			Assert.AreSame(typeof(IEnumerable).GetMethod("GetEnumerator"), Methods.InstanceFunctionOf<IEnumerable, IEnumerator>(e => e.GetEnumerator));
-		}
 
 		[Test]
 		public void GetterOf()
