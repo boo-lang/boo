@@ -27,12 +27,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IMethod List_GetRange1
 		{
-			get { return CachedMethod("List_GetRange1", () => Methods.InstanceFunctionOf<List<object>, int, List<object>>(l => l.GetRange)); }
+			get { return CachedMethod("List_GetRange1", () => typeof(List<object>).GetMethod("GetRange", new[] { typeof(int) })); }
 		}
 
 		public IMethod List_GetRange2
 		{
-			get { return CachedMethod("List_GetRange2", () => Methods.InstanceFunctionOf<List<object>, int, int, List<object>>(l => l.GetRange)); }
+			get { return CachedMethod("List_GetRange2", () => typeof(List<object>).GetMethod("GetRange", new[] { typeof(int), typeof(int) })); }
 		}
 
 		public IMethod RuntimeServices_GetRange1
@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IMethod Array_GetLength
 		{
-			get { return CachedMethod("Array_GetLength", () => Methods.InstanceFunctionOf<Array, int, int>(a => a.GetLength)); }
+			get { return CachedMethod("Array_GetLength", () => typeof(Array).GetMethod("GetLength")); }
 		}
 
 		public IMethod String_get_Length
@@ -102,7 +102,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IMethod String_Substring_Int
 		{
-			get { return CachedMethod("String_Substring_Int", () => Methods.InstanceFunctionOf<string, int, string>(s => s.Substring)); }
+			get { return CachedMethod("String_Substring_Int", () => typeof(string).GetMethod("Substring", new[] {typeof (int)})); }
 		}
 
 		public IMethod ICollection_get_Count
@@ -112,7 +112,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IMethod ICallable_Call
 		{
-			get { return CachedMethod("ICallable_Call", () => Methods.InstanceFunctionOf<ICallable, object[], object>(c => c.Call)); }
+			get { return CachedMethod("ICallable_Call", () => typeof(ICallable).GetMethod("Call")); }
 		}
 
 		private IMethod CachedRuntimeServicesMethod(string methodName, Func<MethodInfo> producer)

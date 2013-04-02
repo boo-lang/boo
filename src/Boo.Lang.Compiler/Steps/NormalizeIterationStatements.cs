@@ -49,8 +49,8 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		static System.Reflection.MethodInfo RuntimeServices_MoveNext = Methods.Of<IEnumerator, object>(RuntimeServices.MoveNext);
 		static System.Reflection.MethodInfo RuntimeServices_GetEnumerable =  Methods.Of<object, IEnumerable>(RuntimeServices.GetEnumerable);
-		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = Methods.InstanceFunctionOf<IEnumerable, IEnumerator>(e => e.GetEnumerator);
-		static System.Reflection.MethodInfo IDisposable_Dispose =  Methods.InstanceActionOf<IDisposable>(d => d.Dispose);
+		static System.Reflection.MethodInfo IEnumerable_GetEnumerator = typeof(IEnumerable).GetMethod("GetEnumerator");
+		static System.Reflection.MethodInfo IDisposable_Dispose = typeof(IDisposable).GetMethod("Dispose");
 
 		Method _current;
 

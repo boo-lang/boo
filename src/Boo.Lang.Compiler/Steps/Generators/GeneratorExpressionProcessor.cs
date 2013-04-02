@@ -227,7 +227,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			
 			Expression moveNext = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
-				TypeSystemServices.Map(Methods.InstanceFunctionOf<IEnumerator, bool>(e => e.MoveNext)));
+				TypeSystemServices.Map(typeof(IEnumerator).GetMethod("MoveNext")));
 						
 			Expression current = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateReference((InternalField)_enumeratorField.Entity),
@@ -310,7 +310,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			{
 				dispose.Body.Add(CodeBuilder.CreateMethodInvocation(
 				                 	CodeBuilder.CreateReference(_enumeratorField),
-				                 	Methods.InstanceActionOf<IDisposable>(d => d.Dispose)));
+									typeof(IDisposable).GetMethod("Dispose")));
 			}
 		}
 
