@@ -92,25 +92,32 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		private Dispatcher EmitFieldDispatcher(FieldInfo field, SetOrGet gos)
 		{
 #if NO_SYSTEM_REFLECTION_EMIT
+			return ReflectionBasedFieldDispatcherFor(field, gos);
+#else
+			if (field.IsLiteral)
+				return ReflectionBasedFieldDispatcherFor(field, gos);
+			return SetOrGet.Get == gos
+				? new Emitters.GetFieldEmitter(field).Emit()
+				: new Emitters.SetFieldEmitter(field, GetArgumentTypes()[0]).Emit();
+#endif
+		}
+
+		static Dispatcher ReflectionBasedFieldDispatcherFor(FieldInfo field, SetOrGet gos)
+		{
 			switch (gos)
 			{
 				case SetOrGet.Get:
 					return (target, args) => field.GetValue(target);
 				case SetOrGet.Set:
 					return (target, args) =>
-					       	{
-					       		var value = args[0];
-					       		field.SetValue(target, RuntimeServices.Coerce(value, field.FieldType));
-					       		return value;
-					       	};
+					{
+						var value = args[0];
+						field.SetValue(target, RuntimeServices.Coerce(value, field.FieldType));
+						return value;
+					};
 				default:
 					throw new ArgumentException();
 			}
-#else
-			return SetOrGet.Get == gos
-			       	? new Emitters.GetFieldEmitter(field).Emit()
-			       	: new Emitters.SetFieldEmitter(field, GetArgumentTypes()[0]).Emit();
-#endif
 		}
 
 		private Dispatcher EmitPropertyDispatcher(PropertyInfo property, SetOrGet gos)
