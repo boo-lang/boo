@@ -1313,13 +1313,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual IType GetGeneratorReturnType(InternalMethod generator)
 		{
 			// Make method return a generic IEnumerable
-			IType itemType = GeneratorItemTypeFor(generator);
-			if (TypeSystemServices.VoidType == itemType)
-				// circunvent exception in MakeGenericType
-				return TypeSystemServices.ErrorEntity;
-
-			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
-			return enumerableType.GenericInfo.ConstructType(itemType);
+			return GeneratorTypeOf(GeneratorItemTypeFor(generator));
 		}
 
 		private IType GeneratorItemTypeFor(InternalMethod generator)
@@ -1396,12 +1390,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IType MapNullToObject(IType type)
 		{
-			// FIXME: refactor to TypeSystemServices
-			if (type.IsNull())
-				return TypeSystemServices.ObjectType;
-			if (EmptyArrayType.Default == type)
-				return TypeSystemServices.ObjectArrayType;
-			return type;
+			return TypeSystemServices.MapWildcardType(type);
 		}
 
 		IType GetMostGenericType(IType lhs, IType rhs)
@@ -1697,7 +1686,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (generatorItemType == TypeSystemServices.VoidType)
 				// cannot use 'void' as a generic argument
 				return TypeSystemServices.ErrorEntity;
-			return TypeSystemServices.IEnumerableGenericType.GenericInfo.ConstructType(generatorItemType);
+			return GetConstructedType(TypeSystemServices.IEnumerableGenericType, generatorItemType);
 		}
 
 		protected IType GetConstructedType(IType genericType, IType argType)

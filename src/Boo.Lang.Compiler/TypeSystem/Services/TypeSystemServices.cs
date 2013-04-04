@@ -1109,5 +1109,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 			return size;
 		}
+
+		public IType MapWildcardType(IType type)
+		{
+			if (type.IsNull())
+				return ObjectType;
+			if (EmptyArrayType.Default == type)
+				return ObjectArrayType;
+			return type;
+		}
 	}
 }
