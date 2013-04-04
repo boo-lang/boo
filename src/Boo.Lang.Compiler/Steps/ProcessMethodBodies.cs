@@ -1213,14 +1213,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void PostProcessMethod(Method node)
 		{
-			bool parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
+			var parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
 			if (!parentIsClass) return;
 
-			InternalMethod entity = (InternalMethod)GetEntity(node);
+			var entity = (InternalMethod)GetEntity(node);
 			if (TypeSystemServices.IsUnknown(entity.ReturnType))
-			{
 				TryToResolveReturnType(entity);
-			}
 			else
 			{
 				if (entity.IsGenerator)
@@ -1527,10 +1525,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			node.Target = new MemberReferenceExpression(node.LexicalInfo, node.Target, member.Name)
-							{
-								Entity = member,
-								ExpressionType = Null.Default // to be resolved later
-							};
+			{
+				Entity = member,
+				ExpressionType = Null.Default // to be resolved later
+			};
 			SliceMember(node, member);
 		}
 
@@ -1721,7 +1719,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
 
-			IArrayType type = InferArrayType(node);
+			var type = InferArrayType(node);
 			BindExpressionType(node, type);
 
 			if (node.Type == null)
@@ -1733,7 +1731,7 @@ namespace Boo.Lang.Compiler.Steps
 		private IArrayType InferArrayType(ArrayLiteralExpression node)
 		{
 			if (null != node.Type) return (IArrayType)node.Type.Entity;
-			if (0 == node.Items.Count) return EmptyArrayType.Default;
+			if (node.Items.Count == 0) return EmptyArrayType.Default;
 			return GetMostGenericType(node.Items).MakeArrayType(1);
 		}
 

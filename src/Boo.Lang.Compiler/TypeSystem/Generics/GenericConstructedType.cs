@@ -190,14 +190,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		public virtual bool IsAssignableFrom(IType other)
 		{
 			if (other == null)
-			{
 				return false;
-			}
 
 			if (other == this || other.IsSubclassOf(this) || (other.IsNull() && !IsValueType))
-			{
 				return true;
-			}
 
 			return false;
 		}

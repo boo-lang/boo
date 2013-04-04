@@ -4571,19 +4571,21 @@ namespace Boo.Lang.Compiler.Steps
 		/// </summary>
 		private MethodInfo GetMappedMethodInfo(IType targetType, IMethod source)
 		{
-			MethodInfo mi = GetMethodInfo(source);
-			if (!mi.DeclaringType.IsGenericTypeDefinition)
-			{
-				// HACK: .NET Reflection doesn't allow calling TypeBuilder.GetMethod(Type, MethodInfo)
-				// on types that aren't generic definitions (like open constructed types), so we have to
-				// manually find the corresponding MethodInfo on the declaring type's definition before
-				// mapping it
-				Type definition = mi.DeclaringType.GetGenericTypeDefinition();
-				mi = Array.Find<MethodInfo>(
-					definition.GetMethods(),
-					delegate(MethodInfo other) { return other.MetadataToken == mi.MetadataToken; });
-			}
+			var mi = GetMethodInfo(source);
+			if (mi.DeclaringType.IsGenericTypeDefinition)
+				return GetConstructedMethodInfo(targetType, mi);
 
+			// HACK: .NET Reflection doesn't allow calling TypeBuilder.GetMethod(Type, MethodInfo)
+			// on types that aren't generic definitions (like open constructed types), so we have to
+			// manually find the corresponding MethodInfo on the declaring type's definition before
+			// mapping it
+			var definition = mi.DeclaringType.GetGenericTypeDefinition();
+			var correspondingMethod = Array.Find(definition.GetMethods(), it => it.MetadataToken == mi.MetadataToken);
+			return GetConstructedMethodInfo(targetType, correspondingMethod);
+		}
+
+		MethodInfo GetConstructedMethodInfo(IType targetType, MethodInfo mi)
+		{
 			return TypeBuilder.GetMethod(GetSystemType(targetType), mi);
 		}
 
