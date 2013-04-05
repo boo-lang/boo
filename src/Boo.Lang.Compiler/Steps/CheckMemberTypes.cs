@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
@@ -53,7 +54,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveProperty(Property node)
 		{
+			ValidateSetter(node.Setter);
 			LeaveMember(node);
+		}
+
+		void ValidateSetter(Method setter)
+		{
+			if (setter != null && setter.ReturnType != null)
+				throw new InvalidOperationException();
 		}
 
 		override public void LeaveEvent(Event node)
@@ -92,25 +100,29 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.Constructor:
 					CheckExplicitParametersType(node);
 					return;
+
 				case NodeType.Method:
-					Method method = (Method)node;
-					if (null != method.ParentNode && method.ParentNode.NodeType == NodeType.Property)
+					var method = (Method)node;
+					if (method.IsPropertyAccessor())
 						return; //ignore accessors
 					CheckExplicitParametersType(node);
-					if (null != method.ReturnType)
+					if (method.ReturnType != null)
 						return;
 					if (method.Entity != null
 						&& ((IMethod)method.Entity).ReturnType == TypeSystemServices.VoidType)
 						return;
 					break;
+
 				case NodeType.Property:
 					if (null != ((Property)node).Type)
 						return;
 					break;
+
 				case NodeType.Event:
 					if (null != ((Event)node).Type)
 						return;
 					break;
+
 				default:
 					return; //fields, nested types etc...
 			}
