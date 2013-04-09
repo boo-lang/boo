@@ -44,9 +44,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			// Any invocation with an explode expression is allowed
 			if (AstUtil.EndsWithExplodeExpression(node.Arguments) && entities.Length > 0) {
-				AstUtil.DebugNode(node);
-				Console.WriteLine("Entities: {0}", entities);
-				//NormalizeMethodInvocationTarget(node);
 				if (node.Target.NodeType == NodeType.ReferenceExpression) {
 					node.Target = MemberReferenceFromReference(
 						(ReferenceExpression)node.Target,

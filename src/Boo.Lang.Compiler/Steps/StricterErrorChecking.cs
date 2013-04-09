@@ -186,10 +186,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-        public override void LeaveGeneratorExpression(GeneratorExpression node)
-        {
-            CheckExpressionType(node.Expression);
-        }
+		public override void LeaveGeneratorExpression(GeneratorExpression node)
+		{
+			CheckExpressionType(node.Expression);
+		}
 		
 		override public void LeaveBinaryExpression(BinaryExpression node)
 		{	
@@ -207,7 +207,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			//check that the assignment or comparison is meaningful
 			if (BinaryOperatorType.Assign == node.Operator
-			    || AstUtil.GetBinaryOperatorKind(node) == BinaryOperatorKind.Comparison)
+				|| AstUtil.GetBinaryOperatorKind(node) == BinaryOperatorKind.Comparison)
 			{
 				if (AreSameExpressions(node.Left, node.Right))
 				{
@@ -218,7 +218,7 @@ namespace Boo.Lang.Compiler.Steps
 					);
 				}
 				else if (BinaryOperatorType.Assign != node.Operator
-				         && AreConstantExpressions(node.Left, node.Right))
+						 && AreConstantExpressions(node.Left, node.Right))
 				{
 					WarnAboutConstantExpression(node);
 				}
@@ -264,7 +264,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			if (!IsLastArgumentOfVarArgInvocation(node))
 			{
-                Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
+				Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
 			}
 		}
 
@@ -316,7 +316,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if ((e as LiteralExpression) != null
-			    && !e.ContainsAnnotation(ConstantFolding.FoldedExpression))
+				&& !e.ContainsAnnotation(ConstantFolding.FoldedExpression))
 				return true;
 
 			if (IsImplicitCallable(e))
@@ -555,11 +555,11 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			if (null == node.ReturnType
-			    || null == node.ReturnType.Entity
-			    || node.ReturnType.Entity == TypeSystemServices.VoidType
-			    || node.Body.IsEmpty
-			    || ((InternalMethod)node.Entity).IsGenerator
-			    || node.Name == "ExpandImpl") //ignore old-style macros
+				|| null == node.ReturnType.Entity
+				|| node.ReturnType.Entity == TypeSystemServices.VoidType
+				|| node.Body.IsEmpty
+				|| ((InternalMethod)node.Entity).IsGenerator
+				|| node.Name == "ExpandImpl") //ignore old-style macros
 				return;
 
 			if (!AstUtil.AllCodePathsReturnOrRaise(node.Body))
@@ -611,8 +611,8 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveExceptionHandler(ExceptionHandler node)
 		{
 			if (null != node.Declaration.Type.Entity
-			    && ((IType)node.Declaration.Type.Entity).FullName == "System.Exception"
-			    && !string.IsNullOrEmpty(node.Declaration.Name))
+				&& ((IType)node.Declaration.Type.Entity).FullName == "System.Exception"
+				&& !string.IsNullOrEmpty(node.Declaration.Name))
 			{
 				if (null != NameResolutionService.ResolveTypeName(new SimpleTypeReference(node.Declaration.Name)))
 					Warnings.Add(CompilerWarningFactory.AmbiguousExceptionName(node));
@@ -647,7 +647,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-	    static bool IsAddressOfBuiltin(Expression node)
+		static bool IsAddressOfBuiltin(Expression node)
 		{
 			return BuiltinFunction.AddressOf == node.Entity;
 		}
