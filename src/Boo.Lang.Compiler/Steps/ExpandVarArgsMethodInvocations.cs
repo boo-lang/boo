@@ -46,27 +46,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.OnMethodInvocationExpression(node);
 
-			var method = node.Target.Entity as IMethod;
-			if (null != method && method.AcceptVarArgs)
-			{
-				ExpandInvocation(node, method.GetParameters());
-				return;
-			}
-
-			var callable = node.Target.ExpressionType as ICallableType;
-			if (callable != null)
-			{
-				var signature = callable.GetSignature();
-				if (!signature.AcceptVarArgs) return;
-				
-				ExpandInvocation(node, signature.Parameters);
-				return;
-			}
-
-			// Replace the call with a dynamic dispatch
+			// Replace the explode expressions with a dynamic dispatch
 			if (AstUtil.InvocationEndsWithExplodeExpression(node))
 			{
 				var explode = node.Arguments.PopRange(node.Arguments.Count-1)[0];
+				var args = CodeBuilder.CreateObjectArray(node.Arguments);
 
 				var rt_type = TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));
 				MemberReferenceExpression target = node.Target as MemberReferenceExpression;
@@ -82,22 +66,33 @@ namespace Boo.Lang.Compiler.Steps
 						node.LexicalInfo,
 						NameResolutionService.ResolveMethod(rt_type, "AddArrays"),
 						CodeBuilder.CreateTypeofExpression(TypeSystemServices.ObjectType),
-						CodeBuilder.CreateObjectArray(node.Arguments),
+						args,
 						((UnaryExpression)explode).Operand
 					)
 				);
+				return;
+			}
+
+			var method = node.Target.Entity as IMethod;
+			if (null != method && method.AcceptVarArgs)
+			{
+				ExpandInvocation(node, method.GetParameters());
+				return;
+			}
+
+			var callable = node.Target.ExpressionType as ICallableType;
+			if (callable != null)
+			{
+				var signature = callable.GetSignature();
+				if (signature.AcceptVarArgs) {
+					ExpandInvocation(node, signature.Parameters);
+					return;
+				}
 			}
 		}
 
 		protected virtual void ExpandInvocation(MethodInvocationExpression node, IParameter[] parameters)
 		{
-			if (AstUtil.InvocationEndsWithExplodeExpression(node))
-			{
-				// explode the arguments
-				node.Arguments.ReplaceAt(-1, ((UnaryExpression)node.Arguments[-1]).Operand);
-				return;
-			}
-
 			var lastParameterIndex = parameters.Length-1;
 			var varArgType = parameters[lastParameterIndex].Type;
 
