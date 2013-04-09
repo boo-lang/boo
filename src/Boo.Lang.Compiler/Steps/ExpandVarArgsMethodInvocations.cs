@@ -32,8 +32,7 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	// AbstractFastVisitorCompilerStep
-	public class ExpandVarArgsMethodInvocations : AbstractTransformerCompilerStep
+	public class ExpandVarArgsMethodInvocations : AbstractFastVisitorCompilerStep
 	{
 		override public void Run()
 		{
