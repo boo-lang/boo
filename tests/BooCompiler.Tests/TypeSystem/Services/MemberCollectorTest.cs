@@ -60,7 +60,9 @@ namespace BooCompiler.Tests.TypeSystem.Services
 
 		private void RunInCompilerContextEnvironment(Action action)
 		{
-			new CompilerContext().Environment.Run(action);
+			ActiveEnvironment.With(new CompilerContext().Environment, () => {
+				action();
+			});
 		}
 	}
 }
