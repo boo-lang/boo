@@ -12,9 +12,9 @@ namespace BooCompiler.Tests
 		public void CompileUnitIsProvidedToTheEnvironment()
 		{
 			var compileUnit = new CompileUnit();
-			ActiveEnvironment.With(new CompilerContext().Environment, () => {
-				Assert.AreSame(compileUnit, My<CompileUnit>.Instance);
-			});
+			ActiveEnvironment.With(
+				new CompilerContext(compileUnit).Environment,
+				() => Assert.AreSame(compileUnit, My<CompileUnit>.Instance));
 		}
 	}
 
