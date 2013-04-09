@@ -264,7 +264,7 @@ namespace Boo.Lang.Compiler.Steps
 		{	
 			if (!IsLastArgumentOfVarArgInvocation(node))
 			{
-				Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
+                Error(CompilerErrorFactory.ExplodeExpressionMustMatchVarArgCall(node));
 			}
 		}
 
@@ -349,12 +349,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			MethodInvocationExpression parent = node.ParentNode as MethodInvocationExpression;
 			if (null == parent) return false;
-			if (parent.Arguments.Last != node) return false;
-			ICallableType type = parent.Target.ExpressionType as ICallableType;
-			if (null != type) return type.GetSignature().AcceptVarArgs;
-			
-			IMethod method = parent.Target.Entity as IMethod;
-			return null != method && method.AcceptVarArgs;
+			return parent.Arguments.Last == node;
 		}
 
 		static bool IsTypeReference(Expression node)

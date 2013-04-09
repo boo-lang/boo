@@ -32,7 +32,8 @@ using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ExpandVarArgsMethodInvocations : AbstractFastVisitorCompilerStep
+	// AbstractFastVisitorCompilerStep
+	public class ExpandVarArgsMethodInvocations : AbstractTransformerCompilerStep
 	{
 		override public void Run()
 		{
@@ -59,6 +60,34 @@ namespace Boo.Lang.Compiler.Steps
 				if (!signature.AcceptVarArgs) return;
 				
 				ExpandInvocation(node, signature.Parameters);
+				return;
+			}
+
+			// Replace the call with a dynamic dispatch
+			if (AstUtil.InvocationEndsWithExplodeExpression(node))
+			{
+				var explode = node.Arguments.PopRange(node.Arguments.Count-1)[0];
+
+				var rt_type = TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));
+				MemberReferenceExpression target = node.Target as MemberReferenceExpression;
+				node.Target = CodeBuilder.CreateMemberReference(
+					NameResolutionService.ResolveMethod(rt_type, "Invoke")
+				);
+				
+				node.Arguments.Clear();
+				node.Arguments.Add(target.Target);
+				node.Arguments.Add(CodeBuilder.CreateStringLiteral(target.Name));
+				node.Arguments.Add(
+					CodeBuilder.CreateMethodInvocation(
+						node.LexicalInfo,
+						NameResolutionService.ResolveMethod(rt_type, "AddArrays"),
+						CodeBuilder.CreateTypeofExpression(TypeSystemServices.ObjectType),
+						CodeBuilder.CreateObjectArray(node.Arguments),
+						((UnaryExpression)explode).Operand
+					)
+				);
+
+				AstUtil.DebugNode(node);
 				return;
 			}
 		}

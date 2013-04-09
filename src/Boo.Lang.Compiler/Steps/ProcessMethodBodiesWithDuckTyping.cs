@@ -29,6 +29,8 @@
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
+using System;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	public class ProcessMethodBodiesWithDuckTyping : ProcessMethodBodies
@@ -40,6 +42,22 @@ namespace Boo.Lang.Compiler.Steps
 		
 		override protected IEntity CantResolveAmbiguousMethodInvocation(MethodInvocationExpression node, IEntity[] entities)
 		{
+			// Any invocation with an explode expression is allowed
+			if (AstUtil.EndsWithExplodeExpression(node.Arguments) && entities.Length > 0) {
+				AstUtil.DebugNode(node);
+				Console.WriteLine("Entities: {0}", entities);
+				//NormalizeMethodInvocationTarget(node);
+				if (node.Target.NodeType == NodeType.ReferenceExpression) {
+					node.Target = MemberReferenceFromReference(
+						(ReferenceExpression)node.Target,
+						entities[0] as IMember
+					);
+				}
+				BindQuack(node.Target);
+				BindDuck(node);
+				return null;
+			}
+
 			if (!Ducky || CallableResolutionService.ValidCandidates.Count == 0)
 			{				
 				return base.CantResolveAmbiguousMethodInvocation(node, entities);
