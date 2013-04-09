@@ -73,7 +73,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Target = CodeBuilder.CreateMemberReference(
 					NameResolutionService.ResolveMethod(rt_type, "Invoke")
 				);
-				
+
 				node.Arguments.Clear();
 				node.Arguments.Add(target.Target);
 				node.Arguments.Add(CodeBuilder.CreateStringLiteral(target.Name));
@@ -86,9 +86,6 @@ namespace Boo.Lang.Compiler.Steps
 						((UnaryExpression)explode).Operand
 					)
 				);
-
-				AstUtil.DebugNode(node);
-				return;
 			}
 		}
 
