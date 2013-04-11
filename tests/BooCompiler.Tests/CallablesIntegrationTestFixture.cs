@@ -391,6 +391,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void callables_as_ternary_operands()
+		{
+			RunCompilerTestCase(@"callables-as-ternary-operands.boo");
+		}
+		
+		[Test]
+		public void callables_as_ternay_operands_invocation()
+		{
+			RunCompilerTestCase(@"callables-as-ternay-operands-invocation.boo");
+		}
+		
+		[Test]
 		public void delegates_1()
 		{
 			RunCompilerTestCase(@"delegates-1.boo");

@@ -369,7 +369,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessFieldInitializerType(Field node, IType initializerType)
 		{
 			if (null == node.Type)
-				node.Type = CreateTypeReference(node.LexicalInfo, MapNullToObject(initializerType));
+				node.Type = CreateTypeReference(node.LexicalInfo, MapWildcardType(initializerType));
 			else
 				AssertTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
 		}
@@ -1384,11 +1384,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions)
 		{
-			var type = MapNullToObject(GetMostGenericType(expressions));
+			var type = MapWildcardType(GetMostGenericType(expressions));
 			return CodeBuilder.CreateTypeReference(type);
 		}
 
-		IType MapNullToObject(IType type)
+		IType MapWildcardType(IType type)
 		{
 			return TypeSystemServices.MapWildcardType(type);
 		}
@@ -1782,7 +1782,7 @@ namespace Boo.Lang.Compiler.Steps
 			// there's no way to create an untyped declaration statement.
 			// This is here to support languages that do allow untyped variable
 			// declarations (unityscript is such an example).
-			return MapNullToObject(GetConcreteExpressionType(node.Initializer));
+			return MapWildcardType(GetConcreteExpressionType(node.Initializer));
 		}
 
 		virtual protected Expression CreateDefaultLocalInitializer(Node sourceNode, IEntity local)
@@ -2477,8 +2477,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveConditionalExpression(ConditionalExpression node)
 		{
-			IType trueType = GetExpressionType(node.TrueValue);
-			IType falseType = GetExpressionType(node.FalseValue);
+			var trueType = GetExpressionType(node.TrueValue);
+			var falseType = GetExpressionType(node.FalseValue);
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
 		}
 
@@ -3030,7 +3030,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void ProcessAutoLocalDeclaration(BinaryExpression node, ReferenceExpression reference)
 		{
 			Visit(node.Right);
-			IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
+			IType expressionType = MapWildcardType(GetConcreteExpressionType(node.Right));
 			IEntity local = DeclareLocal(reference, reference.Name, expressionType);
 			reference.Entity = local;
 			BindExpressionType(reference, expressionType);
@@ -4299,44 +4299,56 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessMethodInvocationOnCallableExpression(MethodInvocationExpression node)
 		{
-			IType type = node.Target.ExpressionType;
+			var type = GetConcreteExpressionType(node.Target);
 
-			ICallableType delegateType = type as ICallableType;
-			if (null != delegateType)
+			var delegateType = type as ICallableType;
+			if (delegateType != null)
 			{
-				if (AssertParameters(node.Target, delegateType, delegateType, node.Arguments))
-				{
-					IMethod invoke = ResolveMethod(delegateType, "Invoke");
-					node.Target = CodeBuilder.CreateMemberReference(node.Target, invoke);
-					BindExpressionType(node, invoke.ReturnType);
-				}
-				else
-				{
-					Error(node);
-				}
+				ProcessDelegateInvocation(node, delegateType);
+				return;
 			}
-			else if (IsAssignableFrom(TypeSystemServices.ICallableType, type))
-			{
-				node.Target = CodeBuilder.CreateMemberReference(node.Target, MethodCache.ICallable_Call);
-				ArrayLiteralExpression arg = CodeBuilder.CreateObjectArray(node.Arguments);
-				node.Arguments.Clear();
-				node.Arguments.Add(arg);
 
-				BindExpressionType(node, MethodCache.ICallable_Call.ReturnType);
+			if (IsAssignableFrom(TypeSystemServices.ICallableType, type))
+			{
+				ProcessICallableInvocation(node);
+				return;
 			}
-			else if (TypeSystemServices.TypeType == type)
+
+			if (TypeSystemServices.TypeType == type)
 			{
 				ProcessSystemTypeInvocation(node);
+				return;
 			}
-			else
+
+			ProcessInvocationOnUnknownCallableExpression(node);
+		}
+
+		void ProcessDelegateInvocation(MethodInvocationExpression node, ICallableType delegateType)
+		{
+			if (!AssertParameters(node.Target, delegateType, delegateType, node.Arguments))
 			{
-				ProcessInvocationOnUnknownCallableExpression(node);
+				Error(node);
+				return;
 			}
+
+			var invoke = ResolveMethod(delegateType, "Invoke");
+			node.Target = CodeBuilder.CreateMemberReference(node.Target, invoke);
+			BindExpressionType(node, invoke.ReturnType);
+		}
+
+		void ProcessICallableInvocation(MethodInvocationExpression node)
+		{
+			node.Target = CodeBuilder.CreateMemberReference(node.Target, MethodCache.ICallable_Call);
+			var args = CodeBuilder.CreateObjectArray(node.Arguments);
+			node.Arguments.Clear();
+			node.Arguments.Add(args);
+
+			BindExpressionType(node, MethodCache.ICallable_Call.ReturnType);
 		}
 
 		private void ProcessSystemTypeInvocation(MethodInvocationExpression node)
 		{
-			MethodInvocationExpression invocation = CreateInstanceInvocationFor(node);
+			var invocation = CreateInstanceInvocationFor(node);
 			if (invocation.NamedArguments.Count == 0)
 			{
 				node.ParentNode.Replace(node, invocation);
