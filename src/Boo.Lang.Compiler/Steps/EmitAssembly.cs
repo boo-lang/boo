@@ -1052,14 +1052,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnConditionalExpression(ConditionalExpression node)
 		{
-			IType type = GetExpressionType(node);
+			var type = GetExpressionType(node);
 
-			Label endLabel = _il.DefineLabel();
+			var endLabel = _il.DefineLabel();
 
 			EmitBranchFalse(node.Condition, endLabel);
 			LoadExpressionWithType(type, node.TrueValue);
 
-			Label elseEndLabel = _il.DefineLabel();
+			var elseEndLabel = _il.DefineLabel();
 			_il.Emit(OpCodes.Br, elseEndLabel);
 			_il.MarkLabel(endLabel);
 

@@ -471,7 +471,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			var type = GetExpressionType(expression);
 			var anonymousType = type as AnonymousCallableType;
-			if (null != anonymousType)
+			if (anonymousType != null)
 			{
 				IType concreteType = GetConcreteCallableType(expression, anonymousType);
 				expression.ExpressionType = concreteType;
