@@ -3265,7 +3265,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			IEntity tag = TypeSystem.TypeSystemServices.GetEntity(node);
+			var tag = TypeSystemServices.GetEntity(node);
 			switch (tag.EntityType)
 			{
 				case EntityType.Ambiguous:

@@ -976,7 +976,7 @@ namespace Boo.Lang.Compiler.Steps
 					return candidate;
 			}
 
-			if (EntityType.Ambiguous == candidates.EntityType)
+			if (candidates.IsAmbiguous())
 				foreach (IMethod candidate in ((Ambiguous) candidates).Entities)
 					if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
 						return candidate;
@@ -1113,7 +1113,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (CheckOverrideSignature(EntityFor(property), candidate))
 						return candidate;
 				}
-				else if (EntityType.Ambiguous == candidates.EntityType)
+				else if (candidates.IsAmbiguous())
 					return ResolvePropertyOverride(EntityFor(property), ((Ambiguous)candidates).Entities);
 			}
 			return null;
@@ -1561,7 +1561,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IMethod getter = null;
-			if (EntityType.Ambiguous == member.EntityType)
+			if (member.IsAmbiguous())
 			{
 				IEntity result = ResolveAmbiguousPropertyReference((ReferenceExpression)node.Target, (Ambiguous)member, mie.Arguments);
 				IProperty found = result as IProperty;
@@ -1569,7 +1569,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					getter = found.GetGetMethod();
 				}
-				else if (EntityType.Ambiguous == result.EntityType)
+				else if (result.IsAmbiguous())
 				{
 					Error(node);
 					return;
@@ -3398,22 +3398,30 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindInPlaceAddSubtract(BinaryExpression node)
 		{
-			IEntity entity = node.Left.Entity;
-			if (null != entity &&
-				(EntityType.Event == entity.EntityType
-				 || EntityType.Ambiguous == entity.EntityType))
+			if (IsEventSubscription(node))
 			{
 				BindEventSubscription(node);
-			    return;
+				return;
 			}
-            
-            BindInPlaceArithmeticOperator(node);
+			BindInPlaceArithmeticOperator(node);
+		}
+
+		static bool IsEventSubscription(BinaryExpression node)
+		{
+			var leftEntity = node.Left.Entity;
+			return leftEntity != null
+				&& (IsEvent(leftEntity) || leftEntity.IsAmbiguous());
+		}
+
+		static bool IsEvent(IEntity entity)
+		{
+			return EntityType.Event == entity.EntityType;
 		}
 
 		void BindEventSubscription(BinaryExpression node)
 		{
 			IEntity entity = GetEntity(node.Left);
-		    if (EntityType.Ambiguous == entity.EntityType)
+		    if (entity.IsAmbiguous())
 		    {
 		        IList found = ((Ambiguous) entity).Select(IsPublicEvent);
 		        if (found.Count != 1)
@@ -3537,8 +3545,8 @@ namespace Boo.Lang.Compiler.Steps
 
 				if (EntityType.Method != type)
 				{
-					ReferenceExpression reference = arg as ReferenceExpression;
-					if (null != reference && EntityType.Ambiguous == type)
+					var reference = arg as ReferenceExpression;
+					if (reference != null && type == EntityType.Ambiguous)
 					{
 						Error(node, CompilerErrorFactory.AmbiguousReference(arg, reference.Name, ((Ambiguous)arg.Entity).Entities));
 					}
@@ -4502,7 +4510,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (AssertParameters(node.Left, setMethod, mie.Arguments))
 					setter = setMethod;
 			}
-			else if (EntityType.Ambiguous == lhs.EntityType)
+			else if (lhs.IsAmbiguous())
 			{
 				setter = (IMethod)GetCorrectCallableReference(node.Left, mie.Arguments, GetSetMethods(lhs));
 				if (setter == null)
@@ -4564,12 +4572,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void TryToResolveAmbiguousAssignment(BinaryExpression node)
 		{
-			IEntity lhs = node.Left.Entity;
-			if (null == lhs) return;
-			if (EntityType.Ambiguous != lhs.EntityType) return;
+			if (!node.Left.Entity.IsAmbiguous()) return;
 
-			Expression lvalue = node.Left;
-			lhs = ResolveAmbiguousLValue(lvalue, (Ambiguous)lhs, node.Right);
+			var lvalue = node.Left;
+			var lhs = ResolveAmbiguousLValue(lvalue, (Ambiguous)node.Left.Entity, node.Right);
 			if (NodeType.ReferenceExpression == lvalue.NodeType)
 			{
 				IMember member = lhs as IMember;
@@ -5106,7 +5112,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (IsVisibleFieldPropertyOrEvent(candidate)) return (IMember)candidate;
 
-			if (candidate.EntityType != EntityType.Ambiguous) return null;
+			if (!candidate.IsAmbiguous()) return null;
 
 			IList<IEntity> found = ((Ambiguous)candidate).Select(IsVisibleFieldPropertyOrEvent);
 			if (found.Count == 0) return null;
@@ -5584,7 +5590,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IMethod ResolveOperatorEntity(IEntity op, ExpressionCollection args)
 		{
-			if (EntityType.Ambiguous == op.EntityType)
+			if (op.IsAmbiguous())
 				return ResolveAmbiguousOperator(((Ambiguous)op).Entities, args);
 
 			if (EntityType.Method == op.EntityType)
