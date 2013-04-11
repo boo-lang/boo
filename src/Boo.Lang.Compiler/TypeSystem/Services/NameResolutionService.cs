@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			set
 			{
 				if (null == value)
-                    throw new ArgumentNullException();
+					throw new ArgumentNullException();
 				_entityNameMatcher = value;
 			}
 		}
