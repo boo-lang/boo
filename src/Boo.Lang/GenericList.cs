@@ -297,7 +297,7 @@ namespace Boo.Lang
 			return this;
 		}
 
-		public List<T> Sort(Comparer comparer)
+		public List<T> Sort(Comparer<T> comparer)
 		{
 			if (null == comparer)
 				throw new ArgumentNullException("comparer");
@@ -329,22 +329,19 @@ namespace Boo.Lang
 
 		override public bool Equals(object other)
 		{
-			if (null == other) return false;
-			if (this == other) return true;
-
-			var list = other as List<T>;
-			return Equals(list);
+			return this == other || Equals(other as List<T>);
 		}
 
 		public bool Equals(List<T> other)
 		{
-			if (null == other) return false;
-			if (this == other) return true;
+			if (other == null) return false;
+			if (ReferenceEquals(this, other)) return true;
 			if (_count != other.Count) return false;
 
-			for (int i=0; i < _count; ++i)
+			for (var i=0; i < _count; ++i)
 				if (!RuntimeServices.EqualityOperator(_items[i], other[i]))
 					return false;
+
 			return true;
 		}
 

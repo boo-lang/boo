@@ -6,3 +6,8 @@ b = true
 if a=b:
 	print "ok"
 
+x = System.Console.ReadLine()
+o = (1 if len(x) > 2 else m = 3) #No warning here
+print o, m
+
+

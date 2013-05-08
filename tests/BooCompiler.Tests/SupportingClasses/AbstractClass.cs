@@ -13,4 +13,13 @@ namespace BooCompiler.Tests.SupportingClasses
 			return "Bar";
 		}
 	}
+
+	public abstract class A1
+	{
+		public abstract int P1 { get; }
+	}
+
+	public abstract class A2:A1
+	{
+	}
 }

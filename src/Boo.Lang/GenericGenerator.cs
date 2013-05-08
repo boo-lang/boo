@@ -26,13 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Boo.Lang
 {
-	using System;
-	using System.Collections;
-
-	using System.Collections.Generic;
-
 	public abstract class GenericGenerator<T> : IEnumerable<T>
 	{
 		public abstract IEnumerator<T> GetEnumerator();

@@ -205,7 +205,7 @@ namespace Boo.Lang.Compiler
 			return _compilerReferences.Provider.ForAssembly(assembly);
 		}
 
-		private Assembly ForName(string assembly, bool throwOnError)
+		protected virtual Assembly ForName(string assembly, bool throwOnError)
 		{
 			Assembly a = null;
 			try
@@ -333,7 +333,7 @@ namespace Boo.Lang.Compiler
 
 		private static string pkgconfig(string package)
 		{
-#if NO_SYSTEM_DLL
+#if NO_SYSTEM_PROCESS
 	        throw new System.NotSupportedException();
 #else
 			Process process;

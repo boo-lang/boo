@@ -80,10 +80,13 @@ namespace Boo.Lang.Compiler.Util
 			return value.Method;
 		}
 
-        public static MethodInfo Of<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> value)
+        
+	public static MethodInfo Of<T1, T2, T3, T4, T5>(TAction<T1, T2, T3, T4, T5> value)
         {
             return value.Method;
         }
+
+		public delegate void TAction<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5);
 
 		public static MethodInfo InstanceActionOf<TInstance>(Expression<Func<TInstance, Action>> func)
 		{
@@ -118,8 +121,17 @@ namespace Boo.Lang.Compiler.Util
 		private static MethodInfo MethodInfoFromLambdaExpressionBody(Expression expression)
 		{
 			// Convert(CreateDelegate(DelegateType, instance, member))
-			var methodRef = ((MethodCallExpression) ((UnaryExpression) expression).Operand).Arguments[2];
-			return (MethodInfo) ((ConstantExpression) methodRef).Value;
+			var operand = ((MethodCallExpression) ((UnaryExpression) expression).Operand);
+			ConstantExpression methodRef;
+
+			if (operand.Object != null)
+				//.NET 4.5
+				methodRef = (ConstantExpression) operand.Object;
+			else
+				//Before .NET 4.5
+				methodRef = (ConstantExpression) operand.Arguments[2];
+
+			return (MethodInfo) (methodRef).Value;
 		}
 
 		public static ConstructorInfo ConstructorOf<T>(Expression<Func<T>> func)

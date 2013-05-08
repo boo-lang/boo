@@ -51,6 +51,7 @@ using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module = Boo.Lang.Compiler.Ast.Module;
 using System.Collections.Generic;
 using Method = Boo.Lang.Compiler.Ast.Method;
+using ExceptionHandler = Boo.Lang.Compiler.Ast.ExceptionHandler;
 
 namespace Boo.Lang.Compiler.Steps
 {

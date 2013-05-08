@@ -136,13 +136,13 @@ namespace Boo.Lang.Compiler.Steps
 				Warnings.Add(CompilerWarningFactory.EqualsInsteadOfAssign(node));
 			}
 		}
-		
-		bool IsTopLevelOfConditional(Node child)
+
+		static bool IsTopLevelOfConditional(Node child)
 		{
-			Node parent = child.ParentNode;
+			var parent = child.ParentNode;
 			return (parent.NodeType == NodeType.IfStatement
 				|| parent.NodeType == NodeType.UnlessStatement
-				|| parent.NodeType == NodeType.ConditionalExpression
+				|| (parent.NodeType == NodeType.ConditionalExpression && ((ConditionalExpression) parent).Condition == child)
 				|| parent.NodeType == NodeType.StatementModifier
 				|| parent.NodeType == NodeType.ReturnStatement
 				|| parent.NodeType == NodeType.YieldStatement);

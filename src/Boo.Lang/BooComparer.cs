@@ -46,64 +46,48 @@ namespace Boo.Lang
 
 		public int Compare(object lhs, object rhs)
 		{
-			if (null == lhs)
-			{
-				if (null == rhs)
-				{
-					return 0;
-				}
+			if (lhs == null)
+				return rhs == null ? 0 : -1;
 
-				return -1;
-			}
-			else
-			{
-				if (null == rhs)
-				{
-					return 1;
-				}
+			if (rhs == null)
+				return 1;
 
-				IComparable lhsComparable = lhs as IComparable;
-				if (null == lhsComparable)
+			var lhsComparable = lhs as IComparable;
+			if (lhsComparable == null)
+			{
+				var rhsComparable = rhs as IComparable;
+				if (rhsComparable == null)
 				{
-					IComparable rhsComparable = rhs as IComparable;
-					if (null == rhsComparable)
-					{
-						IEnumerable lhsEnumerable = lhs as IEnumerable;
-						IEnumerable rhsEnumerable = rhs as IEnumerable;
-						if (null != lhsEnumerable && null != rhsEnumerable)
-							return CompareEnumerables(lhsEnumerable, rhsEnumerable);
-						return lhs.Equals(rhs) ? 0 : 1;
-					}
-					return -1*(rhsComparable.CompareTo(lhs));
+					var lhsEnumerable = lhs as IEnumerable;
+					var rhsEnumerable = rhs as IEnumerable;
+					if (lhsEnumerable != null && rhsEnumerable != null)
+						return CompareEnumerables(lhsEnumerable, rhsEnumerable);
+					return lhs.Equals(rhs) ? 0 : 1;
 				}
-				return lhsComparable.CompareTo(rhs);
+				return -1*(rhsComparable.CompareTo(lhs));
 			}
+			return lhsComparable.CompareTo(rhs);
 		}
 
 		int CompareEnumerables(IEnumerable lhs, IEnumerable rhs)
 		{
-			IEnumerator lhsEnum = lhs.GetEnumerator();
-			IEnumerator rhsEnum = rhs.GetEnumerator();
+			var lhsEnum = lhs.GetEnumerator();
+			var rhsEnum = rhs.GetEnumerator();
 
 			while (lhsEnum.MoveNext())
 			{
 				if (!rhsEnum.MoveNext())
-				{
 					return 1;
-				}
 
-				int value = Compare(lhsEnum.Current, rhsEnum.Current);
-				if (0 == value)
-				{
+				var value = Compare(lhsEnum.Current, rhsEnum.Current);
+				if (value == 0)
 					continue;
-				}
+
 				return value;
 			}
 
 			if (rhsEnum.MoveNext())
-			{
 				return -1;
-			}
 
 			return 0;
 		}

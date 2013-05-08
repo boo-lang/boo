@@ -40,8 +40,7 @@ namespace BooCompiler.Tests.TypeSystem
 		protected static void AssertDisplayNameGoesThroughEntityFormatter(IType entity)
 		{
 			var mock = new Mock<EntityFormatter>();
-			new ClosedEnvironment(mock.Object).Run(() =>
-         	{
+			ActiveEnvironment.With(new ClosedEnvironment(mock.Object), () => {
          		mock.Setup(formatter => formatter.FormatType(entity))
          			.Returns("")
          			.AtMostOnce();

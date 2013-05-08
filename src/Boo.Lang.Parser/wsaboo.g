@@ -2801,14 +2801,22 @@ string_literal returns [Expression e]
 	dqs:DOUBLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(SourceLocationFactory.ToLexicalInfo(dqs), dqs.getText());
+		e.Annotate("quote", "\"");
 	} |
 	sqs:SINGLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(SourceLocationFactory.ToLexicalInfo(sqs), sqs.getText());
+		e.Annotate("quote", "'");
 	} |
 	tqs:TRIPLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(SourceLocationFactory.ToLexicalInfo(tqs), tqs.getText());
+		e.Annotate("quote", "\"\"\"");
+	} |
+	bqs:BACKTICK_QUOTED_STRING
+	{
+		e = new StringLiteralExpression(ToLexicalInfo(bqs), bqs.getText());
+		e.Annotate("quote", "`");
 	}
 	;
 	
@@ -3331,6 +3339,15 @@ SINGLE_QUOTED_STRING :
 		~('\'' | '\\' | '\r' | '\n')
 	)*
 	'\''!
+	;
+
+BACKTICK_QUOTED_STRING:
+	'`'!
+	(
+		~('`' | '\r' | '\n') |
+		NEWLINE
+	)*
+	'`'!
 	;
 
 SL_COMMENT:

@@ -41,10 +41,12 @@ namespace Boo.Lang.Runtime
 		{
 		}
 
+#if !NO_SERIALIZATION_INFO
 		protected RuntimeException(
 			SerializationInfo si, StreamingContext sc) : base(si, sc)
 		{
 		}
+#endif
 	}
 }
 

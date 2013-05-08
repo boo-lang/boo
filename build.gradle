@@ -1,0 +1,155 @@
+
+buildscript {
+	repositories {
+		ivy { url '../repository' }
+		ivy { url 'http://unity-technologies.github.com/kaizen/repositories/unstable' }
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'kaizen:kaizen:0.2.0'
+	}
+}
+
+allprojects {
+	version = '0.9.5.6'
+
+	repositories {
+		ivy { url 'http://unity-technologies.github.com/kaizen/repositories/unstable' }
+	}
+}
+
+apply plugin: 'kaizen-bundle'
+apply plugin: 'idea'
+
+project(':booc').afterEvaluate { boocProject ->
+
+	// compile boo projects with the freshly built booc.exe
+	def compileTask = boocProject.tasks.compileDefault
+	rootProject.unity.mono.booc.executable = compileTask.assemblyFile
+
+	def booProjects = [
+		':Boo.Lang.Extensions',
+		':Boo.Lang.PatternMatching',
+		':Boo.Lang.Interpreter',
+		':Boo.Lang.CodeDom',
+	]
+	booProjects.each {
+		rootProject.project(it).tasks.compileDefault.dependsOn compileTask
+	}
+}
+
+project(':Boo.Lang.Extensions') {
+	compileDefault {
+		customArgs = ['-nostdlib', '-r:System.Core.dll']
+	}
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Compiler')
+	}
+}
+
+project(':Boo.Lang') {
+	configurations {
+		windowsPhone8
+		iOS
+	}
+	compileWindowsPhone8.defines = ['NO_SERIALIZATION_INFO', 'NO_SYSTEM_PROCESS']
+	compileIOS.defines = ['NO_SYSTEM_REFLECTION_EMIT', 'NO_SYSTEM_PROCESS', 'NO_REGEX']
+}
+
+project(':Boo.Lang.Compiler') {
+	dependencies {
+		'default' project(':Boo.Lang')
+	}
+}
+
+project(':Boo.Lang.Parser') {
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Compiler')
+	}
+}
+
+project(':Boo.Lang.Useful') {
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Parser')
+	}
+}
+
+project(':Boo.Lang.PatternMatching') {
+	dependencies {
+		'default' project(':Boo.Lang')
+	}
+}
+
+project(':Boo.Lang.CodeDom') {
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Compiler')
+	}
+}
+
+project(':Boo.Lang.Interpreter') {
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Compiler')
+		'default' project(':Boo.Lang.Parser')
+		'default' project(':Boo.Lang.PatternMatching')
+	}
+}
+
+project(':booish') {
+	assembly {
+		target = 'exe'
+	}
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Interpreter')
+	}
+}
+
+project(':booi') {
+	assembly {
+		target = 'exe'
+	}
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Useful')
+		'default' project(':Boo.Lang.Compiler')
+		'default' project(':Boo.Lang.Parser')
+	}
+}
+
+project(':booc') {
+	assembly {
+		target = 'exe'
+	}
+	dependencies {
+		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Compiler')
+		'default' project(':Boo.Lang.Parser')
+	}
+}
+
+subprojects {
+	assembly {
+		keyFile = rootProject.file('src/boo.snk')
+	}
+}
+
+dependencies {
+	subprojects.each {
+		'default' project(it.path)
+	}
+}
+
+task bundle(type: Zip) {
+	from projectDir
+	include 'README.md'
+	include 'license.txt'
+}
+
+artifacts {
+	'default' bundle
+}
