@@ -234,7 +234,7 @@ import_directive[Module container]
 }: 
 	(
 		node=import_directive_ |
-		node=import_directive_from
+		node=import_directive_from_
 	)
 	{
 		if (node != null) container.Imports.Add(node);
@@ -301,7 +301,7 @@ import_directive_ returns [Import returnValue]
 ;
 
 protected
-import_directive_from returns [Import returnValue]
+import_directive_from_ returns [Import returnValue]
 {
 	Expression ns = null;
 	ExpressionCollection names = null;

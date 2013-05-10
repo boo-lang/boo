@@ -59,18 +59,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			return _members;
 		}
 
-        public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
-        {   
-        	if (null != _aliases && _aliases.Count > 0) {
-        		if (!_aliases.ContainsKey(name)) {
-        			return false;
-        		}
+		public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
+		{   
+			if (null != _aliases && _aliases.Count > 0) {
+				if (!_aliases.ContainsKey(name)) {
+					return false;
+				}
 
-        		name = _aliases[name];
-        	}
+				name = _aliases[name];
+			}
 
-        	return base.Resolve(resultingSet, name, typesToConsider);
-            //return My<NameResolutionService>.Instance.Resolve(name, GetMembers(), typesToConsider, resultingSet);
-        }
+			return base.Resolve(resultingSet, name, typesToConsider);
+		}
 	}
 }
