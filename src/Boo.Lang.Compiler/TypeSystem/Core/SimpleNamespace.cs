@@ -27,6 +27,8 @@
 #endregion
 
 using System.Collections.Generic;
+using Boo.Lang.Environments;
+using Boo.Lang.Compiler.TypeSystem.Services;
 
 namespace Boo.Lang.Compiler.TypeSystem.Core
 {
@@ -34,11 +36,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 	{		
 		protected INamespace _parent;
 		protected IEnumerable<IEntity> _members;
+		protected IDictionary<string,string> _aliases;
 		
 		public SimpleNamespace(INamespace parent, IEnumerable<IEntity> members)
 		{
 			_parent = parent;
 			_members = members;			
+		}
+
+		public SimpleNamespace(INamespace parent, IEnumerable<IEntity> members, IDictionary<string,string> aliases) : this(parent, members)
+		{
+			_aliases = aliases;
 		}
 		
 		public override INamespace ParentNamespace
@@ -49,6 +57,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		public override IEnumerable<IEntity> GetMembers()
 		{
 			return _members;
+		}
+
+		public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
+		{   
+			if (null != _aliases && _aliases.Count > 0) {
+				if (!_aliases.ContainsKey(name)) {
+					return false;
+				}
+
+				name = _aliases[name];
+			}
+
+			return base.Resolve(resultingSet, name, typesToConsider);
 		}
 	}
 }
