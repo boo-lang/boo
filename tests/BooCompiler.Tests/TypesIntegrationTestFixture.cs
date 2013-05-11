@@ -1111,6 +1111,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void reserved_keywords_1()
+		{
+			RunCompilerTestCase(@"reserved-keywords-1.boo");
+		}
+		
+		[Test]
 		public void static_1()
 		{
 			RunCompilerTestCase(@"static-1.boo");
