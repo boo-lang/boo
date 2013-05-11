@@ -208,7 +208,10 @@ import_directive[Module container]
 {
 	Import node = null;
 }: 
-	node=import_directive_ eos
+	(
+		node=import_directive_ eos |
+		node=import_directive_from_ eos
+	)
 	{
 		if (node != null) container.Imports.Add(node);
 	}
@@ -270,6 +273,25 @@ import_directive_ returns [Import returnValue]
 			returnValue.Alias.Name = alias.getText();
 		}
 	)?
+;
+
+protected
+import_directive_from_ returns [Import returnValue]
+{
+	Expression ns = null;
+	ExpressionCollection names = null;
+	returnValue = null;
+}:
+	from:FROM ns=identifier_expression IMPORT
+	{ 
+		var mie = new MethodInvocationExpression(ns);
+		names = mie.Arguments;
+		returnValue = new Import(ToLexicalInfo(from), mie);
+	}
+	(
+		MULTIPLY { returnValue.Expression = ns; } |
+		expression_list[names]
+	)
 ;
 
 protected

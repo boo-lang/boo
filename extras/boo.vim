@@ -47,6 +47,7 @@ syn keyword booModifier         abstract final internal override ref new
 syn keyword booModifier         partial static transient virtual event
 
 syn region  booImportRegion     start="^import" end="$" contains=booImport
+syn region  booImportRegion     start="^from" end="$" contains=booImport
 syn keyword booImport           import as from contained
 
 syn keyword booRepeat           for while then

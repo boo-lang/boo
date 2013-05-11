@@ -139,15 +139,28 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var importedNames = selectiveImportSpec.Arguments;
 			var entities = new List<IEntity>(importedNames.Count);
-			foreach (ReferenceExpression nameExpression in importedNames)
-			{	
-				var name = nameExpression.Name;
+			var aliases = new Dictionary<string,string>(importedNames.Count);
+			foreach (Expression nameExpression in importedNames)
+			{
+				string name;
+				if (nameExpression is ReferenceExpression) {
+					name = (nameExpression as ReferenceExpression).Name;
+					aliases[name] = name;
+				} else {
+					var tce = nameExpression as TryCastExpression;
+					var alias = (tce.Type as SimpleTypeReference).Name;
+					name = (tce.Target as ReferenceExpression).Name;
+					aliases[alias] = name;
+					// Remove the trycast expression, otherwise it gets processed in later steps
+					importedNames.Replace(nameExpression, tce.Target);
+				}
+
 				if (!ns.Resolve(entities, name, EntityType.Any))
 					Errors.Add(
 						CompilerErrorFactory.MemberNotFound(
 							nameExpression, name, ns, NameResolutionService.GetMostSimilarMemberName(ns, name, EntityType.Any)));
 			}
-			return new SimpleNamespace(null, entities);
+			return new SimpleNamespace(null, entities, aliases);
 		}
 
 		private static INamespace AliasedNamespaceFor(IEntity entity, Import import)
