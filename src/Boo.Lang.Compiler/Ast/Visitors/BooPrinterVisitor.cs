@@ -139,30 +139,36 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			return true;
 		}
 
-		override public void OnImport (Import p)
+		override public void OnImport(Import p)
 		{
-			WriteKeyword ("import");
-			Write (" {0}", p.Namespace);
-			if (null != p.AssemblyReference) {
-				WriteKeyword (" from ");
+			WriteKeyword("import");
+			Write(" {0}", p.Namespace);
+			
+			if (null != p.AssemblyReference)
+			{
+				WriteKeyword(" from ");
 
 				var assemblyRef = p.AssemblyReference.Name;
-				if (CanBeRepresentedAsQualifiedName (assemblyRef))
-					Write (assemblyRef);
+				if (CanBeRepresentedAsQualifiedName(assemblyRef))
+					Write(assemblyRef);
 				else
-					WriteStringLiteral (assemblyRef);
+					WriteStringLiteral(assemblyRef);
 			}
-			if (p.Expression.NodeType == NodeType.MethodInvocationExpression) {
+			
+			if (p.Expression.NodeType == NodeType.MethodInvocationExpression)
+			{
 				MethodInvocationExpression mie = (MethodInvocationExpression)p.Expression;
-				Write ("(");
-				WriteCommaSeparatedList (mie.Arguments);
-				Write (")");
+				Write("(");
+				WriteCommaSeparatedList(mie.Arguments);
+				Write(")");
 			}
-			if (null != p.Alias) {
-				WriteKeyword (" as ");
-				Write (p.Alias.Name);
+			
+			if (null != p.Alias)
+			{
+				WriteKeyword(" as ");
+				Write(p.Alias.Name);
 			}
-			WriteLine ();
+			WriteLine();
 		}
 		
 		public bool IsWhiteSpaceAgnostic
