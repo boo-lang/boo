@@ -32,6 +32,7 @@ options
 
 {
 using Boo.Lang.Compiler.Ast;
+using AstAttribute=Boo.Lang.Compiler.Ast.Attribute;
 using Boo.Lang.Parser.Util;
 using System.Globalization;
 }
@@ -48,6 +49,8 @@ tokens
 	ELIST; // expression list
 	DLIST; // declaration list
 	ESEPARATOR; // expression separator (imaginary token)
+	ASSEMBLY_ATTRIBUTE_BEGIN;
+  MODULE_ATTRIBUTE_BEGIN;
 	ABSTRACT="abstract";
 	AND="and";
 	AS="as";
@@ -182,7 +185,7 @@ parse_module[Module module]
 		| type_member[module.Members]
 	)*	
 	globals[module]
-	(assembly_attribute[module] eos)*
+	((assembly_attribute[module] | module_attribute[module]) eos)*
 ;
 
 protected
@@ -397,61 +400,67 @@ enum_member [TypeMemberCollection container]
 	eos
 	docstring[em]
 	;
-			
+
 protected
 attributes
-	{
-		_attributes.Clear();
-	}:
+{
+  AstAttribute attr = null;
+}
+:
+	{ _attributes.Clear(); }
 	(
-		LBRACK
+		LBRACK 
 		(
-			attribute
+			attr=attribute { if (attr != null) _attributes.Add(attr); }
 			(
 				COMMA
-				attribute
+			  attr=attribute { if (attr != null) _attributes.Add(attr); }
 			)*
 		)?
 		RBRACK		
 		(eos)?
 	)*
-	;
+;
 			
 protected
-attribute
+attribute returns [AstAttribute attr]
 	{		
 		antlr.IToken id = null;
-		Boo.Lang.Compiler.Ast.Attribute attr = null;
+    attr = null;
 	}:	
-	id=identifier
+	(id=identifier | t:TRANSIENT { id=t; })
 	{
-		attr = new Boo.Lang.Compiler.Ast.Attribute(SourceLocationFactory.ToLexicalInfo(id), id.getText());
-		_attributes.Add(attr);
+		attr = new AstAttribute(ToLexicalInfo(id), id.getText());
 	} 
 	(
 		LPAREN
 		argument_list[attr]
 		RPAREN
 	)?
-	;
+;
+
+protected
+module_attribute[Module module]
+	{
+		AstAttribute attr = null;
+	}:
+	MODULE_ATTRIBUTE_BEGIN
+  attr=attribute
+	RBRACK
+	{ module.Attributes.Add(attr); }
+;
 	
 protected
 assembly_attribute[Module module]
 	{
-		antlr.IToken id = null;
-		Boo.Lang.Compiler.Ast.Attribute attr = null;
+		AstAttribute attr = null;
 	}:
 	ASSEMBLY_ATTRIBUTE_BEGIN
-	id=identifier { attr = new Boo.Lang.Compiler.Ast.Attribute(SourceLocationFactory.ToLexicalInfo(id), id.getText()); }
-	(
-		LPAREN
-		argument_list[attr]
-		RPAREN
-	)?
+  attr=attribute
 	RBRACK
 	{ module.AssemblyAttributes.Add(attr); }
-	;
-			
+;
+		
 protected
 class_definition [TypeMemberCollection container]
 	{
@@ -3209,14 +3218,15 @@ LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	
 RPAREN : ')' { LeaveSkipWhitespaceRegion(); };
 
-protected
-ASSEMBLY_ATTRIBUTE_BEGIN: "assembly:";
-
 LBRACK : '[' { EnterSkipWhitespaceRegion(); }
 	(
-		("assembly:")=> "assembly:" { $setType(ASSEMBLY_ATTRIBUTE_BEGIN); } |
+		("module:" | "assembly:")=>
+    (
+      "module:" { $setType(MODULE_ATTRIBUTE_BEGIN); } |
+		  "assembly:" { $setType(ASSEMBLY_ATTRIBUTE_BEGIN); }
+    ) |
 	)
-	;
+;
 
 RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 
