@@ -324,6 +324,18 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"yield-9.boo");
 		}
 		
+		[Test]
+		public void yield_null_as_IEnumerator()
+		{
+			RunCompilerTestCase(@"yield-null-as-IEnumerator.boo");
+		}
+		
+		[Test]
+		public void yield_null()
+		{
+			RunCompilerTestCase(@"yield-null.boo");
+		}
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{

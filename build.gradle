@@ -6,13 +6,17 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'kaizen:kaizen:0.2.0'
+		classpath 'kaizen:kaizen:0.2.2'
 	}
 }
 
-allprojects {
-	version = '0.9.5.6'
+version = file('version.txt').text.trim()
 
+subprojects {
+	version = rootProject.version
+}
+
+allprojects {
 	repositories {
 		ivy { url 'http://unity-technologies.github.com/kaizen/repositories/unstable' }
 	}
@@ -24,17 +28,24 @@ apply plugin: 'idea'
 project(':booc').afterEvaluate { boocProject ->
 
 	// compile boo projects with the freshly built booc.exe
-	def compileTask = boocProject.tasks.compileDefault
-	rootProject.unity.mono.booc.executable = compileTask.assemblyFile
+	def boocCompileTask = boocProject.tasks.compileDefault
+	rootProject.unity.mono.booc.executable = boocCompileTask.assemblyFile
+
+	def booLangExtensions = project(':Boo.Lang.Extensions')
+	booLangExtensions.tasks.compileDefault.dependsOn boocCompileTask
 
 	def booProjects = [
-		':Boo.Lang.Extensions',
+		':Boo.Lang.Useful',
 		':Boo.Lang.PatternMatching',
 		':Boo.Lang.Interpreter',
 		':Boo.Lang.CodeDom',
 	]
 	booProjects.each {
-		rootProject.project(it).tasks.compileDefault.dependsOn compileTask
+		rootProject.project(it) {
+			compileDefault {
+				dependsOn booLangExtensions.tasks.compileDefault
+			}
+		}
 	}
 }
 
@@ -53,7 +64,7 @@ project(':Boo.Lang') {
 		windowsPhone8
 		iOS
 	}
-	compileWindowsPhone8.defines = ['NO_SERIALIZATION_INFO', 'NO_SYSTEM_PROCESS']
+	compileWindowsPhone8.defines = ['NO_SERIALIZATION_INFO', 'NO_SYSTEM_PROCESS', 'NO_ICLONEABLE']
 	compileIOS.defines = ['NO_SYSTEM_REFLECTION_EMIT', 'NO_SYSTEM_PROCESS', 'NO_REGEX']
 }
 
@@ -91,8 +102,12 @@ project(':Boo.Lang.CodeDom') {
 }
 
 project(':Boo.Lang.Interpreter') {
+	compileDefault {
+		customArgs = ['-nostdlib', '-r:System.Core']
+	}
 	dependencies {
 		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Extensions')
 		'default' project(':Boo.Lang.Compiler')
 		'default' project(':Boo.Lang.Parser')
 		'default' project(':Boo.Lang.PatternMatching')
@@ -113,11 +128,16 @@ project(':booi') {
 	assembly {
 		target = 'exe'
 	}
+	compileDefault {
+		customArgs = ['-nostdlib']
+	}
 	dependencies {
 		'default' project(':Boo.Lang')
+		'default' project(':Boo.Lang.Extensions')
 		'default' project(':Boo.Lang.Useful')
 		'default' project(':Boo.Lang.Compiler')
 		'default' project(':Boo.Lang.Parser')
+		'default' project(':Boo.Lang.PatternMatching')
 	}
 }
 
@@ -139,17 +159,23 @@ subprojects {
 }
 
 dependencies {
-	subprojects.each {
+	subprojects.findAll { it.projectDir.parentFile.name == 'src' }.each {
 		'default' project(it.path)
 	}
 }
 
-task bundle(type: Zip) {
-	from projectDir
-	include 'README.md'
-	include 'license.txt'
-}
-
-artifacts {
-	'default' bundle
+project(':Boo.Lang') {
+	def retargetAssemblyTask = project(':RetargetAssembly').tasks.compileDefault
+	tasks.compileWindowsPhone8 {
+		inputs.file retargetAssemblyTask.assemblyFile
+		dependsOn retargetAssemblyTask
+		doLast {
+			project.exec {
+				executable rootProject.extensions.unity.monoBleedingEdge.cli
+				args retargetAssemblyTask.assemblyFile
+				args "-keyfile:${rootProject.file('src/boo.snk')}"
+				args assemblyFile
+			}
+		}
+	}
 }

@@ -1,0 +1,13 @@
+version = '0.2.1'
+
+assembly {
+  target = 'exe'
+}
+
+dependencies {
+  'default' project(':Boo.Lang'), project(':Boo.Lang.Useful')
+}
+
+tasks.compileDefault {
+  dependsOn project(':booc').tasks.compileDefault
+}

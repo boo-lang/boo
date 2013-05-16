@@ -95,6 +95,27 @@ class StringExtensions:
 		}
 
 		[Test]
+		public void EnumFromInstance()
+		{
+			Assert.AreEqual(
+				BindingFlags.Static,
+				Get(BindingFlags.Public, "Static"));
+		}
+
+		[Test]
+		public void LiteralFromInstance()
+		{
+			Assert.AreEqual(
+				42,
+				Get(new ClassWithLiteralField(), "Literal"));
+		}
+
+		class ClassWithLiteralField
+		{
+			public const int Literal = 42;
+		}
+
+		[Test]
 		public void SetInstanceProperty()
 		{
 			AssertSetName("Name");

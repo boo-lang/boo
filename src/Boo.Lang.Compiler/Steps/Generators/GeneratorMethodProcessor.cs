@@ -92,8 +92,8 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
 			CreateEnumerableConstructor();
 			CreateEnumerator();
-			MethodInvocationExpression enumerableConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerable.ClassDefinition);
-			MethodInvocationExpression enumeratorConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
+			var enumerableConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerable.ClassDefinition);
+			var enumeratorConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
 			PropagateReferences(enumerableConstructorInvocation, enumeratorConstructorInvocation);
 			CreateGetEnumeratorBody(enumeratorConstructorInvocation);
 			FixGeneratorMethodBody(enumerableConstructorInvocation);
@@ -101,7 +101,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		
 		void FixGeneratorMethodBody(MethodInvocationExpression enumerableConstructorInvocation)
 		{
-			Block body = _generator.Method.Body;
+			var body = _generator.Method.Body;
 			body.Clear();
 
 			body.Add(

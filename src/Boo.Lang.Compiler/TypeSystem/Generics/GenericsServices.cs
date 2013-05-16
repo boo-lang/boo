@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			}
 
 			// Ambiguous generic constructions are handled separately
-			if (definition.EntityType == EntityType.Ambiguous)
+			if (definition.IsAmbiguous())
 			{
 				return ConstructAmbiguousEntity(constructionNode, (Ambiguous)definition, typeArguments);
 			}

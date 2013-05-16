@@ -286,7 +286,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				return;
 			}
 						
-			if (EntityType.Ambiguous == entity.EntityType)
+			if (entity.IsAmbiguous())
 			{
 				Error(attribute, CompilerErrorFactory.AmbiguousReference(
 				                 	attribute,

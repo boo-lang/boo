@@ -49,14 +49,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 		{
 			if (type.IsArray)
 			{
-				IArrayType arrayType = (IArrayType)type;
+				var arrayType = (IArrayType)type;
 				return new ArrayTypeReference(TypeReferenceFor(arrayType.ElementType), CreateIntegerLiteral(arrayType.Rank));
 			}
 
 			var constructedTypeInfo = type.ConstructedInfo;
 			if (constructedTypeInfo != null)
-				return new GenericTypeReference(constructedTypeInfo.GenericDefinition.QualifiedName(),
-												constructedTypeInfo.GenericArguments.Select(a => TypeReferenceFor(a)).ToArray());
+				return new GenericTypeReference(
+					constructedTypeInfo.GenericDefinition.QualifiedName(),
+					constructedTypeInfo.GenericArguments.Select(a => TypeReferenceFor(a)).ToArray());
 
 			return new SimpleTypeReference(type.QualifiedName());
 		}
