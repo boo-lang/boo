@@ -257,12 +257,25 @@ identifier_expression returns [ReferenceExpression result]
 ;
 
 protected
+namespace_reference returns [ReferenceExpression result]
+{
+	result = null;
+	string relative = "";
+}:
+	(
+		dot:DOT { relative += "."; }
+	)*
+	result=identifier_expression { result.Name = relative + result.Name; }
+;
+
+protected
 namespace_expression returns [Expression result]
 {
 	result = null;
+	IToken relative = null;
 	ExpressionCollection names = null;
 }:
-	result=identifier_expression
+	result=namespace_reference
 	(
 		LPAREN
 		{
@@ -311,7 +324,7 @@ import_directive_from_ returns [Import returnValue]
 	ExpressionCollection names = null;
 	returnValue = null;
 }:
-	from:FROM ns=identifier_expression IMPORT
+	from:FROM ns=namespace_reference IMPORT
 	{ 
 		var mie = new MethodInvocationExpression(ns);
 		names = mie.Arguments;
