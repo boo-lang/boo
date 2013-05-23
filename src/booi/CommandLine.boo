@@ -14,7 +14,7 @@ class CommandLine(AbstractCommandLine):
     _files = List[of string]()
 
     [getter(Defines)]
-    _defines = List[of string]()
+    _defines = {}
 
     IsValid:
         get: return true
@@ -41,7 +41,9 @@ class CommandLine(AbstractCommandLine):
     def AddDefine(define as string):
         if not define:
             raise CommandLineException("No value given for the define")
-        _defines.Add(define)
+
+        parts = define.Split(char('='), 2)
+        _defines[ parts[0] ] = (null if len(parts) == 1 else parts[1])
 
     [Option("Adds the comma-separated DIRS to the assembly search path", LongForm: "lib")]
     public LibPaths = ''
