@@ -175,7 +175,9 @@ def Main(argv as (string)) as int:
         return Program.DefaultSuccessCode
 
     if not cmdline.IsValid or cmdline.DoHelp:
-        cmdline.PrintOptions()
+        print "Usage: booi [options] <script|-> [-- [script options]]"
+        print "Options:" 
+        cmdline.PrintOptions(Console.Out)
         return Program.DefaultErrorCode
 
     return Program(cmdline, argv[argc:]).run()

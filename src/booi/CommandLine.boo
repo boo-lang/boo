@@ -17,7 +17,7 @@ class CommandLine(AbstractCommandLine):
     _defines = List[of string]()
 
     IsValid:
-        get: return len(_files) > 0
+        get: return true
 
     [Option("Turns on duck typing by default", LongForm: "ducky")]
     public Ducky = false
