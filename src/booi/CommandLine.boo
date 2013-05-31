@@ -16,6 +16,9 @@ class CommandLine(AbstractCommandLine):
     [getter(Defines)]
     _defines = {}
 
+    [getter(LibPaths)]
+    _libpaths = List[of string]()
+
     IsValid:
         get: return true
 
@@ -45,14 +48,20 @@ class CommandLine(AbstractCommandLine):
         parts = define.Split(char('='), 2)
         _defines[ parts[0] ] = (null if len(parts) == 1 else parts[1])
 
-    [Option("Adds the comma-separated DIRS to the assembly search path", LongForm: "lib")]
-    public LibPaths = ''
+    [Option("Adds a directory to the list of assembly search paths", ShortForm: "l", LongForm: "lib", MaxOccurs: int.MaxValue)]
+    def AddLibPath(libpath as string):
+        if not libpath:
+            raise CommandLineException('No value given for the lib path')
+        _libpaths.AddUnique(TranslatePath(libpath))
 
     [Option("References {assembly}", ShortForm: 'r', LongForm: "reference", MaxOccurs: int.MaxValue)]
     def AddReference(reference as string):
         if not reference:
             raise CommandLineException("No reference given (ie: -r:my.project.reference)")
         _references.AddUnique(TranslatePath(reference))
+
+    [Option("Runs an {executable} file passing the generated assembly", LongForm: "runner")]
+    public Runner as string
 
     [Option("Display this help and exit", ShortForm: "h", LongForm: "help")]
     public DoHelp = false
