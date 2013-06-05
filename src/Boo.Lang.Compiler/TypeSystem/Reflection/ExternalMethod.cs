@@ -153,8 +153,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public virtual IParameter[] GetParameters()
 		{
-            if (null != _parameters) return _parameters;
-            return _parameters = _provider.Map(_memberInfo.GetParameters());
+			if (null != _parameters) return _parameters;
+			return _parameters = _provider.Map(_memberInfo.GetParameters());
 		}
 
 		public virtual IType ReturnType
