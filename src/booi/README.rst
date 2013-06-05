@@ -122,7 +122,7 @@ Tips
 
 Configure an alias for ``booi`` in your shell to apply common conventions. For example::
 
-    alias booi = /path/to/booi -p:packages -p:lib -l:src
+    alias booi="/path/to/booi -p:packages -p:lib -l:src"
 
 When a single boo source file is given as argument a special define ``MAIN`` is setup in 
 the compiler. It allows to have several entry points in a project, specially useful to 

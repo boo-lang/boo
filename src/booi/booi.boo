@@ -30,8 +30,8 @@ namespace booi
 
 from System import AppDomain, Console, Environment, STAThreadAttribute
 import System.Linq.Enumerable
-from System.Diagnostics import Trace, TraceLevel, TextWriterTraceListener
-from System.IO import TextReader, Directory, Path
+from System.Diagnostics import Trace, TraceLevel, TextWriterTraceListener, Stopwatch
+from System.IO import TextReader, Directory, File, Path
 from System.Reflection import Assembly
 from Boo.Lang.Compiler import CompilerContext, CompilerOutputType
 from Boo.Lang.Compiler.IO import StringInput, FileInput
@@ -49,6 +49,7 @@ class Program:
     _cmdline as CommandLine
 
     _assemblyResolver = AssemblyResolver()
+    _params = CompilerParameters()
     
     def constructor(cmdline, args as (string)):
         _cmdline = cmdline
@@ -57,15 +58,47 @@ class Program:
         # Register a custom resolver to provide compiler assemblies at runtime
         AppDomain.CurrentDomain.AssemblyResolve += _assemblyResolver.AssemblyResolve
 
-    protected def LoadDlls(path as string, params as CompilerParameters) as int:
+    protected def LoadDlls(path as string):
         dlls = Directory.GetFiles(path, '*.dll')
         for dll in dlls:
             Trace.TraceInformation('Loading assembly {0}', dll)
-            asm = params.LoadAssembly(dll)
+            asm = _params.LoadAssembly(dll)
+            _params.References.Add(asm)
             _assemblyResolver.AddAssembly(asm.Assembly)
-        return len(dlls)
 
-    def run() as int:
+    protected def LoadPackages(path as string):
+        # Load all DLLs in the root directory
+        LoadDlls(path)
+
+        # Process NuGet style repositories by looking into package directories,
+        # only accessing their latests versions if more than one is present.
+        dirs = Directory.GetDirectories(path) \
+              .GroupBy({ x | /\.\d.*$/.Replace(x, '') }) \
+              .Select({ g | g.OrderBy({ f | f.ToLower() }).Last() }) \
+              .ToList()
+
+        # Get executing framework version to discard newer assemblies
+        maxversion = typeof(System.Type).Assembly.GetName().Version
+        for dir in dirs:
+            dir = Path.Combine(dir, 'lib')
+            continue unless Directory.Exists(dir)
+
+            # Load any generic assemblies in the lib folder
+            LoadDlls(dir)
+
+            # Assume we always target the full framework (netXX)
+            path = Directory.GetDirectories(dir, 'net*') \
+                 .OrderBy({ f | f[-2:] }) \
+                 .Where({ f |
+                    maxversion >= System.Version(
+                        join(f[-2:].ToCharArray(), '.')
+                    )
+                 }) \
+                 .LastOrDefault()
+
+            LoadDlls(path) if path
+
+    def Run() as int:
 
         # TODO: Instead of always creating a temp directory to copy
         #       all the references, it should be possible to inject code
@@ -74,125 +107,96 @@ class Program:
         #       used when compiling. This will allow to load NuGet references
         #       on demand too and should work when using nunit.
 
-        params = CompilerParameters()
-        params.OutputType = CompilerOutputType.Auto
-        params.Debug = _cmdline.Debug
-        params.Ducky = _cmdline.Ducky
-        params.Strict = _cmdline.Strict
-        params.WhiteSpaceAgnostic = _cmdline.Wsa
-        params.Cache = _cmdline.Cache
+        _params.OutputType = CompilerOutputType.Auto
+        _params.Debug = _cmdline.Debug
+        _params.Ducky = _cmdline.Ducky
+        _params.Strict = _cmdline.Strict
+        _params.WhiteSpaceAgnostic = _cmdline.Wsa
+        _params.Cache = _cmdline.Cache
 
-        if params.Debug or _cmdline.Runner:
+        if _cmdline.Verbose:
+            _params.TraceLevel = TraceLevel.Verbose
+            Trace.Listeners.Add(TextWriterTraceListener(Console.Error))
+
+        if _params.Debug or _cmdline.Runner:
             # Save to disk to ensure we get symbols loaded on runtime errors
-            params.GenerateInMemory = false
-            params.Pipeline = CompileToFile()
+            _params.GenerateInMemory = false
+            _params.Pipeline = CompileToFile()
             # Find a temporary directory name for the output
             while true:
                 path = Path.Combine(Path.GetTempPath(), 'booi-' + Path.GetRandomFileName())
                 path = path.Replace('.', '-')
                 break unless Directory.Exists(path)
-            print 'OUTPUT:', path
+
+            Trace.TraceInformation("Creating temporary directory '{0}'", path)
             Directory.CreateDirectory(path)
-            params.OutputAssembly = Path.Combine(path, 'booi-main.dll')
+            _params.OutputAssembly = Path.Combine(path, 'booi-main.dll')
         else:
-            params.GenerateInMemory = true
-            params.Pipeline = CompileToMemory()
-
-        if _cmdline.Verbose:
-            params.TraceLevel = TraceLevel.Verbose
-            Trace.Listeners.Add(TextWriterTraceListener(Console.Error))
-
-        for p in _cmdline.LibPaths:
-            try:
-                params.LibPaths.AddUnique(Path.GetFullPath(p))  
-            except ex as System.ArgumentException:
-                printerr "Path '$p' not found" 
+            _params.GenerateInMemory = true
+            _params.Pipeline = CompileToMemory()
 
         for d in _cmdline.Defines:
-            params.Defines.Add(d.Key, d.Value)
+            _params.Defines.Add(d.Key, d.Value)
+
+        for path in _cmdline.LibPaths:
+            try:
+                _params.LibPaths.AddUnique(Path.GetFullPath(path))
+            except ex as System.ArgumentException:
+                Trace.TraceError("LibPath '{0}' not found", path)
 
         sw = System.Diagnostics.Stopwatch()
         sw.Start()
+
         for reference in _cmdline.References:
             try:
-                asm = params.LoadAssembly(reference)
-                if asm is null:
+                asmref = _params.LoadAssembly(reference)
+                if asmref is null:
                     printerr string.Format(Boo.Lang.Resources.StringResources.BooC_UnableToLoadAssembly, reference)
-                else:
-                    params.References.Add(asm)
-                    _assemblyResolver.AddAssembly(asm.Assembly)
-            except e:
-                printerr e.Message
+                    return DefaultErrorCode
+
+                _params.References.Add(asmref)
+                _assemblyResolver.AddAssembly(asmref.Assembly)
+            except ex:
+                printerr "Error loading reference '{0}': {1}", reference, ex
+                return DefaultErrorCode
 
         # Load packages
         for package in _cmdline.Packages:
-            continue unless Directory.Exists(package)
-
-            # Load all DLLs in the root directory
-            LoadDlls(package, params)
-
-            # Process NuGet style repositories by looking into package directories,
-            # only accessing their latests versions if more than one is present.
-            dirs = Directory.GetDirectories(package) \
-                  .GroupBy({ x | /\.\d.*$/.Replace(x, '') }) \
-                  .Select({ g | g.OrderBy({ f | f.ToLower() }).Last() }) \
-                  .ToList()
-
-            # Get executing framework version to discard newer assemblies
-            maxversion = typeof(System.Type).Assembly.GetName().Version
-            for dir in dirs:
-                dir = Path.Combine(dir, 'lib')
-                continue unless Directory.Exists(dir)
-
-                # Load any generic assemblies in the lib folder
-                LoadDlls(dir, params)
-
-                # Assume we always target the full framework (netXX)
-                fwk = Directory.GetDirectories(dir, 'net*') \
-                     .OrderBy({ f | f[-2:] }) \
-                     .Where({ f |
-                        maxversion >= System.Version(
-                            join(f[-2:].ToCharArray(), '.')
-                        )
-                     }) \
-                     .LastOrDefault()
-
-                LoadDlls(fwk, params) if fwk
-
+            LoadPackages(package) if Directory.Exists(package)
 
         sw.Stop()
-        print 'Loading references took {0}ms' % (sw.ElapsedMilliseconds,)
+        Trace.TraceInformation("Loading references took {0}ms", sw.ElapsedMilliseconds)
 
         for file in _cmdline.Files:
             continue if file == '-'
             if Directory.Exists(file):
                 for f in Directory.GetFiles(file, '*.boo'):
-                    params.Input.Add(FileInput(f))
+                    _params.Input.Add(FileInput(f))
             else:
-                params.Input.Add(FileInput(file))
+                _params.Input.Add(FileInput(file))
 
         if not len(_cmdline.Files) or _cmdline.Files.Contains('-'):
-            params.Input.Add(StringInput('<stdin>', consume(Console.In)))
+            _params.Input.Add(StringInput('<stdin>', consume(Console.In)))
 
         # Set the MAIN define if we are compiling a single script
-        if 1 == len(params.Input) and not params.Defines.ContainsKey('MAIN'):
-            params.Defines.Add('MAIN', '')
+        if 1 == len(_params.Input) and not _params.Defines.ContainsKey('MAIN'):
+            _params.Defines.Add('MAIN', '')
 
-        sw = System.Diagnostics.Stopwatch()
-        sw.Start()
-        generated = compile(params)
+        sw.Restart()
+        generated = Compile()
         return DefaultErrorCode if generated is null
         sw.Stop()
-        print 'Compilation took {0}ms' % (sw.ElapsedMilliseconds,)
+        Trace.TraceInformation('Compilation took {0}ms', sw.ElapsedMilliseconds)
 
         if _cmdline.Runner:
             # Collect all dependencies in a temporary dir
-            sw = System.Diagnostics.Stopwatch()
-            sw.Start()
-            for reference in params.References:
+            for asmref in _params.References:
+                asm = asmref.Assembly
+                # Skip dynamically generated assemblies
+                continue if asm.IsDynamic
+
                 try:
-                    asmpath = (reference as Boo.Lang.Compiler.TypeSystem.Reflection.IAssemblyReference).Assembly.Location
-                    asmfile = Path.GetFileName(asmpath)
+                    asmfile = Path.GetFileName(asm.Location)
                     if asmfile in ('System.dll', 'System.Core.dll', 'mscorlib.dll'):
                         continue
 
@@ -201,22 +205,14 @@ class Program:
                     #       Here we ensure that when the compiler is referenced the parser
                     #       is also copied next to it.
                     if asmfile == 'Boo.Lang.Compiler.dll':
-                        System.IO.File.Copy(
-                            asmpath.Replace('Boo.Lang.Compiler.dll', 'Boo.Lang.Parser.dll'),
+                        File.Copy(
+                            asm.Location.Replace('Boo.Lang.Compiler.dll', 'Boo.Lang.Parser.dll'),
                             Path.Combine(path, 'Boo.Lang.Parser.dll')
                         )
 
-                    # print "copy '$asmpath' to '$(Path.Combine(path, asmfile))'" 
-
-                    System.IO.File.Copy(
-                        asmpath,
-                        Path.Combine(path, asmfile)
-                    )
+                    File.Copy(asm.Location, Path.Combine(path, asmfile))
                 except ex:
-                    print 'Error copying assembly', reference
-
-            sw.Stop()
-            print 'Copying assemblies took {0}ms' % (sw.ElapsedMilliseconds,)
+                    Trace.TraceError("Error copying assembly '{0}' to '{1}'", asmref.Name, path)
 
             # Replace place holders in script arguments
             asmpath = generated.Location
@@ -233,38 +229,35 @@ class Program:
                     args.Add('"' + arg + '"')
 
             # Try to execute the runner
-            print 'Command:', _cmdline.Runner, join(args, ' ')
-            sw = System.Diagnostics.Stopwatch()
-            sw.Start()            
+            Trace.TraceInformation('Running command: {0} {1}', _cmdline.Runner, join(args, ' '))
             retval = runcommand(_cmdline.Runner, join(args, ' '))
-            sw.Stop()
-            print 'Running command took {0}ms' % (sw.ElapsedMilliseconds,)
 
             # Clean up generated files
-            # Directory.Delete(Path.GetDirectoryName(asmpath), true)
+            Trace.TraceInformation("Removing temporary directory '{0}'", Path.GetDirectoryName(asmpath))
+            Directory.Delete(Path.GetDirectoryName(asmpath), true)
+
         else:
-            retval = execute(generated, _args)
+            retval = Execute(generated, _args)
 
         return retval
         
-    def compile(params as CompilerParameters):
-        context = CompilerContext(params)
-        params.Pipeline.Run(context)
+    def Compile():
+        context = CompilerContext(_params)
+        _params.Pipeline.Run(context)
 
         if _cmdline.Warnings and len(context.Warnings):
             printerr(context.Warnings.ToString())
 
         if len(context.Errors):
-            printerr(context.Errors.ToString(params.TraceVerbose))
+            printerr(context.Errors.ToString(_params.TraceVerbose))
             return null
 
         if not context.GeneratedAssembly:
-            print 'AsmFileName', context.GeneratedAssemblyFileName
             return Assembly.LoadFrom(context.GeneratedAssemblyFileName)
 
         return context.GeneratedAssembly
         
-    def execute(asm as Assembly, argv as (string)):
+    def Execute(asm as Assembly, argv as (string)):
         exitCode = DefaultSuccessCode
         try:
             _assemblyResolver.AddAssembly(asm)
@@ -281,7 +274,7 @@ class Program:
 
             exitCode = returnValue if returnValue is not null
         except x as TargetInvocationException:
-            printerr(x.InnerException)
+            printerr x.InnerException
             exitCode = DefaultErrorCode
         ensure:
             Environment.ExitCode = exitCode
@@ -305,6 +298,7 @@ def consume(reader as TextReader):
 def printerr(*args):
     for arg in args:
         Console.Error.Write(arg)
+        Console.Error.Write(' ')
     Console.Error.WriteLine()
 
 
@@ -332,9 +326,9 @@ def Main(argv as (string)) as int:
 
     if not cmdline.IsValid or cmdline.DoHelp:
         print "Usage: booi [options] <script|-> [-- [script options]]"
-        print "Options:" 
+        print "Options:"
         cmdline.PrintOptions(Console.Out)
         return Program.DefaultErrorCode
 
-    return Program(cmdline, argv[argc:]).run()
+    return Program(cmdline, argv[argc:]).Run()
 
