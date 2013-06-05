@@ -316,8 +316,8 @@ class Program:
                 assemblies.Add(asmref.Name + '.dll')
 
 
-        slnpath = Path.Combine(asmpath, asmname + '.sln')
-        using fs = StreamWriter(slnpath):
+        fpath = Path.Combine(asmpath, asmname + '.sln')
+        using fs = StreamWriter(fpath):
             fs.WriteLine()
             fs.WriteLine('Microsoft Visual Studio Solution File, Format Version 11.00')
             fs.WriteLine('# Visual Studio 2010')
@@ -342,6 +342,33 @@ class Program:
                 fs.WriteLine('\t\t$1.ctype = ProjectConfiguration')
                 fs.WriteLine('\tEndProjectSection')
                 fs.WriteLine('EndProject')
+
+            # Include an NUnit assembly test collection project
+            fs.WriteLine('Project("{9344bdbb-3e7f-41fc-a0dd-8665d75ee146}") = "nunit", "nunit.mdproj", "{4B9B3417-6A64-4D19-912A-9A7C50828CEA}"')
+            fs.WriteLine('EndProject')
+
+        # Generate an mdproj file for the NUnit assembly test collection
+        fpath = Path.Combine(asmpath, 'nunit.mdproj')
+        using fs = StreamWriter(fpath):
+            fs.WriteLine('<?xml version="1.0" encoding="utf-8"?>')
+            fs.WriteLine('<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">')
+            fs.WriteLine('<PropertyGroup>')
+            fs.WriteLine(' <Configuration Condition=" \'$(Configuration)\' == \'\' ">Default</Configuration>')
+            fs.WriteLine(' <Platform Condition=" \'$(Platform)\' == \'\' ">AnyCPU</Platform>')
+            fs.WriteLine(' <ItemType>NUnitAssemblyGroupProject</ItemType>')
+            fs.WriteLine(' <ProductVersion>10.0.0</ProductVersion>')
+            fs.WriteLine(' <SchemaVersion>2.0</SchemaVersion>')
+            fs.WriteLine(' <ProjectGuid>{{4B9B3417-6A64-4D19-912A-9A7C50828CEA}}</ProjectGuid>')
+            fs.WriteLine('</PropertyGroup>')
+            fs.WriteLine('<PropertyGroup Condition=" \'$(Configuration)|$(Platform)\' == \'Default|AnyCPU\' ">')
+            fs.WriteLine(' <Assemblies>')
+            fs.WriteLine('  <Assemblies>')
+            for asmfile in assemblies:
+                fs.WriteLine('   <Assembly Path="{0}" />', Path.GetFullPath(Path.Combine(asmpath, asmfile)))
+            fs.WriteLine('  </Assemblies>')
+            fs.WriteLine(' </Assemblies>')
+            fs.WriteLine('</PropertyGroup>')
+            fs.WriteLine('</Project>')
 
 
 def runcommand(filename, arguments):
