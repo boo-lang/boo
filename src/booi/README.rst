@@ -16,6 +16,7 @@ Usage
          -ducky[+-]           Turns on duck typing by default
      -h  -help[+-]            Display this help and exit
      -l  -lib:directory       Adds a directory to the list of assembly search paths
+     -o  -output:output       Save assembly in the given file name (with dependencies)
      -p  -packages:directory  Adds a packages directory for assemblies to load
      -r  -reference:assembly  References assembly
          -runner:executable   Runs an executable file passing the generated assembly
@@ -24,7 +25,6 @@ Usage
          -version[+-]         Display program version
      -w  -warnings[+-]        Report warnings (default: -)
          -wsa[+-]             Enables white-space-agnostic build
-
 
 If you need to run code which is separated in multiple files you can provide all of them as 
 arguments followed by ``--`` to indicate that no more ``booi`` options are expected (note: 
@@ -109,12 +109,27 @@ is provided as only argument. The following expansion patterns are available:
   - ``%assembly%`` : Full path to the assembly file
   - ``%filename%`` : Assembly's file name (without path)
   - ``%pathname%`` : Path to the assembly's directory
+  - ``%solution%`` : Path to the MonoDevelop solution file
 
 Checkout the following example of running NUnit tests. It will automatically compile all the
 source files for tests, optionally compiling your project code if needed, and finally will
 run the tests using NUnit's console runner::
 
     booi -l=src -runner=nunit-console tests/*Test.boo -- -exclude=ignore %
+
+
+Debugging
+---------
+
+When you need to debug your script you can indicate ``booi`` to generate an assembly and
+copy all the loaded dependencies next to it with the ``-output`` option. This allows to use
+.Net/Mono debuggers attaching to process for example.
+
+A very simple solution file, compatible with MonoDevelop (aka Xamarin Studio), will be also 
+generated including references to the main script and any sources automatically compiled. Opening 
+this solution with MonoDevelop will allow for setting breakpoints and run it under its debugger, 
+the solution file however does not allow to rebuild from sources, so if you make changes you 
+have to run again the ``booi`` command.
 
 
 Tips
@@ -131,5 +146,9 @@ run tests from the same source file containing them::
     ifdef MAIN:
         # Place your entry point code here 
 
+Debugging with MonoDevelop is possible even if it doesn't have the Boo language binding. 
+Source code will not be highlighted but the debugger will allow to set breakpoints, stepping
+the execution, inspecting locals and setting watches. Here is an example of how to run it
+in OSX::
 
-
+    booi -runner:/Application/Xamarin\ Studio.app test.boo -- %solution%

@@ -46,6 +46,9 @@ class CommandLine(AbstractCommandLine):
     [Option("Generate compilation cache files (.booc) (default: -)", LongForm: "cache")]
     public Cache = true
 
+    [Option("Save generated assembly in the given file name (copying dependencies next to it)", ShortForm: "o", LongForm: "output")]
+    public Output = null
+
     [Option("Defines a {symbol}s with optional values (=val)", ShortForm: "d", LongForm: "define")]
     def AddDefine(define as string):
         if not define:

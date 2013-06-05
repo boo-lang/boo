@@ -28,14 +28,15 @@
 
 namespace booi
 
-from System import AppDomain, Console, Environment, STAThreadAttribute
+from System import AppDomain, Console, Environment, Guid, STAThreadAttribute
 import System.Linq.Enumerable
 from System.Diagnostics import Trace, TraceLevel, TextWriterTraceListener, Stopwatch
-from System.IO import TextReader, Directory, File, Path
+from System.IO import TextReader, StreamWriter, Directory, File, Path
 from System.Reflection import Assembly
 from Boo.Lang.Compiler import CompilerContext, CompilerOutputType
 from Boo.Lang.Compiler.IO import StringInput, FileInput
 from Boo.Lang.Compiler.Pipelines import CompileToMemory, CompileToFile
+from Boo.Lang.Compiler.TypeSystem.Reflection import IAssemblyReference
 from Boo.Lang.Useful.CommandLine import CommandLineException
 
 
@@ -118,19 +119,28 @@ class Program:
             _params.TraceLevel = TraceLevel.Verbose
             Trace.Listeners.Add(TextWriterTraceListener(Console.Error))
 
-        if _params.Debug or _cmdline.Runner:
+        if _params.Debug or _cmdline.Runner or _cmdline.Output:
             # Save to disk to ensure we get symbols loaded on runtime errors
             _params.GenerateInMemory = false
             _params.Pipeline = CompileToFile()
-            # Find a temporary directory name for the output
-            while true:
-                path = Path.Combine(Path.GetTempPath(), 'booi-' + Path.GetRandomFileName())
-                path = path.Replace('.', '-')
-                break unless Directory.Exists(path)
 
-            Trace.TraceInformation("Creating temporary directory '{0}'", path)
-            Directory.CreateDirectory(path)
-            _params.OutputAssembly = Path.Combine(path, 'booi-main.dll')
+            if not _cmdline.Output:
+                # Find a temporary directory name for the output
+                while true:
+                    path = Path.Combine(Path.GetTempPath(), 'booi-' + Path.GetRandomFileName())
+                    path = path.Replace('.', '-')
+                    break unless Directory.Exists(path)
+                Trace.TraceInformation("Creating temporary directory '{0}'", path)
+                Directory.CreateDirectory(path)
+                _params.OutputAssembly = Path.Combine(path, 'booi-main.exe')
+            else:
+                if Directory.Exists(_cmdline.Output):
+                    path = _cmdline.Output
+                    _params.OutputAssembly = Path.Combine(path, 'booi-main.exe')
+                else:
+                    path = Path.GetDirectoryName(_cmdline.Output)
+                    _params.OutputAssembly = _cmdline.Output
+
         else:
             _params.GenerateInMemory = true
             _params.Pipeline = CompileToMemory()
@@ -188,7 +198,7 @@ class Program:
         sw.Stop()
         Trace.TraceInformation('Compilation took {0}ms', sw.ElapsedMilliseconds)
 
-        if _cmdline.Runner:
+        if _cmdline.Runner or _cmdline.Output:
             # Collect all dependencies in a temporary dir
             for asmref in _params.References:
                 asm = asmref.Assembly
@@ -214,6 +224,9 @@ class Program:
                 except ex:
                     Trace.TraceError("Error copying assembly '{0}' to '{1}'", asmref.Name, path)
 
+            DumpSolutionFile()
+
+        if _cmdline.Runner:
             # Replace place holders in script arguments
             asmpath = generated.Location
             args = List of string()
@@ -224,6 +237,7 @@ class Program:
                     arg = arg.Replace('%filename%', Path.GetFileName(asmpath))
                     arg = arg.Replace('%pathname%', Path.GetDirectoryName(asmpath))
                     arg = arg.Replace('%assembly%', asmpath)
+                    arg = arg.Replace('%solution%', asmpath[:-3] + 'sln')
                     if arg == '%':
                         arg = asmpath
                     args.Add('"' + arg + '"')
@@ -231,13 +245,13 @@ class Program:
             # Try to execute the runner
             Trace.TraceInformation('Running command: {0} {1}', _cmdline.Runner, join(args, ' '))
             retval = runcommand(_cmdline.Runner, join(args, ' '))
-
-            # Clean up generated files
-            Trace.TraceInformation("Removing temporary directory '{0}'", Path.GetDirectoryName(asmpath))
-            Directory.Delete(Path.GetDirectoryName(asmpath), true)
-
         else:
             retval = Execute(generated, _args)
+
+        # Clean up generated files
+        if not _cmdline.Output:
+            Trace.TraceInformation("Removing temporary directory '{0}'", path)
+            Directory.Delete(path, true)
 
         return retval
         
@@ -280,6 +294,54 @@ class Program:
             Environment.ExitCode = exitCode
             
         return exitCode
+
+    protected def DumpSolutionFile():
+    """ Create a MonoDevelop solution file to ease debugging. MonoDevelop allows defining
+        managed executables as projects.
+    """
+        asmpath = Path.GetDirectoryName(_params.OutputAssembly)
+        asmfile = Path.GetFileName(_params.OutputAssembly)
+        asmname = asmfile[:-4]
+
+        # Get assemblies automatically compiled from sources
+        assemblies = [asmfile]
+        for asmref as IAssemblyReference in _params.References:
+            asm = asmref.Assembly
+            if asm.IsDynamic:
+                assemblies.Add(asmref.Name + '.dll')
+                continue
+
+            attrs = asm.GetCustomAttributes(CompilationTimeAttribute, false)
+            if len(attrs):
+                assemblies.Add(asmref.Name + '.dll')
+
+
+        slnpath = Path.Combine(asmpath, asmname + '.sln')
+        using fs = StreamWriter(slnpath):
+            fs.WriteLine()
+            fs.WriteLine('Microsoft Visual Studio Solution File, Format Version 11.00')
+            fs.WriteLine('# Visual Studio 2010')
+            fs.WriteLine('Global')
+            fs.WriteLine('\tGlobalSection(MonoDevelopProperties) = preSolution')
+            fs.WriteLine('\t\tStartupItem = {0}', asmname)
+            fs.WriteLine('\tEndGlobalSection')
+            fs.WriteLine('EndGlobal')
+
+            for asmfile in assemblies:
+                # Generate a deterministic Guid based on the file name
+                using md5 = System.Security.Cryptography.MD5.Create():
+                    bytes = System.Text.Encoding.Default.GetBytes(asmfile)
+                    guid = Guid(md5.ComputeHash(bytes))
+
+                fs.WriteLine('Project("{{8BC9CEB9-8B4A-11D0-8D11-00A0C91BC942}}") = "{0}", "{1}", "{{{2}}}"', asmfile[:-4], asmfile, guid)
+                fs.WriteLine('\tProjectSection(MonoDevelopProperties) = preProject')
+                fs.WriteLine('\t\tConfigurations = $0')
+                fs.WriteLine('\t\t$0.Configuration = $1')
+                fs.WriteLine('\t\t$1.name = Debug')
+                fs.WriteLine('\t\t$1.OutputPath = ./')
+                fs.WriteLine('\t\t$1.ctype = ProjectConfiguration')
+                fs.WriteLine('\tEndProjectSection')
+                fs.WriteLine('EndProject')
 
 
 def runcommand(filename, arguments):

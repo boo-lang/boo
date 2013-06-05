@@ -97,70 +97,6 @@ class CompilerParameters(BooCompilerParameters):
 
         return asm
 
-    virtual def FromNuGet(asmname as string) as Assembly:
-    """
-        TODO: Not needed, we load all the assemblies from NuGet packages when 
-              initializing. Loading them on demand is a mess with runtime dependencies.
-
-        packages/
-            Foo.Bar.x.y.z/
-                lib/
-                    net40/
-
-    """
-        Context.TraceEnter('FromNuGet {0}', asmname)
-
-        parts = asmname.Split(char('.'))
-        for libpath in LibPaths:
-            # print 'LIBPATH', libpath
-            for i in range(len(parts), 0):
-                base = join(parts[0:i], '.')
-
-                # print 'BASE', base
-
-                dirs = []
-                for dir in Directory.GetDirectories(libpath, base + '*'):
-                    dir = Path.GetFileName(dir)
-                    if dir == base or dir[len(base):] =~ /^\.\d+\b/:
-                        dirs.Add(dir)
-
-                continue unless len(dirs)
-
-                # Get highest version by sorting and fetching the last one
-                dir = dirs.Sort()[-1]
-                dir = Path.Combine(libpath, dir, 'lib')
-
-                continue unless Directory.Exists(dir)
-
-                fwks = Directory.GetDirectories(dir, 'net*')
-                print 'FWKS', len(fwks)
-                continue unless len(fwks)
-
-                System.Array.Sort(fwks)
-                dir = fwks[-1]
-
-                print 'DIR', dir, asmname
-
-                asmfile = asmname + '.dll'
-                continue unless File.Exists(Path.Combine(dir, asmfile))
-
-                # Load all the assemblies in the directory
-                asm as Assembly = null
-                for dll in Directory.GetFiles(dir, '*.dll'):
-                    print 'DLL', dll
-                    if asmfile == Path.GetFileName(dll):
-                        asm = Assembly.LoadFrom(dll)
-                    else:
-                        Assembly.LoadFrom(dll)
-
-                print 'ASM', asm
-                Context.TraceLeave("Loading assembly '{0}'", Path.Combine(dir, asmfile))
-                return asm
-
-        Context.TraceLeave('No NuGet assembly found for {0}', asmname)
-
-        return null
-
     virtual def FromSources(asmname as string) as Assembly:
 
         Context.TraceEnter('FromSources {0}', asmname)
@@ -188,6 +124,7 @@ class CompilerParameters(BooCompilerParameters):
                             Context.TraceInfo('Dumped cached assembly to "{0}"', asmpath)
 
                         asm = cache.GetAssembly()
+                        AddAssembly(asm)
                         Context.TraceLeave('Using cached compilation for {0}', asmname)
                         return asm
                     else:
