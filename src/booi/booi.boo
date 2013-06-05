@@ -138,11 +138,11 @@ class Program:
         for d in _cmdline.Defines:
             _params.Defines.Add(d.Key, d.Value)
 
-        for path in _cmdline.LibPaths:
+        for libpath in _cmdline.LibPaths:
             try:
-                _params.LibPaths.AddUnique(Path.GetFullPath(path))
+                _params.LibPaths.AddUnique(Path.GetFullPath(libpath))
             except ex as System.ArgumentException:
-                Trace.TraceError("LibPath '{0}' not found", path)
+                Trace.TraceError("LibPath '{0}' not found", libpath)
 
         sw = System.Diagnostics.Stopwatch()
         sw.Start()
