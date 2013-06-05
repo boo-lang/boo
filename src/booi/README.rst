@@ -48,7 +48,7 @@ Dependencies
 
 Any directory given in a ``-packages`` option is scanned for assemblies (*.dll) loading them 
 automatically before any code is executed. The scanning algorithm supports the common convention 
-of having assembly files in a directory but also understands the structure of NuGets local 
+of having assembly files in a directory but also understands the structure of NuGet local 
 repositories. This allows you to manage dependencies with the NuGet command line program without 
 needing to setup a project file.
 
@@ -68,7 +68,7 @@ for the namespace *Foo.Bar.Baz* it will look for the following directories:
 
   - Foo.Bar.Baz
   - Foo.Bar/Baz
-  - Foo/Bar.Baz
+  - Foo/Bar/Baz
 
 Once a matching directory is found a new compiler is created to compile all the boo source files in 
 the directory without recursing into subdirectories. The compilation inherits the same settings given
