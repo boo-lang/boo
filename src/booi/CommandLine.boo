@@ -1,7 +1,7 @@
 namespace booi
 
 from System import Environment
-from System.IO import Path
+from System.IO import Path, Directory
 from Boo.Lang.Useful.CommandLine import *
 
 
@@ -18,6 +18,9 @@ class CommandLine(AbstractCommandLine):
 
     [getter(LibPaths)]
     _libpaths = List[of string]()
+
+    [getter(Packages)]
+    _packages = List[of string]()
 
     IsValid:
         get: return true
@@ -40,6 +43,9 @@ class CommandLine(AbstractCommandLine):
     [Option("Generate verbose information (default: -)", ShortForm: "v", LongForm: "verbose")]
     public Verbose = false
 
+    [Option("Generate compilation cache files (.booc) (default: -)", LongForm: "cache")]
+    public Cache = true
+
     [Option("Defines a {symbol}s with optional values (=val)", ShortForm: "d", LongForm: "define")]
     def AddDefine(define as string):
         if not define:
@@ -48,7 +54,7 @@ class CommandLine(AbstractCommandLine):
         parts = define.Split(char('='), 2)
         _defines[ parts[0] ] = (null if len(parts) == 1 else parts[1])
 
-    [Option("Adds a directory to the list of assembly search paths", ShortForm: "l", LongForm: "lib", MaxOccurs: int.MaxValue)]
+    [Option("Adds a {directory} to the list of assembly search paths", ShortForm: "l", LongForm: "lib", MaxOccurs: int.MaxValue)]
     def AddLibPath(libpath as string):
         if not libpath:
             raise CommandLineException('No value given for the lib path')
@@ -59,6 +65,12 @@ class CommandLine(AbstractCommandLine):
         if not reference:
             raise CommandLineException("No reference given (ie: -r:my.project.reference)")
         _references.AddUnique(TranslatePath(reference))
+
+    [Option("Adds a packages {directory} for assemblies to load", ShortForm: "p", LongForm: "packages", MaxOccurs: int.MaxValue)]
+    def AddPackages(dir as string):
+        if not dir:
+            raise CommandLineException("No directory given (ie: -p:path/to/packages)")
+        _packages.AddUnique(TranslatePath(dir))
 
     [Option("Runs an {executable} file passing the generated assembly", LongForm: "runner")]
     public Runner as string
@@ -71,7 +83,15 @@ class CommandLine(AbstractCommandLine):
 
     [Argument]
     def AddFile([required] file as string):
-        _files.Add(TranslatePath(file))
+        file = TranslatePath(file)
+
+        # this allows wildcard expanding inside .rsp files 
+        if '*' in file or '?' in file:
+            files = Directory.GetFiles(Path.GetDirectoryName(file), Path.GetFileName(file))
+        else:
+            files = (file,)
+
+        _files.AddRange(files)
 
     def constructor(argv):
         Parse(argv)
