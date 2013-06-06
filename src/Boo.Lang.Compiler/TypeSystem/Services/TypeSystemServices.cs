@@ -471,7 +471,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			var type = GetExpressionType(expression);
 			var anonymousType = type as AnonymousCallableType;
-			if (null != anonymousType)
+			if (anonymousType != null)
 			{
 				IType concreteType = GetConcreteCallableType(expression, anonymousType);
 				expression.ExpressionType = concreteType;
@@ -1108,6 +1108,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				size += fsize;
 			}
 			return size;
+		}
+
+		public IType MapWildcardType(IType type)
+		{
+			if (type.IsNull())
+				return ObjectType;
+			if (EmptyArrayType.Default == type)
+				return ObjectArrayType;
+			return type;
 		}
 	}
 }

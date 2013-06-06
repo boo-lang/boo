@@ -10,4 +10,12 @@ namespace Boo.Lang.Compiler.Ast
 			return node;
 		}
 	}
+
+	public static class MethodExtensions
+	{
+		public static bool IsPropertyAccessor(this Method method)
+		{
+			return null != method.ParentNode && method.ParentNode.NodeType == NodeType.Property;
+		}
+	}
 }

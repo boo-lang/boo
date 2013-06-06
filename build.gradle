@@ -10,9 +10,13 @@ buildscript {
 	}
 }
 
-allprojects {
-	version = '0.9.6'
+version = file('version.txt').text.trim()
 
+subprojects {
+	version = rootProject.version
+}
+
+allprojects {
 	repositories {
 		ivy { url 'http://unity-technologies.github.com/kaizen/repositories/unstable' }
 	}

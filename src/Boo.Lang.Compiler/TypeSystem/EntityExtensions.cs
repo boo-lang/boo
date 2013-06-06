@@ -27,7 +27,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static bool IsAmbiguous(this IEntity entity)
 		{
-			return entity != null && EntityType.Ambiguous == entity.EntityType;
+			return entity != null && entity.EntityType == EntityType.Ambiguous;
 		}
 
 		public static bool IsIndexedProperty(this IEntity entity)
