@@ -19,6 +19,10 @@ class CompilerParameters(BooCompilerParameters):
 
     property Cache as bool
 
+    # Keeps track namespaces already mapped to a directory to 
+    # detect mutual/cyclic dependencies
+    property MappedNamespaces = []
+
     def constructor():
         super()
 
@@ -59,6 +63,7 @@ class CompilerParameters(BooCompilerParameters):
         params.Strict = self.Strict
         params.Debug = self.Debug
         params.References = self.References
+        params.MappedNamespaces = self.MappedNamespaces
 
         # Copy configured lib paths
         for path in self.LibPaths:
@@ -91,7 +96,6 @@ class CompilerParameters(BooCompilerParameters):
 
         # Try to compile from source files
         asm = FromSources(asmname)
-
         if not asm and throwOnError:
             raise System.ApplicationException("Namespace $asmname not found")
 
@@ -109,6 +113,12 @@ class CompilerParameters(BooCompilerParameters):
             # Collect source files, at least one must be present
             files = Directory.GetFiles(path, '*.boo')
             continue if not len(files)
+
+            if asmname in MappedNamespaces:
+                Context.TraceLeave('Namespace {0} already mapped. Mutual reference?', asmname)
+                return null
+
+            MappedNamespaces.AddUnique(asmname)
 
             Context.TraceInfo("Mapping namespace {0} to '{1}'", asmname, path)
 
@@ -131,6 +141,8 @@ class CompilerParameters(BooCompilerParameters):
                         Context.TraceInfo('Cached compilation is out of date for {0}', asmname)
                 except ex:
                     Context.TraceError('Error loading compilation cache for "{0}": {1}', asmname, ex)
+
+            context = Context
 
             # Create new compiler context
             ctxt = ForkCompiler(asmname, path)
@@ -157,11 +169,12 @@ class CompilerParameters(BooCompilerParameters):
             Context.Errors.AddRange(ctxt.Errors)
 
             if len(ctxt.Errors):
+                Context.TraceLeave('Errors compiling {0} from {1}', asmname, path)
+                return null
                 # return AppDomain.CurrentDomain.DefineDynamicAssembly(
                 #     AssemblyName('ImportError'),
-                #     AssemblyBuilderAccess.Run
+                #     System.Reflection.Emit.AssemblyBuilderAccess.Run
                 # )
-                break
 
             if Cache:
                 try:
