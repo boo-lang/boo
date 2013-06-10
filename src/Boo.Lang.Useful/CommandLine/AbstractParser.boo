@@ -80,11 +80,12 @@ class AbstractParser:
 		return /^-{1,2}\w/.IsMatch(arg)
 		
 	def SplitOption(arg as string):
-		m = /^(-{1,2})(?<name>(\w|-)*\w)(?<value>((-|\+)|(:.+)))?$/.Match(arg)
+		m = /^(-{1,2})(?<name>(\w|-)*\w)(?<value>((-|\+)|([:=].+)))?$/.Match(arg)
 		raise MalformedOptionException(arg) unless m.Success
 		name = m.Groups["name"].Value
 		value as string
 		if m.Groups["value"].Success:
 			value = m.Groups["value"].Value
-			if value.StartsWith(":"): value = value[1:]
+			if value.StartsWith(":") or value.StartsWith('='): 
+				value = value[1:]
 		return name, value
