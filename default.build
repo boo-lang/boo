@@ -10,6 +10,7 @@
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 	<property name="verbose" value="false" />
+	<property name="defines" value="" unless="${property::exists('defines')}" />
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
@@ -176,7 +177,8 @@
 			target="exe"
 			output="${build.dir}/booish.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
@@ -208,12 +210,12 @@
 	</target>
 
 	<target name="booi" depends="core, Boo.Lang.Useful, Boo.Lang.Parser">
-
 		<booc
 			target="exe"
 			output="${build.dir}/booi.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
@@ -273,7 +275,8 @@
 		<booc target="library"
 		      output="${build.dir}/Boo.Lang.Interpreter.dll"
 		      verbose="${verbose}"
-		      debug="${debug}">
+		      debug="${debug}"
+		      define="${defines}">
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="**/*.boo" />
 			</sources>
@@ -394,7 +397,8 @@
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="false" 
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
@@ -437,7 +441,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<nowarn>
 				<warning number="BCW0016"/> <!-- unused namespaces in generated stuff -->
 			</nowarn>
@@ -456,7 +461,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
@@ -477,7 +483,8 @@
 			failonerror="true"
 			nostdlib="true"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
 			</sources>
