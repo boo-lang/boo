@@ -249,9 +249,12 @@ class Program:
             retval = Execute(generated, _args)
 
         # Clean up generated files
-        if not _cmdline.Output:
-            Trace.TraceInformation("Removing temporary directory '{0}'", path)
-            Directory.Delete(path, true)
+        if path and not _cmdline.Output:
+            try:
+                Directory.Delete(path, true)
+                Trace.TraceInformation("Removed temporary directory '{0}'", path)
+            except:
+                Trace.TraceError("Error removing temporary directory '{0}'", path)
 
         return retval
         
