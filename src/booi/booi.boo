@@ -45,6 +45,9 @@ class Program:
     public static final Version = 'Booi ' + BooVersion
     public static final DefaultErrorCode = 127
     public static final DefaultSuccessCode = 0
+
+    IsMono:
+        get: return null != System.Type.GetType('Mono.Runtime')
     
     _args as (string)
     _cmdline as CommandLine
@@ -119,8 +122,9 @@ class Program:
             _params.TraceLevel = TraceLevel.Verbose
             Trace.Listeners.Add(TextWriterTraceListener(Console.Error))
 
-        if _params.Debug or _cmdline.Runner or _cmdline.Output:
-            # Save to disk to ensure we get symbols loaded on runtime errors
+        # Save to disk if actually needed or when running under Mono in debug mode 
+        # to get symbols loaded on runtime errors.
+        if _cmdline.Output or _cmdline.Runner or (IsMono and _cmdline.Debug):
             _params.GenerateInMemory = false
             _params.Pipeline = CompileToFile()
 
