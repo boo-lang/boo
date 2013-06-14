@@ -119,7 +119,7 @@ class Program:
             _params.TraceLevel = TraceLevel.Verbose
             Trace.Listeners.Add(TextWriterTraceListener(Console.Error))
 
-        if _params.Debug or _cmdline.Runner or _cmdline.Output:
+        if (_params.Debug and IsMono()) or _cmdline.Runner or _cmdline.Output:
             # Save to disk to ensure we get symbols loaded on runtime errors
             _params.GenerateInMemory = false
             _params.Pipeline = CompileToFile()
@@ -249,7 +249,7 @@ class Program:
             retval = Execute(generated, _args)
 
         # Clean up generated files
-        if not _cmdline.Output:
+        if path and not _cmdline.Output:
             Trace.TraceInformation("Removing temporary directory '{0}'", path)
             Directory.Delete(path, true)
 
@@ -370,6 +370,8 @@ class Program:
             fs.WriteLine('</PropertyGroup>')
             fs.WriteLine('</Project>')
 
+def IsMono():
+    return System.Type.GetType("Mono.Runtime") is not null
 
 def runcommand(filename, arguments):
     p = System.Diagnostics.Process()
