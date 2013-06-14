@@ -251,7 +251,10 @@ class Program:
         # Clean up generated files
         if path and not _cmdline.Output:
             Trace.TraceInformation("Removing temporary directory '{0}'", path)
-            Directory.Delete(path, true)
+            try:
+                Directory.Delete(path, true)
+            except x:
+                Trace.TraceError("Failed to remove temporary directory: {0}", x)
 
         return retval
         
