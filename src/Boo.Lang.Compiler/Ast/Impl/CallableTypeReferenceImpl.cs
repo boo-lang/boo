@@ -114,13 +114,13 @@ namespace Boo.Lang.Compiler.Ast
 		override public object Clone()
 		{
 		
-		CallableTypeReference clone = new CallableTypeReference();
-		clone._lexicalInfo = _lexicalInfo;
-		clone._endSourceLocation = _endSourceLocation;
-		clone._documentation = _documentation;
-		clone._isSynthetic = _isSynthetic;
-		clone._entity = _entity;
-		if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
+			CallableTypeReference clone = new CallableTypeReference();
+			clone._lexicalInfo = _lexicalInfo;
+			clone._endSourceLocation = _endSourceLocation;
+			clone._documentation = _documentation;
+			clone._isSynthetic = _isSynthetic;
+			clone._entity = _entity;
+			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._isPointer = _isPointer;
 			if (null != _parameters)
 			{

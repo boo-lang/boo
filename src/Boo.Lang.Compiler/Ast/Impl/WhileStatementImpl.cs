@@ -126,13 +126,13 @@ namespace Boo.Lang.Compiler.Ast
 		override public object Clone()
 		{
 		
-		WhileStatement clone = new WhileStatement();
-		clone._lexicalInfo = _lexicalInfo;
-		clone._endSourceLocation = _endSourceLocation;
-		clone._documentation = _documentation;
-		clone._isSynthetic = _isSynthetic;
-		clone._entity = _entity;
-		if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
+			WhileStatement clone = new WhileStatement();
+			clone._lexicalInfo = _lexicalInfo;
+			clone._endSourceLocation = _endSourceLocation;
+			clone._documentation = _documentation;
+			clone._isSynthetic = _isSynthetic;
+			clone._entity = _entity;
+			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			if (null != _modifier)
 			{
 				clone._modifier = _modifier.Clone() as StatementModifier;

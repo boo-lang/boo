@@ -127,19 +127,17 @@ end
 		override public object Clone()
 		{
 <%
-	if model.IsAbstract(node):
+			if model.IsAbstract(node):
 %>
-		throw new System.InvalidOperationException("Cannot clone abstract class: ${node.Name}");
-<%		
-	else:
-%>		
-		${node.Name} clone = new ${node.Name}();
-		clone._lexicalInfo = _lexicalInfo;
-		clone._endSourceLocation = _endSourceLocation;
-		clone._documentation = _documentation;
-		clone._isSynthetic = _isSynthetic;
-		clone._entity = _entity;
-		if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
+			throw new System.InvalidOperationException("Cannot clone abstract class: ${node.Name}");
+<% else: %>		
+			${node.Name} clone = new ${node.Name}();
+			clone._lexicalInfo = _lexicalInfo;
+			clone._endSourceLocation = _endSourceLocation;
+			clone._documentation = _documentation;
+			clone._isSynthetic = _isSynthetic;
+			clone._entity = _entity;
+			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 <%			
 	if model.IsExpression(node):
 	

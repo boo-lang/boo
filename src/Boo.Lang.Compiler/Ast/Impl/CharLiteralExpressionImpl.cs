@@ -91,13 +91,13 @@ namespace Boo.Lang.Compiler.Ast
 		override public object Clone()
 		{
 		
-		CharLiteralExpression clone = new CharLiteralExpression();
-		clone._lexicalInfo = _lexicalInfo;
-		clone._endSourceLocation = _endSourceLocation;
-		clone._documentation = _documentation;
-		clone._isSynthetic = _isSynthetic;
-		clone._entity = _entity;
-		if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
+			CharLiteralExpression clone = new CharLiteralExpression();
+			clone._lexicalInfo = _lexicalInfo;
+			clone._endSourceLocation = _endSourceLocation;
+			clone._documentation = _documentation;
+			clone._isSynthetic = _isSynthetic;
+			clone._entity = _entity;
+			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
 			clone._value = _value;
 			return clone;

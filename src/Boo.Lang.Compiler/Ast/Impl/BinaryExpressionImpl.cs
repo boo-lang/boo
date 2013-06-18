@@ -109,13 +109,13 @@ namespace Boo.Lang.Compiler.Ast
 		override public object Clone()
 		{
 		
-		BinaryExpression clone = new BinaryExpression();
-		clone._lexicalInfo = _lexicalInfo;
-		clone._endSourceLocation = _endSourceLocation;
-		clone._documentation = _documentation;
-		clone._isSynthetic = _isSynthetic;
-		clone._entity = _entity;
-		if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
+			BinaryExpression clone = new BinaryExpression();
+			clone._lexicalInfo = _lexicalInfo;
+			clone._endSourceLocation = _endSourceLocation;
+			clone._documentation = _documentation;
+			clone._isSynthetic = _isSynthetic;
+			clone._entity = _entity;
+			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
 			clone._operator = _operator;
 			if (null != _left)

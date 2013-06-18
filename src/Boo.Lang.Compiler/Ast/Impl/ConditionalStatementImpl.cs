@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler.Ast
 		override public object Clone()
 		{
 
-		throw new System.InvalidOperationException("Cannot clone abstract class: ConditionalStatement");
+			throw new System.InvalidOperationException("Cannot clone abstract class: ConditionalStatement");
 
 		}
 

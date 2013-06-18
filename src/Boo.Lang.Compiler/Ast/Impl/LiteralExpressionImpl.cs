@@ -78,7 +78,7 @@ namespace Boo.Lang.Compiler.Ast
 		override public object Clone()
 		{
 
-		throw new System.InvalidOperationException("Cannot clone abstract class: LiteralExpression");
+			throw new System.InvalidOperationException("Cannot clone abstract class: LiteralExpression");
 
 		}
 
