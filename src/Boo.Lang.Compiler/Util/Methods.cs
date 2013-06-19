@@ -121,8 +121,17 @@ namespace Boo.Lang.Compiler.Util
 		private static MethodInfo MethodInfoFromLambdaExpressionBody(Expression expression)
 		{
 			// Convert(CreateDelegate(DelegateType, instance, member))
-			var methodRef = ((MethodCallExpression) ((UnaryExpression) expression).Operand).Arguments[2];
-			return (MethodInfo) ((ConstantExpression) methodRef).Value;
+			var operand = ((MethodCallExpression) ((UnaryExpression) expression).Operand);
+			ConstantExpression methodRef;
+
+			if (operand.Object != null)
+				//.NET 4.5
+				methodRef = (ConstantExpression) operand.Object;
+			else
+				//Before .NET 4.5
+				methodRef = (ConstantExpression) operand.Arguments[2];
+
+			return (MethodInfo) (methodRef).Value;
 		}
 
 		public static ConstructorInfo ConstructorOf<T>(Expression<Func<T>> func)
