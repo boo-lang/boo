@@ -113,14 +113,14 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public object Clone()
 		{
-			CallableTypeReference clone = (CallableTypeReference)FormatterServices.GetUninitializedObject(typeof(CallableTypeReference));
+		
+			CallableTypeReference clone = new CallableTypeReference();
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
 			clone._isSynthetic = _isSynthetic;
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
-		
 			clone._isPointer = _isPointer;
 			if (null != _parameters)
 			{
@@ -133,6 +133,8 @@ namespace Boo.Lang.Compiler.Ast
 				clone._returnType.InitializeParent(clone);
 			}
 			return clone;
+
+
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]

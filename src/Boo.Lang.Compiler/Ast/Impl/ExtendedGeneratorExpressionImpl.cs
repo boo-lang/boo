@@ -104,14 +104,14 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public object Clone()
 		{
-			ExtendedGeneratorExpression clone = (ExtendedGeneratorExpression)FormatterServices.GetUninitializedObject(typeof(ExtendedGeneratorExpression));
+		
+			ExtendedGeneratorExpression clone = new ExtendedGeneratorExpression();
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
 			clone._isSynthetic = _isSynthetic;
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
-		
 			clone._expressionType = _expressionType;
 			if (null != _items)
 			{
@@ -119,6 +119,8 @@ namespace Boo.Lang.Compiler.Ast
 				clone._items.InitializeParent(clone);
 			}
 			return clone;
+
+
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]

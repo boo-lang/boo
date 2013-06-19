@@ -95,20 +95,22 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public object Clone()
 		{
-			ContinueStatement clone = (ContinueStatement)FormatterServices.GetUninitializedObject(typeof(ContinueStatement));
+		
+			ContinueStatement clone = new ContinueStatement();
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
 			clone._isSynthetic = _isSynthetic;
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
-		
 			if (null != _modifier)
 			{
 				clone._modifier = _modifier.Clone() as StatementModifier;
 				clone._modifier.InitializeParent(clone);
 			}
 			return clone;
+
+
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
