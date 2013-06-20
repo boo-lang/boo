@@ -116,14 +116,14 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public object Clone()
 		{
-			ExceptionHandler clone = (ExceptionHandler)FormatterServices.GetUninitializedObject(typeof(ExceptionHandler));
+		
+			ExceptionHandler clone = new ExceptionHandler();
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
 			clone._isSynthetic = _isSynthetic;
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
-		
 			if (null != _declaration)
 			{
 				clone._declaration = _declaration.Clone() as Declaration;
@@ -141,6 +141,8 @@ namespace Boo.Lang.Compiler.Ast
 				clone._block.InitializeParent(clone);
 			}
 			return clone;
+
+
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
