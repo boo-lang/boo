@@ -381,6 +381,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void var_1()
+		{
+			RunCompilerTestCase(@"var-1.boo");
+		}
+		
+		[Test]
 		public void yieldAll_1()
 		{
 			RunCompilerTestCase(@"yieldAll-1.boo");
