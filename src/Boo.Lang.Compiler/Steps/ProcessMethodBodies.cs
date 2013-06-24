@@ -1844,6 +1844,9 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.CanBeReachedByPromotion(toType, fromType))
 				return;
 
+			if (TypeSystemServices.IsFloatingPointNumber(toType) && fromType.IsEnum)
+				return;
+
 			var conversion = TypeSystemServices.FindExplicitConversionOperator(fromType, toType) ?? TypeSystemServices.FindImplicitConversionOperator(fromType, toType);
 			if (null != conversion)
 			{

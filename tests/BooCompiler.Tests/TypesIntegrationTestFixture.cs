@@ -145,6 +145,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void enum_cast_to_single()
+		{
+			RunCompilerTestCase(@"enum-cast-to-single.boo");
+		}
+		
+		[Test]
 		public void enums_1()
 		{
 			RunCompilerTestCase(@"enums-1.boo");
