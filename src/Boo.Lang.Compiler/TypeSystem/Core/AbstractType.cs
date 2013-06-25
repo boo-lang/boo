@@ -27,9 +27,6 @@
 #endregion
 
 using System.Collections.Generic;
-using Boo.Lang.Compiler.TypeSystem.Services;
-using Boo.Lang.Compiler.Util;
-using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Core
 {

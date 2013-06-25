@@ -464,10 +464,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public ReferenceExpression CreateReference(IType type)
 		{
-			ReferenceExpression reference = new ReferenceExpression(type.FullName);
-			reference.Entity = type;
-			reference.IsSynthetic = true;
-			return reference;
+			return new ReferenceExpression(type.FullName) {Entity = type, IsSynthetic = true};
 		}
 
 		public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li)

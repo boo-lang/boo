@@ -1844,6 +1844,9 @@ namespace Boo.Lang.Compiler.Steps
 			if (TypeSystemServices.CanBeReachedByPromotion(toType, fromType))
 				return;
 
+			if (TypeSystemServices.IsFloatingPointNumber(toType) && fromType.IsEnum)
+				return;
+
 			var conversion = TypeSystemServices.FindExplicitConversionOperator(fromType, toType) ?? TypeSystemServices.FindImplicitConversionOperator(fromType, toType);
 			if (null != conversion)
 			{
@@ -4227,10 +4230,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessTypeInvocation(MethodInvocationExpression node)
 		{
-			IType type = (IType)node.Target.Entity;
+			var type = (IType)node.Target.Entity;
 
-			ICallableType callableType = type as ICallableType;
-			if (null != callableType)
+			var callableType = type as ICallableType;
+			if (callableType != null)
 			{
 				ProcessCallableTypeInvocation(node, callableType);
 				return;
@@ -4249,20 +4252,16 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IConstructor ctor = GetCorrectConstructor(node, type, node.Arguments);
-			if (null != ctor)
+			var ctor = GetCorrectConstructor(node, type, node.Arguments);
+			if (ctor != null)
 			{
 				BindConstructorInvocation(node, ctor);
-
 				if (node.NamedArguments.Count > 0)
-				{
 					ReplaceTypeInvocationByEval(type, node);
-				}
+				return;
 			}
-			else
-			{
-				Error(node);
-			}
+
+			Error(node);
 		}
 
 		void BindConstructorInvocation(MethodInvocationExpression node, IConstructor ctor)
@@ -5359,7 +5358,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IConstructor GetCorrectConstructor(Node sourceNode, IType type, ExpressionCollection arguments)
 		{
-			IConstructor[] constructors = type.GetConstructors().ToArray();
+			var constructors = type.GetConstructors().ToArray();
 			if (constructors.Length > 0)
 				return (IConstructor)GetCorrectCallableReference(sourceNode, arguments, constructors);
 
@@ -5376,18 +5375,21 @@ namespace Boo.Lang.Compiler.Steps
 		IEntity GetCorrectCallableReference(Node sourceNode, ExpressionCollection args, IEntity[] candidates)
 		{
 			// BOO-844: Ensure all candidates were visited (to make property setters have correct signature)
-			foreach (IEntity candidate in candidates)
-			{
-				EnsureRelatedNodeWasVisited(sourceNode, candidate);
-			}
+			EnsureRelatedNodesWereVisited(sourceNode, candidates);
 
-			IEntity found = CallableResolutionService.ResolveCallableReference(args, candidates);
-			if (null == found)
+			var found = CallableResolutionService.ResolveCallableReference(args, candidates);
+			if (found == null)
 				EmitCallableResolutionError(sourceNode, candidates, args);
 			else
 				BindNullableParameters(args, ((IMethodBase) found).CallableType);
 
 			return found;
+		}
+
+		private void EnsureRelatedNodesWereVisited(Node sourceNode, IEntity[] candidates)
+		{
+			foreach (var candidate in candidates)
+				EnsureRelatedNodeWasVisited(sourceNode, candidate);
 		}
 
 		private void EmitCallableResolutionError(Node sourceNode, IEntity[] candidates, ExpressionCollection args)

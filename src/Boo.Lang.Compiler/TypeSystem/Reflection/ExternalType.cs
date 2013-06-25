@@ -197,20 +197,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public virtual bool IsSubclassOf(IType other)
 		{
-			ExternalType external = other as ExternalType;
-			if (null == external /*|| _typeSystemServices.VoidType == other*/)
-			{
+			var external = other as ExternalType;
+			if (external == null)
 				return false;
-			}
 
-			return _type.IsSubclassOf(external._type) ||
-			       (external.IsInterface && external._type.IsAssignableFrom(_type))
-				;
+			return _type.IsSubclassOf(external._type)
+				|| (external.IsInterface && external._type.IsAssignableFrom(_type));
 		}
 
 		public virtual bool IsAssignableFrom(IType other)
 		{
-			ExternalType external = other as ExternalType;
+			var external = other as ExternalType;
 			if (null == external)
 			{
 				if (EntityType.Null == other.EntityType)

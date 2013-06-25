@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
@@ -35,12 +36,18 @@ namespace BooCompiler.Tests.TypeSystem
 
 		protected void RunInCompilerContextEnvironment(System.Action action)
 		{
-			Environment.Run(action);
+			ActiveEnvironment.With(Environment, () => {
+				action();
+			});
 		}
 
 		protected T InvokeInCompilerContextEnvironment<T>(System.Func<T> function)
 		{
-			return Environment.Invoke(function);
+			List<T> container = new List<T>();
+			ActiveEnvironment.With(Environment, () => { 
+				container.Add(function());
+			});
+			return container[0];
 		}
 
 		protected IType DefineInternalClass(string @namespace, string typeName)

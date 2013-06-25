@@ -61,6 +61,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void import_9()
+		{
+			RunCompilerTestCase(@"import-9.boo");
+		}
+		
+		[Test]
 		public void modules_1()
 		{
 			RunCompilerTestCase(@"modules-1.boo");

@@ -205,6 +205,27 @@ class MatchMacroTest:
 		expectingMatchError:
 			matchMemberRef(Foo.None)
 
+	[Test]
+	def TestMatchArrayInvocation():
+		Assert.AreEqual(3, MatchArray(1,10,3))
+		Assert.AreEqual(true, MatchEmptyArray())
+		Assert.AreEqual('bar', MatchStarArray('foo', 'bar', 'baz'))
+
+	def MatchArray(*value):
+		match value:
+			case array(_,_,a):
+				return a
+
+	def MatchEmptyArray(*value):
+		match value:
+			case array():
+				return true
+
+	def MatchStarArray(*value):
+		match value:
+			case array('foo', a, *_):
+				return a
+
 	def itemByName(o):
 		match o:
 			case Item(Name: "foo"):
