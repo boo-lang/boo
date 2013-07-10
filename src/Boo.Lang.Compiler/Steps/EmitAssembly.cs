@@ -51,6 +51,7 @@ using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module = Boo.Lang.Compiler.Ast.Module;
 using System.Collections.Generic;
 using Method = Boo.Lang.Compiler.Ast.Method;
+using ExceptionHandler = Boo.Lang.Compiler.Ast.ExceptionHandler;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -1288,7 +1289,7 @@ namespace Boo.Lang.Compiler.Steps
 			condition.Accept(this);
 
 			var type = PopType();
-			if (type == TypeSystemServices.DoubleType || type == TypeSystemServices.SingleType)
+			if (TypeSystemServices.IsFloatingPointNumber(type))
 			{
 				EmitDefaultValue(type);
 				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
@@ -1452,7 +1453,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Ldnull);
 			else if (type == TypeSystemServices.BoolType)
 				_il.Emit(OpCodes.Ldc_I4_0);
-			else if (type == TypeSystemServices.SingleType || type == TypeSystemServices.DoubleType)
+			else if (TypeSystemServices.IsFloatingPointNumber(type))
 				EmitLoadLiteral(type, 0.0);
 			else if (TypeSystemServices.IsPrimitiveNumber(type) || type == TypeSystemServices.CharType)
 				EmitLoadLiteral(type, 0);

@@ -11,3 +11,4 @@ _ReSharper*
 *.iws
 .gradle
 .DS_Store
+gradle.properties

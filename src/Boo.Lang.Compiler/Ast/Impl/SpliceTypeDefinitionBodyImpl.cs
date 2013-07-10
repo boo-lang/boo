@@ -112,14 +112,14 @@ namespace Boo.Lang.Compiler.Ast
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public object Clone()
 		{
-			SpliceTypeDefinitionBody clone = (SpliceTypeDefinitionBody)FormatterServices.GetUninitializedObject(typeof(SpliceTypeDefinitionBody));
+		
+			SpliceTypeDefinitionBody clone = new SpliceTypeDefinitionBody();
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
 			clone._isSynthetic = _isSynthetic;
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
-		
 			clone._modifiers = _modifiers;
 			clone._name = _name;
 			if (null != _attributes)
@@ -133,6 +133,8 @@ namespace Boo.Lang.Compiler.Ast
 				clone._expression.InitializeParent(clone);
 			}
 			return clone;
+
+
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]

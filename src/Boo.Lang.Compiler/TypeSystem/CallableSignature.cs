@@ -145,13 +145,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		void InitializeHashCode()
 		{
 			_hashCode = _acceptVarArgs ? 1 : 2;
-			foreach (IParameter parameter in _parameters)
-			{
+			foreach (var parameter in _parameters)
 				_hashCode ^= parameter.Type.GetHashCode();
-			}
 			_hashCode ^= _returnType.GetHashCode();
 		}
-
 	}
 
 }

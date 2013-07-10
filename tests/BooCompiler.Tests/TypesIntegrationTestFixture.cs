@@ -145,6 +145,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void enum_cast_to_single()
+		{
+			RunCompilerTestCase(@"enum-cast-to-single.boo");
+		}
+		
+		[Test]
 		public void enums_1()
 		{
 			RunCompilerTestCase(@"enums-1.boo");
@@ -1108,6 +1114,12 @@ namespace BooCompiler.Tests
 		public void properties_9()
 		{
 			RunCompilerTestCase(@"properties-9.boo");
+		}
+		
+		[Test]
+		public void reserved_keywords_1()
+		{
+			RunCompilerTestCase(@"reserved-keywords-1.boo");
 		}
 		
 		[Test]

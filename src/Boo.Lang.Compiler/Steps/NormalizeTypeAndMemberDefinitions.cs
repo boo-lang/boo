@@ -45,6 +45,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (!node.IsVisibilitySet)
 				node.Modifiers |= Context.Parameters.DefaultTypeVisibility;
+
+			node.Name = NormalizeName(node.Name);
 		}
 
 		public override void LeaveExplicitMemberInfo(ExplicitMemberInfo node)
@@ -95,6 +97,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			NormalizeDefaultItemProperty(node);
 			NormalizePropertyModifiers(node);
+
 			LeaveMember(node);
 		}
 
@@ -191,6 +194,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Abstract;
 			else if (!node.IsVisibilitySet)
 				node.Modifiers |= Context.Parameters.DefaultEventVisibility;
+
 			LeaveMember(node);
 		}
 		
@@ -202,6 +206,7 @@ namespace Boo.Lang.Compiler.Steps
 				node.Modifiers |= Context.Parameters.DefaultMethodVisibility;
 			if (node.Name != null && node.Name.StartsWith("op_"))
 				node.Modifiers |= TypeMemberModifiers.Static;
+
 			LeaveMember(node);
 		}
 
@@ -233,6 +238,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (node.IsAbstract && !IsInterfaceMember(node))
 				node.DeclaringType.Modifiers |= TypeMemberModifiers.Abstract;
+
+			node.Name = NormalizeName(node.Name);
 		}
 
 		override public void LeaveConstructor(Constructor node)
@@ -250,5 +257,23 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(member);
 			return member;
 		}
+
+		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+		{
+			node.Name = NormalizeName(node.Name);
+		}
+
+		override public void OnReferenceExpression(ReferenceExpression node)
+		{
+			node.Name = NormalizeName(node.Name);
+		}
+
+		protected string NormalizeName(string name)
+		{
+			if (name != null && name.Length > 1 && name.StartsWith("@"))
+				name = name.Substring(1, name.Length-1);
+			return name;
+		}
+
 	}
 }

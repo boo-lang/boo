@@ -32,6 +32,7 @@ options
 
 {
 using Boo.Lang.Compiler.Ast;
+using AstAttribute=Boo.Lang.Compiler.Ast.Attribute;
 using Boo.Lang.Parser.Util;
 using System.Globalization;
 
@@ -55,6 +56,8 @@ tokens
 	DLIST; // declaration list
 	ESEPARATOR; // expression separator (imaginary token)
 	EOL;
+  ASSEMBLY_ATTRIBUTE_BEGIN;
+  MODULE_ATTRIBUTE_BEGIN;
 	ABSTRACT="abstract";
 	AND="and";
 	AS="as";
@@ -206,7 +209,7 @@ parse_module[Module module]
 		type_member[module.Members]
 	)*	
 	globals[module]
-	(assembly_attribute[module] eos)*
+	((assembly_attribute[module] | module_attribute[module]) eos)*
 ;
 
 protected
@@ -232,7 +235,10 @@ import_directive[Module container]
 {
 	Import node = null;
 }: 
-	node=import_directive_
+	(
+		node=import_directive_ |
+		node=import_directive_from_
+	)
 	{
 		if (node != null) container.Imports.Add(node);
 	}
@@ -295,6 +301,25 @@ import_directive_ returns [Import returnValue]
 			returnValue.Alias.Name = alias.getText();
 		}
 	)?
+;
+
+protected
+import_directive_from_ returns [Import returnValue]
+{
+	Expression ns = null;
+	ExpressionCollection names = null;
+	returnValue = null;
+}:
+	from:FROM ns=identifier_expression IMPORT
+	{ 
+		var mie = new MethodInvocationExpression(ns);
+		names = mie.Arguments;
+		returnValue = new Import(ToLexicalInfo(from), mie);
+	}
+	(
+		MULTIPLY { returnValue.Expression = ns; } |
+		expression_list[names]
+	)
 ;
 
 protected
@@ -400,16 +425,17 @@ enum_member [TypeMemberCollection container]
 protected
 attributes
 {
+  AstAttribute attr = null;
 }
 :
 	{ _attributes.Clear(); }
 	(
 		LBRACK 
 		(
-			attribute
+			attr=attribute { if (attr != null) _attributes.Add(attr); }
 			(
 				COMMA
-				attribute
+			  attr=attribute { if (attr != null) _attributes.Add(attr); }
 			)*
 		)?
 		RBRACK		
@@ -418,39 +444,43 @@ attributes
 ;
 			
 protected
-attribute
+attribute returns [AstAttribute attr]
 	{		
 		antlr.IToken id = null;
-		Boo.Lang.Compiler.Ast.Attribute attr = null;
+    attr = null;
 	}:	
 	(id=identifier | t:TRANSIENT { id=t; })
 	{
-		attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText());
-		_attributes.Add(attr);
+		attr = new AstAttribute(ToLexicalInfo(id), id.getText());
 	} 
 	(
 		LPAREN
 		argument_list[attr]
 		RPAREN
 	)?
-	;
+;
+
+protected
+module_attribute[Module module]
+	{
+		AstAttribute attr = null;
+	}:
+	MODULE_ATTRIBUTE_BEGIN
+  attr=attribute
+	RBRACK
+	{ module.Attributes.Add(attr); }
+;
 	
 protected
 assembly_attribute[Module module]
 	{
-		antlr.IToken id = null;
-		Boo.Lang.Compiler.Ast.Attribute attr = null;
+		AstAttribute attr = null;
 	}:
 	ASSEMBLY_ATTRIBUTE_BEGIN
-	id=identifier { attr = new Boo.Lang.Compiler.Ast.Attribute(ToLexicalInfo(id), id.getText()); }
-	(
-		LPAREN
-		argument_list[attr]
-		RPAREN
-	)?
+  attr=attribute
 	RBRACK
 	{ module.AssemblyAttributes.Add(attr); }
-	;
+;
 			
 protected
 class_definition [TypeMemberCollection container]
@@ -3069,14 +3099,22 @@ string_literal returns [Expression e]
 	dqs:DOUBLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(dqs), dqs.getText());
+		e.Annotate("quote", "\"");
 	} |
 	sqs:SINGLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(sqs), sqs.getText());
+		e.Annotate("quote", "'");
 	} |
 	tqs:TRIPLE_QUOTED_STRING
 	{
 		e = new StringLiteralExpression(ToLexicalInfo(tqs), tqs.getText());
+		e.Annotate("quote", "\"\"\"");
+	} |
+	bqs:BACKTICK_QUOTED_STRING
+	{
+		e = new StringLiteralExpression(ToLexicalInfo(bqs), bqs.getText());
+		e.Annotate("quote", "`");
 	}
 	;
 	
@@ -3449,14 +3487,15 @@ LPAREN : '(' { EnterSkipWhitespaceRegion(); };
 	
 RPAREN : ')' { LeaveSkipWhitespaceRegion(); };
 
-protected
-ASSEMBLY_ATTRIBUTE_BEGIN: "assembly:";
-
 LBRACK : '[' { EnterSkipWhitespaceRegion(); }
 	(
-		("assembly:")=> "assembly:" { $setType(ASSEMBLY_ATTRIBUTE_BEGIN); } |
+		("module:" | "assembly:")=>
+    (
+      "module:" { $setType(MODULE_ATTRIBUTE_BEGIN); } |
+		  "assembly:" { $setType(ASSEMBLY_ATTRIBUTE_BEGIN); }
+    ) |
 	)
-	;
+;
 
 RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 
@@ -3601,6 +3640,15 @@ SINGLE_QUOTED_STRING :
 		~('\'' | '\\' | '\r' | '\n')
 	)*
 	'\''!
+	;
+
+BACKTICK_QUOTED_STRING :
+	'`'!
+	(
+		~('`' | '\r' | '\n') |
+		NEWLINE
+	)*
+	'`'!
 	;
 
 SL_COMMENT:
