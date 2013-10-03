@@ -257,11 +257,13 @@ class InteractiveInterpreterConsole:
 		_indent--
 
 	protected def Delete(count as int): #if count is 0, forward-delete
+		return if LineLen == 0
 		cx = Console.CursorLeft-len(CurrentPrompt)-count
-		return if cx < LineLen and count == 0
+		count=1 if cx >= LineLen and count == 0
+		return if cx >= LineLen
 		dcount = (count if count != 0 else 1)
 		_line.Remove(cx, dcount)
-		curX = Console.CursorLeft - dcount
+		curX = Console.CursorLeft - count
 		Console.CursorLeft = curX
 		Console.Write("${_line.ToString(cx, LineLen-cx)} ")
 		Console.CursorLeft = curX
@@ -368,7 +370,16 @@ class InteractiveInterpreterConsole:
 					DisplaySuggestions()
 				else:
 					Indent()
-
+			
+			# delete the whole line
+			if key == ConsoleKey.Escape:
+				curX = len(CurrentPrompt)
+				sizeL = _line.Length
+				_line.Remove(0, sizeL)
+				Console.CursorLeft = curX
+				Console.Write(string(' '[0], sizeL))
+				Console.CursorLeft = curX
+			
 			#line-editing support
 			if not _multiline and LineLen > 0:
 				if Console.CursorLeft > len(CurrentPrompt):
