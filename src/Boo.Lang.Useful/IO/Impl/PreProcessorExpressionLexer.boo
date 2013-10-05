@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "PreProcessorExpressions.g" -> "PreProcessorExpressionLexer.boo"$
+// $ANTLR 2.7.5 (20050517): "src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" -> "PreProcessorExpressionLexer.boo"$
 
 namespace Boo.Lang.Useful.IO.Impl
 // Generate header specific to lexer Boo file

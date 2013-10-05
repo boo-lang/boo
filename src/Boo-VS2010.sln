@@ -1,6 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+# SharpDevelop 4.3
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang", "Boo.Lang\Boo.Lang.csproj", "{A359E52E-5E90-40F3-A5F0-257FE2D545EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Compiler", "Boo.Lang.Compiler\Boo.Lang.Compiler.csproj", "{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}"
@@ -18,6 +19,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Tests", "..\tests\Boo.Lang.Tests\Boo.Lang.Tests.csproj", "{0A984C8E-8453-4B1B-883D-4A7AF930DE3E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "booc.Tests", "..\tests\booc.Tests\booc.Tests.csproj", "{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}"
+EndProject
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Interpreter", "Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj", "{5AB9F617-B157-4BFC-B251-EB64C4697FC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -118,6 +121,16 @@ Global
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Micro-Release|Any CPU.Build.0 = Release|Any CPU
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Debug Net-1.1|Any CPU.Build.0 = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Debug Net-1.1|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Micro-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Micro-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Micro-Release|Any CPU.Build.0 = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Micro-Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AB9F617-B157-4BFC-B251-EB64C4697FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

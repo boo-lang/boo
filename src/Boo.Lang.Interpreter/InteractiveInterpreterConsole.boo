@@ -201,23 +201,37 @@ class InteractiveInterpreterConsole:
 			
 	private def NewLine():
 		Console.Write(Environment.NewLine)
-
+	
+	_numberOfDisplayedSuggestions = 10
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
 		#cursorTop = Console.CursorTop
 		NewLine()
-
+				
 		i = 0
+		count = 0
+		suggestions = SuggestionDescriptions()
+		suggestionsCount=len(suggestions)
+		while self._selectedSuggestionIndex < 0:
+			self._selectedSuggestionIndex+=suggestionsCount
+		while self._selectedSuggestionIndex >= suggestionsCount:
+			self._selectedSuggestionIndex-=suggestionsCount
 
-		for s in SuggestionDescriptions():
+		for s in suggestions:
 			Console.ForegroundColor = SuggestionsColor if not DisableColors
-			Console.Write(", ") if i > 0
-			if i > 20: #TODO: maxcandidates pref + paging?
-				Console.Write("... (too many candidates)")
+			//Console.Write(", ") if i > 0
+			if count >= _numberOfDisplayedSuggestions:
+				Console.WriteLine("... (more candidates)")
 				break
-			if i == _selectedSuggestionIndex:
-				Console.ForegroundColor = SelectedSuggestionColor if not DisableColors
-			Console.Write(s)
+			if i+_numberOfDisplayedSuggestions/2 >= _selectedSuggestionIndex or i+_numberOfDisplayedSuggestions >= suggestionsCount:
+				if count == 0 and i > 0:
+					Console.WriteLine("... (more candidates)")					
+				if i == _selectedSuggestionIndex:
+					Console.ForegroundColor = SelectedSuggestionColor if not DisableColors
+				Console.Write(i+1);
+				Console.Write(": ");
+				Console.WriteLine(s)
+				count++
 			i++
 
 		Console.ResetColor() if not DisableColors
@@ -227,7 +241,7 @@ class InteractiveInterpreterConsole:
 		Console.Write(Line)
 		Console.CursorLeft = cursorLeft
 		
-	def SuggestionDescriptions():
+	def SuggestionDescriptions() as (object):
 		return _suggestions.Select(DescriptionsFor).Value
 		
 	def DescriptionsFor(suggestions as (object)):
@@ -292,7 +306,7 @@ class InteractiveInterpreterConsole:
 				_interpreter
 				.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
 				.Select[of (object)](
-					{ es | array(e as object for e in es if e.Name.StartsWith(_filter)) }))			
+					{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) }))			
 
 		if _suggestions.Value is null or 0 == len(_suggestions.Value): #suggest a  var		
 			_filter = query
@@ -301,12 +315,13 @@ class InteractiveInterpreterConsole:
 							array(
 								var.Key.ToString() as object
 								for var in _interpreter.Values
-								if var.ToString().StartsWith(_filter)))
+								if var.ToString().StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)))
 
 		if _suggestions.Value is null or 0 == len(_suggestions.Value):
 			_selectedSuggestionIndex = null
 			#Console.Beep() #TODO: flash background?
 		elif 1 == len(_suggestions.Value):
+			ConsolePrintSuggestions() # write the unique valid suggestion to show the signature of the selected entity
 			AutoComplete()
 		else:
 			ConsolePrintSuggestions()
@@ -315,6 +330,8 @@ class InteractiveInterpreterConsole:
 	def AutoComplete():
 		raise InvalidOperationException("no suggestions") if _suggestions.Value is null or _selectedSuggestionIndex is null
 
+		Console.CursorLeft = self.LineLen + len(CurrentPrompt)
+		Delete(len(_filter)) if _filter != null
 		Write(_suggestions.Select[of string]({ ss | AutoCompletionFor(ss[_selectedSuggestionIndex.Value]) }).Value)
 		
 		_selectedSuggestionIndex = null
@@ -332,7 +349,8 @@ class InteractiveInterpreterConsole:
 				return TrimFilter(s.ToString())
 				
 	def TrimFilter(s as string):
-		return s[len(_filter):]
+		#return s[len(_filter):]
+		return s # must also replace the filter in command line. thus, do not trim
 
 	private _beforeHistory = string.Empty
 
@@ -379,20 +397,23 @@ class InteractiveInterpreterConsole:
 				Console.CursorLeft = curX
 				Console.Write(string(' '[0], sizeL))
 				Console.CursorLeft = curX
+				self._selectedSuggestionIndex = null
 			
 			#line-editing support
 			if not _multiline and LineLen > 0:
 				if Console.CursorLeft > len(CurrentPrompt):
 					if key == ConsoleKey.Backspace:
+						self._selectedSuggestionIndex = null
 						if _indent > 0 and LineLen == LineIndentLen:
 							Unindent()
 						else:
 							Delete(1)
-					elif key == ConsoleKey.LeftArrow:
+					elif key == ConsoleKey.LeftArrow and not self.CanAutoComplete:
 						Console.CursorLeft--
 				if key == ConsoleKey.Delete:
+					self._selectedSuggestionIndex = null
 					Delete(0)
-				elif key == ConsoleKey.RightArrow:
+				elif key == ConsoleKey.RightArrow and not self.CanAutoComplete:
 					if Console.CursorLeft < (len(CurrentPrompt)+LineLen):
 						Console.CursorLeft++
 				elif key == ConsoleKey.Home:
@@ -405,24 +426,20 @@ class InteractiveInterpreterConsole:
 				if _historyIndex > 0:
 					_historyIndex--
 					DisplayHistory()
+					self._selectedSuggestionIndex = null
 			elif key == ConsoleKey.DownArrow:
 				if _historyIndex < _history.Count-1:
 					_historyIndex++
 					DisplayHistory()
+					self._selectedSuggestionIndex = null
 
 			#auto-completion support
 			if CanAutoComplete:
 				if key == ConsoleKey.LeftArrow:
-					if _selectedSuggestionIndex > 0:
-						_selectedSuggestionIndex--
-					else:
-						_selectedSuggestionIndex = len(_suggestions.Value) - 1
+					_selectedSuggestionIndex-- # module will run on displaying
 					DisplaySuggestions()
 				elif key == ConsoleKey.RightArrow:
-					if _selectedSuggestionIndex < len(_suggestions.Value) - 1:
-						_selectedSuggestionIndex++
-					else:
-						_selectedSuggestionIndex = 0
+					_selectedSuggestionIndex++ # module will run on displaying
 					DisplaySuggestions()
 				if newLine:
 					AutoComplete()
@@ -495,6 +512,8 @@ class InteractiveInterpreterConsole:
 				Load(cmd[1])
 			elif cmd[0] == "/s" or cmd[0] == "/save":
 				Save(cmd[1])
+			elif cmd[0] == "/d" or cmd[0] == "/describe":
+				Eval("describe({0})"%(cmd[1],))
 			else:
 				return false
 
@@ -517,7 +536,7 @@ Enter boo code in the prompt below (or type /help)."""
 			print """The following builtin functions are available :
     /? or /h or /help : display this help
     dir(type) : returns the members of a type
-    describe(type) : describe a type as boo code
+    describe(type) or /d type : describe a type as boo code
     globals() or /g : returns names of all variables known to interpreter
     load(file) or /l file : evals an external boo file
     save(file) or /s file : writes your current booish session into file
