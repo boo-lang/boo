@@ -884,7 +884,7 @@ _loop433_breakloop:						;
 		
 		try {      // for error handling
 			s=macro_stmt();
-			if (0==inputState.guessing)
+			if (s != null && 0==inputState.guessing)
 			{
 				module.Globals.Add(s);
 			}
