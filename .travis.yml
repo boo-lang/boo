@@ -1,0 +1,25 @@
+# Travis-CI Build for BooJs
+# see travis-ci.org for details
+
+language: c
+
+# Make sure mono is installed
+install:
+ - echo "Installing Mono..."
+ - sudo apt-get install mono-devel > /dev/null
+
+# Run the Build script
+script:
+ - nant
+
+# Run Tests
+after_script:
+ - mono --runtime=v4.0 lib/nunit/nunit-console.exe tests/build/*Tests.dll
+
+# Notify development list when needed
+notifications:
+ recipients:
+   - drslump@pollinimini.net
+ email:
+   on_success: change
+   on_failure: always
