@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Services
 		///<summary>Generates a name that will be unique within the CompilerContext.</summary>
 		///<param name="components">Zero or more string(s) that will compose the generated name.</param>
 		///<returns>Returns the generated unique name.</returns>
-		public string GetUniqueName(params string[] components)
+		public virtual string GetUniqueName(params string[] components)
 		{
 			var suffix = string.Concat("$", (++_localIndex).ToString());
 			if (components == null || components.Length == 0)
