@@ -29,27 +29,27 @@
 
 namespace Boo.Lang.Compiler.Services
 {
-    public class UniqueNameProvider
-    {
-        private int _localIndex;
+	public class UniqueNameProvider
+	{
+		private int _localIndex;
 
-        ///<summary>Generates a name that will be unique within the CompilerContext.</summary>
-        ///<param name="components">Zero or more string(s) that will compose the generated name.</param>
-        ///<returns>Returns the generated unique name.</returns>
-        public virtual string GetUniqueName(params string[] components)
-        {
-            var suffix = string.Concat("$", (++_localIndex).ToString());
-            if (components == null || components.Length == 0)
-                return suffix;
+		///<summary>Generates a name that will be unique within the CompilerContext.</summary>
+		///<param name="components">Zero or more string(s) that will compose the generated name.</param>
+		///<returns>Returns the generated unique name.</returns>
+		public virtual string GetUniqueName(params string[] components)
+		{
+			var suffix = string.Concat("$", (++_localIndex).ToString());
+			if (components == null || components.Length == 0)
+				return suffix;
 
-            var sb = new System.Text.StringBuilder();
-            foreach (var component in components)
-            {
-                sb.Append("$");
-                sb.Append(component);
-            }
-            sb.Append(suffix);
-            return sb.ToString();
-        }
-    }
+			var sb = new System.Text.StringBuilder();
+			foreach (var component in components)
+			{
+				sb.Append("$");
+				sb.Append(component);
+			}
+			sb.Append(suffix);
+			return sb.ToString();
+		}
+	}
 }
