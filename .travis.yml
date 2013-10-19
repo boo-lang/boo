@@ -1,0 +1,28 @@
+# Travis-CI Build for Boo
+# see travis-ci.org for details
+
+language: c
+
+# Make sure mono is installed
+install:
+  - echo "Installing Mono... (please wait)"
+  # Make sure mono is installed,
+  # pipe stdout to dev/null because qq is still too chatty
+  - sudo apt-get update -qq > /dev/null
+  - sudo apt-get install -qq mono-devel mono-utils nant nunit-console > /dev/null
+  # Make sure root certificates are in place
+  - mozroots --import --sync > /dev/null
+
+# Run the Build script
+script:
+ - nant rebuild
+ # Running tests does not work :(
+ # - nant test
+
+# Notify development list when needed
+notifications:
+ recipients:
+   - boolang@googlegroups.com
+ email:
+   on_success: change
+   on_failure: always
