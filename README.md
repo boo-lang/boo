@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bamboo/boo.png?branch=master)](https://travis-ci.org/bamboo/boo)
+
 The boo programming language (c) 2009 Rodrigo Barreto de Oliveira (rbo@acm.org)
 
 Building
