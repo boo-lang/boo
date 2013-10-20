@@ -37,6 +37,6 @@ namespace Boo.Lang
 	{
 		// When true the meta-method arguments will be resolved and their ExpressionType 
 		// bound before being passed to the meta-method. 
-		public bool ResolveArgs = false;
+		public bool ResolveArgs { get; set; }
 	}
 }
