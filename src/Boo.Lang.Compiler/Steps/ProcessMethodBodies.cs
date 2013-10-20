@@ -3744,7 +3744,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 
 			if (ProcessSwitchInvocation(node)) return;
-			if (ProcessMetaMethodInvocation(node)) return;
+			if (ProcessMetaMethodInvocation(node, false)) return;
 
 			Visit(node.Arguments);
 
@@ -3765,7 +3765,7 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodInvocationExpression(node, targetEntity);
 		}
 
-		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node)
+		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node, bool resolvedArgs)
 		{
 			var targetEntity = node.Target.Entity;
 			if (null == targetEntity) return false;
@@ -3777,6 +3777,19 @@ namespace Boo.Lang.Compiler.Steps
 			var method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
 			if (null == method) return false;
 
+			// Check if the meta method wants the arguments resolved
+			if (!resolvedArgs) {
+				foreach (Boo.Lang.MetaAttribute attr in method.Method.GetCustomAttributes(false)) {
+					if (attr != null && attr.ResolveArgs) {
+						foreach (Node arg in arguments) {
+							Visit(arg);
+						}
+						// Arguments node types might have changed
+						return ProcessMetaMethodInvocation(node, true);
+					}
+				}
+			}
+
 			Node replacement = InvokeMetaMethod(method, arguments);
 			ReplaceMetaMethodInvocationSite(node, replacement);
 
@@ -3785,19 +3798,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		private Node InvokeMetaMethod(CandidateMethod method, object[] arguments)
 		{
-			bool resolveArgs = false;
-			foreach (var attr in method.Method.GetCustomAttributes(false)) {
-				if (attr is Boo.Lang.MetaAttribute) {
-					resolveArgs = ((Boo.Lang.MetaAttribute)attr).ResolveArgs;
-				}
-			}
-
-			if (resolveArgs) {
-				foreach (Node arg in arguments) {
-					Visit(arg);
-				}
-			}
-
 
 			return (Node)method.DynamicInvoke(null, arguments);
 		}
