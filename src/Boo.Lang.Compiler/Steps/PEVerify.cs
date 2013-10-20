@@ -29,6 +29,8 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System.Diagnostics;
+	using System.Text;
+	using System.IO;
 	using Boo.Lang.Compiler;
 
 	public class PEVerify : AbstractCompilerStep
@@ -58,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			try
 			{
-				var p = Builtins.shellp(command, arguments);
+				var p = StartProcess(Path.GetDirectoryName(Parameters.OutputAssembly), command, arguments);
 				p.WaitForExit();
 				if (0 != p.ExitCode)
 					Errors.Add(new CompilerError(Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
@@ -70,5 +72,30 @@ namespace Boo.Lang.Compiler.Steps
 			}
 #endif
 		}
+		
+#if !NO_SYSTEM_PROCESS
+		public Process StartProcess(string workingdir, string filename, string arguments)
+		{
+			var p = new Process();
+			p.StartInfo.Arguments = arguments;
+			p.StartInfo.CreateNoWindow = true;
+			p.StartInfo.UseShellExecute = false;
+			p.StartInfo.RedirectStandardOutput = true;
+			p.StartInfo.RedirectStandardInput = true;
+			p.StartInfo.RedirectStandardError = true;
+			p.StartInfo.FileName = filename;
+
+			// Mono's pedump won't find the dependent assemblies if the output 
+			// directory is not in the path. It can also give problems with the 
+			// encoding if it's not forced to one.
+			if (System.Type.GetType("Mono.Runtime") != null) {
+				p.StartInfo.EnvironmentVariables["MONO_PATH"] = workingdir;
+				p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+				p.StartInfo.StandardErrorEncoding = Encoding.UTF8;
+			}
+			p.Start();
+			return p;
+		}
+#endif
 	}
 }
