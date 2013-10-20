@@ -3744,10 +3744,9 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 
 			if (ProcessSwitchInvocation(node)) return;
-			
-			Visit(node.Arguments);
 			if (ProcessMetaMethodInvocation(node)) return;
 
+			Visit(node.Arguments);
 
 			if (TypeSystemServices.IsError(node.Target)
 				|| TypeSystemServices.IsErrorAny(node.Arguments))
@@ -3786,6 +3785,20 @@ namespace Boo.Lang.Compiler.Steps
 
 		private Node InvokeMetaMethod(CandidateMethod method, object[] arguments)
 		{
+			bool resolveArgs = false;
+			foreach (var attr in method.Method.GetCustomAttributes(false)) {
+				if (attr is Boo.Lang.MetaAttribute) {
+					resolveArgs = ((Boo.Lang.MetaAttribute)attr).ResolveArgs;
+				}
+			}
+
+			if (resolveArgs) {
+				foreach (Node arg in arguments) {
+					Visit(arg);
+				}
+			}
+
+
 			return (Node)method.DynamicInvoke(null, arguments);
 		}
 
