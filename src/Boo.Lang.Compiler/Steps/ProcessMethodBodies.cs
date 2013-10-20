@@ -3744,9 +3744,10 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 
 			if (ProcessSwitchInvocation(node)) return;
+			
+			Visit(node.Arguments);
 			if (ProcessMetaMethodInvocation(node)) return;
 
-			Visit(node.Arguments);
 
 			if (TypeSystemServices.IsError(node.Target)
 				|| TypeSystemServices.IsErrorAny(node.Arguments))
