@@ -231,6 +231,8 @@ namespace Boo.Lang
 			p.StartInfo.RedirectStandardOutput = true;
 			p.StartInfo.RedirectStandardInput = true;
 			p.StartInfo.RedirectStandardError = true;
+			p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+			p.StartInfo.StandardErrorEncoding = Encoding.UTF8;
 			p.StartInfo.FileName = filename;
 			p.Start();
 			return p;
