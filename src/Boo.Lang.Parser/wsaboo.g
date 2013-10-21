@@ -3167,7 +3167,7 @@ protected ID_SUFFIX:
 ;
 
 LINE_CONTINUATION:
-	'\\'! NEWLINE
+	'\\' (' '|'\t')* (SL_COMMENT)? NEWLINE
 	{ $setType(Token.SKIP); }
 	;
 	
