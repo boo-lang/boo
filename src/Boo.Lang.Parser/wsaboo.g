@@ -3167,9 +3167,15 @@ protected ID_SUFFIX:
 ;
 
 LINE_CONTINUATION:
-	'\\' (' '|'\t')* (SL_COMMENT)? NEWLINE
+	'\\' 
+	(
+		NEWLINE
+		| (' ' | '\t')+
+		| SL_COMMENT
+		| ML_COMMENT
+	)+
 	{ $setType(Token.SKIP); }
-	;
+	;	
 	
 INT : 
   	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
