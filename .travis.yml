@@ -3,6 +3,11 @@
 
 language: c
 
+env:
+  global:
+    # GITHUB_TOKEN=xxxx
+    - secure: "eiN8jW3jfxgPm/88aS/JiLLDGMbibbgxUUXoGoBkzBHFV5EEL3hXx5NA7oP07heZG1kvDnsJlRxfQtK5q9X8B0ID7prDc1V3mRfiHHj8/1uiHuIT4RVs3uOlYfE9goZ1nbEgIMA2IDRSAxBs2pmwIFGKy9tKZrL+q/OzCt4Ir7M="
+
 # Make sure mono is installed
 install:
   - echo "Installing Mono... (please wait)"
@@ -18,6 +23,9 @@ script:
  - nant rebuild
  # Running tests does not work :(
  # - nant test
+ # Generate a simple distribution file
+ - zip boo-alpha.zip build/*
+ - mono --debug build/booi.exe scripts/github-release.boo -- alpha boo-alpha.zip
 
 # Notify development list when needed
 notifications:
