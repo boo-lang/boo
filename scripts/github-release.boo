@@ -68,7 +68,7 @@ if not Environment.GetEnvironmentVariable('GITHUB_TOKEN'):
     raise 'GITHUB_TOKEN environment variable not set'
 
 MAX_UPLOAD_RETRIES = 5
-USERNAME = 'drslump'
+USERNAME = 'bamboo'
 REPO = 'boo'
 API_URL = "https://api.github.com/repos/$USERNAME/$REPO/releases"
 RELEASE_NAME = argv[0]
