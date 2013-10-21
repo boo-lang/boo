@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using antlr;
 
 namespace Boo.Lang.Parser.Util
 {
@@ -78,7 +79,12 @@ namespace Boo.Lang.Parser.Util
 		/// last non whitespace token for accurate location information
 		/// </summary>
 		protected antlr.IToken _lastNonWsToken;
-		
+
+		/// <summary>
+		/// first detected indentation character
+		/// </sumary>
+		protected string _expectedIndent;
+
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
 		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsTokenType, int indentTokenType, int dedentTokenType, int eosTokenType)
@@ -153,6 +159,33 @@ namespace Boo.Lang.Parser.Util
 			if (lines.Length > 1)
 			{
 				string lastLine = lines[lines.Length-1];
+
+				// Protect against mixed indentation issues
+				if (String.Empty != lastLine) {
+					if (null == _expectedIndent) {
+						_expectedIndent = lastLine.Substring(0, 1);
+					}
+
+					if (String.Empty != lastLine.Replace(_expectedIndent, String.Empty))
+					{
+						string literal = _expectedIndent == "\t"
+						               ? "tabs"
+						               : _expectedIndent == "\f"
+						               ? "form feeds"  // The lexer allows them :p
+						               : "spaces";
+
+						throw new TokenStreamRecognitionException(
+							new RecognitionException(
+								"Mixed indentation, expected the use of " + literal,
+								token.getFilename(),
+								token.getLine(),
+								// Point exactly to the first invalid char
+								lastLine.Length - lastLine.TrimStart(_expectedIndent[0]).Length + 1
+							)
+						);
+					}
+				}
+
 				if (lastLine.Length > CurrentIndentLevel)
 				{
 					EnqueueIndent(token);
