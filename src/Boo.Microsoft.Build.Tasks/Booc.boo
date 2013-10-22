@@ -33,13 +33,10 @@ import System.IO
 import System.Text.RegularExpressions
 import Microsoft.Build.Utilities
 import Microsoft.Build.Framework
+import Microsoft.Build.Tasks
 
-class Booc(ToolTask):
+class Booc(ManagedCompiler):
 
-    private bag = {}
-
-    [property(AdditionalLibPaths)]
-    additionalLibPaths as (string)
     # Allows to compile unsafe code.
     [property(AllowUnsafeBlocks)]
     allowUnsafeBlocks as bool
@@ -52,27 +49,15 @@ class Booc(ToolTask):
     # Gets/sets the conditional compilation symbols.
     [property(DefineSymbols)]
     defineSymbols as string
-    [property(DelaySign)]
-    delaySign as bool
     # Gets/sets a comma-separated list of warnings that should be disabled.
     [property(DisabledWarnings)]
     disabledWarnings as string
     # Gets/sets if we want to use ducky mode.
     [property(Ducky)]
     ducky as bool
-    [property(EmitDebugInformation)]
-    emitDebugInformation as bool
     # If set to true the task will output warnings and errors with full file paths
     [property(GenerateFullPaths)]
     generateFullPaths as bool
-    [property(KeyContainer)]
-    keyContainer as string
-    [property(KeyFile)]
-    keyFile as string
-    [property(NoConfig)]
-    noConfig as bool
-    [property(NoLogo)]
-    noLogo as bool
     # Gets/sets if we want to link to the standard libraries or not.
     [property(NoStandardLib)]
     noStandardLib as bool
@@ -91,14 +76,8 @@ class Booc(ToolTask):
     # Gets/sets whether strict mode is enabled.
     [property(Strict)]
     strict as bool
-    [property(TargetType)]
-    targetType as string
     [property(TargetFrameworkVersion)]
     targetFrameworkVersion as string
-    [property(TreatWarningsAsErrors)]
-    treatWarningsAsErrors as bool
-    [property(Utf8Output)]
-    utf8Output as bool
     # Gets/sets the verbosity level.
     [property(Verbosity)]
     verbosity as string
@@ -108,32 +87,6 @@ class Booc(ToolTask):
     # Gets/sets if we want to use whitespace agnostic mode.
     [property(WhiteSpaceAgnostic)]
     whiteSpaceAgnostic as bool
-
-    [Output]
-    OutputAssembly as ITaskItem:
-        get: return bag['output-assembly']
-        set: bag['output-assembly'] = value
-
-    [Required]
-    References as (ITaskItem):
-        get: return bag['references']
-        set: bag['references'] = value
-
-    [Required]
-    ResponseFiles as (ITaskItem):
-        get: return bag['response-files']
-        set: bag['response-files'] = value
-
-    [Required]
-    Resources as (ITaskItem):
-        get: return bag['resources']
-        set: bag['resources'] = value
-
-    [Required]
-    Sources as (ITaskItem):
-        get: return bag['sources']
-        set: bag['sources'] = value
-
 
     protected override def GenerateFullPathToTool():
         path = ""
@@ -156,8 +109,14 @@ class Booc(ToolTask):
     protected override ToolName:
         get: return 'booc.exe'
 
+    protected override def AddResponseFileCommands(commandLine as CommandLineBuilderExtension):
+        pass
+
+    protected override def AddCommandLineCommands(commandLine as CommandLineBuilderExtension):
+        pass
+
     protected override def GenerateCommandLineCommands():
-        commandLine = CommandLineBuilder()
+        commandLine = CommandLineBuilderExtension()
 
         commandLine.AppendSwitchIfNotNull("-t:", TargetType.ToLower())
         commandLine.AppendSwitchIfNotNull("-o:", OutputAssembly)
