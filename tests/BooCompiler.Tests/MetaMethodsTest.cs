@@ -26,6 +26,7 @@ namespace BooCompiler.Tests
 
 		public static class MetaMethods
 		{
+			[SomeOtherAttribute]
 			[Meta(ResolveArgs = true)]
 			public static Expression typesOf(params Expression[] args)
 			{
@@ -40,6 +41,8 @@ namespace BooCompiler.Tests
 				get { return My<BooCodeBuilder>.Instance; }
 			}
 		}
+
+		public class SomeOtherAttribute : System.Attribute {}
 
 		private static Assembly Compile(string fileName, string code)
 		{

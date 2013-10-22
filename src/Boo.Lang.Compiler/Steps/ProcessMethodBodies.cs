@@ -3775,31 +3775,33 @@ namespace Boo.Lang.Compiler.Steps
 			var argumentTypes = MethodResolver.GetArgumentTypes(arguments);
 			var resolver = new MethodResolver(argumentTypes);
 			var method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
-			if (null == method) return false;
+			if (method == null) return false;
 
-			// Check if the meta method wants the arguments resolved
-			if (!resolvedArgs) {
-				foreach (Boo.Lang.MetaAttribute attr in method.Method.GetCustomAttributes(false)) {
-					if (attr != null && attr.ResolveArgs) {
-						foreach (Node arg in arguments) {
-							Visit(arg);
-						}
-						// Arguments node types might have changed
-						return ProcessMetaMethodInvocation(node, true);
-					}
-				}
+			if (ShouldResolveArgsOf(method))
+			{
+				Visit(node.Arguments);
+				InvokeMetaMethod(node, method, GetMetaMethodInvocationArguments(node));
+				return true;
 			}
 
-			Node replacement = InvokeMetaMethod(method, arguments);
-			ReplaceMetaMethodInvocationSite(node, replacement);
-
+			InvokeMetaMethod(node, method, arguments);
 			return true;
 		}
 
-		private Node InvokeMetaMethod(CandidateMethod method, object[] arguments)
+		private static bool ShouldResolveArgsOf(CandidateMethod method)
 		{
+			return MetaAttributeOf(method).ResolveArgs;
+		}
 
-			return (Node)method.DynamicInvoke(null, arguments);
+		private static MetaAttribute MetaAttributeOf(CandidateMethod method)
+		{
+			return (MetaAttribute) method.Method.GetCustomAttributes(typeof (MetaAttribute), false).Single();
+		}
+
+		private void InvokeMetaMethod(MethodInvocationExpression node, CandidateMethod method, object[] arguments)
+		{
+			var replacement = (Node) method.DynamicInvoke(null, arguments);
+			ReplaceMetaMethodInvocationSite(node, replacement);
 		}
 
 		private static object[] GetMetaMethodInvocationArguments(MethodInvocationExpression node)
