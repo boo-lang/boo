@@ -3768,7 +3768,7 @@ namespace Boo.Lang.Compiler.Steps
 		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node, bool resolvedArgs)
 		{
 			var targetEntity = node.Target.Entity;
-			if (null == targetEntity) return false;
+			if (targetEntity == null) return false;
 			if (!IsOrContainMetaMethod(targetEntity)) return false;
 
 			var arguments = GetMetaMethodInvocationArguments(node);
@@ -3804,7 +3804,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static object[] GetMetaMethodInvocationArguments(MethodInvocationExpression node)
 		{
-			if (node.NamedArguments.Count == 0) return node.Arguments.ToArray();
+			if (node.NamedArguments.Count == 0)
+				return node.Arguments.ToArray();
 
 			var arguments = new List();
 			arguments.Add(node.NamedArguments.ToArray());
@@ -3831,7 +3832,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(replacement);
 		}
 
-		private IEnumerable<System.Reflection.MethodInfo> EnumerateMetaMethods(IEntity entity)
+		private IEnumerable<MethodInfo> EnumerateMetaMethods(IEntity entity)
 		{
 			if (entity.EntityType == EntityType.Method)
 			{
