@@ -45,7 +45,7 @@ script:
  - mono --runtime=v4.0 ../nant/NAnt.exe -t:mono-4.0 compile
  # Replace the nunit framework dll with the downloaded version
  - cp -f "../NUnit-${NUNIT_VERSION}/bin/framework/nunit.framework.dll" build/.
- - mono "../NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.0 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -exclude=FailsOnMono build/*.Tests.dll
+ - mono "../NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.0 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -labels -exclude=FailsOnMono build/*.Tests.dll
 
 after_success:
  # Generate a simple distribution file
