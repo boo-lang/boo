@@ -44,7 +44,7 @@ class InteractiveInterpreterTestFixture:
 	_interpreter as InteractiveInterpreter
 	
 	[SetUp]
-	def SetUp():
+	public def SetUp():
 		_interpreter = InteractiveInterpreter()
 		_interpreter.SetValue("name", "boo")
 		_interpreter.SetValue("age", 3)	
@@ -474,8 +474,39 @@ def foo():
 		
 value = foo()""")
 		assert "2" == _interpreter.GetValue("value")
+	
+	[Test]
+	def FailureOnEmitAttribute():
+		code = """
+import System
 
-		
+enum ConsoleCommandArgument:
+	None = 0
+	Filename
+	Directory
+
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+class ConsoleCommandAttribute(Attribute):
+	public property Argument = ConsoleCommandArgument.None
+	
+	def constructor():
+		pass
+	
+[ConsoleCommand(Argument:ConsoleCommandArgument.Directory)]
+class UsingTheAttribute:
+	[ConsoleCommand(Argument:ConsoleCommandArgument.Filename)]
+	def Test():
+		pass
+
+
+a=typeof(UsingTheAttribute).GetCustomAttributes(false)[0] as ConsoleCommandAttribute
+value = a.Argument.ToString()
+"""
+		self.Eval(code)
+		// just to test whether compilation was really successful
+		assert "Directory" == _interpreter.GetValue("value")
+	
+	
 	def Eval(code as string):
 		AssertNoErrors _interpreter.Eval(code)
 		
