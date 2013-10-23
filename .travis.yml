@@ -1,23 +1,57 @@
 # Travis-CI Build for Boo
 # see travis-ci.org for details
 
-language: c
+language: objective-c
 
-# Make sure mono is installed
+env:
+  global:
+    # GITHUB_TOKEN=xxxx
+    - secure: "eiN8jW3jfxgPm/88aS/JiLLDGMbibbgxUUXoGoBkzBHFV5EEL3hXx5NA7oP07heZG1kvDnsJlRxfQtK5q9X8B0ID7prDc1V3mRfiHHj8/1uiHuIT4RVs3uOlYfE9goZ1nbEgIMA2IDRSAxBs2pmwIFGKy9tKZrL+q/OzCt4Ir7M="
+    - EnableNuGetPackageRestore=true
+    - NUNIT_VERSION="2.6.3"
+    - NANT_COMMIT="3074f62bdce616058f19c1d6e27bf1bdb1953849"
+    - PKG_CONFIG_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig/
+  matrix:
+    - MONO_VER="3.2.3"
+
 install:
-  - echo "Installing Mono... (please wait)"
-  # Make sure mono is installed,
-  # pipe stdout to dev/null because qq is still too chatty
-  - sudo apt-get update -qq > /dev/null
-  - sudo apt-get install -qq mono-devel mono-utils nant nunit-console > /dev/null
-  # Make sure root certificates are in place
-  - mozroots --import --sync > /dev/null
+  # Obtain mono from a fast mirror (over 150Mb download)
+  # - wget "http://switch.dl.sourceforge.net/project/mono.mirror/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg"
+  # - wget "http://optimate.dl.sourceforge.net/project/mono.mirror/MonoFramework-MDK-$MONO_VER.macos10.xamarin.x86.pkg"
+  - wget "http://hivelocity.dl.sourceforge.net/project/mono.mirror/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg"
+  # Install mono
+  - sudo installer -pkg "MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg" -target /
+  # Fetch a version of NAnt compatible with Mono 3
+  - wget -nv --no-check-certificate "https://github.com/nant/nant/archive/${NANT_COMMIT}.zip"
+  - unzip -qq "${NANT_COMMIT}"
+  - cd "nant-${NANT_COMMIT}"
+  - make setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
+  - cp -r bootstrap ../nant
+  - cd -
+  # Fetch a recent version of NUnit
+  - wget -nv --no-check-certificate "https://launchpad.net/nunitv2/trunk/${NUNIT_VERSION}/+download/NUnit-${NUNIT_VERSION}.zip"
+  - unzip -qq "NUnit-${NUNIT_VERSION}.zip"
 
-# Run the Build script
+before_script:
+ # Build Boo...
+ - mono --runtime=v4.0 nant/NAnt.exe -t:mono-4.0 rebuild
+ # MSBuild tasks must be compiled targeting Net 2.0
+ - mono --runtime=v4.0 nant/NAnt.exe -t:mono-2.0 Boo.Microsoft.Build.Tasks
+
 script:
- - nant rebuild
- # Running tests does not work :(
- # - nant test
+ - echo "Running tests..."
+ # Build the tests
+ - cd tests
+ - mono --runtime=v4.0 ../nant/NAnt.exe -t:mono-4.0 compile
+ # Replace the nunit framework dll with the downloaded version
+ - cp -f "../NUnit-${NUNIT_VERSION}/bin/framework/nunit.framework.dll" build/.
+ - mono "../NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.0 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt build/*.Tests.dll
+
+after_success:
+ # Generate a simple distribution file
+ - cp -r build boo-alpha
+ - zip boo-alpha.zip boo-alpha/*
+ - mono --debug build/booi.exe scripts/github-release.boo -- alpha boo-alpha.zip
 
 # Notify development list when needed
 notifications:
