@@ -6,7 +6,7 @@ language: objective-c
 env:
   global:
     # GITHUB_TOKEN=xxxx
-    - secure: "eiN8jW3jfxgPm/88aS/JiLLDGMbibbgxUUXoGoBkzBHFV5EEL3hXx5NA7oP07heZG1kvDnsJlRxfQtK5q9X8B0ID7prDc1V3mRfiHHj8/1uiHuIT4RVs3uOlYfE9goZ1nbEgIMA2IDRSAxBs2pmwIFGKy9tKZrL+q/OzCt4Ir7M="
+    - secure: "Nk6IRV4woRpCk3D/6oVTpAfDRPQnxEBdJN9955X/mtDPLuw/lSYFEKOhIc9LQ29fcCGyQPS1eb+rhCAFsqlOGfhkWWb1whnMGCahi2uXP7naCg3rg7A1HeNY/JcuR+xXgQDQmdbm7aiI9IG0Z2vOIXNQhCuR9j/a8wpEdwrJ8/k="
     - EnableNuGetPackageRestore=true
     - NUNIT_VERSION="2.6.3"
     - NANT_COMMIT="3074f62bdce616058f19c1d6e27bf1bdb1953849"
