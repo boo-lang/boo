@@ -997,7 +997,7 @@ namespace Boo.Lang.Compiler
 
 		public static string ToStringList(System.Collections.IEnumerable names)
 		{
-			return Builtins.join(names.Cast<object>().Select(o => DisplayStringFor(o)), ", ");
+			return Builtins.join(names.Cast<object>().Select(o => DisplayStringFor(o)).OrderBy(_ => _), ", ");
 		}
 		
 		public static string ToAssemblyQualifiedNameList(List types)
