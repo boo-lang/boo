@@ -41,7 +41,7 @@ before_script:
 script:
  - echo "Running tests..."
  # Build the tests
- - cd tests
+ - pushd tests
  - mono --runtime=v4.0 ../nant/NAnt.exe -t:mono-4.0 compile
  # Replace the nunit framework dll with the downloaded version
  - cp -f "../NUnit-${NUNIT_VERSION}/bin/framework/nunit.framework.dll" build/.
@@ -50,6 +50,7 @@ script:
 
 after_success:
  # Generate a simple distribution file
+ - popd
  - cp -r build boo-alpha
  - zip boo-alpha.zip boo-alpha/*
  - mono --debug build/booi.exe scripts/github-release.boo -- alpha boo-alpha.zip
