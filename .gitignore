@@ -12,3 +12,4 @@ _ReSharper*
 .gradle
 .DS_Store
 gradle.properties
+/src/Boo.Lang.Useful/*.cache
