@@ -806,7 +806,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-549-1.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void BOO_569_1()
 		{
 			RunCompilerTestCase(@"BOO-569-1.boo");

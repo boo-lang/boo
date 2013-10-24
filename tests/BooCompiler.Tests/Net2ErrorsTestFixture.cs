@@ -91,12 +91,6 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BCE0149-4.boo");
 		}
 		
-		[Category("FailsOnMono")][Test]
-		public void BCE0149_external()
-		{
-			RunCompilerTestCase(@"BCE0149-external.boo");
-		}
-		
 		[Test]
 		public void BCE0159()
 		{
