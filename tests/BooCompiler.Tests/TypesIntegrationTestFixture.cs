@@ -564,7 +564,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"interface-implementation-inheritance-4.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void interface_implementation_inheritance_5()
 		{
 			RunCompilerTestCase(@"interface-implementation-inheritance-5.boo");
@@ -1135,15 +1135,15 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void static_class_is_sealed_abstract_and_transient()
-		{
-			RunCompilerTestCase(@"static-class-is-sealed-abstract-and-transient.boo");
-		}
-		
-		[Test]
 		public void static_CompilerGlobalScope_class_is_sealed_and_abstract()
 		{
 			RunCompilerTestCase(@"static-CompilerGlobalScope-class-is-sealed-and-abstract.boo");
+		}
+		
+		[Test]
+		public void static_class_is_sealed_abstract_and_transient()
+		{
+			RunCompilerTestCase(@"static-class-is-sealed-abstract-and-transient.boo");
 		}
 		
 		[Test]
@@ -1218,7 +1218,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"value-types-14.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void value_types_15()
 		{
 			RunCompilerTestCase(@"value-types-15.boo");

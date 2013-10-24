@@ -926,13 +926,13 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-705-1.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void BOO_707_1()
 		{
 			RunCompilerTestCase(@"BOO-707-1.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void BOO_709_1()
 		{
 			RunCompilerTestCase(@"BOO-709-1.boo");

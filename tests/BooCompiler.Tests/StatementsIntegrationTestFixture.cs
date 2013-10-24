@@ -240,7 +240,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"for-7.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void for_8()
 		{
 			RunCompilerTestCase(@"for-8.boo");
