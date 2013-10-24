@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "src/Boo.Lang.Parser/wsaboo.g" -> "WSABooParserBase.cs"$
+// $ANTLR 2.7.5 (20050517): "wsaboo.g" -> "WSABooParserBase.cs"$
 
 namespace Boo.Lang.Parser
 {
@@ -850,7 +850,7 @@ _loop385_breakloop:						;
 			s=macro_stmt();
 			if (0==inputState.guessing)
 			{
-				module.Globals.Add(s);
+				if (s!=null) module.Globals.Add(s);
 			}
 		}
 		catch (RecognitionException ex)

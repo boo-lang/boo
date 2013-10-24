@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): src/Boo.Lang.Parser/boo.g -> BooTokenTypes.txt$
+// $ANTLR 2.7.5 (20050517): boo.g -> BooTokenTypes.txt$
 Boo    // output token vocab name
 INDENT=4
 DEDENT=5

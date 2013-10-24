@@ -217,7 +217,7 @@ module_macro[Module module]
 {
 	MacroStatement s = null;
 }:
-	s=macro_stmt { module.Globals.Add(s); }
+	s=macro_stmt { if (s != null) module.Globals.Add(s); }
 ;
 			
 protected docstring[Node node]:
