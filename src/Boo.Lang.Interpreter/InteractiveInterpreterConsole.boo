@@ -574,13 +574,21 @@ Enter boo code in the prompt below (or type /help)."""
 		if path.EndsWith(".boo"):
 			ConsolePrintMessage("Evaluating '${path}' ...")
 			DisplayResults(_interpreter.EvalCompilerInput(Boo.Lang.Compiler.IO.FileInput(path)))
-		else:
+		elif File.Exists(path):
 			ConsolePrintMessage("Adding reference to '${path}'")
 			try:
 				_interpreter.References.Add(System.Reflection.Assembly.LoadFrom(path))
 			except e:				
 				ConsolePrintException(e)
-				
+		else:
+			try:
+				a=System.Reflection.Assembly.LoadWithPartialName(path)
+				_interpreter.References.Add(a)
+				ConsolePrintMessage("Adding reference to assembly '${a.FullName}'")
+			except e:
+				ConsolePrintError("Error adding reference to assembly '${path}'")
+				ConsolePrintException(e)
+	
 	private def ProcessLastValue():
 		_ = _interpreter.LastValue
 		if _ is not null:

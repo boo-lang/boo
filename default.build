@@ -197,6 +197,7 @@
 					to="${supported.runtimes}" />
 			</filterchain>
 		</copy>
+		<copy file="src/booish/booish.rsp" tofile="${build.dir}/booish.rsp"/>
 
 		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booish.in" tofile="${build.dir}/booish" inputencoding="ASCII">
