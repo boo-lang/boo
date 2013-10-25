@@ -132,55 +132,55 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"duck-9.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_1()
 		{
 			RunCompilerTestCase(@"exceptions-1.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_2()
 		{
 			RunCompilerTestCase(@"exceptions-2.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_3()
 		{
 			RunCompilerTestCase(@"exceptions-3.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_4()
 		{
 			RunCompilerTestCase(@"exceptions-4.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_5()
 		{
 			RunCompilerTestCase(@"exceptions-5.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_6()
 		{
 			RunCompilerTestCase(@"exceptions-6.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_7()
 		{
 			RunCompilerTestCase(@"exceptions-7.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_8()
 		{
 			RunCompilerTestCase(@"exceptions-8.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void exceptions_9()
 		{
 			RunCompilerTestCase(@"exceptions-9.boo");

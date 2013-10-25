@@ -1,3 +1,4 @@
+#category FailsOnMono
 """
 100
 100
@@ -5,8 +6,7 @@
 import System
 import System.Windows.Forms from System.Windows.Forms
 
-class Class1(Form):
-"""Description of Class1"""
+class FormSubclass(Form):
 
 	box = PictureBox()
 	
@@ -16,4 +16,4 @@ class Class1(Form):
 		print box.Size.Height
 		print box.Size.Width
 		
-Class1()
+FormSubclass()

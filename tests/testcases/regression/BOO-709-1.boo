@@ -1,3 +1,5 @@
+#category FailsOnMono
+
 import System
 
 [Simple]

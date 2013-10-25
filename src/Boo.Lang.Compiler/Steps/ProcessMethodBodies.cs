@@ -3744,7 +3744,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 
 			if (ProcessSwitchInvocation(node)) return;
-			if (ProcessMetaMethodInvocation(node)) return;
+			if (ProcessMetaMethodInvocation(node, false)) return;
 
 			Visit(node.Arguments);
 
@@ -3765,32 +3765,49 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodInvocationExpression(node, targetEntity);
 		}
 
-		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node)
+		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node, bool resolvedArgs)
 		{
 			var targetEntity = node.Target.Entity;
-			if (null == targetEntity) return false;
+			if (targetEntity == null) return false;
 			if (!IsOrContainMetaMethod(targetEntity)) return false;
 
 			var arguments = GetMetaMethodInvocationArguments(node);
 			var argumentTypes = MethodResolver.GetArgumentTypes(arguments);
 			var resolver = new MethodResolver(argumentTypes);
 			var method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
-			if (null == method) return false;
+			if (method == null) return false;
 
-			Node replacement = InvokeMetaMethod(method, arguments);
-			ReplaceMetaMethodInvocationSite(node, replacement);
+			if (ShouldResolveArgsOf(method))
+			{
+				Visit(node.Arguments);
+				InvokeMetaMethod(node, method, GetMetaMethodInvocationArguments(node));
+				return true;
+			}
 
+			InvokeMetaMethod(node, method, arguments);
 			return true;
 		}
 
-		private Node InvokeMetaMethod(CandidateMethod method, object[] arguments)
+		private static bool ShouldResolveArgsOf(CandidateMethod method)
 		{
-			return (Node)method.DynamicInvoke(null, arguments);
+			return MetaAttributeOf(method).ResolveArgs;
+		}
+
+		private static MetaAttribute MetaAttributeOf(CandidateMethod method)
+		{
+			return (MetaAttribute) method.Method.GetCustomAttributes(typeof (MetaAttribute), false).Single();
+		}
+
+		private void InvokeMetaMethod(MethodInvocationExpression node, CandidateMethod method, object[] arguments)
+		{
+			var replacement = (Node) method.DynamicInvoke(null, arguments);
+			ReplaceMetaMethodInvocationSite(node, replacement);
 		}
 
 		private static object[] GetMetaMethodInvocationArguments(MethodInvocationExpression node)
 		{
-			if (node.NamedArguments.Count == 0) return node.Arguments.ToArray();
+			if (node.NamedArguments.Count == 0)
+				return node.Arguments.ToArray();
 
 			var arguments = new List();
 			arguments.Add(node.NamedArguments.ToArray());
@@ -3817,7 +3834,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(replacement);
 		}
 
-		private IEnumerable<System.Reflection.MethodInfo> EnumerateMetaMethods(IEntity entity)
+		private IEnumerable<MethodInfo> EnumerateMetaMethods(IEntity entity)
 		{
 			if (entity.EntityType == EntityType.Method)
 			{

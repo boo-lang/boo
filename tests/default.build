@@ -167,6 +167,7 @@
 				<include name="Boo.Lang.PatternMatching.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
+				<include name="Boo.Lang.Parser.dll" />
 				<include name="BooModules.dll" />
 				<include name="BooSupportingClasses.dll" />
 				<include name="Moq.dll" />
