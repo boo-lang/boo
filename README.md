@@ -1,4 +1,6 @@
-The boo programming language (c) 2009 Rodrigo Barreto de Oliveira (rbo@acm.org)
+The boo programming language (c) 2009- Rodrigo Barreto de Oliveira (rbo@acm.org)
+
+This distribution contains contributions of Harald Meyer auf'm Hofe (harald_meyer@users.sourceforge.net)
 
 Building
 ========
@@ -29,9 +31,6 @@ How to Start
 
 For a brief description of the project and its goals
 take a look at `docs/BooManifesto.sxw`.
-
-`extras/boox` contains a sweet little tool you can use
-to get yourself acquainted with the language.
 
 `src/` contains all the source code for the runtime and
 compiler components.
@@ -80,6 +79,10 @@ http://boo.codehaus.org/Mailing+Lists
 Contributors
 ============
 
-See: https://github.com/bamboo/boo/graphs/contributors
+See: https://github.com/hmah/boo/graphs/contributors
 
+Differnces to the original distribution
+=======================================
 
+- Fix of issue BOO-1078 Cannot use enumerations as attribute parameters.
+- booish: Display one suggestion per line. Allow scrolling.
