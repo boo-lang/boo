@@ -1,0 +1,7 @@
+// standard references and imports of the boo interactive shell
+
+-r:System.Net
+-i:System
+-i:System.Collections.Generic,System
+-i:System.Net
+-i:System.Diagnostics
