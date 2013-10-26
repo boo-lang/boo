@@ -27,6 +27,7 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Compiler.TypeSystem.Services
 import System.IO
 
 class CodeCompletionHunter(ProcessMethodBodiesWithDuckTyping):
@@ -48,7 +49,7 @@ class CodeCompletionHunter(ProcessMethodBodiesWithDuckTyping):
 	
 	override protected def ProcessMemberReferenceExpression(node as MemberReferenceExpression):
 		if node.Name == '__codecomplete__':
-			_members = TypeSystemServices.GetAllMembers(MyGetReferenceNamespace(node))
+			_members = MemberCollector.CollectAllMembers(MyGetReferenceNamespace(node))
 		else:
 			super(node)
 		
