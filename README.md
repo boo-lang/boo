@@ -81,7 +81,7 @@ Contributors
 
 See: https://github.com/hmah/boo/graphs/contributors
 
-Differnces to the original distribution
+Differences to the original distribution
 =======================================
 
 - Fix of issue BOO-1078 Cannot use enumerations as attribute parameters.
