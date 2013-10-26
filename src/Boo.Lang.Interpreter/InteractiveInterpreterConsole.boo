@@ -420,30 +420,44 @@ class InteractiveInterpreterConsole:
 					Console.CursorLeft = len(CurrentPrompt)
 				elif key == ConsoleKey.End:
 					Console.CursorLeft = len(CurrentPrompt) + LineLen
-
-			#history support
-			if key == ConsoleKey.UpArrow:
-				if _historyIndex > 0:
-					_historyIndex--
-					DisplayHistory()
-					self._selectedSuggestionIndex = null
-			elif key == ConsoleKey.DownArrow:
-				if _historyIndex < _history.Count-1:
-					_historyIndex++
-					DisplayHistory()
-					self._selectedSuggestionIndex = null
-
+			
 			#auto-completion support
 			if CanAutoComplete:
-				if key == ConsoleKey.LeftArrow:
+				if key == ConsoleKey.LeftArrow or key == ConsoleKey.UpArrow:
 					_selectedSuggestionIndex-- # module will run on displaying
 					DisplaySuggestions()
-				elif key == ConsoleKey.RightArrow:
+				elif key == ConsoleKey.RightArrow or key == ConsoleKey.DownArrow:
 					_selectedSuggestionIndex++ # module will run on displaying
 					DisplaySuggestions()
+				elif key == ConsoleKey.PageUp:
+					self._selectedSuggestionIndex -= 10
+					self.DisplaySuggestions()
+				elif key == ConsoleKey.PageDown:
+					self._selectedSuggestionIndex += 10
+					self.DisplaySuggestions()
 				if newLine:
 					AutoComplete()
 					return
+			else:
+				#history support
+				if key == ConsoleKey.UpArrow:
+					if _historyIndex > 0:
+						_historyIndex--
+						DisplayHistory()
+						self._selectedSuggestionIndex = null
+				elif key == ConsoleKey.DownArrow:
+					if _historyIndex < _history.Count-1:
+						_historyIndex++
+						DisplayHistory()
+						self._selectedSuggestionIndex = null
+				elif key==ConsoleKey.PageDown:
+					self._historyIndex += 10
+					self._historyIndex = self._history.Count -1 if self._historyIndex >= self._history.Count
+					self.DisplayHistory()
+				elif key==ConsoleKey.PageUp:
+					self._historyIndex -= 10;
+					self._historyIndex =0 if self._historyIndex < 0
+					self.DisplayHistory()
 			if not newLine:
 				return
 
