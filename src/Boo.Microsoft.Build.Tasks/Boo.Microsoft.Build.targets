@@ -1,16 +1,55 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    
+
+  <!-- Try to set a sensible path for Boo -->
+  <PropertyGroup Condition=" '$(BooToolPath)' == '' ">
+    <BooToolPath Condition=" '$(BooBinPath)' != '' ">$(BooBinPath)</BooToolPath>
+    <BooToolPath Condition=" '$(ToolsPath)' != '' ">$(ToolsPath)</BooToolPath>
+  </PropertyGroup>
+  <!-- If still not set just try in the same dir as this file -->
+  <PropertyGroup Condition=" '$(BooToolPath)' == '' ">
+    <BooToolPath Condition=" '$(MSBuildThisFileDirectory)' != '' ">$(MSBuildThisFileDirectory)</BooToolPath>
+    <BooToolPath Condition=" '$(MSBuildThisFileDirectory)' == '' ">./</BooToolPath>
+  </PropertyGroup>
+
   <UsingTask
       TaskName="Boo.Microsoft.Build.Tasks.Booc"
-      AssemblyFile="Boo.Microsoft.Build.Tasks.dll" />
+      AssemblyFile="$(BooToolPath)\Boo.Microsoft.Build.Tasks.dll"/>
 
   <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(BooToolPath)\Boo.Microsoft.Build.targets</MSBuildAllProjects>
     <DefaultLanguageSourceExtension>.boo</DefaultLanguageSourceExtension>
     <Language>Boo</Language>
   </PropertyGroup>
-    
+
+  <PropertyGroup>
+    <!-- "None" is not technically a valid DebugType, so we can't pass it in as such
+         to the compiler.  So here, we modify the properties so they make sense. -->
+    <DebugSymbols Condition=" '$(DebugType)' == 'none' ">false</DebugSymbols>
+    <DebugType    Condition=" '$(DebugType)' == 'none' "></DebugType>
+
+    <_DisabledWarnings>$(NoWarn)</_DisabledWarnings>
+
+    <!-- Provide a facility to override UseHostCompilerIfAvailable-->
+    <UseHostCompilerIfAvailable Condition=" '$(UseHostCompilerIfAvailable)' == ''">true</UseHostCompilerIfAvailable>
+  </PropertyGroup>
+
+  <!-- Set BaseIntermediateOutputPath if IntermediateOutputPath was set, like C# does -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath Condition="'$(IntermediateOutputPath)'!='' ">$(IntermediateOutputPath)</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <DocFileItem Include="$(DocumentationFile)" Condition="'$(DocumentationFile)'!=''"/>
+  </ItemGroup>
+
+  
+  <!-- Handle resources using the CSharp target -->
+  <!-- <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" /> -->
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 
+  <PropertyGroup>
+    <CoreCompileDependsOn>_ComputeNonExistentFileProperty</CoreCompileDependsOn>
+  </PropertyGroup>
   <Target
         Name="CoreCompile"
         Inputs="$(MSBuildAllProjects);
@@ -19,42 +58,54 @@
                 $(ApplicationIcon);
                 $(AssemblyOriginatorKeyFile);
                 @(ReferencePath);
-                @(CompiledLicenseFile)"
-        Outputs="@(IntermediateAssembly)"
+                @(CompiledLicenseFile);
+                @(EmbeddedDocumentation); 
+                $(Win32Resource);
+                $(Win32Manifest);
+                @(CustomAdditionalCompileInputs)"
+        Outputs="@(DocFileItem);
+                 @(IntermediateAssembly);
+                 @(_DebugSymbolsIntermediatePath);
+                 @(CustomAdditionalCompileOutputs)"
         DependsOnTargets="$(CoreCompileDependsOn)"
     >
-        <Booc
-            AllowUnsafeBlocks="$(AllowUnsafeBlocks)"
-            CheckForOverflowUnderflow="$(CheckForOverflowUnderflow)"
-            Culture="$(AssemblyCulture)"
-            DefineSymbols="$(DefineConstants)"
-            DelaySign="$(DelaySign)"
-            DisabledWarnings="$(NoWarn)"
-            Ducky="$(Ducky)"
-      	    EmitDebugInformation="$(DebugSymbols)"
-            GenerateFullPaths="$(GenerateFullPaths)"
-            KeyContainer="$(AssemblyKeyContainerName)"
-            KeyFile="$(AssemblyOriginatorKeyFile)"
-            NoConfig="$(NoConfig)"
-            NoStandardLib="$(NoStdLib)"
-            OptionalWarnings="$(OptionalWarnings)"
-            OutputAssembly="@(IntermediateAssembly)"
-            Pipeline="$(Pipeline)"
-            Platform="$(PlatformTarget)"
-            References="@(ReferencePath)"
-	        Resources="@(_CoreCompileResourceInputs);@(AdditionalEmbeddedResource);@(ManifestResourceWithNoCulture);@(ManifestNonResxWithNoCultureOnDisk);@(CompiledLicenseFile)"
-            ResponseFiles="$(CompilerResponseFile)"
-            SourceDirectory="$(SourceDirectory)"
-            Sources="@(Compile)"
-            Strict="$(Strict)"
-      	    TargetFrameworkVersion="$(TargetFrameworkVersion)"
-            TargetType="$(OutputType)"
-            ToolPath="$(BoocToolPath)"
-            TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
-            Utf8Output="$(Utf8Output)"
-            Verbosity="$(BoocVerbosity)"
-            WarningsAsErrors="$(WarningsAsErrors)"
-            WhiteSpaceAgnostic="$(WhiteSpaceAgnostic)"
-        />
-    </Target>
+    <Booc
+        AllowUnsafeBlocks="$(AllowUnsafeBlocks)"
+        CheckForOverflowUnderflow="$(CheckForOverflowUnderflow)"
+        Culture="$(AssemblyCulture)"
+        DefineSymbols="$(DefineConstants)"
+        DelaySign="$(DelaySign)"
+        DisabledWarnings="$(NoWarn)"
+        Ducky="$(Ducky)"
+        EmitDebugInformation="$(DebugSymbols)"
+        GenerateFullPaths="$(GenerateFullPaths)"
+        KeyContainer="$(AssemblyKeyContainerName)"
+        KeyFile="$(AssemblyOriginatorKeyFile)"
+        NoLogo="$(NoLogo)"
+        NoConfig="$(NoConfig)"
+        NoStandardLib="$(NoStdLib)"
+        OptionalWarnings="$(OptionalWarnings)"
+        OutputAssembly="@(IntermediateAssembly)"
+        Pipeline="$(Pipeline)"
+        Platform="$(PlatformTarget)"
+        References="@(ReferencePath)"
+        Resources="@(_CoreCompileResourceInputs);@(AdditionalEmbeddedResource);@(ManifestResourceWithNoCulture);@(ManifestNonResxWithNoCultureOnDisk);@(CompiledLicenseFile)"
+        ResponseFiles="$(CompilerResponseFile)"
+        SourceDirectory="$(SourceDirectory)"
+        Sources="@(Compile)"
+        Strict="$(Strict)"
+        TargetType="$(OutputType)"
+        ToolPath="$(BooToolPath)"
+        TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
+        Utf8Output="$(Utf8Output)"
+        Verbosity="$(BoocVerbosity)"
+        WarningsAsErrors="$(WarningsAsErrors)"
+        WhiteSpaceAgnostic="$(WhiteSpaceAgnostic)"
+      />
+    <ItemGroup>
+      <_CoreCompileResourceInputs Remove="@(_CoreCompileResourceInputs)" />
+    </ItemGroup>
+    <CallTarget Targets="$(TargetsTriggeredByCompilation)" Condition="'$(TargetsTriggeredByCompilation)' != ''"/>
+  </Target>
+
 </Project>
