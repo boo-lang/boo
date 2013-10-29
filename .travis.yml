@@ -35,8 +35,6 @@ install:
 before_script:
  # Build Boo...
  - mono --runtime=v4.0 nant/NAnt.exe -t:mono-4.0 rebuild
- # MSBuild tasks must be compiled targeting Net 2.0
- - mono --runtime=v4.0 nant/NAnt.exe -t:mono-2.0 Boo.Microsoft.Build.Tasks
 
 script:
  - echo "Running tests..."
