@@ -88,6 +88,8 @@ namespace Boo.Lang.Parser.Tests.Util
 
 		const int EOS = 9; // end of statement
 
+		const int END = 27; // end keyword
+
 		[Test]
 		public void TestClass()
 		{			
@@ -196,7 +198,7 @@ namespace Boo.Lang.Parser.Tests.Util
 				queue.Enqueue(token);
 			}
 			
-			IndentTokenStreamFilter stream = new IndentTokenStreamFilter(new FakeStream(queue), WS, INDENT, DEDENT, EOS);
+			IndentTokenStreamFilter stream = new IndentTokenStreamFilter(new FakeStream(queue), WS, INDENT, DEDENT, EOS, END);
 			
 			int index=0;
 			foreach (int expected in expectedSequence)
