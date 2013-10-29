@@ -208,7 +208,7 @@ class Booc(ManagedCompiler):
         )
 
     override protected def LogEventsFromTextOutput(ln as string, msgImportance as MessageImportance):
-        if msgImportance == MessageImportance.Normal:
+        if msgImportance in (MessageImportance.Normal, MessageImportance.High):
             wMatch = warningPattern.Match(ln)
             eMatch = errorPattern.Match(ln)
             line as int = 0
@@ -220,20 +220,20 @@ class Booc(ManagedCompiler):
 
                 Log.LogWarning(
                     null,
-                    wMatch.Groups["code"].Value,
+                    wMatch.Groups["code"].Value.Trim(),
                     null,
-                    wMatch.Groups["file"].Value,
+                    wMatch.Groups["file"].Value.Trim(),
                     line,
                     column,
                     0,
                     0,
-                    wMatch.Groups["message"].Value
+                    wMatch.Groups["message"].Value.Trim()
                 )
             elif eMatch.Success:
-                code = eMatch.Groups["code"].Value
+                code = eMatch.Groups["code"].Value.Trim()
                 if string.IsNullOrEmpty(code):
                     code = "BCE0000";
-                file = eMatch.Groups["file"].Value
+                file = eMatch.Groups["file"].Value.Trim()
                 if string.IsNullOrEmpty(file):
                     file = "BOOC"
 
@@ -241,7 +241,7 @@ class Booc(ManagedCompiler):
                 int.TryParse(eMatch.Groups["column"].Value, column)
 
                 Log.LogError(
-                    eMatch.Groups["errorType"].Value.ToLower(),
+                    eMatch.Groups["errorType"].Value.Trim().ToLower(),
                     code,
                     null,
                     file,
@@ -249,7 +249,7 @@ class Booc(ManagedCompiler):
                     column,
                     0,
                     0,
-                    eMatch.Groups["message"].Value
+                    eMatch.Groups["message"].Value.Trim()
                 )
         
         super(ln, msgImportance)
