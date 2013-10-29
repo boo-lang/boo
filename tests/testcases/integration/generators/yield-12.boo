@@ -9,11 +9,11 @@ class Generator:
 	[property(B)]
 	_b = 5
 	
-	def run(begin as int, end as int):
+	def run(begin as int, until as int):
 		a = 0
 		yield { return a }
 		yield { --begin; return ++a }
-		yield { a = _b; return { return (a+_b)*i for i in range(begin, end) } }
+		yield { a = _b; return { return (a+_b)*i for i in range(begin, until) } }
 		assert 5 == a
 	
 g = Generator()

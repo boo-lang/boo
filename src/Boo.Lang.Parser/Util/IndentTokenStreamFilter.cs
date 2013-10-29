@@ -66,6 +66,11 @@ namespace Boo.Lang.Parser.Util
 		protected int _eosTokenType;
 
 		/// <summary>
+		/// singleton END token.
+		/// </summary>
+		protected int _endTokenType;
+
+		/// <summary>
 		/// stack of indent levels.
 		/// </summary>
 		protected Stack _indentStack;
@@ -87,7 +92,7 @@ namespace Boo.Lang.Parser.Util
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
-		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsTokenType, int indentTokenType, int dedentTokenType, int eosTokenType)
+		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsTokenType, int indentTokenType, int dedentTokenType, int eosTokenType, int endTokenType)
 		{
 			if (null == istream)
 			{
@@ -99,6 +104,7 @@ namespace Boo.Lang.Parser.Util
 			_indentTokenType = indentTokenType;
 			_dedentTokenType = dedentTokenType;
 			_eosTokenType = eosTokenType;
+			_endTokenType = endTokenType;
 			_indentStack = new Stack();
 			_pendingTokens = new Queue();
 
@@ -137,13 +143,18 @@ namespace Boo.Lang.Parser.Util
 				int ttype = token.Type;
 				if (antlr.Token.SKIP == ttype)
 					continue;
+
+				// TODO: Improve error reporting by warning the user when the 
+				//       END doesn't match the indentation level.
+				if (_endTokenType == ttype)
+					continue;
 				
 				if (_wsTokenType == ttype)
 				{			
 					_buffer.Append(token.getText());
 					continue;
 				}
-				
+
 				break;
 			}
 			return token;

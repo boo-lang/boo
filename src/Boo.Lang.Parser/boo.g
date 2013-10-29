@@ -73,6 +73,7 @@ tokens
 	DO="do";	
 	ELIF="elif";
 	ELSE="else";
+	END="end";
 	ENSURE="ensure";
 	ENUM="enum";
 	EVENT="event";
@@ -2954,7 +2955,7 @@ slicing_expression returns [Expression e]
 		)
 		|
 		(
-			DOT 
+			DOT
 			(
 				(
 					memberName=member

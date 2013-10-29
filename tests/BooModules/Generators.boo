@@ -1,4 +1,4 @@
 namespace Generators
 
-def oddNumbers(end as int):
-	return i for i in range(end) if i % 2
+def oddNumbers(until as int):
+	return i for i in range(until) if i % 2
