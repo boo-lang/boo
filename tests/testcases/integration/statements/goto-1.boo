@@ -3,9 +3,9 @@ before
 after
 """
 print('before')
-goto end
+goto exit
 print('skipped')
-:end
+:exit
 print('after')
 
 

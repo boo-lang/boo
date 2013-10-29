@@ -5,14 +5,14 @@ end
 """
 f = def ():
 	print('before')
-	goto end
+	goto exit
 	print('skipped')
-	:end
+	:exit
 	print('after')
 
 f()
-goto end
+goto exit
 print('skipped')
-:end
+:exit
 print("end")
 
