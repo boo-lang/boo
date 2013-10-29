@@ -48,7 +48,7 @@ namespace Boo.Lang.Parser
 		protected int LastErrorLine = -1;
 		protected Stack<string> RulesStack = new Stack<string>();
 		protected string CurrentRule { 
-			get { return RulesStack.Peek(); }
+			get { return RulesStack.Count > 0 ? RulesStack.Peek() : null; }
 		}
 
 		public BooParser(antlr.TokenStream lexer) : base(lexer)
@@ -200,9 +200,10 @@ namespace Boo.Lang.Parser
 			// Override the reported error if there is matching pattern
 			if (ErrorPatterns != null)
 			{
+                                string rule = CurrentRule;
 				foreach (ErrorPattern pattern in ErrorPatterns)
 				{
-					if (pattern.Matches(CurrentRule, x))
+					if (pattern.Matches(rule, x))
 					{
 						LastErrorLine = x.getLine();
 						x = new RecognitionException(
