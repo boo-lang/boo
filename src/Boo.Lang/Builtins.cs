@@ -113,6 +113,7 @@ namespace Boo.Lang
 
 		public static object[] array(IEnumerable enumerable)
 		{
+			if (enumerable == null) return null;
 			return new List(enumerable).ToArray();
 		}
 
@@ -122,7 +123,7 @@ namespace Boo.Lang
 			if (null == elementType)
 				throw new ArgumentNullException("elementType");
 			if (null == collection)
-				throw new ArgumentNullException("collection");
+				return null;
 
 			Array array = Array.CreateInstance(elementType, collection.Count);
 			if (RuntimeServices.IsPromotableNumeric(Type.GetTypeCode(elementType)))
@@ -148,7 +149,7 @@ namespace Boo.Lang
 			if (null == elementType)
 				throw new ArgumentNullException("elementType");
 			if (null == enumerable)
-				throw new ArgumentNullException("enumerable");
+				return null;
 
 			#pragma warning disable 618 //obsolete
 			ICollection collection = enumerable as ICollection;
@@ -191,8 +192,7 @@ namespace Boo.Lang
 
 			return Array.CreateInstance(elementType, lengths);
 		}
-
-
+		
 		#region generic array/matrix builtins (v0.9.2+)
 		public static T[] array<T>(int length)
 		{

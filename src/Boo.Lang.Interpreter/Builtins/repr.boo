@@ -88,10 +88,32 @@ static class Repr:
 		AddRepresenter(long) do (value, writer as TextWriter):
 			writer.Write(value)
 			writer.Write("L")
+		
+		AddRepresenter(Type) do (value as Type, writer as TextWriter):
+			rank=0
+			rank=value.GetArrayRank() if value.IsArray
+			if rank == 0:
+				if value.IsGenericType:
+					writer.Write(value.GetGenericTypeDefinition().FullName[0:-2])
+					writer.Write("[of ")
+					RepresentItems(value.GetGenericArguments(), writer)
+					writer.Write("]")
+				else:
+					writer.Write(value.FullName)
+			elif rank == 1:
+				writer.Write("typeof((")
+				writer.Write(repr(value.GetElementType()))
+				writer.Write("))")
+			else:
+				writer.Write("typeof((")
+				writer.Write(repr(value.GetElementType()))
+				writer.Write("), ")
+				writer.Write(rank)
+				writer.Write(")")
 				
 		AddRepresenter(object) do (value, writer as TextWriter):
 			writer.Write(value)
-			
+	
 	private def RepresentItems(items, writer as TextWriter):
 		i = 0
 		for item in items:
