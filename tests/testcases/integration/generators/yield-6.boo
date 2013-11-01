@@ -1,9 +1,9 @@
 
 
-def xrange(begin as int, until as int):
-	assert until >= begin
+def xrange(begin as int, end as int):
+	assert end >= begin
 	i = begin
-	while i < until:
+	while i < end:
 		yield i
 		++i
 		
