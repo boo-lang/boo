@@ -3015,7 +3015,7 @@ public class CSharpCodeGenerator extends CodeGenerator {
 				println("{");
 				tabs++;
 			}
-			println("reportError(ex);");
+			println("reportError(ex, \"" + s.getId() + "\");");
 			if ( !(grammar instanceof TreeWalkerGrammar) )
 			{
 				// Generate code to consume until token in k==1 follow set
