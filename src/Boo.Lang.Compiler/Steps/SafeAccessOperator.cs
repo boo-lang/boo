@@ -149,6 +149,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			// Target the safe access to a temporary variable
 			var tmp = new ReferenceExpression(node.LexicalInfo, Context.GetUniqueName("safe"));
+			tmp.IsSynthetic = true;
 
 			// Make sure preceding operators are processed
 			MemberReferenceExpression mre = null;
