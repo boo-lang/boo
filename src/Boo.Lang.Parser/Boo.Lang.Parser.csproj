@@ -207,13 +207,9 @@
     <Compile Include="Util\IndentTokenStreamFilter.cs" />
     <Compile Include="Util\Readers.cs" />
     <Compile Include="Util\TokenStreamRecorder.cs" />
-    <Compile Include="WSABooExpressionLexer.cs" />
-    <Compile Include="WSABooExpressionLexerTokenTypes.cs" />
-    <Compile Include="WSABooLexer.cs" />
+    <Compile Include="Util\WSATokenStreamFilter.cs" />
     <Compile Include="WSABooParser.cs" />
-    <Compile Include="WSABooParserBase.cs" />
     <Compile Include="WSABooParsingStep.cs" />
-    <Compile Include="WSABooTokenTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />

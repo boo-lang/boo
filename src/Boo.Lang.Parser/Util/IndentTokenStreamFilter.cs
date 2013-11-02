@@ -66,6 +66,16 @@ namespace Boo.Lang.Parser.Util
 		protected int _eosTokenType;
 
 		/// <summary>
+		/// singleton END token.
+		/// </summary>
+		protected int _endTokenType;
+
+		/// <summary>
+		/// singleton ID token.
+		/// </summary>
+		protected int _idTokenType;
+
+		/// <summary>
 		/// stack of indent levels.
 		/// </summary>
 		protected Stack _indentStack;
@@ -87,7 +97,7 @@ namespace Boo.Lang.Parser.Util
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
-		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsTokenType, int indentTokenType, int dedentTokenType, int eosTokenType)
+		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsType, int indentType, int dedentType, int eosType, int endType, int idType)
 		{
 			if (null == istream)
 			{
@@ -95,10 +105,12 @@ namespace Boo.Lang.Parser.Util
 			}
 
 			_istream = istream;
-			_wsTokenType = wsTokenType;
-			_indentTokenType = indentTokenType;
-			_dedentTokenType = dedentTokenType;
-			_eosTokenType = eosTokenType;
+			_wsTokenType = wsType;
+			_indentTokenType = indentType;
+			_dedentTokenType = dedentType;
+			_eosTokenType = eosType;
+			_endTokenType = endType;
+			_idTokenType = idType;
 			_indentStack = new Stack();
 			_pendingTokens = new Queue();
 
@@ -119,7 +131,12 @@ namespace Boo.Lang.Parser.Util
 		{
 			if (_pendingTokens.Count == 0)
 				ProcessNextTokens();
-			return (antlr.IToken)_pendingTokens.Dequeue();
+			IToken token = (IToken)_pendingTokens.Dequeue();
+			// In non-wsa mode `end` is just another identifier
+			if (token.Type == _endTokenType) {
+				token.Type = _idTokenType;
+			}
+			return token;
 		}
 		
 		void ResetBuffer()
@@ -137,13 +154,13 @@ namespace Boo.Lang.Parser.Util
 				int ttype = token.Type;
 				if (antlr.Token.SKIP == ttype)
 					continue;
-				
+
 				if (_wsTokenType == ttype)
 				{			
 					_buffer.Append(token.getText());
 					continue;
 				}
-				
+
 				break;
 			}
 			return token;
@@ -232,7 +249,7 @@ namespace Boo.Lang.Parser.Util
 				
 			antlr.IToken token = BufferUntilNextNonWhiteSpaceToken();
 			FlushBuffer(token);			
-			CheckForEOF(token);			
+			CheckForEOF(token);
 			ProcessNextNonWhiteSpaceToken(token);
 		}
 		
