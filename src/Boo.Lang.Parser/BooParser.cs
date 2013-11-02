@@ -196,6 +196,7 @@ namespace Boo.Lang.Parser
 			// Override the reported error if there is matching pattern
 			if (ErrorPatterns != null)
 			{
+                                string rule = CurrentRule;
 				foreach (ErrorPattern pattern in ErrorPatterns)
 				{
 					if (pattern.Matches(rulename, x))
