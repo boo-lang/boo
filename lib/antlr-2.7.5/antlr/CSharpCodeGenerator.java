@@ -3088,7 +3088,9 @@ public class CSharpCodeGenerator extends CodeGenerator {
 		}
 
 		if ( grammar.debuggingOutput || grammar.traceRules) {
+			if (grammar.buildAST) { 
 				println("ASTPair.PutInstance(currentAST);");
+			}
 			tabs--;
 			println("}");
 			println("finally");
