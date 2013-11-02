@@ -397,18 +397,18 @@
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
 		<booc target="library"
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
-			failonerror="false" 
+			failonerror="true" 
 			verbose="${verbose}"
 			debug="${debug}"
 			define="${defines}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
-			<references basedir="${build.dir}">
+			<!-- references basedir="${build.dir}">
 				<include name="Microsoft.Build.Utilities.dll" />
-				<include name="Microsoft.Build.Tasks.dll" />
 				<include name="Microsoft.Build.Framework.dll" />
-			</references>
+				<include name="Microsoft.Build.Tasks.dll" />
+			</references -->
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 		<copy todir="${build.dir}">
