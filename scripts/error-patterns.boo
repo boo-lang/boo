@@ -50,8 +50,8 @@ class GeneratorParser(BooParser):
         return CapturedPattern
 
     def Validate(patterns):
-        IsValidating = true
         ErrorPatterns = patterns
+        IsValidating = true
 
         cached_error as RecognitionException = null
         Error = def (ex as RecognitionException):
@@ -60,21 +60,21 @@ class GeneratorParser(BooParser):
         start(CompileUnit())
         return cached_error
 
-    override def reportError(ex as RecognitionException):
+    override def reportError(ex as RecognitionException, rulename as string):
         # Skip any other errors produced after the first one
         return if Ignore
         Ignore = true
 
         if IsValidating:
-            super(ex)
+            super(ex, rulename)
             return
 
         if mismatch = ex as MismatchedTokenException:
-            CapturedPattern = MismatchedErrorPattern(Message, CurrentRule, mismatch.expecting)
+            CapturedPattern = MismatchedErrorPattern(Message, rulename, mismatch.expecting)
         elif noviable = ex as NoViableAltException:
-            CapturedPattern = NoViableAltErrorPattern(Message, CurrentRule, noviable.token.Type)
+            CapturedPattern = NoViableAltErrorPattern(Message, rulename, noviable.token.Type)
         else:
-            CapturedPattern = RecognitionErrorPattern(Message, CurrentRule)
+            CapturedPattern = RecognitionErrorPattern(Message, rulename)
 
 
 class AnyErrorPattern(ErrorPattern):
@@ -109,6 +109,9 @@ def error(msg as string, code as string):
 
         # Validate the pattern when actually used with the others
         ex = GeneratorParser(msg, testcode).Validate(PATTERNS.ToArray())
+        if not ex:
+            raise "ERROR: Validation for the following snippet did not produce any errors!\n$testcode"
+
         if msg != ex.Message:
             Console.ForegroundColor = ConsoleColor.Yellow
             Console.Error.WriteLine("expected: $msg")

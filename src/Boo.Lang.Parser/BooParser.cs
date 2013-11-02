@@ -193,6 +193,15 @@ namespace Boo.Lang.Parser
 
 		override public void reportError(RecognitionException x, string rulename)
 		{
+			// Silently ignore errors which are very close to a previous matched one,
+			// assuming that they are produced while the parser is trying to recover.
+			if (LastErrorLine != -1 && x.getLine() - LastErrorLine < 3) 
+			{
+				// Update it so we can extend the range as we go
+				LastErrorLine = x.getLine();
+				return;
+			}
+
 			// Override the reported error if there is matching pattern
 			if (ErrorPatterns != null)
 			{
@@ -217,15 +226,6 @@ namespace Boo.Lang.Parser
 
 		override public void reportError(RecognitionException x)
 		{
-			// Silently ignore errors which are very close to a previous matched one,
-			// assuming that they are produced while the parser is trying to recover.
-			if (LastErrorLine != -1 && x.getLine() - LastErrorLine < 3) 
-			{
-				// Update it so we can extend the range as we go
-				LastErrorLine = x.getLine();
-				return;
-			}
-
 			if (null != Error)
 				Error(x);
 			else
