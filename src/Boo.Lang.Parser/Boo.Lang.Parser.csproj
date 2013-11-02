@@ -200,6 +200,7 @@
     <Compile Include="DocStringFormatter.cs" />
     <Compile Include="ErrorPattern.cs" />
     <Compile Include="GeneratedErrorPatterns.cs" />
+    <Compile Include="obj\Debug\.NETFramework,Version=v4.0.AssemblyAttribute.cs" />
     <Compile Include="OperatorParser.cs" />
     <Compile Include="ParserSettings.cs" />
     <Compile Include="PrimitiveParser.cs" />
