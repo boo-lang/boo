@@ -77,7 +77,18 @@ namespace Boo.Lang.Parser.Tests
 			string expected = GetDocumentation(context.CompileUnit.Modules[0]);
 			
 			string output = _compiler.Parameters.OutputWriter.ToString();
-			Assert.AreEqual(expected.Trim(), output.ToString().Trim().Replace("\r\n", "\n"), testfile);
+
+			Assert.AreEqual(Normalize(expected), Normalize(output), testfile);
+		}
+
+		protected string Normalize(string code)
+		{
+			string[] lines = code.Trim().Split('\n');
+			for (int i=0; i<lines.Length; i++)
+			{
+				lines[i] = lines[i].TrimEnd();
+			}
+			return String.Join("\n", lines);
 		}
 	}
 }

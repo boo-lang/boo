@@ -115,7 +115,7 @@ namespace Boo.Lang.Parser
 			lexer.setFilename(readerName);
 			lexer.Initialize(selector, tabSize, BooToken.TokenCreator);
 		
-			var filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOL);
+			var filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOL, END, ID);
 			selector.select(filter);
 			
 			return selector;
