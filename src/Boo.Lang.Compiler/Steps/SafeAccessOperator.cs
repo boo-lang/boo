@@ -29,130 +29,158 @@
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
+
 namespace Boo.Lang.Compiler.Steps
 {
-	public class CheckLiteralValues : AbstractFastVisitorCompilerStep
+	// Desugarizes the safe access operator.
+	//
+	//  foo?
+	//  (foo is not null)
+	//
+	//  foo?.bar?
+	//  ((foo.bar if foo is not null else null) is not null)
+	//
+	//  foo?.bar
+	//  (foo.bar if foo != null else null)
+	//
+	//  foo?.bar?.baz
+	//  (foo.bar.baz if (foo.bar if foo is not null else null) is not null else null)
+	//
+	//  foo?.bar?[2]
+	//  (foo.bar[2] if (foo.bar if foo is not null else null) is not null else null)
+	//
+	//  foo?.bar?()
+	//  (foo.bar() if (foo.bar if foo is not null else null) is not null else null)
+	public class SafeAccessOperator : AbstractTransformerCompilerStep
 	{
-		private bool _checked;
 
-		override public void OnModule(Module node)
+		override public void LeaveUnaryExpression(UnaryExpression node)
 		{
-			Visit(node.Members);
-		}
-
-		override public void OnBlock(Block block)
-		{
-			var currentChecked = _checked;
-			_checked = AstAnnotations.IsChecked(block, Parameters.Checked);
-
-			Visit(block.Statements);
-
-			_checked = currentChecked;
-		}
-
-		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
-		{
-			if (!_checked)
-				return;
-
-			base.OnArrayLiteralExpression(node);
-
-			var expectedType = GetExpressionType(node).ElementType;
-			if (!TypeSystemServices.IsPrimitiveNumber(expectedType))
-				return;
-
-			foreach (var item in node.Items)
+			if (node.Operator == UnaryOperatorType.SafeAccess)
 			{
-				var integerLiteral = item as IntegerLiteralExpression;
-				if (integerLiteral != null)
-				{
-					AssertLiteralInRange(integerLiteral, expectedType);
-					continue;
-				}
+				// target references should already be resolved, so just evaluate as existential
+				var notnull = CodeBuilder.CreateNotNullTest(node.Operand);
+				ReplaceCurrentNode(notnull);
 			}
 		}
 
-		override public void OnBinaryExpression(BinaryExpression node)
+		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			if (!_checked)
+			var tern = ProcessTargets(node);
+			if (tern != null)
+			{
+				ReplaceCurrentNode(tern);
 				return;
-
-			base.OnBinaryExpression(node);
-
-			if (node.Operator != BinaryOperatorType.Assign
-			    || node.Right.NodeType != NodeType.IntegerLiteralExpression)
-				return;
-
-			IType expectedType = GetExpressionType(node.Left);
-			if (!TypeSystemServices.IsPrimitiveNumber(expectedType))
-				return;
-
-			AssertLiteralInRange((IntegerLiteralExpression) node.Right, expectedType);
+			}
+			base.OnMemberReferenceExpression(node);
 		}
 
 		override public void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			if (!_checked)
-				return;
-
-			base.OnMethodInvocationExpression(node);
-
-			if (0 == node.Arguments.Count)
-				return;
-
-			IMethod target = node.Target.Entity as IMethod;
-			if (null == target)
-				return;
-			IParameter[] parameters = target.GetParameters();
-			if (parameters.Length != node.Arguments.Count)
-				return;
-
-			for (int i = 0; i < parameters.Length; ++i)
+			var tern = ProcessTargets(node);
+			if (tern != null)
 			{
-				if (node.Arguments[i].NodeType != NodeType.IntegerLiteralExpression)
-					continue;
-				if (!TypeSystemServices.IsPrimitiveNumber(parameters[i].Type))
-					continue;
-
-				AssertLiteralInRange((IntegerLiteralExpression) node.Arguments[i], parameters[i].Type);
+				Visit(node.Arguments);
+				ReplaceCurrentNode(tern);
+				return;
 			}
+			base.OnMethodInvocationExpression(node);
 		}
 
-		public override void OnExpressionStatement(ExpressionStatement node)
+		override public void OnSlicingExpression(SlicingExpression node)
 		{
-			if (!_checked)
-				return;
-
-			base.OnExpressionStatement(node);
-
-			IntegerLiteralExpression literal = node.Expression as IntegerLiteralExpression;
-			if (null == literal)
-				return;
-
-			AssertLiteralInRange(literal, GetExpressionType(literal));
+			var tern = ProcessTargets(node);
+			if (tern != null) 
+			{
+				Visit(node.Indices);
+				ReplaceCurrentNode(tern);
+			} 
+			base.OnSlicingExpression(node);
 		}
 
-		void AssertLiteralInRange(IntegerLiteralExpression literal, IType type)
+		protected bool IsTargetable(Node node)
 		{
-			bool ok = true;
+			return (node.NodeType == NodeType.MemberReferenceExpression ||
+			        node.NodeType == NodeType.MethodInvocationExpression ||
+			        node.NodeType == NodeType.SlicingExpression);
+		}
 
-			if (type == TypeSystemServices.ByteType)
-				ok = (literal.Value >= byte.MinValue && literal.Value <= byte.MaxValue);
-			else if (type == TypeSystemServices.SByteType)
-				ok = (literal.Value >= sbyte.MinValue && literal.Value <= sbyte.MaxValue);
-			else if (type == TypeSystemServices.ShortType)
-				ok = (literal.Value >= short.MinValue && literal.Value <= short.MaxValue);
-			else if (type == TypeSystemServices.UShortType)
-				ok = (literal.Value >= ushort.MinValue && literal.Value <= ushort.MaxValue);
-			else if (type == TypeSystemServices.IntType)
-				ok = (literal.Value >= int.MinValue && literal.Value <= int.MaxValue);
-			else if (type == TypeSystemServices.UIntType)
-				ok = (literal.Value >= uint.MinValue && literal.Value <= uint.MaxValue);
-			else if (type == TypeSystemServices.LongType)
-				ok = (literal.Value >= long.MinValue && literal.Value <= long.MaxValue);
+		protected bool IsSafeAccess(Expression node)
+		{
+			var ue = node as UnaryExpression;
+			return ue != null && ue.Operator == UnaryOperatorType.SafeAccess;
+		}
 
-			if (!ok)
-				Error(CompilerErrorFactory.ConstantCannotBeConverted(literal, type));
+		protected Expression ProcessTargets(Expression node)
+		{
+			// Look for safe access operators in the targets chain
+			UnaryExpression ue = null;
+			Expression target = node;
+			Expression nextTarget = null;
+			while (IsTargetable(target))
+			{
+				if (target is MemberReferenceExpression)
+				{
+					nextTarget = ((MemberReferenceExpression)target).Target;
+				} 
+				else if (target is SlicingExpression)
+				{
+					nextTarget = ((SlicingExpression)target).Target;
+				}
+				else
+				{
+					nextTarget = ((MethodInvocationExpression)target).Target;
+				}
+
+				if (IsSafeAccess(nextTarget))
+				{
+					ue = (UnaryExpression)nextTarget;
+					break;
+				}
+
+				target = nextTarget;
+			}
+
+			// No safe access operator was found
+			if (ue == null)
+			{
+				return null;
+			}
+
+			// Target the safe access to a temporary variable
+			var tmp = new ReferenceExpression(node.LexicalInfo, Context.GetUniqueName("safe"));
+
+			// Make sure preceding operators are processed
+			MemberReferenceExpression mre = null;
+			SlicingExpression se = null;
+			MethodInvocationExpression mie = null;
+			if (null != (mre = target as MemberReferenceExpression))
+			{
+				Visit(mre.Target);
+				mre.Target = tmp;
+			} 
+			else if (null != (se = target as SlicingExpression))
+			{
+				Visit(se.Target);
+				se.Target = tmp;
+			}
+			else if (null != (mie = target as MethodInvocationExpression))
+			{
+				Visit(mie.Target);
+				mie.Target = tmp;
+			}
+
+			// Convert the target into a ternary operation 
+			var tern = new ConditionalExpression(node.LexicalInfo);
+			tern.Condition = new BinaryExpression(
+				BinaryOperatorType.ReferenceInequality,
+				CodeBuilder.CreateAssignment(tmp, ue.Operand),
+				CodeBuilder.CreateNullLiteral()
+				);
+			tern.TrueValue = node;
+			tern.FalseValue = CodeBuilder.CreateNullLiteral();
+
+			return tern;
 		}
 	}
 }
