@@ -471,7 +471,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			var type = GetExpressionType(expression);
 			var anonymousType = type as AnonymousCallableType;
-			if (null != anonymousType)
+			if (anonymousType != null)
 			{
 				IType concreteType = GetConcreteCallableType(expression, anonymousType);
 				expression.ExpressionType = concreteType;
@@ -672,26 +672,26 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public virtual bool CanBeReachedByDownCastOrPromotion(IType expectedType, IType actualType)
 		{
 			return DowncastPermissions().CanBeReachedByDowncast(expectedType, actualType)
-			       || CanBeReachedByPromotion(expectedType, actualType);
+				|| CanBeReachedByPromotion(expectedType, actualType);
 		}
-
-	    public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
-	    {
-	    	return _canBeReachedByPromotion.Invoke(expectedType, actualType);
-	    }
+		
+		public virtual bool CanBeReachedByPromotion(IType expectedType, IType actualType)
+		{
+			return _canBeReachedByPromotion.Invoke(expectedType, actualType);
+		}
 
 		private bool CanBeReachedByPromotionImpl(IType expectedType, IType actualType)
 		{
 			if (IsNullable(expectedType) && actualType.IsNull())
 				return true;
-			if (IsIntegerNumber(actualType) && CanBeExplicitlyCastToInteger(expectedType))
+			if (IsIntegerNumber(actualType) && CanBeExplicitlyCastToPrimitiveNumber(expectedType))
 				return true;
-			if (IsIntegerNumber(expectedType) && CanBeExplicitlyCastToInteger(actualType))
+			if (IsIntegerNumber(expectedType) && CanBeExplicitlyCastToPrimitiveNumber(actualType))
 				return true;
 			return (expectedType.IsValueType && IsNumber(expectedType) && IsNumber(actualType));
 		}
 
-		public bool CanBeExplicitlyCastToInteger(IType type)
+		public bool CanBeExplicitlyCastToPrimitiveNumber(IType type)
 		{
 			return type.IsEnum || type == CharType;
 		}
@@ -703,15 +703,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsIntegerNumber(IType type)
 		{
-			return IsSignedInteger(type) || IsUnsignedInteger(type);
+			return IsSignedInteger(type)
+				|| IsUnsignedInteger(type);
 		}
 
 		private bool IsUnsignedInteger(IType type)
 		{
-			return (type == UShortType ||
-			        type == UIntType ||
-			        type == ULongType ||
-			        type == ByteType);
+			return type == UShortType
+				|| type == UIntType
+				|| type == ULongType
+				|| type == ByteType;
 		}
 
 		public bool IsIntegerOrBool(IType type)
@@ -731,7 +732,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsPrimitiveNumber(IType type)
 		{
-			return IsIntegerNumber(type) || type == DoubleType || type == SingleType;
+			return IsIntegerNumber(type) || IsFloatingPointNumber(type);
+		}
+
+		public bool IsFloatingPointNumber(IType type)
+		{
+			return (type == DoubleType || type == SingleType);
 		}
 
 		public bool IsSignedNumber(IType type)
@@ -1108,6 +1114,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 				size += fsize;
 			}
 			return size;
+		}
+
+		public IType MapWildcardType(IType type)
+		{
+			if (type.IsNull())
+				return ObjectType;
+			if (EmptyArrayType.Default == type)
+				return ObjectArrayType;
+			return type;
 		}
 	}
 }

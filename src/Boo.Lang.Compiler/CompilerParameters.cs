@@ -158,10 +158,11 @@ namespace Boo.Lang.Compiler
 		private IAssemblyReference TryToLoadExtensionsAssembly()
 		{
 			const string booLangExtensionsDll = "Boo.Lang.Extensions.dll";
-			var tentative = Permissions.WithDiscoveryPermission(() => Path.Combine(Path.GetDirectoryName(_booAssembly.Location), booLangExtensionsDll))
-			                ?? booLangExtensionsDll;
-
-			return LoadAssembly(tentative, false) ?? LoadAssembly("Boo.Lang.Extensions", false);
+			return Permissions.WithDiscoveryPermission(() =>
+			{
+				var path = Path.Combine(Path.GetDirectoryName(_booAssembly.Location), booLangExtensionsDll);
+				return File.Exists(path) ? AssemblyReferenceFor(Assembly.LoadFrom(path)) : null;
+			}) ?? LoadAssembly(booLangExtensionsDll, false);
 		}
 
 		public Assembly BooAssembly
@@ -200,8 +201,11 @@ namespace Boo.Lang.Compiler
 		public IAssemblyReference LoadAssembly(string assemblyName, bool throwOnError)
 		{
 			var assembly = ForName(assemblyName, throwOnError);
-			if (null == assembly)
-				return null;
+			return assembly != null ? AssemblyReferenceFor(assembly) : null;
+		}
+
+		private IAssemblyReference AssemblyReferenceFor(Assembly assembly)
+		{
 			return _compilerReferences.Provider.ForAssembly(assembly);
 		}
 
@@ -211,21 +215,9 @@ namespace Boo.Lang.Compiler
 			try
 			{
 				if (assembly.IndexOfAny(new char[] {'/', '\\'}) != -1)
-				{
-					//nant passes full path to gac dlls, which compiler doesn't like:
-					//if (assembly.ToLower().StartsWith(_systemDir.ToLower()))
-					{
-						//return LoadAssemblyFromGac(Path.GetFileName(assembly));
-					}
-					//else //load using path  
-					{
-						a = Assembly.LoadFrom(assembly);
-					}
-				}
+					a = Assembly.LoadFrom(assembly);
 				else
-				{
 					a = LoadAssemblyFromGac(assembly);
-				}
 			}
 			catch (FileNotFoundException /*ignored*/)
 			{

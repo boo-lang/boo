@@ -117,7 +117,7 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 
 		protected MissingFieldException MissingField()
 		{
-			return new MissingFieldException(_type.FullName, _name);
+			return new MissingFieldException(_type.FullName + "." +  _name);
 		}
 	}
 }

@@ -1,3 +1,5 @@
+#category FailsOnMono
+
 def stackTrace(code as callable()):
 	try:
 		code()
@@ -7,7 +9,7 @@ def stackTrace(code as callable()):
 s = stackTrace:
 	cast(duck, 3).Foo()
 
-// we expect to see line 3 and line 8 in there
+// we expect to see line 5 and line 10 in there
 assert 2 == /exceptions-3/.Matches(s).Count	
 	
 	

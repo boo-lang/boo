@@ -43,8 +43,8 @@ namespace Boo.Lang.Compiler.Steps
 		IType _asyncResultType;
 		
 		IMethod _asyncResultTypeAsyncDelegateGetter;
-		
-		List<AdaptorRecord> _adaptors = new List<AdaptorRecord>();
+
+		readonly List<AdaptorRecord> _adaptors = new List<AdaptorRecord>();
 		
 		override public void Run()
 		{
@@ -57,11 +57,9 @@ namespace Boo.Lang.Compiler.Steps
 		override public void LeaveExpressionStatement(ExpressionStatement node)
 		{
 			// allow interactive evaluation of closures (see booish)
-			Expression converted = ConvertExpression(node.Expression);
-			if (null != converted)
-			{
+			var converted = ConvertExpression(node.Expression);
+			if (converted != null)
 				node.Expression = converted;
-			}
 		}
 
 		override public void LeaveReturnStatement(ReturnStatement node)
@@ -136,28 +134,32 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			if (IsEndInvokeOnStandaloneMethodReference(node) &&
-				AstUtil.IsTargetOfMethodInvocation(node))
+			if (IsEndInvokeOnStandaloneMethodReference(node) && AstUtil.IsTargetOfMethodInvocation(node))
 			{
 				ReplaceEndInvokeTargetByGetAsyncDelegate((MethodInvocationExpression)node.ParentNode);
+				return;
 			}
-			else
-			{
-				Expression newTarget = ConvertExpression(node.Target);
-				if (null != newTarget)
-				{
-					node.Target = newTarget;
-				}
-			}
+
+			var newTarget = ConvertExpression(node.Target);
+			if (null != newTarget)
+				node.Target = newTarget;
 		}
 
 		override public void LeaveCastExpression(CastExpression node)
 		{
-			Expression newExpression = Convert(node.ExpressionType, node.Target);
-			if (null != newExpression)
-			{
+			var newExpression = Convert(node.ExpressionType, node.Target);
+			if (newExpression != null)
 				node.Target = newExpression;
-			}
+		}
+
+		public override void LeaveConditionalExpression(ConditionalExpression node)
+		{
+			var newTrueValue = Convert(node.ExpressionType, node.TrueValue);
+			if (newTrueValue != null)
+				node.TrueValue = newTrueValue;
+			var newFalseValue = Convert(node.ExpressionType, node.FalseValue);
+			if (newFalseValue != null)
+				node.FalseValue = newFalseValue;
 		}
 
 		override public void LeaveTryCastExpression(TryCastExpression node)

@@ -91,19 +91,19 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteLine();
 			}
 
-			foreach (TypeMember member in m.Members)
+			foreach (var member in m.Members)
 			{
 				Visit(member);
 				WriteLine();
 			}
 
-			if (null != m.Globals)
+			if (m.Globals != null)
 				Visit(m.Globals.Statements);
 			
-			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in m.Attributes)
+			foreach (var attribute in m.Attributes)
 				WriteModuleAttribute(attribute);
 
-			foreach (Boo.Lang.Compiler.Ast.Attribute attribute in m.AssemblyAttributes)
+			foreach (var attribute in m.AssemblyAttributes)
 				WriteAssemblyAttribute(attribute);
 		}
 		
@@ -143,6 +143,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			WriteKeyword("import");
 			Write(" {0}", p.Namespace);
+			
 			if (null != p.AssemblyReference)
 			{
 				WriteKeyword(" from ");
@@ -153,6 +154,15 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				else
 					WriteStringLiteral(assemblyRef);
 			}
+			
+			if (p.Expression.NodeType == NodeType.MethodInvocationExpression)
+			{
+				MethodInvocationExpression mie = (MethodInvocationExpression)p.Expression;
+				Write("(");
+				WriteCommaSeparatedList(mie.Arguments);
+				Write(")");
+			}
+			
 			if (null != p.Alias)
 			{
 				WriteKeyword(" as ");

@@ -1,3 +1,15 @@
+def includeFromDir(String dir, String name) {
+  include name
+  project(":$name").projectDir = new File(dir, name)
+}
+
+def includeSrcProject(String name) {
+  includeFromDir 'src', name
+}
+
+def includeToolProject(String name) {
+  includeFromDir 'tools', name
+}
 
 def srcProjects = [
 	'Boo.Lang',
@@ -12,11 +24,9 @@ def srcProjects = [
 	'booi',
 	'booish',
 ]
-srcProjects.each { include it }
-
-def srcDir = file('src')
-rootProject.children.each {
-  it.projectDir = new File(srcDir, it.name)
-  it.buildFileName = "${it.name}.gradle"
+srcProjects.each {
+  includeSrcProject it
 }
+
+includeToolProject 'RetargetAssembly'
 

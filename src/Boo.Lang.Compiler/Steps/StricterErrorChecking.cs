@@ -467,7 +467,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IMethod FindConflictingMember(IMethod extension, IEntity entity)
 		{
-			if (EntityType.Ambiguous == entity.EntityType)
+			if (entity.IsAmbiguous())
 				return FindConflictingMember(extension, ((Ambiguous)entity).Entities);
 
 			var method = (IMethod)entity;

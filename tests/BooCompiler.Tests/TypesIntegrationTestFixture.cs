@@ -145,6 +145,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void enum_cast_to_single()
+		{
+			RunCompilerTestCase(@"enum-cast-to-single.boo");
+		}
+		
+		[Test]
 		public void enums_1()
 		{
 			RunCompilerTestCase(@"enums-1.boo");
@@ -558,7 +564,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"interface-implementation-inheritance-4.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void interface_implementation_inheritance_5()
 		{
 			RunCompilerTestCase(@"interface-implementation-inheritance-5.boo");
@@ -1111,6 +1117,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void reserved_keywords_1()
+		{
+			RunCompilerTestCase(@"reserved-keywords-1.boo");
+		}
+		
+		[Test]
 		public void static_1()
 		{
 			RunCompilerTestCase(@"static-1.boo");
@@ -1206,7 +1218,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"value-types-14.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void value_types_15()
 		{
 			RunCompilerTestCase(@"value-types-15.boo");

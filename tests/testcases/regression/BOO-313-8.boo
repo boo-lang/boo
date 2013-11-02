@@ -1,6 +1,6 @@
 struct Point:
-    x as int
-    y as int
+	x as int
+	y as int
 
 struct Rectangle:
 	[property(topLeft)]

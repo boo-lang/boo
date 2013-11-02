@@ -51,6 +51,7 @@ using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using Module = Boo.Lang.Compiler.Ast.Module;
 using System.Collections.Generic;
 using Method = Boo.Lang.Compiler.Ast.Method;
+using ExceptionHandler = Boo.Lang.Compiler.Ast.ExceptionHandler;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -72,7 +73,7 @@ namespace Boo.Lang.Compiler.Steps
 
 	public class EmitAssembly : AbstractFastVisitorCompilerStep
 	{
-		static ConstructorInfo DebuggableAttribute_Constructor = Methods.ConstructorOf(() => new DebuggableAttribute(true, true));
+		static ConstructorInfo DebuggableAttribute_Constructor = Methods.ConstructorOf(() => new DebuggableAttribute(DebuggableAttribute.DebuggingModes.Default));
 
 		static ConstructorInfo RuntimeCompatibilityAttribute_Constructor = Methods.ConstructorOf(() => new System.Runtime.CompilerServices.RuntimeCompatibilityAttribute());
 
@@ -1052,14 +1053,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnConditionalExpression(ConditionalExpression node)
 		{
-			IType type = GetExpressionType(node);
+			var type = GetExpressionType(node);
 
-			Label endLabel = _il.DefineLabel();
+			var endLabel = _il.DefineLabel();
 
 			EmitBranchFalse(node.Condition, endLabel);
 			LoadExpressionWithType(type, node.TrueValue);
 
-			Label elseEndLabel = _il.DefineLabel();
+			var elseEndLabel = _il.DefineLabel();
 			_il.Emit(OpCodes.Br, elseEndLabel);
 			_il.MarkLabel(endLabel);
 
@@ -1288,7 +1289,7 @@ namespace Boo.Lang.Compiler.Steps
 			condition.Accept(this);
 
 			var type = PopType();
-			if (type == TypeSystemServices.DoubleType || type == TypeSystemServices.SingleType)
+			if (TypeSystemServices.IsFloatingPointNumber(type))
 			{
 				EmitDefaultValue(type);
 				_il.Emit(branch ? OpCodes.Bne_Un : OpCodes.Beq, label);
@@ -1452,7 +1453,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Ldnull);
 			else if (type == TypeSystemServices.BoolType)
 				_il.Emit(OpCodes.Ldc_I4_0);
-			else if (type == TypeSystemServices.SingleType || type == TypeSystemServices.DoubleType)
+			else if (TypeSystemServices.IsFloatingPointNumber(type))
 				EmitLoadLiteral(type, 0.0);
 			else if (TypeSystemServices.IsPrimitiveNumber(type) || type == TypeSystemServices.CharType)
 				EmitLoadLiteral(type, 0);
@@ -3265,7 +3266,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			IEntity tag = TypeSystem.TypeSystemServices.GetEntity(node);
+			var tag = TypeSystemServices.GetEntity(node);
 			switch (tag.EntityType)
 			{
 				case EntityType.Ambiguous:
@@ -4373,7 +4374,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return new CustomAttributeBuilder(
 				DebuggableAttribute_Constructor,
-				new object[] { true, true });
+				new object[] { DebuggableAttribute.DebuggingModes.Default | DebuggableAttribute.DebuggingModes.DisableOptimizations });
 		}
 
 		CustomAttributeBuilder CreateRuntimeCompatibilityAttribute()
@@ -4571,19 +4572,21 @@ namespace Boo.Lang.Compiler.Steps
 		/// </summary>
 		private MethodInfo GetMappedMethodInfo(IType targetType, IMethod source)
 		{
-			MethodInfo mi = GetMethodInfo(source);
-			if (!mi.DeclaringType.IsGenericTypeDefinition)
-			{
-				// HACK: .NET Reflection doesn't allow calling TypeBuilder.GetMethod(Type, MethodInfo)
-				// on types that aren't generic definitions (like open constructed types), so we have to
-				// manually find the corresponding MethodInfo on the declaring type's definition before
-				// mapping it
-				Type definition = mi.DeclaringType.GetGenericTypeDefinition();
-				mi = Array.Find<MethodInfo>(
-					definition.GetMethods(),
-					delegate(MethodInfo other) { return other.MetadataToken == mi.MetadataToken; });
-			}
+			var mi = GetMethodInfo(source);
+			if (mi.DeclaringType.IsGenericTypeDefinition)
+				return GetConstructedMethodInfo(targetType, mi);
 
+			// HACK: .NET Reflection doesn't allow calling TypeBuilder.GetMethod(Type, MethodInfo)
+			// on types that aren't generic definitions (like open constructed types), so we have to
+			// manually find the corresponding MethodInfo on the declaring type's definition before
+			// mapping it
+			var definition = mi.DeclaringType.GetGenericTypeDefinition();
+			var correspondingMethod = Array.Find(definition.GetMethods(), it => it.MetadataToken == mi.MetadataToken);
+			return GetConstructedMethodInfo(targetType, correspondingMethod);
+		}
+
+		MethodInfo GetConstructedMethodInfo(IType targetType, MethodInfo mi)
+		{
 			return TypeBuilder.GetMethod(GetSystemType(targetType), mi);
 		}
 

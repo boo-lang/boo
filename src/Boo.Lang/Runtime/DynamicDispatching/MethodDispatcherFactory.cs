@@ -49,7 +49,7 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 		private Dispatcher ProduceExtensionDispatcher()
 		{
 			CandidateMethod found = ResolveExtensionMethod();
-			if (found == null) throw new System.MissingMethodException(_type.FullName, _name);
+			if (found == null) throw new System.MissingMethodException(_type.FullName + "." + _name);
 			return EmitExtensionDispatcher(found);
 		}
 

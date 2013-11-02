@@ -369,7 +369,7 @@ namespace Boo.Lang.Compiler.Steps
 		void ProcessFieldInitializerType(Field node, IType initializerType)
 		{
 			if (null == node.Type)
-				node.Type = CreateTypeReference(node.LexicalInfo, MapNullToObject(initializerType));
+				node.Type = CreateTypeReference(node.LexicalInfo, MapWildcardType(initializerType));
 			else
 				AssertTypeCompatibility(node.Initializer, GetType(node.Type), initializerType);
 		}
@@ -976,7 +976,7 @@ namespace Boo.Lang.Compiler.Steps
 					return candidate;
 			}
 
-			if (EntityType.Ambiguous == candidates.EntityType)
+			if (candidates.IsAmbiguous())
 				foreach (IMethod candidate in ((Ambiguous) candidates).Entities)
 					if (TypeSystemServices.CheckOverrideSignature(entity, candidate))
 						return candidate;
@@ -1113,7 +1113,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (CheckOverrideSignature(EntityFor(property), candidate))
 						return candidate;
 				}
-				else if (EntityType.Ambiguous == candidates.EntityType)
+				else if (candidates.IsAmbiguous())
 					return ResolvePropertyOverride(EntityFor(property), ((Ambiguous)candidates).Entities);
 			}
 			return null;
@@ -1213,14 +1213,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void PostProcessMethod(Method node)
 		{
-			bool parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
+			var parentIsClass = node.DeclaringType.NodeType == NodeType.ClassDefinition;
 			if (!parentIsClass) return;
 
-			InternalMethod entity = (InternalMethod)GetEntity(node);
+			var entity = (InternalMethod)GetEntity(node);
 			if (TypeSystemServices.IsUnknown(entity.ReturnType))
-			{
 				TryToResolveReturnType(entity);
-			}
 			else
 			{
 				if (entity.IsGenerator)
@@ -1315,13 +1313,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual IType GetGeneratorReturnType(InternalMethod generator)
 		{
 			// Make method return a generic IEnumerable
-			IType itemType = GeneratorItemTypeFor(generator);
-			if (TypeSystemServices.VoidType == itemType)
-				// circunvent exception in MakeGenericType
-				return TypeSystemServices.ErrorEntity;
-
-			IType enumerableType = TypeSystemServices.IEnumerableGenericType;
-			return enumerableType.GenericInfo.ConstructType(itemType);
+			return GeneratorTypeOf(GeneratorItemTypeFor(generator));
 		}
 
 		private IType GeneratorItemTypeFor(InternalMethod generator)
@@ -1392,18 +1384,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions)
 		{
-			var type = MapNullToObject(GetMostGenericType(expressions));
+			var type = MapWildcardType(GetMostGenericType(expressions));
 			return CodeBuilder.CreateTypeReference(type);
 		}
 
-		IType MapNullToObject(IType type)
+		IType MapWildcardType(IType type)
 		{
-			// FIXME: refactor to TypeSystemServices
-			if (type.IsNull())
-				return TypeSystemServices.ObjectType;
-			if (EmptyArrayType.Default == type)
-				return TypeSystemServices.ObjectArrayType;
-			return type;
+			return TypeSystemServices.MapWildcardType(type);
 		}
 
 		IType GetMostGenericType(IType lhs, IType rhs)
@@ -1527,10 +1514,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			node.Target = new MemberReferenceExpression(node.LexicalInfo, node.Target, member.Name)
-							{
-								Entity = member,
-								ExpressionType = Null.Default // to be resolved later
-							};
+			{
+				Entity = member,
+				ExpressionType = Null.Default // to be resolved later
+			};
 			SliceMember(node, member);
 		}
 
@@ -1574,7 +1561,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			IMethod getter = null;
-			if (EntityType.Ambiguous == member.EntityType)
+			if (member.IsAmbiguous())
 			{
 				IEntity result = ResolveAmbiguousPropertyReference((ReferenceExpression)node.Target, (Ambiguous)member, mie.Arguments);
 				IProperty found = result as IProperty;
@@ -1582,7 +1569,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					getter = found.GetGetMethod();
 				}
-				else if (EntityType.Ambiguous == result.EntityType)
+				else if (result.IsAmbiguous())
 				{
 					Error(node);
 					return;
@@ -1699,7 +1686,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (generatorItemType == TypeSystemServices.VoidType)
 				// cannot use 'void' as a generic argument
 				return TypeSystemServices.ErrorEntity;
-			return TypeSystemServices.IEnumerableGenericType.GenericInfo.ConstructType(generatorItemType);
+			return GetConstructedType(TypeSystemServices.IEnumerableGenericType, generatorItemType);
 		}
 
 		protected IType GetConstructedType(IType genericType, IType argType)
@@ -1721,7 +1708,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			TypeSystemServices.MapToConcreteExpressionTypes(node.Items);
 
-			IArrayType type = InferArrayType(node);
+			var type = InferArrayType(node);
 			BindExpressionType(node, type);
 
 			if (node.Type == null)
@@ -1733,7 +1720,7 @@ namespace Boo.Lang.Compiler.Steps
 		private IArrayType InferArrayType(ArrayLiteralExpression node)
 		{
 			if (null != node.Type) return (IArrayType)node.Type.Entity;
-			if (0 == node.Items.Count) return EmptyArrayType.Default;
+			if (node.Items.Count == 0) return EmptyArrayType.Default;
 			return GetMostGenericType(node.Items).MakeArrayType(1);
 		}
 
@@ -1795,7 +1782,7 @@ namespace Boo.Lang.Compiler.Steps
 			// there's no way to create an untyped declaration statement.
 			// This is here to support languages that do allow untyped variable
 			// declarations (unityscript is such an example).
-			return MapNullToObject(GetConcreteExpressionType(node.Initializer));
+			return MapWildcardType(GetConcreteExpressionType(node.Initializer));
 		}
 
 		virtual protected Expression CreateDefaultLocalInitializer(Node sourceNode, IEntity local)
@@ -1855,6 +1842,9 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			if (TypeSystemServices.CanBeReachedByPromotion(toType, fromType))
+				return;
+
+			if (TypeSystemServices.IsFloatingPointNumber(toType) && fromType.IsEnum)
 				return;
 
 			var conversion = TypeSystemServices.FindExplicitConversionOperator(fromType, toType) ?? TypeSystemServices.FindImplicitConversionOperator(fromType, toType);
@@ -2490,8 +2480,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveConditionalExpression(ConditionalExpression node)
 		{
-			IType trueType = GetExpressionType(node.TrueValue);
-			IType falseType = GetExpressionType(node.FalseValue);
+			var trueType = GetExpressionType(node.TrueValue);
+			var falseType = GetExpressionType(node.FalseValue);
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
 		}
 
@@ -3043,7 +3033,7 @@ namespace Boo.Lang.Compiler.Steps
 		protected virtual void ProcessAutoLocalDeclaration(BinaryExpression node, ReferenceExpression reference)
 		{
 			Visit(node.Right);
-			IType expressionType = MapNullToObject(GetConcreteExpressionType(node.Right));
+			IType expressionType = MapWildcardType(GetConcreteExpressionType(node.Right));
 			IEntity local = DeclareLocal(reference, reference.Name, expressionType);
 			reference.Entity = local;
 			BindExpressionType(reference, expressionType);
@@ -3411,22 +3401,30 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindInPlaceAddSubtract(BinaryExpression node)
 		{
-			IEntity entity = node.Left.Entity;
-			if (null != entity &&
-				(EntityType.Event == entity.EntityType
-				 || EntityType.Ambiguous == entity.EntityType))
+			if (IsEventSubscription(node))
 			{
 				BindEventSubscription(node);
-			    return;
+				return;
 			}
-            
-            BindInPlaceArithmeticOperator(node);
+			BindInPlaceArithmeticOperator(node);
+		}
+
+		static bool IsEventSubscription(BinaryExpression node)
+		{
+			var leftEntity = node.Left.Entity;
+			return leftEntity != null
+				&& (IsEvent(leftEntity) || leftEntity.IsAmbiguous());
+		}
+
+		static bool IsEvent(IEntity entity)
+		{
+			return EntityType.Event == entity.EntityType;
 		}
 
 		void BindEventSubscription(BinaryExpression node)
 		{
 			IEntity entity = GetEntity(node.Left);
-		    if (EntityType.Ambiguous == entity.EntityType)
+		    if (entity.IsAmbiguous())
 		    {
 		        IList found = ((Ambiguous) entity).Select(IsPublicEvent);
 		        if (found.Count != 1)
@@ -3550,8 +3548,8 @@ namespace Boo.Lang.Compiler.Steps
 
 				if (EntityType.Method != type)
 				{
-					ReferenceExpression reference = arg as ReferenceExpression;
-					if (null != reference && EntityType.Ambiguous == type)
+					var reference = arg as ReferenceExpression;
+					if (reference != null && type == EntityType.Ambiguous)
 					{
 						Error(node, CompilerErrorFactory.AmbiguousReference(arg, reference.Name, ((Ambiguous)arg.Entity).Entities));
 					}
@@ -3746,7 +3744,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Target);
 
 			if (ProcessSwitchInvocation(node)) return;
-			if (ProcessMetaMethodInvocation(node)) return;
+			if (ProcessMetaMethodInvocation(node, false)) return;
 
 			Visit(node.Arguments);
 
@@ -3767,32 +3765,49 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodInvocationExpression(node, targetEntity);
 		}
 
-		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node)
+		private bool ProcessMetaMethodInvocation(MethodInvocationExpression node, bool resolvedArgs)
 		{
 			var targetEntity = node.Target.Entity;
-			if (null == targetEntity) return false;
+			if (targetEntity == null) return false;
 			if (!IsOrContainMetaMethod(targetEntity)) return false;
 
 			var arguments = GetMetaMethodInvocationArguments(node);
 			var argumentTypes = MethodResolver.GetArgumentTypes(arguments);
 			var resolver = new MethodResolver(argumentTypes);
 			var method = resolver.ResolveMethod(EnumerateMetaMethods(targetEntity));
-			if (null == method) return false;
+			if (method == null) return false;
 
-			Node replacement = InvokeMetaMethod(method, arguments);
-			ReplaceMetaMethodInvocationSite(node, replacement);
+			if (ShouldResolveArgsOf(method))
+			{
+				Visit(node.Arguments);
+				InvokeMetaMethod(node, method, GetMetaMethodInvocationArguments(node));
+				return true;
+			}
 
+			InvokeMetaMethod(node, method, arguments);
 			return true;
 		}
 
-		private Node InvokeMetaMethod(CandidateMethod method, object[] arguments)
+		private static bool ShouldResolveArgsOf(CandidateMethod method)
 		{
-			return (Node)method.DynamicInvoke(null, arguments);
+			return MetaAttributeOf(method).ResolveArgs;
+		}
+
+		private static MetaAttribute MetaAttributeOf(CandidateMethod method)
+		{
+			return (MetaAttribute) method.Method.GetCustomAttributes(typeof (MetaAttribute), false).Single();
+		}
+
+		private void InvokeMetaMethod(MethodInvocationExpression node, CandidateMethod method, object[] arguments)
+		{
+			var replacement = (Node) method.DynamicInvoke(null, arguments);
+			ReplaceMetaMethodInvocationSite(node, replacement);
 		}
 
 		private static object[] GetMetaMethodInvocationArguments(MethodInvocationExpression node)
 		{
-			if (node.NamedArguments.Count == 0) return node.Arguments.ToArray();
+			if (node.NamedArguments.Count == 0)
+				return node.Arguments.ToArray();
 
 			var arguments = new List();
 			arguments.Add(node.NamedArguments.ToArray());
@@ -3819,7 +3834,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(replacement);
 		}
 
-		private IEnumerable<System.Reflection.MethodInfo> EnumerateMetaMethods(IEntity entity)
+		private IEnumerable<MethodInfo> EnumerateMetaMethods(IEntity entity)
 		{
 			if (entity.EntityType == EntityType.Method)
 			{
@@ -4232,10 +4247,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessTypeInvocation(MethodInvocationExpression node)
 		{
-			IType type = (IType)node.Target.Entity;
+			var type = (IType)node.Target.Entity;
 
-			ICallableType callableType = type as ICallableType;
-			if (null != callableType)
+			var callableType = type as ICallableType;
+			if (callableType != null)
 			{
 				ProcessCallableTypeInvocation(node, callableType);
 				return;
@@ -4254,20 +4269,16 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IConstructor ctor = GetCorrectConstructor(node, type, node.Arguments);
-			if (null != ctor)
+			var ctor = GetCorrectConstructor(node, type, node.Arguments);
+			if (ctor != null)
 			{
 				BindConstructorInvocation(node, ctor);
-
 				if (node.NamedArguments.Count > 0)
-				{
 					ReplaceTypeInvocationByEval(type, node);
-				}
+				return;
 			}
-			else
-			{
-				Error(node);
-			}
+
+			Error(node);
 		}
 
 		void BindConstructorInvocation(MethodInvocationExpression node, IConstructor ctor)
@@ -4304,44 +4315,56 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessMethodInvocationOnCallableExpression(MethodInvocationExpression node)
 		{
-			IType type = node.Target.ExpressionType;
+			var type = GetConcreteExpressionType(node.Target);
 
-			ICallableType delegateType = type as ICallableType;
-			if (null != delegateType)
+			var delegateType = type as ICallableType;
+			if (delegateType != null)
 			{
-				if (AssertParameters(node.Target, delegateType, delegateType, node.Arguments))
-				{
-					IMethod invoke = ResolveMethod(delegateType, "Invoke");
-					node.Target = CodeBuilder.CreateMemberReference(node.Target, invoke);
-					BindExpressionType(node, invoke.ReturnType);
-				}
-				else
-				{
-					Error(node);
-				}
+				ProcessDelegateInvocation(node, delegateType);
+				return;
 			}
-			else if (IsAssignableFrom(TypeSystemServices.ICallableType, type))
-			{
-				node.Target = CodeBuilder.CreateMemberReference(node.Target, MethodCache.ICallable_Call);
-				ArrayLiteralExpression arg = CodeBuilder.CreateObjectArray(node.Arguments);
-				node.Arguments.Clear();
-				node.Arguments.Add(arg);
 
-				BindExpressionType(node, MethodCache.ICallable_Call.ReturnType);
+			if (IsAssignableFrom(TypeSystemServices.ICallableType, type))
+			{
+				ProcessICallableInvocation(node);
+				return;
 			}
-			else if (TypeSystemServices.TypeType == type)
+
+			if (TypeSystemServices.TypeType == type)
 			{
 				ProcessSystemTypeInvocation(node);
+				return;
 			}
-			else
+
+			ProcessInvocationOnUnknownCallableExpression(node);
+		}
+
+		void ProcessDelegateInvocation(MethodInvocationExpression node, ICallableType delegateType)
+		{
+			if (!AssertParameters(node.Target, delegateType, delegateType, node.Arguments))
 			{
-				ProcessInvocationOnUnknownCallableExpression(node);
+				Error(node);
+				return;
 			}
+
+			var invoke = ResolveMethod(delegateType, "Invoke");
+			node.Target = CodeBuilder.CreateMemberReference(node.Target, invoke);
+			BindExpressionType(node, invoke.ReturnType);
+		}
+
+		void ProcessICallableInvocation(MethodInvocationExpression node)
+		{
+			node.Target = CodeBuilder.CreateMemberReference(node.Target, MethodCache.ICallable_Call);
+			var args = CodeBuilder.CreateObjectArray(node.Arguments);
+			node.Arguments.Clear();
+			node.Arguments.Add(args);
+
+			BindExpressionType(node, MethodCache.ICallable_Call.ReturnType);
 		}
 
 		private void ProcessSystemTypeInvocation(MethodInvocationExpression node)
 		{
-			MethodInvocationExpression invocation = CreateInstanceInvocationFor(node);
+			var invocation = CreateInstanceInvocationFor(node);
 			if (invocation.NamedArguments.Count == 0)
 			{
 				node.ParentNode.Replace(node, invocation);
@@ -4515,7 +4538,7 @@ namespace Boo.Lang.Compiler.Steps
 				if (AssertParameters(node.Left, setMethod, mie.Arguments))
 					setter = setMethod;
 			}
-			else if (EntityType.Ambiguous == lhs.EntityType)
+			else if (lhs.IsAmbiguous())
 			{
 				setter = (IMethod)GetCorrectCallableReference(node.Left, mie.Arguments, GetSetMethods(lhs));
 				if (setter == null)
@@ -4577,12 +4600,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void TryToResolveAmbiguousAssignment(BinaryExpression node)
 		{
-			IEntity lhs = node.Left.Entity;
-			if (null == lhs) return;
-			if (EntityType.Ambiguous != lhs.EntityType) return;
+			if (!node.Left.Entity.IsAmbiguous()) return;
 
-			Expression lvalue = node.Left;
-			lhs = ResolveAmbiguousLValue(lvalue, (Ambiguous)lhs, node.Right);
+			var lvalue = node.Left;
+			var lhs = ResolveAmbiguousLValue(lvalue, (Ambiguous)node.Left.Entity, node.Right);
 			if (NodeType.ReferenceExpression == lvalue.NodeType)
 			{
 				IMember member = lhs as IMember;
@@ -5119,7 +5140,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (IsVisibleFieldPropertyOrEvent(candidate)) return (IMember)candidate;
 
-			if (candidate.EntityType != EntityType.Ambiguous) return null;
+			if (!candidate.IsAmbiguous()) return null;
 
 			IList<IEntity> found = ((Ambiguous)candidate).Select(IsVisibleFieldPropertyOrEvent);
 			if (found.Count == 0) return null;
@@ -5354,7 +5375,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		IConstructor GetCorrectConstructor(Node sourceNode, IType type, ExpressionCollection arguments)
 		{
-			IConstructor[] constructors = type.GetConstructors().ToArray();
+			var constructors = type.GetConstructors().ToArray();
 			if (constructors.Length > 0)
 				return (IConstructor)GetCorrectCallableReference(sourceNode, arguments, constructors);
 
@@ -5371,18 +5392,21 @@ namespace Boo.Lang.Compiler.Steps
 		IEntity GetCorrectCallableReference(Node sourceNode, ExpressionCollection args, IEntity[] candidates)
 		{
 			// BOO-844: Ensure all candidates were visited (to make property setters have correct signature)
-			foreach (IEntity candidate in candidates)
-			{
-				EnsureRelatedNodeWasVisited(sourceNode, candidate);
-			}
+			EnsureRelatedNodesWereVisited(sourceNode, candidates);
 
-			IEntity found = CallableResolutionService.ResolveCallableReference(args, candidates);
-			if (null == found)
+			var found = CallableResolutionService.ResolveCallableReference(args, candidates);
+			if (found == null)
 				EmitCallableResolutionError(sourceNode, candidates, args);
 			else
 				BindNullableParameters(args, ((IMethodBase) found).CallableType);
 
 			return found;
+		}
+
+		private void EnsureRelatedNodesWereVisited(Node sourceNode, IEntity[] candidates)
+		{
+			foreach (var candidate in candidates)
+				EnsureRelatedNodeWasVisited(sourceNode, candidate);
 		}
 
 		private void EmitCallableResolutionError(Node sourceNode, IEntity[] candidates, ExpressionCollection args)
@@ -5597,7 +5621,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IMethod ResolveOperatorEntity(IEntity op, ExpressionCollection args)
 		{
-			if (EntityType.Ambiguous == op.EntityType)
+			if (op.IsAmbiguous())
 				return ResolveAmbiguousOperator(((Ambiguous)op).Entities, args);
 
 			if (EntityType.Method == op.EntityType)

@@ -68,7 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			set
 			{
 				if (null == value)
-                    throw new ArgumentNullException();
+					throw new ArgumentNullException();
 				_entityNameMatcher = value;
 			}
 		}
@@ -349,7 +349,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			}
 			
 			IEntity firstCandidate = null;
-			if (EntityType.Ambiguous == entity.EntityType)
+			if (entity.IsAmbiguous())
 			{
 				// Remove from the buffer types that do not match requested generity
 				var resultingSet = new Set<IEntity>(((Ambiguous)entity).Entities);
@@ -397,7 +397,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 			if (EntityType.Type != entity.EntityType)
 			{
-				if (EntityType.Ambiguous == entity.EntityType)
+				if (entity.IsAmbiguous())
 				{
 					entity = AmbiguousReference(node, (Ambiguous)entity);
 				}
@@ -422,7 +422,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			var resolved = ResolveQualifiedName(node.Name, EntityType.Type);
 			if (resolved == null)
 				return null;
-			if (EntityType.Ambiguous == resolved.EntityType)
+			if (resolved.IsAmbiguous())
 			{
 				// Remove from the buffer types that do not match requested generity
 				var resultingSet = new Set<IEntity>(((Ambiguous)resolved).Entities);

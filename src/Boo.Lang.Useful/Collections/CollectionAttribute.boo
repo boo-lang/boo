@@ -91,4 +91,4 @@ Example:
 		raise System.InvalidOperationException("no base type removed")
 
 	def IsObject(entity as IEntity):
-		 return entity is TypeSystemServices.ObjectType
+		return entity is TypeSystemServices.ObjectType

@@ -1,3 +1,5 @@
+#category FailsOnMono
+
 class Foo:
 	def bar():
 		baz()

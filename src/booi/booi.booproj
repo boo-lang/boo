@@ -31,6 +31,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="AssemblyResolver.boo" />
+    <Compile Include="CompilerParameters.boo" />
+    <Compile Include="CompilationCache.boo" />
+    <Compile Include="CommandLine.boo" />
     <Compile Include="booi.boo" />
   </ItemGroup>
   <ItemGroup>

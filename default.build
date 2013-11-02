@@ -1,14 +1,16 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
-	<property name="boo.major.minor.release.version" value="0.9.5" />
-	<property name="boo.build.number" value="6" />
-	<property name="boo.version" value="${boo.major.minor.release.version}.${boo.build.number}" dynamic="True" />
-	<property name="boo.assembly.version" value="2.${boo.major.minor.release.version}" />
+	<loadfile file="version.txt" property="version.txt" />
+	<property name="boo.version" value="${string::trim(version.txt)}" />
+
+	<!-- freeze AssemblyVersion to avoid backwards compatibility issues -->
+	<property name="boo.assembly.version" value="2.0.9.5" />
 	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 	<property name="verbose" value="false" />
+	<property name="defines" value="" unless="${property::exists('defines')}" />
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
@@ -175,7 +177,8 @@
 			target="exe"
 			output="${build.dir}/booish.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
@@ -195,7 +198,7 @@
 			</filterchain>
 		</copy>
 
-		<if test="${not(platform::is-win32())}">
+		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booish.in" tofile="${build.dir}/booish" inputencoding="ASCII">
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
@@ -207,12 +210,12 @@
 	</target>
 
 	<target name="booi" depends="core, Boo.Lang.Useful, Boo.Lang.Parser">
-
 		<booc
 			target="exe"
 			output="${build.dir}/booi.exe"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
@@ -233,7 +236,7 @@
 			</filterchain>
 		</copy>
 		
-		<if test="${not(platform::is-win32())}">
+		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booi.in" tofile="${build.dir}/booi" inputencoding="ASCII">
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
@@ -272,7 +275,8 @@
 		<booc target="library"
 		      output="${build.dir}/Boo.Lang.Interpreter.dll"
 		      verbose="${verbose}"
-		      debug="${debug}">
+		      debug="${debug}"
+		      define="${defines}">
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="**/*.boo" />
 			</sources>
@@ -334,7 +338,7 @@
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</csc>
 
-		<if test="${not(platform::is-win32())}">
+		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booc.in" tofile="${build.dir}/booc" inputencoding="ASCII">
 				<filterchain>
 					<replacestring from="@RUNTIME@" to="mono" />
@@ -391,17 +395,18 @@
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
 		<booc target="library"
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
-			failonerror="false" 
+			failonerror="true" 
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
-			<references basedir="${build.dir}">
+			<!-- references basedir="${build.dir}">
 				<include name="Microsoft.Build.Utilities.dll" />
-				<include name="Microsoft.Build.Tasks.dll" />
 				<include name="Microsoft.Build.Framework.dll" />
-			</references>
+				<include name="Microsoft.Build.Tasks.dll" />
+			</references -->
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 		<copy todir="${build.dir}">
@@ -436,7 +441,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<nowarn>
 				<warning number="BCW0016"/> <!-- unused namespaces in generated stuff -->
 			</nowarn>
@@ -455,7 +461,8 @@
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
 			</sources>
@@ -476,7 +483,8 @@
 			failonerror="true"
 			nostdlib="true"
 			verbose="${verbose}"
-			debug="${debug}">
+			debug="${debug}"
+			define="${defines}">
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
 			</sources>
@@ -548,7 +556,7 @@
 	</target>
 	
 	<target name="boo-pkgconfig">
-		<copy file="extras/boo.pc.in" tofile="${build.dir}/boo.pc" if="${not(platform::is-win32())}" inputencoding="ASCII">
+		<copy file="extras/boo.pc.in" tofile="${build.dir}/boo.pc" if="${not(platform::is-windows())}" inputencoding="ASCII">
 			<filterchain>
 				<replacestring from="@prefix@" to="${install.prefix}" />
 				<replacestring from="@VERSION@" to="${boo.version}" />
@@ -557,8 +565,8 @@
 	</target>
 
 	<target name="install" depends="booc, booish, booi">
-		<call target="install-win32" if="${platform::is-win32()}"/>
-		<call target="install-linux" if="${not(platform::is-win32())}"/>
+		<call target="install-win32" if="${platform::is-windows()}"/>
+		<call target="install-linux" if="${not(platform::is-windows())}"/>
 	</target>
 
 	<target name="install-linux" depends="booc, booish, booi">
@@ -689,8 +697,8 @@
 	</target>
 	
 	<target name="uninstall">
-		<call target="uninstall-linux" if="${not(platform::is-win32())}"/>
-		<call target="uninstall-win32" if="${platform::is-win32()}"/>
+		<call target="uninstall-linux" if="${not(platform::is-windows())}"/>
+		<call target="uninstall-win32" if="${platform::is-windows()}"/>
 	</target>
 
 	<target name="uninstall-linux">
@@ -791,8 +799,8 @@
 	</target>
 	
 	<target name="distro">
-		<call target="distro-win32" if="${platform::is-win32()}"/>
-		<call target="distro-linux" if="${not(platform::is-win32())}"/>
+		<call target="distro-win32" if="${platform::is-windows()}"/>
+		<call target="distro-linux" if="${not(platform::is-windows())}"/>
 	</target>
 	
 	<!-- Deprecated, now that binaries are built for multiple frameworks. -->
@@ -1087,7 +1095,7 @@
 		builtins = File.ReadAllText(fname)
 		
 		version = Project.Properties["boo.version"]
-		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}\")")
+		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}.0\")")
 		if builtins != newBuiltins:
 			print fname
 			File.WriteAllText(fname, newBuiltins) 

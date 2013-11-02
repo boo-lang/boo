@@ -27,12 +27,11 @@
 #endregion
 
 using System;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-
 	//TODO: constant propagation (which allows precise unreachable branch detection)
 	public class ConstantFolding : AbstractTransformerCompilerStep
 	{
@@ -129,8 +128,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				folded = GetFoldedBoolLiteral(node.Operator, Convert.ToBoolean(lhs), Convert.ToBoolean(rhs));
 			}
-			else if (TypeSystemServices.DoubleType == lhsType || TypeSystemServices.SingleType == lhsType
-				|| TypeSystemServices.DoubleType == rhsType || TypeSystemServices.SingleType == rhsType)
+			else if (TypeSystemServices.IsFloatingPointNumber(lhsType) || TypeSystemServices.IsFloatingPointNumber(rhsType))
 			{
 				folded = GetFoldedDoubleLiteral(node.Operator, Convert.ToDouble(lhs), Convert.ToDouble(rhs));
 			}
@@ -173,7 +171,7 @@ namespace Boo.Lang.Compiler.Steps
 			Expression folded = null;
 			IType operandType = GetExpressionType(node.Operand);
 
-			if (TypeSystemServices.DoubleType == operandType || TypeSystemServices.SingleType == operandType)
+			if (TypeSystemServices.IsFloatingPointNumber(operandType))
 			{
 				folded = GetFoldedDoubleLiteral(node.Operator, Convert.ToDouble(operand));
 			}
