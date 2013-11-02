@@ -42,14 +42,19 @@ namespace Boo.Lang.Parser
 	{	
 		protected ParserErrorHandler Error;
 
+		/// <summary>
+		/// Sets a limit to the depth the parser can go when recursing rules
+		///</summary>
+		/// <remarks>
+		/// The parser must be build with the antlr `-traceParser` (Nant: antlr.trace=true) option 
+		/// for this to have any actual effect.
+		/// </remarks>		
 		public uint MaxRecursionLimit { get; set; }
+		protected Stack<string> RulesStack = new Stack<string>();
+
 		public ErrorPattern[] ErrorPatterns { get; set; }
 
 		protected int LastErrorLine = -1;
-		protected Stack<string> RulesStack = new Stack<string>();
-		protected string CurrentRule { 
-			get { return RulesStack.Peek(); }
-		}
 
 		public BooParser(antlr.TokenStream lexer) : base(lexer)
 		{
@@ -186,23 +191,14 @@ namespace Boo.Lang.Parser
 			RulesStack.Pop();
 		}
 
-		override public void reportError(RecognitionException x)
+		override public void reportError(RecognitionException x, string rulename)
 		{
-			// Silently ignore errors which are very close to a previous matched one,
-			// assuming that they are produced while the parser is trying to recover.
-			if (LastErrorLine != -1 && x.getLine() - LastErrorLine < 3) 
-			{
-				// Update it so we can extend the range as we go
-				LastErrorLine = x.getLine();
-				return;
-			}
-
 			// Override the reported error if there is matching pattern
 			if (ErrorPatterns != null)
 			{
 				foreach (ErrorPattern pattern in ErrorPatterns)
 				{
-					if (pattern.Matches(CurrentRule, x))
+					if (pattern.Matches(rulename, x))
 					{
 						LastErrorLine = x.getLine();
 						x = new RecognitionException(
@@ -214,6 +210,20 @@ namespace Boo.Lang.Parser
 						break;
 					}
 				}
+			}
+
+			reportError(x);
+		}
+
+		override public void reportError(RecognitionException x)
+		{
+			// Silently ignore errors which are very close to a previous matched one,
+			// assuming that they are produced while the parser is trying to recover.
+			if (LastErrorLine != -1 && x.getLine() - LastErrorLine < 3) 
+			{
+				// Update it so we can extend the range as we go
+				LastErrorLine = x.getLine();
+				return;
 			}
 
 			if (null != Error)

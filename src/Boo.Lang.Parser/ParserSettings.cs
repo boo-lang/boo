@@ -54,6 +54,10 @@ namespace Boo.Lang.Parser
 		/// If different to 0 will force the parser to trigger an error if the rules
 		/// exceed the recursion limit.
 		/// </summary>
+		/// <remarks>
+		/// The parser must be build with the antlr `-traceParser` (Nant: antlr.trace=true) option 
+		/// for this to have any actual effect.
+		/// </remarks>		
 		public uint MaxRecursionLimit { get; set; }
 
 		public ErrorPattern[] ErrorPatterns { get; set; }

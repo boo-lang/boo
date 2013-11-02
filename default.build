@@ -14,8 +14,9 @@
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
+	<property name="java" value="java" />
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
-	<property name="java" value="java" />	
+	<property name="antlr.trace" value="False" />
 	
 	<property name="ngen.exe" value="${framework::get-framework-directory(framework::get-target-framework())}/ngen.exe" />
 	<property name="skip.ngen" value="True" />
@@ -1009,24 +1010,17 @@
 				</fileset>
 			</delete>			 
 			
+			<property name="antlr.traceParser" value="-traceParser" if="${antlr.trace}" />
+			<property name="antlr.traceParser" value="" unless="${antlr.trace}" />
 			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
-				<arg value="-traceParser" />
+				<arg value="${antlr.traceParser}" />
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/boo.g" />
 			</exec>
-			<!-- antlr has a bug that outputs Ast code when tracing is enabled -->
-			<loadfile file="src/Boo.Lang.Parser/BooParserBase.cs" property="BooParserBaseContents">
-    			<filterchain>
-        			<replacestring from="ASTPair" to="// ASTPair" />
-    			</filterchain>
-			</loadfile>
-			<echo append="false" 
-				  file="src/Boo.Lang.Parser/BooParserBase.cs" 
-				  message="${BooParserBaseContents}" />
 			
 			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />

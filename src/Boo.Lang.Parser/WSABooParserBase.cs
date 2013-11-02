@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "src/Boo.Lang.Parser/wsaboo.g" -> "WSABooParserBase.cs"$
+// $ANTLR 2.7.5 (20131102): "wsaboo.g" -> "WSABooParserBase.cs"$
 
 namespace Boo.Lang.Parser
 {
@@ -271,7 +271,7 @@ using System.Globalization;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "start");
 				recover(ex,tokenSet_0_);
 			}
 			else
@@ -504,7 +504,7 @@ _loop16_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "parse_module");
 				recover(ex,tokenSet_7_);
 			}
 			else
@@ -576,7 +576,7 @@ _loop24_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "eos");
 				recover(ex,tokenSet_8_);
 			}
 			else
@@ -630,7 +630,7 @@ _loop24_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "docstring");
 				recover(ex,tokenSet_9_);
 			}
 			else
@@ -670,7 +670,7 @@ _loop24_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "namespace_directive");
 				recover(ex,tokenSet_11_);
 			}
 			else
@@ -722,7 +722,7 @@ _loop24_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "import_directive");
 				recover(ex,tokenSet_11_);
 			}
 			else
@@ -826,7 +826,7 @@ _loop385_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "expression");
 				recover(ex,tokenSet_12_);
 			}
 			else
@@ -857,7 +857,7 @@ _loop385_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "module_macro");
 				recover(ex,tokenSet_13_);
 			}
 			else
@@ -904,7 +904,7 @@ _loop385_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_member");
 				recover(ex,tokenSet_14_);
 			}
 			else
@@ -954,7 +954,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "globals");
 				recover(ex,tokenSet_19_);
 			}
 			else
@@ -986,7 +986,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "assembly_attribute");
 				recover(ex,tokenSet_20_);
 			}
 			else
@@ -1018,7 +1018,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "module_attribute");
 				recover(ex,tokenSet_20_);
 			}
 			else
@@ -1116,7 +1116,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "macro_stmt");
 				recover(ex,tokenSet_23_);
 			}
 			else
@@ -1244,7 +1244,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "import_directive_");
 				recover(ex,tokenSet_20_);
 			}
 			else
@@ -1302,7 +1302,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "import_directive_from_");
 				recover(ex,tokenSet_20_);
 			}
 			else
@@ -1361,7 +1361,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "namespace_expression");
 				recover(ex,tokenSet_26_);
 			}
 			else
@@ -1392,7 +1392,7 @@ _loop167_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "identifier_expression");
 				recover(ex,tokenSet_27_);
 			}
 			else
@@ -1499,7 +1499,7 @@ _loop586_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "expression_list");
 				recover(ex,tokenSet_28_);
 			}
 			else
@@ -1558,7 +1558,7 @@ _loop598_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "identifier");
 				recover(ex,tokenSet_30_);
 			}
 			else
@@ -1692,7 +1692,7 @@ _loop58_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "attributes");
 				recover(ex,tokenSet_31_);
 			}
 			else
@@ -1733,7 +1733,7 @@ _loop174_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "modifiers");
 				recover(ex,tokenSet_33_);
 			}
 			else
@@ -1785,7 +1785,7 @@ _loop174_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_definition");
 				recover(ex,tokenSet_34_);
 			}
 			else
@@ -1981,7 +1981,7 @@ _loop174_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "method");
 				recover(ex,tokenSet_34_);
 			}
 			else
@@ -2155,7 +2155,7 @@ _loop72_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "class_definition");
 				recover(ex,tokenSet_34_);
 			}
 			else
@@ -2297,7 +2297,7 @@ _loop82_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "interface_definition");
 				recover(ex,tokenSet_34_);
 			}
 			else
@@ -2371,7 +2371,7 @@ _loop48_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "enum_definition");
 				recover(ex,tokenSet_34_);
 			}
 			else
@@ -2481,7 +2481,7 @@ _loop48_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "callable_definition");
 				recover(ex,tokenSet_34_);
 			}
 			else
@@ -2520,7 +2520,7 @@ _loop203_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "generic_parameter_declaration_list");
 				recover(ex,tokenSet_36_);
 			}
 			else
@@ -2590,7 +2590,7 @@ _loop182_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "parameter_declaration_list");
 				recover(ex,tokenSet_37_);
 			}
 			else
@@ -2857,7 +2857,7 @@ _loop236_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_reference");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -2895,7 +2895,7 @@ _loop236_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "begin_with_doc");
 				recover(ex,tokenSet_42_);
 			}
 			else
@@ -2980,7 +2980,7 @@ _loop236_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "enum_member");
 				recover(ex,tokenSet_45_);
 			}
 			else
@@ -3016,7 +3016,7 @@ _loop236_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "splice_type_definition_body");
 				recover(ex,tokenSet_46_);
 			}
 			else
@@ -3058,7 +3058,7 @@ _loop236_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "end");
 				recover(ex,tokenSet_47_);
 			}
 			else
@@ -3141,7 +3141,7 @@ _loop236_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "integer_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -3219,7 +3219,7 @@ _loop236_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "attribute");
 				recover(ex,tokenSet_48_);
 			}
 			else
@@ -3307,7 +3307,7 @@ _loop590_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "argument_list");
 				recover(ex,tokenSet_49_);
 			}
 			else
@@ -3380,7 +3380,7 @@ _loop86_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "base_types");
 				recover(ex,tokenSet_50_);
 			}
 			else
@@ -3414,7 +3414,7 @@ _loop86_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "splice_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -3475,7 +3475,7 @@ _loop86_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_definition_member");
 				recover(ex,tokenSet_51_);
 			}
 			else
@@ -3584,7 +3584,7 @@ _loop86_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "atom");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -3630,7 +3630,7 @@ _loop86_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "event_declaration");
 				recover(ex,tokenSet_51_);
 			}
 			else
@@ -3934,7 +3934,7 @@ _loop147_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "field_or_property");
 				recover(ex,tokenSet_51_);
 			}
 			else
@@ -4100,7 +4100,7 @@ _loop147_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "interface_method");
 				recover(ex,tokenSet_56_);
 			}
 			else
@@ -4271,7 +4271,7 @@ _loop104_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "interface_property");
 				recover(ex,tokenSet_56_);
 			}
 			else
@@ -4390,7 +4390,7 @@ _loop104_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "member");
 				recover(ex,tokenSet_30_);
 			}
 			else
@@ -4442,7 +4442,7 @@ _loop104_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "generic_parameter_declaration");
 				recover(ex,tokenSet_59_);
 			}
 			else
@@ -4467,7 +4467,7 @@ _loop104_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "empty_block");
 				recover(ex,tokenSet_60_);
 			}
 			else
@@ -4550,7 +4550,7 @@ _loop104_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "interface_property_accessor");
 				recover(ex,tokenSet_61_);
 			}
 			else
@@ -4571,7 +4571,7 @@ _loop104_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "begin");
 				recover(ex,tokenSet_62_);
 			}
 			else
@@ -4649,7 +4649,7 @@ _loop120_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "explicit_member_info");
 				recover(ex,tokenSet_63_);
 			}
 			else
@@ -4695,7 +4695,7 @@ _loop120_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "begin_block_with_doc");
 				recover(ex,tokenSet_64_);
 			}
 			else
@@ -4802,7 +4802,7 @@ _loop171_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "block");
 				recover(ex,tokenSet_66_);
 			}
 			else
@@ -4905,7 +4905,7 @@ _loop131_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "property_header");
 				recover(ex,tokenSet_0_);
 			}
 			else
@@ -4978,7 +4978,7 @@ _loop131_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "property_accessor");
 				recover(ex,tokenSet_67_);
 			}
 			else
@@ -5067,7 +5067,7 @@ _loop131_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "declaration_initializer");
 				recover(ex,tokenSet_71_);
 			}
 			else
@@ -5437,7 +5437,7 @@ _loop543_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "slicing_expression");
 				recover(ex,tokenSet_73_);
 			}
 			else
@@ -5477,7 +5477,7 @@ _loop543_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "method_invocation_block");
 				recover(ex,tokenSet_71_);
 			}
 			else
@@ -5715,7 +5715,7 @@ _loop380_breakloop:										;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "array_or_expression");
 				recover(ex,tokenSet_74_);
 			}
 			else
@@ -5859,7 +5859,7 @@ _loop380_breakloop:										;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "callable_expression");
 				recover(ex,tokenSet_71_);
 			}
 			else
@@ -5897,7 +5897,7 @@ _loop380_breakloop:										;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "compound_stmt");
 				recover(ex,tokenSet_75_);
 			}
 			else
@@ -6246,7 +6246,7 @@ _loop264_breakloop:									;
 					{
 						if (0 == inputState.guessing)
 						{
-							reportError(ex);
+							reportError(ex, "stmt");
 							recover(ex,tokenSet_80_);
 						}
 						else
@@ -6383,7 +6383,7 @@ _loop264_breakloop:									;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_member_modifier");
 				recover(ex,tokenSet_81_);
 			}
 			else
@@ -6414,7 +6414,7 @@ _loop264_breakloop:									;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "parameter_modifier");
 				recover(ex,tokenSet_40_);
 			}
 			else
@@ -6559,7 +6559,7 @@ _loop264_breakloop:									;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "parameter_declaration");
 				recover(ex,tokenSet_82_);
 			}
 			else
@@ -6628,7 +6628,7 @@ _loop264_breakloop:									;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "array_type_reference");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -6700,7 +6700,7 @@ _loop194_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "callable_parameter_declaration_list");
 				recover(ex,tokenSet_49_);
 			}
 			else
@@ -6795,7 +6795,7 @@ _loop194_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "callable_parameter_declaration");
 				recover(ex,tokenSet_83_);
 			}
 			else
@@ -6897,7 +6897,7 @@ _loop194_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "generic_parameter_constraints");
 				recover(ex,tokenSet_49_);
 			}
 			else
@@ -6956,7 +6956,7 @@ _loop194_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "callable_type_reference");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -7007,7 +7007,7 @@ _loop216_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_reference_list");
 				recover(ex,tokenSet_36_);
 			}
 			else
@@ -7042,7 +7042,7 @@ _loop216_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "splice_type_reference");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -7101,7 +7101,7 @@ _loop216_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_name");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -7139,7 +7139,7 @@ _loop216_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "closure_macro_stmt");
 				recover(ex,tokenSet_84_);
 			}
 			else
@@ -7264,7 +7264,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "macro_block");
 				recover(ex,tokenSet_86_);
 			}
 			else
@@ -7296,7 +7296,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "type_member_stmt");
 				recover(ex,tokenSet_87_);
 			}
 			else
@@ -7333,7 +7333,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "macro_compound_stmt");
 				recover(ex,tokenSet_23_);
 			}
 			else
@@ -7411,7 +7411,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "stmt_modifier");
 				recover(ex,tokenSet_88_);
 			}
 			else
@@ -7449,7 +7449,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "goto_stmt");
 				recover(ex,tokenSet_22_);
 			}
 			else
@@ -7486,7 +7486,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "label_stmt");
 				recover(ex,tokenSet_22_);
 			}
 			else
@@ -7589,7 +7589,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "for_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -7684,7 +7684,7 @@ _loop250_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "while_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -7787,7 +7787,7 @@ _loop363_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "if_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -7825,7 +7825,7 @@ _loop363_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "unless_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -7946,7 +7946,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "try_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -7979,7 +7979,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "expression_stmt");
 				recover(ex,tokenSet_22_);
 			}
 			else
@@ -8145,7 +8145,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "assignment_or_method_invocation_with_block_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -8324,7 +8324,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "return_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -8382,7 +8382,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "declaration");
 				recover(ex,tokenSet_89_);
 			}
 			else
@@ -8438,7 +8438,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "unpack_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -8535,7 +8535,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "declaration_stmt");
 				recover(ex,tokenSet_80_);
 			}
 			else
@@ -8627,7 +8627,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "yield_stmt");
 				recover(ex,tokenSet_84_);
 			}
 			else
@@ -8657,7 +8657,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "break_stmt");
 				recover(ex,tokenSet_22_);
 			}
 			else
@@ -8687,7 +8687,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "continue_stmt");
 				recover(ex,tokenSet_22_);
 			}
 			else
@@ -8778,7 +8778,7 @@ _loop320_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "raise_stmt");
 				recover(ex,tokenSet_84_);
 			}
 			else
@@ -8835,7 +8835,7 @@ _loop391_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "boolean_expression");
 				recover(ex,tokenSet_90_);
 			}
 			else
@@ -8911,7 +8911,7 @@ _loop391_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "callable_or_expression");
 				recover(ex,tokenSet_0_);
 			}
 			else
@@ -9010,7 +9010,7 @@ _loop288_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "closure_parameters_test");
 				recover(ex,tokenSet_0_);
 			}
 			else
@@ -9175,7 +9175,7 @@ _loop288_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "internal_closure_stmt");
 				recover(ex,tokenSet_92_);
 			}
 			else
@@ -9291,7 +9291,7 @@ _loop288_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "return_expression_stmt");
 				recover(ex,tokenSet_92_);
 			}
 			else
@@ -9353,7 +9353,7 @@ _loop288_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "unpack");
 				recover(ex,tokenSet_84_);
 			}
 			else
@@ -9384,7 +9384,7 @@ _loop288_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "closure_expression_stmt");
 				recover(ex,tokenSet_84_);
 			}
 			else
@@ -9535,7 +9535,7 @@ _loop305_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "closure_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -9706,7 +9706,7 @@ _loop305_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "exception_handler");
 				recover(ex,tokenSet_96_);
 			}
 			else
@@ -9892,7 +9892,7 @@ _loop305_breakloop:					;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "assignment_expression");
 				recover(ex,tokenSet_97_);
 			}
 			else
@@ -9943,7 +9943,7 @@ _loop371_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "declaration_list");
 				recover(ex,tokenSet_98_);
 			}
 			else
@@ -9994,7 +9994,7 @@ _loop371_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "generator_expression_body");
 				recover(ex,tokenSet_88_);
 			}
 			else
@@ -10048,7 +10048,7 @@ _loop394_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "boolean_term");
 				recover(ex,tokenSet_100_);
 			}
 			else
@@ -10139,7 +10139,7 @@ _loop394_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "not_expression");
 				recover(ex,tokenSet_97_);
 			}
 			else
@@ -10231,7 +10231,7 @@ _loop394_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "ast_literal_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -10472,7 +10472,7 @@ _loop419_breakloop:						;
 			{
 				if (0 == inputState.guessing)
 				{
-					reportError(ex);
+					reportError(ex, "ast_literal_block");
 					recover(ex,tokenSet_105_);
 				}
 				else
@@ -10499,7 +10499,7 @@ _loop419_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "ast_literal_module");
 				recover(ex,tokenSet_105_);
 			}
 			else
@@ -10561,7 +10561,7 @@ _loop419_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "ast_literal_module_prediction");
 				recover(ex,tokenSet_0_);
 			}
 			else
@@ -10753,7 +10753,7 @@ _loop463_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "conditional_expression");
 				recover(ex,tokenSet_107_);
 			}
 			else
@@ -10860,7 +10860,7 @@ _loop467_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "sum");
 				recover(ex,tokenSet_109_);
 			}
 			else
@@ -10967,7 +10967,7 @@ _loop471_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "term");
 				recover(ex,tokenSet_111_);
 			}
 			else
@@ -11052,7 +11052,7 @@ _loop475_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "factor");
 				recover(ex,tokenSet_112_);
 			}
 			else
@@ -11184,7 +11184,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "exponentiation");
 				recover(ex,tokenSet_113_);
 			}
 			else
@@ -11409,7 +11409,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "unary_expression");
 				recover(ex,tokenSet_117_);
 			}
 			else
@@ -11525,7 +11525,7 @@ _loop479_breakloop:				;
 			{
 				if (0 == inputState.guessing)
 				{
-					reportError(ex);
+					reportError(ex, "literal");
 					recover(ex,tokenSet_38_);
 				}
 				else
@@ -11602,7 +11602,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "char_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -11666,7 +11666,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "reference_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -11762,7 +11762,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "paren_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -11803,7 +11803,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "cast_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -11841,7 +11841,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "typeof_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -11877,7 +11877,7 @@ _loop479_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "omitted_member_expression");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -12013,7 +12013,7 @@ _loop510_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "typed_array");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -12067,7 +12067,7 @@ _loop510_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "method_invocation_with_block");
 				recover(ex,tokenSet_0_);
 			}
 			else
@@ -12314,7 +12314,7 @@ _loop510_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "slice");
 				recover(ex,tokenSet_48_);
 			}
 			else
@@ -12348,7 +12348,7 @@ _loop510_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "member_reference_expression");
 				recover(ex,tokenSet_122_);
 			}
 			else
@@ -12429,7 +12429,7 @@ _loop510_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "argument");
 				recover(ex,tokenSet_83_);
 			}
 			else
@@ -12503,7 +12503,7 @@ _loop510_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "hash_literal_test");
 				recover(ex,tokenSet_0_);
 			}
 			else
@@ -12627,7 +12627,7 @@ _loop575_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "hash_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -12665,7 +12665,7 @@ _loop575_breakloop:						;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "list_initializer");
 				recover(ex,tokenSet_122_);
 			}
 			else
@@ -12786,7 +12786,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "list_items");
 				recover(ex,tokenSet_124_);
 			}
 			else
@@ -12878,7 +12878,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "string_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -12916,7 +12916,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "list_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -12946,7 +12946,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "re_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13004,7 +13004,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "bool_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13034,7 +13034,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "null_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13064,7 +13064,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "self_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13094,7 +13094,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "super_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13179,7 +13179,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "double_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13233,7 +13233,7 @@ _loop567_breakloop:							;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "timespan_literal");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13338,7 +13338,7 @@ _loop561_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "expression_interpolation");
 				recover(ex,tokenSet_38_);
 			}
 			else
@@ -13374,7 +13374,7 @@ _loop561_breakloop:				;
 		{
 			if (0 == inputState.guessing)
 			{
-				reportError(ex);
+				reportError(ex, "expression_pair");
 				recover(ex,tokenSet_125_);
 			}
 			else
