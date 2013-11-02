@@ -2652,6 +2652,7 @@ slicing_expression returns [Expression e]
 		TypeReference genericArgument = null;
 		TypeReferenceCollection genericArguments = null;
 		Expression initializer = null;
+		UnaryExpression ue = null;
 	} :
 	e=safe_atom
 	( options { greedy=true; }:
