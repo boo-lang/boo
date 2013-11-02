@@ -47,5 +47,29 @@ namespace Boo.Lang.Parser
 				_tabSize = value;
 			}
 		}
+
+		public ParserErrorHandler ErrorHandler { get; set; }
+
+		/// <summary>
+		/// If different to 0 will force the parser to trigger an error if the rules
+		/// exceed the recursion limit.
+		/// </summary>
+		/// <remarks>
+		/// The parser must be build with the antlr `-traceParser` (Nant: antlr.trace=true) option 
+		/// for this to have any actual effect.
+		/// </remarks>		
+		public uint MaxRecursionLimit { get; set; }
+
+		public ErrorPattern[] ErrorPatterns { get; set; }
+
+
+		public ParserSettings()
+		{
+			// This number comes from issue #56, eight or more '[' will trigger a StackOverflow under .Net
+			MaxRecursionLimit = 133;
+
+			// Assign the generated error patterns by default
+			ErrorPatterns = GeneratedErrorPatterns.Patterns;
+		}
 	}
 }

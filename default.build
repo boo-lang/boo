@@ -14,14 +14,16 @@
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
+	<property name="java" value="java" />
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
-	<property name="java" value="java" />	
+	<property name="antlr.trace" value="False" />
 	
 	<property name="ngen.exe" value="${framework::get-framework-directory(framework::get-target-framework())}/ngen.exe" />
 	<property name="skip.ngen" value="True" />
 	<property name="skip.antlr" value="False" />
 	<property name="skip.ast" value="False" />
 	<property name="skip.vs" value="False" />
+	<property name="skip.errorpatterns" value="False" />
 
 	<property name="gsv.name" value="gtksourceview-1.0" />
 	
@@ -431,7 +433,6 @@
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
-				<!-- <arg value="-traceParser" /> -->
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Useful/IO/Impl" />
 				<arg value="src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" />
@@ -752,7 +753,7 @@
 		</exec>
 	</target>
 	
-	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
+	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar, generate-errorpatterns">
 		<csc target="library"
 			output="${build.dir}/Boo.Lang.Parser.dll"
 			debug="${debug}"
@@ -1005,10 +1006,13 @@
 				</fileset>
 			</delete>			 
 			
+			<property name="antlr.traceParser" value="-traceParser" if="${antlr.trace}" />
+			<property name="antlr.traceParser" value="" unless="${antlr.trace}" />
 			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
+				<arg value="${antlr.traceParser}" />
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/boo.g" />
@@ -1055,6 +1059,33 @@
 			</exec>			
 		</if>
 	</target>
+
+	<target name="generate-errorpatterns" depends="init" unless="${skip.errorpatterns}">
+		<uptodate property="errorpatterns-are-uptodate">
+			<sourcefiles>
+				<include name="scripts/error-patterns.boo" />
+				<include name="src/Boo.Lang.Parser/BooParserBase.cs" />
+			</sourcefiles>
+			<targetfiles>
+				<include name="src/Boo.Lang.Parser/GeneratedErrorPatterns.cs" />
+			</targetfiles>
+		</uptodate>
+
+		<if test="${not file::exists('build/booi.exe')}">
+			<echo level="Warning">WARNING: A recent version of Boo is required!</echo>  
+			<echo level="Warning">Run again Nant (without clean or rebuild) to actually generate the patterns</echo>
+			<property name="errorpatterns-are-uptodate" value="True" />
+		</if>
+
+		<if test="${not errorpatterns-are-uptodate}">
+			<delete file="src/Boo.Lang.Parser/GeneratedErrorPatterns.boo"
+					if="${file::exists('src/Boo.Lang.Parser/BooErrorPatterns.boo')}" />
+			<!-- TODO: It needs a more recent version of booi than the one in ./bin -->
+			<exec program="build/booi.exe" output="src/Boo.Lang.Parser/GeneratedErrorPatterns.cs" failonerror="true" useruntimeengine="true">
+				<arg value="scripts/error-patterns.boo" />
+			</exec>
+		</if>
+	</target>	
 	
 	<target name="update-sharpdevelop" depends="all">
 		<copy todir="${sharpdevelop.dir}/AddIns/AddIns/BackendBindings/BooBinding">

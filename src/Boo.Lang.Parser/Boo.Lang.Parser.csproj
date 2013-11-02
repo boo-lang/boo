@@ -198,6 +198,8 @@
     <Compile Include="BooTokenTypes.cs" />
     <Compile Include="CodeFactory.cs" />
     <Compile Include="DocStringFormatter.cs" />
+    <Compile Include="ErrorPattern.cs" />
+    <Compile Include="GeneratedErrorPatterns.cs" />
     <Compile Include="OperatorParser.cs" />
     <Compile Include="ParserSettings.cs" />
     <Compile Include="PrimitiveParser.cs" />
