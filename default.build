@@ -393,7 +393,9 @@
 	</target>
 	
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
-		<booc target="library"
+		<property name="backup.currentframework" value="${nant.settings.currentframework}" />
+		<property name="nant.settings.currentframework" value="mono-2.0" unless="${platform::is-windows()}" />
+		<booc target="library"	
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="true" 
 			verbose="${verbose}"
@@ -409,6 +411,7 @@
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
+		<property name="nant.settings.currentframework" value="${backup.currentframework}" />
 		<copy todir="${build.dir}">
 			<fileset basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="Boo.Microsoft.Build.targets" />
