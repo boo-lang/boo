@@ -402,11 +402,11 @@
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
 			</sources>
-			<!-- references basedir="${build.dir}">
+			<references basedir="${build.dir}">
 				<include name="Microsoft.Build.Utilities.dll" />
 				<include name="Microsoft.Build.Framework.dll" />
 				<include name="Microsoft.Build.Tasks.dll" />
-			</references -->
+			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 		<copy todir="${build.dir}">
