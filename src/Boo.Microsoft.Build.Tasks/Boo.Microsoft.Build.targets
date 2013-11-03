@@ -112,7 +112,7 @@
         Resources="@(_CoreCompileResourceInputs);@(AdditionalEmbeddedResource);@(ManifestResourceWithNoCulture);@(ManifestNonResxWithNoCultureOnDisk);@(CompiledLicenseFile)"
         ResponseFiles="$(CompilerResponseFile)"
         SourceDirectory="$(SourceDirectory)"
-        Sources="@(Compile);$(TargetFrameworkMonikerAssemblyAttributesPath)"
+        Sources="@(Compile)"
         Strict="$(Strict)"
         TargetType="$(OutputType)"
         ToolPath="$(BooToolPath)"
