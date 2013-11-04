@@ -57,7 +57,7 @@ class Booc(ManagedCompiler):
     private def FindPathForNames(path as string):
     """ Support the case of Mono using directly the managed exe """
         name = ToolName
-        names = (name, Path.GetFileNameWithoutExtension(name) + '.exe')
+        names = (Path.GetFileNameWithoutExtension(name) + '.exe', name)
         for name in names:
             fpath = Path.Combine(path, name)
             if File.Exists(fpath):
