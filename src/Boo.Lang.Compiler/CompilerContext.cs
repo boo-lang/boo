@@ -35,6 +35,7 @@ using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
+using Boo.Lang.Compiler.Diagnostics;
 
 namespace Boo.Lang.Compiler
 {
@@ -54,6 +55,8 @@ namespace Boo.Lang.Compiler
 		private readonly CompilerErrorCollection _errors;
 
 		private readonly CompilerWarningCollection _warnings;
+
+		private readonly DiagnosticsEngine _diagnostics;
 
 		private Assembly _generatedAssembly;
 
@@ -85,7 +88,38 @@ namespace Boo.Lang.Compiler
 			_unit = unit;
 			_errors = new CompilerErrorCollection();
 			_warnings = new CompilerWarningCollection();
-			_warnings.Adding += OnCompilerWarning;
+			//_warnings.Adding += OnCompilerWarning;
+
+			_diagnostics = new DiagnosticsEngine();
+			_diagnostics.WarningsAsErrors = options.WarnAsError;
+			_diagnostics.IgnoreAllWarnings = options.NoWarn;
+
+			var codes = new int[options.WarningsAsErrors.Count];
+			int i = 0;
+			foreach (string codestr in options.WarningsAsErrors)
+			{
+				int.TryParse(codestr, out codes[i]);
+				i++;
+			}
+			_diagnostics.PromotedCodes = codes;
+
+			codes = new int[options.DisabledWarnings.Count];
+			i = 0;
+			foreach (string codestr in options.DisabledWarnings)
+			{
+				int.TryParse(codestr, out codes[i]);
+			}
+			_diagnostics.IgnoredCodes = codes;
+
+			// Attach our custom handler
+			_diagnostics.Handler += OnDiagnostic;
+
+
+			// Map old style errors to the new diagnostics
+			_errors.Adding += OnErrorToDiagnostic;
+			_warnings.Adding += OnWarningToDiagnostic;
+
+
 
 			_references = options.References;
 			_parameters = options;
@@ -377,6 +411,70 @@ namespace Boo.Lang.Compiler
 				Errors.Add(new CompilerError(warning.Code, warning.LexicalInfo, warning.Message, null));
 				args.Cancel();
 			}
+		}
+
+		void OnWarningToDiagnostic(object o, CompilerWarningEventArgs args)
+		{
+			CompilerWarning warning = args.Warning;
+			var diag = new Diagnostic();
+			int code;
+			int.TryParse(warning.Code.Substring(3), out code);
+			diag.Code = code;
+			diag.Level = DiagnosticLevel.Warning;
+			diag.Message = warning.Message;
+			diag.Caret = warning.LexicalInfo;
+
+			_diagnostics.Consume(diag);
+
+			args.Cancel();
+		}
+
+		void OnErrorToDiagnostic(object o, CompilerErrorEventArgs args)
+		{
+			CompilerError error = args.Error;
+			var diag = new Diagnostic();
+			int code;
+			int.TryParse(error.Code.Substring(3), out code);
+			diag.Code = code;
+			diag.Level = DiagnosticLevel.Error;
+			diag.Message = error.Message;
+			diag.Caret = error.LexicalInfo;
+
+			_diagnostics.Consume(diag);
+
+			args.Cancel();
+		}
+
+		void OnDiagnostic(DiagnosticLevel level, Diagnostic diag)
+		{
+			Console.Write(String.Format("{0}({1},{2}): ", diag.Caret.FileName, diag.Caret.Line, diag.Caret.Column));
+
+			switch (level) {
+			case DiagnosticLevel.Note:
+				Console.Write("Note");
+				break;
+			case DiagnosticLevel.Warning:
+				Console.Write("Warning");
+				break;
+			case DiagnosticLevel.Error:
+				Console.Write("Error");
+				break;
+			case DiagnosticLevel.Fatal:
+				Console.Write("Fatal");
+				break;
+			}
+
+			Console.WriteLine(": " + diag.Message);
+
+			var lines = File.ReadAllLines(diag.Caret.FileName);
+			var line = lines[diag.Caret.Line - 1];
+			line = line.Replace("\t", "    ");
+			Console.WriteLine(line);
+			for (int i = 1; i < diag.Caret.Column; i++) {
+				Console.Write(" ");
+			}
+			Console.WriteLine("^");
+
 		}
 	}
 }

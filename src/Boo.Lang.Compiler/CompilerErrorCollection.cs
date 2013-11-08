@@ -33,13 +33,45 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler
 {
+	public class CompilerErrorEventArgs : CancellableEventArgs
+	{
+		private readonly CompilerError _error;
+
+		public CompilerErrorEventArgs(CompilerError error)
+		{
+			_error = error;
+		}
+
+		public CompilerError Error
+		{
+			get { return _error;  }
+		}
+	}
+
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
 	public class CompilerErrorCollection : List<CompilerError>
 	{
+		public event EventHandler<CompilerErrorEventArgs> Adding;
+
 		public CompilerErrorCollection()
 		{
+		}
+
+		override public List<CompilerError> Add(CompilerError error)
+		{
+			return OnAdding(error) ? base.Add(error) : this;
+		}
+
+		protected bool OnAdding(CompilerError error)
+		{
+			EventHandler<CompilerErrorEventArgs> adding = Adding;
+			if (null == adding)
+				return true;
+			var args = new CompilerErrorEventArgs(error);
+			adding(this, args);
+			return !args.IsCancelled;
 		}
 		
 		override public string ToString()
