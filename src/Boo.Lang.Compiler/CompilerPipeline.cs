@@ -305,7 +305,7 @@ namespace Boo.Lang.Compiler
 			foreach (ICompilerStep step in _items)
 			{
 				RunStep(context, step);
-				if (_breakOnErrors && context.Errors.Count > 0)
+				if (_breakOnErrors && context.Diagnostics.HasErrors)
 					break;
 			}
 		}
