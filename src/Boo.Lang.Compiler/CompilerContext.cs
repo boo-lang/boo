@@ -451,30 +451,37 @@ namespace Boo.Lang.Compiler
 
 			switch (level) {
 			case DiagnosticLevel.Note:
-				Console.Write("Note");
+				Console.ForegroundColor = ConsoleColor.Gray;
+				Console.Write("note: ");
 				break;
 			case DiagnosticLevel.Warning:
-				Console.Write("Warning");
+				Console.ForegroundColor = ConsoleColor.Magenta;
+				Console.Write("warning: ");
 				break;
 			case DiagnosticLevel.Error:
-				Console.Write("Error");
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.Write("error: ");
 				break;
 			case DiagnosticLevel.Fatal:
-				Console.Write("Fatal");
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				Console.Write("fatal: ");
 				break;
 			}
+			Console.ResetColor();
 
-			Console.WriteLine(": " + diag.Message);
+			Console.WriteLine(diag.Message);
 
 			var lines = File.ReadAllLines(diag.Caret.FileName);
 			var line = lines[diag.Caret.Line - 1];
 			line = line.Replace("\t", "    ");
 			Console.WriteLine(line);
+
+			Console.ForegroundColor = ConsoleColor.Green;
 			for (int i = 1; i < diag.Caret.Column; i++) {
 				Console.Write(" ");
 			}
 			Console.WriteLine("^");
-
+			Console.ResetColor();
 		}
 	}
 }
