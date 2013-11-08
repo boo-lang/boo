@@ -38,13 +38,23 @@ namespace Boo.Lang.Compiler.Diagnostics
 		public int[] IgnoredCodes { get; set; }
 		public int[] PromotedCodes { get; set; }
 
-		public int NoteCount { get; set; }
-		public int WarningCount { get; set; }
-		public int ErrorCount { get; set; }
-		public bool FatalOcurred { get; set; }
+		private bool fatalOcurred;
+		public bool FatalOcurred { get { return fatalOcurred; } }
+		private int noteCount;
+		public int NoteCount { get { return noteCount; } }
+		private int warningCount;
+		public int WarningCount { get { return warningCount; } }
+		private int errorCount;
+		public int ErrorCount {
+			get { return errorCount + (fatalOcurred ? 1 : 0); }
+		}
 
 		public int Count {
-			get { return ErrorCount + WarningCount + NoteCount + (FatalOcurred ? 1 : 0); }
+			get { return ErrorCount + WarningCount + NoteCount; }
+		}
+
+		public bool HasErrors {
+			get { return ErrorCount > 0; }
 		}
 
 		public void StartContext(CompilerContext context)
@@ -64,10 +74,10 @@ namespace Boo.Lang.Compiler.Diagnostics
 		/// </summary>
 		virtual public void Reset()
 		{
-			NoteCount = 0;
-			WarningCount = 0;
-			ErrorCount = 0;
-			FatalOcurred = false;
+			noteCount = 0;
+			warningCount = 0;
+			errorCount = 0;
+			fatalOcurred = false;
 		}
 
 		/// <summary>
@@ -129,16 +139,16 @@ namespace Boo.Lang.Compiler.Diagnostics
 			case DiagnosticLevel.Ignored:
 				return;
 			case DiagnosticLevel.Fatal:
-				FatalOcurred = true;
+				fatalOcurred = true;
 				break;
 			case DiagnosticLevel.Error:
-				ErrorCount += 1;
+				errorCount += 1;
 				break;
 			case DiagnosticLevel.Warning:
-				WarningCount += 1;
+				warningCount += 1;
 				break;
 			case DiagnosticLevel.Note:
-				NoteCount += 1;
+				noteCount += 1;
 				break;
 			}
 
