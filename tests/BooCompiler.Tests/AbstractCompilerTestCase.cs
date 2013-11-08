@@ -194,6 +194,7 @@ namespace BooCompiler.Tests
 		{
 			CompilerContext context;
 			var output = Run(null, out context);
+			Console.WriteLine(output);
 		    var modules = context.CompileUnit.Modules;
 		    Assert.IsTrue(modules.Count > 0, output);
 		    var expected = modules[0].Documentation ?? "";
@@ -236,7 +237,7 @@ namespace BooCompiler.Tests
 					Assert.Fail(GetFirstInputName(context)
 								+ ": "
 								+ context.Errors.ToString(true)
-								+ context.Warnings);				
+								+ context.Warnings);		
 				}
 				return _output.ToString().Replace("\r\n", "\n");
 			}
