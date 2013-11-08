@@ -29,6 +29,7 @@
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.Diagnostics;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
@@ -133,7 +134,10 @@ namespace Boo.Lang.Compiler.Steps
 				&& (node.Right.NodeType != NodeType.TryCastExpression)
 				&& (IsTopLevelOfConditional(node)))
 			{
-				Warnings.Add(CompilerWarningFactory.EqualsInsteadOfAssign(node));
+				// Warnings.Add(CompilerWarningFactory.EqualsInsteadOfAssign(node));
+				Context.Diagnostics.Consume(
+					DiagnosticFactory.EqualsInsteadOfAssign(node)
+				);
 			}
 		}
 

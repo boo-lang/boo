@@ -77,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			TraceInfo("Compiling macro '{0}'", node);
 
 			var result = Compilation.compile_(CompileUnitFor(node), Context.Parameters.References.ToArray());
-			if (result.Errors.Count == 0)
+			if (!result.Diagnostics.HasErrors)
 			{
 				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node, result.GeneratedAssembly);
 				return result.GeneratedAssembly.GetType(node.FullName);

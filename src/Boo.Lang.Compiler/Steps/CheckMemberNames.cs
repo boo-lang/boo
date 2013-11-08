@@ -32,6 +32,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.Diagnostics;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -187,7 +188,7 @@ namespace Boo.Lang.Compiler.Steps
 		
 		void MemberConflict(TypeMember member, string memberName)
 		{
-			Error(CompilerErrorFactory.MemberNameConflict(member, GetType(member.DeclaringType), memberName));
+			Diag(DiagnosticFactory.MemberNameConflict(member, GetType(member.DeclaringType), memberName));
 		}
 		
 		List<TypeMember> GetMemberList(string name)

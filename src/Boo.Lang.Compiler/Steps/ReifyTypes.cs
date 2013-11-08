@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		public override void Run()
 		{
-			if (Errors.Count > 0)
+			if (Diagnostics.HasErrors)
 				return;
 
 			Visit(CompileUnit);
