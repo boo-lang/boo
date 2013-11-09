@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		override public void Run()
 		{
-			if (Parameters.DisabledWarnings.Contains("BCW0024"))
+			if (Parameters.DisabledDiagnostics.Contains("BCW0024"))
 				return;
 
 			Visit(CompileUnit.Modules);

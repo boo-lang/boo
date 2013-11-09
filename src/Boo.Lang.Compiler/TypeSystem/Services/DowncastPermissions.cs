@@ -66,7 +66,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
         protected virtual bool IsDowncastAllowed()
         {
-            return !_parameters.Strict || !_parameters.DisabledWarnings.Contains(CompilerWarningFactory.Codes.ImplicitDowncast);
+            return !_parameters.Strict || !_parameters.DisabledDiagnostics.Contains(CompilerWarningFactory.Codes.ImplicitDowncast);
         }
     }
 }

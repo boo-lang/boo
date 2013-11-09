@@ -133,12 +133,6 @@ namespace booc
 								foreach (string warning in warnings.Split(','))
 									_options.EnableWarningAsError(warning);
 							}
-							else if (arg.StartsWith("-warn:"))
-							{
-								var warnings = ValueOf(arg);
-								foreach (string warning in warnings.Split(','))
-									_options.EnableWarning(warning);
-							}
 							else
 								InvalidOption(arg);
 							break;
@@ -229,11 +223,11 @@ namespace booc
 								_options.StdLib = false;
 							else if (arg == "-nowarn")
 								_options.NoWarn = true;
-							else if (arg.StartsWith("-nowarn:"))
+							else if (arg.StartsWith("-nodiag:"))
 							{
-								string warnings = ValueOf(arg);
-								foreach (string warning in warnings.Split(','))
-									_options.DisableWarning(warning);
+								string diags = ValueOf(arg);
+								foreach (string diag in diags.Split(','))
+									_options.DisableDiagnostic(diag);
 							}
 							else
 								InvalidOption(arg);
@@ -426,6 +420,12 @@ namespace booc
 										break;
 									}
 
+								case "diag:":
+									{
+										var diags = ValueOf(arg);
+										foreach (string diag in diags.Split(','))
+											_options.EnableDiagnostic(diag);
+									}
 								default:
 									{
 										if (arg.StartsWith("-d:") || arg.StartsWith("-define:"))
@@ -558,6 +558,7 @@ namespace booc
 					" -debug[+|-]          Generate debugging information (default: +)\n" +
 					" -define:S1[,Sn]      Defines symbols S1..Sn with optional values (=val) (-d:)\n" +
 					" -delaysign           Delays assembly signing\n" +
+					" -diag:W1[,Wn]        Enables a list of optional warnings.\n" +
 					" -ducky               Turns on duck typing by default\n" +
 					" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n" +
 					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
@@ -566,7 +567,7 @@ namespace booc
 					" -noconfig            Does not load the standard configuration\n" +
 					" -nologo              Does not display the compiler logo\n" +
 					" -nostdlib            Does not reference any of the default libraries\n" +
-					" -nowarn[:W1,Wn]      Suppress all or a list of compiler warnings\n" +
+					" -nodiag[:W1,Wn]      Suppress all or a list of compiler warnings\n" +
 					" -o:FILE              Sets the output file name to FILE\n" +
 					" -p:PIPELINE          Sets the pipeline to PIPELINE\n" +
 					" -pkg:P1[,Pn]         References packages P1..Pn (on supported platforms)\n" +
@@ -579,7 +580,6 @@ namespace booc
 					" -unsafe              Allows to compile unsafe code.\n" +
 					" -utf8                Source file(s) are in utf8 format\n" +
 					" -v, -vv, -vvv        Sets verbosity level from warnings to very detailed\n" +
-					" -warn:W1[,Wn]        Enables a list of optional warnings.\n" +
 					" -warnaserror[:W1,Wn] Treats all or a list of warnings as errors\n" +
 					" -wsa                 Enables white-space-agnostic build\n"
 					);

@@ -5,9 +5,6 @@ namespace Boo.Lang.Compiler.Diagnostics
 {
 	// Delegate for the notification of new diagnostics
 	public delegate void DiagnosticEventHandler(DiagnosticLevel level, Diagnostic diag);
-	public delegate void ContextEventHandler(CompilerContext context);
-	public delegate void InputEventHandler(ICompilerInput input);
-
 
 	/// <summary>
 	/// Serves as main interface between the compiler and the diagnostics sub system.
@@ -18,17 +15,6 @@ namespace Boo.Lang.Compiler.Diagnostics
 		/// Notify successfully consumed diagnostics
 		/// </summary>
 		public event DiagnosticEventHandler Handler;
-
-		/// <summary>
-		/// Notify a new diagnostics session
-		/// </summary>
-		public event ContextEventHandler OnStartContext;
-
-		/// <summary>
-		/// Notify a new file being analyzed
-		/// </summary>
-		public event InputEventHandler OnStartFile;
-
 
 		public bool IgnoreAllWarnings {	get; set; }
 		public bool WarningsAsErrors { get; set; }
@@ -55,18 +41,6 @@ namespace Boo.Lang.Compiler.Diagnostics
 
 		public bool HasErrors {
 			get { return ErrorCount > 0; }
-		}
-
-		public void StartContext(CompilerContext context)
-		{
-			if (null != OnStartContext)
-				OnStartContext(context);
-		}
-
-		public void StartFile(ICompilerInput inp)
-		{
-			if (null != OnStartFile)
-				OnStartFile(inp);
 		}
 
 		/// <summary>

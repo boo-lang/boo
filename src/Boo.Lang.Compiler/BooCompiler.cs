@@ -71,6 +71,5 @@ namespace Boo.Lang.Compiler
 		{
 			return Run(new CompileUnit());
 		}
-		
 	}
 }

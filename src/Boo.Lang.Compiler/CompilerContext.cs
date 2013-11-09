@@ -95,24 +95,35 @@ namespace Boo.Lang.Compiler
 			int i = 0;
 			foreach (string codestr in options.WarningsAsErrors)
 			{
-				if (!int.TryParse(codestr, out codes[i]))
+				if (!int.TryParse(codestr, out codes[i])) 
+				{
+					// Legacy BCWxxxx are mapped between 1000 and 2000
 					int.TryParse(codestr.Substring(3), out codes[i]);
+					codes[i] += 1000;
+				}
 				i++;
 			}
 			_diagnostics.PromotedCodes = codes;
 
-			codes = new int[options.DisabledWarnings.Count];
+			codes = new int[options.DisabledDiagnostics.Count];
 			i = 0;
-			foreach (string codestr in options.DisabledWarnings)
+			foreach (string codestr in options.DisabledDiagnostics)
 			{
-				if (!int.TryParse(codestr, out codes[i]))
+				if (!int.TryParse(codestr, out codes[i])) 
+				{
+					// Legacy BCWxxxx are mapped between 1000 and 2000
 					int.TryParse(codestr.Substring(3), out codes[i]);
+					codes[i] += 1000;
+				}
 			}
 			_diagnostics.IgnoredCodes = codes;
 
-			// Attach our custom handler
-			_diagnostics.Handler += OnDiagnostic;
+			// Attach any user supplied handler
+			if (null != options.OnDiagnostic)
+				_diagnostics.Handler += options.OnDiagnostic;
 
+			// Attach the legacy sync handler
+			_diagnostics.Handler += OnDiagnostic;
 			// Map old style errors to the new diagnostics
 			_errors = new CompilerErrorCollection();
 			_errors.Adding += OnErrorToDiagnostic;
@@ -139,6 +150,7 @@ namespace Boo.Lang.Compiler
             RegisterService<CompilerParameters>(_parameters);
 			RegisterService<CompilerErrorCollection>(_errors);
 			RegisterService<CompilerWarningCollection>(_warnings);
+			RegisterService<DiagnosticsEngine>(_diagnostics);
 			RegisterService<CompileUnit>(_unit);
             RegisterService<CompilerContext>(this);
 		}
@@ -407,34 +419,14 @@ namespace Boo.Lang.Compiler
 		// Converts old style warnings to diagnostic objects
 		void OnWarningToDiagnostic(object o, CompilerWarningEventArgs args)
 		{
-			CompilerWarning warning = args.Warning;
-			var diag = new Diagnostic();
-			int code;
-			int.TryParse(warning.Code.Substring(3), out code);
-			diag.Code = code;
-			diag.Level = DiagnosticLevel.Warning;
-			diag.Message = warning.Message;
-			diag.Caret = warning.LexicalInfo;
-
-			_diagnostics.Consume(diag);
-
+			_diagnostics.Consume(Diagnostic.FromCompilerWarning(args.Warning));
 			args.Cancel();
 		}
 
 		// Converts old style errors to diagnostic objects
 		void OnErrorToDiagnostic(object o, CompilerErrorEventArgs args)
 		{
-			CompilerError error = args.Error;
-			var diag = new Diagnostic();
-			int code;
-			int.TryParse(error.Code.Substring(3), out code);
-			diag.Code = code;
-			diag.Level = DiagnosticLevel.Error;
-			diag.Message = error.Message;
-			diag.Caret = error.LexicalInfo;
-
-			_diagnostics.Consume(diag);
-
+			_diagnostics.Consume(Diagnostic.FromCompilerError(args.Error));
 			args.Cancel();
 		}
 
@@ -450,42 +442,6 @@ namespace Boo.Lang.Compiler
 				_errors.Add(diag);
 				break;
 			}
-
-			Console.Write(String.Format("{0}({1},{2}): ", diag.Caret.FileName, diag.Caret.Line, diag.Caret.Column));
-
-			switch (level) {
-			case DiagnosticLevel.Note:
-				Console.ForegroundColor = ConsoleColor.Gray;
-				Console.Write("note: ");
-				break;
-			case DiagnosticLevel.Warning:
-				Console.ForegroundColor = ConsoleColor.Magenta;
-				Console.Write("warning: ");
-				break;
-			case DiagnosticLevel.Error:
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.Write("error: ");
-				break;
-			case DiagnosticLevel.Fatal:
-				Console.ForegroundColor = ConsoleColor.DarkRed;
-				Console.Write("fatal: ");
-				break;
-			}
-			Console.ResetColor();
-
-			Console.WriteLine(diag.Message);
-
-			var lines = File.ReadAllLines(diag.Caret.FileName);
-			var line = lines[diag.Caret.Line - 1];
-			line = line.Replace("\t", "    ");
-			Console.WriteLine(line);
-
-			Console.ForegroundColor = ConsoleColor.Green;
-			for (int i = 1; i < diag.Caret.Column; i++) {
-				Console.Write(" ");
-			}
-			Console.WriteLine("^");
-			Console.ResetColor();
 		}
 	}
 }

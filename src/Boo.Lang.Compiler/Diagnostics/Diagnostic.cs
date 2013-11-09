@@ -1,3 +1,4 @@
+using System;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Diagnostics
@@ -61,12 +62,46 @@ namespace Boo.Lang.Compiler.Diagnostics
 			var diag = new Diagnostic();
 			int code;
 			int.TryParse(warning.Code.Substring(3), out code);
-			diag.Code = code;
+			diag.Code = code + 1000;
 			diag.Level = DiagnosticLevel.Warning;
 			diag.Message = warning.Message;
 			diag.Caret = warning.LexicalInfo;
 			return diag;
-		}		
+		}
+
+		override public string ToString()
+		{
+			var sb = new System.Text.StringBuilder();
+			if (Caret.Line > 0)
+			{
+				sb.Append(Caret);
+				sb.Append(": ");
+			}
+
+			switch (Level) {
+			case DiagnosticLevel.Fatal:
+				sb.Append("F");
+				break;
+			case DiagnosticLevel.Error:
+				sb.Append("E");
+				break;
+			case DiagnosticLevel.Warning:
+				sb.Append("W");
+				break;
+			case DiagnosticLevel.Note:
+				sb.Append("N");
+				break;
+			}
+			sb.Append(String.Format("{0:0000}", Code));
+			sb.Append(": ");
+
+			if (null != Arguments)
+				sb.Append(String.Format(Message, Arguments));  // TODO: apply Custom Formatter
+			else
+				sb.Append(Message);
+
+			return sb.ToString();
+		}
 	}
 
 	/// <summary>

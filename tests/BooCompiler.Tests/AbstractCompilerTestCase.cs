@@ -157,7 +157,7 @@ namespace BooCompiler.Tests
 			_parameters.OutputType = CompilerOutputType.Auto;
 			_parameters.Input.Clear();
 			_parameters.Strict = false;
-			_parameters.ResetWarnings();
+			_parameters.ResetDiagnostics();
 			_parameters.ResetWarningsAsErrors();
 
 			current.CurrentCulture = current.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
