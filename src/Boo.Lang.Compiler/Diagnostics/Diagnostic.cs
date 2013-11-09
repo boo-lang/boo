@@ -43,6 +43,30 @@ namespace Boo.Lang.Compiler.Diagnostics
 		/// Additional information about how to solve this specific problem
 		/// </summary>
 		public Hint[] Hints { get; set; }
+
+		static public Diagnostic FromCompilerError(CompilerError error)
+		{
+			var diag = new Diagnostic();
+			int code;
+			int.TryParse(error.Code.Substring(3), out code);
+			diag.Code = code;
+			diag.Level = DiagnosticLevel.Error;
+			diag.Message = error.Message;
+			diag.Caret = error.LexicalInfo;
+			return diag;
+		}
+
+		static public Diagnostic FromCompilerWarning(CompilerWarning warning)
+		{
+			var diag = new Diagnostic();
+			int code;
+			int.TryParse(warning.Code.Substring(3), out code);
+			diag.Code = code;
+			diag.Level = DiagnosticLevel.Warning;
+			diag.Message = warning.Message;
+			diag.Caret = warning.LexicalInfo;
+			return diag;
+		}		
 	}
 
 	/// <summary>
