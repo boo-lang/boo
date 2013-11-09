@@ -666,6 +666,9 @@
     <Compile Include="Diagnostics\DiagnosticLevel.cs" />
     <Compile Include="Diagnostics\Diagnostic.cs" />
     <Compile Include="Diagnostics\DiagnosticsEngine.cs" />
+    <Compile Include="Diagnostics\DiagnosticCollection.cs" />
+    <Compile Include="Diagnostics\DiagnosticFactory.cs" />
+    <Compile Include="Diagnostics\DiagnosticFormatProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />
