@@ -593,6 +593,12 @@ namespace Boo.Lang.Compiler
 			get { return _disabledDiagnostics; }
 		}
 
+		[Obsolete("use DisabledDiagnostics")]
+		public ICollection<string> DisabledWarnings
+		{
+			get { return _disabledDiagnostics; }
+		}
+
 		public ICollection<string> WarningsAsErrors
 		{
 			get { return _promotedDiagnostics; }
@@ -604,9 +610,21 @@ namespace Boo.Lang.Compiler
 				_disabledDiagnostics.Remove(code);
 		}
 
+		[Obsolete("use EnableDiagnostic")]
+		public void EnableWarning(string code)
+		{
+			EnableDiagnostic(code);
+		}
+
 		public void DisableDiagnostic(string code)
 		{
 			_disabledDiagnostics.Add(code);
+		}
+
+		[Obsolete("use DisableDiagnostic")]
+		public void DisableWarning(string code)
+		{
+			DisableDiagnostic(code);
 		}
 
 		public void ResetDiagnostics()
@@ -614,6 +632,12 @@ namespace Boo.Lang.Compiler
 			NoWarn = false;
 			_disabledDiagnostics.Clear();
 			Strict = _strict;
+		}
+
+		[Obsolete("use ResetDiagnostics")]
+		public void ResetWarnings()
+		{
+			ResetDiagnostics();
 		}
 
 		public void EnableWarningAsError(string code)
@@ -680,6 +704,9 @@ namespace Boo.Lang.Compiler
 
 		public IEnvironment Environment { get; set; }
 
+		/// <summary>
+		/// Register here your diagnostics handler to act upon generated diagnostics
+		/// </summary>
 		public DiagnosticEventHandler OnDiagnostic { get; set; }
 	}
 }

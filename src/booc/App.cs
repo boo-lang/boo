@@ -110,26 +110,26 @@ namespace booc
 				processingTime.Stop();
 
 				if (parameters.TraceWarning)
-					Console.Error.WriteLine(StringResources.BooC_ProcessingTime, parameters.Input.Count,
-					                        processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds);
+					Console.Error.WriteLine(StringResources.BooC_ProcessingTime, parameters.Input.Count == 1 ? "s" : "", 
+					                        parameters.Input.Count, processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds);
 
 				var diags = context.Diagnostics;
 				if (diags.WarningCount > 0 && diags.ErrorCount > 0)
 				{
 					Console.ForegroundColor = ConsoleColor.Red;
-					Console.Error.WriteLine("{0} warning{1} and {2} error{3} found", 
+					Console.Error.WriteLine(StringResources.BooC_Warnings_Errors,
 						diags.WarningCount, diags.WarningCount > 1 ? "s" : "",
 						diags.ErrorCount, diags.ErrorCount > 1 ? "s" : "");
 				}
 				else if (diags.WarningCount > 0)
 				{
 					Console.ForegroundColor = ConsoleColor.Magenta;
-					Console.Error.WriteLine("{0} warning{1} found", diags.WarningCount, diags.WarningCount > 1 ? "s" : "");
+					Console.Error.WriteLine(StringResources.BooC_Warnings, diags.WarningCount, diags.WarningCount > 1 ? "s" : "");
 				}
 				else if (diags.ErrorCount > 0)
 				{
 					Console.ForegroundColor = ConsoleColor.Red;
-					Console.Error.WriteLine("{0} error{1} found", diags.ErrorCount, diags.ErrorCount > 1 ? "s" : "");
+					Console.Error.WriteLine(StringResources.BooC_Errors, diags.ErrorCount, diags.ErrorCount > 1 ? "s" : "");
 				}
 
 				Console.ResetColor();

@@ -97,29 +97,34 @@ namespace booc
 
 			var args = ExpandResponseFiles(commandLine.Select(s => StripQuotes(s)));
 			AddDefaultResponseFile(args);
-			foreach (var arg in args)
+			foreach (var itarg in args)
 			{
-				if ("-" == arg)
+				if ("-" == itarg)
 				{
 					_options.Input.Add(new StringInput("<stdin>", Consume(Console.In)));
 					continue;
 				}
-				if (!IsFlag(arg))
+
+				if (!IsFlag(itarg))
 				{
-					_options.Input.Add(new FileInput(StripQuotes(arg)));
+					_options.Input.Add(new FileInput(StripQuotes(itarg)));
 					continue;
 				}
+
+				// Support unix style long options
+				string arg = itarg.StartsWith("--") && itarg.Length > 3 ? itarg.Substring(1) : itarg;
+
 				if ("-utf8" == arg)
 					continue;
 
 				switch (arg[1])
 				{
 					case 'h':
-						{
-							if (arg == "-help" || arg == "-h")
-								Help();
-							break;
+						if (arg == "-h" || arg == "-help") {
+							Help();
+							Environment.Exit(0);
 						}
+						break;
 
 					case 'w':
 						{
@@ -133,6 +138,13 @@ namespace booc
 								foreach (string warning in warnings.Split(','))
 									_options.EnableWarningAsError(warning);
 							}
+							else if (arg.StartsWith("-warn:"))
+							{
+								DeprecatedOption("-warn", "Please use -diag from now on");
+								var diags = ValueOf(arg);
+								foreach (string diag in diags.Split(','))
+									_options.EnableDiagnostic(diag);
+							}
 							else
 								InvalidOption(arg);
 							break;
@@ -140,6 +152,12 @@ namespace booc
 
 					case 'v':
 						{
+							if (arg == "-version")
+							{
+								DoLogo();
+								Environment.Exit(0);
+							}
+
 							_options.TraceLevel = TraceLevel.Warning;
 							if (arg.Length > 2)
 							{
@@ -223,6 +241,13 @@ namespace booc
 								_options.StdLib = false;
 							else if (arg == "-nowarn")
 								_options.NoWarn = true;
+							else if (arg.StartsWith("-nowarn:"))
+							{
+								DeprecatedOption("-warn", "Please use -nodiag from now on");
+								string diags = ValueOf(arg);
+								foreach (string diag in diags.Split(','))
+									_options.DisableDiagnostic(diag);
+							}
 							else if (arg.StartsWith("-nodiag:"))
 							{
 								string diags = ValueOf(arg);
@@ -501,14 +526,7 @@ namespace booc
 
 					default:
 						{
-							if (arg == "--help")
-							{
-								Help();
-							}
-							else
-							{
-								InvalidOption(arg);
-							}
+							InvalidOption(arg);
 							break;
 						}
 				}
@@ -544,7 +562,7 @@ namespace booc
 
 		static void DoLogo()
 		{
-			Console.WriteLine("Boo Compiler version {0} ({1})",
+			Console.WriteLine("Booc {0} ({1})",
 				Boo.Lang.Builtins.BooVersion, Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName);
 		}
 
@@ -754,6 +772,11 @@ namespace booc
 		void InvalidOption(string arg, string message)
 		{
 			Console.Error.WriteLine(StringResources.BooC_InvalidOption, arg, message);
+		}
+
+		void DeprecatedOption(string arg, string message)
+		{
+			Console.Error.WriteLine(StringResources.BooC_DeprecatedOption, arg, message);
 		}
 
 		static bool IsFlag(string arg)

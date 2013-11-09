@@ -213,11 +213,13 @@ namespace Boo.Lang.Resources
 		public const string BCE0501 = "Response file '{0}' could not be found.";
 		public const string BCE0502 = "An error occurred while loading response file '{0}'.";
 		public const string Boo_Lang_Compiler_GlobalNamespaceIsNotSet = "Global namespace is not set!";
-		public const string BooC_Errors = "{0} error(s).";
-		public const string BooC_Warnings = "{0} warning(s).";
-		public const string BooC_ProcessingTime = "{0} module(s) processed in {1}ms after {2}ms of environment setup.";
+		public const string BooC_Errors = "{0} error{1} found";
+		public const string BooC_Warnings = "{0} warning{1} found";
+		public const string BooC_Warnings_Errors = "{0} warning{1} and {2} error{3} found";
+		public const string BooC_ProcessingTime = "{0} module{1} processed in {2}ms after {3}ms of environment setup.";
 		public const string BooC_FatalError = "Fatal error: {0}.";
 		public const string BooC_InvalidOption = "Invalid option: {0}. {1}";
+		public const string BooC_DeprecatedOption = "Deprecated option: {0}. {1}";
 		public const string BooC_CantRunWithoutPipeline = "A pipeline must be specified!";
 		public const string BooC_InvalidPipeline = "'{0}' is neither a built-in pipeline nor a valid custom pipeline name.";
 		public const string BooC_VerifyPipelineUnsupported = "PEVerify pipeline is not supported on this platform.";
