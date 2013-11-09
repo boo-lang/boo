@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using Boo.Lang.Compiler.Diagnostics;
 
 namespace Boo.Lang.Compiler
 {
@@ -52,12 +53,24 @@ namespace Boo.Lang.Compiler
 	{
 		public event EventHandler<CompilerWarningEventArgs> Adding;
 
-	    override public List<CompilerWarning> Add(CompilerWarning warning)
-	    {
-	        return OnAdding(warning) ? base.Add(warning) : this;
-	    }
+		override public List<CompilerWarning> Add(CompilerWarning warning)
+		{
+			return OnAdding(warning) ? base.Add(warning) : this;
+		}
 
-	    protected bool OnAdding(CompilerWarning warning)
+		public List<CompilerWarning> Add(Diagnostic diag)
+		{
+			var warning = new CompilerWarning(
+				diag.Caret, 
+				diag.Arguments == null
+					? diag.Message
+					: String.Format(diag.Message, diag.Arguments),
+				String.Format("BCW{0:0000}", diag.Code)
+			);
+			return base.Add(warning);
+		}
+
+		protected bool OnAdding(CompilerWarning warning)
 		{
 			EventHandler<CompilerWarningEventArgs> adding = Adding;
 			if (null == adding)

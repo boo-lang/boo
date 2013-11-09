@@ -30,6 +30,7 @@ using System;
 using System.Text;
 using Boo.Lang;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Diagnostics;
 
 namespace Boo.Lang.Compiler
 {
@@ -62,6 +63,19 @@ namespace Boo.Lang.Compiler
 		override public List<CompilerError> Add(CompilerError error)
 		{
 			return OnAdding(error) ? base.Add(error) : this;
+		}
+
+		public List<CompilerError> Add(Diagnostic diag)
+		{
+			var error = new CompilerError(
+				String.Format("BCE{0:0000}", diag.Code),
+				diag.Caret,
+				diag.Arguments == null
+					? diag.Message
+					: String.Format(diag.Message, diag.Arguments),
+				null
+			);
+			return base.Add(error);
 		}
 
 		protected bool OnAdding(CompilerError error)
