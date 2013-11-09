@@ -123,7 +123,7 @@ namespace Boo.Lang.Compiler.Diagnostics
 			string indent = new String(' ', Indent);
 
 			Write(indent);
-			WriteLine(line);
+			WriteLine("{{Gray}}" + line);
 
 			if (null != diag.Hints)
 			{
