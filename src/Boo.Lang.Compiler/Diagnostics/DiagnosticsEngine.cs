@@ -155,5 +155,15 @@ namespace Boo.Lang.Compiler.Diagnostics
 			if (null != Handler)
 				Handler(level, diag);
 		}
+
+		public void Consume(CompilerError error)
+		{
+			Consume(Diagnostic.FromCompilerError(error));
+		}
+
+		public void Consume(CompilerWarning warning)
+		{
+			Consume(Diagnostic.FromCompilerWarning(warning));
+		}
 	}
 }
