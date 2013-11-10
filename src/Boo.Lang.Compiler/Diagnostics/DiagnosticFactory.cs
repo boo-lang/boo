@@ -73,5 +73,14 @@ namespace Boo.Lang.Compiler.Diagnostics
 			return diag;
 		}
 
+		public static Diagnostic NamespaceNeverUsed(Import node)
+		{
+			var diag = Warning(1016, "namespace {0:id} is not used in this module", node.Expression, node.Expression.ToCodeString());
+			diag.Ranges = new Range[] {
+				new Range(node.Expression)
+			};
+			return diag;
+		}
+
 	}
 }

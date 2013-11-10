@@ -98,6 +98,11 @@ namespace Boo.Lang.Compiler.Steps
 			// ignore quasi-quotes
 		}
 
+		protected void Diag(Diagnostic diag)
+		{
+			Diagnostics.Consume(diag);
+		}		
+
 		protected void Bind(Node node, IEntity tag)
 		{
 			node.Entity = tag;
