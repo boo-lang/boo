@@ -110,8 +110,8 @@ namespace booc
 				processingTime.Stop();
 
 				if (parameters.TraceWarning)
-					Console.Error.WriteLine(StringResources.BooC_ProcessingTime, parameters.Input.Count == 1 ? "s" : "", 
-					                        parameters.Input.Count, processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds);
+					Console.Error.WriteLine(StringResources.BooC_ProcessingTime, parameters.Input.Count, parameters.Input.Count != 1 ? "s" : "",
+											processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds);
 
 				var diags = context.Diagnostics;
 				if (diags.WarningCount > 0 && diags.ErrorCount > 0)
