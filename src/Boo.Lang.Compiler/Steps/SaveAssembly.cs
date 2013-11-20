@@ -40,6 +40,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			var builder = ContextAnnotations.GetAssemblyBuilder(Context);
+			builder.DefineVersionInfoResource();
 			var filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
 			Save(builder, filename);
 		}
