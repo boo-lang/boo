@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>booi</RootNamespace>
@@ -26,7 +26,11 @@
     <DebugType>None</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Boo.Lang.Useful" />
+    <ProjectReference Include="..\Boo.Lang.Useful\Boo.Lang.Useful.booproj">
+      <Project>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</Project>
+      <Name>Boo.Lang.Useful</Name>
+    </ProjectReference>
+    <!-- Reference Include="Boo.Lang.Useful" / -->
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
@@ -42,5 +46,5 @@
       <Name>Boo.Lang.Compiler</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+  <Import Project="$(BooToolPath)\Boo.Microsoft.Build.targets" />
 </Project>

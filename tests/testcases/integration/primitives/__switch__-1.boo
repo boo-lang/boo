@@ -1,13 +1,13 @@
 def foo(value as int):
 	__switch__(value, label1, label2, label3)
-	goto end
+	goto exit
 	:label1
 	return 1
 	:label2
 	return 2
 	:label3
 	return 3
-	:end
+	:exit
 	return -1
 	
 assert 1 == foo(0)

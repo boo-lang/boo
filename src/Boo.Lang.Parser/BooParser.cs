@@ -29,16 +29,32 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Environments;
 using Boo.Lang.Parser.Util;
+using antlr;
 
 namespace Boo.Lang.Parser
 {
 	public class BooParser : BooParserBase
 	{	
 		protected ParserErrorHandler Error;
+
+		/// <summary>
+		/// Sets a limit to the depth the parser can go when recursing rules
+		///</summary>
+		/// <remarks>
+		/// The parser must be build with the antlr `-traceParser` (Nant: antlr.trace=true) option 
+		/// for this to have any actual effect.
+		/// </remarks>		
+		public uint MaxRecursionLimit { get; set; }
+		protected Stack<string> RulesStack = new Stack<string>();
+
+		public ErrorPattern[] ErrorPatterns { get; set; }
+
+		protected int LastErrorLine = -1;
 
 		public BooParser(antlr.TokenStream lexer) : base(lexer)
 		{
@@ -56,16 +72,23 @@ namespace Boo.Lang.Parser
 		
 		public static CompileUnit ParseFile(string fname)
 		{
-			return ParseFile(ParserSettings.DefaultTabSize, fname);
+			return ParseFile(new ParserSettings(), fname);
 		}
 
+		[Obsolete]
 		public static CompileUnit ParseFile(int tabSize, string fname)
+		{
+			var settings = new ParserSettings() { TabSize = tabSize };
+			return ParseFile(settings, fname);
+		}
+
+		public static CompileUnit ParseFile(ParserSettings settings, string fname)
 		{
 			if (null == fname)
 				throw new ArgumentNullException("fname");
 	
 			using (StreamReader reader = File.OpenText(fname))
-				return ParseReader(tabSize, fname, reader);
+				return ParseReader(settings, fname, reader);
 		}
 		
 		public static CompileUnit ParseString(string name, string text)
@@ -75,17 +98,32 @@ namespace Boo.Lang.Parser
 		
 		public static CompileUnit ParseReader(string readerName, TextReader reader)
 		{
-			return ParseReader(ParserSettings.DefaultTabSize, readerName, reader);
+			var settings = new ParserSettings();
+			return ParseReader(settings, readerName, reader);
 		}
 
+		[Obsolete]
 		public static CompileUnit ParseReader(int tabSize, string readerName, TextReader reader)
 		{		
+			var settings = new ParserSettings() { TabSize = tabSize };
+			return ParseReader(settings, readerName, reader);
+		}
+
+		public static CompileUnit ParseReader(ParserSettings settings, string readerName, TextReader reader)
+		{
 			var cu = new CompileUnit();
-			ParseModule(tabSize, cu, readerName, reader, null);
+			ParseModule(settings, cu, readerName, reader);
 			return cu;
 		}
 
+		[Obsolete]
 		public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
+		{
+			var settings = new ParserSettings() { TabSize = tabSize, ErrorHandler = errorHandler };
+			return ParseModule(settings, cu, readerName, reader);
+		}
+
+		public static Module ParseModule(ParserSettings settings, CompileUnit cu, string readerName, TextReader reader)
 		{
 			if (Readers.IsEmpty(reader))
 			{
@@ -94,16 +132,27 @@ namespace Boo.Lang.Parser
 				return emptyModule;
 			}
 
-			var module = CreateParser(tabSize, readerName, reader, errorHandler).start(cu);
+			var module = CreateParser(settings, readerName, reader).start(cu);
 			module.Name = CodeFactory.ModuleNameFrom(readerName);
 			return module;
 		}
 
+		[Obsolete]
 		public static BooParser CreateParser(int tabSize, string readerName, TextReader reader, ParserErrorHandler errorHandler)
 		{
-			var parser = new BooParser(CreateBooLexer(tabSize, readerName, reader));
+			var settings = new ParserSettings() { TabSize = tabSize, ErrorHandler = errorHandler };
+			return CreateParser(settings, readerName, reader);
+		}
+
+		public static BooParser CreateParser(ParserSettings settings, string readerName, TextReader reader)
+		{
+			var parser = new BooParser(CreateBooLexer(settings.TabSize, readerName, reader)) {
+				MaxRecursionLimit = settings.MaxRecursionLimit,
+				ErrorPatterns = settings.ErrorPatterns
+			};
 			parser.setFilename(readerName);
-			parser.Error += errorHandler;
+			if (null != settings.ErrorHandler)
+				parser.Error += settings.ErrorHandler;
 			return parser;
 		}
 		
@@ -115,13 +164,67 @@ namespace Boo.Lang.Parser
 			lexer.setFilename(readerName);
 			lexer.Initialize(selector, tabSize, BooToken.TokenCreator);
 		
-			var filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOL);
+			var filter = new IndentTokenStreamFilter(lexer, WS, INDENT, DEDENT, EOL, END, ID);
 			selector.select(filter);
 			
 			return selector;
 		}
 
-		override public void reportError(antlr.RecognitionException x)
+		override public void traceIn(string name)
+		{
+			if (MaxRecursionLimit > 0 && RulesStack.Count >= MaxRecursionLimit)
+			{
+				IToken token = LT(1);
+				throw new RecognitionException(
+					"Maximum recursion limit reached",
+					token.getFilename(),
+					token.getLine(),
+					token.getColumn()
+				);
+			}
+				
+			RulesStack.Push(name);
+		}
+
+		override public void traceOut(string name)
+		{
+			RulesStack.Pop();
+		}
+
+		override public void reportError(RecognitionException x, string rulename)
+		{
+			// Silently ignore errors which are very close to a previous matched one,
+			// assuming that they are produced while the parser is trying to recover.
+			if (LastErrorLine != -1 && x.getLine() - LastErrorLine < 3) 
+			{
+				// Update it so we can extend the range as we go
+				LastErrorLine = x.getLine();
+				return;
+			}
+
+			// Override the reported error if there is matching pattern
+			if (ErrorPatterns != null)
+			{
+				foreach (ErrorPattern pattern in ErrorPatterns)
+				{
+					if (pattern.Matches(rulename, x))
+					{
+						LastErrorLine = x.getLine();
+						x = new RecognitionException(
+							pattern.Message,
+							x.getFilename(),
+							x.getLine(),
+							x.getColumn()
+						);
+						break;
+					}
+				}
+			}
+
+			reportError(x);
+		}
+
+		override public void reportError(RecognitionException x)
 		{
 			if (null != Error)
 				Error(x);
