@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>booish</id>
+    <version>@version@</version>
+    <title>Boo command line repl</title>
+    <authors>Boo Community</authors>
+    <owners>Boo Community</owners>
+    <iconUrl>http://oi41.tinypic.com/2usy2js.jpg</iconUrl>
+    <licenseUrl>http://raw.github.com/bamboo/boo/master/license.txt</licenseUrl>
+    <projectUrl>http://boo.codehaus.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Boo command line repl.</description>
+    <summary>Boo command line repl.</summary>
+    <tags>boo dsl compiler repl interpreter</tags>
+    <dependencies>
+      <dependency id="Boo.Lang" version="@version@" />
+      <dependency id="Boo.Lang.Useful" version="@version@" />
+      <dependency id="Boo.Lang.Interpreter" version="@version@" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="booish.exe" target="tools" />
+    <file src="booish.exe.config" target="tools" />
+  </files>
+</package>
