@@ -93,6 +93,7 @@ class AbstractInterpreter:
 		_compiler.Parameters.Environment = DeferredEnvironment() { TypeSystemServices: { InterpreterTypeSystemServices(_cachedCallableTypes) } }
 		
 		_parser.Parameters.Pipeline = CompilerPipeline() { parser }
+		Environments.ActiveEnvironment.DefaultInstance = ClosedEnvironment(Boo.Lang.Compiler.TypeSystem.Services.EntityFormatter())
 		
 	def constructor():
 		self(Steps.Parsing())

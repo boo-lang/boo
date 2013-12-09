@@ -45,8 +45,21 @@ namespace Boo.Lang.Environments
 		/// <summary>
 		/// The active environment.
 		/// </summary>
-		public static IEnvironment Instance { get { return _instance; } }
+		public static IEnvironment Instance
+		{
+			get
+			{
+				if (_instance == null)
+					return DefaultInstance;
+				return _instance;
+			}
+		}
 
+		/// <summary>
+		/// Default instance that will be used if nothing else has been specified.
+		/// </summary>
+		public static IEnvironment DefaultInstance { get; set; }
+		
 		/// <summary>
 		/// Executes <paramref name="code"/> in the specified <paramref name="environment"/>.
 		/// </summary>
