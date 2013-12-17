@@ -158,17 +158,17 @@ namespace Boo.Lang.Compiler.Steps
 			if (null != (mre = target as MemberReferenceExpression))
 			{
 				Visit(mre.Target);
-				mre.Target = tmp;
+				mre.Target = tmp.CloneNode();
 			} 
 			else if (null != (se = target as SlicingExpression))
 			{
 				Visit(se.Target);
-				se.Target = tmp;
+				se.Target = tmp.CloneNode();
 			}
 			else if (null != (mie = target as MethodInvocationExpression))
 			{
 				Visit(mie.Target);
-				mie.Target = tmp;
+				mie.Target = tmp.CloneNode();
 			}
 
 			// Convert the target into a ternary operation 
