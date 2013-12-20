@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -59,6 +59,25 @@ class IfdefMacro(AbstractAstMacro):
 		return Parameters.Defines.ContainsKey(condition.Name)
 
 	private def EvaluateBinary(condition as BinaryExpression):
+		if condition.Operator in (BinaryOperatorType.Equality, BinaryOperatorType.Inequality):
+			lft = condition.Left.ToString()
+
+			if not Parameters.Defines.ContainsKey(lft):
+				return false
+
+			rgt as string
+			if condition.Right isa ReferenceExpression:
+				rgt = (condition.Right as ReferenceExpression).Name
+			elif condition.Right isa StringLiteralExpression:
+				rgt = (condition.Right as StringLiteralExpression).Value
+			else:
+				rgt = condition.Right.ToString()
+				
+			if condition.Operator == BinaryOperatorType.Equality:
+				return Parameters.Defines[lft] == rgt
+			else:
+				return Parameters.Defines[lft] != rgt
+
 		if condition.Operator == BinaryOperatorType.Or:
 			return Evaluate(condition.Left) or Evaluate(condition.Right)
 		if condition.Operator == BinaryOperatorType.And:
