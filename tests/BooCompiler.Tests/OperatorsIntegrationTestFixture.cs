@@ -247,6 +247,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void safeaccess_1()
+		{
+			RunCompilerTestCase(@"safeaccess-1.boo");
+		}
+		
+		[Test]
+		public void safeaccess_2()
+		{
+			RunCompilerTestCase(@"safeaccess-2.boo");
+		}
+		
+		[Test]
 		public void shift_1()
 		{
 			RunCompilerTestCase(@"shift-1.boo");

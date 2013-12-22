@@ -5677,6 +5677,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			var local = new Local(name, privateScope);
 			local.LexicalInfo = sourceNode.LexicalInfo;
+			local.IsSynthetic = sourceNode.IsSynthetic;
 			var entity = new InternalLocal(local, localType);
 			local.Entity = entity;
 			CurrentMethod.Locals.Add(local);

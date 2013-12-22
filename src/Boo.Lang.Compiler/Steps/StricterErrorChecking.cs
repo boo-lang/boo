@@ -504,6 +504,9 @@ namespace Boo.Lang.Compiler.Steps
 				// _ is a commonly accepted dummy variable for unused items
 				if (local.Name == "_")
 					continue;
+				// Synthetic nodes are not reported
+				if (local.IsSynthetic)
+					continue;
 				
 				InternalLocal entity = (InternalLocal)local.Entity;
 				if (!entity.IsPrivateScope && !entity.IsUsed)
