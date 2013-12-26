@@ -58,6 +58,38 @@ macro property:
 				get: return $backingField
 				set: $backingField = value
 	|]
+	prototype.Members[name.ToString()].Documentation = property.Documentation
+	
+	yieldAll prototype.Members
+
+macro getproperty:
+
+	raise "getproperty <name> [as type] [= initialValue]" unless PropertyMacroParser.IsValidProperty(getproperty)
+	
+	argument = getproperty.Arguments[0]
+	initializationForm = argument as BinaryExpression
+	if initializationForm is not null:
+		declaration = initializationForm.Left
+		initializer = initializationForm.Right
+	else:
+		declaration = argument
+		initializer = null
+		
+	name = PropertyMacroParser.PropertyNameFrom(declaration)
+	type = PropertyMacroParser.PropertyTypeFrom(declaration)
+	backingField = ReferenceExpression(Name: Context.GetUniqueName(name.ToString()))
+	
+	prototype = [|
+	
+		class _:
+		
+			private $backingField as $type = $initializer
+			
+			$name:
+				get: return $backingField
+				private set: $backingField = value
+	|]
+	prototype.Members[name.ToString()].Documentation = getproperty.Documentation
 	
 	yieldAll prototype.Members
 	
