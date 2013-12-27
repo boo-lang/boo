@@ -44,20 +44,33 @@ macro property:
 		declaration = argument
 		initializer = null
 		
+	isStatic = PropertyMacroParser.PropertyGetIsStaticClass(property)
 	name = PropertyMacroParser.PropertyNameFrom(declaration)
 	type = PropertyMacroParser.PropertyTypeFrom(declaration)
 	backingField = ReferenceExpression(Name: Context.GetUniqueName(name.ToString()))
-		
-	prototype = [|
 	
-		class _:
+	if isStatic:
+		prototype = [|
 		
-			private $backingField as $type = $initializer
+			class _:
 			
-			$name:
-				get: return $backingField
-				set: $backingField = value
-	|]
+				private static $backingField as $type = $initializer
+				
+				static $name:
+					get: return $backingField
+					set: $backingField = value
+		|]
+	else:		
+		prototype = [|
+		
+			class _:
+			
+				private $backingField as $type = $initializer
+				
+				$name:
+					get: return $backingField
+					set: $backingField = value
+		|]
 	prototype.Members[name.ToString()].Documentation = property.Documentation
 	
 	yieldAll prototype.Members
@@ -74,21 +87,34 @@ macro getproperty:
 	else:
 		declaration = argument
 		initializer = null
-		
+	
+	isStatic = PropertyMacroParser.PropertyGetIsStaticClass(getproperty)
 	name = PropertyMacroParser.PropertyNameFrom(declaration)
 	type = PropertyMacroParser.PropertyTypeFrom(declaration)
 	backingField = ReferenceExpression(Name: Context.GetUniqueName(name.ToString()))
 	
-	prototype = [|
-	
-		class _:
+	if isStatic:
+		prototype = [|
 		
-			private $backingField as $type = $initializer
+			class _:
 			
-			$name:
-				get: return $backingField
-				private set: $backingField = value
-	|]
+				private static $backingField as $type = $initializer
+				
+				static $name:
+					get: return $backingField
+					private set: $backingField = value
+		|]
+	else:
+		prototype = [|
+		
+			class _:
+			
+				private $backingField as $type = $initializer
+				
+				$name:
+					get: return $backingField
+					private set: $backingField = value
+		|]
 	prototype.Members[name.ToString()].Documentation = getproperty.Documentation
 	
 	yieldAll prototype.Members
@@ -107,6 +133,15 @@ internal static class PropertyMacroParser:
 			return declaration.Type
 		return null
 		
+	def PropertyGetIsStaticClass(property as MacroStatement):
+	"""
+	Analyses the parent node of the macro statement in order to find out
+	whether this property is part of a static class. in this case, the
+	property shall create a static property.
+	"""
+		typeNode = property.ParentNode as TypeMember
+		return typeNode != null and typeNode.DeclaringType.IsStatic
+	
 	def IsValidProperty(property as MacroStatement):
 		if len(property.Arguments) != 1:
 			return false
