@@ -590,5 +590,13 @@ enum AnEnum:
 			Assert.AreEqual("and its items", anEnum.Members[0].Documentation);
 			
 		}
+
+		[Test]
+		public void TestEndKeywordAsIdentifier()
+		{
+			Boo.Lang.Compiler.Ast.Module module = ParseTestCase("end_identifier.boo");
+			ClassDefinition t = (ClassDefinition)module.Members[0];
+			Assert.AreEqual("T", t.Name);
+		}
 	}
 }
