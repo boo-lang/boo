@@ -3364,6 +3364,7 @@ identifier returns [IToken value]
 {
 using Boo.Lang.Parser.Util;
 }
+
 class BooLexer extends Lexer;
 options
 {
@@ -3399,7 +3400,12 @@ options
 		BooExpressionLexer lexer = new BooExpressionLexer(getInputState());
 		lexer.setTabSize(getTabSize());
 		lexer.setTokenCreator(tokenCreator);
-		return lexer;
+
+		// Apply the end-to-id token filter
+		var selector = new antlr.TokenStreamSelector();		
+		var filter = new EndTokenStreamFilter(lexer, END, ID);
+		selector.select(filter);
+		return selector;
 	}
 
 	internal static bool IsDigit(char ch)
