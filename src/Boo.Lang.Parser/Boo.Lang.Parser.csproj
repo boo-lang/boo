@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -204,6 +204,7 @@
     <Compile Include="ParserSettings.cs" />
     <Compile Include="PrimitiveParser.cs" />
     <Compile Include="SourceLocationFactory.cs" />
+    <Compile Include="Util\EndTokenStreamFilter.cs" />
     <Compile Include="Util\IndentTokenStreamFilter.cs" />
     <Compile Include="Util\Readers.cs" />
     <Compile Include="Util\TokenStreamRecorder.cs" />
