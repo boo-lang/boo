@@ -5,12 +5,13 @@
 	<property name="boo.version" value="${string::trim(version.txt)}" />
 
 	<!-- freeze AssemblyVersion to avoid backwards compatibility issues -->
-	<property name="boo.assembly.version" value="2.0.9.5" />
+	<property name="boo.assembly.version" value="${boo.version}" />
 	
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 	<property name="verbose" value="false" />
 	<property name="defines" value="" unless="${property::exists('defines')}" />
+	<property name="create.doc" value="false" />
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
@@ -94,15 +95,19 @@
 	
 	<property name="nant-csc-keyfile-bug" value="${version::get-minor(assemblyname::get-version(assembly::get-name(nant::get-assembly()))) &lt; 86}" />
 	
+	<property name="booicon.path" value="src/boo_logo.ico" overwrite="false" />
+	
 	<target name="sign">
 		<property name="keyfile.path" value="src/boo.snk" overwrite="false" />
+		<echo>Using keyfile ${keyfile.path}.</echo>
 	</target>
 
 	<target name="nosign">
 		<property name="keyfile.path" value="" overwrite="false" />
 		<property name="nosign" value="true" overwrite="true" />
+		<echo>The assemblies will not have strong names.</echo>
 	</target>
-
+	
 	<target name="all" depends="booc, booi, booish, boo-pkgconfig, Boo.Lang.CodeDom, Boo.Lang.Useful, Boo.Microsoft.Build.Tasks, update-vs-env, Boo.Lang.PatternMatching">
 		<call target="gendarme" if="${gendarme.dir != ''}" />
 		<call target="verify-assemblies" />
@@ -131,6 +136,7 @@
 		<property name="debug" value="false" />
 		<property name="optimize" value="true" />
 		<property name="csc.define" value="NET_2_0;${csc.define.custom}" />
+		<property name="create.doc" value="true" />
 	</target>
 	
 	<target name="nostdlib">
@@ -172,7 +178,28 @@
 		</exec>
 	</target>
 	
-	<target name="booish" depends="Boo.Lang.Interpreter">
+	<target name="booish.mod.os">
+		<booc
+			target="library"
+			output="${build.dir}/booish.mod.os.dll"
+			verbose="${verbose}"
+			debug="${debug}"
+			define="${defines}">
+			
+			<sources basedir="src/booish.mod.os">
+				<include name="*.boo" />
+			</sources>
+
+			<references basedir="${build.dir}">
+				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
+			</references>
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+		</booc>
+	</target>
+	
+	<target name="booish" depends="Boo.Lang.Interpreter,booish.mod.os">
 		<booc
 			target="exe"
 			output="${build.dir}/booish.exe"
@@ -182,15 +209,16 @@
 			
 			<sources basedir="src/booish">
 				<include name="*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
 
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
-
 		<copy file="extras/template.config.in" tofile="${build.dir}/booish.exe.config">
 			<filterchain>
 				<replacestring from="@SUPPORTEDVERSIONS@" 
@@ -221,11 +249,13 @@
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 				<include name="Boo.Lang.Useful.dll" />
 			</references>
 			
 			<sources basedir="src/booi">
 				<include name="*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>		
@@ -266,7 +296,11 @@
 		<booc target="library" output="${build.dir}/Boo.Lang.PatternMatching.dll">
 			<sources basedir="src/Boo.Lang.PatternMatching">
 				<include name="**/*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
+			<references basedir="${build.dir}">
+				<include name="Boo.Lang.Extensions.dll" />
+			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 		
@@ -280,10 +314,12 @@
 		      define="${defines}">
 			<sources basedir="src/Boo.Lang.Interpreter">
 				<include name="**/*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.PatternMatching.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
@@ -293,6 +329,7 @@
 		<uptodate property="Boo.NAnt.Tasks-is-uptodate">
 			<sourcefiles basedir="src/Boo.NAnt.Tasks">
 				<include name="*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sourcefiles>
 			<targetfiles>
 				<include name="${build.dir}/Boo.NAnt.Tasks.dll" />
@@ -322,6 +359,10 @@
 	</target>
 	
 	<target name="booc" depends="corecs">
+		<property name="booc.doc" value="" />
+		<if test="${create.doc}">
+			<property name="booc.doc" value="/doc:${build.dir}/booc.xml" />
+		</if>
 		<csc target="exe" 
 				output="${build.dir}/booc.exe" 
 				debug="${debug}" 
@@ -329,6 +370,7 @@
 				define="${csc.define}">
 			<sources basedir="src/booc">
 				<include name="*.cs" />
+				<include name="../AssemblyInfo.cs"/>
 			</sources>
 
 			<references>
@@ -337,6 +379,8 @@
 				<include name="${build.dir}/Boo.Lang.Parser.dll" />
 			</references>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="/win32icon:src/booc/App.ico" />
+			<arg line="${booc.doc}" />
 		</csc>
 
 		<if test="${not(platform::is-windows())}">
@@ -402,11 +446,14 @@
 			define="${defines}">
 			<sources basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="**/*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Microsoft.Build.Utilities.dll" />
 				<include name="Microsoft.Build.Tasks.dll" />
 				<include name="Microsoft.Build.Framework.dll" />
+				<include name="Boo.Lang.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
@@ -424,6 +471,7 @@
 			</sourcefiles>
 			<targetfiles basedir="src/Boo.Lang.Useful">
 				<include name="**/*Lexer.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</targetfiles>
 		</uptodate>
 
@@ -449,10 +497,12 @@
 			</nowarn>
 			<sources basedir="src/Boo.Lang.Useful">
 				<include name="**/*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
@@ -466,6 +516,7 @@
 			define="${defines}">
 			<sources basedir="src/Boo.Lang.CodeDom">
 				<include name="**/*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
 			<references basedir="${build.dir}">
 			<!--
@@ -473,6 +524,8 @@
 				<include name="System.Xml.dll" />
 			-->
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.Parser.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
@@ -488,6 +541,7 @@
 			define="${defines}">
 			<sources basedir="src/Boo.Lang.Extensions">
 				<include name="**/*.boo" />
+				<include name="../AssemblyInfo.boo"/>
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.dll" />
@@ -501,6 +555,10 @@
 	
 
 	<target name="Boo.Lang.Compiler" depends="Boo.Lang, Boo.Lang.Ast">
+		<property name="Boo.Lang.Compiler.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.Compiler.doc" value="/doc:${build.dir}/Boo.Lang.Compiler.xml" />
+		</if>
 		<csc target="library"
 			output="${build.dir}/Boo.Lang.Compiler.dll"
 			debug="${debug}"
@@ -509,6 +567,7 @@
 			
 			<sources basedir="src/Boo.Lang.Compiler">
 				<include name="**/*.cs" />
+				<include name="../AssemblyInfo.cs"/>
 			</sources>
 			
 			<references>
@@ -516,6 +575,7 @@
 				<!--include name="${build.dir}/Boo.Lang.Ast.dll" /-->
 			</references>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="${Boo.Lang.Compiler.doc}"/>
 		</csc>
 	</target>
 
@@ -529,6 +589,7 @@
 			
 			<sources basedir="src/Boo.Lang.Ast">
 				<include name="**/*.cs" />
+				<include name="../AssemblyInfo.cs"/>
 			</sources>
 			
 			<references>
@@ -538,6 +599,10 @@
 	</target>
 	
 	<target name="Boo.Lang" depends="init">
+		<property name="Boo.Lang.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.doc" value="/doc:${build.dir}/Boo.Lang.xml" />
+		</if>
 		<csc
 			target="library"
 			output="${build.dir}/Boo.Lang.dll"
@@ -548,11 +613,13 @@
 
 			<sources basedir="src/Boo.Lang">
 				<include name="**/*.cs" />
+				<include name="../AssemblyInfo.cs"/>
 			</sources>
 			<nowarn>
 				<warning if="${nant-csc-keyfile-bug}" number="1699"/>
 			</nowarn>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == '' or nant-csc-keyfile-bug}" />
+			<arg line="${Boo.Lang.doc}" />
 		</csc>
 	</target>
 	
@@ -754,6 +821,10 @@
 	</target>
 	
 	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
+		<property name="Boo.Lang.Parser.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.Parser.doc" value="/doc:${build.dir}/Boo.Lang.Parser.xml" />
+		</if>
 		<csc target="library"
 			output="${build.dir}/Boo.Lang.Parser.dll"
 			debug="${debug}"
@@ -761,6 +832,7 @@
 			define="${csc.define}">
 			<sources basedir="src/Boo.Lang.Parser">
 				<include name="**/*.cs" />
+				<include name="../AssemblyInfo.cs" />
 			</sources>
 			<references>
 				<include name="${build.dir}/Boo.Lang.dll" />
@@ -770,6 +842,7 @@
 				<warning number="618,219,162" />
 			</nowarn>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="${Boo.Lang.Parser.doc}" />
 		</csc>
 	</target>
 	
@@ -1088,20 +1161,7 @@
 		</copy>
 	</target>
 	
-	<target name="update-assembly-attributes" depends="core">	
-		<boo>
-		import System.IO
-		
-		fname = "src/Boo.Lang/Builtins.cs"
-		builtins = File.ReadAllText(fname)
-		
-		version = Project.Properties["boo.version"]
-		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}.0\")")
-		if builtins != newBuiltins:
-			print fname
-			File.WriteAllText(fname, newBuiltins) 
-		</boo>
-		
+	<target name="update-assembly-attributes" depends="core">			
     		<updateAssemblyVersion
 			version="${boo.assembly.version}">
 			<fileset basedir="src">
@@ -1113,8 +1173,7 @@
 			</fileset>
 		</updateAssemblyVersion>
 		
-		<updateAssemblyVersion
-			copyright="(C) 2003-2007 Rodrigo Barreto de Oliveira">
+		<updateAssemblyVersion>
 			<fileset basedir="src">
 				<include name="**/AssemblyInfo.cs" />
 				<include name="**/AssemblyInfo.boo" />
