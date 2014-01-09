@@ -520,14 +520,14 @@
 	<!-- -->
 	<xsl:template name="implements-member">
 		<xsl:variable name="href" select="string(NUtil:GetHRef(@id))" />
-		<a>
-			<xsl:attribute name="href">
-				<xsl:value-of select="$href" />
-			</xsl:attribute>
-			<xsl:value-of select="@interface" />
-			<xsl:text>.</xsl:text>
-			<xsl:value-of select="@name" />
-		</a>
+      <a>
+         <xsl:attribute name="href">
+            <xsl:value-of select="$href" />
+         </xsl:attribute>
+         <xsl:value-of select="@interface" />
+         <xsl:text>.</xsl:text>
+         <xsl:value-of select="@name" />
+      </a>
 	</xsl:template>
 	<!-- -->
 	<xsl:template name="remarks-section">
@@ -1082,14 +1082,26 @@
 				<ul class="permissions">
 					<xsl:for-each select="documentation/permission">
 						<li>
-							<a>
+                     <xsl:variable name="href">
+                        <xsl:call-template name="get-filename-for-type-name">
+                           <xsl:with-param name="type-name" select="substring-after(@cref, 'T:')" />
+                        </xsl:call-template>
+                     </xsl:variable>
+                     <xsl:choose>
+                     <xsl:when test="$href=''">
+                        <b>
+                           <xsl:value-of select="substring-after(@cref, 'T:')" />
+                        </b>
+                     </xsl:when>
+                     <xsl:otherwise>
+                     <a>
 								<xsl:attribute name="href">
-									<xsl:call-template name="get-filename-for-type-name">
-										<xsl:with-param name="type-name" select="substring-after(@cref, 'T:')" />
-									</xsl:call-template>
+                           <xsl:value-of select="$href"/>
 								</xsl:attribute>
 								<xsl:value-of select="substring-after(@cref, 'T:')" />
 							</a>
+                     </xsl:otherwise>
+                     </xsl:choose>
 							<xsl:text>&#160;</xsl:text>
 							<xsl:apply-templates mode="slashdoc" />
 						</li>

@@ -47,7 +47,7 @@ namespace NDoc.Documenter.Latex
 			// fix for bug 884121 - OutputDirectory on Linux
 			OutputDirectory = string.Format(".{0}doc{0}",Path.DirectorySeparatorChar );
 			TexFileBaseName = "Documentation";
-			LatexCompiler = "latex";
+			LatexCompiler = "pdflatex";
 		}
 
 		/// <summary>

@@ -89,32 +89,60 @@
 						<xsl:if test="@baseType">
 							<div>
 								<xsl:text>&#160;&#160;&#160;&#160;Inherits&#160;</xsl:text>
-								<a>
-									<xsl:attribute name="href">
-										<xsl:call-template name="get-filename-for-type-name">
-											<xsl:with-param name="type-name" select="./base/@type" />
-										</xsl:call-template>
-									</xsl:attribute>
-									<xsl:call-template name="vb-type">
-										<xsl:with-param name="runtime-type" select="./base/@type" />
-									</xsl:call-template>
-								</a>
+                        <xsl:variable name="href">
+                           <xsl:call-template name="get-filename-for-type-name">
+                              <xsl:with-param name="type-name" select="./base/@type" />
+                           </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:choose>
+                           <xsl:when test="$href=''">
+                              <b>
+                                 <xsl:call-template name="vb-type">
+                                    <xsl:with-param name="runtime-type" select="./base/@type" />
+                                 </xsl:call-template>
+                              </b>
+                           </xsl:when>
+                           <xsl:otherwise>
+                              <a>
+                                 <xsl:attribute name="href">
+                                    <xsl:value-of select="$href"/>
+                                 </xsl:attribute>
+                                 <xsl:call-template name="vb-type">
+                                    <xsl:with-param name="runtime-type" select="./base/@type" />
+                                 </xsl:call-template>
+                              </a>
+                           </xsl:otherwise>
+                        </xsl:choose>
 							</div>
 						</xsl:if>
 						<xsl:if test="implements[not(@inherited)]">
 							<div>
 								<xsl:text>&#160;&#160;&#160;&#160;Implements&#160;</xsl:text>
 								<xsl:for-each select="implements[not(@inherited)]">
-									<a>
-										<xsl:attribute name="href">
-											<xsl:call-template name="get-filename-for-type-name">
-												<xsl:with-param name="type-name" select="@type" />
-											</xsl:call-template>
-										</xsl:attribute>
-										<xsl:call-template name="vb-type">
-											<xsl:with-param name="runtime-type" select="@type" />
-										</xsl:call-template>
-									</a>
+                           <xsl:variable name="href">
+                              <xsl:call-template name="get-filename-for-type-name">
+                                 <xsl:with-param name="type-name" select="@type" />
+                              </xsl:call-template>
+                           </xsl:variable>
+                           <xsl:choose>
+                              <xsl:when test="$href=''">
+                                 <b>
+                                    <xsl:call-template name="vb-type">
+                                       <xsl:with-param name="runtime-type" select="@type" />
+                                    </xsl:call-template>
+                                 </b>
+                              </xsl:when>
+                              <xsl:otherwise>
+                                 <a>
+                                    <xsl:attribute name="href">
+                                       <xsl:value-of select="$href"/>
+                                    </xsl:attribute>
+                                    <xsl:call-template name="vb-type">
+                                       <xsl:with-param name="runtime-type" select="@type" />
+                                    </xsl:call-template>
+                                 </a>
+                              </xsl:otherwise>
+                           </xsl:choose>
 									<xsl:if test="position()!=last()">
 										<xsl:text>, </xsl:text>
 									</xsl:if>
@@ -144,16 +172,30 @@
 		</xsl:choose>
 		<xsl:if test="@returnType != 'System.Void'">
 			<xsl:text>&#160;As&#160;</xsl:text>
-			<a>
-				<xsl:attribute name="href">
-					<xsl:call-template name="get-filename-for-type-name">
-						<xsl:with-param name="type-name" select="@returnType" />
-					</xsl:call-template>
-				</xsl:attribute>
-				<xsl:call-template name="vb-type">
-					<xsl:with-param name="runtime-type" select="@returnType" />
-				</xsl:call-template>
-			</a>
+         <xsl:variable name="href">
+            <xsl:call-template name="get-filename-for-type-name">
+               <xsl:with-param name="type-name" select="@returnType" />
+            </xsl:call-template>
+         </xsl:variable>
+         <xsl:choose>
+            <xsl:when test="$href=''">
+               <b>
+                  <xsl:call-template name="vb-type">
+                     <xsl:with-param name="runtime-type" select="@returnType" />
+                  </xsl:call-template>
+               </b>
+            </xsl:when>
+            <xsl:otherwise>
+               <a>
+                  <xsl:attribute name="href">
+                     <xsl:value-of select="$href"/>
+                  </xsl:attribute>
+                  <xsl:call-template name="vb-type">
+                     <xsl:with-param name="runtime-type" select="@returnType" />
+                  </xsl:call-template>
+               </a>
+            </xsl:otherwise>
+         </xsl:choose>
 		</xsl:if>
 			<xsl:if test="implements">
 			<xsl:variable name="member" select="local-name(..)"/>
@@ -219,16 +261,30 @@
 			<xsl:value-of select="@name" />
 		</i>
 		<xsl:text>&#160;As&#160;</xsl:text>
-		<a>
-			<xsl:attribute name="href">
-				<xsl:call-template name="get-filename-for-type-name">
-					<xsl:with-param name="type-name" select="@type" />
-				</xsl:call-template>
-			</xsl:attribute>
-			<xsl:call-template name="vb-type">
-				<xsl:with-param name="runtime-type" select="@type" />
-			</xsl:call-template>
-		</a>
+      <xsl:variable name="href">
+         <xsl:call-template name="get-filename-for-type-name">
+            <xsl:with-param name="type-name" select="@type" />
+         </xsl:call-template>
+      </xsl:variable>
+      <xsl:choose>
+         <xsl:when test="$href=''">
+            <b>
+               <xsl:call-template name="vb-type">
+                  <xsl:with-param name="runtime-type" select="@type" />
+               </xsl:call-template>
+            </b>
+         </xsl:when>
+         <xsl:otherwise>
+            <a>
+               <xsl:attribute name="href">
+                  <xsl:value-of select="$href"/>
+               </xsl:attribute>
+               <xsl:call-template name="vb-type">
+                  <xsl:with-param name="runtime-type" select="@type" />
+               </xsl:call-template>
+            </a>
+         </xsl:otherwise>
+      </xsl:choose>
 		<xsl:if test="@optional = 'true'">
 			<xsl:text> = </xsl:text>
 			<xsl:if test="@type='System.String'">"</xsl:if>
@@ -346,16 +402,30 @@
 				</xsl:if>
 				<xsl:value-of select="@name" />
 				<xsl:text>&#160;As&#160;</xsl:text>
-				<a>
-					<xsl:attribute name="href">
-						<xsl:call-template name="get-filename-for-type-name">
-							<xsl:with-param name="type-name" select="@type" />
-						</xsl:call-template>
-					</xsl:attribute>
-					<xsl:call-template name="vb-type">
-						<xsl:with-param name="runtime-type" select="@type" />
-					</xsl:call-template>
-				</a>
+            <xsl:variable name="href">
+               <xsl:call-template name="get-filename-for-type-name">
+                  <xsl:with-param name="type-name" select="@type" />
+               </xsl:call-template>
+            </xsl:variable>
+            <xsl:choose>
+               <xsl:when test="$href=''">
+                  <b>
+                     <xsl:call-template name="vb-type">
+                        <xsl:with-param name="runtime-type" select="@type" />
+                     </xsl:call-template>
+                  </b>
+               </xsl:when>
+               <xsl:otherwise>
+                  <a>
+                     <xsl:attribute name="href">
+                        <xsl:value-of select="$href"/>
+                     </xsl:attribute>
+                     <xsl:call-template name="vb-type">
+                        <xsl:with-param name="runtime-type" select="@type" />
+                     </xsl:call-template>
+                  </a>
+               </xsl:otherwise>
+            </xsl:choose>
 				<xsl:if test="@literal='true'">
 					<xsl:text> = </xsl:text>
 					<xsl:if test="@type='System.String'">
@@ -411,16 +481,29 @@
 				<xsl:call-template name="vb-parameters" />
 			</xsl:if>
 			<xsl:text>&#160;As&#160;</xsl:text>
-			<a>
-				<xsl:attribute name="href">
-					<xsl:call-template name="get-filename-for-type-name">
-						<xsl:with-param name="type-name" select="@type" />
-					</xsl:call-template>
-				</xsl:attribute>
-				<xsl:call-template name="vb-type">
-					<xsl:with-param name="runtime-type" select="@type" />
-				</xsl:call-template>
-			</a>
+         <xsl:variable name="href">
+            <xsl:call-template name="get-filename-for-type-name">
+               <xsl:with-param name="type-name" select="@type" />
+            </xsl:call-template>
+         </xsl:variable>
+         <xsl:choose>
+            <xsl:when test="$href=''">
+               <b>
+                  <xsl:call-template name="vb-type">
+                     <xsl:with-param name="runtime-type" select="@type" />
+                  </xsl:call-template>
+               </b>
+            </xsl:when>
+            <xsl:otherwise>
+               <a>
+                  <xsl:attribute name="href">
+                  </xsl:attribute>
+                  <xsl:call-template name="vb-type">
+                     <xsl:with-param name="runtime-type" select="@type" />
+                  </xsl:call-template>
+               </a>
+            </xsl:otherwise>
+         </xsl:choose>
 			<xsl:if test="implements">
 				<xsl:variable name="member" select="local-name()" />
 				<xsl:text>&#160;_</xsl:text>

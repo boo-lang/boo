@@ -644,10 +644,6 @@ namespace NDoc.Core.Reflection
 
 		/// <summary>Gets or sets the LinkToSdkDocVersion property.</summary>
 		/// <remarks>Specifies to which version of the .NET Framework SDK documentation the links to system types will be pointing.</remarks>
-		[Category("Documentation Main Settings")]
-		[Description("Specifies to which version of the .NET Framework SDK documentation the links to system types will be pointing.")]
-		[DefaultValue(SdkVersion.SDK_v1_1)]
-		[System.ComponentModel.TypeConverter(typeof(EnumDescriptionConverter))]
 		public SdkVersion SdkDocVersion
 		{
 			get { return _SdkDocVersion; }

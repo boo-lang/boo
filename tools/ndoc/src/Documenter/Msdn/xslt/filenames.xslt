@@ -144,14 +144,23 @@
     <xsl:param name="cref" />
     <xsl:choose>
       <xsl:when test="starts-with($cref, 'N:')">
+         <!--
         <xsl:call-template name="get-filename-for-system-namespace">
           <xsl:with-param name="namespace-name" select="substring-after($cref, 'N:')" />
         </xsl:call-template>
+        -->
+         <b>
+            <xsl:value-of select="substring-after($cref, 'N:')" />
+         </b>
       </xsl:when>
       <xsl:when test="starts-with($cref, 'T:')">
+         <!--
         <xsl:call-template name="get-filename-for-system-type">
           <xsl:with-param name="type-name" select="translate(substring-after($cref, ':'), '.', '')" />
         </xsl:call-template>
+        -->
+         <b><xsl:value-of select="translate(substring-after($cref, ':'), '.', '')" />
+         </b>
       </xsl:when>
       <xsl:when test="starts-with($cref, 'F:') or starts-with($cref, 'P:') or starts-with($cref, 'M:') or starts-with($cref, 'E:')">
         <xsl:variable name="cref-name">
@@ -181,32 +190,31 @@
       </xsl:when>
     </xsl:choose>
   </xsl:template>
-  
+  <!--
   <xsl:template name="get-filename-for-system-namespace">
     <xsl:param name="namespace-name" />
     <xsl:value-of select="concat($ndoc-sdk-doc-base-url, translate($namespace-name, '.', ''), $ndoc-sdk-doc-file-ext)" />
   </xsl:template>
-
   <xsl:template name="get-filename-for-system-type">
     <xsl:param name="type-name" />
     <xsl:value-of select="concat($ndoc-sdk-doc-base-url, translate($type-name, '.[,]*', ''), 'ClassTopic', $ndoc-sdk-doc-file-ext)" />
   </xsl:template>
-
   <xsl:template name="get-filename-for-system-property">
     <xsl:value-of select="concat($ndoc-sdk-doc-base-url, translate(@declaringType, '.[,]', ''), 'Class', translate(@name, '.[,]', ''), 'Topic', $ndoc-sdk-doc-file-ext)" />
   </xsl:template>
-
   <xsl:template name="get-filename-for-system-field">
     <xsl:value-of select="concat($ndoc-sdk-doc-base-url, translate(@declaringType, '.[,]', ''), 'Class', translate(@name, '.[,]', ''), 'Topic', $ndoc-sdk-doc-file-ext)" />
   </xsl:template>
-
   <xsl:template name="get-filename-for-system-method">
     <xsl:value-of select="concat($ndoc-sdk-doc-base-url, translate(@declaringType, '.[,]', ''), 'Class', translate(@name, '.[,]', ''), 'Topic', $ndoc-sdk-doc-file-ext)" />
+     <xsl:value-of select="concat('Class', translate(@name, '.[,]', ''))" />
   </xsl:template>
-
   <xsl:template name="get-filename-for-system-event">
     <xsl:value-of select="concat($ndoc-sdk-doc-base-url, translate(@declaringType, '.[,]', ''), 'Class', translate(@name, '.[,]', ''), 'Topic', $ndoc-sdk-doc-file-ext)" />
   </xsl:template>
+  
+  ** System Methods, Fields, and Types **
+  -->
   <!-- -->
   <xsl:template name="get-filename-for-individual-member">
     <xsl:param name="member" />
@@ -318,15 +326,17 @@
     <xsl:param name="type-name" />
     <xsl:choose>
       <xsl:when test="starts-with($type-name, 'System.')">
+         <!--
         <xsl:call-template name="get-filename-for-system-type">
           <xsl:with-param name="type-name" select="$type-name" />
         </xsl:call-template>
+        -->
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat(translate($type-name, '[,]', ''), '.html')" />
       </xsl:otherwise>
     </xsl:choose>
-  </xsl:template>
+ </xsl:template>
   <!-- -->
   <xsl:template name="get-filename-for-operator">
     <xsl:param name="operator" select="." />

@@ -422,13 +422,18 @@
 					<xsl:with-param name="contract" select="@contract" />
 					<xsl:with-param name="local-name" select="local-name()" />
 				</xsl:call-template>
+            <!--
 				<a>
 					<xsl:attribute name="href">
 						<xsl:call-template name="get-filename-for-system-property" />
 					</xsl:attribute>
 					<xsl:value-of select="@name" />
 				</a>
-				<xsl:text> (inherited from </xsl:text>
+            -->
+            <b>
+               <xsl:value-of select="@name" />
+            </b>
+            <xsl:text> (inherited from </xsl:text>
 				<b>
 					<xsl:call-template name="strip-namespace">
 						<xsl:with-param name="name" select="@declaringType" />
@@ -512,13 +517,18 @@
 					<xsl:with-param name="contract" select="@contract" />
 					<xsl:with-param name="local-name" select="local-name()" />
 				</xsl:call-template>
+            <!--
 				<a>
 					<xsl:attribute name="href">
 						<xsl:call-template name="get-filename-for-system-field" />
 					</xsl:attribute>
 					<xsl:value-of select="@name" />
 				</a>
-				<xsl:text> (inherited from </xsl:text>
+            -->
+            <b>
+               <xsl:value-of select="@name" />
+            </b>
+            <xsl:text> (inherited from </xsl:text>
 				<b>
 					<xsl:call-template name="strip-namespace">
 						<xsl:with-param name="name" select="@declaringType" />
@@ -657,13 +667,17 @@
 						<xsl:with-param name="contract" select="$contract" />
 						<xsl:with-param name="local-name" select="local-name()" />
 					</xsl:call-template>
+               <!--
 					<a>
 						<xsl:attribute name="href">
 							<xsl:call-template name="get-filename-for-system-method" />
 						</xsl:attribute>
-						<xsl:value-of select="@name" />
+                  <xsl:value-of select="@name" />
 					</a>
-					<xsl:text> (inherited from </xsl:text>
+                  -->
+               <b><xsl:value-of select="@name" />
+               </b>
+                  <xsl:text> (inherited from </xsl:text>
 					<b>
 						<xsl:call-template name="strip-namespace">
 							<xsl:with-param name="name" select="@declaringType" />
@@ -753,12 +767,17 @@
 					<xsl:with-param name="contract" select="@contract" />
 					<xsl:with-param name="local-name" select="local-name()" />
 				</xsl:call-template>
+            <!--
 				<a>
 					<xsl:attribute name="href">
 						<xsl:call-template name="get-filename-for-system-event" />
 					</xsl:attribute>
 					<xsl:value-of select="@name" />
 				</a>
+            -->
+            <b>
+               <xsl:value-of select="@name" />
+            </b>
 				<xsl:text> (inherited from </xsl:text>
 				<b>
 					<xsl:call-template name="strip-namespace">

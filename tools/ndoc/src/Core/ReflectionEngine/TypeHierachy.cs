@@ -54,7 +54,7 @@ namespace NDoc.Core.Reflection
 			//            {
 			//            }
 #if NET_2_0
-			if (derivedType.HasGenericArguments) derivedType = derivedType.GetGenericTypeDefinition();
+			if (derivedType.IsGenericType) derivedType = derivedType.GetGenericTypeDefinition();
 #endif
 
 			bool found = false;

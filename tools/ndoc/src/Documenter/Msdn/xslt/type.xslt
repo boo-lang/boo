@@ -33,6 +33,7 @@
 			</xsl:call-template>
 			<xsl:choose>
 				<xsl:when test="starts-with($list[$last]/@type, 'System.')">
+               <!--
 					<a>
 						<xsl:attribute name="href">
 							<xsl:call-template name="get-filename-for-system-type">
@@ -41,7 +42,10 @@
 						</xsl:attribute>
 						<xsl:value-of select="substring-after($list[$last]/@id, ':' )" />
 					</a>
-				</xsl:when>
+               -->
+               <b><xsl:value-of select="substring-after($list[$last]/@id, ':' )" />
+               </b>
+            </xsl:when>
 				<xsl:otherwise>
 					<xsl:variable name="base-class-id" select="string($list[$last]/@id)" />
 					<xsl:variable name="base-class" select="//class[@id=$base-class-id]" />
@@ -123,7 +127,7 @@
 						</xsl:if>
 					</xsl:if>
 					<xsl:if test="local-name()='enumeration' and @flags">
-						<p>This enumeration has a <a>
+						<p>This enumeration has a <!-- <a>
 						<xsl:attribute name="href">
 									<xsl:call-template name="get-filename-for-system-type">
 										<xsl:with-param name="type-name" select="'System.FlagsAttribute'" />
@@ -131,7 +135,9 @@
 									</xsl:call-template>
 								</xsl:attribute>
 						FlagsAttribute</a>
-						attribute that allows a bitwise combination of its member values.</p>
+                  -->
+                     <b>FlagsAttribute</b>
+                     attribute that allows a bitwise combination of its member values.</p>
 					</xsl:if>
 					<xsl:if test="local-name() != 'delegate' and local-name() != 'enumeration'">
 						<p>
@@ -176,12 +182,15 @@
 									</xsl:if>
 								</xsl:when>
 								<xsl:otherwise>
+                           <!--
 									<xsl:variable name="href">
 										<xsl:call-template name="get-filename-for-system-type">
 											<xsl:with-param name="type-name" select="'System.Object'" />
 										</xsl:call-template>
 									</xsl:variable>
 									<a href="{$href}">System.Object</a>
+                           -->
+                           <b>System.Object</b>
 									<br />
 									<xsl:call-template name="draw-hierarchy">
 										<xsl:with-param name="list" select="descendant::base" />
@@ -274,14 +283,27 @@
 							<ul class="permissions">
 								<xsl:for-each select="documentation/permission">
 									<li>
-										<a>
-											<xsl:attribute name="href">
-												<xsl:call-template name="get-filename-for-type-name">
-													<xsl:with-param name="type-name" select="substring-after(@cref, 'T:')" />
-												</xsl:call-template>
-											</xsl:attribute>
-											<xsl:value-of select="substring-after(@cref, 'T:')" />
-										</a>
+                              <xsl:variable name="href">
+                                 <xsl:call-template name="get-filename-for-type-name">
+                                    <xsl:with-param name="type-name" select="substring-after(@cref, 'T:')" />
+                                 </xsl:call-template>
+                              </xsl:variable>
+                              <xsl:choose>
+                                 <xsl:when test="$href=''">
+                                    <b>
+                                       <xsl:value-of select="substring-after(@cref, 'T:')" />                                       
+                                    </b>
+                                 </xsl:when>
+                                 <xsl:otherwise>
+                                    <a>
+                                       <xsl:attribute name="href">
+                                          <xsl:value-of select="$href" />
+                                       
+                                       </xsl:attribute>
+                                       <xsl:value-of select="substring-after(@cref, 'T:')" />
+                                    </a>
+                                 </xsl:otherwise>
+                              </xsl:choose>
 										<xsl:text>&#160;</xsl:text>
 										<xsl:apply-templates mode="slashdoc" />
 									</li>

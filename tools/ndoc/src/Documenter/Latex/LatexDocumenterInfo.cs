@@ -12,7 +12,7 @@ namespace NDoc.Documenter.Latex
 		/// <summary>
 		/// Creates a new instance of the class
 		/// </summary>
-		public LatexDocumenterInfo() : base( "LaTeX", DocumenterDevelopmentStatus.Alpha )
+		public LatexDocumenterInfo() : base( "LaTeX", DocumenterDevelopmentStatus.Stable )
 		{
 		}
 

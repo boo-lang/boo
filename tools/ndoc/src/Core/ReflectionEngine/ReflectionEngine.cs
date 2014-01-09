@@ -386,7 +386,9 @@ namespace NDoc.Core.Reflection
 				return false;
 
 #if NET_2_0
-			//If the type has a CompilerGenerated attribute then we don't want to document it 
+         if (type.IsGenericType)
+            type = type.GetGenericTypeDefinition();
+         //If the type has a CompilerGenerated attribute then we don't want to document it 
 			//as it is an internal artifact of the compiler
 			if (type.IsDefined(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), false))
 			{
@@ -466,11 +468,15 @@ namespace NDoc.Core.Reflection
 				return false;
 			}
 
+         var declaringTypeDef = method.DeclaringType;
+         if (declaringTypeDef.IsGenericType)
+            declaringTypeDef = declaringTypeDef.GetGenericTypeDefinition();
+
 			//Inherited Framework Members
 			if ((!this.rep.DocumentInheritedFrameworkMembers) && 
-				(method.ReflectedType != method.DeclaringType) && 
-				(method.DeclaringType.FullName.StartsWith("System.") || 
-				method.DeclaringType.FullName.StartsWith("Microsoft.")))
+				(method.ReflectedType != method.DeclaringType) &&
+            (declaringTypeDef.FullName.StartsWith("System.") ||
+            declaringTypeDef.FullName.StartsWith("Microsoft.")))
 			{
 				return false;
 			}
@@ -1192,13 +1198,17 @@ namespace NDoc.Core.Reflection
  
 			foreach (Type interfaceType in type.GetInterfaces())
 			{
-				if (MustDocumentType(interfaceType))
+            var interfaceTypeDef = interfaceType;
+            if (interfaceTypeDef.IsGenericType)
+               interfaceTypeDef = interfaceTypeDef.GetGenericTypeDefinition();
+
+				if (MustDocumentType(interfaceTypeDef))
 				{
 					writer.WriteStartElement("implements");
-					writer.WriteAttributeString("type", interfaceType.FullName.Replace('+', '.'));
-					writer.WriteAttributeString("displayName", MemberDisplayName.GetMemberDisplayName(interfaceType));
-					writer.WriteAttributeString("namespace", interfaceType.Namespace);
-					if (baseInterfaces.Contains(interfaceType.FullName))
+					writer.WriteAttributeString("type", interfaceTypeDef.FullName.Replace('+', '.'));
+					writer.WriteAttributeString("displayName", MemberDisplayName.GetMemberDisplayName(interfaceTypeDef));
+					writer.WriteAttributeString("namespace", interfaceTypeDef.Namespace);
+					if (baseInterfaces.Contains(interfaceTypeDef.FullName))
 					{
 						writer.WriteAttributeString("inherited", "true");
 					}
@@ -2377,13 +2387,16 @@ namespace NDoc.Core.Reflection
 						PropertyInfo InterfaceProperty = DerivePropertyFromAccessorMethod(InterfaceMethod);
 						if (InterfaceProperty != null)
 						{
+                     var interfaceTypeDef = implements.InterfaceType;
+                     if (interfaceTypeDef.IsGenericType)
+                        interfaceTypeDef = interfaceTypeDef.GetGenericTypeDefinition();
 							string InterfacePropertyID = MemberID.GetMemberID(InterfaceProperty);
 							writer.WriteStartElement("implements");
 							writer.WriteAttributeString("name", InterfaceProperty.Name);
 							writer.WriteAttributeString("id", InterfacePropertyID);
 							writer.WriteAttributeString("interface", implements.InterfaceType.Name);
 							writer.WriteAttributeString("interfaceId", MemberID.GetMemberID(implements.InterfaceType));
-							writer.WriteAttributeString("declaringType", implements.InterfaceType.FullName.Replace('+', '.'));
+							writer.WriteAttributeString("declaringType", interfaceTypeDef.FullName.Replace('+', '.'));
 							writer.WriteEndElement();
 						}
 						else if (InterfaceMethod != null)
@@ -2578,12 +2591,15 @@ namespace NDoc.Core.Reflection
 					ImplementsInfo implements = implementations[method.ToString()];
 					if (implements != null)
 					{
+                  var interfaceTypeDef = implements.InterfaceType;
+                  if (interfaceTypeDef.IsGenericType)
+                     interfaceTypeDef = interfaceTypeDef.GetGenericTypeDefinition();
 						writer.WriteStartElement("implements");
 						writer.WriteAttributeString("name", implements.InterfaceMethod.Name);
 						writer.WriteAttributeString("id", MemberID.GetMemberID((MethodBase)implements.InterfaceMethod));
 						writer.WriteAttributeString("interface", MemberDisplayName.GetMemberDisplayName(implements.InterfaceType));
 						writer.WriteAttributeString("interfaceId", MemberID.GetMemberID(implements.InterfaceType));
-						writer.WriteAttributeString("declaringType", implements.InterfaceType.FullName.Replace('+', '.'));
+						writer.WriteAttributeString("declaringType", interfaceTypeDef.FullName.Replace('+', '.'));
 						writer.WriteEndElement();
 					}
 				}
@@ -2741,7 +2757,9 @@ namespace NDoc.Core.Reflection
 		/// <param name="type"></param>
 		private string GetTypeNamespaceName(Type type)
 		{
-			return type.FullName.Replace('+', '.');
+         if (type.IsGenericType)
+            type = type.GetGenericTypeDefinition();
+         return type.FullName.Replace('+', '.');
 		}
 
 		/// <summary>Derives the member name ID for the base of an inherited field.</summary>
@@ -2749,6 +2767,8 @@ namespace NDoc.Core.Reflection
 		/// <param name="declaringType">The declaring type.</param>
 		private string GetMemberName(FieldInfo field, Type declaringType)
 		{
+         if (declaringType.IsGenericType)
+            declaringType = declaringType.GetGenericTypeDefinition();
 			return "F:" + declaringType.FullName.Replace("+", ".") + "." + field.Name;
 		}
 
@@ -2757,6 +2777,8 @@ namespace NDoc.Core.Reflection
 		/// <param name="declaringType">The declaring type.</param>
 		private string GetMemberName(EventInfo eventInfo, Type declaringType)
 		{
+         if (declaringType.IsGenericType)
+            declaringType = declaringType.GetGenericTypeDefinition();
 			return "E:" + declaringType.FullName.Replace("+", ".") + 
 				"." + eventInfo.Name.Replace('.', '#').Replace('+', '#');
 		}
@@ -3270,7 +3292,7 @@ namespace NDoc.Core.Reflection
 			Type declaringType)
 		{
 #if NET_2_0
-            if (declaringType.HasGenericArguments) declaringType = declaringType.GetGenericTypeDefinition();
+            if (declaringType.IsGenericType) declaringType = declaringType.GetGenericTypeDefinition();
 #endif
 			string summary = externalSummaryCache.GetSummary(memberName, declaringType);
 			if (summary.Length > 0)

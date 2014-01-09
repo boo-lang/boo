@@ -105,8 +105,10 @@ namespace NDoc.Documenter.Msdn
 			if ((cref.Length < 2) || (cref[1] != ':'))
 				return string.Empty;
 
+         /*
 			if ((cref.Length < 9)
 				|| (cref.Substring(2, 7) != systemPrefix))
+          */
 			{
 				string fileName = fileNames[cref];
 				if ((fileName == null) && cref.StartsWith("F:"))
@@ -117,6 +119,7 @@ namespace NDoc.Documenter.Msdn
 				else
 					return fileName;
 			}
+            /*
 			else
 			{
 				switch (cref.Substring(0, 2))
@@ -135,6 +138,7 @@ namespace NDoc.Documenter.Msdn
 						return string.Empty;
 				}
 			}
+             */
 		}
 
 		/// <summary>

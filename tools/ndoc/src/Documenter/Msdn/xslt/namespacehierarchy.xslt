@@ -74,25 +74,29 @@
 	<!-- -->
 	<xsl:template name="get-type-link">
 		<xsl:param name="id" />
-		<a>
 			<xsl:choose>
 				<xsl:when test="starts-with($id, 'T:System.') or starts-with($id, 'T:Microsoft.')">
+               <!--
 					<xsl:attribute name="href">
 						<xsl:call-template name="get-filename-for-system-type">
 							<xsl:with-param name="type-name" select="substring-after($id, ':')" />
 						</xsl:call-template>
 					</xsl:attribute>
-				</xsl:when>
+            -->
+               <b><xsl:value-of select="substring-after($id, ':')" />
+               </b>
+            </xsl:when>
 				<xsl:otherwise>
-					<xsl:attribute name="href">
+               <a>
+                  <xsl:attribute name="href">
 						<xsl:call-template name="get-filename-for-type">
 							<xsl:with-param name="id" select="$id" />
 						</xsl:call-template>
 					</xsl:attribute>
-				</xsl:otherwise>
+                  <xsl:value-of select="substring-after(@id, ':')" />
+               </a>
+            </xsl:otherwise>
 			</xsl:choose>
-			<xsl:value-of select="substring-after(@id, ':')" />
-		</a>
 	</xsl:template>
 	<!-- -->
 </xsl:stylesheet>

@@ -20,7 +20,7 @@ Default Font=
 Create CHI file=No
 
 [WINDOWS]
-MsdnHelp="NDoc 1.3 Help","contents.hhc","index.hhk","Content\Default.htm","Content\Default.htm",,,,,0x73520,220,0x60387E,[86,51,872,558],0xB0000,,,,,,0
+MsdnHelp="NDoc 2014 Help","contents.hhc","index.hhk","Content\Default.htm","Content\Default.htm",,,,,0x73520,220,0x60387E,[86,51,872,558],0xB0000,,,,,,0
 TP=,"contents.HHC","index.HHK","Content\Default.htm",,,,,,0x20,0,0x0,[271,372,593,566],0xB0000,,,,,,0
 
 [FILES]
@@ -37,6 +37,7 @@ Content\extensibility-sections.htm
 Content\extensibility.htm
 Content\gettinginvolved.htm
 Content\gettingstarted.htm
+Content\gpl.htm
 Content\javadoc.htm
 Content\knownissues.htm
 Content\latex.htm

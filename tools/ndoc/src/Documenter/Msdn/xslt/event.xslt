@@ -146,13 +146,16 @@
 											</a>
 										</xsl:when>
 										<xsl:when test="starts-with(@declaringType, 'System.')">
+                                 <!--
 											<a>
 												<xsl:attribute name="href">
 													<xsl:call-template name="get-filename-for-system-property" />
 												</xsl:attribute>
 												<xsl:value-of select="@name" />
 											</a>
-										</xsl:when>
+                                 -->
+                                 <xsl:value-of select="@name" />
+                              </xsl:when>
 										<xsl:otherwise>
 											<xsl:value-of select="@name" />
 										</xsl:otherwise>

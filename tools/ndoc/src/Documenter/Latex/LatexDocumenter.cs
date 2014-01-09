@@ -51,7 +51,8 @@ namespace NDoc.Documenter.Latex
 				'%',
 				'{',
 				'}',
-				'\\'				
+				'\\',
+            '#'
 			};
 
 		private static readonly string[] c_TempFileExtensions =
@@ -144,6 +145,16 @@ namespace NDoc.Documenter.Latex
 			MakeTextTeXCompatible(doc);
 			
 			WriteTeXDocument(workspace, doc);
+         string text;
+         using (var file = File.OpenText(LatexConfig.TexFileFullPath))
+         {
+            text = file.ReadToEnd();
+         }
+         using (var file = File.CreateText(LatexConfig.TexFileFullPath))
+         {
+            file.Write(text.Replace("&lt;", "<").Replace("&gt;", ">"));
+         }
+
 			CompileTexDocument();
 			workspace.RemoveResourceDirectory();
 		}

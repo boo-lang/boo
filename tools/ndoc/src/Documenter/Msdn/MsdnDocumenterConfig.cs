@@ -48,6 +48,8 @@ namespace NDoc.Documenter.Msdn
 			_BinaryTOC = true;
 
 			_ShowVisualBasic = false;
+         _ShowCSharp = false;
+
 			_OutputTarget = OutputType.HtmlHelpAndWeb;
 
 			_RootPageContainsNamespaces = false;
@@ -158,6 +160,23 @@ namespace NDoc.Documenter.Msdn
 				SetDirty();
 			}
 		}
+
+      private bool _ShowCSharp;
+
+      [Category("Documentation Main Settings")]
+      [Description("Show C# syntax for types and members.")]
+      [DefaultValue(false)]
+      public bool ShowCSharp
+      {
+         get { return _ShowCSharp; }
+
+         set
+         {
+            _ShowCSharp = value;
+            SetDirty();
+         }
+      }
+
 
 		private OutputType _OutputTarget;
 

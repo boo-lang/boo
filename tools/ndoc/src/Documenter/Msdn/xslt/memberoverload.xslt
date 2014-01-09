@@ -69,40 +69,72 @@
 							<xsl:when test="@declaringType and starts-with(@declaringType, 'System.')">
 								<p>
 									<xsl:text>Inherited from </xsl:text>
-									<a>
-										<xsl:attribute name="href">
-											<xsl:call-template name="get-filename-for-type-name">
-												<xsl:with-param name="type-name" select="@declaringType" />
-											</xsl:call-template>
-										</xsl:attribute>
-										<xsl:call-template name="strip-namespace">
-											<xsl:with-param name="name" select="@declaringType" />
-										</xsl:call-template>
-									</a>
+                           <xsl:variable name="href">
+                              <xsl:call-template name="get-filename-for-type-name">
+                                 <xsl:with-param name="type-name" select="@declaringType" />
+                              </xsl:call-template>
+                           </xsl:variable>
+                           <xsl:choose>
+                              <xsl:when test="$href=''">
+                                 <b>
+                                 <xsl:call-template name="strip-namespace">
+                                    <xsl:with-param name="name" select="@declaringType" />
+                                 </xsl:call-template>
+                                 </b>
+                              </xsl:when>
+                              <xsl:otherwise>
+                                 <a>
+                                    <xsl:attribute name="href">
+                                       <xsl:value-of select="$href"/>
+                                    </xsl:attribute>
+                                    <xsl:call-template name="strip-namespace">
+                                       <xsl:with-param name="name" select="@declaringType" />
+                                    </xsl:call-template>
+                                 </a>
+                              </xsl:otherwise>
+                           </xsl:choose>
 									<xsl:text>.</xsl:text>
 								</p>
 								<blockquote class="dtBlock">
+                           <!--
 									<a>
 										<xsl:attribute name="href">
 											<xsl:call-template name="get-filename-for-system-method" />
 										</xsl:attribute>
 										<xsl:apply-templates select="self::node()" mode="syntax" />
 									</a>
-								</blockquote>
+                              -->
+                           <b><xsl:apply-templates select="self::node()" mode="syntax" />
+                           </b>
+                        </blockquote>
 							</xsl:when>
 							<xsl:when test="@declaringType">
 								<p>
 									<xsl:text>Inherited from </xsl:text>
-									<a>
-										<xsl:attribute name="href">
-											<xsl:call-template name="get-filename-for-type-name">
-												<xsl:with-param name="type-name" select="@declaringType" />
-											</xsl:call-template>
-										</xsl:attribute>
-										<xsl:call-template name="strip-namespace">
-											<xsl:with-param name="name" select="@declaringType" />
-										</xsl:call-template>
-									</a>
+                           <xsl:variable name="href">
+                              <xsl:call-template name="get-filename-for-type-name">
+                                 <xsl:with-param name="type-name" select="@declaringType" />
+                              </xsl:call-template>
+                           </xsl:variable>
+                           <xsl:choose>
+                              <xsl:when test="$href=''">
+                                 <b>
+                                    <xsl:call-template name="strip-namespace">
+                                       <xsl:with-param name="name" select="@declaringType" />
+                                    </xsl:call-template>
+                                 </b>
+                              </xsl:when>
+                              <xsl:otherwise>
+                                 <a>
+                                    <xsl:attribute name="href">
+                                       <xsl:value-of select="$href"/>
+                                    </xsl:attribute>
+                                    <xsl:call-template name="strip-namespace">
+                                       <xsl:with-param name="name" select="@declaringType" />
+                                    </xsl:call-template>
+                                 </a>
+                              </xsl:otherwise>
+                           </xsl:choose>
 									<xsl:text>.</xsl:text>
 								</p>
 								<blockquote class="dtBlock">

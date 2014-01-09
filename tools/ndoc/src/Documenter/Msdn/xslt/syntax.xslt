@@ -3,10 +3,13 @@
 	<!-- -->
 	<xsl:param name="ndoc-document-attributes" />
 	<xsl:param name="ndoc-documented-attributes" />
-	<!-- -->
-	<xsl:template name="cs-type-syntax">
+   <!-- -->
+   <xsl:param name="ndoc-cs-syntax" />
+   <xsl:param name="ndoc-multi-syntax" />
+   <!-- -->
+   <xsl:template name="cs-type-syntax">
 		<div class="syntax">
-			<xsl:if test="$ndoc-vb-syntax">
+			<xsl:if test="$ndoc-multi-syntax">
 				<span class="lang">[C#]</span>
 			</xsl:if>
 			<xsl:call-template name="attributes" />
@@ -60,31 +63,59 @@
 			<b>
 				<xsl:text> : </xsl:text>
 				<xsl:if test="@baseType!=''">
-					<a>
-						<xsl:attribute name="href">
-							<xsl:call-template name="get-filename-for-type-name">
-								<xsl:with-param name="type-name" select="./base/@type" />
-							</xsl:call-template>
-						</xsl:attribute>
-						<xsl:call-template name="get-datatype">
-							<xsl:with-param name="datatype" select="@baseType" />
-						</xsl:call-template>
-					</a>
+               <xsl:variable name="href">
+                  <xsl:call-template name="get-filename-for-type-name">
+                     <xsl:with-param name="type-name" select="./base/@type" />
+                  </xsl:call-template>
+               </xsl:variable>
+               <xsl:choose>
+                  <xsl:when test="$href=''">
+                     <b>
+                        <xsl:call-template name="get-datatype">
+                           <xsl:with-param name="datatype" select="@baseType" />
+                        </xsl:call-template>
+                     </b>
+                  </xsl:when>
+                  <xsl:otherwise>
+                     <a>
+                        <xsl:attribute name="href">
+                           <xsl:value-of select="$href"/>
+                        </xsl:attribute>
+                        <xsl:call-template name="get-datatype">
+                           <xsl:with-param name="datatype" select="@baseType" />
+                        </xsl:call-template>
+                     </a>
+                  </xsl:otherwise>
+               </xsl:choose>
 					<xsl:if test="implements[not(@inherited)]">
 						<xsl:text>, </xsl:text>
 					</xsl:if>
 				</xsl:if>
 				<xsl:for-each select="implements[not(@inherited)]">
-					<a>
-						<xsl:attribute name="href">
-							<xsl:call-template name="get-filename-for-type-name">
-								<xsl:with-param name="type-name" select="@type" />
-							</xsl:call-template>
-						</xsl:attribute>
-						<xsl:call-template name="get-datatype">
-							<xsl:with-param name="datatype" select="@type" />
-						</xsl:call-template>
-					</a>
+               <xsl:variable name="href">
+                  <xsl:call-template name="get-filename-for-type-name">
+                     <xsl:with-param name="type-name" select="@type" />
+                  </xsl:call-template>
+               </xsl:variable>
+               <xsl:choose>
+                  <xsl:when test="$href=''">
+                     <b>
+                        <xsl:call-template name="get-datatype">
+                           <xsl:with-param name="datatype" select="@type" />
+                        </xsl:call-template>
+                     </b>
+                  </xsl:when>
+                  <xsl:otherwise>
+                     <a>
+                        <xsl:attribute name="href">
+                           <xsl:value-of select="$href"/>
+                        </xsl:attribute>
+                        <xsl:call-template name="get-datatype">
+                           <xsl:with-param name="datatype" select="@type" />
+                        </xsl:call-template>
+                     </a>
+                  </xsl:otherwise>
+               </xsl:choose>
 					<xsl:if test="position()!=last()">
 						<xsl:text>, </xsl:text>
 					</xsl:if>
@@ -95,7 +126,7 @@
 	<!-- -->
 	<xsl:template name="cs-member-syntax">
 		<div class="syntax">
-			<xsl:if test="$ndoc-vb-syntax">
+			<xsl:if test="$ndoc-multi-syntax">
 				<span class="lang">[C#]</span>
 				<br />
 			</xsl:if>
@@ -124,16 +155,30 @@
 				<xsl:otherwise>
 					<xsl:if test="@name != 'op_Explicit' and @name != 'op_Implicit'">
 						<!-- output the return type. this is duplicated code. -->
-						<a>
-							<xsl:attribute name="href">
-								<xsl:call-template name="get-filename-for-type-name">
-									<xsl:with-param name="type-name" select="@returnType" />
-								</xsl:call-template>
-							</xsl:attribute>
-							<xsl:call-template name="get-datatype">
-								<xsl:with-param name="datatype" select="@returnType" />
-							</xsl:call-template>
-						</a>
+                  <xsl:variable name="href">
+                     <xsl:call-template name="get-filename-for-type-name">
+                        <xsl:with-param name="type-name" select="@returnType" />
+                     </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:choose>
+                     <xsl:when test="$href=''">
+                        <b>
+                           <xsl:call-template name="get-datatype">
+                              <xsl:with-param name="datatype" select="@returnType" />
+                           </xsl:call-template>
+                        </b>
+                     </xsl:when>
+                     <xsl:otherwise>
+                        <a>
+                           <xsl:attribute name="href">
+                              <xsl:value-of select="$href"/>
+                           </xsl:attribute>
+                           <xsl:call-template name="get-datatype">
+                              <xsl:with-param name="datatype" select="@returnType" />
+                           </xsl:call-template>
+                        </a>
+                     </xsl:otherwise>
+                  </xsl:choose>
 						<xsl:text>&#160;</xsl:text>
 					</xsl:if>
 					<xsl:choose>
@@ -156,16 +201,27 @@
 								<xsl:when test="@name='op_Implicit'">
 									<xsl:text>implicit operator </xsl:text>
 									<!-- output the return type. this is duplicated code. -->
-									<a>
-										<xsl:attribute name="href">
-											<xsl:call-template name="get-filename-for-type-name">
-												<xsl:with-param name="type-name" select="@returnType" />
-											</xsl:call-template>
-										</xsl:attribute>
-										<xsl:call-template name="get-datatype">
-											<xsl:with-param name="datatype" select="@returnType" />
-										</xsl:call-template>
-									</a>
+                           <xsl:variable name="href">
+                              <xsl:call-template name="get-filename-for-type-name">
+                                 <xsl:with-param name="type-name" select="@returnType" />
+                              </xsl:call-template>
+                           </xsl:variable>
+                           <xsl:choose>
+                              <xsl:when test="$href=''">
+                                 <b>
+                                    <xsl:value-of select="$href"/>
+                                 </b>
+                              </xsl:when>
+                              <xsl:otherwise>
+                                 <a>
+                                    <xsl:attribute name="href">
+                                    </xsl:attribute>
+                                    <xsl:call-template name="get-datatype">
+                                       <xsl:with-param name="datatype" select="@returnType" />
+                                    </xsl:call-template>
+                                 </a>
+                              </xsl:otherwise>
+                           </xsl:choose>
 								</xsl:when>
 								<xsl:otherwise>
 									<xsl:call-template name="csharp-operator-name">
@@ -244,7 +300,7 @@
 	<!-- -->
 	<xsl:template name="cs-field-or-event-syntax">
 		<div class="syntax">
-			<xsl:if test="$ndoc-vb-syntax">
+			<xsl:if test="$ndoc-multi-syntax">
 				<span class="lang">[C#]</span>
 				<br />
 			</xsl:if>
@@ -274,17 +330,31 @@
 			<xsl:if test="local-name() = 'event'">
 				<xsl:text>event&#160;</xsl:text>
 			</xsl:if>
-			<a>
-				<xsl:attribute name="href">
-					<xsl:call-template name="get-filename-for-type-name">
-						<xsl:with-param name="type-name" select="@type" />
-					</xsl:call-template>
-				</xsl:attribute>
-				<xsl:call-template name="get-datatype">
-					<xsl:with-param name="datatype" select="@type" />
-				</xsl:call-template>
-			</a>
-			<xsl:text>&#160;</xsl:text>
+         <xsl:variable name="href">
+            <xsl:call-template name="get-filename-for-type-name">
+               <xsl:with-param name="type-name" select="@type" />
+            </xsl:call-template>
+         </xsl:variable>
+         <xsl:choose>
+            <xsl:when test="$href=''">
+               <b>
+                  <xsl:call-template name="get-datatype">
+                     <xsl:with-param name="datatype" select="@type" />
+                  </xsl:call-template>
+               </b>
+            </xsl:when>
+            <xsl:otherwise>
+               <a>
+                  <xsl:attribute name="href">
+                     <xsl:value-of select="$href"/>
+                  </xsl:attribute>
+                  <xsl:call-template name="get-datatype">
+                     <xsl:with-param name="datatype" select="@type" />
+                  </xsl:call-template>
+               </a>
+            </xsl:otherwise>
+         </xsl:choose>
+         <xsl:text>&#160;</xsl:text>
 			<xsl:value-of select="@name" />
 			<xsl:if test="@literal='true'">
 				<xsl:text> = </xsl:text>
@@ -323,16 +393,30 @@
 		</xsl:if>
 		<xsl:choose>
 			<xsl:when test="$link-types">
-				<a>
-					<xsl:attribute name="href">
-						<xsl:call-template name="get-filename-for-type-name">
-							<xsl:with-param name="type-name" select="@type" />
-						</xsl:call-template>
-					</xsl:attribute>
-					<xsl:call-template name="value">
-						<xsl:with-param name="type" select="@type" />
-					</xsl:call-template>
-				</a>
+            <xsl:variable name="href">
+               <xsl:call-template name="get-filename-for-type-name">
+                  <xsl:with-param name="type-name" select="@type" />
+               </xsl:call-template>
+            </xsl:variable>
+            <xsl:choose>
+               <xsl:when test="$href=''">
+                  <b>
+                     <xsl:call-template name="value">
+                        <xsl:with-param name="type" select="@type" />
+                     </xsl:call-template>
+                  </b>
+               </xsl:when>
+               <xsl:otherwise>
+                  <a>
+                     <xsl:attribute name="href">
+                        <xsl:value-of select="$href"/>
+                     </xsl:attribute>
+                     <xsl:call-template name="value">
+                        <xsl:with-param name="type" select="@type" />
+                     </xsl:call-template>
+                  </a>
+               </xsl:otherwise>
+            </xsl:choose>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:call-template name="value">
@@ -353,16 +437,30 @@
 					</xsl:if>
 					<xsl:choose>
 						<xsl:when test="$link-types">
-							<a>
-								<xsl:attribute name="href">
-									<xsl:call-template name="get-filename-for-type-name">
-										<xsl:with-param name="type-name" select="@type" />
-									</xsl:call-template>
-								</xsl:attribute>
-								<xsl:call-template name="csharp-type">
-									<xsl:with-param name="runtime-type" select="@type" />
-								</xsl:call-template>
-							</a>
+                     <xsl:variable name="href">
+                        <xsl:call-template name="get-filename-for-type-name">
+                           <xsl:with-param name="type-name" select="@type" />
+                        </xsl:call-template>
+                     </xsl:variable>
+                     <xsl:choose>
+                        <xsl:when test="$href=''">
+                           <b>
+                              <xsl:call-template name="csharp-type">
+                                 <xsl:with-param name="runtime-type" select="@type" />
+                              </xsl:call-template>
+                           </b>
+                        </xsl:when>
+                        <xsl:otherwise>
+                           <a>
+                              <xsl:attribute name="href">
+                                 <xsl:value-of select="$href"/>
+                              </xsl:attribute>
+                              <xsl:call-template name="csharp-type">
+                                 <xsl:with-param name="runtime-type" select="@type" />
+                              </xsl:call-template>
+                           </a>
+                        </xsl:otherwise>
+                     </xsl:choose>
 						</xsl:when>
 						<xsl:otherwise>
 							<xsl:call-template name="csharp-type">
@@ -422,16 +520,30 @@
 				</xsl:choose>
 				<xsl:choose>
 					<xsl:when test="$version='long'">
-						<a>
-							<xsl:attribute name="href">
-								<xsl:call-template name="get-filename-for-type-name">
-									<xsl:with-param name="type-name" select="@type" />
-								</xsl:call-template>
-							</xsl:attribute>
-							<xsl:call-template name="get-datatype">
-								<xsl:with-param name="datatype" select="@type" />
-							</xsl:call-template>
-						</a>
+                  <xsl:variable name="href">
+                     <xsl:call-template name="get-filename-for-type-name">
+                        <xsl:with-param name="type-name" select="@type" />
+                     </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:choose>
+                     <xsl:when test="$href=''">
+                        <b>
+                           <xsl:call-template name="get-datatype">
+                              <xsl:with-param name="datatype" select="@type" />
+                           </xsl:call-template>
+                        </b>
+                     </xsl:when>
+                     <xsl:otherwise>
+                        <a>
+                           <xsl:attribute name="href">
+                              <xsl:value-of select="$href" />
+                           </xsl:attribute>
+                           <xsl:call-template name="get-datatype">
+                              <xsl:with-param name="datatype" select="@type" />
+                           </xsl:call-template>
+                        </a>
+                     </xsl:otherwise>
+                  </xsl:choose>
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:call-template name="get-datatype">

@@ -118,7 +118,7 @@ namespace NDoc.Core
 				method.Name.Replace('.', '#').Replace('+', '#');
 
 #if NET_2_0
-            if (method.HasGenericArguments)
+            if (method.IsGenericMethod)
                 memberName = memberName + "``" + method.GetGenericArguments().Length;
 #endif
 
@@ -150,7 +150,7 @@ namespace NDoc.Core
 		private static string GetTypeNamespaceName(Type type)
 		{
 #if NET_2_0
-            if (type.HasGenericArguments)
+            if (type.IsGenericType)
             {
                 return type.GetGenericTypeDefinition().FullName.Replace('+', '.');
             }
@@ -198,7 +198,7 @@ namespace NDoc.Core
 		public static string GetTypeName(Type type, bool UsePositionalNumber)
         {
             string result = "";
-            if (type.HasGenericArguments)
+            if (type.IsGenericType)
             {
                 // HACK: bug in reflection - namespace sometimes returns null
                 string typeNamespace = null;
@@ -331,7 +331,7 @@ namespace NDoc.Core
                     argList.Append(',');
                 }
 
-                if (argType.HasGenericArguments | argType.HasElementType)
+                if (argType.IsGenericType | argType.HasElementType)
                 {
                     argList.Append(GetTypeName(argType));
                 }

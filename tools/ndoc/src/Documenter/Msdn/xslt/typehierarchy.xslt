@@ -34,6 +34,7 @@
 			</xsl:call-template>
 			<xsl:choose>
 				<xsl:when test="starts-with($list[$last]/@type, 'System.')">
+               <!--
 					<a>
 						<xsl:attribute name="href">
 							<xsl:call-template name="get-filename-for-system-type">
@@ -44,7 +45,9 @@
 							<xsl:with-param name="datatype" select="$list[$last]/@type" />
 						</xsl:call-template>
 					</a>
-				</xsl:when>
+               -->
+               <b><xsl:value-of select="$list[$last]/@type" /></b>
+            </xsl:when>
 				<xsl:otherwise>
 					<xsl:variable name="base-class-id" select="string($list[$last]/@id)" />
 					<xsl:variable name="base-class" select="//class[@id=$base-class-id]" />
@@ -132,12 +135,15 @@
 								</xsl:if>
 							</xsl:when>
 							<xsl:otherwise>
+                        <!--
 								<xsl:variable name="href">
 									<xsl:call-template name="get-filename-for-system-type">
 										<xsl:with-param name="type-name" select="'System.Object'" />
 									</xsl:call-template>
 								</xsl:variable>
 								<a href="{$href}">System.Object</a>
+                        -->
+                        <b>System.Object</b>
 								<br />
 								<xsl:call-template name="draw-hierarchy">
 									<xsl:with-param name="list" select="descendant::base" />
