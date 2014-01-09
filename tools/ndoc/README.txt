@@ -1,4 +1,16 @@
-NDoc
+NDoc 2014
+
+Since the early 2000ers, NDoc is a well known program to produce
+HTML, CHM, or PDF files from XML documentation in .NET style and the
+corresponding assemblies. However, development on this project
+stopped in 2003 (refer to http://www.sourceforge.net/projects/ndoc).
+
+This distribution is a  recompilation of the project with VS 10
+and .NET 4.0. The documenters MSDN (for HTML and CHM output) and
+LATEX (for PDF or DVI output) should work properly.
+
+
+NDoc 2003
 ----
 
 NDoc generates class libraries documentation from .NET assemblies and 
