@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>platform</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;platform&gt; tag is a structured element that is used to specify the 
+				runtime environment that a particular type or member is supported on.</p>
+			<pre class="syntax">&lt;platform&gt;
+   &lt;os predefined="<i>all</i>&nbsp;| <i>nt5plus</i>&nbsp;| <i>enterprise</i>"&gt;[<i>custom list</i>]&lt;/os&gt;
+   &lt;frameworks&gt;
+      &lt;compact&gt;[<i>true | false</i>]&lt;/compact&gt;
+      &lt;mono&gt;[<i>true </i>| <i>false</i>]&lt;/mono&gt;
+      &lt;custom&gt;<i>custom list</i>&lt;/custom&gt;
+   &lt;/frameworks&gt;
+&lt;/platform&gt;</pre>
+			<p>where:</p>
+			<p><i>predefined:</i></p>
+			<div style="MARGIN: 0em; PADDING: 0em; PADDING-LEFT: 2em;">
+			<dl>
+				<dt><i>all</i></dt>
+				<dd>
+					Windows 98, Windows NT 4, Windows 2000, Windows XP Home and Pro, Windows 2003 
+					Server</dd>
+				<dt><i>nt5plus</i></dt>
+				<dd>
+					Windows 2000, Windows XP Home and Pro, Windows 2003 Server</dd>
+				<dt><i>enterprise</i></dt>
+				<dd>
+				</dd>
+				Windows 2000, Windows XP Pro, Windows 2003 Server</dd>
+			</dl>
+			</div>
+			<p><i>custom list</i> is a textual list of frameworks or operating system not 
+				included in the predefined sets</p>
+			<h4 class="dtH4">Applies To</h4>
+			<p>All Types and Members.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>
+				Platform is the combination of operating system and framework implementation.</p>
+			<P>
+				The <b>&lt;os&gt;</b> tag is used to specify the operating system. The <b>predefined</b>
+				attribute can be used to refer to the most common sets of operating system. The 
+				tag can also include a custom list of operating systems instead of, or in 
+				addition to, the predefined set.</P>
+			<p>The <b>&lt;frameworks&gt;</b> tag is an optional set of non-standard frameworks 
+				that the type or member is implemented on. The <b>&lt;compact&gt;</b> tag 
+				refers to the .NET Compact Framework and the <b>&lt;mono&gt;</b> tag refers to 
+				the MONO open source framework. Additional framework implementations can be 
+				specified within the <b>&lt;custom&gt;</b> tag within the <b>&lt;frameworks&gt;</b>
+				tag.</p>
+			<p>The <b>&lt;platform&gt;</b> tag works in conjunction with the <b><a href="documenters.htm#AdditionalFrameworkList">
+						AdditionalFrameworkList</a>, <a href="documenters.htm#AdditionalOSList">AdditionalOSList</a>,
+					<a href="documenters.htm#DefaultOSSupport">DefaultOSSupport</a>, <a href="documenters.htm#InheritPlatformSupport">
+						InheritPlatformSupport</a>, <a href="documenters.htm#SupportCompactFrameworkByDefault">
+						SupportCompactFrameworkByDefault</a> </b>and<b> <a href="documenters.htm#SupportMONOFrameworkByDefault">
+						SupportMONOFrameworkByDefault</a> </b>documenter settings. These 
+				settings determine how items that do not have a platform specified in their 
+				code comments report platform compatibility.</p>
+			<h4 class="dtH4">Examples</h4>
+			<pre class="csharpcode"><span class="lang">[C#]</span>
+<span class="rem">/// &lt;platform&gt;</span>
+<span class="rem">///   &lt;os predefined="all" /&gt;</span>
+<span class="rem">///   &lt;frameworks&gt;</span>
+<span class="rem">///     &lt;mono&gt;true&lt;/mono&gt;</span>
+<span class="rem">///     &lt;compact&gt;true&lt;/compact&gt;</span>
+<span class="rem">///   &lt;/frameworks&gt; </span>
+<span class="rem">/// &lt;/platform&gt;</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> ThisClassSupportsAllPlatforms
+{ 
+   <span class="rem">/// &lt;summary&gt;</span>
+   <span class="rem">/// This method should display the same list of platforms as the </span>
+   <span class="rem">/// containing class ( if InheritPlatformSupport is true )</span>
+   <span class="rem">/// &lt;/summary&gt;</span>
+   <span class="kwrd">public</span> <span class="kwrd">void</span> ThisMethodShouldHaveTheSamePlatformAsTheClass()
+   
+   <span class="rem">/// &lt;platform&gt;</span>
+   <span class="rem">///   &lt;frameworks&gt;</span>
+   <span class="rem">///     &lt;compact&gt;false&lt;/compact&gt;</span>
+   <span class="rem">///   &lt;/frameworks&gt;</span>
+   <span class="rem">/// &lt;/platform&gt;</span>
+   <span class="kwrd">public</span> <span class="kwrd">void</span> ThisMethodDoesNotSupportTheCF(){}
+}</pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a href="tags.htm">NDoc Tags</a>, <a href="documenters.htm#AdditionalFrameworkList">AdditionalFrameworkList</a>,
+				<a href="documenters.htm#AdditionalOSList">AdditionalOSList</a>, <a href="documenters.htm#DefaultOSSupport">
+					DefaultOSSupport</a>, <a href="documenters.htm#InheritPlatformSupport">InheritPlatformSupport</a>,
+				<a href="documenters.htm#SupportCompactFrameworkByDefault">SupportCompactFrameworkByDefault</a>,
+				<a href="documenters.htm#SupportMONOFrameworkByDefault">SupportMONOFrameworkByDefault</a>
+			</p>
+		</div>
+	</body>
+</html>

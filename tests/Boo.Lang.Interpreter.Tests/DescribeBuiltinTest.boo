@@ -1,11 +1,17 @@
 namespace Boo.Lang.Interpreter.Tests
 
 import System
+import System.Text
 import Boo.Lang.Interpreter
 import NUnit.Framework
 
 [TestFixture]
 class DescribeBuiltinTest:
+	
+	[SetUp]
+	def SetUp():
+		Boo.Lang.Interpreter.ShellConsole.Display.PromptOnNewPage = false
+		Boo.Lang.Interpreter.ShellConsole.Display.WrapLines = false
 	
 	[Test]
 	def ClassDescription():
@@ -24,12 +30,20 @@ class Person(object):
         set
 
     def Equals(obj as object) as bool
+    ${'"""'}
+    ${'"""'}
 
     def GetHashCode() as int
+    ${'"""'}
+    ${'"""'}
 
     def GetType() as System.Type
+    ${'"""'}
+    ${'"""'}
 
     def ToString() as string
+    ${'"""'}
+    ${'"""'}
 
     event Changed as System.EventHandler
 
@@ -40,25 +54,48 @@ class Person(object):
 	def InterfaceDescription():
 			
 		expected = """
-interface IDisposable():
+interface AnInterface():
 
-    def Dispose() as void
+    AProperty as int:
+        get
+        set
+
+    def AMethod() as void
 
 """
-		AssertDescription(expected, System.IDisposable)
+		AssertDescription(expected, AnInterface)
 		
 	def AssertDescription(expected as string, type as System.Type):
 		using console=ConsoleCapture():
-			Boo.Lang.Interpreter.Builtins.describe(type)
+			Boo.Lang.Interpreter.ShellCmd.describe(type)
 		
 		# mono compatibility fix
 		# object.Equals arg on mono is called o
 		actual = console.ToString().Replace("o as object", "obj as object")
 		
+		Console.WriteLine(actual)
+		
 		Assert.AreEqual(ns(expected), ns(actual))
 		
 	static def ns(s as string):
-		return s.Trim().Replace("\r\n", "\n")
+		s = s.Trim().Replace("\r\n", "\n").Replace("\t", "    ")
+		lines = s.Split("\n"[0])
+		sb = StringBuilder()
+		#region Skip Documentation
+		lineNo = 0
+		while lineNo < lines.Length:
+			line = lines[lineNo]
+			sb.AppendLine(line)
+			if "\"\"\"".Equals(line.Trim()):
+				lineNo+=1
+				while lineNo < lines.Length:
+					line = lines[lineNo]
+					if "\"\"\"".Equals(line.Trim()):
+						break
+					lineNo += 1
+				sb.AppendLine(line)
+			lineNo += 1
+		return sb.ToString()
 		
 class Person:
 	
@@ -78,4 +115,9 @@ class Person:
 	def constructor():
 		pass
 	
-		
+interface AnInterface:
+	def AMethod()
+	AProperty as int:
+		get
+		set
+

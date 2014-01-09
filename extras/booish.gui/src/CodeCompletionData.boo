@@ -22,10 +22,9 @@
 namespace booish.gui
 
 import System
-import ICSharpCode.TextEditor
-import ICSharpCode.TextEditor.Document
-import ICSharpCode.TextEditor.Actions
-import ICSharpCode.TextEditor.Gui.CompletionWindow
+import ICSharpCode.AvalonEdit
+import ICSharpCode.AvalonEdit.Document
+import ICSharpCode.AvalonEdit.CodeCompletion
 import Boo.Lang.Interpreter
 import Boo.Lang.Compiler.TypeSystem
 

@@ -1,0 +1,28 @@
+[OPTIONS]
+Auto Index=Yes
+Compatibility=1.1 or later
+Compiled file=Linked.chm
+Contents file=Linked.hhc
+Default Window=Linked
+Default topic=ReadMe.html
+Display compile progress=Yes
+Error log file=Linked.log
+Full-text search=Yes
+Index file=Index.hhk
+Language=0x409 English (United States)
+Title=Linking CHM Files
+
+[WINDOWS]
+Linked="Linked CHM Files","Linked.hhc","Index.hhk","readme.html","readme.html",,,,,0x22520,,0x384e,[143,72,937,601],,,,,,,0
+
+
+[FILES]
+readme.html
+reference.html
+tags.html
+
+[MERGE FILES]
+NDoc.Core.chm
+
+[INFOTYPES]
+

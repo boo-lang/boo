@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectGuid>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</ProjectGuid>
@@ -14,7 +14,8 @@
     <UsePartialTypes>false</UsePartialTypes>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -59,6 +60,8 @@
     <Compile Include="CommandLine\EventBasedParser.boo" />
     <Compile Include="CommandLine\OptionAttribute.boo" />
     <Compile Include="CommandLine\Parser.boo" />
+    <Compile Include="Doc\AssemblyDoc.boo" />
+    <Compile Include="Doc\DocDB.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionEvaluator.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionLexer.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionParser.boo" />
@@ -70,8 +73,13 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IO\" />
+    <Folder Include="Doc" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
 </Project>

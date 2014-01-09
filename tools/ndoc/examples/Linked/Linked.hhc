@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD>
+<BODY>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Read Me">
+		<param name="Local" value="readme.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Tags Reference">
+		<param name="Local" value="tags.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Reference">
+		<param name="Local" value="reference.html">
+		</OBJECT>
+		<OBJECT type="text/sitemap">
+			<param name="Merge" value="NDoc.Core.chm::/NDoc.Core.hhc">
+			</OBJECT>
+</UL>
+</BODY>
+</HTML>

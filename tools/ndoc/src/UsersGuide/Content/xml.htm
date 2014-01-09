@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>The XML Documenter</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css" />
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h3 class="dtH3">Overview</h3>
+	<p>The XML Documenter is the simplest of the NDoc Documenters. It is primarily 
+	a development tool.&nbsp; </p>
+	<p>As part of the documentation compile process, NDoc merges the type information 
+	in the assemblies being documented with the code comment summary XML document 
+	that the
+	<a href="ms-help://MS.NETFrameworkSDKv1.1/cscomp/html/vcerrDocProcessDocumentationComments.htm">
+	/doc compiler option</a> emits. The XML Documenter allows you to save this merged 
+	set of data for curiosity&#39;s sake or debugging purposes. </p>
+	<p>Used in conjunction with the <b>UseNDocXmlFile</b> setting, this is especially 
+	useful when you are working on your own documenters.</p>
+	<blockquote>
+	<p><b>IMPORTANT:&nbsp;&nbsp;&nbsp;</b>The XML produced by this documenter is an internal implementation detail and as such is <b>not</b> 
+	guaranteed to remain constant, or even remain back-backward compatible between released versions.</p>
+	</blockquote>
+	<h3 class="dtH3">Settings</h3>
+	<p>All documenters share <a href="documenters.htm">a common set of documenter settings</a>.</p>
+	<table class="dtTABLE" id="table1" style="WIDTH: 94%" cellspacing="0">
+		<tr valign="top">
+			<th width="33%">Setting</th>
+			<th width="67%">Description</th>
+		</tr>
+		<tr valign="top">
+			<td><a name="outputfile"><b>OutputFile</b></a></td>
+			<td>This is the path and filename of the file where the merged documentation 
+			will be written. This can be absolute or relative from the .ndoc project 
+			file.</td>
+		</tr>
+	</table>
+</div>
+
+</body>
+
+</html>

@@ -259,6 +259,6 @@ namespace Boo.Lang.Resources
 		public const string boo_CommandLine_help = "display help information and exit";
 		public const string boo_CommandLine_header = "boo command line utility";
 		public const string boo_CommandLine_usage = "Usage: boo [options] [source files]";
-
+		public const string AbortedDueToUserRequest = "Aborted due to user request.";
 	}
 }

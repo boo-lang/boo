@@ -1,0 +1,149 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8844E0D9-FCA0-419D-9168-BCD420B38378}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>NDoc.Documenter.LinearHtml</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NDoc.Documenter.LinearHtml</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>854523904</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE;NO_RESOURCES</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.LinearHtml.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>0618</NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>854523904</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.LinearHtml.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>0618</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Design">
+      <Name>System.Design</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Drawing.Design">
+      <Name>System.Drawing.Design</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <ProjectReference Include="..\..\Core\Core.csproj">
+      <Name>Core</Name>
+      <Project>{DBA75D67-23C9-4A78-ABC2-CF8802FDB7CA}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LinearHtmlDocumenter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LinearHtmlDocumenterConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LinearHtmlDocumenterInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LinearHtmlWorkspace.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="LinearHtml.build" />
+    <EmbeddedResource Include="css\LinearHtml.css" />
+    <EmbeddedResource Include="xslt\allmembers.xslt" />
+    <EmbeddedResource Include="xslt\common.xslt" />
+    <EmbeddedResource Include="xslt\doc.xslt" />
+    <EmbeddedResource Include="xslt\event.xslt" />
+    <EmbeddedResource Include="xslt\field.xslt" />
+    <EmbeddedResource Include="xslt\filenames.xslt" />
+    <EmbeddedResource Include="xslt\htmlcontents.xslt" />
+    <EmbeddedResource Include="xslt\individualmembers.xslt" />
+    <EmbeddedResource Include="xslt\linearHtml.xslt" />
+    <EmbeddedResource Include="xslt\member.xslt" />
+    <EmbeddedResource Include="xslt\memberoverload.xslt" />
+    <EmbeddedResource Include="xslt\memberscommon.xslt" />
+    <EmbeddedResource Include="xslt\namespace.xslt" />
+    <EmbeddedResource Include="xslt\namespacehierarchy.xslt" />
+    <EmbeddedResource Include="xslt\property.xslt" />
+    <EmbeddedResource Include="xslt\syntax.xslt" />
+    <EmbeddedResource Include="xslt\tags.xslt" />
+    <EmbeddedResource Include="xslt\type.xslt" />
+    <EmbeddedResource Include="xslt\vb-syntax.xslt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>if $(ConfigurationName)==Release copy "$(SolutionDir)ndoc.snk" "$(ProjectDir)obj\$(ConfigurationName)"</PreBuildEvent>
+    <PostBuildEvent>copy "$(TargetName).*" "$(SolutionDir)src\Gui\bin\$(ConfigurationName)\"
+copy "$(TargetName).*" "$(SolutionDir)src\Console\bin\$(ConfigurationName)\"
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

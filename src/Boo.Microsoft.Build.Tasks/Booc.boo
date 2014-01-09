@@ -237,8 +237,10 @@ class Booc(ToolTask):
                     Verbosity,
                     "Normal, Warning, Info, Verbose")
 
-        commandLine.AppendFileNamesIfNotNull(Sources, " ")
-
+        #commandLine.AppendFileNamesIfNotNull(Sources, " ")
+        for source in self.Sources:
+            print source
+            commandLine.AppendFileNameIfNotNull(source) if not source.ItemSpec.EndsWith('.cs')
         return commandLine.ToString()
 
     # Captures the file, line, column, code, and message from a BOO warning

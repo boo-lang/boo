@@ -65,7 +65,26 @@
 
 	</target>
 
-	<target name="compile" depends="init">
+	<target name="compile-interpreter-tests" depends="init">
+		<property name="fixture" value="" dynamic="true" overwrite="false" />
+		<booc
+			target="library"
+			output="build/Boo.Lang.Interpreter.Tests.dll"
+			if="${fixture == '' or fixture == 'Boo.Lang.Interpreter'}">
+
+			<sources basedir="Boo.Lang.Interpreter.Tests">
+				<include name="**/*.boo" />
+			</sources>
+
+			<references basedir="build">
+				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+	</target>
+	<target name="compile" depends="compile-interpreter-tests">
 
 		<property name="fixture" value="" dynamic="true" overwrite="false" />
 
@@ -268,23 +287,7 @@
 				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>
-
-		<booc
-			target="library"
-			output="build/Boo.Lang.Interpreter.Tests.dll"
-			if="${fixture == '' or fixture == 'Boo.Lang.Interpreter'}">
-
-			<sources basedir="Boo.Lang.Interpreter.Tests">
-				<include name="**/*.boo" />
-			</sources>
-
-			<references basedir="build">
-				<include name="Boo.Lang.Interpreter.dll" />
-				<include name="Boo.Lang.Compiler.dll" />
-				<include name="${nunit.framework.dll}" />
-			</references>
-		</booc>
-
+		
 		<booc
 			target="library"
 			output="build/Boo.Lang.CodeDom.Tests.dll"
@@ -322,7 +325,9 @@
 	</target>
 
 	<target name="init">
+		<!--
 		<delete dir="build" if="${directory::exists('build')}" />
+		-->
 		<mkdir dir="build" />
 		
 		<copy todir="build" overwrite="true">

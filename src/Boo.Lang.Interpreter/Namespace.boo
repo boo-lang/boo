@@ -28,7 +28,13 @@
 
 namespace Boo.Lang.Interpreter
 
+import System
+import System.Collections
+import Boo.Lang.Interpreter.ShellCmd
+import Boo.Lang.Interpreter.ShellConsole.Display
+
 [System.Reflection.DefaultMember("Item")]
+[ShellCmd.CmdClass("Namespaces")]
 class Namespace:
 """
 Namespace introspection helper.
@@ -37,13 +43,40 @@ Namespace introspection helper.
 >>> types = root["System"]["Collections"].Types
 >>> print join(types, "\n")
 """
-		
-	static def GetRootNamespace():
-				
-		root = Namespace("")
-		
+	[ShellCmd.CmdDeclaration("namespaces ns", Description:"A list of all namespaces.")]
+	static public def ListNamespaces([ShellCmd.CmdArgument(ShellCmd.CmdArgumentCompletion.None)] part as string):
+		root = GetRootNamespace()
+		ListNamespace(root, part)
+	
+	public static def Find(nsName):
+		root = GetRootNamespace()
+		return root.FindChild(nsName)
+	
+	public static def ListTypes(ns as Namespace):
+		for t in ns.Types:
+			if t.IsClass:
+				WriteLine( " class "+repr(t))
+			elif t.IsEnum:
+				WriteLine( " enum "+repr(t))
+			elif t.IsValueType:
+				WriteLine( " struct "+repr(t))
+			elif t.IsInterface:
+				WriteLine(" interface "+repr(t))
+			else:
+				WriteLine(" "+repr(t))
+	
+	public static def ListNamespace(ns as Namespace, part as string):
+		if string.IsNullOrEmpty(part):
+			WriteLine( ns.FullName )
+		elif ns.FullName.ToLower().Contains(part.ToLower()):
+			WriteLine( ns.FullName )
+		for subns in ns.Namespaces:
+			ListNamespace(subns, part)
+	
+	static def GetRootNamespace():			
+		root = Namespace("", null)
 		GetNamespace = def(ns as string):
-			return root if ns is null or len(ns) == 0
+			return root if string.IsNullOrEmpty(ns)
 			parts = /\./.Split(ns)
 			found = root
 			for part in parts:
@@ -57,24 +90,62 @@ Namespace introspection helper.
 				continue
 			for type in types:
 				ns = GetNamespace(type.Namespace)
-				ns.AddType(type)
-			
+				ns.AddType(type)	
 		return root
-				
-	_name as string
-	_types = List[of System.Type]()
-	_children = {}
 	
-	def constructor([required] name as string):
+	[Getter(Name)]
+	_name as string
+	[Getter(Qualifier)]
+	_qualifier as Namespace
+	
+	_types = List[of System.Type]()
+	_children = Generic.SortedList[of string, Namespace]()
+	
+	def constructor([required] name as string, qualifier):
 		_name = name
+		_qualifier = qualifier
+	
+	public FullName as string:
+		get:
+			result=self.Name
+			if self._qualifier != null and not string.IsNullOrEmpty(self._qualifier.Name):
+				result = self._qualifier.FullName+"."+result
+			return result
 	
 	internal def GetOrCreateNamespace([required] ns as string):
-		found as Namespace = _children[ns]
+		found as Namespace
+		_children.TryGetValue(ns, found)
 		if found is null:
-			found = Namespace(ns) 
+			found = Namespace(ns, self) 
 			_children.Add(ns, found)
 		return found
-		
+	
+	public def FindChild(name as string) as Namespace:
+		if string.IsNullOrEmpty(name):
+			return null
+		fullQualifier = string.Empty
+		if self._qualifier != null:
+			fullQualifier=self._qualifier.FullName+"."
+		if name.StartsWith(fullQualifier):
+			name=name.Substring(fullQualifier.Length)
+		if string.Equals(self.Name, name):
+			return self
+		elif name.StartsWith(self.Name+"."):
+			name=name.Substring(self.Name.Length+1)
+			for ns in self.Namespaces:
+				result=ns.FindChild(name)
+				if result != null:
+					return result
+			return null
+		elif string.IsNullOrEmpty(self.Name):
+			for ns in self.Namespaces:
+				result=ns.FindChild(name)
+				if result != null:
+					return result
+			return null			
+		else:
+			return null			
+	
 	internal def AddType([required] type as System.Type):
 		assert not _types.Contains(type)
 		_types.Add(type)
@@ -91,6 +162,9 @@ Namespace introspection helper.
 			
 	Item[name as string] as Namespace:
 		get: return _children[name]
+	
+	NamespacesNames:
+		get: return self._children.Keys
 			
 	override def ToString():
 		return "${_name} - ${len(_types)} type(s), ${len(_children)} namespace(s)"

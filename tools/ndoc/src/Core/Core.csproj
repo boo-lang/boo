@@ -1,0 +1,284 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DBA75D67-23C9-4A78-ABC2-CF8802FDB7CA}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>NDoc.Core</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NDoc.Core</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>614203392</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>NDoc.Core.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>614203392</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>NDoc.Core.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Design">
+      <Name>System.Design</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Drawing.Design">
+      <Name>System.Drawing.Design</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <ProjectReference Include="..\ExtendedUI\ExtendedUI.csproj">
+      <Name>ExtendedUI</Name>
+      <Project>{0E14C115-C99D-49F7-A892-3AEF74320A61}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyLoader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblySlashDoc.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblySlashDocCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyXmlDocCache.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AttributesEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AttributesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BaseDocumenter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BaseDocumenterConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BaseDocumenterInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BaseReflectionDocumenter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BaseReflectionDocumenterConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DocumenterException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EmbeddedResources.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EnumDescriptionConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ExternalXmlSummaryCache.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FilenameEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FilePath.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FolderNameEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FolderPath.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IDocumenter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IDocumenterConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IDocumenterInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InstalledDocumenters.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LangIdEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Namespaces.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PathItemBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PathUtilities.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Project.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertySorter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReferencePath.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReferencePathCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReferencePathCollectionEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReflectionEngine\AttributeUsageDisplayFilter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReflectionEngine\MemberDisplayName.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReflectionEngine\MemberID.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReflectionEngine\NamespaceHierarchyCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReflectionEngine\ReflectionEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReflectionEngine\ReflectionEngineParameters.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReflectionEngine\TypeHierachy.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RuntimePropertyGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Settings.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SimpleEdit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TemplateWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TextEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TextEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Workspace.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XsltResourceResolver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="AssySlashDocXML.xsd" />
+    <None Include="AssySlashDocXML.xsx">
+      <DependentUpon>AssySlashDocXML.xsd</DependentUpon>
+    </None>
+    <None Include="Documenter.cd" />
+    <None Include="Core.build" />
+    <EmbeddedResource Include="AttributesForm.resx">
+      <DependentUpon>AttributesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="graphics\folder.bmp" />
+    <EmbeddedResource Include="graphics\folderpin.bmp" />
+    <EmbeddedResource Include="graphics\multifolder.bmp" />
+    <EmbeddedResource Include="graphics\multifolderpin.bmp" />
+    <EmbeddedResource Include="ReferencePathCollectionEditorForm.resx">
+      <DependentUpon>ReferencePathCollectionEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RuntimePropertyGrid.resx">
+      <DependentUpon>RuntimePropertyGrid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SimpleEdit.resx">
+      <DependentUpon>SimpleEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextEditorForm.resx">
+      <DependentUpon>TextEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <Content Include="graphics\Red Folder.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>if $(ConfigurationName)==Release copy "$(SolutionDir)ndoc.snk" "$(ProjectDir)obj\$(ConfigurationName)"</PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

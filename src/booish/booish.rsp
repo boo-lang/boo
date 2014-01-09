@@ -2,6 +2,11 @@
 
 -r:System.Net
 -i:System
--i:System.Collections.Generic,System
+-i:System.Collections,System
 -i:System.Net
 -i:System.Diagnostics
+-i:System.Globalization.CultureInfo
+-i:Boo.Lang.Useful
+-i:Boo.Lang.Extensions
+-r:booish.mod.os
+-shell

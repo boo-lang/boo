@@ -42,9 +42,11 @@ class InteractiveInterpreterTestFixture:
 	public static LifeTheUniverseAndEverything = 42
 	
 	_interpreter as InteractiveInterpreter
-	
+		
 	[SetUp]
 	public def SetUp():
+		Boo.Lang.Interpreter.ShellConsole.Display.PromptOnNewPage = false
+		Boo.Lang.Interpreter.ShellConsole.Display.WrapLines = false
 		_interpreter = InteractiveInterpreter()
 		_interpreter.SetValue("name", "boo")
 		_interpreter.SetValue("age", 3)	
@@ -382,7 +384,7 @@ except x as System.OverflowException:
 	[Test]
 	def Loop():
 
-		# let's loop
+		// let's loop
 		Eval("""
 l = []
 for i in range(3):
@@ -506,9 +508,224 @@ value = a.Argument.ToString()
 		// just to test whether compilation was really successful
 		assert "Directory" == _interpreter.GetValue("value")
 	
+	final DOC_DELIM = '"""' 
+	
+	[Test]
+	def Property1():
+		code = """
+class C:
+	_M = 1
+	public M as int:
+	${DOC_DELIM}
+	This is a property. 
+	${DOC_DELIM}
+		get: return self._M
+		set: self._M = value
+
+c = C()
+c.M = 2
+value = c.M
+"""
+		print code
+		self.Eval(code)
+		assert 2 == _interpreter.GetValue("value")
+	
+	[Test]
+	def Property2():
+		code = """
+class C:
+${DOC_DELIM}
+ A class.
+${DOC_DELIM}
+	_M = 1
+	public M as int:
+	${DOC_DELIM}
+	This is a property. 
+	${DOC_DELIM}
+		get: return self._M
+		private set: self._M = value
+	
+	def SetM(i):
+	${DOC_DELIM}
+	Define [M].
+	${DOC_DELIM}
+		self.M = i
+	
+
+c = C()
+c.SetM( 2 )
+value = c.M
+"""
+		print code
+		cc = self.Eval(code)
+		assert 2 == _interpreter.GetValue("value")
+		cls = cc.CompileUnit.Modules[0].Members["C"] as Boo.Lang.Compiler.Ast.ClassDefinition		
+		assert not string.IsNullOrEmpty(cls.Documentation)
+		print cls.Documentation
+		propertyM = cls.Members["M"]
+		assert not string.IsNullOrEmpty(propertyM.Documentation)
+		print propertyM.Documentation
+	
+	[Test]
+	def Property3():
+		code = """
+class C:
+${DOC_DELIM}
+This is a class.
+${DOC_DELIM}
+	public property M = 1
+	${DOC_DELIM}
+	This is a property. 
+	${DOC_DELIM}
+
+c = C()
+c.M = 2
+value = c.M
+"""
+		print code
+		cc = self.Eval(code)
+		assert 2 == _interpreter.GetValue("value")
+		cls = cc.CompileUnit.Modules[0].Members["C"] as Boo.Lang.Compiler.Ast.ClassDefinition		
+		assert not string.IsNullOrEmpty(cls.Documentation)
+		print cls.Documentation
+		propertyM = cls.Members["M"]
+		assert not string.IsNullOrEmpty(propertyM.Documentation)
+		print propertyM.Documentation
+		
+	[Test]
+	def Property4():
+		code = """
+class C:
+	public getproperty M = 1
+	${DOC_DELIM}
+	This is a property. 
+	${DOC_DELIM}
+	
+	def SetM(i):
+		self.M = i
+
+c = C()
+c.SetM( 2 )
+value = c.M
+"""
+		print code
+		self.Eval(code)
+		assert 2 == _interpreter.GetValue("value")	
+		
+	[Test]
+	def Property5():
+		code = """
+static class C:
+	public property M = 1
+	${DOC_DELIM}
+	This is a property. 
+	${DOC_DELIM}
+
+C.M = 2
+value = C.M
+"""
+		print code
+		self.Eval(code)
+		assert 2 == _interpreter.GetValue("value")	
+
+		
+	[Test]
+	def Property6():
+		code = """
+static class C:
+	public getproperty M = 1
+	${DOC_DELIM}
+	This is a property. 
+	${DOC_DELIM}
+	
+	def SetM(i):
+		self.M = i
+
+C.SetM( 2 )
+value = C.M
+"""
+		print code
+		self.Eval(code)
+		assert 2 == _interpreter.GetValue("value")	
+	
+	[Test]
+	def SimplifiedClassDef():
+		code = """
+import System
+class C:
+	public constructor():
+		pass
+	destructor():
+		GC.SuppressFinalize(self)
+	def MethodWithoutArgs:
+		return 5
+
+value = C().MethodWithoutArgs()
+"""
+		print code
+		self.Eval(code)
+		assert 5 == _interpreter.GetValue("value")	
+	
+	[Test]
+	def BlockAsArg1():
+		code1 = """
+import System
+static class Env:
+	public AnObject = null
+	def With(o, a as Action):
+		AnObject = o
+		a()
+		AnObject = null
+"""
+		code2 = """
+import Env
+assert AnObject == null
+With true:
+	assert true.Equals(AnObject)
+assert AnObject == null
+"""
+		print code1
+		self.Eval(code1)
+		print code2
+		self.Eval(code2)
+	
+	[Test]
+	[Ignore("Macro-names currently are identifiers. I will not change this for now.")]
+	def BlockAsArg2():
+		code = """
+import System
+static class Env:
+	public AnObject = null
+	def With(o, a as Action):
+		AnObject = o
+		a()
+		AnObject = null
+
+assert Env.AnObject == null
+
+
+Env.With true:
+	assert true.Equals(Env.AnObject)
+assert Env.AnObject == null
+"""
+		print code
+		self.Eval(code)
+	
+	[Test]
+	def ArrayValue():
+		code = """
+a = (of double: 1,2,3,4)
+
+assert a isa (double)
+assert a[2] isa double
+"""
+		print code
+		self.Eval(code)
 	
 	def Eval(code as string):
-		AssertNoErrors _interpreter.Eval(code)
+		cc = _interpreter.Eval(code)
+		AssertNoErrors cc
+		return cc
 		
 	def AssertNoErrors(result as Boo.Lang.Compiler.CompilerContext):
 		assert 0 == len(result.Errors), result.Errors.ToString(true)

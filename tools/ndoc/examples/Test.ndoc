@@ -1,0 +1,74 @@
+<project SchemaVersion="1.3">
+    <assemblies>
+        <assembly location="..\src\Test\bin\Debug\NDoc.Test.dll" documentation="..\src\Test\bin\Debug\NDoc.Test.xml" />
+    </assemblies>
+    <namespaces>
+        <namespace name="NDoc.Test"></namespace>
+        <namespace name="NDoc.Test.Attributes"></namespace>
+        <namespace name="NDoc.Test.EditorBrowsableAttr"></namespace>
+        <namespace name="NDoc.Test.Extensibility"></namespace>
+        <namespace name="NDoc.Test.InternalStuff"></namespace>
+        <namespace name="NDoc.Test.NewStuff"></namespace>
+        <namespace name="NDoc.Test.Obsolete"></namespace>
+        <namespace name="NDoc.Test.Operator"></namespace>
+        <namespace name="NDoc.Test.Platforms"></namespace>
+        <namespace name="NDoc.Test.Preliminary"></namespace>
+        <namespace name="NDoc.Test.ThreadSafety"></namespace>
+        <namespace name="NDoc.Test.Unsafe"></namespace>
+    </namespaces>
+    <documenters>
+        <documenter name="JavaDoc">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="Name" value="JavaDoc" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="CleanIntermediates" value="True" />
+            <property name="DocumentAttributes" value="True" />
+        </documenter>
+        <documenter name="LaTeX">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="TextFileFullName" value="NDocTest.tex" />
+            <property name="TexFileBaseName" value="NDocTest" />
+            <property name="LatexCompiler" value="latex" />
+            <property name="TexFileFullPath" value=".\Test\NDocTest.tex" />
+            <property name="Name" value="LaTeX" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="CleanIntermediates" value="True" />
+        </documenter>
+        <documenter name="LinearHtml">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="Title" value="NDoc Test Documentation" />
+            <property name="Name" value="LinearHtml" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="CleanIntermediates" value="True" />
+        </documenter>
+        <documenter name="MSDN">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="HtmlHelpName" value="NDocTest" />
+            <property name="Title" value="NDoc Test Documentation" />
+            <property name="IncludeHierarchy" value="True" />
+            <property name="OutputTarget" value="HtmlHelp" />
+            <property name="Name" value="MSDN" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="CleanIntermediates" value="True" />
+            <property name="DocumentAttributes" value="True" />
+        </documenter>
+        <documenter name="VS.NET 2003">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="HtmlHelpName" value="NDocTest" />
+            <property name="Title" value="NDoc Test Documentation" />
+            <property name="IncludeHierarchy" value="True" />
+            <property name="RegisterTitleWithNamespace" value="True" />
+            <property name="CollectionNamespace" value="NDocTest" />
+            <property name="RegisterTitleAsCollection" value="True" />
+            <property name="ExtensibilityStylesheet" value="..\src\Test\extend-ndoc.xslt" />
+            <property name="Name" value="VS.NET 2003" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="CleanIntermediates" value="True" />
+            <property name="DocumentAttributes" value="True" />
+        </documenter>
+        <documenter name="XML">
+            <property name="OutputFile" value=".\Test\doc.xml" />
+            <property name="Name" value="XML" />
+        </documenter>
+    </documenters>
+</project>

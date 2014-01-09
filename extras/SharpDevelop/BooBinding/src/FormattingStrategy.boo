@@ -21,9 +21,8 @@
 
 namespace BooBinding
 
-import ICSharpCode.TextEditor
-import ICSharpCode.TextEditor.Document
-import ICSharpCode.TextEditor.Actions
+import ICSharpCode.AvalonEdit
+import ICSharpCode.AvalonEdit.Document
 
 class BooFormattingStrategy(DefaultFormattingStrategy):
 	override def SmartIndentLine(area as TextArea, line as int) as int:

@@ -17,7 +17,7 @@
 			<references basedir="build">
 				<include name="Boo.Lang.Interpreter.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
-				<include name="ICSharpCode.TextEditor.dll" />
+				<include name="ICSharpCode.AvalonEdit.dll" />
 				<include name="System.Windows.Forms.dll" />
 				<include name="System.Drawing.dll" />
 			</references>
@@ -38,7 +38,7 @@
 			</fileset>
 		</copy>
 		<copy todir="build" file="../SharpDevelop/BooBinding/Boo.xshd" />
-		<copy todir="build" file="${sharpdevelop.dir}/bin/ICSharpCode.TextEditor.dll" />
+		<copy todir="build" file="${sharpdevelop.dir}/bin/ICSharpCode.AvalonEdit.dll" />
 		<loadtasks assembly="${boo.dir}/Boo.NAnt.Tasks.dll" />
 	</target>
 	

@@ -8,7 +8,7 @@
 	<!-- Adjust these properties to point to your sharpdevelop directory / boo binary directory -->
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />	
 	
-	<property name="nant.settings.currentframework" value="net-1.1"/>
+	<!-- <property name="nant.settings.currentframework" value="net-1.1"/> -->
 	
 	<target name="init">
 		<property name="sharp.dir" value = "${sharpdevelop.dir}/bin" />
@@ -59,7 +59,7 @@
 			<references>
 				<include name="${sharp.dir}/ICSharpCode.Core.Dll" />
 				<include name="${sharp.dir}/SharpDevelop.Base.Dll" />
-				<include name="${sharp.dir}/ICSharpCode.TextEditor.dll" />
+				<include name="${sharp.dir}/ICSharpCode.AvalonEdit.dll" />
 				<include name="${sharp.dir}/ICSharpCode.SharpRefactory.dll" />
 				<include name="${sharp.dir}/SharpDevelop.DefaultTexteditor.dll" />
 				<include name="${sharpdevelop.dir}/AddIns/AddIns/DisplayBindings/ICSharpCode.FormDesigner.dll" />

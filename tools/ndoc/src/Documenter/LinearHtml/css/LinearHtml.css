@@ -1,0 +1,257 @@
+body /* This body tag requires the use of one of the sets of banner and/or text div ids */
+	{
+	margin: 15px 15px 15px 15px;
+	padding: 0px 0px 0px 0px;
+	color: #000000;
+	font-family: Arial; /*Verdana, Arial, Helvetica, sans-serif; */
+	font-size: 100%;
+	width: 100%;
+	}
+div.indent1
+{
+	text-indent: 2em;
+}
+span.keyword
+{
+	font-size: 100%;
+}
+span.typeRef
+{
+	color: Black;
+	font-style: italic;
+	font-size: 90%;
+}
+h1, h2, h3, h4
+	{
+	font-family: Arial; /*Verdana, Arial, Helvetica, sans-serif; */
+	margin-bottom: .4em;
+	margin-top: 1em;
+	font-weight: bold;
+	}
+h1
+	{
+	font-size: 180%;
+	}
+h2
+	{
+	font-size: 160%;
+	}
+h3
+	{
+	font-size: 140%;
+	}
+h4
+	{
+	font-size: 120%;
+	}
+td.button1 /* Values for button cells */
+	{
+	width: 14px;
+	cursor: hand;
+	}
+p
+	{
+	margin: .5em 0em 1em 0em;
+	}
+blockquote.dtBlock
+	{
+	margin: .5em 1.5em .5em 1.5em;
+	}
+div#dtHoverText
+	{
+	color: #000066;
+	}
+.normal
+	{
+	margin: .5em 0em .5em 0em;
+	}
+.fineprint
+	{
+	font-size: 90%; /* 90% of 70% */
+	}
+.indent
+	{
+	margin: .5em 1.5em .5em 1.5em;
+	}
+.topicstatus /* Topic Status Boilerplate class */
+	{
+	display: block;
+	color: red;
+	}
+p.label
+	{
+	margin-top: 1em;
+	}
+p.labelproc
+	{
+	margin-top: 1em;
+	color: #000066;
+	}
+
+div.tablediv
+	{
+	width: 100%; /* Forces tables to have correct right margins and top spacing */
+	margin-top: -.4em;
+	}
+ol div.tablediv, ul div.tablediv, ol div.HxLinkTable, ul div.HxLinkTable
+	{
+	margin-top: 0em; /* Forces tables to have correct right margins and top spacing */
+	}
+table.dtTABLE
+	{
+	width: 100%; /* Forces tables to have correct right margin */
+	margin-top: .6em;
+	margin-bottom: 1.3em;
+	border-width: 1px 1px 0px 0px;
+	border-style: solid;
+	border-color: #999999;
+	font-size: 100%; /* Text in Table is same size as text outside table */
+	}
+table.dtTABLE th, table.dtTABLE td
+	{ 
+	border-style: solid; /* Creates the cell border and color */
+	border-width: 0px 0px 1px 1px;
+	border-style: solid;
+	border-color: #999999;
+	padding: 4px 6px;
+	text-align: left;
+	}
+table.dtTABLE th	
+	{ 
+	background: #FFFFCA;  /* #cccccc; Creates the shaded table header row */
+	vertical-align: bottom;
+	}
+table.dtTABLE td	
+	{
+	vertical-align: top;
+	}
+
+pre, div.syntax
+	{
+	margin-top: .5em;
+	margin-bottom: .5em; 
+	}
+pre, code, .code, div.syntax
+	{
+	font: 100% Monospace, Courier New, Courier; /* This is 100% of 70% */
+	color: #000066;
+	}
+pre b, code b
+	{
+	letter-spacing: .1em; /* opens kerning on bold in Syntax/Code */
+	}
+pre.syntax, div.syntax
+	{
+	background: #cccccc;
+	padding: 4px 8px;
+	cursor: text;
+	margin-top: 1em;
+	margin-bottom: 1em; 
+	color: #000000;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #999999;
+/* ------------------------------------- */
+/* BEGIN changes to dtue.css conventions */
+	font-weight: bolder;
+	letter-spacing: .1em;
+	}
+.syntax span.lang
+	{
+	margin: 0;
+	font-weight: normal;
+	}
+.syntax span.meta
+	{
+	margin: 0;
+	font-weight: normal;
+	font-style: italic;
+	}
+.syntax a
+	{
+	margin: 0;
+	font-weight: normal;
+	}
+/* END changes to dtue.css conventions */
+/* ----------------------------------- */
+
+.syntax div
+	{
+	padding-left: 24px;
+	text-indent: -24px;
+	}
+
+.syntax .attribute
+	{
+		font-weight: normal;
+	}
+div.footer
+	{
+	font-style: italic;
+	}
+div.footer hr
+	{
+	color: #999999;
+	height: 1px;
+	}
+
+ol, ul
+	{
+	margin: .5em 0em 0em 4em; 
+	}
+li
+	{
+	margin-bottom: .5em;
+	}
+li.indent1
+	{
+	padding-left: 1em;
+	}
+ul p, ol p, dl p
+	{
+	margin-left: 0em;
+	}
+ul p.label, ol p.label
+	{
+	margin-top: .5em;
+	}
+
+dl
+	{
+	margin-top: 0em; 
+	padding-left: 1px; /* Prevents italic-letter descenders from being cut off */
+	}
+dd
+	{
+	margin-bottom: 0em;  
+	margin-left: 1.5em; 
+	}
+dt
+	{
+	margin-top: .5em; 
+	}
+
+a:link
+	{
+	color: #0000ff;
+	}
+a:visited
+	{
+	color: #0000ff;
+	}
+a:hover
+	{
+	color: #3366ff;
+	}
+
+img
+	{
+	border: none; 
+	}
+
+/* Not in dtue.css. Used by NDoc's "ShowMissing..." options. */
+.missing
+	{
+	color: Red;
+	font-weight: bold;
+	}

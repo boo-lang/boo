@@ -89,7 +89,7 @@ class AbstractInterpreter:
 		pipeline.Add(CacheCallableTypes())
 		
 		_compiler.Parameters.Pipeline = pipeline
-		_compiler.Parameters.Ducky = true		
+		_compiler.Parameters.Ducky = true
 		_compiler.Parameters.Environment = DeferredEnvironment() { TypeSystemServices: { InterpreterTypeSystemServices(_cachedCallableTypes) } }
 		
 		_parser.Parameters.Pipeline = CompilerPipeline() { parser }
@@ -193,11 +193,12 @@ class AbstractInterpreter:
 			return match.Groups[1].Value
 		return code
 		
-	def Eval([required] code as string):
+	final EVAL_ASSEMBLY_BASE_NAME = "__input" 
+	def Eval([required] code as string) as Boo.Lang.Compiler.CompilerContext:
 		return CompilerContext(false) if 0 == len(code)
-		return EvalCompilerInput(StringInput("input${++_inputId}", code))
+		return EvalCompilerInput(StringInput("${EVAL_ASSEMBLY_BASE_NAME}${++_inputId}", code))
 		
-	def EvalCompilerInput(input as ICompilerInput):
+	def EvalCompilerInput(input as ICompilerInput) as Boo.Lang.Compiler.CompilerContext:
 		result = Parse(input)
 		return result if len(result.Errors)
 		return EvalCompileUnit(result.CompileUnit)
@@ -263,7 +264,7 @@ class AbstractInterpreter:
 				return reference.Assembly
 		return null
 		
-	def Parse(input as ICompilerInput):
+	def Parse(input as ICompilerInput) as Boo.Lang.Compiler.CompilerContext:
 		_parser.Parameters.Input.Clear()
 		_parser.Parameters.Input.Add(input)
 		return _parser.Run()

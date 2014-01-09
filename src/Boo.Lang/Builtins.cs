@@ -49,24 +49,154 @@ namespace Boo.Lang
 		{
 			get
 			{
-				return new System.Version("0.9.7.0");
+				return typeof(Builtins).Assembly.GetName().Version;
 			}
 		}
 
+		/// <summary>
+		/// Class of console events that can be handled by
+		/// other models in order to replace input from and output
+		/// to the standard console.
+		/// </summary>
+		public class ConsoleInputOrOutputEvent : EventArgs
+		{
+			public ConsoleInputOrOutputEvent()
+			{
+				this.IsHandled = false;
+			}
+			
+			/// <summary>
+			/// If this is true (set this by <see cref="SetHandled"/>)
+			/// at least one event handler set that this console event
+			/// has been handled. BOO shall, thus, not handle this event
+			/// by the default methods: Writing and reading data from
+			/// the <see cref="T:System.Console"/>.
+			/// </summary>
+			public bool IsHandled { get; private set; }
+			
+			/// <summary>
+			/// Event handlers shall call this method to state that
+			/// this event has been handled successfully and must not
+			/// be handled by another event handler or the standard
+			/// implementation.
+			/// </summary>
+			public void SetHandled() { this.IsHandled = true; }
+		}
+		
+		public class WriteOnConsoleEvent : ConsoleInputOrOutputEvent
+		{
+			public object Output { get; private set; }
+			
+			public string OutputString 
+			{
+				get
+				{
+					if (this.Output == null)
+						return string.Empty;
+					else
+						return this.Output.ToString();
+				}
+			}
+			
+			public bool WriteEOL { get; private set; }
+			
+			public WriteOnConsoleEvent(object output, bool writeEOL)
+			{
+				this.Output = output;
+				this.WriteEOL = writeEOL;
+			}
+		}
+		
+		/// <summary>
+		/// This is an event that enables handlers to inject
+		/// implementations to read text from console.
+		/// </summary>
+		public class ReadFromConsoleEvent : ConsoleInputOrOutputEvent
+		{
+			public ReadFromConsoleEvent()
+			{
+			}
+			
+			public string Input { get; private set; }
+			
+			void SetInput(string newInput)
+			{
+				this.SetHandled();
+				this.Input = newInput;
+			}
+		}
+		
+		/// <summary>
+		/// This will be raised if <c>print</c> tries to write on the console.
+		/// Handlers may either do some additional operations or they may even
+		/// commit the output operation on their own.
+		/// Event handler shall avoid use of <c>print</c>. Recusive calls to event
+		/// handlers will be ommitted.
+		/// </summary>
+		public static event EventHandler<WriteOnConsoleEvent> OnWriteOnConsoleEvent;		
+		static bool _onConsoleWriteEventRecursionGuard =false;		
+		static void WriteOnConsole(object o, bool writeEOL)
+		{
+			if (!_onConsoleWriteEventRecursionGuard && OnWriteOnConsoleEvent != null)
+			{
+				try
+				{
+					_onConsoleWriteEventRecursionGuard=true;
+					var evt = new WriteOnConsoleEvent(o, writeEOL);
+					OnWriteOnConsoleEvent(null, evt);
+					if (evt.IsHandled)
+						return;
+				}
+				finally
+				{
+					_onConsoleWriteEventRecursionGuard=false;
+				}
+			}
+			
+			if (writeEOL)
+				Console.WriteLine(o);
+			else
+				Console.Write(o);
+		}
+		
 		public static void print(object o)
 		{
-			Console.WriteLine(o);
+			WriteOnConsole(o, true);
 		}
 
+		/// <summary>
+		/// This will be raised if <see>M:gets</see> or other methods from this
+		/// namespace try to read input from the console (<seealso cref="Console.Readline"</seealso>).
+		/// Handlers may either do some additional operations or they may even
+		/// commit the output operation on their own.
+		/// </summary>
+		public static event EventHandler<ReadFromConsoleEvent> OnReadFromConsoleEvent;		
+		static bool _onConsoleReadlineEventRecursionGuard =false;
 		public static string gets()
 		{
+			if (!_onConsoleReadlineEventRecursionGuard && OnReadFromConsoleEvent != null)
+			{
+				try
+				{
+					_onConsoleReadlineEventRecursionGuard=true;
+					var evt = new ReadFromConsoleEvent();
+					OnReadFromConsoleEvent(null, evt);
+					if (evt.IsHandled)
+						return evt.Input;
+				}
+				finally
+				{
+					_onConsoleReadlineEventRecursionGuard=false;
+				}
+			}
+
 			return Console.ReadLine();
 		}
 
 		public static string prompt(string message)
 		{
-			Console.Write(message);
-			return Console.ReadLine();
+			WriteOnConsole(message, false);
+			return gets();
 		}
 
 		public static string join(IEnumerable enumerable, string separator)

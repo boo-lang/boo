@@ -1,0 +1,262 @@
+<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<html>
+	<head>
+		<title>Tags supported by NDoc</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link rel="stylesheet" type="text/css" href="MSDN.css">
+		<style type="text/css">
+			.csharpcode
+			{
+				font-size: 8pt;
+				color: black;
+				font-family: Courier New , Courier, Monospace;
+				background-color: #ffffff;
+				/*white-space: pre;*/
+			}
+
+			.csharpcode pre { margin: 0px; }
+
+			.rem { color: #008000; }
+
+			.kwrd { color: #0000ff; }
+
+			.str { color: #006080; }
+
+			.op { color: #0000c0; }
+
+			.preproc { color: #cc6633; }
+
+			.asp { background-color: #ffff00; }
+
+			.html { color: #800000; }
+
+			.attr { color: #ff0000; }
+
+			.alt 
+			{
+				background-color: #f4f4f4;
+				width: 100%;
+				margin: 0px;
+			}
+
+			.lnum { color: #606060; }
+		</style>
+	</head>
+	<body id="bodyID" class="dtBODY">
+		<div id="nsbanner">
+			<div id="bannerrow1">
+				<table class="bannerparthead" cellspacing="0" id="Table1">
+					<tr id="hdr">
+						<td class="runninghead">NDoc Documentation</td>
+						<td class="product"></td>
+					</tr>
+				</table>
+			</div>
+			<div id="TitleRow">
+				<h1 class="dtH1">Tags supported by NDoc</h1>
+			</div>
+		</div>
+		<div id="nstext">
+			<p>The MSDN documenter that ships with NDoc supports all the xml documentation tags 
+			<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfTagsForDocumentationComments.htm">defined</a>
+			in the C# Programmer's Reference.
+			It also supports new tags and extended syntax for 
+			some standard tags as described below.
+			</p>
+			
+			<h4 class="dtH4">Section Tags</h4>
+			
+			<p>Section tags are used to define the content of the different sections 
+			of the documentation of a type or member.</p>
+			<p>These tags are used as top-level tags.</p>
+			<table class="dtTABLE" cellSpacing="0" style="WIDTH: 94%" ID="Table2">
+				<thead>
+					<tr vAlign="top">
+						<th width="33%">
+							Tag</th>
+						<th width="67%">
+							Description</th></tr>
+				</thead>
+				<tbody>
+					<tr vAlign="top">
+						<td><p><b>&lt;event&gt;</b></p></td> 
+						<td><p>Use this tag to declare events that are raised by a member.
+						Syntax: 
+<pre class="csharpcode"><span class="rem">///&lt;event cref="EventName"&gt;
+///    Raised when something occurs.
+///&lt;/event&gt;</span></pre>
+						</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;example&gt;</b></p></td> 
+						<td><p>Example section. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfExample.htm">definition</a>.</p>
+						<p>If the example contains one or more <b>&lt;code&gt;</b> blocks, it must be
+						placed in an include file to avoid indentation problems.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;exception&gt;</b></p></td>
+						<td><p>Declares an exception that a member might throw. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfException.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;include&gt;</b></p></td>
+						<td><p>References an xml node in an include file that 
+						contains one or more documentation section tags. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfInclude.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;overloads&gt;</b></p></td>
+						<td>
+							<p>This new tag allows providing documentation that applies
+							to all the overloads of a member. It only needs to be specified on the first overload.</p>
+							<p>The <b>&lt;overloads&gt;</b> tag can have two forms:</p>
+							<ul>
+							<li>In the short form, it includes only one or more text blocks that are 
+							treated as the summary.</li>
+							<li>In the long form, it can include one or more applicable section tags 
+							(summary, remarks and example).</li>
+							</ul>
+							<p>Example:</p>
+<pre class="csharpcode"><!-- formatted by http://manoli.net/csharpformat/ -->
+<span class="rem">///&lt;overloads&gt;This method has two overloads.&lt;/overloads&gt;</span>
+<span class="rem">///&lt;summary&gt;This overload just says hello.&lt;/summary&gt;</span>
+<span class="kwrd">public</span> <span class="kwrd">void</span> SayHello() { ... }
+<span class="rem">///&lt;summary&gt;This one says hello to someone.&lt;/summary&gt;</span>
+<span class="kwrd">public</span> <span class="kwrd">void</span> SayHello(<span class="kwrd">string</span> toSomeone) { ... }
+</pre>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;param&gt;</b></p></td>
+						<td><p>Defines a member parameter. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfParam.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;permission&gt;</b></p></td>
+						<td><p>Define access permissions. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfPermission.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;remarks&gt;</b></p></td>
+						<td><p>Remarks section. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfRemarks.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;returns&gt;</b></p></td>
+						<td><p>Defines a member's return value. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfReturns.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;seealso&gt;</b></p></td>
+						<td><p>Adds a link to the See Also section. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfSeealso.htm">definition</a>.</p> 
+						<p>Do <b>not</b> include this tag in the <b>&lt;remarks&gt;</b> section.</p>
+						<p>Alternate syntax:</p>
+						<ul>
+						<li><code class="rem">&lt;seealso href="url"&gt;[label]&lt;/seealso&gt;</code></li>
+						<li><code class="rem">&lt;seealso cref="member"&gt;[label]&lt;/seealso&gt;</code></li>
+						</ul>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;summary&gt;</b></p></td>
+						<td><p>The summary section. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfSummary.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;value&gt;</b></p></td>
+						<td><p>Defines a property value. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfValue.htm">definition</a>.</p>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<h4 class="dtH4">Block Tags</h4>
+			
+			<p>Block tags are typically used inside <b>&lt;remarks&gt;</b> 
+			and <b>&lt;example&gt;</b> sections&nbsp;to add structure to the text.</p>
+			<table class="dtTABLE" cellSpacing="0" style="WIDTH: 94%" ID="Table3">
+				<thead>
+					<tr vAlign="top">
+						<th width="33%">
+							Tag</th>
+						<th width="67%">
+							Description</th></tr>
+				</thead>
+				<tbody>
+					<tr vAlign="top">
+						<td><p><b>&lt;code&gt;</b></p></td>
+						<td><p>Code block. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfCode.htm">definition</a>.</p>
+						<p>Sections containing one or more <b>&lt;code&gt;</b> blocks must be placed 
+						in an include file to avoid indentation problems.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;list&gt;</b></p></td>
+						<td><p>A definition list or table. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfList.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;para&gt;</b></p></td>
+						<td><p>Delimits a text paragraph. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfPara.htm">definition</a>.</p>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<h4 class="dtH4">Inline Tags</h4>
+			
+			<p>Inline tags are typically used inside <b>&lt;para&gt;</b> blocks.</p>
+			<table class="dtTABLE" cellSpacing="0" style="WIDTH: 94%">
+				<thead>
+					<tr vAlign="top">
+						<th width="33%">
+							Tag</th>
+						<th width="67%">
+							Description</th></tr>
+				</thead>
+				<tbody>
+					<tr vAlign="top">
+						<td><p><b>&lt;c&gt;</b></p></td>
+						<td><p>Marks inline code. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfC.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;paramref&gt;</b></p></td>
+						<td><p>A reference to a parameter. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfParamref.htm">definition</a>.</p>
+						</td>
+					</tr>
+					<tr vAlign="top">
+						<td><p><b>&lt;see&gt;</b></p></td>
+						<td><p>Inline reference to another member or type. See Microsoft's 
+						<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfSee.htm">definition</a>.</p>
+						<p>Alternate syntax:</p>
+						<ul>
+						<li><code class="rem">&lt;see href="url"&gt;[label]&lt;/see&gt;</code></li>
+						<li><code class="rem">&lt;see cref="member"&gt;[label]&lt;/see&gt;</code></li>
+						</ul>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>&nbsp;</p>
+		</div>
+	</body>
+</html>

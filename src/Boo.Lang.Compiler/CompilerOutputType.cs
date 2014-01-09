@@ -40,5 +40,7 @@ namespace Boo.Lang.Compiler
 		Library = PEFileKinds.Dll,
 		ConsoleApplication = PEFileKinds.ConsoleApplication,
 		WindowsApplication = PEFileKinds.WindowApplication,
+		
+		Module = 100,
 	}
 }

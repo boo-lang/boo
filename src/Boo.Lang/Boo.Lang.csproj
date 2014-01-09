@@ -93,6 +93,7 @@
     <Compile Include="Environments\IEnvironment.cs" />
     <Compile Include="Environments\InstantiatingEnvironment.cs" />
     <Compile Include="Environments\My.cs" />
+    <Compile Include="Exceptions\UserRequestedCancellation.cs" />
     <Compile Include="GenericGenerator.cs" />
     <Compile Include="GenericGeneratorEnumerator.cs" />
     <Compile Include="GenericList.cs" />

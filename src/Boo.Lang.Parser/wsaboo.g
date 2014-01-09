@@ -131,7 +131,7 @@ tokens
 
 	protected void AddAttributes(AttributeCollection target)
 	{
-		target.Extend(_attributes);
+		if (target != null) target.Extend(_attributes);
 		_attributes.Clear();
 	}
 	

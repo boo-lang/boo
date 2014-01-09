@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-# SharpDevelop 2.1.0.2201
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+# SharpDevelop 4.3
 Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.Useful", "Boo.Lang.Useful.booproj", "{86284E52-4C54-48CB-A286-4E34047AF1EF}"
 EndProject
 Global

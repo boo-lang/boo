@@ -30,20 +30,22 @@ namespace Boo.Lang.Interpreter
 
 import System
 import System.Collections
-import System.Collections.Generic
 import System.IO
-import System.Linq
 import System.Text
 import System.Text.RegularExpressions
+import System.Reflection
+
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.TypeSystem
-import PatternMatching
-import Environments
+import Boo.Lang.Interpreter.ShellConsole.Display
 
+import PatternMatching
+
+[ShellCmd.CmdClass("Shell")]
 class InteractiveInterpreterConsole:
 	
-	public final static HISTORY_FILENAME = "booish_history"
-	public final static HISTORY_CAPACITY = 100	
+	public final static HISTORY_FILENAME = "booish\\history"
+	public final static HISTORY_CAPACITY = 1000
 	
 	_history = System.Collections.Generic.Queue of string(HISTORY_CAPACITY)
 	_historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
@@ -65,26 +67,25 @@ class InteractiveInterpreterConsole:
 	
 	_interpreter as InteractiveInterpreter
 	
+	_shellCmdExecution = ShellCmd.CmdExecution(self._interpreter)
+		
 	def constructor():
 		self(InteractiveInterpreter())
 
 	def constructor(interpreter as InteractiveInterpreter):
-		_interpreter = interpreter
-		_interpreter.RememberLastValue = true
+		self._interpreter = interpreter
+		self._interpreter.RememberLastValue = true
 		
-		DisableColors = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS"))
-		if not DisableColors: #make sure setting color does not throw an exception
+		Colors.DisableColors = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS"))
+		if not Colors.DisableColors: #make sure setting color does not throw an exception
 			try:
-				Console.ForegroundColor = ConsoleColor.DarkGray
+				DisplayWrapper.ForegroundColor = Colors.InterpreterColor
+				DisplayWrapper.BackgroundColor = Colors.BackgroundColor
 			except:
-				DisableColors = true
-		DisableAutocompletion = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION"))
-		
-		_interpreter.SetValue("load", Load)
-		_interpreter.SetValue("save", Save)
-		_interpreter.SetValue("quit", Quit)
-
-		LoadHistory()
+				Colors.DisableColors = true
+		self.DisableAutocompletion = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION"))
+		self.LoadHistory()
+		self._shellCmdExecution.AddCmdObject(self)
 		
 	def SetValue(name as string, value):
 		_interpreter.SetValue(name, value)
@@ -98,9 +99,11 @@ class InteractiveInterpreterConsole:
 	LineLen:
 		get: return _line.Length
 		set: _line.Length = value
-
+	
+	BooIndention = "."
+	
 	LineIndentLen:
-		get: return IndentChars.Length * _indent
+		get: return BooIndention.Length * _indent
 
 	CurrentPrompt as string:
 		get: return (BlockPrompt if _indent > 0 else DefaultPrompt)
@@ -114,40 +117,19 @@ class InteractiveInterpreterConsole:
 			else:
 				_interpreter.Pipeline.Remove(Boo.Lang.Compiler.Steps.PrintBoo)
 				
-
 	property DefaultPrompt = ">>> "
-
 	property BlockPrompt = "... "
-
-	property IndentChars = "    "
-
-	property DisableColors = false
 
 	property DisableAutocompletion = false
 
 	# messages from the interpreter (not from user code)
-	property InterpreterColor = ConsoleColor.DarkGray 
-
-	property PromptColor = ConsoleColor.DarkGreen
-
-	property ExceptionColor = ConsoleColor.DarkRed
-	
-	property WarningColor = ConsoleColor.Yellow
-	
-	property ErrorColor = ConsoleColor.Red
-
-	property SuggestionsColor = ConsoleColor.DarkYellow
-
-	property SelectedSuggestionColor = ConsoleColor.DarkMagenta
-
 	_selectedSuggestionIndex as int?
 
-	_suggestions as EnvironmentBoundValue[of (object)]
+	_suggestions as (object)
 
 	CanAutoComplete as bool:
 		get: return _selectedSuggestionIndex is not null
 
-	private _builtins as (IEntity)
 	private _filter as string
 	
 	def Eval(code as string):
@@ -155,15 +137,22 @@ class InteractiveInterpreterConsole:
 			result = _interpreter.Eval(code)
 			DisplayResults(result)
 			return result
+		except x as Boo.Lang.Exceptions.UserRequestedAbortion:
+			WithColor DisplayWrapper.Colors.ExceptionColor:
+				WriteLine(x.Message)
 		except x as System.Reflection.TargetInvocationException:
-			ConsolePrintException(x.InnerException)
+			if x.InnerException isa Boo.Lang.Exceptions.UserRequestedAbortion:
+				WithColor DisplayWrapper.Colors.ExceptionColor:
+					WriteLine(x.InnerException.Message)
+			else:
+				ConsolePrintException(x.InnerException)
 		except x:
 			ConsolePrintException(x)
 		
 	private def DisplayResults(results as CompilerContext):
 		if ShowWarnings:
-			DisplayProblems(results.Warnings, WarningColor)
-		if not DisplayProblems(results.Errors, ErrorColor):
+			DisplayProblems(results.Warnings, Colors.WarningColor)
+		if not DisplayProblems(results.Errors, Colors.ErrorColor):
 			ProcessLastValue()
 
 	private def ConsolePrintPrompt():
@@ -171,103 +160,91 @@ class InteractiveInterpreterConsole:
 
 	private def ConsolePrintPrompt(autoIndent as bool):
 		return if _quit
-		WithColor PromptColor:
-			Console.Write(CurrentPrompt)
-		if autoIndent and CurrentPrompt == BlockPrompt:
-			for i in range(_indent):
-				WriteIndent()
-				
-	private def WithColor(color as ConsoleColor, block as System.Action):
-		if DisableColors:
-			block()
-		else:
-			Console.ForegroundColor = color
-			try:
-				block()
-			ensure:
-				Console.ResetColor()
-
+		indent=-1
+		indent = self._indent if autoIndent and CurrentPrompt == BlockPrompt
+		WithColor Colors.PromptColor:
+			Write(self.CurrentPrompt)
+	
 	private def ConsolePrintMessage(msg as string):
-		WithColor InterpreterColor:
-			print msg
+		WithColor Colors.InterpreterColor:
+			WriteLine( msg )
 
 	private def ConsolePrintException(e as Exception):
-		WithColor ExceptionColor:
-			print e
+		WithColor Colors.ExceptionColor:
+			WriteLine( e.ToString() )
 
 	private def ConsolePrintError(msg as string):
-		WithColor ExceptionColor:
-			print msg
+		WithColor Colors.ExceptionColor:
+			WriteLine( msg )
 			
 	private def NewLine():
-		Console.Write(Environment.NewLine)
+		Write(Environment.NewLine)
 	
 	_numberOfDisplayedSuggestions = 10
 	protected def ConsolePrintSuggestions():
 		cursorLeft = Console.CursorLeft
 		#cursorTop = Console.CursorTop
-		NewLine()
-				
-		i = 0
-		count = 0
-		suggestions = SuggestionDescriptions()
-		suggestionsCount=len(suggestions)
-		while self._selectedSuggestionIndex < 0:
-			self._selectedSuggestionIndex+=suggestionsCount
-		while self._selectedSuggestionIndex >= suggestionsCount:
-			self._selectedSuggestionIndex-=suggestionsCount
+		try:
+			NewLine()
+					
+			i = 0
+			count = 0
+			suggestions = SuggestionDescriptions()
+			suggestionsCount=len(suggestions)
+			while self._selectedSuggestionIndex < 0:
+				self._selectedSuggestionIndex+=suggestionsCount
+			while self._selectedSuggestionIndex >= suggestionsCount:
+				self._selectedSuggestionIndex-=suggestionsCount
 
-		for s in suggestions:
-			Console.ForegroundColor = SuggestionsColor if not DisableColors
-			//Console.Write(", ") if i > 0
-			if count >= _numberOfDisplayedSuggestions:
-				Console.WriteLine("... (more candidates)")
-				break
-			if i+_numberOfDisplayedSuggestions/2 >= _selectedSuggestionIndex or i+_numberOfDisplayedSuggestions >= suggestionsCount:
-				if count == 0 and i > 0:
-					Console.WriteLine("... (more candidates)")					
-				if i == _selectedSuggestionIndex:
-					Console.ForegroundColor = SelectedSuggestionColor if not DisableColors
-				Console.Write(i+1);
-				Console.Write(": ");
-				Console.WriteLine(s)
-				count++
-			i++
+			for s in suggestions:
+				Console.ForegroundColor = Colors.SuggestionsColor if not Colors.DisableColors
+				//Console.Write(", ") if i > 0
+				if count >= _numberOfDisplayedSuggestions:
+					WriteLine("... (more candidates)")
+					break
+				if i+_numberOfDisplayedSuggestions/2 >= _selectedSuggestionIndex or i+_numberOfDisplayedSuggestions >= suggestionsCount:
+					if count == 0 and i > 0:
+						WriteLine("... (more candidates)")					
+					if i == _selectedSuggestionIndex:
+						Console.ForegroundColor = Colors.SelectedSuggestionColor if not Colors.DisableColors
+					Write(i+1);
+					Write(": ");
+					WriteLine(s)
+					count++
+				i++
 
-		Console.ResetColor() if not DisableColors
-		#Console.CursorTop = cursorTop
-		NewLine()
-		ConsolePrintPrompt(false)
-		Console.Write(Line)
-		Console.CursorLeft = cursorLeft
-		
-	def SuggestionDescriptions() as (object):
-		return _suggestions.Select(DescriptionsFor).Value
-		
-	def DescriptionsFor(suggestions as (object)):
-		return array((DescriptionFor(s) for s in suggestions).Distinct())
+			Console.ResetColor() if not Colors.DisableColors
+			#Console.CursorTop = cursorTop
+			NewLine()
+			ConsolePrintPrompt(false)
+			Write(Line)
+			Console.CursorLeft = cursorLeft
+		except x as Boo.Lang.Exceptions.UserRequestedAbortion:
+			WithColor Colors.ExceptionColor:
+				WriteLine(x.Message)
+	
+	def SuggestionDescriptions() as (string):
+		return array(string, DescriptionFor(s) for s in self._suggestions)
 		
 	def DescriptionFor(s):
 		match s:
 			case e = IEntity():
-				return Boo.Lang.Interpreter.Builtins.DescribeEntity(e)
+				return Boo.Lang.Interpreter.ShellCmd.DescribeEntity(e)
 			otherwise:
 				return s.ToString()
 
-	protected def Write(s as string):
-		Console.Write(s)
-		_line.Append(s)
-
-	protected def WriteIndent():
-		Write(IndentChars)
+	protected def WriteToReplace(s as string):
+		Write(s)
+		_line.Append(s)		
 
 	protected def Indent():
-		WriteIndent()
+		WithColor Colors.IndentionColor:
+			Write(BooIndention)
 		_indent++
 
 	protected def Unindent():
 		return if _indent == 0
-		Delete(IndentChars.Length)
+		Delete(BooIndention.Length)
 		_indent--
 
 	protected def Delete(count as int): #if count is 0, forward-delete
@@ -279,7 +256,7 @@ class InteractiveInterpreterConsole:
 		_line.Remove(cx, dcount)
 		curX = Console.CursorLeft - count
 		Console.CursorLeft = curX
-		Console.Write("${_line.ToString(cx, LineLen-cx)} ")
+		Write("${_line.ToString(cx, LineLen-cx)} ")
 		Console.CursorLeft = curX
 
 
@@ -306,21 +283,18 @@ class InteractiveInterpreterConsole:
 				_interpreter
 				.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
 				.Select[of (object)](
-					{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) }))			
+					{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value		
 
-		if _suggestions.Value is null or 0 == len(_suggestions.Value): #suggest a  var		
+		if _suggestions is null or 0 == len(_suggestions): #suggest a  var		
 			_filter = query
-			_suggestions = EnvironmentBoundValue.Create(
-							null,
-							array(
-								var.Key.ToString() as object
-								for var in _interpreter.Values
-								if var.ToString().StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)))
+			_suggestions = array(var.Key.ToString() as object
+							for var in _interpreter.Values
+							if var.ToString().StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase))
 
-		if _suggestions.Value is null or 0 == len(_suggestions.Value):
+		if _suggestions is null or 0 == len(_suggestions):
 			_selectedSuggestionIndex = null
 			#Console.Beep() #TODO: flash background?
-		elif 1 == len(_suggestions.Value):
+		elif 1 == len(_suggestions):
 			ConsolePrintSuggestions() # write the unique valid suggestion to show the signature of the selected entity
 			AutoComplete()
 		else:
@@ -328,14 +302,14 @@ class InteractiveInterpreterConsole:
 
 
 	def AutoComplete():
-		raise InvalidOperationException("no suggestions") if _suggestions.Value is null or _selectedSuggestionIndex is null
+		raise InvalidOperationException("no suggestions") if _suggestions is null or 0==len(_suggestions) or _selectedSuggestionIndex is null
 
 		Console.CursorLeft = self.LineLen + len(CurrentPrompt)
 		Delete(len(_filter)) if _filter != null
-		Write(_suggestions.Select[of string]({ ss | AutoCompletionFor(ss[_selectedSuggestionIndex.Value]) }).Value)
+		WriteToReplace(self.AutoCompletionFor(_suggestions[_selectedSuggestionIndex.Value]))
 		
 		_selectedSuggestionIndex = null
-		_suggestions = EnvironmentBoundValue[of (object)](null, null)
+		_suggestions = null
 		
 	def AutoCompletionFor(s):
 		match s:
@@ -358,14 +332,15 @@ class InteractiveInterpreterConsole:
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
 		Console.CursorLeft = len(CurrentPrompt)
-		Console.Write(string.Empty.PadLeft(LineLen, char(' ')))
+		Write(string.Empty.PadLeft(LineLen, char(' ')))
 		line = _history.ToArray()[_historyIndex]
 		LineLen = 0
 		Console.CursorLeft = len(CurrentPrompt)
-		Write(line)
+		WriteToReplace(line)
 
 	def ReadEvalPrintLoop():
 		Console.CursorVisible = true
+		Console.ForegroundColor = Colors.InterpreterColor
 		ConsolePrintPrompt()
 		while not _quit:
 			ReadEvalPrintLoopStep()
@@ -395,22 +370,22 @@ class InteractiveInterpreterConsole:
 				sizeL = _line.Length
 				_line.Remove(0, sizeL)
 				Console.CursorLeft = curX
-				Console.Write(string(' '[0], sizeL))
+				Write(string(' '[0], sizeL))
 				Console.CursorLeft = curX
 				self._selectedSuggestionIndex = null
 			
 			#line-editing support
-			if not _multiline and LineLen > 0:
+			if not _multiline and (LineLen > 0 or _indent > 0):
 				if Console.CursorLeft > len(CurrentPrompt):
 					if key == ConsoleKey.Backspace:
 						self._selectedSuggestionIndex = null
-						if _indent > 0 and LineLen == LineIndentLen:
+						if _indent > 0 and LineLen == 0:
 							Unindent()
-						else:
+						elif LineLen > 0:
 							Delete(1)
 					elif key == ConsoleKey.LeftArrow and not self.CanAutoComplete:
 						Console.CursorLeft--
-				if key == ConsoleKey.Delete:
+				if key == ConsoleKey.Delete and LineLen > 0:
 					self._selectedSuggestionIndex = null
 					Delete(0)
 				elif key == ConsoleKey.RightArrow and not self.CanAutoComplete:
@@ -473,23 +448,30 @@ class InteractiveInterpreterConsole:
 			#line-editing support
 			if cx < LineLen and not _multiline:
 				_line.Insert(cx, keyChar) if not control
-				Console.Write(_line.ToString(cx, LineLen-cx))
+				Write(_line.ToString(cx, LineLen-cx))
 				Console.CursorLeft = len(CurrentPrompt)+cx+1
 			else:
 				_line.Append(keyChar) if not control
 				Console.Write(keyChar)
 
 		if newLine:
-			_multiline = false
-			Console.Write(Environment.NewLine)
+			Write(Environment.NewLine)
 
 			if not TryRunCommand(Line):
 				_buffer.Append(Line)
 				_buffer.Append(Environment.NewLine)
 				AddToHistory(Line)
 
-				_indent++ if LineLastChar in _blockStarters or Line.EndsWith(QQBegin)
-				_indent-- if Line.EndsWith(IndentChars+"pass")
+				# unfortunately, brackets are not yet concerned here.
+				firstTripleQuote=self.Line.IndexOf("\"\"\"")
+				secondTripleQuote=-1
+				secondTripleQuote=self.Line.IndexOf("\"\"\"", firstTripleQuote+3) if firstTripleQuote >= 0
+				if LineLastChar in _blockStarters\
+					or Line.EndsWith(QQBegin)\
+					or (_indent == 0 and firstTripleQuote >= 0 and secondTripleQuote < 0):
+					++self._indent
+				elif Line.EndsWith(BooIndention+"pass"):
+					--self._indent
 				if Line.EndsWith(QQEnd):
 					CheckBooLangCompilerReferenced()
 					_indent--
@@ -501,65 +483,100 @@ class InteractiveInterpreterConsole:
 					ensure:
 						_buffer.Length = 0 #truncate buffer
 
+			_multiline = false
 			LineLen = 0 #truncate line
 			ConsolePrintPrompt()
 
-	/* returns false if no command has been processed, true otherwise */
-	def TryRunCommand(line as string):
-		if not line.StartsWith("/"):
-			return false
-
-		cmd = line.Split()
-
-		if len(cmd) == 1:
-			if cmd[0] == "/q" or cmd[0] == "/quit":						
-				Quit()
-			elif cmd[0] == "/?" or cmd[0] == "/h" or cmd[0] == "/help":
-				DisplayHelp()
-			elif cmd[0] == "/g" or cmd[0] == "/globals":
-				Eval("globals()")
-			else:
-				return false
-
-		elif len(cmd) == 2:
-			if cmd[0] == "/l" or cmd[0] == "/load":
-				Load(cmd[1])
-			elif cmd[0] == "/s" or cmd[0] == "/save":
-				Save(cmd[1])
-			elif cmd[0] == "/d" or cmd[0] == "/describe":
-				Eval("describe({0})"%(cmd[1],))
-			else:
-				return false
-
+	[ShellCmd.CmdDeclaration("globals g", Description: "Displays a list of all globally defined variables.")]
+	def Globals():
+		Eval("globals()")
+	
+	[ShellCmd.CmdDeclaration("describe d", Description: "Describes a type (or the type of an object)")]
+	public def Describe([ShellCmd.CmdArgument(ShellCmd.CmdArgumentCompletion.Type)] typeOrObjectOrNamespace):
+		nameString = typeOrObjectOrNamespace.ToString()
+		ns = Namespace.Find(nameString)
+		if ns == null:
+			lastDot = nameString.LastIndexOf(".")
+			done = false
+			if lastDot > 0:
+				potTypeName = nameString[:lastDot]
+				potMethodName = nameString[lastDot+1:]
+				_interpreter.Eval(potTypeName)
+				t = _interpreter.LastValue as Type
+				if t != null:
+					miColl = List[of System.Reflection.MethodInfo]()
+					for mi in t.GetMethods():
+						if potMethodName.Equals( mi.Name, StringComparison.InvariantCultureIgnoreCase):
+							miColl.Add(mi)
+					if len(miColl) > 0:
+						Boo.Lang.Interpreter.ShellCmd.describe(miColl)
+						done = true
+			if not done:
+				Eval("describe({0})"%(nameString,))
 		else:
-			return false
-		return true
-
-
+			Namespace.ListNamespace(ns, null)
+			Namespace.ListTypes(ns)
+	
+	[ShellCmd.CmdDeclaration("list l", Description: "List assemblies and types in assemblies.")]
+	public def ListAssemblies(filter as string):
+		for a in AppDomain.CurrentDomain.GetAssemblies():
+			WriteLine( a.FullName )
+			if not string.IsNullOrEmpty(filter) and a.FullName.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0:
+				for t in a.GetTypes():
+					WriteLine( "|"+t.FullName )
+	
+	def TryRunCommand(line as string):
+	"""
+	Run the buitin command as stated by a line string. Return false, if the
+	line does not start a builtin command.
+	Returns false if no command has been processed, true otherwise.
+	"""
+		return self._shellCmdExecution.TryRunCommand(line)
+	
+	def TurnOnPreferenceShellCommands():
+		self._shellCmdExecution.TurnOnPreferenceShellCommands()
+	
 	private _indent as int = 0
+	[ShellCmd.CmdDeclaration("logo", Description:"About this software.")]
+	public def DisplayLogo():
+		WriteLine(""" ___   __    __               """)
+		WriteLine(""" |__| |  |  |oo|     __       """)
+		WriteLine(""" |__| |__| |    | | |__  |__| """)
+		WriteLine("""           |____| |  __| |  | """)
+		WriteLine()		
+		WithColor Colors.HeadlineColor:
+			WriteLine( """Welcome to booish, an interactive interpreter for the boo programming language.""" )
+		WithColor Colors.InterpreterColor:
+			WriteLine( """Copyright (c) 2004-2012, Rodrigo B. de Oliveira (rbo@acm.org)
+Copyright (c) 2013-    , Harald Meyer auf'm Hofe (harald_meyer@users.sourceforge.net)""" )
+		WithColor Colors.HeadlineColor:
+			WriteLine( """Running boo ${BooVersion} on ${Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName}.
 
-	def DisplayLogo():
-		WithColor InterpreterColor:
-			print """Welcome to booish, an interactive interpreter for the boo programming language.
-Running boo ${BooVersion} on ${Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName}.
+Enter boo code in the prompt below (or type /help).""" )
 
-Enter boo code in the prompt below (or type /help)."""
-
-	def DisplayHelp():
-		WithColor InterpreterColor:
-			print """The following builtin functions are available :
-    /? or /h or /help : display this help
-    dir(type) : returns the members of a type
-    describe(type) or /d type : describe a type as boo code
-    globals() or /g : returns names of all variables known to interpreter
-    load(file) or /l file : evals an external boo file
-    save(file) or /s file : writes your current booish session into file
-    quit() or /q : exits the interpreter"""
+	def GetHelpFilters():
+	"""
+	Provides a collection of strings that can be used as filter arguments
+	for the help command.
+	"""
+		return self._shellCmdExecution.CollectedCmds
+	
+	[ShellCmd.CmdDeclaration("help h ?", Description: "Display help.")]
+	def DisplayHelp([ShellCmd.CmdArgument(ShellCmd.CmdArgumentCompletion.MethodCall, CompletionMethod:"GetHelpFilters")] filter as string):
+		WithColor Colors.InterpreterColor:
+			Write("""Press TAB to view a list of suggestions. Use CURSOR LEFT, RIGHT, or
+    PAGE UP, PAGE DOWN to select suggestions and RETURN to use the selected
+    suggestion.
+    Use CURSOR UP and DOWN to navigate the history.
+    BACKSPACE and DELETE will have the commonly expected effect.
+    ESCAPE will delete the current line.
+    """)
+		self._shellCmdExecution.DisplayHelp(filter)
 
 	def DisplayGoodbye():	// booish is friendly
-		WithColor InterpreterColor:
-			print ""
-			print "All your boo are belong to us!"
+		WithColor Colors.HeadlineColor:
+			WriteLine()
+			WriteLine("All your boo are belong to us!")
 
 	def LoadHistory():
 		try:
@@ -578,12 +595,14 @@ Enter boo code in the prompt below (or type /help)."""
 
 	def SaveHistory():
 		try:
+			Directory.CreateDirectory(Path.GetDirectoryName(_historyFile))
 			using sw = System.IO.File.CreateText(_historyFile):
 				for line in _history:
 					sw.WriteLine(line)
-		except:
-			ConsolePrintError("Cannot save history to '${_historyFile}'.")
-			
+		except exc as Exception:
+			ConsolePrintError("Cannot save history to '${_historyFile}':\n${exc.Message}")
+	
+	[ShellCmd.CmdDeclaration("load", Description: "Loads and evals a BOO file. You can also load assemblies. After loading, the assembly will be referenced by the interpreter.")]
 	def Load([required] path as string):
 		if path.EndsWith(".boo"):
 			ConsolePrintMessage("Evaluating '${path}' ...")
@@ -606,13 +625,12 @@ Enter boo code in the prompt below (or type /help)."""
 	private def ProcessLastValue():
 		_ = _interpreter.LastValue
 		if _ is not null:
-			Console.WriteLine(Boo.Lang.Interpreter.Builtins.repr(_))
+			WriteLine(Boo.Lang.Interpreter.ShellCmd.repr(_))
 			_interpreter.SetValue("_", _)
-
-	def Save([required] path as string):
-		if path is string.Empty:
-			path = "booish_session.boo"
-		elif not path.EndsWith(".boo"):
+	
+	[ShellCmd.CmdDeclarationAttribute("save", Description: "Save the lines of this session to a file.")]
+	def Save([required][ShellCmd.CmdArgument(ShellCmd.CmdArgumentCompletion.File, DefaultValue:"booish_session.boo")] path as string):
+		if not path.EndsWith(".boo"):
 			path = "${path}.boo"
 		try:
 			using sw = System.IO.File.CreateText(path):
@@ -624,6 +642,7 @@ Enter boo code in the prompt below (or type /help)."""
 
 	private _quit = false
 	
+	[ShellCmd.CmdDeclaration("quit q", Description: "Exits the shell.")]
 	def Quit():
 		_quit = true
 		
@@ -633,12 +652,12 @@ Enter boo code in the prompt below (or type /help)."""
 			for problem as duck in problems:
 				markLocation(problem.LexicalInfo)
 				type = ("ERROR" if problem isa CompilerError else "WARNING")
-				Console.WriteLine("${type}: ${problem.Message}")
+				WriteLine("${type}: ${problem.Message}")
 		return true
 
 	private def markLocation(location as Ast.LexicalInfo):
 		pos = location.Column
-		Console.WriteLine("--" + "-" * pos + "^") if pos > 0
+		WriteLine("---" + "-" * pos + "^") if pos > 0
 		
 	private def CheckBooLangCompilerReferenced():
 		return if _blcReferenced

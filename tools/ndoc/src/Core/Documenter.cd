@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Font Name="Segoe UI" Size="9" />
+  <Class Name="NDoc.Core.BaseDocumenter">
+    <Position X="0.5" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <FileName>BaseDocumenter.cs</FileName>
+      <HashCode>AAACAAAAAgAEAAAAAAAMAAEAAAABgAAAAAgAAAAAAgA=</HashCode>
+    </TypeIdentifier>
+    <Compartments>
+      <Compartment Name="Private" Collapsed="true" />
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="NDoc.Core.Reflection.BaseReflectionDocumenter" Collapsed="true">
+    <Position X="0.5" Y="7.5" Width="2" />
+    <TypeIdentifier>
+      <FileName>BaseReflectionDocumenter.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAggAAAAAAQAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NDoc.Core.BaseDocumenterConfig">
+    <Position X="4" Y="3" Width="2.5" />
+    <TypeIdentifier>
+      <FileName>BaseDocumenterConfig.cs</FileName>
+      <HashCode>IEIAGAAAIAAABgAAAAAACAAgAAAAIAAAAgAgAAEACAA=</HashCode>
+    </TypeIdentifier>
+    <Compartments>
+      <Compartment Name="Private" Collapsed="true" />
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="NDoc.Core.Reflection.BaseReflectionDocumenterConfig" Collapsed="true">
+    <Position X="4" Y="7.5" Width="2.5" />
+    <TypeIdentifier>
+      <FileName>BaseReflectionDocumenterConfig.cs</FileName>
+      <HashCode>BIEAmCnUWAlsABgqQA4AMEFxJUCbAQggokMTAJCEigA=</HashCode>
+    </TypeIdentifier>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+  </Class>
+  <Interface Name="NDoc.Core.IDocumenter">
+    <Position X="0.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <FileName>IDocumenter.cs</FileName>
+      <HashCode>AAAAAAAAAgAEAAAAAAAEAAEAAAABgAAAAAAAAAAAAgA=</HashCode>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Config" />
+    </ShowAsAssociation>
+  </Interface>
+  <Interface Name="NDoc.Core.IDocumenterConfig">
+    <Position X="4" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <FileName>IDocumenterConfig.cs</FileName>
+      <HashCode>AAIACAAAIAAAAgAAAAAAAAAgAAAAIAAAAAAAAAEAAAA=</HashCode>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="DocumenterInfo" />
+    </ShowAsAssociation>
+  </Interface>
+  <Interface Name="NDoc.Core.IDocumenterInfo">
+    <Position X="7.25" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <FileName>IDocumenterInfo.cs</FileName>
+      <HashCode>AAAACAAAAAAAAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Interface>
+</ClassDiagram>

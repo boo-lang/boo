@@ -23,8 +23,8 @@ namespace booish.gui
 
 import System
 import System.Windows.Forms
-import ICSharpCode.TextEditor
-import ICSharpCode.TextEditor.Document
+import ICSharpCode.AvalonEdit
+import ICSharpCode.AvalonEdit.Document
 
 partial class MainForm(Form):
 	def constructor():

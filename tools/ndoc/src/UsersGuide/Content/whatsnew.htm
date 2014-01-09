@@ -1,0 +1,349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>What&#39;s new in NDoc 1.3 ?</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link rel="stylesheet" type="text/css" href="css/ndoc.css">
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h2 class="dtH2">What&#39;s new in NDoc 1.3 ?</h2>
+	<p>NDoc 1.3 incorporates a very large number of new and enhanced features as 
+	well as bug fixes.</p>
+	<h3 class="dtH3">Highlights</h3>
+	<p>NDoc 1.3 includes many new features: </p>
+	<ul>
+		<li>A complete re-implementation of the Html Help 2 documenter, now known as the "<a href="vsnet.htm">VS.NET 2003</a>" documenter.</li>
+		<li>Support for new code commenting tags like
+		<a href="tags.htm#preliminary">
+		preliminary</a>, <a href="tags.htm#threadsafety">threadsafety</a> and
+		<a href="tags.htm#exclude">exclude</a>. </li>
+		<li>Support for the <strong>ObsoleteAttribute</strong> and <strong>FlagsAttribute</strong> 
+		attributes. </li>
+		<li>An <a href="extensibility.htm">extensibility feature</a> that allows 
+		you to define your own code comment tags and control their formatting.
+		</li>
+		<li>User interface enhancements. </li>
+		<li>Major performance enhancements in both reflection and document production.
+		</li>
+		<li>Better consistency between NDoc generated topics and MSDN topics.</li>
+	</ul>
+	<h3 class="dtH3">"VS.NET 2003" Documenter</h3>
+	<p>The new "VS.NET 2003" Documenter creates HTML Help 2 documentation, with fully populated XML data 
+		islands, resulting in much better integration with the Visual Studio help system.</p>
+		<p>The new documenter produces documentation that more closely matches the latest MS documentation and 
+		includes features such as language filtering of syntax and outher text sections.</p>
+		<p>More information on this documenter can be found <a href="vsnet.htm">here</a></p>
+	<h3 class="dtH3">Performance</h3>
+	<p>The performance of all documenters has been significantly improved.</p>
+	<ul>
+		<li>The XML Merge process has been speeded-up considerably, and is now 
+		only a small percentage of the total processing time regardless of the size 
+		of an NDoc project. </li>
+		<li>Page production time has decreased by 20-50%.</li>
+		<li>Memory usage has been significantly reduced.</li>
+		<li>Namespace Hierarchies are produced without performance or stability 
+		problems, and are now always documented.</li>
+	</ul>
+	<h3 class="dtH3">Assembly Loading</h3>
+	<p>A number of improvements have been made to Assembly loading.</p>
+	<ul>
+	<li>The GUI no longer has to be restarted to reflect changes in an assembly.</li>
+	<li>Most assemblies may now be loaded from network shares.&nbsp; However, due to .NET framework limitations, managed C++ 
+	assemblies must reside on a local drive or else security exceptions will be raised.</li>
+	<li>Assembly resolution has been improved, it is now far less likely that an assembly will fail to be found.</li>
+	</ul>
+	<h3 class="dtH3">Internationalization</h3>
+	<p>NDoc can now process assemblies and comments with non-english characters.</p>
+	<p>Full Unicode (RTF-8) support is available in all documenters except MSDN HtmlHelp. There are some known problems with 
+	support for mixed character-sets in the HTML Help compiler, however these are out of our control...<p>Note that while we support other character-sets, NDoc generated text such as section headings cannot be localized in this release.
+	<h3 class="dtH3">Concurrent NDoc runs</h3>
+	<p>Multiple instances of NDoc can now be run concurrently. Previous problems with file locking have been resolved.</p>
+	<h3 class="dtH3">User Interface</h3>
+	<ul>
+	<li>Drag and Drop.  Assemblies may be added to a project by drag and drop from explorer to the assemblies list in the NDoc GUI.</li>
+	<li>Error Handling.  Error Handling has been considerably improved.</li>
+	<li>Help Compiler Messages. Help compiler messages are now written to the log, and error messages are shown if an error occurs during compilation.</li>
+	<li>Property Grid. The property grid has been enhanced in several respects.</li>
+	<li>Assembly Loading Errors. </li>
+	<li>Assemblies without XML docs can be documented</li>
+	<li>Relative Assembly Paths</li>
+	</ul>
+	<h3 class="dtH3">XML Documentation Tags</h3>
+	<h5 class="dtH5">New Tags</h5>
+	<table class="dtTABLE" style="WIDTH: 94%" cellspacing="0">
+		<thead>
+			<tr>
+				<th width="30%">Tag</th>
+				<th width="70%">Comments</th>
+			</tr>
+		</thead>
+		<tr>
+			<td><a href="tag_exclude.htm">&lt;exclude/&gt;</a></td>
+			<td>Directs NDoc to exclude the tagged type or member from the documentation.<br />
+			The tag overrides all visibility options. </td>
+		</tr>
+		<tr>
+			<td><a href="tag_preliminary.htm">&lt;preliminary&gt;</a></td>
+			<td>Marks the documentation of a type or member as preliminary.
+			<br />
+			This tag can include text and block tags like <a href="tag_para.htm">
+			&lt;para&gt;</a> in order to put a custom warning into your help topics about 
+			preliminary items. <br />
+			If the tag is empty, preliminary topics will include the default message:
+			<br />
+			<font color="red">[This is preliminary documentation and subject to 
+			change.]</font> <br />
+			It is also possible to mark an entire help project as preliminary using 
+			the Preliminary project setting. </td>
+		</tr>
+		<tr>
+			<td><a href="tag_devdoc.htm">&lt;devdoc&gt;</a></td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	<h5 class="dtH5">Enhanced Tags</h5>
+	<table class="dtTABLE" style="WIDTH: 94%" cellspacing="0">
+		<thead>
+			<tr>
+				<th width="30%">Tag</th>
+				<th width="70%">Comments</th>
+			</tr>
+		</thead>
+		<tr>
+			<td><a href="tag_code.htm">&lt;code&gt;</a></td>
+			<td><ul>
+			<li>"lang" attribute</li>
+			<li>No more &lt;include&gt; to prevent indent</li>
+			<li>"Escaped" attribute</li>
+			</ul></td>
+		</tr>
+		<tr><td><a href="tag_code.htm">&lt;see&gt;</a></td><td>langword</td></tr>
+	</table>
+	<h3 class="dtH3">Settings</h3>
+	<h5 class="dtH5">New Settings</h5>
+	<p>The following settings have been added to all documenters.</p>
+	<table class="dtTABLE" style="WIDTH: 94%" cellspacing="0">
+		<thead>
+			<tr>
+				<th width="30%">Setting</th>
+				<th width="70%">Comments</th>
+			</tr>
+		</thead>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			Main Settings</td>
+		</tr>
+		<tr>
+			<td>CleanIntermediates</td>
+			<td>If true, intermediate files will be deleted after a successful build.
+			<br />
+			For documenters that result in a compiled output, like the MSDN and 
+			VS.NET documenters, intermediate files include all of the HTML Help 
+			project files, as well as the generated HTML files. </td>
+		</tr>
+		<tr>
+			<td>FeedbackEmailAddress</td>
+			<td>If an email address is supplied, a mailto link will be placed at the bottom of each page using this address.</td>
+		</tr>
+		<tr>
+			<td>Preliminary</td>
+			<td>If true, NDoc will mark every topic as being preliminary documentation.
+			<br />
+			The default notice is <font color="red">[This is preliminary documentation 
+			and subject to change.]</font> </td>
+		</tr>
+		<tr>
+			<td>SdkDocVersion</td>
+			<td>Specifies to which version of the .NET Framework SDK documentation 
+			the links to system types will be pointing.</td>
+		</tr>
+		<tr>
+			<td>SdkDocLanguage</td>
+			<td>Specifies to which Language of the .NET Framework SDK documentation 
+			the links to system types will be pointing.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			Show Attributes</td>
+		</tr>
+		<tr>
+			<td>DocumentInheritedAttributes</td>
+			<td>If true, NDoc will document, in the syntax portion of topics, the 
+			attributes inherited from base types/members.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			Visibility</td>
+		</tr>
+		<tr>
+			<td>DocumentedInheritedMembers</td>
+			<td>Determines what types of inherited members are documented.</td>
+		</tr>
+		<tr>
+			<td>DocumentInheritedFrameworkMembers</td>
+			<td>If true, members inherited from .Net framework classes will be documented.</td>
+		</tr>
+		<tr>
+			<td>DocumentExplicitInterfaceImplementations</td>
+			<td>If true, members which explicitly implement interfaces will be included 
+			in the documentation.<br />
+			Normally, these members will not documented.</td>
+		</tr>
+		<tr>
+			<td>DocumentSealedProtected</td>
+			<td>If false, protected members of sealed classes will not be documented.
+			<br />
+			Normally, these members will not documented.</td>
+		</tr>
+		<tr>
+			<td>SkipNamespacesWithoutSummaries</td>
+			<td>If true, NDoc will not document namespaces (nor any types within 
+			them) if an associated namespace summary does not exist.</td>
+		</tr>
+	</table>
+	<h5 class="dtH5">Retired Settings</h5>
+	<p>The following settings have been &#39;retired&#39;.</p>
+	<table class="dtTABLE" style="WIDTH: 94%" cellspacing="0">
+		<thead>
+			<tr>
+				<th width="30%">Setting</th>
+				<th width="70%">Comments</th>
+			</tr>
+		</thead>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			Main Settings</td>
+		</tr>
+		<tr>
+			<td>GetExternalSumeries</td>
+			<td>The performance of the Xml merge process has been considerably improved, and so summary information for inherited 
+			members is now always included (when available).</td>
+		</tr>
+		<tr>
+			<td>IncludeNamespaceHierarchy</td>
+			<td>Performance and stability problems with Namespace hierarchies have 
+			been resolved, and so namespace hierarchy pages are now always generated.</td>
+		</tr>
+	</table>
+	<h3 class="dtH3">MSDN Documenter</h3>
+	<h5 class="dtH5">New Settings</h5>
+	<p>The following settings have been added.</p>
+	<table class="dtTABLE" style="WIDTH: 94%" cellspacing="0">
+		<thead>
+			<tr>
+				<th width="30%">Setting</th>
+				<th width="70%">Comments</th>
+			</tr>
+		</thead>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			Main Settings</td>
+		</tr>
+		<tr>
+			<td>BinaryToc</td>
+			<td>If true, the documenter will produce a binary TOC. This can considerably 
+			improve the performance on opening a chm with a large table-of-contents.
+			<br />
+			Normally this is set to true, but be aware that there are a few limitations 
+			imposed if using binary TOCs; see the Html Help Workshop help for more 
+			details...</td>
+		</tr>
+		<tr>
+			<td>Title</td>
+			<td>The documentation title shown in the banner at the top of every topic.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			Extensibility</td>
+		</tr>
+		<tr>
+			<td>ExtensibilityStylesheet</td>
+			<td>see <a href="extensibility.htm">here</a> for further details.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			HTML Help Options</td>
+		</tr>
+		<tr>
+			<td>AdditionalContentResourceDirectory</td>
+			<td>Directory that contains resources (images etc.) used by the additional content pages. This directory will be recursively compiled into the help file.</td>
+		</tr>
+		<tr>
+			<td>LangID</td>
+			<td>The language ID of the locale used by the compiled helpfile</td>
+		</tr>
+	</table>
+	<h5 class="dtH5">Retired Settings</h5>
+	<p>The following settings have been &#39;retired&#39;.</p>
+	<table class="dtTABLE" style="WIDTH: 94%" cellspacing="0">
+		<thead>
+			<tr>
+				<th width="30%">Setting</th>
+				<th width="70%">Comments</th>
+			</tr>
+		</thead>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">
+			Main Settings</td>
+		</tr>
+		<tr>
+			<td>SortTOCByNamespace</td>
+			<td>The Table-of-contents always shows Namespaces in sorted order.</td>
+		</tr>
+		<tr>
+			<td>SplitTOCs</td>
+			<td>This setting was used to overcome limitations in the old HtmlHelp2 
+			documenter. <br />
+			With the introduction of the VS.NET documenter, this setting is no longer 
+			required.</td>
+		</tr>
+		<tr>
+			<td>DefaultTOC</td>
+			<td>The first namespace is now always the default selected item in the 
+			Table-of-contents.</td>
+		</tr>
+		<tr>
+			<td>LinkToSdkDocVersion</td>
+			<td>This setting has been superseded by SdkDocVersion and SdkDocLanguage, 
+			which are common to all documenters. <br />
+			NDoc will still read this setting, but the GUI will convert to the new 
+			settings on save of a project.</td>
+		</tr>
+	</table>
+	<h5>Improved hypertext linking logic</h5>
+	<p>When a &lt;see&gt; reference to an item appears more 
+than one time within a section on a page, only the first occurrence is linked, the following are just highlighted in bold.&nbsp; 
+	This reduces the visual 'clutter' on a page.</p>
+	<h5>Table-of-Contents Page Icons</h5>
+	<p>The icons used in the Table-of-Contents for documentation pages are now 'blank' rather than containing a question mark (?).</p>
+	<h5>Operators and Type Conversions</h5>
+	<p>Operators and Type Conversions are now correctly handled in the Table-of-Contents, and the page formatting more closely matches MSDN.</p>
+	<h3 class="dtH3">Attribute Handling</h3>
+	<h5>ObsoleteAttribute</h5>
+	<p>The MSDN and VS.NET documenters will automatically add text to indicate that 
+	a type has the ObsoleteAttribute.</p>
+	<ul>
+		<li>On Namespace and Type Member list tables the summary will be start <b><font color="red">Obsolete.</font></b></li>
+		<li>On Type Overview and Member Topics, the following text will be added 
+		before the summary description,<br />
+<font color="red"><b>NOTE: This <i>member_type</i> is now obsolete.</b></font><br />
+		If the ObsoleteAttribute description property is set, the description text 
+		will be displayed on the following line. </li>
+	</ul>
+	<h5>FlagsAttribute</h5>
+	<p>If a type has FlagsAttribute applied, the MSDN and VS.NET documenters will 
+	automatically add the following text to the end of the summary on the type overview 
+	topic.</p>
+	<p>&quot;This enumeration has a <a href>FlagsAttribute</a> attribute that allows 
+	a bitwise combination of its member values.&quot;</p>
+	<p></p>
+</div>
+
+</body>
+
+</html>

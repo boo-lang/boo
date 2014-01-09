@@ -53,7 +53,7 @@ Enforces constraint that no static members exist on the singleton class (as a re
 	_suppressStaticWarning as bool
 	_classDef as ClassDefinition
 	
-	[property(AccessorName)]
+	[Property(AccessorName)]
 	_accessorName = ReferenceExpression(Name: DEFAULT_INSTANCE_PROPERTY_NAME)
 	
 	public static final NESTED_CLASS_NAME = "\$Nested"

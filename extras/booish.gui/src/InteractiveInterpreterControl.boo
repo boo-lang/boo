@@ -28,10 +28,9 @@ import System
 import System.Drawing
 import System.IO
 import System.Windows.Forms
-import ICSharpCode.TextEditor
-import ICSharpCode.TextEditor.Document
-import ICSharpCode.TextEditor.Actions
-import ICSharpCode.TextEditor.Gui.CompletionWindow
+import ICSharpCode.AvalonEdit
+import ICSharpCode.AvalonEdit.Document
+import ICSharpCode.AvalonEdit.CodeCompletion
 import Boo.Lang.Compiler.TypeSystem
 
 interface ICompletionWindowImageProvider:		

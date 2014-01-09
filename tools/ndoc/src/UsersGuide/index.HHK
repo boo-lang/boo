@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD>
+<BODY>
+<OBJECT type="text/site properties">
+  <param name="FrameName" value="right">
+</OBJECT>
+<UL>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Attributes">
+            <param name="Name" value="Attributes">
+            <param name="Local" value="Content\attributes.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Build Process">
+            <param name="Name" value="Build Process">
+            <param name="Local" value="Content\build_process.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="c">
+            <param name="Name" value="c">
+            <param name="Local" value="Content\tag_c.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="code">
+            <param name="Name" value="code">
+            <param name="Local" value="Content\tag_code.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Code Comments">
+            <param name="Name" value="Code Comments">
+            <param name="Local" value="Content\tags.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Console Application">
+            <param name="Name" value="Console Application">
+            <param name="Local" value="Content\consoleapplication.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Creating an NDoc Project">
+            <param name="Name" value="Creating an NDoc Project">
+            <param name="Local" value="Content\createproject.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Decorating Your Code">
+            <param name="Name" value="Decorating Your Code">
+            <param name="Local" value="content\decorating.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Defining Your Own Tags">
+            <param name="Name" value="Defining Your Own Tags">
+            <param name="Local" value="Content\extensibility.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Deploying">
+            <param name="Name" value="Deploying">
+            <param name="Local" value="Content\vsnet-deploying.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Documenters">
+            <param name="Name" value="Documenters">
+            <param name="Local" value="Content\documenters.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="event">
+            <param name="Name" value="event">
+            <param name="Local" value="Content\tag_event.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="example">
+            <param name="Name" value="example">
+            <param name="Local" value="Content\tag_example.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="exception">
+            <param name="Name" value="exception">
+            <param name="Local" value="Content\tag_exception.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="exclude">
+            <param name="Name" value="exclude">
+            <param name="Local" value="Content\tag_exclude.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Getting Involved">
+            <param name="Name" value="Getting Involved">
+            <param name="Local" value="Content\gettinginvolved.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Getting Started">
+            <param name="Name" value="Getting Started">
+            <param name="Local" value="Content\gettingstarted.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Getting Support">
+            <param name="Name" value="Getting Support">
+            <param name="Local" value="content\support.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="include">
+            <param name="Name" value="include">
+            <param name="Local" value="Content\tag_include.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Integrating with Visual Studio">
+            <param name="Name" value="Integrating with Visual Studio">
+            <param name="Local" value="Content\vsnet-integrating.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="JavaDoc">
+            <param name="Name" value="JavaDoc">
+            <param name="Local" value="Content\javadoc.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Known Issues">
+            <param name="Name" value="Known Issues">
+            <param name="Local" value="Content\knownissues.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Latex">
+            <param name="Name" value="Latex">
+            <param name="Local" value="Content\latex.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Linear">
+            <param name="Name" value="Linear">
+            <param name="Local" value="Content\linear.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Linking to Other Titles">
+            <param name="Name" value="Linking to Other Titles">
+            <param name="Local" value="Content\vsnet-linking.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="list">
+            <param name="Name" value="list">
+            <param name="Local" value="Content\tag_list.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="MSDN">
+            <param name="Name" value="MSDN">
+            <param name="Local" value="Content\msdn.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="note">
+            <param name="Name" value="note">
+            <param name="Local" value="Content\tag_note.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Options">
+            <param name="Name" value="Options">
+            <param name="Local" value="Content\desgineroptions.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="overloads">
+            <param name="Name" value="overloads">
+            <param name="Local" value="Content\tag_overloads.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="para">
+            <param name="Name" value="para">
+            <param name="Local" value="Content\tag_para.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="param">
+            <param name="Name" value="param">
+            <param name="Local" value="Content\tag_param.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="paramref">
+            <param name="Name" value="paramref">
+            <param name="Local" value="Content\tag_paramref.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="permission">
+            <param name="Name" value="permission">
+            <param name="Local" value="Content\tag_permission.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="preliminary">
+            <param name="Name" value="preliminary">
+            <param name="Local" value="Content\tag_preliminary.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Project Designer">
+            <param name="Name" value="Project Designer">
+            <param name="Local" value="Content\projectdesigner.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="remarks">
+            <param name="Name" value="remarks">
+            <param name="Local" value="Content\tag_remarks.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="returns">
+            <param name="Name" value="returns">
+            <param name="Local" value="Content\tag_returns.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Sections">
+            <param name="Name" value="Sections">
+            <param name="Local" value="Content\extensibility-sections.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="see">
+            <param name="Name" value="see">
+            <param name="Local" value="Content\tag_see.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="seealso">
+            <param name="Name" value="seealso">
+            <param name="Local" value="Content\tag_seealso.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Setting up Your C# Projects">
+            <param name="Name" value="Setting up Your C# Projects">
+            <param name="Local" value="Content\settingupyourproject.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="summary">
+            <param name="Name" value="summary">
+            <param name="Local" value="Content\tag_summary.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Tag Reference">
+            <param name="Name" value="Tag Reference">
+            <param name="Local" value="Content\tags.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Tag Usage Matrix">
+            <param name="Name" value="Tag Usage Matrix">
+            <param name="Local" value="Content\tagsusage.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="threadsafety">
+            <param name="Name" value="threadsafety">
+            <param name="Local" value="Content\tag_threadsafety.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="value">
+            <param name="Name" value="value">
+            <param name="Local" value="Content\tag_value.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="VS.NET">
+            <param name="Name" value="VS.NET">
+            <param name="Local" value="Content\vsnet.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="Welcome">
+            <param name="Name" value="Welcome">
+            <param name="Local" value="Content\Default.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="What's New">
+            <param name="Name" value="What's New">
+            <param name="Local" value="Content\whatsnew.htm">
+         </OBJECT>
+    <LI><OBJECT type="text/sitemap">
+            <param name="Name" value="XML">
+            <param name="Name" value="XML">
+            <param name="Local" value="Content\xml.htm">
+         </OBJECT>
+</UL>
+</BODY>
+</HTML>

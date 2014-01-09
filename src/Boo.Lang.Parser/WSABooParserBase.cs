@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "wsaboo.g" -> "WSABooParserBase.cs"$
+// $ANTLR 2.7.5 (20050517): "src/Boo.Lang.Parser/wsaboo.g" -> "WSABooParserBase.cs"$
 
 namespace Boo.Lang.Parser
 {
@@ -182,7 +182,7 @@ using System.Globalization;
 
 	protected void AddAttributes(AttributeCollection target)
 	{
-		target.Extend(_attributes);
+		if (target != null) target.Extend(_attributes);
 		_attributes.Clear();
 	}
 	

@@ -58,8 +58,8 @@ import ICSharpCode.SharpDevelop.FormDesigner.Services
 import ICSharpCode.SharpDevelop.FormDesigner.Hosts
 import ICSharpCode.SharpDevelop.FormDesigner.Util
 import ICSharpCode.Core.AddIns.Codons
-import ICSharpCode.TextEditor
-import ICSharpCode.TextEditor.Document
+import ICSharpCode.AvalonEdit
+import ICSharpCode.AvalonEdit.Document
 import System.CodeDom
 import System.CodeDom.Compiler
 

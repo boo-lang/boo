@@ -1,0 +1,190 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8282F072-D966-4075-A8DA-8911E36F4980}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>NDoc.Documenter.Msdn</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NDoc.Documenter.Msdn</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>957743104</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE;NO_RESOURCES</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.Msdn.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>957743104</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.Msdn.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Design">
+      <Name>System.Design</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Drawing.Design">
+      <Name>System.Drawing.Design</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <ProjectReference Include="..\..\Core\Core.csproj">
+      <Name>Core</Name>
+      <Project>{DBA75D67-23C9-4A78-ABC2-CF8802FDB7CA}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ExternalHtmlProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HtmlHelp.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsdnDocumenter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsdnDocumenterConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsdnDocumenterInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsdnWorkspace.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsdnXsltUtilities.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StyleSheetCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="Msdn.build" />
+    <EmbeddedResource Include="css\MSDN.css" />
+    <EmbeddedResource Include="images\intevent.gif" />
+    <EmbeddedResource Include="images\intfield.gif" />
+    <EmbeddedResource Include="images\intmethod.gif" />
+    <EmbeddedResource Include="images\intoperator.gif" />
+    <EmbeddedResource Include="images\intproperty.gif" />
+    <EmbeddedResource Include="images\privevent.gif" />
+    <EmbeddedResource Include="images\privfield.gif" />
+    <EmbeddedResource Include="images\privmethod.gif" />
+    <EmbeddedResource Include="images\privoperator.gif" />
+    <EmbeddedResource Include="images\privproperty.gif" />
+    <EmbeddedResource Include="images\protevent.gif" />
+    <EmbeddedResource Include="images\protfield.gif" />
+    <EmbeddedResource Include="images\protmethod.gif" />
+    <EmbeddedResource Include="images\protoperator.gif" />
+    <EmbeddedResource Include="images\protproperty.gif" />
+    <EmbeddedResource Include="images\pubevent.gif" />
+    <EmbeddedResource Include="images\pubfield.gif" />
+    <EmbeddedResource Include="images\pubmethod.gif" />
+    <EmbeddedResource Include="images\puboperator.gif" />
+    <EmbeddedResource Include="images\pubproperty.gif" />
+    <EmbeddedResource Include="images\static.gif" />
+    <EmbeddedResource Include="onlinefiles\tree.css" />
+    <EmbeddedResource Include="onlinefiles\tree.js" />
+    <EmbeddedResource Include="onlinefiles\treenodedot.gif" />
+    <EmbeddedResource Include="onlinefiles\treenodeminus.gif" />
+    <EmbeddedResource Include="onlinefiles\treenodeplus.gif" />
+    <EmbeddedResource Include="onlinetemplates\index.html" />
+    <EmbeddedResource Include="xslt\allmembers.xslt" />
+    <EmbeddedResource Include="xslt\blank.xslt" />
+    <EmbeddedResource Include="xslt\common.xslt" />
+    <EmbeddedResource Include="xslt\event.xslt" />
+    <EmbeddedResource Include="xslt\field.xslt" />
+    <EmbeddedResource Include="xslt\filenames.xslt" />
+    <EmbeddedResource Include="xslt\htmlcontents.xslt" />
+    <EmbeddedResource Include="xslt\individualmembers.xslt" />
+    <EmbeddedResource Include="xslt\member.xslt" />
+    <EmbeddedResource Include="xslt\memberoverload.xslt" />
+    <EmbeddedResource Include="xslt\memberscommon.xslt" />
+    <EmbeddedResource Include="xslt\namespace.xslt" />
+    <EmbeddedResource Include="xslt\namespacehierarchy.xslt" />
+    <EmbeddedResource Include="xslt\property.xslt" />
+    <EmbeddedResource Include="xslt\syntax.xslt" />
+    <EmbeddedResource Include="xslt\tags.xslt" />
+    <EmbeddedResource Include="xslt\type.xslt" />
+    <EmbeddedResource Include="xslt\typehierarchy.xslt" />
+    <EmbeddedResource Include="xslt\vb-syntax.xslt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>if $(ConfigurationName)==Release copy "$(SolutionDir)ndoc.snk" "$(ProjectDir)obj\$(ConfigurationName)"</PreBuildEvent>
+    <PostBuildEvent>copy "$(TargetName).*" "$(SolutionDir)src\Gui\bin\$(ConfigurationName)\"
+copy "$(TargetName).*" "$(SolutionDir)src\Console\bin\$(ConfigurationName)\"
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

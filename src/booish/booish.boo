@@ -45,25 +45,27 @@ static class Options:
 			if arg == "--help" or arg == "-help" or arg == "-h":
 				PrintOptions()
 				exit=true
-			if arg == "--print-modules" or arg == "-print-modules":
+			elif arg == "--print-modules" or arg == "-print-modules":
 				console.PrintModules = true
-			if arg == "--debug" or arg == "-debug" or arg == "-d":
+			elif arg == "--debug" or arg == "-debug" or arg == "-d":
 				debugOrWarnings=true
 				Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
-			if arg == "-w":
+			elif arg == "-w":
 				debugOrWarnings=true
 				console.ShowWarnings = true
-			if arg.StartsWith("-r:"):
+			elif arg == "-s" or arg == "-shell":
+				console.TurnOnPreferenceShellCommands()
+			elif arg.StartsWith("-r:"):
 				loadRequests.Add(arg.Substring(3))
-			if arg.StartsWith("-i:"):
+			elif arg.StartsWith("-i:"):
 				if arg.Contains(","):
 					args=arg.Substring(3).Split(","[0])
 					importRequests.Add("import "+args[0]+" from "+args[1])
 				else:
 					importRequests.Add("import "+arg.Substring(3))
-			if arg == "--nologo" or arg == "-nologo":
+			elif arg == "--nologo" or arg == "-nologo":
 				nologo = true
-			if not arg.StartsWith("-"):
+			elif not arg.StartsWith("-"):
 				loadRequests.Add(arg)
 		
 	def PrintOptions():
@@ -71,6 +73,7 @@ static class Options:
 		print "-h/-help/--help        Print this information"
 		print "-d/-debug/--debug      Turn on a mode printing debug information"
 		print "-w                     Turn on mode showing warnings"
+		print "-s/-shell              Turn on shell mode. Accept shell commands without introducing slash"
 		print "-r:BooFile             Interpret a BOO file on start"
 		print "-r:AssemblyFile        Add reference to this assembly"
 		print "-r:AssemblyPartialName Add reference to this assembly"
@@ -102,5 +105,5 @@ for req in Options.importRequests:
 	print req
 	Options.console.Eval(req)
 
-Options.console.Eval("import Boo.Lang.Interpreter.Builtins")
+Options.console.Eval("import Boo.Lang.Interpreter.ShellCmd")
 Options.console.ReadEvalPrintLoop()

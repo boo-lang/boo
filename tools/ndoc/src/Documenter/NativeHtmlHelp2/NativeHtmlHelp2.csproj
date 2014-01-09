@@ -1,0 +1,287 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5B088ED3-EEED-4DD4-AE4C-A7E9323B634C}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>NDoc.Documenter.NativeHtmlHelp2</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NDoc.Documenter.NativeHtmlHelp2</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>541786112</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE;NO_RESOURCES</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.NativeHtmlHelp2.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>541786112</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.NativeHtmlHelp2.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Design">
+      <Name>System.Design</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <COMReference Include="MSHelpCompiler">
+      <Guid>{314111EE-A502-11D2-BBCA-00C04F8EC294}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+    </COMReference>
+    <ProjectReference Include="..\..\Core\Core.csproj">
+      <Name>Core</Name>
+      <Project>{DBA75D67-23C9-4A78-ABC2-CF8802FDB7CA}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\CommonAssemblyInfo.cs">
+      <Link>HxProject\CommonAssemblyInfo.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compiler\HxCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compiler\HxObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compiler\HxReg.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\ExternalHtmlProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\FileEventArgs.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\FileNameMapper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\HtmlFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\MethodHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\MsdnXsltUtilities.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\NamespaceMapping\ManagedName.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\NamespaceMapping\NamespaceMapper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Engine\StyleSheetCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\CollectionFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\CollectionTOCFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\H2RegFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\HxFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\IncludeFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\IndexFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\NamedUrlFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\ProjectFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HxProject\TOCFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NativeHtmlHelp2Config.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NativeHtmlHelp2Documenter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NativeHtmlHelp2DocumenterInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NativeHtmlHelp2Workspace.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TOCBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="Engine\NamespaceMapping\NamespaceMap.xsx">
+      <DependentUpon>NamespaceMap.xsd</DependentUpon>
+    </None>
+    <None Include="NativeHtmlHelp2.build" />
+    <EmbeddedResource Include="Engine\NamespaceMapping\NamespaceMap.xml" />
+    <EmbeddedResource Include="Engine\NamespaceMapping\NamespaceMap.xsd" />
+    <EmbeddedResource Include="graphics\AnimButton1.gif" />
+    <EmbeddedResource Include="graphics\AnimButton2.gif" />
+    <EmbeddedResource Include="graphics\coC.gif" />
+    <EmbeddedResource Include="graphics\coe.gif" />
+    <EmbeddedResource Include="graphics\dtue.css" />
+    <EmbeddedResource Include="graphics\dtue.xml" />
+    <EmbeddedResource Include="graphics\dtuelink.js" />
+    <EmbeddedResource Include="graphics\dtue_ie3.js" />
+    <EmbeddedResource Include="graphics\dtue_ie4.js" />
+    <EmbeddedResource Include="graphics\dtue_ie5.js" />
+    <EmbeddedResource Include="graphics\dtue_notopic.js" />
+    <EmbeddedResource Include="graphics\Filter1a.gif" />
+    <EmbeddedResource Include="graphics\filter1b.gif" />
+    <EmbeddedResource Include="graphics\filter1c.gif" />
+    <EmbeddedResource Include="graphics\intevent.gif" />
+    <EmbeddedResource Include="graphics\intfield.gif" />
+    <EmbeddedResource Include="graphics\intmethod.gif" />
+    <EmbeddedResource Include="graphics\intoperator.gif" />
+    <EmbeddedResource Include="graphics\intproperty.gif" />
+    <EmbeddedResource Include="graphics\msdn_ie3.css" />
+    <EmbeddedResource Include="graphics\msdn_ie4.css" />
+    <EmbeddedResource Include="graphics\privevent.gif" />
+    <EmbeddedResource Include="graphics\privfield.gif" />
+    <EmbeddedResource Include="graphics\privmethod.gif" />
+    <EmbeddedResource Include="graphics\privoperator.gif" />
+    <EmbeddedResource Include="graphics\privproperty.gif" />
+    <EmbeddedResource Include="graphics\protevent.gif" />
+    <EmbeddedResource Include="graphics\protfield.gif" />
+    <EmbeddedResource Include="graphics\protmethod.gif" />
+    <EmbeddedResource Include="graphics\protoperator.gif" />
+    <EmbeddedResource Include="graphics\protproperty.gif" />
+    <EmbeddedResource Include="graphics\pubevent.gif" />
+    <EmbeddedResource Include="graphics\pubfield.gif" />
+    <EmbeddedResource Include="graphics\pubmethod.gif" />
+    <EmbeddedResource Include="graphics\puboperator.gif" />
+    <EmbeddedResource Include="graphics\pubproperty.gif" />
+    <EmbeddedResource Include="graphics\Requirements1a.gif" />
+    <EmbeddedResource Include="graphics\requirements1b.gif" />
+    <EmbeddedResource Include="graphics\requirements1c.gif" />
+    <EmbeddedResource Include="graphics\seealso1a.gif" />
+    <EmbeddedResource Include="graphics\seealso1b.gif" />
+    <EmbeddedResource Include="graphics\seealso1c.gif" />
+    <EmbeddedResource Include="graphics\static.gif" />
+    <EmbeddedResource Include="HxProject\HelpCollection\Collection.HxC" />
+    <EmbeddedResource Include="HxProject\HelpCollection\Collection.HxT" />
+    <EmbeddedResource Include="HxProject\HelpCollection\Collection_A.HxK" />
+    <EmbeddedResource Include="HxProject\HelpCollection\Collection_F.HxK" />
+    <EmbeddedResource Include="HxProject\HelpCollection\Collection_K.HxK" />
+    <EmbeddedResource Include="HxProject\HelpCollection\H2Reg_cmd.ini" />
+    <EmbeddedResource Include="HxProject\HelpTitle\includes.hxf" />
+    <EmbeddedResource Include="HxProject\HelpTitle\NamedURL.HxK" />
+    <EmbeddedResource Include="HxProject\HelpTitle\project.hxc" />
+    <EmbeddedResource Include="HxProject\HelpTitle\project.HxT" />
+    <EmbeddedResource Include="includes\ALinks.HxK" />
+    <EmbeddedResource Include="includes\FLinks.HxK" />
+    <EmbeddedResource Include="includes\FTSstop_Ascii.stp" />
+    <EmbeddedResource Include="includes\FTSstop_Unicode.stp" />
+    <EmbeddedResource Include="includes\FTSstop_UTF8.stp" />
+    <EmbeddedResource Include="includes\KLinks.HxK" />
+    <EmbeddedResource Include="xslt\allmembers.xslt" />
+    <EmbeddedResource Include="xslt\blank.xslt" />
+    <EmbeddedResource Include="xslt\common.xslt" />
+    <EmbeddedResource Include="xslt\event.xslt" />
+    <EmbeddedResource Include="xslt\field.xslt" />
+    <EmbeddedResource Include="xslt\indices.xslt" />
+    <EmbeddedResource Include="xslt\individualmembers.xslt" />
+    <EmbeddedResource Include="xslt\member.xslt" />
+    <EmbeddedResource Include="xslt\memberoverload.xslt" />
+    <EmbeddedResource Include="xslt\memberscommon.xslt" />
+    <EmbeddedResource Include="xslt\namespace.xslt" />
+    <EmbeddedResource Include="xslt\namespacehierarchy.xslt" />
+    <EmbeddedResource Include="xslt\property.xslt" />
+    <EmbeddedResource Include="xslt\syntax-map.xslt" />
+    <EmbeddedResource Include="xslt\syntax.xslt" />
+    <EmbeddedResource Include="xslt\tags.xslt" />
+    <EmbeddedResource Include="xslt\type.xslt" />
+    <EmbeddedResource Include="xslt\typehierarchy.xslt" />
+    <EmbeddedResource Include="xslt\XLinks.xslt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>copy "$(TargetName).*" "$(SolutionDir)src\Gui\bin\$(ConfigurationName)\"
+copy "Interop.*.dll" "$(SolutionDir)src\Gui\bin\$(ConfigurationName)\"
+copy "$(TargetName).*" "$(SolutionDir)src\Console\bin\$(ConfigurationName)\"
+copy "Interop.*.dll" "$(SolutionDir)src\Console\bin\$(ConfigurationName)\"
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

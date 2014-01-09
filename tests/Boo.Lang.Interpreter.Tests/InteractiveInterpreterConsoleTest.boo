@@ -37,9 +37,11 @@ class InteractiveInterpreterConsoleTest:
 	
 	_interpreter as InteractiveInterpreter
 	_console as InteractiveInterpreterConsole
-	
+		
 	[SetUp]
 	def SetUp():
+		Boo.Lang.Interpreter.ShellConsole.Display.PromptOnNewPage = false
+		Boo.Lang.Interpreter.ShellConsole.Display.WrapLines = false
 		_interpreter = InteractiveInterpreter()
 		_console = InteractiveInterpreterConsole(_interpreter)
 		
