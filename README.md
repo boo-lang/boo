@@ -60,6 +60,12 @@ You can also have booi to read from stdin by typing:
 
 	booi -
 	
+However, boo also comes with an interactive shell that
+provides you with the opportunity to use the interpreter
+interactively.
+
+	booish
+	
 You can generate .net assemblies by using `booc` (either
 the `booc.exe` utility or the `booc nant` task):
 
