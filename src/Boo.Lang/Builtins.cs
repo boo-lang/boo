@@ -384,17 +384,33 @@ namespace Boo.Lang
 			}
 		}
 
+		/// <summary>
+		/// Creates an iteration starting with 0 up to range (ending
+		/// with parameter <max> - 1. If <max> is 0 or less, this will
+		/// return an empty enumerable.
+		///
+		/// Use this version of [range] to loop over cardinal number
+		/// representing for instance element counts. This version will
+		/// never iterate negative numbers.
+		/// </summary>
 		public static IEnumerable<int> range(int max)
 		{
 			if (max < 0) /* added for coherence with behavior of compiler-optimized
 						  * for-in-range() loops, should compiler loops automatically
 						  * inverse iteration in this case? */
 			{
-				throw new ArgumentOutOfRangeException("max < 0");
+				return new int[]{};
 			}
 			return range(0, max);
 		}
 
+		/// <summary>
+		/// Creates an iteration starting with <begin> up to range (ending
+		/// with parameter <end> - 1. If <end> is smaller than <begin>,
+		/// the iteration will be reversed and start with <end> up to
+		/// <begin>-1. If <begin> equals <end>, this will return an empty
+		/// enumerable.
+		/// </summary>
 		public static IEnumerable<int> range(int begin, int end)
 		{
 			if (begin < end)
