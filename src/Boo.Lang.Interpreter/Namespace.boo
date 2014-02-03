@@ -30,11 +30,10 @@ namespace Boo.Lang.Interpreter
 
 import System
 import System.Collections
-import Boo.Lang.Interpreter.ShellCmd
-import Boo.Lang.Interpreter.ShellConsole.Display
+import Boo.Lang.Interpreter.ColorScheme
 
 [System.Reflection.DefaultMember("Item")]
-[ShellCmd.CmdClass("Namespaces")]
+[CmdClass("Namespaces")]
 class Namespace:
 """
 Namespace introspection helper.
@@ -43,8 +42,8 @@ Namespace introspection helper.
 >>> types = root["System"]["Collections"].Types
 >>> print join(types, "\n")
 """
-	[ShellCmd.CmdDeclaration("namespaces ns", Description:"A list of all namespaces.")]
-	static public def ListNamespaces([ShellCmd.CmdArgument(ShellCmd.CmdArgumentCompletion.None)] part as string):
+	[CmdDeclaration("namespaces ns", Description:"A list of all namespaces.")]
+	static public def ListNamespaces([CmdArgument(CmdArgumentCompletion.None)] part as string):
 		root = GetRootNamespace()
 		ListNamespace(root, part)
 	
@@ -55,25 +54,25 @@ Namespace introspection helper.
 	public static def ListTypes(ns as Namespace):
 		for t in ns.Types:
 			if t.IsClass:
-				WriteLine( " class "+repr(t))
+				Console.WriteLine( " class "+repr(t))
 			elif t.IsEnum:
-				WriteLine( " enum "+repr(t))
+				Console.WriteLine( " enum "+repr(t))
 			elif t.IsValueType:
-				WriteLine( " struct "+repr(t))
+				Console.WriteLine( " struct "+repr(t))
 			elif t.IsInterface:
-				WriteLine(" interface "+repr(t))
+				Console.WriteLine(" interface "+repr(t))
 			else:
-				WriteLine(" "+repr(t))
+				Console.WriteLine(" "+repr(t))
 	
 	public static def ListNamespace(ns as Namespace, part as string):
 		if string.IsNullOrEmpty(part):
-			WriteLine( ns.FullName )
+			Console.WriteLine( ns.FullName )
 		elif ns.FullName.ToLower().Contains(part.ToLower()):
-			WriteLine( ns.FullName )
+			Console.WriteLine( ns.FullName )
 		for subns in ns.Namespaces:
 			ListNamespace(subns, part)
 	
-	static def GetRootNamespace():			
+	static def GetRootNamespace() as Namespace:			
 		root = Namespace("", null)
 		GetNamespace = def(ns as string):
 			return root if string.IsNullOrEmpty(ns)

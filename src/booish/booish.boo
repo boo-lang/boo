@@ -105,5 +105,4 @@ for req in Options.importRequests:
 	print req
 	Options.console.Eval(req)
 
-Options.console.Eval("import Boo.Lang.Interpreter.ShellCmd")
 Options.console.ReadEvalPrintLoop()
