@@ -100,10 +100,15 @@ class InteractiveInterpreterConsole:
 		get: return _line.Length
 		set: _line.Length = value
 	
-	BooIndention = "."
+	BooIndention = '\t'
+	BooIndentionWidth = 4
 	
-	LineIndentLen:
-		get: return BooIndention.Length * _indent
+	LineIndentWidth:
+	"""
+	The number of columns that the line indention covers if written
+	on the console.
+	"""
+		get: return BooIndentionWidth * _indent
 
 	CurrentPrompt as string:
 		get: return (BlockPrompt if _indent > 0 else DefaultPrompt)
@@ -164,6 +169,11 @@ class InteractiveInterpreterConsole:
 		indent = self._indent if autoIndent and CurrentPrompt == BlockPrompt
 		WithColor PromptColor:
 			Console.Write(self.CurrentPrompt)
+		if autoIndent:
+			for i in range(self._indent):
+				WithColor IndentionColor:
+					Console.Write(BooIndention)
+
 	
 	private def ConsolePrintMessage(msg as string):
 		WithColor InterpreterColor:
@@ -244,12 +254,12 @@ class InteractiveInterpreterConsole:
 
 	protected def Unindent():
 		return if _indent == 0
-		Delete(BooIndention.Length)
+		Console.CursorLeft -= self.BooIndentionWidth
 		_indent--
 
 	protected def Delete(count as int): #if count is 0, forward-delete
 		return if LineLen == 0
-		cx = Console.CursorLeft-len(CurrentPrompt)-count
+		cx = Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
 		count=1 if cx >= LineLen and count == 0
 		return if cx >= LineLen
 		dcount = (count if count != 0 else 1)
@@ -354,7 +364,7 @@ class InteractiveInterpreterConsole:
 		control = false
 
 		newLine = keyChar in Environment.NewLine
-
+		shiftPressed = (cki.Modifiers & ConsoleModifiers.Shift)==ConsoleModifiers.Shift
 		if char.IsControl(keyChar):
 			control = true
 			if keyChar == char('\t'):
@@ -385,6 +395,8 @@ class InteractiveInterpreterConsole:
 							Delete(1)
 					elif key == ConsoleKey.LeftArrow and not self.CanAutoComplete:
 						Console.CursorLeft--
+				elif key == ConsoleKey.Backspace and _indent > 0:
+					Unindent()
 				if key == ConsoleKey.Delete and LineLen > 0:
 					self._selectedSuggestionIndex = null
 					Delete(0)
@@ -456,8 +468,8 @@ class InteractiveInterpreterConsole:
 
 		if newLine:
 			Console.Write(Environment.NewLine)
-
 			if not TryRunCommand(Line):
+				_buffer.Append(self.BooIndention*self._indent)
 				_buffer.Append(Line)
 				_buffer.Append(Environment.NewLine)
 				AddToHistory(Line)
@@ -476,7 +488,7 @@ class InteractiveInterpreterConsole:
 					CheckBooLangCompilerReferenced()
 					_indent--
 
-				if _indent <= 0:
+				if shiftPressed or _indent <= 0:
 					_indent = 0
 					try:
 						Eval(_buffer.ToString())
@@ -485,6 +497,7 @@ class InteractiveInterpreterConsole:
 
 			_multiline = false
 			LineLen = 0 #truncate line
+			
 			ConsolePrintPrompt()
 
 	[CmdDeclaration("globals g", Description: "Displays a list of all globally defined variables.")]

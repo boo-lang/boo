@@ -72,22 +72,17 @@
       <Link>AssemblyInfo.boo</Link>
     </Compile>
     <Compile Include="AssemblyInfo.boo" />
-    <Compile Include="ShellConsole\ColorScheme.boo" />
-    <Compile Include="ShellConsole\Display.boo" />
-    <Compile Include="ShellCmd\CmdDeclaration .boo" />
-    <Compile Include="ShellCmd\Parser.boo" />
+    <Compile Include="CmdDeclaration .boo" />
+    <Compile Include="CmdExecution.boo" />
+    <Compile Include="CmdParser.boo" />
+    <Compile Include="ColorScheme.boo" />
+    <Compile Include="describe.boo" />
+    <Compile Include="dir.boo" />
     <Compile Include="Namespace.boo" />
     <Compile Include="AbstractInterpreter.boo" />
     <Compile Include="InteractiveInterpreter.boo" />
     <Compile Include="InteractiveInterpreterConsole.boo" />
-    <Compile Include="ShellCmd\repr.boo" />
-    <Compile Include="ShellCmd\describe.boo" />
-    <Compile Include="ShellCmd\dir.boo" />
-    <Compile Include="ShellCmd\CmdExecution.boo" />
+    <Compile Include="repr.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
-  <ItemGroup>
-    <Folder Include="ShellConsole" />
-    <Folder Include="ShellCmd" />
-  </ItemGroup>
 </Project>
