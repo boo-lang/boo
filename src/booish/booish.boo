@@ -53,6 +53,10 @@ static class Options:
 			elif arg == "-w":
 				debugOrWarnings=true
 				console.ShowWarnings = true
+			elif arg == "-autoindent+":
+				console.AutoIndention = true
+			elif arg == "-autoindent-":
+				console.AutoIndention = false
 			elif arg == "-s" or arg == "-shell":
 				console.TurnOnPreferenceShellCommands()
 			elif arg.StartsWith("-r:"):
@@ -73,6 +77,8 @@ static class Options:
 		print "-h/-help/--help        Print this information"
 		print "-d/-debug/--debug      Turn on a mode printing debug information"
 		print "-w                     Turn on mode showing warnings"
+		print "-autoindent+           Turn on indention automatic (default)"
+		print "-autoindent-           Turn off indention automatic"
 		print "-s/-shell              Turn on shell mode. Accept shell commands without introducing slash"
 		print "-r:BooFile             Interpret a BOO file on start"
 		print "-r:AssemblyFile        Add reference to this assembly"

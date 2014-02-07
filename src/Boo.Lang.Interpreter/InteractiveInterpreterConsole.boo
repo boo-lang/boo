@@ -51,7 +51,13 @@ class InteractiveInterpreterConsole:
 	_historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
 	_historyIndex = 0
 	_session = System.Collections.Generic.List of string()
-
+	
+	[Property(AutoIndention)]
+	_autoIndention = true
+	"""
+	Turn auto indention on and off.
+	"""
+	
 	_buffer = StringBuilder()	#buffer to be executed
 	_line = StringBuilder()		#line being edited
 	_multiline = false			#is the current line a multi-line?
@@ -111,7 +117,15 @@ class InteractiveInterpreterConsole:
 		get: return BooIndentionWidth * _indent
 
 	CurrentPrompt as string:
-		get: return (BlockPrompt if _indent > 0 else DefaultPrompt)
+		get:
+			if self._autoIndention and self._indent > 0:
+				return self.BlockPrompt
+			elif self._buffer.Length > 0:
+				return self.BlockPrompt
+			elif self._autoIndention:
+				return self.DefaultPrompt
+			else:
+				return self.PasteModePrompt
 		
 	PrintModules:
 		get: return _interpreter.Pipeline.Find(Boo.Lang.Compiler.Steps.PrintBoo) != -1
@@ -124,6 +138,7 @@ class InteractiveInterpreterConsole:
 				
 	property DefaultPrompt = ">>> "
 	property BlockPrompt = "... "
+	property PasteModePrompt = "--> "
 
 	property DisableAutocompletion = false
 
@@ -477,18 +492,21 @@ class InteractiveInterpreterConsole:
 				# unfortunately, brackets are not yet concerned here.
 				firstTripleQuote=self.Line.IndexOf("\"\"\"")
 				secondTripleQuote=-1
-				secondTripleQuote=self.Line.IndexOf("\"\"\"", firstTripleQuote+3) if firstTripleQuote >= 0
-				if LineLastChar in _blockStarters\
-					or Line.EndsWith(QQBegin)\
-					or (_indent == 0 and firstTripleQuote >= 0 and secondTripleQuote < 0):
-					++self._indent
-				elif Line.EndsWith(BooIndention+"pass"):
-					--self._indent
+				if firstTripleQuote >= 0: secondTripleQuote=self.Line.IndexOf("\"\"\"", firstTripleQuote+3)
+				if self._autoIndention:
+					if LineLastChar in _blockStarters\
+						or Line.EndsWith(QQBegin)\
+						or (_indent == 0 and firstTripleQuote >= 0 and secondTripleQuote < 0):
+						++self._indent
+					elif Line.EndsWith(BooIndention+"pass"):
+						--self._indent
+				else:
+					self._indent = 0
 				if Line.EndsWith(QQEnd):
 					CheckBooLangCompilerReferenced()
 					_indent--
 
-				if shiftPressed or _indent <= 0:
+				if shiftPressed or (_indent <= 0 and self._autoIndention):
 					_indent = 0
 					try:
 						Eval(_buffer.ToString())
@@ -574,6 +592,37 @@ Enter boo code in the prompt below (or type /help).""" )
 	"""
 		return self._shellCmdExecution.CollectedCmds
 	
+	[CmdDeclaration("warn toggleWarning", Description: "Reverse the mode for displaying warnings.")]
+	def ToggleWarnings():
+		WithColor InterpreterColor:
+			if self._showWarnings:
+				self._showWarnings=false
+				Console.WriteLine("From now on, warnings will NOT be displayed.")
+			else:
+				self._showWarnings=true
+				Console.WriteLine("From now on, warnings will be displayed.")
+
+	[CmdDeclaration("indent toggleAutoIndent", Description: """Reverse auto indention mode.
+Auto indention is intended to help you on using the
+keyboard to type in BOO statements. Indention increases
+on block starting commands and decreases on PASS
+automatically. However, this feature will hinder you
+if you paste code fragments into the shell. Thus, you
+can turn this off.
+""")]
+	def ToggleAutoIndent():
+		WithColor InterpreterColor:
+			if self._autoIndention:
+				self._autoIndention=false
+				Console.WriteLine("Auto indention has been turned off. User [SHIFT][RETURN] to leave the editor and execute the command.")
+			else:
+				self._autoIndention=true
+				Console.WriteLine("Auto indention has been turned on.")
+	
+	[CmdDeclaration("toggle /", Description:"Toggle the preference w.r.t. shell commands. If shell commands are not preferred, they have to be introduced by a slash (e.g. /toggle).")]
+	def TogglePreferenceOnShellCommands():
+		self._shellCmdExecution.TogglePreferenceOnShellCommands()
+
 	[CmdDeclaration("help h ?", Description: "Display help.")]
 	def DisplayHelp([CmdArgument(CmdArgumentCompletion.MethodCall, CompletionMethod:"GetHelpFilters")] filter as string):
 		WithColor InterpreterColor:
@@ -583,6 +632,8 @@ Enter boo code in the prompt below (or type /help).""" )
     Use CURSOR UP and DOWN to navigate the history.
     BACKSPACE and DELETE will have the commonly expected effect.
     ESCAPE will delete the current line.
+    Type in "h shell" to get additional information on using
+    the shell (shell modes, commands, etc.).
     """)
 		self._shellCmdExecution.DisplayHelp(filter)
 

@@ -100,17 +100,15 @@ class CmdExecution:
 				result.Add(cmd.Module.Name)
 			return result
 	
-	property PreferShellCommands = false
-	[CmdDeclaration("toggle /", Description:"Toggle the preference w.r.t. shell commands. If shell commands are not preferred, they have to be introduced by a slash (e.g. /toggle).")]
+	property PreferShellCommands = false	
+	def TurnOnPreferenceShellCommands():
+		self.TogglePreferenceOnShellCommands() if not self.PreferShellCommands
 	def TogglePreferenceOnShellCommands():
 		self.PreferShellCommands = not self.PreferShellCommands
 		if self.PreferShellCommands:
 			Console.WriteLine("Shell commands will be preferred over BOO expressions.")
 		else:
 			Console.WriteLine("BOO expressions will be preferred over shell commands.") 
-	
-	def TurnOnPreferenceShellCommands():
-		self.TogglePreferenceOnShellCommands() if not self.PreferShellCommands
 	
 	def TryRunCommand(line as string):
 	"""
