@@ -299,7 +299,7 @@ this feature.""")]
 		return if LineLen == 0
 		cx = Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
 		count=1 if cx >= LineLen and count == 0
-		return if cx >= LineLen
+		return if cx < 0 or cx >= LineLen
 		dcount = (count if count != 0 else 1)
 		_line.Remove(cx, dcount)
 		curX = Console.CursorLeft - count
@@ -331,8 +331,19 @@ this feature.""")]
 				_interpreter
 				.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
 				.Select[of (object)](
-					{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value		
-
+					{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value
+		else:
+			# new feature: we didn't find a fullstop, thus we will list all globals and namespaces
+			suggestionList=[]
+			self._filter = query
+			for globalValue in self._interpreter.Values:
+				if globalValue.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+					suggestionList.Add(globalValue.Key)
+			for nsName in Namespace.GetRootNamespace().NamespacesNames:
+				if char.IsLetter(nsName[0]) and nsName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+					suggestionList.Add(nsName)
+			self._suggestions = suggestionList.ToArray()
+		
 		if _suggestions is null or 0 == len(_suggestions): #suggest a  var		
 			_filter = query
 			_suggestions = array(var.Key.ToString() as object
@@ -407,7 +418,7 @@ this feature.""")]
 		if char.IsControl(keyChar):
 			control = true
 			if keyChar == char('\t'):
-				if LineLen > 0 and (char.IsLetterOrDigit(LineLastChar) or LineLastChar == char('.')):
+				if shiftPressed or LineLen > 0 and (char.IsLetterOrDigit(LineLastChar) or LineLastChar == char('.')):
 					_selectedSuggestionIndex = 0
 					DisplaySuggestions()
 				else:
@@ -663,9 +674,10 @@ by a slash (e.g. /toggle).""")]
 	[CmdDeclaration("help h ?", Description: "Display help.")]
 	def DisplayHelp([CmdArgument(CmdArgumentCompletion.MethodCall, CompletionMethod:"GetHelpFilters")] filter as string):
 		WithColor InterpreterColor:
-			Console.Write("""Press TAB to view a list of suggestions. Use CURSOR LEFT, RIGHT, or
-    PAGE UP, PAGE DOWN to select suggestions and RETURN to use the selected
-    suggestion. Press ESC to leave this mode.
+			Console.Write("""Press TAB or SHIFT+TAB to view a list of suggestions.
+	Use CURSOR LEFT, RIGHT, or PAGE UP, PAGE DOWN to select
+	suggestions and RETURN to use the selected suggestion.
+	Press ESC to leave this mode.
     Use CURSOR UP and DOWN to navigate the history.
     BACKSPACE and DELETE will have the commonly expected effect.
     ESC will delete the current line.
