@@ -141,6 +141,17 @@ class InteractiveInterpreterConsole:
 	property PasteModePrompt = "--> "
 
 	property DisableAutocompletion = false
+	
+	[CmdDeclaration("autocompletion toggleAutocompletion",
+	Description:"""Autocompletion will present you lists to complete the
+current input line. Use this command to toggle the activation of
+this feature.""")]
+	def ToggleAutocompletion():
+		self.DisableAutocompletion = not self.DisableAutocompletion
+		if self.DisableAutocompletion:
+			Console.WriteLine("Autocompletion is disabled.")
+		else:
+			Console.WriteLine("Autocompletion is enabled.")
 
 	# messages from the interpreter (not from user code)
 	_selectedSuggestionIndex as int?
@@ -633,8 +644,7 @@ keyboard to type in BOO statements. Indention increases
 on block starting commands and decreases on PASS
 automatically. However, this feature will hinder you
 if you paste code fragments into the shell. Thus, you
-can turn this off.
-""")]
+can turn this off.""")]
 	def ToggleAutoIndent():
 		WithColor InterpreterColor:
 			if self._autoIndention:
@@ -644,7 +654,9 @@ can turn this off.
 				self._autoIndention=true
 				Console.WriteLine("Auto indention has been turned on.")
 	
-	[CmdDeclaration("toggle /", Description:"Toggle the preference w.r.t. shell commands. If shell commands are not preferred, they have to be introduced by a slash (e.g. /toggle).")]
+	[CmdDeclaration("toggle /", Description:"""Toggle the preference w.r.t. shell commands.
+If shell commands are not preferred, they have to be introduced
+by a slash (e.g. /toggle).""")]
 	def TogglePreferenceOnShellCommands():
 		self._shellCmdExecution.TogglePreferenceOnShellCommands()
 
@@ -691,7 +703,9 @@ can turn this off.
 		except exc as Exception:
 			ConsolePrintError("Cannot save history to '${_historyFile}':\n${exc.Message}")
 	
-	[CmdDeclaration("load", Description: "Loads and evals a BOO file. You can also load assemblies. After loading, the assembly will be referenced by the interpreter.")]
+	[CmdDeclaration("load", Description: """Loads and evals a BOO file. You can also load
+assemblies. After loading, the assembly will be referenced
+by the interpreter.""")]
 	def Load([required] path as string):
 		if path.EndsWith(".boo"):
 			ConsolePrintMessage("Evaluating '${path}' ...")

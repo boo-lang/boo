@@ -230,5 +230,5 @@ class CmdExecution:
 					Console.WriteLine()
 					if not string.IsNullOrEmpty(a.Description):
 						WithColor HelpTextBodyColor:
-							Console.WriteLine("    "+a.Description)
+							Console.WriteLine("    "+a.Description.Replace(Environment.NewLine, Environment.NewLine+"    "))
 		
