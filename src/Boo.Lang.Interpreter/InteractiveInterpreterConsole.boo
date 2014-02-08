@@ -271,7 +271,19 @@ class InteractiveInterpreterConsole:
 		return if _indent == 0
 		Console.CursorLeft -= self.BooIndentionWidth
 		_indent--
-
+	
+	private def DeleteInMultilineMode():
+	"""
+	Delete the last character in multiline mode. This is the least support for edits.
+	"""
+		return if not self._multiline
+		posX=Console.CursorLeft
+		return if posX == 0
+		_line.Remove(_line.Length-1, 1)
+		Console.CursorLeft -= 1
+		Console.Write(' ')
+		Console.CursorLeft -= 1
+	
 	protected def Delete(count as int): #if count is 0, forward-delete
 		return if LineLen == 0
 		cx = Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
@@ -401,7 +413,10 @@ class InteractiveInterpreterConsole:
 				self._selectedSuggestionIndex = null
 			
 			#line-editing support
-			if not _multiline and (LineLen > 0 or _indent > 0):
+			if _multiline:
+				if key == ConsoleKey.Backspace:
+					self.DeleteInMultilineMode()
+			elif LineLen > 0 or _indent > 0:
 				if Console.CursorLeft > len(CurrentPrompt):
 					if key == ConsoleKey.Backspace:
 						self._selectedSuggestionIndex = null
