@@ -91,4 +91,17 @@ Differences to the original distribution
 =======================================
 
 - Fix of issue BOO-1078 Cannot use enumerations as attribute parameters.
-- booish: Display one suggestion per line. Allow scrolling.
+- Version information on assemblies is now pasted into the native resources. Thus, Windows Explorer can read and display this.
+- booish: New help display
+- booish: You can now start autocompletion from the start of the line on (then the list of suggestion will offer globals and namespaces).
+- booish: Autocompletion offers suggestions in a scrollable list with one offer per row (better overview).
+- booish: Solved some problems with managing input into the shell. Added mode to allow users to paste content into the shell.
+- booish: booish.rsp now offers additional options to configure the startup behaviour of the shell.
+- booish: Added means to add commands to the shell. Added booish.mod.os to demonstrate this. This module provides commands like "cd" and "dir".
+- boo: range(-1) now is an empty enumeration (instead of raising an exception).
+- boo: Operator "isa" now also works with structs. This is important to avoid exceptions on casts.
+- boo: Ctors and dtors now do not require a "def" (but you still can provide this). This keyword is redundance (not very wrist friendly).
+- boo: Macro "property" now also work for static classes.
+- boo: Added macro "getproperty" that keeps the setter private.
+- boo: array(int, null) now return null (without an exception). This spares some if-then on using array for casting.
+- boo: Resolved issues #57 and #58.
