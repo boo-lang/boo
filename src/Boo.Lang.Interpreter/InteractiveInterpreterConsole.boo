@@ -404,13 +404,15 @@ class InteractiveInterpreterConsole:
 			
 			# delete the whole line
 			if key == ConsoleKey.Escape:
-				curX = len(CurrentPrompt)
-				sizeL = _line.Length
-				_line.Remove(0, sizeL)
-				Console.CursorLeft = curX
-				Console.Write(string(' '[0], sizeL))
-				Console.CursorLeft = curX
-				self._selectedSuggestionIndex = null
+				if self._selectedSuggestionIndex == null:
+					curX = len(CurrentPrompt)
+					sizeL = _line.Length
+					_line.Remove(0, sizeL)
+					Console.CursorLeft = curX
+					Console.Write(string(' '[0], sizeL))
+					Console.CursorLeft = curX
+				else:
+					self._selectedSuggestionIndex = null
 			
 			#line-editing support
 			if _multiline:
@@ -651,10 +653,10 @@ can turn this off.
 		WithColor InterpreterColor:
 			Console.Write("""Press TAB to view a list of suggestions. Use CURSOR LEFT, RIGHT, or
     PAGE UP, PAGE DOWN to select suggestions and RETURN to use the selected
-    suggestion.
+    suggestion. Press ESC to leave this mode.
     Use CURSOR UP and DOWN to navigate the history.
     BACKSPACE and DELETE will have the commonly expected effect.
-    ESCAPE will delete the current line.
+    ESC will delete the current line.
     Type in "h shell" to get additional information on using
     the shell (shell modes, commands, etc.).
     """)
