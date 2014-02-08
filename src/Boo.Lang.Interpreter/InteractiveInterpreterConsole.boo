@@ -91,6 +91,7 @@ class InteractiveInterpreterConsole:
 				DisableColors = true
 		self.DisableAutocompletion = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION"))
 		self.LoadHistory()
+		self._interpreter.References.Add(typeof(InteractiveInterpreterConsole).Assembly)
 		self._shellCmdExecution.AddCmdObject(self)
 		
 	def SetValue(name as string, value):
@@ -339,6 +340,16 @@ this feature.""")]
 			for globalValue in self._interpreter.Values:
 				if globalValue.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
 					suggestionList.Add(globalValue.Key)
+			# not to forget the shell commands
+			for cmd in self._shellCmdExecution.CollectCmds():
+				if cmd.Descr.Name.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+					suggestionList.Add(cmd)
+				else:
+					for cmdString in cmd.Descr.Shortcuts:
+						if cmdString.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+							suggestionList.Add(cmd)
+							break
+			# namespaces to start traversal of the .NET framework and other loaded assemblies
 			for nsName in Namespace.GetRootNamespace().NamespacesNames:
 				if char.IsLetter(nsName[0]) and nsName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
 					suggestionList.Add(nsName)
@@ -371,20 +382,20 @@ this feature.""")]
 		_suggestions = null
 		
 	def AutoCompletionFor(s):
-		match s:
-			case m = IMethod(Name: name):
-				if len(m.GetParameters()) == 0:
-					return "$(TrimFilter(name))()"
-				return "$(TrimFilter(name))("
-			case IEntity(Name: name):
-				return TrimFilter(name)
-			otherwise:
-				return TrimFilter(s.ToString())
-				
-	def TrimFilter(s as string):
-		#return s[len(_filter):]
-		return s # must also replace the filter in command line. thus, do not trim
-
+		builtinCmd = s as CmdDescr
+		if builtinCmd == null:
+			match s:
+				case m = IMethod(Name: name):
+					if len(m.GetParameters()) == 0:
+						return "$(name)()"
+					return "$(name)("
+				case IEntity(Name: name):
+					return name
+				otherwise:
+					return s.ToString()
+		else:
+			return builtinCmd.Descr.Name
+	
 	private _beforeHistory = string.Empty
 
 	def DisplayHistory():
@@ -590,7 +601,7 @@ this feature.""")]
 						Boo.Lang.Interpreter.describe(miColl)
 						done = true
 			if not done:
-				Eval("describe({0})"%(nameString,))
+				Eval("Boo.Lang.Interpreter.describe({0})"%(nameString,))
 		else:
 			Namespace.ListNamespace(ns, null)
 			Namespace.ListTypes(ns)

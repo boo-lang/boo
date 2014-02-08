@@ -32,6 +32,18 @@ import System
 import System.Collections
 import Boo.Lang.Interpreter.ColorScheme
 
+class CmdDescr:
+	public property Descr as CmdDeclarationAttribute
+	public property Module as CmdClassAttribute
+	public property Method as MethodInfo
+	
+	def constructor(descr, module, method):
+		self.Descr = descr
+		self.Module = module
+		self.Method = method
+	override def ToString():
+		return "${self.Descr.Name}, shell command module ${self.Module.Name}"
+
 class CmdExecution:
 """Collects and executes shell commands."""
 	
@@ -51,17 +63,7 @@ class CmdExecution:
 	"""The argument will be registered as an instance to be used for the
 	   execution of shell commands."""
 		self._cmdObjects.Add(cmdObject.GetType().TypeHandle.Value.ToInt64(), cmdObject)
-	
-	class CmdDescr:
-		public property Descr as CmdDeclarationAttribute
-		public property Module as CmdClassAttribute
-		public property Method as MethodInfo
 		
-		def constructor(descr, module, method):
-			self.Descr = descr
-			self.Module = module
-			self.Method = method
-	
 	_collectedCmds as Generic.SortedList[of string, MethodInfo]
 	_collectedCmdsHelp as Generic.List[of CmdDescr]
 	def CollectCmds():
@@ -70,6 +72,7 @@ class CmdExecution:
 			self._collectedCmdsHelp = Generic.List[of CmdDescr]()
 			for a in AppDomain.CurrentDomain.GetAssemblies():
 				self.CollectCmds(a)
+		return self._collectedCmdsHelp
 	
 	def CollectCmds(a as System.Reflection.Assembly):
 		for t in a.GetTypes():
