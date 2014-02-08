@@ -144,16 +144,27 @@ class CmdExecution:
 				args=[]
 				for pi in cmdParameters:
 					i = args.Count
+					newArg as string=null
+					pattrs = array(CmdArgumentAttribute, pi.GetCustomAttributes(CmdArgumentAttribute, false))
 					if i < p.Args.Length:
-						args.Add(Convert.ChangeType(p.Args[i], pi.ParameterType))
+						newArg = Convert.ChangeType(p.Args[i], pi.ParameterType)
 					else:
-						pattrs = array(CmdArgumentAttribute, pi.GetCustomAttributes(CmdArgumentAttribute, false))
 						if pattrs!= null and pattrs.Length > 0 and pattrs[0].DefaultValue != null:
-							args.Add(Convert.ChangeType(pattrs[0].DefaultValue, pi.ParameterType))
+							newArg = Convert.ChangeType(pattrs[0].DefaultValue, pi.ParameterType)
+					if newArg == null:
+						raise ApplicationException("Missing argument ${pi.Name}.")
+					else:
+						if pattrs!=null and pattrs.Length > 0:
+							if (pattrs[0].Type & CmdArgumentCompletion.MaskPathName) != CmdArgumentCompletion.None\
+								and newArg.StartsWith('"') and newArg.EndsWith('"'):
+									newArg=newArg[1:-1]
+						args.Add(newArg)
+						/*
 						elif pi.ParameterType.IsClass:
 							args.Add(null)
 						else:
-							args.Add(Activator.CreateInstance(pi.ParameterType))					
+							args.Add(Activator.CreateInstance(pi.ParameterType))
+						*/
 				cmdMethod.Invoke(instance, args.ToArray())
 				return true
 		except exc:

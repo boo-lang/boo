@@ -74,40 +74,45 @@ public enum CmdArgumentCompletion:
 Options of the <CommandArgumentAttribute> defining a kind of
 argument completion.
 """
-	None
+	None = 0x000
 	"""
 	Argument completion is not supported.
 	"""
 	
-	MethodCall
+	MethodCall = 0x001
 	"""
 	The attribute defines the name of a method computing a list of suggestions.
 	"""
 	
-	Directory
+	MaskPathName = 0x8000
+	"""
+	If this bit is set, the argument represents a file or a path name.
+	"""
+		
+	Directory = 0x0a000
 	"""
 	The argument is the name of a directory  as string.
 	"""
 	
-	ExecutableFile
+	ExecutableFile = 0x0C001 
 	"""
 	The argument is the name of an executable file as string.
 	"""
 	
-	File
+	File = 0x0C000
 	"""
 	The argument is the name of a file as string. The <Method> property
 	may contain a suffix (like .boo).
 	"""
 	
-	ExistingOrNotExistingFileOrExistingDirectory
+	ExistingOrNotExistingFileOrExistingDirectory = 0x0e001
 	"""
 	A target destination for copy and move (and maybe others). The <Method> property
 	may contain a suffix (like .boo). This suffix will however only applied to existing
 	files.
 	"""
 	
-	Type
+	Type = 0x002
 	"""
 	the argument is a type name.
 	"""
