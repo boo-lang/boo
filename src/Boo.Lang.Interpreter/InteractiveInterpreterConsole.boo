@@ -363,6 +363,7 @@ class InteractiveInterpreterConsole:
 		Console.CursorLeft = len(CurrentPrompt)
 		WriteToReplace(line)
 
+	_inMultilineString=false
 	def ReadEvalPrintLoop():
 		Console.CursorVisible = true
 		Console.ForegroundColor = InterpreterColor
@@ -411,6 +412,7 @@ class InteractiveInterpreterConsole:
 					elif key == ConsoleKey.LeftArrow and not self.CanAutoComplete:
 						Console.CursorLeft--
 				elif key == ConsoleKey.Backspace and _indent > 0:
+					self._selectedSuggestionIndex = null
 					Unindent()
 				if key == ConsoleKey.Delete and LineLen > 0:
 					self._selectedSuggestionIndex = null
@@ -492,11 +494,16 @@ class InteractiveInterpreterConsole:
 				# unfortunately, brackets are not yet concerned here.
 				firstTripleQuote=self.Line.IndexOf("\"\"\"")
 				secondTripleQuote=-1
-				if firstTripleQuote >= 0: secondTripleQuote=self.Line.IndexOf("\"\"\"", firstTripleQuote+3)
+				if firstTripleQuote >= 0:
+					secondTripleQuote=self.Line.IndexOf("\"\"\"", firstTripleQuote+3)
+				if self._inMultilineString:
+					firstTripleQuote, secondTripleQuote = secondTripleQuote, firstTripleQuote
+				if (firstTripleQuote >= 0) != (secondTripleQuote >= 0):
+					self._inMultilineString = not self._inMultilineString					
 				if self._autoIndention:
 					if LineLastChar in _blockStarters\
 						or Line.EndsWith(QQBegin)\
-						or (_indent == 0 and firstTripleQuote >= 0 and secondTripleQuote < 0):
+						or (_indent == 0 and self._inMultilineString): # indent in multiline string
 						++self._indent
 					elif Line.EndsWith(BooIndention+"pass"):
 						--self._indent
@@ -506,8 +513,9 @@ class InteractiveInterpreterConsole:
 					CheckBooLangCompilerReferenced()
 					_indent--
 
-				if shiftPressed or (_indent <= 0 and self._autoIndention):
+				if shiftPressed or (_indent <= 0 and self._autoIndention and not _inMultilineString):
 					_indent = 0
+					_inMultilineString=false
 					try:
 						Eval(_buffer.ToString())
 					ensure:
