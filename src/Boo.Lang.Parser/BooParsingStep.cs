@@ -87,10 +87,29 @@ namespace Boo.Lang.Parser
 				}
 			}
 		}
-		
+
+		[Obsolete]
 		protected virtual void ParseModule(string inputName, System.IO.TextReader reader, ParserErrorHandler errorHandler)
 		{
-			BooParser.ParseModule(TabSize, _context.CompileUnit, inputName, reader, errorHandler); 
+			// We need to replace and later restore the error handler in the settings
+			var settings = My<ParserSettings>.Instance;
+			var prevHandler = settings.ErrorHandler;
+			settings.ErrorHandler = errorHandler;
+
+			try
+			{
+				ParseModule(inputName, reader);
+			} 
+			finally 
+			{
+				settings.ErrorHandler = prevHandler;
+			}
+		}
+
+		protected virtual void ParseModule(string inputName, System.IO.TextReader reader)
+		{
+			var settings = My<ParserSettings>.Instance;
+			BooParser.ParseModule(settings, _context.CompileUnit, inputName, reader);
 		}
 
 		void OnParserError(antlr.RecognitionException error)

@@ -152,6 +152,7 @@ namespace Boo.Lang.Compiler.Steps
 					name = (tce.Target as ReferenceExpression).Name;
 					aliases[alias] = name;
 					// Remove the trycast expression, otherwise it gets processed in later steps
+					tce.Target.Annotate("alias", alias);
 					importedNames.Replace(nameExpression, tce.Target);
 				}
 

@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using antlr;
 
 namespace Boo.Lang.Parser.Util
 {
@@ -65,6 +66,16 @@ namespace Boo.Lang.Parser.Util
 		protected int _eosTokenType;
 
 		/// <summary>
+		/// singleton END token.
+		/// </summary>
+		protected int _endTokenType;
+
+		/// <summary>
+		/// singleton ID token.
+		/// </summary>
+		protected int _idTokenType;
+
+		/// <summary>
 		/// stack of indent levels.
 		/// </summary>
 		protected Stack _indentStack;
@@ -78,10 +89,15 @@ namespace Boo.Lang.Parser.Util
 		/// last non whitespace token for accurate location information
 		/// </summary>
 		protected antlr.IToken _lastNonWsToken;
-		
+
+		/// <summary>
+		/// first detected indentation character
+		/// </sumary>
+		protected string _expectedIndent;
+
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
-		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsTokenType, int indentTokenType, int dedentTokenType, int eosTokenType)
+		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsType, int indentType, int dedentType, int eosType, int endType, int idType)
 		{
 			if (null == istream)
 			{
@@ -89,10 +105,12 @@ namespace Boo.Lang.Parser.Util
 			}
 
 			_istream = istream;
-			_wsTokenType = wsTokenType;
-			_indentTokenType = indentTokenType;
-			_dedentTokenType = dedentTokenType;
-			_eosTokenType = eosTokenType;
+			_wsTokenType = wsType;
+			_indentTokenType = indentType;
+			_dedentTokenType = dedentType;
+			_eosTokenType = eosType;
+			_endTokenType = endType;
+			_idTokenType = idType;
 			_indentStack = new Stack();
 			_pendingTokens = new Queue();
 
@@ -113,7 +131,12 @@ namespace Boo.Lang.Parser.Util
 		{
 			if (_pendingTokens.Count == 0)
 				ProcessNextTokens();
-			return (antlr.IToken)_pendingTokens.Dequeue();
+			IToken token = (IToken)_pendingTokens.Dequeue();
+			// In non-wsa mode `end` is just another identifier
+			if (token.Type == _endTokenType) {
+				token.Type = _idTokenType;
+			}
+			return token;
 		}
 		
 		void ResetBuffer()
@@ -131,13 +154,13 @@ namespace Boo.Lang.Parser.Util
 				int ttype = token.Type;
 				if (antlr.Token.SKIP == ttype)
 					continue;
-				
+
 				if (_wsTokenType == ttype)
 				{			
 					_buffer.Append(token.getText());
 					continue;
 				}
-				
+
 				break;
 			}
 			return token;
@@ -153,6 +176,33 @@ namespace Boo.Lang.Parser.Util
 			if (lines.Length > 1)
 			{
 				string lastLine = lines[lines.Length-1];
+
+				// Protect against mixed indentation issues
+				if (String.Empty != lastLine) {
+					if (null == _expectedIndent) {
+						_expectedIndent = lastLine.Substring(0, 1);
+					}
+
+					if (String.Empty != lastLine.Replace(_expectedIndent, String.Empty))
+					{
+						string literal = _expectedIndent == "\t"
+						               ? "tabs"
+						               : _expectedIndent == "\f"
+						               ? "form feeds"  // The lexer allows them :p
+						               : "spaces";
+
+						throw new TokenStreamRecognitionException(
+							new RecognitionException(
+								"Mixed indentation, expected the use of " + literal,
+								token.getFilename(),
+								token.getLine(),
+								// Point exactly to the first invalid char
+								lastLine.Length - lastLine.TrimStart(_expectedIndent[0]).Length + 1
+							)
+						);
+					}
+				}
+
 				if (lastLine.Length > CurrentIndentLevel)
 				{
 					EnqueueIndent(token);
@@ -199,7 +249,7 @@ namespace Boo.Lang.Parser.Util
 				
 			antlr.IToken token = BufferUntilNextNonWhiteSpaceToken();
 			FlushBuffer(token);			
-			CheckForEOF(token);			
+			CheckForEOF(token);
 			ProcessNextNonWhiteSpaceToken(token);
 		}
 		

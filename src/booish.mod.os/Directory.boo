@@ -57,7 +57,7 @@ class Directory:
 	_dirStackIndex=-1
 		
 	[CmdDeclaration("cd chdir", Description:"Change the current working directory.")]
-	public def Cd([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:null)] newDir):
+	public def Cd([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:"")] newDir):
 	"""Change current directory."""
 		if len(_dirStack) == 0:		
 			_dirStack.Add(GetCurrentDirectory())

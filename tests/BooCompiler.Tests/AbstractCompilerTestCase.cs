@@ -56,7 +56,7 @@ namespace BooCompiler.Tests
 #if MSBUILD
 				return true;
 #else
-				return GetEnvironmentFlag("peverify", true);
+				return GetEnvironmentFlag("PEVERIFY", true);
 #endif
 			}
 		}

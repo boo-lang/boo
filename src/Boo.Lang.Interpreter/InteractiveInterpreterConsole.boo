@@ -317,7 +317,9 @@ this feature.""")]
 
 	def DisplaySuggestions(query as string):
 		return if DisableAutocompletion
-
+		
+		shellCmdStr = CmdParser.ScanCmd(query)
+		self._shellCmdExecution.GetCollectedCmd(shellCmdStr)
 		#TODO: FIXME: refactor to one regex?
 		p_open = re_open.Matches(query).Count
 		p_close = re_close.Matches(query).Count
@@ -394,7 +396,7 @@ this feature.""")]
 				otherwise:
 					return s.ToString()
 		else:
-			return builtinCmd.Descr.Name
+			return builtinCmd.Descr.Name+' '
 	
 	private _beforeHistory = string.Empty
 

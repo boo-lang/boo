@@ -138,6 +138,72 @@ def SayHello(name as string):
 				AssertInputName(inputName, member);
 		}
 
+		[Test]
+		public void NonBlockColons()
+		{
+			string inputName = "File.boo";
+			Module module = parse(new StringInput(inputName, "class Foo:\nlst = (of int: 1)\ndct = {'foo':\n\t'bar'}\nend"));
+			AssertInputName(inputName, module);
+			foreach (TypeMember member in module.Members)
+				AssertInputName(inputName, member);
+		}
+		
+		[Test]
+		public void LabelColons()
+		{
+			string inputName = "File.boo";
+			string expected = ":label\nprint 'foo'\ngoto label";
+			Module module = parse(new StringInput(inputName, expected));
+			AssertInputName(inputName, module);
+			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
+		}
+
+		[Test]
+		public void LogicalOr()
+		{
+			string code = "a = (false or true)";
+			string expected = code;
+			Module module = parse (new StringInput ("test", code));
+			Assert.AreEqual (normalize (expected), normalize (module.ToCodeString ()));
+		}
+
+		[Test]
+		public void ForOr()
+		{
+			string code = "for i in items:\nor:\nend";
+			string expected = "for i in items:\n\tpass\nor:\n\tpass";
+			Module module = parse(new StringInput("test", code));
+			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
+
+		}
+
+		[Test]
+		public void Property()
+		{
+			string code =     "class Foo:\nprop as int:\nget: return 10\nend\nend\nend";
+			string expected = "class Foo:\n\n\tprop as int:\n\t\tget:\n\t\t\treturn 10";
+			Module module = parse(new StringInput("test", code));
+			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
+		}
+
+		[Test]
+		public void WithComment()
+		{
+			string code =     "def foo():# comment\nend";
+			string expected = "def foo():\n\tpass";
+			Module module = parse(new StringInput("test", code));
+			Assert.AreEqual(normalize(expected), normalize(module.ToCodeString()));
+		}
+		
+		[Test]
+		public void DocStrings()
+		{
+			string code = "def foo():\n\"\"\" docu \"\"\"\nend";
+			Module module = parse(new StringInput("test", code));
+			foreach (TypeMember member in module.Members)
+				Assert.AreEqual(member.Documentation, " docu ");
+		}
+
 		private void AssertInputName(string inputName, Node module)
 		{
 			Assert.AreEqual(inputName, module.LexicalInfo.FileName);

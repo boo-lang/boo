@@ -564,7 +564,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"interface-implementation-inheritance-4.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void interface_implementation_inheritance_5()
 		{
 			RunCompilerTestCase(@"interface-implementation-inheritance-5.boo");
@@ -1218,7 +1218,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"value-types-14.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void value_types_15()
 		{
 			RunCompilerTestCase(@"value-types-15.boo");

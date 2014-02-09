@@ -1,3 +1,5 @@
+#category FailsOnMono
+
 class Foo:
 	self[i]:
 		get:

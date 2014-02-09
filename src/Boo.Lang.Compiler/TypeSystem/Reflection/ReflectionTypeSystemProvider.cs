@@ -41,7 +41,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		public ReflectionTypeSystemProvider()
 		{
 			_referenceCache = new MemoizedFunction<Assembly, AssemblyReference>(AssemblyEqualityComparer.Default, CreateReference);
+			Initialize();
+		}
 
+		virtual protected void Initialize()
+		{
 			MapTo(typeof(object), new ObjectTypeImpl(this));
 			MapTo(typeof(Builtins.duck), new ObjectTypeImpl(this));
 			MapTo(typeof(void), new VoidTypeImpl(this));

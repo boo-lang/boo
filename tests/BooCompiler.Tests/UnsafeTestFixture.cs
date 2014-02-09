@@ -41,7 +41,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"unsafe-3.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono")][Test]
 		public void unsafe_4()
 		{
 			RunCompilerTestCase(@"unsafe-4.boo");

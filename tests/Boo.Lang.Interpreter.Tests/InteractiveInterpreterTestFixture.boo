@@ -45,12 +45,10 @@ class InteractiveInterpreterTestFixture:
 		
 	[SetUp]
 	public def SetUp():
-		Boo.Lang.Interpreter.ShellConsole.Display.PromptOnNewPage = false
-		Boo.Lang.Interpreter.ShellConsole.Display.WrapLines = false
 		_interpreter = InteractiveInterpreter()
 		_interpreter.SetValue("name", "boo")
 		_interpreter.SetValue("age", 3)	
-		
+
 	[Test]
 	def DefaultValues():
 		assert false == _interpreter.RememberLastValue
@@ -628,6 +626,18 @@ value = C.M
 		self.Eval(code)
 		assert 2 == _interpreter.GetValue("value")	
 
+	def SafeAccessUnary():
+		Eval("s1 = 'foo'; value = s1?.Length")
+		assert 3 == _interpreter.GetValue("value")
+		Eval("s2 as string = null; value = s2?.Length")
+		assert null == _interpreter.GetValue("value")
+
+	[Test]
+	def ExistentialUnary():
+		Eval("s = 'foo' ; value = s?")
+		assert true == _interpreter.GetValue("value")
+		Eval("s = null ; value = s?")
+		assert false == _interpreter.GetValue("value")
 		
 	[Test]
 	def Property6():

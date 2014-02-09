@@ -29,8 +29,10 @@
 using System;
 using System.IO;
 using System.Text;
+using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Parser.Util;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Parser
 {
@@ -44,7 +46,7 @@ namespace Boo.Lang.Parser
 	/// end
 	/// end
 	/// </summary>
-	public class WSABooParser : WSABooParserBase
+	public class WSABooParser : BooParserBase
 	{	
 		protected Boo.Lang.Parser.ParserErrorHandler Error;
 
@@ -82,10 +84,13 @@ namespace Boo.Lang.Parser
 		public static antlr.TokenStream CreateBooLexer(int tabSize, string readerName, TextReader reader)
 		{
 			var selector = new antlr.TokenStreamSelector();		
-			var lexer = new WSABooLexer(reader);
+			var lexer = new BooLexer(reader);
 			lexer.setFilename(readerName);
 			lexer.Initialize(selector, tabSize, BooToken.TokenCreator);		
-			selector.select(lexer);
+
+			var filter = new WSATokenStreamFilter(lexer);
+			selector.select(filter);
+
 			return selector;
 		}
 
@@ -96,5 +101,45 @@ namespace Boo.Lang.Parser
 			else
 				base.reportError(x);
 		}
+
+		
+		protected override void EmitIndexedPropertyDeprecationWarning(Property deprecated)
+		{
+			if (OutsideCompilationEnvironment())
+				return;
+			EmitWarning(
+				CompilerWarningFactory.ObsoleteSyntax(
+				deprecated,
+				FormatPropertyWithDelimiters(deprecated, "(", ")"),
+				FormatPropertyWithDelimiters(deprecated, "[", "]")));
+		}
+
+		protected override void EmitTransientKeywordDeprecationWarning(LexicalInfo location)
+		{
+			if (OutsideCompilationEnvironment())
+				return;
+			EmitWarning(
+				CompilerWarningFactory.ObsoleteSyntax(
+				location,
+				"transient keyword",
+				"[Transient] attribute"));
+		}
+
+		
+		private void EmitWarning(CompilerWarning warning)
+		{
+			My<CompilerWarningCollection>.Instance.Add(warning);
+		}
+
+		private bool OutsideCompilationEnvironment()
+		{
+			return ActiveEnvironment.Instance == null;
+		}
+
+		private string FormatPropertyWithDelimiters(Property deprecated, string leftDelimiter, string rightDelimiter)
+		{
+			return deprecated.Name + leftDelimiter + Builtins.join(deprecated.Parameters, ", ") + rightDelimiter;
+		}
+
 	}
 }

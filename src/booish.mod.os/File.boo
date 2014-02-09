@@ -88,8 +88,12 @@ class File:
 		"""
 			Type the content of a file.
 		"""
-			for l in System.IO.File.OpenText(file):
-				Console.WriteLine(l)
+			if file == null:
+				WithColor ErrorColor:
+					Console.WriteLine("This command requires a path name.")
+			else:
+				for l in System.IO.File.OpenText(file):
+					Console.WriteLine(l)
 		
 		def FindProgram(filenameWithOrWithoutExt as string) as string:
 			if Path.IsPathRooted(filenameWithOrWithoutExt):

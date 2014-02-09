@@ -139,8 +139,10 @@ internal static class PropertyMacroParser:
 	whether this property is part of a static class. in this case, the
 	property shall create a static property.
 	"""
+		if property == null or property.ParentNode == null:
+			return false
 		typeNode = property.ParentNode as TypeMember
-		return typeNode != null and typeNode.DeclaringType.IsStatic
+		return typeNode != null and typeNode.DeclaringType != null and typeNode.DeclaringType.IsStatic
 	
 	def IsValidProperty(property as MacroStatement):
 		if len(property.Arguments) != 1:

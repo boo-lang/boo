@@ -66,6 +66,15 @@ the argument.
 			self._Cmd = self._line
 			self._Args=array(string,0)
 	
+	static def ScanCmd(line as string):
+		line = line.TrimStart()
+		if line.StartsWith("/"):
+			line=line[1:] // skip slash that has been used to identify this line as a builtin tool
+		pos = line.IndexOf(' ')
+		if pos > 0:
+			return line[0:pos].TrimStart()
+		return null
+	
 	[Property(Line)]
 	_line as string
 	

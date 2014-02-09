@@ -30,7 +30,7 @@ namespace Boo.Lang.Interpreter.Tests
 
 import System
 import NUnit.Framework
-import Boo.Lang.Interpreter.ShellCmd
+import Boo.Lang.Interpreter
 
 [TestFixture]
 class BuiltinParserTest:
@@ -46,13 +46,13 @@ class BuiltinParserTest:
 	[TestCase("describe [{[]{{\"] arg2", "describe\n{[]{{\"\narg2")]
 	public def Test(line as string, reference as string):
 		references = reference.Split("\n"[0])
-		p=Parser(line)
+		p=CmdParser(line)
 		assert references[0].Equals(p.Cmd), references[0]+" != "+p.Cmd
 		for i in range(1, references.Length):
 			assert references[i].Equals(p.Args[i-1]), references[i]+" != "+p.Args[i-1]
 	
 	public def TestOneArgument():
-		p = Parser("d [| function argument |] ")
+		p = CmdParser("d [| function argument |] ")
 		// OK, we noticed, that d only accepts one argument
 		p.SetOnlyOneArgument()
 		assert 1.Equals(p.Args.Length), "Expected 1 Arg got "+p.Args.Length

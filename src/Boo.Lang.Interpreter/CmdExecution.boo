@@ -64,11 +64,11 @@ class CmdExecution:
 	   execution of shell commands."""
 		self._cmdObjects.Add(cmdObject.GetType().TypeHandle.Value.ToInt64(), cmdObject)
 		
-	_collectedCmds as Generic.SortedList[of string, MethodInfo]
+	_collectedCmds as Generic.SortedList[of string, CmdDescr]
 	_collectedCmdsHelp as Generic.List[of CmdDescr]
 	def CollectCmds():
 		if self._collectedCmds == null or self._collectedCmdsHelp == null:
-			self._collectedCmds = Generic.SortedList[of string, MethodInfo]()
+			self._collectedCmds = Generic.SortedList[of string, CmdDescr]()
 			self._collectedCmdsHelp = Generic.List[of CmdDescr]()
 			for a in AppDomain.CurrentDomain.GetAssemblies():
 				self.CollectCmds(a)
@@ -82,14 +82,22 @@ class CmdExecution:
 					attrsMi = array(CmdDeclarationAttribute,\
 					   mi.GetCustomAttributes(CmdDeclarationAttribute, true))
 					if attrsMi != null and attrsMi.Length > 0:
-						self._collectedCmdsHelp.Add(CmdDescr(attrsMi[0], attrsT[0], mi))
-						self._collectedCmds[attrsMi[0].Name]=mi
+						descr=CmdDescr(attrsMi[0], attrsT[0], mi)
+						self._collectedCmdsHelp.Add(descr)
+						self._collectedCmds[attrsMi[0].Name]=descr
 						for cmd in attrsMi[0].Shortcuts:
-							self._collectedCmds[cmd] = mi
+							self._collectedCmds[cmd] = descr
 	public CollectedCmds:
 		get:
 			self.CollectCmds()
 			return self._collectedCmds.Keys
+	
+	def GetCollectedCmd(nameOrShortcut):
+		if string.IsNullOrEmpty(nameOrShortcut): return null
+		result as CmdDescr
+		if self._collectedCmds.TryGetValue(nameOrShortcut, result):
+			return result
+		return null
 	
 	public CollectedCmdDecl:
 		get:
@@ -129,17 +137,17 @@ class CmdExecution:
 		try:
 			p=CmdParser(line)
 			self.CollectCmds()
-			cmdMethod as MethodInfo
-			if self._collectedCmds.TryGetValue(p.Cmd, cmdMethod):
+			cmdDescr as CmdDescr
+			if self._collectedCmds.TryGetValue(p.Cmd, cmdDescr):
 				instance=null
-				if not cmdMethod.IsStatic:
-					if not self._cmdObjects.TryGetValue(cmdMethod.DeclaringType.TypeHandle.Value.ToInt64(), instance):
+				if not cmdDescr.Method.IsStatic:
+					if not self._cmdObjects.TryGetValue(cmdDescr.Method.DeclaringType.TypeHandle.Value.ToInt64(), instance):
 						try:
-							instance = cmdMethod.DeclaringType.GetConstructor((InteractiveInterpreter,)).Invoke((self._interpreter as object,))
+							instance = cmdDescr.Method.DeclaringType.GetConstructor((InteractiveInterpreter,)).Invoke((self._interpreter as object,))
 						except:
-							instance = Activator.CreateInstance(cmdMethod.DeclaringType)
-						self._cmdObjects.Add(cmdMethod.DeclaringType.TypeHandle.Value.ToInt64(), instance)
-				cmdParameters = cmdMethod.GetParameters()
+							instance = Activator.CreateInstance(cmdDescr.Method.DeclaringType)
+						self._cmdObjects.Add(cmdDescr.Method.DeclaringType.TypeHandle.Value.ToInt64(), instance)
+				cmdParameters = cmdDescr.Method.GetParameters()
 				p.SetOnlyOneArgument() if cmdParameters.Length == 1
 				args=[]
 				for pi in cmdParameters:
@@ -165,7 +173,7 @@ class CmdExecution:
 						else:
 							args.Add(Activator.CreateInstance(pi.ParameterType))
 						*/
-				cmdMethod.Invoke(instance, args.ToArray())
+				cmdDescr.Method.Invoke(instance, args.ToArray())
 				return true
 		except exc:
 			WithColor(ExceptionColor):

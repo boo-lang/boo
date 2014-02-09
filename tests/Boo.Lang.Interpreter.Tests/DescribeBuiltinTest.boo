@@ -10,8 +10,7 @@ class DescribeBuiltinTest:
 	
 	[SetUp]
 	def SetUp():
-		Boo.Lang.Interpreter.ShellConsole.Display.PromptOnNewPage = false
-		Boo.Lang.Interpreter.ShellConsole.Display.WrapLines = false
+		pass
 	
 	[Test]
 	def ClassDescription():
@@ -67,7 +66,7 @@ interface AnInterface():
 		
 	def AssertDescription(expected as string, type as System.Type):
 		using console=ConsoleCapture():
-			Boo.Lang.Interpreter.ShellCmd.describe(type)
+			Boo.Lang.Interpreter.describe(type)
 		
 		# mono compatibility fix
 		# object.Equals arg on mono is called o

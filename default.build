@@ -15,14 +15,17 @@
 	
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
+	<property name="java" value="java" />
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
-	<property name="java" value="java" />	
+	<property name="antlr.trace" value="False" />
 	
 	<property name="ngen.exe" value="${framework::get-framework-directory(framework::get-target-framework())}/ngen.exe" />
 	<property name="skip.ngen" value="True" />
 	<property name="skip.antlr" value="False" />
 	<property name="skip.ast" value="False" />
 	<property name="skip.vs" value="False" />
+	<!-- HMaH: I experienced some problems with NAnt's redirection of stdout. Also stderr has been put into the file. -->
+	<property name="skip.errorpatterns" value="True" />
 
 	<property name="gsv.name" value="gtksourceview-1.0" />
 	
@@ -379,7 +382,7 @@
 				<include name="${build.dir}/Boo.Lang.Parser.dll" />
 			</references>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
-			<arg line="/win32icon:src/booc/App.ico" />
+			<!-- <arg line="/win32icon:src/booc/App.ico" /> -->
 			<arg line="${booc.doc}" />
 		</csc>
 
@@ -438,9 +441,11 @@
 	</target>
 	
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
-		<booc target="library"
+		<property name="backup.currentframework" value="${nant.settings.currentframework}" />
+		<property name="nant.settings.currentframework" value="mono-2.0" unless="${platform::is-windows()}" />
+		<booc target="library"	
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
-			failonerror="false" 
+			failonerror="true" 
 			verbose="${verbose}"
 			debug="${debug}"
 			define="${defines}">
@@ -450,13 +455,14 @@
 			</sources>
 			<references basedir="${build.dir}">
 				<include name="Microsoft.Build.Utilities.dll" />
-				<include name="Microsoft.Build.Tasks.dll" />
 				<include name="Microsoft.Build.Framework.dll" />
+				<include name="Microsoft.Build.Tasks.dll" />
 				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
+		<property name="nant.settings.currentframework" value="${backup.currentframework}" />
 		<copy todir="${build.dir}">
 			<fileset basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="Boo.Microsoft.Build.targets" />
@@ -480,7 +486,6 @@
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
-				<!-- <arg value="-traceParser" /> -->
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Useful/IO/Impl" />
 				<arg value="src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" />
@@ -820,7 +825,7 @@
 		</exec>
 	</target>
 	
-	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar">
+	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar, generate-errorpatterns">
 		<property name="Boo.Lang.Parser.doc" value="" />
 		<if test="${create.doc}">
 			<property name="Boo.Lang.Parser.doc" value="/doc:${build.dir}/Boo.Lang.Parser.xml" />
@@ -1064,14 +1069,10 @@
 			<sourcefiles basedir="src/Boo.Lang.Parser">
 				<include name="boo.g" />
 				<include name="booel.g" />
-				<include name="wsaboo.g" />
-				<include name="wsabooel.g" />
 			</sourcefiles>
 			<targetfiles basedir="src/Boo.Lang.Parser">
 				<include name="BooParserBase.cs" />
 				<include name="BooExpressionLexer.cs" />
-				<include name="WSABooParserBase.cs" />
-				<include name="WSABooExpressionLexer.cs" />
 			</targetfiles>
 		</uptodate>
 
@@ -1083,10 +1084,13 @@
 				</fileset>
 			</delete>			 
 			
+			<property name="antlr.traceParser" value="-traceParser" if="${antlr.trace}" />
+			<property name="antlr.traceParser" value="" unless="${antlr.trace}" />
 			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
 				<arg value="antlr.Tool" />
+				<arg value="${antlr.traceParser}" />
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/boo.g" />
@@ -1099,24 +1103,6 @@
 				<arg value="-o" />
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/booel.g" />
-			</exec>
-			
-			<exec program="${java}" failonerror="true">
-				<arg value="-cp" />
-				<arg file="${antlr.jar}" />
-				<arg value="antlr.Tool" />
-				<arg value="-o" />
-				<arg value="src/Boo.Lang.Parser/" />
-				<arg value="src/Boo.Lang.Parser/wsaboo.g" />
-			</exec>
-			
-			<exec program="${java}" failonerror="true">
-				<arg value="-cp" />
-				<arg file="${antlr.jar}" />
-				<arg value="antlr.Tool" />
-				<arg value="-o" />
-				<arg value="src/Boo.Lang.Parser/" />
-				<arg value="src/Boo.Lang.Parser/wsabooel.g" />
 			</exec>
 			
 			<touch file="src/Boo.Lang.Parser/BooParserBase.cs" />
@@ -1151,6 +1137,32 @@
 			</exec>			
 		</if>
 	</target>
+
+	<target name="generate-errorpatterns" depends="init" unless="${skip.errorpatterns}">
+		<uptodate property="errorpatterns-are-uptodate">
+			<sourcefiles>
+				<include name="scripts/error-patterns.boo" />
+				<include name="src/Boo.Lang.Parser/BooParserBase.cs" />
+			</sourcefiles>
+			<targetfiles>
+				<include name="src/Boo.Lang.Parser/GeneratedErrorPatterns.cs" />
+			</targetfiles>
+		</uptodate>
+
+		<if test="${not file::exists('build/booi.exe')}">
+			<echo level="Warning">WARNING: A recent version of Boo is required!</echo>  
+			<echo level="Warning">Run again Nant (without clean or rebuild) to actually generate the patterns</echo>
+			<property name="errorpatterns-are-uptodate" value="True" />
+		</if>
+
+		<if test="${not errorpatterns-are-uptodate}">
+			<delete file="src/Boo.Lang.Parser/GeneratedErrorPatterns.boo"
+					if="${file::exists('src/Boo.Lang.Parser/BooErrorPatterns.boo')}" />
+			<exec program="build/booi.exe" output="src/Boo.Lang.Parser/GeneratedErrorPatterns.cs" failonerror="true" useruntimeengine="true">
+				<arg value="scripts/error-patterns.boo" />
+			</exec>
+		</if>
+	</target>	
 	
 	<target name="update-sharpdevelop" depends="all">
 		<copy todir="${sharpdevelop.dir}/AddIns/AddIns/BackendBindings/BooBinding">

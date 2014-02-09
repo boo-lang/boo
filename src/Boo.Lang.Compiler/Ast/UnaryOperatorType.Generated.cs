@@ -49,6 +49,7 @@ namespace Boo.Lang.Compiler.Ast
 		Explode,
 		OnesComplement,
 		AddressOf,
-		Indirection
+		Indirection,
+		SafeAccess
 	}
 }

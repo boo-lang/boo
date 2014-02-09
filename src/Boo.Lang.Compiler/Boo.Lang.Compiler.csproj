@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -489,6 +489,7 @@
     <Compile Include="Steps\ResolveImports.cs" />
     <Compile Include="Steps\ResolveTypeReferences.cs" />
     <Compile Include="Steps\RunAssembly.cs" />
+    <Compile Include="Steps\SafeAccessOperator.cs" />
     <Compile Include="Steps\SaveAssembly.cs" />
     <Compile Include="Steps\SelfEntity.cs" />
     <Compile Include="Steps\SerializeToXml.cs" />
