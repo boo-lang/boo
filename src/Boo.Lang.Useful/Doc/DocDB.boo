@@ -44,15 +44,15 @@ static class DocDB:
 	
 	def constructor():
 		p=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
-		_lookupPaths.Add(\
-			Path.Combine(p,\
-			 "Reference Assemblies\\Microsoft"))\
-			if not string.IsNullOrEmpty(p)
+		if Directory.Exists(p):
+			p=Path.Combine(p, "Reference Assemblies\\Microsoft")
+			if Directory.Exists(p):
+				_lookupPaths.Add(p)
 		p=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
-		_lookupPaths.Add(\
-			Path.Combine(p,\
-			 "Reference Assemblies\\Microsoft"))\
-			if not string.IsNullOrEmpty(p)
+		if Directory.Exists(p):
+			p=Path.Combine(p, "Reference Assemblies\\Microsoft")
+			if Directory.Exists(p):
+				_lookupPaths.Add(p)
 	
 	_db = Generic.SortedList[of string, AssemblyDoc]() 
 	
@@ -147,11 +147,14 @@ static class DocDB:
 		except:
 			pass
 		for d in _lookupPaths:
-			path = FindFile(d, assemblyDesignator+".xml")
-			if not string.IsNullOrEmpty(path):
-				assemblyDoc=AssemblyDoc(path)
-				_db.Add(assemblyDesignator, assemblyDoc)
-				return assemblyDoc.Find(elementDesignator)
+			try:
+				path = FindFile(d, assemblyDesignator+".xml")
+				if not string.IsNullOrEmpty(path):
+					assemblyDoc=AssemblyDoc(path)
+					_db.Add(assemblyDesignator, assemblyDoc)
+					return assemblyDoc.Find(elementDesignator)
+			except:
+				pass
 		return null
 	
 	def FindFile(dir as string, fileName as string) as string:

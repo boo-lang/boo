@@ -44,6 +44,7 @@ def describe(obj):
 		if miCol == null:
 			mi = obj as System.Reflection.MethodInfo
 			mcd = obj as System.MulticastDelegate
+		else:
 			mi = mcd.Method if mcd != null
 			miCol.Add(mi) if mi != null
 		if miCol == null:
