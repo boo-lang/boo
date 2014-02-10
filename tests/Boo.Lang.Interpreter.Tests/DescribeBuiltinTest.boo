@@ -3,6 +3,7 @@ namespace Boo.Lang.Interpreter.Tests
 import System
 import System.Text
 import Boo.Lang.Interpreter
+import Boo.Lang.Useful.Doc
 import NUnit.Framework
 
 [TestFixture]
@@ -11,52 +12,16 @@ class DescribeBuiltinTest:
 	[SetUp]
 	def SetUp():
 		pass
-	
-	def IsMsFramework():
-		return System.Reflection.Assembly.Load("mscorlib").ToString()\
-			.Contains('PublicKeyToken=b77a5c561934e089')
-	
+		
 	[Test]
 	def ClassDescription():
 		
 		# In Mono environments, boo.lang.Useful.DocDB will not find
 		# the XML docs for Equals(), GetType() etc. Using the MS
 		# framework, this will however work.
-		if self.IsMsFramework():
-			expected = """
-class Person(object):
-
-    def constructor(name as string)
-
-    def constructor()
-
-    public LastName as string
-
-    FirstName as string:
-        get
-        set
-
-    def Equals(obj as object) as bool
-    ${'"""'}
-    ${'"""'}
-
-    def GetHashCode() as int
-    ${'"""'}
-    ${'"""'}
-
-    def GetType() as System.Type
-    ${'"""'}
-    ${'"""'}
-
-    def ToString() as string
-    ${'"""'}
-    ${'"""'}
-
-    event Changed as System.EventHandler
-
-"""
-		else:
-			expected = """
+		# Solution: Clear all lookup paths
+		DocDB.LookupPaths.Clear()
+		expected = """
 class Person(object):
 
     def constructor(name as string)
