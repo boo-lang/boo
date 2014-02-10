@@ -12,10 +12,18 @@ class DescribeBuiltinTest:
 	def SetUp():
 		pass
 	
+	def IsMsFramework():
+		return System.Reflection.Assembly.Load("mscorlib").ToString()\
+			.Contains('PublicKeyToken=b77a5c561934e089')
+	
 	[Test]
 	def ClassDescription():
 		
-		expected = """
+		# In Mono environments, boo.lang.Useful.DocDB will not find
+		# the XML docs for Equals(), GetType() etc. Using the MS
+		# framework, this will however work.
+		if self.IsMsFramework():
+			expected = """
 class Person(object):
 
     def constructor(name as string)
@@ -43,6 +51,31 @@ class Person(object):
     def ToString() as string
     ${'"""'}
     ${'"""'}
+
+    event Changed as System.EventHandler
+
+"""
+		else:
+			expected = """
+class Person(object):
+
+    def constructor(name as string)
+
+    def constructor()
+
+    public LastName as string
+
+    FirstName as string:
+        get
+        set
+
+    def Equals(obj as object) as bool
+
+    def GetHashCode() as int
+
+    def GetType() as System.Type
+
+    def ToString() as string
 
     event Changed as System.EventHandler
 
