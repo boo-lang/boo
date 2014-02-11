@@ -30,7 +30,6 @@ namespace Boo.Lang.Interpreter
 
 import System
 import System.Collections
-import Boo.Lang.Interpreter.ColorScheme
 
 [System.Reflection.DefaultMember("Item")]
 [CmdClass("Namespaces")]

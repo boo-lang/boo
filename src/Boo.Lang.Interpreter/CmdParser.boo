@@ -81,6 +81,13 @@ the argument.
 	[Property(Arguments)]
 	_Arguments as string
 	
+	[Property(LastArgClosed)]
+	_lastArgClosed=false
+	"""
+	True if either the last arg has been closed with a
+	bracket or with a blank.
+	"""
+	
 	def SetOnlyOneArgument():
 	"""
 	The caller recognized after analysing [_Cmd] that
@@ -125,15 +132,19 @@ the argument.
 			result.Arg+=currentChar
 		result.EndPos += 1
 		currentChar=self._line[result.EndPos:result.EndPos+1]
-		while result.EndPos < self._line.Length:
+		while result.EndPos < len(self._line):
 			if openingBracket.Equals(currentChar):
 				bracketCounter+=1
 			elif argDelimiter.Equals(currentChar):
 				bracketCounter -= 1 if bracketCounter > 0
-			break if bracketCounter == 0			
+			if bracketCounter == 0:
+				self._lastArgClosed = true
+				break
 			result.Arg+=currentChar
 			result.EndPos += 1
 			currentChar=self._line[result.EndPos:result.EndPos+1]
+		if not self._lastArgClosed and result.EndPos < len(self._line):
+			self._lastArgClosed = true
 		return result
 	
 	[Getter(Cmd)]

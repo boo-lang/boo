@@ -47,7 +47,17 @@ class InteractiveInterpreterConsole:
 	public final static HISTORY_FILENAME = "booish\\history"
 	public final static HISTORY_CAPACITY = 1000
 	
-	_history = System.Collections.Generic.Queue of string(HISTORY_CAPACITY)
+	struct HistoryEntry:
+		[Getter(Text)]
+		_text as string
+		[Getter(IsValid)]
+		_isValid as bool
+		
+		def constructor(text as string, isValid as bool):
+			self._text = text
+			self._isValid = isValid
+	
+	_history = List of HistoryEntry(HISTORY_CAPACITY)
 	_historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
 	_historyIndex = 0
 	_session = System.Collections.Generic.List of string()
@@ -164,7 +174,7 @@ this feature.""")]
 
 	private _filter as string
 	
-	def Eval(code as string):
+	def Eval(code as string) as Boo.Lang.Compiler.CompilerContext:
 		try:
 			result = _interpreter.Eval(code)
 			DisplayResults(result)
@@ -318,8 +328,10 @@ this feature.""")]
 	def DisplaySuggestions(query as string):
 		return if DisableAutocompletion
 		
-		shellCmdStr = CmdParser.ScanCmd(query)
-		self._shellCmdExecution.GetCollectedCmd(shellCmdStr)
+		self._suggestions = self.GetSuggestionsForCmdArg(query)
+		if self._suggestions != null:
+			return
+		
 		#TODO: FIXME: refactor to one regex?
 		p_open = re_open.Matches(query).Count
 		p_close = re_close.Matches(query).Count
@@ -405,7 +417,7 @@ this feature.""")]
 			return
 		Console.CursorLeft = len(CurrentPrompt)
 		Console.Write(string.Empty.PadLeft(LineLen, char(' ')))
-		line = _history.ToArray()[_historyIndex]
+		line = _history[_historyIndex].Text
 		LineLen = 0
 		Console.CursorLeft = len(CurrentPrompt)
 		WriteToReplace(line)
@@ -541,7 +553,6 @@ this feature.""")]
 				_buffer.Append(self.BooIndention*self._indent)
 				_buffer.Append(Line)
 				_buffer.Append(Environment.NewLine)
-				AddToHistory(Line)
 
 				# unfortunately, brackets are not yet concerned here.
 				firstTripleQuote=self.Line.IndexOf("\"\"\"")
@@ -568,10 +579,14 @@ this feature.""")]
 				if shiftPressed or (_indent <= 0 and self._autoIndention and not _inMultilineString):
 					_indent = 0
 					_inMultilineString=false
+					succeeded = false
+					expr = _buffer.ToString()
 					try:
-						Eval(_buffer.ToString())
+						context=Eval(expr)
+						succeeded = context != null and len(context.Errors)==0
 					ensure:
 						_buffer.Length = 0 #truncate buffer
+					AddToHistory(expr, succeeded)
 
 			_multiline = false
 			LineLen = 0 #truncate line
@@ -615,6 +630,14 @@ this feature.""")]
 			if not string.IsNullOrEmpty(filter) and a.FullName.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0:
 				for t in a.GetTypes():
 					Console.WriteLine( "|"+t.FullName )
+
+	def GetSuggestionsForCmdArg(query as string):
+	"""
+	Returns a string array of suggestions for the completion
+	of a shell command argument or <c>null</c> if query is not
+	a shell command.
+	"""
+		return self._shellCmdExecution.GetSuggestionsForCmdArg(query)
 	
 	def TryRunCommand(line as string):
 	"""
@@ -622,7 +645,10 @@ this feature.""")]
 	line does not start a builtin command.
 	Returns false if no command has been processed, true otherwise.
 	"""
-		return self._shellCmdExecution.TryRunCommand(line)
+		if self._shellCmdExecution.TryRunCommand(line):
+			self.AddToHistory(line, true)
+			return true
+		return false
 	
 	def TurnOnPreferenceShellCommands():
 		self._shellCmdExecution.TurnOnPreferenceShellCommands()
@@ -644,13 +670,6 @@ Copyright (c) 2013-    , Harald Meyer auf'm Hofe (harald_meyer@users.sourceforge
 			Console.WriteLine( """Running boo ${BooVersion} on ${Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName}.
 
 Enter boo code in the prompt below (or type /help).""" )
-
-	def GetHelpFilters():
-	"""
-	Provides a collection of strings that can be used as filter arguments
-	for the help command.
-	"""
-		return self._shellCmdExecution.CollectedCmds
 	
 	[CmdDeclaration("warn toggleWarning", Description: "Reverse the mode for displaying warnings.")]
 	def ToggleWarnings():
@@ -685,7 +704,7 @@ by a slash (e.g. /toggle).""")]
 		self._shellCmdExecution.TogglePreferenceOnShellCommands()
 
 	[CmdDeclaration("help h ?", Description: "Display help.")]
-	def DisplayHelp([CmdArgument(CmdArgumentCompletion.MethodCall, CompletionMethod:"GetHelpFilters")] filter as string):
+	def DisplayHelp([CmdArgument(CmdArgumentCompletion.TypeOrMethodOrFunction)] filter as string):
 		WithColor InterpreterColor:
 			Console.Write("""Press TAB or SHIFT+TAB to view a list of suggestions.
 	Use CURSOR LEFT, RIGHT, or PAGE UP, PAGE DOWN to select
@@ -708,23 +727,30 @@ by a slash (e.g. /toggle).""")]
 		try:
 			using history = File.OpenText(_historyFile):
 				while line = history.ReadLine():
-					AddToHistory(line)
+					AddToHistory(line, true)
 		except:
 			ConsolePrintError("Cannot load history from '${_historyFile}'")
 
-	def AddToHistory(line as string):
-		return if 0 == (len(line) - len(Environment.NewLine))
-		_history.Dequeue() if _history.Count >= HISTORY_CAPACITY
-		line = line.Replace(Environment.NewLine, "")
-		_history.Enqueue(line)
-		_historyIndex = _history.Count
+	def AddToHistory(line as string, isValid as bool):
+		if self._quit: return
+		line = line.Replace("\n", "").Replace("\r", "")
+		if 0 >= len(line): return
+		# line might stem from the history
+		if self._historyIndex >= self._history.Count\
+			or line != self._history[self._historyIndex].Text:
+			while _history.Count >= HISTORY_CAPACITY:
+				_history.RemoveAt(0)
+				_historyIndex-=1
+			_history.Add(HistoryEntry(line, isValid))
+			_historyIndex = _history.Count
 
 	def SaveHistory():
 		try:
 			Directory.CreateDirectory(Path.GetDirectoryName(_historyFile))
 			using sw = System.IO.File.CreateText(_historyFile):
 				for line in _history:
-					sw.WriteLine(line)
+					if line.IsValid:
+						sw.WriteLine(line.Text)
 		except exc as Exception:
 			ConsolePrintError("Cannot save history to '${_historyFile}':\n${exc.Message}")
 	

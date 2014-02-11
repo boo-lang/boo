@@ -30,6 +30,7 @@ namespace Boo.Lang.Interpreter
 
 import System
 import System.Collections
+import System.IO
 import Boo.Lang.Interpreter.ColorScheme
 
 class CmdDescr:
@@ -95,6 +96,7 @@ class CmdExecution:
 	def GetCollectedCmd(nameOrShortcut):
 		if string.IsNullOrEmpty(nameOrShortcut): return null
 		result as CmdDescr
+		self.CollectCmds()
 		if self._collectedCmds.TryGetValue(nameOrShortcut, result):
 			return result
 		return null
@@ -106,6 +108,7 @@ class CmdExecution:
 	
 	public CollectedCmdModules:
 		get:
+			self.CollectCmds()
 			result = Generic.HashSet of string()
 			for cmd in self._collectedCmdsHelp:
 				result.Add(cmd.Module.Name)
@@ -121,6 +124,71 @@ class CmdExecution:
 		else:
 			Console.WriteLine("BOO expressions will be preferred over shell commands.") 
 	
+	def MaybeACommand(line as string):
+	"""
+	True iff shell commands are preferred or line starts
+	with a slash.
+	"""
+		return self.PreferShellCommands and not line.StartsWith("/")
+	
+	def GetSuggestionsForCmdArg(query as string):
+	"""
+	Returns a string array of suggestions for the completion
+	of a shell command argument or <c>null</c> if query is not
+	a shell command.
+	"""
+		if not self.MaybeACommand(query): return null
+		parsedCmd = CmdParser(query)
+		cmd=self.GetCollectedCmd(parsedCmd.Cmd)
+		if cmd == null: return null
+		argIndex=0
+		if len(parsedCmd.Args) > 0:
+			if parsedCmd.LastArgClosed:
+				argIndex = len(parsedCmd.Args)
+				argQuery=string.Empty
+			else:
+				argIndex = len(parsedCmd.Args)-1
+				argQuery = parsedCmd.Args[argIndex]
+		cmdParams = cmd.Method.GetParameters()
+		if argIndex >= len(cmdParams): return null
+		cmdParam = cmdParams[argIndex]
+		attrs=cmdParam.GetCustomAttributes(CmdArgumentAttribute, true) 
+		if attrs == null or len(attrs) == 0:
+			return null
+		attr=attrs[0] as CmdArgumentAttribute
+		if attr.Type == CmdArgumentCompletion.Directory:
+			return self.ReturnArgCompletionDirectory(argQuery)
+		elif attr.Type == CmdArgumentCompletion.File:
+			return self.ReturnArgCompletionFile(argQuery)
+		elif attr.Type == CmdArgumentCompletion.ExistingOrNotExistingFileOrExistingDirectory:
+			return self.ReturnArgCompletionExecutableExistingOrNotExistingFileOrExistingDirectory(argQuery)
+		elif attr.Type == CmdArgumentCompletion.Type:
+			return self.ReturnArgCompletionType(argQuery)
+		elif attr.Type == CmdArgumentCompletion.TypeOrMethodOrFunction:
+			return self.ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery)
+		return null
+	
+	def ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery as string):
+		return null
+	
+	def ReturnArgCompletionType(argQuery as string):
+		return null
+	
+	def ReturnArgCompletionExecutableExistingOrNotExistingFileOrExistingDirectory(argQuery as string):
+		return null
+	
+	def ReturnArgCompletionFile(argQuery as string):
+		return null
+	
+	def ReturnArgCompletionDirectory(argQuery as string):
+		result=List of string()
+		cwd=Directory.GetCurrentDirectory()
+		result.Add(cwd)
+		parent=Path.GetDirectoryName(cwd)
+		if parent != null:
+			result.Add(parent)
+		return result.ToArray()
+	
 	def TryRunCommand(line as string):
 	"""
 	Run the buitin command as stated by a line string. Return false, if the
@@ -131,7 +199,7 @@ class CmdExecution:
 		if "/".Equals(line):
 			self.TogglePreferenceOnShellCommands()
 			return true
-		if not self.PreferShellCommands and not line.StartsWith("/"):
+		if not self.MaybeACommand(line):
 			return false
 		
 		try:

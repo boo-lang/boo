@@ -78,12 +78,7 @@ argument completion.
 	"""
 	Argument completion is not supported.
 	"""
-	
-	MethodCall = 0x001
-	"""
-	The attribute defines the name of a method computing a list of suggestions.
-	"""
-	
+		
 	MaskPathName = 0x8000
 	"""
 	If this bit is set, the argument represents a file or a path name.
@@ -93,12 +88,7 @@ argument completion.
 	"""
 	The argument is the name of a directory  as string.
 	"""
-	
-	ExecutableFile = 0x0C001 
-	"""
-	The argument is the name of an executable file as string.
-	"""
-	
+		
 	File = 0x0C000
 	"""
 	The argument is the name of a file as string. The <Method> property
@@ -116,6 +106,11 @@ argument completion.
 	"""
 	the argument is a type name.
 	"""
+	
+	TypeOrMethodOrFunction = 0x004
+	"""
+	The argument is a type or a method (used by "help").
+	"""
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public class CmdArgumentAttribute(Attribute):
@@ -124,35 +119,19 @@ An optional
 """
 	[Getter(Type)]
 	_type as CmdArgumentCompletion
-	property CompletionMethod as string
-	/*
-	"""Optional name of a method receiving a string and returning
-	a collection of strings. If specified, this method will be used
-	produce suggestions to complete the argument. 
-	"""
-	*/
+
 	public property DefaultValue as string
-	/*
-	"""
-	This property is optional and will be created from this string
-	like other arguments
-	"""
-	*/
-	public property CompletionFormat
-	/*
 	"""
 	This is an optional property and will be passed to the 
 	CompletionMethod.
 	"""
-	*/
+
 	public property DeserializationMethod as string
-	/*
 	"""
 	Optional name of a method receiving a string and returning
 	an object. If specified, this method will be used to de-serialize
 	the actual parameter.
 	"""
-	*/
 	
 	public def constructor(type as CmdArgumentCompletion):
 		self._type = type
