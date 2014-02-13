@@ -125,13 +125,6 @@ An optional
 	This is an optional property and will be passed to the 
 	CompletionMethod.
 	"""
-
-	public property DeserializationMethod as string
-	"""
-	Optional name of a method receiving a string and returning
-	an object. If specified, this method will be used to de-serialize
-	the actual parameter.
-	"""
 	
 	public def constructor(type as CmdArgumentCompletion):
 		self._type = type

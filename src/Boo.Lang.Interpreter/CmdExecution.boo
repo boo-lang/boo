@@ -181,12 +181,26 @@ class CmdExecution:
 		return null
 	
 	def ReturnArgCompletionDirectory(argQuery as string):
+		if string.IsNullOrWhiteSpace(argQuery):
+			argQuery='.'
+		argQuery=Path.GetFullPath(argQuery)
 		result=List of string()
-		cwd=Directory.GetCurrentDirectory()
-		result.Add(cwd)
-		parent=Path.GetDirectoryName(cwd)
-		if parent != null:
-			result.Add(parent)
+		parent=Path.GetDirectoryName(argQuery)
+		if not string.IsNullOrEmpty(parent) and Directory.Exists(parent):
+			result.Add('".."')
+		if Directory.Exists(argQuery):
+			result.Add('"'+argQuery+'"')
+			for d in Directory.GetDirectories(argQuery):
+				if not d.Equals(argQuery)\
+					and d.StartsWith(argQuery, StringComparison.CurrentCultureIgnoreCase):
+						result.Add('"'+d+'"')
+		else:
+			parent=Path.GetDirectoryName(argQuery)
+			if not string.IsNullOrEmpty(parent) and Directory.Exists(parent):
+				for d in Directory.GetDirectories(parent):
+					if not d.Equals(argQuery)\
+						and d.StartsWith(argQuery, StringComparison.CurrentCultureIgnoreCase):
+							result.Add('"'+d+'"')
 		return result.ToArray()
 	
 	def TryRunCommand(line as string):

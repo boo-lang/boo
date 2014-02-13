@@ -329,45 +329,43 @@ this feature.""")]
 		return if DisableAutocompletion
 		
 		self._suggestions = self.GetSuggestionsForCmdArg(query)
-		if self._suggestions != null:
-			return
-		
-		#TODO: FIXME: refactor to one regex?
-		p_open = re_open.Matches(query).Count
-		p_close = re_close.Matches(query).Count
-		if p_open > p_close:
-			query = query.Split(" ,(\t".ToCharArray(), 100)[-1]
-		else:
-			query = query.Split(" ,\t".ToCharArray(), 100)[-1]
-		if query.LastIndexOf('.') > 0:
-			codeToComplete = query[0:query.LastIndexOf('.')+1]
-			_filter = query[query.LastIndexOf('.')+1:]
-			_suggestions = (
-				_interpreter
-				.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
-				.Select[of (object)](
-					{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value
-		else:
-			# new feature: we didn't find a fullstop, thus we will list all globals and namespaces
-			suggestionList=[]
-			self._filter = query
-			for globalValue in self._interpreter.Values:
-				if globalValue.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-					suggestionList.Add(globalValue.Key)
-			# not to forget the shell commands
-			for cmd in self._shellCmdExecution.CollectCmds():
-				if cmd.Descr.Name.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-					suggestionList.Add(cmd)
-				else:
-					for cmdString in cmd.Descr.Shortcuts:
-						if cmdString.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-							suggestionList.Add(cmd)
-							break
-			# namespaces to start traversal of the .NET framework and other loaded assemblies
-			for nsName in Namespace.GetRootNamespace().NamespacesNames:
-				if char.IsLetter(nsName[0]) and nsName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-					suggestionList.Add(nsName)
-			self._suggestions = suggestionList.ToArray()
+		if self._suggestions is null:
+			#TODO: FIXME: refactor to one regex?
+			p_open = re_open.Matches(query).Count
+			p_close = re_close.Matches(query).Count
+			if p_open > p_close:
+				query = query.Split(" ,(\t".ToCharArray(), 100)[-1]
+			else:
+				query = query.Split(" ,\t".ToCharArray(), 100)[-1]
+			if query.LastIndexOf('.') > 0:
+				codeToComplete = query[0:query.LastIndexOf('.')+1]
+				_filter = query[query.LastIndexOf('.')+1:]
+				_suggestions = (
+					_interpreter
+					.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
+					.Select[of (object)](
+						{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value
+			else:
+				# new feature: we didn't find a fullstop, thus we will list all globals and namespaces
+				suggestionList=[]
+				self._filter = query
+				for globalValue in self._interpreter.Values:
+					if globalValue.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+						suggestionList.Add(globalValue.Key)
+				# not to forget the shell commands
+				for cmd in self._shellCmdExecution.CollectCmds():
+					if cmd.Descr.Name.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+						suggestionList.Add(cmd)
+					else:
+						for cmdString in cmd.Descr.Shortcuts:
+							if cmdString.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+								suggestionList.Add(cmd)
+								break
+				# namespaces to start traversal of the .NET framework and other loaded assemblies
+				for nsName in Namespace.GetRootNamespace().NamespacesNames:
+					if char.IsLetter(nsName[0]) and nsName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+						suggestionList.Add(nsName)
+				self._suggestions = suggestionList.ToArray()
 		
 		if _suggestions is null or 0 == len(_suggestions): #suggest a  var		
 			_filter = query
@@ -443,7 +441,7 @@ this feature.""")]
 		if char.IsControl(keyChar):
 			control = true
 			if keyChar == char('\t'):
-				if shiftPressed or LineLen > 0 and (char.IsLetterOrDigit(LineLastChar) or LineLastChar == char('.')):
+				if shiftPressed or LineLen > 0 and not string.IsNullOrWhiteSpace(Line):
 					_selectedSuggestionIndex = 0
 					DisplaySuggestions()
 				else:
@@ -637,7 +635,12 @@ this feature.""")]
 	of a shell command argument or <c>null</c> if query is not
 	a shell command.
 	"""
-		return self._shellCmdExecution.GetSuggestionsForCmdArg(query)
+		result = self._shellCmdExecution.GetSuggestionsForCmdArg(query)
+		if result != null:
+			posBlank = query.IndexOf(' ')
+			if posBlank > 0:
+				self._filter = query[posBlank+1:]
+		return result
 	
 	def TryRunCommand(line as string):
 	"""
