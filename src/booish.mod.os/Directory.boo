@@ -27,6 +27,14 @@
 #endregion
 
 namespace Booish.Mod.Os
+"""
+The classes of this namespace implement commands for the
+<c>booish</c> shell affecting the file
+system like <c>dir</c> or <c>pwd</c>. On the on hand, these classes
+allow to use <c>booish</c> like <c>cmd.exe</c>. On the other hand,
+these classes may serve as an example for extendind the <c>booish</c>
+shell by linking assemblies.
+"""
 
 import System
 import System.IO
