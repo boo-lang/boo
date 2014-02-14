@@ -454,7 +454,7 @@ this feature.""")]
 					sizeL = _line.Length
 					_line.Remove(0, sizeL)
 					Console.CursorLeft = curX
-					Console.Write(string(' '[0], sizeL))
+					Console.Write(string(' '[0], sizeL+1))
 					Console.CursorLeft = curX
 				else:
 					self._selectedSuggestionIndex = null
@@ -636,11 +636,10 @@ this feature.""")]
 	a shell command.
 	"""
 		result = self._shellCmdExecution.GetSuggestionsForCmdArg(query)
-		if result != null:
-			posBlank = query.IndexOf(' ')
-			if posBlank > 0:
-				self._filter = query[posBlank+1:]
-		return result
+		if result is null: return null
+		posArg=cast(int, result[1])
+		self._filter = query[posArg:]
+		return result[0] as (string)
 	
 	def TryRunCommand(line as string):
 	"""

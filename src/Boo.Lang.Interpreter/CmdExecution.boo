@@ -146,9 +146,13 @@ class CmdExecution:
 			if parsedCmd.LastArgClosed:
 				argIndex = len(parsedCmd.Args)
 				argQuery=string.Empty
+				argPos = parsedCmd.EndPosArg[argIndex-1]
 			else:
 				argIndex = len(parsedCmd.Args)-1
 				argQuery = parsedCmd.Args[argIndex]
+				argPos = parsedCmd.StartPosArg[argIndex]
+		else:
+			argPos=len(parsedCmd.Cmd)+1
 		cmdParams = cmd.Method.GetParameters()
 		if argIndex >= len(cmdParams): return null
 		cmdParam = cmdParams[argIndex]
@@ -157,15 +161,15 @@ class CmdExecution:
 			return null
 		attr=attrs[0] as CmdArgumentAttribute
 		if attr.Type == CmdArgumentCompletion.Directory:
-			return self.ReturnArgCompletionDirectory(argQuery)
+			return (self.ReturnArgCompletionDirectory(argQuery), argPos)
 		elif attr.Type == CmdArgumentCompletion.File:
-			return self.ReturnArgCompletionFile(argQuery)
+			return (self.ReturnArgCompletionFile(string.Empty, argQuery), argPos)
 		elif attr.Type == CmdArgumentCompletion.ExistingOrNotExistingFileOrExistingDirectory:
-			return self.ReturnArgCompletionExecutableExistingOrNotExistingFileOrExistingDirectory(argQuery)
+			return (self.ReturnArgCompletionFile('"', argQuery), argPos)
 		elif attr.Type == CmdArgumentCompletion.Type:
-			return self.ReturnArgCompletionType(argQuery)
+			return (self.ReturnArgCompletionType(argQuery), argPos)
 		elif attr.Type == CmdArgumentCompletion.TypeOrMethodOrFunction:
-			return self.ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery)
+			return (self.ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery), argPos)
 		return null
 	
 	def ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery as string):
@@ -173,12 +177,29 @@ class CmdExecution:
 	
 	def ReturnArgCompletionType(argQuery as string):
 		return null
-	
-	def ReturnArgCompletionExecutableExistingOrNotExistingFileOrExistingDirectory(argQuery as string):
-		return null
-	
-	def ReturnArgCompletionFile(argQuery as string):
-		return null
+		
+	def ReturnArgCompletionFile(dirQuote as string, argQuery as string):
+		if string.IsNullOrWhiteSpace(argQuery):
+			argQuery='.'
+		argQuery=Path.GetFullPath(argQuery)
+		result=List of string()
+		parent=Path.GetDirectoryName(argQuery)
+		if not string.IsNullOrEmpty(parent) and Directory.Exists(parent):
+			result.Add('"'+parent+dirQuote)
+		if Directory.Exists(argQuery):
+			listDir=argQuery
+			argQuery=string.Empty
+		elif Directory.Exists(parent):
+			listDir=parent
+			argQuery=Path.GetFileName(argQuery)
+		if not listDir is null:
+			for f in Directory.GetFiles(listDir):
+				if Path.GetFileName(f).StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):
+					result.Add('"'+f+'"')
+			for d in Directory.GetDirectories(listDir):
+				if Path.GetFileName(d).StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):					
+					result.Add('"'+d+dirQuote)
+		return result.ToArray()
 	
 	def ReturnArgCompletionDirectory(argQuery as string):
 		if string.IsNullOrWhiteSpace(argQuery):
@@ -187,7 +208,7 @@ class CmdExecution:
 		result=List of string()
 		parent=Path.GetDirectoryName(argQuery)
 		if not string.IsNullOrEmpty(parent) and Directory.Exists(parent):
-			result.Add('".."')
+			result.Add('"'+parent)
 		if Directory.Exists(argQuery):
 			result.Add('"'+argQuery+'"')
 			for d in Directory.GetDirectories(argQuery):

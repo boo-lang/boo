@@ -57,14 +57,22 @@ the argument.
 			self._Cmd = self._line[0:pos].TrimStart()
 			self._Arguments = self._line[pos:].Trim()
 			args=Generic.List[of string]()
+			startPos=Generic.List[of int]()
+			endPos=Generic.List[of int]()
 			arg=ScanArg(pos)
 			while not arg.IsEmpty:
 				args.Add(arg.Arg)
+				startPos.Add(arg.StartPos)
+				endPos.Add(arg.EndPos)
 				arg=ScanArg(arg.EndPos+1)
 			self._Args=args.ToArray()
+			self._startPosArg = startPos.ToArray()
+			self._endPosArg = endPos.ToArray()
 		else:
 			self._Cmd = self._line
-			self._Args=array(string,0)
+			self._Args=array(string, 0)
+			self._startPosArg=array(int, 0)
+			self._endPosArg=array(int, 0)
 	
 	static def ScanCmd(line as string):
 		line = line.TrimStart()
@@ -95,9 +103,12 @@ the argument.
 	shall be joined into one.
 	"""
 		self._Args = (self._Arguments,) if self._Args.Length > 0
+		self._startPosArg = (len(self._Cmd),)
+		self._endPosArg = (len(self._Cmd),)
 	
 	struct ArgDescr:
 		public Arg as string
+		public StartPos as int
 		public EndPos as int 
 		public IsEmpty:
 			get: return string.IsNullOrEmpty(self.Arg)
@@ -107,8 +118,10 @@ the argument.
 		while pos < self._line.Length and self._line[pos] == ' '[0]:
 			pos+=1
 		result = ArgDescr()
+		result.StartPos=pos
 		if pos >= self._line.Length:
 			return result
+		self._lastArgClosed = false
 		result.Arg=string.Empty;
 		result.EndPos = pos
 		bracketCounter=1
@@ -135,8 +148,14 @@ the argument.
 		while result.EndPos < len(self._line):
 			if openingBracket.Equals(currentChar):
 				bracketCounter+=1
+			elif useQuote and argDelimiter.Equals(currentChar):
+				if bracketCounter > 1: bracketCounter -= 1
+				else:
+					useQuote=false
+					argDelimiter=" "
+					currentChar=string.Empty
 			elif argDelimiter.Equals(currentChar):
-				bracketCounter -= 1 if bracketCounter > 0
+				if bracketCounter > 0: bracketCounter -= 1
 			if bracketCounter == 0:
 				self._lastArgClosed = true
 				break
@@ -154,5 +173,13 @@ the argument.
 	[Getter(Args)]
 	_Args as (string)
 	"""The arguments that have been found."""
-
+	
+	[Getter(StartPosArg)]
+	_startPosArg as (int)
+	"""The start positions of the shell arguments."""
+	
+	[Getter(EndPosArg)]
+	_endPosArg as (int)
+	"""The end positions of the shell arguments."""
+	
 

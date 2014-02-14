@@ -41,8 +41,9 @@ class BuiltinParserTest:
 	[TestCase("/d argument1 argument2", "d\nargument1\nargument2")]
 	[TestCase("/d (argument 1) \"argument 2\"", "d\nargument 1\nargument 2")]
 	[TestCase("describe [argument  1] {arg \"ument 2}", "describe\nargument  1\narg \"ument 2")]
-	[TestCase("describe   'arg'ument('(  1'", "describe\narg\nument('(\n1'")]
-	[TestCase("describe 'arg''ument(''(  1'", "describe\narg\nument(\n(  1")]
+	[TestCase("describe   'arg'ument('(  1'", "describe\nargument('(\n1'")]
+	[TestCase("/d \"argument 1\" arg2", "d\nargument 1\narg2")]
+	[TestCase("describe 'arg''ument(''(  1'", "describe\narg'ument(''(\n1'")]
 	[TestCase("describe [{[]{{\"] arg2", "describe\n{[]{{\"\narg2")]
 	public def Test(line as string, reference as string):
 		references = reference.Split("\n"[0])
