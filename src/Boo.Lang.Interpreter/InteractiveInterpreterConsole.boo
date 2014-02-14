@@ -95,8 +95,8 @@ class InteractiveInterpreterConsole:
 		DisableColors = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS"))
 		if not DisableColors: #make sure setting color does not throw an exception
 			try:
-				Console.ForegroundColor = InterpreterColor
-				Console.BackgroundColor = BackgroundColor
+				InterpreterColor = Console.ForegroundColor
+				BackgroundColor = Console.BackgroundColor
 			except:
 				DisableColors = true
 		self.DisableAutocompletion = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_AUTOCOMPLETION"))
