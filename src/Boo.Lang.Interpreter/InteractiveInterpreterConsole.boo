@@ -347,7 +347,7 @@ this feature.""")]
 						{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value
 			else:
 				# new feature: we didn't find a fullstop, thus we will list all globals and namespaces
-				suggestionList=[]
+				suggestionList=Collections.Generic.SortedSet of object()
 				self._filter = query
 				for globalValue in self._interpreter.Values:
 					if globalValue.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
@@ -365,7 +365,8 @@ this feature.""")]
 				for nsName in Namespace.GetRootNamespace().NamespacesNames:
 					if char.IsLetter(nsName[0]) and nsName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
 						suggestionList.Add(nsName)
-				self._suggestions = suggestionList.ToArray()
+				self._suggestions = array of object(suggestionList.Count)
+				suggestionList.CopyTo(self._suggestions)
 		
 		if _suggestions is null or 0 == len(_suggestions): #suggest a  var		
 			_filter = query
