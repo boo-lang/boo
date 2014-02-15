@@ -723,7 +723,7 @@ by a slash (e.g. /toggle).""")]
 		self._shellCmdExecution.TogglePreferenceOnShellCommands()
 
 	[CmdDeclaration("help h ?", Description: "Display help.")]
-	def DisplayHelp(filter as string):
+	def DisplayHelp([CmdArgument(CmdArgumentCompletion.None, DefaultValue:"")] filter as string):
 		WithColor InterpreterColor:
 			Console.Write("""Press TAB or SHIFT+TAB to view a list of suggestions.
 	Use CURSOR LEFT, RIGHT, or PAGE UP, PAGE DOWN to select
