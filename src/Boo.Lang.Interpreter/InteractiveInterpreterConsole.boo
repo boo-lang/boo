@@ -323,56 +323,73 @@ this feature.""")]
 	private static re_close = Regex("\\)", RegexOptions.Singleline)
 
 	def DisplaySuggestions():
+	"""
+	Displays suggestions to complete the current line.
+	"""
 		DisplaySuggestions(Line)
-
+	
+	_lastQuery as string
 	def DisplaySuggestions(query as string):
+	"""
+	Displays suggestions to complete <query> in order to get
+	a valid expression or shell command.
+	"""
 		return if DisableAutocompletion
+		if string.IsNullOrEmpty(self._lastQuery) or not query.Equals(self._lastQuery):
+			self._lastQuery = query
+			self._suggestions = self.GetSuggestionsForCmdArg(query)
+			if self._suggestions is null:
+				#region Prepare Query
+				#TODO: FIXME: refactor to one regex?
+				p_open = re_open.Matches(query).Count
+				p_close = re_close.Matches(query).Count
+				if p_open > p_close:
+					query = query.Split(" ,(\t".ToCharArray(), 100)[-1]
+				else:
+					query = query.Split(" ,\t".ToCharArray(), 100)[-1]
+				#endregion
+				if query.LastIndexOf('.') > 0:
+					#region Ask the compiler for suggestions
+					codeToComplete = query[0:query.LastIndexOf('.')+1]
+					_filter = query[query.LastIndexOf('.')+1:]
+					_suggestions = (
+						_interpreter
+						.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
+						.Select[of (object)](
+							{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value
+					#endregion
+				else:
+					#region new feature: we didn't find a fullstop, thus we will list all globals and namespaces
+					suggestionList=[]
+					self._filter = query
+					for globalValue in self._interpreter.Values:
+						if globalValue.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+							suggestionList.Add(globalValue.Key)
+					#region not to forget the shell commands
+					for cmd in self._shellCmdExecution.CollectCmds():
+						if cmd.Descr.Name.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+							suggestionList.Add(cmd)
+						else:
+							for cmdString in cmd.Descr.Shortcuts:
+								if cmdString.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+									suggestionList.Add(cmd)
+									break
+					#endregion
+					#region namespaces to start traversal of the .NET framework and other loaded assemblies
+					for nsName in Namespace.GetRootNamespace().NamespacesNames:
+						if char.IsLetter(nsName[0]) and nsName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
+							suggestionList.Add(nsName)
+					self._suggestions = suggestionList.ToArray()
+					#endregion
+					#endregion
+			if _suggestions is null or 0 == len(_suggestions):
+				#region suggest a var		
+				_filter = query
+				_suggestions = array(var.Key.ToString() as object
+								for var in _interpreter.Values
+								if var.ToString().StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase))
+				#endregion
 		
-		self._suggestions = self.GetSuggestionsForCmdArg(query)
-		if self._suggestions is null:
-			#TODO: FIXME: refactor to one regex?
-			p_open = re_open.Matches(query).Count
-			p_close = re_close.Matches(query).Count
-			if p_open > p_close:
-				query = query.Split(" ,(\t".ToCharArray(), 100)[-1]
-			else:
-				query = query.Split(" ,\t".ToCharArray(), 100)[-1]
-			if query.LastIndexOf('.') > 0:
-				codeToComplete = query[0:query.LastIndexOf('.')+1]
-				_filter = query[query.LastIndexOf('.')+1:]
-				_suggestions = (
-					_interpreter
-					.SuggestCompletionsFor(codeToComplete+"__codecomplete__")
-					.Select[of (object)](
-						{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value
-			else:
-				# new feature: we didn't find a fullstop, thus we will list all globals and namespaces
-				suggestionList=[]
-				self._filter = query
-				for globalValue in self._interpreter.Values:
-					if globalValue.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-						suggestionList.Add(globalValue.Key)
-				# not to forget the shell commands
-				for cmd in self._shellCmdExecution.CollectCmds():
-					if cmd.Descr.Name.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-						suggestionList.Add(cmd)
-					else:
-						for cmdString in cmd.Descr.Shortcuts:
-							if cmdString.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-								suggestionList.Add(cmd)
-								break
-				# namespaces to start traversal of the .NET framework and other loaded assemblies
-				for nsName in Namespace.GetRootNamespace().NamespacesNames:
-					if char.IsLetter(nsName[0]) and nsName.StartsWith(query, StringComparison.InvariantCultureIgnoreCase):
-						suggestionList.Add(nsName)
-				self._suggestions = suggestionList.ToArray()
-		
-		if _suggestions is null or 0 == len(_suggestions): #suggest a  var		
-			_filter = query
-			_suggestions = array(var.Key.ToString() as object
-							for var in _interpreter.Values
-							if var.ToString().StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase))
-
 		if _suggestions is null or 0 == len(_suggestions):
 			_selectedSuggestionIndex = null
 			#Console.Beep() #TODO: flash background?
@@ -628,7 +645,7 @@ this feature.""")]
 			if not string.IsNullOrEmpty(filter) and a.FullName.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0:
 				for t in a.GetTypes():
 					Console.WriteLine( "|"+t.FullName )
-
+	
 	def GetSuggestionsForCmdArg(query as string):
 	"""
 	Returns a string array of suggestions for the completion
@@ -706,7 +723,7 @@ by a slash (e.g. /toggle).""")]
 		self._shellCmdExecution.TogglePreferenceOnShellCommands()
 
 	[CmdDeclaration("help h ?", Description: "Display help.")]
-	def DisplayHelp([CmdArgument(CmdArgumentCompletion.TypeOrMethodOrFunction)] filter as string):
+	def DisplayHelp(filter as string):
 		WithColor InterpreterColor:
 			Console.Write("""Press TAB or SHIFT+TAB to view a list of suggestions.
 	Use CURSOR LEFT, RIGHT, or PAGE UP, PAGE DOWN to select
