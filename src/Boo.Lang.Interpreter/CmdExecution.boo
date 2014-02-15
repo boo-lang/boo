@@ -172,13 +172,27 @@ class CmdExecution:
 			return (self.ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery), argPos)
 		return null
 	
-	def ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery as string):
+	private def ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery as string):
 		return null
 	
-	def ReturnArgCompletionType(argQuery as string):
-		return null
-		
-	def ReturnArgCompletionFile(dirQuote as string, argQuery as string):
+	private def ReturnArgCompletionType(argQuery as string):
+		if argQuery is null: argQuery = string.Empty
+		lastComponentStart=argQuery.LastIndexOf('.')
+		if lastComponentStart > 0:
+			ns = Namespace.Find(argQuery[0:lastComponentStart])
+			argQuery=argQuery[lastComponentStart+1:]
+		else:
+			ns = Namespace.GetRootNamespace()
+		result = List of string()
+		for cns in ns.Namespaces:
+			if cns.Name.StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):
+				result.Add(cns.FullName+'.')
+		for t in ns.Types:
+			if t.IsVisible and t.IsPublic and t.Name.StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):
+				result.Add(repr(t))
+		return result.ToArray()
+	
+	private def ReturnArgCompletionFile(dirQuote as string, argQuery as string):
 		if string.IsNullOrWhiteSpace(argQuery):
 			argQuery='.'
 		argQuery=Path.GetFullPath(argQuery)
@@ -201,7 +215,7 @@ class CmdExecution:
 					result.Add('"'+d+dirQuote)
 		return result.ToArray()
 	
-	def ReturnArgCompletionDirectory(argQuery as string):
+	private def ReturnArgCompletionDirectory(argQuery as string):
 		if string.IsNullOrWhiteSpace(argQuery):
 			argQuery='.'
 		argQuery=Path.GetFullPath(argQuery)

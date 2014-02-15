@@ -104,6 +104,9 @@ Namespace introspection helper.
 		_qualifier = qualifier
 	
 	public FullName as string:
+	"""
+	Full name of the namespace including qualifiers.
+	"""
 		get:
 			result=self.Name
 			if self._qualifier != null and not string.IsNullOrEmpty(self._qualifier.Name):
@@ -119,6 +122,10 @@ Namespace introspection helper.
 		return found
 	
 	public def FindChild(name as string) as Namespace:
+	"""
+	Search this namespace or its children (that use this namespace
+	as qualifier) for one of a particular name.
+	"""
 		if string.IsNullOrEmpty(name):
 			return null
 		fullQualifier = string.Empty
@@ -149,19 +156,32 @@ Namespace introspection helper.
 		_types.Add(type)
 		
 	Types as (System.Type):
+	"""
+	The types that this namespace provides.
+	"""
 		get: return _types.ToArray()
 			
 	def GetType(name as string):
+	"""
+	Finds a type of a particular name among the types that this
+	namespace provides.
+	"""
 		for type as System.Type in _types:
 			return type if name == type.Name
 			
 	Namespaces:
+	"""
+	The namespaces that are qualified by this namespace.
+	"""
 		get: return array(value as Namespace for value in _children.Values)
 			
 	Item[name as string] as Namespace:
 		get: return _children[name]
 	
 	NamespacesNames:
+	"""
+	Short names of namespaces that refer to this namespace as qualifier.
+	"""
 		get: return self._children.Keys
 			
 	override def ToString():
