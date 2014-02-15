@@ -613,7 +613,7 @@ this feature.""")]
 		Eval("globals()")
 	
 	[CmdDeclaration("describe d", Description: "Describes a type (or the type of an object)")]
-	public def Describe([CmdArgument(CmdArgumentCompletion.Type)] typeOrObjectOrNamespace):
+	public def Describe([CmdArgument(CmdArgumentCompletion.TypeOrMember)] typeOrObjectOrNamespace):
 		nameString = typeOrObjectOrNamespace.ToString()
 		ns = Namespace.Find(nameString)
 		if ns == null:

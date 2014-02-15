@@ -120,7 +120,7 @@ Namespace introspection helper.
 			found = Namespace(ns, self) 
 			_children.Add(ns, found)
 		return found
-	
+		
 	public def FindChild(name as string) as Namespace:
 	"""
 	Search this namespace or its children (that use this namespace

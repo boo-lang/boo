@@ -107,7 +107,7 @@ argument completion.
 	the argument is a type name.
 	"""
 	
-	TypeOrMethodOrFunction = 0x004
+	TypeOrMember = 0x004
 	"""
 	The argument is a type or a method (used by "help").
 	"""

@@ -167,29 +167,44 @@ class CmdExecution:
 		elif attr.Type == CmdArgumentCompletion.ExistingOrNotExistingFileOrExistingDirectory:
 			return (self.ReturnArgCompletionFile('"', argQuery), argPos)
 		elif attr.Type == CmdArgumentCompletion.Type:
-			return (self.ReturnArgCompletionType(argQuery), argPos)
-		elif attr.Type == CmdArgumentCompletion.TypeOrMethodOrFunction:
-			return (self.ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery), argPos)
+			return (self.ReturnArgCompletionType(argQuery, null), argPos)
+		elif attr.Type == CmdArgumentCompletion.TypeOrMember:
+			return (self.ReturnArgCompletionExecutableTypeOrMember(argQuery), argPos)
 		return null
 	
-	private def ReturnArgCompletionExecutableTypeOrMethodOrFunction(argQuery as string):
-		return null
+	private def ReturnArgCompletionExecutableTypeOrMember(argQuery as string):
+		if argQuery is null: argQuery = string.Empty
+		lastComponentStart=argQuery.LastIndexOf('.')
+		members = List of string()
+		if lastComponentStart > 0:
+			t=Type.GetType(argQuery[:lastComponentStart], false, false)
+			memberNameFilter = argQuery[lastComponentStart+1:]
+			if not t is null:
+				for mi in t.GetMembers():
+					if mi.Name.StartsWith(memberNameFilter, StringComparison.InvariantCultureIgnoreCase):
+						members.Add("${t.Namespace}.${t.Name}.${mi.Name}")
+		return ReturnArgCompletionType(argQuery, members)
 	
-	private def ReturnArgCompletionType(argQuery as string):
+	private def ReturnArgCompletionType(argQuery as string,\
+			additionalResults as Collections.Generic.ICollection of string):
 		if argQuery is null: argQuery = string.Empty
 		lastComponentStart=argQuery.LastIndexOf('.')
 		if lastComponentStart > 0:
-			ns = Namespace.Find(argQuery[0:lastComponentStart])
+			ns = Namespace.Find(argQuery[:lastComponentStart])
 			argQuery=argQuery[lastComponentStart+1:]
 		else:
 			ns = Namespace.GetRootNamespace()
 		result = List of string()
-		for cns in ns.Namespaces:
-			if cns.Name.StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):
-				result.Add(cns.FullName+'.')
-		for t in ns.Types:
-			if t.IsVisible and t.IsPublic and t.Name.StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):
-				result.Add(repr(t))
+		if not ns is null:
+			for cns in ns.Namespaces:
+				if cns.Name.StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):
+					result.Add(cns.FullName+'.')
+		if not additionalResults is null:
+			result.AddRange(additionalResults)
+		if not ns is null:
+			for t in ns.Types:
+				if t.IsVisible and t.IsPublic and t.Name.StartsWith(argQuery, StringComparison.InvariantCultureIgnoreCase):
+					result.Add(repr(t))
 		return result.ToArray()
 	
 	private def ReturnArgCompletionFile(dirQuote as string, argQuery as string):
