@@ -107,7 +107,12 @@ class Directory:
 		SetCurrentDirectory(_dirStack[_dirStackIndex])
 		Console.WriteLine(_dirStack[_dirStackIndex])
 		
-	[CmdDeclaration("dir ls", Description: "Show files and directories.")]
+	[CmdDeclaration("dir ls", Description: """Show files and directories. An optional argument may
+specify a filter including wildcards * or ?.
+Examples:
+dir
+dir *.bak
+lsdir c:\b*""")]
 	public def Dir([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:".")] directory):
 		LsDir(directory)
 		LsFile(directory)
@@ -126,18 +131,48 @@ class Directory:
 		System.IO.Directory.CreateDirectory(Path.GetDirectoryName(ConfigFileName))
 		using f=System.IO.File.CreateText(ConfigFileName):
 			f.WriteLine("SetWidthCreationDate "+self._widthCreationDate.ToString())
-
-	[CmdDeclaration("lsdir", Description: "Show directories.")]
+				
+	static internal def EnumerateFiles(path as string):
+		if string.IsNullOrEmpty(path): path='.'
+		pathRoot = Path.GetPathRoot(path)
+		if string.IsNullOrEmpty(pathRoot):
+			pathRoot=Path.GetFullPath('.')
+		else:
+			path=path[len(pathRoot):]					
+		for result in System.IO.Directory.EnumerateFiles(pathRoot, path):
+			yield result
+	
+	static internal def EnumerateDirectories(path as string):
+		if string.IsNullOrEmpty(path): path='.'
+		pathRoot = Path.GetPathRoot(path)
+		if string.IsNullOrEmpty(pathRoot):
+			pathRoot=Path.GetFullPath('.')
+		else:
+			path=path[len(pathRoot):]					
+		for result in System.IO.Directory.EnumerateDirectories(pathRoot, path):
+			yield result
+	
+	[CmdDeclaration("lsdir", Description: """Show directories. An optional argument may
+specify a filter including wildcards * or ?.
+Examples:
+lsdir
+lsdir *.bak
+lsdir c:\b*""")]
 	public def LsDir([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:".")] directory):
-		for d in System.IO.Directory.GetDirectories(directory):
+		for d in EnumerateDirectories(directory):
 			if self._widthCreationDate > 0:
 				Console.Write(System.IO.Directory.GetCreationTime(d).ToString("g")[:self._widthCreationDate].PadLeft(self._widthCreationDate)+' ')
-			Console.WriteLine(d+"\\")
+			Console.WriteLine(Path.GetFileName(d)+"\\")
 	
-	[CmdDeclaration("lsfiles", Description: "Show files.")]
+	[CmdDeclaration("lsfiles", Description: """Show files. An optional argument may
+specify a filter including wildcards * or ?.
+Examples:
+lsfiles
+lsfiles *.bak
+lsfiles c:\b*""")]
 	public def LsFile([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:".")] directory):
-		for f in System.IO.Directory.GetFiles(directory):
+		for f in EnumerateFiles(directory):
 			if self._widthCreationDate > 0:
 				Console.Write(System.IO.File.GetCreationTime(f).ToString("g")[:self._widthCreationDate].PadLeft(self._widthCreationDate)+' ')
-			Console.WriteLine(f)
+			Console.WriteLine(Path.GetFileName(f))
 

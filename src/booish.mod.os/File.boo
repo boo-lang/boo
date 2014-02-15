@@ -43,7 +43,7 @@ class File:
 
 		public def constructor (interpreter as Interpreter.InteractiveInterpreter):
 			_interpreter = interpreter
-		
+				
 		[CmdDeclaration("mv move", Description:"Move a file to another directory or rename it.")]
 		public def Move([CmdArgument(CmdArgumentCompletion.File)] src as string,
 			[CmdArgument(CmdArgumentCompletion.ExistingOrNotExistingFileOrExistingDirectory)] destination as string):
@@ -53,30 +53,47 @@ class File:
 			destination = Path.Combine(destination, Path.GetFileName(src)) if System.IO.Directory.Exists(destination)
 			System.IO.File.Move(src, destination)
 		
-		[CmdDeclaration("cp copy", Description:"Copy a file to another directory.")]
+		[CmdDeclaration("cp copy", Description:"""Copy a file (or more files using wildcards * or ?)
+to another directory.
+Example:
+cp *.boo c:\temp""")]
 		public def Copy([CmdArgument(CmdArgumentCompletion.File)] src as string,
 			[CmdArgument(CmdArgumentCompletion.ExistingOrNotExistingFileOrExistingDirectory)] destination as string):
 		"""
-			Copy a file to another directory.
+			Copy files to another directory. 
 		"""
-			destination = Path.Combine(destination, Path.GetFileName(src)) if System.IO.Directory.Exists(destination)
-			System.IO.File.Copy(src, destination)
+			if System.IO.Directory.Exists(destination):
+				for srcExpanded in Booish.Mod.Os.Directory.EnumerateFiles(src):
+					destinationHere = Path.Combine(destination, Path.GetFileName(srcExpanded))
+					System.IO.File.Copy(src, destination)
 		
-		[CmdDeclaration("rm del", Description: "Delete a file.")]
+		[CmdDeclaration("rm del", Description: """Delete one or more files. The required
+argument may contain wildcards * or ?.
+Examples:
+delete bullshit.boo
+delete *.bak""")]
 		public def Delete([CmdArgument(CmdArgumentCompletion.File)] file as string):
 		"""
 			Delete a file.
 		"""
 			System.IO.File.Delete(file)
 		
-		[CmdDeclaration("encrypt", Description: "Encrypt a file.")]
+		[CmdDeclaration("encrypt", Description: """Encrypt a file. The required
+argument may contain wildcards * or ?.
+Examples:
+encrypt bullshit.boo
+encrypt *.bak""")]
 		public def Encrypt([CmdArgument(CmdArgumentCompletion.File)] file as string):
 		"""
 			Encrypt a file.
 		"""
 			System.IO.File.Encrypt(file)
 		
-		[CmdDeclaration("decrypt", Description: "Decrypt a file.")]
+		[CmdDeclaration("decrypt", Description: """Decrypt a file. The required
+argument may contain wildcards * or ?.
+Examples:
+decrypt bullshit.boo
+decrypt *.bak""")]
 		public def Decrypt([CmdArgument(CmdArgumentCompletion.File)] file as string):
 		"""
 			Decrypt a file.
