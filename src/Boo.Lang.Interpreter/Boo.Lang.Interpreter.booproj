@@ -62,6 +62,9 @@
     <Reference Include="Boo.Lang.Useful">
       <HintPath>..\..\build\Boo.Lang.Useful.dll</HintPath>
     </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\..\build\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
