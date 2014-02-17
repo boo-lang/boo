@@ -776,7 +776,7 @@ by a slash (e.g. /toggle).""")]
 	[CmdDeclaration("load", Description: """Loads and evals a BOO file. You can also load
 assemblies. After loading, the assembly will be referenced
 by the interpreter.""")]
-	def Load([required] path as string):
+	def Load([required][CmdArgument(CmdArgumentCompletion.File)] path as string):
 		if path.EndsWith(".boo"):
 			ConsolePrintMessage("Evaluating '${path}' ...")
 			DisplayResults(_interpreter.EvalCompilerInput(Boo.Lang.Compiler.IO.FileInput(path)))
