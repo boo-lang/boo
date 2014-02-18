@@ -45,7 +45,7 @@ import PatternMatching
 class InteractiveInterpreterConsole:
 	
 	public final static HISTORY_FILENAME = "booish\\history"
-	public final static HISTORY_CAPACITY = 1000
+	public final static HISTORY_CAPACITY = 500
 	
 	struct HistoryEntry:
 		[Getter(Text)]
@@ -60,6 +60,7 @@ class InteractiveInterpreterConsole:
 	_history = List of HistoryEntry(HISTORY_CAPACITY)
 	_historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
 	_historyIndex = 0
+	_historySet = Generic.HashSet of string()
 	_session = System.Collections.Generic.List of string()
 	
 	[Property(AutoIndention)]
@@ -117,15 +118,15 @@ class InteractiveInterpreterConsole:
 		get: return _line.Length
 		set: _line.Length = value
 	
-	BooIndention = '\t'
-	BooIndentionWidth = 4
+	_booIndention = '. '
+	_booIndentionWidth = 2
 	
 	LineIndentWidth:
 	"""
 	The number of columns that the line indention covers if written
 	on the console.
 	"""
-		get: return BooIndentionWidth * _indent
+		get: return _booIndentionWidth * _indent
 
 	CurrentPrompt as string:
 		get:
@@ -209,7 +210,7 @@ this feature.""")]
 		if autoIndent:
 			for i in range(self._indent):
 				WithColor IndentionColor:
-					Console.Write(BooIndention)
+					Console.Write(_booIndention)
 
 	
 	private def ConsolePrintMessage(msg as string):
@@ -286,12 +287,14 @@ this feature.""")]
 
 	protected def Indent():
 		WithColor IndentionColor:
-			Console.Write(BooIndention)
+			Console.Write(_booIndention)
 		_indent++
 
 	protected def Unindent():
 		return if _indent == 0
-		Console.CursorLeft -= self.BooIndentionWidth
+		Console.CursorLeft -= self._booIndentionWidth
+		Console.Write(string.Empty.PadLeft(self._booIndentionWidth))
+		Console.CursorLeft -= self._booIndentionWidth
 		_indent--
 	
 	private def DeleteInMultilineMode():
@@ -432,9 +435,9 @@ this feature.""")]
 			return
 		Console.CursorLeft = len(CurrentPrompt)
 		Console.Write(string.Empty.PadLeft(LineLen, char(' ')))
-		line = _history[_historyIndex].Text
+		line = _history[_historyIndex].Text.TrimStart('\t'[0])
 		LineLen = 0
-		Console.CursorLeft = len(CurrentPrompt)
+		Console.CursorLeft = len(CurrentPrompt)+self._booIndentionWidth*self._indent
 		WriteToReplace(line)
 
 	_inMultilineString=false
@@ -555,17 +558,17 @@ this feature.""")]
 		if not newLine:
 			#line-editing support
 			if cx < LineLen and not _multiline:
-				_line.Insert(cx, keyChar) if not control
+				if not control: _line.Insert(cx, keyChar)
 				Console.Write(_line.ToString(cx, LineLen-cx))
 				Console.CursorLeft = len(CurrentPrompt)+cx+1
 			else:
-				_line.Append(keyChar) if not control
+				if not control: _line.Append(keyChar)
 				Console.Write(keyChar)
 
 		if newLine:
 			Console.Write(Environment.NewLine)
 			if not TryRunCommand(Line):
-				_buffer.Append(self.BooIndention*self._indent)
+				_buffer.Append('\t'*self._indent)
 				_buffer.Append(Line)
 				_buffer.Append(Environment.NewLine)
 
@@ -583,7 +586,7 @@ this feature.""")]
 						or Line.EndsWith(QQBegin)\
 						or (_indent == 0 and self._inMultilineString): # indent in multiline string
 						++self._indent
-					elif Line.EndsWith(BooIndention+"pass"):
+					elif Line.EndsWith(_booIndention+"pass"):
 						--self._indent
 				else:
 					self._indent = 0
@@ -750,18 +753,27 @@ by a slash (e.g. /toggle).""")]
 		except:
 			ConsolePrintError("Cannot load history from '${_historyFile}'")
 
-	def AddToHistory(line as string, isValid as bool):
-		if self._quit: return
-		line = line.Replace("\n", "").Replace("\r", "")
-		if 0 >= len(line): return
-		# line might stem from the history
-		if self._historyIndex >= self._history.Count\
-			or line != self._history[self._historyIndex].Text:
-			while _history.Count >= HISTORY_CAPACITY:
-				_history.RemoveAt(0)
-				_historyIndex-=1
-			_history.Add(HistoryEntry(line, isValid))
-			_historyIndex = _history.Count
+	def AddToHistory(buffer as string, isValid as bool):
+		if _quit or string.IsNullOrWhiteSpace(buffer): return
+		for line in buffer.Split(*'\n\r'.ToCharArray()):
+			if 0 >= len(line): continue
+			# line might stem from the history
+			if _historyIndex >= _history.Count\
+				or line != _history[_historyIndex].Text:
+				while _history.Count >= HISTORY_CAPACITY:
+					_history.RemoveAt(0)
+					_historyIndex-=1
+					_historySet.Remove(line)
+				if _historySet.Contains(line):
+					i = 0
+					while i < len(_history):
+						if _history[i].Text == line:
+							_history.RemoveAt(i)
+							break
+						i+=1
+				_historySet.Add(line)
+				_history.Add(HistoryEntry(line, isValid))
+				_historyIndex = _history.Count
 
 	def SaveHistory():
 		try:

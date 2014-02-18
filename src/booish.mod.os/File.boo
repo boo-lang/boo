@@ -50,7 +50,8 @@ class File:
 		"""
 			Move a file to another directory or rename it.
 		"""
-			destination = Path.Combine(destination, Path.GetFileName(src)) if System.IO.Directory.Exists(destination)
+			if System.IO.Directory.Exists(destination):
+				destination = Path.Combine(destination, Path.GetFileName(src)) if System.IO.Directory.Exists(destination)
 			System.IO.File.Move(src, destination)
 		
 		[CmdDeclaration("cp copy", Description:"""Copy a file (or more files using wildcards * or ?)
@@ -65,7 +66,9 @@ cp *.boo c:\temp""")]
 			if System.IO.Directory.Exists(destination):
 				for srcExpanded in Booish.Mod.Os.Directory.EnumerateFiles(src):
 					destinationHere = Path.Combine(destination, Path.GetFileName(srcExpanded))
-					System.IO.File.Copy(src, destination)
+					System.IO.File.Copy(src, destinationHere)
+			else:
+				System.IO.File.Copy(src, destination)
 		
 		[CmdDeclaration("rm del", Description: """Delete one or more files. The required
 argument may contain wildcards * or ?.

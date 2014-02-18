@@ -38,7 +38,7 @@ static class ColorScheme:
 	public property BackgroundColor = ConsoleColor.Black
 	public property InterpreterColor = ConsoleColor.DarkGray
 	public property EmphasizeColor = ConsoleColor.DarkYellow	
-	public property IndentionColor = ConsoleColor.DarkYellow
+	public property IndentionColor = ConsoleColor.DarkGreen
 	public property PromptColor = ConsoleColor.DarkGreen
 	public property ExceptionColor = ConsoleColor.DarkRed
 	public property WarningColor = ConsoleColor.Yellow
