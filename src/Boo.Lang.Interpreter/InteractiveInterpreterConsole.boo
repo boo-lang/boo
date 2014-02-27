@@ -434,7 +434,7 @@ this feature.""")]
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
 		Console.CursorLeft = len(CurrentPrompt)
-		Console.Write(string.Empty.PadLeft(LineLen, char(' ')))
+		Console.Write(string.Empty.PadLeft(LineLen+self._booIndentionWidth*self._indent, char(' ')))
 		line = _history[_historyIndex].Text.TrimStart('\t'[0])
 		LineLen = 0
 		Console.CursorLeft = len(CurrentPrompt)+self._booIndentionWidth*self._indent
