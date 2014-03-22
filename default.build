@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="boo" default="all">
 
+	<property name="sharpdevelop.dir" value="c:/sf/SharpDevelop/"/>
 	<loadfile file="version.txt" property="version.txt" />
 	<property name="boo.version" value="${string::trim(version.txt)}" />
 
@@ -182,6 +183,10 @@
 	</target>
 	
 	<target name="booish.mod.os">
+		<property name="booish.mod.os.doc" value="" />
+		<if test="${create.doc}">
+			<property name="booish.mod.os.doc" value="/doc:${build.dir}/booish.mod.os.xml" />
+		</if>
 		<booc
 			target="library"
 			output="${build.dir}/booish.mod.os.dll"
@@ -198,11 +203,16 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}"/>
+			<arg line="${booish.mod.os.doc}" />
 		</booc>
 	</target>
 	
 	<target name="booish" depends="Boo.Lang.Interpreter,booish.mod.os">
+		<property name="booish.doc" value="" />
+		<if test="${create.doc}">
+			<property name="booish.doc" value="/doc:${build.dir}/booish.xml" />
+		</if>
 		<booc
 			target="exe"
 			output="${build.dir}/booish.exe"
@@ -220,7 +230,8 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}"/>
+			<arg line="${booish.doc}" />
 		</booc>
 		<copy file="extras/template.config.in" tofile="${build.dir}/booish.exe.config">
 			<filterchain>
@@ -242,6 +253,10 @@
 	</target>
 
 	<target name="booi" depends="core, Boo.Lang.Useful, Boo.Lang.Parser">
+		<property name="booi.doc" value="" />
+		<if test="${create.doc}">
+			<property name="booi.doc" value="/doc:${build.dir}/booi.xml" />
+		</if>
 		<booc
 			target="exe"
 			output="${build.dir}/booi.exe"
@@ -261,7 +276,8 @@
 				<include name="../AssemblyInfo.boo"/>
 			</sources>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
-		</booc>		
+			<arg line="${booi.doc}" />
+		</booc>	
 		
 		<copy file="extras/template.config.in" tofile="${build.dir}/booi.exe.config">
 			<filterchain>
@@ -295,7 +311,10 @@
 	</target>
 	
 	<target name="Boo.Lang.PatternMatching" depends="core">
-	
+		<property name="Boo.Lang.PatternMatching.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.PatternMatching.doc" value="/doc:${build.dir}/Boo.Lang.PatternMatching.xml" />
+		</if>
 		<booc target="library" output="${build.dir}/Boo.Lang.PatternMatching.dll">
 			<sources basedir="src/Boo.Lang.PatternMatching">
 				<include name="**/*.boo" />
@@ -305,11 +324,16 @@
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="${Boo.Lang.PatternMatching.doc}" />
 		</booc>
 		
 	</target>
 
 	<target name="Boo.Lang.Interpreter" depends="Boo.Lang.PatternMatching, core">
+		<property name="Boo.Lang.Interpreter.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.Interpreter.doc" value="/doc:${build.dir}/Boo.Lang.Interpreter.xml" />
+		</if>
 		<booc target="library"
 		      output="${build.dir}/Boo.Lang.Interpreter.dll"
 		      verbose="${verbose}"
@@ -324,7 +348,8 @@
 				<include name="Boo.Lang.PatternMatching.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}"/>
+			<arg line="${Boo.Lang.Interpreter.doc}" />
 		</booc>
 	</target>
 
@@ -443,6 +468,10 @@
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
 		<property name="backup.currentframework" value="${nant.settings.currentframework}" />
 		<property name="nant.settings.currentframework" value="mono-2.0" unless="${platform::is-windows()}" />
+		<property name="Boo.Microsoft.Build.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Microsoft.Build.doc" value="/doc:${build.dir}/Boo.Microsoft.Build.Tasks.xml" />
+		</if>
 		<booc target="library"	
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="true" 
@@ -460,7 +489,8 @@
 				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}"/>
+			<arg line="${Boo.Microsoft.Build.doc}" />
 		</booc>
 		<property name="nant.settings.currentframework" value="${backup.currentframework}" />
 		<copy todir="${build.dir}">
@@ -492,6 +522,10 @@
 			</exec>
 		</if>
 		
+		<property name="Boo.Lang.Useful.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.Useful.doc" value="/doc:${build.dir}/Boo.Lang.Useful.xml" />
+		</if>
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
@@ -509,11 +543,16 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}"/>
+			<arg line="${Boo.Lang.Useful.doc}" />
 		</booc>
 	</target>
 	
 	<target name="Boo.Lang.CodeDom" depends="core">
+		<property name="Boo.Lang.CodeDom.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.CodeDom.doc" value="/doc:${build.dir}/Boo.Lang.CodeDom.xml" />
+		</if>
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
 			verbose="${verbose}"
@@ -532,11 +571,16 @@
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Extensions.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}"/>
+			<arg line="${Boo.Lang.CodeDom.doc}" />
 		</booc>
 	</target>
 	
 	<target name="Boo.Lang.Extensions" depends="corecs, Boo.NAnt.Tasks">
+		<property name="Boo.Lang.Extensions.doc" value="" />
+		<if test="${create.doc}">
+			<property name="Boo.Lang.Extensions.doc" value="/doc:${build.dir}/Boo.Lang.Extensions.xml" />
+		</if>
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Extensions.dll"
 			failonerror="true"
@@ -554,7 +598,8 @@
 				<include name="System.dll" />
 				<include name="System.Core.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
+			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}"/>
+			<arg line="${Boo.Lang.Extensions.doc}" />
 		</booc>
 	</target>
 	
@@ -1165,7 +1210,7 @@
 	</target>	
 	
 	<target name="update-sharpdevelop" depends="all">
-		<copy todir="${sharpdevelop.dir}/AddIns/AddIns/BackendBindings/BooBinding">
+		<copy todir="${sharpdevelop.dir}/AddIns/BackendBindings/BooBinding">
 			<fileset basedir="${build.dir}">
 				<include name="*.dll" />
 				<include name="*.exe" />

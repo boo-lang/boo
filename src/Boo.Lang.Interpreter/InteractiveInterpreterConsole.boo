@@ -687,7 +687,7 @@ this feature.""")]
 			Console.WriteLine( """Welcome to booish, an interactive interpreter for the boo programming language.""" )
 		WithColor InterpreterColor:
 			Console.WriteLine( """Copyright (c) 2004-2012, Rodrigo B. de Oliveira (rbo@acm.org)
-Copyright (c) 2013-    , Harald Meyer auf'm Hofe (harald_meyer@users.sourceforge.net)""" )
+Copyright (c) 2013-2014, Harald Meyer auf'm Hofe (harald_meyer@users.sourceforge.net)""" )
 		WithColor HeadlineColor:
 			Console.WriteLine( """Running boo ${BooVersion} on ${Boo.Lang.Runtime.RuntimeServices.RuntimeDisplayName}.
 

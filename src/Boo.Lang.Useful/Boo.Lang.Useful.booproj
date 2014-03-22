@@ -86,5 +86,5 @@
     </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
-  <Import Project="$(BooToolPath)\Boo.Microsoft.Build.targets" />
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

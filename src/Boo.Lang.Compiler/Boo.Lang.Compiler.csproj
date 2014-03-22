@@ -431,6 +431,7 @@
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
     <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
+    <Compile Include="Steps\CreateAndSaveDocs.cs" />
     <Compile Include="Steps\DetectNotImplementedFeatureUsage.cs" />
     <Compile Include="Steps\DumpReferences.cs" />
     <Compile Include="Steps\EmitAssembly.cs" />
@@ -448,6 +449,7 @@
     <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />
     <Compile Include="Steps\GenericConstraintsValidator.cs" />
     <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
+    <Compile Include="Steps\IAbstractCompilerStep.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\Inheritance\BaseTypeResolution.cs" />
     <Compile Include="Steps\InitializeNameResolutionService.cs" />

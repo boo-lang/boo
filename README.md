@@ -60,12 +60,19 @@ You can also have booi to read from stdin by typing:
 
 	booi -
 	
-However, boo also comes with an interactive shell that
+Additionally, boo also comes with an interactive shell that
 provides you with the opportunity to use the interpreter
 interactively.
 
 	booish
 	
+After starting the shell you may type in command "h" to
+display some hopefully helpful information on the
+particular abilities of this shell. The startup environment
+of the shell may be configured editing file booish.rsp that
+also resides in the bin/ folder (must be side-by-side to
+the program).
+
 You can generate .net assemblies by using `booc` (either
 the `booc.exe` utility or the `booc nant` task):
 
@@ -76,11 +83,20 @@ your code by the compiler use the boo pipeline, run:
 
 	booc -p:boo examples/replace.boo	
 	
+Folder bin/ also contains support modules for the NANT and
+MSBUILD build systems. You will have to define environment
+variable "BooBinPath" in such a way that
+
+	$(BooBinPath)\Boo.Microsoft.Build.targets
+	
+points at the definitions of the MSBuild targets referring to
+Boo.
+
+
 More Information
 ================
 
 http://boo.codehaus.org/
-http://boo.codehaus.org/Mailing+Lists
 
 Contributors
 ============

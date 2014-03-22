@@ -31,7 +31,7 @@ import System.Reflection
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira, (C) 2013- Harald Meyer auf'm Hofe")]
+[assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira, (C) 2013-2014 Harald Meyer auf'm Hofe")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.9.6.0")]

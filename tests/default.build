@@ -121,6 +121,8 @@
 				<include name="booc.exe" />
 			</references>
 		</csc>
+		<copy todir="build" file="booc.Tests/TestDoc.boo" />
+		<copy todir="build" file="booc.Tests/TestDocReference.xml" />
 
 		<booc
 			target="library"

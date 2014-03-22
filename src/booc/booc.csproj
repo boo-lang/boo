@@ -13,6 +13,7 @@
     <FileAlignment>4096</FileAlignment>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ProductVersion>9.0.30729</ProductVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
@@ -40,6 +41,11 @@
     <Optimize>true</Optimize>
     <FileAlignment>4096</FileAlignment>
     <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <StartAction>Project</StartAction>
+    <StartArguments>-o:t.dll -doc -t:library -r:..\..\build\Boo.Lang.dll -r:..\..\build\Boo.Lang.Interpreter.dll AssemblyInfo.boo File.boo Directory.boo</StartArguments>
+    <StartWorkingDirectory>..\booish.mod.os\</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

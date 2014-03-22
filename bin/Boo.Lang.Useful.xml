@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Boo.Lang.Useful</name>
+  </assembly>
+  <members>
+    <member name="T:Boo.Lang.Useful.Attributes.AutoFlagsAttribute">
+      <summary>Automatically increment enum values using base 2. Makes bitflags a snap, but beware: assign your own values with care! By default, AutoFlags starts with 1 - you can make a "none" enum by specifying it directly: enum Ninjas: None = 0 Black #assigned 1 White #assigned 2 Grey = Black | White #assigned 3, 1 + 2</summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.OnceAttribute.ReturnValueStorageVisitor.OnReturnStatement(Boo.Lang.Compiler.Ast.ReturnStatement)">
+      <summary>Replaces returns statements with binary expressions that store the values of the return statements. </summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Attributes.OnceAttribute.ReturnValueStorageVisitor">
+      <summary>Replaces returns statements with binary expressions that store the values of the return statements. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.OnceAttribute.Apply(Boo.Lang.Compiler.Ast.Node)">
+      <summary>Applies the <see cref="OnceAttribute" /> to <paramref name="node" />.  Parameters: node The node to apply the <see cref="OnceAttribute" /> to. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.OnceAttribute.CreateReturnValueField">
+      <summary>Creates the field that stores the return value of the cached method. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.OnceAttribute.CreateCachedField">
+      <summary>Creates the cached flag. </summary>
+      <remarks> The flag is used to check whether the method has been cached. </remarks>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.OnceAttribute.CreateMethodLockField">
+      <summary>Creates the lock field. </summary>
+      <remarks> The field is used to lock on when the operatation is thread safe. </remarks>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.OnceAttribute.PostProcessMethod">
+      <summary>Visit the node and replace return statements with binary expressions that store the return statement values. Add a single return statement at the end to return the cached value. </summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Attributes.OnceAttribute">
+      <summary>Caches the return value of a method.  Usage <paramref name="once" /> def foo(): return Math.Sin(Math.PI*3)  @author Sorin Ionescu (sorin.ionescu@gmail.com)</summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.SingletonAttribute.EnforceMemberConstraints">
+      <summary>Checks all type members to ensure compliance with singleton specification. In this case, we discourage the use of static members on a singleton class but we do not make disallow it.  The attribute will funtion properly regardless of whether or not a class strictly follows the pattern.  Also, we ensure that every instance constructor is private, and if the user never provided an instance constructor, we provide the default one as private so that Boo doesn't automatically create the default public constructor.  There may be a static constructor, but we do not factor this in because we warn about it as aforementioned. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.SingletonAttribute.CreateInstanceProperty">
+      <summary>Creates the public, static, read-only property 'Instance' and adds it to the singleton.  This property accesses '$Nested.instance' to return the actual singleton instance. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Attributes.SingletonAttribute.CreateNestedClass">
+      <summary>Creates the nested class and calls helper functions to generate the nested members.  This class is marked private to ensure that only the singleton class will be able to access it.  Note that accessing this nested class will cause the lazy initialization to trigger.  The reason for this internal class is to allow accesses to other static methods without triggering initialization of the instance until it is called for.  This is the most elegant solution I know of for the .Net framework to allow for this functionality. </summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Attributes.SingletonAttribute">
+      <summary>Implements the singleton design pattern for a class.  Guarantees that accessing the singleton instance is thread-safe. Guarantees that singleton instance is not initialized until Instance is called (lazy instantiation). Guarantees that all constructors are private. Guarantees that a private default constructor exists. (One need not be provided.) Guarantees that serializable singletons remain singletons through serialization/deserialization.  Enforces constraint that no parameterized constructors exist on the singleton class. Enforces constraint that no static members exist on the singleton class (as a recommendation at the Warning level).  @author Marcus Griep (neoeinstein+boo@gmail.com) @author Sorin Ionescu (sorin.ionescu@gmail.com) @author Rodrigo B. de Oliveira</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Attributes.TraceMethodCallsAttribute">
+      <summary>Visits every method adding a trace statement at both its very beginning and end.</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Collections.Cache.LruItem">
+      <summary>Least Recently Used Item stored as a circular double linked list </summary>
+    </member>
+    <member name="P:Boo.Lang.Useful.Collections.Cache.Creator">
+      <summary>Method that will be used if object cannot be found in cache </summary>
+    </member>
+    <member name="P:Boo.Lang.Useful.Collections.Cache.MaximumSize">
+      <summary>Maximum size of cache. If value is set to a value less than current Count, cache will resize itself to MaximumSize </summary>
+    </member>
+    <member name="P:Boo.Lang.Useful.Collections.Cache.Count">
+      <summary>Current size of cache </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Collections.Cache.Remove(System.Object)">
+      <summary>Removes item from cache </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Collections.Cache.Clear">
+      <summary>Empties cache </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Collections.Cache.Add(System.Object,System.Object)">
+      <summary>Adds a key value pair to cache object </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Collections.Cache.ContainsValue(System.Object)">
+      <summary>True is value is in cache </summary>
+    </member>
+    <member name="P:Boo.Lang.Useful.Collections.Cache.Keys">
+      <summary>List of keys in order of most recently used </summary>
+    </member>
+    <member name="P:Boo.Lang.Useful.Collections.Cache.Values">
+      <summary>List of values in order of most recently used </summary>
+    </member>
+    <member name="P:Boo.Lang.Useful.Collections.Cache.IsReadOnly">
+      <summary>Always false </summary>
+    </member>
+    <member name="P:Boo.Lang.Useful.Collections.Cache.IsFixedSize">
+      <summary>Always false </summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Collections.Cache">
+      <summary>Cache class. Works like a Hash with a limited size. The least recently used item is removed when size overflows.  This class has the option to supply a creator method that will be used if an entry is not found in cache. Furthermore it can fire an event if an entry is removed from cache due to overflow.  Usage  cache = Cache(2) #create a cache with size 2 cache.Add(1, "1") cache.Add(2, "2") cache.Add(3, "3") #overflow, least recently used item will be removed i.e. 1, "1"  assert cache.Count == 2 assert cache<paramref name="3" /> == "3" assert cache<paramref name="2" /> == "2"  cache.Add(4,"4") #overflow, 3 will be removed (since 2 is most recently used) assert cache.Count == 2 assert cache<paramref name="4" /> == "4" assert cache<paramref name="2" /> == "2"  #add a creator method cache.Creator = def(key): print 'Create entry: ' + key return key.ToString()  #add an removed event cache.Removed += def(key): print "Removed " + key  assert cache<paramref name="42" /> == "42" #will print: Create entry: 42. Removed 4 from cache  @author Edwin de Jonge</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Collections.CollectionAttribute">
+      <summary>Generates a simple strongly typed collection which extends Boo.Lang.Useful.Collections.AbstractCollection.  Example: [collection(CompilerError)] class CompilerErrorCollection: pass</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Collections.Set">
+      <summary>Mathematical Set class.  From any enumerable a Set can be created. The Set will not contain duplicate itemects (it is not a multiset). The Set class implements intersection, union, subset and (left/right)difference  The Set class supports the following syntax:  a = Set((1,2))              # Create set a b = Set((2,3))				# Create set b  intersection = a &amp; b        # == {2} union = a | b               # == {1,2,3} leftdiff = a - b            # == {1} rightdiff = b - a           # == {3} diff = a.Differrence(b)     # == {1,3}, this should be a ^ b, but Boo doesn't support this yet  isSubSet = a &lt;= union       # == true isStrictSubSet = a &lt; union  # == true</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.CommandLine.EventBasedParser">
+      <summary>A command line parser that generates events whenever it finds an option or an argument.</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.CommandLine.OptionAttribute">
+      <summary>Describes a command line option. @see Parser</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.CommandLine.Parser">
+      <summary>Parses a command line based on a description of acceptable options.  @see Option</summary>
+    </member>
+    <member name="F:Boo.Lang.Useful.Doc.AssemblyDoc._fileName">
+      <summary>This is the name of the documentation file like 'C:\\Programme\\Reference Assemblies\\Microsoft\\Framework\\v3.5\\System.Core.xml'. </summary>
+    </member>
+    <member name="F:Boo.Lang.Useful.Doc.AssemblyDoc._assemblyName">
+      <summary>The name of the documented assembly like 'System.Core'. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.AssemblyDoc.Load(System.String)">
+      <summary>Loads documentation from a certain file. </summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Doc.AssemblyDoc">
+      <summary>The documentation of an assembly in Sandcastle style.</summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.String)">
+      <summary>Returns the designator of a namespace. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.Type)">
+      <summary>Returns the designator that an be used to retrieve docs on a certain type. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.Reflection.Assembly)">
+      <summary>Returns a designator that can be used to retrieve docs on a certain assembly. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.Reflection.MethodInfo,bool)">
+      <summary>Creates a designator for a particular method. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.Reflection.ConstructorInfo,bool)">
+      <summary>Creates a designator for a particular ctor. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.Reflection.PropertyInfo)">
+      <summary>Creates a designator for a particular property. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.Reflection.FieldInfo)">
+      <summary>Creates a designator for a particular field. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.ToDesignator(System.Reflection.EventInfo)">
+      <summary>Creates a designator for a particular event. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.Find(System.Reflection.Assembly,System.Object)">
+      <summary>Find documentation of a particular element that refers to a particular assembly. This will return null if nothing has been found. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.Find(System.Type)">
+      <summary>Return the XML nodes comprising the documentation on a particular type or null if the documentation cannot be found. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.Find(System.Reflection.MethodInfo)">
+      <summary>Return the XML nodes comprising the documentation on a particular method or null if the documentation cannot be found. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.Find(System.Reflection.ConstructorInfo)">
+      <summary>Return the XML nodes comprising the documentation on a particular constructor or null if the documentation cannot be found. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.Find(System.Reflection.PropertyInfo)">
+      <summary>Return the XML nodes comprising the documentation on a particular property or null if the documentation cannot be found. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.Find(System.Reflection.FieldInfo)">
+      <summary>Return the XML nodes comprising the documentation on a particular property or null if the documentation cannot be found. </summary>
+    </member>
+    <member name="M:Boo.Lang.Useful.Doc.DocDB.Find(System.Reflection.EventInfo)">
+      <summary>Return the XML nodes comprising the documentation on a particular event or null if the documentation cannot be found. </summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Doc.DocDB">
+      <summary>A singleton implementing a database of XML documentation on assemblies (probably in Sandcastle style). The database provides automatic reload w.r.t. some predefined or user defined look up paths.</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.IO.PreProcessor">
+      <summary>Implements a c# style preprocessor with support for #if, #else and #endif directives.  The operators ||, &amp;&amp; and ! are supported.  Example: text = "#if SPAM\nSPAM, SPAM, SPAM!\n#endif" pp = PreProcessor() pp.Define("SPAM") resultingText = pp.Process(text) print resultingText # SPAM, SPAM, SPAM!</summary>
+    </member>
+    <member name="T:Boo.Lang.Useful.Resources.ResourceFu">
+      <summary>This class allows dynamic access to resources specified by its constructor. You are only allowed to get resources; setting or invocation is an immediate smackdown.  Example: resources = Useful.Resources.ResourceFu('MyResources') text = resources.DialogPromptResource as string print text  @author Arron Washington (l33ts0n@gmail.com)</summary>
+    </member>
+  </members>
+</doc>

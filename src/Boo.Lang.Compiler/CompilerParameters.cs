@@ -114,7 +114,8 @@ namespace Boo.Lang.Compiler
 
 			Strict = false;
 			TraceLevel = DefaultTraceLevel();
-
+			this.CreateDoc = false;
+			
 			if (loadDefaultReferences)
 				LoadDefaultReferences();
 		}
@@ -290,8 +291,15 @@ namespace Boo.Lang.Compiler
 			assemblyName = NormalizeAssemblyName(assemblyName);
 			// This is an intentional attempt to load an assembly with partial name
 			// so ignore the compiler warning
+			Assembly assembly = null;
 			#pragma warning disable 618	
-			var assembly = Permissions.WithDiscoveryPermission(()=> Assembly.LoadWithPartialName(assemblyName));
+			try
+			{
+				assembly = Permissions.WithDiscoveryPermission(()=> Assembly.LoadWithPartialName(assemblyName));
+			}
+			catch (FileNotFoundException)
+			{
+			}
 			#pragma warning restore 618
 			return assembly ?? Assembly.Load(assemblyName);
 		}
@@ -403,6 +411,21 @@ namespace Boo.Lang.Compiler
 			}
 		}
 
+		/// <summary>
+		/// File name of the XML documentation (if such a documentation
+		/// shall be created).
+		/// </summary>
+		/// <see cref="CreateDoc"/>
+		public string OutputDoc { get; set; }
+		
+		/// <summary>
+		/// True iff a XML file with documentation info shall be created.
+		/// If true, <see cref="OuputDoc"/> will be used to create a destination file.
+		/// If this property is undefined, use <see cref="OutputAssembly"/> with
+		/// stripped file name extension but appended ".xml". 
+		/// </summary>
+		public bool CreateDoc { get; set; }
+		
 		/// <summary>
 		/// Type and execution subsystem for the generated portable
 		/// executable file.

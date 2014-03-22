@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Boo.Lang</name>
+    </assembly>
+    <members>
+        <!-- Ungültiger XML-Kommentar wurde für den Member "T:Boo.Lang.Environments.ActiveEnvironment" ignoriert -->
+        <member name="M:Boo.Lang.Environments.ActiveEnvironment.With(Boo.Lang.Environments.IEnvironment,Boo.Lang.Procedure)">
+            <summary>
+            Executes <paramref name="code"/> in the specified <paramref name="environment"/>.
+            </summary>
+            <param name="environment">environment that should be made active during the execution of <paramref name="code"/></param>
+            <param name="code">code to execute</param>
+        </member>
+        <member name="P:Boo.Lang.Environments.ActiveEnvironment.Instance">
+            <summary>
+            The active environment.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Environments.ActiveEnvironment.DefaultInstance">
+            <summary>
+            Default instance that will be used if nothing else has been specified.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Environments.EnvironmentBoundValue">
+            <summary>
+            Environment state monad.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Environments.InstantiatingEnvironment">
+            <summary>
+            An <see cref="T:Boo.Lang.Environments.IEnvironment"/> implementation that simply instantiates requested types.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Environments.My`1">
+            <summary>
+            Idiomatic access to the <see cref="T:Boo.Lang.Environments.ActiveEnvironment">active environment</see>.
+            
+            <example>
+            <code>
+            <![CDATA[
+            if (My<TypeSystemServices>.Instance.IsPrimitive(someType))
+            	return true;
+            ]]>
+            </code>
+            </example>
+            </summary>
+            <typeparam name="TNeed">Type describing the code's need.</typeparam>
+        </member>
+        <member name="T:Boo.Lang.Exceptions.UserRequestedAbortion">
+            <summary>
+            This exception type shall be used if an operation has been aborted due
+            to a user request. This abortion is non-critical and does not require any
+            actions by exception handlers.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Runtime.DynamicDispatching.DispatcherCache.Get(Boo.Lang.Runtime.DynamicDispatching.DispatcherKey,Boo.Lang.Runtime.DynamicDispatching.DispatcherCache.DispatcherFactory)">
+            <summary>
+            Gets a dispatcher from the cache if available otherwise
+            invokes factory to produce one and then cache it.
+            </summary>
+            <param name="key">the dispatcher key</param>
+            <param name="factory">function to produce a dispatcher in case one it's not yet available</param>
+            <returns></returns>
+        </member>
+        <member name="M:Boo.Lang.Runtime.DynamicDispatching.DispatcherCache.Clear">
+            <summary>
+            Removes all Dispatchers from the cache.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Runtime.AssertionFailedException">
+            <summary>
+            Raised when an assertion fails.
+            The AssertMacro injects code to raise this exception if the provided
+            condition evaluates to false.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Runtime.RuntimeException">
+            <summary>
+            Base exception for the Boo runtime.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Runtime.ICoercible">
+            <summary>
+            Support for user defined dynamic conversions.
+            
+            An use case is a collection class that needs to provide implicit conversions
+            to any array type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Runtime.ICoercible.Coerce(System.Type)">
+            <summary>
+            Coerces the object to the specified type if possible.
+            </summary>
+            <param name="to">target type</param>
+            <returns>returns the coerced object or this</returns>
+        </member>
+        <member name="T:Boo.Lang.BooComparer">
+            <summary>
+            Compares items lexicographically through IEnumerable whenever
+            they don't implement IComparable.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Builtins">
+            <summary>
+            boo language builtin functions.
+            </summary>
+        </member>
+        <!-- Ungültiger XML-Kommentar wurde für den Member "M:Boo.Lang.Builtins.range(System.Int32)" ignoriert -->
+        <!-- Ungültiger XML-Kommentar wurde für den Member "M:Boo.Lang.Builtins.range(System.Int32,System.Int32)" ignoriert -->
+        <member name="E:Boo.Lang.Builtins.OnWriteOnConsoleEvent">
+            <summary>
+            This will be raised if <c>print</c> tries to write on the console.
+            Handlers may either do some additional operations or they may even
+            commit the output operation on their own.
+            Event handler shall avoid use of <c>print</c>. Recusive calls to event
+            handlers will be ommitted.
+            </summary>
+        </member>
+        <!-- Ungültiger XML-Kommentar wurde für den Member "E:Boo.Lang.Builtins.OnReadFromConsoleEvent" ignoriert -->
+        <member name="T:Boo.Lang.Builtins.ConsoleInputOrOutputEvent">
+            <summary>
+            Class of console events that can be handled by
+            other models in order to replace input from and output
+            to the standard console.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Builtins.ConsoleInputOrOutputEvent.SetHandled">
+            <summary>
+            Event handlers shall call this method to state that
+            this event has been handled successfully and must not
+            be handled by another event handler or the standard
+            implementation.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Builtins.ConsoleInputOrOutputEvent.IsHandled">
+            <summary>
+            If this is true (set this by <see cref="M:Boo.Lang.Builtins.ConsoleInputOrOutputEvent.SetHandled"/>)
+            at least one event handler set that this console event
+            has been handled. BOO shall, thus, not handle this event
+            by the default methods: Writing and reading data from
+            the <see cref="T:System.Console"/>.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Builtins.ReadFromConsoleEvent">
+            <summary>
+            This is an event that enables handlers to inject
+            implementations to read text from console.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.DuckTypedAttribute">
+            <summary>
+            Marks a method, property or field as being duck typed for type
+            inference purposes.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Hash">
+            <summary>
+            Hash.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.ModuleAttribute">
+            <summary>
+            Marks a type as a boo module.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Procedure">
+            <summary>
+            Similar in purpose to System.Action but avoiding the System.Core.dll dependency.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.ResourceManager">
+            <summary>
+            Resource manager.
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.TypeInferenceRules.TypeReferencedByFirstArgument">
+            <summary>
+            (typeof(T)) as T
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.TypeInferenceRules.TypeReferencedBySecondArgument">
+            <summary>
+            (, typeof(T)) as T
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.TypeInferenceRules.ArrayOfTypeReferencedByFirstArgument">
+            <summary>
+            (typeof(T)) as (T)
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.TypeInferenceRules.TypeOfFirstArgument">
+            <summary>
+            (T) as T
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.TypeInferenceRuleAttribute">
+            <summary>
+            Adds a special type inference rule to a method.
+            
+            See Boo.Lang.Compiler.TypeSystem.Services.InvocationTypeInferenceRules.BuiltinRules.
+            </summary>
+        </member>
+    </members>
+</doc>

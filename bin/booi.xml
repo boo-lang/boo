@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>booi</name>
+  </assembly>
+  <members>
+    <member name="M:booi.Program.DumpSolutionFile">
+      <summary>Create a MonoDevelop solution file to ease debugging. MonoDevelop allows defining managed executables as projects. </summary>
+    </member>
+    <member name="T:booi.CompilationCache">
+      <summary>Represents a compilation cache file used to speed up the import of source directories mapped to namespaces.  The format is very simple and text based to ease troubleshooting, the overhead of using a text format should be negligible when compared to running the compiler. File sections are delimited by lines with values separated by tab '\t' characters. In the example below lines starting with '#' are comments to describe the format and are not part of the actual file format.  # Header identifying the file and the format version BOO-COMP-CACHE 1.0 # Absolute path of the imported namespace path    /Users/drslump/www/Boo.Hints/src/Boo.Hints # Set of source files compiled and the last modified timestamp (Windows File Time in UTC) source  DummySymbolFinder.boo   130147536580000000 source  ISymbolFinder.boo       130147536520000000 # Set of references active when the source was compiled. They are represented with # their IAssemblyReference name followed by either a timestamp of their compilation # or their main module's ModuleVersionId GUID. reference       booi    696c0d16-ffa0-4a2b-b00c-6429ff1de98e reference       Boo.Hints.Utils 130148414727967560 # The assembly payload encoded as base64 assembly        <see cref="base64" /> # The symbols file payload encoded as base64 (for mono it's 'mdb' instead of 'pdb') pdb <see cref="base64" /></summary>
+    </member>
+    <member name="M:booi.CompilerParameters.GetNamespacePaths(System.String)">
+      <summary>Builds a list of possible directories to map an assembly name. The algorithm starts checking dirs separated by dots and generates variants with sub directories. ie: foo.bar.baz, foo.bar/baz, foo/bar/baz </summary>
+    </member>
+    <member name="M:booi.CompilerParameters.ForkCompiler(System.String,System.String)">
+      <summary>Forks the current compiler into a new one to compile the source files referenced in an import. </summary>
+    </member>
+  </members>
+</doc>

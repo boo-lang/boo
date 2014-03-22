@@ -607,7 +607,7 @@ _loop23_breakloop:				;
 					match(TRIPLE_QUOTED_STRING);
 					if (0==inputState.guessing)
 					{
-						node.Documentation = DocStringFormatter.Format(doc.getText());
+						node.Documentation = DocStringFormatter.Format(node, doc.getText());
 					}
 					{
 						if ((LA(1)==EOL||LA(1)==EOS) && (tokenSet_10_.member(LA(2))))

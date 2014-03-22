@@ -39,7 +39,6 @@ namespace Boo.Lang.Compiler.Steps
 	public class ProcessInheritedAbstractMembers : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
 		private List<TypeDefinition> _newAbstractClasses;
-		private int _depth;
 		private Set<IEntity> _explicitMembers;
 
 		override public void Run()
