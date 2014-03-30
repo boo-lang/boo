@@ -223,7 +223,7 @@ module_macro[Module module]
 			
 protected docstring[Node node]:
 	(
-		doc:TRIPLE_QUOTED_STRING { node.Documentation = DocStringFormatter.Format(doc.getText()); }
+		doc:TRIPLE_QUOTED_STRING { node.Documentation = DocStringFormatter.Format(node, doc.getText()); }
 		(eos)?
 	)?
 ;

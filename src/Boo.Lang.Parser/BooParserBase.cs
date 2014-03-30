@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20131102): "src/Boo.Lang.Parser/boo.g" -> "BooParserBase.cs"$
+// $ANTLR 2.7.5 (20131102): "boo.g" -> "BooParserBase.cs"$
 
 namespace Boo.Lang.Parser
 {

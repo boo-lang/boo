@@ -279,6 +279,7 @@ namespace Boo.Lang.Parser
 tryAgain:
 			for (;;)
 			{
+				IToken _token = null;
 				int _ttype = Token.INVALID_TYPE;
 				resetText();
 				try     // for char stream error handling
