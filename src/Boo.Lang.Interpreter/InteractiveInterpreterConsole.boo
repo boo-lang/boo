@@ -303,11 +303,24 @@ this feature.""")]
 	"""
 		return if not self._multiline
 		posX=Console.CursorLeft
-		return if posX == 0
-		_line.Remove(_line.Length-1, 1)
-		Console.CursorLeft -= 1
-		Console.Write(' ')
-		Console.CursorLeft -= 1
+		if posX == 0:
+			lines = self._line.ToString().Split(*'\n'.ToCharArray())
+			self._multiline = len(lines) > 1
+			self._buffer=StringBuilder()
+			for line in lines[:-1]:
+				self._buffer.AppendLine(line)
+			self._line = StringBuilder()
+			self._line.Append(lines[-1][0:-1])
+			Console.CursorTop -= 1
+			Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
+			Console.Write(' ')
+			Console.CursorTop -= 1
+			Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
+		else:
+			_line.Remove(_line.Length-1, 1)
+			Console.CursorLeft -= 1
+			Console.Write(' ')
+			Console.CursorLeft -= 1
 	
 	protected def Delete(count as int): #if count is 0, forward-delete
 		return if LineLen == 0
