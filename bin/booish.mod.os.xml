@@ -37,7 +37,7 @@
     <member name="M:Booish.Mod.Os.File.Type(System.String)">
       <summary>Type the content of a file. </summary>
     </member>
-    <member name="M:Booish.Mod.Os.File.Run(System.String)">
+    <member name="M:Booish.Mod.Os.File.Run(System.String,System.String)">
       <summary>If suffix of the file is .BOO, then run this file within this interpreter. Otherwise, pass the file to the system for starting a process. </summary>
     </member>
     <member name="T:Booish.Mod.Os.File">

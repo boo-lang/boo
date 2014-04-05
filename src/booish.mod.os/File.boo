@@ -103,7 +103,7 @@ decrypt *.bak""")]
 		"""
 			System.IO.File.Decrypt(file)
 		
-		[CmdDeclaration("type", Description: "Print the content of a text file.")]
+		[CmdDeclaration("type t", Description: "Print the content of a text file.")]
 		public def Type([CmdArgument(CmdArgumentCompletion.File)] file as string):
 		"""
 			Type the content of a file.
@@ -128,16 +128,17 @@ decrypt *.bak""")]
 			return filenameWithOrWithoutExt
 		
 		[CmdDeclaration("run r", Description: "Run an executable file (.boo, .exe, .com, .bat, ...).")]
-		public def Run([CmdArgument(CmdArgumentCompletion.File)] file as string):
+		public def Run([CmdArgument(CmdArgumentCompletion.File)] file as string,
+						[CmdArgument(CmdArgumentCompletion.None, DefaultValue:"")] args as string):
 		"""
 			If suffix of the file is .BOO, then run this file within this
 			interpreter. Otherwise, pass the file to the system for starting
 			a process.
 		"""
 			file = FindProgram(file)
-			if file.EndsWith(".boo", StringComparison.CurrentCultureIgnoreCase):
+			if string.IsNullOrEmpty(args) and file.EndsWith(".boo", StringComparison.CurrentCultureIgnoreCase):
 				using f = System.IO.File.OpenText(file):
 					self._interpreter.Eval(f.ReadToEnd())
 			else:
-				Process.Start(file)
+				Process.Start(file, args)
 		

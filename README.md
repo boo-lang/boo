@@ -123,3 +123,16 @@ Differences to the original distribution
 - boo: array(int, null) now return null (without an exception). This spares some if-then on using array for casting.
 - boo: Resolved issues #57 and #58.
 
+If you want to paste preformatted lines of code into the console, you will have to turn
+of autoindention using the shell command "indent".
+
+	>>> indent
+	Auto indention has been turned off. User [SHIFT][RETURN] to leave the editor and execute the command.
+	-->
+
+The prompt will show you whether autoindention will be done or not.
+
+Please note, that complex input operations on the System.Console are error prone. There
+are certainly several things to do here that probably will never be done. You might
+experience problems when you enter lines of codes that are longer that span over more
+than two lines of the console's line buffer.

@@ -29,6 +29,7 @@
 namespace Boo.Lang.Interpreter
 
 import System
+import System.Text
 import System.Collections
 import System.IO
 import Boo.Lang.Interpreter.ColorScheme
@@ -284,20 +285,29 @@ class CmdExecution:
 				args=[]
 				for pi in cmdParameters:
 					i = args.Count
-					newArg as string=null
+					newArg=null
 					pattrs = array(CmdArgumentAttribute, pi.GetCustomAttributes(CmdArgumentAttribute, false))
 					if i < p.Args.Length:
-						newArg = Convert.ChangeType(p.Args[i], pi.ParameterType)
+						if i==cmdParameters.Length-1 and typeof(string).IsAssignableFrom(pi.ParameterType):
+							collectedArgs=StringBuilder()
+							for ii in range(i, p.Args.Length):
+								if ii > i: collectedArgs.Append(' ')
+								collectedArgs.Append(p.Args[i].ToString())
+							args.Add(collectedArgs.ToString())
+							break
+						else:	
+							newArg = Convert.ChangeType(p.Args[i], pi.ParameterType)
 					else:
 						if pattrs!= null and pattrs.Length > 0 and pattrs[0].DefaultValue != null:
 							newArg = Convert.ChangeType(pattrs[0].DefaultValue, pi.ParameterType)
 					if newArg == null:
-						raise ApplicationException("Missing argument ${pi.Name}.")
+						raise ApplicationException("Missing argument \"${pi.Name}\".")
 					else:
 						if pattrs!=null and pattrs.Length > 0:
+							newArgStr=newArg.ToString()
 							if (pattrs[0].Type & CmdArgumentCompletion.MaskPathName) != CmdArgumentCompletion.None\
-								and newArg.StartsWith('"') and newArg.EndsWith('"'):
-									newArg=newArg[1:-1]
+								and newArgStr.StartsWith('"') and newArgStr.EndsWith('"'):
+									newArg=newArgStr[1:-1]
 						args.Add(newArg)
 						/*
 						elif pi.ParameterType.IsClass:

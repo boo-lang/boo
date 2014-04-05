@@ -264,7 +264,7 @@ this feature.""")]
 			Console.ResetColor() if not DisableColors
 			#Console.CursorTop = cursorTop
 			NewLine()
-			ConsolePrintPrompt(false)
+			ConsolePrintPrompt(true)
 			Console.Write(Line)
 			Console.CursorLeft = cursorLeft
 		except x as Boo.Lang.Exceptions.UserRequestedAbortion:
@@ -324,15 +324,30 @@ this feature.""")]
 	
 	protected def Delete(count as int): #if count is 0, forward-delete
 		return if LineLen == 0
-		cx = Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
-		count=1 if cx >= LineLen and count == 0
-		return if cx < 0 or cx >= LineLen
-		dcount = (count if count != 0 else 1)
-		_line.Remove(cx, dcount)
-		curX = Console.CursorLeft - count
-		Console.CursorLeft = curX
-		Console.Write("${_line.ToString(cx, LineLen-cx)} ")
-		Console.CursorLeft = curX
+		if self.LineLen >= Console.BufferWidth:
+			if count== 0: count=1
+			cx = self.LineLen - count
+			return if cx < 0 or cx >= LineLen
+			_line.Remove(cx, count)
+			curX = Console.CursorLeft - count
+			if curX < 0:
+				Console.CursorTop -= 1
+				Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
+				Console.Write(' ')
+				Console.CursorTop -= 1
+				Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
+			else:
+				Console.CursorLeft = curX
+		else:
+			cx = Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
+			count=1 if cx >= LineLen and count == 0
+			return if cx < 0 or cx >= LineLen
+			dcount = (count if count != 0 else 1)
+			_line.Remove(cx, dcount)
+			curX = Console.CursorLeft - count
+			Console.CursorLeft = curX
+			Console.Write("${_line.ToString(cx, LineLen-cx)} ")
+			Console.CursorLeft = curX
 
 
 	private static re_open = Regex("\\(", RegexOptions.Singleline)
@@ -419,7 +434,7 @@ this feature.""")]
 	def AutoComplete():
 		raise InvalidOperationException("no suggestions") if _suggestions is null or 0==len(_suggestions) or _selectedSuggestionIndex is null
 
-		Console.CursorLeft = self.LineLen + len(CurrentPrompt)
+		Console.CursorLeft = (self.LineLen + self.LineIndentWidth + len(CurrentPrompt))%Console.BufferWidth
 		Delete(len(_filter)) if _filter != null
 		WriteToReplace(self.AutoCompletionFor(_suggestions[_selectedSuggestionIndex.Value]))
 		
@@ -655,7 +670,7 @@ this feature.""")]
 			Namespace.ListTypes(ns)
 	
 	[CmdDeclaration("list l", Description: "List assemblies and types in assemblies.")]
-	public def ListAssemblies(filter as string):
+	public def ListAssemblies([CmdArgument(CmdArgumentCompletion.None, DefaultValue:"")] filter as string):
 		for a in AppDomain.CurrentDomain.GetAssemblies():
 			Console.WriteLine( a.FullName )
 			if not string.IsNullOrEmpty(filter) and a.FullName.IndexOf(filter, StringComparison.CurrentCultureIgnoreCase) >= 0:
@@ -742,15 +757,15 @@ by a slash (e.g. /toggle).""")]
 	def DisplayHelp([CmdArgument(CmdArgumentCompletion.None, DefaultValue:"")] filter as string):
 		WithColor InterpreterColor:
 			Console.Write("""Press TAB or SHIFT+TAB to view a list of suggestions.
-	Use CURSOR LEFT, RIGHT, or PAGE UP, PAGE DOWN to select
-	suggestions and RETURN to use the selected suggestion.
-	Press ESC to leave this mode.
-    Use CURSOR UP and DOWN to navigate the history.
-    BACKSPACE and DELETE will have the commonly expected effect.
-    ESC will delete the current line.
-    Type in "h shell" to get additional information on using
-    the shell (shell modes, commands, etc.).
-    """)
+Use CURSOR LEFT, RIGHT, or PAGE UP, PAGE DOWN to select
+suggestions and RETURN to use the selected suggestion.
+Press ESC to leave this mode.
+Use CURSOR UP and DOWN to navigate the history.
+BACKSPACE and DELETE will have the commonly expected effect.
+ESC will delete the current line.
+Type in "h shell" to get additional information on using
+the shell (shell modes, commands, etc.).
+""")
 		self._shellCmdExecution.DisplayHelp(filter)
 
 	def DisplayGoodbye():	// booish is friendly
