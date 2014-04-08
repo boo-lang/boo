@@ -1,5 +1,8 @@
 The boo programming language (c) 2009- Rodrigo Barreto de Oliveira (rbo@acm.org)
 
+Distribution of binaries available at
+http://www.sieda.com/de-wAssets/en/docs/products/Boo-distrib/.
+
 This distribution contains contributions of Harald Meyer auf'm Hofe (harald_meyer@users.sourceforge.net)
 
 Building
@@ -106,25 +109,24 @@ See: https://github.com/hmah/boo/graphs/contributors
 Differences to the original distribution
 =======================================
 
-- Fix of issue BOO-1078 Cannot use enumerations as attribute parameters.
-- Version information on assemblies is now pasted into the native resources. Thus, Windows Explorer can read and display this.
-- booish: New help display
+
+- Fix of issue BOO-1078 "Cannot use enumerations as attribute parameters."
+- Version information on assemblies is now pasted into the native resources. Thus, Windows Explorer can read and display it.
 - booish: describe() now looks for XML documentation of referenced assemblies.
-- booish: You can now start autocompletion from the start of the line on (then the list of suggestion will offer globals and namespaces).
 - booish: Autocompletion offers suggestions in a scrollable list with one offer per row (better overview).
 - booish: Solved some problems with managing input into the shell. Added mode to allow users to paste content into the shell.
 - booish: booish.rsp now offers additional options to configure the startup behaviour of the shell.
 - booish: Added means to add commands to the shell. Added booish.mod.os to demonstrate this. This module provides commands like "cd" and "dir".
 - boo: range(-1) now is an empty enumeration (instead of raising an exception).
 - boo: Operator "isa" now also works with structs. This is important to avoid exceptions on casts.
-- boo: Ctors and dtors now do not require a "def" (but you still can provide this). This keyword is redundance (not very wrist friendly).
-- boo: Macro "property" now also work for static classes.
+- boo: Constructors and destructors now do not require a "def" (but you still can write this). Keyword "def" is redundant here (not very wrist friendly).
+- boo: Macro "property" now also works for static classes.
 - boo: Added macro "getproperty" that keeps the setter private.
-- boo: array(int, null) now return null (without an exception). This spares some if-then on using array for casting.
+- boo: array(int, null) now returns null (without an exception). This spares some if-then when using array for casting.
 - boo: Resolved issues #57 and #58.
 
 If you want to paste preformatted lines of code into the console, you will have to turn
-of autoindention using the shell command "indent".
+off autoindention using the shell command "indent".
 
 	>>> indent
 	Auto indention has been turned off. User [SHIFT][RETURN] to leave the editor and execute the command.
