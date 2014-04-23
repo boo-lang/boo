@@ -695,8 +695,6 @@
 
 		<property name="sharedmime.prefix" value="${pkg-config::get-variable('shared-mime-info','prefix')}" />
 		<property name="fakeroot.sharedmime" value="${fakeroot}/${sharedmime.prefix}" />
-		<property name="gsv.prefix" value="${pkg-config::get-variable(gsv.name,'prefix')}" />
-		<property name="fakeroot.gsv" value="${fakeroot}/${gsv.prefix}" />
 
 		<mkdir dir="${fakeroot.boolib}"/>
 		<mkdir dir="${fakeroot.bindir}"/>
@@ -707,7 +705,7 @@
 				<include name="*.rsp"/>
 				<include name="*.config"/>
 				<include name="*.targets"/>
-				<include name="*.Tasks.dll" />
+				<include name="*.dll" />
 			</fileset>
 		</copy>
 
@@ -744,7 +742,6 @@
 			</fileset>
 		</copy>
 		
-		<copy file="extras/boo.lang" todir="${fakeroot.gsv}/share/${gsv.name}/language-specs/" />
 		<copy file="${build.dir}/boo.pc" todir="${fakeroot.libdir}/pkgconfig/" />
 		<copy file="extras/boo-mime-info.xml" todir="${fakeroot.sharedmime}/share/mime/packages/" />
 
@@ -827,8 +824,6 @@
 
 		<property name="sharedmime.prefix" value="${pkg-config::get-variable('shared-mime-info','prefix')}" />
 		<property name="fakeroot.sharedmime" value="${fakeroot}/${sharedmime.prefix}" />
-		<property name="gsv.prefix" value="${pkg-config::get-variable(gsv.name,'prefix')}" />
-		<property name="fakeroot.gsv" value="${fakeroot}/${gsv.prefix}" />
 		
 		<foreach item="File" property="filename">
 		<in>
@@ -852,7 +847,6 @@
 		
 		<delete file="${fakeroot.sharedmime}/share/mime-info/boo.keys" />
 		<delete file="${fakeroot.sharedmime}/share/mime-info/boo.mime" />
-		<delete file="${fakeroot.gsv}/share/${gsv.name}/language-specs/boo.lang" />
 		<delete file="${fakeroot.libdir}/pkgconfig/boo.pc" />
 		<delete file="${fakeroot.sharedmime}/share/mime/packages/boo-mime-info.xml" />
 		<delete file="${fakeroot.bindir}/booi" />
