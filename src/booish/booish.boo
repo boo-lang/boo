@@ -61,6 +61,10 @@ static class Options:
 				console.TurnOnPreferenceShellCommands()
 			elif arg.StartsWith("-r:"):
 				loadRequests.Add(arg.Substring(3))
+			elif arg == "-colors-" or arg == "--colors-":
+				ColorScheme.DisableColors = true
+			elif arg == "-colors" or arg == "--colors" or arg == "-colors+" or arg == "--colors+":
+				ColorScheme.DisableColors = false
 			elif arg.StartsWith("-i:"):
 				if arg.Contains(","):
 					args=arg.Substring(3).Split(","[0])
@@ -79,12 +83,16 @@ static class Options:
 		print "-w                     Turn on mode showing warnings"
 		print "-autoindent+           Turn on indention automatic (default)"
 		print "-autoindent-           Turn off indention automatic"
+		print "-colors-               Disable use of colors"
+		print "-colors+               Enable use of colors"
 		print "-s/-shell              Turn on shell mode. Accept shell commands without introducing slash"
 		print "-r:BooFile             Interpret a BOO file on start"
 		print "-r:AssemblyFile        Add reference to this assembly"
 		print "-r:AssemblyPartialName Add reference to this assembly"
 		print "-i:Namespace           Import a namespace"
 		print "-i:Namespace Assembly  Import a namespace from an assembly"
+
+ColorScheme.Init()
 
 Options.Read(argv)
 return if Options.exit
@@ -103,6 +111,8 @@ if File.Exists(rspPath):
 					return if Options.exit
 	print
 
+Console.ForegroundColor = ColorScheme.InterpreterColor if not ColorScheme.DisableColors
+Console.BackgroundColor = ColorScheme.BackgroundColor if not ColorScheme.DisableColors
 Options.console.DisplayLogo() unless Options.nologo
 
 for req in Options.loadRequests:
