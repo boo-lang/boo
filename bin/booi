@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ -x /usr/local/bin/cli ]; then
+    env /usr/local/bin/cli $MONO_OPTIONS /usr/local/lib/boo/booi.exe $BOOI_OPTIONS "$@"
+else
+    env mono $MONO_OPTIONS /usr/local/lib/boo/booi.exe $BOOI_OPTIONS "$@"
+fi
+
