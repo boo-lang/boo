@@ -58,7 +58,9 @@ class InteractiveInterpreterConsole:
 			self._isValid = isValid
 	
 	_history = List of HistoryEntry(HISTORY_CAPACITY)
-	_historyFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), HISTORY_FILENAME)
+	_historyFile = Path.Combine(
+		Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+			 HISTORY_FILENAME.Replace("\\"[0], System.IO.Path.DirectorySeparatorChar))
 	_historyIndex = 0
 	_historySet = Generic.HashSet of string()
 	_session = System.Collections.Generic.List of string()
@@ -78,7 +80,10 @@ class InteractiveInterpreterConsole:
 	
 	[property(ShowWarnings)]
 	_showWarnings = false
-
+	
+	[property(DisableColors)]
+	_disableColors = false	
+	
 	QQBegin = "[|"
 	QQEnd= "|]"
 	
@@ -93,7 +98,8 @@ class InteractiveInterpreterConsole:
 		self._interpreter = interpreter
 		self._interpreter.RememberLastValue = true
 		
-		DisableColors = not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS"))
+		if not string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BOOISH_DISABLE_COLORS")):
+			DisableColors=true
 		if not DisableColors: #make sure setting color does not throw an exception
 			try:
 				InterpreterColor = Console.ForegroundColor
@@ -256,15 +262,17 @@ this feature.""")]
 					if i == _selectedSuggestionIndex:
 						Console.ForegroundColor = SelectedSuggestionColor if not DisableColors
 					Console.Write(i+1);
-					Console.Write(": ");
+					if i == _selectedSuggestionIndex:
+						Console.Write("> ");
+					else:
+						Console.Write(": ");
 					Console.WriteLine(s)
 					count++
 				i++
-
-			Console.ResetColor() if not DisableColors
 			#Console.CursorTop = cursorTop
 			NewLine()
 			ConsolePrintPrompt(true)
+			Console.ForegroundColor = InterpreterColor if not DisableColors
 			Console.Write(Line)
 			Console.CursorLeft = cursorLeft
 		except x as Boo.Lang.Exceptions.UserRequestedAbortion:
@@ -471,7 +479,8 @@ this feature.""")]
 	_inMultilineString=false
 	def ReadEvalPrintLoop():
 		Console.CursorVisible = true
-		Console.ForegroundColor = InterpreterColor
+		Console.ForegroundColor = InterpreterColor if not DisableColors
+		Console.BackgroundColor = BackgroundColor if not DisableColors
 		ConsolePrintPrompt()
 		while not _quit:
 			ReadEvalPrintLoopStep()

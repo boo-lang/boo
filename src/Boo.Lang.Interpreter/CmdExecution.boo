@@ -53,8 +53,12 @@ class CmdExecution:
 	
 	public def constructor(interpreter as InteractiveInterpreter):
 		_interpreter = interpreter
+		self.CollectCmds()
 		AppDomain.CurrentDomain.AssemblyLoad += def(sender, evt as AssemblyLoadEventArgs):
-			self.CollectCmds(evt.LoadedAssembly)
+			try:
+				self.CollectCmds(evt.LoadedAssembly)
+			except exc:
+				Console.WriteLine("${exc.Message} on loading ${evt.LoadedAssembly.FullName}.")
 		self.AddCmdObject(self)
 		self.AddCmdObject(ColorScheme)
 	
@@ -78,17 +82,25 @@ class CmdExecution:
 	
 	def CollectCmds(a as System.Reflection.Assembly):
 		for t in a.GetTypes():
-			attrsT = array(CmdClassAttribute, t.GetCustomAttributes(typeof(CmdClassAttribute), false))
-			if attrsT != null and attrsT.Length > 0:
-				for mi in t.GetMethods():
-					attrsMi = array(CmdDeclarationAttribute,\
-					   mi.GetCustomAttributes(CmdDeclarationAttribute, true))
-					if attrsMi != null and attrsMi.Length > 0:
-						descr=CmdDescr(attrsMi[0], attrsT[0], mi)
-						self._collectedCmdsHelp.Add(descr)
-						self._collectedCmds[attrsMi[0].Name]=descr
-						for cmd in attrsMi[0].Shortcuts:
-							self._collectedCmds[cmd] = descr
+			try:
+				attrsT = array(CmdClassAttribute, t.GetCustomAttributes(typeof(CmdClassAttribute), false))
+				if attrsT != null and attrsT.Length > 0:
+					for mi in t.GetMethods():
+						try:
+							attrsMi = array(CmdDeclarationAttribute,
+								mi.GetCustomAttributes(CmdDeclarationAttribute, true))
+							if attrsMi != null and attrsMi.Length > 0:
+								descr=CmdDescr(attrsMi[0], attrsT[0], mi)
+								self._collectedCmdsHelp.Add(descr)
+								self._collectedCmds[attrsMi[0].Name]=descr
+								if attrsMi[0].Shortcuts != null:
+									for cmd in attrsMi[0].Shortcuts:
+										self._collectedCmds[cmd] = descr
+						except exc:
+							Console.WriteLine("${exc.Message} while collecting command ${mi.Name} of ${t.FullName}.")
+			except exc:
+				Console.WriteLine("${exc.Message} while collecting commands of ${t.FullName}.")
+			
 	public CollectedCmds:
 		get:
 			self.CollectCmds()

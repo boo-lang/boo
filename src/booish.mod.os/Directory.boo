@@ -51,14 +51,19 @@ class Directory:
 	
 	static ConfigFileName as string:
 		get:
-			return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), CONFIG_FILENAME)
+			return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				CONFIG_FILENAME.Replace("\\"[0], System.IO.Path.DirectorySeparatorChar))
 	
 	def constructor():
-		configFileName=ConfigFileName
-		if System.IO.File.Exists(configFileName):
-			for l in System.IO.File.OpenText(configFileName):
-				s=l.Split(*':=, '.ToCharArray())
-				self.GetType().GetMethod(s[0]).Invoke(self, (s[1],))
+		try:
+			configFileName=ConfigFileName
+			if System.IO.File.Exists(configFileName):
+				for l in System.IO.File.OpenText(configFileName):
+					s=l.Split(*':=, '.ToCharArray())
+					self.GetType().GetMethod(s[0]).Invoke(self, (s[1],))
+		except exc:
+			Console.WriteLine(exc)
+			self._widthCreationDate=10
 	
 	_dirStack = []
 	"""A list representing the stack of visited directories."""
@@ -113,7 +118,7 @@ Examples:
 dir
 dir *.bak
 lsdir c:\b*""")]
-	public def Dir([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:".")] directory):
+	public def Dir([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:"*.*")] directory):
 		LsDir(directory)
 		LsFile(directory)
 	
@@ -131,9 +136,10 @@ lsdir c:\b*""")]
 		System.IO.Directory.CreateDirectory(Path.GetDirectoryName(ConfigFileName))
 		using f=System.IO.File.CreateText(ConfigFileName):
 			f.WriteLine("SetWidthCreationDate "+self._widthCreationDate.ToString())
+			f.Close()
 				
 	static internal def EnumerateFiles(path as string):
-		if string.IsNullOrEmpty(path): path='.'
+		if string.IsNullOrEmpty(path): path='*.*'
 		pathRoot = Path.GetPathRoot(path)
 		if string.IsNullOrEmpty(pathRoot):
 			pathRoot=Path.GetFullPath('.')
@@ -143,7 +149,7 @@ lsdir c:\b*""")]
 			yield result
 	
 	static internal def EnumerateDirectories(path as string):
-		if string.IsNullOrEmpty(path): path='.'
+		if string.IsNullOrEmpty(path): path='*.*'
 		pathRoot = Path.GetPathRoot(path)
 		if string.IsNullOrEmpty(pathRoot):
 			pathRoot=Path.GetFullPath('.')
@@ -158,7 +164,7 @@ Examples:
 lsdir
 lsdir *.bak
 lsdir c:\b*""")]
-	public def LsDir([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:".")] directory):
+	public def LsDir([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:"*.*")] directory):
 		for d in EnumerateDirectories(directory):
 			if self._widthCreationDate > 0:
 				Console.Write(System.IO.Directory.GetCreationTime(d).ToString("g")[:self._widthCreationDate].PadLeft(self._widthCreationDate)+' ')
@@ -170,7 +176,7 @@ Examples:
 lsfiles
 lsfiles *.bak
 lsfiles c:\b*""")]
-	public def LsFile([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:".")] directory):
+	public def LsFile([CmdArgument(CmdArgumentCompletion.Directory, DefaultValue:"*.*")] directory):
 		for f in EnumerateFiles(directory):
 			if self._widthCreationDate > 0:
 				Console.Write(System.IO.File.GetCreationTime(f).ToString("g")[:self._widthCreationDate].PadLeft(self._widthCreationDate)+' ')

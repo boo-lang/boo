@@ -29,12 +29,12 @@
 namespace Boo.Lang.Interpreter
 
 import System
+import Boo.Lang.Useful.PlatformInformation
 
 static class ColorScheme:
 """Collection of colors that will be used by the interactive shell."""
 	
-	[CmdDeclarationAttribute("UseColors", Description:"Enable or disable the use of colors.")]
-	public property DisableColors = true
+	public property DisableColors = false
 	public property BackgroundColor = ConsoleColor.Black
 	public property InterpreterColor = ConsoleColor.DarkGray
 	public property EmphasizeColor = ConsoleColor.DarkYellow	
@@ -49,13 +49,49 @@ static class ColorScheme:
 	public property HelpCmdColor = ConsoleColor.White
 	public property HelpHeadlineColor = ConsoleColor.Cyan
 	public property HeadlineColor = ConsoleColor.White		
-		
+	
+	def Init():
+		if IsLinux:
+			BackgroundColor = ConsoleColor.White
+			InterpreterColor = ConsoleColor.Black
+			EmphasizeColor = ConsoleColor.DarkCyan	
+			IndentionColor = ConsoleColor.DarkGreen
+			PromptColor = ConsoleColor.DarkGreen
+			ExceptionColor = ConsoleColor.DarkRed
+			WarningColor = ConsoleColor.DarkYellow
+			ErrorColor = ConsoleColor.DarkRed
+			SuggestionsColor = ConsoleColor.DarkCyan
+			SelectedSuggestionColor = ConsoleColor.DarkMagenta
+			HelpTextBodyColor = ConsoleColor.DarkGray
+			HelpCmdColor = ConsoleColor.Black
+			HelpHeadlineColor = ConsoleColor.DarkCyan
+			HeadlineColor = ConsoleColor.Black
+		else:
+			BackgroundColor = ConsoleColor.Black
+			InterpreterColor = ConsoleColor.DarkGray
+			EmphasizeColor = ConsoleColor.DarkYellow	
+			IndentionColor = ConsoleColor.DarkGreen
+			PromptColor = ConsoleColor.DarkGreen
+			ExceptionColor = ConsoleColor.DarkRed
+			WarningColor = ConsoleColor.Yellow
+			ErrorColor = ConsoleColor.Red
+			SuggestionsColor = ConsoleColor.DarkYellow
+			SelectedSuggestionColor = ConsoleColor.DarkMagenta
+			HelpTextBodyColor = ConsoleColor.DarkGray
+			HelpCmdColor = ConsoleColor.White
+			HelpHeadlineColor = ConsoleColor.Cyan
+			HeadlineColor = ConsoleColor.White
+	
+	
 	def WithColor(color as ConsoleColor, block as Action):
-		old = Console.ForegroundColor
-		Console.ForegroundColor = color
-		try:
+		if DisableColors:
 			block()
-		ensure:
-			Console.ForegroundColor = old
+		else:
+			old = Console.ForegroundColor
+			Console.ForegroundColor = color
+			try:
+				block()
+			ensure:
+				Console.ForegroundColor = old
 
 
