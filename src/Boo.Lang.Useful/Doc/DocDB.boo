@@ -33,6 +33,8 @@ import System.Xml
 import System.Collections
 import System.IO
 
+import Boo.Lang.Useful.PlatformInformation
+
 static class DocDB:
 """
 	A singleton implementing a database of XML documentation on assemblies
@@ -43,16 +45,17 @@ static class DocDB:
 	_lookupPaths as Generic.ICollection[of string] = List[of string]()
 	
 	def constructor():
-		p=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
-		if Directory.Exists(p):
-			p=Path.Combine(p, "Reference Assemblies\\Microsoft")
+		if not IsMono:
+			p=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
 			if Directory.Exists(p):
-				_lookupPaths.Add(p)
-		p=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
-		if Directory.Exists(p):
-			p=Path.Combine(p, "Reference Assemblies\\Microsoft")
+				p=Path.Combine(p, "Reference Assemblies\\Microsoft")
+				if Directory.Exists(p):
+					_lookupPaths.Add(p)
+			p=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
 			if Directory.Exists(p):
-				_lookupPaths.Add(p)
+				p=Path.Combine(p, "Reference Assemblies\\Microsoft")
+				if Directory.Exists(p):
+					_lookupPaths.Add(p)
 	
 	_db = Generic.SortedList[of string, AssemblyDoc]() 
 	
