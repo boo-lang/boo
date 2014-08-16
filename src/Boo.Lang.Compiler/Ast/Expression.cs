@@ -131,6 +131,11 @@ namespace Boo.Lang.Compiler.Ast
 			return new ReferenceExpression(type.LexicalInfo, type.FullName);
 		}
 
+		public static Expression Lift(Method meth)
+		{
+			return new ReferenceExpression(meth.LexicalInfo, meth.Name);
+		}
+
 		public static Expression Lift(Type type)
 		{
 			if (type.IsGenericType)

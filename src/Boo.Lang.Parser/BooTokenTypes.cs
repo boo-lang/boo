@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "boo.g" -> "BooParserBase.cs"$
+// $ANTLR 2.7.5 (20131102): "src/Boo.Lang.Parser/boo.g" -> "BooParserBase.cs"$
 
 namespace Boo.Lang.Parser
 {
@@ -120,33 +120,46 @@ namespace Boo.Lang.Parser
 		public const int DECREMENT = 115;
 		public const int ONES_COMPLEMENT = 116;
 		public const int INT = 117;
-		public const int BACKTICK_QUOTED_STRING = 118;
-		public const int RE_LITERAL = 119;
-		public const int DOUBLE = 120;
-		public const int FLOAT = 121;
-		public const int TIMESPAN = 122;
-		public const int ID_SUFFIX = 123;
-		public const int LINE_CONTINUATION = 124;
-		public const int INTERPOLATED_EXPRESSION = 125;
-		public const int INTERPOLATED_REFERENCE = 126;
-		public const int SL_COMMENT = 127;
-		public const int ML_COMMENT = 128;
-		public const int WS = 129;
-		public const int X_RE_LITERAL = 130;
-		public const int NEWLINE = 131;
-		public const int DQS_ESC = 132;
-		public const int SQS_ESC = 133;
-		public const int SESC = 134;
-		public const int RE_CHAR = 135;
-		public const int X_RE_CHAR = 136;
-		public const int RE_OPTIONS = 137;
-		public const int RE_ESC = 138;
-		public const int DIGIT_GROUP = 139;
-		public const int REVERSE_DIGIT_GROUP = 140;
-		public const int AT_SYMBOL = 141;
-		public const int ID_LETTER = 142;
-		public const int DIGIT = 143;
-		public const int HEXDIGIT = 144;
+		public const int LITERAL_let = 118;
+		// "=" = 119
+		public const int LITERAL_where = 120;
+		public const int LITERAL_join = 121;
+		public const int LITERAL_on = 122;
+		public const int LITERAL_equals = 123;
+		public const int LITERAL_into = 124;
+		public const int LITERAL_orderby = 125;
+		public const int LITERAL_ascending = 126;
+		public const int LITERAL_descending = 127;
+		public const int LITERAL_select = 128;
+		public const int LITERAL_group = 129;
+		public const int LITERAL_by = 130;
+		public const int BACKTICK_QUOTED_STRING = 131;
+		public const int RE_LITERAL = 132;
+		public const int DOUBLE = 133;
+		public const int FLOAT = 134;
+		public const int TIMESPAN = 135;
+		public const int ID_SUFFIX = 136;
+		public const int LINE_CONTINUATION = 137;
+		public const int INTERPOLATED_EXPRESSION = 138;
+		public const int INTERPOLATED_REFERENCE = 139;
+		public const int SL_COMMENT = 140;
+		public const int ML_COMMENT = 141;
+		public const int WS = 142;
+		public const int X_RE_LITERAL = 143;
+		public const int NEWLINE = 144;
+		public const int DQS_ESC = 145;
+		public const int SQS_ESC = 146;
+		public const int SESC = 147;
+		public const int RE_CHAR = 148;
+		public const int X_RE_CHAR = 149;
+		public const int RE_OPTIONS = 150;
+		public const int RE_ESC = 151;
+		public const int DIGIT_GROUP = 152;
+		public const int REVERSE_DIGIT_GROUP = 153;
+		public const int AT_SYMBOL = 154;
+		public const int ID_LETTER = 155;
+		public const int DIGIT = 156;
+		public const int HEXDIGIT = 157;
 		
 	}
 }

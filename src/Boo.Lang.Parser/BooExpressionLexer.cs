@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "booel.g" -> "BooExpressionLexer.cs"$
+// $ANTLR 2.7.5 (20131102): "src/Boo.Lang.Parser/booel.g" -> "BooExpressionLexer.cs"$
 
 namespace Boo.Lang.Parser
 {
@@ -148,33 +148,46 @@ namespace Boo.Lang.Parser
 		public const int DECREMENT = 115;
 		public const int ONES_COMPLEMENT = 116;
 		public const int INT = 117;
-		public const int BACKTICK_QUOTED_STRING = 118;
-		public const int RE_LITERAL = 119;
-		public const int DOUBLE = 120;
-		public const int FLOAT = 121;
-		public const int TIMESPAN = 122;
-		public const int ID_SUFFIX = 123;
-		public const int LINE_CONTINUATION = 124;
-		public const int INTERPOLATED_EXPRESSION = 125;
-		public const int INTERPOLATED_REFERENCE = 126;
-		public const int SL_COMMENT = 127;
-		public const int ML_COMMENT = 128;
-		public const int WS = 129;
-		public const int X_RE_LITERAL = 130;
-		public const int NEWLINE = 131;
-		public const int DQS_ESC = 132;
-		public const int SQS_ESC = 133;
-		public const int SESC = 134;
-		public const int RE_CHAR = 135;
-		public const int X_RE_CHAR = 136;
-		public const int RE_OPTIONS = 137;
-		public const int RE_ESC = 138;
-		public const int DIGIT_GROUP = 139;
-		public const int REVERSE_DIGIT_GROUP = 140;
-		public const int AT_SYMBOL = 141;
-		public const int ID_LETTER = 142;
-		public const int DIGIT = 143;
-		public const int HEXDIGIT = 144;
+		public const int LITERAL_let = 118;
+		// "=" = 119
+		public const int LITERAL_where = 120;
+		public const int LITERAL_join = 121;
+		public const int LITERAL_on = 122;
+		public const int LITERAL_equals = 123;
+		public const int LITERAL_into = 124;
+		public const int LITERAL_orderby = 125;
+		public const int LITERAL_ascending = 126;
+		public const int LITERAL_descending = 127;
+		public const int LITERAL_select = 128;
+		public const int LITERAL_group = 129;
+		public const int LITERAL_by = 130;
+		public const int BACKTICK_QUOTED_STRING = 131;
+		public const int RE_LITERAL = 132;
+		public const int DOUBLE = 133;
+		public const int FLOAT = 134;
+		public const int TIMESPAN = 135;
+		public const int ID_SUFFIX = 136;
+		public const int LINE_CONTINUATION = 137;
+		public const int INTERPOLATED_EXPRESSION = 138;
+		public const int INTERPOLATED_REFERENCE = 139;
+		public const int SL_COMMENT = 140;
+		public const int ML_COMMENT = 141;
+		public const int WS = 142;
+		public const int X_RE_LITERAL = 143;
+		public const int NEWLINE = 144;
+		public const int DQS_ESC = 145;
+		public const int SQS_ESC = 146;
+		public const int SESC = 147;
+		public const int RE_CHAR = 148;
+		public const int X_RE_CHAR = 149;
+		public const int RE_OPTIONS = 150;
+		public const int RE_ESC = 151;
+		public const int DIGIT_GROUP = 152;
+		public const int REVERSE_DIGIT_GROUP = 153;
+		public const int AT_SYMBOL = 154;
+		public const int ID_LETTER = 155;
+		public const int DIGIT = 156;
+		public const int HEXDIGIT = 157;
 		
 		
 	
@@ -214,9 +227,12 @@ namespace Boo.Lang.Parser
 			literals.Add("while", 73);
 			literals.Add("new", 47);
 			literals.Add("end", 27);
+			literals.Add("orderby", 125);
+			literals.Add("where", 120);
 			literals.Add("then", 66);
 			literals.Add("raise", 58);
 			literals.Add("typeof", 70);
+			literals.Add("select", 128);
 			literals.Add("and", 13);
 			literals.Add("failure", 32);
 			literals.Add("not", 48);
@@ -237,6 +253,7 @@ namespace Boo.Lang.Parser
 			literals.Add("transient", 68);
 			literals.Add("constructor", 21);
 			literals.Add("interface", 40);
+			literals.Add("join", 121);
 			literals.Add("of", 50);
 			literals.Add("is", 42);
 			literals.Add("internal", 41);
@@ -247,13 +264,18 @@ namespace Boo.Lang.Parser
 			literals.Add("if", 44);
 			literals.Add("override", 52);
 			literals.Add("as", 14);
+			literals.Add("by", 130);
 			literals.Add("try", 67);
+			literals.Add("=", 119);
 			literals.Add("goto", 38);
 			literals.Add("enum", 29);
 			literals.Add("isa", 43);
 			literals.Add("for", 35);
+			literals.Add("ascending", 126);
 			literals.Add("char", 19);
 			literals.Add("private", 57);
+			literals.Add("descending", 127);
+			literals.Add("equals", 123);
 			literals.Add("false", 36);
 			literals.Add("static", 64);
 			literals.Add("abstract", 12);
@@ -261,15 +283,19 @@ namespace Boo.Lang.Parser
 			literals.Add("callable", 17);
 			literals.Add("get", 37);
 			literals.Add("continue", 16);
+			literals.Add("on", 122);
 			literals.Add("cast", 18);
 			literals.Add("struct", 65);
+			literals.Add("into", 124);
 			literals.Add("else", 26);
 			literals.Add("import", 39);
 			literals.Add("elif", 25);
+			literals.Add("let", 118);
 			literals.Add("in", 45);
 			literals.Add("self", 62);
 			literals.Add("ensure", 28);
 			literals.Add("true", 69);
+			literals.Add("group", 129);
 			literals.Add("virtual", 72);
 		}
 		
