@@ -62,7 +62,9 @@ namespace BooCompiler.Tests
 		}
 
 #if !MSBUILD
-		static bool GetEnvironmentFlag(string name, bool defaultValue)		{			var value = Environment.GetEnvironmentVariable(name);
+		static bool GetEnvironmentFlag(string name, bool defaultValue)
+		{
+			var value = Environment.GetEnvironmentVariable(name);
 			return value == null ? defaultValue : bool.Parse(value);
 		}
 #endif

@@ -2670,7 +2670,10 @@ unary_expression returns [Expression e]
 				postinc:INCREMENT { op = postinc; uOperator = UnaryOperatorType.PostIncrement; } |
 				postdec:DECREMENT { op = postdec; uOperator = UnaryOperatorType.PostDecrement; }
 			)?
-		)
+		) |
+		(
+			e=query_expression
+		) 
 	)
 	{
 		if (null != op)
@@ -2816,6 +2819,204 @@ paren_expression returns [Expression e]
 		)?
 		RPAREN
 	)
+;
+
+protected
+query_expression returns [QueryExpression e]
+{
+	e = null;
+	FromClauseExpression f = null;
+//	QueryEndingExpression ending = null;
+//	QueryContinuationExpression cont = null;
+}: 
+	f=from_clause
+	{
+		e = new QueryExpression(f.LexicalInfo);
+		e.Clauses.Add(f);
+	}
+	query_body[e]
+;
+
+protected
+from_clause returns [FromClauseExpression f]
+{
+	f = null;
+	Declaration ident = null;
+	Expression enumerable = null;
+}:
+	fr: FROM ident=declaration IN enumerable=expression
+	{
+		f = new FromClauseExpression(ToLexicalInfo(fr));
+		f.Identifier = ident;
+		f.Container = enumerable;
+	}
+;
+
+protected query_body [QueryExpression q]
+{
+	var clauses = q.Clauses;
+	QueryEndingExpression e = null;
+	QueryContinuationExpression c = null;
+}:
+        query_body_clause[clauses] (e=select_clause | e=group_clause) (c=query_continuation)?
+	{
+		q.Ending = e;
+		q.Cont = c;
+	}
+;
+
+protected
+query_body_clause [ExpressionCollection c]
+{
+	QueryClauseExpression next = null;
+}:
+	(
+	next=from_clause|	
+	next=let_clause |
+	next=where_clause |
+	next=join_clause |
+	next=orderby_clause
+	{
+		c.Add(next);
+	}
+	)*
+;
+
+protected
+let_clause returns [LetClauseExpression l]
+{
+	l = null;
+	Expression identifier = null;
+	Expression expr = null;
+}:
+	le: "let" ident:ID "=" expr=expression
+	{
+		l = new LetClauseExpression(ToLexicalInfo(le));
+		l.Identifier = identifier;
+		l.Value = expr;
+	}
+;
+
+protected
+where_clause returns [WhereClauseExpression w]
+{
+	w = null;
+	Expression where = null;
+}:
+	wh: "where" where=boolean_expression
+	{
+		w = new WhereClauseExpression(ToLexicalInfo(wh));
+		w.Cond = where;
+	}
+;
+
+protected
+join_clause returns [JoinClauseExpression j]
+{
+	j = null;
+	Declaration ident = null;
+	Expression enumerable = null;
+	Expression onExprL = null;
+	Expression onExprR = null;
+	ReferenceExpression intoExpr = null;
+}:
+	jo: "join" ident=declaration IN enumerable=expression "on" onExprL=expression "equals" onExprR=expression ("into" intoExpr=identifier_expression)?
+	{
+		j = new JoinClauseExpression(ToLexicalInfo(jo));
+		j.Identifier = ident;
+		j.Container = enumerable;
+		j.Left = onExprL;
+		j.Right = onExprR;
+		j.Into = intoExpr;
+	}
+;
+
+protected
+orderby_clause returns [OrderByClauseExpression o]
+{
+	o = null;
+	OrderingExpressionCollection ord = null;
+}:
+	ob: "orderby" ord=orderings
+	{
+		o = new OrderByClauseExpression(ToLexicalInfo(ob));
+		o.Orderings = ord;
+	}
+;
+
+protected
+orderings returns [OrderingExpressionCollection l]
+{
+	l = null;
+	OrderingExpression oe = null;
+}:
+	oe=ordering
+	{
+		l = new OrderingExpressionCollection();
+		l.Add(oe);
+	}
+	(
+		COMMA oe=ordering
+		{l.Add(oe);}
+	)*
+;
+
+protected
+ordering returns [OrderingExpression o]
+{
+	o = null;
+	Expression baseExpr = null;
+	bool desc = false;
+}:
+	baseExpr=expression ("ascending" | ("descending"){desc = true;} )?
+	{
+		o = new OrderingExpression(baseExpr.LexicalInfo);
+		o.BaseExpr = baseExpr;
+		o.Descending = desc;
+	}
+;
+
+protected
+select_clause returns [SelectClauseExpression s]
+{
+	s = null;
+	Expression baseExpr = null;
+}:
+	sel: "select" baseExpr=expression
+	{
+		s = new SelectClauseExpression(ToLexicalInfo(sel));
+		s.BaseExpr = baseExpr;
+	}
+;
+
+protected
+group_clause returns [GroupClauseExpression g]
+{
+	g = null;
+	Expression baseExpr = null;
+	Expression criterion = null;
+}:
+	gr: "group" baseExpr=expression "by" criterion=expression
+	{
+		g = new GroupClauseExpression(ToLexicalInfo(gr));
+		g.BaseExpr = baseExpr;
+		g.Criterion = criterion;
+	}
+;
+
+protected
+query_continuation returns [QueryContinuationExpression q]
+{
+	q = null;
+	QueryExpression body = null;
+}:
+	qb: "into" id:ID
+	{
+		q = new QueryContinuationExpression(ToLexicalInfo(qb));
+		q.Ident = id.getText();
+		q.Body = new QueryExpression();
+	}
+	query_body[q.Body]
 ;
 
 protected
