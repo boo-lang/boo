@@ -20,7 +20,7 @@ namespace Boo.Lang.Compiler.Steps.Query
          }
          else {
             _recursing = true;
-            base.Visit(node);
+            base.OnQueryExpression(node);
          }         
       }
    }

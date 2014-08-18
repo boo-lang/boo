@@ -2828,6 +2828,13 @@ namespace Boo.Lang.Compiler.Ast
 						CreateReference(node, "Identifier"),
 						Serialize(node.Identifier)));
 			}
+			if (ShouldSerialize(node.DeclaredType))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "DeclaredType"),
+						Serialize(node.DeclaredType)));
+			}
 			if (ShouldSerialize(node.Container))
 			{
 				mie.NamedArguments.Add(
@@ -2933,6 +2940,13 @@ namespace Boo.Lang.Compiler.Ast
 					new ExpressionPair(
 						CreateReference(node, "Identifier"),
 						Serialize(node.Identifier)));
+			}
+			if (ShouldSerialize(node.DeclaredType))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "DeclaredType"),
+						Serialize(node.DeclaredType)));
 			}
 			if (ShouldSerialize(node.Container))
 			{

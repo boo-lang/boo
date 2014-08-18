@@ -184,10 +184,10 @@ namespace Boo.Lang.Compiler.Steps.Query
       
       protected static bool IsDegenerateQuery(Boo.Lang.Compiler.Ast.QueryExpression node)
       {         
-         if (node.Clauses == null && node.Cont == null && node.Ending is SelectClauseExpression)
+         if (node.Clauses.Count == 1 && node.Cont == null && node.Ending is SelectClauseExpression)
          {
             var ending = node.Ending;
-            var id = Expression.Lift(FromClause(node).Identifier.Name);
+            var id = new ReferenceExpression(FromClause(node).Identifier.Name);
             if (ending.BaseExpr.Matches(id))
             {
                return true;

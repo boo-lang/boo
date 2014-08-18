@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): PreProcessorExpressions.g -> PreProcessorExpressionParserTokenTypes.txt$
+// $ANTLR 2.7.5 (20131102): src/Boo.Lang.Useful/IO/PreProcessorExpressions.g -> PreProcessorExpressionParserTokenTypes.txt$
 PreProcessorExpressionParser    // output token vocab name
 OR=4
 AND=5
