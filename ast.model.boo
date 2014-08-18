@@ -562,6 +562,8 @@ abstract class QueryClauseExpression(Expression):
 
 class FromClauseExpression(QueryClauseExpression):
 	Identifier as Declaration
+	[ignore]
+	DeclaredType as bool
 	Container as Expression
 
 class QueryContinuationExpression(Expression):
@@ -583,6 +585,8 @@ class WhereClauseExpression(QueryClauseExpression):
    
 class JoinClauseExpression(QueryClauseExpression):
 	Identifier as Declaration
+	[ignore]
+	DeclaredType as bool
 	Container as Expression
 	Left as Expression
 	Right as Expression

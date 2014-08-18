@@ -37,42 +37,38 @@ namespace Boo.Lang.Compiler.Ast
 	using System.Runtime.Serialization;
 	
 	[System.Serializable]
-	public partial class ParameterDeclaration : Node, INodeWithAttributes
+	public partial class OrderingExpression : Expression
 	{
-		protected string _name;
+		protected bool _descending;
 
-		protected TypeReference _type;
-
-		protected ParameterModifiers _modifiers;
-
-		protected AttributeCollection _attributes;
+		protected Expression _baseExpr;
 
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		new public ParameterDeclaration CloneNode()
+		new public OrderingExpression CloneNode()
 		{
-			return (ParameterDeclaration)Clone();
+			return (OrderingExpression)Clone();
 		}
 		
 		/// <summary>
 		/// <see cref="Node.CleanClone"/>
 		/// </summary>
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		new public ParameterDeclaration CleanClone()
+		new public OrderingExpression CleanClone()
 		{
-			return (ParameterDeclaration)base.CleanClone();
+			return (OrderingExpression)base.CleanClone();
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public NodeType NodeType
 		{
-			get { return NodeType.ParameterDeclaration; }
+			get { return NodeType.OrderingExpression; }
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public void Accept(IAstVisitor visitor)
 		{
-			visitor.OnParameterDeclaration(this);
+			visitor.OnOrderingExpression(this);
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -80,11 +76,9 @@ namespace Boo.Lang.Compiler.Ast
 		{	
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
-			var other = ( ParameterDeclaration)node;
-			if (_name != other._name) return NoMatch("ParameterDeclaration._name");
-			if (!Node.Matches(_type, other._type)) return NoMatch("ParameterDeclaration._type");
-			if (_modifiers != other._modifiers) return NoMatch("ParameterDeclaration._modifiers");
-			if (!Node.AllMatch(_attributes, other._attributes)) return NoMatch("ParameterDeclaration._attributes");
+			var other = ( OrderingExpression)node;
+			if (_descending != other._descending) return NoMatch("OrderingExpression._descending");
+			if (!Node.Matches(_baseExpr, other._baseExpr)) return NoMatch("OrderingExpression._baseExpr");
 			return true;
 		}
 
@@ -95,22 +89,10 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				return true;
 			}
-			if (_type == existing)
+			if (_baseExpr == existing)
 			{
-				this.Type = (TypeReference)newNode;
+				this.BaseExpr = (Expression)newNode;
 				return true;
-			}
-			if (_attributes != null)
-			{
-				Attribute item = existing as Attribute;
-				if (null != item)
-				{
-					Attribute newItem = (Attribute)newNode;
-					if (_attributes.Replace(item, newItem))
-					{
-						return true;
-					}
-				}
 			}
 			return false;
 		}
@@ -119,24 +101,19 @@ namespace Boo.Lang.Compiler.Ast
 		override public object Clone()
 		{
 		
-			ParameterDeclaration clone = new ParameterDeclaration();
+			OrderingExpression clone = new OrderingExpression();
 			clone._lexicalInfo = _lexicalInfo;
 			clone._endSourceLocation = _endSourceLocation;
 			clone._documentation = _documentation;
 			clone._isSynthetic = _isSynthetic;
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
-			clone._name = _name;
-			if (null != _type)
+			clone._expressionType = _expressionType;
+			clone._descending = _descending;
+			if (null != _baseExpr)
 			{
-				clone._type = _type.Clone() as TypeReference;
-				clone._type.InitializeParent(clone);
-			}
-			clone._modifiers = _modifiers;
-			if (null != _attributes)
-			{
-				clone._attributes = _attributes.Clone() as AttributeCollection;
-				clone._attributes.InitializeParent(clone);
+				clone._baseExpr = _baseExpr.Clone() as Expression;
+				clone._baseExpr.InitializeParent(clone);
 			}
 			return clone;
 
@@ -148,78 +125,40 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			_annotations = null;
 			_entity = null;
-			if (null != _type)
+			_expressionType = null;
+			if (null != _baseExpr)
 			{
-				_type.ClearTypeSystemBindings();
-			}
-			if (null != _attributes)
-			{
-				_attributes.ClearTypeSystemBindings();
+				_baseExpr.ClearTypeSystemBindings();
 			}
 
 		}
 	
 
-		[System.Xml.Serialization.XmlAttribute]
+		[System.Xml.Serialization.XmlElement]
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public string Name
+		public bool Descending
 		{
 			
-			get { return _name; }
-			set { _name = value; }
+			get { return _descending; }
+			set { _descending = value; }
 
 		}
 		
 
 		[System.Xml.Serialization.XmlElement]
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public TypeReference Type
+		public Expression BaseExpr
 		{
 			
-			get { return _type; }
+			get { return _baseExpr; }
 			set
 			{
-				if (_type != value)
+				if (_baseExpr != value)
 				{
-					_type = value;
-					if (null != _type)
+					_baseExpr = value;
+					if (null != _baseExpr)
 					{
-						_type.InitializeParent(this);
-					}
-				}
-			}
-
-		}
-		
-
-		[System.Xml.Serialization.XmlAttribute,
-		System.ComponentModel.DefaultValue(ParameterModifiers.None)]
-		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public ParameterModifiers Modifiers
-		{
-			
-			get { return _modifiers; }
-			set { _modifiers = value; }
-
-		}
-		
-
-		[System.Xml.Serialization.XmlArray]
-		[System.Xml.Serialization.XmlArrayItem(typeof(Attribute))]
-		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public AttributeCollection Attributes
-		{
-			
-
-			get { return _attributes ?? (_attributes = new AttributeCollection(this)); }
-			set
-			{
-				if (_attributes != value)
-				{
-					_attributes = value;
-					if (null != _attributes)
-					{
-						_attributes.InitializeParent(this);
+						_baseExpr.InitializeParent(this);
 					}
 				}
 			}

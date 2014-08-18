@@ -41,6 +41,8 @@ namespace Boo.Lang.Compiler.Ast
 	{
 		protected Declaration _identifier;
 
+		protected bool _declaredType;
+
 		protected Expression _container;
 
 
@@ -78,6 +80,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (NodeType != node.NodeType) return false;
 			var other = ( FromClauseExpression)node;
 			if (!Node.Matches(_identifier, other._identifier)) return NoMatch("FromClauseExpression._identifier");
+			if (_declaredType != other._declaredType) return NoMatch("FromClauseExpression._declaredType");
 			if (!Node.Matches(_container, other._container)) return NoMatch("FromClauseExpression._container");
 			return true;
 		}
@@ -119,6 +122,7 @@ namespace Boo.Lang.Compiler.Ast
 				clone._identifier = _identifier.Clone() as Declaration;
 				clone._identifier.InitializeParent(clone);
 			}
+			clone._declaredType = _declaredType;
 			if (null != _container)
 			{
 				clone._container = _container.Clone() as Expression;
@@ -164,6 +168,17 @@ namespace Boo.Lang.Compiler.Ast
 					}
 				}
 			}
+
+		}
+		
+
+		[System.Xml.Serialization.XmlElement]
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public bool DeclaredType
+		{
+			
+			get { return _declaredType; }
+			set { _declaredType = value; }
 
 		}
 		

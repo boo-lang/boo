@@ -12,7 +12,7 @@ namespace Boo.Lang.Compiler.Steps.Query
    {      
       override public void OnFromClauseExpression(Boo.Lang.Compiler.Ast.FromClauseExpression node)
       {
-         if (node.Identifier.Type != null)
+         if (node.DeclaredType)
          {
             var typ = node.Identifier.Type;
             var gen = new GenericReferenceExpression(typ.LexicalInfo);
@@ -22,12 +22,12 @@ namespace Boo.Lang.Compiler.Steps.Query
             gen.Target = inv;
             node.Container = gen;
          }
-         base.Visit(node);
+         base.OnFromClauseExpression(node);
       }
 
       override public void OnJoinClauseExpression(Boo.Lang.Compiler.Ast.JoinClauseExpression node)
       {
-         if (node.Identifier.Type != null)
+         if (node.DeclaredType)
          {
             var typ = node.Identifier.Type;
             var gen = new GenericReferenceExpression(typ.LexicalInfo);
@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Steps.Query
             gen.Target = inv;
             node.Container = gen;
          }
-         base.Visit(node);
+         base.OnJoinClauseExpression(node);
       }
    }
 }
