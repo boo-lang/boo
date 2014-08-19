@@ -75,6 +75,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( OrderByClauseExpression)node;
+			if (_tupleSize != other._tupleSize) return NoMatch("OrderByClauseExpression._tupleSize");
 			if (!Node.AllMatch(_orderings, other._orderings)) return NoMatch("OrderByClauseExpression._orderings");
 			return true;
 		}
@@ -113,6 +114,7 @@ namespace Boo.Lang.Compiler.Ast
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
+			clone._tupleSize = _tupleSize;
 			if (null != _orderings)
 			{
 				clone._orderings = _orderings.Clone() as OrderingExpressionCollection;

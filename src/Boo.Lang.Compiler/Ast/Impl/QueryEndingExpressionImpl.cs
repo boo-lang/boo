@@ -63,6 +63,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( QueryEndingExpression)node;
+			if (_tupleSize != other._tupleSize) return NoMatch("QueryEndingExpression._tupleSize");
 			if (!Node.Matches(_baseExpr, other._baseExpr)) return NoMatch("QueryEndingExpression._baseExpr");
 			return true;
 		}

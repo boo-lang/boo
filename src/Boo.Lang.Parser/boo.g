@@ -2939,14 +2939,14 @@ query_body_clause [ExpressionCollection c]
 	QueryClauseExpression next = null;
 }:
 	(
-	next=from_clause|	
-	next=let_clause |
-	next=where_clause |
-	next=join_clause |
-	next=orderby_clause
-	{
-		c.Add(next);
-	}
+		(next=from_clause|	
+		next=let_clause |
+		next=where_clause |
+		next=join_clause |
+		next=orderby_clause)
+		{
+			c.Add(next);
+		}
 	)*
 ;
 

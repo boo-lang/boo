@@ -2821,6 +2821,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.FromClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.Identifier))
 			{
 				mie.NamedArguments.Add(
@@ -2876,6 +2883,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SelectClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.BaseExpr))
 			{
 				mie.NamedArguments.Add(
@@ -2893,6 +2907,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.LetClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.Identifier))
 			{
 				mie.NamedArguments.Add(
@@ -2917,6 +2938,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.WhereClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.Cond))
 			{
 				mie.NamedArguments.Add(
@@ -2934,6 +2962,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.JoinClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.Identifier))
 			{
 				mie.NamedArguments.Add(
@@ -2986,6 +3021,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.GroupClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.BaseExpr))
 			{
 				mie.NamedArguments.Add(
@@ -3010,6 +3052,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.OrderByClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.Orderings))
 			{
 				mie.NamedArguments.Add(

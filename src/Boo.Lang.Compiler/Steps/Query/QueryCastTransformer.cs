@@ -10,32 +10,30 @@ namespace Boo.Lang.Compiler.Steps.Query
    /// </summary>
    public class QueryCastTransformer: QueryTransformerStep
    {      
-      override public void OnFromClauseExpression(Boo.Lang.Compiler.Ast.FromClauseExpression node)
+      override public void OnFromClauseExpression(FromClauseExpression node)
       {
          if (node.DeclaredType)
          {
             var typ = node.Identifier.Type;
             var gen = new GenericReferenceExpression(typ.LexicalInfo);
             gen.GenericArguments.Add(typ);
-            var inv = new MethodInvocationExpression(node.Container.LexicalInfo, new StringLiteralExpression("Cast"));
-            inv.Arguments.Add(node.Container);
-            gen.Target = inv;
-            node.Container = gen;
+            gen.Target = new MemberReferenceExpression(node.Container, "Cast");
+            var inv = new MethodInvocationExpression(node.Container.LexicalInfo, gen);
+            node.Container = inv;
          }
          base.OnFromClauseExpression(node);
       }
 
-      override public void OnJoinClauseExpression(Boo.Lang.Compiler.Ast.JoinClauseExpression node)
+      override public void OnJoinClauseExpression(JoinClauseExpression node)
       {
          if (node.DeclaredType)
          {
             var typ = node.Identifier.Type;
             var gen = new GenericReferenceExpression(typ.LexicalInfo);
             gen.GenericArguments.Add(typ);
-            var inv = new MethodInvocationExpression(node.Container.LexicalInfo, new StringLiteralExpression("Cast"));
-            inv.Arguments.Add(node.Container);
-            gen.Target = inv;
-            node.Container = gen;
+            gen.Target = new MemberReferenceExpression(node.Container, "Cast");
+            var inv = new MethodInvocationExpression(node.Container.LexicalInfo, gen);
+            node.Container = inv;
          }
          base.OnJoinClauseExpression(node);
       }

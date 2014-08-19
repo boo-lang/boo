@@ -22,13 +22,13 @@ namespace Boo.Lang.Compiler.Steps.Query
       {
          base.OnGroupClauseExpression(node);
          var v = node.BaseExpr;
-         var lambda = MakeLambda(_range, node.Criterion, TypeReference.Lift(node.Criterion));
+         var lambda = MakeLambda(_range, node.Criterion);
          if (v is ReferenceExpression && ((ReferenceExpression)v).Name == _range.Name)
-            _query.Clauses.Add(MakeMethodCall("GroupBy", lambda, null));
+            _query.Clauses.Add(MakeMethodCall("GroupBy", lambda));
          else {
-            var lambda2 = MakeLambda(_range, v, TypeReference.Lift(v));
+            var lambda2 = MakeLambda(_range, v);
             BlockExpression[] lambdas = {lambda, lambda2};
-            _query.Clauses.Add(MakeMethodCall("GroupBy", lambdas, null));
+            _query.Clauses.Add(MakeMethodCall("GroupBy", lambdas));
          }
          _query.Ending = null;
       }

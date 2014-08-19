@@ -25,8 +25,8 @@ namespace Boo.Lang.Compiler.Steps.Query
          if (v is ReferenceExpression && ((ReferenceExpression)v).Name == _range.Name)
             RemoveCurrentNode();
          else {
-            var lambda = MakeLambda(_range, node.BaseExpr, TypeReference.Lift(node.BaseExpr));
-            _query.Clauses.Add(MakeMethodCall("Select", lambda, lambda.ReturnType));
+            var lambda = MakeLambda(_range, node.BaseExpr);
+            _query.Clauses.Add(MakeMethodCall("Select", lambda));
             _query.Ending = null;
          }
       }

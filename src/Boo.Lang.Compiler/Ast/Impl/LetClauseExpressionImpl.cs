@@ -77,6 +77,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( LetClauseExpression)node;
+			if (_tupleSize != other._tupleSize) return NoMatch("LetClauseExpression._tupleSize");
 			if (!Node.Matches(_identifier, other._identifier)) return NoMatch("LetClauseExpression._identifier");
 			if (!Node.Matches(_value, other._value)) return NoMatch("LetClauseExpression._value");
 			return true;
@@ -114,6 +115,7 @@ namespace Boo.Lang.Compiler.Ast
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
+			clone._tupleSize = _tupleSize;
 			if (null != _identifier)
 			{
 				clone._identifier = _identifier.Clone() as Expression;
