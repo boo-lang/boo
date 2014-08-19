@@ -4,13 +4,13 @@
 namespace Boo.Lang.Parser
 {
     static class GeneratedErrorPatterns
-
     {
         public static readonly ErrorPattern[] Patterns = {
 
             new Boo.Lang.Parser.NoViableAltErrorPattern(
                 "Unbalanced expression, closing paren not found",
                 "paren_expression"
+
             ) { Token = 22 },
             
             new Boo.Lang.Parser.NoViableAltErrorPattern(

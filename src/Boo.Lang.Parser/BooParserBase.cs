@@ -1684,11 +1684,11 @@ _loop191_breakloop:				;
 					}
 					else
 					{
-						goto _loop687_breakloop;
+						goto _loop688_breakloop;
 					}
 					
 				}
-_loop687_breakloop:				;
+_loop688_breakloop:				;
 			}    // ( ... )*
 			if (0==inputState.guessing)
 			{
@@ -1848,11 +1848,11 @@ _loop687_breakloop:				;
 							}
 							else
 							{
-								goto _loop675_breakloop;
+								goto _loop676_breakloop;
 							}
 							
 						}
-_loop675_breakloop:						;
+_loop676_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -4091,11 +4091,11 @@ _loop264_breakloop:				;
 							}
 							else
 							{
-								goto _loop679_breakloop;
+								goto _loop680_breakloop;
 							}
 							
 						}
-_loop679_breakloop:						;
+_loop680_breakloop:						;
 					}    // ( ... )*
 					break;
 				}
@@ -6391,11 +6391,11 @@ _loop145_breakloop:					;
 											}
 											else
 											{
-												goto _loop613_breakloop;
+												goto _loop614_breakloop;
 											}
 											
 										}
-_loop613_breakloop:										;
+_loop614_breakloop:										;
 									}    // ( ... )*
 									break;
 								}
@@ -6844,11 +6844,11 @@ _loop613_breakloop:										;
 											}
 											else
 											{
-												goto _loop624_breakloop;
+												goto _loop625_breakloop;
 											}
 											
 										}
-_loop624_breakloop:										;
+_loop625_breakloop:										;
 									}    // ( ... )*
 									break;
 								}
@@ -7008,11 +7008,11 @@ _loop624_breakloop:										;
 								if ((LA(1)==LBRACE) && (tokenSet_77_.member(LA(2))))
 								{
 									{
-										bool synPredMatched629 = false;
+										bool synPredMatched630 = false;
 										if (((LA(1)==LBRACE) && (tokenSet_77_.member(LA(2)))))
 										{
-											int _m629 = mark();
-											synPredMatched629 = true;
+											int _m630 = mark();
+											synPredMatched630 = true;
 											inputState.guessing++;
 											try {
 												{
@@ -7021,12 +7021,12 @@ _loop624_breakloop:										;
 											}
 											catch (RecognitionException)
 											{
-												synPredMatched629 = false;
+												synPredMatched630 = false;
 											}
-											rewind(_m629);
+											rewind(_m630);
 											inputState.guessing--;
 										}
-										if ( synPredMatched629 )
+										if ( synPredMatched630 )
 										{
 											initializer=hash_literal();
 										}
@@ -7056,11 +7056,11 @@ _loop624_breakloop:										;
 					}
 					else
 					{
-						goto _loop630_breakloop;
+						goto _loop631_breakloop;
 					}
 					
 				}
-_loop630_breakloop:				;
+_loop631_breakloop:				;
 			}    // ( ... )*
 		}
 		catch (RecognitionException ex)
@@ -14827,11 +14827,11 @@ _loop540_breakloop:				;
 						e=integer_literal();
 					}
 					else {
-						bool synPredMatched635 = false;
+						bool synPredMatched636 = false;
 						if (((LA(1)==LBRACE) && (tokenSet_77_.member(LA(2)))))
 						{
-							int _m635 = mark();
-							synPredMatched635 = true;
+							int _m636 = mark();
+							synPredMatched636 = true;
 							inputState.guessing++;
 							try {
 								{
@@ -14840,12 +14840,12 @@ _loop540_breakloop:				;
 							}
 							catch (RecognitionException)
 							{
-								synPredMatched635 = false;
+								synPredMatched636 = false;
 							}
-							rewind(_m635);
+							rewind(_m636);
 							inputState.guessing--;
 						}
-						if ( synPredMatched635 )
+						if ( synPredMatched636 )
 						{
 							e=hash_literal();
 						}
@@ -15338,11 +15338,11 @@ _loop540_breakloop:				;
 								}
 								else
 								{
-									goto _loop594_breakloop;
+									goto _loop595_breakloop;
 								}
 								
 							}
-_loop594_breakloop:							;
+_loop595_breakloop:							;
 						}    // ( ... )*
 						{
 							switch ( LA(1) )
@@ -15510,46 +15510,56 @@ _loop594_breakloop:							;
 			{    // ( ... )*
 				for (;;)
 				{
-					switch ( LA(1) )
+					if ((tokenSet_123_.member(LA(1))))
 					{
-					case FROM:
-					{
-						next=from_clause();
-						break;
-					}
-					case LET:
-					{
-						next=let_clause();
-						break;
-					}
-					case WHERE:
-					{
-						next=where_clause();
-						break;
-					}
-					case JOIN:
-					{
-						next=join_clause();
-						break;
-					}
-					case ORDERBY:
-					{
-						next=orderby_clause();
+						{
+							switch ( LA(1) )
+							{
+							case FROM:
+							{
+								next=from_clause();
+								break;
+							}
+							case LET:
+							{
+								next=let_clause();
+								break;
+							}
+							case WHERE:
+							{
+								next=where_clause();
+								break;
+							}
+							case JOIN:
+							{
+								next=join_clause();
+								break;
+							}
+							case ORDERBY:
+							{
+								next=orderby_clause();
+								break;
+							}
+							default:
+							{
+								throw new NoViableAltException(LT(1), getFilename());
+							}
+							 }
+						}
 						if (0==inputState.guessing)
 						{
 							
-									c.Add(next);
-								
+										c.Add(next);
+									
 						}
-						break;
 					}
-					default:
+					else
 					{
-						goto _loop575_breakloop;
+						goto _loop576_breakloop;
 					}
-					 }
+					
 				}
-_loop575_breakloop:				;
+_loop576_breakloop:				;
 			}    // ( ... )*
 		}
 		catch (RecognitionException ex)
@@ -15557,7 +15567,7 @@ _loop575_breakloop:				;
 			if (0 == inputState.guessing)
 			{
 				reportError(ex, "query_body_clause");
-				recover(ex,tokenSet_123_);
+				recover(ex,tokenSet_124_);
 			}
 			else
 			{
@@ -15909,11 +15919,11 @@ _loop575_breakloop:				;
 					}
 					else
 					{
-						goto _loop583_breakloop;
+						goto _loop584_breakloop;
 					}
 					
 				}
-_loop583_breakloop:				;
+_loop584_breakloop:				;
 			}    // ( ... )*
 		}
 		catch (RecognitionException ex)
@@ -15993,7 +16003,7 @@ _loop583_breakloop:				;
 			if (0 == inputState.guessing)
 			{
 				reportError(ex, "ordering");
-				recover(ex,tokenSet_124_);
+				recover(ex,tokenSet_125_);
 			}
 			else
 			{
@@ -16470,11 +16480,11 @@ _loop583_breakloop:				;
 			
 		
 		try {      // for error handling
-			bool synPredMatched682 = false;
-			if (((tokenSet_6_.member(LA(1))) && (tokenSet_125_.member(LA(2)))))
+			bool synPredMatched683 = false;
+			if (((tokenSet_6_.member(LA(1))) && (tokenSet_126_.member(LA(2)))))
 			{
-				int _m682 = mark();
-				synPredMatched682 = true;
+				int _m683 = mark();
+				synPredMatched683 = true;
 				inputState.guessing++;
 				try {
 					{
@@ -16483,12 +16493,12 @@ _loop583_breakloop:				;
 				}
 				catch (RecognitionException)
 				{
-					synPredMatched682 = false;
+					synPredMatched683 = false;
 				}
-				rewind(_m682);
+				rewind(_m683);
 				inputState.guessing--;
 			}
-			if ( synPredMatched682 )
+			if ( synPredMatched683 )
 			{
 				{
 					pair=expression_pair();
@@ -16498,7 +16508,7 @@ _loop583_breakloop:				;
 					}
 				}
 			}
-			else if ((tokenSet_6_.member(LA(1))) && (tokenSet_126_.member(LA(2)))) {
+			else if ((tokenSet_6_.member(LA(1))) && (tokenSet_127_.member(LA(2)))) {
 				{
 					value=expression();
 					if (0==inputState.guessing)
@@ -16701,11 +16711,11 @@ _loop583_breakloop:				;
 							}
 							else
 							{
-								goto _loop664_breakloop;
+								goto _loop665_breakloop;
 							}
 							
 						}
-_loop664_breakloop:						;
+_loop665_breakloop:						;
 					}    // ( ... )*
 					{
 						switch ( LA(1) )
@@ -16872,11 +16882,11 @@ _loop664_breakloop:						;
 								}
 								else
 								{
-									goto _loop656_breakloop;
+									goto _loop657_breakloop;
 								}
 								
 							}
-_loop656_breakloop:							;
+_loop657_breakloop:							;
 						}    // ( ... )*
 					}
 					{
@@ -16917,7 +16927,7 @@ _loop656_breakloop:							;
 			if (0 == inputState.guessing)
 			{
 				reportError(ex, "list_items");
-				recover(ex,tokenSet_127_);
+				recover(ex,tokenSet_128_);
 			}
 			else
 			{
@@ -17406,7 +17416,7 @@ _loop656_breakloop:							;
 				
 			}
 			{ // ( ... )+
-				int _cnt649=0;
+				int _cnt650=0;
 				for (;;)
 				{
 					if ((LA(1)==ESEPARATOR) && (tokenSet_6_.member(LA(2))))
@@ -17504,12 +17514,12 @@ _loop656_breakloop:							;
 					}
 					else
 					{
-						if (_cnt649 >= 1) { goto _loop649_breakloop; } else { throw new NoViableAltException(LT(1), getFilename());; }
+						if (_cnt650 >= 1) { goto _loop650_breakloop; } else { throw new NoViableAltException(LT(1), getFilename());; }
 					}
 					
-					_cnt649++;
+					_cnt650++;
 				}
-_loop649_breakloop:				;
+_loop650_breakloop:				;
 			}    // ( ... )+
 			{
 				if ((LA(1)==ESEPARATOR) && (tokenSet_43_.member(LA(2))))
@@ -17567,7 +17577,7 @@ _loop649_breakloop:				;
 			if (0 == inputState.guessing)
 			{
 				reportError(ex, "expression_pair");
-				recover(ex,tokenSet_128_);
+				recover(ex,tokenSet_129_);
 			}
 			else
 			{
@@ -18482,40 +18492,46 @@ _loop649_breakloop:				;
 	public static readonly BitSet tokenSet_122_ = new BitSet(mk_tokenSet_122_());
 	private static long[] mk_tokenSet_123_()
 	{
-		long[] data = { 0L, 3145728L, 0L, 0L};
+		long[] data = { 17179869184L, 145408L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_123_ = new BitSet(mk_tokenSet_123_());
 	private static long[] mk_tokenSet_124_()
 	{
-		long[] data = { 17179869184L, 8593225728L, 0L, 0L};
+		long[] data = { 0L, 3145728L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_124_ = new BitSet(mk_tokenSet_124_());
 	private static long[] mk_tokenSet_125_()
 	{
-		long[] data = { -175870474380877552L, -17592269931420L, 251L, 0L, 0L, 0L};
+		long[] data = { 17179869184L, 8593225728L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_125_ = new BitSet(mk_tokenSet_125_());
 	private static long[] mk_tokenSet_126_()
 	{
-		long[] data = { -175870474380877552L, -17729641776028L, 251L, 0L, 0L, 0L};
+		long[] data = { -175870474380877552L, -17592269931420L, 251L, 0L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_126_ = new BitSet(mk_tokenSet_126_());
 	private static long[] mk_tokenSet_127_()
 	{
-		long[] data = { 0L, 4400193994752L, 0L, 0L};
+		long[] data = { -175870474380877552L, -17729641776028L, 251L, 0L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_127_ = new BitSet(mk_tokenSet_127_());
 	private static long[] mk_tokenSet_128_()
 	{
-		long[] data = { 0L, 4406703554560L, 0L, 0L};
+		long[] data = { 0L, 4400193994752L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_128_ = new BitSet(mk_tokenSet_128_());
+	private static long[] mk_tokenSet_129_()
+	{
+		long[] data = { 0L, 4406703554560L, 0L, 0L};
+		return data;
+	}
+	public static readonly BitSet tokenSet_129_ = new BitSet(mk_tokenSet_129_());
 	
 }
 }

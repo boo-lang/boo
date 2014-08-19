@@ -79,6 +79,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( FromClauseExpression)node;
+			if (_tupleSize != other._tupleSize) return NoMatch("FromClauseExpression._tupleSize");
 			if (!Node.Matches(_identifier, other._identifier)) return NoMatch("FromClauseExpression._identifier");
 			if (_declaredType != other._declaredType) return NoMatch("FromClauseExpression._declaredType");
 			if (!Node.Matches(_container, other._container)) return NoMatch("FromClauseExpression._container");
@@ -117,6 +118,7 @@ namespace Boo.Lang.Compiler.Ast
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
+			clone._tupleSize = _tupleSize;
 			if (null != _identifier)
 			{
 				clone._identifier = _identifier.Clone() as Declaration;

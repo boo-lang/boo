@@ -49,121 +49,105 @@ namespace Boo.Lang.Compiler.Steps.Query
       private void HandleFromClause(QueryExpression node, FromClauseExpression fromExpr, int i)
       {
          var e2 = fromExpr.Container;
-         BlockExpression l1 = MakeLambda(_range, e2, TypeReference.Lift(e2));
+         BlockExpression l1 = MakeLambda(_range, e2);
          if (i == node.Clauses.Count - 1 && node.Ending is SelectClauseExpression)
          {
-            var l2 = MakeLambda(_range, fromExpr.Identifier, node.Ending.BaseExpr, TypeReference.Lift(node.Ending.BaseExpr));
+            var l2 = MakeLambda(_range, fromExpr.Identifier, node.Ending.BaseExpr);
             BlockExpression[] lambdas = {l1, l2};
-            var sm = MakeMethodCall("SelectMany", lambdas, l2.ReturnType);
+            var sm = MakeMethodCall("SelectMany", lambdas);
             Simplify(fromExpr, sm);
             node.Ending = null;
-         } else {
-            var constructor = MakeTupleConstructor(_range, fromExpr.Identifier);
-            var l2 = MakeLambda(_range, fromExpr.Identifier, constructor, TypeReference.Lift(constructor));
+         } else {            
+            var constructor = MakeTupleConstructor(_range, fromExpr.Identifier, TupleDepth(fromExpr));
+            var l2 = MakeLambda(_range, fromExpr.Identifier, constructor);
             BlockExpression[] lambdas = {l1, l2};
-            var sm = MakeMethodCall("SelectMany", lambdas, l2.ReturnType);
+            var sm = MakeMethodCall("SelectMany", lambdas);
             Simplify(fromExpr, sm);
             string name;
-            TypeReference type;
-            InjectTransparentIdentifier(node, i, _range, fromExpr.Identifier, out name, out type);
-            _range = new Declaration(name, type);
+            InjectTransparentIdentifier(node, i, TupleDepth(fromExpr), _range, fromExpr.Identifier, out name);
+            _range = new Declaration(name, null);
             FromClause(node).Identifier = _range;
          }
       }
       
       private void HandleJoinClause(QueryExpression node, JoinClauseExpression JoinExpr, int i)
       {
-         var l1 = MakeLambda(_range, JoinExpr.Left, TypeReference.Lift(JoinExpr.Left));
-         var l2 = MakeLambda(JoinExpr.Identifier, JoinExpr.Right, TypeReference.Lift(JoinExpr.Right));
+         var l1 = MakeLambda(_range, JoinExpr.Left);
+         var l2 = MakeLambda(JoinExpr.Identifier, JoinExpr.Right);
          BlockExpression[] lambdas = {l1, l2, null};
          if (i == node.Clauses.Count - 1 && node.Ending is SelectClauseExpression)
          {
-            lambdas[2] = MakeLambda(_range, JoinExpr.Identifier, node.Ending.BaseExpr, TypeReference.Lift(node.Ending.BaseExpr));
-            var join = MakeMethodCall("Join", JoinExpr.Container, lambdas, CollectionItemType(JoinExpr.Container));
+            lambdas[2] = MakeLambda(_range, JoinExpr.Identifier, node.Ending.BaseExpr);
+            var join = MakeMethodCall("Join", JoinExpr.Container, lambdas);
             Simplify(JoinExpr, join);
             node.Ending = null;
          } else {
-            var constructor = MakeTupleConstructor(_range, JoinExpr.Identifier);
-            lambdas[2] = MakeLambda(_range, JoinExpr.Identifier, constructor, TypeReference.Lift(constructor));
-            var join = MakeMethodCall("Join", JoinExpr.Container, lambdas, CollectionItemType(JoinExpr.Container));
+            var constructor = MakeTupleConstructor(_range, JoinExpr.Identifier, TupleDepth(JoinExpr));
+            lambdas[2] = MakeLambda(_range, JoinExpr.Identifier, constructor);
+            var join = MakeMethodCall("Join", JoinExpr.Container, lambdas);
             Simplify(JoinExpr, join);
             string name;
-            TypeReference type;
-            InjectTransparentIdentifier(node, i, _range, JoinExpr.Identifier, out name, out type);
-            _range = new Declaration(name, type);
+            InjectTransparentIdentifier(node, i, TupleDepth(JoinExpr), _range, JoinExpr.Identifier, out name);
+            _range = new Declaration(name, null);
             FromClause(node).Identifier = _range;            
          }
       }
       
       private void HandleJoinIntoClause(QueryExpression node, JoinClauseExpression JoinExpr, int i)
       {
-         var l1 = MakeLambda(_range, JoinExpr.Left, TypeReference.Lift(JoinExpr.Left));
-         var l2 = MakeLambda(JoinExpr.Identifier, JoinExpr.Right, TypeReference.Lift(JoinExpr.Right));
+         var l1 = MakeLambda(_range, JoinExpr.Left);
+         var l2 = MakeLambda(JoinExpr.Identifier, JoinExpr.Right);
          BlockExpression[] lambdas = {l1, l2, null};
          var into = new Declaration(JoinExpr.Into.Name, TypeReference.Lift(JoinExpr.Into));
          if (i == node.Clauses.Count - 1 && node.Ending is SelectClauseExpression)
          {
-            lambdas[2] = MakeLambda(_range, into, node.Ending.BaseExpr, TypeReference.Lift(node.Ending.BaseExpr));
-            var gJoin = MakeMethodCall("GroupJoin", JoinExpr.Container, lambdas, CollectionItemType(JoinExpr.Container));
+            lambdas[2] = MakeLambda(_range, into, node.Ending.BaseExpr);
+            var gJoin = MakeMethodCall("GroupJoin", JoinExpr.Container, lambdas);
             Simplify(JoinExpr, gJoin);
             node.Ending = null;
          } else {
-            var constructor = MakeTupleConstructor(_range, JoinExpr.Identifier);
-            lambdas[2] = MakeLambda(_range, into, constructor, TypeReference.Lift(constructor));
-            var gJoin = MakeMethodCall("GroupJoin", JoinExpr.Container, lambdas, CollectionItemType(JoinExpr.Container));
+            var constructor = MakeTupleConstructor(_range, JoinExpr.Identifier, TupleDepth(JoinExpr));
+            lambdas[2] = MakeLambda(_range, into, constructor);
+            var gJoin = MakeMethodCall("GroupJoin", JoinExpr.Container, lambdas);
             Simplify(JoinExpr, gJoin);
             string name;
-            TypeReference type;
-            InjectTransparentIdentifier(node, i, _range, JoinExpr.Identifier, out name, out type);
-            _range = new Declaration(name, type);
+            InjectTransparentIdentifier(node, i, TupleDepth(JoinExpr), _range, JoinExpr.Identifier, out name);
+            _range = new Declaration(name, null);
             FromClause(node).Identifier = _range;            
          }         
       }
 
       private void HandleLetClause(QueryExpression query, LetClauseExpression node, int i)
       {
-         var constructor = MakeTupleConstructor(_range, node.Value);
-         var lambda = MakeLambda(_range, constructor, TypeReference.Lift(constructor));
-         var sm = MakeMethodCall("Select", lambda, lambda.ReturnType);
+         var constructor = MakeTupleConstructor(_range, node.Value, TupleDepth(node));
+         var lambda = MakeLambda(_range, constructor);
+         var sm = MakeMethodCall("Select", lambda);
          Simplify(node, sm);
          string name;
-         TypeReference type;
-         var decl = new Declaration((node.Identifier as ReferenceExpression).Name, TypeReference.Lift(node.Value));
-         InjectTransparentIdentifier(query, i, _range, decl, out name, out type);
-         _range = new Declaration(name, type);
+         var decl = new Declaration((node.Identifier as ReferenceExpression).Name, null);
+         InjectTransparentIdentifier(query, i, TupleDepth(node), _range, decl, out name);
+         _range = new Declaration(name, null);
          FromClause(query).Identifier = _range;
       }
 
       private void HandleWhereClause(WhereClauseExpression node)
       {
-         var parent = node.ParentNode as Expression;
-         if (parent == null)
-         {
-            Context.Errors.Add(new CompilerError(node, "Parent is not an Expression. (Should not happen)"));
-            return;
-         }
-         var lambda = MakeLambda(_range, node.Cond, TypeReference.Lift(Context.CodeBuilder.TypeSystemServices.BoolType.FullName));
-         Simplify(node, MakeMethodCall("Where", lambda, _range.Type));
+         var lambda = MakeLambda(_range, node.Cond);
+         Simplify(node, MakeMethodCall("Where", lambda));
       }
       
       private void HandleOrderbyClause(OrderByClauseExpression node)
       {
-         var parent = node.ParentNode as QueryClauseExpression;
-         if (parent == null)
-         {
-            Context.Errors.Add(new CompilerError(node, "Parent is not an Expression. (Should not happen)"));
-            return;
-         }
          var order = node.Orderings.First;         
-         var lambda = MakeLambda(_range, order.BaseExpr, TypeReference.Lift(order));
+         var lambda = MakeLambda(_range, order.BaseExpr);
          string methodName = order.Descending ? "OrderByDescending" : "OrderBy";
-         var chain = MakeMethodCall(methodName, lambda, _range.Type);
+         var chain = MakeMethodCall(methodName, lambda);
          for (var i = 1; i < node.Orderings.Count; ++i)
          {
             order = node.Orderings[i];
-            lambda = MakeLambda(_range, order.BaseExpr, TypeReference.Lift(order));
+            lambda = MakeLambda(_range, order.BaseExpr);
             methodName = order.Descending ? "ThenByDescending" : "ThenBy";
-            chain = MakeMethodCall(methodName, lambda, _range.Type);            
+            chain = MakeMethodCall(methodName, lambda);            
          }
          Simplify(node, chain);
       }

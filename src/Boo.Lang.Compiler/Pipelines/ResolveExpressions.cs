@@ -57,7 +57,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new CheckMemberNames());
 			
 			Add(new ProcessMethodBodiesWithDuckTyping());
-			Add(new QueryTransformer());
 
 			Add(new ReifyTypes());
 			Add(new TypeInference()); // marks the end of the type inference phase

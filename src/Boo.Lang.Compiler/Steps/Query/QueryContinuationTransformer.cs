@@ -10,7 +10,7 @@ namespace Boo.Lang.Compiler.Steps.Query
    /// </summary>
    public class QueryContinuationTransformer: QueryTransformerStep
    {      
-      override public void OnQueryExpression(Boo.Lang.Compiler.Ast.QueryExpression node)
+      override public void OnQueryExpression(QueryExpression node)
       {
          if (node.Cont != null)
          {
@@ -22,11 +22,8 @@ namespace Boo.Lang.Compiler.Steps.Query
             newFrom.Container = node;
             outer.Clauses.Insert(0, newFrom);
             ReplaceCurrentNode(outer);
-         }       
-         else {
-            _recursing = true;
-            base.OnQueryExpression(node);
          }
+         base.OnQueryExpression(node);         
       }
    }
 }

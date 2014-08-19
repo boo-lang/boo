@@ -73,6 +73,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( SelectClauseExpression)node;
+			if (_tupleSize != other._tupleSize) return NoMatch("SelectClauseExpression._tupleSize");
 			if (!Node.Matches(_baseExpr, other._baseExpr)) return NoMatch("SelectClauseExpression._baseExpr");
 			return true;
 		}
@@ -104,6 +105,7 @@ namespace Boo.Lang.Compiler.Ast
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
+			clone._tupleSize = _tupleSize;
 			if (null != _baseExpr)
 			{
 				clone._baseExpr = _baseExpr.Clone() as Expression;

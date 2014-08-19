@@ -558,7 +558,8 @@ class CustomExpression(Expression):
 	pass
 
 abstract class QueryClauseExpression(Expression):
-	pass
+	[ignore]
+	TupleSize as int
 
 class FromClauseExpression(QueryClauseExpression):
 	Identifier as Declaration

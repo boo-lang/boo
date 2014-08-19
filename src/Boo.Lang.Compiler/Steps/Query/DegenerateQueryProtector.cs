@@ -14,14 +14,11 @@ namespace Boo.Lang.Compiler.Steps.Query
       {        
          if (IsDegenerateQuery(node))
          {
-            var lambda = MakeLambda(FromClause(node).Identifier, node.Ending.BaseExpr, FromClause(node).Identifier.Type);
-            var select = MakeMethodCall("Select", lambda, FromClause(node).Identifier.Type);
+            var lambda = MakeLambda(FromClause(node).Identifier, node.Ending.BaseExpr);
+            var select = MakeMethodCall("Select", lambda);
             ReplaceCurrentNode(select);
          }
-         else {
-            _recursing = true;
-            base.OnQueryExpression(node);
-         }         
+         base.OnQueryExpression(node);
       }
    }
 }
