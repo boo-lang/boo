@@ -2174,10 +2174,22 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
+			// Make sure any obsolete member access is reported before the member not found error
+			CheckAttributesUsageOn(node);
+
 			EntityType et = (!AstUtil.IsTargetOfMethodInvocation(node)) ? EntityType.Any : EntityType.Method;
 			Error(node,
 				CompilerErrorFactory.MemberNotFound(node, ns, NameResolutionService.GetMostSimilarMemberName(ns, node.Name, et)));
 		}
+
+		private void CheckAttributesUsageOn(MemberReferenceExpression node)
+		{
+			var visitor = new CheckAttributesUsage();
+			visitor.Initialize(_context);
+
+			node.Target.Accept(visitor);
+		}
+
 
 		virtual protected bool ShouldRebindMember(IEntity entity)
 		{
