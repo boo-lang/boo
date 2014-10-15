@@ -77,10 +77,10 @@ public partial class BlockExpression (Expression, INodeWithParameters, INodeWith
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _parameters is not null:
-			item = existing as ParameterDeclaration
-			if item is not null:
-				newItem = newNode as ParameterDeclaration
-				return true if _parameters.Replace(item, newItem)
+			item1 = existing as ParameterDeclaration
+			if item1 is not null:
+				newItem1 = newNode as ParameterDeclaration
+				return true if _parameters.Replace(item1, newItem1)
 		if _returnType == existing:
 			self.ReturnType = newNode as TypeReference
 			return true;
@@ -135,13 +135,13 @@ public partial class BlockExpression (Expression, INodeWithParameters, INodeWith
 		
 
 		get:
-			_parameters = ParameterDeclarationCollection(self)() if _parameters is null
+			_parameters = ParameterDeclarationCollection(self) if _parameters is null
 			return _parameters 
 		set:
 			if _parameters != value:
 				_parameters = value;
 				if _parameters is not null:
-					_parameters.InitializeParent(this);
+					_parameters.InitializeParent(self);
 
 
 
@@ -154,7 +154,7 @@ public partial class BlockExpression (Expression, INodeWithParameters, INodeWith
 			if _returnType != value:
 				_returnType = value;
 				if _returnType is not null:
-					_returnType.InitializeParent(this);
+					_returnType.InitializeParent(self);
 
 
 
@@ -165,12 +165,12 @@ public partial class BlockExpression (Expression, INodeWithParameters, INodeWith
 		get:
 			if _body is null:
 				_body = Block()
-				_body.InitializeParent(this)
+				_body.InitializeParent(self)
 			return _body
 		set:
 			if _body != value:
 				_body = value;
 				if _body is not null:
-					_body.InitializeParent(this);
+					_body.InitializeParent(self);
 
 

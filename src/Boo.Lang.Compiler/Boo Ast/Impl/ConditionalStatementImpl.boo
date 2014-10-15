@@ -98,6 +98,6 @@ public abstract partial class ConditionalStatement (Statement):
 			if _condition != value:
 				_condition = value;
 				if _condition is not null:
-					_condition.InitializeParent(this);
+					_condition.InitializeParent(self);
 
 

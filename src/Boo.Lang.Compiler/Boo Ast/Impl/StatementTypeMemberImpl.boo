@@ -74,10 +74,10 @@ public partial class StatementTypeMember (TypeMember):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _statement == existing:
 			self.Statement = newNode as Statement
 			return true;
@@ -126,6 +126,6 @@ public partial class StatementTypeMember (TypeMember):
 			if _statement != value:
 				_statement = value;
 				if _statement is not null:
-					_statement.InitializeParent(this);
+					_statement.InitializeParent(self);
 
 

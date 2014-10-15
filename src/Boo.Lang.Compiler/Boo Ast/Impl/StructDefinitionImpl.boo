@@ -74,25 +74,25 @@ public partial class StructDefinition (TypeDefinition):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _members is not null:
-			item = existing as TypeMember
-			if item is not null:
-				newItem = newNode as TypeMember
-				return true if _members.Replace(item, newItem)
+			item4 = existing as TypeMember
+			if item4 is not null:
+				newItem4 = newNode as TypeMember
+				return true if _members.Replace(item4, newItem4)
 		if _baseTypes is not null:
-			item = existing as TypeReference
-			if item is not null:
-				newItem = newNode as TypeReference
-				return true if _baseTypes.Replace(item, newItem)
+			item5 = existing as TypeReference
+			if item5 is not null:
+				newItem5 = newNode as TypeReference
+				return true if _baseTypes.Replace(item5, newItem5)
 		if _genericParameters is not null:
-			item = existing as GenericParameterDeclaration
-			if item is not null:
-				newItem = newNode as GenericParameterDeclaration
-				return true if _genericParameters.Replace(item, newItem)
+			item6 = existing as GenericParameterDeclaration
+			if item6 is not null:
+				newItem6 = newNode as GenericParameterDeclaration
+				return true if _genericParameters.Replace(item6, newItem6)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]

@@ -21,15 +21,17 @@ for item in model.GetConcreteAstNodes():
 	public virtual def On${item.Name}(node as Boo.Lang.Compiler.Ast.${item.Name}) as void:
 <%
 		empty = true
+		i as int = 0
 		for field in fields:
+			++i
 			empty = false
 			localName = 'l' + field.Name
 			if model.IsCollectionField(field):
 %>		${localName} = node.${field.Name}
 		if ${localName} is not null:
-			innerList = ${localName}.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList$i = ${localName}.InnerList
+			for i in range(0, innerList$i.Count):
+				innerList$i.FastAt(i).Accept(self)
 <%
 			else:
 %>		${localName} = node.${field.Name}

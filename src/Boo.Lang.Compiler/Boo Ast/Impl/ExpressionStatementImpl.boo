@@ -120,7 +120,7 @@ public partial class ExpressionStatement (Statement):
 			if _expression != value:
 				_expression = value;
 				if _expression is not null:
-					_expression.InitializeParent(this);
-					this.LexicalInfo = value.LexicalInfo;
+					_expression.InitializeParent(self);
+					self.LexicalInfo = value.LexicalInfo;
 
 

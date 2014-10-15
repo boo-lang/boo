@@ -136,7 +136,7 @@ public partial class BinaryExpression (Expression):
 			if _left != value:
 				_left = value;
 				if _left is not null:
-					_left.InitializeParent(this);
+					_left.InitializeParent(self);
 
 
 
@@ -149,6 +149,6 @@ public partial class BinaryExpression (Expression):
 			if _right != value:
 				_right = value;
 				if _right is not null:
-					_right.InitializeParent(this);
+					_right.InitializeParent(self);
 
 

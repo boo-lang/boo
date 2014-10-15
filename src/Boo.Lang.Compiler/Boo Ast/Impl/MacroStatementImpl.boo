@@ -81,10 +81,10 @@ public partial class MacroStatement (Statement, INodeWithBody):
 			self.Modifier = newNode as StatementModifier
 			return true;
 		if _arguments is not null:
-			item = existing as Expression
-			if item is not null:
-				newItem = newNode as Expression
-				return true if _arguments.Replace(item, newItem)
+			item3 = existing as Expression
+			if item3 is not null:
+				newItem3 = newNode as Expression
+				return true if _arguments.Replace(item3, newItem3)
 		if _body == existing:
 			self.Body = newNode as Block
 			return true;
@@ -143,13 +143,13 @@ public partial class MacroStatement (Statement, INodeWithBody):
 		
 
 		get:
-			_arguments = ExpressionCollection(self)() if _arguments is null
+			_arguments = ExpressionCollection(self) if _arguments is null
 			return _arguments 
 		set:
 			if _arguments != value:
 				_arguments = value;
 				if _arguments is not null:
-					_arguments.InitializeParent(this);
+					_arguments.InitializeParent(self);
 
 
 
@@ -160,12 +160,12 @@ public partial class MacroStatement (Statement, INodeWithBody):
 		get:
 			if _body is null:
 				_body = Block()
-				_body.InitializeParent(this)
+				_body.InitializeParent(self)
 			return _body
 		set:
 			if _body != value:
 				_body = value;
 				if _body is not null:
-					_body.InitializeParent(this);
+					_body.InitializeParent(self);
 
 

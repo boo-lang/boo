@@ -123,6 +123,6 @@ public partial class Declaration (Node):
 			if _type != value:
 				_type = value;
 				if _type is not null:
-					_type.InitializeParent(this);
+					_type.InitializeParent(self);
 
 

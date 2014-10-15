@@ -124,7 +124,7 @@ public partial class CollectionInitializationExpression (Expression):
 			if _collection != value:
 				_collection = value;
 				if _collection is not null:
-					_collection.InitializeParent(this);
+					_collection.InitializeParent(self);
 
 
 
@@ -137,6 +137,6 @@ public partial class CollectionInitializationExpression (Expression):
 			if _initializer != value:
 				_initializer = value;
 				if _initializer is not null:
-					_initializer.InitializeParent(this);
+					_initializer.InitializeParent(self);
 
 

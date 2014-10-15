@@ -86,41 +86,41 @@ public partial class Module (TypeDefinition):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _members is not null:
-			item = existing as TypeMember
-			if item is not null:
-				newItem = newNode as TypeMember
-				return true if _members.Replace(item, newItem)
+			item4 = existing as TypeMember
+			if item4 is not null:
+				newItem4 = newNode as TypeMember
+				return true if _members.Replace(item4, newItem4)
 		if _baseTypes is not null:
-			item = existing as TypeReference
-			if item is not null:
-				newItem = newNode as TypeReference
-				return true if _baseTypes.Replace(item, newItem)
+			item5 = existing as TypeReference
+			if item5 is not null:
+				newItem5 = newNode as TypeReference
+				return true if _baseTypes.Replace(item5, newItem5)
 		if _genericParameters is not null:
-			item = existing as GenericParameterDeclaration
-			if item is not null:
-				newItem = newNode as GenericParameterDeclaration
-				return true if _genericParameters.Replace(item, newItem)
+			item6 = existing as GenericParameterDeclaration
+			if item6 is not null:
+				newItem6 = newNode as GenericParameterDeclaration
+				return true if _genericParameters.Replace(item6, newItem6)
 		if _namespace == existing:
 			self.Namespace = newNode as NamespaceDeclaration
 			return true;
 		if _imports is not null:
-			item = existing as Import
-			if item is not null:
-				newItem = newNode as Import
-				return true if _imports.Replace(item, newItem)
+			item8 = existing as Import
+			if item8 is not null:
+				newItem8 = newNode as Import
+				return true if _imports.Replace(item8, newItem8)
 		if _globals == existing:
 			self.Globals = newNode as Block
 			return true;
 		if _assemblyAttributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _assemblyAttributes.Replace(item, newItem)
+			item10 = existing as Attribute
+			if item10 is not null:
+				newItem10 = newNode as Attribute
+				return true if _assemblyAttributes.Replace(item10, newItem10)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -196,7 +196,7 @@ public partial class Module (TypeDefinition):
 			if _namespace != value:
 				_namespace = value;
 				if _namespace is not null:
-					_namespace.InitializeParent(this);
+					_namespace.InitializeParent(self);
 
 
 
@@ -207,13 +207,13 @@ public partial class Module (TypeDefinition):
 		
 
 		get:
-			_imports = ImportCollection(self)() if _imports is null
+			_imports = ImportCollection(self) if _imports is null
 			return _imports 
 		set:
 			if _imports != value:
 				_imports = value;
 				if _imports is not null:
-					_imports.InitializeParent(this);
+					_imports.InitializeParent(self);
 
 
 
@@ -224,13 +224,13 @@ public partial class Module (TypeDefinition):
 		get:
 			if _globals is null:
 				_globals = Block()
-				_globals.InitializeParent(this)
+				_globals.InitializeParent(self)
 			return _globals
 		set:
 			if _globals != value:
 				_globals = value;
 				if _globals is not null:
-					_globals.InitializeParent(this);
+					_globals.InitializeParent(self);
 
 
 
@@ -241,12 +241,12 @@ public partial class Module (TypeDefinition):
 		
 
 		get:
-			_assemblyAttributes = AttributeCollection(self)() if _assemblyAttributes is null
+			_assemblyAttributes = AttributeCollection(self) if _assemblyAttributes is null
 			return _assemblyAttributes 
 		set:
 			if _assemblyAttributes != value:
 				_assemblyAttributes = value;
 				if _assemblyAttributes is not null:
-					_assemblyAttributes.InitializeParent(this);
+					_assemblyAttributes.InitializeParent(self);
 
 

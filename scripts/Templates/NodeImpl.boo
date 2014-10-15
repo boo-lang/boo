@@ -71,20 +71,22 @@ end
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 <%			
-for field in allFields:				
+i as int = 0
+for field in allFields:
+	++i
 	fieldType = model.ResolveFieldType(field)
 	continue if fieldType is null
 	continue if model.IsEnum(fieldType)
 	
-	fieldName = GetPrivateName(field)					
+	fieldName = GetPrivateName(field)
 	if model.IsCollection(fieldType):
 		collectionItemType = model.GetCollectionItemType(fieldType)
 		
 %>		if ${fieldName} is not null:
-			item = existing as ${collectionItemType}
-			if item is not null:
-				newItem = newNode as ${collectionItemType}
-				return true if ${fieldName}.Replace(item, newItem)
+			item$i = existing as ${collectionItemType}
+			if item$i is not null:
+				newItem$i = newNode as ${collectionItemType}
+				return true if ${fieldName}.Replace(item$i, newItem$i)
 <%
 	else:
 		
@@ -188,14 +190,14 @@ for field as Field in node.Members:
 if model.IsCollectionField(field):
 %>
 		get:
-			${GetPrivateName(field)} = ${field.Type}(self)() if ${GetPrivateName(field)} is null
+			${GetPrivateName(field)} = ${field.Type}(self) if ${GetPrivateName(field)} is null
 			return ${GetPrivateName(field)} 
 <%
 elif field.Attributes.Contains("auto"):
 %>		get:
 			if ${GetPrivateName(field)} is null:
 				${GetPrivateName(field)} = ${field.Type}()
-				${GetPrivateName(field)}.InitializeParent(this)
+				${GetPrivateName(field)}.InitializeParent(self)
 			return ${GetPrivateName(field)}
 <%
 else:
@@ -210,10 +212,10 @@ if fieldType is not null and not model.IsEnum(fieldType):
 			if ${GetPrivateName(field)} != value:
 				${GetPrivateName(field)} = value;
 				if ${GetPrivateName(field)} is not null:
-					${GetPrivateName(field)}.InitializeParent(this);
+					${GetPrivateName(field)}.InitializeParent(self);
 <%
 			if field.Attributes.Contains("LexicalInfo"):
-%>					this.LexicalInfo = value.LexicalInfo;
+%>					self.LexicalInfo = value.LexicalInfo;
 <%
 			end
 %>

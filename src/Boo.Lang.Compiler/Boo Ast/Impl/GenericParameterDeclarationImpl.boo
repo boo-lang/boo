@@ -77,10 +77,10 @@ public partial class GenericParameterDeclaration (Node):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _baseTypes is not null:
-			item = existing as TypeReference
-			if item is not null:
-				newItem = newNode as TypeReference
-				return true if _baseTypes.Replace(item, newItem)
+			item2 = existing as TypeReference
+			if item2 is not null:
+				newItem2 = newNode as TypeReference
+				return true if _baseTypes.Replace(item2, newItem2)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -127,13 +127,13 @@ public partial class GenericParameterDeclaration (Node):
 		
 
 		get:
-			_baseTypes = TypeReferenceCollection(self)() if _baseTypes is null
+			_baseTypes = TypeReferenceCollection(self) if _baseTypes is null
 			return _baseTypes 
 		set:
 			if _baseTypes != value:
 				_baseTypes = value;
 				if _baseTypes is not null:
-					_baseTypes.InitializeParent(this);
+					_baseTypes.InitializeParent(self);
 
 
 

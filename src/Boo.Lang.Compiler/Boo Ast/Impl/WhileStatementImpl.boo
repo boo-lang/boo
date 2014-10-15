@@ -149,13 +149,13 @@ public partial class WhileStatement (ConditionalStatement):
 		get:
 			if _block is null:
 				_block = Block()
-				_block.InitializeParent(this)
+				_block.InitializeParent(self)
 			return _block
 		set:
 			if _block != value:
 				_block = value;
 				if _block is not null:
-					_block.InitializeParent(this);
+					_block.InitializeParent(self);
 
 
 
@@ -168,7 +168,7 @@ public partial class WhileStatement (ConditionalStatement):
 			if _orBlock != value:
 				_orBlock = value;
 				if _orBlock is not null:
-					_orBlock.InitializeParent(this);
+					_orBlock.InitializeParent(self);
 
 
 
@@ -181,6 +181,6 @@ public partial class WhileStatement (ConditionalStatement):
 			if _thenBlock != value:
 				_thenBlock = value;
 				if _thenBlock is not null:
-					_thenBlock.InitializeParent(this);
+					_thenBlock.InitializeParent(self);
 
 

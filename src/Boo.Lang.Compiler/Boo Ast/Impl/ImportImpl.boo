@@ -133,7 +133,7 @@ public partial class Import (Node):
 			if _expression != value:
 				_expression = value;
 				if _expression is not null:
-					_expression.InitializeParent(this);
+					_expression.InitializeParent(self);
 
 
 
@@ -146,7 +146,7 @@ public partial class Import (Node):
 			if _assemblyReference != value:
 				_assemblyReference = value;
 				if _assemblyReference is not null:
-					_assemblyReference.InitializeParent(this);
+					_assemblyReference.InitializeParent(self);
 
 
 
@@ -159,6 +159,6 @@ public partial class Import (Node):
 			if _alias != value:
 				_alias = value;
 				if _alias is not null:
-					_alias.InitializeParent(this);
+					_alias.InitializeParent(self);
 
 

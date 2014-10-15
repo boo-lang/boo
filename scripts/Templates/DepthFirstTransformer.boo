@@ -18,18 +18,20 @@ public partial class DepthFirstTransformer(IAstVisitor):
 			
 %>		if Enter${item.Name}(node):
 <%
+			i as int = 0
 			for field as Field in visitableFields:
+				++i
 				if model.IsCollectionField(field):
 
 %>			Visit(node.${field.Name})
 <%
 				else:
 
-%>			${field.Type} current${field.Name}Value = node.${field.Name};
+%>			current${field.Name}Value as ${field.Type} = node.${field.Name};
 			if current${field.Name}Value is not null:
-				newValue = VisitNode(current${field.Name}Value) cast ${field.Type}
-				unless object.ReferenceEquals(newValue, current${field.Name}Value):
-					node.${field.Name} = newValue
+				newValue$i = VisitNode(current${field.Name}Value) cast ${field.Type}
+				unless object.ReferenceEquals(newValue$i, current${field.Name}Value):
+					node.${field.Name} = newValue$i
 <%
 				end
 			end
@@ -49,7 +51,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual Leave${item.Name}(node as Boo.Lang.Compiler.Ast.${item.Name}) as void:
+	public virtual def Leave${item.Name}(node as Boo.Lang.Compiler.Ast.${item.Name}) as void:
 		pass
 <%
 		end

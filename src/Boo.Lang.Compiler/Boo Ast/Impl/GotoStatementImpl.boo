@@ -120,6 +120,6 @@ public partial class GotoStatement (Statement):
 			if _label != value:
 				_label = value;
 				if _label is not null:
-					_label.InitializeParent(this);
+					_label.InitializeParent(self);
 
 

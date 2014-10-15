@@ -124,7 +124,7 @@ public partial class CastExpression (Expression):
 			if _target != value:
 				_target = value;
 				if _target is not null:
-					_target.InitializeParent(this);
+					_target.InitializeParent(self);
 
 
 
@@ -137,6 +137,6 @@ public partial class CastExpression (Expression):
 			if _type != value:
 				_type = value;
 				if _type is not null:
-					_type.InitializeParent(this);
+					_type.InitializeParent(self);
 
 

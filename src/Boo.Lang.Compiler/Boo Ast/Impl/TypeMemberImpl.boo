@@ -69,10 +69,10 @@ public abstract partial class TypeMember (Node, INodeWithAttributes):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -115,12 +115,12 @@ public abstract partial class TypeMember (Node, INodeWithAttributes):
 		
 
 		get:
-			_attributes = AttributeCollection(self)() if _attributes is null
+			_attributes = AttributeCollection(self) if _attributes is null
 			return _attributes 
 		set:
 			if _attributes != value:
 				_attributes = value;
 				if _attributes is not null:
-					_attributes.InitializeParent(this);
+					_attributes.InitializeParent(self);
 
 

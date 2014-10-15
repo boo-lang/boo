@@ -75,10 +75,10 @@ public partial class CallableTypeReference (TypeReference, INodeWithParameters):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _parameters is not null:
-			item = existing as ParameterDeclaration
-			if item is not null:
-				newItem = newNode as ParameterDeclaration
-				return true if _parameters.Replace(item, newItem)
+			item2 = existing as ParameterDeclaration
+			if item2 is not null:
+				newItem2 = newNode as ParameterDeclaration
+				return true if _parameters.Replace(item2, newItem2)
 		if _returnType == existing:
 			self.ReturnType = newNode as TypeReference
 			return true;
@@ -124,13 +124,13 @@ public partial class CallableTypeReference (TypeReference, INodeWithParameters):
 		
 
 		get:
-			_parameters = ParameterDeclarationCollection(self)() if _parameters is null
+			_parameters = ParameterDeclarationCollection(self) if _parameters is null
 			return _parameters 
 		set:
 			if _parameters != value:
 				_parameters = value;
 				if _parameters is not null:
-					_parameters.InitializeParent(this);
+					_parameters.InitializeParent(self);
 
 
 
@@ -143,6 +143,6 @@ public partial class CallableTypeReference (TypeReference, INodeWithParameters):
 			if _returnType != value:
 				_returnType = value;
 				if _returnType is not null:
-					_returnType.InitializeParent(this);
+					_returnType.InitializeParent(self);
 
 

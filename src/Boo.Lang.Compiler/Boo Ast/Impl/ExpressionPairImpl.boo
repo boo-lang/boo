@@ -122,7 +122,7 @@ public partial class ExpressionPair (Node):
 			if _first != value:
 				_first = value;
 				if _first is not null:
-					_first.InitializeParent(this);
+					_first.InitializeParent(self);
 
 
 
@@ -135,6 +135,6 @@ public partial class ExpressionPair (Node):
 			if _second != value:
 				_second = value;
 				if _second is not null:
-					_second.InitializeParent(this);
+					_second.InitializeParent(self);
 
 

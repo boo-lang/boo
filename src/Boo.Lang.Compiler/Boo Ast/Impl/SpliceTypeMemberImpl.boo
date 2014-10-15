@@ -77,10 +77,10 @@ public partial class SpliceTypeMember (TypeMember):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _typeMember == existing:
 			self.TypeMember = newNode as TypeMember
 			return true;
@@ -137,7 +137,7 @@ public partial class SpliceTypeMember (TypeMember):
 			if _typeMember != value:
 				_typeMember = value;
 				if _typeMember is not null:
-					_typeMember.InitializeParent(this);
+					_typeMember.InitializeParent(self);
 
 
 
@@ -150,6 +150,6 @@ public partial class SpliceTypeMember (TypeMember):
 			if _nameExpression != value:
 				_nameExpression = value;
 				if _nameExpression is not null:
-					_nameExpression.InitializeParent(this);
+					_nameExpression.InitializeParent(self);
 
 

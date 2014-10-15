@@ -87,10 +87,10 @@ public partial class ForStatement (Statement):
 			self.Modifier = newNode as StatementModifier
 			return true;
 		if _declarations is not null:
-			item = existing as Declaration
-			if item is not null:
-				newItem = newNode as Declaration
-				return true if _declarations.Replace(item, newItem)
+			item2 = existing as Declaration
+			if item2 is not null:
+				newItem2 = newNode as Declaration
+				return true if _declarations.Replace(item2, newItem2)
 		if _iterator == existing:
 			self.Iterator = newNode as Expression
 			return true;
@@ -164,13 +164,13 @@ public partial class ForStatement (Statement):
 		
 
 		get:
-			_declarations = DeclarationCollection(self)() if _declarations is null
+			_declarations = DeclarationCollection(self) if _declarations is null
 			return _declarations 
 		set:
 			if _declarations != value:
 				_declarations = value;
 				if _declarations is not null:
-					_declarations.InitializeParent(this);
+					_declarations.InitializeParent(self);
 
 
 
@@ -183,7 +183,7 @@ public partial class ForStatement (Statement):
 			if _iterator != value:
 				_iterator = value;
 				if _iterator is not null:
-					_iterator.InitializeParent(this);
+					_iterator.InitializeParent(self);
 
 
 
@@ -194,13 +194,13 @@ public partial class ForStatement (Statement):
 		get:
 			if _block is null:
 				_block = Block()
-				_block.InitializeParent(this)
+				_block.InitializeParent(self)
 			return _block
 		set:
 			if _block != value:
 				_block = value;
 				if _block is not null:
-					_block.InitializeParent(this);
+					_block.InitializeParent(self);
 
 
 
@@ -213,7 +213,7 @@ public partial class ForStatement (Statement):
 			if _orBlock != value:
 				_orBlock = value;
 				if _orBlock is not null:
-					_orBlock.InitializeParent(this);
+					_orBlock.InitializeParent(self);
 
 
 
@@ -226,6 +226,6 @@ public partial class ForStatement (Statement):
 			if _thenBlock != value:
 				_thenBlock = value;
 				if _thenBlock is not null:
-					_thenBlock.InitializeParent(this);
+					_thenBlock.InitializeParent(self);
 
 

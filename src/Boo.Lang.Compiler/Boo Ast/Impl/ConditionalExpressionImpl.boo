@@ -135,7 +135,7 @@ public partial class ConditionalExpression (Expression):
 			if _condition != value:
 				_condition = value;
 				if _condition is not null:
-					_condition.InitializeParent(this);
+					_condition.InitializeParent(self);
 
 
 
@@ -148,7 +148,7 @@ public partial class ConditionalExpression (Expression):
 			if _trueValue != value:
 				_trueValue = value;
 				if _trueValue is not null:
-					_trueValue.InitializeParent(this);
+					_trueValue.InitializeParent(self);
 
 
 
@@ -161,6 +161,6 @@ public partial class ConditionalExpression (Expression):
 			if _falseValue != value:
 				_falseValue = value;
 				if _falseValue is not null:
-					_falseValue.InitializeParent(this);
+					_falseValue.InitializeParent(self);
 
 

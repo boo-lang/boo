@@ -115,6 +115,6 @@ public partial class MemberReferenceExpression (ReferenceExpression):
 			if _target != value:
 				_target = value;
 				if _target is not null:
-					_target.InitializeParent(this);
+					_target.InitializeParent(self);
 
 

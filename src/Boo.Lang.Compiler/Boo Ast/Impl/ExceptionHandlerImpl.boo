@@ -137,7 +137,7 @@ public partial class ExceptionHandler (Node):
 			if _declaration != value:
 				_declaration = value;
 				if _declaration is not null:
-					_declaration.InitializeParent(this);
+					_declaration.InitializeParent(self);
 
 
 
@@ -150,7 +150,7 @@ public partial class ExceptionHandler (Node):
 			if _filterCondition != value:
 				_filterCondition = value;
 				if _filterCondition is not null:
-					_filterCondition.InitializeParent(this);
+					_filterCondition.InitializeParent(self);
 
 
 
@@ -169,12 +169,12 @@ public partial class ExceptionHandler (Node):
 		get:
 			if _block is null:
 				_block = Block()
-				_block.InitializeParent(this)
+				_block.InitializeParent(self)
 			return _block
 		set:
 			if _block != value:
 				_block = value;
 				if _block is not null:
-					_block.InitializeParent(this);
+					_block.InitializeParent(self);
 
 

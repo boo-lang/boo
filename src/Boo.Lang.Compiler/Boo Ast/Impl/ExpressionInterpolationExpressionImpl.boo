@@ -71,10 +71,10 @@ public partial class ExpressionInterpolationExpression (Expression):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _expressions is not null:
-			item = existing as Expression
-			if item is not null:
-				newItem = newNode as Expression
-				return true if _expressions.Replace(item, newItem)
+			item1 = existing as Expression
+			if item1 is not null:
+				newItem1 = newNode as Expression
+				return true if _expressions.Replace(item1, newItem1)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -113,12 +113,12 @@ public partial class ExpressionInterpolationExpression (Expression):
 		
 
 		get:
-			_expressions = ExpressionCollection(self)() if _expressions is null
+			_expressions = ExpressionCollection(self) if _expressions is null
 			return _expressions 
 		set:
 			if _expressions != value:
 				_expressions = value;
 				if _expressions is not null:
-					_expressions.InitializeParent(this);
+					_expressions.InitializeParent(self);
 
 

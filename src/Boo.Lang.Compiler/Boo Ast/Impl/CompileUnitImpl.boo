@@ -71,10 +71,10 @@ public partial class CompileUnit (Node):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _modules is not null:
-			item = existing as Module
-			if item is not null:
-				newItem = newNode as Module
-				return true if _modules.Replace(item, newItem)
+			item1 = existing as Module
+			if item1 is not null:
+				newItem1 = newNode as Module
+				return true if _modules.Replace(item1, newItem1)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -111,12 +111,12 @@ public partial class CompileUnit (Node):
 		
 
 		get:
-			_modules = ModuleCollection(self)() if _modules is null
+			_modules = ModuleCollection(self) if _modules is null
 			return _modules 
 		set:
 			if _modules != value:
 				_modules = value;
 				if _modules is not null:
-					_modules.InitializeParent(this);
+					_modules.InitializeParent(self);
 
 

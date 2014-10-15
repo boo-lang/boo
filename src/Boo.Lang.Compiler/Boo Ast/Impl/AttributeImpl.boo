@@ -77,15 +77,15 @@ public partial class Attribute (Node, INodeWithArguments):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _arguments is not null:
-			item = existing as Expression
-			if item is not null:
-				newItem = newNode as Expression
-				return true if _arguments.Replace(item, newItem)
+			item2 = existing as Expression
+			if item2 is not null:
+				newItem2 = newNode as Expression
+				return true if _arguments.Replace(item2, newItem2)
 		if _namedArguments is not null:
-			item = existing as ExpressionPair
-			if item is not null:
-				newItem = newNode as ExpressionPair
-				return true if _namedArguments.Replace(item, newItem)
+			item3 = existing as ExpressionPair
+			if item3 is not null:
+				newItem3 = newNode as ExpressionPair
+				return true if _namedArguments.Replace(item3, newItem3)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -136,13 +136,13 @@ public partial class Attribute (Node, INodeWithArguments):
 		
 
 		get:
-			_arguments = ExpressionCollection(self)() if _arguments is null
+			_arguments = ExpressionCollection(self) if _arguments is null
 			return _arguments 
 		set:
 			if _arguments != value:
 				_arguments = value;
 				if _arguments is not null:
-					_arguments.InitializeParent(this);
+					_arguments.InitializeParent(self);
 
 
 
@@ -153,12 +153,12 @@ public partial class Attribute (Node, INodeWithArguments):
 		
 
 		get:
-			_namedArguments = ExpressionPairCollection(self)() if _namedArguments is null
+			_namedArguments = ExpressionPairCollection(self) if _namedArguments is null
 			return _namedArguments 
 		set:
 			if _namedArguments != value:
 				_namedArguments = value;
 				if _namedArguments is not null:
-					_namedArguments.InitializeParent(this);
+					_namedArguments.InitializeParent(self);
 
 

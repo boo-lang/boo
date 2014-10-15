@@ -47,6 +47,6 @@ public partial class TypeMemberCollection (NodeCollection[of Boo.Lang.Compiler.A
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public def PopRange(begin as int) as Boo.Lang.Compiler.Ast.TypeMemberCollection:
-		range = Boo.Lang.Compiler.Ast.TypeMemberCollection(ParentNode)
-		range.InnerList.AddRange(InternalPopRange(begin))
-		return range
+		aRange = Boo.Lang.Compiler.Ast.TypeMemberCollection(ParentNode)
+		aRange.InnerList.AddRange(InternalPopRange(begin))
+		return aRange

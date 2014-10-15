@@ -83,10 +83,10 @@ public partial class Event (TypeMember):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _add == existing:
 			self.Add = newNode as Method
 			return true;
@@ -159,7 +159,7 @@ public partial class Event (TypeMember):
 			if _add != value:
 				_add = value;
 				if _add is not null:
-					_add.InitializeParent(this);
+					_add.InitializeParent(self);
 
 
 
@@ -172,7 +172,7 @@ public partial class Event (TypeMember):
 			if _remove != value:
 				_remove = value;
 				if _remove is not null:
-					_remove.InitializeParent(this);
+					_remove.InitializeParent(self);
 
 
 
@@ -185,7 +185,7 @@ public partial class Event (TypeMember):
 			if _raise != value:
 				_raise = value;
 				if _raise is not null:
-					_raise.InitializeParent(this);
+					_raise.InitializeParent(self);
 
 
 
@@ -198,6 +198,6 @@ public partial class Event (TypeMember):
 			if _type != value:
 				_type = value;
 				if _type is not null:
-					_type.InitializeParent(this);
+					_type.InitializeParent(self);
 
 

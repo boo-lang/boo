@@ -87,10 +87,10 @@ public partial class TryStatement (Statement):
 			self.ProtectedBlock = newNode as Block
 			return true;
 		if _exceptionHandlers is not null:
-			item = existing as ExceptionHandler
-			if item is not null:
-				newItem = newNode as ExceptionHandler
-				return true if _exceptionHandlers.Replace(item, newItem)
+			item3 = existing as ExceptionHandler
+			if item3 is not null:
+				newItem3 = newNode as ExceptionHandler
+				return true if _exceptionHandlers.Replace(item3, newItem3)
 		if _failureBlock == existing:
 			self.FailureBlock = newNode as Block
 			return true;
@@ -153,13 +153,13 @@ public partial class TryStatement (Statement):
 		get:
 			if _protectedBlock is null:
 				_protectedBlock = Block()
-				_protectedBlock.InitializeParent(this)
+				_protectedBlock.InitializeParent(self)
 			return _protectedBlock
 		set:
 			if _protectedBlock != value:
 				_protectedBlock = value;
 				if _protectedBlock is not null:
-					_protectedBlock.InitializeParent(this);
+					_protectedBlock.InitializeParent(self);
 
 
 
@@ -170,13 +170,13 @@ public partial class TryStatement (Statement):
 		
 
 		get:
-			_exceptionHandlers = ExceptionHandlerCollection(self)() if _exceptionHandlers is null
+			_exceptionHandlers = ExceptionHandlerCollection(self) if _exceptionHandlers is null
 			return _exceptionHandlers 
 		set:
 			if _exceptionHandlers != value:
 				_exceptionHandlers = value;
 				if _exceptionHandlers is not null:
-					_exceptionHandlers.InitializeParent(this);
+					_exceptionHandlers.InitializeParent(self);
 
 
 
@@ -189,7 +189,7 @@ public partial class TryStatement (Statement):
 			if _failureBlock != value:
 				_failureBlock = value;
 				if _failureBlock is not null:
-					_failureBlock.InitializeParent(this);
+					_failureBlock.InitializeParent(self);
 
 
 
@@ -202,6 +202,6 @@ public partial class TryStatement (Statement):
 			if _ensureBlock != value:
 				_ensureBlock = value;
 				if _ensureBlock is not null:
-					_ensureBlock.InitializeParent(this);
+					_ensureBlock.InitializeParent(self);
 
 

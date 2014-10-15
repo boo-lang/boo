@@ -80,10 +80,10 @@ public partial class Field (TypeMember):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _type == existing:
 			self.Type = newNode as TypeReference
 			return true;
@@ -141,7 +141,7 @@ public partial class Field (TypeMember):
 			if _type != value:
 				_type = value;
 				if _type is not null:
-					_type.InitializeParent(this);
+					_type.InitializeParent(self);
 
 
 
@@ -154,7 +154,7 @@ public partial class Field (TypeMember):
 			if _initializer != value:
 				_initializer = value;
 				if _initializer is not null:
-					_initializer.InitializeParent(this);
+					_initializer.InitializeParent(self);
 
 
 

@@ -78,10 +78,10 @@ public partial class UnpackStatement (Statement):
 			self.Modifier = newNode as StatementModifier
 			return true;
 		if _declarations is not null:
-			item = existing as Declaration
-			if item is not null:
-				newItem = newNode as Declaration
-				return true if _declarations.Replace(item, newItem)
+			item2 = existing as Declaration
+			if item2 is not null:
+				newItem2 = newNode as Declaration
+				return true if _declarations.Replace(item2, newItem2)
 		if _expression == existing:
 			self.Expression = newNode as Expression
 			return true;
@@ -131,13 +131,13 @@ public partial class UnpackStatement (Statement):
 		
 
 		get:
-			_declarations = DeclarationCollection(self)() if _declarations is null
+			_declarations = DeclarationCollection(self) if _declarations is null
 			return _declarations 
 		set:
 			if _declarations != value:
 				_declarations = value;
 				if _declarations is not null:
-					_declarations.InitializeParent(this);
+					_declarations.InitializeParent(self);
 
 
 
@@ -150,6 +150,6 @@ public partial class UnpackStatement (Statement):
 			if _expression != value:
 				_expression = value;
 				if _expression is not null:
-					_expression.InitializeParent(this);
+					_expression.InitializeParent(self);
 
 

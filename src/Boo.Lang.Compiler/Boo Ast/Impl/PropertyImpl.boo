@@ -86,15 +86,15 @@ public partial class Property (TypeMember, INodeWithParameters, IExplicitMember)
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _parameters is not null:
-			item = existing as ParameterDeclaration
-			if item is not null:
-				newItem = newNode as ParameterDeclaration
-				return true if _parameters.Replace(item, newItem)
+			item4 = existing as ParameterDeclaration
+			if item4 is not null:
+				newItem4 = newNode as ParameterDeclaration
+				return true if _parameters.Replace(item4, newItem4)
 		if _getter == existing:
 			self.Getter = newNode as Method
 			return true;
@@ -170,13 +170,13 @@ public partial class Property (TypeMember, INodeWithParameters, IExplicitMember)
 		
 
 		get:
-			_parameters = ParameterDeclarationCollection(self)() if _parameters is null
+			_parameters = ParameterDeclarationCollection(self) if _parameters is null
 			return _parameters 
 		set:
 			if _parameters != value:
 				_parameters = value;
 				if _parameters is not null:
-					_parameters.InitializeParent(this);
+					_parameters.InitializeParent(self);
 
 
 
@@ -189,7 +189,7 @@ public partial class Property (TypeMember, INodeWithParameters, IExplicitMember)
 			if _getter != value:
 				_getter = value;
 				if _getter is not null:
-					_getter.InitializeParent(this);
+					_getter.InitializeParent(self);
 
 
 
@@ -202,7 +202,7 @@ public partial class Property (TypeMember, INodeWithParameters, IExplicitMember)
 			if _setter != value:
 				_setter = value;
 				if _setter is not null:
-					_setter.InitializeParent(this);
+					_setter.InitializeParent(self);
 
 
 
@@ -215,7 +215,7 @@ public partial class Property (TypeMember, INodeWithParameters, IExplicitMember)
 			if _type != value:
 				_type = value;
 				if _type is not null:
-					_type.InitializeParent(this);
+					_type.InitializeParent(self);
 
 
 
@@ -228,6 +228,6 @@ public partial class Property (TypeMember, INodeWithParameters, IExplicitMember)
 			if _explicitInfo != value:
 				_explicitInfo = value;
 				if _explicitInfo is not null:
-					_explicitInfo.InitializeParent(this);
+					_explicitInfo.InitializeParent(self);
 
 

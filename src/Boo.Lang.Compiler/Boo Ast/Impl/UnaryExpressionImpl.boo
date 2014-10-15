@@ -125,6 +125,6 @@ public partial class UnaryExpression (Expression):
 			if _operand != value:
 				_operand = value;
 				if _operand is not null:
-					_operand.InitializeParent(this);
+					_operand.InitializeParent(self);
 
 

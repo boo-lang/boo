@@ -131,7 +131,7 @@ public partial class DeclarationStatement (Statement):
 			if _declaration != value:
 				_declaration = value;
 				if _declaration is not null:
-					_declaration.InitializeParent(this);
+					_declaration.InitializeParent(self);
 
 
 
@@ -144,6 +144,6 @@ public partial class DeclarationStatement (Statement):
 			if _initializer != value:
 				_initializer = value;
 				if _initializer is not null:
-					_initializer.InitializeParent(this);
+					_initializer.InitializeParent(self);
 
 

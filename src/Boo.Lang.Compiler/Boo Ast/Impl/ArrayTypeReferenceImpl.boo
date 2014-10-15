@@ -124,7 +124,7 @@ public partial class ArrayTypeReference (TypeReference):
 			if _elementType != value:
 				_elementType = value;
 				if _elementType is not null:
-					_elementType.InitializeParent(this);
+					_elementType.InitializeParent(self);
 
 
 
@@ -137,6 +137,6 @@ public partial class ArrayTypeReference (TypeReference):
 			if _rank != value:
 				_rank = value;
 				if _rank is not null:
-					_rank.InitializeParent(this);
+					_rank.InitializeParent(self);
 
 

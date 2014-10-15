@@ -50,22 +50,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveCompileUnit(node as Boo.Lang.Compiler.Ast.CompileUnit) as void:
+	public virtual def LeaveCompileUnit(node as Boo.Lang.Compiler.Ast.CompileUnit) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnTypeMemberStatement(node as Boo.Lang.Compiler.Ast.TypeMemberStatement) as void:
 		if EnterTypeMemberStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			TypeMember currentTypeMemberValue = node.TypeMember;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentTypeMemberValue as TypeMember = node.TypeMember;
 			if currentTypeMemberValue is not null:
-				newValue = VisitNode(currentTypeMemberValue) cast TypeMember
-				unless object.ReferenceEquals(newValue, currentTypeMemberValue):
-					node.TypeMember = newValue
+				newValue2 = VisitNode(currentTypeMemberValue) cast TypeMember
+				unless object.ReferenceEquals(newValue2, currentTypeMemberValue):
+					node.TypeMember = newValue2
 
 			LeaveTypeMemberStatement(node);
 
@@ -74,17 +74,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveTypeMemberStatement(node as Boo.Lang.Compiler.Ast.TypeMemberStatement) as void:
+	public virtual def LeaveTypeMemberStatement(node as Boo.Lang.Compiler.Ast.TypeMemberStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnExplicitMemberInfo(node as Boo.Lang.Compiler.Ast.ExplicitMemberInfo) as void:
 		if EnterExplicitMemberInfo(node):
-			SimpleTypeReference currentInterfaceTypeValue = node.InterfaceType;
+			currentInterfaceTypeValue as SimpleTypeReference = node.InterfaceType;
 			if currentInterfaceTypeValue is not null:
-				newValue = VisitNode(currentInterfaceTypeValue) cast SimpleTypeReference
-				unless object.ReferenceEquals(newValue, currentInterfaceTypeValue):
-					node.InterfaceType = newValue
+				newValue1 = VisitNode(currentInterfaceTypeValue) cast SimpleTypeReference
+				unless object.ReferenceEquals(newValue1, currentInterfaceTypeValue):
+					node.InterfaceType = newValue1
 
 			LeaveExplicitMemberInfo(node);
 
@@ -93,7 +93,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveExplicitMemberInfo(node as Boo.Lang.Compiler.Ast.ExplicitMemberInfo) as void:
+	public virtual def LeaveExplicitMemberInfo(node as Boo.Lang.Compiler.Ast.ExplicitMemberInfo) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -104,16 +104,16 @@ public partial class DepthFirstTransformer(IAstVisitor):
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnArrayTypeReference(node as Boo.Lang.Compiler.Ast.ArrayTypeReference) as void:
 		if EnterArrayTypeReference(node):
-			TypeReference currentElementTypeValue = node.ElementType;
+			currentElementTypeValue as TypeReference = node.ElementType;
 			if currentElementTypeValue is not null:
-				newValue = VisitNode(currentElementTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentElementTypeValue):
-					node.ElementType = newValue
-			IntegerLiteralExpression currentRankValue = node.Rank;
+				newValue1 = VisitNode(currentElementTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue1, currentElementTypeValue):
+					node.ElementType = newValue1
+			currentRankValue as IntegerLiteralExpression = node.Rank;
 			if currentRankValue is not null:
-				newValue = VisitNode(currentRankValue) cast IntegerLiteralExpression
-				unless object.ReferenceEquals(newValue, currentRankValue):
-					node.Rank = newValue
+				newValue2 = VisitNode(currentRankValue) cast IntegerLiteralExpression
+				unless object.ReferenceEquals(newValue2, currentRankValue):
+					node.Rank = newValue2
 
 			LeaveArrayTypeReference(node);
 
@@ -122,18 +122,18 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveArrayTypeReference(node as Boo.Lang.Compiler.Ast.ArrayTypeReference) as void:
+	public virtual def LeaveArrayTypeReference(node as Boo.Lang.Compiler.Ast.ArrayTypeReference) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnCallableTypeReference(node as Boo.Lang.Compiler.Ast.CallableTypeReference) as void:
 		if EnterCallableTypeReference(node):
 			Visit(node.Parameters)
-			TypeReference currentReturnTypeValue = node.ReturnType;
+			currentReturnTypeValue as TypeReference = node.ReturnType;
 			if currentReturnTypeValue is not null:
-				newValue = VisitNode(currentReturnTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentReturnTypeValue):
-					node.ReturnType = newValue
+				newValue2 = VisitNode(currentReturnTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue2, currentReturnTypeValue):
+					node.ReturnType = newValue2
 
 			LeaveCallableTypeReference(node);
 
@@ -142,7 +142,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveCallableTypeReference(node as Boo.Lang.Compiler.Ast.CallableTypeReference) as void:
+	public virtual def LeaveCallableTypeReference(node as Boo.Lang.Compiler.Ast.CallableTypeReference) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -157,7 +157,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveGenericTypeReference(node as Boo.Lang.Compiler.Ast.GenericTypeReference) as void:
+	public virtual def LeaveGenericTypeReference(node as Boo.Lang.Compiler.Ast.GenericTypeReference) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -171,11 +171,11 @@ public partial class DepthFirstTransformer(IAstVisitor):
 			Visit(node.Attributes)
 			Visit(node.Parameters)
 			Visit(node.GenericParameters)
-			TypeReference currentReturnTypeValue = node.ReturnType;
+			currentReturnTypeValue as TypeReference = node.ReturnType;
 			if currentReturnTypeValue is not null:
-				newValue = VisitNode(currentReturnTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentReturnTypeValue):
-					node.ReturnType = newValue
+				newValue4 = VisitNode(currentReturnTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue4, currentReturnTypeValue):
+					node.ReturnType = newValue4
 			Visit(node.ReturnTypeAttributes)
 
 			LeaveCallableDefinition(node);
@@ -185,7 +185,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveCallableDefinition(node as Boo.Lang.Compiler.Ast.CallableDefinition) as void:
+	public virtual def LeaveCallableDefinition(node as Boo.Lang.Compiler.Ast.CallableDefinition) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -196,21 +196,21 @@ public partial class DepthFirstTransformer(IAstVisitor):
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnImport(node as Boo.Lang.Compiler.Ast.Import) as void:
 		if EnterImport(node):
-			Expression currentExpressionValue = node.Expression;
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
-			ReferenceExpression currentAssemblyReferenceValue = node.AssemblyReference;
+				newValue1 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentExpressionValue):
+					node.Expression = newValue1
+			currentAssemblyReferenceValue as ReferenceExpression = node.AssemblyReference;
 			if currentAssemblyReferenceValue is not null:
-				newValue = VisitNode(currentAssemblyReferenceValue) cast ReferenceExpression
-				unless object.ReferenceEquals(newValue, currentAssemblyReferenceValue):
-					node.AssemblyReference = newValue
-			ReferenceExpression currentAliasValue = node.Alias;
+				newValue2 = VisitNode(currentAssemblyReferenceValue) cast ReferenceExpression
+				unless object.ReferenceEquals(newValue2, currentAssemblyReferenceValue):
+					node.AssemblyReference = newValue2
+			currentAliasValue as ReferenceExpression = node.Alias;
 			if currentAliasValue is not null:
-				newValue = VisitNode(currentAliasValue) cast ReferenceExpression
-				unless object.ReferenceEquals(newValue, currentAliasValue):
-					node.Alias = newValue
+				newValue3 = VisitNode(currentAliasValue) cast ReferenceExpression
+				unless object.ReferenceEquals(newValue3, currentAliasValue):
+					node.Alias = newValue3
 
 			LeaveImport(node);
 
@@ -219,7 +219,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveImport(node as Boo.Lang.Compiler.Ast.Import) as void:
+	public virtual def LeaveImport(node as Boo.Lang.Compiler.Ast.Import) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -229,17 +229,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 			Visit(node.Members)
 			Visit(node.BaseTypes)
 			Visit(node.GenericParameters)
-			NamespaceDeclaration currentNamespaceValue = node.Namespace;
+			currentNamespaceValue as NamespaceDeclaration = node.Namespace;
 			if currentNamespaceValue is not null:
-				newValue = VisitNode(currentNamespaceValue) cast NamespaceDeclaration
-				unless object.ReferenceEquals(newValue, currentNamespaceValue):
-					node.Namespace = newValue
+				newValue5 = VisitNode(currentNamespaceValue) cast NamespaceDeclaration
+				unless object.ReferenceEquals(newValue5, currentNamespaceValue):
+					node.Namespace = newValue5
 			Visit(node.Imports)
-			Block currentGlobalsValue = node.Globals;
+			currentGlobalsValue as Block = node.Globals;
 			if currentGlobalsValue is not null:
-				newValue = VisitNode(currentGlobalsValue) cast Block
-				unless object.ReferenceEquals(newValue, currentGlobalsValue):
-					node.Globals = newValue
+				newValue7 = VisitNode(currentGlobalsValue) cast Block
+				unless object.ReferenceEquals(newValue7, currentGlobalsValue):
+					node.Globals = newValue7
 			Visit(node.AssemblyAttributes)
 
 			LeaveModule(node);
@@ -249,7 +249,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveModule(node as Boo.Lang.Compiler.Ast.Module) as void:
+	public virtual def LeaveModule(node as Boo.Lang.Compiler.Ast.Module) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -267,7 +267,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveClassDefinition(node as Boo.Lang.Compiler.Ast.ClassDefinition) as void:
+	public virtual def LeaveClassDefinition(node as Boo.Lang.Compiler.Ast.ClassDefinition) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -285,7 +285,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveStructDefinition(node as Boo.Lang.Compiler.Ast.StructDefinition) as void:
+	public virtual def LeaveStructDefinition(node as Boo.Lang.Compiler.Ast.StructDefinition) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -303,7 +303,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveInterfaceDefinition(node as Boo.Lang.Compiler.Ast.InterfaceDefinition) as void:
+	public virtual def LeaveInterfaceDefinition(node as Boo.Lang.Compiler.Ast.InterfaceDefinition) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -321,18 +321,18 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveEnumDefinition(node as Boo.Lang.Compiler.Ast.EnumDefinition) as void:
+	public virtual def LeaveEnumDefinition(node as Boo.Lang.Compiler.Ast.EnumDefinition) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnEnumMember(node as Boo.Lang.Compiler.Ast.EnumMember) as void:
 		if EnterEnumMember(node):
 			Visit(node.Attributes)
-			Expression currentInitializerValue = node.Initializer;
+			currentInitializerValue as Expression = node.Initializer;
 			if currentInitializerValue is not null:
-				newValue = VisitNode(currentInitializerValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentInitializerValue):
-					node.Initializer = newValue
+				newValue2 = VisitNode(currentInitializerValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentInitializerValue):
+					node.Initializer = newValue2
 
 			LeaveEnumMember(node);
 
@@ -341,23 +341,23 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveEnumMember(node as Boo.Lang.Compiler.Ast.EnumMember) as void:
+	public virtual def LeaveEnumMember(node as Boo.Lang.Compiler.Ast.EnumMember) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnField(node as Boo.Lang.Compiler.Ast.Field) as void:
 		if EnterField(node):
 			Visit(node.Attributes)
-			TypeReference currentTypeValue = node.Type;
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
-			Expression currentInitializerValue = node.Initializer;
+				newValue2 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue2, currentTypeValue):
+					node.Type = newValue2
+			currentInitializerValue as Expression = node.Initializer;
 			if currentInitializerValue is not null:
-				newValue = VisitNode(currentInitializerValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentInitializerValue):
-					node.Initializer = newValue
+				newValue3 = VisitNode(currentInitializerValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentInitializerValue):
+					node.Initializer = newValue3
 
 			LeaveField(node);
 
@@ -366,7 +366,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveField(node as Boo.Lang.Compiler.Ast.Field) as void:
+	public virtual def LeaveField(node as Boo.Lang.Compiler.Ast.Field) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -374,26 +374,26 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		if EnterProperty(node):
 			Visit(node.Attributes)
 			Visit(node.Parameters)
-			Method currentGetterValue = node.Getter;
+			currentGetterValue as Method = node.Getter;
 			if currentGetterValue is not null:
-				newValue = VisitNode(currentGetterValue) cast Method
-				unless object.ReferenceEquals(newValue, currentGetterValue):
-					node.Getter = newValue
-			Method currentSetterValue = node.Setter;
+				newValue3 = VisitNode(currentGetterValue) cast Method
+				unless object.ReferenceEquals(newValue3, currentGetterValue):
+					node.Getter = newValue3
+			currentSetterValue as Method = node.Setter;
 			if currentSetterValue is not null:
-				newValue = VisitNode(currentSetterValue) cast Method
-				unless object.ReferenceEquals(newValue, currentSetterValue):
-					node.Setter = newValue
-			TypeReference currentTypeValue = node.Type;
+				newValue4 = VisitNode(currentSetterValue) cast Method
+				unless object.ReferenceEquals(newValue4, currentSetterValue):
+					node.Setter = newValue4
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
-			ExplicitMemberInfo currentExplicitInfoValue = node.ExplicitInfo;
+				newValue5 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue5, currentTypeValue):
+					node.Type = newValue5
+			currentExplicitInfoValue as ExplicitMemberInfo = node.ExplicitInfo;
 			if currentExplicitInfoValue is not null:
-				newValue = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
-				unless object.ReferenceEquals(newValue, currentExplicitInfoValue):
-					node.ExplicitInfo = newValue
+				newValue6 = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
+				unless object.ReferenceEquals(newValue6, currentExplicitInfoValue):
+					node.ExplicitInfo = newValue6
 
 			LeaveProperty(node);
 
@@ -402,33 +402,33 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveProperty(node as Boo.Lang.Compiler.Ast.Property) as void:
+	public virtual def LeaveProperty(node as Boo.Lang.Compiler.Ast.Property) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnEvent(node as Boo.Lang.Compiler.Ast.Event) as void:
 		if EnterEvent(node):
 			Visit(node.Attributes)
-			Method currentAddValue = node.Add;
+			currentAddValue as Method = node.Add;
 			if currentAddValue is not null:
-				newValue = VisitNode(currentAddValue) cast Method
-				unless object.ReferenceEquals(newValue, currentAddValue):
-					node.Add = newValue
-			Method currentRemoveValue = node.Remove;
+				newValue2 = VisitNode(currentAddValue) cast Method
+				unless object.ReferenceEquals(newValue2, currentAddValue):
+					node.Add = newValue2
+			currentRemoveValue as Method = node.Remove;
 			if currentRemoveValue is not null:
-				newValue = VisitNode(currentRemoveValue) cast Method
-				unless object.ReferenceEquals(newValue, currentRemoveValue):
-					node.Remove = newValue
-			Method currentRaiseValue = node.Raise;
+				newValue3 = VisitNode(currentRemoveValue) cast Method
+				unless object.ReferenceEquals(newValue3, currentRemoveValue):
+					node.Remove = newValue3
+			currentRaiseValue as Method = node.Raise;
 			if currentRaiseValue is not null:
-				newValue = VisitNode(currentRaiseValue) cast Method
-				unless object.ReferenceEquals(newValue, currentRaiseValue):
-					node.Raise = newValue
-			TypeReference currentTypeValue = node.Type;
+				newValue4 = VisitNode(currentRaiseValue) cast Method
+				unless object.ReferenceEquals(newValue4, currentRaiseValue):
+					node.Raise = newValue4
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue5 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue5, currentTypeValue):
+					node.Type = newValue5
 
 			LeaveEvent(node);
 
@@ -437,7 +437,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveEvent(node as Boo.Lang.Compiler.Ast.Event) as void:
+	public virtual def LeaveEvent(node as Boo.Lang.Compiler.Ast.Event) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -449,16 +449,16 @@ public partial class DepthFirstTransformer(IAstVisitor):
 	public virtual def OnBlockExpression(node as Boo.Lang.Compiler.Ast.BlockExpression) as void:
 		if EnterBlockExpression(node):
 			Visit(node.Parameters)
-			TypeReference currentReturnTypeValue = node.ReturnType;
+			currentReturnTypeValue as TypeReference = node.ReturnType;
 			if currentReturnTypeValue is not null:
-				newValue = VisitNode(currentReturnTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentReturnTypeValue):
-					node.ReturnType = newValue
-			Block currentBodyValue = node.Body;
+				newValue2 = VisitNode(currentReturnTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue2, currentReturnTypeValue):
+					node.ReturnType = newValue2
+			currentBodyValue as Block = node.Body;
 			if currentBodyValue is not null:
-				newValue = VisitNode(currentBodyValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBodyValue):
-					node.Body = newValue
+				newValue3 = VisitNode(currentBodyValue) cast Block
+				unless object.ReferenceEquals(newValue3, currentBodyValue):
+					node.Body = newValue3
 
 			LeaveBlockExpression(node);
 
@@ -467,7 +467,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveBlockExpression(node as Boo.Lang.Compiler.Ast.BlockExpression) as void:
+	public virtual def LeaveBlockExpression(node as Boo.Lang.Compiler.Ast.BlockExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -476,23 +476,23 @@ public partial class DepthFirstTransformer(IAstVisitor):
 			Visit(node.Attributes)
 			Visit(node.Parameters)
 			Visit(node.GenericParameters)
-			TypeReference currentReturnTypeValue = node.ReturnType;
+			currentReturnTypeValue as TypeReference = node.ReturnType;
 			if currentReturnTypeValue is not null:
-				newValue = VisitNode(currentReturnTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentReturnTypeValue):
-					node.ReturnType = newValue
+				newValue4 = VisitNode(currentReturnTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue4, currentReturnTypeValue):
+					node.ReturnType = newValue4
 			Visit(node.ReturnTypeAttributes)
-			Block currentBodyValue = node.Body;
+			currentBodyValue as Block = node.Body;
 			if currentBodyValue is not null:
-				newValue = VisitNode(currentBodyValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBodyValue):
-					node.Body = newValue
+				newValue6 = VisitNode(currentBodyValue) cast Block
+				unless object.ReferenceEquals(newValue6, currentBodyValue):
+					node.Body = newValue6
 			Visit(node.Locals)
-			ExplicitMemberInfo currentExplicitInfoValue = node.ExplicitInfo;
+			currentExplicitInfoValue as ExplicitMemberInfo = node.ExplicitInfo;
 			if currentExplicitInfoValue is not null:
-				newValue = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
-				unless object.ReferenceEquals(newValue, currentExplicitInfoValue):
-					node.ExplicitInfo = newValue
+				newValue8 = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
+				unless object.ReferenceEquals(newValue8, currentExplicitInfoValue):
+					node.ExplicitInfo = newValue8
 
 			LeaveMethod(node);
 
@@ -501,7 +501,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveMethod(node as Boo.Lang.Compiler.Ast.Method) as void:
+	public virtual def LeaveMethod(node as Boo.Lang.Compiler.Ast.Method) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -510,23 +510,23 @@ public partial class DepthFirstTransformer(IAstVisitor):
 			Visit(node.Attributes)
 			Visit(node.Parameters)
 			Visit(node.GenericParameters)
-			TypeReference currentReturnTypeValue = node.ReturnType;
+			currentReturnTypeValue as TypeReference = node.ReturnType;
 			if currentReturnTypeValue is not null:
-				newValue = VisitNode(currentReturnTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentReturnTypeValue):
-					node.ReturnType = newValue
+				newValue4 = VisitNode(currentReturnTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue4, currentReturnTypeValue):
+					node.ReturnType = newValue4
 			Visit(node.ReturnTypeAttributes)
-			Block currentBodyValue = node.Body;
+			currentBodyValue as Block = node.Body;
 			if currentBodyValue is not null:
-				newValue = VisitNode(currentBodyValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBodyValue):
-					node.Body = newValue
+				newValue6 = VisitNode(currentBodyValue) cast Block
+				unless object.ReferenceEquals(newValue6, currentBodyValue):
+					node.Body = newValue6
 			Visit(node.Locals)
-			ExplicitMemberInfo currentExplicitInfoValue = node.ExplicitInfo;
+			currentExplicitInfoValue as ExplicitMemberInfo = node.ExplicitInfo;
 			if currentExplicitInfoValue is not null:
-				newValue = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
-				unless object.ReferenceEquals(newValue, currentExplicitInfoValue):
-					node.ExplicitInfo = newValue
+				newValue8 = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
+				unless object.ReferenceEquals(newValue8, currentExplicitInfoValue):
+					node.ExplicitInfo = newValue8
 
 			LeaveConstructor(node);
 
@@ -535,7 +535,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveConstructor(node as Boo.Lang.Compiler.Ast.Constructor) as void:
+	public virtual def LeaveConstructor(node as Boo.Lang.Compiler.Ast.Constructor) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -544,23 +544,23 @@ public partial class DepthFirstTransformer(IAstVisitor):
 			Visit(node.Attributes)
 			Visit(node.Parameters)
 			Visit(node.GenericParameters)
-			TypeReference currentReturnTypeValue = node.ReturnType;
+			currentReturnTypeValue as TypeReference = node.ReturnType;
 			if currentReturnTypeValue is not null:
-				newValue = VisitNode(currentReturnTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentReturnTypeValue):
-					node.ReturnType = newValue
+				newValue4 = VisitNode(currentReturnTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue4, currentReturnTypeValue):
+					node.ReturnType = newValue4
 			Visit(node.ReturnTypeAttributes)
-			Block currentBodyValue = node.Body;
+			currentBodyValue as Block = node.Body;
 			if currentBodyValue is not null:
-				newValue = VisitNode(currentBodyValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBodyValue):
-					node.Body = newValue
+				newValue6 = VisitNode(currentBodyValue) cast Block
+				unless object.ReferenceEquals(newValue6, currentBodyValue):
+					node.Body = newValue6
 			Visit(node.Locals)
-			ExplicitMemberInfo currentExplicitInfoValue = node.ExplicitInfo;
+			currentExplicitInfoValue as ExplicitMemberInfo = node.ExplicitInfo;
 			if currentExplicitInfoValue is not null:
-				newValue = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
-				unless object.ReferenceEquals(newValue, currentExplicitInfoValue):
-					node.ExplicitInfo = newValue
+				newValue8 = VisitNode(currentExplicitInfoValue) cast ExplicitMemberInfo
+				unless object.ReferenceEquals(newValue8, currentExplicitInfoValue):
+					node.ExplicitInfo = newValue8
 
 			LeaveDestructor(node);
 
@@ -569,17 +569,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveDestructor(node as Boo.Lang.Compiler.Ast.Destructor) as void:
+	public virtual def LeaveDestructor(node as Boo.Lang.Compiler.Ast.Destructor) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnParameterDeclaration(node as Boo.Lang.Compiler.Ast.ParameterDeclaration) as void:
 		if EnterParameterDeclaration(node):
-			TypeReference currentTypeValue = node.Type;
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue1 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue1, currentTypeValue):
+					node.Type = newValue1
 			Visit(node.Attributes)
 
 			LeaveParameterDeclaration(node);
@@ -589,7 +589,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveParameterDeclaration(node as Boo.Lang.Compiler.Ast.ParameterDeclaration) as void:
+	public virtual def LeaveParameterDeclaration(node as Boo.Lang.Compiler.Ast.ParameterDeclaration) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -604,17 +604,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveGenericParameterDeclaration(node as Boo.Lang.Compiler.Ast.GenericParameterDeclaration) as void:
+	public virtual def LeaveGenericParameterDeclaration(node as Boo.Lang.Compiler.Ast.GenericParameterDeclaration) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnDeclaration(node as Boo.Lang.Compiler.Ast.Declaration) as void:
 		if EnterDeclaration(node):
-			TypeReference currentTypeValue = node.Type;
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue1 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue1, currentTypeValue):
+					node.Type = newValue1
 
 			LeaveDeclaration(node);
 
@@ -623,7 +623,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveDeclaration(node as Boo.Lang.Compiler.Ast.Declaration) as void:
+	public virtual def LeaveDeclaration(node as Boo.Lang.Compiler.Ast.Declaration) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -639,17 +639,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveAttribute(node as Boo.Lang.Compiler.Ast.Attribute) as void:
+	public virtual def LeaveAttribute(node as Boo.Lang.Compiler.Ast.Attribute) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnStatementModifier(node as Boo.Lang.Compiler.Ast.StatementModifier) as void:
 		if EnterStatementModifier(node):
-			Expression currentConditionValue = node.Condition;
+			currentConditionValue as Expression = node.Condition;
 			if currentConditionValue is not null:
-				newValue = VisitNode(currentConditionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentConditionValue):
-					node.Condition = newValue
+				newValue1 = VisitNode(currentConditionValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentConditionValue):
+					node.Condition = newValue1
 
 			LeaveStatementModifier(node);
 
@@ -658,22 +658,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveStatementModifier(node as Boo.Lang.Compiler.Ast.StatementModifier) as void:
+	public virtual def LeaveStatementModifier(node as Boo.Lang.Compiler.Ast.StatementModifier) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnGotoStatement(node as Boo.Lang.Compiler.Ast.GotoStatement) as void:
 		if EnterGotoStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			ReferenceExpression currentLabelValue = node.Label;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentLabelValue as ReferenceExpression = node.Label;
 			if currentLabelValue is not null:
-				newValue = VisitNode(currentLabelValue) cast ReferenceExpression
-				unless object.ReferenceEquals(newValue, currentLabelValue):
-					node.Label = newValue
+				newValue2 = VisitNode(currentLabelValue) cast ReferenceExpression
+				unless object.ReferenceEquals(newValue2, currentLabelValue):
+					node.Label = newValue2
 
 			LeaveGotoStatement(node);
 
@@ -682,17 +682,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveGotoStatement(node as Boo.Lang.Compiler.Ast.GotoStatement) as void:
+	public virtual def LeaveGotoStatement(node as Boo.Lang.Compiler.Ast.GotoStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnLabelStatement(node as Boo.Lang.Compiler.Ast.LabelStatement) as void:
 		if EnterLabelStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 
 			LeaveLabelStatement(node);
 
@@ -701,17 +701,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveLabelStatement(node as Boo.Lang.Compiler.Ast.LabelStatement) as void:
+	public virtual def LeaveLabelStatement(node as Boo.Lang.Compiler.Ast.LabelStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnBlock(node as Boo.Lang.Compiler.Ast.Block) as void:
 		if EnterBlock(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 			Visit(node.Statements)
 
 			LeaveBlock(node);
@@ -721,27 +721,27 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveBlock(node as Boo.Lang.Compiler.Ast.Block) as void:
+	public virtual def LeaveBlock(node as Boo.Lang.Compiler.Ast.Block) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnDeclarationStatement(node as Boo.Lang.Compiler.Ast.DeclarationStatement) as void:
 		if EnterDeclarationStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Declaration currentDeclarationValue = node.Declaration;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentDeclarationValue as Declaration = node.Declaration;
 			if currentDeclarationValue is not null:
-				newValue = VisitNode(currentDeclarationValue) cast Declaration
-				unless object.ReferenceEquals(newValue, currentDeclarationValue):
-					node.Declaration = newValue
-			Expression currentInitializerValue = node.Initializer;
+				newValue2 = VisitNode(currentDeclarationValue) cast Declaration
+				unless object.ReferenceEquals(newValue2, currentDeclarationValue):
+					node.Declaration = newValue2
+			currentInitializerValue as Expression = node.Initializer;
 			if currentInitializerValue is not null:
-				newValue = VisitNode(currentInitializerValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentInitializerValue):
-					node.Initializer = newValue
+				newValue3 = VisitNode(currentInitializerValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentInitializerValue):
+					node.Initializer = newValue3
 
 			LeaveDeclarationStatement(node);
 
@@ -750,23 +750,23 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveDeclarationStatement(node as Boo.Lang.Compiler.Ast.DeclarationStatement) as void:
+	public virtual def LeaveDeclarationStatement(node as Boo.Lang.Compiler.Ast.DeclarationStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnMacroStatement(node as Boo.Lang.Compiler.Ast.MacroStatement) as void:
 		if EnterMacroStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 			Visit(node.Arguments)
-			Block currentBodyValue = node.Body;
+			currentBodyValue as Block = node.Body;
 			if currentBodyValue is not null:
-				newValue = VisitNode(currentBodyValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBodyValue):
-					node.Body = newValue
+				newValue3 = VisitNode(currentBodyValue) cast Block
+				unless object.ReferenceEquals(newValue3, currentBodyValue):
+					node.Body = newValue3
 
 			LeaveMacroStatement(node);
 
@@ -775,33 +775,33 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveMacroStatement(node as Boo.Lang.Compiler.Ast.MacroStatement) as void:
+	public virtual def LeaveMacroStatement(node as Boo.Lang.Compiler.Ast.MacroStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnTryStatement(node as Boo.Lang.Compiler.Ast.TryStatement) as void:
 		if EnterTryStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Block currentProtectedBlockValue = node.ProtectedBlock;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentProtectedBlockValue as Block = node.ProtectedBlock;
 			if currentProtectedBlockValue is not null:
-				newValue = VisitNode(currentProtectedBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentProtectedBlockValue):
-					node.ProtectedBlock = newValue
+				newValue2 = VisitNode(currentProtectedBlockValue) cast Block
+				unless object.ReferenceEquals(newValue2, currentProtectedBlockValue):
+					node.ProtectedBlock = newValue2
 			Visit(node.ExceptionHandlers)
-			Block currentFailureBlockValue = node.FailureBlock;
+			currentFailureBlockValue as Block = node.FailureBlock;
 			if currentFailureBlockValue is not null:
-				newValue = VisitNode(currentFailureBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentFailureBlockValue):
-					node.FailureBlock = newValue
-			Block currentEnsureBlockValue = node.EnsureBlock;
+				newValue4 = VisitNode(currentFailureBlockValue) cast Block
+				unless object.ReferenceEquals(newValue4, currentFailureBlockValue):
+					node.FailureBlock = newValue4
+			currentEnsureBlockValue as Block = node.EnsureBlock;
 			if currentEnsureBlockValue is not null:
-				newValue = VisitNode(currentEnsureBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentEnsureBlockValue):
-					node.EnsureBlock = newValue
+				newValue5 = VisitNode(currentEnsureBlockValue) cast Block
+				unless object.ReferenceEquals(newValue5, currentEnsureBlockValue):
+					node.EnsureBlock = newValue5
 
 			LeaveTryStatement(node);
 
@@ -810,27 +810,27 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveTryStatement(node as Boo.Lang.Compiler.Ast.TryStatement) as void:
+	public virtual def LeaveTryStatement(node as Boo.Lang.Compiler.Ast.TryStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnExceptionHandler(node as Boo.Lang.Compiler.Ast.ExceptionHandler) as void:
 		if EnterExceptionHandler(node):
-			Declaration currentDeclarationValue = node.Declaration;
+			currentDeclarationValue as Declaration = node.Declaration;
 			if currentDeclarationValue is not null:
-				newValue = VisitNode(currentDeclarationValue) cast Declaration
-				unless object.ReferenceEquals(newValue, currentDeclarationValue):
-					node.Declaration = newValue
-			Expression currentFilterConditionValue = node.FilterCondition;
+				newValue1 = VisitNode(currentDeclarationValue) cast Declaration
+				unless object.ReferenceEquals(newValue1, currentDeclarationValue):
+					node.Declaration = newValue1
+			currentFilterConditionValue as Expression = node.FilterCondition;
 			if currentFilterConditionValue is not null:
-				newValue = VisitNode(currentFilterConditionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentFilterConditionValue):
-					node.FilterCondition = newValue
-			Block currentBlockValue = node.Block;
+				newValue2 = VisitNode(currentFilterConditionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentFilterConditionValue):
+					node.FilterCondition = newValue2
+			currentBlockValue as Block = node.Block;
 			if currentBlockValue is not null:
-				newValue = VisitNode(currentBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBlockValue):
-					node.Block = newValue
+				newValue3 = VisitNode(currentBlockValue) cast Block
+				unless object.ReferenceEquals(newValue3, currentBlockValue):
+					node.Block = newValue3
 
 			LeaveExceptionHandler(node);
 
@@ -839,32 +839,32 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveExceptionHandler(node as Boo.Lang.Compiler.Ast.ExceptionHandler) as void:
+	public virtual def LeaveExceptionHandler(node as Boo.Lang.Compiler.Ast.ExceptionHandler) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnIfStatement(node as Boo.Lang.Compiler.Ast.IfStatement) as void:
 		if EnterIfStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Expression currentConditionValue = node.Condition;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentConditionValue as Expression = node.Condition;
 			if currentConditionValue is not null:
-				newValue = VisitNode(currentConditionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentConditionValue):
-					node.Condition = newValue
-			Block currentTrueBlockValue = node.TrueBlock;
+				newValue2 = VisitNode(currentConditionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentConditionValue):
+					node.Condition = newValue2
+			currentTrueBlockValue as Block = node.TrueBlock;
 			if currentTrueBlockValue is not null:
-				newValue = VisitNode(currentTrueBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentTrueBlockValue):
-					node.TrueBlock = newValue
-			Block currentFalseBlockValue = node.FalseBlock;
+				newValue3 = VisitNode(currentTrueBlockValue) cast Block
+				unless object.ReferenceEquals(newValue3, currentTrueBlockValue):
+					node.TrueBlock = newValue3
+			currentFalseBlockValue as Block = node.FalseBlock;
 			if currentFalseBlockValue is not null:
-				newValue = VisitNode(currentFalseBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentFalseBlockValue):
-					node.FalseBlock = newValue
+				newValue4 = VisitNode(currentFalseBlockValue) cast Block
+				unless object.ReferenceEquals(newValue4, currentFalseBlockValue):
+					node.FalseBlock = newValue4
 
 			LeaveIfStatement(node);
 
@@ -873,27 +873,27 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveIfStatement(node as Boo.Lang.Compiler.Ast.IfStatement) as void:
+	public virtual def LeaveIfStatement(node as Boo.Lang.Compiler.Ast.IfStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnUnlessStatement(node as Boo.Lang.Compiler.Ast.UnlessStatement) as void:
 		if EnterUnlessStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Expression currentConditionValue = node.Condition;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentConditionValue as Expression = node.Condition;
 			if currentConditionValue is not null:
-				newValue = VisitNode(currentConditionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentConditionValue):
-					node.Condition = newValue
-			Block currentBlockValue = node.Block;
+				newValue2 = VisitNode(currentConditionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentConditionValue):
+					node.Condition = newValue2
+			currentBlockValue as Block = node.Block;
 			if currentBlockValue is not null:
-				newValue = VisitNode(currentBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBlockValue):
-					node.Block = newValue
+				newValue3 = VisitNode(currentBlockValue) cast Block
+				unless object.ReferenceEquals(newValue3, currentBlockValue):
+					node.Block = newValue3
 
 			LeaveUnlessStatement(node);
 
@@ -902,38 +902,38 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveUnlessStatement(node as Boo.Lang.Compiler.Ast.UnlessStatement) as void:
+	public virtual def LeaveUnlessStatement(node as Boo.Lang.Compiler.Ast.UnlessStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnForStatement(node as Boo.Lang.Compiler.Ast.ForStatement) as void:
 		if EnterForStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 			Visit(node.Declarations)
-			Expression currentIteratorValue = node.Iterator;
+			currentIteratorValue as Expression = node.Iterator;
 			if currentIteratorValue is not null:
-				newValue = VisitNode(currentIteratorValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentIteratorValue):
-					node.Iterator = newValue
-			Block currentBlockValue = node.Block;
+				newValue3 = VisitNode(currentIteratorValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentIteratorValue):
+					node.Iterator = newValue3
+			currentBlockValue as Block = node.Block;
 			if currentBlockValue is not null:
-				newValue = VisitNode(currentBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBlockValue):
-					node.Block = newValue
-			Block currentOrBlockValue = node.OrBlock;
+				newValue4 = VisitNode(currentBlockValue) cast Block
+				unless object.ReferenceEquals(newValue4, currentBlockValue):
+					node.Block = newValue4
+			currentOrBlockValue as Block = node.OrBlock;
 			if currentOrBlockValue is not null:
-				newValue = VisitNode(currentOrBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentOrBlockValue):
-					node.OrBlock = newValue
-			Block currentThenBlockValue = node.ThenBlock;
+				newValue5 = VisitNode(currentOrBlockValue) cast Block
+				unless object.ReferenceEquals(newValue5, currentOrBlockValue):
+					node.OrBlock = newValue5
+			currentThenBlockValue as Block = node.ThenBlock;
 			if currentThenBlockValue is not null:
-				newValue = VisitNode(currentThenBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentThenBlockValue):
-					node.ThenBlock = newValue
+				newValue6 = VisitNode(currentThenBlockValue) cast Block
+				unless object.ReferenceEquals(newValue6, currentThenBlockValue):
+					node.ThenBlock = newValue6
 
 			LeaveForStatement(node);
 
@@ -942,37 +942,37 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveForStatement(node as Boo.Lang.Compiler.Ast.ForStatement) as void:
+	public virtual def LeaveForStatement(node as Boo.Lang.Compiler.Ast.ForStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnWhileStatement(node as Boo.Lang.Compiler.Ast.WhileStatement) as void:
 		if EnterWhileStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Expression currentConditionValue = node.Condition;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentConditionValue as Expression = node.Condition;
 			if currentConditionValue is not null:
-				newValue = VisitNode(currentConditionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentConditionValue):
-					node.Condition = newValue
-			Block currentBlockValue = node.Block;
+				newValue2 = VisitNode(currentConditionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentConditionValue):
+					node.Condition = newValue2
+			currentBlockValue as Block = node.Block;
 			if currentBlockValue is not null:
-				newValue = VisitNode(currentBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentBlockValue):
-					node.Block = newValue
-			Block currentOrBlockValue = node.OrBlock;
+				newValue3 = VisitNode(currentBlockValue) cast Block
+				unless object.ReferenceEquals(newValue3, currentBlockValue):
+					node.Block = newValue3
+			currentOrBlockValue as Block = node.OrBlock;
 			if currentOrBlockValue is not null:
-				newValue = VisitNode(currentOrBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentOrBlockValue):
-					node.OrBlock = newValue
-			Block currentThenBlockValue = node.ThenBlock;
+				newValue4 = VisitNode(currentOrBlockValue) cast Block
+				unless object.ReferenceEquals(newValue4, currentOrBlockValue):
+					node.OrBlock = newValue4
+			currentThenBlockValue as Block = node.ThenBlock;
 			if currentThenBlockValue is not null:
-				newValue = VisitNode(currentThenBlockValue) cast Block
-				unless object.ReferenceEquals(newValue, currentThenBlockValue):
-					node.ThenBlock = newValue
+				newValue5 = VisitNode(currentThenBlockValue) cast Block
+				unless object.ReferenceEquals(newValue5, currentThenBlockValue):
+					node.ThenBlock = newValue5
 
 			LeaveWhileStatement(node);
 
@@ -981,17 +981,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveWhileStatement(node as Boo.Lang.Compiler.Ast.WhileStatement) as void:
+	public virtual def LeaveWhileStatement(node as Boo.Lang.Compiler.Ast.WhileStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnBreakStatement(node as Boo.Lang.Compiler.Ast.BreakStatement) as void:
 		if EnterBreakStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 
 			LeaveBreakStatement(node);
 
@@ -1000,17 +1000,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveBreakStatement(node as Boo.Lang.Compiler.Ast.BreakStatement) as void:
+	public virtual def LeaveBreakStatement(node as Boo.Lang.Compiler.Ast.BreakStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnContinueStatement(node as Boo.Lang.Compiler.Ast.ContinueStatement) as void:
 		if EnterContinueStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 
 			LeaveContinueStatement(node);
 
@@ -1019,22 +1019,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveContinueStatement(node as Boo.Lang.Compiler.Ast.ContinueStatement) as void:
+	public virtual def LeaveContinueStatement(node as Boo.Lang.Compiler.Ast.ContinueStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnReturnStatement(node as Boo.Lang.Compiler.Ast.ReturnStatement) as void:
 		if EnterReturnStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Expression currentExpressionValue = node.Expression;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue2 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentExpressionValue):
+					node.Expression = newValue2
 
 			LeaveReturnStatement(node);
 
@@ -1043,22 +1043,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveReturnStatement(node as Boo.Lang.Compiler.Ast.ReturnStatement) as void:
+	public virtual def LeaveReturnStatement(node as Boo.Lang.Compiler.Ast.ReturnStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnYieldStatement(node as Boo.Lang.Compiler.Ast.YieldStatement) as void:
 		if EnterYieldStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Expression currentExpressionValue = node.Expression;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue2 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentExpressionValue):
+					node.Expression = newValue2
 
 			LeaveYieldStatement(node);
 
@@ -1067,22 +1067,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveYieldStatement(node as Boo.Lang.Compiler.Ast.YieldStatement) as void:
+	public virtual def LeaveYieldStatement(node as Boo.Lang.Compiler.Ast.YieldStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnRaiseStatement(node as Boo.Lang.Compiler.Ast.RaiseStatement) as void:
 		if EnterRaiseStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Expression currentExceptionValue = node.Exception;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentExceptionValue as Expression = node.Exception;
 			if currentExceptionValue is not null:
-				newValue = VisitNode(currentExceptionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExceptionValue):
-					node.Exception = newValue
+				newValue2 = VisitNode(currentExceptionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentExceptionValue):
+					node.Exception = newValue2
 
 			LeaveRaiseStatement(node);
 
@@ -1091,23 +1091,23 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveRaiseStatement(node as Boo.Lang.Compiler.Ast.RaiseStatement) as void:
+	public virtual def LeaveRaiseStatement(node as Boo.Lang.Compiler.Ast.RaiseStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnUnpackStatement(node as Boo.Lang.Compiler.Ast.UnpackStatement) as void:
 		if EnterUnpackStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 			Visit(node.Declarations)
-			Expression currentExpressionValue = node.Expression;
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue3 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentExpressionValue):
+					node.Expression = newValue3
 
 			LeaveUnpackStatement(node);
 
@@ -1116,22 +1116,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveUnpackStatement(node as Boo.Lang.Compiler.Ast.UnpackStatement) as void:
+	public virtual def LeaveUnpackStatement(node as Boo.Lang.Compiler.Ast.UnpackStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnExpressionStatement(node as Boo.Lang.Compiler.Ast.ExpressionStatement) as void:
 		if EnterExpressionStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
-			Expression currentExpressionValue = node.Expression;
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue2 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentExpressionValue):
+					node.Expression = newValue2
 
 			LeaveExpressionStatement(node);
 
@@ -1140,7 +1140,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveExpressionStatement(node as Boo.Lang.Compiler.Ast.ExpressionStatement) as void:
+	public virtual def LeaveExpressionStatement(node as Boo.Lang.Compiler.Ast.ExpressionStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1151,16 +1151,16 @@ public partial class DepthFirstTransformer(IAstVisitor):
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnExpressionPair(node as Boo.Lang.Compiler.Ast.ExpressionPair) as void:
 		if EnterExpressionPair(node):
-			Expression currentFirstValue = node.First;
+			currentFirstValue as Expression = node.First;
 			if currentFirstValue is not null:
-				newValue = VisitNode(currentFirstValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentFirstValue):
-					node.First = newValue
-			Expression currentSecondValue = node.Second;
+				newValue1 = VisitNode(currentFirstValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentFirstValue):
+					node.First = newValue1
+			currentSecondValue as Expression = node.Second;
 			if currentSecondValue is not null:
-				newValue = VisitNode(currentSecondValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentSecondValue):
-					node.Second = newValue
+				newValue2 = VisitNode(currentSecondValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentSecondValue):
+					node.Second = newValue2
 
 			LeaveExpressionPair(node);
 
@@ -1169,17 +1169,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveExpressionPair(node as Boo.Lang.Compiler.Ast.ExpressionPair) as void:
+	public virtual def LeaveExpressionPair(node as Boo.Lang.Compiler.Ast.ExpressionPair) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnMethodInvocationExpression(node as Boo.Lang.Compiler.Ast.MethodInvocationExpression) as void:
 		if EnterMethodInvocationExpression(node):
-			Expression currentTargetValue = node.Target;
+			currentTargetValue as Expression = node.Target;
 			if currentTargetValue is not null:
-				newValue = VisitNode(currentTargetValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTargetValue):
-					node.Target = newValue
+				newValue1 = VisitNode(currentTargetValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentTargetValue):
+					node.Target = newValue1
 			Visit(node.Arguments)
 			Visit(node.NamedArguments)
 
@@ -1190,17 +1190,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveMethodInvocationExpression(node as Boo.Lang.Compiler.Ast.MethodInvocationExpression) as void:
+	public virtual def LeaveMethodInvocationExpression(node as Boo.Lang.Compiler.Ast.MethodInvocationExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnUnaryExpression(node as Boo.Lang.Compiler.Ast.UnaryExpression) as void:
 		if EnterUnaryExpression(node):
-			Expression currentOperandValue = node.Operand;
+			currentOperandValue as Expression = node.Operand;
 			if currentOperandValue is not null:
-				newValue = VisitNode(currentOperandValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentOperandValue):
-					node.Operand = newValue
+				newValue1 = VisitNode(currentOperandValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentOperandValue):
+					node.Operand = newValue1
 
 			LeaveUnaryExpression(node);
 
@@ -1209,22 +1209,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveUnaryExpression(node as Boo.Lang.Compiler.Ast.UnaryExpression) as void:
+	public virtual def LeaveUnaryExpression(node as Boo.Lang.Compiler.Ast.UnaryExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnBinaryExpression(node as Boo.Lang.Compiler.Ast.BinaryExpression) as void:
 		if EnterBinaryExpression(node):
-			Expression currentLeftValue = node.Left;
+			currentLeftValue as Expression = node.Left;
 			if currentLeftValue is not null:
-				newValue = VisitNode(currentLeftValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentLeftValue):
-					node.Left = newValue
-			Expression currentRightValue = node.Right;
+				newValue1 = VisitNode(currentLeftValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentLeftValue):
+					node.Left = newValue1
+			currentRightValue as Expression = node.Right;
 			if currentRightValue is not null:
-				newValue = VisitNode(currentRightValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentRightValue):
-					node.Right = newValue
+				newValue2 = VisitNode(currentRightValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentRightValue):
+					node.Right = newValue2
 
 			LeaveBinaryExpression(node);
 
@@ -1233,27 +1233,27 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveBinaryExpression(node as Boo.Lang.Compiler.Ast.BinaryExpression) as void:
+	public virtual def LeaveBinaryExpression(node as Boo.Lang.Compiler.Ast.BinaryExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnConditionalExpression(node as Boo.Lang.Compiler.Ast.ConditionalExpression) as void:
 		if EnterConditionalExpression(node):
-			Expression currentConditionValue = node.Condition;
+			currentConditionValue as Expression = node.Condition;
 			if currentConditionValue is not null:
-				newValue = VisitNode(currentConditionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentConditionValue):
-					node.Condition = newValue
-			Expression currentTrueValueValue = node.TrueValue;
+				newValue1 = VisitNode(currentConditionValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentConditionValue):
+					node.Condition = newValue1
+			currentTrueValueValue as Expression = node.TrueValue;
 			if currentTrueValueValue is not null:
-				newValue = VisitNode(currentTrueValueValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTrueValueValue):
-					node.TrueValue = newValue
-			Expression currentFalseValueValue = node.FalseValue;
+				newValue2 = VisitNode(currentTrueValueValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentTrueValueValue):
+					node.TrueValue = newValue2
+			currentFalseValueValue as Expression = node.FalseValue;
 			if currentFalseValueValue is not null:
-				newValue = VisitNode(currentFalseValueValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentFalseValueValue):
-					node.FalseValue = newValue
+				newValue3 = VisitNode(currentFalseValueValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentFalseValueValue):
+					node.FalseValue = newValue3
 
 			LeaveConditionalExpression(node);
 
@@ -1262,7 +1262,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveConditionalExpression(node as Boo.Lang.Compiler.Ast.ConditionalExpression) as void:
+	public virtual def LeaveConditionalExpression(node as Boo.Lang.Compiler.Ast.ConditionalExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1273,11 +1273,11 @@ public partial class DepthFirstTransformer(IAstVisitor):
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.MemberReferenceExpression) as void:
 		if EnterMemberReferenceExpression(node):
-			Expression currentTargetValue = node.Target;
+			currentTargetValue as Expression = node.Target;
 			if currentTargetValue is not null:
-				newValue = VisitNode(currentTargetValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTargetValue):
-					node.Target = newValue
+				newValue1 = VisitNode(currentTargetValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentTargetValue):
+					node.Target = newValue1
 
 			LeaveMemberReferenceExpression(node);
 
@@ -1286,17 +1286,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.MemberReferenceExpression) as void:
+	public virtual def LeaveMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.MemberReferenceExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnGenericReferenceExpression(node as Boo.Lang.Compiler.Ast.GenericReferenceExpression) as void:
 		if EnterGenericReferenceExpression(node):
-			Expression currentTargetValue = node.Target;
+			currentTargetValue as Expression = node.Target;
 			if currentTargetValue is not null:
-				newValue = VisitNode(currentTargetValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTargetValue):
-					node.Target = newValue
+				newValue1 = VisitNode(currentTargetValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentTargetValue):
+					node.Target = newValue1
 			Visit(node.GenericArguments)
 
 			LeaveGenericReferenceExpression(node);
@@ -1306,7 +1306,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveGenericReferenceExpression(node as Boo.Lang.Compiler.Ast.GenericReferenceExpression) as void:
+	public virtual def LeaveGenericReferenceExpression(node as Boo.Lang.Compiler.Ast.GenericReferenceExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1367,11 +1367,11 @@ public partial class DepthFirstTransformer(IAstVisitor):
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSpliceExpression(node as Boo.Lang.Compiler.Ast.SpliceExpression) as void:
 		if EnterSpliceExpression(node):
-			Expression currentExpressionValue = node.Expression;
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue1 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentExpressionValue):
+					node.Expression = newValue1
 
 			LeaveSpliceExpression(node);
 
@@ -1380,17 +1380,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSpliceExpression(node as Boo.Lang.Compiler.Ast.SpliceExpression) as void:
+	public virtual def LeaveSpliceExpression(node as Boo.Lang.Compiler.Ast.SpliceExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSpliceTypeReference(node as Boo.Lang.Compiler.Ast.SpliceTypeReference) as void:
 		if EnterSpliceTypeReference(node):
-			Expression currentExpressionValue = node.Expression;
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue1 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentExpressionValue):
+					node.Expression = newValue1
 
 			LeaveSpliceTypeReference(node);
 
@@ -1399,22 +1399,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSpliceTypeReference(node as Boo.Lang.Compiler.Ast.SpliceTypeReference) as void:
+	public virtual def LeaveSpliceTypeReference(node as Boo.Lang.Compiler.Ast.SpliceTypeReference) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSpliceMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression) as void:
 		if EnterSpliceMemberReferenceExpression(node):
-			Expression currentTargetValue = node.Target;
+			currentTargetValue as Expression = node.Target;
 			if currentTargetValue is not null:
-				newValue = VisitNode(currentTargetValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTargetValue):
-					node.Target = newValue
-			Expression currentNameExpressionValue = node.NameExpression;
+				newValue1 = VisitNode(currentTargetValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentTargetValue):
+					node.Target = newValue1
+			currentNameExpressionValue as Expression = node.NameExpression;
 			if currentNameExpressionValue is not null:
-				newValue = VisitNode(currentNameExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentNameExpressionValue):
-					node.NameExpression = newValue
+				newValue2 = VisitNode(currentNameExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentNameExpressionValue):
+					node.NameExpression = newValue2
 
 			LeaveSpliceMemberReferenceExpression(node);
 
@@ -1423,23 +1423,23 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSpliceMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression) as void:
+	public virtual def LeaveSpliceMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSpliceTypeMember(node as Boo.Lang.Compiler.Ast.SpliceTypeMember) as void:
 		if EnterSpliceTypeMember(node):
 			Visit(node.Attributes)
-			TypeMember currentTypeMemberValue = node.TypeMember;
+			currentTypeMemberValue as TypeMember = node.TypeMember;
 			if currentTypeMemberValue is not null:
-				newValue = VisitNode(currentTypeMemberValue) cast TypeMember
-				unless object.ReferenceEquals(newValue, currentTypeMemberValue):
-					node.TypeMember = newValue
-			Expression currentNameExpressionValue = node.NameExpression;
+				newValue2 = VisitNode(currentTypeMemberValue) cast TypeMember
+				unless object.ReferenceEquals(newValue2, currentTypeMemberValue):
+					node.TypeMember = newValue2
+			currentNameExpressionValue as Expression = node.NameExpression;
 			if currentNameExpressionValue is not null:
-				newValue = VisitNode(currentNameExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentNameExpressionValue):
-					node.NameExpression = newValue
+				newValue3 = VisitNode(currentNameExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentNameExpressionValue):
+					node.NameExpression = newValue3
 
 			LeaveSpliceTypeMember(node);
 
@@ -1448,18 +1448,18 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSpliceTypeMember(node as Boo.Lang.Compiler.Ast.SpliceTypeMember) as void:
+	public virtual def LeaveSpliceTypeMember(node as Boo.Lang.Compiler.Ast.SpliceTypeMember) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSpliceTypeDefinitionBody(node as Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody) as void:
 		if EnterSpliceTypeDefinitionBody(node):
 			Visit(node.Attributes)
-			Expression currentExpressionValue = node.Expression;
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue2 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentExpressionValue):
+					node.Expression = newValue2
 
 			LeaveSpliceTypeDefinitionBody(node);
 
@@ -1468,28 +1468,28 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSpliceTypeDefinitionBody(node as Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody) as void:
+	public virtual def LeaveSpliceTypeDefinitionBody(node as Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSpliceParameterDeclaration(node as Boo.Lang.Compiler.Ast.SpliceParameterDeclaration) as void:
 		if EnterSpliceParameterDeclaration(node):
-			TypeReference currentTypeValue = node.Type;
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue1 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue1, currentTypeValue):
+					node.Type = newValue1
 			Visit(node.Attributes)
-			ParameterDeclaration currentParameterDeclarationValue = node.ParameterDeclaration;
+			currentParameterDeclarationValue as ParameterDeclaration = node.ParameterDeclaration;
 			if currentParameterDeclarationValue is not null:
-				newValue = VisitNode(currentParameterDeclarationValue) cast ParameterDeclaration
-				unless object.ReferenceEquals(newValue, currentParameterDeclarationValue):
-					node.ParameterDeclaration = newValue
-			Expression currentNameExpressionValue = node.NameExpression;
+				newValue3 = VisitNode(currentParameterDeclarationValue) cast ParameterDeclaration
+				unless object.ReferenceEquals(newValue3, currentParameterDeclarationValue):
+					node.ParameterDeclaration = newValue3
+			currentNameExpressionValue as Expression = node.NameExpression;
 			if currentNameExpressionValue is not null:
-				newValue = VisitNode(currentNameExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentNameExpressionValue):
-					node.NameExpression = newValue
+				newValue4 = VisitNode(currentNameExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue4, currentNameExpressionValue):
+					node.NameExpression = newValue4
 
 			LeaveSpliceParameterDeclaration(node);
 
@@ -1498,7 +1498,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSpliceParameterDeclaration(node as Boo.Lang.Compiler.Ast.SpliceParameterDeclaration) as void:
+	public virtual def LeaveSpliceParameterDeclaration(node as Boo.Lang.Compiler.Ast.SpliceParameterDeclaration) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1513,7 +1513,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveExpressionInterpolationExpression(node as Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression) as void:
+	public virtual def LeaveExpressionInterpolationExpression(node as Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1528,7 +1528,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveHashLiteralExpression(node as Boo.Lang.Compiler.Ast.HashLiteralExpression) as void:
+	public virtual def LeaveHashLiteralExpression(node as Boo.Lang.Compiler.Ast.HashLiteralExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1543,22 +1543,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveListLiteralExpression(node as Boo.Lang.Compiler.Ast.ListLiteralExpression) as void:
+	public virtual def LeaveListLiteralExpression(node as Boo.Lang.Compiler.Ast.ListLiteralExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnCollectionInitializationExpression(node as Boo.Lang.Compiler.Ast.CollectionInitializationExpression) as void:
 		if EnterCollectionInitializationExpression(node):
-			Expression currentCollectionValue = node.Collection;
+			currentCollectionValue as Expression = node.Collection;
 			if currentCollectionValue is not null:
-				newValue = VisitNode(currentCollectionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentCollectionValue):
-					node.Collection = newValue
-			Expression currentInitializerValue = node.Initializer;
+				newValue1 = VisitNode(currentCollectionValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentCollectionValue):
+					node.Collection = newValue1
+			currentInitializerValue as Expression = node.Initializer;
 			if currentInitializerValue is not null:
-				newValue = VisitNode(currentInitializerValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentInitializerValue):
-					node.Initializer = newValue
+				newValue2 = VisitNode(currentInitializerValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentInitializerValue):
+					node.Initializer = newValue2
 
 			LeaveCollectionInitializationExpression(node);
 
@@ -1567,18 +1567,18 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveCollectionInitializationExpression(node as Boo.Lang.Compiler.Ast.CollectionInitializationExpression) as void:
+	public virtual def LeaveCollectionInitializationExpression(node as Boo.Lang.Compiler.Ast.CollectionInitializationExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnArrayLiteralExpression(node as Boo.Lang.Compiler.Ast.ArrayLiteralExpression) as void:
 		if EnterArrayLiteralExpression(node):
 			Visit(node.Items)
-			ArrayTypeReference currentTypeValue = node.Type;
+			currentTypeValue as ArrayTypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast ArrayTypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue2 = VisitNode(currentTypeValue) cast ArrayTypeReference
+				unless object.ReferenceEquals(newValue2, currentTypeValue):
+					node.Type = newValue2
 
 			LeaveArrayLiteralExpression(node);
 
@@ -1587,28 +1587,28 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveArrayLiteralExpression(node as Boo.Lang.Compiler.Ast.ArrayLiteralExpression) as void:
+	public virtual def LeaveArrayLiteralExpression(node as Boo.Lang.Compiler.Ast.ArrayLiteralExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnGeneratorExpression(node as Boo.Lang.Compiler.Ast.GeneratorExpression) as void:
 		if EnterGeneratorExpression(node):
-			Expression currentExpressionValue = node.Expression;
+			currentExpressionValue as Expression = node.Expression;
 			if currentExpressionValue is not null:
-				newValue = VisitNode(currentExpressionValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentExpressionValue):
-					node.Expression = newValue
+				newValue1 = VisitNode(currentExpressionValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentExpressionValue):
+					node.Expression = newValue1
 			Visit(node.Declarations)
-			Expression currentIteratorValue = node.Iterator;
+			currentIteratorValue as Expression = node.Iterator;
 			if currentIteratorValue is not null:
-				newValue = VisitNode(currentIteratorValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentIteratorValue):
-					node.Iterator = newValue
-			StatementModifier currentFilterValue = node.Filter;
+				newValue3 = VisitNode(currentIteratorValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentIteratorValue):
+					node.Iterator = newValue3
+			currentFilterValue as StatementModifier = node.Filter;
 			if currentFilterValue is not null:
-				newValue = VisitNode(currentFilterValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentFilterValue):
-					node.Filter = newValue
+				newValue4 = VisitNode(currentFilterValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue4, currentFilterValue):
+					node.Filter = newValue4
 
 			LeaveGeneratorExpression(node);
 
@@ -1617,7 +1617,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveGeneratorExpression(node as Boo.Lang.Compiler.Ast.GeneratorExpression) as void:
+	public virtual def LeaveGeneratorExpression(node as Boo.Lang.Compiler.Ast.GeneratorExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1632,27 +1632,27 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveExtendedGeneratorExpression(node as Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression) as void:
+	public virtual def LeaveExtendedGeneratorExpression(node as Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSlice(node as Boo.Lang.Compiler.Ast.Slice) as void:
 		if EnterSlice(node):
-			Expression currentBeginValue = node.Begin;
+			currentBeginValue as Expression = node.Begin;
 			if currentBeginValue is not null:
-				newValue = VisitNode(currentBeginValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentBeginValue):
-					node.Begin = newValue
-			Expression currentEndValue = node.End;
+				newValue1 = VisitNode(currentBeginValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentBeginValue):
+					node.Begin = newValue1
+			currentEndValue as Expression = node.End;
 			if currentEndValue is not null:
-				newValue = VisitNode(currentEndValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentEndValue):
-					node.End = newValue
-			Expression currentStepValue = node.Step;
+				newValue2 = VisitNode(currentEndValue) cast Expression
+				unless object.ReferenceEquals(newValue2, currentEndValue):
+					node.End = newValue2
+			currentStepValue as Expression = node.Step;
 			if currentStepValue is not null:
-				newValue = VisitNode(currentStepValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentStepValue):
-					node.Step = newValue
+				newValue3 = VisitNode(currentStepValue) cast Expression
+				unless object.ReferenceEquals(newValue3, currentStepValue):
+					node.Step = newValue3
 
 			LeaveSlice(node);
 
@@ -1661,17 +1661,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSlice(node as Boo.Lang.Compiler.Ast.Slice) as void:
+	public virtual def LeaveSlice(node as Boo.Lang.Compiler.Ast.Slice) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSlicingExpression(node as Boo.Lang.Compiler.Ast.SlicingExpression) as void:
 		if EnterSlicingExpression(node):
-			Expression currentTargetValue = node.Target;
+			currentTargetValue as Expression = node.Target;
 			if currentTargetValue is not null:
-				newValue = VisitNode(currentTargetValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTargetValue):
-					node.Target = newValue
+				newValue1 = VisitNode(currentTargetValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentTargetValue):
+					node.Target = newValue1
 			Visit(node.Indices)
 
 			LeaveSlicingExpression(node);
@@ -1681,22 +1681,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveSlicingExpression(node as Boo.Lang.Compiler.Ast.SlicingExpression) as void:
+	public virtual def LeaveSlicingExpression(node as Boo.Lang.Compiler.Ast.SlicingExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnTryCastExpression(node as Boo.Lang.Compiler.Ast.TryCastExpression) as void:
 		if EnterTryCastExpression(node):
-			Expression currentTargetValue = node.Target;
+			currentTargetValue as Expression = node.Target;
 			if currentTargetValue is not null:
-				newValue = VisitNode(currentTargetValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTargetValue):
-					node.Target = newValue
-			TypeReference currentTypeValue = node.Type;
+				newValue1 = VisitNode(currentTargetValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentTargetValue):
+					node.Target = newValue1
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue2 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue2, currentTypeValue):
+					node.Type = newValue2
 
 			LeaveTryCastExpression(node);
 
@@ -1705,22 +1705,22 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveTryCastExpression(node as Boo.Lang.Compiler.Ast.TryCastExpression) as void:
+	public virtual def LeaveTryCastExpression(node as Boo.Lang.Compiler.Ast.TryCastExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnCastExpression(node as Boo.Lang.Compiler.Ast.CastExpression) as void:
 		if EnterCastExpression(node):
-			Expression currentTargetValue = node.Target;
+			currentTargetValue as Expression = node.Target;
 			if currentTargetValue is not null:
-				newValue = VisitNode(currentTargetValue) cast Expression
-				unless object.ReferenceEquals(newValue, currentTargetValue):
-					node.Target = newValue
-			TypeReference currentTypeValue = node.Type;
+				newValue1 = VisitNode(currentTargetValue) cast Expression
+				unless object.ReferenceEquals(newValue1, currentTargetValue):
+					node.Target = newValue1
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue2 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue2, currentTypeValue):
+					node.Type = newValue2
 
 			LeaveCastExpression(node);
 
@@ -1729,17 +1729,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveCastExpression(node as Boo.Lang.Compiler.Ast.CastExpression) as void:
+	public virtual def LeaveCastExpression(node as Boo.Lang.Compiler.Ast.CastExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnTypeofExpression(node as Boo.Lang.Compiler.Ast.TypeofExpression) as void:
 		if EnterTypeofExpression(node):
-			TypeReference currentTypeValue = node.Type;
+			currentTypeValue as TypeReference = node.Type;
 			if currentTypeValue is not null:
-				newValue = VisitNode(currentTypeValue) cast TypeReference
-				unless object.ReferenceEquals(newValue, currentTypeValue):
-					node.Type = newValue
+				newValue1 = VisitNode(currentTypeValue) cast TypeReference
+				unless object.ReferenceEquals(newValue1, currentTypeValue):
+					node.Type = newValue1
 
 			LeaveTypeofExpression(node);
 
@@ -1748,17 +1748,17 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveTypeofExpression(node as Boo.Lang.Compiler.Ast.TypeofExpression) as void:
+	public virtual def LeaveTypeofExpression(node as Boo.Lang.Compiler.Ast.TypeofExpression) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnCustomStatement(node as Boo.Lang.Compiler.Ast.CustomStatement) as void:
 		if EnterCustomStatement(node):
-			StatementModifier currentModifierValue = node.Modifier;
+			currentModifierValue as StatementModifier = node.Modifier;
 			if currentModifierValue is not null:
-				newValue = VisitNode(currentModifierValue) cast StatementModifier
-				unless object.ReferenceEquals(newValue, currentModifierValue):
-					node.Modifier = newValue
+				newValue1 = VisitNode(currentModifierValue) cast StatementModifier
+				unless object.ReferenceEquals(newValue1, currentModifierValue):
+					node.Modifier = newValue1
 
 			LeaveCustomStatement(node);
 
@@ -1767,7 +1767,7 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveCustomStatement(node as Boo.Lang.Compiler.Ast.CustomStatement) as void:
+	public virtual def LeaveCustomStatement(node as Boo.Lang.Compiler.Ast.CustomStatement) as void:
 		pass
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -1779,11 +1779,11 @@ public partial class DepthFirstTransformer(IAstVisitor):
 	public virtual def OnStatementTypeMember(node as Boo.Lang.Compiler.Ast.StatementTypeMember) as void:
 		if EnterStatementTypeMember(node):
 			Visit(node.Attributes)
-			Statement currentStatementValue = node.Statement;
+			currentStatementValue as Statement = node.Statement;
 			if currentStatementValue is not null:
-				newValue = VisitNode(currentStatementValue) cast Statement
-				unless object.ReferenceEquals(newValue, currentStatementValue):
-					node.Statement = newValue
+				newValue2 = VisitNode(currentStatementValue) cast Statement
+				unless object.ReferenceEquals(newValue2, currentStatementValue):
+					node.Statement = newValue2
 
 			LeaveStatementTypeMember(node);
 
@@ -1792,5 +1792,5 @@ public partial class DepthFirstTransformer(IAstVisitor):
 		return true
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	public virtual LeaveStatementTypeMember(node as Boo.Lang.Compiler.Ast.StatementTypeMember) as void:
+	public virtual def LeaveStatementTypeMember(node as Boo.Lang.Compiler.Ast.StatementTypeMember) as void:
 		pass

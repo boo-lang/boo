@@ -71,10 +71,10 @@ public partial class ListLiteralExpression (LiteralExpression):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _items is not null:
-			item = existing as Expression
-			if item is not null:
-				newItem = newNode as Expression
-				return true if _items.Replace(item, newItem)
+			item1 = existing as Expression
+			if item1 is not null:
+				newItem1 = newNode as Expression
+				return true if _items.Replace(item1, newItem1)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -113,12 +113,12 @@ public partial class ListLiteralExpression (LiteralExpression):
 		
 
 		get:
-			_items = ExpressionCollection(self)() if _items is null
+			_items = ExpressionCollection(self) if _items is null
 			return _items 
 		set:
 			if _items != value:
 				_items = value;
 				if _items is not null:
-					_items.InitializeParent(this);
+					_items.InitializeParent(self);
 
 

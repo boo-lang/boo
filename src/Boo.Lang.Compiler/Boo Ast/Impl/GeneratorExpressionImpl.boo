@@ -83,10 +83,10 @@ public partial class GeneratorExpression (Expression):
 			self.Expression = newNode as Expression
 			return true;
 		if _declarations is not null:
-			item = existing as Declaration
-			if item is not null:
-				newItem = newNode as Declaration
-				return true if _declarations.Replace(item, newItem)
+			item2 = existing as Declaration
+			if item2 is not null:
+				newItem2 = newNode as Declaration
+				return true if _declarations.Replace(item2, newItem2)
 		if _iterator == existing:
 			self.Iterator = newNode as Expression
 			return true;
@@ -148,7 +148,7 @@ public partial class GeneratorExpression (Expression):
 			if _expression != value:
 				_expression = value;
 				if _expression is not null:
-					_expression.InitializeParent(this);
+					_expression.InitializeParent(self);
 
 
 
@@ -159,13 +159,13 @@ public partial class GeneratorExpression (Expression):
 		
 
 		get:
-			_declarations = DeclarationCollection(self)() if _declarations is null
+			_declarations = DeclarationCollection(self) if _declarations is null
 			return _declarations 
 		set:
 			if _declarations != value:
 				_declarations = value;
 				if _declarations is not null:
-					_declarations.InitializeParent(this);
+					_declarations.InitializeParent(self);
 
 
 
@@ -178,7 +178,7 @@ public partial class GeneratorExpression (Expression):
 			if _iterator != value:
 				_iterator = value;
 				if _iterator is not null:
-					_iterator.InitializeParent(this);
+					_iterator.InitializeParent(self);
 
 
 
@@ -191,6 +191,6 @@ public partial class GeneratorExpression (Expression):
 			if _filter != value:
 				_filter = value;
 				if _filter is not null:
-					_filter.InitializeParent(this);
+					_filter.InitializeParent(self);
 
 

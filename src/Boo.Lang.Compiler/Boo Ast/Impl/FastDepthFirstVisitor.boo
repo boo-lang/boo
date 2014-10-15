@@ -48,9 +48,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnCompileUnit(node as Boo.Lang.Compiler.Ast.CompileUnit) as void:
 		lModules = node.Modules
 		if lModules is not null:
-			innerList = lModules.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lModules.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnTypeMemberStatement(node as Boo.Lang.Compiler.Ast.TypeMemberStatement) as void:
@@ -85,9 +85,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnCallableTypeReference(node as Boo.Lang.Compiler.Ast.CallableTypeReference) as void:
 		lParameters = node.Parameters
 		if lParameters is not null:
-			innerList = lParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lParameters.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lReturnType = node.ReturnType
 		if lReturnType is not null:
 			lReturnType.Accept(self)
@@ -96,9 +96,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnGenericTypeReference(node as Boo.Lang.Compiler.Ast.GenericTypeReference) as void:
 		lGenericArguments = node.GenericArguments
 		if lGenericArguments is not null:
-			innerList = lGenericArguments.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lGenericArguments.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnGenericTypeDefinitionReference(node as Boo.Lang.Compiler.Ast.GenericTypeDefinitionReference) as void:
@@ -109,27 +109,27 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnCallableDefinition(node as Boo.Lang.Compiler.Ast.CallableDefinition) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lParameters = node.Parameters
 		if lParameters is not null:
-			innerList = lParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lParameters.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lGenericParameters.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lReturnType = node.ReturnType
 		if lReturnType is not null:
 			lReturnType.Accept(self)
 		lReturnTypeAttributes = node.ReturnTypeAttributes
 		if lReturnTypeAttributes is not null:
-			innerList = lReturnTypeAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList5 = lReturnTypeAttributes.InnerList
+			for i in range(0, innerList5.Count):
+				innerList5.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnNamespaceDeclaration(node as Boo.Lang.Compiler.Ast.NamespaceDeclaration) as void:
@@ -152,140 +152,140 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnModule(node as Boo.Lang.Compiler.Ast.Module) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lMembers = node.Members
 		if lMembers is not null:
-			innerList = lMembers.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lMembers.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lBaseTypes = node.BaseTypes
 		if lBaseTypes is not null:
-			innerList = lBaseTypes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lBaseTypes.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList4 = lGenericParameters.InnerList
+			for i in range(0, innerList4.Count):
+				innerList4.FastAt(i).Accept(self)
 		lNamespace = node.Namespace
 		if lNamespace is not null:
 			lNamespace.Accept(self)
 		lImports = node.Imports
 		if lImports is not null:
-			innerList = lImports.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList6 = lImports.InnerList
+			for i in range(0, innerList6.Count):
+				innerList6.FastAt(i).Accept(self)
 		lGlobals = node.Globals
 		if lGlobals is not null:
 			lGlobals.Accept(self)
 		lAssemblyAttributes = node.AssemblyAttributes
 		if lAssemblyAttributes is not null:
-			innerList = lAssemblyAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList8 = lAssemblyAttributes.InnerList
+			for i in range(0, innerList8.Count):
+				innerList8.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnClassDefinition(node as Boo.Lang.Compiler.Ast.ClassDefinition) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lMembers = node.Members
 		if lMembers is not null:
-			innerList = lMembers.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lMembers.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lBaseTypes = node.BaseTypes
 		if lBaseTypes is not null:
-			innerList = lBaseTypes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lBaseTypes.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList4 = lGenericParameters.InnerList
+			for i in range(0, innerList4.Count):
+				innerList4.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnStructDefinition(node as Boo.Lang.Compiler.Ast.StructDefinition) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lMembers = node.Members
 		if lMembers is not null:
-			innerList = lMembers.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lMembers.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lBaseTypes = node.BaseTypes
 		if lBaseTypes is not null:
-			innerList = lBaseTypes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lBaseTypes.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList4 = lGenericParameters.InnerList
+			for i in range(0, innerList4.Count):
+				innerList4.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnInterfaceDefinition(node as Boo.Lang.Compiler.Ast.InterfaceDefinition) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lMembers = node.Members
 		if lMembers is not null:
-			innerList = lMembers.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lMembers.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lBaseTypes = node.BaseTypes
 		if lBaseTypes is not null:
-			innerList = lBaseTypes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lBaseTypes.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList4 = lGenericParameters.InnerList
+			for i in range(0, innerList4.Count):
+				innerList4.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnEnumDefinition(node as Boo.Lang.Compiler.Ast.EnumDefinition) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lMembers = node.Members
 		if lMembers is not null:
-			innerList = lMembers.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lMembers.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lBaseTypes = node.BaseTypes
 		if lBaseTypes is not null:
-			innerList = lBaseTypes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lBaseTypes.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList4 = lGenericParameters.InnerList
+			for i in range(0, innerList4.Count):
+				innerList4.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnEnumMember(node as Boo.Lang.Compiler.Ast.EnumMember) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lInitializer = node.Initializer
 		if lInitializer is not null:
 			lInitializer.Accept(self)
@@ -294,9 +294,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnField(node as Boo.Lang.Compiler.Ast.Field) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lType = node.Type
 		if lType is not null:
 			lType.Accept(self)
@@ -308,14 +308,14 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnProperty(node as Boo.Lang.Compiler.Ast.Property) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lParameters = node.Parameters
 		if lParameters is not null:
-			innerList = lParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lParameters.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lGetter = node.Getter
 		if lGetter is not null:
 			lGetter.Accept(self)
@@ -333,9 +333,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnEvent(node as Boo.Lang.Compiler.Ast.Event) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lAdd = node.Add
 		if lAdd is not null:
 			lAdd.Accept(self)
@@ -358,9 +358,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnBlockExpression(node as Boo.Lang.Compiler.Ast.BlockExpression) as void:
 		lParameters = node.Parameters
 		if lParameters is not null:
-			innerList = lParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lParameters.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lReturnType = node.ReturnType
 		if lReturnType is not null:
 			lReturnType.Accept(self)
@@ -372,35 +372,35 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnMethod(node as Boo.Lang.Compiler.Ast.Method) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lParameters = node.Parameters
 		if lParameters is not null:
-			innerList = lParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lParameters.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lGenericParameters.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lReturnType = node.ReturnType
 		if lReturnType is not null:
 			lReturnType.Accept(self)
 		lReturnTypeAttributes = node.ReturnTypeAttributes
 		if lReturnTypeAttributes is not null:
-			innerList = lReturnTypeAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList5 = lReturnTypeAttributes.InnerList
+			for i in range(0, innerList5.Count):
+				innerList5.FastAt(i).Accept(self)
 		lBody = node.Body
 		if lBody is not null:
 			lBody.Accept(self)
 		lLocals = node.Locals
 		if lLocals is not null:
-			innerList = lLocals.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList7 = lLocals.InnerList
+			for i in range(0, innerList7.Count):
+				innerList7.FastAt(i).Accept(self)
 		lExplicitInfo = node.ExplicitInfo
 		if lExplicitInfo is not null:
 			lExplicitInfo.Accept(self)
@@ -409,35 +409,35 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnConstructor(node as Boo.Lang.Compiler.Ast.Constructor) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lParameters = node.Parameters
 		if lParameters is not null:
-			innerList = lParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lParameters.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lGenericParameters.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lReturnType = node.ReturnType
 		if lReturnType is not null:
 			lReturnType.Accept(self)
 		lReturnTypeAttributes = node.ReturnTypeAttributes
 		if lReturnTypeAttributes is not null:
-			innerList = lReturnTypeAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList5 = lReturnTypeAttributes.InnerList
+			for i in range(0, innerList5.Count):
+				innerList5.FastAt(i).Accept(self)
 		lBody = node.Body
 		if lBody is not null:
 			lBody.Accept(self)
 		lLocals = node.Locals
 		if lLocals is not null:
-			innerList = lLocals.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList7 = lLocals.InnerList
+			for i in range(0, innerList7.Count):
+				innerList7.FastAt(i).Accept(self)
 		lExplicitInfo = node.ExplicitInfo
 		if lExplicitInfo is not null:
 			lExplicitInfo.Accept(self)
@@ -446,35 +446,35 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnDestructor(node as Boo.Lang.Compiler.Ast.Destructor) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lParameters = node.Parameters
 		if lParameters is not null:
-			innerList = lParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lParameters.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lGenericParameters = node.GenericParameters
 		if lGenericParameters is not null:
-			innerList = lGenericParameters.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lGenericParameters.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lReturnType = node.ReturnType
 		if lReturnType is not null:
 			lReturnType.Accept(self)
 		lReturnTypeAttributes = node.ReturnTypeAttributes
 		if lReturnTypeAttributes is not null:
-			innerList = lReturnTypeAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList5 = lReturnTypeAttributes.InnerList
+			for i in range(0, innerList5.Count):
+				innerList5.FastAt(i).Accept(self)
 		lBody = node.Body
 		if lBody is not null:
 			lBody.Accept(self)
 		lLocals = node.Locals
 		if lLocals is not null:
-			innerList = lLocals.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList7 = lLocals.InnerList
+			for i in range(0, innerList7.Count):
+				innerList7.FastAt(i).Accept(self)
 		lExplicitInfo = node.ExplicitInfo
 		if lExplicitInfo is not null:
 			lExplicitInfo.Accept(self)
@@ -486,17 +486,17 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lType.Accept(self)
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lAttributes.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnGenericParameterDeclaration(node as Boo.Lang.Compiler.Ast.GenericParameterDeclaration) as void:
 		lBaseTypes = node.BaseTypes
 		if lBaseTypes is not null:
-			innerList = lBaseTypes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lBaseTypes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnDeclaration(node as Boo.Lang.Compiler.Ast.Declaration) as void:
@@ -508,14 +508,14 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnAttribute(node as Boo.Lang.Compiler.Ast.Attribute) as void:
 		lArguments = node.Arguments
 		if lArguments is not null:
-			innerList = lArguments.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lArguments.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lNamedArguments = node.NamedArguments
 		if lNamedArguments is not null:
-			innerList = lNamedArguments.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lNamedArguments.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnStatementModifier(node as Boo.Lang.Compiler.Ast.StatementModifier) as void:
@@ -545,9 +545,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lModifier.Accept(self)
 		lStatements = node.Statements
 		if lStatements is not null:
-			innerList = lStatements.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lStatements.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnDeclarationStatement(node as Boo.Lang.Compiler.Ast.DeclarationStatement) as void:
@@ -568,9 +568,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lModifier.Accept(self)
 		lArguments = node.Arguments
 		if lArguments is not null:
-			innerList = lArguments.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lArguments.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lBody = node.Body
 		if lBody is not null:
 			lBody.Accept(self)
@@ -585,9 +585,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lProtectedBlock.Accept(self)
 		lExceptionHandlers = node.ExceptionHandlers
 		if lExceptionHandlers is not null:
-			innerList = lExceptionHandlers.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lExceptionHandlers.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 		lFailureBlock = node.FailureBlock
 		if lFailureBlock is not null:
 			lFailureBlock.Accept(self)
@@ -641,9 +641,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lModifier.Accept(self)
 		lDeclarations = node.Declarations
 		if lDeclarations is not null:
-			innerList = lDeclarations.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lDeclarations.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lIterator = node.Iterator
 		if lIterator is not null:
 			lIterator.Accept(self)
@@ -721,9 +721,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lModifier.Accept(self)
 		lDeclarations = node.Declarations
 		if lDeclarations is not null:
-			innerList = lDeclarations.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lDeclarations.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lExpression = node.Expression
 		if lExpression is not null:
 			lExpression.Accept(self)
@@ -758,14 +758,14 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lTarget.Accept(self)
 		lArguments = node.Arguments
 		if lArguments is not null:
-			innerList = lArguments.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lArguments.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lNamedArguments = node.NamedArguments
 		if lNamedArguments is not null:
-			innerList = lNamedArguments.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList3 = lNamedArguments.InnerList
+			for i in range(0, innerList3.Count):
+				innerList3.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnUnaryExpression(node as Boo.Lang.Compiler.Ast.UnaryExpression) as void:
@@ -812,9 +812,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lTarget.Accept(self)
 		lGenericArguments = node.GenericArguments
 		if lGenericArguments is not null:
-			innerList = lGenericArguments.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lGenericArguments.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnQuasiquoteExpression(node as Boo.Lang.Compiler.Ast.QuasiquoteExpression) as void:
@@ -896,9 +896,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnSpliceTypeMember(node as Boo.Lang.Compiler.Ast.SpliceTypeMember) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lTypeMember = node.TypeMember
 		if lTypeMember is not null:
 			lTypeMember.Accept(self)
@@ -910,9 +910,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnSpliceTypeDefinitionBody(node as Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lExpression = node.Expression
 		if lExpression is not null:
 			lExpression.Accept(self)
@@ -924,9 +924,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lType.Accept(self)
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lAttributes.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lParameterDeclaration = node.ParameterDeclaration
 		if lParameterDeclaration is not null:
 			lParameterDeclaration.Accept(self)
@@ -938,25 +938,25 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnExpressionInterpolationExpression(node as Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression) as void:
 		lExpressions = node.Expressions
 		if lExpressions is not null:
-			innerList = lExpressions.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lExpressions.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnHashLiteralExpression(node as Boo.Lang.Compiler.Ast.HashLiteralExpression) as void:
 		lItems = node.Items
 		if lItems is not null:
-			innerList = lItems.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lItems.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnListLiteralExpression(node as Boo.Lang.Compiler.Ast.ListLiteralExpression) as void:
 		lItems = node.Items
 		if lItems is not null:
-			innerList = lItems.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lItems.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnCollectionInitializationExpression(node as Boo.Lang.Compiler.Ast.CollectionInitializationExpression) as void:
@@ -971,9 +971,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnArrayLiteralExpression(node as Boo.Lang.Compiler.Ast.ArrayLiteralExpression) as void:
 		lItems = node.Items
 		if lItems is not null:
-			innerList = lItems.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lItems.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lType = node.Type
 		if lType is not null:
 			lType.Accept(self)
@@ -985,9 +985,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lExpression.Accept(self)
 		lDeclarations = node.Declarations
 		if lDeclarations is not null:
-			innerList = lDeclarations.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lDeclarations.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 		lIterator = node.Iterator
 		if lIterator is not null:
 			lIterator.Accept(self)
@@ -999,9 +999,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnExtendedGeneratorExpression(node as Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression) as void:
 		lItems = node.Items
 		if lItems is not null:
-			innerList = lItems.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lItems.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnSlice(node as Boo.Lang.Compiler.Ast.Slice) as void:
@@ -1022,9 +1022,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 			lTarget.Accept(self)
 		lIndices = node.Indices
 		if lIndices is not null:
-			innerList = lIndices.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList2 = lIndices.InnerList
+			for i in range(0, innerList2.Count):
+				innerList2.FastAt(i).Accept(self)
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public virtual def OnTryCastExpression(node as Boo.Lang.Compiler.Ast.TryCastExpression) as void:
@@ -1065,9 +1065,9 @@ public partial class FastDepthFirstVisitor(IAstVisitor):
 	public virtual def OnStatementTypeMember(node as Boo.Lang.Compiler.Ast.StatementTypeMember) as void:
 		lAttributes = node.Attributes
 		if lAttributes is not null:
-			innerList = lAttributes.InnerList
-			for i in range(0, innerList.Count):
-				innerList.FastAt(i).Accept(self)
+			innerList1 = lAttributes.InnerList
+			for i in range(0, innerList1.Count):
+				innerList1.FastAt(i).Accept(self)
 		lStatement = node.Statement
 		if lStatement is not null:
 			lStatement.Accept(self)

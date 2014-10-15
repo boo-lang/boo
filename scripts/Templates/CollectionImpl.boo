@@ -18,6 +18,6 @@ public partial class ${node.Name} (NodeCollection[of ${itemType}]):
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public def PopRange(begin as int) as ${itemType}Collection:
-		range = ${itemType}Collection(ParentNode)
-		range.InnerList.AddRange(InternalPopRange(begin))
-		return range
+		aRange = ${itemType}Collection(ParentNode)
+		aRange.InnerList.AddRange(InternalPopRange(begin))
+		return aRange

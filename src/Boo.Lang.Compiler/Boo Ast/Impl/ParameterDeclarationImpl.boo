@@ -83,10 +83,10 @@ public partial class ParameterDeclaration (Node, INodeWithAttributes):
 			self.Type = newNode as TypeReference
 			return true;
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item4 = existing as Attribute
+			if item4 is not null:
+				newItem4 = newNode as Attribute
+				return true if _attributes.Replace(item4, newItem4)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -140,7 +140,7 @@ public partial class ParameterDeclaration (Node, INodeWithAttributes):
 			if _type != value:
 				_type = value;
 				if _type is not null:
-					_type.InitializeParent(this);
+					_type.InitializeParent(self);
 
 
 
@@ -160,12 +160,12 @@ public partial class ParameterDeclaration (Node, INodeWithAttributes):
 		
 
 		get:
-			_attributes = AttributeCollection(self)() if _attributes is null
+			_attributes = AttributeCollection(self) if _attributes is null
 			return _attributes 
 		set:
 			if _attributes != value:
 				_attributes = value;
 				if _attributes is not null:
-					_attributes.InitializeParent(this);
+					_attributes.InitializeParent(self);
 
 

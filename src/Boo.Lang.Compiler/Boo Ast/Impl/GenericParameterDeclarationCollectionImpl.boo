@@ -47,6 +47,6 @@ public partial class GenericParameterDeclarationCollection (NodeCollection[of Bo
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public def PopRange(begin as int) as Boo.Lang.Compiler.Ast.GenericParameterDeclarationCollection:
-		range = Boo.Lang.Compiler.Ast.GenericParameterDeclarationCollection(ParentNode)
-		range.InnerList.AddRange(InternalPopRange(begin))
-		return range
+		aRange = Boo.Lang.Compiler.Ast.GenericParameterDeclarationCollection(ParentNode)
+		aRange.InnerList.AddRange(InternalPopRange(begin))
+		return aRange

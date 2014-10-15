@@ -81,10 +81,10 @@ public partial class SpliceParameterDeclaration (ParameterDeclaration):
 			self.Type = newNode as TypeReference
 			return true;
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item4 = existing as Attribute
+			if item4 is not null:
+				newItem4 = newNode as Attribute
+				return true if _attributes.Replace(item4, newItem4)
 		if _parameterDeclaration == existing:
 			self.ParameterDeclaration = newNode as ParameterDeclaration
 			return true;
@@ -146,7 +146,7 @@ public partial class SpliceParameterDeclaration (ParameterDeclaration):
 			if _parameterDeclaration != value:
 				_parameterDeclaration = value;
 				if _parameterDeclaration is not null:
-					_parameterDeclaration.InitializeParent(this);
+					_parameterDeclaration.InitializeParent(self);
 
 
 
@@ -159,6 +159,6 @@ public partial class SpliceParameterDeclaration (ParameterDeclaration):
 			if _nameExpression != value:
 				_nameExpression = value;
 				if _nameExpression is not null:
-					_nameExpression.InitializeParent(this);
+					_nameExpression.InitializeParent(self);
 
 

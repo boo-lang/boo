@@ -124,7 +124,7 @@ public partial class SpliceMemberReferenceExpression (Expression):
 			if _target != value:
 				_target = value;
 				if _target is not null:
-					_target.InitializeParent(this);
+					_target.InitializeParent(self);
 
 
 
@@ -137,6 +137,6 @@ public partial class SpliceMemberReferenceExpression (Expression):
 			if _nameExpression != value:
 				_nameExpression = value;
 				if _nameExpression is not null:
-					_nameExpression.InitializeParent(this);
+					_nameExpression.InitializeParent(self);
 
 

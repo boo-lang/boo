@@ -71,10 +71,10 @@ public partial class HashLiteralExpression (LiteralExpression):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _items is not null:
-			item = existing as ExpressionPair
-			if item is not null:
-				newItem = newNode as ExpressionPair
-				return true if _items.Replace(item, newItem)
+			item1 = existing as ExpressionPair
+			if item1 is not null:
+				newItem1 = newNode as ExpressionPair
+				return true if _items.Replace(item1, newItem1)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -113,12 +113,12 @@ public partial class HashLiteralExpression (LiteralExpression):
 		
 
 		get:
-			_items = ExpressionPairCollection(self)() if _items is null
+			_items = ExpressionPairCollection(self) if _items is null
 			return _items 
 		set:
 			if _items != value:
 				_items = value;
 				if _items is not null:
-					_items.InitializeParent(this);
+					_items.InitializeParent(self);
 
 

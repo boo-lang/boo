@@ -120,6 +120,6 @@ public partial class TypeMemberStatement (Statement):
 			if _typeMember != value:
 				_typeMember = value;
 				if _typeMember is not null:
-					_typeMember.InitializeParent(this);
+					_typeMember.InitializeParent(self);
 
 

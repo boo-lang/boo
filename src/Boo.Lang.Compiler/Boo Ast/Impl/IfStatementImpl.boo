@@ -140,7 +140,7 @@ public partial class IfStatement (ConditionalStatement):
 			if _trueBlock != value:
 				_trueBlock = value;
 				if _trueBlock is not null:
-					_trueBlock.InitializeParent(this);
+					_trueBlock.InitializeParent(self);
 
 
 
@@ -153,6 +153,6 @@ public partial class IfStatement (ConditionalStatement):
 			if _falseBlock != value:
 				_falseBlock = value;
 				if _falseBlock is not null:
-					_falseBlock.InitializeParent(this);
+					_falseBlock.InitializeParent(self);
 
 

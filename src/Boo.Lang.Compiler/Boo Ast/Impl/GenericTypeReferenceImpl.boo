@@ -73,10 +73,10 @@ public partial class GenericTypeReference (SimpleTypeReference):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _genericArguments is not null:
-			item = existing as TypeReference
-			if item is not null:
-				newItem = newNode as TypeReference
-				return true if _genericArguments.Replace(item, newItem)
+			item3 = existing as TypeReference
+			if item3 is not null:
+				newItem3 = newNode as TypeReference
+				return true if _genericArguments.Replace(item3, newItem3)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -115,12 +115,12 @@ public partial class GenericTypeReference (SimpleTypeReference):
 		
 
 		get:
-			_genericArguments = TypeReferenceCollection(self)() if _genericArguments is null
+			_genericArguments = TypeReferenceCollection(self) if _genericArguments is null
 			return _genericArguments 
 		set:
 			if _genericArguments != value:
 				_genericArguments = value;
 				if _genericArguments is not null:
-					_genericArguments.InitializeParent(this);
+					_genericArguments.InitializeParent(self);
 
 

@@ -113,6 +113,6 @@ public partial class SpliceTypeReference (TypeReference):
 			if _expression != value:
 				_expression = value;
 				if _expression is not null:
-					_expression.InitializeParent(this);
+					_expression.InitializeParent(self);
 
 

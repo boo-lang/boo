@@ -42,7 +42,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnCompileUnit as NodeEvent[of CompileUnit]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCompileUnit(node as Boo.Lang.Compiler.Ast.CompileUnit) as void:
+	private def IAstVisitor.OnCompileUnit(node as Boo.Lang.Compiler.Ast.CompileUnit) as void:
 	
 		lModules = node.Modules
 		if lModules is not null:
@@ -55,7 +55,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnTypeMemberStatement as NodeEvent[of TypeMemberStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnTypeMemberStatement(node as Boo.Lang.Compiler.Ast.TypeMemberStatement) as void:
+	private def IAstVisitor.OnTypeMemberStatement(node as Boo.Lang.Compiler.Ast.TypeMemberStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -69,7 +69,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnExplicitMemberInfo as NodeEvent[of ExplicitMemberInfo]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnExplicitMemberInfo(node as Boo.Lang.Compiler.Ast.ExplicitMemberInfo) as void:
+	private def IAstVisitor.OnExplicitMemberInfo(node as Boo.Lang.Compiler.Ast.ExplicitMemberInfo) as void:
 	
 		lInterfaceType = node.InterfaceType
 		if lInterfaceType is not null:
@@ -80,14 +80,14 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSimpleTypeReference as NodeEvent[of SimpleTypeReference]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSimpleTypeReference(node as Boo.Lang.Compiler.Ast.SimpleTypeReference) as void:
+	private def IAstVisitor.OnSimpleTypeReference(node as Boo.Lang.Compiler.Ast.SimpleTypeReference) as void:
 		handler = OnSimpleTypeReference
 		return if handler is null
 		handler(node)
 	public event OnArrayTypeReference as NodeEvent[of ArrayTypeReference]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnArrayTypeReference(node as Boo.Lang.Compiler.Ast.ArrayTypeReference) as void:
+	private def IAstVisitor.OnArrayTypeReference(node as Boo.Lang.Compiler.Ast.ArrayTypeReference) as void:
 	
 		lElementType = node.ElementType
 		if lElementType is not null:
@@ -101,7 +101,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnCallableTypeReference as NodeEvent[of CallableTypeReference]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCallableTypeReference(node as Boo.Lang.Compiler.Ast.CallableTypeReference) as void:
+	private def IAstVisitor.OnCallableTypeReference(node as Boo.Lang.Compiler.Ast.CallableTypeReference) as void:
 	
 		lParameters = node.Parameters
 		if lParameters is not null:
@@ -117,7 +117,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnGenericTypeReference as NodeEvent[of GenericTypeReference]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnGenericTypeReference(node as Boo.Lang.Compiler.Ast.GenericTypeReference) as void:
+	private def IAstVisitor.OnGenericTypeReference(node as Boo.Lang.Compiler.Ast.GenericTypeReference) as void:
 	
 		lGenericArguments = node.GenericArguments
 		if lGenericArguments is not null:
@@ -130,14 +130,14 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnGenericTypeDefinitionReference as NodeEvent[of GenericTypeDefinitionReference]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnGenericTypeDefinitionReference(node as Boo.Lang.Compiler.Ast.GenericTypeDefinitionReference) as void:
+	private def IAstVisitor.OnGenericTypeDefinitionReference(node as Boo.Lang.Compiler.Ast.GenericTypeDefinitionReference) as void:
 		handler = OnGenericTypeDefinitionReference
 		return if handler is null
 		handler(node)
 	public event OnCallableDefinition as NodeEvent[of CallableDefinition]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCallableDefinition(node as Boo.Lang.Compiler.Ast.CallableDefinition) as void:
+	private def IAstVisitor.OnCallableDefinition(node as Boo.Lang.Compiler.Ast.CallableDefinition) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -168,14 +168,14 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnNamespaceDeclaration as NodeEvent[of NamespaceDeclaration]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnNamespaceDeclaration(node as Boo.Lang.Compiler.Ast.NamespaceDeclaration) as void:
+	private def IAstVisitor.OnNamespaceDeclaration(node as Boo.Lang.Compiler.Ast.NamespaceDeclaration) as void:
 		handler = OnNamespaceDeclaration
 		return if handler is null
 		handler(node)
 	public event OnImport as NodeEvent[of Import]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnImport(node as Boo.Lang.Compiler.Ast.Import) as void:
+	private def IAstVisitor.OnImport(node as Boo.Lang.Compiler.Ast.Import) as void:
 	
 		lExpression = node.Expression
 		if lExpression is not null:
@@ -192,7 +192,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnModule as NodeEvent[of Module]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnModule(node as Boo.Lang.Compiler.Ast.Module) as void:
+	private def IAstVisitor.OnModule(node as Boo.Lang.Compiler.Ast.Module) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -236,7 +236,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnClassDefinition as NodeEvent[of ClassDefinition]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnClassDefinition(node as Boo.Lang.Compiler.Ast.ClassDefinition) as void:
+	private def IAstVisitor.OnClassDefinition(node as Boo.Lang.Compiler.Ast.ClassDefinition) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -264,7 +264,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnStructDefinition as NodeEvent[of StructDefinition]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnStructDefinition(node as Boo.Lang.Compiler.Ast.StructDefinition) as void:
+	private def IAstVisitor.OnStructDefinition(node as Boo.Lang.Compiler.Ast.StructDefinition) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -292,7 +292,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnInterfaceDefinition as NodeEvent[of InterfaceDefinition]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnInterfaceDefinition(node as Boo.Lang.Compiler.Ast.InterfaceDefinition) as void:
+	private def IAstVisitor.OnInterfaceDefinition(node as Boo.Lang.Compiler.Ast.InterfaceDefinition) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -320,7 +320,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnEnumDefinition as NodeEvent[of EnumDefinition]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnEnumDefinition(node as Boo.Lang.Compiler.Ast.EnumDefinition) as void:
+	private def IAstVisitor.OnEnumDefinition(node as Boo.Lang.Compiler.Ast.EnumDefinition) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -348,7 +348,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnEnumMember as NodeEvent[of EnumMember]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnEnumMember(node as Boo.Lang.Compiler.Ast.EnumMember) as void:
+	private def IAstVisitor.OnEnumMember(node as Boo.Lang.Compiler.Ast.EnumMember) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -364,7 +364,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnField as NodeEvent[of Field]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnField(node as Boo.Lang.Compiler.Ast.Field) as void:
+	private def IAstVisitor.OnField(node as Boo.Lang.Compiler.Ast.Field) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -383,7 +383,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnProperty as NodeEvent[of Property]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnProperty(node as Boo.Lang.Compiler.Ast.Property) as void:
+	private def IAstVisitor.OnProperty(node as Boo.Lang.Compiler.Ast.Property) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -413,7 +413,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnEvent as NodeEvent[of Event]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnEvent(node as Boo.Lang.Compiler.Ast.Event) as void:
+	private def IAstVisitor.OnEvent(node as Boo.Lang.Compiler.Ast.Event) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -438,14 +438,14 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnLocal as NodeEvent[of Local]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnLocal(node as Boo.Lang.Compiler.Ast.Local) as void:
+	private def IAstVisitor.OnLocal(node as Boo.Lang.Compiler.Ast.Local) as void:
 		handler = OnLocal
 		return if handler is null
 		handler(node)
 	public event OnBlockExpression as NodeEvent[of BlockExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnBlockExpression(node as Boo.Lang.Compiler.Ast.BlockExpression) as void:
+	private def IAstVisitor.OnBlockExpression(node as Boo.Lang.Compiler.Ast.BlockExpression) as void:
 	
 		lParameters = node.Parameters
 		if lParameters is not null:
@@ -464,7 +464,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnMethod as NodeEvent[of Method]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnMethod(node as Boo.Lang.Compiler.Ast.Method) as void:
+	private def IAstVisitor.OnMethod(node as Boo.Lang.Compiler.Ast.Method) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -506,7 +506,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnConstructor as NodeEvent[of Constructor]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnConstructor(node as Boo.Lang.Compiler.Ast.Constructor) as void:
+	private def IAstVisitor.OnConstructor(node as Boo.Lang.Compiler.Ast.Constructor) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -548,7 +548,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnDestructor as NodeEvent[of Destructor]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnDestructor(node as Boo.Lang.Compiler.Ast.Destructor) as void:
+	private def IAstVisitor.OnDestructor(node as Boo.Lang.Compiler.Ast.Destructor) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -590,7 +590,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnParameterDeclaration as NodeEvent[of ParameterDeclaration]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnParameterDeclaration(node as Boo.Lang.Compiler.Ast.ParameterDeclaration) as void:
+	private def IAstVisitor.OnParameterDeclaration(node as Boo.Lang.Compiler.Ast.ParameterDeclaration) as void:
 	
 		lType = node.Type
 		if lType is not null:
@@ -606,7 +606,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnGenericParameterDeclaration as NodeEvent[of GenericParameterDeclaration]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnGenericParameterDeclaration(node as Boo.Lang.Compiler.Ast.GenericParameterDeclaration) as void:
+	private def IAstVisitor.OnGenericParameterDeclaration(node as Boo.Lang.Compiler.Ast.GenericParameterDeclaration) as void:
 	
 		lBaseTypes = node.BaseTypes
 		if lBaseTypes is not null:
@@ -619,7 +619,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnDeclaration as NodeEvent[of Declaration]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnDeclaration(node as Boo.Lang.Compiler.Ast.Declaration) as void:
+	private def IAstVisitor.OnDeclaration(node as Boo.Lang.Compiler.Ast.Declaration) as void:
 	
 		lType = node.Type
 		if lType is not null:
@@ -630,7 +630,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnAttribute as NodeEvent[of Attribute]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnAttribute(node as Boo.Lang.Compiler.Ast.Attribute) as void:
+	private def IAstVisitor.OnAttribute(node as Boo.Lang.Compiler.Ast.Attribute) as void:
 	
 		lArguments = node.Arguments
 		if lArguments is not null:
@@ -648,7 +648,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnStatementModifier as NodeEvent[of StatementModifier]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnStatementModifier(node as Boo.Lang.Compiler.Ast.StatementModifier) as void:
+	private def IAstVisitor.OnStatementModifier(node as Boo.Lang.Compiler.Ast.StatementModifier) as void:
 	
 		lCondition = node.Condition
 		if lCondition is not null:
@@ -659,7 +659,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnGotoStatement as NodeEvent[of GotoStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnGotoStatement(node as Boo.Lang.Compiler.Ast.GotoStatement) as void:
+	private def IAstVisitor.OnGotoStatement(node as Boo.Lang.Compiler.Ast.GotoStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -673,7 +673,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnLabelStatement as NodeEvent[of LabelStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnLabelStatement(node as Boo.Lang.Compiler.Ast.LabelStatement) as void:
+	private def IAstVisitor.OnLabelStatement(node as Boo.Lang.Compiler.Ast.LabelStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -684,7 +684,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnBlock as NodeEvent[of Block]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnBlock(node as Boo.Lang.Compiler.Ast.Block) as void:
+	private def IAstVisitor.OnBlock(node as Boo.Lang.Compiler.Ast.Block) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -700,7 +700,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnDeclarationStatement as NodeEvent[of DeclarationStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnDeclarationStatement(node as Boo.Lang.Compiler.Ast.DeclarationStatement) as void:
+	private def IAstVisitor.OnDeclarationStatement(node as Boo.Lang.Compiler.Ast.DeclarationStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -717,7 +717,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnMacroStatement as NodeEvent[of MacroStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnMacroStatement(node as Boo.Lang.Compiler.Ast.MacroStatement) as void:
+	private def IAstVisitor.OnMacroStatement(node as Boo.Lang.Compiler.Ast.MacroStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -736,7 +736,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnTryStatement as NodeEvent[of TryStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnTryStatement(node as Boo.Lang.Compiler.Ast.TryStatement) as void:
+	private def IAstVisitor.OnTryStatement(node as Boo.Lang.Compiler.Ast.TryStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -761,7 +761,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnExceptionHandler as NodeEvent[of ExceptionHandler]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnExceptionHandler(node as Boo.Lang.Compiler.Ast.ExceptionHandler) as void:
+	private def IAstVisitor.OnExceptionHandler(node as Boo.Lang.Compiler.Ast.ExceptionHandler) as void:
 	
 		lDeclaration = node.Declaration
 		if lDeclaration is not null:
@@ -778,7 +778,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnIfStatement as NodeEvent[of IfStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnIfStatement(node as Boo.Lang.Compiler.Ast.IfStatement) as void:
+	private def IAstVisitor.OnIfStatement(node as Boo.Lang.Compiler.Ast.IfStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -798,7 +798,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnUnlessStatement as NodeEvent[of UnlessStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnUnlessStatement(node as Boo.Lang.Compiler.Ast.UnlessStatement) as void:
+	private def IAstVisitor.OnUnlessStatement(node as Boo.Lang.Compiler.Ast.UnlessStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -815,7 +815,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnForStatement as NodeEvent[of ForStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnForStatement(node as Boo.Lang.Compiler.Ast.ForStatement) as void:
+	private def IAstVisitor.OnForStatement(node as Boo.Lang.Compiler.Ast.ForStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -843,7 +843,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnWhileStatement as NodeEvent[of WhileStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnWhileStatement(node as Boo.Lang.Compiler.Ast.WhileStatement) as void:
+	private def IAstVisitor.OnWhileStatement(node as Boo.Lang.Compiler.Ast.WhileStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -866,7 +866,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnBreakStatement as NodeEvent[of BreakStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnBreakStatement(node as Boo.Lang.Compiler.Ast.BreakStatement) as void:
+	private def IAstVisitor.OnBreakStatement(node as Boo.Lang.Compiler.Ast.BreakStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -877,7 +877,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnContinueStatement as NodeEvent[of ContinueStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnContinueStatement(node as Boo.Lang.Compiler.Ast.ContinueStatement) as void:
+	private def IAstVisitor.OnContinueStatement(node as Boo.Lang.Compiler.Ast.ContinueStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -888,7 +888,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnReturnStatement as NodeEvent[of ReturnStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnReturnStatement(node as Boo.Lang.Compiler.Ast.ReturnStatement) as void:
+	private def IAstVisitor.OnReturnStatement(node as Boo.Lang.Compiler.Ast.ReturnStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -902,7 +902,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnYieldStatement as NodeEvent[of YieldStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnYieldStatement(node as Boo.Lang.Compiler.Ast.YieldStatement) as void:
+	private def IAstVisitor.OnYieldStatement(node as Boo.Lang.Compiler.Ast.YieldStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -916,7 +916,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnRaiseStatement as NodeEvent[of RaiseStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnRaiseStatement(node as Boo.Lang.Compiler.Ast.RaiseStatement) as void:
+	private def IAstVisitor.OnRaiseStatement(node as Boo.Lang.Compiler.Ast.RaiseStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -930,7 +930,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnUnpackStatement as NodeEvent[of UnpackStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnUnpackStatement(node as Boo.Lang.Compiler.Ast.UnpackStatement) as void:
+	private def IAstVisitor.OnUnpackStatement(node as Boo.Lang.Compiler.Ast.UnpackStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -949,7 +949,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnExpressionStatement as NodeEvent[of ExpressionStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnExpressionStatement(node as Boo.Lang.Compiler.Ast.ExpressionStatement) as void:
+	private def IAstVisitor.OnExpressionStatement(node as Boo.Lang.Compiler.Ast.ExpressionStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -963,14 +963,14 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnOmittedExpression as NodeEvent[of OmittedExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnOmittedExpression(node as Boo.Lang.Compiler.Ast.OmittedExpression) as void:
+	private def IAstVisitor.OnOmittedExpression(node as Boo.Lang.Compiler.Ast.OmittedExpression) as void:
 		handler = OnOmittedExpression
 		return if handler is null
 		handler(node)
 	public event OnExpressionPair as NodeEvent[of ExpressionPair]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnExpressionPair(node as Boo.Lang.Compiler.Ast.ExpressionPair) as void:
+	private def IAstVisitor.OnExpressionPair(node as Boo.Lang.Compiler.Ast.ExpressionPair) as void:
 	
 		lFirst = node.First
 		if lFirst is not null:
@@ -984,7 +984,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnMethodInvocationExpression as NodeEvent[of MethodInvocationExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnMethodInvocationExpression(node as Boo.Lang.Compiler.Ast.MethodInvocationExpression) as void:
+	private def IAstVisitor.OnMethodInvocationExpression(node as Boo.Lang.Compiler.Ast.MethodInvocationExpression) as void:
 	
 		lTarget = node.Target
 		if lTarget is not null:
@@ -1005,7 +1005,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnUnaryExpression as NodeEvent[of UnaryExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnUnaryExpression(node as Boo.Lang.Compiler.Ast.UnaryExpression) as void:
+	private def IAstVisitor.OnUnaryExpression(node as Boo.Lang.Compiler.Ast.UnaryExpression) as void:
 	
 		lOperand = node.Operand
 		if lOperand is not null:
@@ -1016,7 +1016,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnBinaryExpression as NodeEvent[of BinaryExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnBinaryExpression(node as Boo.Lang.Compiler.Ast.BinaryExpression) as void:
+	private def IAstVisitor.OnBinaryExpression(node as Boo.Lang.Compiler.Ast.BinaryExpression) as void:
 	
 		lLeft = node.Left
 		if lLeft is not null:
@@ -1030,7 +1030,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnConditionalExpression as NodeEvent[of ConditionalExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnConditionalExpression(node as Boo.Lang.Compiler.Ast.ConditionalExpression) as void:
+	private def IAstVisitor.OnConditionalExpression(node as Boo.Lang.Compiler.Ast.ConditionalExpression) as void:
 	
 		lCondition = node.Condition
 		if lCondition is not null:
@@ -1047,14 +1047,14 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnReferenceExpression as NodeEvent[of ReferenceExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnReferenceExpression(node as Boo.Lang.Compiler.Ast.ReferenceExpression) as void:
+	private def IAstVisitor.OnReferenceExpression(node as Boo.Lang.Compiler.Ast.ReferenceExpression) as void:
 		handler = OnReferenceExpression
 		return if handler is null
 		handler(node)
 	public event OnMemberReferenceExpression as NodeEvent[of MemberReferenceExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.MemberReferenceExpression) as void:
+	private def IAstVisitor.OnMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.MemberReferenceExpression) as void:
 	
 		lTarget = node.Target
 		if lTarget is not null:
@@ -1065,7 +1065,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnGenericReferenceExpression as NodeEvent[of GenericReferenceExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnGenericReferenceExpression(node as Boo.Lang.Compiler.Ast.GenericReferenceExpression) as void:
+	private def IAstVisitor.OnGenericReferenceExpression(node as Boo.Lang.Compiler.Ast.GenericReferenceExpression) as void:
 	
 		lTarget = node.Target
 		if lTarget is not null:
@@ -1081,84 +1081,84 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnQuasiquoteExpression as NodeEvent[of QuasiquoteExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnQuasiquoteExpression(node as Boo.Lang.Compiler.Ast.QuasiquoteExpression) as void:
+	private def IAstVisitor.OnQuasiquoteExpression(node as Boo.Lang.Compiler.Ast.QuasiquoteExpression) as void:
 		handler = OnQuasiquoteExpression
 		return if handler is null
 		handler(node)
 	public event OnStringLiteralExpression as NodeEvent[of StringLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnStringLiteralExpression(node as Boo.Lang.Compiler.Ast.StringLiteralExpression) as void:
+	private def IAstVisitor.OnStringLiteralExpression(node as Boo.Lang.Compiler.Ast.StringLiteralExpression) as void:
 		handler = OnStringLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnCharLiteralExpression as NodeEvent[of CharLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCharLiteralExpression(node as Boo.Lang.Compiler.Ast.CharLiteralExpression) as void:
+	private def IAstVisitor.OnCharLiteralExpression(node as Boo.Lang.Compiler.Ast.CharLiteralExpression) as void:
 		handler = OnCharLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnTimeSpanLiteralExpression as NodeEvent[of TimeSpanLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnTimeSpanLiteralExpression(node as Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression) as void:
+	private def IAstVisitor.OnTimeSpanLiteralExpression(node as Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression) as void:
 		handler = OnTimeSpanLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnIntegerLiteralExpression as NodeEvent[of IntegerLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnIntegerLiteralExpression(node as Boo.Lang.Compiler.Ast.IntegerLiteralExpression) as void:
+	private def IAstVisitor.OnIntegerLiteralExpression(node as Boo.Lang.Compiler.Ast.IntegerLiteralExpression) as void:
 		handler = OnIntegerLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnDoubleLiteralExpression as NodeEvent[of DoubleLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnDoubleLiteralExpression(node as Boo.Lang.Compiler.Ast.DoubleLiteralExpression) as void:
+	private def IAstVisitor.OnDoubleLiteralExpression(node as Boo.Lang.Compiler.Ast.DoubleLiteralExpression) as void:
 		handler = OnDoubleLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnNullLiteralExpression as NodeEvent[of NullLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnNullLiteralExpression(node as Boo.Lang.Compiler.Ast.NullLiteralExpression) as void:
+	private def IAstVisitor.OnNullLiteralExpression(node as Boo.Lang.Compiler.Ast.NullLiteralExpression) as void:
 		handler = OnNullLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnSelfLiteralExpression as NodeEvent[of SelfLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSelfLiteralExpression(node as Boo.Lang.Compiler.Ast.SelfLiteralExpression) as void:
+	private def IAstVisitor.OnSelfLiteralExpression(node as Boo.Lang.Compiler.Ast.SelfLiteralExpression) as void:
 		handler = OnSelfLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnSuperLiteralExpression as NodeEvent[of SuperLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSuperLiteralExpression(node as Boo.Lang.Compiler.Ast.SuperLiteralExpression) as void:
+	private def IAstVisitor.OnSuperLiteralExpression(node as Boo.Lang.Compiler.Ast.SuperLiteralExpression) as void:
 		handler = OnSuperLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnBoolLiteralExpression as NodeEvent[of BoolLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnBoolLiteralExpression(node as Boo.Lang.Compiler.Ast.BoolLiteralExpression) as void:
+	private def IAstVisitor.OnBoolLiteralExpression(node as Boo.Lang.Compiler.Ast.BoolLiteralExpression) as void:
 		handler = OnBoolLiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnRELiteralExpression as NodeEvent[of RELiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnRELiteralExpression(node as Boo.Lang.Compiler.Ast.RELiteralExpression) as void:
+	private def IAstVisitor.OnRELiteralExpression(node as Boo.Lang.Compiler.Ast.RELiteralExpression) as void:
 		handler = OnRELiteralExpression
 		return if handler is null
 		handler(node)
 	public event OnSpliceExpression as NodeEvent[of SpliceExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSpliceExpression(node as Boo.Lang.Compiler.Ast.SpliceExpression) as void:
+	private def IAstVisitor.OnSpliceExpression(node as Boo.Lang.Compiler.Ast.SpliceExpression) as void:
 	
 		lExpression = node.Expression
 		if lExpression is not null:
@@ -1169,7 +1169,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSpliceTypeReference as NodeEvent[of SpliceTypeReference]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSpliceTypeReference(node as Boo.Lang.Compiler.Ast.SpliceTypeReference) as void:
+	private def IAstVisitor.OnSpliceTypeReference(node as Boo.Lang.Compiler.Ast.SpliceTypeReference) as void:
 	
 		lExpression = node.Expression
 		if lExpression is not null:
@@ -1180,7 +1180,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSpliceMemberReferenceExpression as NodeEvent[of SpliceMemberReferenceExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSpliceMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression) as void:
+	private def IAstVisitor.OnSpliceMemberReferenceExpression(node as Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression) as void:
 	
 		lTarget = node.Target
 		if lTarget is not null:
@@ -1194,7 +1194,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSpliceTypeMember as NodeEvent[of SpliceTypeMember]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSpliceTypeMember(node as Boo.Lang.Compiler.Ast.SpliceTypeMember) as void:
+	private def IAstVisitor.OnSpliceTypeMember(node as Boo.Lang.Compiler.Ast.SpliceTypeMember) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -1213,7 +1213,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSpliceTypeDefinitionBody as NodeEvent[of SpliceTypeDefinitionBody]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSpliceTypeDefinitionBody(node as Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody) as void:
+	private def IAstVisitor.OnSpliceTypeDefinitionBody(node as Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:
@@ -1229,7 +1229,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSpliceParameterDeclaration as NodeEvent[of SpliceParameterDeclaration]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSpliceParameterDeclaration(node as Boo.Lang.Compiler.Ast.SpliceParameterDeclaration) as void:
+	private def IAstVisitor.OnSpliceParameterDeclaration(node as Boo.Lang.Compiler.Ast.SpliceParameterDeclaration) as void:
 	
 		lType = node.Type
 		if lType is not null:
@@ -1251,7 +1251,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnExpressionInterpolationExpression as NodeEvent[of ExpressionInterpolationExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnExpressionInterpolationExpression(node as Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression) as void:
+	private def IAstVisitor.OnExpressionInterpolationExpression(node as Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression) as void:
 	
 		lExpressions = node.Expressions
 		if lExpressions is not null:
@@ -1264,7 +1264,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnHashLiteralExpression as NodeEvent[of HashLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnHashLiteralExpression(node as Boo.Lang.Compiler.Ast.HashLiteralExpression) as void:
+	private def IAstVisitor.OnHashLiteralExpression(node as Boo.Lang.Compiler.Ast.HashLiteralExpression) as void:
 	
 		lItems = node.Items
 		if lItems is not null:
@@ -1277,7 +1277,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnListLiteralExpression as NodeEvent[of ListLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnListLiteralExpression(node as Boo.Lang.Compiler.Ast.ListLiteralExpression) as void:
+	private def IAstVisitor.OnListLiteralExpression(node as Boo.Lang.Compiler.Ast.ListLiteralExpression) as void:
 	
 		lItems = node.Items
 		if lItems is not null:
@@ -1290,7 +1290,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnCollectionInitializationExpression as NodeEvent[of CollectionInitializationExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCollectionInitializationExpression(node as Boo.Lang.Compiler.Ast.CollectionInitializationExpression) as void:
+	private def IAstVisitor.OnCollectionInitializationExpression(node as Boo.Lang.Compiler.Ast.CollectionInitializationExpression) as void:
 	
 		lCollection = node.Collection
 		if lCollection is not null:
@@ -1304,7 +1304,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnArrayLiteralExpression as NodeEvent[of ArrayLiteralExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnArrayLiteralExpression(node as Boo.Lang.Compiler.Ast.ArrayLiteralExpression) as void:
+	private def IAstVisitor.OnArrayLiteralExpression(node as Boo.Lang.Compiler.Ast.ArrayLiteralExpression) as void:
 	
 		lItems = node.Items
 		if lItems is not null:
@@ -1320,7 +1320,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnGeneratorExpression as NodeEvent[of GeneratorExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnGeneratorExpression(node as Boo.Lang.Compiler.Ast.GeneratorExpression) as void:
+	private def IAstVisitor.OnGeneratorExpression(node as Boo.Lang.Compiler.Ast.GeneratorExpression) as void:
 	
 		lExpression = node.Expression
 		if lExpression is not null:
@@ -1342,7 +1342,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnExtendedGeneratorExpression as NodeEvent[of ExtendedGeneratorExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnExtendedGeneratorExpression(node as Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression) as void:
+	private def IAstVisitor.OnExtendedGeneratorExpression(node as Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression) as void:
 	
 		lItems = node.Items
 		if lItems is not null:
@@ -1355,7 +1355,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSlice as NodeEvent[of Slice]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSlice(node as Boo.Lang.Compiler.Ast.Slice) as void:
+	private def IAstVisitor.OnSlice(node as Boo.Lang.Compiler.Ast.Slice) as void:
 	
 		lBegin = node.Begin
 		if lBegin is not null:
@@ -1372,7 +1372,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnSlicingExpression as NodeEvent[of SlicingExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnSlicingExpression(node as Boo.Lang.Compiler.Ast.SlicingExpression) as void:
+	private def IAstVisitor.OnSlicingExpression(node as Boo.Lang.Compiler.Ast.SlicingExpression) as void:
 	
 		lTarget = node.Target
 		if lTarget is not null:
@@ -1388,7 +1388,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnTryCastExpression as NodeEvent[of TryCastExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnTryCastExpression(node as Boo.Lang.Compiler.Ast.TryCastExpression) as void:
+	private def IAstVisitor.OnTryCastExpression(node as Boo.Lang.Compiler.Ast.TryCastExpression) as void:
 	
 		lTarget = node.Target
 		if lTarget is not null:
@@ -1402,7 +1402,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnCastExpression as NodeEvent[of CastExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCastExpression(node as Boo.Lang.Compiler.Ast.CastExpression) as void:
+	private def IAstVisitor.OnCastExpression(node as Boo.Lang.Compiler.Ast.CastExpression) as void:
 	
 		lTarget = node.Target
 		if lTarget is not null:
@@ -1416,7 +1416,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnTypeofExpression as NodeEvent[of TypeofExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnTypeofExpression(node as Boo.Lang.Compiler.Ast.TypeofExpression) as void:
+	private def IAstVisitor.OnTypeofExpression(node as Boo.Lang.Compiler.Ast.TypeofExpression) as void:
 	
 		lType = node.Type
 		if lType is not null:
@@ -1427,7 +1427,7 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnCustomStatement as NodeEvent[of CustomStatement]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCustomStatement(node as Boo.Lang.Compiler.Ast.CustomStatement) as void:
+	private def IAstVisitor.OnCustomStatement(node as Boo.Lang.Compiler.Ast.CustomStatement) as void:
 	
 		lModifier = node.Modifier
 		if lModifier is not null:
@@ -1438,14 +1438,14 @@ public partial class DepthFirstGuide(IAstVisitor):
 	public event OnCustomExpression as NodeEvent[of CustomExpression]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnCustomExpression(node as Boo.Lang.Compiler.Ast.CustomExpression) as void:
+	private def IAstVisitor.OnCustomExpression(node as Boo.Lang.Compiler.Ast.CustomExpression) as void:
 		handler = OnCustomExpression
 		return if handler is null
 		handler(node)
 	public event OnStatementTypeMember as NodeEvent[of StatementTypeMember]
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
-	def IAstVisitor.OnStatementTypeMember(node as Boo.Lang.Compiler.Ast.StatementTypeMember) as void:
+	private def IAstVisitor.OnStatementTypeMember(node as Boo.Lang.Compiler.Ast.StatementTypeMember) as void:
 	
 		lAttributes = node.Attributes
 		if lAttributes is not null:

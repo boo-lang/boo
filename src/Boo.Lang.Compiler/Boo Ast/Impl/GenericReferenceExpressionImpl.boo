@@ -77,10 +77,10 @@ public partial class GenericReferenceExpression (Expression):
 			self.Target = newNode as Expression
 			return true;
 		if _genericArguments is not null:
-			item = existing as TypeReference
-			if item is not null:
-				newItem = newNode as TypeReference
-				return true if _genericArguments.Replace(item, newItem)
+			item2 = existing as TypeReference
+			if item2 is not null:
+				newItem2 = newNode as TypeReference
+				return true if _genericArguments.Replace(item2, newItem2)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -126,7 +126,7 @@ public partial class GenericReferenceExpression (Expression):
 			if _target != value:
 				_target = value;
 				if _target is not null:
-					_target.InitializeParent(this);
+					_target.InitializeParent(self);
 
 
 
@@ -137,12 +137,12 @@ public partial class GenericReferenceExpression (Expression):
 		
 
 		get:
-			_genericArguments = TypeReferenceCollection(self)() if _genericArguments is null
+			_genericArguments = TypeReferenceCollection(self) if _genericArguments is null
 			return _genericArguments 
 		set:
 			if _genericArguments != value:
 				_genericArguments = value;
 				if _genericArguments is not null:
-					_genericArguments.InitializeParent(this);
+					_genericArguments.InitializeParent(self);
 
 

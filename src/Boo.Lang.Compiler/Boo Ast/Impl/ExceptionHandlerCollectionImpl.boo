@@ -47,6 +47,6 @@ public partial class ExceptionHandlerCollection (NodeCollection[of Boo.Lang.Comp
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public def PopRange(begin as int) as Boo.Lang.Compiler.Ast.ExceptionHandlerCollection:
-		range = Boo.Lang.Compiler.Ast.ExceptionHandlerCollection(ParentNode)
-		range.InnerList.AddRange(InternalPopRange(begin))
-		return range
+		aRange = Boo.Lang.Compiler.Ast.ExceptionHandlerCollection(ParentNode)
+		aRange.InnerList.AddRange(InternalPopRange(begin))
+		return aRange

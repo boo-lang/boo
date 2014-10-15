@@ -120,6 +120,6 @@ public partial class YieldStatement (Statement):
 			if _expression != value:
 				_expression = value;
 				if _expression is not null:
-					_expression.InitializeParent(this);
+					_expression.InitializeParent(self);
 
 

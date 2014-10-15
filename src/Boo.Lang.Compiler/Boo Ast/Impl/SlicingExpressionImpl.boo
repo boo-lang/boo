@@ -77,10 +77,10 @@ public partial class SlicingExpression (Expression):
 			self.Target = newNode as Expression
 			return true;
 		if _indices is not null:
-			item = existing as Slice
-			if item is not null:
-				newItem = newNode as Slice
-				return true if _indices.Replace(item, newItem)
+			item2 = existing as Slice
+			if item2 is not null:
+				newItem2 = newNode as Slice
+				return true if _indices.Replace(item2, newItem2)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -126,7 +126,7 @@ public partial class SlicingExpression (Expression):
 			if _target != value:
 				_target = value;
 				if _target is not null:
-					_target.InitializeParent(this);
+					_target.InitializeParent(self);
 
 
 
@@ -137,12 +137,12 @@ public partial class SlicingExpression (Expression):
 		
 
 		get:
-			_indices = SliceCollection(self)() if _indices is null
+			_indices = SliceCollection(self) if _indices is null
 			return _indices 
 		set:
 			if _indices != value:
 				_indices = value;
 				if _indices is not null:
-					_indices.InitializeParent(this);
+					_indices.InitializeParent(self);
 
 

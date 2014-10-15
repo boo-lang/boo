@@ -120,6 +120,6 @@ public partial class RaiseStatement (Statement):
 			if _exception != value:
 				_exception = value;
 				if _exception is not null:
-					_exception.InitializeParent(this);
+					_exception.InitializeParent(self);
 
 

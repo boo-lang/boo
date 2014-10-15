@@ -47,6 +47,6 @@ public partial class GeneratorExpressionCollection (NodeCollection[of Boo.Lang.C
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
 	public def PopRange(begin as int) as Boo.Lang.Compiler.Ast.GeneratorExpressionCollection:
-		range = Boo.Lang.Compiler.Ast.GeneratorExpressionCollection(ParentNode)
-		range.InnerList.AddRange(InternalPopRange(begin))
-		return range
+		aRange = Boo.Lang.Compiler.Ast.GeneratorExpressionCollection(ParentNode)
+		aRange.InnerList.AddRange(InternalPopRange(begin))
+		return aRange

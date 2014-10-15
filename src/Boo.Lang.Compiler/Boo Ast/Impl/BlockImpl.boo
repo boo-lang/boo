@@ -75,10 +75,10 @@ public partial class Block (Statement):
 			self.Modifier = newNode as StatementModifier
 			return true;
 		if _statements is not null:
-			item = existing as Statement
-			if item is not null:
-				newItem = newNode as Statement
-				return true if _statements.Replace(item, newItem)
+			item2 = existing as Statement
+			if item2 is not null:
+				newItem2 = newNode as Statement
+				return true if _statements.Replace(item2, newItem2)
 		return false;
 
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("Boo astgen.boo", "1")]
@@ -120,12 +120,12 @@ public partial class Block (Statement):
 		
 
 		get:
-			_statements = StatementCollection(self)() if _statements is null
+			_statements = StatementCollection(self) if _statements is null
 			return _statements 
 		set:
 			if _statements != value:
 				_statements = value;
 				if _statements is not null:
-					_statements.InitializeParent(this);
+					_statements.InitializeParent(self);
 
 

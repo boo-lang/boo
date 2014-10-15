@@ -111,6 +111,6 @@ public partial class ExplicitMemberInfo (Node):
 			if _interfaceType != value:
 				_interfaceType = value;
 				if _interfaceType is not null:
-					_interfaceType.InitializeParent(this);
+					_interfaceType.InitializeParent(self);
 
 

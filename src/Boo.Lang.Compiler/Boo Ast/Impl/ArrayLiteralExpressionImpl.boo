@@ -72,10 +72,10 @@ public partial class ArrayLiteralExpression (ListLiteralExpression):
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _items is not null:
-			item = existing as Expression
-			if item is not null:
-				newItem = newNode as Expression
-				return true if _items.Replace(item, newItem)
+			item1 = existing as Expression
+			if item1 is not null:
+				newItem1 = newNode as Expression
+				return true if _items.Replace(item1, newItem1)
 		if _type == existing:
 			self.Type = newNode as ArrayTypeReference
 			return true;
@@ -124,6 +124,6 @@ public partial class ArrayLiteralExpression (ListLiteralExpression):
 			if _type != value:
 				_type = value;
 				if _type is not null:
-					_type.InitializeParent(this);
+					_type.InitializeParent(self);
 
 

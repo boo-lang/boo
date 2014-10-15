@@ -133,7 +133,7 @@ public partial class Slice (Node):
 			if _begin != value:
 				_begin = value;
 				if _begin is not null:
-					_begin.InitializeParent(this);
+					_begin.InitializeParent(self);
 
 
 
@@ -146,7 +146,7 @@ public partial class Slice (Node):
 			if _end != value:
 				_end = value;
 				if _end is not null:
-					_end.InitializeParent(this);
+					_end.InitializeParent(self);
 
 
 
@@ -159,6 +159,6 @@ public partial class Slice (Node):
 			if _step != value:
 				_step = value;
 				if _step is not null:
-					_step.InitializeParent(this);
+					_step.InitializeParent(self);
 
 

@@ -127,12 +127,12 @@ public partial class UnlessStatement (ConditionalStatement):
 		get:
 			if _block is null:
 				_block = Block()
-				_block.InitializeParent(this)
+				_block.InitializeParent(self)
 			return _block
 		set:
 			if _block != value:
 				_block = value;
 				if _block is not null:
-					_block.InitializeParent(this);
+					_block.InitializeParent(self);
 
 

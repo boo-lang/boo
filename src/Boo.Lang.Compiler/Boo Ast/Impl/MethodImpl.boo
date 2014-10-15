@@ -87,36 +87,36 @@ public partial class Method (CallableDefinition, IExplicitMember, INodeWithBody)
 	override public def Replace(existing as Node, newNode as Node) as bool:
 		return true if super.Replace(existing, newNode)
 		if _attributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _attributes.Replace(item, newItem)
+			item3 = existing as Attribute
+			if item3 is not null:
+				newItem3 = newNode as Attribute
+				return true if _attributes.Replace(item3, newItem3)
 		if _parameters is not null:
-			item = existing as ParameterDeclaration
-			if item is not null:
-				newItem = newNode as ParameterDeclaration
-				return true if _parameters.Replace(item, newItem)
+			item4 = existing as ParameterDeclaration
+			if item4 is not null:
+				newItem4 = newNode as ParameterDeclaration
+				return true if _parameters.Replace(item4, newItem4)
 		if _genericParameters is not null:
-			item = existing as GenericParameterDeclaration
-			if item is not null:
-				newItem = newNode as GenericParameterDeclaration
-				return true if _genericParameters.Replace(item, newItem)
+			item5 = existing as GenericParameterDeclaration
+			if item5 is not null:
+				newItem5 = newNode as GenericParameterDeclaration
+				return true if _genericParameters.Replace(item5, newItem5)
 		if _returnType == existing:
 			self.ReturnType = newNode as TypeReference
 			return true;
 		if _returnTypeAttributes is not null:
-			item = existing as Attribute
-			if item is not null:
-				newItem = newNode as Attribute
-				return true if _returnTypeAttributes.Replace(item, newItem)
+			item7 = existing as Attribute
+			if item7 is not null:
+				newItem7 = newNode as Attribute
+				return true if _returnTypeAttributes.Replace(item7, newItem7)
 		if _body == existing:
 			self.Body = newNode as Block
 			return true;
 		if _locals is not null:
-			item = existing as Local
-			if item is not null:
-				newItem = newNode as Local
-				return true if _locals.Replace(item, newItem)
+			item9 = existing as Local
+			if item9 is not null:
+				newItem9 = newNode as Local
+				return true if _locals.Replace(item9, newItem9)
 		if _explicitInfo == existing:
 			self.ExplicitInfo = newNode as ExplicitMemberInfo
 			return true;
@@ -194,13 +194,13 @@ public partial class Method (CallableDefinition, IExplicitMember, INodeWithBody)
 		get:
 			if _body is null:
 				_body = Block()
-				_body.InitializeParent(this)
+				_body.InitializeParent(self)
 			return _body
 		set:
 			if _body != value:
 				_body = value;
 				if _body is not null:
-					_body.InitializeParent(this);
+					_body.InitializeParent(self);
 
 
 
@@ -211,13 +211,13 @@ public partial class Method (CallableDefinition, IExplicitMember, INodeWithBody)
 		
 
 		get:
-			_locals = LocalCollection(self)() if _locals is null
+			_locals = LocalCollection(self) if _locals is null
 			return _locals 
 		set:
 			if _locals != value:
 				_locals = value;
 				if _locals is not null:
-					_locals.InitializeParent(this);
+					_locals.InitializeParent(self);
 
 
 
@@ -238,6 +238,6 @@ public partial class Method (CallableDefinition, IExplicitMember, INodeWithBody)
 			if _explicitInfo != value:
 				_explicitInfo = value;
 				if _explicitInfo is not null:
-					_explicitInfo.InitializeParent(this);
+					_explicitInfo.InitializeParent(self);
 
 

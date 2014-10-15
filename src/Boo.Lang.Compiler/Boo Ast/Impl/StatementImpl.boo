@@ -92,6 +92,6 @@ public abstract partial class Statement (Node):
 			if _modifier != value:
 				_modifier = value;
 				if _modifier is not null:
-					_modifier.InitializeParent(this);
+					_modifier.InitializeParent(self);
 
 
