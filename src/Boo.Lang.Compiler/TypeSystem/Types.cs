@@ -107,7 +107,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type DuckTypedAttribute = typeof(DuckTypedAttribute);
 
-		public static readonly Type ClrExtensionAttribute = typeof(System.Runtime.CompilerServices.ExtensionAttribute);
+		public static readonly Type ClrExtensionAttribute;
 
 		public static readonly Type DllImportAttribute = typeof(System.Runtime.InteropServices.DllImportAttribute);
 
@@ -120,6 +120,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static readonly Type Nullable = typeof(Nullable<>);
 
 		public static readonly Type CompilerGeneratedAttribute = typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute);
+
+		static Type FindType(string typename, string typenamespace)
+		{
+			foreach (System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+			{
+				foreach (Type type in assembly.GetTypes())
+			    {
+			    	if(type.Name == typename && type.Namespace == typenamespace)
+			    		return type;
+			    }
+			}
+
+			return null;		
+		}
+
+		static Types()
+		{
+			// ExtensionAttribute is in System.Core for .NET 4.0 and in mscorlib for .NET 4.5.
+			// We use reflection to get the type to avoid a hardcoded reference to mscorlib that 
+			// will crash the boo compiler if it was built with .NET 4.5 and then run on .NET 4.0.
+			// Windows XP only supports .NET 4.0.
+			ClrExtensionAttribute = FindType("ExtensionAttribute", "System.Runtime.CompilerServices");	
+		}
 	}
 }
 
