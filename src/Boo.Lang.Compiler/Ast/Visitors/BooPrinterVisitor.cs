@@ -1352,7 +1352,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
       override public void OnLetClauseExpression(LetClauseExpression node)
       {
 			WriteKeyword("let ");
-			Visit(node.Identifier);
+			Write(node.Identifier);
 			Write(" = ");
 			Visit(node.Value);
 			Write(" ");         

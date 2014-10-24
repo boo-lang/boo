@@ -1789,7 +1789,6 @@ namespace Boo.Lang.Compiler.Ast
 		{				
 			if (EnterLetClauseExpression(node))
 			{
-				Visit(node.Identifier);
 				Visit(node.Value);
 				LeaveLetClauseExpression(node);
 			}

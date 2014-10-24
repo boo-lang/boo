@@ -2218,11 +2218,6 @@ namespace Boo.Lang.Compiler.Ast
 		void IAstVisitor.OnLetClauseExpression(Boo.Lang.Compiler.Ast.LetClauseExpression node)
 		{	
 			{
-				var identifier = node.Identifier;
-				if (identifier != null)
-					identifier.Accept(this);
-			}
-			{
 				var value = node.Value;
 				if (value != null)
 					value.Accept(this);

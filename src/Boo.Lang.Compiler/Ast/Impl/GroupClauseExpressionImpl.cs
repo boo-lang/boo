@@ -75,7 +75,6 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( GroupClauseExpression)node;
-			if (_tupleSize != other._tupleSize) return NoMatch("GroupClauseExpression._tupleSize");
 			if (!Node.Matches(_baseExpr, other._baseExpr)) return NoMatch("GroupClauseExpression._baseExpr");
 			if (!Node.Matches(_criterion, other._criterion)) return NoMatch("GroupClauseExpression._criterion");
 			return true;
@@ -113,7 +112,6 @@ namespace Boo.Lang.Compiler.Ast
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
-			clone._tupleSize = _tupleSize;
 			if (null != _baseExpr)
 			{
 				clone._baseExpr = _baseExpr.Clone() as Expression;

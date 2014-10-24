@@ -39,7 +39,7 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Serializable]
 	public partial class LetClauseExpression : QueryClauseExpression
 	{
-		protected Expression _identifier;
+		protected string _identifier;
 
 		protected Expression _value;
 
@@ -77,8 +77,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( LetClauseExpression)node;
-			if (_tupleSize != other._tupleSize) return NoMatch("LetClauseExpression._tupleSize");
-			if (!Node.Matches(_identifier, other._identifier)) return NoMatch("LetClauseExpression._identifier");
+			if (_identifier != other._identifier) return NoMatch("LetClauseExpression._identifier");
 			if (!Node.Matches(_value, other._value)) return NoMatch("LetClauseExpression._value");
 			return true;
 		}
@@ -88,11 +87,6 @@ namespace Boo.Lang.Compiler.Ast
 		{
 			if (base.Replace(existing, newNode))
 			{
-				return true;
-			}
-			if (_identifier == existing)
-			{
-				this.Identifier = (Expression)newNode;
 				return true;
 			}
 			if (_value == existing)
@@ -115,12 +109,7 @@ namespace Boo.Lang.Compiler.Ast
 			clone._entity = _entity;
 			if (_annotations != null) clone._annotations = (Hashtable)_annotations.Clone();
 			clone._expressionType = _expressionType;
-			clone._tupleSize = _tupleSize;
-			if (null != _identifier)
-			{
-				clone._identifier = _identifier.Clone() as Expression;
-				clone._identifier.InitializeParent(clone);
-			}
+			clone._identifier = _identifier;
 			if (null != _value)
 			{
 				clone._value = _value.Clone() as Expression;
@@ -137,10 +126,6 @@ namespace Boo.Lang.Compiler.Ast
 			_annotations = null;
 			_entity = null;
 			_expressionType = null;
-			if (null != _identifier)
-			{
-				_identifier.ClearTypeSystemBindings();
-			}
 			if (null != _value)
 			{
 				_value.ClearTypeSystemBindings();
@@ -151,21 +136,11 @@ namespace Boo.Lang.Compiler.Ast
 
 		[System.Xml.Serialization.XmlElement]
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public Expression Identifier
+		public string Identifier
 		{
 			
 			get { return _identifier; }
-			set
-			{
-				if (_identifier != value)
-				{
-					_identifier = value;
-					if (null != _identifier)
-					{
-						_identifier.InitializeParent(this);
-					}
-				}
-			}
+			set { _identifier = value; }
 
 		}
 		

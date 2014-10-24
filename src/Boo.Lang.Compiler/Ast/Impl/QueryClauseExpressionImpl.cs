@@ -39,8 +39,6 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Serializable]
 	public abstract partial class QueryClauseExpression : Expression
 	{
-		protected int _tupleSize;
-
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		new public QueryClauseExpression CloneNode()
@@ -63,7 +61,6 @@ namespace Boo.Lang.Compiler.Ast
 			if (node == null) return false;
 			if (NodeType != node.NodeType) return false;
 			var other = ( QueryClauseExpression)node;
-			if (_tupleSize != other._tupleSize) return NoMatch("QueryClauseExpression._tupleSize");
 			return true;
 		}
 
@@ -94,17 +91,6 @@ namespace Boo.Lang.Compiler.Ast
 
 		}
 	
-
-		[System.Xml.Serialization.XmlElement]
-		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
-		public int TupleSize
-		{
-			
-			get { return _tupleSize; }
-			set { _tupleSize = value; }
-
-		}
-		
 
 	}
 }

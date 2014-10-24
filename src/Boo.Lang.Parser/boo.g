@@ -2954,14 +2954,13 @@ protected
 let_clause returns [LetClauseExpression l]
 {
 	l = null;
-	Expression identifier = null;
 	Expression expr = null;
 	IToken ident = null;
 }:
-	le: LET ident=macro_name "=" expr=expression
+	le: LET ident=macro_name ASSIGN expr=expression
 	{
 		l = new LetClauseExpression(ToLexicalInfo(le));
-		l.Identifier = identifier;
+		l.Identifier = ident.getText();
 		l.Value = expr;
 	}
 ;

@@ -2846,15 +2846,6 @@ namespace Boo.Lang.Compiler.Ast
 		{	
 			if (EnterLetClauseExpression(node))
 			{
-				Expression currentIdentifierValue = node.Identifier;
-				if (null != currentIdentifierValue)
-				{			
-					Expression newValue = (Expression)VisitNode(currentIdentifierValue);
-					if (!object.ReferenceEquals(newValue, currentIdentifierValue))
-					{
-						node.Identifier = newValue;
-					}
-				}
 				Expression currentValueValue = node.Value;
 				if (null != currentValueValue)
 				{			
