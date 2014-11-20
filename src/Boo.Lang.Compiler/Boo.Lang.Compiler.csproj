@@ -456,6 +456,7 @@
     <Compile Include="Steps\CheckNeverUsedMembers.cs" />
     <Compile Include="Steps\CheckSlicingExpressions.cs" />
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
+    <Compile Include="Steps\ClosuresToExpressionTrees.cs" />
     <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
     <Compile Include="Steps\DetectNotImplementedFeatureUsage.cs" />

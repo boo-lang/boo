@@ -36,24 +36,52 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class BindBaseTypes : AbstractFastVisitorCompilerStep, ITypeMemberReifier
 	{
+		
+		private List<TypeDefinition> _fixups = new List<TypeDefinition>();
+		
+		override public void Run()
+		{
+			base.Run();
+			bool realError = false;
+			while ((_fixups.Count > 0) && !realError)
+			{
+				int fixupCount = _fixups.Count;
+				var fixups = _fixups.ToArray();
+				_fixups.Clear();
+				foreach (var fixup in fixups)
+					Visit(fixup);
+				realError = _fixups.Count == fixupCount;
+			}
+			
+			if (realError)
+				foreach (var errNode in _fixups)
+					CompilerContext.Current.Errors.Add(CompilerErrorFactory.InvalidNode(errNode));
+		}
+		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			// Visit type definition's members to resolve base types on nested types
-			Visit(node.Members);
-
-			// Resolve and check base types
-			ResolveBaseTypesOf(node);
-			CheckBaseTypes(node);
-			
-			if (node.IsFinal)
-				return;
-
-			if (((IType)node.Entity).IsFinal)
-				node.Modifiers |= TypeMemberModifiers.Final;
+			try {
+				// Visit type definition's members to resolve base types on nested types
+				Visit(node.Members);
+	
+				// Resolve and check base types
+				ResolveBaseTypesOf(node);
+				CheckBaseTypes(node);
+				
+				if (node.IsFinal)
+					return;
+	
+				if (((IType)node.Entity).IsFinal)
+					node.Modifiers |= TypeMemberModifiers.Final;
+			} catch (CompilerError e) {
+				if (e.Code == "BCE0015")
+					_fixups.Add(node);
+				else throw;
+			}
 		}
 
 		private void ResolveBaseTypesOf(TypeDefinition node)
@@ -63,8 +91,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			ResolveBaseTypesOf(node);
-			CheckInterfaceBaseTypes(node);
+			try {
+				ResolveBaseTypesOf(node);
+				CheckInterfaceBaseTypes(node);
+			} catch (CompilerError e) {
+				if (e.Code == "BCE0015")
+					_fixups.Add(node);
+				else throw;
+			}
 		}
 
 		public override void OnMethod(Method node)

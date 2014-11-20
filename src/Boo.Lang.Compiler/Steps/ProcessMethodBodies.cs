@@ -67,6 +67,11 @@ namespace Boo.Lang.Compiler.Steps
 		// for accurate error reporting during type inference
 
 		private Module _currentModule;
+		
+		public Module CurrentModule {
+			get { return _currentModule; }
+			set { _currentModule = value; }
+		}
 
 		private InternalMethod _currentMethod;
 
@@ -819,6 +824,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+			node.ReturnType = closureEntity.Method.ReturnType;
 		}
 
 		protected Method CurrentMethod

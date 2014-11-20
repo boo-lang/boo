@@ -171,6 +171,7 @@ class LocalCollection:
 class BlockExpression(Expression, INodeWithParameters, INodeWithBody):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
+	IsExpressionTree as bool
 	[auto]
 	Body as Block
 

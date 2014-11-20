@@ -998,6 +998,13 @@ namespace Boo.Lang.Compiler.Ast
 						CreateReference(node, "ReturnType"),
 						Serialize(node.ReturnType)));
 			}
+			if (ShouldSerialize(node.IsExpressionTree))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "IsExpressionTree"),
+						Serialize(node.IsExpressionTree)));
+			}
 			if (ShouldSerialize(node.Body))
 			{
 				mie.NamedArguments.Add(

@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Ast
 
 		protected TypeReference _returnType;
 
+		protected bool _isExpressionTree;
+
 		protected Block _body;
 
 
@@ -81,6 +83,7 @@ namespace Boo.Lang.Compiler.Ast
 			var other = ( BlockExpression)node;
 			if (!Node.AllMatch(_parameters, other._parameters)) return NoMatch("BlockExpression._parameters");
 			if (!Node.Matches(_returnType, other._returnType)) return NoMatch("BlockExpression._returnType");
+			if (_isExpressionTree != other._isExpressionTree) return NoMatch("BlockExpression._isExpressionTree");
 			if (!Node.Matches(_body, other._body)) return NoMatch("BlockExpression._body");
 			return true;
 		}
@@ -139,6 +142,7 @@ namespace Boo.Lang.Compiler.Ast
 				clone._returnType = _returnType.Clone() as TypeReference;
 				clone._returnType.InitializeParent(clone);
 			}
+			clone._isExpressionTree = _isExpressionTree;
 			if (null != _body)
 			{
 				clone._body = _body.Clone() as Block;
@@ -211,6 +215,17 @@ namespace Boo.Lang.Compiler.Ast
 					}
 				}
 			}
+
+		}
+		
+
+		[System.Xml.Serialization.XmlElement]
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public bool IsExpressionTree
+		{
+			
+			get { return _isExpressionTree; }
+			set { _isExpressionTree = value; }
 
 		}
 		

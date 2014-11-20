@@ -3131,7 +3131,8 @@ member returns [IToken name]
 	t2:PUBLIC { name=t2; } |
 	t3:PROTECTED { name=t3; } |
 	ev:EVENT { name=ev; } |
-	r:REF { name=r; }
+	r:REF { name=r; } |
+	y:YIELD { name=y; }
 	;
 	
 protected
