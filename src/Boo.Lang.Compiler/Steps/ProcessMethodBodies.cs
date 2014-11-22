@@ -67,11 +67,6 @@ namespace Boo.Lang.Compiler.Steps
 		// for accurate error reporting during type inference
 
 		private Module _currentModule;
-		
-		public Module CurrentModule {
-			get { return _currentModule; }
-			set { _currentModule = value; }
-		}
 
 		private InternalMethod _currentMethod;
 
@@ -93,6 +88,18 @@ namespace Boo.Lang.Compiler.Steps
 			_invocationTypeReferenceRules = new EnvironmentProvision<InvocationTypeInferenceRules>();
 			_typeChecker = new EnvironmentProvision<TypeChecker>();
 			_methodCache = new EnvironmentProvision<RuntimeMethodCache>();
+		}
+		
+		// Added to support special processing in ClosuresToExpressionTrees
+		internal Action Initialize(CompilerContext context, Method currentMethod)
+		{
+			Initialize(context);
+			_currentModule = currentMethod.GetAncestor<Module>();
+			var im = (InternalMethod)currentMethod.Entity;
+			PushMethodInfo(im);
+			var cn = CurrentNamespace;
+			EnterNamespace(im);
+			return () => EnterNamespace(cn);
 		}
 
 		override public void Run()
@@ -5750,7 +5757,7 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack.Pop();
 		}
 
-		void PushMethodInfo(InternalMethod entity)
+		public void PushMethodInfo(InternalMethod entity)
 		{
 			_methodStack.Push(_currentMethod);
 

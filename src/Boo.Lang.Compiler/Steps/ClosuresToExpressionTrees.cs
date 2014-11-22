@@ -47,17 +47,34 @@ namespace Boo.Lang.Compiler.Steps
 			
 			private TypeReference _returnType;
 			
-			private string _returnTarget;
+			private Dictionary<string, string> _args = new Dictionary<string, string>();
 			
-			public MethodInvocationExpression ReturnTarget(){
-				return ExpressionFactory("Label", new TypeofExpression(LexicalInfo.Empty, _returnType));
+			public BlockContext(Ast.BlockExpression node)
+			{
+				_returnType = node.ReturnType;
+				foreach (var arg in node.Parameters)
+					_args.Add(arg.Name, null);
 			}
 			
-			public BlockContext(TypeReference returnType)
+			public bool HasArg(string name)
 			{
-				string target = CompilerContext.Current.GetUniqueName("returnTarget");
-				_returnTarget = target;
-				_returnType = returnType;
+				return _args.ContainsKey(name);
+			}
+			
+			public bool UsesArg(string name)
+			{
+				return _args[name] != null;
+			}
+			
+			public ReferenceExpression GetArg(string name)
+			{
+				var result = _args[name];
+				if (result == null)
+				{
+					result = CompilerContext.Current.GetUniqueName("p", name);
+					_args[name] = result;
+				}
+				return new ReferenceExpression(result);
 			}
 			
 			public void AddDeclaration(Declaration node)
@@ -114,8 +131,6 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private Stack<BlockContext> _blocks = new Stack<BlockContext>();
 		
-		private Stack<Ast.BlockExpression> _lambdas = new Stack<Ast.BlockExpression>();
-		
 		override public void OnBlockExpression(Ast.BlockExpression node)
 		{
 			if (node.IsExpressionTree || Processing)
@@ -124,15 +139,21 @@ namespace Boo.Lang.Compiler.Steps
 				MethodInvocationExpression replacement = null;
 				try {
 					replacement = ConvertClosure(node);
+					var owner = node.GetAncestor<Block>();
 					ReplaceCurrentNode(replacement);
+
+					var pmb = new ProcessMethodBodies();
+					var method = node.GetAncestor<Method>();
+					var cleanup = pmb.Initialize(this.Context, method);
+					var args = (List<DeclarationStatement>)node["closureArgs"];
+					foreach (var arg in args) {
+						owner.Statements.Insert(0, arg);
+						arg.Accept(pmb);
+					}
+					replacement.Accept(pmb);
+					cleanup();
 				} finally {
 					-- _processing;
-					if (_processing == 0 && replacement != null) {
-						var pmb = new ProcessMethodBodies();
-						pmb.Initialize(this.Context);
-						pmb.CurrentModule = node.GetAncestor<Module>();
-						replacement.Accept(pmb);
-					}
 				}
 			}
 			else Visit(node.Body);
@@ -146,7 +167,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 		
 		private MethodInvocationExpression MakeGenericLambda(Ast.BlockExpression node, MethodInvocationExpression bodyExpr, 
-			List<MethodInvocationExpression> args, GenericTypeReference delegateType)
+			List<ReferenceExpression> args, GenericTypeReference delegateType)
 		{
 				var inv = ExpressionFactory(node.LexicalInfo, "Lambda", bodyExpr);
 				if (! (inv.Target is MemberReferenceExpression && ((MemberReferenceExpression)inv.Target).Name == "Lambda"))
@@ -161,46 +182,50 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private MethodInvocationExpression ConvertClosure(Ast.BlockExpression node)
 		{
-			_blocks.Push(new BlockContext(node.ReturnType));
-			_lambdas.Push(node);
+			_blocks.Push(new BlockContext(node));
 			try {
 				Visit(node.Body);
-				var args = new List<MethodInvocationExpression>();
+				var args = new List<ReferenceExpression>();
+				var declarations = new List<DeclarationStatement>();
 				var delegateType = new GenericTypeReference(node.LexicalInfo, "System.Func");
+				var parentBlock = node.GetAncestor<Ast.Block>();
 				foreach (var param in node.Parameters)
 				{
+					if (! _blocks.Peek().UsesArg(param.Name))
+						continue;
+					
 					if (param.IsByRef) {
 						Context.Errors.Add(new CompilerError(param, "Unable to convert Ref params in lambdas to expression trees"));
 						continue;
 					}
-					var arg = ExpressionFactory(param.LexicalInfo, "Parameter",
-							new TypeofExpression(param.LexicalInfo, param.Type));
-					args.Add(arg);
+					var argRef = _blocks.Peek().GetArg(param.Name);
+					var arg = new DeclarationStatement(
+						param.LexicalInfo,
+						new Declaration(param.LexicalInfo, argRef.Name),
+						ExpressionFactory(
+							param.LexicalInfo,
+							"Parameter",
+							new TypeofExpression(param.LexicalInfo, param.Type)));
+					declarations.Add(arg);
+					args.Add(argRef);
 					delegateType.GenericArguments.Add(param.Type);
 				}
 				delegateType.GenericArguments.Add(node.ReturnType);
 				var bodyExpr = ExtractBlockExpr(node.Body);
-				bodyExpr.Arguments.Add(
-					ExpressionFactory(node.LexicalInfo, "Label", _blocks.Peek().ReturnTarget()));
+				node["closureArgs"] = declarations;
 				return MakeGenericLambda(node, bodyExpr, args, delegateType);
 			} finally {
 				_blocks.Pop();
-				_lambdas.Pop();
 			}
 		}
 		
-		private MethodInvocationExpression MemberReference(Ast.Expression target)
+		private Ast.Expression MemberReference(Ast.Expression target)
 		{
 			if (target.GetType() == typeof(ReferenceExpression))
 			{
 				var name = ((ReferenceExpression)target).Name;
-				foreach (var param in _lambdas.Peek().Parameters)
-					if (param.Name == name)
-						return ExpressionFactory(
-							target.LexicalInfo,
-							"Variable",
-							new TypeofExpression(target.LexicalInfo, param.Type),
-							new StringLiteralExpression(name));
+				if (_blocks.Peek().HasArg(name))
+					return _blocks.Peek().GetArg(name);
 			}
 			return ExpressionFactory(
 				target.LexicalInfo,
@@ -261,12 +286,11 @@ namespace Boo.Lang.Compiler.Steps
 			base.OnBlock(node);
 			if (Processing) {
 				var statements = node.Statements.ToArray();
-				node.Statements.Clear();
-				var buildBlock = ExpressionFactory(node.LexicalInfo, "Block");
-				buildBlock.Arguments.AddRange(ExtractStatements(statements));
-				
-				var body = new ExpressionStatement(node.LexicalInfo, buildBlock);
-				node.Statements.Add(body);
+				if (statements.Length != 1) {
+					Context.Errors.Add(new CompilerError(node, "Blocks must contain only one expression in converting lambdas to expression trees"));
+					return;
+				}
+				ReplaceCurrentNode((ExpressionStatement)statements[0]);
 			}
 		}
 		
@@ -459,8 +483,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.OnReturnStatement(node);
 			if (Processing) {
-				var result = ExpressionFactory(node.LexicalInfo, "Return", _blocks.Peek().ReturnTarget(), node.Expression);
-				ReplaceCurrentNode(_blocks.Peek().Modify(result));
+				ReplaceCurrentNode(new ExpressionStatement(node.LexicalInfo, node.Expression));
 			}
 		}
 		
