@@ -791,6 +791,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessClosureBody(BlockExpression node)
 		{
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
 			if (node.ContainsAnnotation("inline"))
 				AddOptionalReturnStatement(node.Body);

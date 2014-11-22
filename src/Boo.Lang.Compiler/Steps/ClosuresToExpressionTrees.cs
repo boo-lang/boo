@@ -131,6 +131,11 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private Stack<BlockContext> _blocks = new Stack<BlockContext>();
 		
+		private void DeleteClosure(InternalMethod method)
+		{
+			method.Method.DeclaringType.Members.Remove(method.Method);
+		}
+		
 		override public void OnBlockExpression(Ast.BlockExpression node)
 		{
 			if (node.IsExpressionTree || Processing)
@@ -152,6 +157,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					replacement.Accept(pmb);
 					cleanup();
+					DeleteClosure((InternalMethod)node.Entity);
 				} finally {
 					-- _processing;
 				}
