@@ -89,7 +89,8 @@ namespace Boo.Lang.Compiler.Ast
 		public static bool IsPostUnaryOperator(UnaryOperatorType op)
 		{
 			return UnaryOperatorType.PostIncrement == op ||
-				UnaryOperatorType.PostDecrement == op;
+				UnaryOperatorType.PostDecrement == op ||
+				UnaryOperatorType.SafeAccess == op;
 		}
 
 		public static bool IsIncDec(Node node)

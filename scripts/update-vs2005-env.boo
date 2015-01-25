@@ -29,8 +29,12 @@ class XmlDocumentWrapper:
 			return BaseURI.AbsolutePath
 
 	def Save():
+		_document.PreserveWhitespace = false
 		_document.Save(AbsolutePath)
-		
+		# Hack: Mono doesn't obey XML formatting options, so we just handle the text
+		contents = File.ReadAllLines(AbsolutePath)
+		File.WriteAllText(AbsolutePath, join(contents, "\r\n"))
+
 class Project(XmlDocumentWrapper):
 
 	static def Load(fname as string):
@@ -92,6 +96,7 @@ def sourceFilesFor(project as Project):
 	for item as string in listFiles(Path.GetDirectoryName(baseURI.AbsolutePath)):
 		if item =~ /\.svn/: continue
 		if not item.EndsWith(".cs"): continue
+		if item =~ /\/\\(bin|obj)\/\\/: continue 
 		yield baseURI.MakeRelativeUri(System.Uri(item)).ToString()
 
 

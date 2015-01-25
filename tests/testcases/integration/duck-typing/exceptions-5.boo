@@ -1,3 +1,5 @@
+#category FailsOnMono
+
 class Foo:
 	bar:
 		set:
@@ -19,7 +21,4 @@ def firstLines(o):
 se = stackTrace({ Foo().bar = "foo" })
 de = stackTrace({ (Foo() as duck).bar = "foo" })
 assert se == de, "'${se}' != '${de}'" 
-	
-	
-
 	

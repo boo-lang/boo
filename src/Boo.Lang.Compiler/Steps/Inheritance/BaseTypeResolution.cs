@@ -75,20 +75,20 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 
 			EnterGenericParametersNamespace(type);
 
-            List<TypeDefinition> visitedNonInterfaces = null;
-            List<TypeDefinition> visitedInterfaces;
+			List<TypeDefinition> visitedNonInterfaces = null;
+			List<TypeDefinition> visitedInterfaces;
 
 			if (_typeDefinition is InterfaceDefinition)
-            {
-                visitedInterfaces = _visited;
-                // interfaces won't have noninterface base types so visitedNonInterfaces not necessary here
-            }
-            else
-            {
-                visitedNonInterfaces = _visited;
-                visitedInterfaces = new List<TypeDefinition>();
-            }
-            
+			{
+				visitedInterfaces = _visited;
+				// interfaces won't have noninterface base types so visitedNonInterfaces not necessary here
+			}
+			else
+			{
+				visitedNonInterfaces = _visited;
+				visitedInterfaces = new List<TypeDefinition>();
+			}
+			
 			foreach (var baseTypeRef in _typeDefinition.BaseTypes.ToArray())
 			{
 				NameResolutionService.ResolveTypeReference(baseTypeRef);
@@ -105,10 +105,11 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 					continue;
 				}
 
+				// Clone visited for siblings re https://github.com/bamboo/boo/issues/94
 				if (baseType is InternalInterface)
-                    CheckForCycles(baseTypeRef, baseType, visitedInterfaces);
-                else
-					CheckForCycles(baseTypeRef, baseType, visitedNonInterfaces);
+					CheckForCycles(baseTypeRef, baseType, new List<TypeDefinition>(visitedInterfaces));
+				else
+					CheckForCycles(baseTypeRef, baseType, new List<TypeDefinition>(visitedNonInterfaces));
 				
 			}
 
@@ -134,8 +135,9 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 		private void EnterGenericParametersNamespace(IType type)
 		{
 			if (type.GenericInfo != null)
-				NameResolutionService.EnterNamespace(new GenericParametersNamespaceExtender(
-				                                     	type, NameResolutionService.CurrentNamespace));
+				NameResolutionService.EnterNamespace(
+					new GenericParametersNamespaceExtender(
+						type, NameResolutionService.CurrentNamespace));
 		}
 
 		private void CheckForCycles(TypeReference baseTypeRef, AbstractInternalType baseType, List<TypeDefinition> visited)

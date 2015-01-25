@@ -35,7 +35,8 @@ namespace Boo.Lang.Compiler.Pipelines
 		public ResolveExpressions()
 		{
 			Add(new ExpandAstLiterals());
-			
+			Add(new SafeAccessOperator());
+	
 			Add(new IntroduceModuleClasses());
 			Add(new NormalizeStatementModifiers());
 			Add(new NormalizeTypeAndMemberDefinitions());

@@ -1323,6 +1323,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void cannot_convert_enum_to_single()
+		{
+			RunCompilerTestCase(@"cannot-convert-enum-to-single.boo");
+		}
+		
+		[Test]
 		public void CannotConvertFooToInt()
 		{
 			RunCompilerTestCase(@"CannotConvertFooToInt.boo");

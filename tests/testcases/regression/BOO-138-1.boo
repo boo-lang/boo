@@ -13,7 +13,7 @@ class Test:
 		Clickable.Idle += { print("closure") }
 		
 	def OnIdle1(sender as object, e as System.EventArgs):
-        print("OnIdle1")
+		print("OnIdle1")
 		
 	def OnIdle2():
 		print("OnIdle2")

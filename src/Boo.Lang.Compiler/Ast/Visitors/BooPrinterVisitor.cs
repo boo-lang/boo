@@ -684,7 +684,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnUnaryExpression(UnaryExpression node)
 		{
-			bool addParens = NeedParensAround(node) && !IsMethodInvocationArg(node);
+			bool addParens = NeedParensAround(node) && !IsMethodInvocationArg(node) && node.Operator != UnaryOperatorType.SafeAccess;
 			if (addParens)
 			{
 				Write("(");
@@ -1356,6 +1356,9 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 
 				case UnaryOperatorType.Indirection:
 					return "*";
+
+				case UnaryOperatorType.SafeAccess:
+					return "?";
 			}
 			throw new ArgumentException("op");
 		}

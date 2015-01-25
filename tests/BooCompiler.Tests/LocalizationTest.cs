@@ -37,18 +37,18 @@ namespace BooCompiler.Tests
 	[TestFixture]
 	public class LocalizationTest
 	{
-		const string TestCase = "foo class";
+		const string TestCase = "foo:\nclass";
 		
 		[Test]
 		public void TestNeutralCulture()
 		{
-			AssertCultureDependentMessage("Unexpected token: foo.", CultureInfo.InvariantCulture);
+			AssertCultureDependentMessage("Block must be indented.", CultureInfo.InvariantCulture);
 		}
 
 		[Test]
 		public void TestEnUsCulture()
 		{
-			AssertCultureDependentMessage("Unexpected token: foo.", CultureInfo.CreateSpecificCulture("en-US"));
+			AssertCultureDependentMessage("Block must be indented.", CultureInfo.CreateSpecificCulture("en-US"));
 		}
 
 		void AssertCultureDependentMessage(string message, CultureInfo culture)

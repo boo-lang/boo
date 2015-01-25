@@ -44,7 +44,7 @@ for arg in argv:
 	if arg.StartsWith("-r:"):
 		loadRequests.Add(arg.Substring(3))
 	if arg == "--nologo" or arg == "-nologo":
-	    nologo = true
+		nologo = true
 	if not arg.StartsWith("-"):
 		loadRequests.Add(arg)
 

@@ -1,3 +1,4 @@
+#category FailsOnMono
 """
 foo
 bar

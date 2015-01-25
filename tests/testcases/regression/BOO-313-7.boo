@@ -1,9 +1,9 @@
 struct Point:
-    x as int
-    y as int
+	x as int
+	y as int
 
 struct Rectangle:
-    topLeft as Point
+	topLeft as Point
 
 class Figure:
 	[property(rect)]

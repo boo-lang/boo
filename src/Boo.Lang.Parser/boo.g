@@ -73,6 +73,7 @@ tokens
 	DO="do";	
 	ELIF="elif";
 	ELSE="else";
+	END="end";
 	ENSURE="ensure";
 	ENUM="enum";
 	EVENT="event";
@@ -2858,7 +2859,8 @@ member returns [IToken name]
 	t2:PUBLIC { name=t2; } |
 	t3:PROTECTED { name=t3; } |
 	ev:EVENT { name=ev; } |
-	r:REF { name=r; }
+	r:REF { name=r; } |
+	y:YIELD { name=y; }
 	;
 	
 protected
@@ -2904,6 +2906,23 @@ slice[SlicingExpression se]
 		se.Indices.Add(new Slice(begin, end, step));
 	}
 	;
+
+
+protected
+safe_atom returns [Expression e]
+	{
+		e = null;
+		UnaryExpression ue = null;
+	}:
+	e = atom
+	(NULLABLE_SUFFIX {
+			ue = new UnaryExpression(e.LexicalInfo);
+			ue.Operator = UnaryOperatorType.SafeAccess;
+			ue.Operand = e;
+			e = ue;
+		}
+	)?
+;
 	
 protected
 slicing_expression returns [Expression e]
@@ -2916,8 +2935,9 @@ slicing_expression returns [Expression e]
 		TypeReferenceCollection genericArguments = null;
 		Expression nameSplice = null;
 		Expression initializer = null;
+		UnaryExpression ue = null;		
 	} :
-	e=atom
+	e=safe_atom
 	( options { greedy=true; }:
 		(
 			lbrack:LBRACK
@@ -2941,6 +2961,13 @@ slicing_expression returns [Expression e]
 				slice[se] (COMMA slice[se])*
 			)
 			RBRACK
+			(NULLABLE_SUFFIX {
+					ue = new UnaryExpression(e.LexicalInfo);
+					ue.Operator = UnaryOperatorType.SafeAccess;
+					ue.Operand = e;
+					e = ue;
+				}
+			)?
 		)
 		|
 		(
@@ -2954,7 +2981,7 @@ slicing_expression returns [Expression e]
 		)
 		|
 		(
-			DOT 
+			DOT
 			(
 				(
 					memberName=member
@@ -2973,6 +3000,13 @@ slicing_expression returns [Expression e]
 					}
 				)
 			)
+			(NULLABLE_SUFFIX {
+					ue = new UnaryExpression(e.LexicalInfo);
+					ue.Operator = UnaryOperatorType.SafeAccess;
+					ue.Operand = e;
+					e = ue;
+				}
+			)?
 		)
 		|
 		(
@@ -2990,6 +3024,13 @@ slicing_expression returns [Expression e]
 					)*
 				)?
 			RPAREN
+			(NULLABLE_SUFFIX {
+					ue = new UnaryExpression(e.LexicalInfo);
+					ue.Operator = UnaryOperatorType.SafeAccess;
+					ue.Operand = e;
+					e = ue;
+				}
+			)?
 			(
 				(
 					(hash_literal_test)=>initializer=hash_literal
@@ -3324,6 +3365,7 @@ identifier returns [IToken value]
 {
 using Boo.Lang.Parser.Util;
 }
+
 class BooLexer extends Lexer;
 options
 {
@@ -3359,7 +3401,12 @@ options
 		BooExpressionLexer lexer = new BooExpressionLexer(getInputState());
 		lexer.setTabSize(getTabSize());
 		lexer.setTokenCreator(tokenCreator);
-		return lexer;
+
+		// Apply the end-to-id token filter
+		var selector = new antlr.TokenStreamSelector();		
+		var filter = new EndTokenStreamFilter(lexer, END, ID);
+		selector.select(filter);
+		return selector;
 	}
 
 	internal static bool IsDigit(char ch)
@@ -3436,10 +3483,16 @@ protected ID_SUFFIX:
 ;
 
 LINE_CONTINUATION:
-	'\\'! NEWLINE
+	'\\' 
+	(
+		NEWLINE
+		| (' ' | '\t')+
+		| SL_COMMENT
+		| ML_COMMENT
+	)+
 	{ $setType(Token.SKIP); }
 	;
-	
+
 INT : 
   	("0x"(HEXDIGIT)+)(('l' | 'L') { $setType(LONG); })? |
   	DIGIT_GROUP

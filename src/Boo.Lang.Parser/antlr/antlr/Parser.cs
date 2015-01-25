@@ -422,6 +422,11 @@ namespace antlr
 		{
 			Console.Error.WriteLine(ex);
 		}
+
+		public virtual void reportError(RecognitionException ex, string rulename)
+		{
+			reportError(ex);
+		}
 		
 		/*Parser error-reporting function can be overridden in subclass */
 		public virtual void reportError(string s)

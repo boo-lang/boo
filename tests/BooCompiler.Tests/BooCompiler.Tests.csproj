@@ -152,6 +152,7 @@
     <Compile Include="LinqIntegrationTestFixture.cs" />
     <Compile Include="LocalizationTest.cs" />
     <Compile Include="MacrosTestFixture.cs" />
+    <Compile Include="MetaMethodsTest.cs" />
     <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />
     <Compile Include="ModulesIntegrationTestFixture.cs" />
     <Compile Include="MyTest.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="StdlibTestFixture.cs" />
     <Compile Include="Steps\InjectImplicitBooleanConversionsTest.cs" />
     <Compile Include="Steps\MacroProcessing\MacroExpanderTest.cs" />
+    <Compile Include="StringExtensions.cs" />
     <Compile Include="SupportingClasses\AbstractClass.cs" />
     <Compile Include="SupportingClasses\BaseInterface.cs" />
     <Compile Include="SupportingClasses\BOO313BaseClass.cs" />

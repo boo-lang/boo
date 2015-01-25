@@ -6,9 +6,9 @@ after 2
 2
 """
 struct Vector3:
-    x as single
-    y as single
-    z as single
+	x as single
+	y as single
+	z as single
 
 class Test:
 	public transform = Transform()

@@ -3015,7 +3015,7 @@ public class CSharpCodeGenerator extends CodeGenerator {
 				println("{");
 				tabs++;
 			}
-			println("reportError(ex);");
+			println("reportError(ex, \"" + s.getId() + "\");");
 			if ( !(grammar instanceof TreeWalkerGrammar) )
 			{
 				// Generate code to consume until token in k==1 follow set
@@ -3088,7 +3088,9 @@ public class CSharpCodeGenerator extends CodeGenerator {
 		}
 
 		if ( grammar.debuggingOutput || grammar.traceRules) {
+			if (grammar.buildAST) { 
 				println("ASTPair.PutInstance(currentAST);");
+			}
 			tabs--;
 			println("}");
 			println("finally");

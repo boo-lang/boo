@@ -48,7 +48,7 @@ class InteractiveInterpreterTestFixture:
 		_interpreter = InteractiveInterpreter()
 		_interpreter.SetValue("name", "boo")
 		_interpreter.SetValue("age", 3)	
-		
+
 	[Test]
 	def DefaultValues():
 		assert false == _interpreter.RememberLastValue
@@ -474,7 +474,20 @@ def foo():
 		
 value = foo()""")
 		assert "2" == _interpreter.GetValue("value")
+	
+	[Test]
+	def SafeAccessUnary():
+		Eval("s1 = 'foo'; value = s1?.Length")
+		assert 3 == _interpreter.GetValue("value")
+		Eval("s2 as string = null; value = s2?.Length")
+		assert null == _interpreter.GetValue("value")
 
+	[Test]
+	def ExistentialUnary():
+		Eval("s = 'foo' ; value = s?")
+		assert true == _interpreter.GetValue("value")
+		Eval("s = null ; value = s?")
+		assert false == _interpreter.GetValue("value")
 		
 	def Eval(code as string):
 		AssertNoErrors _interpreter.Eval(code)
