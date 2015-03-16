@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): "src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" -> "PreProcessorExpressionLexer.boo"$
+// $ANTLR 2.7.5 (20131102): "src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" -> "PreProcessorExpressionLexer.boo"$
 
 namespace Boo.Lang.Useful.IO.Impl
 // Generate header specific to lexer Boo file
@@ -61,7 +61,7 @@ class PreProcessorExpressionLexer(antlr.CharScanner, TokenStream):
 	private def initialize():
 		caseSensitiveLiterals = true
 		setCaseSensitive(true)
-		literals = Hashtable(100, 0.4, null, Comparer.Default)
+		literals = Hashtable(100, 0.4f, null, Comparer.Default)
 	
 	override def nextToken() as IToken:
 		theRetToken as IToken

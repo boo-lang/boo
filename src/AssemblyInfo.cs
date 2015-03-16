@@ -36,6 +36,6 @@ using System.Security;
 [assembly: AssemblyCopyright("(C) 2003-2013 Rodrigo Barreto de Oliveira, (C) 2013-2014 Harald Meyer auf'm Hofe")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.9.6.1")]
+[assembly: AssemblyVersion("2.9.6.3")]
 [assembly: AssemblyDelaySign(false)]
 

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20131102): "boo.g" -> "BooParserBase.cs"$
+// $ANTLR 2.7.5 (20131102): "src/Boo.Lang.Parser/boo.g" -> "BooParserBase.cs"$
 
 namespace Boo.Lang.Parser
 {
@@ -1939,6 +1939,7 @@ _loop202_breakloop:				;
 						case PROTECTED:
 						case REF:
 						case SET:
+						case YIELD:
 						case ID:
 						case SPLICE_BEGIN:
 						{
@@ -1967,6 +1968,7 @@ _loop202_breakloop:				;
 										case PROTECTED:
 										case REF:
 										case SET:
+										case YIELD:
 										case ID:
 										{
 											id=member();
@@ -4400,6 +4402,7 @@ _loop166_breakloop:								;
 				case PROTECTED:
 				case REF:
 				case SET:
+				case YIELD:
 				case ID:
 				{
 					id=member();
@@ -4757,6 +4760,7 @@ _loop114_breakloop:				;
 		IToken  t3 = null;
 		IToken  ev = null;
 		IToken  r = null;
+		IToken  y = null;
 		
 				name = null;
 			
@@ -4841,6 +4845,16 @@ _loop114_breakloop:				;
 				if (0==inputState.guessing)
 				{
 					name=r;
+				}
+				break;
+			}
+			case YIELD:
+			{
+				y = LT(1);
+				match(YIELD);
+				if (0==inputState.guessing)
+				{
+					name=y;
 				}
 				break;
 			}
@@ -5991,6 +6005,7 @@ _loop591_breakloop:										;
 								case PROTECTED:
 								case REF:
 								case SET:
+								case YIELD:
 								case ID:
 								{
 									{
@@ -16012,7 +16027,7 @@ _loop627_breakloop:				;
 	public static readonly BitSet tokenSet_6_ = new BitSet(mk_tokenSet_6_());
 	private static long[] mk_tokenSet_7_()
 	{
-		long[] data = { 3157167522465337344L, 43655447L, 0L, 0L};
+		long[] data = { 3157167522465337344L, 43656471L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_7_ = new BitSet(mk_tokenSet_7_());
@@ -16132,7 +16147,7 @@ _loop627_breakloop:				;
 	public static readonly BitSet tokenSet_26_ = new BitSet(mk_tokenSet_26_());
 	private static long[] mk_tokenSet_27_()
 	{
-		long[] data = { 2990392490109960192L, 131072L, 0L, 0L};
+		long[] data = { 2990392490109960192L, 132096L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_27_ = new BitSet(mk_tokenSet_27_());
@@ -16168,7 +16183,7 @@ _loop627_breakloop:				;
 	public static readonly BitSet tokenSet_32_ = new BitSet(mk_tokenSet_32_());
 	private static long[] mk_tokenSet_33_()
 	{
-		long[] data = { 2990392490109960192L, 8519680L, 0L, 0L};
+		long[] data = { 2990392490109960192L, 8520704L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_33_ = new BitSet(mk_tokenSet_33_());
@@ -16204,7 +16219,7 @@ _loop627_breakloop:				;
 	public static readonly BitSet tokenSet_38_ = new BitSet(mk_tokenSet_38_());
 	private static long[] mk_tokenSet_39_()
 	{
-		long[] data = { -1453656410125610240L, 575902203143764983L, 0L, 0L};
+		long[] data = { -1453656410125610240L, 575902203143766007L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_39_ = new BitSet(mk_tokenSet_39_());
@@ -16360,7 +16375,7 @@ _loop627_breakloop:				;
 	public static readonly BitSet tokenSet_64_ = new BitSet(mk_tokenSet_64_());
 	private static long[] mk_tokenSet_65_()
 	{
-		long[] data = { 7602078508537348096L, 8519680L, 0L, 0L};
+		long[] data = { 7602078508537348096L, 8520704L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_65_ = new BitSet(mk_tokenSet_65_());
