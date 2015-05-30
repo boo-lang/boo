@@ -798,7 +798,7 @@ _loop23_breakloop:				;
 		IToken  g = null;
 		IToken  b = null;
 		
-			name = null;
+			name = new BooToken();
 		
 		
 		try {      // for error handling
@@ -2177,6 +2177,7 @@ _loop200_breakloop:				;
 				case REF:
 				case SET:
 				case THEN:
+				case YIELD:
 				case LET:
 				case WHERE:
 				case JOIN:
@@ -2218,6 +2219,7 @@ _loop200_breakloop:				;
 								case REF:
 								case SET:
 								case THEN:
+								case YIELD:
 								case LET:
 								case WHERE:
 								case JOIN:
@@ -4882,6 +4884,7 @@ _loop164_breakloop:								;
 				case REF:
 				case SET:
 				case THEN:
+				case YIELD:
 				case LET:
 				case WHERE:
 				case JOIN:
@@ -5283,6 +5286,7 @@ _loop114_breakloop:				;
 		IToken  t3 = null;
 		IToken  ev = null;
 		IToken  r = null;
+		IToken  y = null;
 		
 				name = null;
 				IToken id = null;
@@ -5380,6 +5384,16 @@ _loop114_breakloop:				;
 				if (0==inputState.guessing)
 				{
 					name=r;
+				}
+				break;
+			}
+			case YIELD:
+			{
+				y = LT(1);
+				match(YIELD);
+				if (0==inputState.guessing)
+				{
+					name=y;
 				}
 				break;
 			}
@@ -6578,6 +6592,7 @@ _loop614_breakloop:										;
 								case REF:
 								case SET:
 								case THEN:
+								case YIELD:
 								case LET:
 								case WHERE:
 								case JOIN:
@@ -9990,6 +10005,7 @@ _loop289_breakloop:						;
 			if (0==inputState.guessing)
 			{
 				
+					
 						stmt = new LabelStatement(ToLexicalInfo(token), label.getText());
 					
 			}
@@ -10116,8 +10132,8 @@ _loop289_breakloop:						;
 		
 				fs = null;
 				Expression iterator = null;
-				DeclarationCollection declarations = null;
-				Block body = null;
+				var declarations = new DeclarationCollection();
+				var body = new Block();
 			
 		
 		try {      // for error handling
@@ -15435,7 +15451,9 @@ _loop595_breakloop:							;
 {
 		
 		
-			var clauses = q.Clauses;
+			//If we're in guessing mode, it's possible for q to be null here.
+			//This can happen if we're parsing a macro invocation.
+			var clauses = q != null ? q.Clauses : new ExpressionCollection();
 			QueryEndingExpression e = null;
 			QueryContinuationExpression c = null;
 		
@@ -17799,7 +17817,7 @@ _loop650_breakloop:				;
 	public static readonly BitSet tokenSet_7_ = new BitSet(mk_tokenSet_7_());
 	private static long[] mk_tokenSet_8_()
 	{
-		long[] data = { 3157167522465320960L, 53695478039L, 0L, 0L};
+		long[] data = { 3157167522465320960L, 53695479063L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_8_ = new BitSet(mk_tokenSet_8_());
@@ -17919,7 +17937,7 @@ _loop650_breakloop:				;
 	public static readonly BitSet tokenSet_27_ = new BitSet(mk_tokenSet_27_());
 	private static long[] mk_tokenSet_28_()
 	{
-		long[] data = { 2990392490109960192L, 34368124932L, 0L, 0L};
+		long[] data = { 2990392490109960192L, 34368125956L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_28_ = new BitSet(mk_tokenSet_28_());
@@ -17955,7 +17973,7 @@ _loop650_breakloop:				;
 	public static readonly BitSet tokenSet_33_ = new BitSet(mk_tokenSet_33_());
 	private static long[] mk_tokenSet_34_()
 	{
-		long[] data = { 2990392490109960192L, 51547994116L, 0L, 0L};
+		long[] data = { 2990392490109960192L, 51547995140L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_34_ = new BitSet(mk_tokenSet_34_());
@@ -17973,7 +17991,7 @@ _loop650_breakloop:				;
 	public static readonly BitSet tokenSet_36_ = new BitSet(mk_tokenSet_36_());
 	private static long[] mk_tokenSet_37_()
 	{
-		long[] data = { -1453656392945741056L, -2287817349367071753L, 127L, 0L, 0L, 0L};
+		long[] data = { -1453656392945741056L, -2287817349367070729L, 127L, 0L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_37_ = new BitSet(mk_tokenSet_37_());
@@ -18153,7 +18171,7 @@ _loop650_breakloop:				;
 	public static readonly BitSet tokenSet_66_ = new BitSet(mk_tokenSet_66_());
 	private static long[] mk_tokenSet_67_()
 	{
-		long[] data = { 7602078508537348096L, 51547994116L, 0L, 0L};
+		long[] data = { 7602078508537348096L, 51547995140L, 0L, 0L};
 		return data;
 	}
 	public static readonly BitSet tokenSet_67_ = new BitSet(mk_tokenSet_67_());

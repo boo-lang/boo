@@ -33,6 +33,8 @@ using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Environments;
+using Boo.Lang.Compiler.TypeSystem.Services;
 	
 namespace Boo.Lang.Compiler.Steps
 {
@@ -391,6 +393,13 @@ namespace Boo.Lang.Compiler.Steps
 							(IConstructor)constructor.Entity,
 							CodeBuilder.CreateReference(param)),
 						CodeBuilder.CreateAddressOfExpression(invoke.Entity))));
+			
+			var collector = new GenericTypeCollector();
+			adaptor.ClassDefinition.Accept(collector);
+			foreach(var gen in collector.GenericParameters)
+			{
+				adaptor.AddGenericParameter(gen.Name);
+			}
 			
 			RegisterAdaptor(to, from, adaptor.ClassDefinition);
 			

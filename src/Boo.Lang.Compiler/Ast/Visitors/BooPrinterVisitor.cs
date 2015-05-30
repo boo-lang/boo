@@ -777,16 +777,25 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			Visit(e.Target);
 			Write("(");
-			WriteCommaSeparatedList(e.Arguments);
-			if (e.NamedArguments.Count > 0)
+			if ((e.Arguments.Count > 0) && (e.NamedArguments.Count == 0) && (e.Arguments.Last is BlockExpression))
 			{
-				if (e.Arguments.Count > 0)
+				var args = e.Arguments.ToArray();
+				Array.Resize(ref args, args.Length - 1);
+				WriteCommaSeparatedList(args);
+				Write(")");
+				Visit(e.Arguments.Last);
+			} else {
+				WriteCommaSeparatedList(e.Arguments);
+				if (e.NamedArguments.Count > 0)
 				{
-					Write(", ");
+					if (e.Arguments.Count > 0)
+					{
+						Write(", ");
+					}
+					WriteCommaSeparatedList(e.NamedArguments);
 				}
-				WriteCommaSeparatedList(e.NamedArguments);
+				Write(")");
 			}
-			Write(")");
 		}
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)

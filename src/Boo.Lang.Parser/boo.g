@@ -1521,7 +1521,7 @@ macro_stmt returns [MacroStatement returnValue]
 protected
 macro_name returns [antlr.IToken name]
 {
-	name = null;
+	name = new BooToken();
 }:
 	id:ID { name = id; }
 	| then:THEN { name = then; }
@@ -1533,7 +1533,7 @@ macro_name returns [antlr.IToken name]
 		o:ON {name = o;} |
 		e:EQUALS {name = e;} |
 		i:INTO {name = i;} |
-		r: ORDERBY {name = r;} |
+		r:ORDERBY {name = r;} |
 		a:ASCENDING {name = a;} |
 		d:DESCENDING {name = d;} |
 		s:SELECT {name = s;} |
@@ -1563,6 +1563,7 @@ label_stmt returns [LabelStatement stmt]
 	}:
 	token:COLON label=macro_name
 	{
+	
 		stmt = new LabelStatement(ToLexicalInfo(token), label.getText());
 	}
 	;
@@ -2048,8 +2049,8 @@ for_stmt returns [ForStatement fs]
 	{
 		fs = null;
 		Expression iterator = null;
-		DeclarationCollection declarations = null;
-		Block body = null;
+		var declarations = new DeclarationCollection();
+		var body = new Block();
 	}:
 	f:FOR
 	{
@@ -2922,7 +2923,9 @@ from_clause returns [FromClauseExpression f]
 
 protected query_body [QueryExpression q]
 {
-	var clauses = q.Clauses;
+	//If we're in guessing mode, it's possible for q to be null here.
+	//This can happen if we're parsing a macro invocation.
+	var clauses = q != null ? q.Clauses : new ExpressionCollection();
 	QueryEndingExpression e = null;
 	QueryContinuationExpression c = null;
 }:

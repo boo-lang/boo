@@ -548,6 +548,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return DowncastScore;
 			
 			if (argumentType is AnonymousCallableType && parameterType is ExternalType &&
+				((ExternalType)parameterType).BaseType != null &&
 				((ExternalType)parameterType).BaseType.FullName == "System.Linq.Expressions.LambdaExpression" &&
 				IsLambdaAssignableToExpressionTree((ExternalType)parameterType, (AnonymousCallableType)argumentType))
 				return UpCastScore;

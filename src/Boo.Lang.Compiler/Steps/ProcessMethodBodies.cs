@@ -1061,6 +1061,7 @@ namespace Boo.Lang.Compiler.Steps
 		static void SetPropertyAccessorOverride(Method accessor)
 		{
 			if (null == accessor) return;
+			if ((accessor.Modifiers & TypeMemberModifiers.New) == TypeMemberModifiers.New) return;
 			accessor.Modifiers |= TypeMemberModifiers.Override;
 		}
 
@@ -1099,7 +1100,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void PropagateOverrideToAccessors(Property property)
 		{
-			if (property.IsOverride)
+			if (property.IsOverride && !property.IsNew)
 			{
 				SetPropertyAccessorOverride(property.Getter);
 				SetPropertyAccessorOverride(property.Setter);
@@ -1968,7 +1969,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			if (AlreadyBound(node))
-                return;
+				return;
 
 			IEntity entity = ResolveName(node, node.Name);
 			if (null == entity)
@@ -2007,34 +2008,34 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private IType GetElementType(ITypedEntity entity)
 		{
-      		var type = (entity).Type;		   
-   		   var IEnum = (from intf in type.GetInterfaces()
-   		                where intf.Name.StartsWith("IEnumerable")
-   		                orderby intf.Name.Length descending
-   		                select intf).FirstOrDefault();
-   		   return GetEnumeratorItemType(IEnum);
+			var type = (entity).Type;		   
+			var IEnum = (from intf in type.GetInterfaces()
+			             where intf.Name.StartsWith("IEnumerable")
+			             orderby intf.Name.Length descending
+			             select intf).FirstOrDefault();
+			return GetEnumeratorItemType(IEnum);
 		}
 		
 		override public void OnFromClauseExpression(FromClauseExpression node)
 		{
-		   Visit(node.Container);
-		   var entity = node.Container.Entity as ITypedEntity;
-		   if (node.Identifier.Type == null)
-		   {
-   		   var elType = GetElementType(entity);
-   		   node.Identifier.Type = TypeReference.Lift(elType.FullName);
-   		   entity = DeclareLocal(node.Identifier, node.Identifier.Name, GetElementType(entity)) as ITypedEntity;
-		   } else {
-		      Visit(node.Identifier.Type);
-		      entity = node.Identifier.Type.Entity as ITypedEntity;
-		   }
-   		_ranges.Add(node.Identifier.Name, entity);
+			Visit(node.Container);
+			var entity = node.Container.Entity as ITypedEntity;
+			if (node.Identifier.Type == null)
+			{
+				var elType = GetElementType(entity);
+				node.Identifier.Type = TypeReference.Lift(elType.FullName);
+				entity = DeclareLocal(node.Identifier, node.Identifier.Name, GetElementType(entity)) as ITypedEntity;
+			} else {
+				Visit(node.Identifier.Type);
+				entity = node.Identifier.Type.Entity as ITypedEntity;
+			}
+			_ranges.Add(node.Identifier.Name, entity);
 		}
 		
 		override public void OnQueryExpression(QueryExpression node)
 		{
-		   base.OnQueryExpression(node);
-		   _ranges.Clear();
+			base.OnQueryExpression(node);
+			_ranges.Clear();
 		}
 		
 		private static bool AlreadyBound(ReferenceExpression node)
@@ -5430,9 +5431,12 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!IsError(type))
 			{
-				if (type is IGenericParameter)
-					Error(CompilerErrorFactory.CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(sourceNode, type));
-				else
+				if (type is IGenericParameter) {
+					/*if (((IGenericParameter)type).MustHaveDefaultConstructor)
+						new InternalGenericMapping(
+					else*/
+						Error(CompilerErrorFactory.CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(sourceNode, type));
+				} else
 					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type, GetSignature(arguments)));
 			}
 			return null;
@@ -5475,15 +5479,22 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			var candidate = candidates[0];
-			var constructor = candidate as IConstructor;
-			if (constructor != null)
+			if (candidates.Length > 0)
 			{
-				Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, constructor.DeclaringType, GetSignature(args)));
+				var candidate = candidates[0];
+				var constructor = candidate as IConstructor;
+				if (constructor != null)
+				{
+					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, constructor.DeclaringType, GetSignature(args)));
+				}
+				else
+				{
+					Error(CompilerErrorFactory.NoApropriateOverloadFound(sourceNode, GetSignature(args), candidate.FullName));
+				}
 			}
 			else
 			{
-				Error(CompilerErrorFactory.NoApropriateOverloadFound(sourceNode, GetSignature(args), candidate.FullName));
+				Error(CompilerErrorFactory.UnknownIdentifier(sourceNode, sourceNode.ToString()));
 			}
 		}
 

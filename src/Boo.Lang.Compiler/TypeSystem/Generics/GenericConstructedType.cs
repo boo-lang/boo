@@ -192,12 +192,24 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			if (other == null)
 				return false;
 
-			if (other == this || other.IsSubclassOf(this) || (other.IsNull() && !IsValueType))
+			if (other == this || other.IsSubclassOf(this) || (other.IsNull() && !IsValueType) || IsGenericAssignableFrom(other))
 				return true;
 
 			return false;
 		}
 
+		public bool IsGenericAssignableFrom(IType other)
+		{
+			var ci = this.ConstructedInfo;
+			if (ci == null)
+				return false;
+			var gd = ci.GenericDefinition;
+			if (gd == null)
+				return false;
+			
+			return gd.IsAssignableFrom(other);
+		}
+		
 		public IGenericTypeInfo GenericInfo
 		{
 			get { return _definition.GenericInfo; }

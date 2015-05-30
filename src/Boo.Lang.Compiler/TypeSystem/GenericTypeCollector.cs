@@ -28,73 +28,46 @@
 
 
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using Boo.Lang.Compiler.Ast;
 
-namespace Boo.Lang.Compiler.TypeSystem.Generics
+namespace Boo.Lang.Compiler.TypeSystem
 {
-	class GenericMappedTypeParameter : AbstractGenericParameter
+	public class GenericTypeCollector : FastDepthFirstVisitor
 	{
-		IGenericParameter _source;
-		GenericMapping _mapping;
-
-		public GenericMappedTypeParameter(TypeSystemServices tss, IGenericParameter source, GenericMapping mapping) : base(tss)
+		private class DistinctGenericComparer : IEqualityComparer<IGenericParameter>
 		{
-			_source = source;
-			_mapping = mapping;
-		}
-
-		public IGenericParameter Source
-		{
-			get { return _source; }
-		}
-
-		public GenericMapping GenericMapping
-		{
-			get { return _mapping; }
-		}
-
-		public override int GenericParameterPosition
-		{
-			get { return Source.GenericParameterPosition; }
+			public bool Equals(IGenericParameter l, IGenericParameter r)
+			{
+				return l.GenericParameterPosition == r.GenericParameterPosition;
+			}
+			
+			public int GetHashCode(IGenericParameter param)
+			{
+				return param.GenericParameterPosition;
+			}
 		}
 		
-		public override bool HasBaseTypes()
+		private List<IGenericParameter> _matches;
+		
+		public GenericTypeCollector()
 		{
-			return Source.HasBaseTypes();
+			_matches = new List<IGenericParameter>();
+		}
+		
+		override public void OnReferenceExpression(ReferenceExpression node)
+		{
+			var genericParameterRef = node.Entity as IGenericParameter;
+			if (genericParameterRef != null)
+				_matches.Add(genericParameterRef);
+		}
+		
+		public IEnumerable<IType> GenericParameters
+		{
+			get { return _matches.Cast<IGenericParameter>().Distinct(new DistinctGenericComparer()).
+						OrderBy(p => p.GenericParameterPosition); }
 		}
 
-		public override IType[] GetTypeConstraints()
-		{
-			return Array.ConvertAll<IType, IType>(Source.GetTypeConstraints(), _mapping.MapType);
-		}
-
-		public override IEntity DeclaringEntity
-		{
-			get { return _mapping.Map(Source.DeclaringEntity); }
-		}
-
-		public override string Name
-		{
-			get { return Source.Name; }
-		}
-
-		public override bool MustHaveDefaultConstructor
-		{
-			get { return Source.MustHaveDefaultConstructor; }
-		}
-
-		public override Variance Variance
-		{
-			get { return Source.Variance; }
-		}
-
-		public override bool IsClass
-		{
-			get { return Source.IsClass; }
-		}
-
-		public override bool IsValueType
-		{
-			get { return Source.IsValueType; }
-		}
 	}
 }

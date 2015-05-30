@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
@@ -94,6 +95,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			var name = GenerateCallableTypeNameFrom(sourceNode, module);
 
 			ClassDefinition cd = My<CallableTypeBuilder>.Instance.CreateEmptyCallableDefinition(name);
+
 			cd.Annotate(AnonymousCallableTypeAnnotation);
 			cd.Modifiers |= TypeMemberModifiers.Public;
 			cd.LexicalInfo = sourceNode.LexicalInfo;
@@ -104,8 +106,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			cd.Members.Add(beginInvoke);
 
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
+			var collector = new GenericTypeCollector();
+			cd.Accept(collector);
+			var parameters = collector.GenericParameters.ToArray();
+			for (var i = 0; i < parameters.Length; ++i)
+			{
+				cd.GenericParameters.Add(CodeBuilder.CreateGenericParameterDeclaration(i, parameters[i].Name));
+			}
 			module.Members.Add(cd);
-
 			return (IType)cd.Entity;
 		}
 

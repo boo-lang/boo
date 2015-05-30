@@ -85,6 +85,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		public bool HasBaseTypes()
+		{
+			return GetTypeConstraints().Length > 0;
+		}
+		
 		public IType[] GetTypeConstraints()
 		{
 			return Array.ConvertAll<Type, IType>(

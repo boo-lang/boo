@@ -66,7 +66,11 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 
 		private INamespace ParentNamespaceOf(TypeDefinition typeDefinition)
 		{
-			return (INamespace) GetEntity(typeDefinition.ParentNode);
+			var pn = typeDefinition.ParentNode;
+			//prevent BCE0015 on classes declared inside a macro
+			if (pn is TypeMemberStatement)
+				return NameResolutionService.GlobalNamespace;
+			return (INamespace) GetEntity(pn);
 		}
 
 		private void Run()

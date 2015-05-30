@@ -1,5 +1,4 @@
 ﻿using System;
-//using System.Linq.Expressions;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
@@ -87,7 +86,7 @@ namespace Boo.Lang.Compiler.Steps
 				CurrentModifier = null;
 			}
 			
-			public ExpressionStatement Modify(Boo.Lang.Compiler.Ast.Expression expr)
+			public ExpressionStatement Modify(Ast.Expression expr)
 			{
 				try {
 					if (CurrentModifier == null || CurrentModifier.Type == StatementModifierType.None)
@@ -239,7 +238,7 @@ namespace Boo.Lang.Compiler.Steps
 				target);
 		}
 
-		public override void OnMemberReferenceExpression(Boo.Lang.Compiler.Ast.MemberReferenceExpression node)
+		public override void OnMemberReferenceExpression(Ast.MemberReferenceExpression node)
 		{
 			if (Processing) {
 				Visit(node.Target);
@@ -262,32 +261,32 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnMemberReferenceExpression(node);
 		}
 
-		public override void OnDeclaration(Boo.Lang.Compiler.Ast.Declaration node)
+		public override void OnDeclaration(Ast.Declaration node)
 		{
 			if (Processing)
 				_blocks.Peek().AddDeclaration(node);
 		}
 		
-		public override void OnStatementModifier(Boo.Lang.Compiler.Ast.StatementModifier node)
+		public override void OnStatementModifier(Ast.StatementModifier node)
 		{
 			if (Processing)
 				_blocks.Peek().CurrentModifier = node;
 		}
 		
-		public override void OnGotoStatement(Boo.Lang.Compiler.Ast.GotoStatement node)
+		public override void OnGotoStatement(Ast.GotoStatement node)
 		{
 			if (Processing)
 				Context.Errors.Add(new CompilerError(node, "Gotos are not supported in converting lambdas to expression trees"));
 		}
 		
-		private IEnumerable<Boo.Lang.Compiler.Ast.Expression> ExtractStatements(IEnumerable<Statement> statements)
+		private IEnumerable<Ast.Expression> ExtractStatements(IEnumerable<Statement> statements)
 		{
 			foreach (var statement in statements)
 				if (statement is ExpressionStatement)
 					yield return ((ExpressionStatement)statement).Expression;
 		}
 		
-		public override void OnBlock(Boo.Lang.Compiler.Ast.Block node)
+		public override void OnBlock(Ast.Block node)
 		{
 			base.OnBlock(node);
 			if (Processing) {
@@ -300,7 +299,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnDeclarationStatement(Boo.Lang.Compiler.Ast.DeclarationStatement node)
+		public override void OnDeclarationStatement(Ast.DeclarationStatement node)
 		{
 			base.OnDeclarationStatement(node);
 			if (Processing) {
@@ -392,7 +391,7 @@ namespace Boo.Lang.Compiler.Steps
 			return NestedTryBlock(fault, "TryFinally", node.EnsureBlock);
 		}
 		
-		public override void OnTryStatement(Boo.Lang.Compiler.Ast.TryStatement node)
+		public override void OnTryStatement(Ast.TryStatement node)
 		{
 			base.OnTryStatement(node);
 			if (Processing) {
@@ -416,7 +415,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnExceptionHandler(Boo.Lang.Compiler.Ast.ExceptionHandler node)
+		public override void OnExceptionHandler(Ast.ExceptionHandler node)
 		{
 			if (Processing) { //don't process the declaration node
 				Ast.Expression currentFilterConditionValue = node.FilterCondition;
@@ -442,7 +441,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnExceptionHandler(node);
 		}
 		
-		public override void OnIfStatement(Boo.Lang.Compiler.Ast.IfStatement node)
+		public override void OnIfStatement(Ast.IfStatement node)
 		{
 			base.OnIfStatement(node);
 			if (Processing) {
@@ -458,7 +457,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnUnlessStatement(Boo.Lang.Compiler.Ast.UnlessStatement node)
+		public override void OnUnlessStatement(Ast.UnlessStatement node)
 		{
 			base.OnUnlessStatement(node);
 			if (Processing) {
@@ -469,7 +468,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnForStatement(Boo.Lang.Compiler.Ast.ForStatement node)
+		public override void OnForStatement(Ast.ForStatement node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -477,7 +476,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnForStatement(node);
 		}
 		
-		public override void OnWhileStatement(Boo.Lang.Compiler.Ast.WhileStatement node)
+		public override void OnWhileStatement(Ast.WhileStatement node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -485,7 +484,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnWhileStatement(node);
 		}
 		
-		public override void OnReturnStatement(Boo.Lang.Compiler.Ast.ReturnStatement node)
+		public override void OnReturnStatement(Ast.ReturnStatement node)
 		{
 			base.OnReturnStatement(node);
 			if (Processing) {
@@ -493,7 +492,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnYieldStatement(Boo.Lang.Compiler.Ast.YieldStatement node)
+		public override void OnYieldStatement(Ast.YieldStatement node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -501,7 +500,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnYieldStatement(node);
 		}
 			
-		public override void OnRaiseStatement(Boo.Lang.Compiler.Ast.RaiseStatement node)
+		public override void OnRaiseStatement(Ast.RaiseStatement node)
 		{
 			base.OnRaiseStatement(node);
 			if (Processing) {
@@ -510,7 +509,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnUnpackStatement(Boo.Lang.Compiler.Ast.UnpackStatement node)
+		public override void OnUnpackStatement(Ast.UnpackStatement node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -518,7 +517,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnUnpackStatement(node);
 		}
 		
-		public override void OnExpressionStatement(Boo.Lang.Compiler.Ast.ExpressionStatement node)
+		public override void OnExpressionStatement(Ast.ExpressionStatement node)
 		{
 			base.OnExpressionStatement(node);
 			if (Processing) {
@@ -527,7 +526,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnMethodInvocationExpression(Boo.Lang.Compiler.Ast.MethodInvocationExpression node)
+		public override void OnMethodInvocationExpression(Ast.MethodInvocationExpression node)
 		{
 			if (Processing) {
 				var method = new MemberReferenceExpression(node.Target, "Method");
@@ -544,7 +543,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnMethodInvocationExpression(node);
 		}
 		
-		public override void OnUnaryExpression(Boo.Lang.Compiler.Ast.UnaryExpression node)
+		public override void OnUnaryExpression(Ast.UnaryExpression node)
 		{
 			base.OnUnaryExpression(node);
 			if (Processing) {
@@ -566,7 +565,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnBinaryExpression(Boo.Lang.Compiler.Ast.BinaryExpression node)
+		public override void OnBinaryExpression(Ast.BinaryExpression node)
 		{
 			base.OnBinaryExpression(node);
 			if (Processing) {
@@ -615,7 +614,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnConditionalExpression(Boo.Lang.Compiler.Ast.ConditionalExpression node)
+		public override void OnConditionalExpression(Ast.ConditionalExpression node)
 		{
 			base.OnConditionalExpression(node);
 			if (Processing) {
@@ -623,7 +622,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnStringLiteralExpression(Boo.Lang.Compiler.Ast.StringLiteralExpression node)
+		public override void OnStringLiteralExpression(Ast.StringLiteralExpression node)
 		{
 			base.OnStringLiteralExpression(node);
 			if (Processing) {
@@ -633,7 +632,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnCharLiteralExpression(Boo.Lang.Compiler.Ast.CharLiteralExpression node)
+		public override void OnCharLiteralExpression(Ast.CharLiteralExpression node)
 		{
 			base.OnCharLiteralExpression(node);
 			if (Processing) {
@@ -643,7 +642,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnTimeSpanLiteralExpression(Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression node)
+		public override void OnTimeSpanLiteralExpression(Ast.TimeSpanLiteralExpression node)
 		{
 			base.OnTimeSpanLiteralExpression(node);
 			if (Processing) {
@@ -653,7 +652,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnIntegerLiteralExpression(Boo.Lang.Compiler.Ast.IntegerLiteralExpression node)
+		public override void OnIntegerLiteralExpression(Ast.IntegerLiteralExpression node)
 		{
 			base.OnIntegerLiteralExpression(node);
 			if (Processing) {
@@ -663,7 +662,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnDoubleLiteralExpression(Boo.Lang.Compiler.Ast.DoubleLiteralExpression node)
+		public override void OnDoubleLiteralExpression(Ast.DoubleLiteralExpression node)
 		{
 			base.OnDoubleLiteralExpression(node);
 			if (Processing) {
@@ -673,7 +672,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnNullLiteralExpression(Boo.Lang.Compiler.Ast.NullLiteralExpression node)
+		public override void OnNullLiteralExpression(Ast.NullLiteralExpression node)
 		{
 			base.OnNullLiteralExpression(node);
 			if (Processing) {
@@ -681,7 +680,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		public override void OnSelfLiteralExpression(Boo.Lang.Compiler.Ast.SelfLiteralExpression node)
+		public override void OnSelfLiteralExpression(Ast.SelfLiteralExpression node)
 		{
 			base.OnSelfLiteralExpression(node);
 			if (Processing) {
@@ -689,7 +688,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnSuperLiteralExpression(Boo.Lang.Compiler.Ast.SuperLiteralExpression node)
+		public override void OnSuperLiteralExpression(Ast.SuperLiteralExpression node)
 		{
 			base.OnSuperLiteralExpression(node);
 			if (Processing) {
@@ -697,7 +696,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnBoolLiteralExpression(Boo.Lang.Compiler.Ast.BoolLiteralExpression node)
+		public override void OnBoolLiteralExpression(Ast.BoolLiteralExpression node)
 		{
 			base.OnBoolLiteralExpression(node);
 			if (Processing) {
@@ -707,7 +706,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnRELiteralExpression(Boo.Lang.Compiler.Ast.RELiteralExpression node)
+		public override void OnRELiteralExpression(Ast.RELiteralExpression node)
 		{
 			base.OnRELiteralExpression(node);
 			if (Processing) {
@@ -717,7 +716,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnSpliceExpression(Boo.Lang.Compiler.Ast.SpliceExpression node)
+		public override void OnSpliceExpression(Ast.SpliceExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -725,7 +724,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnSpliceExpression(node);
 		}
 		
-		public override void OnSpliceTypeReference(Boo.Lang.Compiler.Ast.SpliceTypeReference node)
+		public override void OnSpliceTypeReference(Ast.SpliceTypeReference node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -733,7 +732,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnSpliceTypeReference(node);
 		}
 		
-		public override void OnSpliceMemberReferenceExpression(Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression node)
+		public override void OnSpliceMemberReferenceExpression(Ast.SpliceMemberReferenceExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -741,7 +740,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnSpliceMemberReferenceExpression(node);
 		}
 		
-		public override void OnExpressionInterpolationExpression(Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression node)
+		public override void OnExpressionInterpolationExpression(Ast.ExpressionInterpolationExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -749,7 +748,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnExpressionInterpolationExpression(node);
 		}
 		
-		public override void OnHashLiteralExpression(Boo.Lang.Compiler.Ast.HashLiteralExpression node)
+		public override void OnHashLiteralExpression(Ast.HashLiteralExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -757,7 +756,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnHashLiteralExpression(node);
 		}
 		
-		public override void OnListLiteralExpression(Boo.Lang.Compiler.Ast.ListLiteralExpression node)
+		public override void OnListLiteralExpression(Ast.ListLiteralExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -765,7 +764,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnListLiteralExpression(node);
 		}
 		
-		public override void OnCollectionInitializationExpression(Boo.Lang.Compiler.Ast.CollectionInitializationExpression node)
+		public override void OnCollectionInitializationExpression(Ast.CollectionInitializationExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -773,7 +772,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnCollectionInitializationExpression(node);
 		}
 		
-		public override void OnArrayLiteralExpression(Boo.Lang.Compiler.Ast.ArrayLiteralExpression node)
+		public override void OnArrayLiteralExpression(Ast.ArrayLiteralExpression node)
 		{
 			base.OnArrayLiteralExpression(node);
 			if (Processing) {
@@ -783,7 +782,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnGeneratorExpression(Boo.Lang.Compiler.Ast.GeneratorExpression node)
+		public override void OnGeneratorExpression(Ast.GeneratorExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -791,7 +790,7 @@ namespace Boo.Lang.Compiler.Steps
 			else base.OnGeneratorExpression(node);
 		}
 		
-		public override void OnExtendedGeneratorExpression(Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression node)
+		public override void OnExtendedGeneratorExpression(Ast.ExtendedGeneratorExpression node)
 		{
 			if (Processing)
 				CompilerContext.Current.Errors.Add(
@@ -810,7 +809,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnSlicingExpression(Boo.Lang.Compiler.Ast.SlicingExpression node)
+		public override void OnSlicingExpression(Ast.SlicingExpression node)
 		{
 			base.OnSlicingExpression(node);
 			if (Processing) {
@@ -820,7 +819,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnTryCastExpression(Boo.Lang.Compiler.Ast.TryCastExpression node)
+		public override void OnTryCastExpression(Ast.TryCastExpression node)
 		{
 			base.OnTryCastExpression(node);
 			if (Processing) {
@@ -830,7 +829,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		public override void OnCastExpression(Boo.Lang.Compiler.Ast.CastExpression node)
+		public override void OnCastExpression(Ast.CastExpression node)
 		{
 			base.OnCastExpression(node);
 			if (Processing) {

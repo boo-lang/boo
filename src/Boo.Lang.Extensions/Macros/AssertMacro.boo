@@ -44,6 +44,10 @@ macro assert:
 		condition, = assert.Arguments
 		message = [| $(condition.ToCodeString()) |]
 		
+	//don't give a compiler warning for "assert false"
+	if condition.Matches([|false|]):
+		return [|raise Boo.Lang.Runtime.AssertionFailedException($message)|]
+		
 	return [|
 		unless $condition:
 			raise Boo.Lang.Runtime.AssertionFailedException($message)

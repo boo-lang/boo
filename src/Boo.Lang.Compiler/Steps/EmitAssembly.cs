@@ -144,6 +144,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool _perModuleRawArrayIndexing = false;
 
 		Dictionary<IType, Type> _typeCache = new Dictionary<IType, Type>();
+		HashSet<TypeDefinition> _earlyTypes = new HashSet<TypeDefinition>();
 
 		// keeps track of types on the IL stack
 		readonly Stack<IType> _types = new Stack<IType>();
@@ -367,7 +368,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void CreateTypes(List<TypeDefinition> types)
 		{
-			new TypeCreator(this, types).Run();
+			new TypeCreator(this, types, _earlyTypes).Run();
 		}
 
 		/// <summary>
@@ -388,6 +389,12 @@ namespace Boo.Lang.Compiler.Steps
 				_emitter = emitter;
 				_types = types;
 				_created = new Set<TypeDefinition>();
+			}
+
+			public TypeCreator(EmitAssembly emitter, List<TypeDefinition> types, HashSet<TypeDefinition> early) : this(emitter, types)
+			{
+				foreach (var definition in early)
+					_created.Add(definition);
 			}
 
 			public void Run()
@@ -417,7 +424,7 @@ namespace Boo.Lang.Compiler.Steps
 					CreateType(type);
 			}
 
-			void CreateType(TypeDefinition type)
+			internal void CreateType(TypeDefinition type)
 			{
 				if (_created.Contains(type))
 					return;
@@ -3906,24 +3913,52 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (IsCheckedIntegerOperand(type))
 			{
-				switch (op)
+				if (TypeSystemServices.IsSignedNumber(type))
 				{
-					case BinaryOperatorType.Addition: return OpCodes.Add_Ovf;
-					case BinaryOperatorType.Subtraction: return OpCodes.Sub_Ovf;
-					case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf;
-					case BinaryOperatorType.Division: return OpCodes.Div;
-					case BinaryOperatorType.Modulus: return OpCodes.Rem;
+					switch (op)
+					{
+						case BinaryOperatorType.Addition: return OpCodes.Add_Ovf;
+						case BinaryOperatorType.Subtraction: return OpCodes.Sub_Ovf;
+						case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf;
+						case BinaryOperatorType.Division: return OpCodes.Div;
+						case BinaryOperatorType.Modulus: return OpCodes.Rem;
+					}
+				}
+				else 
+				{
+					switch (op)
+					{
+						case BinaryOperatorType.Addition: return OpCodes.Add_Ovf_Un;
+						case BinaryOperatorType.Subtraction: return OpCodes.Sub_Ovf_Un;
+						case BinaryOperatorType.Multiply: return OpCodes.Mul_Ovf_Un;
+						case BinaryOperatorType.Division: return OpCodes.Div_Un;
+						case BinaryOperatorType.Modulus: return OpCodes.Rem_Un;
+					}
 				}
 			}
 			else
 			{
-				switch (op)
+				if (TypeSystemServices.IsSignedNumber(type))
 				{
-					case BinaryOperatorType.Addition: return OpCodes.Add;
-					case BinaryOperatorType.Subtraction: return OpCodes.Sub;
-					case BinaryOperatorType.Multiply: return OpCodes.Mul;
-					case BinaryOperatorType.Division: return OpCodes.Div;
-					case BinaryOperatorType.Modulus: return OpCodes.Rem;
+					switch (op)
+					{
+						case BinaryOperatorType.Addition: return OpCodes.Add;
+						case BinaryOperatorType.Subtraction: return OpCodes.Sub;
+						case BinaryOperatorType.Multiply: return OpCodes.Mul;
+						case BinaryOperatorType.Division: return OpCodes.Div;
+						case BinaryOperatorType.Modulus: return OpCodes.Rem;
+					}
+				}
+				else
+				{
+					switch (op)
+					{
+						case BinaryOperatorType.Addition: return OpCodes.Add;
+						case BinaryOperatorType.Subtraction: return OpCodes.Sub;
+						case BinaryOperatorType.Multiply: return OpCodes.Mul;
+						case BinaryOperatorType.Division: return OpCodes.Div_Un;
+						case BinaryOperatorType.Modulus: return OpCodes.Rem_Un;
+					}
 				}
 			}
 			throw new ArgumentException("op");
@@ -5198,28 +5233,46 @@ namespace Boo.Lang.Compiler.Steps
 
 		CustomAttributeBuilder GetCustomAttributeBuilder(Attribute node)
 		{
-			var constructor = (IConstructor)GetEntity(node);
-			var constructorInfo = GetConstructorInfo(constructor);
-			object[] constructorArgs = ArgumentsForAttributeConstructor(constructor, node.Arguments);
-
-			var namedArgs = node.NamedArguments;
-			if (namedArgs.Count > 0)
+			try
 			{
-				PropertyInfo[] namedProperties;
-				object[] propertyValues;
-				FieldInfo[] namedFields;
-				object[] fieldValues;
-				GetNamedValues(namedArgs,
-							   out namedProperties,
-							   out propertyValues,
-							   out namedFields,
-							   out fieldValues);
-				return new CustomAttributeBuilder(
-					constructorInfo, constructorArgs,
-					namedProperties, propertyValues,
-					namedFields, fieldValues);
+				var constructor = (IConstructor)GetEntity(node);
+				var constructorInfo = GetConstructorInfo(constructor);
+				object[] constructorArgs = ArgumentsForAttributeConstructor(constructor, node.Arguments);
+				foreach (IParameter param in constructor.GetParameters())
+				{
+					var typ = param.Type as AbstractInternalType;
+					if ((typ != null) && (!_earlyTypes.Contains(typ.TypeDefinition)))
+					{
+						var list = new List<TypeDefinition>();
+						list.Add(typ.TypeDefinition);
+						new TypeCreator(this, list).Run();
+						_earlyTypes.Add(typ.TypeDefinition);
+					}
+				}
+	
+				var namedArgs = node.NamedArguments;
+				if (namedArgs.Count > 0)
+				{
+					PropertyInfo[] namedProperties;
+					object[] propertyValues;
+					FieldInfo[] namedFields;
+					object[] fieldValues;
+					GetNamedValues(namedArgs,
+								   out namedProperties,
+								   out propertyValues,
+								   out namedFields,
+								   out fieldValues);
+					return new CustomAttributeBuilder(
+						constructorInfo, constructorArgs,
+						namedProperties, propertyValues,
+						namedFields, fieldValues);
+				}
+				return new CustomAttributeBuilder(constructorInfo, constructorArgs);
 			}
-			return new CustomAttributeBuilder(constructorInfo, constructorArgs);
+			catch (System.NotSupportedException x)
+			{
+				throw;
+			}
 		}
 
 		void GetNamedValues(ExpressionPairCollection values,

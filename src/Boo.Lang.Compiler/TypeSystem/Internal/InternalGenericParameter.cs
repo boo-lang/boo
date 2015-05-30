@@ -29,6 +29,8 @@
 using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Generics;
+using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
 {
@@ -67,6 +69,30 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				return _position;
 			}
 		}
+		
+		public override bool IsSubclassOf(IType other)
+		{
+			if (base.IsSubclassOf(other))
+				return true;
+					
+			if (_baseTypes != null)
+			{
+				foreach (IType baseType in _baseTypes)
+				{
+					if (baseType == other || 
+							//there must be a better way to do this, but I don't know what it is :(
+							(baseType.IsAssignableFrom(other) && other.IsAssignableFrom(baseType)) ||
+							 baseType.IsSubclassOf(other))
+						return true;
+				}
+			}
+			return false;
+		}
+		
+		public override bool HasBaseTypes()
+		{
+			return _declaration.BaseTypes.Count > 0;
+		}
 
 		public override IType[] GetTypeConstraints()
 		{
@@ -83,6 +109,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 					else if (IsDeclaringTypeReference(baseTypeReference))
 					{
 						baseTypes.Add(DeclaringType);
+					}
+					else
+					{
+						My<NameResolutionService>.Instance.ResolveTypeReference(baseTypeReference);
+						baseType = (IType)baseTypeReference.Entity;
+						if (baseType != null)
+						{
+							baseTypes.Add(baseType);
+						}
 					}
 				}
 
