@@ -431,7 +431,7 @@
 			</targetfiles>
 		</uptodate>
 
-		<if test="${not useful-grammars-uptodate}">
+		<if test="${not useful-grammars-uptodate and not skip.antlr}">
 			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
