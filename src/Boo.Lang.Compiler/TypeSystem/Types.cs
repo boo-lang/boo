@@ -120,6 +120,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static readonly Type Nullable = typeof(Nullable<>);
 
 		public static readonly Type CompilerGeneratedAttribute = typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute);
+
+		public static readonly Type ExpressionTree = typeof(System.Linq.Expressions.Expression<>);
 	}
 }
 

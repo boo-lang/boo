@@ -64,8 +64,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				if (closure == null) continue;
 
 				// ICallableType callableType = closure.ExpressionType as ICallableType;
-				ICallableType callableType = argument.FormalType as ICallableType;
-				if (callableType == null) continue;
+				IType ft = argument.FormalType;
+				ICallableType callableType = ft as ICallableType;
+				if (callableType == null) 
+				{
+					if (ft != null)
+						callableType = TypeSystemServices.ExpressionTreeTypeFor(ft);
+					if (callableType == null) continue;
+				}
 				
 				TypeCollector collector = new TypeCollector(delegate(IType t) 
 				{
@@ -197,7 +203,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 				if (CanResolveClosure(closure))
 				{
-					var callable = (ICallableType)argument.FormalType;
+					IType ft = argument.FormalType;
+					ICallableType callable = ft as ICallableType;
+					if (callable == null) 
+					{
+						callable = TypeSystemServices.ExpressionTreeTypeFor(ft);
+						closure.IsExpressionTree = callable != null;
+					}
 					if (closure.Parameters.Count != callable.GetSignature().Parameters.Length)
 						continue;
 					ResolveClosure(this, closure, callable);

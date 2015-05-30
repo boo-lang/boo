@@ -71,6 +71,8 @@ namespace Boo.Lang.Compiler.Steps
 		private InternalMethod _currentMethod;
 
 		private bool _optimizeNullComparisons = true;
+		
+		private Dictionary<string, ITypedEntity> _ranges = new Dictionary<string, ITypedEntity>();
 
 		const string TempInitializerName = "$___temp_initializer";
 
@@ -86,6 +88,18 @@ namespace Boo.Lang.Compiler.Steps
 			_invocationTypeReferenceRules = new EnvironmentProvision<InvocationTypeInferenceRules>();
 			_typeChecker = new EnvironmentProvision<TypeChecker>();
 			_methodCache = new EnvironmentProvision<RuntimeMethodCache>();
+		}
+		
+		// Added to support special processing in ClosuresToExpressionTrees
+		internal Action Initialize(CompilerContext context, Method currentMethod)
+		{
+			Initialize(context);
+			_currentModule = currentMethod.GetAncestor<Module>();
+			var im = (InternalMethod)currentMethod.Entity;
+			PushMethodInfo(im);
+			var cn = CurrentNamespace;
+			EnterNamespace(im);
+			return () => EnterNamespace(cn);
 		}
 
 		override public void Run()
@@ -777,6 +791,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessClosureBody(BlockExpression node)
 		{
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
 			if (node.ContainsAnnotation("inline"))
 				AddOptionalReturnStatement(node.Body);
@@ -817,6 +833,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+			node.ReturnType = closureEntity.Method.ReturnType;
 		}
 
 		protected Method CurrentMethod
@@ -1987,7 +2004,39 @@ namespace Boo.Lang.Compiler.Steps
 			node.Entity = entity;
 			PostProcessReferenceExpression(node);
 		}
-
+		
+		private IType GetElementType(ITypedEntity entity)
+		{
+      		var type = (entity).Type;		   
+   		   var IEnum = (from intf in type.GetInterfaces()
+   		                where intf.Name.StartsWith("IEnumerable")
+   		                orderby intf.Name.Length descending
+   		                select intf).FirstOrDefault();
+   		   return GetEnumeratorItemType(IEnum);
+		}
+		
+		override public void OnFromClauseExpression(FromClauseExpression node)
+		{
+		   Visit(node.Container);
+		   var entity = node.Container.Entity as ITypedEntity;
+		   if (node.Identifier.Type == null)
+		   {
+   		   var elType = GetElementType(entity);
+   		   node.Identifier.Type = TypeReference.Lift(elType.FullName);
+   		   entity = DeclareLocal(node.Identifier, node.Identifier.Name, GetElementType(entity)) as ITypedEntity;
+		   } else {
+		      Visit(node.Identifier.Type);
+		      entity = node.Identifier.Type.Entity as ITypedEntity;
+		   }
+   		_ranges.Add(node.Identifier.Name, entity);
+		}
+		
+		override public void OnQueryExpression(QueryExpression node)
+		{
+		   base.OnQueryExpression(node);
+		   _ranges.Clear();
+		}
+		
 		private static bool AlreadyBound(ReferenceExpression node)
 		{
 			return null != node.ExpressionType;
@@ -5710,7 +5759,7 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack.Pop();
 		}
 
-		void PushMethodInfo(InternalMethod entity)
+		public void PushMethodInfo(InternalMethod entity)
 		{
 			_methodStack.Push(_currentMethod);
 

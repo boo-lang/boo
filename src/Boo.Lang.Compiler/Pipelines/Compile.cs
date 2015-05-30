@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class Compile : ResolveExpressions
 	{
 		public Compile()
-		{	
+		{
 			Add(new InjectImplicitBooleanConversions());
 
 			Add(new ConstantFolding());
