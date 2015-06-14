@@ -409,6 +409,8 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public CompilerOutputType OutputType { get; set; }
 
+        public bool GenerateCollectible { get; set; }
+
 		public bool GenerateInMemory { get; set; }
 
 		public bool StdLib { get; set; }
