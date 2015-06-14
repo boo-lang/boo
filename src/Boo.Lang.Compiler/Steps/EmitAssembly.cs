@@ -5521,7 +5521,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		AssemblyBuilderAccess GetAssemblyBuilderAccess()
 		{
-			return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
+            if (Parameters.GenerateCollectible)
+            {
+                return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndCollect : AssemblyBuilderAccess.Save;
+            }
+            else
+            {
+                return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
+            }
 		}
 
 		AssemblyName CreateAssemblyName(string outputFile)
