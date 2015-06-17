@@ -140,7 +140,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return (other == BaseType || BaseType.IsSubclassOf(other));
 		}
 		
-		public bool IsAssignableFrom(IType other)
+		public virtual bool IsAssignableFrom(IType other)
 		{
 			if (other == this)
                 return true;

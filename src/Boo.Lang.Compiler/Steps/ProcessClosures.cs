@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
@@ -96,6 +97,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			method.Modifiers = TypeMemberModifiers.Public;
+			var coll = new GenericTypeCollector(CodeBuilder);
+			coll.Process(builder.ClassDefinition);
 			return builder;
 		}
 	}
