@@ -31,8 +31,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.TypeSystem.Services
@@ -106,6 +108,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			cd.Members.Add(beginInvoke);
 
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
+			AddGenericTypes(cd);
+			module.Members.Add(cd);
+			return (IType)cd.Entity;
+		}
+
+		private void AddGenericTypes(ClassDefinition cd)
+		{
 			var collector = new GenericTypeCollector();
 			cd.Accept(collector);
 			var parameters = collector.GenericParameters.ToArray();
@@ -113,8 +122,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			{
 				cd.GenericParameters.Add(CodeBuilder.CreateGenericParameterDeclaration(i, parameters[i].Name));
 			}
-			module.Members.Add(cd);
-			return (IType)cd.Entity;
+			
+			var counter = cd.GenericParameters.Count;
+			var innerCollector = new DetectInnerGenerics();
+			cd.Accept(innerCollector);
+			foreach (Node node in innerCollector.Values)
+			{
+				var param = (IGenericParameter)node.Entity;
+				var gp = cd.GenericParameters.FirstOrDefault(gpd => gpd.Name.Equals(param.Name));
+				if (gp == null)
+				{
+					gp = CodeBuilder.CreateGenericParameterDeclaration(counter, param.Name);
+					cd.GenericParameters.Add(gp);
+					++counter;
+				}
+				node.Entity = new InternalGenericParameter(this.TypeSystemServices, gp);
+				gp["InternalGenericParent"] = (param as InternalGenericParameter).Node;
+			}
 		}
 
 		private string GenerateCallableTypeNameFrom(Node sourceNode, Module module)
