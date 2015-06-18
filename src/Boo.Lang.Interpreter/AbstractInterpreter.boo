@@ -30,7 +30,6 @@ namespace Boo.Lang.Interpreter
 
 import System
 import System.Linq.Enumerable
-import Boo.Lang
 import Boo.Lang.Environments
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
@@ -49,6 +48,9 @@ class AbstractInterpreter:
 	_imports as ImportCollection
 	
 	_referenceProcessor as ProcessInterpreterReferences
+	
+	[property(ReplaceSingleEmptyMacro)]
+	_replaceSingleEmptyMacro as bool = true
 	
 	[property(RememberLastValue)]
 	_rememberLastValue as bool
@@ -222,7 +224,7 @@ class AbstractInterpreter:
 		savedImports = module.Imports.Clone()
 		module.Imports.ExtendWithClones(_imports)
 		
-		if hasStatements and IsSingleEmptyMacroStatement(module):
+		if _replaceSingleEmptyMacro and hasStatements and IsSingleEmptyMacroStatement(module):
 			# simple references will be parsed as macros
 			# but we want them to be evaluated
 			# as references...

@@ -67,7 +67,7 @@ namespace Boo.Lang
 					return -1*(rhsComparable.CompareTo(lhs));
 				}
 				return lhsComparable.CompareTo(rhs);
-			} catch (System.ArgumentException x) {
+			} catch (System.ArgumentException) {
 				return -1;
 			}
 		}

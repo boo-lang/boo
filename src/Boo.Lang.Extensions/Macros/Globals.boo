@@ -27,7 +27,9 @@
 #endregion
 
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler
 
-[extension] def withLexicalInfoFrom(e as Expression, node as Node):
+[Extension]
+def withLexicalInfoFrom(e as Expression, node as Node):   
 	e.LexicalInfo = node.LexicalInfo
 	return e

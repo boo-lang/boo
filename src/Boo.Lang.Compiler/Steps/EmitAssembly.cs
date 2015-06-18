@@ -5269,7 +5269,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				return new CustomAttributeBuilder(constructorInfo, constructorArgs);
 			}
-			catch (System.NotSupportedException x)
+			catch (System.NotSupportedException)
 			{
 				throw;
 			}
