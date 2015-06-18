@@ -56,11 +56,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			_matches = new List<IGenericParameter>();
 		}
 		
-		override public void OnReferenceExpression(ReferenceExpression node)
+		private void OnCandidateNode(Node candidate)
 		{
-			var genericParameterRef = node.Entity as IGenericParameter;
+			var genericParameterRef = candidate.Entity as IGenericParameter;
 			if (genericParameterRef != null)
 				_matches.Add(genericParameterRef);
+		}
+		
+		override public void OnReferenceExpression(ReferenceExpression node)
+		{
+			OnCandidateNode(node);
+		}
+		
+		override public void OnSimpleTypeReference(SimpleTypeReference node)
+		{
+			OnCandidateNode(node);
 		}
 		
 		public IEnumerable<IType> GenericParameters
