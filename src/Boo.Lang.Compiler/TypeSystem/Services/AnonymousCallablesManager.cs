@@ -115,13 +115,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private void AddGenericTypes(ClassDefinition cd)
 		{
-			var collector = new GenericTypeCollector();
-			cd.Accept(collector);
-			var parameters = collector.GenericParameters.ToArray();
-			for (var i = 0; i < parameters.Length; ++i)
-			{
-				cd.GenericParameters.Add(CodeBuilder.CreateGenericParameterDeclaration(i, parameters[i].Name));
-			}
+			var collector = new GenericTypeCollector(this.CodeBuilder);
+			collector.Process(cd);
 			
 			var counter = cd.GenericParameters.Count;
 			var innerCollector = new DetectInnerGenerics();

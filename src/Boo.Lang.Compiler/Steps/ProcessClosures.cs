@@ -97,13 +97,8 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 			method.Modifiers = TypeMemberModifiers.Public;
-			var coll = new GenericTypeCollector();
-			builder.ClassDefinition.Accept(coll);
-			var parameters = coll.GenericParameters.ToArray();
-			for (var i = 0; i < parameters.Length; ++i)
-			{
-				builder.ClassDefinition.GenericParameters.Add(CodeBuilder.CreateGenericParameterDeclaration(i, parameters[i].Name));
-			}
+			var coll = new GenericTypeCollector(CodeBuilder);
+			coll.Process(builder.ClassDefinition);
 			return builder;
 		}
 	}

@@ -31,6 +31,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -51,9 +52,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		private List<IGenericParameter> _matches;
 		
-		public GenericTypeCollector()
+		private BooCodeBuilder _codeBuilder;
+		
+		public GenericTypeCollector(BooCodeBuilder codeBuilder)
 		{
 			_matches = new List<IGenericParameter>();
+			_codeBuilder = codeBuilder;
 		}
 		
 		private void OnCandidateNode(Node candidate)
@@ -73,7 +77,33 @@ namespace Boo.Lang.Compiler.TypeSystem
 			OnCandidateNode(node);
 		}
 		
-		public IEnumerable<IType> GenericParameters
+		public void Process(ClassDefinition cd)
+		{
+			cd.Accept(this);
+			var parameters = GenericParameters.ToArray();
+			for (var i = 0; i < parameters.Length; ++i)
+			{
+				var param = parameters[i];
+				var gen = _codeBuilder.CreateGenericParameterDeclaration(i, param.Name);
+				foreach (IType baseType in param.GetTypeConstraints())
+				{
+					gen.BaseTypes.Add(_codeBuilder.CreateTypeReference(baseType));
+				}
+				if (param.MustHaveDefaultConstructor)
+					gen.Constraints |= GenericParameterConstraints.Constructable;
+				if (param.IsValueType)
+					gen.Constraints |= GenericParameterConstraints.ValueType;
+				else if (param.IsClass)
+					gen.Constraints |= GenericParameterConstraints.ReferenceType;
+				if (param.Variance == Variance.Covariant)
+						gen.Constraints |= GenericParameterConstraints.Covariant;
+				else if (param.Variance == Variance.Contravariant)
+						gen.Constraints |= GenericParameterConstraints.Contravariant;
+				cd.GenericParameters.Add(gen);
+			}
+		}
+		
+		private IEnumerable<IGenericParameter> GenericParameters
 		{
 			get { return _matches.Cast<IGenericParameter>().Distinct(new DistinctGenericComparer()).
 						OrderBy(p => p.GenericParameterPosition); }

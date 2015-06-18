@@ -394,12 +394,8 @@ namespace Boo.Lang.Compiler.Steps
 							CodeBuilder.CreateReference(param)),
 						CodeBuilder.CreateAddressOfExpression(invoke.Entity))));
 			
-			var collector = new GenericTypeCollector();
-			adaptor.ClassDefinition.Accept(collector);
-			foreach(var gen in collector.GenericParameters)
-			{
-				adaptor.AddGenericParameter(gen.Name);
-			}
+			var collector = new GenericTypeCollector(this.CodeBuilder);
+			collector.Process(adaptor.ClassDefinition);
 			
 			RegisterAdaptor(to, from, adaptor.ClassDefinition);
 			
