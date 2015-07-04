@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="..\packages\Antlr4.4.5-alpha002\build\Antlr4.props" Condition="Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -83,6 +84,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr4.Runtime, Version=4.5.0.0, Culture=neutral, PublicKeyToken=e9931a4108ef2354, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr4.Runtime.4.5-alpha002\lib\net35-client\Antlr4.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
@@ -191,7 +196,13 @@
     <Compile Include="BooExpressionLexer.cs" />
     <Compile Include="BooExpressionLexerTokenTypes.cs" />
     <Compile Include="BooLexer.cs" />
+    <Compile Include="BooLexer.g4.cs">
+      <DependentUpon>BooLexer.g4</DependentUpon>
+    </Compile>
     <Compile Include="BooParser.cs" />
+    <Compile Include="BooParser.g4.cs">
+      <DependentUpon>BooParser.g4</DependentUpon>
+    </Compile>
     <Compile Include="BooParserBase.cs" />
     <Compile Include="BooParsingStep.cs" />
     <Compile Include="BooToken.cs" />
@@ -214,6 +225,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />
+    <Antlr4 Include="BooParser.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Boo.Lang.ParserV4</CustomToolNamespace>
+    </Antlr4>
+    <Antlr4 Include="BooLexer.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Boo.Lang.ParserV4</CustomToolNamespace>
+    </Antlr4>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -240,6 +260,14 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.5-alpha002\build\Antlr4.props'))" />
+    <Error Condition="!Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets'))" />
+  </Target>
+  <Import Project="..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets" Condition="Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
