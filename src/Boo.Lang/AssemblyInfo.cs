@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Reflection;
 
 [assembly: AssemblyTitle("boo - an extensible programming language for the CLI")]
@@ -42,5 +43,6 @@ using System.Reflection;
 [assembly: AssemblyKeyFile("../src/boo.snk")]
 #endif
 [assembly: AssemblyKeyName("")]
+[assembly: CLSCompliant(false)]
 
 [assembly: System.Resources.NeutralResourcesLanguage("en")]
