@@ -32,6 +32,7 @@ using System.Linq;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
 namespace Boo.Lang.Compiler.Steps
@@ -153,20 +154,23 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			var member = node.Entity as IMember;
-			if (member == null) return;
+			var obsoletes = ObsoleteAttributesIn(node.Entity);
 
-			foreach (var attr in ObsoleteAttributesIn(member))
+			foreach (var attr in obsoletes)
+			{
 				if (attr.IsError)
 					Errors.Add(CompilerErrorFactory.Obsolete(node, member, attr.Message));
 				else
 					Warnings.Add(CompilerWarningFactory.Obsolete(node, member, attr.Message));
+			}
 		}
 
-		private static IEnumerable<ObsoleteAttribute> ObsoleteAttributesIn(IMember member)
+		private static IEnumerable<ObsoleteAttribute> ObsoleteAttributesIn(IEntity member)
 		{
 			var external = member as IExternalEntity;
 			if (external == null)
 				return new ObsoleteAttribute[0];
+
 			return System.Attribute.GetCustomAttributes(external.MemberInfo, typeof(ObsoleteAttribute)).Cast<ObsoleteAttribute>();
 		}
 
