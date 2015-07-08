@@ -32,6 +32,7 @@ using System.Linq;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
@@ -151,18 +152,60 @@ namespace Boo.Lang.Compiler.Steps
 			return attr == null ? null : attr.MemberInfo.DeclaringType;
 		}
 
-		override public void OnReferenceExpression(ReferenceExpression node)
+		public override void OnField(Field node)
 		{
-			var member = node.Entity as IMember;
-			var obsoletes = ObsoleteAttributesIn(node.Entity);
+			base.OnField(node);
+			CheckObsoleteAttributeOnExternalTypes(node.Type, node.Type.Entity as ExternalType);
+		}
+
+		public override void OnProperty(Property node)
+		{
+			base.OnProperty(node);
+			CheckObsoleteAttributeOnExternalTypes(node.Type, node.Type.Entity as ExternalType);
+		}
+
+		private void CheckObsoleteAttributeOnExternalTypes(Node node, IEntity entity, object target = null)
+		{
+			if (node.ContainsAnnotation(OBSOLETE_ANNOTATION_KEY))
+				return;
+
+			IEnumerable<ObsoleteAttribute> obsoletes;
+
+			node.Annotate(OBSOLETE_ANNOTATION_KEY);
+
+			var externalType = entity as ExternalType;
+
+			if (externalType == null)
+				obsoletes = ObsoleteAttributesIn(entity);
+			else
+				obsoletes = System.Attribute.GetCustomAttributes(externalType.ActualType, typeof(ObsoleteAttribute)).Cast<ObsoleteAttribute>();
 
 			foreach (var attr in obsoletes)
 			{
 				if (attr.IsError)
-					Errors.Add(CompilerErrorFactory.Obsolete(node, member, attr.Message));
+					Errors.Add(CompilerErrorFactory.Obsolete(node, target, attr.Message));
 				else
-					Warnings.Add(CompilerWarningFactory.Obsolete(node, member, attr.Message));
+					Warnings.Add(CompilerWarningFactory.Obsolete(node, target, attr.Message));
 			}
+		}
+
+		public override void OnParameterDeclaration(ParameterDeclaration node)
+		{
+			base.OnParameterDeclaration(node);
+			CheckObsoleteAttributeOnExternalTypes(node.Type, node.Type.Entity as ExternalType);
+		}
+
+		public override void OnLocal(Local node)
+		{
+			base.OnLocal(node);
+			var local = (InternalLocal) node.Entity;
+			CheckObsoleteAttributeOnExternalTypes(node, local.Type as ExternalType, local.Type);
+		}
+
+		override public void OnReferenceExpression(ReferenceExpression node)
+		{
+			base.OnReferenceExpression(node);
+			CheckObsoleteAttributeOnExternalTypes(node, node.Entity, node.Entity);
 		}
 
 		private static IEnumerable<ObsoleteAttribute> ObsoleteAttributesIn(IEntity member)
@@ -206,6 +249,7 @@ namespace Boo.Lang.Compiler.Steps
 		}
 
 		private static Dictionary<Type, AttributeTargets> _nodesUsageTargets;
+		private const string OBSOLETE_ANNOTATION_KEY = "IS_OBSOLETE";
 	}
 }
 

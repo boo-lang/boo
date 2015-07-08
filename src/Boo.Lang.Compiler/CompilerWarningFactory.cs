@@ -119,9 +119,9 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCW0011", AstUtil.SafeLexicalInfo(node), type, abstractMember);
 		}
 		
-		public static CompilerWarning Obsolete(Node node, IMember member, string message)
+		public static CompilerWarning Obsolete(Node node, object entity, string message)
 		{
-			return Instantiate("BCW0012", AstUtil.SafeLexicalInfo(node), member, message);
+			return Instantiate("BCW0012", AstUtil.SafeLexicalInfo(node), entity ?? node, message);
 		}
 		
 		public static CompilerWarning StaticClassMemberRedundantlyMarkedStatic(Node node, string typeName, string memberName)
