@@ -18,4 +18,17 @@ namespace BooCompiler.Tests.SupportingClasses
 			get { return 42; }
 		}
 	}
+
+	[Obsolete("I am really obsolete", true)]
+	public class ReallyObsoleteClass
+	{
+		public class Inner
+		{
+			public int i;
+			public static int si;
+		}
+
+		public int i;
+		public static int si;
+	}
 }

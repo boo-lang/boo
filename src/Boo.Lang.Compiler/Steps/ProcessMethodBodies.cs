@@ -2174,7 +2174,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void MemberNotFound(MemberReferenceExpression node, INamespace ns)
 		{
-			// Make sure any obsolete member access is reported before the member not found error
 			CheckAttributesUsageOn(node);
 
 			EntityType et = (!AstUtil.IsTargetOfMethodInvocation(node)) ? EntityType.Any : EntityType.Method;
@@ -2200,7 +2199,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var entity = node.Entity;
 			if (!ShouldRebindMember(entity))
+			{
+				CheckAttributesUsageOn(node);
 				return entity;
+			}
 
 			var ns = GetReferenceNamespace(node);
 			var member = NameResolutionService.Resolve(ns, node.Name);
@@ -2212,7 +2214,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (null != member)
+			{
+				CheckAttributesUsageOn(node);
 				return Disambiguate(node, member);
+			}
 
 			MemberNotFound(node, ns);
 			return null;
