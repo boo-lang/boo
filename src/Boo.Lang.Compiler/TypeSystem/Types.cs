@@ -124,19 +124,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		static Type FindType(string fullTypeName, string[] possibleAssemblyNames)
 		{
-		    return AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => possibleAssemblyNames.Contains(a.GetName().Name))
-                .Select(assembly => assembly.GetType(fullTypeName, false))
-                .FirstOrDefault(type => type != null);
+			return AppDomain.CurrentDomain.GetAssemblies()
+				.Where(a => possibleAssemblyNames.Contains(a.GetName().Name))
+				.Select(assembly => assembly.GetType(fullTypeName, false))
+				.FirstOrDefault(type => type != null);
 		}
 
-	    static Types()
+		static Types()
 		{
 			// ExtensionAttribute is in System.Core for .NET 4.0 and in mscorlib for .NET 4.5.
 			// We use reflection to get the type to avoid a hardcoded reference to mscorlib that 
 			// will crash the boo compiler if it was built with .NET 4.5 and then run on .NET 4.0.
 			// Windows XP only supports .NET 4.0.
-            ClrExtensionAttribute = FindType("System.Runtime.CompilerServices.ExtensionAttribute", new[] { "mscorlib", "System.Core" });
+			ClrExtensionAttribute = FindType("System.Runtime.CompilerServices.ExtensionAttribute", new[] { "mscorlib", "System.Core" });
 		}
 	}
 }
