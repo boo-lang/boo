@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Boo.Lang.Runtime;
 	
@@ -121,18 +122,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static readonly Type CompilerGeneratedAttribute = typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute);
 
-		static Type FindType(string typename, string typenamespace)
+		static Type FindType(string fullTypeName, string[] possibleAssemblyNames)
 		{
-			foreach (System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-			{
-				foreach (Type type in assembly.GetTypes())
-			    {
-			    	if(type.Name == typename && type.Namespace == typenamespace)
-			    		return type;
-			    }
-			}
-
-			return null;		
+			return AppDomain.CurrentDomain.GetAssemblies()
+				.Where(a => possibleAssemblyNames.Contains(a.GetName().Name))
+				.Select(assembly => assembly.GetType(fullTypeName, false))
+				.FirstOrDefault(type => type != null);
 		}
 
 		static Types()
@@ -141,7 +136,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// We use reflection to get the type to avoid a hardcoded reference to mscorlib that 
 			// will crash the boo compiler if it was built with .NET 4.5 and then run on .NET 4.0.
 			// Windows XP only supports .NET 4.0.
-			ClrExtensionAttribute = FindType("ExtensionAttribute", "System.Runtime.CompilerServices");	
+			ClrExtensionAttribute = FindType("System.Runtime.CompilerServices.ExtensionAttribute", new[] { "mscorlib", "System.Core" });
 		}
 	}
 }
