@@ -125,7 +125,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		static Type FindType(string fullTypeName, string[] possibleAssemblyNames)
 		{
 			return AppDomain.CurrentDomain.GetAssemblies()
-				.Where(a => possibleAssemblyNames.Contains(a.GetName().Name))
+				.Where(a => possibleAssemblyNames.Any(name => a.FullName.StartsWith(name)))
 				.Select(assembly => assembly.GetType(fullTypeName, false))
 				.FirstOrDefault(type => type != null);
 		}
