@@ -203,6 +203,7 @@
     <Compile Include="BooParser.g4.cs">
       <DependentUpon>BooParser.g4</DependentUpon>
     </Compile>
+    <Compile Include="BooParserAstBuilderListener.cs" />
     <Compile Include="BooParserBase.cs" />
     <Compile Include="BooParsingStep.cs" />
     <Compile Include="BooToken.cs" />
