@@ -1896,7 +1896,7 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, toType);
 		}
 
-		protected Expression CreateMemberReferenceTarget(Node sourceNode, IMember member)
+		protected virtual Expression CreateMemberReferenceTarget(Node sourceNode, IMember member)
 		{
 			Expression target = null;
 
