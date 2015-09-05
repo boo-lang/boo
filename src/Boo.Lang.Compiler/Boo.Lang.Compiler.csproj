@@ -459,6 +459,7 @@
     <Compile Include="Steps\ClosuresToExpressionTrees.cs" />
     <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
+    <Compile Include="Steps\DetectInnerGenerics.cs" />
     <Compile Include="Steps\DetectNotImplementedFeatureUsage.cs" />
     <Compile Include="Steps\DumpReferences.cs" />
     <Compile Include="Steps\EmitAssembly.cs" />
@@ -512,7 +513,6 @@
     <Compile Include="Steps\ProcessMethodBodies.cs" />
     <Compile Include="Steps\ProcessMethodBodiesWithDuckTyping.cs" />
     <Compile Include="Steps\ProcessSharedLocals.cs" />
-    <Compile Include="Steps\QueryTransformer.cs" />
     <Compile Include="Steps\Query\DegenerateQueryProtector.cs" />
     <Compile Include="Steps\Query\GroupByTransormer.cs" />
     <Compile Include="Steps\Query\QueryCastTransformer.cs" />
@@ -521,6 +521,7 @@
     <Compile Include="Steps\Query\QueryTransformerStep.cs" />
     <Compile Include="Steps\Query\SelectTransformer.cs" />
     <Compile Include="Steps\Query\TranparentIdentifierInjector.cs" />
+    <Compile Include="Steps\QueryTransformer.cs" />
     <Compile Include="Steps\ReifyTypes.cs" />
     <Compile Include="Steps\RemoveDeadCode.cs" />
     <Compile Include="Steps\ResolveImports.cs" />
@@ -574,6 +575,7 @@
     <Compile Include="TypeSystem\Generics\MappedParameter.cs" />
     <Compile Include="TypeSystem\Generics\TypeInferrer.cs" />
     <Compile Include="TypeSystem\Generics\TypeMapper.cs" />
+    <Compile Include="TypeSystem\GenericTypeCollector.cs" />
     <Compile Include="TypeSystem\IAccessibilityChecker.cs" />
     <Compile Include="TypeSystem\IAccessibleMember.cs" />
     <Compile Include="TypeSystem\IArrayType.cs" />
