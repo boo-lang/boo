@@ -113,11 +113,15 @@ enum_definition
 	:	ENUM ID
 		begin_with_doc
 		(	PASS eos
-		|	(	enum_member
-			|	splice_type_definition_body
-			)+
+		|	any_enum_member+
 		)
 		end
+	;
+
+any_enum_member
+	:	(	enum_member
+		|	splice_type_definition_body
+		)
 	;
 
 enum_member
@@ -159,6 +163,12 @@ assembly_attribute
 		RBRACK
 	;
 
+any_type_definition_member
+	:	(	splice_type_definition_body
+		|	type_definition_member
+		)
+	;
+
 class_definition
 	:	(	CLASS
 		|	STRUCT
@@ -172,9 +182,7 @@ class_definition
 		begin_with_doc
 		(	PASS eos
 		|	eos?
-			(	splice_type_definition_body
-			|	type_definition_member
-			)+
+			any_type_definition_member+
 		)
 		end
 	;
@@ -193,6 +201,15 @@ type_definition_member
 		)
 	;
 
+any_intf_type_member
+	:	(	attributes
+			(	interface_method
+			|	event_declaration
+			|	interface_property
+			)
+		)
+	;
+
 interface_definition
 	:	INTERFACE
 		(	ID
@@ -203,12 +220,7 @@ interface_definition
 		base_types?
 		begin_with_doc
 		(	PASS eos
-		|	(	attributes
-				(	interface_method
-				|	event_declaration
-				|	interface_property
-				)
-			)+
+		|	any_intf_type_member+
 		)
 		end
 	;
@@ -296,51 +308,34 @@ method
 		end
 	;
 
-property_header
-	:	(	(	ID
-			|	SELF
+field_or_property
+	:	(
+			explicit_member_info?
+			(	ID
 			|	SPLICE_BEGIN atom
+			|	SELF
 			)
-			(DOT ID)*
-		)
-		(	LBRACK
-		|	(	LPAREN parameter_declaration_list RPAREN
+			(	LPAREN parameter_declaration_list RPAREN
+			|	LBRACK parameter_declaration_list RBRACK
 			)?
 			(	AS type_reference
 			)?
 			begin_with_doc
-			attributes
-			modifiers
-			(	GET
-			|	SET
-			)
+			property_accessor+
+			end
 		)
-	;
-
-field_or_property
-	:	explicit_member_info?
-		(	ID
-		|	SPLICE_BEGIN atom
-		|	SELF
-		)
-		(	LPAREN parameter_declaration_list RPAREN
-		|	LBRACK parameter_declaration_list RBRACK
-		)?
-		(	AS type_reference
-		)?
-		begin_with_doc
-		property_accessor+
-		end
 	|	member_macro
-	|	(	ID
-		|	SPLICE_BEGIN atom
+	|	(
+			(	ID
+			|	SPLICE_BEGIN atom
+			)
+			(	AS type_reference
+			)?
+			(	ASSIGN declaration_initializer
+			|	eos
+			)
+			docstring
 		)
-		(	AS type_reference
-		)?
-		(	ASSIGN declaration_initializer
-		|	eos
-		)
-		docstring
 	;
 
 member_macro
@@ -557,12 +552,16 @@ closure_macro_stmt
 	:	macro_name expression_list
 	;
 
+any_macro_stmt
+	:	(	stmt
+		|	type_member_stmt
+		)
+	;
+
 macro_block
 	:	eos?
 		(	PASS eos
-		|	(	stmt
-			|	type_member_stmt
-			)+
+		|	any_macro_stmt+
 		)
 	;
 
@@ -661,16 +660,6 @@ callable_or_expression
 	|	array_or_expression
 	;
 
-closure_parameters_test
-	:	parameter_modifier?
-		ID
-		(	AS type_reference
-		)?
-		(	COMMA ID (AS type_reference)?
-		)*
-		BITWISE_OR
-	;
-
 internal_closure_stmt
 	:	return_expression_stmt
 	|	(	unpack
@@ -735,9 +724,9 @@ declaration_stmt
 		(	ASSIGN 
 			(	simple_initializer
 			|	declaration_initializer
-			)
-		|	stmt_modifier? eos
+			)		
 		)
+		|	(stmt_modifier? eos)
 	;
 
 expression_stmt
@@ -824,7 +813,7 @@ declaration
 	;
 
 array_or_expression
-	:	(	// tupla vazia: , ou (,)
+	:	(	// empty tuple: , or (,)
 			COMMA
 		)
 	|	expression
@@ -840,9 +829,7 @@ array_or_expression
 expression
 	:	boolean_expression
 		(	FOR generator_expression_body
-			(	FOR generator_expression_body
-			)*
-		)?
+		)*
 	;
 
 generator_expression_body
@@ -882,10 +869,6 @@ ast_literal_block
 	:	ast_literal_module
 	|	type_definition_member+
 	|	stmt+
-	;
-
-ast_literal_module_prediction
-	:	eos? (NAMESPACE | IMPORT)
 	;
 
 ast_literal_closure
@@ -935,9 +918,8 @@ assignment_expression
 		)?
 	;
 
-conditional_expression
-	:	sum
-		(	(	CMP_OPERATOR
+any_cond_expr_value
+	:	(	(	CMP_OPERATOR
 			|	GREATER_THAN
 			|	LESS_THAN
 			|	IS NOT
@@ -947,38 +929,55 @@ conditional_expression
 			)
 			sum
 		|	ISA type_reference
-		)*
+		)
 	;
 
-sum
-	:	term
-		(	(	ADD
+conditional_expression
+	:	sum
+		any_cond_expr_value*
+	;
+
+any_sum_value
+	:		(	(	ADD
 			|	SUBTRACT
 			|	BITWISE_OR
 			|	EXCLUSIVE_OR
 			)
 			term
-		)*
+		)
 	;
 
-term
-	:	factor
-		(	(	MULTIPLY
+sum
+	:	term
+		any_sum_value*
+	;
+
+any_term_value
+	:	(	(	MULTIPLY
 			|	DIVISION
 			|	MODULUS
 			|	BITWISE_AND
 			)
 			factor
-		)*
+		)
+	;
+
+term
+	:	factor
+		any_term_value*
+	;
+
+any_factor_value
+	:	(	(	SHIFT_LEFT
+			|	SHIFT_RIGHT
+			)
+			exponentiation
+		)
 	;
 
 factor
 	:	exponentiation
-		(	(	SHIFT_LEFT
-			|	SHIFT_RIGHT
-			)
-			exponentiation
-		)*
+		any_factor_value*
 	;
 
 exponentiation
@@ -1076,7 +1075,7 @@ member
 	|	YIELD
 	;
 
-slice
+slice_no_begin
 	:	// [:
 		COLON
 		(	// [:end]
@@ -1085,7 +1084,10 @@ slice
 			COLON expression
 		|	// [:]
 		)
-	|	// [begin
+	;
+
+slice_with_begin
+	:	// [begin
 		expression
 		(	// [begin:
 			COLON
@@ -1095,13 +1097,17 @@ slice
 		)?
 	;
 
+slice
+	:	slice_no_begin
+	|	slice_with_begin
+	;
+
 safe_atom
 	:	atom NULLABLE_SUFFIX?
 	;
 
-slicing_expression
-	:	safe_atom
-		(	LBRACK
+any_slice_expr_value
+	:	(	LBRACK
 			(	OF type_reference_list
 			|	slice (COMMA slice)*
 			)
@@ -1123,7 +1129,12 @@ slicing_expression
 			(	hash_literal
 			|	list_initializer
 			)?
-		)*
+		)
+	;
+
+slicing_expression
+	:	safe_atom
+		any_slice_expr_value*
 	;
 
 list_initializer
@@ -1178,14 +1189,18 @@ string_literal
 	|	BACKTICK_QUOTED_STRING
 	;
 
-expression_interpolation
-	:	ESEPARATOR?
-		(	ESEPARATOR
+any_expr_interpolation_item
+	:	(	ESEPARATOR
 			expression
 			(	COLON? ID
 			)?
 			ESEPARATOR
-		)+
+		)
+	;
+
+expression_interpolation
+	:	ESEPARATOR?
+		any_expr_interpolation_item+
 		ESEPARATOR?
 	;
 
@@ -1199,13 +1214,6 @@ list_items
 			)*
 			COMMA?
 		)?
-	;
-
-hash_literal_test
-	:	LBRACE
-		(	RBRACE
-		|	expression COLON
-		)
 	;
 
 hash_literal
