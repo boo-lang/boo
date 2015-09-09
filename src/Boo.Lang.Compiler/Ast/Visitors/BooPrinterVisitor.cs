@@ -777,7 +777,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			Visit(e.Target);
 			Write("(");
-			if ((e.Arguments.Count > 0) && (e.NamedArguments.Count == 0) && (e.Arguments.Last is BlockExpression))
+			if ((e.Arguments.Count > 0) && (e.NamedArguments.Count == 0) 
+			    && (e.Arguments.Last is BlockExpression) && !IsSimpleClosure((BlockExpression)e.Arguments.Last))
 			{
 				var args = e.Arguments.ToArray();
 				Array.Resize(ref args, args.Length - 1);
