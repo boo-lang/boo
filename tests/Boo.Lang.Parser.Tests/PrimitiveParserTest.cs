@@ -9,7 +9,7 @@ namespace Boo.Lang.Parser.Tests
 		[Test]
 		public void LongBoundary()
 		{
-			IntegerLiteralExpression expression = PrimitiveParser.ParseIntegerLiteralExpression(new BooToken(), "-9223372036854775808L", true);
+			IntegerLiteralExpression expression = PrimitiveParser.ParseIntegerLiteralExpression(LexicalInfo.Empty, "-9223372036854775808L", true);
 			Assert.AreEqual(-9223372036854775808L, expression.Value);
 		}
 	}

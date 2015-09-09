@@ -207,6 +207,7 @@
     <Compile Include="BooParserAstBuilderListener.cs" />
     <Compile Include="BooParserBase.cs" />
     <Compile Include="BooParsingStep.cs" />
+    <Compile Include="BooParsingStepA4.cs" />
     <Compile Include="BooToken.cs" />
     <Compile Include="BooTokenTypes.cs" />
     <Compile Include="CodeFactory.cs" />

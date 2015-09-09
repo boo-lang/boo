@@ -10,6 +10,7 @@ namespace Boo.Lang.Parser.Tests
 	public class AbstractParserTestFixture
 	{
 		protected Boo.Lang.Compiler.BooCompiler _compiler;
+		protected Boo.Lang.Compiler.BooCompiler _compilerV4;
 		
 		[TestFixtureSetUp]
 		public void SetUpFixture()
@@ -17,11 +18,22 @@ namespace Boo.Lang.Parser.Tests
 			_compiler = new Boo.Lang.Compiler.BooCompiler();
 			_compiler.Parameters.OutputWriter = new StringWriter();
 			_compiler.Parameters.Pipeline = CreatePipeline();
+			
+			_compilerV4 = new Boo.Lang.Compiler.BooCompiler();
+			_compilerV4.Parameters.OutputWriter = new StringWriter();
+			_compilerV4.Parameters.Pipeline = CreatePipelineV4();
 		}
 		
 		protected virtual Boo.Lang.Compiler.CompilerPipeline CreatePipeline()
 		{
 			return new Boo.Lang.Compiler.Pipelines.ParseAndPrint();
+		}
+		
+		protected virtual Boo.Lang.Compiler.CompilerPipeline CreatePipelineV4()
+		{
+			var result = new Boo.Lang.Compiler.Pipelines.ParseAndPrint();
+			result.Replace(typeof(Boo.Lang.Compiler.Steps.Parsing), new Boo.Lang.ParserV4.BooParsingStep());
+			return result;
 		}
 		
 		[SetUp]
@@ -77,6 +89,24 @@ namespace Boo.Lang.Parser.Tests
 			string expected = GetDocumentation(context.CompileUnit.Modules[0]);
 			
 			string output = _compiler.Parameters.OutputWriter.ToString();
+
+			Assert.AreEqual(Normalize(expected), Normalize(output), testfile);
+		}
+
+		protected void RunParserTestCaseV4(string testfile)
+		{
+			_compilerV4.Parameters.Input.Add(GetCompilerInput(testfile));
+			Boo.Lang.Compiler.CompilerContext context = _compilerV4.Run();
+			if (context.Errors.Count > 0)
+			{
+				Assert.Fail(context.Errors.ToString(true));
+			}
+				
+			Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");
+				
+			string expected = GetDocumentation(context.CompileUnit.Modules[0]);
+			
+			string output = _compilerV4.Parameters.OutputWriter.ToString();
 
 			Assert.AreEqual(Normalize(expected), Normalize(output), testfile);
 		}
