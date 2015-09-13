@@ -721,12 +721,14 @@ raise_stmt
 
 declaration_stmt
 	:	ID AS type_reference
-		(	ASSIGN 
-			(	simple_initializer
-			|	declaration_initializer
-			)		
+		(
+			(	ASSIGN 
+				(	simple_initializer
+				|	declaration_initializer
+				)		
+			)
+			|	(stmt_modifier? eos)
 		)
-		|	(stmt_modifier? eos)
 	;
 
 expression_stmt

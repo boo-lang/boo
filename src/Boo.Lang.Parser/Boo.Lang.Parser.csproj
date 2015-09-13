@@ -85,9 +85,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antlr4.Runtime, Version=4.5.0.0, Culture=neutral, PublicKeyToken=e9931a4108ef2354, processorArchitecture=MSIL">
-      <HintPath>..\packages\Antlr4.Runtime.4.5-alpha002\lib\net35-client\Antlr4.Runtime.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Antlr4.Runtime">
+      <HintPath>..\packages\Antlr4.Runtime.4.5-alpha002\lib\net40-client\Antlr4.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
@@ -210,6 +209,7 @@
     <Compile Include="BooParsingStepA4.cs" />
     <Compile Include="BooToken.cs" />
     <Compile Include="BooTokenTypes.cs" />
+    <Compile Include="BooTokenV4.cs" />
     <Compile Include="CodeFactory.cs" />
     <Compile Include="DocStringFormatter.cs" />
     <Compile Include="ErrorPattern.cs" />
@@ -220,6 +220,7 @@
     <Compile Include="SourceLocationFactory.cs" />
     <Compile Include="Util\EndTokenStreamFilter.cs" />
     <Compile Include="Util\IndentTokenStreamFilter.cs" />
+    <Compile Include="Util\IndentTokenStreamFilterV4.cs" />
     <Compile Include="Util\Readers.cs" />
     <Compile Include="Util\TokenStreamRecorder.cs" />
     <Compile Include="Util\WSATokenStreamFilter.cs" />

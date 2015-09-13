@@ -30,6 +30,7 @@ using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Environments;
+using Boo.Lang.Parser.Util;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
@@ -115,7 +116,8 @@ namespace Boo.Lang.ParserV4
 
             AntlrInputStream stream = new AntlrInputStream(reader);
             ITokenSource lexer = new BooLexer(stream);
-            ITokenStream tokens = new CommonTokenStream(lexer);
+            ITokenSource filter = new IndentTokenStreamFilterV4(lexer, BooLexer.WS, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
+            ITokenStream tokens = new CommonTokenStream(filter);
             var parser = new BooParser(tokens);
             parser.BuildParseTree = true;
             var tree = parser.start();
