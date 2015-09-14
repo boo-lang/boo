@@ -203,7 +203,7 @@
 
 		void CheckDocumentation(Node node, BooParser.DocstringContext context)
 		{
-			if (context != null)
+			if (context != null && context.ChildCount > 0)
 			{
 				_node.Put(context, node);
 				VisitDocstring(context);
@@ -241,7 +241,6 @@
 			Expression result = VisitIdentifier_expression(context.identifier_expression());
 			if (context.expression_list() != null)
 			{
-				Visit(context.expression_list());
 				var mie = new MethodInvocationExpression(result.LexicalInfo, result);
 				foreach (var expr in context.expression_list().expression())
 					mie.Arguments.Add((Expression)Visit(expr));
@@ -507,11 +506,10 @@
 			throw new NotImplementedException("Should not see this");
 		}
 
-		void ApplyArgumentList(ExpressionCollection coll, BooParser.Argument_listContext context)
+		void ApplyArgumentList(INodeWithArguments node, BooParser.Argument_listContext context)
 		{
-			if (context != null)
-				foreach (var arg in context.argument())
-					coll.Add((Expression)Visit(arg));
+			foreach (var arg in context.argument())
+				VisitArgument(arg, node);
 		}
 
 		Node IBooParserVisitor<Node>.VisitArgument_list(BooParser.Argument_listContext context)
@@ -525,15 +523,15 @@
 			LexicalInfo li;
 			if (context.TRANSIENT() != null)
 			{
-				name = context.TRANSIENT().ToString();
+				name = context.TRANSIENT().GetText();
 				li = GetLexicalInfo(context.TRANSIENT());
 			} else {
-				name = context.identifier().ToString();
+				name = context.identifier().GetText();
 				li = GetLexicalInfo(context.identifier());
 			}
 			var result = new Boo.Lang.Compiler.Ast.Attribute(li, name);
 			if (context.LPAREN() != null)
-				ApplyArgumentList(result.Arguments, context.argument_list());
+				ApplyArgumentList(result, context.argument_list());
 			return result;
 		}
 
@@ -834,13 +832,13 @@
 					emi = VisitExplicit_member_info(context.explicit_member_info());
 				if (context.member() != null)
 				{
-					name = context.member().ToString();
+					name = context.member().GetText();
 					li = GetLexicalInfo(context.member());
 				}
 				else
 				{
 					nameSplice = (Expression)Visit(context.atom());
-					name = context.SPLICE_BEGIN().ToString();
+					name = context.SPLICE_BEGIN().GetText();
 					li = GetLexicalInfo(context.SPLICE_BEGIN());
 				}
 				if (emi != null)
@@ -891,7 +889,8 @@
 			AddParameters(result, context.parameter_declaration_list());
 			if (context.AS() != null)
 				result.Type = VisitType_reference(context.type_reference());
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			if (context.begin_with_doc() != null)
+				CheckDocumentation(result, context.begin_with_doc().docstring());
 			foreach (var pa in context.property_accessor())
 			{
 				if (pa.GET() != null)
@@ -927,7 +926,7 @@
 		TypeMember VisitField_or_property(BooParser.Field_or_propertyContext context)
 		{
 			TypeMember result;
-			if (context.property_accessor() != null)
+			if (context.property_accessor().Length > 0)
 				result = VisitFPProperty(context);
 			else if (context.member_macro() != null)
 				return VisitMember_macro(context.member_macro());
@@ -1282,8 +1281,8 @@
 		string GetName(BooParser.Type_nameContext context)
 		{
 			if (context.identifier() != null)
-				return context.identifier().ToString();
-			return (context.CALLABLE() ?? context.CHAR()).ToString();
+				return context.identifier().GetText();
+			return (context.CALLABLE() ?? context.CHAR()).GetText();
 		}
 
 		Node IBooParserVisitor<Node>.VisitType_name(BooParser.Type_nameContext context)
@@ -1344,7 +1343,7 @@
 		MacroStatement VisitClosure_macro_stmt(BooParser.Closure_macro_stmtContext context)
 		{
 			var id = context.macro_name();
-			var result = new MacroStatement(GetLexicalInfo(id), id.ToString());
+			var result = new MacroStatement(GetLexicalInfo(id), id.GetText());
 			GetExpressionList(result.Arguments, context.expression_list());
 			return result;
 		}
@@ -1433,7 +1432,7 @@
 
 		string GetMacroName(BooParser.Macro_nameContext context)
 		{
-			return (context.ID() ?? context.THEN()).ToString();
+			return (context.ID() ?? context.THEN()).GetText();
 		}
 
 		Node IBooParserVisitor<Node>.VisitMacro_name(BooParser.Macro_nameContext context)
@@ -1468,7 +1467,7 @@
 		DeclarationStatement VisitNested_function(BooParser.Nested_functionContext context)
 		{
 			var id = context.ID();
-			string name = id.ToString();
+			string name = id.GetText();
 			var be = new BlockExpression(GetLexicalInfo(id));
 			be.Body = VisitCompound_stmt(context.compound_stmt());
 			AddParameters(be, context.parameter_declaration_list());
@@ -1905,10 +1904,14 @@
 			result.Iterator = VisitArray_or_expression(context.array_or_expression());
 			var blocks = context.compound_stmt();
 			result.Block = VisitCompound_stmt(blocks[0]);
+			int blockCounter = 1;
 			if (context.OR() != null)
-				result.OrBlock = VisitCompound_stmt(blocks[1]);
+			{
+				result.OrBlock = VisitCompound_stmt(blocks[blockCounter]);
+				++blockCounter;
+			}
 			if (context.THEN() != null)
-				result.ThenBlock = VisitCompound_stmt(blocks[2]);
+				result.ThenBlock = VisitCompound_stmt(blocks[blockCounter]);
 			return result;
 		}
 
@@ -1922,10 +1925,14 @@
 			Expression e = VisitExpression(context.expression());
 			var blocks = context.compound_stmt();
 			var result = new WhileStatement(e, VisitCompound_stmt(blocks[0])) { LexicalInfo = GetLexicalInfo(context.WHILE()) };
+			int blockCounter = 1;
 			if (context.OR() != null)
-				result.OrBlock = VisitCompound_stmt(blocks[1]);
+			{
+				result.OrBlock = VisitCompound_stmt(blocks[blockCounter]);
+				++blockCounter;
+			}
 			if (context.THEN() != null)
-				result.ThenBlock = VisitCompound_stmt(blocks[2]);
+				result.ThenBlock = VisitCompound_stmt(blocks[blockCounter]);
 			return result;
 		}
 
@@ -2208,10 +2215,10 @@
 		void VisitAst_literal_closure(BooParser.Ast_literal_closureContext context, QuasiquoteExpression e)
 		{
 			var exprs = context.expression();
-			if (exprs != null)
+			if (exprs.Length > 0)
 			{
 				Node node = VisitExpression(exprs[0]);
-				if (exprs[1] != null)
+				if (exprs.Length > 1)
 					e.Node = new ExpressionPair(GetLexicalInfo(context.COLON()), (Expression)node, VisitExpression(exprs[1]));
 				else e.Node = node;
 			}
@@ -2481,7 +2488,7 @@
 			else if (context.CAST() != null)
 			{
 				tr = VisitType_reference(context.type_reference());
-				result = new CastExpression(GetLexicalInfo(context.AS()), result, tr);
+				result = new CastExpression(GetLexicalInfo(context.CAST()), result, tr);
 			}
 			if (context.exponentiation() != null)
 			{
@@ -2693,7 +2700,12 @@
 			Expression end = null;
 			Expression step = null;
 			Expression begin = OmittedExpression.Default;
-			if (context.COLON().Length == 1)
+			if (context.expression() == null)
+			{
+				end = OmittedExpression.Default;
+				step = OmittedExpression.Default;
+			}
+			else if (context.COLON().Length == 1)
 				end = VisitExpression(context.expression());
 			else
 			{
@@ -2714,11 +2726,14 @@
 			Expression begin = VisitExpression(exprs[0]);
 			Expression end = null;
 			Expression step = null;
-			if (exprs[1] == null)
-				end = OmittedExpression.Default;
-			else end = VisitExpression(exprs[1]);
-			if (exprs[2] != null)
-				step = VisitExpression(exprs[2]);
+			if (exprs.Length > 1)
+			{
+				if (exprs[1] == null)
+					end = OmittedExpression.Default;
+				else end = VisitExpression(exprs[1]);
+				if (exprs.Length == 3)
+					step = VisitExpression(exprs[2]);
+			}
 			return new Slice(begin.LexicalInfo, begin, end, step);
 		}
 
@@ -2821,7 +2836,7 @@
 
 		Expression VisitAny_slice_expr_value(BooParser.Any_slice_expr_valueContext context, Expression e)
 		{
-			if (context.type_reference_list() != null)
+			if (context.LBRACK() != null)
 				return ParseSliceTypeRefList(context, e);
 			if (context.OF() != null)
 				return ParseSliceGenericType(context, e);
