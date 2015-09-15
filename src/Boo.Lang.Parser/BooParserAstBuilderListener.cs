@@ -291,7 +291,7 @@
 				Assembly = new ReferenceExpression(li, text);
 			}
 			if (context.AS() != null)
-				Alias = new ReferenceExpression(GetLexicalInfo(context.ID()), context.ID().ToString());
+				Alias = new ReferenceExpression(GetLexicalInfo(context.ID()), context.ID().GetText());
 			return new Import(ns, Assembly, Alias);
 		}
 
@@ -321,7 +321,7 @@
 		NamespaceDeclaration VisitNamespace_directive(BooParser.Namespace_directiveContext context)
 		{
 			var li = GetLexicalInfo(context.NAMESPACE());
-			var result = new NamespaceDeclaration(context.identifier().ToString()) { LexicalInfo = li };
+			var result = new NamespaceDeclaration(context.identifier().GetText()) { LexicalInfo = li };
 			CheckDocumentation(result, context.docstring());
 			return result;
 		}
@@ -445,7 +445,7 @@
 
 		CallableDefinition VisitCallable_definition(BooParser.Callable_definitionContext context)
 		{
-			var result = new CallableDefinition(GetLexicalInfo(context.ID())) { Name = context.ID().ToString() };
+			var result = new CallableDefinition(GetLexicalInfo(context.ID())) { Name = context.ID().GetText() };
 			AddGenericParameters(result, context.generic_parameter_declaration_list());
 			AddParameters(result, context.parameter_declaration_list());
 			if (context.type_reference() != null)
@@ -461,7 +461,7 @@
 
 		EnumDefinition VisitEnum_definition(BooParser.Enum_definitionContext context)
 		{
-			var result = new EnumDefinition(GetLexicalInfo(context.ID())) { Name = context.ID().ToString() };
+			var result = new EnumDefinition(GetLexicalInfo(context.ID())) { Name = context.ID().GetText() };
 			CheckDocumentation(result, context.begin_with_doc().docstring());
 			if (context.PASS() == null)
 				foreach (var em in context.any_enum_member())
@@ -488,7 +488,7 @@
 
 		EnumMember VisitEnum_member(BooParser.Enum_memberContext context)
 		{
-			var result = new EnumMember(GetLexicalInfo(context.ID()), context.ID().ToString());
+			var result = new EnumMember(GetLexicalInfo(context.ID()), context.ID().GetText());
 			if (context.simple_initializer() != null)
 				result.Initializer = (Expression)Visit(context.simple_initializer());
 			AddAttributes(result, context.attributes());
@@ -577,11 +577,11 @@
 			Expression nameSplice = null;
 			if (context.ID() != null)
 			{
-				name = context.ID().ToString();
+				name = context.ID().GetText();
 				li = GetLexicalInfo(context.ID());
 			} else {
 				nameSplice = (Expression)Visit(context.atom());
-				name = context.SPLICE_BEGIN().ToString();
+				name = context.SPLICE_BEGIN().GetText();
 				li = GetLexicalInfo(context.SPLICE_BEGIN());
 			}
 			if (context.CLASS() != null)
@@ -673,13 +673,13 @@
 			Expression nameSplice = null;
 			if (context.ID() != null)
 			{
-				name = context.ID().ToString();
+				name = context.ID().GetText();
 				li = GetLexicalInfo(context.ID());
 			}
 			else
 			{
 				nameSplice = (Expression)Visit(context.atom());
-				name = context.SPLICE_BEGIN().ToString();
+				name = context.SPLICE_BEGIN().GetText();
 				li = GetLexicalInfo(context.SPLICE_BEGIN());
 			}
 			result = new InterfaceDefinition(li) { Name = name };
@@ -713,13 +713,13 @@
 			Expression nameSplice = null;
 			if (context.member() != null)
 			{
-				name = context.member().ToString();
+				name = context.member().GetText();
 				li = GetLexicalInfo(context.member());
 			}
 			else
 			{
 				nameSplice = (Expression)Visit(context.atom());
-				name = context.SPLICE_BEGIN().ToString();
+				name = context.SPLICE_BEGIN().GetText();
 				li = GetLexicalInfo(context.SPLICE_BEGIN());
 			}
 			var result = new Method(li) { Name = name };
@@ -742,7 +742,7 @@
 		Property VisitInterface_property(BooParser.Interface_propertyContext context)
 		{
 			var id = context.ID() ?? context.SELF();
-			var result = new Property(GetLexicalInfo(id)) { Name = id.ToString() };
+			var result = new Property(GetLexicalInfo(id)) { Name = id.GetText() };
 			AddParameters(result, context.parameter_declaration_list());
 			if (context.AS() != null)
 				result.Type = VisitType_reference(context.type_reference());
@@ -764,7 +764,7 @@
 		Method VisitInterface_property_accessor(BooParser.Interface_property_accessorContext context)
 		{
 			var token = context.GET() ?? context.SET();
-			var result = new Method(GetLexicalInfo(token)) { Name = token.ToString() };
+			var result = new Method(GetLexicalInfo(token)) { Name = token.GetText() };
 			AddAttributes(result, context.attributes());
 			return result;
 		}
@@ -783,7 +783,7 @@
 		{
 			var id = context.ID();
 			var tr = VisitType_reference(context.type_reference());
-			var result = new Event(GetLexicalInfo(id), id.ToString(), tr);
+			var result = new Event(GetLexicalInfo(id), id.GetText(), tr);
 			CheckDocumentation(result, context.docstring());
 			return result;
 		}
@@ -803,7 +803,7 @@
 			for (int i = 1; i < ids.Length; ++i)
 			{
 				_sbuilder.Append('.');
-				_sbuilder.Append(ids[i].ToString());
+				_sbuilder.Append(ids[i].GetText());
 			}
 			result.InterfaceType = new SimpleTypeReference(result.LexicalInfo);
 			result.InterfaceType.Name = _sbuilder.ToString();
@@ -875,12 +875,12 @@
 			var token = context.ID() ?? context.SELF();
 			if (token != null)
 			{
-				name = token.ToString();
+				name = token.GetText();
 				li = GetLexicalInfo(token);
 			}
 			else
 			{
-				name = context.SPLICE_BEGIN().ToString();
+				name = context.SPLICE_BEGIN().GetText();
 				li = GetLexicalInfo(context.atom());
 			}
 			result = new Property(li) { Name = name, ExplicitInfo = emi };
@@ -906,12 +906,12 @@
 			LexicalInfo li;
 			if (context.ID() != null)
 			{
-				name = context.ID().ToString();
+				name = context.ID().GetText();
 				li = GetLexicalInfo(context.ID());
 			}
 			else
 			{
-				name = context.SPLICE_BEGIN().ToString();
+				name = context.SPLICE_BEGIN().GetText();
 				li = GetLexicalInfo(context.SPLICE_BEGIN());
 			}
 			var result = new Field(li) { Name = name };
@@ -987,7 +987,7 @@
 		Method VisitProperty_accessor(BooParser.Property_accessorContext context)
 		{
 			var token = context.GET() ?? context.SET();
-			var result = new Method(GetLexicalInfo(token)) { Name = token.ToString() };
+			var result = new Method(GetLexicalInfo(token)) { Name = token.GetText() };
 			AddAttributes(result, context.attributes());
 			result.Modifiers = GetModifiers(context.modifiers());
 			if (context.compound_stmt() != null)
@@ -1054,13 +1054,13 @@
 			Expression nameSplice = null;
 			if (context.ID() != null)
 			{
-				name = context.ID().ToString();
+				name = context.ID().GetText();
 				li = GetLexicalInfo(context.ID());
 			}
 			else
 			{
 				nameSplice = (Expression)Visit(context.atom());
-				name = context.SPLICE_BEGIN().ToString();
+				name = context.SPLICE_BEGIN().GetText();
 				li = GetLexicalInfo(context.SPLICE_BEGIN());
 			}
 			var result = new ParameterDeclaration(li) { Name = name };
@@ -1159,7 +1159,7 @@
 		GenericParameterDeclaration VisitGeneric_parameter_declaration(BooParser.Generic_parameter_declarationContext context)
 		{
 			var id = context.ID();
-			var result = new GenericParameterDeclaration(GetLexicalInfo(id)) { Name = id.ToString() };
+			var result = new GenericParameterDeclaration(GetLexicalInfo(id)) { Name = id.GetText() };
 			AddGenericParameterConstraints(result, context.generic_parameter_constraints());
 			return result;
 		}
@@ -1446,7 +1446,7 @@
 				GetLexicalInfo(context.GOTO()),
 				new ReferenceExpression(
 					GetLexicalInfo(context.ID()),
-					context.ID().ToString()));
+					context.ID().GetText()));
 		}
 
 		Node IBooParserVisitor<Node>.VisitGoto_stmt(BooParser.Goto_stmtContext context)
@@ -1456,7 +1456,7 @@
 
 		LabelStatement VisitLabel_stmt(BooParser.Label_stmtContext context)
 		{
-			return new LabelStatement(GetLexicalInfo(context.COLON()), context.ID().ToString());
+			return new LabelStatement(GetLexicalInfo(context.COLON()), context.ID().GetText());
 		}
 
 		Node IBooParserVisitor<Node>.VisitLabel_stmt(BooParser.Label_stmtContext context)
@@ -1783,7 +1783,7 @@
 				m = VisitStmt_modifier(context.stmt_modifier());
 
 			Declaration d = new Declaration(GetLexicalInfo(id));
-			d.Name = id.ToString();
+			d.Name = id.GetText();
 			d.Type = tr;
 
 			var result = new DeclarationStatement(d.LexicalInfo);
@@ -2017,7 +2017,7 @@
 			TypeReference tr = null;
 			if (context.AS() != null)
 				tr = VisitType_reference(context.type_reference());
-			return new Declaration(GetLexicalInfo(id), id.ToString(), tr);
+			return new Declaration(GetLexicalInfo(id), id.GetText(), tr);
 		}
 
 		Node IBooParserVisitor<Node>.VisitDeclaration(BooParser.DeclarationContext context)

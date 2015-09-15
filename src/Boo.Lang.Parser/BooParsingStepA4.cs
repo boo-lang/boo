@@ -110,25 +110,25 @@ namespace Boo.Lang.ParserV4
 */
 		protected virtual void ParseModule(string inputName, System.IO.TextReader reader)
 		{
-            /*
-            var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
-            new BooParser(new BooLexer())*/
+			/*
+			var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
+			new BooParser(new BooLexer())*/
 
-            AntlrInputStream stream = new AntlrInputStream(reader);
-            ITokenSource lexer = new BooLexer(stream);
-            ITokenSource filter = new IndentTokenStreamFilterV4(lexer, BooLexer.WS, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
-            ITokenStream tokens = new CommonTokenStream(filter);
-            var parser = new BooParser(tokens);
-            parser.BuildParseTree = true;
-            var tree = parser.start();
-            var visitor = new BooParserAstBuilderListener(_context.CompileUnit, inputName);
-            visitor.VisitStart(tree);
-            //BooParser.ParseModule(settings, _context.CompileUnit, inputName, reader);
+			AntlrInputStream stream = new AntlrInputStream(reader);
+			ITokenSource lexer = new BooLexer(stream);
+			ITokenSource filter = new IndentTokenStreamFilterV4(lexer, BooLexer.WS, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
+			ITokenStream tokens = new CommonTokenStream(filter);
+			var parser = new BooParser(tokens);
+			parser.BuildParseTree = true;
+			var tree = parser.start();
+			var visitor = new BooParserAstBuilderListener(_context.CompileUnit, inputName);
+			visitor.VisitStart(tree);
+			//BooParser.ParseModule(settings, _context.CompileUnit, inputName, reader);
 		}
 
 /*
-        void OnParserError(Antlr4.Runtime.RecognitionException error)
-		{			
+		void OnParserError(Antlr4.Runtime.RecognitionException error)
+		{
 			var location = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn());
 			var nvae = error as NoViableAltException;
 			if (null != nvae)
@@ -142,11 +142,11 @@ namespace Boo.Lang.ParserV4
 			_context.Errors.Add(CompilerErrorFactory.GenericParserError(data, error));
 		}
 
-        /*
+		/*
 		void ParserError(LexicalInfo data, NoViableAltException error)
-		{			
+		{
 			_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(data, error, error.token.getText()));
 		}
-        */
+		*/
 	}
 }
