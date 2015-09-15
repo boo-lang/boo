@@ -884,19 +884,18 @@ ast_literal_closure
 	;
 
 assignment_or_method_invocation_with_block_stmt
-	:	slicing_expression
-		(	method_invocation_block
-		|	ASSIGN
-			(	array_or_expression
-			|	callable_expression
-			|	array_or_expression
-				(	method_invocation_block
-				|	stmt_modifier eos
-				|	eos
-				)
-			)
-		)
-	;
+    :    slicing_expression
+        (    method_invocation_block
+        |    ASSIGN
+            (    array_or_expression
+                (    method_invocation_block
+                |    stmt_modifier eos
+                |    eos
+                )?
+            |    callable_expression
+            )
+        )
+    ;
 
 assignment_or_method_invocation
 	:	slicing_expression ASSIGN array_or_expression
