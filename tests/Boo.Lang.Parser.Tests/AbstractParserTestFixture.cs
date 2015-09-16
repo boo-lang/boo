@@ -41,6 +41,8 @@ namespace Boo.Lang.Parser.Tests
 		{
 			_compiler.Parameters.Input.Clear();
 			((StringWriter)_compiler.Parameters.OutputWriter).GetStringBuilder().Length = 0;
+			_compilerV4.Parameters.Input.Clear();
+			((StringWriter)_compilerV4.Parameters.OutputWriter).GetStringBuilder().Length = 0;
 		}
 		
 		protected virtual string GetRelativeTestCasesPath()
@@ -84,7 +86,7 @@ namespace Boo.Lang.Parser.Tests
 				Assert.Fail(context.Errors.ToString(true));
 			}
 				
-			Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");				
+			Assert.AreEqual(1, context.CompileUnit.Modules.Count, "expected a module as output");
 				
 			string expected = GetDocumentation(context.CompileUnit.Modules[0]);
 			
