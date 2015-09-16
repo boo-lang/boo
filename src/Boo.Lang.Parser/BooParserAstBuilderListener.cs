@@ -1661,7 +1661,7 @@
 			result.Annotate("inline");
 			AddParameters(result, context.parameter_declaration_list());
 			foreach (var stmt in context.internal_closure_stmt())
-				result.Body.Annotate(VisitInternal_closure_stmt(stmt));
+				result.Body.Add(VisitInternal_closure_stmt(stmt));
 			SetEndSourceLocation(result.Body, context.RBRACE());
 			return result;
 		}
