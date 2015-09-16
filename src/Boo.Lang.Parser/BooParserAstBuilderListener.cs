@@ -2716,7 +2716,6 @@
 			if (context.expression() == null)
 			{
 				end = OmittedExpression.Default;
-				step = OmittedExpression.Default;
 			}
 			else if (context.COLON().Length == 1)
 				end = VisitExpression(context.expression());
@@ -2739,13 +2738,15 @@
 			Expression begin = VisitExpression(exprs[0]);
 			Expression end = null;
 			Expression step = null;
-			if (exprs.Length > 1)
+			if (context.COLON().Length > 0)
 			{
-				if (exprs[1] == null)
+				if (exprs.Length == 1)
 					end = OmittedExpression.Default;
-				else end = VisitExpression(exprs[1]);
-				if (exprs.Length == 3)
-					step = VisitExpression(exprs[2]);
+				else
+					end = VisitExpression(exprs[1]);
+
+				if (context.COLON().Length == 2)
+					step = VisitExpression(exprs.Last());
 			}
 			return new Slice(begin.LexicalInfo, begin, end, step);
 		}
