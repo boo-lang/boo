@@ -161,9 +161,9 @@ INPLACE_BITWISE_AND: '&=';
 EXCLUSIVE_OR: '^';
 INPLACE_EXCLUSIVE_OR: '^=';
 
-LPAREN : '(' { EnterSkipWhitespaceRegion(); };
+LPAREN : '(' { EnterSkipWhitespaceRegion(); HandleInterpolationToken(LPAREN); };
 
-RPAREN : ')' { LeaveSkipWhitespaceRegion(); };
+RPAREN : ')' { LeaveSkipWhitespaceRegion(); HandleInterpolationToken(RPAREN); };
 
 LBRACK
 	:	'[' { EnterSkipWhitespaceRegion(); }
@@ -179,9 +179,9 @@ ASSEMBLY_ATTRIBUTE_BEGIN
 
 RBRACK : ']' { LeaveSkipWhitespaceRegion(); };
 
-LBRACE : '{' { EnterSkipWhitespaceRegion(); };
+LBRACE : '{' { EnterSkipWhitespaceRegion(); HandleInterpolationToken(LBRACE); };
 	
-RBRACE : '}' { LeaveSkipWhitespaceRegion(); };
+RBRACE : '}' { LeaveSkipWhitespaceRegion(); HandleInterpolationToken(RBRACE); };
 
 SPLICE_BEGIN : '$';
 
@@ -234,35 +234,12 @@ COMMA: ',';
 
 TRIPLE_QUOTED_STRING
 	:	'"""'
-		(	INTERPOLATED_EXPRESSION
-		|	INTERPOLATED_REFERENCE
-		|	'\\' '$'
-		|	'"' {_input.La(1) != '"' || _input.La(2) != '"'}?
-		|	~[\r\n"]
-		|	NEWLINE
-		)*
-		'"""'
+		-> pushMode(TQS)
 	;
 
 DOUBLE_QUOTED_STRING
 	:	'"'
-		(	DQS_ESC
-		|	INTERPOLATED_EXPRESSION
-		|	INTERPOLATED_REFERENCE
-		|	~["\\\r\n]
-		)*
-		'"'
-	;
-
-fragment
-INTERPOLATED_EXPRESSION
-	:	'${' { ParseInterpolatedExpression(RBRACE, LBRACE); }
-	|	'$(' { ParseInterpolatedExpression(RPAREN, LPAREN); }
-	;
-
-fragment
-INTERPOLATED_REFERENCE
-	:	'$' ID { EnqueueInterpolatedToken(null); }
+		-> pushMode(DQS)
 	;
 
 SINGLE_QUOTED_STRING
@@ -323,15 +300,6 @@ NEWLINE
 			if (SkipWhitespace)
 				Channel = Hidden;
 		}
-	;
-
-fragment
-DQS_ESC
-	:	'\\'
-		(	SESC
-		|	'"'
-		|	'$'
-		)
 	;
 
 fragment
@@ -481,3 +449,72 @@ HEXDIGIT
 NULLABLE_SUFFIX
 	:	'?'
 	;
+
+mode TQS;
+
+	TQS_TEXT
+		:	(	~["\\$]
+			|	'\\' .
+			)+
+			-> type(TEXT)
+		;
+
+	TQS_INTERPOLATED_REFERENCE
+		:	'$' ID -> type(INTERPOLATED_REFERENCE)
+		;
+
+	TQS_INTERPOLATED_EXPRESSION_LBRACE
+		:	'${' {HandleInterpolatedExpression(LBRACE, RBRACE);} -> type(INTERPOLATED_EXPRESSION_LBRACE)
+		;
+
+	TQS_INTERPOLATED_EXPRESSION_LPAREN
+		:	'$(' {HandleInterpolatedExpression(LPAREN, RPAREN);} -> type(INTERPOLATED_EXPRESSION_LPAREN)
+		;
+
+	TQS_STRAY_DOLLAR
+		:	'$' -> type(TEXT)
+		;
+
+	TQS_DQUOTE
+		:	'"' -> type(TEXT)
+		;
+
+	TQS_END
+		:	'"""'
+			-> popMode
+		;
+
+mode DQS;
+
+	DQS_ESC
+		:	'\\'
+			(	SESC
+			|	'"'
+			|	'$'
+			)
+		;
+
+	TEXT
+		:	~["\\\r\n$]+
+		;
+
+	INTERPOLATED_REFERENCE
+		:	'$' ID
+		;
+
+	INTERPOLATED_EXPRESSION_LBRACE
+		:	'${' {HandleInterpolatedExpression(LBRACE, RBRACE);}
+		;
+
+	INTERPOLATED_EXPRESSION_LPAREN
+		:	'$(' {HandleInterpolatedExpression(LPAREN, RPAREN);}
+		;
+
+	STRAY_DOLLAR
+		:	'$' -> type(TEXT)
+		;
+
+	DQS_END
+		:	'"'
+			-> popMode
+		;

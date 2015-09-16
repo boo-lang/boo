@@ -192,7 +192,7 @@
 
 			VisitChildren(context);
 
-			var tqs = context.TRIPLE_QUOTED_STRING();
+			var tqs = context.triple_quoted_string();
 			node.Documentation = DocStringFormatter.Format(TqsUnquote(tqs.GetText()));
 		}
 
@@ -285,8 +285,8 @@
 				}
 				else
 				{
-					text = DqsUnquote(context.DOUBLE_QUOTED_STRING().GetText());
-					li = GetLexicalInfo(context.DOUBLE_QUOTED_STRING());
+					text = DqsUnquote(context.double_quoted_string().GetText());
+					li = GetLexicalInfo(context.double_quoted_string());
 				}
 				Assembly = new ReferenceExpression(li, text);
 			}
@@ -2994,7 +2994,7 @@
 		string TqsUnquote(string value)
 		{
 			if (value.StartsWith("\"\"\"") && value.EndsWith("\"\"\""))
-				return value.Substring(3, value.Length - 6);
+				return value.Substring(3, value.Length - 6).Replace("\\$", "$");
 			throw new FormatException(string.Format("[{0}] is not a triple-quoted string.", value));
 		}
 
@@ -3010,13 +3010,15 @@
 			StringLiteralExpression e = null;
 			if (context.expression_interpolation() != null)
 				return VisitExpression_interpolation(context.expression_interpolation());
-			var dqs = context.DOUBLE_QUOTED_STRING();
+
+			var dqs = context.double_quoted_string();
 			if (dqs != null)
-			{
-				e = new StringLiteralExpression(GetLexicalInfo(dqs), DqsUnquote(dqs.GetText()));
-				e.Annotate("quote", "\"");
-				return e;
-			}
+				return VisitDouble_quoted_string(dqs);
+
+			var tqs = context.triple_quoted_string();
+			if (tqs != null)
+				return VisitTriple_quoted_string(tqs);
+
 			var sqs = context.SINGLE_QUOTED_STRING();
 			if (sqs != null)
 			{
@@ -3024,13 +3026,7 @@
 				e.Annotate("quote", "'");
 				return e;
 			}
-			var tqs = context.TRIPLE_QUOTED_STRING();
-			if (tqs != null)
-			{
-				e = new StringLiteralExpression(GetLexicalInfo(tqs), TqsUnquote(tqs.GetText()));
-				e.Annotate("quote", "\"\"\"");
-				return e;
-			}
+
 			var bqs = context.BACKTICK_QUOTED_STRING();
 			e = new StringLiteralExpression(GetLexicalInfo(bqs), BqsUnquote(bqs.GetText()));
 			e.Annotate("quote", "`");
@@ -3040,6 +3036,104 @@
 		Node IBooParserVisitor<Node>.VisitString_literal(BooParser.String_literalContext context)
 		{
 			return VisitString_literal(context);
+		}
+
+		Expression VisitDouble_quoted_string(BooParser.Double_quoted_stringContext context)
+		{
+			if (context.expression(0) == null && context.INTERPOLATED_REFERENCE(0) == null)
+			{
+				StringLiteralExpression e = null;
+				e = new StringLiteralExpression(GetLexicalInfo(context), DqsUnquote(context.GetText()));
+				e.Annotate("quote", "\"");
+				return e;
+			}
+
+			ExpressionInterpolationExpression result = new ExpressionInterpolationExpression(GetLexicalInfo(context));
+			for (int i = 0; i < context.ChildCount; i++)
+			{
+				IParseTree node = context.GetChild(i);
+				ITerminalNode terminalNode = node as ITerminalNode;
+				if (terminalNode != null)
+				{
+					switch (terminalNode.Symbol.Type)
+					{
+					case BooParser.TEXT:
+						result.Expressions.Add(new StringLiteralExpression(GetLexicalInfo(terminalNode), terminalNode.Symbol.Text));
+						break;
+
+					case BooParser.INTERPOLATED_REFERENCE:
+						result.Expressions.Add(new ReferenceExpression(GetLexicalInfo(terminalNode), terminalNode.GetText().Substring(1)));
+						break;
+
+					default:
+						break;
+					}
+
+					continue;
+				}
+
+				IRuleNode ruleNode = node as IRuleNode;
+				if (ruleNode != null)
+				{
+					result.Expressions.Add(VisitExpression((BooParser.ExpressionContext)ruleNode));
+				}
+			}
+
+			return result;
+		}
+
+		Node IBooParserVisitor<Node>.VisitDouble_quoted_string(BooParser.Double_quoted_stringContext context)
+		{
+			return VisitDouble_quoted_string(context);
+		}
+
+		Expression VisitTriple_quoted_string(BooParser.Triple_quoted_stringContext context)
+		{
+			if (context.expression(0) == null && context.INTERPOLATED_REFERENCE(0) == null)
+			{
+				StringLiteralExpression e = null;
+				e = new StringLiteralExpression(GetLexicalInfo(context), TqsUnquote(context.GetText()));
+				e.Annotate("quote", "\"\"\"");
+				return e;
+			}
+
+			ExpressionInterpolationExpression result = new ExpressionInterpolationExpression(GetLexicalInfo(context));
+			for (int i = 0; i < context.ChildCount; i++)
+			{
+				IParseTree node = context.GetChild(i);
+				ITerminalNode terminalNode = node as ITerminalNode;
+				if (terminalNode != null)
+				{
+					switch (terminalNode.Symbol.Type)
+					{
+					case BooParser.TEXT:
+						result.Expressions.Add(new StringLiteralExpression(GetLexicalInfo(terminalNode), terminalNode.Symbol.Text.Replace("\\$", "$")));
+						break;
+
+					case BooParser.INTERPOLATED_REFERENCE:
+						result.Expressions.Add(new ReferenceExpression(GetLexicalInfo(terminalNode), terminalNode.GetText().Substring(1)));
+						break;
+
+					default:
+						break;
+					}
+
+					continue;
+				}
+
+				IRuleNode ruleNode = node as IRuleNode;
+				if (ruleNode != null)
+				{
+					result.Expressions.Add(VisitExpression((BooParser.ExpressionContext)ruleNode));
+				}
+			}
+
+			return result;
+		}
+
+		Node IBooParserVisitor<Node>.VisitTriple_quoted_string(BooParser.Triple_quoted_stringContext context)
+		{
+			return VisitTriple_quoted_string(context);
 		}
 
 		ExpressionInterpolationExpression VisitAny_expr_interpolation_item(BooParser.Any_expr_interpolation_itemContext context, ExpressionInterpolationExpression e)

@@ -30,7 +30,7 @@ module_macro
 	;
 
 docstring
-	:	(	TRIPLE_QUOTED_STRING eos?
+	:	(	triple_quoted_string eos?
 		)?
 	;
 
@@ -63,7 +63,7 @@ import_directive_
 	:	IMPORT namespace_expression
 		(	FROM
 			(	identifier
-			|	DOUBLE_QUOTED_STRING
+			|	double_quoted_string
 			|	SINGLE_QUOTED_STRING
 			)
 		)?
@@ -1186,10 +1186,31 @@ integer_literal
 
 string_literal
 	:	expression_interpolation
-	|	DOUBLE_QUOTED_STRING
+	|	double_quoted_string
 	|	SINGLE_QUOTED_STRING
-	|	TRIPLE_QUOTED_STRING
+	|	triple_quoted_string
 	|	BACKTICK_QUOTED_STRING
+	;
+
+double_quoted_string
+	:	DOUBLE_QUOTED_STRING
+		(	TEXT
+		|	DQS_ESC
+		|	INTERPOLATED_EXPRESSION_LBRACE expression RBRACE
+		|	INTERPOLATED_EXPRESSION_LPAREN expression RPAREN
+		|	INTERPOLATED_REFERENCE
+		)*
+		DQS_END
+	;
+
+triple_quoted_string
+	:	TRIPLE_QUOTED_STRING
+		(	TEXT
+		|	INTERPOLATED_EXPRESSION_LBRACE expression RBRACE
+		|	INTERPOLATED_EXPRESSION_LPAREN expression RPAREN
+		|	INTERPOLATED_REFERENCE
+		)*
+		TQS_END
 	;
 
 any_expr_interpolation_item

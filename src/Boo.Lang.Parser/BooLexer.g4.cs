@@ -1,12 +1,16 @@
 ﻿namespace Boo.Lang.ParserV4
 {
     using System;
+    using System.Collections.Generic;
     using System.Text;
     using Antlr4.Runtime;
 
     partial class BooLexer
     {
         protected int _skipWhitespaceRegion = 0;
+
+        private readonly Stack<int> _beginInterpolationType = new Stack<int>();
+        private readonly Stack<int> _endInterpolationType = new Stack<int>();
 
         [Obsolete]
         private StringBuilder text = new StringBuilder();
@@ -61,14 +65,31 @@
             _skipWhitespaceRegion--;
         }
 
-        private void ParseInterpolatedExpression(int closeTokenType, int openTokenType)
+        private void HandleInterpolatedExpression(int beginInterpolationType, int endTokenType)
         {
-            throw new NotImplementedException();
+            _beginInterpolationType.Push(beginInterpolationType);
+            _endInterpolationType.Push(endTokenType);
+            PushMode(DefaultMode);
         }
 
-        private void EnqueueInterpolatedToken(IToken token)
+        private void HandleInterpolationToken(int type)
         {
-            throw new NotImplementedException();
+            if (_beginInterpolationType.Count == 0)
+                return;
+
+            if (_beginInterpolationType.Peek() == type)
+            {
+                PushMode(DefaultMode);
+            }
+            else if (_endInterpolationType.Peek() == type)
+            {
+                PopMode();
+                if (_mode != DefaultMode)
+                {
+                    _beginInterpolationType.Pop();
+                    _endInterpolationType.Pop();
+                }
+            }
         }
     }
 }
