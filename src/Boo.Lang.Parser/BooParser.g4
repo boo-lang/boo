@@ -365,13 +365,13 @@ property_accessor
 	;
 
 globals
-	:	eos? stmt*
+	:	eos? stmt_or_nested_function*
 	;
 
 block
 	:	eos?
 		(	PASS eos
-		|	stmt+
+		|	stmt_or_nested_function+
 		)
 	; 
 
@@ -557,7 +557,7 @@ closure_macro_stmt
 	;
 
 any_macro_stmt
-	:	(	stmt
+	:	(	stmt_or_nested_function
 		|	type_member_stmt
 		)
 	;
@@ -611,9 +611,13 @@ nested_function
 		compound_stmt
 	;
 
-stmt
+stmt_or_nested_function
 	:	nested_function
-	|	for_stmt
+	|	stmt
+	;
+
+stmt
+	:	for_stmt
 	|	while_stmt
 	|	if_stmt
 	|	unless_stmt
@@ -866,8 +870,8 @@ ast_literal_module
 	;
 
 ast_literal_block
-	:	type_definition_member+
-	|	stmt+
+	:	stmt+
+	|	type_definition_member+
 	|	ast_literal_module
 	;
 

@@ -1009,8 +1009,8 @@
 
 		void VisitGlobals(BooParser.GlobalsContext context, Module m)
 		{
-			if (context.stmt() != null)
-				foreach (var statement in context.stmt())
+			if (context.stmt_or_nested_function() != null)
+				foreach (var statement in context.stmt_or_nested_function())
 					m.Globals.Add((Statement)Visit(statement));
 		}
 
@@ -1023,8 +1023,8 @@
 		Block VisitBlock(BooParser.BlockContext context)
 		{
 			var result = new Block();
-			if (context.stmt() != null)
-				foreach (var statement in context.stmt())
+			if (context.stmt_or_nested_function() != null)
+				foreach (var statement in context.stmt_or_nested_function())
 					result.Add((Statement)Visit(statement));
 			return result;
 		}
@@ -1380,8 +1380,8 @@
 
 		Statement VisitAny_macro_stmt(BooParser.Any_macro_stmtContext context)
 		{
-			if (context.stmt() != null)
-				return VisitStmt(context.stmt());
+			if (context.stmt_or_nested_function() != null)
+				return VisitStmt_or_nested_function(context.stmt_or_nested_function());
 			return VisitType_member_stmt(context.type_member_stmt());
 		}
 
@@ -1501,10 +1501,21 @@
 			return VisitNested_function(context);
 		}
 
-		Statement VisitStmt(BooParser.StmtContext context)
+		Statement VisitStmt_or_nested_function(BooParser.Stmt_or_nested_functionContext context)
 		{
 			if (context.nested_function() != null)
 				return VisitNested_function(context.nested_function());
+
+			return VisitStmt(context.stmt());
+		}
+
+		Node IBooParserVisitor<Node>.VisitStmt_or_nested_function(BooParser.Stmt_or_nested_functionContext context)
+		{
+			return VisitStmt_or_nested_function(context);
+		}
+
+		Statement VisitStmt(BooParser.StmtContext context)
+		{
 			if (context.for_stmt() != null)
 				return VisitFor_stmt(context.for_stmt());
 			if (context.while_stmt() != null)
