@@ -3226,7 +3226,11 @@
 		RELiteralExpression VisitRe_literal(BooParser.Re_literalContext context)
 		{
 			var value = context.RE_LITERAL();
-			return new RELiteralExpression(GetLexicalInfo(value), value.GetText());
+			string expressionText = value.GetText();
+			if (expressionText.StartsWith("@"))
+				expressionText = expressionText.Substring(1);
+
+			return new RELiteralExpression(GetLexicalInfo(value), expressionText);
 		}
 
 		Node IBooParserVisitor<Node>.VisitRe_literal(BooParser.Re_literalContext context)
