@@ -96,7 +96,7 @@ LINE_CONTINUATION
 		|	SL_COMMENT
 		|	ML_COMMENT
 		)+
-		-> skip
+		-> channel(HIDDEN)
 	;
 
 INT
@@ -284,12 +284,12 @@ SL_COMMENT
 	:	'#' ~[\r\n]*
 		{
 			if (!_preserveComments)
-				Skip();
+				Channel = Hidden;
 		}
 	|	'//' ~[\r\n]*
 		{
 			if (!_preserveComments)
-				Skip();
+				Channel = Hidden;
 		}
 	;
 
@@ -303,17 +303,16 @@ ML_COMMENT
 		'*/'
 		{
 			if (!_preserveComments)
-				Skip();
+				Channel = Hidden;
 		}
 	;
 
 WS
 	:	(	[ \t\f]
-		|	NEWLINE
 		)+
 		{
 			if (SkipWhitespace)
-				Skip();
+				Channel = Hidden;
 		}
 	;
 
@@ -324,11 +323,14 @@ X_RE_LITERAL
 		-> type(RE_LITERAL)
 	;
 
-fragment
 NEWLINE
 	:	(	'\n'
 		|	'\r' '\n'?
 		)
+		{
+			if (SkipWhitespace)
+				Channel = Hidden;
+		}
 	;
 
 fragment

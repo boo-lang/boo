@@ -52,6 +52,11 @@ namespace Boo.Lang.Parser.Util
 		protected int _wsTokenType;
 
 		/// <summary>
+		/// newline token type.
+		/// </summary>
+		protected int _newlineTokenType;
+
+		/// <summary>
 		/// singleton indent token.
 		/// </summary>
 		protected int _indentTokenType;
@@ -98,7 +103,7 @@ namespace Boo.Lang.Parser.Util
 
 		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
-		public IndentTokenStreamFilterV4(ITokenSource source, int wsType, int indentType, int dedentType, int eosType, int endType, int idType)
+		public IndentTokenStreamFilterV4(ITokenSource source, int wsType, int newlineTokenType, int indentType, int dedentType, int eosType, int endType, int idType)
 		{
 			if (null == source)
 			{
@@ -107,6 +112,7 @@ namespace Boo.Lang.Parser.Util
 
 			_source = source;
 			_wsTokenType = wsType;
+			_newlineTokenType = newlineTokenType;
 			_indentTokenType = indentType;
 			_dedentTokenType = dedentType;
 			_eosTokenType = eosType;
@@ -168,7 +174,7 @@ namespace Boo.Lang.Parser.Util
 		{
 			_buffer.Length = 0;
 		}
-		
+
 		IToken BufferUntilNextNonWhiteSpaceToken()
 		{
 			IToken token = null;
@@ -183,8 +189,8 @@ namespace Boo.Lang.Parser.Util
 					continue;
 				}
 
-				if (ttype == _wsTokenType)
-				{			
+				if (ttype == _wsTokenType || ttype == _newlineTokenType)
+				{
 					Enqueue(new CommonToken(new Tuple<ITokenSource,ICharStream>(token.TokenSource, token.InputStream), token.Type, token.Channel, token.StartIndex, token.StopIndex) { Line = token.Line, Column = token.Column, Channel = TokenConstants.HiddenChannel });
 					_buffer.Append(token.Text);
 					continue;
