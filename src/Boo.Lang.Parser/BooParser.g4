@@ -501,7 +501,11 @@ type_reference
 			)
 			NULLABLE_SUFFIX?
 		)
-		(	MULTIPLY
+		type_degree
+	;
+
+type_degree
+	:	(	MULTIPLY
 		|	EXPONENTIATION
 		)*
 	;

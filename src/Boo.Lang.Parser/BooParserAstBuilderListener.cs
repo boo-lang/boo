@@ -1263,11 +1263,12 @@
 				result = VisitCallable_type_reference(context.callable_type_reference());
 			else result = ParseTypeReference(context);
 
+			var typeDegree = context.type_degree();
 			var enumDegree = 0;
-			if (context.MULTIPLY() != null)
-				enumDegree += context.MULTIPLY().Length;
-			if (context.EXPONENTIATION() != null)
-				enumDegree += context.EXPONENTIATION().Length * 2;
+			if (typeDegree.MULTIPLY() != null)
+				enumDegree += typeDegree.MULTIPLY().Length;
+			if (typeDegree.EXPONENTIATION() != null)
+				enumDegree += typeDegree.EXPONENTIATION().Length * 2;
 			for (int i = 0; i < enumDegree; ++i)
 				result = CodeFactory.EnumerableTypeReferenceFor(result);
 			return result;
@@ -1276,6 +1277,11 @@
 		Node IBooParserVisitor<Node>.VisitType_reference(BooParser.Type_referenceContext context)
 		{
 			return VisitType_reference(context);
+		}
+
+		Node IBooParserVisitor<Node>.VisitType_degree(BooParser.Type_degreeContext context)
+		{
+			throw new NotSupportedException();
 		}
 
 		string GetName(BooParser.Type_nameContext context)
