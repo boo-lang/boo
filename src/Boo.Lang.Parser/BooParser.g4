@@ -993,14 +993,14 @@ exponentiation
 	;
 
 unary_expression
-	:	(	SUBTRACT
+	:	{_input.La(1) == SUBTRACT && _input.La(2) == LONG}? integer_literal
+	|	(	SUBTRACT
 		|	INCREMENT
 		|	DECREMENT
 		|	ONES_COMPLEMENT
 		|	MULTIPLY
 		)
 		unary_expression
-	|	integer_literal
 	|	slicing_expression
 		(	INCREMENT
 		|	DECREMENT
