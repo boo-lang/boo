@@ -7,7 +7,6 @@
     partial class BooLexer
     {
         protected int _skipWhitespaceRegion = 0;
-        bool _preserveComments = true;
 
         [Obsolete]
         private StringBuilder text = new StringBuilder();

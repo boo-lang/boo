@@ -281,16 +281,10 @@ BACKTICK_QUOTED_STRING
 	;
 
 SL_COMMENT
-	:	'#' ~[\r\n]*
-		{
-			if (!_preserveComments)
-				Channel = Hidden;
-		}
-	|	'//' ~[\r\n]*
-		{
-			if (!_preserveComments)
-				Channel = Hidden;
-		}
+	:	(	'#' ~[\r\n]*
+		|	'//' ~[\r\n]*
+		)
+		-> channel(HIDDEN)
 	;
 
 ML_COMMENT
@@ -301,10 +295,7 @@ ML_COMMENT
 		|	~[*\r\n]
 		)*
 		'*/'
-		{
-			if (!_preserveComments)
-				Channel = Hidden;
-		}
+		-> channel(HIDDEN)
 	;
 
 WS
