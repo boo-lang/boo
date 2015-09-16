@@ -329,7 +329,6 @@ NEWLINE
 	:	(	'\n'
 		|	'\r' '\n'?
 		)
-		{ newline(); }
 	;
 
 fragment

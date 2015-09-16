@@ -52,12 +52,6 @@
             Type = type;
         }
 
-        [Obsolete]
-        private void newline()
-        {
-            throw new NotImplementedException();
-        }
-
         private void EnterSkipWhitespaceRegion()
         {
             _skipWhitespaceRegion++;
