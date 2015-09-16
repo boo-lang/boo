@@ -1222,7 +1222,7 @@
 			TypeReference result;
 			if (context.LBRACK() != null)
 			{
-				if (context.MULTIPLY() != null)
+				if (context.MULTIPLY().Length > 0)
 					result = new GenericTypeDefinitionReference(GetLexicalInfo(id)) { Name = GetName(id), GenericPlaceholders = context.MULTIPLY().Length };
 				else {
 					GenericTypeReference gtr = new GenericTypeReference(GetLexicalInfo(id), GetName(id));
@@ -1231,7 +1231,7 @@
 				}
 			}
 			else {
-				if (context.MULTIPLY() != null)
+				if (context.MULTIPLY().Length > 0)
 					result = new GenericTypeDefinitionReference(GetLexicalInfo(id)) { Name = GetName(id), GenericPlaceholders = 1 };
 				else
 				{
