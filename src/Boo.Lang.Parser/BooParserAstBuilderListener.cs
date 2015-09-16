@@ -387,6 +387,13 @@
 					value.Attributes.Add(VisitAttribute(attr));
 		}
 
+		void AddReturnTypeAttributes(CallableDefinition value, BooParser.AttributesContext context)
+		{
+			if (context != null)
+				foreach (var attr in context.attribute())
+					value.ReturnTypeAttributes.Add(VisitAttribute(attr));
+		}
+
 		TypeMember VisitType_member(BooParser.Type_memberContext context)
 		{
 			TypeMember result;
@@ -847,7 +854,7 @@
 			}
 			AddGenericParameters(result, context.generic_parameter_declaration_list());
 			AddParameters(result, context.parameter_declaration_list());
-			AddAttributes(result, context.attributes());
+			AddReturnTypeAttributes(result, context.attributes());
 			if (context.AS() != null)
 				result.ReturnType = VisitType_reference(context.type_reference());
 			CheckDocumentation(result, context.begin_block_with_doc().docstring());
