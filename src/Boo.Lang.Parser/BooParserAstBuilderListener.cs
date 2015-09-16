@@ -1967,7 +1967,7 @@
 					s.FalseBlock = new Block();
 					IfStatement elif = new IfStatement(GetLexicalInfo(ei));
 					elif.TrueBlock = new Block();
-					elif.Condition = e;
+					elif.Condition = VisitExpression(context.expression(i));
 					s.FalseBlock.Add(elif);
 					s = elif;
 					s.TrueBlock = VisitCompound_stmt(blocks[i]);
