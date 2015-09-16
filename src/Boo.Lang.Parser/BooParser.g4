@@ -866,8 +866,8 @@ ast_literal_module
 	;
 
 ast_literal_block
-	:	stmt+
-	|	type_definition_member+
+	:	type_definition_member+
+	|	stmt+
 	|	ast_literal_module
 	;
 
