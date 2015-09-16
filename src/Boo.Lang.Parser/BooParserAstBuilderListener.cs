@@ -1961,23 +1961,24 @@
 			var result = new IfStatement(GetLexicalInfo(context.IF())) { Condition = e, TrueBlock = VisitCompound_stmt(blocks[0]) };
 			var s = result;
 			var i = 1;
-			if (context.ELIF() != null)
-				foreach (var ei in context.ELIF())
-				{
-					s.FalseBlock = new Block();
-					IfStatement elif = new IfStatement(GetLexicalInfo(ei));
-					elif.TrueBlock = new Block();
-					elif.Condition = VisitExpression(context.expression(i));
-					s.FalseBlock.Add(elif);
-					s = elif;
-					s.TrueBlock = VisitCompound_stmt(blocks[i]);
-					++i;
-				}
+			foreach (var ei in context.ELIF())
+			{
+				s.FalseBlock = new Block();
+				IfStatement elif = new IfStatement(GetLexicalInfo(ei));
+				elif.TrueBlock = new Block();
+				elif.Condition = VisitExpression(context.expression(i));
+				s.FalseBlock.Add(elif);
+				s = elif;
+				s.TrueBlock = VisitCompound_stmt(blocks[i]);
+				++i;
+			}
+
 			if (context.ELSE() != null)
 			{
 				s.FalseBlock = VisitCompound_stmt(blocks[i]);
 				s.FalseBlock.LexicalInfo = GetLexicalInfo(context.ELSE());
 			}
+
 			return result;
 		}
 
