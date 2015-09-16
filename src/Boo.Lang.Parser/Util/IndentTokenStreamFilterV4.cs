@@ -297,6 +297,8 @@ namespace Boo.Lang.Parser.Util
 		{
 			return new BooTokenV4(newTokenType, newTokenText,
 				prototype.InputStream.SourceName,
+				prototype.StartIndex,
+				prototype.StartIndex - 1,
 				prototype.Line,
 				prototype.Column + SafeGetLength(prototype.Text));
 		}
