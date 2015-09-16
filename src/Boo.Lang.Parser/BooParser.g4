@@ -721,7 +721,7 @@ raise_stmt
 
 declaration_stmt
 	:	ID AS type_reference
-		(	ASSIGN 
+		(	ASSIGN
 			(	declaration_initializer
 			|	simple_initializer
 			)
@@ -817,13 +817,9 @@ array_or_expression
 			COMMA
 		)
 	|	expression
-		(	COMMA
-			(	expression
-				(	COMMA expression
-				)*
-				COMMA?
-			)?
-		)?
+		(	COMMA expression
+		)*
+		COMMA?
 	;
 
 expression
@@ -866,9 +862,9 @@ ast_literal_module
 	;
 
 ast_literal_block
-	:	ast_literal_module
+	:	stmt+
 	|	type_definition_member+
-	|	stmt+
+	|	ast_literal_module
 	;
 
 ast_literal_closure
@@ -882,18 +878,18 @@ ast_literal_closure
 	;
 
 assignment_or_method_invocation_with_block_stmt
-    :    slicing_expression
-        (    method_invocation_block
-        |    ASSIGN
-            (    array_or_expression
-                (    method_invocation_block
-                |    stmt_modifier eos
-                |    eos
-                )?
-            |    callable_expression
-            )
-        )
-    ;
+	:	slicing_expression
+		(	method_invocation_block
+		|	ASSIGN
+			(	array_or_expression
+				(	method_invocation_block
+				|	stmt_modifier eos
+				|	eos
+				)?
+			|	callable_expression
+			)
+		)
+	;
 
 assignment_or_method_invocation
 	:	slicing_expression ASSIGN array_or_expression
@@ -989,14 +985,14 @@ exponentiation
 	;
 
 unary_expression
-	:	integer_literal
-	|	(	SUBTRACT
+	:	(	SUBTRACT
 		|	INCREMENT
 		|	DECREMENT
 		|	ONES_COMPLEMENT
 		|	MULTIPLY
 		)
 		unary_expression
+	|	integer_literal
 	|	slicing_expression
 		(	INCREMENT
 		|	DECREMENT

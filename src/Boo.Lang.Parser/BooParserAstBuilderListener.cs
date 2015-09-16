@@ -2184,7 +2184,7 @@
 			else
 			{
 				var members = context.type_definition_member();
-				if (members != null)
+				if (members.Length > 0)
 				{
 					TypeMemberCollection collection = new TypeMemberCollection();
 					foreach (var tdm in members)
