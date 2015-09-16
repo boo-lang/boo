@@ -178,10 +178,14 @@ namespace Boo.Lang.Parser.Util
 				
 				int ttype = token.Type;
 				if (token.Channel != TokenConstants.DefaultChannel)
+				{
+					Enqueue(token);
 					continue;
+				}
 
 				if (ttype == _wsTokenType)
 				{			
+					Enqueue(new CommonToken(new Tuple<ITokenSource,ICharStream>(token.TokenSource, token.InputStream), token.Type, token.Channel, token.StartIndex, token.StopIndex) { Line = token.Line, Column = token.Column, Channel = TokenConstants.HiddenChannel });
 					_buffer.Append(token.Text);
 					continue;
 				}
