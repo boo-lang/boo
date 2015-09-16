@@ -237,7 +237,8 @@ TRIPLE_QUOTED_STRING
 		(	INTERPOLATED_EXPRESSION
 		|	INTERPOLATED_REFERENCE
 		|	'\\' '$'
-		|	~[\r\n]
+		|	'"' {_input.La(1) != '"' || _input.La(2) != '"'}?
+		|	~[\r\n"]
 		|	NEWLINE
 		)*
 		'"""'
