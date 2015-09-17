@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Globalization;
 	using System.Linq;
 	using System.Text;
 	using Antlr4.Runtime;
@@ -2979,9 +2980,35 @@
 
 		string SqsUnquote(string value)
 		{
-			if (value.StartsWith("'") && value.EndsWith("'"))
-				return value.Substring(1, value.Length - 2);
-			throw new FormatException(string.Format("[{0}] is not a single-quoted string.", value));
+			if (!value.StartsWith("'") || !value.EndsWith("'") || value.Length < 2)
+				throw new FormatException(string.Format("[{0}] is not a single-quoted string.", value));
+
+			StringBuilder builder = new StringBuilder();
+			for (int i = 1; i < value.Length - 1; i++)
+			{
+				switch (value[i])
+				{
+				case '\\':
+					if (value[i + 1] == 'u')
+					{
+						builder.Append(UnescapeCharacter(value.Substring(i, 6)));
+						i += 5;
+						continue;
+					}
+					else
+					{
+						builder.Append(UnescapeCharacter(value.Substring(i, 2)));
+						i++;
+						continue;
+					}
+
+				default:
+					builder.Append(value[i]);
+					break;
+				}
+			}
+
+			return builder.ToString();
 		}
 
 		string DqsUnquote(string value)
@@ -3038,12 +3065,59 @@
 			return VisitString_literal(context);
 		}
 
+		char UnescapeCharacter(string escapedForm)
+		{
+			if (escapedForm[0] != '\\')
+				throw new ArgumentException();
+
+			switch (escapedForm[1])
+			{
+			case 'r':
+				return '\r';
+			case 'n':
+				return '\n';
+			case 't':
+				return '\t';
+			case 'a':
+				return '\a';
+			case 'b':
+				return '\b';
+			case 'f':
+				return '\f';
+			case '0':
+				return '\0';
+			case 'u':
+				return (char)int.Parse(escapedForm.Substring(2), NumberStyles.HexNumber);
+			default:
+				return escapedForm[1];
+			}
+		}
+
 		Expression VisitDouble_quoted_string(BooParser.Double_quoted_stringContext context)
 		{
 			if (context.expression(0) == null && context.INTERPOLATED_REFERENCE(0) == null)
 			{
+				StringBuilder content = new StringBuilder();
+				for (int i = 0; i < context.ChildCount; i++)
+				{
+					ITerminalNode terminalNode = (ITerminalNode)context.GetChild(i);
+					switch (terminalNode.Symbol.Type)
+					{
+					case BooParser.TEXT:
+						content.Append(terminalNode.Symbol.Text);
+						break;
+
+					case BooParser.DQS_ESC:
+						content.Append(UnescapeCharacter(terminalNode.Symbol.Text));
+						break;
+
+					default:
+						break;
+					}
+				}
+
 				StringLiteralExpression e = null;
-				e = new StringLiteralExpression(GetLexicalInfo(context), DqsUnquote(context.GetText()));
+				e = new StringLiteralExpression(GetLexicalInfo(context), content.ToString());
 				e.Annotate("quote", "\"");
 				return e;
 			}
@@ -3059,6 +3133,10 @@
 					{
 					case BooParser.TEXT:
 						result.Expressions.Add(new StringLiteralExpression(GetLexicalInfo(terminalNode), terminalNode.Symbol.Text));
+						break;
+
+					case BooParser.DQS_ESC:
+						result.Expressions.Add(new StringLiteralExpression(GetLexicalInfo(terminalNode), UnescapeCharacter(terminalNode.Symbol.Text).ToString()));
 						break;
 
 					case BooParser.INTERPOLATED_REFERENCE:
