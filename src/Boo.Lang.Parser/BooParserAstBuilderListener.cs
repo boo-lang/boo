@@ -2074,7 +2074,7 @@
 			return VisitArray_or_expression(context);
 		}
 
-		Expression VisitExpression(BooParser.ExpressionContext context)
+		public Expression VisitExpression(BooParser.ExpressionContext context)
 		{
 			Expression result = VisitBoolean_expression(context.boolean_expression());
 			ExtendedGeneratorExpression mge = null;

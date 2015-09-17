@@ -62,6 +62,11 @@ namespace Boo.Lang.Parser.Tests
 			return BooParser.ParseFile(GetTestCasePath(fname)).Modules[0];
 		}
 		
+		protected virtual Boo.Lang.Compiler.Ast.Module ParseTestCaseV4(string fname)
+		{
+			return Boo.Lang.ParserV4.BooParser.ParseFile(GetTestCasePath(fname)).Modules[0];
+		}
+		
 		protected virtual Boo.Lang.Compiler.ICompilerInput GetCompilerInput(string testfile)
 		{
 			return new FileInput(GetTestCasePath(testfile));

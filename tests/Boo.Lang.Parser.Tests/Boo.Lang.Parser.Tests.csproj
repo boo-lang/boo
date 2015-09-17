@@ -69,6 +69,9 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr4.Runtime">
+      <HintPath>..\..\src\packages\Antlr4.Runtime.4.5-alpha002\lib\net40-client\Antlr4.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\src\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -78,6 +81,7 @@
     <Compile Include="AbstractParserTestFixture.cs" />
     <Compile Include="AbstractWSAParserTestFixture.cs" />
     <Compile Include="BooParserTestCase.cs" />
+    <Compile Include="BooParserV4TestCase.cs" />
     <Compile Include="ParserRoundtripTestFixture.cs" />
     <Compile Include="ParserV4RountdripTestFixture.cs" />
     <Compile Include="PrimitiveParserTest.cs" />
