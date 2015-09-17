@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Globalization;
 	using System.Linq;
 	using System.Text;
 	using Antlr4.Runtime;
@@ -192,7 +193,7 @@
 
 			VisitChildren(context);
 
-			var tqs = context.TRIPLE_QUOTED_STRING();
+			var tqs = context.triple_quoted_string();
 			node.Documentation = DocStringFormatter.Format(TqsUnquote(tqs.GetText()));
 		}
 
@@ -285,8 +286,8 @@
 				}
 				else
 				{
-					text = DqsUnquote(context.DOUBLE_QUOTED_STRING().GetText());
-					li = GetLexicalInfo(context.DOUBLE_QUOTED_STRING());
+					text = DqsUnquote(context.double_quoted_string().GetText());
+					li = GetLexicalInfo(context.double_quoted_string());
 				}
 				Assembly = new ReferenceExpression(li, text);
 			}
@@ -385,6 +386,13 @@
 			if (context != null)
 				foreach (var attr in context.attribute())
 					value.Attributes.Add(VisitAttribute(attr));
+		}
+
+		void AddReturnTypeAttributes(CallableDefinition value, BooParser.AttributesContext context)
+		{
+			if (context != null)
+				foreach (var attr in context.attribute())
+					value.ReturnTypeAttributes.Add(VisitAttribute(attr));
 		}
 
 		TypeMember VisitType_member(BooParser.Type_memberContext context)
@@ -847,7 +855,7 @@
 			}
 			AddGenericParameters(result, context.generic_parameter_declaration_list());
 			AddParameters(result, context.parameter_declaration_list());
-			AddAttributes(result, context.attributes());
+			AddReturnTypeAttributes(result, context.attributes());
 			if (context.AS() != null)
 				result.ReturnType = VisitType_reference(context.type_reference());
 			CheckDocumentation(result, context.begin_block_with_doc().docstring());
@@ -1002,8 +1010,8 @@
 
 		void VisitGlobals(BooParser.GlobalsContext context, Module m)
 		{
-			if (context.stmt() != null)
-				foreach (var statement in context.stmt())
+			if (context.stmt_or_nested_function() != null)
+				foreach (var statement in context.stmt_or_nested_function())
 					m.Globals.Add((Statement)Visit(statement));
 		}
 
@@ -1016,8 +1024,8 @@
 		Block VisitBlock(BooParser.BlockContext context)
 		{
 			var result = new Block();
-			if (context.stmt() != null)
-				foreach (var statement in context.stmt())
+			if (context.stmt_or_nested_function() != null)
+				foreach (var statement in context.stmt_or_nested_function())
 					result.Add((Statement)Visit(statement));
 			return result;
 		}
@@ -1215,7 +1223,7 @@
 			TypeReference result;
 			if (context.LBRACK() != null)
 			{
-				if (context.MULTIPLY() != null)
+				if (context.MULTIPLY().Length > 0)
 					result = new GenericTypeDefinitionReference(GetLexicalInfo(id)) { Name = GetName(id), GenericPlaceholders = context.MULTIPLY().Length };
 				else {
 					GenericTypeReference gtr = new GenericTypeReference(GetLexicalInfo(id), GetName(id));
@@ -1224,7 +1232,7 @@
 				}
 			}
 			else {
-				if (context.MULTIPLY() != null)
+				if (context.MULTIPLY().Length > 0)
 					result = new GenericTypeDefinitionReference(GetLexicalInfo(id)) { Name = GetName(id), GenericPlaceholders = 1 };
 				else
 				{
@@ -1263,11 +1271,12 @@
 				result = VisitCallable_type_reference(context.callable_type_reference());
 			else result = ParseTypeReference(context);
 
+			var typeDegree = context.type_degree();
 			var enumDegree = 0;
-			if (context.MULTIPLY() != null)
-				enumDegree += context.MULTIPLY().Length;
-			if (context.EXPONENTIATION() != null)
-				enumDegree += context.EXPONENTIATION().Length * 2;
+			if (typeDegree.MULTIPLY() != null)
+				enumDegree += typeDegree.MULTIPLY().Length;
+			if (typeDegree.EXPONENTIATION() != null)
+				enumDegree += typeDegree.EXPONENTIATION().Length * 2;
 			for (int i = 0; i < enumDegree; ++i)
 				result = CodeFactory.EnumerableTypeReferenceFor(result);
 			return result;
@@ -1276,6 +1285,11 @@
 		Node IBooParserVisitor<Node>.VisitType_reference(BooParser.Type_referenceContext context)
 		{
 			return VisitType_reference(context);
+		}
+
+		Node IBooParserVisitor<Node>.VisitType_degree(BooParser.Type_degreeContext context)
+		{
+			throw new NotSupportedException();
 		}
 
 		string GetName(BooParser.Type_nameContext context)
@@ -1367,8 +1381,8 @@
 
 		Statement VisitAny_macro_stmt(BooParser.Any_macro_stmtContext context)
 		{
-			if (context.stmt() != null)
-				return VisitStmt(context.stmt());
+			if (context.stmt_or_nested_function() != null)
+				return VisitStmt_or_nested_function(context.stmt_or_nested_function());
 			return VisitType_member_stmt(context.type_member_stmt());
 		}
 
@@ -1488,10 +1502,21 @@
 			return VisitNested_function(context);
 		}
 
-		Statement VisitStmt(BooParser.StmtContext context)
+		Statement VisitStmt_or_nested_function(BooParser.Stmt_or_nested_functionContext context)
 		{
 			if (context.nested_function() != null)
 				return VisitNested_function(context.nested_function());
+
+			return VisitStmt(context.stmt());
+		}
+
+		Node IBooParserVisitor<Node>.VisitStmt_or_nested_function(BooParser.Stmt_or_nested_functionContext context)
+		{
+			return VisitStmt_or_nested_function(context);
+		}
+
+		Statement VisitStmt(BooParser.StmtContext context)
+		{
 			if (context.for_stmt() != null)
 				return VisitFor_stmt(context.for_stmt());
 			if (context.while_stmt() != null)
@@ -1648,7 +1673,7 @@
 			result.Annotate("inline");
 			AddParameters(result, context.parameter_declaration_list());
 			foreach (var stmt in context.internal_closure_stmt())
-				result.Body.Annotate(VisitInternal_closure_stmt(stmt));
+				result.Body.Add(VisitInternal_closure_stmt(stmt));
 			SetEndSourceLocation(result.Body, context.RBRACE());
 			return result;
 		}
@@ -1948,23 +1973,24 @@
 			var result = new IfStatement(GetLexicalInfo(context.IF())) { Condition = e, TrueBlock = VisitCompound_stmt(blocks[0]) };
 			var s = result;
 			var i = 1;
-			if (context.ELIF() != null)
-				foreach (var ei in context.ELIF())
-				{
-					s.FalseBlock = new Block();
-					IfStatement elif = new IfStatement(GetLexicalInfo(ei));
-					elif.TrueBlock = new Block();
-					elif.Condition = e;
-					s.FalseBlock.Add(elif);
-					s = elif;
-					s.TrueBlock = VisitCompound_stmt(blocks[i]);
-					++i;
-				}
+			foreach (var ei in context.ELIF())
+			{
+				s.FalseBlock = new Block();
+				IfStatement elif = new IfStatement(GetLexicalInfo(ei));
+				elif.TrueBlock = new Block();
+				elif.Condition = VisitExpression(context.expression(i));
+				s.FalseBlock.Add(elif);
+				s = elif;
+				s.TrueBlock = VisitCompound_stmt(blocks[i]);
+				++i;
+			}
+
 			if (context.ELSE() != null)
 			{
 				s.FalseBlock = VisitCompound_stmt(blocks[i]);
 				s.FalseBlock.LexicalInfo = GetLexicalInfo(context.ELSE());
 			}
+
 			return result;
 		}
 
@@ -2184,7 +2210,7 @@
 			else
 			{
 				var members = context.type_definition_member();
-				if (members != null)
+				if (members.Length > 0)
 				{
 					TypeMemberCollection collection = new TypeMemberCollection();
 					foreach (var tdm in members)
@@ -2703,7 +2729,6 @@
 			if (context.expression() == null)
 			{
 				end = OmittedExpression.Default;
-				step = OmittedExpression.Default;
 			}
 			else if (context.COLON().Length == 1)
 				end = VisitExpression(context.expression());
@@ -2726,13 +2751,15 @@
 			Expression begin = VisitExpression(exprs[0]);
 			Expression end = null;
 			Expression step = null;
-			if (exprs.Length > 1)
+			if (context.COLON().Length > 0)
 			{
-				if (exprs[1] == null)
+				if (exprs.Length == 1)
 					end = OmittedExpression.Default;
-				else end = VisitExpression(exprs[1]);
-				if (exprs.Length == 3)
-					step = VisitExpression(exprs[2]);
+				else
+					end = VisitExpression(exprs[1]);
+
+				if (context.COLON().Length == 2)
+					step = VisitExpression(exprs.Last());
 			}
 			return new Slice(begin.LexicalInfo, begin, end, step);
 		}
@@ -2953,9 +2980,35 @@
 
 		string SqsUnquote(string value)
 		{
-			if (value.StartsWith("'") && value.EndsWith("'"))
-				return value.Substring(1, value.Length - 2);
-			throw new FormatException(string.Format("[{0}] is not a single-quoted string.", value));
+			if (!value.StartsWith("'") || !value.EndsWith("'") || value.Length < 2)
+				throw new FormatException(string.Format("[{0}] is not a single-quoted string.", value));
+
+			StringBuilder builder = new StringBuilder();
+			for (int i = 1; i < value.Length - 1; i++)
+			{
+				switch (value[i])
+				{
+				case '\\':
+					if (value[i + 1] == 'u')
+					{
+						builder.Append(UnescapeCharacter(value.Substring(i, 6)));
+						i += 5;
+						continue;
+					}
+					else
+					{
+						builder.Append(UnescapeCharacter(value.Substring(i, 2)));
+						i++;
+						continue;
+					}
+
+				default:
+					builder.Append(value[i]);
+					break;
+				}
+			}
+
+			return builder.ToString();
 		}
 
 		string DqsUnquote(string value)
@@ -2968,7 +3021,7 @@
 		string TqsUnquote(string value)
 		{
 			if (value.StartsWith("\"\"\"") && value.EndsWith("\"\"\""))
-				return value.Substring(3, value.Length - 6);
+				return value.Substring(3, value.Length - 6).Replace("\\$", "$");
 			throw new FormatException(string.Format("[{0}] is not a triple-quoted string.", value));
 		}
 
@@ -2984,13 +3037,15 @@
 			StringLiteralExpression e = null;
 			if (context.expression_interpolation() != null)
 				return VisitExpression_interpolation(context.expression_interpolation());
-			var dqs = context.DOUBLE_QUOTED_STRING();
+
+			var dqs = context.double_quoted_string();
 			if (dqs != null)
-			{
-				e = new StringLiteralExpression(GetLexicalInfo(dqs), DqsUnquote(dqs.GetText()));
-				e.Annotate("quote", "\"");
-				return e;
-			}
+				return VisitDouble_quoted_string(dqs);
+
+			var tqs = context.triple_quoted_string();
+			if (tqs != null)
+				return VisitTriple_quoted_string(tqs);
+
 			var sqs = context.SINGLE_QUOTED_STRING();
 			if (sqs != null)
 			{
@@ -2998,13 +3053,7 @@
 				e.Annotate("quote", "'");
 				return e;
 			}
-			var tqs = context.TRIPLE_QUOTED_STRING();
-			if (tqs != null)
-			{
-				e = new StringLiteralExpression(GetLexicalInfo(tqs), TqsUnquote(tqs.GetText()));
-				e.Annotate("quote", "\"\"\"");
-				return e;
-			}
+
 			var bqs = context.BACKTICK_QUOTED_STRING();
 			e = new StringLiteralExpression(GetLexicalInfo(bqs), BqsUnquote(bqs.GetText()));
 			e.Annotate("quote", "`");
@@ -3014,6 +3063,155 @@
 		Node IBooParserVisitor<Node>.VisitString_literal(BooParser.String_literalContext context)
 		{
 			return VisitString_literal(context);
+		}
+
+		char UnescapeCharacter(string escapedForm)
+		{
+			if (escapedForm[0] != '\\')
+				throw new ArgumentException();
+
+			switch (escapedForm[1])
+			{
+			case 'r':
+				return '\r';
+			case 'n':
+				return '\n';
+			case 't':
+				return '\t';
+			case 'a':
+				return '\a';
+			case 'b':
+				return '\b';
+			case 'f':
+				return '\f';
+			case '0':
+				return '\0';
+			case 'u':
+				return (char)int.Parse(escapedForm.Substring(2), NumberStyles.HexNumber);
+			default:
+				return escapedForm[1];
+			}
+		}
+
+		Expression VisitDouble_quoted_string(BooParser.Double_quoted_stringContext context)
+		{
+			if (context.expression(0) == null && context.INTERPOLATED_REFERENCE(0) == null)
+			{
+				StringBuilder content = new StringBuilder();
+				for (int i = 0; i < context.ChildCount; i++)
+				{
+					ITerminalNode terminalNode = (ITerminalNode)context.GetChild(i);
+					switch (terminalNode.Symbol.Type)
+					{
+					case BooParser.TEXT:
+						content.Append(terminalNode.Symbol.Text);
+						break;
+
+					case BooParser.DQS_ESC:
+						content.Append(UnescapeCharacter(terminalNode.Symbol.Text));
+						break;
+
+					default:
+						break;
+					}
+				}
+
+				StringLiteralExpression e = null;
+				e = new StringLiteralExpression(GetLexicalInfo(context), content.ToString());
+				e.Annotate("quote", "\"");
+				return e;
+			}
+
+			ExpressionInterpolationExpression result = new ExpressionInterpolationExpression(GetLexicalInfo(context));
+			for (int i = 0; i < context.ChildCount; i++)
+			{
+				IParseTree node = context.GetChild(i);
+				ITerminalNode terminalNode = node as ITerminalNode;
+				if (terminalNode != null)
+				{
+					switch (terminalNode.Symbol.Type)
+					{
+					case BooParser.TEXT:
+						result.Expressions.Add(new StringLiteralExpression(GetLexicalInfo(terminalNode), terminalNode.Symbol.Text));
+						break;
+
+					case BooParser.DQS_ESC:
+						result.Expressions.Add(new StringLiteralExpression(GetLexicalInfo(terminalNode), UnescapeCharacter(terminalNode.Symbol.Text).ToString()));
+						break;
+
+					case BooParser.INTERPOLATED_REFERENCE:
+						result.Expressions.Add(new ReferenceExpression(GetLexicalInfo(terminalNode), terminalNode.GetText().Substring(1)));
+						break;
+
+					default:
+						break;
+					}
+
+					continue;
+				}
+
+				IRuleNode ruleNode = node as IRuleNode;
+				if (ruleNode != null)
+				{
+					result.Expressions.Add(VisitExpression((BooParser.ExpressionContext)ruleNode));
+				}
+			}
+
+			return result;
+		}
+
+		Node IBooParserVisitor<Node>.VisitDouble_quoted_string(BooParser.Double_quoted_stringContext context)
+		{
+			return VisitDouble_quoted_string(context);
+		}
+
+		Expression VisitTriple_quoted_string(BooParser.Triple_quoted_stringContext context)
+		{
+			if (context.expression(0) == null && context.INTERPOLATED_REFERENCE(0) == null)
+			{
+				StringLiteralExpression e = null;
+				e = new StringLiteralExpression(GetLexicalInfo(context), TqsUnquote(context.GetText()));
+				e.Annotate("quote", "\"\"\"");
+				return e;
+			}
+
+			ExpressionInterpolationExpression result = new ExpressionInterpolationExpression(GetLexicalInfo(context));
+			for (int i = 0; i < context.ChildCount; i++)
+			{
+				IParseTree node = context.GetChild(i);
+				ITerminalNode terminalNode = node as ITerminalNode;
+				if (terminalNode != null)
+				{
+					switch (terminalNode.Symbol.Type)
+					{
+					case BooParser.TEXT:
+						result.Expressions.Add(new StringLiteralExpression(GetLexicalInfo(terminalNode), terminalNode.Symbol.Text.Replace("\\$", "$")));
+						break;
+
+					case BooParser.INTERPOLATED_REFERENCE:
+						result.Expressions.Add(new ReferenceExpression(GetLexicalInfo(terminalNode), terminalNode.GetText().Substring(1)));
+						break;
+
+					default:
+						break;
+					}
+
+					continue;
+				}
+
+				IRuleNode ruleNode = node as IRuleNode;
+				if (ruleNode != null)
+				{
+					result.Expressions.Add(VisitExpression((BooParser.ExpressionContext)ruleNode));
+				}
+			}
+
+			return result;
+		}
+
+		Node IBooParserVisitor<Node>.VisitTriple_quoted_string(BooParser.Triple_quoted_stringContext context)
+		{
+			return VisitTriple_quoted_string(context);
 		}
 
 		ExpressionInterpolationExpression VisitAny_expr_interpolation_item(BooParser.Any_expr_interpolation_itemContext context, ExpressionInterpolationExpression e)
@@ -3106,7 +3304,11 @@
 		RELiteralExpression VisitRe_literal(BooParser.Re_literalContext context)
 		{
 			var value = context.RE_LITERAL();
-			return new RELiteralExpression(GetLexicalInfo(value), value.GetText());
+			string expressionText = value.GetText();
+			if (expressionText.StartsWith("@"))
+				expressionText = expressionText.Substring(1);
+
+			return new RELiteralExpression(GetLexicalInfo(value), expressionText);
 		}
 
 		Node IBooParserVisitor<Node>.VisitRe_literal(BooParser.Re_literalContext context)

@@ -116,7 +116,7 @@ namespace Boo.Lang.ParserV4
 
 			AntlrInputStream stream = new AntlrInputStream(reader);
 			ITokenSource lexer = new BooLexer(stream);
-			ITokenSource filter = new IndentTokenStreamFilterV4(lexer, BooLexer.WS, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
+			ITokenSource filter = new IndentTokenStreamFilterV4(lexer, BooLexer.WS, BooLexer.NEWLINE, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
 			ITokenStream tokens = new CommonTokenStream(filter);
 			var parser = new BooParser(tokens);
 			parser.BuildParseTree = true;
