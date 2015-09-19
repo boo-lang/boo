@@ -40,6 +40,8 @@ namespace Boo.Lang.ParserV4
 		
 		protected string _fname;
 
+		private bool _magic;
+
 		public BooTokenV4(int type) : base(type)
 		{
 		}
@@ -52,7 +54,7 @@ namespace Boo.Lang.ParserV4
 		{
 		}
 
-		public BooTokenV4(int type, string text, string fname, int start, int stop, int line, int column)
+		public BooTokenV4(int type, string text, string fname, int start, int stop, int line, int column, bool magic)
 			: base(type, text)
 		{
 			setFilename(fname);
@@ -60,6 +62,7 @@ namespace Boo.Lang.ParserV4
 			this.StopIndex = stop;
 			this.Line = line;
 			this.Column = column;
+			this._magic = magic;
 		}
 
 		public void setFilename(string name)
@@ -70,6 +73,11 @@ namespace Boo.Lang.ParserV4
 		public string getFilename()
 		{
 			return _fname;
+		}
+		
+		public bool MagicToken
+		{
+			get { return _magic; }
 		}
 		
 		public class BooTokenCreator : CommonTokenFactory

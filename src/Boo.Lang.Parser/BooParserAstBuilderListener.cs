@@ -63,7 +63,12 @@
 
 		private void SetEndSourceLocation(Node node, ITerminalNode token)
 		{
-			node.EndSourceLocation = Boo.Lang.Parser.SourceLocationFactory.ToEndSourceLocation(token.Symbol);
+			SetEndSourceLocation(node, token.Symbol);
+		}
+
+		private void SetEndSourceLocation(Node node, IToken token)
+		{
+			node.EndSourceLocation = Boo.Lang.Parser.SourceLocationFactory.ToEndSourceLocation(token);
 		}
 
 		private MemberReferenceExpression MemberReferenceForToken(Expression target, ITerminalNode memberName)
@@ -1009,9 +1014,8 @@
 
 		void VisitGlobals(BooParser.GlobalsContext context, Module m)
 		{
-			if (context.stmt_or_nested_function() != null)
-				foreach (var statement in context.stmt_or_nested_function())
-					m.Globals.Add((Statement)Visit(statement));
+			foreach (var statement in context.stmt_or_nested_function())
+				m.Globals.Add((Statement)Visit(statement));
 		}
 
 		Node IBooParserVisitor<Node>.VisitGlobals(BooParser.GlobalsContext context)
@@ -1023,9 +1027,8 @@
 		Block VisitBlock(BooParser.BlockContext context)
 		{
 			var result = new Block();
-			if (context.stmt_or_nested_function() != null)
-				foreach (var statement in context.stmt_or_nested_function())
-					result.Add((Statement)Visit(statement));
+			foreach (var statement in context.stmt_or_nested_function())
+				result.Add((Statement)Visit(statement));
 			return result;
 		}
 
@@ -1329,6 +1332,7 @@
 				return VisitSingle_line_block(context.single_line_block());
 			var result = VisitBlock(context.block());
 			result.LexicalInfo = GetLexicalInfo(context.COLON());
+			SetEndSourceLocation(result, context.end().Start);
 			return result;
 		}
 

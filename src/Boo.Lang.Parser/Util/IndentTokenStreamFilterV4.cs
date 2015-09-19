@@ -310,7 +310,8 @@ namespace Boo.Lang.Parser.Util
 				prototype.StartIndex,
 				prototype.StartIndex - 1,
 				prototype.Line,
-				prototype.Column + SafeGetLength(prototype.Text) + 1);
+				prototype.Column + SafeGetLength(prototype.Text) + 1,
+				true);
 		}
 		
 		int SafeGetLength(string s)
