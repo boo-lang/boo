@@ -224,8 +224,11 @@
     <Compile Include="Util\Readers.cs" />
     <Compile Include="Util\TokenStreamRecorder.cs" />
     <Compile Include="Util\WSATokenStreamFilter.cs" />
+    <Compile Include="Util\WSATokenStreamFilterV4.cs" />
     <Compile Include="WSABooParser.cs" />
+    <Compile Include="WSABooParserA4.cs" />
     <Compile Include="WSABooParsingStep.cs" />
+    <Compile Include="WSABooParsingStepA4.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />

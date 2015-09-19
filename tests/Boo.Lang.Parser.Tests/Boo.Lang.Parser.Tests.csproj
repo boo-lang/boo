@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="AbstractParserTestFixture.cs" />
     <Compile Include="AbstractWSAParserTestFixture.cs" />
+    <Compile Include="AbstractWSAParserV4TestFixture.cs" />
     <Compile Include="BooParserTestCase.cs" />
     <Compile Include="BooParserV4TestCase.cs" />
     <Compile Include="ParserRoundtripTestFixture.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Util\IndentTokenStreamFilterTestCase.cs" />
     <Compile Include="WSABooParserTestCase.cs" />
     <Compile Include="WSAParserRoundtripTestFixture.cs" />
+    <Compile Include="WSAParserV4RoundtripTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
