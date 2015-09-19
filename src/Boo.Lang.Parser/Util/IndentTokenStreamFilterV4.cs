@@ -305,7 +305,7 @@ namespace Boo.Lang.Parser.Util
 
 		IToken CreateToken(IToken prototype, int newTokenType, string newTokenText)
 		{
-			return new BooTokenV4(newTokenType, newTokenText,
+			return new BooTokenV4(Tuple.Create(prototype.TokenSource, prototype.InputStream), newTokenType, newTokenText,
 				prototype.InputStream.SourceName,
 				prototype.StartIndex,
 				prototype.StartIndex - 1,

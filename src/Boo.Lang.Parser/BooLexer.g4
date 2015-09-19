@@ -464,11 +464,11 @@ mode TQS;
 		;
 
 	TQS_INTERPOLATED_EXPRESSION_LBRACE
-		:	'${' {HandleInterpolatedExpression(LBRACE, RBRACE);} -> type(INTERPOLATED_EXPRESSION_LBRACE)
+		:	'${' {EnterSkipWhitespaceRegion(); HandleInterpolatedExpression(LBRACE, RBRACE);} -> type(INTERPOLATED_EXPRESSION_LBRACE)
 		;
 
 	TQS_INTERPOLATED_EXPRESSION_LPAREN
-		:	'$(' {HandleInterpolatedExpression(LPAREN, RPAREN);} -> type(INTERPOLATED_EXPRESSION_LPAREN)
+		:	'$(' {EnterSkipWhitespaceRegion(); HandleInterpolatedExpression(LPAREN, RPAREN);} -> type(INTERPOLATED_EXPRESSION_LPAREN)
 		;
 
 	TQS_STRAY_DOLLAR
@@ -503,11 +503,11 @@ mode DQS;
 		;
 
 	INTERPOLATED_EXPRESSION_LBRACE
-		:	'${' {HandleInterpolatedExpression(LBRACE, RBRACE);}
+		:	'${' {EnterSkipWhitespaceRegion(); HandleInterpolatedExpression(LBRACE, RBRACE);}
 		;
 
 	INTERPOLATED_EXPRESSION_LPAREN
-		:	'$(' {HandleInterpolatedExpression(LPAREN, RPAREN);}
+		:	'$(' {EnterSkipWhitespaceRegion(); HandleInterpolatedExpression(LPAREN, RPAREN);}
 		;
 
 	STRAY_DOLLAR
