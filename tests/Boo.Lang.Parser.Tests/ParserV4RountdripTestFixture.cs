@@ -703,6 +703,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void inplace_2()
+		{
+			RunCompilerTestCase(@"inplace-1.boo");
+		}
+		
+		[Test]
 		public void internal_generic_callable_type_1()
 		{
 			RunCompilerTestCase(@"internal-generic-callable-type-1.boo");
@@ -919,6 +925,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void quasiquote_method_1()
+		{
+			RunCompilerTestCase(@"quasiquote-method-1.boo");
+		}
+		
+		[Test]
 		public void regex_literals_1()
 		{
 			RunCompilerTestCase(@"regex-literals-1.boo");
@@ -1024,6 +1036,12 @@ namespace Boo.Lang.Parser.Tests
 		public void type_references_1()
 		{
 			RunCompilerTestCase(@"type-references-1.boo");
+		}
+		
+		[Test]
+		public void typeof_1()
+		{
+			RunCompilerTestCase(@"typeof-1.boo");
 		}
 		
 		[Test]
