@@ -148,7 +148,6 @@
 			CheckDocumentation(m, context.docstring());
 			if (context.namespace_directive() != null)
 				m.Namespace = VisitNamespace_directive(context.namespace_directive());
-			if (context.import_directive() != null)
 				foreach (var imp in context.import_directive())
 					m.Imports.Add(VisitImport_directive(imp));
 			if (context.type_member() != null)
@@ -1708,17 +1707,27 @@
 			var result = new TryStatement(GetLexicalInfo(context.TRY()));
 			var blocks = context.compound_stmt();
 			result.ProtectedBlock = VisitCompound_stmt(blocks[0]);
-			foreach (var eh in context.exception_handler())
-				result.ExceptionHandlers.Add(VisitException_handler(eh));
-			if (context.FAILURE() != null)
+			var i = 2;
+			while (i < context.ChildCount)
 			{
-				result.FailureBlock = VisitCompound_stmt(blocks[1]);
-				result.FailureBlock.LexicalInfo = GetLexicalInfo(context.FAILURE());
-			}
-			if (context.ENSURE() != null)
-			{
-				result.EnsureBlock = VisitCompound_stmt(blocks[2]);
-				result.EnsureBlock.LexicalInfo = GetLexicalInfo(context.ENSURE());
+				var sub = context.children[i];
+				if (sub is BooParser.Exception_handlerContext)
+					result.ExceptionHandlers.Add(VisitException_handler(sub as BooParser.Exception_handlerContext));
+				else
+				{
+					var mode = sub.GetText();
+					++i;
+					sub = context.children[i];
+					if (mode == "failure")
+					{
+						result.FailureBlock = VisitCompound_stmt(sub as BooParser.Compound_stmtContext);
+						result.FailureBlock.LexicalInfo = GetLexicalInfo(sub as ParserRuleContext);
+					} else {
+						result.EnsureBlock = VisitCompound_stmt(sub as BooParser.Compound_stmtContext);
+						result.EnsureBlock.LexicalInfo = GetLexicalInfo(sub as ParserRuleContext);
+					}
+				}
+				++i;
 			}
 			return result;
 		}

@@ -1009,6 +1009,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void try_3()
+		{
+			RunCompilerTestCase(@"try-3.boo");
+		}
+		
+		[Test]
 		public void type_references_1()
 		{
 			RunCompilerTestCase(@"type-references-1.boo");
