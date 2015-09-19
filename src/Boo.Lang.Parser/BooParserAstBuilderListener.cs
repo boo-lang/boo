@@ -2030,7 +2030,8 @@
 			Expression e = VisitArray_or_expression(context.array_or_expression());
 			var result = new UnpackStatement(GetLexicalInfo(context.ASSIGN())) { Expression = e };
 			result.Declarations.Add(VisitDeclaration(context.declaration()));
-			AddDeclarations(result.Declarations, context.declaration_list());
+			if (context.declaration_list() != null)
+				AddDeclarations(result.Declarations, context.declaration_list());
 			return result;
 		}
 

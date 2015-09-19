@@ -1033,6 +1033,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void unpack_1()
+		{
+			RunCompilerTestCase(@"unpack-1.boo");
+		}
+		
+		[Test]
 		public void varargs_1()
 		{
 			RunCompilerTestCase(@"varargs-1.boo");
