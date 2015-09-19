@@ -643,6 +643,7 @@
 		TypeMember VisitType_definition_member(BooParser.Type_definition_memberContext context)
 		{
 			TypeMember result;
+			TypeMember baseMember;
 			if (context.method() != null)
 				result = VisitMethod(context.method());
 			else if (context.event_declaration() != null)
@@ -650,8 +651,11 @@
 			else if (context.field_or_property() != null)
 				result = VisitField_or_property(context.field_or_property());
 			else result = VisitType_definition(context.type_definition());
-			AddAttributes(result, context.attributes());
-			result.Modifiers = GetModifiers(context.modifiers());
+			if (result is SpliceTypeMember)
+				baseMember = ((SpliceTypeMember)result).TypeMember;
+			else baseMember = result;	
+			AddAttributes(baseMember, context.attributes());
+			baseMember.Modifiers = GetModifiers(context.modifiers());
 			return result;
 		}
 
@@ -2069,7 +2073,7 @@
 		{
 			var exprs = context.expression();
 			var commas = context.COMMA();
-			if (exprs == null)
+			if (exprs.Length == 0)
 				return new ArrayLiteralExpression(GetLexicalInfo(commas[0]));
 			Expression result = VisitExpression(exprs[0]);
 			if (commas.Length > 0)
@@ -2347,8 +2351,14 @@
 			var result = VisitConditional_expression(context.conditional_expression());
 			if (context.assignment_expression() != null)
 			{
-				var token = context.ASSIGN() ?? context.INPLACE_BITWISE_OR() ?? context.INPLACE_EXCLUSIVE_OR() ?? context.INPLACE_BITWISE_AND() ?? context.INPLACE_SHIFT_LEFT() ?? context.INPLACE_SHIFT_RIGHT();
-				BinaryOperatorType binaryOperator = OperatorParser.ParseCondAssignment(token.GetText());
+				BinaryOperatorType binaryOperator;
+				var token = context.ASSIGN();
+				if (token != null) {
+					binaryOperator = OperatorParser.ParseAssignment(token.GetText());
+				} else {
+					token = context.INPLACE_BITWISE_OR() ?? context.INPLACE_EXCLUSIVE_OR() ?? context.INPLACE_BITWISE_AND() ?? context.INPLACE_SHIFT_LEFT() ?? context.INPLACE_SHIFT_RIGHT();
+					binaryOperator = OperatorParser.ParseCondAssignment(token.GetText());
+				}
 				var r = VisitAssignment_expression(context.assignment_expression());
 				result = new BinaryExpression(GetLexicalInfo(token), binaryOperator, result, r);
 			}

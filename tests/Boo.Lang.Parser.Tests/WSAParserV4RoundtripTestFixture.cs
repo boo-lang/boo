@@ -703,6 +703,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void inplace_2()
+		{
+			RunCompilerTestCase(@"inplace-1.boo");
+		}
+		
+		[Test]
 		public void internal_generic_callable_type_1()
 		{
 			RunCompilerTestCase(@"internal-generic-callable-type-1.boo");
