@@ -1,4 +1,4 @@
-#region license
+﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -26,18 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Reflection;
-using System.Security;
-
-[assembly: AssemblyTitle("boo compiler")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.9.5")]
-[assembly: AssemblyDelaySign(false)]
-[assembly: CLSCompliant(false)]
+namespace Boo.Lang.ParserV4
+{
+	public class WSABooParsingStep : BooParsingStep
+	{
+		override protected void ParseModule(string inputName, System.IO.TextReader reader)
+		{
+			WSABooParser.ParseModule(this.TabSize, this.Context.CompileUnit, inputName, reader); 
+		}
+	}
+}

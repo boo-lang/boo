@@ -865,6 +865,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void multiline_if_1()
+		{
+			RunCompilerTestCase(@"multiline-if-1.boo");
+		}
+		
+		[Test]
 		public void named_arguments_1()
 		{
 			RunCompilerTestCase(@"named-arguments-1.boo");
@@ -1009,6 +1015,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void try_3()
+		{
+			RunCompilerTestCase(@"try-3.boo");
+		}
+		
+		[Test]
 		public void type_references_1()
 		{
 			RunCompilerTestCase(@"type-references-1.boo");
@@ -1018,6 +1030,12 @@ namespace Boo.Lang.Parser.Tests
 		public void unless_1()
 		{
 			RunCompilerTestCase(@"unless-1.boo");
+		}
+		
+		[Test]
+		public void unpack_1()
+		{
+			RunCompilerTestCase(@"unpack-1.boo");
 		}
 		
 		[Test]

@@ -8911,7 +8911,7 @@ _loop222_breakloop:						;
 					{
 						
 									number = sign != null ? sign.getText() + i.getText() : i.getText();
-									e = PrimitiveParser.ParseIntegerLiteralExpression(i, number, false);
+									e = PrimitiveParser.ParseIntegerLiteralExpression(ToLexicalInfo(i), number, false);
 								
 					}
 					break;
@@ -8924,7 +8924,7 @@ _loop222_breakloop:						;
 					{
 						
 									number = sign != null ? sign.getText() + l.getText() : l.getText();
-									e = PrimitiveParser.ParseIntegerLiteralExpression(l, number, true);
+									e = PrimitiveParser.ParseIntegerLiteralExpression(ToLexicalInfo(l), number, true);
 								
 					}
 					break;
@@ -17305,7 +17305,7 @@ _loop657_breakloop:							;
 					
 							val = value.getText();
 							if (neg != null) val = neg.getText() + val;
-							rle = new DoubleLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseDouble(value, val));
+							rle = new DoubleLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseDouble(ToLexicalInfo(value), val));
 						
 				}
 				break;
@@ -17320,7 +17320,7 @@ _loop657_breakloop:							;
 							val = single.getText();
 							val = val.Substring(0, val.Length-1);
 							if (neg != null) val = neg.getText() + val;
-							rle = new DoubleLiteralExpression(ToLexicalInfo(single), PrimitiveParser.ParseDouble(single, val, true), true);
+							rle = new DoubleLiteralExpression(ToLexicalInfo(single), PrimitiveParser.ParseDouble(ToLexicalInfo(single), val, true), true);
 						
 				}
 				break;
@@ -17381,7 +17381,7 @@ _loop657_breakloop:							;
 				
 						string val = value.getText();
 						if (neg != null) val = neg.getText() + val;
-						tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(value, val)); 
+						tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(ToLexicalInfo(value), val)); 
 					
 			}
 		}
