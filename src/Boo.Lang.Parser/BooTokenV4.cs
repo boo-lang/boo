@@ -54,10 +54,11 @@ namespace Boo.Lang.ParserV4
 		{
 		}
 
-		public BooTokenV4(int type, string text, string fname, int start, int stop, int line, int column, bool magic)
+		public BooTokenV4(Tuple<ITokenSource, ICharStream> source, int type, string text, string fname, int start, int stop, int line, int column, bool magic)
 			: base(type, text)
 		{
 			setFilename(fname);
+			this.source = source;
 			this.StartIndex = start;
 			this.StopIndex = stop;
 			this.Line = line;
