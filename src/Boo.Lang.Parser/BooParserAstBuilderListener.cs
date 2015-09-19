@@ -34,6 +34,7 @@
 			_compileUnit = compileUnit;
 			_module = new Module();
 			_filename = filename;
+			_module.Name = System.IO.Path.GetFileNameWithoutExtension(_filename);
 		}
 
 		private string FileName
