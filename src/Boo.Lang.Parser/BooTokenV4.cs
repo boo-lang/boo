@@ -79,7 +79,7 @@ namespace Boo.Lang.ParserV4
 			{
 				var result = new BooTokenV4(source, type, channel, start, stop);
 				result.Line = line;
-				result.Column = charPositionInLine;
+				result.Column = charPositionInLine + 1;
 				if (text != null)
 				{
 					result.Text = text;

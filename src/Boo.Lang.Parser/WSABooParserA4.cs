@@ -88,7 +88,7 @@ namespace Boo.Lang.ParserV4
 		public static ITokenSource CreateBooLexer(int tabSize, string readerName, TextReader reader)
 		{
 			var selector = new antlr.TokenStreamSelector();		
-			var lexer = new BooLexer(new AntlrInputStream(reader));
+			var lexer = new BooLexer(new AntlrInputStream(reader)) { TokenFactory = BooTokenV4.TokenCreator } ;
 			//lexer.FileName = readerName;
 
 			var filter = new WSATokenStreamFilterV4(lexer);
