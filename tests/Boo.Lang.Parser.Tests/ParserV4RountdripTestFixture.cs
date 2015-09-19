@@ -865,6 +865,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void multiline_if_1()
+		{
+			RunCompilerTestCase(@"multiline-if-1.boo");
+		}
+		
+		[Test]
 		public void named_arguments_1()
 		{
 			RunCompilerTestCase(@"named-arguments-1.boo");
