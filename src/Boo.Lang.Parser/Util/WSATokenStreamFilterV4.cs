@@ -151,7 +151,7 @@ namespace Boo.Lang.Parser.Util
 				var next = BufferUntilNextNonWhiteSpaceToken();
 				if (_buffer.Length > 0) {
 					// Special case for docstrings
-					if (next.Type == Boo.Lang.ParserV4.BooLexer.TRIPLE_QUOTED_STRING) {
+					if (next.Type == Boo.Lang.ParserV4.BooLexer.TQS_END) {
 						ProcessNextToken(next);
 						EnqueueIndent(next);
 						return;
