@@ -1,14 +1,3 @@
-**Just a note that we could use some docs on:**
-
-* reference types
-* value types (see also [User-defined value types aka structs](Structs) and I assume a struct keyword will be added too)
-null
-* = vs. ==
-* == vs. is
-* is vs. isa
-* typeof
-* x.GetType()
-
 ###  == vs is vs isa
 
 The "==" operation is deceptively simple. When a data structuer has overriden the "Equals" method, .NET/Boo checks the values of one data structure against another and returns true if they are identical or false if they are not. By default, .NET provides "Equals" overloads for most of the builtin data-types like int, float, decimal, string, and etc. Using "==", two seperate objects can be evaluated and it can be determined if, by value, they are equal or not.
