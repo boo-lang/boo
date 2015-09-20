@@ -4,7 +4,7 @@ Boo is a statically typed language, like Java or C#. This means your boo applica
 
 Sometimes it is appropriate to give up the safety net provided by static typing. Maybe you just want to explore an API without worrying too much about method signatures or maybe you're creating code that talks to external components such as COM objects. Either way the choice should be yours not mine.
 
-Along with the normal types like object, int, string...boo has a special type called "duck". The term is inspired by the ruby programming language's duck typing feature ("If it walks like a duck and quacks like a duck, it must be a duck").
+Along with the normal types like object, int, string...boo has a special type called "duck". The term is inspired by the Ruby programming language's duck typing feature ("If it walks like a duck and quacks like a duck, it must be a duck").
 
 If you declare an object as type duck or cast to type duck (or turn on the implicit duck typing option, see below), then boo will not try to resolve any methods or operations you call on that object at compile time. Instead it will convert those operations into methods that do not resolve until runtime. So at compile time it simply trusts that you know what you are doing ("it walks like a duck so it must be a duck"). This is easier to understand by looking at some examples.
 
