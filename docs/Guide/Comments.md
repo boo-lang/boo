@@ -1,6 +1,6 @@
 ### Single Line Comments
 
-Everything that comes after a hash character (#) or a double backslace (//) is ignored until the end of the line.
+Everything that comes after a hash character (`#`) or a double slash (`//`) is ignored until the end of the line.
 
 ```boo
 # this is a comment
