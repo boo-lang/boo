@@ -35,7 +35,7 @@ ASP.NET is the standard, but see also:
 
 ### Developing Desktop GUI Applications
 
-**Windows.Form**s
+**Windows.Forms**
 
 The standard Windows API, but you can call it from Linux as well, using Mono's Managed.Windows.Forms project. Here are some code snippets and tutorials on using Windows.Forms:
 
