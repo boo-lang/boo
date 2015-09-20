@@ -1,6 +1,6 @@
 ### Duck Typing
 
-Boo is a statically typed language, like Java or C#. This means your boo applications will run about as fast as those coded in other statically typed languages for .NET or Mono. But using a statically typed language sometimes constrains you to an inflexible and verbose coding style, with the sometimes necessary type declarations (like "x as int", but this is not often necessary due to boo's [Type Inference](https://github.com/bamboo/boo/wiki/Type-Inference)) and sometimes necessary type casts (see [Casting Types](https://github.com/bamboo/boo/wiki/Casting-Types)). Boo's support for [Type Inference](https://github.com/bamboo/boo/wiki/Type-Inference) and eventually generics help here, but...
+Boo is a statically typed language, like Java or C#. This means your boo applications will run about as fast as those coded in other statically typed languages for .NET or Mono. But using a statically typed language sometimes constrains you to an inflexible and verbose coding style, with the sometimes necessary type declarations (like "x as int", but this is not often necessary due to boo's [Type Inference](Guide/Type-Inference)) and sometimes necessary type casts (see [Casting Types](Guide/Casting-Types)). Boo's support for [Type Inference](Guide/Type-Inference) and [Generics](Guide/Generics) help here, but...
 
 Sometimes it is appropriate to give up the safety net provided by static typing. Maybe you just want to explore an API without worrying too much about method signatures or maybe you're creating code that talks to external components such as COM objects. Either way the choice should be yours not mine.
 
@@ -10,7 +10,7 @@ If you declare an object as type duck or cast to type duck (or turn on the impli
 
 **Illustrative Example: Static vs Duck Types**
 
-This code illustrates some things you can do with duck types that you can't with static types (unless you add in casting, see [Casting Types](https://github.com/bamboo/boo/wiki/Casting-Types)).
+This code illustrates some things you can do with duck types that you can't with static types (unless you add in casting, see [Casting Types](Guide/Casting-Types)).
 
 ```boo
 static1 as int  //type is fixed to be an integer
@@ -73,9 +73,9 @@ You can set this option in various ways depending on which tool you are using:
 
 What this option does is basically make anything that is of type "object" be of type "duck" instead.
 
-Turning on the ducky option allows you to more quickly test out code, and makes coding in boo feel much more like coding in Python. However, it slows down the speed of your application due to not using static typing. So when you are done testing, you may wish to turn the ducky option back off and add in various type declarations and casts. See [Casting Types](https://github.com/bamboo/boo/wiki/Casting-Types).
+Turning on the ducky option allows you to more quickly test out code, and makes coding in boo feel much more like coding in Python. However, it slows down the speed of your application due to not using static typing. So when you are done testing, you may wish to turn the ducky option back off and add in various type declarations and casts. See [Casting Types](Guide/Casting-Types).
 
-Regular [Type Inference](https://github.com/bamboo/boo/wiki/Type-Inference) is still in effect even when the ducky option is turned on, so if you declare "x = 4", then x is still an int. This allows your code to still be convertible to run without the ducky option by adding in the appropriate type declarations and casts.
+Regular [Type Inference](Guide/Type-Inference) is still in effect even when the ducky option is turned on, so if you declare "x = 4", then x is still an int. This allows your code to still be convertible to run without the ducky option by adding in the appropriate type declarations and casts.
 
 ### Advanced: intercept duck typed method calls using IQuackFu
 
