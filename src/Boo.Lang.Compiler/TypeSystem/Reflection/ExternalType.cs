@@ -168,6 +168,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		{
 			get { return _type.IsPointer; }
 		}
+		
+		public virtual bool IsVoid
+		{
+			get { return false; }
+		}
 
 		public virtual IType BaseType
 		{

@@ -114,6 +114,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			get { return false; }
 		}
 
+		public bool IsVoid
+		{
+			get { return false; }
+		}
+
 		public int GetTypeDepth()
 		{
 			return 2;

@@ -1014,7 +1014,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool IsVoid(IType type)
 		{
-			return type == TypeSystemServices.VoidType;
+			return type.IsVoid;
 		}
 
 		override public void OnUnlessStatement(UnlessStatement node)
