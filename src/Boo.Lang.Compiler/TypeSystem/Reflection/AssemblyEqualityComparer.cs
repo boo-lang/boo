@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public int GetHashCode(Assembly obj)
 		{
-			return obj.FullName.GetHashCode();
+            return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
 		}
 	}
 }
