@@ -18,7 +18,9 @@ install:
   # Obtain mono from a fast mirror (over 150Mb download)
   # - wget "http://switch.dl.sourceforge.net/project/mono.mirror/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg"
   # - wget "http://optimate.dl.sourceforge.net/project/mono.mirror/MonoFramework-MDK-$MONO_VER.macos10.xamarin.x86.pkg"
-  - wget "http://hivelocity.dl.sourceforge.net/project/mono.mirror/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg"
+  # - wget "http://hivelocity.dl.sourceforge.net/project/mono.mirror/MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg"
+  # Sep/2015: mono.mirror project no longer exists so we use a AWS to serve it
+  - wget "http://s3.amazonaws.com/travis-mirror/MonoFramework-MDK-3.2.3.macos10.xamarin.x86.pkg"
   # Install mono
   - sudo installer -pkg "MonoFramework-MDK-${MONO_VER}.macos10.xamarin.x86.pkg" -target /
   # Fetch a version of NAnt compatible with Mono 3

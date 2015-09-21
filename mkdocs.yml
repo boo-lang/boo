@@ -1,0 +1,81 @@
+site_name: Boo documentation
+site_url: https://drslump.github.io/boo
+repo_url: https://github.com/drslump/boo
+site_description: Boo language
+site_author: Boo authors
+site_dir: build/docs
+copyright: Copyright &copy; 2015, Boo authors
+theme: readthedocs
+markdown_extensions:
+  - sane_lists
+  - admonition
+  - def_list
+  - wikilinks
+pages:
+- Home: index.md
+- Primer:
+  - Primer/Starting-Out.md
+  - Primer/Variables.md
+  - Primer/Conditionals.md
+  - Primer/Loops.md
+  - Primer/Containers-and-Casting.md
+  - Primer/Operators.md
+  - Primer/Functions.md
+  - Primer/Classes.md
+  - Primer/Methods.md
+  - Primer/Polymorphism.md
+  - Primer/Structs.md
+  - Primer/Namespaces.md
+  - Primer/Enumerations.md
+  - Primer/Functions-as-objects.md
+  - Primer/Generators.md
+  - Primer/Macros.md
+  - Primer/Duck-typing.md
+  - Primer/Using-the-compiler.md
+  - Primer/Structure-of-a-project.md
+  - Primer/Documentation.md
+  - Primer/Useful-Links.md
+- Language Guide:
+  - Basic Features:
+    - Guide/Structure-of-a-Boo-Script.md
+    - Guide/Import.md
+    - Guide/Comments.md
+    - Guide/Builtin-Functions.md
+  - Using .NET's Standard Class Library:
+    - Guide/Developing-in-Net.md
+    - Guide/String-operations.md
+    - Guide/Triple-Quoted-Strings.md
+    - Guide/Regular-Expressions.md
+    - Guide/XML-Serialization.md
+    - Guide/Generics.md
+  - Procedural Programming:
+    - Guide/Functions.md
+    - Guide/Parameters.md
+    - Guide/Loops.md
+    - Guide/Exception-Handling.md
+    - Guide/Closures.md
+    - Guide/Generators.md
+  - Types and Structures:
+    - Guide/Data-Types.md
+    - Guide/Type-Inference.md
+    - Guide/Casting-Types.md
+    - Guide/Duck-Typing.md
+    - Guide/Callable-Types.md
+    - Guide/Events.md
+    - Guide/Structs.md
+    - Guide/Literals.md
+    - Guide/Lists-and-Arrays.md
+    - Guide/Multidimensional-Arrays.md
+    - Guide/Hashtables.md
+    - Guide/Slicing.md
+  - Object Oriented features:
+    - Guide/Classes.md
+    - Guide/Fields-and-Properties.md
+    - Guide/Interfaces.md
+    - Guide/Operator-Overloading.md
+    - Guide/Enums.md
+  - Advanced Features:
+    - Guide/Macros.md
+    - Guide/Syntactic-Macros.md
+- Micellanea:
+  - faq.md
