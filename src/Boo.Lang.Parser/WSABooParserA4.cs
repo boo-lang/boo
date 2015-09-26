@@ -82,6 +82,7 @@ namespace Boo.Lang.ParserV4
 		{
 			var lexer = CreateBooLexer(tabSize, readerName, reader);
 			var parser = new WSABooParser(new CommonTokenStream(lexer));
+			parser.Interpreter.enable_global_context_dfa = true;
 			return parser;
 		}
 		

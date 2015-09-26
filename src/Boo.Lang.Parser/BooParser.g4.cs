@@ -3,6 +3,8 @@ using Boo.Lang.Parser.Util;
 using System;
 using System.IO;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
+using Antlr4.Runtime.Misc;
 
 namespace Boo.Lang.ParserV4
 {
@@ -48,8 +50,21 @@ namespace Boo.Lang.ParserV4
 				return emptyModule;
 			}
 
-			var parser = CreateParser(readerName, reader);
-			var tree = parser.start();
+			AntlrInputStream stream = new AntlrInputStream(reader);
+			BooParser.StartContext tree;
+
+			try
+			{
+				var parser = CreateParser(readerName, stream, true);
+				tree = parser.start();
+			}
+			catch (ParseCanceledException)
+			{
+				stream.Seek(0);
+				var parser = CreateParser(readerName, stream, false);
+				tree = parser.start();
+			}
+
 			var visitor = new BooParserAstBuilderListener(cu, readerName);
 			var module = visitor.VisitStart(tree);
 
@@ -57,13 +72,26 @@ namespace Boo.Lang.ParserV4
 			return module;
 		}
 		
-		public static BooParser CreateParser(string readerName, TextReader reader)
+		public static BooParser CreateParser(string readerName, ICharStream stream, bool firstStage)
 		{
-			AntlrInputStream stream = new AntlrInputStream(reader);
 			ITokenSource lexer = new BooLexer(stream) { TokenFactory = BooTokenV4.TokenCreator };
 			ITokenSource filter = new IndentTokenStreamFilterV4(lexer, BooLexer.WS, BooLexer.NEWLINE, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
 			ITokenStream tokens = new CommonTokenStream(filter);
 			var parser = new BooParser(tokens);
+			ParserATNSimulator interpreter = parser.Interpreter;
+			interpreter.tail_call_preserves_sll = false;
+
+			if (firstStage)
+			{
+				interpreter.PredictionMode = PredictionMode.Sll;
+				parser.ErrorHandler = new BailErrorStrategy();
+			}
+			else
+			{
+				interpreter.enable_global_context_dfa = true;
+				parser.ErrorHandler = new DefaultErrorStrategy();
+			}
+
 			parser.BuildParseTree = true;
 			return parser;
 		}
@@ -84,7 +112,7 @@ namespace Boo.Lang.ParserV4
 		
 		public static Expression ParseExpression(string name, string text)
 		{
-			var parser = CreateParser(name, new StringReader(text));
+			var parser = CreateParser(name, new AntlrInputStream(text), false);
 			
 			var expr = parser.expression();
 			var visitor = new BooParserAstBuilderListener(new CompileUnit(), name);
