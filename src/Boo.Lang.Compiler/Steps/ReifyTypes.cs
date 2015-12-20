@@ -113,7 +113,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static bool IsVarArgsInvocation(MethodInvocationExpression node, IEntityWithParameters entityWithParameters)
 		{
-			return entityWithParameters.AcceptVarArgs; 
+			return entityWithParameters.AcceptVarArgs && !AstUtil.InvocationEndsWithExplodeExpression(node);
 		}
 
 		private void TryToReify(Expression candidate, IType expectedType)

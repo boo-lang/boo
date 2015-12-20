@@ -52,8 +52,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new DetectNotImplementedFeatureUsage());
 			Add(new CheckAttributesUsage());
 
-			Add(new ExpandVarArgsMethodInvocations());
-			
 			Add(new ExpandDuckTypedExpressions());
 
 			Add(new ExpandComplexSlicingExpressions());
@@ -69,6 +67,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ProcessClosures());
 			Add(new ProcessGenerators());
 
+			Add(new ExpandVarArgsMethodInvocations());
 			
 			Add(new InjectCallableConversions());
 			Add(new ImplementICallableOnCallableDefinitions());

@@ -45,33 +45,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.OnMethodInvocationExpression(node);
 
-			// Replace the explode expressions with a dynamic dispatch
-			if (AstUtil.InvocationEndsWithExplodeExpression(node))
-			{
-				var explode = node.Arguments.PopRange(node.Arguments.Count-1)[0];
-				var args = CodeBuilder.CreateObjectArray(node.Arguments);
-
-				var rt_type = TypeSystemServices.Map(typeof(Boo.Lang.Runtime.RuntimeServices));
-				MemberReferenceExpression target = node.Target as MemberReferenceExpression;
-				node.Target = CodeBuilder.CreateMemberReference(
-					NameResolutionService.ResolveMethod(rt_type, "Invoke")
-				);
-
-				node.Arguments.Clear();
-				node.Arguments.Add(target.Target);
-				node.Arguments.Add(CodeBuilder.CreateStringLiteral(target.Name));
-				node.Arguments.Add(
-					CodeBuilder.CreateMethodInvocation(
-						node.LexicalInfo,
-						NameResolutionService.ResolveMethod(rt_type, "AddArrays"),
-						CodeBuilder.CreateTypeofExpression(TypeSystemServices.ObjectType),
-						args,
-						((UnaryExpression)explode).Operand
-					)
-				);
-				return;
-			}
-
 			var method = node.Target.Entity as IMethod;
 			if (null != method && method.AcceptVarArgs)
 			{
@@ -83,15 +56,22 @@ namespace Boo.Lang.Compiler.Steps
 			if (callable != null)
 			{
 				var signature = callable.GetSignature();
-				if (signature.AcceptVarArgs) {
-					ExpandInvocation(node, signature.Parameters);
-					return;
-				}
+				if (!signature.AcceptVarArgs) return;
+				
+				ExpandInvocation(node, signature.Parameters);
+				return;
 			}
 		}
 
 		protected virtual void ExpandInvocation(MethodInvocationExpression node, IParameter[] parameters)
 		{
+			if (AstUtil.InvocationEndsWithExplodeExpression(node))
+			{
+				// explode the arguments
+				node.Arguments.ReplaceAt(-1, ((UnaryExpression)node.Arguments[-1]).Operand);
+				return;
+			}
+
 			var lastParameterIndex = parameters.Length-1;
 			var varArgType = parameters[lastParameterIndex].Type;
 
