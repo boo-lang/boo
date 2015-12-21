@@ -396,6 +396,7 @@
 	
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
 		<property name="backup.currentframework" value="${nant.settings.currentframework}" />
+		<property name="nant.settings.currentframework" value="mono-4.0" unless="${platform::is-windows()}" />
 		<booc target="library"	
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="true" 
