@@ -30,7 +30,7 @@ install:
 
 before_script:
  # Build Boo...
- - mono --runtime=v4.0 nant/NAnt.exe -t:mono-4.0 rebuild
+ - mono --runtime=v4.0 nant/NAnt.exe -t:mono-4.0 -v rebuild
 
 script:
  - echo "Running tests..."

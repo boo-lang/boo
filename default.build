@@ -395,20 +395,31 @@
 	</target>
 
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
-		<exec program="${build.dir}/booc.exe" useruntimeengine="true">
-			<arg value="-v" />
-			<arg value="-noconfig" />
-			<arg value="${debugflag}" />
-			<arg value="-out:${build.dir}/Boo.Microsoft.Build.Tasks.dll" />
-			<arg value="-target:library" />
-			<arg value="-r:Microsoft.Build.Utilities.dll" />
-			<arg value="-r:Microsoft.Build.Framework.dll" />
-			<arg value="-r:Microsoft.Build.Tasks.dll" />
-			<arg value="-srcdir:src/Boo.Microsoft.Build.Tasks" />
-			<arg value="-srcdir:src/Boo.Microsoft.Build.Tasks/Properties" />
-			<arg line='"-lib:${nant::get-base-directory()}"' />
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
-		</exec>
+<property name="backup.currentframework" value="${nant.settings.currentframework}" />
+		<property name="nant.settings.currentframework" value="mono-2.0" unless="${platform::is-windows()}" />
+		<property name="nant.settings.currentframework" value="mono-4.0" unless="${platform::is-windows()}" />
+
+		<booc
+			useruntimeengine="true"
+			exename="${build.dir}/booc.exe"
+
+			target="library"
+			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
+			failonerror="true"
+			verbose="${verbose}"
+			debug="${debug}"
+			define="${defines}">
+			<sources basedir="src/Boo.Microsoft.Build.Tasks">
+				<include name="**/*.boo" />
+			</sources>
+			<references basedir="${build.dir}">
+				<include name="Microsoft.Build.Utilities.dll" />
+				<include name="Microsoft.Build.Framework.dll" />
+				<include name="Microsoft.Build.Tasks.dll" />
+			</references>
+		</booc>
+
+		<property name="nant.settings.currentframework" value="${backup.currentframework}" />
 
 		<copy todir="${build.dir}">
 			<fileset basedir="src/Boo.Microsoft.Build.Tasks">
