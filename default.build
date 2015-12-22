@@ -6,18 +6,18 @@
 
 	<!-- freeze AssemblyVersion to avoid backwards compatibility issues -->
 	<property name="boo.assembly.version" value="2.0.9.5" />
-	
+
 	<property name="debug" value="true" />
 	<property name="optimize" value="false" />
 	<property name="verbose" value="false" />
 	<property name="defines" value="" unless="${property::exists('defines')}" />
-	
+
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
 
 	<property name="java" value="java" />
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
 	<property name="antlr.trace" value="False" />
-	
+
 	<property name="ngen.exe" value="${framework::get-framework-directory(framework::get-target-framework())}/ngen.exe" />
 	<property name="skip.ngen" value="True" />
 	<property name="skip.antlr" value="False" />
@@ -26,7 +26,7 @@
 	<property name="skip.errorpatterns" value="False" />
 
 	<property name="gsv.name" value="gtksourceview-1.0" />
-	
+
 	<property name="build.dir" value="build" dynamic="True"/>
 	<property name="distrobuild.dir" value="distrobuild"/>
 	<property name="docs.dir" value="docs" />
@@ -58,13 +58,13 @@
 	<property name="gendarme.set" value=""/>
 
 	<include buildfile="build.properties" if="${file::exists('build.properties')}" />
-	
+
 	<property name="boo.distro.name" value="boo-${boo.version}" />
-	
+
 	<property name="supported.runtimes.net-1.1" value="&lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;
 &lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;" />
-	
-	<property name="supported.runtimes.net-2.0" 
+
+	<property name="supported.runtimes.net-2.0"
 		value="&lt;supportedRuntime version=&quot;v2.0.50727&quot;/&gt;
 &lt;supportedRuntime version=&quot;v1.1.4322&quot;/&gt;" />
 
@@ -85,17 +85,17 @@
 		<property name="supported.runtimes" value="${supported.runtimes.net-2.0}" />
 		<property name="csc.4.define" value="" />
 	</if>
-			
-	<property name="csc.noconfig" value="false" />	
+
+	<property name="csc.noconfig" value="false" />
 	<property name="csc.define.custom" value="NO_CUSTOM_DEFINE" unless="${property::exists('csc.define.custom')}" />
 	<property name="csc.define" value="${csc.4.define}NET_2_0;TRACE;DEBUG;${csc.define.custom}" />
 
 	<property name="fixture" value="" dynamic="true" />
-	
+
 	<property name="nosign" value="false" />
-	
+
 	<property name="nant-csc-keyfile-bug" value="${version::get-minor(assemblyname::get-version(assembly::get-name(nant::get-assembly()))) &lt; 86}" />
-	
+
 	<target name="sign">
 		<property name="keyfile.path" value="src/boo.snk" overwrite="false" />
 	</target>
@@ -109,7 +109,7 @@
 		<call target="gendarme" if="${gendarme.dir != ''}" />
 		<call target="verify-assemblies" />
 	</target>
-	
+
 	<target name="verify-assemblies" if="${mono}">
 		<foreach item="File" property="filename">
 		<in>
@@ -134,12 +134,12 @@
 		<property name="optimize" value="true" />
 		<property name="csc.define" value="NET_2_0;${csc.define.custom}" />
 	</target>
-	
+
 	<target name="nostdlib">
 		<property name="csc.define" value="${csc.define};NO_SYSTEM_DLL" />
 		<property name="csc.noconfig" value="true" />
 	</target>
-	
+
 	<target name="test" depends="all">
 		<exec
 			basedir="${nant::get-base-directory()}"
@@ -151,7 +151,7 @@
 			<arg value="run" />
 		</exec>
 	</target>
-	
+
 	<target name="test-vs-bin">
 		<exec
 			basedir="${nant::get-base-directory()}"
@@ -162,7 +162,7 @@
 			<arg value="run-vs-bin" />
 		</exec>
 	</target>
-	
+
 	<target name="compile-tests" depends="all">
 		<exec
 			basedir="${nant::get-base-directory()}"
@@ -173,7 +173,7 @@
 			<arg value="compile" />
 		</exec>
 	</target>
-	
+
 	<target name="booish" depends="Boo.Lang.Interpreter">
 		<booc
 			target="exe"
@@ -181,7 +181,7 @@
 			verbose="${verbose}"
 			debug="${debug}"
 			define="${defines}">
-			
+
 			<sources basedir="src/booish">
 				<include name="*.boo" />
 			</sources>
@@ -195,7 +195,7 @@
 
 		<copy file="extras/template.config.in" tofile="${build.dir}/booish.exe.config">
 			<filterchain>
-				<replacestring from="@SUPPORTEDVERSIONS@" 
+				<replacestring from="@SUPPORTEDVERSIONS@"
 					to="${supported.runtimes}" />
 			</filterchain>
 		</copy>
@@ -218,26 +218,26 @@
 			verbose="${verbose}"
 			debug="${debug}"
 			define="${defines}">
-			
+
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Useful.dll" />
 			</references>
-			
+
 			<sources basedir="src/booi">
 				<include name="*.boo" />
 			</sources>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
-		</booc>		
-		
+		</booc>
+
 		<copy file="extras/template.config.in" tofile="${build.dir}/booi.exe.config">
 			<filterchain>
-				<replacestring from="@SUPPORTEDVERSIONS@" 
+				<replacestring from="@SUPPORTEDVERSIONS@"
 					to="${supported.runtimes}" />
 			</filterchain>
 		</copy>
-		
+
 		<if test="${not(platform::is-windows())}">
 			<copy file="extras/booi.in" tofile="${build.dir}/booi" inputencoding="ASCII">
 				<filterchain>
@@ -249,28 +249,28 @@
 		</if>
 
 		<boo>
-		print("Hello from boo task!")		
+		print("Hello from boo task!")
 		print("Framework directory: ${Project.TargetFramework.FrameworkAssemblyDirectory}")
 		</boo>
 
 	</target>
-	
+
 	<target name="dump-properties" depends="core">
 		<boo>
 		for p as System.Collections.DictionaryEntry in Project.Properties:
-			print("${p.Key}: ${p.Value}")		
+			print("${p.Key}: ${p.Value}")
 		</boo>
 	</target>
-	
+
 	<target name="Boo.Lang.PatternMatching" depends="core">
-	
+
 		<booc target="library" output="${build.dir}/Boo.Lang.PatternMatching.dll">
 			<sources basedir="src/Boo.Lang.PatternMatching">
 				<include name="**/*.boo" />
 			</sources>
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
-		
+
 	</target>
 
 	<target name="Boo.Lang.Interpreter" depends="Boo.Lang.PatternMatching, core">
@@ -299,15 +299,15 @@
 				<include name="${build.dir}/Boo.NAnt.Tasks.dll" />
 			</targetfiles>
 		</uptodate>
-		
+
 		<if test="${debug}">
 			<property name="debugflag" value="-debug"/>
 		</if>
 		<if test="${not debug}">
 			<property name="debugflag" value="-debug-"/>
 		</if>
-		
-		<exec program="${build.dir}/booc.exe" useruntimeengine="true" unless="${Boo.NAnt.Tasks-is-uptodate}">		
+
+		<exec program="${build.dir}/booc.exe" useruntimeengine="true" unless="${Boo.NAnt.Tasks-is-uptodate}">
 			<arg value="-v" />
 			<arg value="-noconfig" />
 			<arg value="${debugflag}" />
@@ -318,14 +318,14 @@
 			<arg value="-srcdir:src/Boo.NAnt.Tasks" />
 			<arg line='"-lib:${nant::get-base-directory()}"' />
 		</exec>
-		
+
 		<loadtasks assembly="${build.dir}/Boo.NAnt.Tasks.dll" />
 	</target>
-	
+
 	<target name="booc" depends="corecs">
-		<csc target="exe" 
-				output="${build.dir}/booc.exe" 
-				debug="${debug}" 
+		<csc target="exe"
+				output="${build.dir}/booc.exe"
+				debug="${debug}"
 				optimize="${optimize}"
 				define="${csc.define}">
 			<sources basedir="src/booc">
@@ -349,30 +349,30 @@
 				</filterchain>
 			</copy>
 		</if>
-		
+
 		<copy todir="${build.dir}" file="src/booc/booc.rsp" />
-		
+
 		<copy file="extras/template.config.in" tofile="${build.dir}/booc.exe.config">
 			<filterchain>
-				<replacestring from="@SUPPORTEDVERSIONS@" 
+				<replacestring from="@SUPPORTEDVERSIONS@"
 					to="${supported.runtimes}" />
 			</filterchain>
 		</copy>
-		
+
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg file='${build.dir}/Boo.Lang.dll' />
 			<arg file='${build.dir}/Boo.Lang.Compiler.dll' />
-			<arg file='${build.dir}/Boo.Lang.Extensions.dll' />			
+			<arg file='${build.dir}/Boo.Lang.Extensions.dll' />
 			<arg file='${build.dir}/Boo.Lang.Parser.dll' />
 			<arg file='${build.dir}/booc.exe' />
 		</exec>
 	</target>
-	
+
 	<target name="corecs" depends="Boo.Lang, Boo.Lang.Compiler, Boo.Lang.Parser">
 	</target>
-	
+
 	<target name="core" depends="corecs, Boo.Lang.Extensions, Boo.NAnt.Tasks" />
-	
+
 	<target name="update-bin" depends="all">
 		<mkdir dir="bin" />
 		<delete>
@@ -393,13 +393,19 @@
 			</fileset>
 		</copy>
 	</target>
-	
+
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
-		<property name="backup.currentframework" value="${nant.settings.currentframework}" />
+<property name="backup.currentframework" value="${nant.settings.currentframework}" />
 		<property name="nant.settings.currentframework" value="mono-2.0" unless="${platform::is-windows()}" />
-		<booc target="library"	
+		<property name="nant.settings.currentframework" value="mono-4.0" unless="${platform::is-windows()}" />
+
+		<booc
+			useruntimeengine="true"
+			exename="${build.dir}/booc.exe"
+
+			target="library"
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
-			failonerror="true" 
+			failonerror="true"
 			verbose="${verbose}"
 			debug="${debug}"
 			define="${defines}">
@@ -411,16 +417,17 @@
 				<include name="Microsoft.Build.Framework.dll" />
 				<include name="Microsoft.Build.Tasks.dll" />
 			</references>
-			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
+
 		<property name="nant.settings.currentframework" value="${backup.currentframework}" />
+
 		<copy todir="${build.dir}">
 			<fileset basedir="src/Boo.Microsoft.Build.Tasks">
 				<include name="Boo.Microsoft.Build.targets" />
 			</fileset>
 		</copy>
 	</target>
-	
+
 	<target name="Boo.Lang.Useful" depends="core">
 		<uptodate property="useful-grammars-uptodate">
 			<sourcefiles basedir="src/Boo.Lang.Useful">
@@ -441,7 +448,7 @@
 				<arg value="src/Boo.Lang.Useful/IO/PreProcessorExpressions.g" />
 			</exec>
 		</if>
-		
+
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Useful.dll"
 			verbose="${verbose}"
@@ -460,7 +467,7 @@
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
-	
+
 	<target name="Boo.Lang.CodeDom" depends="core">
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.CodeDom.dll"
@@ -480,7 +487,7 @@
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
-	
+
 	<target name="Boo.Lang.Extensions" depends="corecs, Boo.NAnt.Tasks">
 		<booc target="library"
 			output="${build.dir}/Boo.Lang.Extensions.dll"
@@ -501,7 +508,7 @@
 			<arg line="-keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</booc>
 	</target>
-	
+
 
 	<target name="Boo.Lang.Compiler" depends="Boo.Lang, Boo.Lang.Ast">
 		<csc target="library"
@@ -509,11 +516,11 @@
 			debug="${debug}"
 			optimize="${optimize}"
 			define="${csc.define}">
-			
+
 			<sources basedir="src/Boo.Lang.Compiler">
 				<include name="**/*.cs" />
 			</sources>
-			
+
 			<references>
 				<include name="${build.dir}/Boo.Lang.dll" />
 				<!--include name="${build.dir}/Boo.Lang.Ast.dll" /-->
@@ -523,23 +530,23 @@
 	</target>
 
 	<target name="Boo.Lang.Ast" depends="Boo.Lang, generate-ast">
-		<!--csc 
+		<!--csc
 			target="library"
 			output="${build.dir}/Boo.Lang.Ast.dll"
 			debug="${debug}"
 			optimize="${optimize}"
 			define="${csc.define}">
-			
+
 			<sources basedir="src/Boo.Lang.Ast">
 				<include name="**/*.cs" />
 			</sources>
-			
+
 			<references>
 				<include name="${build.dir}/Boo.Lang.dll" />
 			</references>
 		</csc-->
 	</target>
-	
+
 	<target name="Boo.Lang" depends="init">
 		<csc
 			target="library"
@@ -558,7 +565,7 @@
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == '' or nant-csc-keyfile-bug}" />
 		</csc>
 	</target>
-	
+
 	<target name="boo-pkgconfig">
 		<copy file="extras/boo.pc.in" tofile="${build.dir}/boo.pc" if="${not(platform::is-windows())}" inputencoding="ASCII">
 			<filterchain>
@@ -614,7 +621,7 @@
 			</exec>
 		</do>
 		</foreach>
-		
+
 		<copy todir="${fakeroot.bindir}">
 			<fileset basedir="${build.dir}">
 				<include name="booc"/>
@@ -629,7 +636,7 @@
 				<include name="boo.mime" />
 			</fileset>
 		</copy>
-		
+
 		<copy file="extras/boo.lang" todir="${fakeroot.gsv}/share/${gsv.name}/language-specs/" />
 		<copy file="${build.dir}/boo.pc" todir="${fakeroot.libdir}/pkgconfig/" />
 		<copy file="extras/boo-mime-info.xml" todir="${fakeroot.sharedmime}/share/mime/packages/" />
@@ -640,7 +647,7 @@
 
 		<!-- Copy over documentation -->
 		<mkdir dir="${fakeroot.boodocs}"/>
-		
+
 		<copy todir="${fakeroot.boodocs}">
 			<fileset basedir="${docs.dir}">
 				<include name="*.sxw" />
@@ -665,12 +672,12 @@
 	</target>
 
 	<target name="install-win32" depends="all">
-	
+
 		<fail unless="${property::exists('mono.prefix')}">
 		Please set the property 'mono.prefix' to point to the prefix of your
 		mono installation (example: c:\dotnet\mono-1.1.8).
 		</fail>
-		
+
 		<copy todir="${path::combine(mono.prefix, 'lib/boo')}">
 			<fileset basedir="${build.dir}">
 				<include name="*.exe"/>
@@ -699,7 +706,7 @@
 		</foreach>
 
 	</target>
-	
+
 	<target name="uninstall">
 		<call target="uninstall-linux" if="${not(platform::is-windows())}"/>
 		<call target="uninstall-win32" if="${platform::is-windows()}"/>
@@ -715,7 +722,7 @@
 		<property name="fakeroot.sharedmime" value="${fakeroot}/${sharedmime.prefix}" />
 		<property name="gsv.prefix" value="${pkg-config::get-variable(gsv.name,'prefix')}" />
 		<property name="fakeroot.gsv" value="${fakeroot}/${gsv.prefix}" />
-		
+
 		<foreach item="File" property="filename">
 		<in>
 			<items>
@@ -731,11 +738,11 @@
 			</exec>
 		</do>
 		</foreach>
-		
+
 		<delete dir="${fakeroot.boolib}" />
 		<delete dir="${fakeroot.boodocs}" />
 		<delete dir="${fakeroot.booexamples}" />
-		
+
 		<delete file="${fakeroot.sharedmime}/share/mime-info/boo.keys" />
 		<delete file="${fakeroot.sharedmime}/share/mime-info/boo.mime" />
 		<delete file="${fakeroot.gsv}/share/${gsv.name}/language-specs/boo.lang" />
@@ -745,17 +752,17 @@
 		<delete file="${fakeroot.bindir}/booc" />
 		<delete file="${fakeroot.bindir}/booish" />
 	</target>
-	
+
 	<target name="uninstall-win32">
 		<exec program='${ngen.exe}' if="${file::exists(ngen.exe)}" unless="${skip.ngen}">
 			<arg value='/delete' />
 			<arg value='Boo.Lang' />
-			<arg value='Boo.Lang.Compiler' />			
+			<arg value='Boo.Lang.Compiler' />
 			<arg value='Boo.Lang.Parser' />
 			<arg file='${build.dir}/booc.exe' />
 		</exec>
 	</target>
-	
+
 	<target name="Boo.Lang.Parser" depends="Boo.Lang.Compiler, compile-grammar, generate-errorpatterns">
 		<csc target="library"
 			output="${build.dir}/Boo.Lang.Parser.dll"
@@ -775,7 +782,7 @@
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
 		</csc>
 	</target>
-	
+
 	<target name="insert-license" depends="core">
 		<insertLicense license="notice.txt">
 			<fileset basedir="src">
@@ -789,7 +796,7 @@
 			</fileset>
 		</insertLicense>
 	</target>
-	
+
 	<target name="upload-distro" depends="make-bin-dist">
 		<exec program="scp">
 			<arg value="-B" />
@@ -801,16 +808,16 @@
 			<arg value="${distro-user}@beaver.codehaus.org:/home/projects/boo/dist/distributions/" />
 		</exec>
 	</target>
-	
+
 	<target name="distro">
 		<call target="distro-win32" if="${platform::is-windows()}"/>
 		<call target="distro-linux" if="${not(platform::is-windows())}"/>
 	</target>
-	
+
 	<!-- Deprecated, now that binaries are built for multiple frameworks. -->
 	<target name="distro-linux" depends="src-distro">
 	</target>
-	
+
 	<!-- meant to be run on Windows with both .net 1.1 and .net 2.0 installed -->
 	<target name="distro-win32">
 		<fail unless="${nant.platform.win32}">
@@ -818,13 +825,13 @@
 		</fail>
 		<delete dir="${distrobuild.dir}" if="${directory::exists(distrobuild.dir)}" />
 		<mkdir dir="${distrobuild.dir}"/>
-		
-		<!-- We call nant externally so we can target multiple frameworks. -->		
+
+		<!-- We call nant externally so we can target multiple frameworks. -->
 		<exec program="${nant.location}/NAnt.exe">
 			<arg value="rebuild-and-update-bin" />
 			<arg value="-D:skip.vs=true" />
 		</exec>
-		
+
 		<!-- Here we actually build the zip files. -->
 		<call target="src-distro" />
 	</target>
@@ -833,13 +840,13 @@
 		<call target="rebuild" />
 		<call target="update-bin" />
 	</target>
-	
+
 	<target name="prepare-bin-distro" depends="insert-license">
 		<property name="distro.dir" value="${build.dir}/${boo.distro.name}" />
-		
+
 		<delete dir="${distro.dir}" if="${directory::exists(distro.dir)}" />
 		<mkdir dir="${distro.dir}" />
-		
+
 		<copy todir="${distro.dir}">
 			<fileset>
 				<include name="readme.txt" />
@@ -853,7 +860,7 @@
 				<include name="bin/**/*.rsp" />
 				<include name="bin/**/*.config" />
 				<include name="bin/**/*.targets" />
-				
+
 				<include name="extras/**/*.boo" />
 				<include name="extras/**/*.cs" />
 				<include name="extras/**/*.png" />
@@ -870,7 +877,7 @@
 				<include name="extras/SharpDevelop/**/*.xpt" />
 				<include name="extras/SharpDevelop/**/*.txtres" />
 				<include name="extras/SharpDevelop/**/*.addin" />
-				
+
 				<include name="examples/**/*.boo" />
 				<include name="examples/**/*.xml" />
 				<include name="examples/**/*.aspx" />
@@ -879,7 +886,7 @@
 			</fileset>
 		</copy>
 	</target>
-	
+
 	<target name="bin-distro" depends="prepare-bin-distro">
 		<zip zipfile="${boo.distro.name}-bin.zip" ziplevel="9">
 			<fileset basedir="${distro.dir}">
@@ -887,10 +894,10 @@
 			</fileset>
 		</zip>
 	</target>
-	
+
 	<target name="prepare-src-distro" depends="bin-distro">
 		<copy todir="${distro.dir}">
-			<fileset>				
+			<fileset>
 				<include name="extras/*.in" />
 				<include name="default.build" />
 				<include name="notice.txt" />
@@ -901,7 +908,7 @@
 				<include name="Makefile.am" />
 				<include name="bin/Makefile.am" />
 				<include name="extras/Makefile.am" />
-				
+
 				<include name="${keyfile.path}" />
 				<include name="src/**/*.cs" />
 				<include name="src/**/*.boo" />
@@ -910,7 +917,7 @@
 				<include name="src/**/*.prjx" />
 				<include name="src/**/*.cmbx" />
 				<include name="src/**/*.targets" />
-				
+
 				<include name="tests/nunit.inc" />
 				<include name="tests/test.snk" />
 				<include name="tests/**/*.boo" />
@@ -921,14 +928,14 @@
 			</fileset>
 		</copy>
 	</target>
-	
+
 	<target name="src-distro" depends="prepare-src-distro">
 		<zip zipfile="${boo.distro.name}-src.zip" ziplevel="9">
 			<fileset basedir="${distro.dir}">
 				<include name="**" />
 			</fileset>
 		</zip>
-		
+
 		<tar destfile="${boo.distro.name}-src.tar.bz2" compression="BZip2">
 			<fileset basedir="${build.dir}">
 				<include name="${boo.distro.name}/**/*"/>
@@ -989,7 +996,7 @@
 	</target>
 
 	<target name="compile-grammar" depends="init" unless="${skip.antlr}">
-	
+
 		<uptodate property="parser-is-uptodate">
 			<sourcefiles basedir="src/Boo.Lang.Parser">
 				<include name="boo.g" />
@@ -1002,13 +1009,13 @@
 		</uptodate>
 
 		<if test="${not parser-is-uptodate}">
-		
+
 			<delete>
 				<fileset basedir="src/Boo.Lang.Parser">
 					<include name="*TokenTypes.*" />
 				</fileset>
-			</delete>			 
-			
+			</delete>
+
 			<property name="antlr.traceParser" value="-traceParser" if="${antlr.trace}" />
 			<property name="antlr.traceParser" value="" unless="${antlr.trace}" />
 			<exec program="${java}" failonerror="true">
@@ -1020,7 +1027,7 @@
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/boo.g" />
 			</exec>
-			
+
 			<exec program="${java}" failonerror="true">
 				<arg value="-cp" />
 				<arg file="${antlr.jar}" />
@@ -1029,19 +1036,19 @@
 				<arg value="src/Boo.Lang.Parser/" />
 				<arg value="src/Boo.Lang.Parser/booel.g" />
 			</exec>
-			
+
 			<touch file="src/Boo.Lang.Parser/BooParserBase.cs" />
 		</if>
 	</target>
-	
+
 	<target name="update-vs-env" unless="${skip.vs}">
 		<exec program="bin/booi.exe" failonerror="false" useruntimeengine="true">
 			<arg value="scripts/update-vs2005-env.boo" />
-		</exec>	
+		</exec>
 	</target>
-	
+
 	<target name="generate-ast" depends="init" unless="${skip.ast}">
-	
+
 		<uptodate property="ast-is-uptodate">
 			<sourcefiles>
 				<include name="ast.model.boo" />
@@ -1052,14 +1059,14 @@
 				<include name="src/Boo.Lang.Compiler/Ast/Impl/CompileUnitImpl.cs" />
 			</targetfiles>
 		</uptodate>
-				
+
 		<if test="${not ast-is-uptodate}">
 			<delete dir="src/Boo.Lang.Compiler/Ast/Impl"
 					if="${directory::exists('src/Boo.Lang.Compiler/Ast/Impl')}" />
 			<mkdir dir="src/Boo.Lang.Compiler/Ast/Impl" />
 			<exec program="bin/booi.exe" failonerror="false" useruntimeengine="true">
 				<arg value="scripts/astgen.boo" />
-			</exec>			
+			</exec>
 		</if>
 	</target>
 
@@ -1075,7 +1082,7 @@
 		</uptodate>
 
 		<if test="${not file::exists('build/booi.exe')}">
-			<echo level="Warning">WARNING: A recent version of Boo is required!</echo>  
+			<echo level="Warning">WARNING: A recent version of Boo is required!</echo>
 			<echo level="Warning">Run again Nant (without clean or rebuild) to actually generate the patterns</echo>
 			<property name="errorpatterns-are-uptodate" value="True" />
 		</if>
@@ -1088,8 +1095,8 @@
 				<arg value="scripts/error-patterns.boo" />
 			</exec>
 		</if>
-	</target>	
-	
+	</target>
+
 	<target name="update-sharpdevelop" depends="all">
 		<copy todir="${sharpdevelop.dir}/AddIns/AddIns/BackendBindings/BooBinding">
 			<fileset basedir="${build.dir}">
@@ -1098,21 +1105,21 @@
 			</fileset>
 		</copy>
 	</target>
-	
-	<target name="update-assembly-attributes" depends="core">	
+
+	<target name="update-assembly-attributes" depends="core">
 		<boo>
 		import System.IO
-		
+
 		fname = "src/Boo.Lang/Builtins.cs"
 		builtins = File.ReadAllText(fname)
-		
+
 		version = Project.Properties["boo.version"]
 		newBuiltins = @/new System.Version\(".+"\)/.Replace(builtins, "new System.Version(\"${version}.0\")")
 		if builtins != newBuiltins:
 			print fname
-			File.WriteAllText(fname, newBuiltins) 
+			File.WriteAllText(fname, newBuiltins)
 		</boo>
-		
+
     		<updateAssemblyVersion
 			version="${boo.assembly.version}">
 			<fileset basedir="src">
@@ -1123,7 +1130,7 @@
 				<include name="**/AssemblyInfo.boo" />
 			</fileset>
 		</updateAssemblyVersion>
-		
+
 		<updateAssemblyVersion
 			copyright="(C) 2003-2007 Rodrigo Barreto de Oliveira">
 			<fileset basedir="src">
@@ -1136,16 +1143,16 @@
 			</fileset>
 		</updateAssemblyVersion>
 	</target>
-	
+
 	<target name="rebuild" depends="clean">
-		
+
 		<touch file="ast.model.boo" />
 		<touch file="src/Boo.Lang.Parser/boo.g" />
 		<touch file="src/Boo.Lang.Parser/booel.g" />
 		<mkdir dir="${build.dir}" />
-		<call target="all" />		
+		<call target="all" />
 	</target>
-	
+
 	<target name="clean">
 		<delete dir="${build.dir}" failonerror="false" />
 	</target>
@@ -1156,7 +1163,7 @@
 		<property name="csc.define" value="${csc.define};IGNOREKEYFILE" unless="${nant-csc-keyfile-bug and not nosign}" />
 		<mkdir dir="${build.dir}" />
 	</target>
-	
+
 	<target name="makedeb" depends="rebuild">
 		<!-- force rebuild to make sure everything's ok and wrappers
 		     are sync'ed with current install.prefix
