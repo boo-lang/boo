@@ -5,7 +5,7 @@ language: csharp
 
 # Choose a compatible Mono version
 mono:
-  - 3.12.0
+  - 4.2.1
 
 env:
   global:
@@ -21,7 +21,8 @@ install:
   - wget -nv --no-check-certificate "https://github.com/nant/nant/archive/${NANT_COMMIT}.zip"
   - unzip -qq "${NANT_COMMIT}"
   - cd "nant-${NANT_COMMIT}"
-  - make setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
+  # On Mono 4.x the gmcs command is no longer present
+  - make MCS=mcs setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
   - cp -r bootstrap ../nant
   - cd -
   # Fetch a recent version of NUnit
@@ -40,7 +41,7 @@ script:
  # Replace the nunit framework dll with the downloaded version
  - cp -f "../NUnit-${NUNIT_VERSION}/bin/framework/nunit.framework.dll" build/.
  - cd build
- - MONO_PATH=. PEVERIFY=false mono --runtime=v4.0 --gc=boehm "../../NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.0 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -domain=none -exclude=FailsOnMono *.Tests.dll
+ - MONO_PATH=. PEVERIFY=false mono --runtime=v4.0 --gc=boehm "../../NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.0 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -domain=none -exclude=FailsOnMono,FailsOnMono4 *.Tests.dll
 
 after_success:
  # Generate a simple distribution file
