@@ -396,6 +396,7 @@
 
 	<target name="Boo.Microsoft.Build.Tasks" depends="core">
 		<booc target="library"
+			useruntimeengine="true"
 			exename="${build.dir}/booc.exe"
 			output="${build.dir}/Boo.Microsoft.Build.Tasks.dll"
 			failonerror="true"
