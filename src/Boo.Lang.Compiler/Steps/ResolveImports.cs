@@ -38,14 +38,14 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		private readonly Dictionary<string, Import> _namespaces = new Dictionary<string, Import>();
 		private string _namespace;
-		
+
 		override public void Run()
 		{
 			NameResolutionService.Reset();
-			
+
 			Visit(CompileUnit.Modules);
 		}
-		
+
 		override public void OnModule(Module module)
 		{
 			if (null != module.Namespace) {
@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(module.Imports);
 			_namespaces.Clear();
 		}
-		
+
 		public override void OnImport(Import import)
 		{
 			if (IsAlreadyBound(import))
@@ -225,11 +225,11 @@ namespace Boo.Lang.Compiler.Steps
 				level--;
 				ns = ns.Substring(1);
 			}
-			
+
 			if (level > 0) {
 				ns = string.Join(".", parts, 0, level) + "." + ns;
 			}
-				
+
 			return ns;
 		}
 
@@ -248,10 +248,46 @@ namespace Boo.Lang.Compiler.Steps
 			refe.Name = GetNormalizedNamespace(import);
 		}
 
+		// Try to resolve relative imports against namespace symbols
+		// i.e.: import .ClassInThisModule
+		private IEntity ResolveSymbol(Import import)
+		{
+			if (!IsRelative(import))
+				return null;
+
+			var ns = import.Namespace;
+			var currentNs = NameResolutionService.CurrentNamespace;
+			var parentNs = currentNs.ParentNamespace;
+			while (parentNs != null) {
+				ns = ns.Substring(1);
+				if (!ns.StartsWith("."))
+					break;
+ 				parentNs = parentNs.ParentNamespace;
+ 			}
+
+ 			if (parentNs == null || ns.StartsWith(".")) {
+ 				return null;
+ 			}
+
+ 			IEntity entity;
+
+			NameResolutionService.EnterNamespace(parentNs);
+ 			entity = NameResolutionService.ResolveQualifiedName(ns);
+			NameResolutionService.EnterNamespace(currentNs);
+
+			return entity;
+		}
+
 		private IEntity ResolveImport(Import import)
 		{
-			string ns = GetNormalizedNamespace(import);
-			var entity = NameResolutionService.ResolveQualifiedName(ns);
+			IEntity entity = ResolveSymbol(import);
+			if (entity != null)
+				return entity;
+
+			var ns = import.Namespace;
+			ns = GetNormalizedNamespace(import);
+
+			entity = NameResolutionService.ResolveQualifiedName(ns);
 			if (null != entity)
 				return entity;
 
@@ -283,7 +319,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (0 == @namespace.Length)
 				return null;
-				
+
 			ICompileUnit asm = Parameters.LoadAssembly(@namespace, false);
 			if (asm != null)
 				return asm;
