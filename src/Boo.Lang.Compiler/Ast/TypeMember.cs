@@ -268,6 +268,8 @@ namespace Boo.Lang.Compiler.Ast
 		
 		override public string ToString()
 		{
+			if (string.IsNullOrEmpty(FullName))
+				return this.GetType().Name;
 			return FullName;
 		}
 	}
