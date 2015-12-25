@@ -1,3 +1,4 @@
+#category FailsOnMono4
 """
 Boo.Lang.List`1[TestFuncs.MyCallable]
 """
@@ -7,5 +8,5 @@ callable MyCallable(i as int) as MyCallable
 
 class MyClass:
 	public list = List[of MyCallable]()
-		
+
 print MyClass().list.GetType()
