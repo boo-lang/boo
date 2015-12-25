@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/bamboo/boo.png?branch=master)](https://travis-ci.org/bamboo/boo)
+[![Build Status](https://travis-ci.org/boo-lang/boo.png?branch=master)](https://travis-ci.org/boo-lang/boo)
 
-The boo programming language (c) 2009 Rodrigo Barreto de Oliveira (rbo@acm.org)
+The Boo Programming Language (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 
 Building
 ========
@@ -76,12 +76,12 @@ your code by the compiler use the boo pipeline, run:
 More Information
 ================
 
-http://boo.codehaus.org/
-http://boo.codehaus.org/Mailing+Lists
+http://boo-lang.org/
+https://groups.google.com/forum/#!forum/boolang
 
 Contributors
 ============
 
-See: https://github.com/bamboo/boo/graphs/contributors
+See: https://github.com/boo-lang/boo/graphs/contributors
 
 

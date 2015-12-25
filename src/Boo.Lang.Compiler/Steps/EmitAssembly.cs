@@ -212,6 +212,10 @@ namespace Boo.Lang.Compiler.Steps
 			DefineEntryPoint();
 			DefineModuleConstructor();
 
+            // Define the unmanaged version information resource, which 
+            // contains the attribute informaion applied earlier
+            _asmBuilder.DefineVersionInfoResource();
+
 			_moduleBuilder.CreateGlobalFunctions(); //setup global .data
 		}
 

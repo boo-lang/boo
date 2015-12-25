@@ -1,3 +1,4 @@
+#category FailsOnMono4
 """
 3
 2
@@ -9,10 +10,10 @@ callable Function(*args)
 
 def foo(*args):
 	print len(args)
-	
+
 def bar(args as (object)):
 	print join(args)
-	
+
 for item in foo, bar:
 	f as Function = item
 	f(1, 2, 3)
