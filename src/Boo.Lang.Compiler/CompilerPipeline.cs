@@ -78,6 +78,10 @@ namespace Boo.Lang.Compiler
 			switch (name)
 			{
 				case "parse": return new Pipelines.Parse();
+				case "delay": {
+					System.Threading.Thread.Sleep(10000);
+					return new Pipelines.CompileToFile();
+				}
 				case "compile": return new Pipelines.Compile();
 				case "run": return new Pipelines.Run();
 				case "default": return new Pipelines.CompileToFile();
