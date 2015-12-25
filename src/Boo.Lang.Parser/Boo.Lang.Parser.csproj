@@ -193,6 +193,7 @@
     <Compile Include="antlr\antlr\TreeParserSharedInputState.cs" />
     <Compile Include="antlr\SupportClass.cs" />
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BooErrorListener.cs" />
     <Compile Include="BooExpressionLexer.cs" />
     <Compile Include="BooExpressionLexerTokenTypes.cs" />
     <Compile Include="BooLexer.cs" />

@@ -110,39 +110,35 @@ namespace Boo.Lang.ParserV4
 */
 		protected virtual void ParseModule(string inputName, System.IO.TextReader reader)
 		{
-			/*
 			var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
-			new BooParser(new BooLexer())*/
-
+			settings.ErrorHandlerV4 = this.OnParserError;
 			AntlrInputStream stream = new AntlrInputStream(reader);
-			var parser = BooParser.CreateParser(inputName, stream, false);
+			var parser = BooParser.CreateParser(inputName, stream, false, settings.ErrorHandlerV4);
 			var tree = parser.start();
 			var visitor = new BooParserAstBuilderListener(_context.CompileUnit, inputName);
 			visitor.VisitStart(tree);
 			//BooParser.ParseModule(settings, _context.CompileUnit, inputName, reader);
 		}
 
-/*
-		void OnParserError(Antlr4.Runtime.RecognitionException error)
+		void OnParserError(IToken offendingSymbol, string filename, int line, int charPositionInLine, string msg, RecognitionException e)
 		{
-			var location = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn());
-			var nvae = error as NoViableAltException;
-			if (null != nvae)
-				ParserError(location, nvae);
+			if (e == null) return;
+			var location = new LexicalInfo(filename, line, charPositionInLine);
+			var nvae = e as NoViableAltException;
+			if (nvae != null)
+				ParserError(location, nvae, offendingSymbol);
 			else
-				GenericParserError(location, error);
+				GenericParserError(location, e);
 		}
-*/
+
 		private void GenericParserError(LexicalInfo data, RecognitionException error)
 		{
 			_context.Errors.Add(CompilerErrorFactory.GenericParserError(data, error));
 		}
 
-		/*
-		void ParserError(LexicalInfo data, NoViableAltException error)
+		void ParserError(LexicalInfo data, NoViableAltException error, IToken offendingSymbol)
 		{
-			_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(data, error, error.token.getText()));
+			_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(data, error, offendingSymbol.Text));
 		}
-		*/
 	}
 }

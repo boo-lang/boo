@@ -8,6 +8,8 @@ using Antlr4.Runtime.Misc;
 
 namespace Boo.Lang.ParserV4
 {
+	public delegate void ParserErrorHandler(IToken offendingSymbol, string filename, int line, int charPositionInLine, string msg, RecognitionException e);
+	
 	partial class BooParser
 	{
 		private static bool IsValidMacroArgument(int tokenType)
@@ -30,15 +32,16 @@ namespace Boo.Lang.ParserV4
 			return cu;
 		}
 
-		public static CompileUnit ParseReader(string readerName, TextReader reader)
+		public static CompileUnit ParseReader(string readerName, TextReader reader, ParserErrorHandler eh)
 		{
 			var settings = new Boo.Lang.Parser.ParserSettings();
+			settings.ErrorHandlerV4 = eh;
 			return ParseReader(settings, readerName, reader);
 		}
 		
 		public static CompileUnit ParseString(string name, string text)
 		{
-			return ParseReader(name, new StringReader(text));
+			return ParseReader(name, new StringReader(text), null);
 		}
 		
 		public static Module ParseModule(Boo.Lang.Parser.ParserSettings settings, CompileUnit cu, string readerName, TextReader reader)
@@ -55,13 +58,13 @@ namespace Boo.Lang.ParserV4
 
 			try
 			{
-				var parser = CreateParser(readerName, stream, true);
+				var parser = CreateParser(readerName, stream, true, settings.ErrorHandlerV4);
 				tree = parser.start();
 			}
 			catch (ParseCanceledException)
 			{
 				stream.Seek(0);
-				var parser = CreateParser(readerName, stream, false);
+				var parser = CreateParser(readerName, stream, false, settings.ErrorHandlerV4);
 				tree = parser.start();
 			}
 
@@ -72,7 +75,7 @@ namespace Boo.Lang.ParserV4
 			return module;
 		}
 		
-		public static BooParser CreateParser(string readerName, ICharStream stream, bool firstStage)
+		public static BooParser CreateParser(string readerName, ICharStream stream, bool firstStage, ParserErrorHandler eh)
 		{
 			ITokenSource lexer = new BooLexer(stream) { TokenFactory = BooTokenV4.TokenCreator };
 			ITokenSource filter = new IndentTokenStreamFilterV4(lexer, BooLexer.WS, BooLexer.NEWLINE, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
@@ -93,6 +96,8 @@ namespace Boo.Lang.ParserV4
 			}
 
 			parser.BuildParseTree = true;
+			if (eh != null)
+				parser.AddErrorListener(new BooErrorListener(eh, readerName));
 			return parser;
 		}
 		
@@ -112,7 +117,7 @@ namespace Boo.Lang.ParserV4
 		
 		public static Expression ParseExpression(string name, string text)
 		{
-			var parser = CreateParser(name, new AntlrInputStream(text), false);
+			var parser = CreateParser(name, new AntlrInputStream(text), false, null);
 			
 			var expr = parser.expression();
 			var visitor = new BooParserAstBuilderListener(new CompileUnit(), name);

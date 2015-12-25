@@ -229,7 +229,7 @@ namespace Boo.Lang.Parser.Util
 						throw new Antlr4.Runtime.RecognitionException(
 							_source as Lexer,
 							this.InputStream
-						);
+						)/*{ OffendingToken = token }*/;
 					}
 				}
 
