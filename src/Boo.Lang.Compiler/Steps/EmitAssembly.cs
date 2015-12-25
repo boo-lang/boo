@@ -998,7 +998,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EmitDebugInfo(node);
 
-			base.OnExpressionStatement(node);
+			node.Expression.Accept(this);
 
 			// if the type of the inner expression is not
 			// void we need to pop its return value to leave
