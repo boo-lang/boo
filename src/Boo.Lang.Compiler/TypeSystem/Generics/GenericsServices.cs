@@ -337,6 +337,32 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return generity;
 		}
 
+		/// <summary>
+		/// Determines the number of total generic parameters in the specified type.
+		/// </summary>
+		public static int GetTypeGenericDepth(IType type)
+		{
+			if (type.IsByRef || type.IsArray)
+				return GetTypeGenericDepth(type.ElementType);
+
+			if (type is IGenericParameter)
+				return 1;
+
+			// Generic parameters and generic arguments both contribute 
+			// to a types genrity. Note that a nested type can be both a generic definition 
+			// and a constructed type: Outer[of int].Inner[of T]
+			int generity = 0;
+
+			if (type.GenericInfo != null)
+				generity += type.GenericInfo.GenericParameters.Length;
+
+			if (type.ConstructedInfo != null)
+				foreach (IType typeArg in type.ConstructedInfo.GenericArguments)
+					generity += GetTypeGenericDepth(typeArg) + 1;
+
+			return generity;
+		}
+
 		public static int GetMethodGenerity(IMethod method)
 		{
 			IConstructedMethodInfo constructedInfo = method.ConstructedInfo;
