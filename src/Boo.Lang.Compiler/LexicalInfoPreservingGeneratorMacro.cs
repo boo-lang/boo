@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler
 				{
 					if (IsEmptyBlock(n))
 						continue;
-					if (null != n)
+					if ((null != n) && (n.LexicalInfo.Equals(LexicalInfo.Empty)))
 						n.LexicalInfo = macro.LexicalInfo;
 					yield return n;
 				}
