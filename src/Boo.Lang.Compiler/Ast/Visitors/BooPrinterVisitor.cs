@@ -370,6 +370,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 							return false;
 						case NodeType.ForStatement:
 							return false;
+						case NodeType.TryStatement:
+							return false;
 					}
 					return true;
 
