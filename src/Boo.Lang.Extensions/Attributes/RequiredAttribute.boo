@@ -62,14 +62,14 @@ class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 		
 	private def TargetMethodBody(parameter as ParameterDeclaration) as Block:
 		method = parameter.ParentNode as Method
-		return method if method is not null
+		return method.Body if method is not null
 		
 		lambda = parameter.ParentNode as BlockExpression
 		return lambda.Body if lambda is not null
 		
 		property = parameter.ParentNode as Property
-		CheckProperty property
-		return property.Setter
+		CheckProperty(property)
+		return property.Setter.Body
 		
 	private def CheckProperty(property as Property):
 		if property is null or property.Setter is null:
