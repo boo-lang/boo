@@ -151,6 +151,12 @@ namespace Boo.Lang.Compiler.Steps
 			LeaveNamespace();
 		}
 
+		//is this necessary? Better safe than sorry
+		override public void LeaveModule(Module node)
+		{
+			_namespaceLookup.Clear();
+		}
+
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
 			if (WasVisited(node)) return;
@@ -5123,9 +5129,34 @@ namespace Boo.Lang.Compiler.Steps
 			return BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 
+		private Dictionary<INamespace, Dictionary<string, IEntity>> _namespaceLookup = new Dictionary<INamespace, Dictionary<string, IEntity>>();
+
+		IEntity CachedNamespaceLookup(INamespace ns, string name, ICollection<IEntity> resultingSet)
+		{
+			if (ns == null)
+				return My<TypeSystemServices>.Instance.ResolvePrimitive(name);
+		
+			IEntity result;
+			Dictionary<string, IEntity> D1;
+			if (!_namespaceLookup.TryGetValue(ns, out D1))
+			{
+				D1 = new Dictionary<string, IEntity>();
+				_namespaceLookup.Add(ns, D1);
+			}
+			if (D1.TryGetValue(name, out result))
+				return result;
+			
+			//if it exists here, do a full lookup, to make sure ambiguity rules remain unchanged
+			if (ns.Resolve(resultingSet, name, EntityType.Any))
+				result = NameResolutionService.Resolve(name);
+			else result = CachedNamespaceLookup(ns.ParentNamespace, name, resultingSet);
+			D1.Add(name, result);
+			return result;
+		}
+
 		IEntity ResolveName(Node node, string name)
 		{
-			var entity = NameResolutionService.Resolve(name);
+			var entity = CachedNamespaceLookup(NameResolutionService.CurrentNamespace, name, new Boo.Lang.Compiler.Util.Set<IEntity>());
 			CheckNameResolution(node, name, entity);
 			return entity;
 		}
