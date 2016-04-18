@@ -169,6 +169,12 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		else:
 			macroType = CreateOldStyleMacroType(typeName)
 
+		sme = SubMacroExtractor()
+		for member in macroType.Members.ToArray():
+			method = member as Method
+			continue if method is null
+			method.Accept(sme)
+
 		#add parent macro(s) accessor(s)
 		for parent in parents:
 			if not macroType.Members[parent]:
@@ -591,3 +597,10 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				typeName = typeof(Boo.Lang.Compiler.Ast.Statement).FullName unless typeName
 				raise "`${_arg.Name}` argument must be of enumerable type. Did you mean `${_arg.Name} as ${typeName}*`?"
 
+	class SubMacroExtractor(DepthFirstTransformer):
+		
+		override def OnTypeMemberStatement(node as TypeMemberStatement):
+			tm = node.TypeMember
+			cd = node.GetAncestor[of ClassDefinition]()
+			RemoveCurrentNode()
+			cd.Members.Add(tm)

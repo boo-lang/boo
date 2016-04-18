@@ -209,6 +209,10 @@ namespace Boo.Lang.Compiler.Steps
 			DefineAssemblyAttributes();
 			DefineEntryPoint();
 
+            // Define the unmanaged version information resource, which 
+            // contains the attribute informaion applied earlier
+            _asmBuilder.DefineVersionInfoResource();
+
 			_moduleBuilder.CreateGlobalFunctions(); //setup global .data
 		}
 
@@ -5295,8 +5299,9 @@ namespace Boo.Lang.Compiler.Steps
 					return ((BoolLiteralExpression)expression).Value;
 
 				case NodeType.IntegerLiteralExpression:
+					var ile = (IntegerLiteralExpression)expression;
 					return ConvertValue(expectedType,
-											((IntegerLiteralExpression)expression).Value);
+					                    ile.IsLong? ile.Value: (int)ile.Value);
 
 				case NodeType.DoubleLiteralExpression:
 					return ConvertValue(expectedType,

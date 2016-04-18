@@ -80,13 +80,39 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	/// </summary>
 	public class CodeReifier : AbstractCompilerComponent
 	{
+		private bool _recursing;
+		
 		public Statement Reify(Statement node)
 		{
+			if (!_recursing)
+			{
+				_recursing = true;
+				try 
+				{
+					new CodeReifierVisitor(this).Visit(node);
+				}
+				finally
+				{
+					_recursing = false;
+				}
+			}
 			return ReifyNode(node);
 		}
 
 		public Expression Reify(Expression node)
 		{
+			if (!_recursing)
+			{
+				_recursing = true;
+				try 
+				{
+					new CodeReifierVisitor(this).Visit(node);
+				}
+				finally
+				{
+					_recursing = false;
+				}
+			}
 			return ReifyNode(node);
 		}
 
@@ -121,6 +147,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private void Reify(TypeReference node)
 		{
+			if (!_recursing)
+			{
+				_recursing = true;
+				try 
+				{
+					new CodeReifierVisitor(this).Visit(node);
+				}
+				finally
+				{
+					_recursing = false;
+				}
+			}
 			ForEachReifier<ITypeReferenceReifier>(r => r.Reify(node));
 		}
 
@@ -166,6 +204,316 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			finally
 			{
 				NameResolutionService.EnterNamespace(currentScope);
+			}
+		}
+		
+		private class CodeReifierVisitor : DepthFirstVisitor
+		{
+			private CodeReifier _cr;
+			
+			public CodeReifierVisitor(CodeReifier cr)
+			{
+				_cr = cr;
+			}
+			
+			void OnStatement(Statement node)
+			{
+				_cr.Reify(node);
+			}
+			
+			void OnExpression(Expression node)
+			{
+				_cr.Reify(node);
+			}
+			
+			void OnTypeReference(TypeReference node)
+			{
+				_cr.Reify(node);
+			}
+			
+			override public void LeaveTypeMemberStatement(TypeMemberStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void OnSimpleTypeReference(SimpleTypeReference node)
+			{
+				OnTypeReference(node);
+			}
+			
+			override public void LeaveCallableTypeReference(CallableTypeReference node)
+			{
+				OnTypeReference(node);
+			}
+			
+			override public void LeaveGenericTypeReference(GenericTypeReference node)
+			{
+				OnTypeReference(node);
+			}
+			
+			override public void OnGenericTypeDefinitionReference(GenericTypeDefinitionReference node)
+			{
+				OnTypeReference(node);
+			}
+			
+			override public void LeaveBlockExpression(BlockExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveGotoStatement(GotoStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveLabelStatement(LabelStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveBlock(Block node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveDeclarationStatement(DeclarationStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveMacroStatement(MacroStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveTryStatement(TryStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveIfStatement(IfStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveUnlessStatement(UnlessStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveForStatement(ForStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveWhileStatement(WhileStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveBreakStatement(BreakStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveExpressionStatement(ExpressionStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveContinueStatement(ContinueStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveUnpackStatement(UnpackStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveReturnStatement(ReturnStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveYieldStatement(YieldStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveRaiseStatement(RaiseStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveCustomStatement(CustomStatement node)
+			{
+				OnStatement(node);
+			}
+			
+			override public void LeaveMethodInvocationExpression(MethodInvocationExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveUnaryExpression(UnaryExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveBinaryExpression(BinaryExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveConditionalExpression(ConditionalExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnReferenceExpression(ReferenceExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveMemberReferenceExpression(MemberReferenceExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveGenericReferenceExpression(GenericReferenceExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnQuasiquoteExpression(QuasiquoteExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnStringLiteralExpression(StringLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnCharLiteralExpression(CharLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnIntegerLiteralExpression(IntegerLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnDoubleLiteralExpression(DoubleLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnSelfLiteralExpression(SelfLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnSuperLiteralExpression(SuperLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnRELiteralExpression(RELiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveSpliceExpression(SpliceExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnNullLiteralExpression(NullLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnBoolLiteralExpression(BoolLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveSpliceTypeReference(SpliceTypeReference node)
+			{
+				OnTypeReference(node);
+			}
+			
+			override public void LeaveSpliceMemberReferenceExpression(SpliceMemberReferenceExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveExpressionInterpolationExpression(ExpressionInterpolationExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveHashLiteralExpression(HashLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveListLiteralExpression(ListLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveCollectionInitializationExpression(CollectionInitializationExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveArrayLiteralExpression(ArrayLiteralExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveGeneratorExpression(GeneratorExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveExtendedGeneratorExpression(ExtendedGeneratorExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveSlicingExpression(SlicingExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveTryCastExpression(TryCastExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveCastExpression(CastExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveTypeofExpression(TypeofExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void OnCustomExpression(CustomExpression node)
+			{
+				OnExpression(node);
 			}
 		}
 	}

@@ -88,6 +88,10 @@ public class DefaultAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 		if method is not null:
 			method.Body.Statements.Insert(0, assignIfNull)
 		else:
-			property = cast(Property, parent)
-			if property.Setter is not null:
-				property.Setter.Body.Statements.Insert(0, assignIfNull)
+			lambda = (parent as BlockExpression)
+			if lambda is not null:
+				lambda.Body.Statements.Insert(0, assignIfNull)
+			else:
+				property = cast(Property, parent)
+				if property.Setter is not null:
+					property.Setter.Body.Statements.Insert(0, assignIfNull)

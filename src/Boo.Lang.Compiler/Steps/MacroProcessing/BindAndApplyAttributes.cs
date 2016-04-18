@@ -263,11 +263,6 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			VisitTypeDefinition(node);
 		}
 
-		override public void OnBlock(Block node)
-		{
-			// No need to visit blocks
-		}
-
 		override public void OnAttribute(Ast.Attribute attribute)
 		{
 			if (null != attribute.Entity)
