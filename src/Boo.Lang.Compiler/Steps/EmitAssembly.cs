@@ -5519,16 +5519,21 @@ namespace Boo.Lang.Compiler.Steps
 			Context.GeneratedAssemblyFileName = outputFile;
 		}
 
-		AssemblyBuilderAccess GetAssemblyBuilderAccess()
+        AssemblyBuilderAccess GetAssemblyBuilderAccess()
 		{
             if (Parameters.GenerateCollectible)
             {
+#if !NET_40_OR_GREATER
+                throw new NotSupportedException("Collectible Assemblies are available only on .NET Framework 4.0 or later (https://msdn.microsoft.com/en-us/library/dd554932(v=vs.100).aspx)");
+#else
                 return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndCollect : AssemblyBuilderAccess.Save;
+#endif
             }
             else
             {
                 return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
             }
+
 		}
 
 		AssemblyName CreateAssemblyName(string outputFile)
