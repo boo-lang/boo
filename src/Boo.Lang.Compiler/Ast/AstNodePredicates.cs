@@ -17,7 +17,15 @@ namespace Boo.Lang.Compiler.Ast
 			return node == parentExpression.Left && AstUtil.IsAssignment(parentExpression);
 		}
 
-		public static bool IsComplexSlice(Slice slice)
+		public static bool IsTargetOfMethodInvocation(this Expression node)
+		{
+			var parentExpression = node.ParentNode as MethodInvocationExpression;
+			if (parentExpression == null)
+				return false;
+			return node == parentExpression.Target;
+		}
+
+	public static bool IsComplexSlice(Slice slice)
 		{
 			return slice.End != null
 				|| slice.Step != null
