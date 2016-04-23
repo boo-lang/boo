@@ -1,4 +1,4 @@
-// $ANTLR 2.7.5 (20050517): booel.g -> BooExpressionLexerTokenTypes.txt$
+// $ANTLR 2.7.5 (20131102): src/Boo.Lang.Parser/booel.g -> BooExpressionLexerTokenTypes.txt$
 BooExpressionLexer    // output token vocab name
 INDENT=4
 DEDENT=5

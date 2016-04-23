@@ -50,10 +50,35 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.OnMemberReferenceExpression(node);
 
-			OnReferenceExpression(node);
+			OnExpression(node);
 		}
 		
 		override public void OnReferenceExpression(ReferenceExpression node)
+		{
+			OnExpression(node);
+		}
+
+		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
+		{
+			base.OnSelfLiteralExpression(node);
+			
+			if (node.IsTargetOfMethodInvocation())
+			{
+				OnExpression(node);
+			}
+		}
+
+		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
+		{
+			base.OnSuperLiteralExpression(node);
+			
+			if (node.IsTargetOfMethodInvocation())
+			{
+				OnExpression(node);
+			}
+		}
+
+		private void OnExpression(Expression node)
 		{
 			var member = node.Entity as IAccessibleMember;
 			if (null == member) return;
