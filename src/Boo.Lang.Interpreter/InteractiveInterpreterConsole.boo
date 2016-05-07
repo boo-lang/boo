@@ -341,6 +341,9 @@ class InteractiveInterpreterConsole:
 	def TrimFilter(s as string):
 		return s[len(_filter):]
 
+	def Top(d as decimal, i as decimal):
+		return System.Math.Ceiling(d/i);
+	
 	private _beforeHistory = string.Empty
 	
 	private originalYPosition = 0
@@ -406,10 +409,13 @@ class InteractiveInterpreterConsole:
 							Console.CursorTop++
 							Console.CursorLeft = 0
 				elif key == ConsoleKey.Home:
-					Console.CursorLeft = len(CurrentPrompt)
+					Console.CursorTop = originalYPosition;
+					Console.CursorLeft = len(CurrentPrompt)	
 				elif key == ConsoleKey.End:
-					Console.CursorLeft = len(CurrentPrompt) + LineLen
-
+					last_line = Top((len(CurrentPrompt) + LineLen),Console.WindowWidth)
+					Console.CursorTop = originalYPosition + last_line -1
+					Console.CursorLeft = (len(CurrentPrompt) + LineLen) % Console.WindowWidth
+                        
 			#history support
 			if key == ConsoleKey.UpArrow:
 				if _historyIndex > 0:
