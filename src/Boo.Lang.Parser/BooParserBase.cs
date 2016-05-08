@@ -2178,6 +2178,7 @@ _loop200_breakloop:				;
 				case REF:
 				case SET:
 				case THEN:
+				case YIELD:
 				case LET:
 				case WHERE:
 				case JOIN:
@@ -2219,6 +2220,7 @@ _loop200_breakloop:				;
 								case REF:
 								case SET:
 								case THEN:
+								case YIELD:
 								case LET:
 								case WHERE:
 								case JOIN:
@@ -4883,6 +4885,7 @@ _loop164_breakloop:								;
 				case REF:
 				case SET:
 				case THEN:
+				case YIELD:
 				case LET:
 				case WHERE:
 				case JOIN:
@@ -5284,6 +5287,7 @@ _loop114_breakloop:				;
 		IToken  t3 = null;
 		IToken  ev = null;
 		IToken  r = null;
+		IToken  y = null;
 		
 				name = null;
 				IToken id = null;
@@ -5381,6 +5385,16 @@ _loop114_breakloop:				;
 				if (0==inputState.guessing)
 				{
 					name=r;
+				}
+				break;
+			}
+			case YIELD:
+			{
+				y = LT(1);
+				match(YIELD);
+				if (0==inputState.guessing)
+				{
+					name=y;
 				}
 				break;
 			}
@@ -6579,6 +6593,7 @@ _loop614_breakloop:										;
 								case REF:
 								case SET:
 								case THEN:
+								case YIELD:
 								case LET:
 								case WHERE:
 								case JOIN:

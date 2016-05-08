@@ -41,7 +41,13 @@ namespace Boo.Lang.Compiler.Pipelines
 		override protected void Prepare(CompilerContext context)
 		{
 			base.Prepare(context);
-			context.Parameters.GenerateInMemory = true;
+#if !NET_40_OR_GREATER
+            context.Parameters.GenerateCollectible = false;
+#else
+            context.Parameters.GenerateCollectible = true;
+#endif
+
+            context.Parameters.GenerateInMemory = true;
 		}
 	}
 }

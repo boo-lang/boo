@@ -108,7 +108,12 @@ namespace Boo.Lang.Compiler
 			_outputWriter = Console.Out;
 			Debug = true;
 			Checked = true;
-			GenerateInMemory = true;
+#if !NET_40_OR_GREATER
+            GenerateCollectible = false;
+#else
+            GenerateCollectible = true;
+#endif
+            GenerateInMemory = true;
 			StdLib = true;
 			DelaySign = false;
 
@@ -290,9 +295,9 @@ namespace Boo.Lang.Compiler
 			assemblyName = NormalizeAssemblyName(assemblyName);
 			// This is an intentional attempt to load an assembly with partial name
 			// so ignore the compiler warning
-			#pragma warning disable 618	
+#pragma warning disable 618
 			var assembly = Permissions.WithDiscoveryPermission(()=> Assembly.LoadWithPartialName(assemblyName));
-			#pragma warning restore 618
+#pragma warning restore 618
 			return assembly ?? Assembly.Load(assemblyName);
 		}
 
@@ -409,7 +414,9 @@ namespace Boo.Lang.Compiler
 		/// </summary>
 		public CompilerOutputType OutputType { get; set; }
 
-		public bool GenerateInMemory { get; set; }
+        public bool GenerateCollectible { get; set; }
+
+        public bool GenerateInMemory { get; set; }
 
 		public bool StdLib { get; set; }
 
