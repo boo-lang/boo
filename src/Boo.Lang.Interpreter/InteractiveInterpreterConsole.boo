@@ -476,6 +476,9 @@ class InteractiveInterpreterConsole:
 
 		if newLine:
 			_multiline = false
+			# Qui mi sposto a capo di uno, devo spostarmi prima sull'ultima riga scritta
+			last_line = Top((len(CurrentPrompt) + LineLen),Console.WindowWidth)
+			Console.CursorTop = originalYPosition + last_line -1
 			Console.Write(Environment.NewLine)
 
 			if not TryRunCommand(Line):
