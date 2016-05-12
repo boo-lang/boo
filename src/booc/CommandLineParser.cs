@@ -65,6 +65,7 @@ namespace booc
 		private CommandLineParser(IEnumerable<string> args, CompilerParameters options)
 		{
 			_options = options;
+            _options.GenerateCollectible = false;
 			_options.GenerateInMemory = false;
 
 			var tempLibPaths = _options.LibPaths.ToArray();

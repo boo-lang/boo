@@ -52,21 +52,24 @@ class RequiredAttribute(Boo.Lang.Compiler.AbstractAstAttribute):
 		
 		parameter = node as ParameterDeclaration
 		if parameter is not null:			
-			method as Method = TargetMethod(parameter)
-			method.Body.Insert(0, BuildAssertion(parameter.Name))
+			body as Block = TargetMethodBody(parameter)
+			body.Insert(0, BuildAssertion(parameter.Name))
 			return
 		
 		property = node as Property
 		CheckProperty property
 		property.Setter.Body.Insert(0, BuildAssertion('value'))
 		
-	private def TargetMethod(parameter as ParameterDeclaration):
+	private def TargetMethodBody(parameter as ParameterDeclaration) as Block:
 		method = parameter.ParentNode as Method
-		return method if method is not null
+		return method.Body if method is not null
+		
+		lambda = parameter.ParentNode as BlockExpression
+		return lambda.Body if lambda is not null
 		
 		property = parameter.ParentNode as Property
-		CheckProperty property
-		return property.Setter
+		CheckProperty(property)
+		return property.Setter.Body
 		
 	private def CheckProperty(property as Property):
 		if property is null or property.Setter is null:

@@ -185,13 +185,17 @@ namespace Boo.Lang.Compiler.Steps
 				builder.Modifiers |= TypeMemberModifiers.Internal;
 				builder.AddBaseType(TypeSystemServices.ObjectType);
 				
-				int i=0;
+				var genericsSet = new System.Collections.Generic.HashSet<string>();
 				foreach (ILocalEntity local in _shared)
 				{
 					Field field = builder.AddInternalField(
 									string.Format("${0}", local.Name),
 									local.Type);
-					++i;
+					if (local.Type is IGenericParameter && !genericsSet.Contains(local.Type.Name))
+					{
+						builder.AddGenericParameter(local.Type.Name);
+						genericsSet.Add(local.Type.Name);
+					}
 					
 					_mappings[local] = field.Entity;
 				}

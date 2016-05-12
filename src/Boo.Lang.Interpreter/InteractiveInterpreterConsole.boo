@@ -217,8 +217,16 @@ this feature.""")]
 			for i in range(self._indent):
 				WithColor IndentionColor:
 					Console.Write(_booIndention)
-
-	
+		originalYPosition = Console.CursorTop
+	private def WithColor(color as ConsoleColor, block as System.Action):
+		if DisableColors:
+			block()
+		else:
+			Console.ForegroundColor = color
+			try:
+				block()
+			ensure:
+				Console.ResetColor()
 	private def ConsolePrintMessage(msg as string):
 		WithColor InterpreterColor:
 			Console.WriteLine( msg )
@@ -398,7 +406,7 @@ this feature.""")]
 							{ es | array(e as object for e in es if e.Name.StartsWith(_filter, StringComparison.InvariantCultureIgnoreCase)) })).Value
 					#endregion
 				else:
-					#region new feature: we didn't find a fullstop, thus we will list all globals and namespaces
+					#region new feature: we did not find a fullstop, thus we will list all globals and namespaces
 					suggestionList=[]
 					self._filter = query
 					for globalValue in self._interpreter.Values:
@@ -464,16 +472,23 @@ this feature.""")]
 		else:
 			return builtinCmd.Descr.Name+' '
 	
+	def Top(d as decimal, i as decimal):
+		return System.Math.Ceiling(d/i);
+	
 	private _beforeHistory = string.Empty
+	
+	private originalYPosition = 0
 
 	def DisplayHistory():
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
+		Console.CursorTop = originalYPosition
 		Console.CursorLeft = len(CurrentPrompt)
 		Console.Write(string.Empty.PadLeft(LineLen+self._booIndentionWidth*self._indent, char(' ')))
 		line = _history[_historyIndex].Text.TrimStart('\t'[0])
 		LineLen = 0
-		Console.CursorLeft = len(CurrentPrompt)+self._booIndentionWidth*self._indent
+		Console.CursorTop = originalYPosition
+		Console.CursorLeft = len(CurrentPrompt)
 		WriteToReplace(line)
 
 	_inMultilineString=false
@@ -485,7 +500,7 @@ this feature.""")]
 		while not _quit:
 			ReadEvalPrintLoopStep()
 		SaveHistory()
-		DisplayGoodbye()
+		DisplayGoodbye()	
 		
 	private def ReadEvalPrintLoopStep():
 		cki = Console.ReadKey(true)
@@ -529,7 +544,8 @@ this feature.""")]
 						elif LineLen > 0:
 							Delete(1)
 					elif key == ConsoleKey.LeftArrow and not self.CanAutoComplete:
-						Console.CursorLeft--
+						if Console.CursorLeft > 0:
+							Console.CursorLeft--
 				elif key == ConsoleKey.Backspace and _indent > 0:
 					self._selectedSuggestionIndex = null
 					Unindent()
@@ -537,12 +553,19 @@ this feature.""")]
 					self._selectedSuggestionIndex = null
 					Delete(0)
 				elif key == ConsoleKey.RightArrow and not self.CanAutoComplete:
-					if Console.CursorLeft < (len(CurrentPrompt)+LineLen):
-						Console.CursorLeft++
+					if Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth < (len(CurrentPrompt)+LineLen):
+						if Console.CursorLeft < Console.WindowWidth-1:
+							Console.CursorLeft++
+						else:
+							Console.CursorTop++
+							Console.CursorLeft = 0
 				elif key == ConsoleKey.Home:
-					Console.CursorLeft = len(CurrentPrompt)
+					Console.CursorTop = originalYPosition;
+					Console.CursorLeft = len(CurrentPrompt)	
 				elif key == ConsoleKey.End:
-					Console.CursorLeft = len(CurrentPrompt) + LineLen
+					last_line = Top((len(CurrentPrompt) + LineLen),Console.WindowWidth)
+					Console.CursorTop = originalYPosition + last_line -1
+					Console.CursorLeft = (len(CurrentPrompt) + LineLen) % Console.WindowWidth
 			
 			#auto-completion support
 			if CanAutoComplete:
@@ -585,19 +608,25 @@ this feature.""")]
 				return
 
 		_selectedSuggestionIndex = null
-
-		cx = Console.CursorLeft-len(CurrentPrompt)
+		cx = Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth-len(CurrentPrompt)
 		#multi-line?
-		if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
-			cx = LineLen
-			_multiline = true
+		#if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
+		#	cx = LineLen
+		#	_multiline = true
 
 		if not newLine:
 			#line-editing support
 			if cx < LineLen and not _multiline:
 				if not control: _line.Insert(cx, keyChar)
+				CurX = Console.CursorLeft
+				CurY = Console.CursorTop
 				Console.Write(_line.ToString(cx, LineLen-cx))
-				Console.CursorLeft = len(CurrentPrompt)+cx+1
+				Console.CursorTop = CurY
+				if CurX + 1 >= Console.WindowWidth:
+					Console.CursorTop++
+					Console.CursorLeft = 0
+				else:
+					Console.CursorLeft = CurX+1
 			else:
 				if not control: _line.Append(keyChar)
 				Console.Write(keyChar)

@@ -46,6 +46,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 			cd.Members.Add(CreateInvokeMethod(node));
 			cd.Members.Add(CreateBeginInvokeMethod(node));
 			cd.Members.Add(CreateEndInvokeMethod(node));
+			cd.Attributes.AddRange(node.Attributes);
 
 			return cd;
 		}

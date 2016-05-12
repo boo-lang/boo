@@ -209,6 +209,10 @@ namespace Boo.Lang.Compiler.Steps
 			DefineAssemblyAttributes();
 			DefineEntryPoint();
 
+            // Define the unmanaged version information resource, which 
+            // contains the attribute informaion applied earlier
+            _asmBuilder.DefineVersionInfoResource();
+
 			_moduleBuilder.CreateGlobalFunctions(); //setup global .data
 		}
 
@@ -5315,8 +5319,9 @@ namespace Boo.Lang.Compiler.Steps
 					return ((BoolLiteralExpression)expression).Value;
 
 				case NodeType.IntegerLiteralExpression:
+					var ile = (IntegerLiteralExpression)expression;
 					return ConvertValue(expectedType,
-											((IntegerLiteralExpression)expression).Value);
+					                    ile.IsLong? ile.Value: (int)ile.Value);
 
 				case NodeType.DoubleLiteralExpression:
 					return ConvertValue(expectedType,
@@ -5536,7 +5541,21 @@ namespace Boo.Lang.Compiler.Steps
 
 		AssemblyBuilderAccess GetAssemblyBuilderAccess()
 		{
-			return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
+			if (Parameters.GenerateCollectible)
+			{
+#if !NET_40_OR_GREATER
+				
+				Context.Warnings.Add(CompilerWarningFactory.CustomWarning("Collectible Assemblies are available only on .NET Framework 4.0 or later (https://msdn.microsoft.com/en-us/library/dd554932(v=vs.100).aspx)"));
+				return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
+#else
+				return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndCollect : AssemblyBuilderAccess.Save;
+#endif
+			}
+			else
+			{
+				return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
+			}
+
 		}
 
 		AssemblyName CreateAssemblyName(string outputFile)

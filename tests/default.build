@@ -70,6 +70,7 @@
 		<booc
 			target="library"
 			output="build/Boo.Lang.Interpreter.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.Interpreter'}">
 
 			<sources basedir="Boo.Lang.Interpreter.Tests">
@@ -109,6 +110,7 @@
 		<csc
 			target="library"
 			output="build/booc.Tests.dll">
+			debug="true"
 			
 			<sources basedir="booc.Tests">
 				<include name="**/*.cs" />
@@ -127,6 +129,7 @@
 		<booc
 			target="library"
 			output="build/BooModules.dll">
+			debug="true"
 
 			<sources basedir="BooModules">
 				<include name="*.boo" />
@@ -135,6 +138,7 @@
 
 		<booc
 			target="library"
+			debug="true"
 			output="build/BooSupportingClasses.dll">
 
 			<sources basedir="BooSupportingClasses">
@@ -143,6 +147,7 @@
 		</booc>
 
 		<booc target="library" output="build/Boo.Lang.PatternMatching.Tests.dll"
+ 			  debug="true"
 		      if="${fixture == '' or fixture == 'Boo.Lang.PatternMatching'}">
 			<sources basedir="Boo.Lang.PatternMatching.Tests">
 				<include name="*.boo" />
@@ -156,6 +161,7 @@
 		<csc
 			target="library"
 			output="build/Boo.Lang.Runtime.Tests.dll"
+			debug="true"
 			unsafe="true" if="${fixture == '' or fixture == 'Boo.Lang.Runtime'}">
 
 			<sources basedir="Boo.Lang.Runtime.Tests">
@@ -174,6 +180,7 @@
 		<csc
 			target="library"
 			output="build/BooCompiler.Tests.dll"
+			debug="true"
 			unsafe="true">
 			<!-- always compile this one, it is referenced by tests below -->
 
@@ -210,6 +217,7 @@
 				<csc
 					target="library"
 					output="build/${currentFixture}.Tests.dll"
+					debug="true"
 					unsafe="true"
 					if="${fixture == '' or fixture == currentFixture}">
 
@@ -233,6 +241,7 @@
 		<csc
 			target="library"
 			output="build/Boo.Lang.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang'}">
 
 			<sources basedir="Boo.Lang.Tests">
@@ -249,6 +258,7 @@
 		<booc
 			target="library"
 			output="build/Boo.Lang.Useful.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.Useful'}">
 
 			<sources basedir="Boo.Lang.Useful.Tests">
@@ -265,6 +275,7 @@
 		<booc
 			target="library"
 			output="build/Boo.Lang.Compiler.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.Compiler'}">
 
 			<sources basedir="Boo.Lang.Compiler.Tests">
@@ -280,6 +291,7 @@
 		<booc
 			target="library"
 			output="build/BooCompilerResources.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'BooCompilerResources'}">
 
 			<sources basedir="BooCompilerResources.Tests">
@@ -294,6 +306,7 @@
 		<booc
 			target="library"
 			output="build/Boo.Lang.CodeDom.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.CodeDom'}">
 
 			<sources basedir="Boo.Lang.CodeDom.Tests">
@@ -309,6 +322,7 @@
 		<csc
 			target="library"
 			output="build/Boo.Lang.Parser.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.Parser'}">
 
 			<sources>

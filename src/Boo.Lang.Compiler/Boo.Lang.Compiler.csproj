@@ -16,13 +16,20 @@
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <!--<DefineConstants>COLLECTIBLE_NOT_SUPPORTED</DefineConstants>-->
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants Condition=" $(TargetFrameworkVersion.Replace('v', '')) &gt;= 4.0 ">$(DefineConstants)NET_40_OR_GREATER </DefineConstants>
+    <DefineConstants Condition=" $(DefineConstants.EndsWith(', ')) ">$(DefineConstants.Remove($(DefineConstants.LastIndexOf(", "))))</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,$(DefineConstants)</DefineConstants>
+    <!--<DefineConstants Condition=" $(DefineConstants.EndsWith('; ')) ">$(DefineConstants.Remove($(DefineConstants.LastIndexOf("; "))))</DefineConstants>-->
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,7 +37,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -39,7 +46,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -432,6 +439,7 @@
     <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
     <Compile Include="Steps\CreateAndSaveDocs.cs" />
+    <Compile Include="Steps\DetectInnerGenerics.cs" />
     <Compile Include="Steps\DetectNotImplementedFeatureUsage.cs" />
     <Compile Include="Steps\DumpReferences.cs" />
     <Compile Include="Steps\EmitAssembly.cs" />
@@ -539,6 +547,7 @@
     <Compile Include="TypeSystem\Generics\MappedParameter.cs" />
     <Compile Include="TypeSystem\Generics\TypeInferrer.cs" />
     <Compile Include="TypeSystem\Generics\TypeMapper.cs" />
+    <Compile Include="TypeSystem\GenericTypeCollector.cs" />
     <Compile Include="TypeSystem\IAccessibilityChecker.cs" />
     <Compile Include="TypeSystem\IAccessibleMember.cs" />
     <Compile Include="TypeSystem\IArrayType.cs" />

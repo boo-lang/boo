@@ -96,7 +96,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"generators-16.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void generators_17()
 		{
 			RunCompilerTestCase(@"generators-17.boo");
