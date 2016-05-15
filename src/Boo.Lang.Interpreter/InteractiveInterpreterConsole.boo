@@ -338,9 +338,12 @@ this feature.""")]
 			Console.Write(' ')
 			Console.CursorLeft -= 1
 	
+	protected def IsInLine0() as bool:
+		return self.LineLen < Console.BufferWidth-len(self.CurrentPrompt)
+
 	protected def Delete(count as int): #if count is 0, forward-delete
 		return if LineLen == 0
-		if self.LineLen >= Console.BufferWidth:
+		if not self.IsInLine0():
 			if count== 0: count=1
 			cx = self.LineLen - count
 			return if cx < 0 or cx >= LineLen
@@ -353,6 +356,8 @@ this feature.""")]
 				Console.CursorTop -= 1
 				Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
 			else:
+				Console.CursorLeft = curX
+				Console.Write(' ')
 				Console.CursorLeft = curX
 		else:
 			cx = Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
@@ -536,7 +541,7 @@ this feature.""")]
 				if key == ConsoleKey.Backspace:
 					self.DeleteInMultilineMode()
 			elif LineLen > 0 or _indent > 0:
-				if Console.CursorLeft > len(CurrentPrompt):
+				if Console.CursorLeft > len(CurrentPrompt) or not self.IsInLine0():
 					if key == ConsoleKey.Backspace:
 						self._selectedSuggestionIndex = null
 						if _indent > 0 and LineLen == 0:
@@ -608,7 +613,9 @@ this feature.""")]
 				return
 
 		_selectedSuggestionIndex = null
-		cx = Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth-len(CurrentPrompt)
+		cx = Console.CursorLeft+Math.Abs(Console.CursorTop-originalYPosition)*Console.WindowWidth-len(CurrentPrompt)
+		while cx < 0: # user input might span over more than one line and the statement above didn't notice this.
+			cx+=Console.WindowWidth
 		#multi-line?
 		#if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
 		#	cx = LineLen
