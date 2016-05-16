@@ -214,6 +214,12 @@
 		<if test="${create.doc}">
 			<property name="booish.doc" value="/doc:${build.dir}/booish.xml" />
 		</if>
+		<!--
+		SharpDevelop 4.4 unfortunately can only debug 32 bit applications
+		Thus, is you want to debug booish or other tools of Boo, you have to
+		define the platform "x86".
+		-->
+			<!-- platform="x86" -->
 		<booc
 			target="exe"
 			output="${build.dir}/booish.exe"

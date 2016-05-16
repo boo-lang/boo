@@ -73,7 +73,8 @@ class InteractiveInterpreterConsole:
 	
 	_buffer = StringBuilder()	#buffer to be executed
 	_line = StringBuilder()		#line being edited
-	_multiline = false			#is the current line a multi-line?
+	_consoleRowInLine=0         #a line might span over more than one row of the console
+	                            #this will record the console row of the current cursor position
 
 	[property(BlockStarters, value is not null)]
 	_blockStarters = (char(':'), char('\\'),)
@@ -122,7 +123,6 @@ class InteractiveInterpreterConsole:
 
 	LineLen:
 		get: return _line.Length
-		set: _line.Length = value
 	
 	_booIndention = '. '
 	_booIndentionWidth = 2
@@ -217,7 +217,6 @@ this feature.""")]
 			for i in range(self._indent):
 				WithColor IndentionColor:
 					Console.Write(_booIndention)
-		originalYPosition = Console.CursorTop
 	private def WithColor(color as ConsoleColor, block as System.Action):
 		if DisableColors:
 			block()
@@ -299,7 +298,7 @@ this feature.""")]
 
 	protected def WriteToReplace(s as string):
 		Console.Write(s)
-		_line.Append(s)		
+		_line.Append(s)
 
 	protected def Indent():
 		WithColor IndentionColor:
@@ -312,65 +311,40 @@ this feature.""")]
 		Console.Write(string.Empty.PadLeft(self._booIndentionWidth))
 		Console.CursorLeft -= self._booIndentionWidth
 		_indent--
-	
-	private def DeleteInMultilineMode():
-	"""
-	Delete the last character in multiline mode. This is the least support for edits.
-	"""
-		return if not self._multiline
-		posX=Console.CursorLeft
-		if posX == 0:
-			lines = self._line.ToString().Split(*'\n'.ToCharArray())
-			self._multiline = len(lines) > 1
-			self._buffer=StringBuilder()
-			for line in lines[:-1]:
-				self._buffer.AppendLine(line)
-			self._line = StringBuilder()
-			self._line.Append(lines[-1][0:-1])
-			Console.CursorTop -= 1
-			Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
-			Console.Write(' ')
-			Console.CursorTop -= 1
-			Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
-		else:
-			_line.Remove(_line.Length-1, 1)
-			Console.CursorLeft -= 1
-			Console.Write(' ')
-			Console.CursorLeft -= 1
-	
+		
 	protected def IsInLine0() as bool:
 		return self.LineLen < Console.BufferWidth-len(self.CurrentPrompt)
 
 	protected def Delete(count as int): #if count is 0, forward-delete
 		return if LineLen == 0
-		if not self.IsInLine0():
-			if count== 0: count=1
-			cx = self.LineLen - count
-			return if cx < 0 or cx >= LineLen
-			_line.Remove(cx, count)
-			curX = Console.CursorLeft - count
-			if curX < 0:
-				Console.CursorTop -= 1
-				Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
-				Console.Write(' ')
-				Console.CursorTop -= 1
-				Console.CursorLeft = len(self.CurrentPrompt)+self._line.Length
-			else:
-				Console.CursorLeft = curX
-				Console.Write(' ')
-				Console.CursorLeft = curX
-		else:
-			cx = Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
-			count=1 if cx >= LineLen and count == 0
-			return if cx < 0 or cx >= LineLen
-			dcount = (count if count != 0 else 1)
-			_line.Remove(cx, dcount)
-			curX = Console.CursorLeft - count
-			Console.CursorLeft = curX
-			Console.Write("${_line.ToString(cx, LineLen-cx)} ")
-			Console.CursorLeft = curX
-
-
+		cx = Console.WindowWidth*self._consoleRowInLine+Console.CursorLeft-len(CurrentPrompt)-count-LineIndentWidth
+		count=1 if cx >= LineLen and count == 0
+		return if cx < 0 or cx >= LineLen
+		dcount = (count if count != 0 else 1)
+		_line.Remove(cx, dcount)
+		curX = Console.CursorLeft - count
+		dCurY=0
+		while curX < 0:
+			--self._consoleRowInLine
+			curX+=Console.WindowWidth
+			dCurY-=1
+		Console.CursorTop+=dCurY
+		Console.CursorLeft = curX
+		Console.Write("${_line.ToString(cx, LineLen-cx)} ")
+		Console.CursorTop-=(len(CurrentPrompt)+LineIndentWidth+LineLen+1)/ Console.WindowWidth- self._consoleRowInLine
+		Console.CursorLeft = curX
+	
+	def DeleteCurrentLine():
+		curX = len(CurrentPrompt)+self.LineIndentWidth
+		sizeL = _line.Length
+		_line.Clear()
+		Console.CursorTop-=self._consoleRowInLine
+		Console.CursorLeft = curX
+		Console.Write(string(' '[0], sizeL+1))
+		Console.CursorTop-=(curX+sizeL)/ Console.WindowWidth
+		Console.CursorLeft = curX
+		self._consoleRowInLine=0
+	
 	private static re_open = Regex("\\(", RegexOptions.Singleline)
 	private static re_close = Regex("\\)", RegexOptions.Singleline)
 
@@ -481,19 +455,14 @@ this feature.""")]
 		return System.Math.Ceiling(d/i);
 	
 	private _beforeHistory = string.Empty
-	
-	private originalYPosition = 0
-
 	def DisplayHistory():
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
-		Console.CursorTop = originalYPosition
-		Console.CursorLeft = len(CurrentPrompt)
-		Console.Write(string.Empty.PadLeft(LineLen+self._booIndentionWidth*self._indent, char(' ')))
+		self.DeleteCurrentLine()
+		Console.CursorLeft = 0
 		line = _history[_historyIndex].Text.TrimStart('\t'[0])
-		LineLen = 0
-		Console.CursorTop = originalYPosition
-		Console.CursorLeft = len(CurrentPrompt)
+		self.ConsolePrintPrompt(true)
+		self._consoleRowInLine=(len(line)+len(CurrentPrompt)+self.LineIndentWidth)/ Console.WindowWidth
 		WriteToReplace(line)
 
 	_inMultilineString=false
@@ -527,20 +496,12 @@ this feature.""")]
 			# delete the whole line
 			if key == ConsoleKey.Escape:
 				if self._selectedSuggestionIndex == null:
-					curX = len(CurrentPrompt)
-					sizeL = _line.Length
-					_line.Remove(0, sizeL)
-					Console.CursorLeft = curX
-					Console.Write(string(' '[0], sizeL+1))
-					Console.CursorLeft = curX
+					self.DeleteCurrentLine()
 				else:
 					self._selectedSuggestionIndex = null
 			
 			#line-editing support
-			if _multiline:
-				if key == ConsoleKey.Backspace:
-					self.DeleteInMultilineMode()
-			elif LineLen > 0 or _indent > 0:
+			if LineLen > 0 or _indent > 0:
 				if Console.CursorLeft > len(CurrentPrompt) or not self.IsInLine0():
 					if key == ConsoleKey.Backspace:
 						self._selectedSuggestionIndex = null
@@ -551,6 +512,10 @@ this feature.""")]
 					elif key == ConsoleKey.LeftArrow and not self.CanAutoComplete:
 						if Console.CursorLeft > 0:
 							Console.CursorLeft--
+						elif self._consoleRowInLine > 0:
+							--self._consoleRowInLine
+							Console.CursorLeft=Console.WindowWidth-1
+							Console.CursorTop-=1
 				elif key == ConsoleKey.Backspace and _indent > 0:
 					self._selectedSuggestionIndex = null
 					Unindent()
@@ -558,19 +523,20 @@ this feature.""")]
 					self._selectedSuggestionIndex = null
 					Delete(0)
 				elif key == ConsoleKey.RightArrow and not self.CanAutoComplete:
-					if Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth < (len(CurrentPrompt)+LineLen):
+					if Console.CursorLeft+self._consoleRowInLine*Console.WindowWidth < (len(CurrentPrompt)+self.LineIndentWidth+LineLen):
 						if Console.CursorLeft < Console.WindowWidth-1:
 							Console.CursorLeft++
 						else:
 							Console.CursorTop++
 							Console.CursorLeft = 0
+							++self._consoleRowInLine
 				elif key == ConsoleKey.Home:
-					Console.CursorTop = originalYPosition;
-					Console.CursorLeft = len(CurrentPrompt)	
+					if self.IsInLine0():
+						Console.CursorLeft = len(CurrentPrompt)	
+					else:
+						Console.CursorLeft=0
 				elif key == ConsoleKey.End:
-					last_line = Top((len(CurrentPrompt) + LineLen),Console.WindowWidth)
-					Console.CursorTop = originalYPosition + last_line -1
-					Console.CursorLeft = (len(CurrentPrompt) + LineLen) % Console.WindowWidth
+					Console.CursorLeft = (len(CurrentPrompt) + LineLen + self.LineIndentWidth) % Console.WindowWidth
 			
 			#auto-completion support
 			if CanAutoComplete:
@@ -613,33 +579,35 @@ this feature.""")]
 				return
 
 		_selectedSuggestionIndex = null
-		cx = Console.CursorLeft+Math.Abs(Console.CursorTop-originalYPosition)*Console.WindowWidth-len(CurrentPrompt)
-		while cx < 0: # user input might span over more than one line and the statement above didn't notice this.
-			cx+=Console.WindowWidth
-		#multi-line?
-		#if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
-		#	cx = LineLen
-		#	_multiline = true
-
+		cx = Console.CursorLeft+self._consoleRowInLine*Console.WindowWidth-len(CurrentPrompt)-self.LineIndentWidth
 		if not newLine:
 			#line-editing support
-			if cx < LineLen and not _multiline:
+			CurX = Console.CursorLeft
+			if cx < LineLen:
 				if not control: _line.Insert(cx, keyChar)
-				CurX = Console.CursorLeft
-				CurY = Console.CursorTop
 				Console.Write(_line.ToString(cx, LineLen-cx))
-				Console.CursorTop = CurY
-				if CurX + 1 >= Console.WindowWidth:
+				if CurX >= Console.WindowWidth:
 					Console.CursorTop++
+					Console.CursorLeft = 0
+					++self._consoleRowInLine
+				elif CurX+1 == Console.WindowWidth:
+					++self._consoleRowInLine
 					Console.CursorLeft = 0
 				else:
 					Console.CursorLeft = CurX+1
 			else:
 				if not control: _line.Append(keyChar)
 				Console.Write(keyChar)
+				if Console.CursorLeft < CurX:
+					++self._consoleRowInLine
 
 		if newLine:
-			Console.Write(Environment.NewLine)
+			# reprint the current line including prompt to ensure, that
+			# the carret is in the end of the line
+			Console.CursorTop -= self._consoleRowInLine
+			Console.CursorLeft = 0;
+			ConsolePrintPrompt(true)
+			Console.WriteLine(self.Line)
 			if not TryRunCommand(Line):
 				_buffer.Append('\t'*self._indent)
 				_buffer.Append(Line)
@@ -679,8 +647,8 @@ this feature.""")]
 						_buffer.Length = 0 #truncate buffer
 					AddToHistory(expr, succeeded)
 
-			_multiline = false
-			LineLen = 0 #truncate line
+			self._line.Clear()
+			self._consoleRowInLine=0
 			
 			ConsolePrintPrompt()
 
