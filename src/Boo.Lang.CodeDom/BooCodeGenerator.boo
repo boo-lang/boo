@@ -52,6 +52,8 @@ class BooCodeGenerator(CodeGenerator):
 						"System.Int64" : "long",
 						"System.Int16" : "short",
 						"System.UInt16" : "ushort",
+						"System.UInt32" : "uint",
+						"System.UInt64" : "ulong",
 						"System.Boolean" : "bool",
 						"System.Char" : "char",
 						"System.String" : "string",

@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>NDoc Developer's Reference</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css" />
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h3 class="dtH3">Implementing A Custom Documenter</h3>
+	<p>Implementing a documenter requires an assembly with at least 
+	two classes:</p>
+	<ul>
+		<li>
+		<p>A class that inherits from NDoc.Core.DocumenterBase</p>
+		</li>
+		<li>
+		<p>And a class that inherits from NDoc.Core.DocumenterConfigBase</p>
+		</li>
+	</ul>
+	<p><b>DocumenterConfigBase</b> includes the settings that are shared 
+	by all documenters. These settings govern how the /doc XML is merged with reflected 
+	meta-data. The inherited class can add its own properties that govern its operation.</p>
+	<p><b>DocumenterBase</b> defines the general process for creating 
+	the documentation. This base class will do the XML merge and it is then up to 
+	the derived class to transform the merged XML into a documentation set.</p>
+	<p>The implementation must provide implementations for the abstract 
+	base class methods of <b>Clear</b>, <b>Build</b>, and the <b>MainOutputFile</b> 
+	property. </p>
+	<p>In the implementation of <b>Build</b>, call the base class
+	<b>MergeXML</b> method. This method merges the /doc XML file with the project 
+	assembly&#39;s reflected meta-data and returns the resulting XML to the derived 
+	class. It is then up to the derived class to transform the XML into it particular 
+	documentation format.</p>
+	<p>Using the <a href="xml.htm">XML Documenter</a> in order to pre-generate 
+	the merged XML, in conjunction with the
+	<a href="documenters.htm#UseNDocXmlFile">UseNDocXmlFile</a> setting, is a good 
+	way to explore the structure of the merged XML document and concentrate on creating 
+	the custom documentation format.</p>
+	<h3 class="dtH3">How Documenters Are Loaded</h3>
+	<p>NDoc uses a naming convention for the assemblies that contain documenters. 
+	To be located by NDoc, a documenter&#39;s assembly must be named with the pattern:</p>
+	<p>&nbsp;&nbsp;&nbsp; <i>NDoc.Documenter.&lt;NAME&gt;.dll </i></p>
+	<p>where &lt;NAME&gt; is the documenter&#39;s name.</p>
+	<p>Each documenter must reside in the same folder as the NDocGui.exe and NDocConsole.exe 
+	applications in order to be located correctly.</p>
+</div>
+
+</body>
+
+</html>

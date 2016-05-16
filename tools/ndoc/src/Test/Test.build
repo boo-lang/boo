@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<project name="NDoc.Test" default="compile">
+	<target name="compile">
+		<csc target="library" output="${current.bin.dir}/${project::get-name()}.dll" debug="${current.build.debug}" optimize="${current.build.optimize}" unsafe="true" checked="false" define="${current.build.defines}" doc="${current.bin.dir}/${project::get-name()}.xml">
+			<sources>
+				<include name="**/*.cs" />
+				<include name="../CommonAssemblyInfo.cs" />
+			</sources>
+			<references>
+				<include name="System.dll" />
+				<include name="System.Xml.dll" />
+			</references>
+		</csc>
+	</target>
+</project>

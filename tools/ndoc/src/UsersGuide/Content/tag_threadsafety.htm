@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>threadsafety</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			The &lt;threadsafety&gt; tag is used to describe how a class or structure 
+			behaves in multi-threaded scenarios.
+			<pre class="syntax">&lt;threadsafety static="true|false" instance="true|false"/&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt><I>static="true|false"</I>
+					<dd>
+						indicates whether static member of this class are safe for multi-threaded 
+						operations. <dt><I>instance="true|false"</I>
+							<dd>
+								indicates whether members of instances of this type are safe for multi-threaded 
+								operations.</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>Class, Structure.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<h4 class="dtH4">Examples</h4>
+			<pre class="csharpcode"><SPAN class="lang">[C#]</SPAN>
+<span class="rem">/// &lt;threadsafety static="true" instance="false"/&gt;</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> MyClass
+{
+   <span class="rem">/// not safe across threads</span>
+   <span class="kwrd">public</span> <span class="kwrd">void</span> InstanceMethod()
+   {
+   }
+   
+   <span class="rem">/// safe across threads</span>
+   <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> StaticMethod()
+   {
+   }
+}</pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a HREF="tags.htm"> NDoc&nbsp;Tags</a></p>
+		</div>
+	</body>
+</html>

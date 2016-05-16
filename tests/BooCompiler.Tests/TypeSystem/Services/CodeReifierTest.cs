@@ -34,7 +34,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		{
 			RunCompilerStepAfterExpressionResolution(new ActionStep(() =>
 			{
-				Exceptions.Expecting<ArgumentException>(() => CodeReifier().Reify(new ReturnStatement()));
+				Exceptions.Expecting<CompilerError>(() => CodeReifier().Reify(new ReturnStatement()));
 			}));
 		}
 
@@ -43,7 +43,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 		{
 			RunCompilerStepAfterExpressionResolution(new ActionStep(() =>
 			{
-				Exceptions.Expecting<ArgumentException>(() => CodeReifier().Reify(new NullLiteralExpression()));
+				Exceptions.Expecting<CompilerError>(() => CodeReifier().Reify(new NullLiteralExpression()));
 			}));
 		}
 

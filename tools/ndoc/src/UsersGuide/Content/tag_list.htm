@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>list</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>
+				The &lt;list&gt; tag describes a numbered or bulleted list, a definition list 
+				or a table.</p>
+			<pre class="syntax">&lt;list type="bullet" | "number" | "table" | "definition"&gt;
+   &lt;listheader&gt;
+      &lt;term&gt;<I>term</I>&lt;/term&gt;
+      &lt;description&gt;<I>description</I>&lt;/description&gt;
+   &lt;/listheader&gt;
+   &lt;item&gt;
+      &lt;term&gt;<I>term</I>&lt;/term&gt;
+      &lt;description&gt;<I>description&lt;</I>/description&gt;
+   &lt;/item&gt;
+&lt;/list&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt><I>term</I>
+					<dd>
+						A term to define, which will be defined in <I>description</I>. <dt><I>description</I>
+							<dd>
+								Either an item in a bullet or numbered list or the definition of a <I>term</I>.</dd>
+			</dl>
+			<h4 class="dtH4">Remarks</h4>
+			<p>The <span class="code">&lt;listheader&gt;</span> block is used to define the 
+				heading row of a table.&nbsp; When defining a table, you only need to supply an 
+				entry for <I>term</I> in the heading.</p>
+			<p>Each item in the list is specified with an <span class="code">&lt;item&gt;</span>
+				block. When creating a definition list, you will need to specify both <I>term</I>
+				and <I>description</I>. However, for a table, bulleted list, or numbered list, 
+				you only need to supply an entry for <I>description</I>.</p>
+			<p>A list or table can have as many <span class="code">&lt;item&gt;</span> blocks 
+				as needed.</p>
+			<h4 class="dtH4">Examples</h4>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a href="tags.htm"> NDoc&nbsp;Tags</a>&nbsp;| <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrflist.htm">
+					Microsoft's definition</A></p>
+		</div>
+	</body>
+</html>

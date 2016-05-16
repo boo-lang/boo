@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>NDoc Documenter Basic Settings</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h3 class="dtH3">Overview</h3>
+	<div id="nstext0">
+		A Documenter represents a particular method of creating, organizing, formatting and packaging your documentation. NDoc ships 
+		with six Documenters:<ul>
+			<li><a href="vsnet.htm">VS.NET</a> </li>
+			<li><a href="msdn.htm">MSDN</a> </li>
+			<li><a href="xml.htm">XML</a> </li>
+			<li><a href="javadoc.htm">JavaDoc</a> </li>
+			<li><a href="linear.htm">LinearHtml</a> </li>
+			<li><a href="latex.htm">LaTeX</a></li>
+		</ul>
+		<p>NDoc uses a pluggable architecture, so it is also possible to generate your own, custom, documenters.</p>
+		<p>Generating the documentation consists of two basic steps: </p>
+		<ol>
+			<li>Merging the /doc XML summary with reflected meta-data from the assemblies. </li>
+			<li>Transforming that merged XML into the documentation (HTML for the MSDN and VS.NET documenters).</li>
+		</ol>
+		<p>The settings below govern how exactly the XML summary data is merged with the reflected meta-data and therefore govern 
+		what items will and will not appear in the final documentation. </p>
+		<p>These settings are shared by all of the current NDoc documenters. Particular documenters might include additional steps 
+		like compiling the transformed HTML into compiled help files. They will have additional settings that govern the details specific 
+		to the documenter&#39;s format.</p>
+	</div>
+	<h3 class="dtH3">Settings</h3>
+	<table class="dtTABLE" id="table1" style="WIDTH: 94%" cellspacing="0">
+		<tr valign="top">
+			<th width="33%">Setting</th>
+			<th width="67%">Description</th>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">(Global)</td>
+		</tr>
+		<tr>
+			<td><b>ReferencePaths</b></td>
+			<td>The directories used to resolve assembly references.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">Documentation Main Settings</td>
+		</tr>
+		<tr valign="top">
+			<td><b>AssemblyVersionInfo</b></td>
+			<td>Determines what type of Assembly Version information is documented (if any).<p>Valid values are,</p>
+			<table class="dtTABLE" width="100%" cellspacing="0">
+				<colgroup>
+					<col width="5%">
+				</colgroup>
+				<tr>
+					<td><nobr><b>None</b></nobr></td>
+					<td>No assembly info will be documented</td>
+				</tr>
+				<tr>
+					<td><nobr><b>Assembly Version</b></nobr></td>
+					<td>This is the standard .Net version information specified in the AssemblyVersionAttribute.</td>
+				</tr>
+				<tr>
+					<td><nobr><b>File Version</b></nobr></td>
+					<td>This is the file version specified in the AssemblyFileVersion attribute, as opposed to the /.Net standard 
+					Assembly Version. This type of version information is useful if an Assembly is to installed in the GAC, and the 
+					developer needs to avoid side-by-side versioning issues, but wishes to provide build version information...</td>
+				</tr>
+			</table>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>AutoDocumentConstructors</b></td>
+			<td>If <b>true</b>, automatic summary documentation for default constructors will be enabled. If no summary for a parameter-less 
+			constructor is present, the default constructor summary of <b>Initializes a new instance of the <i>ClassName</i> class</b> 
+			is inserted.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>AutoPropertyBackerSummaries</b></td>
+			<td>If <b>true</b>, the documenter will automatically add a summary for fields which look like they back (hold the value 
+			for) a property.  The summary is only added if there is no existing summary, which gives you a way to opt out of this 
+			behaviour 
+			in particular cases.&nbsp; Currently the naming conventions supported are such that fields <b>_Length</b> and <b>length</b> 
+			will be inferred to property <b>Length</b>.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>CleanIntermediates</b></td>
+			<td>If <b>true</b>, intermediate files will be deleted after a successful build.<p>For documenters that result in a compiled 
+			output, like the MSDN and VS.NET documenters, intermediate files include all of the HTML Help project files, as well as 
+			the generated HTML files.</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>CopyrightHref</b></td>
+			<td>The URI of a copyright notice. A link to this URI will be included with each topic.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>CopyrightText</b></td>
+			<td>A textual copyright notice that will be included with each topic.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>FeedbackEmailAddress</b></td>
+			<td>If an email address is supplied, a <b>mailto</b> link will be placed at the bottom of each page, pointing to this 
+			address.</td>
+		</tr>
+		<tr valign="top">
+			<td><a name="preliminary"><b>Preliminary</b></a></td>
+			<td>If <b>true</b>, NDoc will mark every topic as being preliminary documentation. Each topic will include a notice that 
+			the documentation is preliminary<p>The default notice is: <font color="red">[This is preliminary documentation and subject 
+			to change.]</font></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>SdkDocLanguge</b></td>
+			<td>Specifies to which language version of the .NET Framework SDK documentation the links to system types will be pointing.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>SdkDocVersion</b></td>
+			<td>Specifies to which version of the .NET Framework SDK documentation the links to system types will be pointing.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>UseNamespaceDocSummaries</b></td>
+			<td>If <b>true</b>, the documenter will look for a class with the name <b>NamespaceDoc</b> in each namespace.&nbsp; The 
+			summary from that class will then be used as the namespace summary. The class itself will not show up in the resulting 
+			documentation output.
+			<p>You may want to use <b>#if</b> ... <b>#endif</b> together with conditional compilation constants to exclude the <b>
+			NamespaceDoc</b> classes from release build assemblies.</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><a name="UseNDocXmlFile"><b>UseNDocXmlFile</b></a></td>
+			<td>When set, NDoc will use the specified XML file as input instead of reflecting the list of assemblies specified on 
+			the project.<p>Very useful for debugging documenters. <i>Leave empty for normal usage.</i></p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">Show Attributes</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentAttributes</b></td>
+			<td>If <b>true</b>, custom attributes applied to types and members are documented the syntax portion of topics.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentedAttributes</b></td>
+			<td>When <b>DocumentAttributes</b> is set to true, this specifies which attributes/properties are visible. Empty to show 
+			all.
+			<p>Format: &#39;&lt;attribute-name-starts-with&gt;,&lt;property-to-show&gt;,&lt;property-to-show&gt;| &lt;attribute-name-starts-with&gt;,&lt;property-to-show&gt;,&lt;property-to-show&gt;|(etc...)&#39;.</p>
+			</td>
+		</tr>
+		<tr>
+			<td><b>DocumentInheritedAttributes</b></td>
+			<td>When <b>DocumentAttributes</b> is set to true, this specifies whether attributes inherited from base classes are visible</td>
+		</tr>
+		<tr valign="top">
+			<td><b>ShowTypeIdInAttributes</b></td>
+			<td>Set this to <b>true </b>in order to output the <b>TypeId</b> property in the attributes.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">Show Missing Documentation</td>
+		</tr>
+		<tr valign="top">
+			<td><b>ShowMissingParams</b></td>
+			<td>If <b>true</b>, all parameters without /doc <b><a href="tags.htm#param">&lt;param&gt;</a></b> comments will contain the 
+			phrase <font color="red">Missing Documentation</font> in the generated documentation.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>ShowMissingRemarks</b></td>
+			<td>If <b>true</b>, all members without /doc <b><a href="tags.htm#remarks">&lt;remarks&gt; </a></b>comments will contain the 
+			phrase <font color="red">Missing Documentation</font> in the generated documentation.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>ShowMissingReturns</b></td>
+			<td>If <b>true</b>, all members without /doc <b><a href="tags.htm#returns">&lt;returns&gt;</a></b> comments will contain the 
+			phrase <font color="red">Missing Documentation</font> in the generated documentation.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>ShowMissingSummaries</b></td>
+			<td>If <b>true</b>, all members without /doc <b><a href="tags.htm#summary">&lt;summary&gt;</a></b> comments will contain the 
+			phrase <font color="red">Missing Documentation</font> in the generated documentation.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>ShowMissingValues</b></td>
+			<td>If <b>true</b>, all properties without /doc <b><a href="tags.htm#value">&lt;value&gt;</a></b> comments will contain the 
+			phrase <font color="red">Missing Documentation</font> in the generated documentation.</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="background-color:#eeeeee; font-weight:bold;">Visibility</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentEmptyNamespaces</b></td>
+			<td>If <b>true</b>, empty namespaces will be included in the documentation. Normally, empty namespaces are not documented.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentExplicitInterfaceImplementations</b></td>
+			<td>If <b>true</b>, members that explicitly implement interfaces will be included in the documentation. Normally, these 
+			members are not documented.</td>
+		</tr>
+		<tr>
+			<td><b>DocumentInheritedFrameworkMembers</b></td>
+			<td>If <b>true</b>, members inherited from .Net framework classes will be included in the documentation. By convention, 
+			these members are normally documented.
+			<p>Note: if <b>DocumentInheritedMembers</b> is <b>False</b>, this setting will be ignored.</p>
+			</td>
+		</tr>
+		<tr>
+			<td><b>DocumentInheritedMembers</b></td>
+			<td>If <b>true</b>, inherited members will be included in the documentation. By convention, 
+			these members are normally documented.
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentInternals</b></td>
+			<td>If <b>true</b>, types and members marked as internal will be included in the documentation.
+			<p>Normally, internal items are not documented.</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentPrivates</b></td>
+			<td>If <b>true</b>, types and members marked as private will be included in the documentation.&nbsp; This is useful when 
+			using NDoc to create documentation intended for internal use.<p>Normally, private items are not documented. </p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentProtected</b></td>
+			<td>If <b>true</b>, protected members will be included in the documentation.
+			<p>Since protected members of non-internal types can be accessed outside of an assembly, this is true by default.</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentProtectedInternalAsProtected</b></td>
+			<td>If <b>true</b>, NDoc will treat &quot;protected internal&quot; members as &quot;protected&quot; only.</td>
+		</tr>
+		<tr valign="top">
+			<td><b>DocumentSealedProtected</b></td>
+			<td>If <b>true</b>, protected instance members of sealed classes will be documented.&nbsp;
+			<p><i>Note: For this setting to have any effect, <b>DocumentProtected</b> must also be <b>true</b>.</i></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>EditorBrowsableFilter</b></td>
+			<td>Sets the level of filtering to apply on types/members marked with the <b>EditorBrowsable</b> attribute.
+			<p><font color="Red"><b>Warning: enabling this filter might result in invalid links in the documentation.</b></font></p>
+			<p><i>As of version 1.3 of NDoc, the <b><a href="tags.htm#exclude">&lt;exclude/&gt;</a></b> tag is the preferred mechanism for 
+			suppressing the documentation of types or members.</i></p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td><b>SkipNamespacesWithoutSummaries</b></td>
+			<td>If <b>true</b>, NDoc will not document namespaces that do not have an associated namespace summary.</td>
+		</tr>
+	</table>
+</div>
+<div>
+</div>
+
+</body>
+
+</html>

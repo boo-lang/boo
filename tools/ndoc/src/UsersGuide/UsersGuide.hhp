@@ -1,0 +1,88 @@
+
+[INFOTYPES]
+
+[OPTIONS]
+Auto Index=Yes
+Binary TOC=Yes
+Compatibility=1.1 or later
+Compiled File=NDocUsersGuide.chm
+Contents File=contents.HHC
+Default Window=MsdnHelp
+Default Topic=Content\Default.htm
+Display compile progress=No
+Error log file=_errorlog.txt
+Full-text search=Yes
+Index File=index.HHK
+Language=0x409 English (United States)
+Title=NDoc 1.3 User's Guide
+Binary Index=Yes
+Default Font=
+Create CHI file=No
+
+[WINDOWS]
+MsdnHelp="NDoc 2014 Help","contents.hhc","index.hhk","Content\Default.htm","Content\Default.htm",,,,,0x73520,220,0x60387E,[86,51,872,558],0xB0000,,,,,,0
+TP=,"contents.HHC","index.HHK","Content\Default.htm",,,,,,0x20,0,0x0,[271,372,593,566],0xB0000,,,,,,0
+
+[FILES]
+Content\attributes.htm
+Content\blank.htm
+Content\build_process.htm
+Content\consoleapplication.htm
+Content\createproject.htm
+Content\decorating.htm
+Content\Default.htm
+Content\desgineroptions.htm
+Content\documenters.htm
+Content\extensibility-sections.htm
+Content\extensibility.htm
+Content\gettinginvolved.htm
+Content\gettingstarted.htm
+Content\gpl.htm
+Content\javadoc.htm
+Content\knownissues.htm
+Content\latex.htm
+Content\linear.htm
+Content\msdn.htm
+Content\projectdesigner.htm
+Content\reference.htm
+Content\settingupyourproject.htm
+Content\support.htm
+Content\tags.htm
+Content\tagsusage.htm
+Content\tag_c.htm
+Content\tag_code.htm
+Content\tag_event.htm
+Content\tag_example.htm
+Content\tag_exception.htm
+Content\tag_exclude.htm
+Content\tag_include.htm
+Content\tag_list.htm
+Content\tag_note.htm
+Content\tag_overloads.htm
+Content\tag_para.htm
+Content\tag_param.htm
+Content\tag_paramref.htm
+Content\tag_permission.htm
+Content\tag_preliminary.htm
+Content\tag_remarks.htm
+Content\tag_returns.htm
+Content\tag_see.htm
+Content\tag_seealso.htm
+Content\tag_summary.htm
+Content\tag_threadsafety.htm
+Content\tag_value.htm
+Content\vsnet-deploying.htm
+Content\vsnet-integrating.htm
+Content\vsnet-linking.htm
+Content\vsnet.htm
+Content\whatsnew.htm
+Content\xml.htm
+Content\css\ndoc.css
+Content\examples\NamespaceMap.xml
+Content\examples\NamespaceMap.xsd
+Content\images\logo.jpg
+Content\images\sf.GIF
+Content\script\ndoc.js
+Content\contrib.htm
+
+[MERGE FILES]

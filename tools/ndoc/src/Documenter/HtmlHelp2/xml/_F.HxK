@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE HelpIndex SYSTEM "ms-help://hx/resources/HelpIndex.DTD">
+<HelpIndex 
+	DTDVersion = "1.0"
+	Name="F"
+	AutoInclude="Yes"
+	Merge="Yes"
+	Sort="Yes"
+	Title="Dynamic Help Index"
+	Visible="Yes"
+	LangId="1033"
+	Font="Tahoma"
+	FontSize="10"
+	Charset="1"
+>
+</HelpIndex>

@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boo.Lang.Tests", "..\tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "booc.Tests", "..\tests\booc.Tests\booc.Tests.csproj", "{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}"
 EndProject
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Boo.Lang.CodeDom", "Boo.Lang.CodeDom\Boo.Lang.CodeDom.booproj", "{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Net-1.1|Any CPU = Debug Net-1.1|Any CPU
@@ -118,6 +120,16 @@ Global
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Micro-Release|Any CPU.Build.0 = Release|Any CPU
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D13F5E8-0203-409E-BAE1-A5B7EAF01B2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Debug Net-1.1|Any CPU.Build.0 = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Debug Net-1.1|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Micro-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Micro-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Micro-Release|Any CPU.Build.0 = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Micro-Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C3A3730-CFB9-41FA-9DFC-54918C6EE2B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

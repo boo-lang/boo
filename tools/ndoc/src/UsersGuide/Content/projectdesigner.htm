@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Project Designer</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css" />
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h3 class="dtH3">Overview</h3>
+	<p>The assemblies that you want to document are organized in a project file. 
+	The project file keeps the list of assemblies as well as the settings you set 
+	that determine how your documentation will appear. </p>
+	<img src="images/designer.jpg" />
+	<p class="fineprint">The NDoc Project Designer</p>
+	<p>&nbsp;</p>
+	<p><a href="createproject.htm">Creating a new NDoc project</a> is merely a 
+	matter of selecting the assemblies that will be included, selecting a 
+	documentation style, and setting the properties of your documentation.</p>
+	<h3 class="dtH3">Namespace Summaries</h3>
+	<p>The standard C# documentation tags don't include any way to 
+	provide a summary for a namespace. NDoc supports two mechanisms for 
+	specifying namespace summaries. One is by supplying them in a special code 
+	file within your project. The other is via the project designer.</p>
+	<p>In the project designer, click the &quot;Namespace Summaries&quot; 
+	button and you will be presented with a dialog that allows you to set a 
+	namespace summary for each namespace in your project.</p>
+	<p>These summaries will be included in the compiled 
+	documentation</p>
+	<img src="images/editnamespace.jpg"/>
+	<p class="fineprint">The Namespace Summary Dialog</p>
+	<h3 class="dtH3">Documenter Settings</h3>
+	<p>Each Documenter shares some basic settings, like what types 
+	of members to document and where to create the final output. Each Documenter 
+	also has its own specific settings that govern its operation. These settings 
+	can be modified in the Project Designer and saved as part of your project.</p>
+	<p>Settings are organized by category. When you select a 
+	setting in the property control, you will see a short explanation of what the 
+	setting does. This is a good way to familiarize yourself with how each 
+	Documenter works and what it is capable of.</p>
+	<p>For a complete list of the documenters and their settings, 
+	refer to the <a href="documenters.htm">Documenters Topic</a>.</div>
+
+</body>
+
+</html>

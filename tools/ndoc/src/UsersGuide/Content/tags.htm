@@ -1,0 +1,309 @@
+<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<html>
+	<head>
+		<title>Tags Supported by NDoc</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+		<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+		<LINK href="css/ndoc.css" type="text/css" rel="stylesheet" name="ndocstyle">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The MSDN and VS.NET documenters that ship with NDoc support all the xml 
+				documentation tags 
+					defined in the <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfTagsForDocumentationComments.htm">C# Programmer's Reference</A>.
+			</p>
+			<P>They also support new tags, and extended syntax for some standard tags, as 
+				described below.</P>
+			<P>Some tags may only be used on certain types or members, see the <a href="tagsusage.htm">Tag Usage Matrix</a> or individual tag reference pages for further details.
+			</P>
+			<h4 class="dtH4">Section Tags</h4>
+			<p>Section tags are used to define the content of the different sections of the 
+				documentation of a type or member.</p>
+			<p>These tags are used as top-level tags.</p>
+			<table class="dtTABLE" id="Table2" style="WIDTH: 94%" cellSpacing="0">
+				<thead>
+					<tr vAlign="top">
+						<th width="25%">
+							Tag</th>
+						<th width="75%">
+							Description</th></tr>
+				</thead>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_event.htm"><b>&lt;event&gt;</b></A></p>
+						<P><FONT color="#ff9933">[NDoc Only]</FONT></P>
+					</td>
+					<td>
+						<p>An event that&nbsp;may be&nbsp;raised by a member.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_example.htm"><b>&lt;example&gt;</b></A></p>
+					</td>
+					<td>
+						<p>An example of how to use a type or member.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_exception.htm"><b>&lt;exception&gt;</b></A></p>
+					</td>
+					<td>
+						<p>An exception that may be&nbsp;thrown by a member.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<TD>
+						<p><A href="tag_exclude.htm"><b>&lt;exclude/&gt;</b></A></p>
+						<P><FONT color="#ff9933">[NDoc Only]</FONT></P>
+					</TD>
+					<TD>
+						<p>Directs the documentation tool&nbsp;to exclude the tagged&nbsp;type or 
+							member&nbsp;from the documentation.</p>
+						<P>The tag overrides all visibility options.</P>
+					</TD>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_include.htm"><b>&lt;include&gt;</b></A></p>
+					</td>
+					<td>
+						<p>References an xml node in an include file that contains one or more 
+							documentation section tags.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_overloads.htm"><b>&lt;overloads&gt;</b></A></p>
+						<P><FONT color="#ff9933">[NDoc Only]</FONT></P>
+					</td>
+					<td>
+						<p>Documentation that applies to all the overloads of a member. It only needs to be 
+							specified on the first overload.</p>
+						<p>The <b>&lt;overloads&gt;</b> tag can have two forms:</p>
+						<ul>
+							<li>
+							In the short form, it includes only one or more text blocks that are treated as 
+							the summary.
+							<li>
+								In the long form, it can include one or more applicable section tags (summary, 
+								remarks and example).
+							</li>
+						</ul>
+						<p>Example:</p>
+						<pre class="csharpcode"><span class=rem>///&lt;overloads&gt;This method has two overloads.&lt;/overloads&gt;</span>
+<span class=rem>///&lt;summary&gt;This overload just says hello.&lt;/summary&gt;</span>
+<span class=kwrd>public</span> <span class=kwrd>void</span> SayHello() { ... }
+<span class=rem>///&lt;summary&gt;This one says hello to someone.&lt;/summary&gt;</span>
+<span class=kwrd>public</span> <span class=kwrd>void</span> SayHello(<span class=kwrd>string</span> toSomeone) { ... }</pre>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_param.htm"><b>&lt;param&gt;</b></A></p>
+					</td>
+					<td>
+						<p>A&nbsp;member parameter.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_permission.htm"><b>&lt;permission&gt;</b></A></p>
+					</td>
+					<td>
+						<p>Security&nbsp;permissions required to access a member.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><A href="tag_preliminary.htm"><b>&lt;preliminary&gt;</b></A></p>
+						<P><FONT color="#ff9933">[NDoc Only]</FONT></P>
+					</td>
+					<td>
+						<p>Marks&nbsp;the documentation of a type or member&nbsp;as preliminary. This tag 
+							can include block tags like <strong><A href="#para">&lt;para&gt;</A></strong> in 
+							order to put a custom warning into your help topics about preliminary items.</p>
+						<p>If the tag is empty, preliminary topics will include the default message:</p>
+						<p><font color="red">[This is preliminary documentation and subject to change.]</font></p>
+						<p><font color="black">It is also possible to mark an entire help project as 
+								preliminary using the <strong><A href="documenters.htm#preliminary">Preliminary</A></strong>
+								project setting.</font></p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_remarks.htm"><b>&lt;remarks&gt;</b></A></p>
+					</td>
+					<td>
+						<p>Additional information about a type or member, supplementing the description in <A href="tag_summary.htm">
+								&lt;summary&gt;</A>.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_returns.htm"><b>&lt;returns&gt;</b></A></p>
+					</td>
+					<td>
+						<p>A&nbsp;member's return value.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_seealso.htm"><b>&lt;seealso&gt;</b></A></p>
+					</td>
+					<td>
+						<p>Adds a link to the See Also section.</p>
+						<p>Do <b>not</b> include this tag in the <b><A href="#remarks">&lt;remarks&gt;</A></b>
+							section.</p>
+						<p>Alternate syntax:</p>
+						<ul>
+							<li>
+								<code class="rem">&lt;seealso href="url"&gt;[label]&lt;/seealso&gt;</code>
+							<li>
+								<code class="rem">&lt;seealso cref="member"&gt;[label]&lt;/seealso&gt;</code>
+							</li>
+						</ul>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_summary.htm"><b>&lt;summary&gt;</b></A></p>
+					</td>
+					<td>
+						<p>A&nbsp;short description of a type or member.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><A href="tag_threadsafety.htm"><b>&lt;threadsafety&gt;</b></A></p>
+						<P><FONT color="#ff9933">[NDoc Only]</FONT></P>
+					</td>
+					<td>
+						<p>Denotes how a class or structure behaves in multi-threaded scenarios.</p>
+						<p>This tag has 2 attributes <strong>static</strong> and <strong>instance</strong> that 
+							can be set to <strong>true</strong> or <strong>false</strong>. The default 
+							behavior is that static members are thread safe and instance members may not 
+							be.</p>
+						<p>Textual content can be included as the inner text of this tag in order to 
+							provide additional information about the thread safety of the type.</p>
+						<pre class="csharpcode"><span class=rem>/// &lt;summary&gt;This overload just says hello.&lt;/summary&gt;</span>
+<span class=rem>/// &lt;threadsafety static="true" instance="true"&gt;</span>
+<span class=rem>///&nbsp;&nbsp;&nbsp; &lt;para&gt;More information about using this class across thread&lt;/para&gt;</span>
+<span class=rem>/// &lt;/threadsafety&gt;</span>
+<span class=kwrd>public</span> <span class=kwrd>class</span> SafeClass() { ... }</pre>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_value.htm"><b>&lt;value&gt;</b></A></p>
+					</td>
+					<td>
+						<p>Defines a property value.</p>
+					</td>
+				</tr>
+			</table>
+			<h4 class="dtH4">Block Tags</h4>
+			<p>Block tags&nbsp;format text within the top-level tags. They are typically used 
+				to add structure to the text inside <b>&lt;remarks&gt;</b> and <b>&lt;example&gt;</b>
+				sections .</p>
+			<table class="dtTABLE" id="Table3" style="WIDTH: 94%" cellSpacing="0">
+				<thead>
+					<tr vAlign="top">
+						<th width="25%">
+							Tag</th>
+						<th width="75%">
+							Description</th></tr>
+				</thead>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_code.htm"><b>&lt;code&gt;</b></A></p>
+					</td>
+					<td>
+						<p>A block of code.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_list.htm"><b>&lt;list&gt;</b></A></p>
+					</td>
+					<td>
+						<p>A definition list or table.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_note.htm"><b>&lt;note&gt;</b></A></p>
+						<P><FONT color="#ff9933">[NDoc Only]</FONT></P>
+					</td>
+					<td>
+						<p>A formatted note block.</p>
+						<P>Example:</P>
+						<pre class="csharpcode"><span class=rem>/// &lt;summary&gt;</span>
+<span class=rem>/// &lt;note&gt;This is a note in the summary.&lt;/note&gt;</span>
+<span class=rem>/// &lt;/summary&gt;</span>
+<span class=kwrd>public</span> <span class=kwrd>class</span> SomeClass() { ... }</pre>
+						<p>gives,</p>
+						<blockquote class="dtBlock"><b>Note</b> This is a note in the summary.</blockquote>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_para.htm"><b>&lt;para&gt;</b></A></p>
+					</td>
+					<td>
+						<p>Delimits a text paragraph.</p>
+					</td>
+				</tr>
+			</table>
+			<h4 class="dtH4">Inline Tags</h4>
+			<p>Inline tags are typically used inside <b>&lt;para&gt;</b> blocks.</p>
+			<table class="dtTABLE" style="WIDTH: 94%" cellSpacing="0">
+				<thead>
+					<tr vAlign="top">
+						<th width="25%">
+							Tag</th>
+						<th width="75%">
+							Description</th></tr>
+				</thead>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_c.htm"><b>&lt;c&gt;</b></A></p>
+					</td>
+					<td>
+						<p>Marks inline code.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_paramref.htm"><b>&lt;paramref&gt;</b></A></p>
+					</td>
+					<td>
+						<p>A reference to a parameter.</p>
+					</td>
+				</tr>
+				<tr vAlign="top">
+					<td>
+						<p><A href="tag_see.htm"><b>&lt;see&gt;</b></A></p>
+					</td>
+					<td>
+						<p>An Inline reference to another member or type.</p>
+						<p>Alternate syntax:</p>
+						<ul>
+							<li>
+								<code class="rem">&lt;see href="url"&gt;[label]&lt;/see&gt;</code>
+							<li>
+								<code class="rem">&lt;see cref="member"&gt;[label]&lt;/see&gt;</code>
+							<li>
+								<code class="rem">&lt;see langword="<em>xxx</em>"/&gt;</code><br>
+								where <em>xxx</em> is <b>null</b>, <b>sealed</b>, <b>static</b>, <b>abstract</b>
+								or <b>virtual</b>
+							</li>
+						</ul>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

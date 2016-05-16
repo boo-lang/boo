@@ -9,7 +9,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static string DisplayName(this IEntity entity)
 		{
 			var formatter = My<EntityFormatter>.Instance;
-
 			var type = entity as IType;
 			if (type != null)
 				return formatter.FormatType(type);
@@ -17,7 +16,6 @@ namespace Boo.Lang.Compiler.TypeSystem
 			var method = entity as IMember;
 			if (method != null)
 				return formatter.FormatTypeMember(method);
-
 			var @namespace = entity as INamespace;
 			if (@namespace != null)
 				return @namespace.FullName;

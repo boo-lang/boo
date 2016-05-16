@@ -241,137 +241,138 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (var module in CompileUnit.Modules)
 				OnModule(module);
 
-			EmitAttributes();
-			CreateTypes(types);
+			var typeCreator = new TypeCreator(this, types);
+			// TODO: we might need to create enumerations that appear in attributes before emitting the attributes.
+			EmitAttributes(typeCreator);
+			typeCreator.Run();
 		}
 
 		sealed class AttributeEmitVisitor : FastDepthFirstVisitor
 		{
 			EmitAssembly _emitter;
+			TypeCreator _knownTypes;
 
-			public AttributeEmitVisitor(EmitAssembly emitter)
+			public AttributeEmitVisitor(EmitAssembly emitter, TypeCreator knownTypes)
 			{
-				_emitter = emitter;
+				this._emitter = emitter;
+				this._knownTypes = knownTypes;
 			}
 
 			public override void OnField(Field node)
 			{
-				_emitter.EmitFieldAttributes(node);
+				_emitter.EmitFieldAttributes(node, this._knownTypes);
 			}
 
 			public override void OnEnumMember(EnumMember node)
 			{
-				_emitter.EmitFieldAttributes(node);
+				_emitter.EmitFieldAttributes(node, this._knownTypes);
 			}
 
 			public override void OnEvent(Event node)
 			{
-				_emitter.EmitEventAttributes(node);
+				_emitter.EmitEventAttributes(node, this._knownTypes);
 			}
 
 			public override void OnProperty(Property node)
 			{
 				Visit(node.Getter);
 				Visit(node.Setter);
-				_emitter.EmitPropertyAttributes(node);
+				_emitter.EmitPropertyAttributes(node, this._knownTypes);
 			}
 
 			public override void OnConstructor(Constructor node)
 			{
 				Visit(node.Parameters);
-				_emitter.EmitConstructorAttributes(node);
+				_emitter.EmitConstructorAttributes(node, this._knownTypes);
 			}
 
 			public override void OnMethod(Method node)
 			{
 				Visit(node.Parameters);
-				_emitter.EmitMethodAttributes(node);
+				_emitter.EmitMethodAttributes(node, this._knownTypes);
 			}
 
 			public override void OnParameterDeclaration(ParameterDeclaration node)
 			{
-				_emitter.EmitParameterAttributes(node);
+				_emitter.EmitParameterAttributes(node, this._knownTypes);
 			}
 
 			public override void OnClassDefinition(ClassDefinition node)
 			{
 				base.OnClassDefinition(node);
-				_emitter.EmitTypeAttributes(node);
+				_emitter.EmitTypeAttributes(node, this._knownTypes);
 			}
 
 			public override void OnInterfaceDefinition(InterfaceDefinition node)
 			{
 				base.OnInterfaceDefinition(node);
-				_emitter.EmitTypeAttributes(node);
+				_emitter.EmitTypeAttributes(node, this._knownTypes);
 			}
 
 			public override void OnEnumDefinition(EnumDefinition node)
 			{
 				base.OnEnumDefinition(node);
-				_emitter.EmitTypeAttributes(node);
+				_emitter.EmitTypeAttributes(node, this._knownTypes);
 			}
 		}
 
 		delegate void CustomAttributeSetter(CustomAttributeBuilder attribute);
 
-		void EmitAttributes(INodeWithAttributes node, CustomAttributeSetter setCustomAttribute)
+		void EmitAttributes(INodeWithAttributes node, CustomAttributeSetter setCustomAttribute, TypeCreator knownTypes)
 		{
+			foreach (Attribute attribute in node.Attributes)
+				knownTypes.CreateAttributeTypes(attribute);
 			foreach (Attribute attribute in node.Attributes)
 				setCustomAttribute(GetCustomAttributeBuilder(attribute));
 		}
 
-		void EmitPropertyAttributes(Property node)
+		void EmitPropertyAttributes(Property node, TypeCreator knownTypes)
 		{
 			PropertyBuilder builder = GetPropertyBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, knownTypes);
 		}
 
-		void EmitParameterAttributes(ParameterDeclaration node)
+		void EmitParameterAttributes(ParameterDeclaration node, TypeCreator knownTypes)
 		{
 			ParameterBuilder builder = (ParameterBuilder)GetBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, knownTypes);
 		}
 
-		void EmitEventAttributes(Event node)
+		void EmitEventAttributes(Event node, TypeCreator knownTypes)
 		{
 			EventBuilder builder = (EventBuilder)GetBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, knownTypes);
 		}
 
-		void EmitConstructorAttributes(Constructor node)
+		void EmitConstructorAttributes(Constructor node, TypeCreator knownTypes)
 		{
 			ConstructorBuilder builder = (ConstructorBuilder)GetBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, knownTypes);
 		}
 
-		void EmitMethodAttributes(Method node)
+		void EmitMethodAttributes(Method node, TypeCreator knownTypes)
 		{
 			MethodBuilder builder = GetMethodBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, knownTypes);
 		}
 
-		void EmitTypeAttributes(TypeDefinition node)
+		void EmitTypeAttributes(TypeDefinition node, TypeCreator knownTypes)
 		{
 			TypeBuilder builder = GetTypeBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, knownTypes);
 		}
 
-		void EmitFieldAttributes(TypeMember node)
+		void EmitFieldAttributes(TypeMember node, TypeCreator knownTypes)
 		{
 			FieldBuilder builder = GetFieldBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, knownTypes);
 		}
 
-		void EmitAttributes()
+		void EmitAttributes(TypeCreator knownTypes)
 		{
-			AttributeEmitVisitor visitor = new AttributeEmitVisitor(this);
+			AttributeEmitVisitor visitor = new AttributeEmitVisitor(this, knownTypes);
 			foreach (Module module in CompileUnit.Modules)
 				module.Accept(visitor);
-		}
-
-		void CreateTypes(List<TypeDefinition> types)
-		{
-			new TypeCreator(this, types).Run();
 		}
 
 		/// <summary>
@@ -408,6 +409,25 @@ namespace Boo.Lang.Compiler.Steps
 				}
 			}
 
+			public void CreateAttributeTypes(Attribute attr)
+			{
+				AppDomain domain = Thread.GetDomain();
+				try
+				{
+					domain.TypeResolve += OnTypeResolve;
+					foreach (var arg in attr.Arguments)
+						if (arg.ExpressionType != null)
+							this.EnsureInternalDependencies(arg.ExpressionType);
+					foreach (var arg in attr.NamedArguments)
+						if (arg.Second.ExpressionType != null)
+							this.EnsureInternalDependencies(arg.Second.ExpressionType);
+				}
+				finally
+				{
+					domain.TypeResolve -= OnTypeResolve;
+				}				
+			}
+			
 			private Assembly OnTypeResolve(object sender, ResolveEventArgs args)
 			{
 				Trace("OnTypeResolve('{0}') during '{1}' creation.", args.Name, _current);

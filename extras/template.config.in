@@ -1,7 +1,9 @@
 <configuration>
+<!--
 <runtime>
 <NetFx40_LegacySecurityPolicy enabled="true" />
 </runtime>
+-->
 <startup>
 @SUPPORTEDVERSIONS@
 </startup>

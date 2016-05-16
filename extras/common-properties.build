@@ -19,7 +19,7 @@
 	<property name="boo.profile" value="bin" />	
 	
 	<!-- full path to SharpDevelop's location -->
-	<property name="sharpdevelop.dir" value="/Fidalgo/SharpDevelop" />
+	<property name="sharpdevelop.dir" value="c:\Programme\SharpDevelop\4.3\" />
 	
 	<property name="build.properties" value="${path::get-full-path(path::combine(extras.dir, 'build.properties'))}" />	
 	<include buildfile="${build.properties}" if="${file::exists(build.properties)}" />
@@ -31,11 +31,14 @@
 	
 	    ${sharpdevelop.dir}
 		 
-	Please, create or edit your extras/build.properties file
+	Please, create or edit your extras/common-properties.build file
 	and include the full path to the SharpDevelop base directory
 	in the property sharpdevelop.dir:
 	
 	    &lt;property name="sharpdevelop.dir" value="full-here" /&gt;
+	
+	Alternatively, you may create or edit a build.properties file containing
+	this line into the project directory.
 	</fail>
 
 </project>

@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<project name="NDoc.Documenter.HtmlHelp2" default="compile">
+	<target name="compile" depends="locate-help-compilerservices-typelib, locate-mshtml-interop-assembly" unless="${framework::get-family(framework::get-target-framework())=='mono'}">
+		<if propertyexists="help.compilerservices.typelib">
+			<if propertyexists="mshtml.primary.interop.assembly">
+				<!-- generate COM interop assembly for Microsoft Help Compiler Services 1.0 -->
+				<tlbimp typelib="${help.compilerservices.typelib}" output="${current.bin.dir}/Interop.MSHelpCompiler.dll" namespace="MSHelpCompiler" asmversion="1.0.0.0" keyfile="../../../NDoc.snk" />
+				<!-- compile the assembly -->
+				<csc target="library" output="${current.bin.dir}/${project::get-name()}.dll" debug="${current.build.debug}" optimize="${current.build.optimize}" unsafe="false" checked="false" define="${current.build.defines}" doc="${current.bin.dir}/${project::get-name()}.xml">
+					<sources>
+						<includes name="**/*.cs" />
+						<includes name="../../CommonAssemblyInfo.cs" />
+					</sources>
+					<references>
+						<includes name="System.dll" />
+						<includes name="System.Xml.dll" />
+						<includes name="${current.bin.dir}/Interop.MSHelpCompiler.dll" />
+						<includes name="${mshtml.primary.interop.assembly}" />
+						<includes name="${current.bin.dir}/NDoc.Core.dll" />
+						<includes name="${current.bin.dir}/NDoc.Documenter.Msdn.dll" />
+					</references>
+					<resources prefix="NDoc.Documenter.HtmlHelp2" dynamicprefix="true">
+						<includes name="xml/*.HxK" />
+					</resources>
+				</csc>
+			</if>
+		</if>
+	</target>
+	<target name="locate-help-compilerservices-typelib" unless="${framework::get-family(framework::get-target-framework())=='mono'}">
+		<readregistry property="help.compilerservices.typelib" key="TypeLib\{314111EE-A502-11D2-BBCA-00C04F8EC294}\1.0\0\win32\"
+			hive="ClassesRoot" failonerror="false" />
+			<ifnot propertyexists="help.compilerservices.typelib">
+			<if propertyexists="project.build.package" propertytrue="project.build.package">
+				<fail message="Microsoft Help Compiler Services 1.0 is not available. Please ensure that you've installed the Visual Studio Help Integration Kit 2002 or 2003." />
+			</if>
+			<ifnot propertyexists="project.build.package" propertytrue="project.build.package">
+				<echo message="Microsoft Help Compiler Services 1.0 is not available. Build skipped." />
+			</ifnot>
+		</ifnot>
+	</target>
+	<target name="locate-mshtml-interop-assembly" unless="${framework::get-family(framework::get-target-framework())=='mono'}">
+		<!-- get system information -->
+		<sysinfo prefix="sys." />
+		<!-- make sure the mshtml primary interop assembly actually exists -->
+		<available type="File" resource="${sys.os.folder.programfiles}/Microsoft.NET/Primary Interop Assemblies/Microsoft.mshtml.dll" property="temp.mshtml.primary.interop.available" />
+		<if propertyexists="temp.mshtml.primary.interop.available" propertytrue="temp.mshtml.primary.interop.available">
+			<property name="mshtml.primary.interop.assembly" value="${sys.os.folder.programfiles}/Microsoft.NET/Primary Interop Assemblies/Microsoft.mshtml.dll" />
+		</if>
+		<ifnot propertyexists="temp.mshtml.primary.interop.available" propertytrue="temp.mshtml.primary.interop.available">
+			<if propertyexists="project.build.package" propertytrue="project.build.package">
+				<fail message="MSHTML Primary Interop Assembly is not available in ${sys.os.folder.programfiles}/Microsoft.NET/Primary Interop Assemblies." />
+			</if>
+			<ifnot propertyexists="project.build.package" propertytrue="project.build.package">
+				<echo message="MSHTML Primary Interop Assembly is not available in ${sys.os.folder.programfiles}/Microsoft.NET/Primary Interop Assemblies. Build skipped." />
+			</ifnot>
+		</ifnot>
+	</target>
+</project>

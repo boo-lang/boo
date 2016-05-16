@@ -1,15 +1,26 @@
 namespace Boo.Lang.Interpreter.Tests
 
 import System
+import System.Text
 import Boo.Lang.Interpreter
+import Boo.Lang.Useful.Doc
 import NUnit.Framework
 
 [TestFixture]
 class DescribeBuiltinTest:
 	
+	[SetUp]
+	def SetUp():
+		pass
+		
 	[Test]
 	def ClassDescription():
 		
+		# In Mono environments, boo.lang.Useful.DocDB will not find
+		# the XML docs for Equals(), GetType() etc. Using the MS
+		# framework, this will however work.
+		# Solution: Clear all lookup paths
+		DocDB.LookupPaths.Clear()
 		expected = """
 class Person(object):
 
@@ -40,25 +51,48 @@ class Person(object):
 	def InterfaceDescription():
 			
 		expected = """
-interface IDisposable():
+interface AnInterface():
 
-    def Dispose() as void
+    AProperty as int:
+        get
+        set
+
+    def AMethod() as void
 
 """
-		AssertDescription(expected, System.IDisposable)
+		AssertDescription(expected, AnInterface)
 		
 	def AssertDescription(expected as string, type as System.Type):
 		using console=ConsoleCapture():
-			Boo.Lang.Interpreter.Builtins.describe(type)
+			Boo.Lang.Interpreter.describe(type)
 		
 		# mono compatibility fix
 		# object.Equals arg on mono is called o
 		actual = console.ToString().Replace("o as object", "obj as object")
 		
+		Console.WriteLine(actual)
+		
 		Assert.AreEqual(ns(expected), ns(actual))
 		
 	static def ns(s as string):
-		return s.Trim().Replace("\r\n", "\n")
+		s = s.Trim().Replace("\r\n", "\n").Replace("\t", "    ")
+		lines = s.Split("\n"[0])
+		sb = StringBuilder()
+		#region Skip Documentation
+		lineNo = 0
+		while lineNo < lines.Length:
+			line = lines[lineNo]
+			sb.AppendLine(line)
+			if "\"\"\"".Equals(line.Trim()):
+				lineNo+=1
+				while lineNo < lines.Length:
+					line = lines[lineNo]
+					if "\"\"\"".Equals(line.Trim()):
+						break
+					lineNo += 1
+				sb.AppendLine(line)
+			lineNo += 1
+		return sb.ToString()
 		
 class Person:
 	
@@ -78,4 +112,9 @@ class Person:
 	def constructor():
 		pass
 	
-		
+interface AnInterface:
+	def AMethod()
+	AProperty as int:
+		get
+		set
+

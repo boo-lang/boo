@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>preliminary</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;preliminary&gt; tags marks the documentation for the current item as 
+				preliminary.</p>
+			<pre class="syntax">&lt;preliminary&gt;[<i>description</i>]&lt;/preliminary&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt><i>description</i>
+					<dd>
+						An optional textual message or warning that replaces the default preliminary 
+						warning.</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>All Types and Members.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>If the empty form of this tag is used (&lt;preliminary/&gt;) the default message 
+				of "<font color="red">[This is preliminary documentation and subject to change.]</font>" 
+				will be included in the <span lang="en-us"></span>generated help topic.</p>
+			<p>
+				If a value is supplied for the content of this tag, that value will appear in 
+				the help topic, replacing the default message. You can format the 
+				message&nbsp;text using the para and list tags, but this is not required.</p>
+			<p>Entire help titles can marked preliminary using the <a href="documenters.htm#preliminary">
+					Preliminary</a> documenter setting.</p>
+			<h4 class="dtH4">Examples</h4>
+			<pre class="csharpcode"><SPAN class="lang">[C#]</SPAN>
+<span class="rem">// The class summary will get the default message</span>
+<span class="rem">/// &lt;preliminary/&gt;</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> MyClass
+{
+   <span class="rem">/// &lt;preliminary&gt;</span>
+   <span class="rem">/// &lt;para&gt;This method is just for testing right now. It might be removed in the near future&lt;/para&gt;</span>
+   <span class="rem">/// &lt;/preliminary&gt;</span>
+   <span class="kwrd">public</span> <span class="kwrd">void</span> Dump ()
+   {
+   }
+}</pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a href="tags.htm">NDoc Tags</a></p>
+		</div>
+	</body>
+</html>

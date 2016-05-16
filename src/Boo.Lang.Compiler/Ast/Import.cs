@@ -40,6 +40,16 @@ namespace Boo.Lang.Compiler.Ast
  		{
  		}
 		
+ 		/// <summary>
+ 		/// This is used by SharpDevelop
+ 		/// </summary>
+ 		/// <param name="namespace">The namespace</param>
+ 		/// <param name="assemblyReference">Reference to a particular assembly</param>
+ 		/// <param name="alias">The alias name</param>
+ 		public Import(string @namespace, ReferenceExpression assemblyReference, ReferenceExpression alias)
+ 			: this(new StringLiteralExpression(@namespace), assemblyReference, alias)
+		{	
+		}
 		public Import(Expression namespace_, ReferenceExpression assemblyReference, ReferenceExpression alias)
 		{
 			Expression = namespace_;

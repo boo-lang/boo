@@ -1,7 +1,11 @@
 """
+"""
+/*
+HMaH: Once, this has not been allowed, but i don't know why.
+ISA with value types is important to avoid errors on casts.
 BCE0046-2.boo(7,8): BCE0046: 'isa' can't be used with a value type ('T')
 BCE0046-2.boo(11,8): BCE0046: 'isa' can't be used with a value type ('T')
-"""
+*/
 
 def Foo[of T(struct)](x as T):
 	if x isa string:
