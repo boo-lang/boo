@@ -37,6 +37,8 @@ namespace Boo.Lang.Compiler.Steps
 		private BindAndApplyAttributes _attributes = new BindAndApplyAttributes();
 		private MacroExpander _macroExpander = new MacroExpander();
 
+		private static int _macroAndAttributeCount = 0;
+
 		public override void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
@@ -47,6 +49,7 @@ namespace Boo.Lang.Compiler.Steps
 		public override void Run()
 		{	
 			RunExpansionIterations();
+			_macroAndAttributeCount = Attribute.ConstructionCount + MacroStatement.ConstructionCount;
 		}
 
 		private void RunExpansionIterations()
@@ -79,31 +82,51 @@ namespace Boo.Lang.Compiler.Steps
 			return attributesApplied || macrosExpanded;
 		}
 
+		private bool ShouldReify()
+		{
+			var result = _macroAndAttributeCount != Attribute.ConstructionCount + MacroStatement.ConstructionCount;
+			if (result)
+			{
+				_macroAndAttributeCount = Attribute.ConstructionCount + MacroStatement.ConstructionCount;
+			}
+			return result;
+		}
+
 		public TypeMember Reify(TypeMember node)
 		{
-			ApplyAttributesAndExpandMacros();
+			if (ShouldReify())
+			{
+				RunExpansionIterations();
+			}
 			return node;
 		}
 
 		public Statement Reify(Statement node)
 		{
 			var result = node;
-			if (node is MacroStatement)
+			if (ShouldReify())
 			{
-				// macro statements are replaced
-				// so we need to wrap it in a Block
-				// otherwise we would lose the result
-				var parentNode = node.ParentNode;
-				result = new Block(node);
-				parentNode.Replace(node, result);
+				if (node is MacroStatement)
+				{
+					// macro statements are replaced
+					// so we need to wrap it in a Block
+					// otherwise we would lose the result
+					var parentNode = node.ParentNode;
+					result = new Block(node);
+					parentNode.Replace(node, result);
+				}
+				RunExpansionIterations();
 			}
-			ApplyAttributesAndExpandMacros();
+
 			return result;
 		}
 
 		public Expression Reify(Expression node)
 		{
-			ApplyAttributesAndExpandMacros();
+			if (ShouldReify())
+			{
+				RunExpansionIterations();
+			}
 			return node;
 		}
 	}
