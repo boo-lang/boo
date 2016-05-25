@@ -508,6 +508,35 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return (IMethod)ResolveMember(type, name, EntityType.Method);
 		}
 		
+		public IMethod ResolveMethod(IType type, string name, Type[] paramTypes)
+		{
+			foreach (IEntity member in type.GetMembers())
+			{
+				if (EntityType.Method == member.EntityType && _entityNameMatcher(member, name))
+				{
+					var found = true;
+
+					var method = (IMethod) member;
+					var actualParams = method.GetParameters();
+					if (actualParams.Length != paramTypes.Length)
+						continue;
+
+					for (int i = 0; i < actualParams.Length; i++)
+					{
+						if (actualParams[i].FullName != paramTypes[i].FullName)
+						{
+							found = false;
+							break;
+						}
+					}
+
+					if (found)
+						return method;
+				}
+			}
+			return null;
+		}
+		
 		public IProperty ResolveProperty(IType type, string name)
 		{
 			return (IProperty)ResolveMember(type, name, EntityType.Property);
