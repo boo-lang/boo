@@ -507,7 +507,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			return (IMethod)ResolveMember(type, name, EntityType.Method);
 		}
-		
+
 		public IMethod ResolveMethod(IType type, string name, Type[] paramTypes)
 		{
 			foreach (IEntity member in type.GetMembers())
@@ -521,19 +521,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 					if (actualParams.Length != paramTypes.Length)
 						continue;
 
-					for (int i = 0; i < actualParams.Length; i++)
+					for (int i = 0; i < actualParams.Length && found; i++)
 					{
-						if (actualParams[i].FullName != paramTypes[i].FullName)
-						{
-							found = false;
-							break;
-						}
+						found = actualParams[i].Type.FullName == paramTypes[i].FullName;
 					}
 
 					if (found)
+					{
 						return method;
+					}
 				}
 			}
+
 			return null;
 		}
 		
