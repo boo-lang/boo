@@ -45,7 +45,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public override bool Resolve(System.Collections.Generic.ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			return Namespaces.ResolveCoalescingNamespaces(this, Delegates, name, typesToConsider, resultingSet);
+			return Namespaces.ResolveCoalescingNamespaces(this, (System.Collections.Generic.IList<INamespace>)Delegates, name, typesToConsider, resultingSet);
 		}
 	}
 }

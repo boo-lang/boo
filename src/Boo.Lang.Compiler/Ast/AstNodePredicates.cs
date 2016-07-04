@@ -25,7 +25,7 @@ namespace Boo.Lang.Compiler.Ast
 			return node == parentExpression.Target;
 		}
 
-	public static bool IsComplexSlice(Slice slice)
+		public static bool IsComplexSlice(Slice slice)
 		{
 			return slice.End != null
 				|| slice.Step != null

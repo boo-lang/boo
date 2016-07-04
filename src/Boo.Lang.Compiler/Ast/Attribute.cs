@@ -31,23 +31,34 @@ using System;
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class Attribute
-	{		
+	{
+		private static int _constructionCount = 0;
+		
 		public Attribute()
 		{
+			++_constructionCount;
  		}
 		
 		public Attribute(string name)
 		{
 			this.Name = name;
+			++_constructionCount;
 		}
 		
 		public Attribute(LexicalInfo lexicalInfo) : base(lexicalInfo)
 		{
+			++_constructionCount;
 		}
 		
 		public Attribute(LexicalInfo lexicalInfo, string name) : base(lexicalInfo)
 		{
+			++_constructionCount;
 			this.Name = name;
+		}
+		
+		public static int ConstructionCount
+		{
+			get { return _constructionCount; }
 		}
 	}
 }

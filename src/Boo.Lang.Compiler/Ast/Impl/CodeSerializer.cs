@@ -2828,6 +2828,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.FromClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.Identifier))
 			{
 				mie.NamedArguments.Add(
@@ -2883,6 +2890,13 @@ namespace Boo.Lang.Compiler.Ast
 					node.LexicalInfo,
 					CreateReference(node, "Boo.Lang.Compiler.Ast.SelectClauseExpression"));
 			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
 			if (ShouldSerialize(node.BaseExpr))
 			{
 				mie.NamedArguments.Add(

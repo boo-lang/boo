@@ -38,6 +38,8 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		private readonly Dictionary<string, Import> _namespaces = new Dictionary<string, Import>();
 		
+		private readonly Dictionary<INamespace, Dictionary<string, IEntity>> _cache = new Dictionary<INamespace, Dictionary<string, IEntity>>();
+		
 		override public void Run()
 		{
 			NameResolutionService.Reset();
@@ -204,21 +206,49 @@ namespace Boo.Lang.Compiler.Steps
 			return NameResolutionService.ResolveQualifiedName(import.Namespace);
 		}
 
+		private bool RetrieveCachedNamespace(INamespace parentNamespace, string name, out IEntity result)
+		{
+			 Dictionary<string, IEntity> subcache;
+			 if (!_cache.TryGetValue(parentNamespace, out subcache))
+			 {
+			 	result = null;
+			 	return false;
+			 }
+			 return subcache.TryGetValue(name, out result);
+		}
+
+		private void AddCachedNamespace(INamespace parentNamespace, string name, IEntity value)
+		{
+			 Dictionary<string, IEntity> subcache;
+			 if (!_cache.TryGetValue(parentNamespace, out subcache))
+			 {
+			 	subcache = new Dictionary<string, IEntity>();
+			 	_cache.Add(parentNamespace, subcache);
+			 }
+			 subcache.Add(name, value);
+		}
+
 		private IEntity ResolveImportOnParentNamespace(Import import)
 		{	
 			var current = NameResolutionService.CurrentNamespace;
-			try
+			INamespace parentNamespace = NameResolutionService.CurrentNamespace.ParentNamespace;
+			if (parentNamespace != null)
 			{
-				INamespace parentNamespace = NameResolutionService.CurrentNamespace.ParentNamespace;
-				if (parentNamespace != null)
+				IEntity result;
+				if (!RetrieveCachedNamespace(parentNamespace, import.Namespace, out result))
 				{
 					NameResolutionService.EnterNamespace(parentNamespace);
-					return NameResolutionService.ResolveQualifiedName(import.Namespace);
+					try
+					{
+						result = NameResolutionService.ResolveQualifiedName(import.Namespace);
+						AddCachedNamespace(parentNamespace, import.Namespace, result);
+					}
+					finally
+					{
+						NameResolutionService.EnterNamespace(current);
+					}
 				}
-			}
-			finally
-			{
-				NameResolutionService.EnterNamespace(current);
+				return result;
 			}
 			return null;
 		}

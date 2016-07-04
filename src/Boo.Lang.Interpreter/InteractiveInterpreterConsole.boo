@@ -176,6 +176,8 @@ class InteractiveInterpreterConsole:
 		if autoIndent and CurrentPrompt == BlockPrompt:
 			for i in range(_indent):
 				WriteIndent()
+		originalYPosition = Console.CursorTop
+
 				
 	private def WithColor(color as ConsoleColor, block as System.Action):
 		if DisableColors:
@@ -257,13 +259,20 @@ class InteractiveInterpreterConsole:
 		_indent--
 
 	protected def Delete(count as int): #if count is 0, forward-delete
-		cx = Console.CursorLeft-len(CurrentPrompt)-count
-		return if cx < LineLen and count == 0
+		cx = Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth-len(CurrentPrompt)-count
+		return if cx < len(CurrentPrompt) and count == 0 		
 		dcount = (count if count != 0 else 1)
 		_line.Remove(cx, dcount)
 		curX = Console.CursorLeft - dcount
+		curY = Console.CursorTop
+		if curX < 0:
+			curX = Console.WindowWidth-1
+			curY = Console.CursorTop-1
+			
+		Console.CursorTop = curY
 		Console.CursorLeft = curX
-		Console.Write("${_line.ToString(cx, LineLen-cx)} ")
+		Console.Write("${_line.ToString(cx,LineLen-cx)} ")
+		Console.CursorTop = curY
 		Console.CursorLeft = curX
 
 
@@ -332,15 +341,22 @@ class InteractiveInterpreterConsole:
 	def TrimFilter(s as string):
 		return s[len(_filter):]
 
+	def Top(d as decimal, i as decimal):
+		return System.Math.Ceiling(d/i);
+	
 	private _beforeHistory = string.Empty
+	
+	private originalYPosition = 0
 
 	def DisplayHistory():
 		if _history.Count == 0 or _historyIndex < 0 or _historyIndex > _history.Count:
 			return
+		Console.CursorTop = originalYPosition
 		Console.CursorLeft = len(CurrentPrompt)
 		Console.Write(string.Empty.PadLeft(LineLen, char(' ')))
 		line = _history.ToArray()[_historyIndex]
 		LineLen = 0
+		Console.CursorTop = originalYPosition
 		Console.CursorLeft = len(CurrentPrompt)
 		Write(line)
 
@@ -350,7 +366,7 @@ class InteractiveInterpreterConsole:
 		while not _quit:
 			ReadEvalPrintLoopStep()
 		SaveHistory()
-		DisplayGoodbye()
+		DisplayGoodbye()	
 		
 	private def ReadEvalPrintLoopStep():
 		cki = Console.ReadKey(true)
@@ -371,24 +387,35 @@ class InteractiveInterpreterConsole:
 
 			#line-editing support
 			if not _multiline and LineLen > 0:
-				if Console.CursorLeft > len(CurrentPrompt):
+				if Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth > len(CurrentPrompt):
 					if key == ConsoleKey.Backspace:
 						if _indent > 0 and LineLen == LineIndentLen:
 							Unindent()
 						else:
 							Delete(1)
 					elif key == ConsoleKey.LeftArrow:
-						Console.CursorLeft--
+						if Console.CursorLeft > 0:
+							Console.CursorLeft--
+						else:
+							Console.CursorTop--
+							Console.CursorLeft = Console.WindowWidth-1
 				if key == ConsoleKey.Delete:
 					Delete(0)
 				elif key == ConsoleKey.RightArrow:
-					if Console.CursorLeft < (len(CurrentPrompt)+LineLen):
-						Console.CursorLeft++
+					if Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth < (len(CurrentPrompt)+LineLen):
+						if Console.CursorLeft < Console.WindowWidth-1:
+							Console.CursorLeft++
+						else:
+							Console.CursorTop++
+							Console.CursorLeft = 0
 				elif key == ConsoleKey.Home:
-					Console.CursorLeft = len(CurrentPrompt)
+					Console.CursorTop = originalYPosition;
+					Console.CursorLeft = len(CurrentPrompt)	
 				elif key == ConsoleKey.End:
-					Console.CursorLeft = len(CurrentPrompt) + LineLen
-
+					last_line = Top((len(CurrentPrompt) + LineLen),Console.WindowWidth)
+					Console.CursorTop = originalYPosition + last_line -1
+					Console.CursorLeft = (len(CurrentPrompt) + LineLen) % Console.WindowWidth
+                        
 			#history support
 			if key == ConsoleKey.UpArrow:
 				if _historyIndex > 0:
@@ -420,19 +447,25 @@ class InteractiveInterpreterConsole:
 				return
 
 		_selectedSuggestionIndex = null
-
-		cx = Console.CursorLeft-len(CurrentPrompt)
+		cx = Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth-len(CurrentPrompt)
 		#multi-line?
-		if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
-			cx = LineLen
-			_multiline = true
+		#if cx < 0 or LineLen >= Console.WindowWidth-len(CurrentPrompt):
+		#	cx = LineLen
+		#	_multiline = true
 
 		if not newLine:
 			#line-editing support
 			if cx < LineLen and not _multiline:
 				_line.Insert(cx, keyChar) if not control
+				CurX = Console.CursorLeft
+				CurY = Console.CursorTop
 				Console.Write(_line.ToString(cx, LineLen-cx))
-				Console.CursorLeft = len(CurrentPrompt)+cx+1
+				Console.CursorTop = CurY
+				if CurX + 1 >= Console.WindowWidth:
+					Console.CursorTop++
+					Console.CursorLeft = 0
+				else:
+					Console.CursorLeft = CurX+1
 			else:
 				_line.Append(keyChar) if not control
 				Console.Write(keyChar)

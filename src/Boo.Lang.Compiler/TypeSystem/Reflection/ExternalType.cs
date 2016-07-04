@@ -46,6 +46,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		IEntity[] _members;
 
+		Dictionary<string, List<IEntity>> _cache;
+
 		int _typeDepth = -1;
 
 		string _primitiveName;
@@ -242,12 +244,28 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			return _interfaces;
 		}
 
+		private void BuildCache()
+		{
+			_cache = new Dictionary<string, List<IEntity>>();
+			foreach (var member in _members)
+			{
+				List<IEntity> list;
+				if (!_cache.TryGetValue(member.Name, out list))
+				{
+					list = new List<IEntity>();
+					_cache.Add(member.Name, list);
+				}
+				list.Add(member);
+			}
+		}
+
 		public virtual IEnumerable<IEntity> GetMembers()
 		{
 			if (null == _members)
 			{
 				IEntity[] members = CreateMembers();
 				_members = members;
+				BuildCache();
 			}
 			return _members;
 		}
@@ -279,9 +297,34 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			get { return null; }
 		}
 
+		private bool CachedResolve(string name, EntityType typesToConsider, ICollection<IEntity> resultingSet) 
+		{
+			if (_cache == null)
+			{
+				GetMembers();
+			}
+			List<IEntity> list;
+			var result = _cache.TryGetValue(name, out list);
+			if (result)
+			{
+				result = false;
+				foreach (var entity in list)
+				{
+					if (Entities.IsFlagSet(typesToConsider, entity.EntityType))
+					{
+						result = true;
+						resultingSet.Add(entity);
+					}
+				}
+			}
+			return result;
+		}
+
 		public virtual bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			bool found = My<NameResolutionService>.Instance.Resolve(name, GetMembers(), typesToConsider, resultingSet);
+			bool found = CachedResolve(name, typesToConsider, resultingSet);
+			
+			//bool found = My<NameResolutionService>.Instance.Resolve(name, GetMembers(), typesToConsider, resultingSet);
 
 			if (IsInterface)
 			{

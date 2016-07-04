@@ -35,27 +35,70 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 {
 	public static class Namespaces
 	{
-		public static bool ResolveCoalescingNamespaces(INamespace parent, IEnumerable<INamespace> namespacesToResolveAgainst, string name, EntityType typesToConsider, ICollection<IEntity> resultingSet)
+		//NOTE: If the compiler ever becomes multithreaded at some future point,
+		//the pooling methods will need to be synchronized
+		
+		private static Stack<Set<IEntity>> _setPool = new Stack<Set<IEntity>>();
+		private static Stack<List<INamespace>> _listPool = new Stack<List<INamespace>>();
+		
+		internal static Set<IEntity> AcquireSet()
+		{
+			if (_setPool.Count == 0)
+				return new Set<IEntity>();
+			return _setPool.Pop();
+		}
+		
+		internal static void ReleaseSet(Set<IEntity> value)
+		{
+			value.Clear();
+			_setPool.Push(value);
+		}
+		
+		internal static List<INamespace> AcquireList()
+		{
+			if (_listPool.Count == 0)
+				return new List<INamespace>();
+			return _listPool.Pop();
+		}
+		
+		internal static void ReleaseList(List<INamespace> value)
+		{
+			value.Clear();
+			_listPool.Push(value);
+		}
+		
+		public static bool ResolveCoalescingNamespaces(INamespace parent, IList<INamespace> namespacesToResolveAgainst, string name, EntityType typesToConsider, ICollection<IEntity> resultingSet)
 		{
 			bool success = false;
 
-			var resolved = new Set<IEntity>();
-			foreach (var root in namespacesToResolveAgainst)
-				if (root.Resolve(resolved, name, typesToConsider))
-					success = true;
-
-			if (!success)
-				return false;
-
-			return CoalesceResolved(resolved, parent, name, resultingSet);
+			var resolved = AcquireSet();
+			try {
+				//foreach (var root in namespacesToResolveAgainst)
+				for (int i = 0; i < namespacesToResolveAgainst.Count; ++i)
+					if (namespacesToResolveAgainst[i].Resolve(resolved, name, typesToConsider))
+						success = true;
+	
+				if (!success)
+					return false;
+	
+				return CoalesceResolved(resolved, parent, name, resultingSet);
+			}
+			finally {
+				ReleaseSet(resolved);
+			}
 		}
 
 		public static bool ResolveCoalescingNamespaces(INamespace parent, INamespace namespaceToResolveAgainst, string name, EntityType typesToConsider, ICollection<IEntity> resultingSet)
 		{
-			var resolved = new Set<IEntity>();
-			if (!namespaceToResolveAgainst.Resolve(resolved, name, typesToConsider))
-				return false;
-			return CoalesceResolved(resolved, parent, name, resultingSet);
+			var resolved = AcquireSet();
+			try {
+				if (!namespaceToResolveAgainst.Resolve(resolved, name, typesToConsider))
+					return false;
+				return CoalesceResolved(resolved, parent, name, resultingSet);
+			}
+			finally {
+				ReleaseSet(resolved);
+			}
 		}
 
 		private static bool CoalesceResolved(IEnumerable<IEntity> resolved, INamespace parent, string name, ICollection<IEntity> resultingSet)
