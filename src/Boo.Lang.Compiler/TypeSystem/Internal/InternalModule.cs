@@ -46,12 +46,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		private INamespace _moduleAsNamespace;
 		
 		private readonly string _namespace;
-		
+
+		private List<INamespace> _namespaceList;
+
 		public InternalModule(InternalTypeSystemProvider provider, Module module)
 		{
 			_provider = provider;
 			_module = module;			
 			_namespace = SafeNamespace(module);
+			_module.Imports.Changed += (sender, e) => _namespaceList = null;
 		}
 
 		public static string SafeNamespace(Module module)
@@ -124,15 +127,25 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 				return true;
 
 			bool found = false;
-			foreach (INamespace importedNamespace in ImportedNamespaces())
-				if (importedNamespace.Resolve(resultingSet, name, typesToConsider))
+			var ns = ImportedNamespaces();
+			for (var i = 0; i < ns.Count; ++i)
+				if (ns[i].Resolve(resultingSet, name, typesToConsider))
 					found = true;
 			return found;
 		}
 
-		private IEnumerable<INamespace> ImportedNamespaces()
+		private IList<INamespace> ImportedNamespaces()
 		{
-			return _module.Imports.Select(i => i.Entity).OfType<INamespace>();
+			if (_namespaceList == null)
+			{
+				var result = new List<INamespace>(_module.Imports.Select(i => i.Entity).OfType<INamespace>());
+				if (result.Count == _module.Imports.Count)
+				{
+					_namespaceList = result;
+				}
+				return result;
+			}
+			return _namespaceList;
 		}
 
 		bool ResolveModuleMember(ICollection<IEntity> targetList, string name, EntityType flags)
