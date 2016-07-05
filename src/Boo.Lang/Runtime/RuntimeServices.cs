@@ -1581,91 +1581,117 @@ namespace Boo.Lang.Runtime
 		{
 			if (value is Byte)
 				return (Byte)value;
-			return CheckNumericPromotion(value).ToByte(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToByte(null);
+			return (Byte)value;
 		}
 
 		public static SByte UnboxSByte(object value)
 		{
 			if (value is SByte)
 				return (SByte)value;
-			return CheckNumericPromotion(value).ToSByte(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToSByte(null);
+			return (SByte)value;
 		}
 
 		public static char UnboxChar(object value)
 		{
 			if (value is char)
 				return (char)value;
-			return CheckNumericPromotion(value).ToChar(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToChar(null);
+			return (char)value;
 		}
 
 		public static Int16 UnboxInt16(object value)
 		{
 			if (value is Int16)
 				return (Int16)value;
-			return CheckNumericPromotion(value).ToInt16(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToInt16(null);
+			return (Int16)value;
 		}
 
 		public static UInt16 UnboxUInt16(object value)
 		{
 			if (value is UInt16)
 				return (UInt16)value;
-			return CheckNumericPromotion(value).ToUInt16(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToUInt16(null);
+			return (UInt16)value;
 		}
 
 		public static Int32 UnboxInt32(object value)
 		{
 			if (value is Int32)
 				return (Int32)value;
-			return CheckNumericPromotion(value).ToInt32(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToInt32(null);
+			return (Int32)value;
 		}
 
 		public static UInt32 UnboxUInt32(object value)
 		{
 			if (value is UInt32)
 				return (UInt32)value;
-			return CheckNumericPromotion(value).ToUInt32(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToUInt32(null);
+			return (UInt32)value;
 		}
 
 		public static Int64 UnboxInt64(object value)
 		{
 			if (value is Int64)
 				return (Int64)value;
-			return CheckNumericPromotion(value).ToInt64(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToInt64(null);
+			return (Int64)value;
 		}
 
 		public static UInt64 UnboxUInt64(object value)
 		{
 			if (value is UInt64)
 				return (UInt64)value;
-			return CheckNumericPromotion(value).ToUInt64(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToUInt64(null);
+			return (UInt64)value;
 		}
 
 		public static Single UnboxSingle(object value)
 		{
 			if (value is Single)
 				return (Single)value;
-			return CheckNumericPromotion(value).ToSingle(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToSingle(null);
+			return (Single)value;
 		}
 
 		public static Double UnboxDouble(object value)
 		{
 			if (value is Double)
 				return (Double)value;
-			return CheckNumericPromotion(value).ToDouble(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToDouble(null);
+			return (Double)value;
 		}
 
 		public static Decimal UnboxDecimal(object value)
 		{
 			if (value is Decimal)
 				return (Decimal)value;
-			return CheckNumericPromotion(value).ToDecimal(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToDecimal(null);
+			return (Decimal) value;
 		}
 
 		public static Boolean UnboxBoolean(object value)
 		{
 			if (value is Boolean)
 				return (Boolean)value;
-			return CheckNumericPromotion(value).ToBoolean(null);
+			if (value is IConvertible)
+				return CheckNumericPromotion(value).ToBoolean(null);
+			return (Boolean) value;
 		}
 
 		#region bool conversion
