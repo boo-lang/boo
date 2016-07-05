@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private List<INamespace> _modules;
 		private readonly IReflectionTypeSystemProvider _provider;
 
-		private Dictionary<string, List<IEntity>> _cache = new Dictionary<string, List<IEntity>>();
+		private readonly Dictionary<string, List<IEntity>> _cache = new Dictionary<string, List<IEntity>>();
 
 		public ReflectionNamespace(IReflectionTypeSystemProvider provider)
 		{

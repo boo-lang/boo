@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 {
 	public class GlobalNamespace : AbstractNamespace
 	{
-		private readonly IEnumerable<ICompileUnit> _references;
+		private readonly ICollection<ICompileUnit> _references;
 		private readonly ICompileUnit _compileUnit;
 		private IList<INamespace> _rootNamespaces;
 
@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		private  IList<INamespace> RootNamespaces
 		{
 			get {
-				if (_rootNamespaces == null)
+				if ((_rootNamespaces == null) || (_rootNamespaces.Count != _references.Count + 1))
 					_rootNamespaces = LoadRootNamespaces().ToList();
 				return _rootNamespaces;
 			}

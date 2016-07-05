@@ -32,74 +32,28 @@ using System.Collections.Generic;
 
 namespace Boo.Lang.Compiler.Util
 {
-	public class Set<T> : ICollection<T>
+	public class Set<T> : HashSet<T>
 	{
-		private readonly Dictionary<T, bool> _elements = new Dictionary<T, bool>();
 
 		public Set()
-		{	
+		{
 		}
 
-		public Set(IEnumerable<T> elements)
+		public Set(IEnumerable<T> elements) : base(elements)
 		{
-			foreach (T element in elements) Add(element);
 		}
 
-		public void Add(T element)
+		public Set(IEqualityComparer<T> comparer): base(comparer)
 		{
-			_elements[element] = true;
 		}
 
-		public void Clear()
+		public Set(IEnumerable<T> elements, IEqualityComparer<T> comparer): base(elements, comparer)
 		{
-			_elements.Clear();
-		}
-
-		public bool Contains(T element)
-		{
-			return _elements.ContainsKey(element);
-		}
-
-		public void CopyTo(T[] array, int arrayIndex)
-		{
-			_elements.Keys.CopyTo(array, arrayIndex);
-		}
-
-		public int Count
-		{
-			get { return _elements.Count; }
-		}
-
-		#region Implementation of IEnumerable
-		public IEnumerator<T> GetEnumerator()
-		{
-			return _elements.Keys.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-		#endregion
-
-		public bool IsReadOnly
-		{
-			get { return false; }
-		}
-
-		public bool Remove(T element)
-		{
-			return _elements.Remove(element);
 		}
 
 		public void RemoveAll(Predicate<T> predicate)
 		{
-			var toRemove = new List<T>();
-			foreach (var element in _elements.Keys)
-				if (predicate(element))
-					toRemove.Add(element);
-			foreach (var element in toRemove)
-				Remove(element);
+			RemoveWhere(predicate);
 		}
 
 		public override string ToString()
@@ -109,10 +63,7 @@ namespace Boo.Lang.Compiler.Util
 
 		public bool ContainsAll(IEnumerable<T> elements)
 		{
-			foreach (T element in elements)
-				if (!Contains(element))
-					return false;
-			return true;
+			return IsSupersetOf(elements);
 		}
 
 		public T[] ToArray()
