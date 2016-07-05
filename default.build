@@ -492,6 +492,7 @@
 			<references basedir="${build.dir}">
 				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
+				<include name="Boo.Lang.PatternMatching.dll" />
 				<include name="System.dll" />
 				<include name="System.Core.dll" />
 			</references>
@@ -765,6 +766,7 @@
 			<references>
 				<include name="${build.dir}/Boo.Lang.dll" />
 				<include name="${build.dir}/Boo.Lang.Compiler.dll" />
+				<include name="src/Boo.Lang.Parser/packages/Antlr4.Runtime.4.5-alpha002/lib/net40-client/Antlr4.Runtime.dll" />
 			</references>
 			<nowarn>
 				<warning number="618,219,162" />

@@ -348,7 +348,6 @@ using Boo.Lang.Parser.Util;
 			literals.Add("as", 14);
 			literals.Add("by", 86);
 			literals.Add("try", 67);
-			literals.Add("=", 130);
 			literals.Add("goto", 38);
 			literals.Add("enum", 29);
 			literals.Add("isa", 43);

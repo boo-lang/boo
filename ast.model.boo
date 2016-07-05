@@ -578,6 +578,7 @@ class SelectClauseExpression(QueryEndingExpression):
 	pass
 
 class LetClauseExpression(QueryClauseExpression):
+	Identifier as string
 	Value as Expression
 
 class WhereClauseExpression(QueryClauseExpression):
