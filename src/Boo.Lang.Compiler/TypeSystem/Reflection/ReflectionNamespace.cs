@@ -42,6 +42,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private List<INamespace> _modules;
 		private readonly IReflectionTypeSystemProvider _provider;
 
+		private readonly Dictionary<string, List<IEntity>> _cache = new Dictionary<string, List<IEntity>>();
+
 		public ReflectionNamespace(IReflectionTypeSystemProvider provider)
 		{
 			_childNamespaces = new MemoizedFunction<string, ReflectionNamespace>(StringComparer.Ordinal, CreateChildNamespace);
@@ -88,13 +90,59 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		#region Implementation of INamespace
 
+		private bool DoResolve(string name, out List<IEntity> resultingSet)
+		{
+			var typesToConsider = EntityType.Any;
+			resultingSet = new List<IEntity>();
+			try
+			{
+				if (ResolveChildNamespace(resultingSet, name, typesToConsider))
+					return true;
+				if (ResolveType(resultingSet, name, typesToConsider))
+					return true;
+				if (ResolveModules(resultingSet, name, typesToConsider))
+					return true;
+				resultingSet = null;
+				return false;
+			}
+			finally
+			{
+				_cache.Add(name, resultingSet);
+			}
+		}
+
+		private bool CachedResolve(string name, EntityType typesToConsider, ICollection<IEntity> resultingSet) 
+		{
+			List<IEntity> list;
+			var result = _cache.TryGetValue(name, out list) || DoResolve(name, out list);
+			if (result)
+			{
+				if (list == null)
+					return false;
+
+				result = false;
+				foreach (var entity in list)
+				{
+					if (Entities.IsFlagSet(typesToConsider, entity.EntityType))
+					{
+						result = true;
+						resultingSet.Add(entity);
+					}
+				}
+			}
+			return result;
+		}
+
 		public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
+			/*
 			if (ResolveChildNamespace(resultingSet, name, typesToConsider))
 				return true;
 			if (ResolveType(resultingSet, name, typesToConsider))
 				return true;
 			return ResolveModules(resultingSet, name, typesToConsider);
+			*/
+			return CachedResolve(name, typesToConsider, resultingSet);
 		}
 
 		private bool ResolveModules(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)

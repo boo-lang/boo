@@ -32,22 +32,28 @@ using System.Collections.Generic;
 namespace Boo.Lang.Compiler.Ast
 {
 	public partial class MacroStatement
-	{		
+	{
+		private static int _constructionCount = 0;
+		
 		public MacroStatement()
 		{
+			++_constructionCount;
  		}
 		
 		public MacroStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
+			++_constructionCount;
 		}
 		
 		public MacroStatement(LexicalInfo lexicalInfoProvider, string name) : base(lexicalInfoProvider)
 		{
+			++_constructionCount;
 			this.Name = name;
 		}
 
 		public MacroStatement(string name) : this(LexicalInfo.Empty, name)
 		{
+			++_constructionCount;
 		}
 
 		override public string ToString()
@@ -78,5 +84,11 @@ namespace Boo.Lang.Compiler.Ast
 			}
 			return null;
 		}
+		
+		public static int ConstructionCount
+		{
+			get { return _constructionCount; }
+		}
+
 	}
 }

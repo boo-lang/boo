@@ -27,6 +27,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
@@ -35,8 +36,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 {
 	public class GlobalNamespace : AbstractNamespace
 	{
-		private readonly IEnumerable<ICompileUnit> _references;
+		private readonly ICollection<ICompileUnit> _references;
 		private readonly ICompileUnit _compileUnit;
+		private IList<INamespace> _rootNamespaces;
 
 		public GlobalNamespace()
 		{
@@ -47,10 +49,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			return Namespaces.ResolveCoalescingNamespaces(this, RootNamespaces(), name, typesToConsider, resultingSet);
+			return Namespaces.ResolveCoalescingNamespaces(this, RootNamespaces, name, typesToConsider, resultingSet);
 		}
 
-		private IEnumerable<INamespace> RootNamespaces()
+		private  IList<INamespace> RootNamespaces
+		{
+			get {
+				if ((_rootNamespaces == null) || (_rootNamespaces.Count != _references.Count + 1))
+					_rootNamespaces = LoadRootNamespaces().ToList();
+				return _rootNamespaces;
+			}
+		}
+
+		private IEnumerable<INamespace> LoadRootNamespaces()
 		{
 			foreach (ICompileUnit reference in _references)
 				yield return reference.RootNamespace;
@@ -59,7 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 
 		public override IEnumerable<IEntity> GetMembers()
 		{
-			foreach (INamespace root in RootNamespaces())
+			foreach (INamespace root in RootNamespaces)
 				foreach (IEntity member in root.GetMembers())
 					yield return member;
 		}
