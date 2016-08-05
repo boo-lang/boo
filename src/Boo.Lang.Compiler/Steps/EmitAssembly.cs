@@ -144,6 +144,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool _perModuleRawArrayIndexing = false;
 
 		Dictionary<IType, Type> _typeCache = new Dictionary<IType, Type>();
+		List<Method> _moduleConstructorMethods = new List<Method>();
 
 		// keeps track of types on the IL stack
 		readonly Stack<IType> _types = new Stack<IType>();
@@ -208,6 +209,7 @@ namespace Boo.Lang.Compiler.Steps
 			DefineResources();
 			DefineAssemblyAttributes();
 			DefineEntryPoint();
+			DefineModuleConstructor();
 
             // Define the unmanaged version information resource, which 
             // contains the attribute informaion applied earlier
@@ -653,6 +655,10 @@ namespace Boo.Lang.Compiler.Steps
 			DefineExplicitImplementationInfo(method);
 
 			EmitMethod(method, methodBuilder.GetILGenerator());
+			if (method.Name.StartsWith("$module_ctor"))
+			{
+				_moduleConstructorMethods.Add(method);
+			}
 		}
 
 		private void DefineExplicitImplementationInfo(Method method)
@@ -4415,6 +4421,20 @@ namespace Boo.Lang.Compiler.Steps
 					Errors.Add(CompilerErrorFactory.NoEntryPoint());
 				}
 			}
+		}
+
+		void DefineModuleConstructor()
+		{
+			if (_moduleConstructorMethods.Count == 0)
+				return;
+			
+			var attrs = MethodAttributes.Static | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+			MethodBuilder mb = this._moduleBuilder.DefineGlobalMethod(".cctor", attrs, null, new Type[]{});
+			Method m = CodeBuilder.CreateMethod(".cctor", TypeSystemServices.VoidType, TypeMemberModifiers.Static);
+			foreach (var reference in _moduleConstructorMethods.OrderBy(reference => (int)reference["Ordering"]))
+				m.Body.Add(CodeBuilder.CreateMethodInvocation((IMethod)reference.Entity));
+			
+			EmitMethod(m, mb.GetILGenerator());
 		}
 
 		Type[] GetParameterTypes(ParameterDeclarationCollection parameters)
