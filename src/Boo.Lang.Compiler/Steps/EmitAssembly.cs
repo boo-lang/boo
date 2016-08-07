@@ -2588,6 +2588,12 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 
+				case BuiltinFunctionType.Default:
+					{
+						EmitDefaultValue((IType)node.ExpressionType);
+						break;
+					}
+					
 				default:
 					{
 						NotImplemented(node, "BuiltinFunction: " + function.FunctionType);

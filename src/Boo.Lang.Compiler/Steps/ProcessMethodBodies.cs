@@ -3470,6 +3470,12 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 
+				case BuiltinFunctionType.Default:
+					{
+						ProcessDefaultValueInvocation(node);
+						break;
+					}
+					
 				default:
 					{
 						NotImplemented(node, "BuiltinFunction: " + function);
@@ -3534,6 +3540,35 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		void ProcessDefaultValueInvocation(MethodInvocationExpression node)
+		{
+			if (node.Arguments.Count != 1)
+			{
+				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "__default__", 1));
+			}
+			else
+			{
+				Expression arg = node.Arguments[0];
+				if (arg.Entity == null)
+				{
+					Error(node, CompilerErrorFactory.TypeExpected(arg));
+					return;
+				}
+				var entity = GetEntity(arg);
+
+				EntityType type = entity.EntityType;
+
+				if (type != EntityType.Type)
+				{
+					Error(node, CompilerErrorFactory.TypeExpected(arg));
+				}
+				else
+				{
+					BindExpressionType(node, (IType)entity);
+				}
+			}
+		}
+		
 		void ProcessAddressOfInvocation(MethodInvocationExpression node)
 		{
 			if (node.Arguments.Count != 1)

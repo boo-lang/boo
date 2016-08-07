@@ -961,6 +961,11 @@ namespace Boo.Lang.Compiler
 		{
 			return Instantiate("BCE0176", node, typeName, expectedType, actualType);
 		}
+		
+		public static CompilerError TypeExpected(Node node)
+		{
+			return Instantiate("BCE0177", node);
+		}
 
 		public static CompilerError Instantiate(string code, Exception error, params object[] args)
 		{
