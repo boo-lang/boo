@@ -123,6 +123,7 @@ namespace Boo.Lang.Compiler.Util
 	{
 		readonly Dictionary<T1, Dictionary<T2, TResult>> _cache;
 		readonly Func<T1, T2, TResult> _func;
+		readonly IEqualityComparer<T1> _comparer;
 
 		public MemoizedFunction(Func<T1, T2, TResult> func)
 			: this(SafeComparer<T1>.Instance, func)
@@ -130,9 +131,23 @@ namespace Boo.Lang.Compiler.Util
 		}
 
 		public MemoizedFunction(IEqualityComparer<T1> comparer, Func<T1, T2, TResult> func)
+			: this(comparer, func, new Dictionary<T1, Dictionary<T2, TResult>>(comparer))
 		{
-			_cache = new Dictionary<T1, Dictionary<T2, TResult>>(comparer);
+		}
+
+		public MemoizedFunction(IEqualityComparer<T1> comparer, Func<T1, T2, TResult> func, Dictionary<T1, Dictionary<T2, TResult>> cache)
+		{
+			_comparer = comparer;
 			_func = func;
+			_cache = cache;
+		}
+
+		public MemoizedFunction<T1, T2, TResult> Clone()
+		{
+			return new MemoizedFunction<T1, T2, TResult>(
+				_comparer,
+				_func,
+				new Dictionary<T1, Dictionary<T2, TResult>>(_cache, _comparer));
 		}
 
 		public void Clear(T1 arg1)
