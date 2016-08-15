@@ -1946,6 +1946,8 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!(node.Target is MemberReferenceExpression)) //no self.
 				node.Target = CodeBuilder.MemberReferenceForEntity(CreateSelfReference(), entity);
+			if (TypeSystemServices.IsError(node.Target))
+				Error(node);
 		}
 
 		override public void OnReferenceExpression(ReferenceExpression node)
@@ -5344,6 +5346,8 @@ namespace Boo.Lang.Compiler.Steps
 		bool AssertTargetContext(Expression targetContext, IMember member)
 		{
 			if (member.IsStatic) return true;
+			if (NodeType.GenericReferenceExpression == targetContext.NodeType)
+				targetContext = ((GenericReferenceExpression)targetContext).Target;
 			if (NodeType.MemberReferenceExpression != targetContext.NodeType) return true;
 
 			Expression targetReference = ((MemberReferenceExpression)targetContext).Target;
