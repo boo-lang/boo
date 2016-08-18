@@ -79,5 +79,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		}
 
 		public Label Label { get; set; }
+
+	    public Microsoft.Cci.ILGeneratorLabel LabelCci { get; set; }
 	}
 }

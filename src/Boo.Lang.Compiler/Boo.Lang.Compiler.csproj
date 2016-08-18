@@ -82,6 +82,27 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Cci.ILGenerator">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.ILGenerator.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci.MetadataHelper">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.MetadataHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci.MetadataModel">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.MetadataModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci.MutableMetadataModel">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.MutableMetadataModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci.PdbWriter">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.PdbWriter.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci.PeReader">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.PeReader.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Cci.PeWriter">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.PeWriter.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core">
@@ -442,6 +463,7 @@
     <Compile Include="Steps\DetectNotImplementedFeatureUsage.cs" />
     <Compile Include="Steps\DumpReferences.cs" />
     <Compile Include="Steps\EmitAssembly.cs" />
+    <Compile Include="Steps\EmitAssemblyCCI.cs" />
     <Compile Include="Steps\EntityPredicates.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />
     <Compile Include="Steps\ExpandComplexSlicingExpressions.cs" />

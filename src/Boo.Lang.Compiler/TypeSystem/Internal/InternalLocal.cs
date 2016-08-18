@@ -85,7 +85,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		public LocalBuilder LocalBuilder { get; set; }
 
-		public Declaration OriginalDeclaration
+        public Microsoft.Cci.MutableCodeModel.LocalDefinition LocalDefinition { get; set; }
+
+        public Declaration OriginalDeclaration
 		{
 			get { return _originalDeclaration;  }
 			set { _originalDeclaration = value; }
