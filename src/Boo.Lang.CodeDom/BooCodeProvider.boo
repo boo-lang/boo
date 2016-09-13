@@ -34,15 +34,34 @@ namespace Boo.Lang.CodeDom
 
 import System
 import System.CodeDom.Compiler
+import System.Linq.Enumerable
 
 class BooCodeProvider(CodeDomProvider):
-	[getter(FileExtension)]
+	[Getter(FileExtension)]
 	_ext = "boo"
-	
-	def CreateCompiler():		
+
+	private _references as (string)
+
+	References as string*:
+		set:
+			_references = value.ToArray()
+
+	def constructor(references as (string)):
+		super()
+		_references = references
+
+	[Obsolete]
+	override def CreateCompiler() as ICodeCompiler:
 		return BooCodeCompiler()
-	def CreateGenerator():		
+
+	[Obsolete]
+	override def CreateGenerator() as ICodeGenerator:
 		return BooCodeGenerator()
+
+	[Obsolete]
+	override def CreateParser() as ICodeParser:
+		return BooCodeParser(_references)
+
 	override def GetConverter(type as Type) as System.ComponentModel.TypeConverter:
 		raise NotImplementedException()
 		
