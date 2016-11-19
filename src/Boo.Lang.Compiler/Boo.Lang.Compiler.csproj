@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <!--<DefineConstants>COLLECTIBLE_NOT_SUPPORTED</DefineConstants>-->
   </PropertyGroup>
@@ -102,6 +102,9 @@
     </Reference>
     <Reference Include="Microsoft.Cci.PeWriter">
       <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.PeWriter.dll</HintPath>
+    </Reference>
+    <Reference Include="ReflectionImporter">
+      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\ReflectionImporter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
