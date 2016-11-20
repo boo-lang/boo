@@ -52,7 +52,9 @@ using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+using IAssemblyReference = Microsoft.Cci.IAssemblyReference;
 using Module = Boo.Lang.Compiler.Ast.Module;
+
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -79,7 +81,8 @@ namespace Boo.Lang.Compiler.Steps
 	    private ReflectionMapper _mapper;
         private IAssembly _coreAssembly;
 
-        private IAssembly _asmBuilder;
+        private Assembly _asmBuilder;
+	    private Microsoft.Cci.MutableCodeModel.Module _moduleBuilder;
 
         private Hashtable _symbolDocWriters = new Hashtable();
 
@@ -2362,10 +2365,10 @@ namespace Boo.Lang.Compiler.Steps
             PushArguments(method, node.Arguments);
 
             // Emit a constrained call if target is a generic parameter
-            if (targetType != null && targetType is IGenericParameter)
-                _il.Emit(OperationCode.Constrained, GetSystemType(targetType));
+            if (targetType is TypeSystem.IGenericParameter)
+                _il.Emit(OperationCode.Constrained_, GetSystemType(targetType));
 
-            _il.EmitCall(GetCallOpCode(target, method), mi, null);
+            _il.Emit(GetCallOpCode(target, method), mi);
 
             PushType(method.ReturnType);
         }
@@ -2406,28 +2409,22 @@ namespace Boo.Lang.Compiler.Steps
 
         private static readonly string[] NoSymbols = new string[0];
 
-        private IEnumerable<string> GetConditionalSymbols(ExternalMethod method)
+        private static IEnumerable<string> GetConditionalSymbols(ExternalMethod method)
         {
-            foreach (ConditionalAttribute attr in method.MethodDefinition.GetCustomAttributes(typeof(ConditionalAttribute), false))
-                yield return attr.ConditionString;
+            return from ConditionalAttribute attr in method.MethodInfo.GetCustomAttributes(typeof(ConditionalAttribute), false) select attr.ConditionString;
         }
 
         private IEnumerable<string> GetConditionalSymbols(InternalMethod method)
         {
-            foreach (var attr in MetadataUtil.GetCustomAttributes(method.Method, TypeSystemServices.ConditionalAttribute))
-            {
-                if (1 != attr.Arguments.Count) continue;
-
-                var conditionString = attr.Arguments[0] as StringLiteralExpression;
-                if (conditionString == null) continue;
-
-                yield return conditionString.Value;
-            }
+            return (from attr in MetadataUtil.GetCustomAttributes(method.Method, TypeSystemServices.ConditionalAttribute)
+                where 1 == attr.Arguments.Count select attr.Arguments[0])
+                .OfType<StringLiteralExpression>()
+                .Select(conditionString => conditionString.Value);
         }
 
         private void PushTargetObjectFor(MethodDefinition methodToBeInvoked, Expression target, IType targetType)
         {
-            if (targetType is IGenericParameter)
+            if (targetType is TypeSystem.IGenericParameter)
             {
                 // If target is a generic parameter, its address must be loaded
                 // to allow a constrained method call
@@ -2437,7 +2434,7 @@ namespace Boo.Lang.Compiler.Steps
 
             if (targetType.IsValueType)
             {
-                if (methodToBeInvoked.DeclaringType.IsValueType)
+                if (methodToBeInvoked.ContainingTypeDefinition.IsValueType)
                     LoadAddress(target);
                 else
                 {
@@ -2498,7 +2495,7 @@ namespace Boo.Lang.Compiler.Steps
         private void EmitGetTypeFromHandle(Type type)
         {
             _il.Emit(OperationCode.Ldtoken, type);
-            Call(Type_GetTypeFromHandle);
+            Call(MethodOf<RuntimeTypeHandle, Type>(typeof(Type), "GetTypeFromHandle"));
             PushType(TypeSystemServices.TypeType);
         }
 
@@ -2827,13 +2824,14 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Newobj, Hash_Constructor);
 
             var objType = TypeSystemServices.ObjectType;
-            foreach (ExpressionPair pair in node.Items)
+            var hash_Add = MethodOf<object, object>(typeof(Hash), "Add");
+            foreach (var pair in node.Items)
             {
                 Dup();
 
                 LoadExpressionWithType(objType, pair.First);
                 LoadExpressionWithType(objType, pair.Second);
-                _il.EmitCall(OperationCode.Callvirt, Hash_Add, null);
+                _il.Emit(OperationCode.Callvirt, hash_Add);
             }
 
             PushType(TypeSystemServices.HashType);
@@ -2861,7 +2859,7 @@ namespace Boo.Lang.Compiler.Steps
 
         public override void OnArrayLiteralExpression(ArrayLiteralExpression node)
         {
-            var type = (IArrayType)node.ExpressionType;
+            var type = (TypeSystem.IArrayType)node.ExpressionType;
             EmitArray(type.ElementType, node.Items);
             PushType(type);
         }
@@ -2913,7 +2911,7 @@ namespace Boo.Lang.Compiler.Steps
                 return;
 
             Visit(node.Target);
-            var type = (IArrayType)PopType();
+            var type = (TypeSystem.IArrayType)PopType();
 
             if (type.Rank == 1)
                 LoadSingleDimensionalArrayElement(node, type);
@@ -2963,14 +2961,14 @@ namespace Boo.Lang.Compiler.Steps
 
             var elementType = arrayType.ElementType;
             var opcode = GetLoadEntityOpCode(elementType);
-            if (OperationCode.Ldelema.Value == opcode.Value)
+            if (opcode == OperationCode.Ldelema)
             {
                 var systemType = GetSystemType(elementType);
                 _il.Emit(opcode, systemType);
                 if (!IsByAddress(elementType))
                     _il.Emit(OperationCode.Ldobj, systemType);
             }
-            else if (OperationCode.Ldelem.Value == opcode.Value)
+            else if (opcode == OperationCode.Ldelem)
                 _il.Emit(opcode, GetSystemType(elementType));
             else
                 _il.Emit(opcode);
@@ -2994,7 +2992,7 @@ namespace Boo.Lang.Compiler.Steps
                 {
                     Dup();
                     LoadIntExpression(index);
-                    Call(RuntimeServices_NormalizeArrayIndex);
+                    Call(MethodOf<Array, int, int>(typeof(RuntimeServices), "NormalizeArrayIndex"));
                 }
             }
             else
@@ -3122,7 +3120,7 @@ namespace Boo.Lang.Compiler.Steps
                 else
                 {
                     if (fieldInfo.IsVolatile)
-                        _il.Emit(OperationCode.Volatile);
+                        _il.Emit(OperationCode.Volatile_);
                     _il.Emit(IsByAddress(fieldInfo.Type) ? OperationCode.Ldsflda : OperationCode.Ldsfld,
                         GetFieldInfo(fieldInfo));
                 }
@@ -3131,7 +3129,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 LoadMemberTarget(self, fieldInfo);
                 if (fieldInfo.IsVolatile)
-                    _il.Emit(OperationCode.Volatile);
+                    _il.Emit(OperationCode.Volatile_);
                 _il.Emit(IsByAddress(fieldInfo.Type) ? OperationCode.Ldflda : OperationCode.Ldfld,
                     GetFieldInfo(fieldInfo));
             }
@@ -3336,7 +3334,7 @@ namespace Boo.Lang.Compiler.Steps
             if (!AstUtil.IsIndirection(expression))
             {
                 // declare local to hold value type
-                var temp = _il.DeclareLocal(GetSystemType(PopType()));
+                var temp = new LocalDefinition { Type = GetTypeReference(GetSystemType(PopType())) };
                 _il.Emit(OperationCode.Stloc, temp);
                 _il.Emit(OperationCode.Ldloca, temp);
             }
@@ -3345,7 +3343,7 @@ namespace Boo.Lang.Compiler.Steps
         private void LoadArrayElementAddress(SlicingExpression slicing)
         {
             Visit(slicing.Target);
-            var arrayType = (IArrayType)PopType();
+            var arrayType = (TypeSystem.IArrayType)PopType();
 
             if (arrayType.Rank == 1)
                 LoadSingleDimensionalArrayElementAddress(slicing, arrayType);
@@ -3365,12 +3363,12 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Ldelema, GetSystemType(arrayType.ElementType));
         }
 
-        bool IsValueTypeArraySlicing(Expression expression)
+        private static bool IsValueTypeArraySlicing(Expression expression)
         {
             var slicing = expression as SlicingExpression;
             if (slicing != null)
             {
-                var type = (IArrayType)slicing.Target.ExpressionType;
+                var type = (TypeSystem.IArrayType)slicing.Target.ExpressionType;
                 return type.ElementType.IsValueType;
             }
             return false;
@@ -3422,7 +3420,7 @@ namespace Boo.Lang.Compiler.Steps
                         if (param.Parameter.IsByRef)
                         {
                             var code = GetLoadRefParamCode(param.Type);
-                            if (code.Value == OperationCode.Ldobj.Value)
+                            if (code == OperationCode.Ldobj)
                                 _il.Emit(code, GetSystemType(param.Type));
                             else
                                 _il.Emit(code);
@@ -3558,12 +3556,12 @@ namespace Boo.Lang.Compiler.Steps
             if (leaveValueOnStack)
             {
                 Dup();
-                local = _il.DeclareLocal(GetSystemType(field.Type));
+                local = new LocalDefinition {Type = GetTypeReference(GetSystemType(field.Type))};
                 _il.Emit(OperationCode.Stloc, local);
             }
 
             if (field.IsVolatile)
-                _il.Emit(OperationCode.Volatile);
+                _il.Emit(OperationCode.Volatile_);
             _il.Emit(opSetField, GetFieldInfo(field));
 
             if (leaveValueOnStack)
@@ -3585,7 +3583,7 @@ namespace Boo.Lang.Compiler.Steps
                 {
                     Expression target = ((MemberReferenceExpression)reference).Target;
                     targetType = target.ExpressionType;
-                    if (setMethod.DeclaringType.IsValueType || targetType is IGenericParameter)
+                    if (setMethod.ContainingTypeDefinition.IsValueType || targetType is TypeSystem.IGenericParameter)
                         LoadAddress(target);
                     else
                     {
@@ -3602,17 +3600,17 @@ namespace Boo.Lang.Compiler.Steps
             if (leaveValueOnStack)
             {
                 Dup();
-                local = _il.DeclareLocal(GetSystemType(property.Type));
+                local = new LocalDefinition {Type = GetTypeReference(GetSystemType(property.Type))};
                 _il.Emit(OperationCode.Stloc, local);
             }
 
-            if (targetType is IGenericParameter)
+            if (targetType is TypeSystem.IGenericParameter)
             {
-                _il.Emit(OperationCode.Constrained, GetSystemType(targetType));
+                _il.Emit(OperationCode.Constrained_, GetSystemType(targetType));
                 callOpCode = OperationCode.Callvirt;
             }
 
-            _il.EmitCall(callOpCode, setMethod, null);
+            _il.Emit(callOpCode, setMethod);
 
             if (leaveValueOnStack)
             {
@@ -3630,9 +3628,9 @@ namespace Boo.Lang.Compiler.Steps
 
         private const int _DBG_SYMBOLS_QUEUE_CAPACITY = 5;
 
-        private System.Collections.Generic.Queue<LexicalInfo> _dbgSymbols = new System.Collections.Generic.Queue<LexicalInfo>(_DBG_SYMBOLS_QUEUE_CAPACITY);
+        private readonly Queue<LexicalInfo> _dbgSymbols = new Queue<LexicalInfo>(_DBG_SYMBOLS_QUEUE_CAPACITY);
 
-        bool EmitDebugInfo(Node startNode, Node endNode)
+        private bool EmitDebugInfo(Node startNode, Node endNode)
         {
             LexicalInfo start = startNode.LexicalInfo;
             if (!start.IsValid) return false;
@@ -3781,7 +3779,7 @@ namespace Boo.Lang.Compiler.Steps
 
             Dup(); //dup (newarr)
             _il.Emit(OperationCode.Ldtoken, fb);
-            Call(RuntimeHelpers_InitializeArray);
+            Call(MethodOf<Array, RuntimeFieldHandle>(typeof(System.Runtime.CompilerServices.RuntimeHelpers), "InitializeArray"));
         }
 
         Dictionary<byte[], FieldDefinition> _packedArrays = new Dictionary<byte[], FieldDefinition>(ValueTypeArrayEqualityComparer<byte>.Default);
@@ -3855,12 +3853,12 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        bool IsInteger(IType type)
+        private bool IsInteger(IType type)
         {
             return TypeSystemServices.IsIntegerNumber(type);
         }
 
-        MethodDefinition GetToDecimalConversionMethod(IType type)
+        private MethodDefinition GetToDecimalConversionMethod(IType type)
         {
             MethodDefinition method =
                 typeof(Decimal).GetMethod("op_Implicit", new Type[] { GetSystemType(type) });
@@ -3877,7 +3875,7 @@ namespace Boo.Lang.Compiler.Steps
             return method;
         }
 
-        MethodDefinition GetFromDecimalConversionMethod(IType type)
+        private MethodDefinition GetFromDecimalConversionMethod(IType type)
         {
             string toType = "To" + type.Name;
 
@@ -3890,7 +3888,7 @@ namespace Boo.Lang.Compiler.Steps
             return method;
         }
 
-        OperationCode GetArithmeticOpCode(IType type, BinaryOperatorType op)
+        private OperationCode GetArithmeticOpCode(IType type, BinaryOperatorType op)
         {
             if (IsCheckedIntegerOperand(type))
             {
@@ -3924,7 +3922,7 @@ namespace Boo.Lang.Compiler.Steps
 
             if (!type.IsValueType)
             {
-                return type is IGenericParameter
+                return type is TypeSystem.IGenericParameter
                     ? OperationCode.Ldelem
                     : OperationCode.Ldelem_Ref;
             }
@@ -3977,7 +3975,7 @@ namespace Boo.Lang.Compiler.Steps
 
         OperationCode GetStoreEntityOpCode(IType tag)
         {
-            if (tag.IsValueType || tag is IGenericParameter)
+            if (tag.IsValueType || tag is TypeSystem.IGenericParameter)
             {
                 if (tag.IsEnum)
                 {
@@ -4145,7 +4143,7 @@ namespace Boo.Lang.Compiler.Steps
                 return;
             }
 
-            if (expectedType is IGenericParameter)
+            if (expectedType is TypeSystem.IGenericParameter)
             {
                 // Since expected type is a generic parameter, we don't know whether to emit
                 // an unbox opcode or a castclass opcode; so we emit an unbox.any opcode which
@@ -4234,7 +4232,7 @@ namespace Boo.Lang.Compiler.Steps
         private void EmitBoxIfNeeded(IType expectedType, IType actualType)
         {
             if ((actualType.IsValueType && !expectedType.IsValueType)
-                || (actualType is IGenericParameter && !(expectedType is IGenericParameter)))
+                || (actualType is TypeSystem.IGenericParameter && !(expectedType is TypeSystem.IGenericParameter)))
                 EmitBox(actualType);
         }
 
@@ -4285,7 +4283,7 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMethodDefinition UnboxMethodFor(IType type)
         {
-            var runtimeServicesType = UnitHelper.FindType(_nameTable, _booLangAssembly, "Boo.Lang.Runtime.RuntimeServices");
+            var runtimeServicesType = UnitHelper.FindType(_nameTable, _mapper.GetAssembly(typeof(RuntimeServices).Assembly), "Boo.Lang.Runtime.RuntimeServices");
             if (type == TypeSystemServices.ByteType) return MethodOf<object, byte>(runtimeServicesType, "UnboxByte");
             if (type == TypeSystemServices.SByteType) return MethodOf<object, sbyte>(runtimeServicesType, "UnboxSByte");
             if (type == TypeSystemServices.ShortType) return MethodOf<object, short>(runtimeServicesType, "UnboxInt16");
@@ -4371,16 +4369,16 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Dup);
         }
 
-        bool IsStobj(OperationCode code)
+        private bool IsStobj(OperationCode code)
         {
-            return OperationCode.Stobj.Value == code.Value;
+            return code == OperationCode.Stobj;
         }
 
         private void DefineAssemblyAttributes()
         {
-            foreach (Attribute attribute in _assemblyAttributes)
+            foreach (var attribute in _assemblyAttributes)
             {
-                _asmBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+                _asmBuilder.AssemblyAttributes.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
             }
         }
 
@@ -4398,7 +4396,7 @@ namespace Boo.Lang.Compiler.Steps
                     RuntimeCompatibilityAttribute_Property, new object[] { true });
         }
 
-        CustomAttribute CreateUnverifiableCodeAttribute()
+        private static CustomAttribute CreateUnverifiableCodeAttribute()
         {
             return new CustomAttribute(Methods.ConstructorOf(() => new UnverifiableCodeAttribute()), new object[0]);
         }
@@ -4413,12 +4411,12 @@ namespace Boo.Lang.Compiler.Steps
             if (CompilerOutputType.Library != Parameters.OutputType)
             {
                 Method method = ContextAnnotations.GetEntryPoint(Context);
-                if (null != method)
+                if (method != null)
                 {
                     MethodDefinition entryPoint = Context.Parameters.GenerateInMemory
                         ? _asmBuilder.GetType(method.DeclaringType.FullName).GetMethod(method.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                         : GetMethodBuilder(method);
-                    _asmBuilder.SetEntryPoint(entryPoint, (PEFileKinds)Parameters.OutputType);
+                    _asmBuilder.EntryPoint = entryPoint;
                 }
                 else
                 {
@@ -4507,7 +4505,7 @@ namespace Boo.Lang.Compiler.Steps
             ExternalField external = tag as ExternalField;
             if (null != external)
             {
-                return external.IFieldDefinition;
+                return _mapper.GetField(external.FieldInfo);
             }
 
             // If field is mapped from a generic type, get its mapped IFieldDefinition
@@ -4522,12 +4520,12 @@ namespace Boo.Lang.Compiler.Steps
             return GetFieldBuilder(((InternalField)tag).Field);
         }
 
-        MethodDefinition GetMethodInfo(IMethod entity)
+        private IMethodDefinition GetMethodInfo(IMethod entity)
         {
             // If method is external, get its existing MethodDefinition
             var external = entity as ExternalMethod;
             if (null != external)
-                return (MethodDefinition)external.MethodDefinition;
+                return _mapper.GetMethod((System.Reflection.MethodInfo)external.MethodInfo);
 
             // If method is a constructed generic method, get its MethodDefinition from its definition
             if (entity is GenericConstructedMethod)
@@ -4547,7 +4545,7 @@ namespace Boo.Lang.Compiler.Steps
             // If constructor is external, get its existing IMethodReference
             var external = entity as ExternalConstructor;
             if (null != external)
-                return external.IMethodReference;
+                return _mapper.GetMethod((System.Reflection.ConstructorInfo)external.MethodInfo);
 
             // If constructor is mapped from a generic type, get its IMethodReference on the constructed type
             var mapped = entity as GenericMappedConstructor;
@@ -4573,14 +4571,14 @@ namespace Boo.Lang.Compiler.Steps
         private IFieldDefinition GetMappedFieldInfo(IType targetType, IField source)
         {
             IFieldDefinition fi = GetFieldInfo(source);
-            if (!fi.DeclaringType.IsGenericTypeDefinition)
+            if (!fi.ContainingTypeDefinition.IsGeneric)
             {
                 // HACK: .NET Reflection doesn't allow calling NamedTypeDefinition.GetField(Type, IFieldDefinition)
                 // on types that aren't generic definitions (like open constructed types), so we have
                 // to manually find the corresponding IFieldDefinition on the declaring type's definition
                 // before mapping it
-                Type definition = fi.DeclaringType.GetGenericTypeDefinition();
-                fi = definition.GetField(fi.Name);
+                Type definition = fi.ContainingTypeDefinition.GetGenericTypeDefinition();
+                fi = _mapper.GetField(definition.GetField(fi.Name.Value));
             }
             return NamedTypeDefinition.GetField(GetSystemType(targetType), fi);
         }
@@ -4603,7 +4601,7 @@ namespace Boo.Lang.Compiler.Steps
             return GetConstructedMethodInfo(targetType, correspondingMethod);
         }
 
-        MethodDefinition GetConstructedMethodInfo(IType targetType, MethodDefinition mi)
+        MethodDefinition GetConstructedMethodInfo(IType targetType, IMethodDefinition mi)
         {
             return NamedTypeDefinition.GetMethod(GetSystemType(targetType), mi);
         }
@@ -4655,7 +4653,7 @@ namespace Boo.Lang.Compiler.Steps
 
             if (entity.IsArray)
             {
-                IArrayType arrayType = (IArrayType)entity;
+                var arrayType = (TypeSystem.IArrayType)entity;
                 Type systemType = GetSystemType(arrayType.ElementType);
                 int rank = arrayType.Rank;
 
@@ -4693,202 +4691,205 @@ namespace Boo.Lang.Compiler.Steps
             return null;
         }
 
-        TypeAttributes GetNestedTypeAttributes(TypeMember type)
+        private static void GetNestedTypeAttributes(TypeMember type, NamespaceTypeDefinition member)
         {
-            return GetExtendedTypeAttributes(GetNestedTypeAccessibility(type), type);
+            GetExtendedTypeAttributes(GetTypeVisibilityAttributes(type), type, member);
         }
 
-        TypeAttributes GetNestedTypeAccessibility(TypeMember type)
+        private static void GetTypeAttributes(TypeMember type, NamespaceTypeDefinition member)
         {
-            if (type.IsPublic) return TypeAttributes.NestedPublic;
-            if (type.IsInternal) return TypeAttributes.NestedAssembly;
-            return TypeAttributes.NestedPrivate;
+            GetExtendedTypeAttributes(GetTypeVisibilityAttributes(type), type, member);
         }
 
-        TypeAttributes GetTypeAttributes(TypeMember type)
+        private static TypeMemberVisibility GetTypeVisibilityAttributes(TypeMember type)
         {
-            return GetExtendedTypeAttributes(GetTypeVisibilityAttributes(type), type);
+            if (type.IsPublic) return TypeMemberVisibility.Public;
+            if (type.IsProtected) return type.IsInternal ? TypeMemberVisibility.FamilyOrAssembly : TypeMemberVisibility.Family;
+            if (type.IsInternal) return TypeMemberVisibility.Assembly;
+            return TypeMemberVisibility.Private;
         }
 
-        private TypeAttributes GetTypeVisibilityAttributes(TypeMember type)
+        private static void GetExtendedTypeAttributes(TypeMemberVisibility visibility, TypeMember type, NamespaceTypeDefinition member)
         {
-            return type.IsPublic ? TypeAttributes.Public : TypeAttributes.NotPublic;
-        }
-
-        TypeAttributes GetExtendedTypeAttributes(TypeAttributes attributes, TypeMember type)
-        {
+            member.IsPublic = visibility == TypeMemberVisibility.Public;
             switch (type.NodeType)
             {
                 case NodeType.ClassDefinition:
+                {
+                    member.IsClass = true;
+
+                    if (!((ClassDefinition)type).HasDeclaredStaticConstructor)
                     {
-                        attributes |= (TypeAttributes.AnsiClass | TypeAttributes.AutoLayout);
-                        attributes |= TypeAttributes.Class;
-
-                        if (!((ClassDefinition)type).HasDeclaredStaticConstructor)
-                        {
-                            attributes |= TypeAttributes.BeforeFieldInit;
-                        }
-                        if (type.IsAbstract)
-                        {
-                            attributes |= TypeAttributes.Abstract;
-                        }
-                        if (type.IsFinal)
-                        {
-                            attributes |= TypeAttributes.Sealed;
-                        }
-
-                        if (type.IsStatic) //static type is Sealed+Abstract in SRE
-                            attributes |= TypeAttributes.Sealed | TypeAttributes.Abstract;
-                        else if (!type.IsTransient)
-                            attributes |= TypeAttributes.Serializable;
-
-                        if (((IType)type.Entity).IsValueType)
-                        {
-                            attributes |= TypeAttributes.SequentialLayout;
-                        }
-                        break;
+                        member.IsBeforeFieldInit = true;
                     }
+                    if (type.IsAbstract)
+                    {
+                        member.IsAbstract = true;
+                    }
+                    if (type.IsFinal)
+                    {
+                        member.IsSealed = true;
+                    }
+
+                    if (type.IsStatic) //static type is Sealed+Abstract in SRE
+                    {
+                        member.IsSealed = true;
+                        member.IsAbstract = true;
+                    }
+                    else if (!type.IsTransient)
+                        member.IsSerializable = true;
+
+                    if (((IType)type.Entity).IsValueType)
+                    {
+                        member.IsValueType = true;
+                    }
+                    break;
+                }
 
                 case NodeType.EnumDefinition:
-                    {
-                        attributes |= TypeAttributes.Sealed;
-                        attributes |= TypeAttributes.Serializable;
-                        break;
-                    }
+                {
+                    member.IsSealed = true;
+                    member.IsSerializable = true;
+                    break;
+                }
 
                 case NodeType.InterfaceDefinition:
-                    {
-                        attributes |= (TypeAttributes.Interface | TypeAttributes.Abstract);
-                        break;
-                    }
+                {
+                    member.IsInterface = true;
+                    member.IsAbstract = true;
+                    break;
+                }
 
                 case NodeType.Module:
-                    {
-                        attributes |= TypeAttributes.Sealed;
-                        break;
-                    }
+                {
+                    member.IsSealed = true;
+                    break;
+                }
             }
-            return attributes;
         }
 
-        PropertyAttributes PropertyAttributesFor(Property property)
+        private static void SetPropertyAttributesFor(Property property, PropertyDefinition builder)
         {
-            return property.ExplicitInfo != null
-                ? PropertyAttributes.SpecialName | PropertyAttributes.RTSpecialName
-                : PropertyAttributes.None;
+            if (property.ExplicitInfo != null)
+            {
+                builder.IsSpecialName = true;
+                builder.IsRuntimeSpecial = true;
+            }
         }
 
-        MethodAttributes MethodAttributesFor(TypeMember member)
+        private void SetMethodAttributesFor(TypeMember member, MethodDefinition builder)
         {
-            var attributes = MethodVisibilityAttributesFor(member);
+            builder.Visibility = MethodVisibilityAttributesFor(member);
 
             if (member.IsStatic)
             {
-                attributes |= MethodAttributes.Static;
+                builder.IsStatic = true;
                 if (member.Name.StartsWith("op_"))
-                    attributes |= MethodAttributes.SpecialName;
+                    builder.IsSpecialName = true;
             }
             else if (member.IsAbstract)
-                attributes |= (MethodAttributes.Abstract | MethodAttributes.Virtual);
+            {
+                builder.IsAbstract = true;
+                builder.IsVirtual = true;
+            }
             else if (member.IsVirtual || member.IsOverride)
             {
-                attributes |= MethodAttributes.Virtual;
+                builder.IsVirtual = true;
                 if (member.IsFinal)
-                    attributes |= MethodAttributes.Final;
+                    builder.IsSealed = true;
                 if (member.IsNew)
-                    attributes |= MethodAttributes.NewSlot;
+                    builder.IsNewSlot = true;
             }
-
-            return attributes;
         }
 
-        private static MethodAttributes MethodVisibilityAttributesFor(TypeMember member)
+        private static TypeMemberVisibility MethodVisibilityAttributesFor(TypeMember member)
         {
             if (member.IsPublic)
-                return MethodAttributes.Public;
+                return TypeMemberVisibility.Public;
             if (member.IsProtected)
-                return member.IsInternal ? MethodAttributes.FamORAssem : MethodAttributes.Family;
+                return member.IsInternal ? TypeMemberVisibility.FamilyOrAssembly : TypeMemberVisibility.Family;
             if (member.IsInternal)
-                return MethodAttributes.Assembly;
-            return MethodAttributes.Private;
+                return TypeMemberVisibility.Assembly;
+            return TypeMemberVisibility.Private;
         }
 
-        MethodAttributes PropertyAccessorAttributesFor(TypeMember property)
+        private void PropertyAccessorAttributesFor(TypeMember property, MethodDefinition builder)
         {
-            const MethodAttributes defaultPropertyAccessorAttributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
-            return defaultPropertyAccessorAttributes | MethodAttributesFor(property);
+            builder.IsSpecialName = true;
+            builder.IsHiddenBySignature = true;
+            SetMethodAttributesFor(property, builder);
         }
 
-        MethodAttributes GetMethodAttributes(Method method)
+        private void GetMethodAttributes(Method method, MethodDefinition builder)
         {
-            MethodAttributes attributes = MethodAttributes.HideBySig;
+            builder.IsHiddenBySignature = true;
             if (method.ExplicitInfo != null)
-                attributes |= MethodAttributes.NewSlot;
+                builder.IsNewSlot = true;
             if (IsPInvoke(method))
             {
                 Debug.Assert(method.IsStatic);
-                attributes |= MethodAttributes.PinvokeImpl;
+                builder.IsPlatformInvoke = true;
             }
-            attributes |= MethodAttributesFor(method);
-            return attributes;
+            SetMethodAttributesFor(method, builder);
         }
 
-        static FieldAttributes FieldAttributesFor(Field field)
+        private static void SetFieldAttributesFor(Field field, FieldDefinition builder)
         {
-            var attributes = FieldVisibilityAttributeFor(field);
+            builder.Visibility = FieldVisibilityAttributeFor(field);
             if (field.IsStatic)
-                attributes |= FieldAttributes.Static;
+                builder.IsStatic = true;
             if (field.IsTransient)
-                attributes |= FieldAttributes.NotSerialized;
+                builder.IsNotSerialized = true;
             if (field.IsFinal)
             {
-                IField entity = (IField)field.Entity;
+                var entity = (IField)field.Entity;
                 if (entity.IsLiteral)
-                    attributes |= FieldAttributes.Literal;
+                    builder.IsCompileTimeConstant = true;
                 else
-                    attributes |= FieldAttributes.InitOnly;
+                    builder.IsReadOnly = true;
             }
-            return attributes;
         }
 
-        private static FieldAttributes FieldVisibilityAttributeFor(Field field)
+        private static TypeMemberVisibility FieldVisibilityAttributeFor(Field field)
         {
             if (field.IsProtected)
-                return FieldAttributes.Family;
+                return field.IsInternal ? TypeMemberVisibility.FamilyOrAssembly : TypeMemberVisibility.Family;
             if (field.IsPublic)
-                return FieldAttributes.Public;
+                return TypeMemberVisibility.Public;
             if (field.IsInternal)
-                return FieldAttributes.Assembly;
-            return FieldAttributes.Private;
+                return TypeMemberVisibility.Assembly;
+            return TypeMemberVisibility.Private;
         }
 
-        static readonly Type IsVolatileType = typeof(System.Runtime.CompilerServices.IsVolatile);
+        private static readonly Type IsVolatileType = typeof(System.Runtime.CompilerServices.IsVolatile);
 
-        static Type[] GetFieldRequiredCustomModifiers(Field field)
+        private static Type[] GetFieldRequiredCustomModifiers(Field field)
         {
             if (field.IsVolatile)
                 return new[] { IsVolatileType };
             return Type.EmptyTypes;
         }
 
-        ParameterAttributes GetParameterAttributes(ParameterDeclaration param)
-        {
-            return ParameterAttributes.None;
-        }
-
         private void DefineEvent(NamedTypeDefinition typeBuilder, Event node)
         {
-            var builder = typeBuilder.DefineEvent(node.Name, EventAttributes.None, GetSystemType(node.Type));
-            builder.SetAddOnMethod(DefineEventMethod(typeBuilder, node.Add));
-            builder.SetRemoveOnMethod(DefineEventMethod(typeBuilder, node.Remove));
-            if (node.Raise != null)
-                builder.SetRaiseMethod(DefineEventMethod(typeBuilder, node.Raise));
+            var builder = new EventDefinition
+            {
+                Name = _nameTable.GetNameFor(node.Name),
+                Type = GetTypeReference(GetSystemType(node.Type)),
+                ContainingTypeDefinition = typeBuilder,
+                Adder = DefineEventMethod(typeBuilder, node.Add),
+                Remover = DefineEventMethod(typeBuilder, node.Remove),
+                Caller = node.Raise != null ? DefineEventMethod(typeBuilder, node.Raise) : null
+            };
             SetBuilder(node, builder);
+            typeBuilder.Events.Add(builder);
         }
 
         private MethodDefinition DefineEventMethod(NamedTypeDefinition typeBuilder, Method method)
         {
-            return DefineMethod(typeBuilder, method, MethodAttributes.SpecialName | GetMethodAttributes(method));
+            var result = DefineMethod(typeBuilder, method, GetMethodAttributes(method));
+            result.IsSpecialName = true;
+            return result;
         }
 
         private void DefineProperty(NamedTypeDefinition typeBuilder, Property property)
@@ -4897,22 +4898,27 @@ namespace Boo.Lang.Compiler.Steps
                 ? property.ExplicitInfo.InterfaceType.Name + "." + property.Name
                 : property.Name;
 
-            var builder = typeBuilder.DefineProperty(name,
-                                                    PropertyAttributesFor(property),
-                                                    GetSystemType(property.Type),
-                                                    GetParameterTypes(property.Parameters));
+            var builder = new PropertyDefinition
+            {
+                Name = _nameTable.GetNameFor(name),
+                Type = GetTypeReference(GetSystemType(property.Type)),
+                ContainingTypeDefinition = typeBuilder,
+                Parameters = GetParameterTypes(property.Parameters)
+            };
+            SetPropertyAttributesFor(property, builder);
             var getter = property.Getter;
             if (getter != null)
-                builder.SetGetMethod(DefinePropertyAccessor(typeBuilder, property, getter));
+                builder.Getter = DefinePropertyAccessor(typeBuilder, property, getter);
 
             var setter = property.Setter;
             if (setter != null)
-                builder.SetSetMethod(DefinePropertyAccessor(typeBuilder, property, setter));
+                builder.Setter = DefinePropertyAccessor(typeBuilder, property, setter);
 
             if (GetEntity(property).IsDuckTyped)
-                builder.SetCustomAttribute(CreateDuckTypedCustomAttribute());
+                builder.Attributes = new System.Collections.Generic.List<ICustomAttribute>{CreateDuckTypedCustomAttribute()};
 
             SetBuilder(property, builder);
+            typeBuilder.Properties.Add(builder);
         }
 
         private MethodDefinition DefinePropertyAccessor(NamedTypeDefinition typeBuilder, Property property, Method accessor)
@@ -4924,15 +4930,19 @@ namespace Boo.Lang.Compiler.Steps
 
         private void DefineField(NamedTypeDefinition typeBuilder, Field field)
         {
-            var builder = typeBuilder.DefineField(field.Name,
-                                                GetSystemType(field),
-                                                GetFieldRequiredCustomModifiers(field),
-                                                Type.EmptyTypes,
-                                                FieldAttributesFor(field));
+            var builder = new FieldDefinition
+            {
+                Name = _nameTable.GetNameFor(field.Name),
+                Type = GetTypeReference(GetSystemType(field)),
+                ContainingTypeDefinition = typeBuilder
+            };
+            GetFieldRequiredCustomModifiers(field, builder);
+            SetFieldAttributesFor(field, builder);
             SetBuilder(field, builder);
+            typeBuilder.Fields.Add(builder);
         }
 
-        delegate ParameterDefinition ParameterFactory(int index, ParameterAttributes attributes, string name);
+        private delegate ParameterDefinition ParameterFactory(int index, string name);
 
         private void DefineParameters(MethodDefinition builder, ParameterDeclarationCollection parameters)
         {
@@ -4943,7 +4953,7 @@ namespace Boo.Lang.Compiler.Steps
         {
             for (int i = 0; i < parameters.Count; ++i)
             {
-                ParameterDefinition paramBuilder = defineParameter(i + 1, GetParameterAttributes(parameters[i]), parameters[i].Name);
+                ParameterDefinition paramBuilder = defineParameter(i + 1, parameters[i].Name);
                 if (parameters[i].IsParamArray)
                 {
                     SetParamArrayAttribute(paramBuilder);
@@ -4952,27 +4962,23 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        private void SetParamArrayAttribute(ParameterDefinition builder)
-        {
-            builder.SetCustomAttribute(
-                new CustomAttribute(
-                    ParamArrayAttribute_Constructor,
-                    new object[0]));
+	    private void SetParamArrayAttribute(ParameterDefinition builder)
+	    {
+            if (builder.Attributes == null)
+                builder.Attributes = new System.Collections.Generic.List<ICustomAttribute>();
+	        builder.Attributes.Add(new CustomAttribute {Type = GetTypeReference<ParamArrayAttribute>() });
+	}
 
+        private static void SetImplementationFlagsFor(Method method, MethodDefinition builder)
+        {
+            if (method.IsRuntime)
+                builder.IsRuntimeImplemented = true;
+            else builder.IsCil = true;
         }
 
-        static MethodImplAttributes ImplementationFlagsFor(Method method)
+        private MethodDefinition DefineMethod(NamedTypeDefinition typeBuilder, Method method)
         {
-            return method.IsRuntime
-                ? MethodImplAttributes.Runtime
-                : MethodImplAttributes.Managed;
-        }
-
-        MethodDefinition DefineMethod(NamedTypeDefinition typeBuilder, Method method, MethodAttributes attributes)
-        {
-            ParameterDeclarationCollection parameters = method.Parameters;
-
-            MethodAttributes methodAttributes = GetMethodAttributes(method) | attributes;
+            var parameters = method.Parameters;
 
             string name;
             if (method.ExplicitInfo != null)
@@ -4984,8 +4990,13 @@ namespace Boo.Lang.Compiler.Steps
                 name = method.Name;
             }
 
-            MethodDefinition builder = typeBuilder.DefineMethod(name,
-                                                             methodAttributes);
+            var builder = new MethodDefinition
+            {
+                Name = _nameTable.GetNameFor(name),
+                ContainingTypeDefinition = typeBuilder
+            };
+
+            GetMethodAttributes(method, builder);
 
             if (method.GenericParameters.Count != 0)
             {
@@ -4999,18 +5010,21 @@ namespace Boo.Lang.Compiler.Steps
             {
                 returnType = TypeSystemServices.VoidType;
             }
-            builder.SetReturnType(GetSystemType(returnType));
+            builder.Type = GetTypeReference(GetSystemType(returnType));
 
-            builder.SetImplementationFlags(ImplementationFlagsFor(method));
+            SetImplementationFlagsFor(method, builder);
 
             DefineParameters(builder, parameters);
 
             SetBuilder(method, builder);
+            typeBuilder.Methods.Add(builder);
 
-            IMethod methodEntity = GetEntity(method);
+            var methodEntity = GetEntity(method);
             if (methodEntity.IsDuckTyped)
             {
-                builder.SetCustomAttribute(CreateDuckTypedCustomAttribute());
+                if (builder.Attributes == null)
+                    builder.Attributes = new System.Collections.Generic.List<ICustomAttribute>();
+                builder.Attributes.Add(CreateDuckTypedCustomAttribute());
             }
             return builder;
         }
@@ -5021,7 +5035,7 @@ namespace Boo.Lang.Compiler.Steps
                 return;
 
             NamedTypeDefinition type = GetTypeBuilder(typeDefinition);
-            if (type.IsGenericType)
+            if (type.IsGeneric)
                 return; //early-bound, do not redefine generic parameters again
 
             if (typeDefinition.GenericParameters.Count > 0)
@@ -5035,11 +5049,8 @@ namespace Boo.Lang.Compiler.Steps
         /// </summary>
         private void DefineGenericParameters(NamedTypeDefinition builder, GenericParameterDeclaration[] parameters)
         {
-            string[] names = Array.ConvertAll<GenericParameterDeclaration, string>(
-                parameters,
-                delegate (GenericParameterDeclaration gpd) { return gpd.Name; });
-
-            GenericTypeParameterBuilder[] builders = builder.DefineGenericParameters(names);
+            var builders = parameters.Select(gpd => new GenericTypeParameter { Name = _nameTable.GetNameFor(gpd.Name), DefiningType = builder }).ToArray();
+            builder.GenericParameters = new System.Collections.Generic.List<IGenericTypeParameter>(builders);
 
             DefineGenericParameters(builders, parameters);
         }
@@ -5049,16 +5060,13 @@ namespace Boo.Lang.Compiler.Steps
         /// </summary>
         private void DefineGenericParameters(MethodDefinition builder, GenericParameterDeclaration[] parameters)
         {
-            string[] names = Array.ConvertAll<GenericParameterDeclaration, string>(
-                parameters,
-                delegate (GenericParameterDeclaration gpd) { return gpd.Name; });
-
-            GenericTypeParameterBuilder[] builders = builder.DefineGenericParameters(names);
+            var builders = parameters.Select(gpd => new GenericMethodParameter() { Name = _nameTable.GetNameFor(gpd.Name), DefiningMethod = builder }).ToArray();
+            builder.GenericParameters = new System.Collections.Generic.List<IGenericMethodParameter>(builders);
 
             DefineGenericParameters(builders, parameters);
         }
 
-        private void DefineGenericParameters(GenericTypeParameterBuilder[] builders, GenericParameterDeclaration[] declarations)
+        private void DefineGenericParameters(GenericParameter[] builders, GenericParameterDeclaration[] declarations)
         {
             for (int i = 0; i < builders.Length; i++)
             {
@@ -5067,30 +5075,26 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        private void DefineGenericParameter(InternalGenericParameter parameter, GenericTypeParameterBuilder builder)
+        private void DefineGenericParameter(InternalGenericParameter parameter, GenericParameter builder)
         {
-            // Set base type constraint
-            if (parameter.BaseType != TypeSystemServices.ObjectType)
+            if (parameter.BaseType != TypeSystemServices.ObjectType || parameter.GetInterfaces().Length > 0)
             {
-                builder.SetBaseTypeConstraint(GetSystemType(parameter.BaseType));
+                builder.Constraints = new System.Collections.Generic.List<ITypeReference>();
+                // Set base type constraint
+                if (parameter.BaseType != TypeSystemServices.ObjectType)
+                {
+                    builder.Constraints.Add(GetTypeReference(GetSystemType(parameter.BaseType)));
+                }
+                builder.Constraints.AddRange(parameter.GetInterfaces().Select(t => GetTypeReference(GetSystemType(t))));
             }
 
-            // Set interface constraints
-            Type[] interfaceTypes = Array.ConvertAll<IType, Type>(
-                parameter.GetInterfaces(), GetSystemType);
-
-            builder.SetInterfaceConstraints(interfaceTypes);
-
             // Set special attributes
-            GenericParameterAttributes attributes = GenericParameterAttributes.None;
             if (parameter.IsClass)
-                attributes |= GenericParameterAttributes.ReferenceTypeConstraint;
+                builder.MustBeReferenceType = true;
             if (parameter.IsValueType)
-                attributes |= GenericParameterAttributes.NotNullableValueTypeConstraint;
+                builder.MustBeValueType = true;
             if (parameter.MustHaveDefaultConstructor)
-                attributes |= GenericParameterAttributes.DefaultConstructorConstraint;
-
-            builder.SetGenericParameterAttributes(attributes);
+                builder.MustHaveDefaultConstructor = true;
         }
 
         private CustomAttribute CreateDuckTypedCustomAttribute()
@@ -5104,15 +5108,15 @@ namespace Boo.Lang.Compiler.Steps
                                                                        CallingConventions.Standard,
                                                                        GetParameterTypes(constructor.Parameters));
 
-            builder.SetImplementationFlags(ImplementationFlagsFor(constructor));
+            SetImplementationFlagsFor(constructor, builder);
             DefineParameters(builder, constructor.Parameters);
 
             SetBuilder(constructor, builder);
         }
 
-        bool IsEnumDefinition(TypeMember type)
+        private static bool IsEnumDefinition(TypeMember type)
         {
-            return NodeType.EnumDefinition == type.NodeType;
+            return type.NodeType == NodeType.EnumDefinition;
         }
 
         private void DefineType(TypeDefinition typeDefinition)
@@ -5120,13 +5124,13 @@ namespace Boo.Lang.Compiler.Steps
             SetBuilder(typeDefinition, CreateTypeBuilder(typeDefinition));
         }
 
-        bool IsValueType(TypeMember type)
+	    private static bool IsValueType(TypeMember type)
         {
-            IType entity = type.Entity as IType;
+            var entity = type.Entity as IType;
             return null != entity && entity.IsValueType;
         }
 
-        InternalLocal GetInternalLocal(Node local)
+        private InternalLocal GetInternalLocal(Node local)
         {
             return (InternalLocal)GetEntity(local);
         }
@@ -5176,7 +5180,7 @@ namespace Boo.Lang.Compiler.Steps
             return typeBuilder;
         }
 
-        private string AnnotateGenericTypeName(TypeDefinition typeDef, string name)
+        private static string AnnotateGenericTypeName(TypeDefinition typeDef, string name)
         {
             if (typeDef.HasGenericParameters)
             {
@@ -5187,29 +5191,31 @@ namespace Boo.Lang.Compiler.Steps
 
         private void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, NamedTypeDefinition typeBuilder)
         {
-            foreach (TypeReference baseType in typeDefinition.BaseTypes)
+            foreach (Ast.TypeReference baseType in typeDefinition.BaseTypes)
             {
-                Type type = GetSystemType(baseType);
+                var type = GetSystemType(baseType);
 
                 // For some reason you can't call IsClass on constructed types created at compile time,
                 // so we'll ask the generic definition instead
                 if ((type.IsGenericType && type.GetGenericTypeDefinition().IsClass) || (type.IsClass))
                 {
-                    typeBuilder.SetParent(type);
+                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>{GetTypeReference(type)};
                 }
                 else
                 {
-                    typeBuilder.AddInterfaceImplementation(type);
+                    if (typeBuilder.Interfaces == null)
+                        typeBuilder.Interfaces = new System.Collections.Generic.List<ITypeReference>();
+                    typeBuilder.Interfaces.Add(GetTypeReference(type));
                 }
             }
         }
 
-        private void NotImplemented(string feature)
+        private static void NotImplemented(string feature)
         {
             throw new NotImplementedException(feature);
         }
 
-        CustomAttribute GetCustomAttributeBuilder(Attribute node)
+        private CustomAttribute GetCustomAttributeBuilder(Attribute node)
         {
             var constructor = (IConstructor)GetEntity(node);
             var constructorInfo = GetConstructorInfo(constructor);
@@ -5226,7 +5232,7 @@ namespace Boo.Lang.Compiler.Steps
             return new CustomAttribute(constructorInfo, constructorArgs);
         }
 
-        List<MetadataNamedArgument> GetNamedValues(ExpressionPairCollection values)
+        private List<MetadataNamedArgument> GetNamedValues(ExpressionPairCollection values)
         {
             var result = new List<MetadataNamedArgument>();
             foreach (ExpressionPair pair in values)
@@ -5255,7 +5261,7 @@ namespace Boo.Lang.Compiler.Steps
             return result;
         }
 
-        object[] ArgumentsForAttributeConstructor(IConstructor ctor, ExpressionCollection args)
+        private object[] ArgumentsForAttributeConstructor(IConstructor ctor, ExpressionCollection args)
         {
             var varargs = ctor.AcceptVarArgs;
             var parameters = ctor.GetParameters();
@@ -5290,7 +5296,7 @@ namespace Boo.Lang.Compiler.Steps
                     return new MetadataConstant{ Type = GetTypeReference<string>(), Value = ((StringLiteralExpression) expression).Value };
 
                 case NodeType.CharLiteralExpression:
-                    return new MetadataConstant { Type = GetTypeReference<char>(), Value =  ((CharLiteralExpression)expression).Value[0] };
+                    return new MetadataConstant { Type = GetTypeReference<char>(), Value = ((CharLiteralExpression)expression).Value[0] };
 
                 case NodeType.BoolLiteralExpression:
                     return new MetadataConstant { Type = GetTypeReference<bool>(), Value = ((BoolLiteralExpression)expression).Value };
@@ -5305,7 +5311,7 @@ namespace Boo.Lang.Compiler.Steps
                                             ((DoubleLiteralExpression)expression).Value);
 
                 case NodeType.TypeofExpression:
-                    return GetSystemType(((TypeofExpression)expression).Type);
+                    return new MetadataConstant{Type = GetTypeReference<Type>(), Value = GetSystemType(((TypeofExpression) expression).Type)};
 
                 case NodeType.CastExpression:
                     return GetValue(expectedType, ((CastExpression)expression).Target);
@@ -5318,12 +5324,12 @@ namespace Boo.Lang.Compiler.Steps
         private IMetadataConstant GetComplexExpressionValue(IType expectedType, Expression expression)
         {
             IEntity tag = GetEntity(expression);
-            if (EntityType.Type == tag.EntityType)
-                return GetSystemType(expression);
+            if (tag.EntityType == EntityType.Type)
+                return new MetadataConstant{Type = GetTypeReference<Type>(), Value = GetSystemType(expression)};
 
             if (EntityType.Field == tag.EntityType)
             {
-                IField field = (IField)tag;
+                var field = (IField)tag;
                 if (field.IsLiteral)
                 {
                     //Scenario:
@@ -5337,7 +5343,7 @@ namespace Boo.Lang.Compiler.Steps
                     //If field.StaticValue is an AST Expression, call GetValue() on it
                     if (field.StaticValue is Expression)
                         return GetValue(expectedType, field.StaticValue as Expression);
-                    return field.StaticValue;
+                    return new MetadataConstant{Type = GetTypeReference(field.StaticValue.GetType()), Value = field.StaticValue};
                 }
             }
 
@@ -5347,11 +5353,8 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMetadataConstant ConvertValue(IType expectedType, object value)
         {
-            if (expectedType.IsEnum)
-            {
-                return Convert.ChangeType(value, GetEnumUnderlyingType(expectedType));
-            }
-            return Convert.ChangeType(value, GetSystemType(expectedType));
+            var newType = expectedType.IsEnum ? GetEnumUnderlyingType(expectedType) : GetSystemType(expectedType);
+            return new MetadataConstant { Type = GetTypeReference(newType), Value = Convert.ChangeType(value, newType) };
         }
 
         private static Type GetEnumUnderlyingType(EnumDefinition node)
@@ -5416,12 +5419,12 @@ namespace Boo.Lang.Compiler.Steps
             return Path.GetFileNameWithoutExtension(fname);
         }
 
-        string GetTargetDirectory(string fname)
+        private string GetTargetDirectory(string fname)
         {
             return Permissions.WithDiscoveryPermission(() => Path.GetDirectoryName(Path.GetFullPath(fname)));
         }
 
-        string BuildOutputAssemblyName()
+        private string BuildOutputAssemblyName()
         {
             string configuredOutputAssembly = Parameters.OutputAssembly;
             if (!string.IsNullOrEmpty(configuredOutputAssembly))
@@ -5430,7 +5433,7 @@ namespace Boo.Lang.Compiler.Steps
             string outputAssembly = CompileUnit.Modules[0].Name;
             if (!HasDllOrExeExtension(outputAssembly))
             {
-                if (CompilerOutputType.Library == Parameters.OutputType)
+                if (Parameters.OutputType == CompilerOutputType.Library)
                     outputAssembly += ".dll";
                 else
                     outputAssembly += ".exe";
@@ -5438,12 +5441,12 @@ namespace Boo.Lang.Compiler.Steps
             return TryToGetFullPath(outputAssembly);
         }
 
-        private string TryToGetFullPath(string path)
+        private static string TryToGetFullPath(string path)
         {
             return Permissions.WithDiscoveryPermission(() => Path.GetFullPath(path)) ?? path;
         }
 
-        private bool HasDllOrExeExtension(string fname)
+        private static bool HasDllOrExeExtension(string fname)
         {
             var extension = Path.GetExtension(fname);
             switch (extension.ToLower())
@@ -5451,8 +5454,9 @@ namespace Boo.Lang.Compiler.Steps
                 case ".dll":
                 case ".exe":
                     return true;
+                default:
+                    return false;
             }
-            return false;
         }
 
         private void DefineResources()
@@ -5461,14 +5465,14 @@ namespace Boo.Lang.Compiler.Steps
                 resource.WriteResource(_sreResourceService);
         }
 
-        SREResourceService _sreResourceService;
+        private SREResourceService _sreResourceService;
 
         sealed class SREResourceService : IResourceService
         {
-            AssemblyBuilder _asmBuilder;
-            ModuleBuilder _moduleBuilder;
+            private Assembly _asmBuilder;
+            private Microsoft.Cci.MutableCodeModel.Module _moduleBuilder;
 
-            public SREResourceService(AssemblyBuilder asmBuilder, ModuleBuilder modBuilder)
+            public SREResourceService(Assembly asmBuilder, Microsoft.Cci.MutableCodeModel.Module modBuilder)
             {
                 _asmBuilder = asmBuilder;
                 _moduleBuilder = modBuilder;
@@ -5489,34 +5493,72 @@ namespace Boo.Lang.Compiler.Steps
         private void SetUpAssembly()
         {
             var outputFile = BuildOutputAssemblyName();
+            var baseFilename = Path.GetFileName(outputFile);
             var asmName = CreateAssemblyName(outputFile);
             var assemblyBuilderAccess = GetAssemblyBuilderAccess();
-            var targetDirectory = GetTargetDirectory(outputFile);
-            _asmBuilder = string.IsNullOrEmpty(targetDirectory)
-                ? AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess)
-                : AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, targetDirectory);
+            var rootUnitNamespace = new RootUnitNamespace();
+            _asmBuilder = new Assembly
+            {
+                Name = _nameTable.GetNameFor(Path.GetFileNameWithoutExtension(baseFilename)),
+                ModuleName = _nameTable.GetNameFor(baseFilename),
+                Location = outputFile,
+                Kind = GetModuleKind(),
+                TargetRuntimeVersion = _coreAssembly.TargetRuntimeVersion,
+                AssemblyAttributes = new System.Collections.Generic.List<ICustomAttribute>(),
+                UnitNamespaceRoot = rootUnitNamespace,
+                AssemblyReferences = new System.Collections.Generic.List<IAssemblyReference>(Parameters.References
+                    .Cast<TypeSystem.Reflection.IAssemblyReference>()
+                    .Select(ar => MakeAssemblyReference(ar.Assembly)))
+            };
+            rootUnitNamespace.Unit = _asmBuilder;
 
             if (Parameters.Debug)
             {
                 // ikvm tip:  Set DebuggableAttribute to assembly before
                 // creating the module, to make sure Visual Studio (Whidbey)
                 // picks up the attribute when debugging dynamically generated code.
-                _asmBuilder.SetCustomAttribute(CreateDebuggableAttribute());
+                _asmBuilder.AssemblyAttributes.Add(CreateDebuggableAttribute());
             }
 
-            _asmBuilder.SetCustomAttribute(CreateRuntimeCompatibilityAttribute());
+            _asmBuilder.AssemblyAttributes.Add(CreateRuntimeCompatibilityAttribute());
             _moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), Parameters.Debug);
 
             if (Parameters.Unsafe)
                 _moduleBuilder.SetCustomAttribute(CreateUnverifiableCodeAttribute());
 
-            _sreResourceService = new EmitAssembly.SREResourceService(_asmBuilder, _moduleBuilder);
+            _sreResourceService = new SREResourceService(_asmBuilder, _moduleBuilder);
             ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 
             Context.GeneratedAssemblyFileName = outputFile;
         }
 
-        AssemblyBuilderAccess GetAssemblyBuilderAccess()
+	    private IAssemblyReference MakeAssemblyReference(System.Reflection.Assembly value)
+	    {
+	        var name = value.GetName();
+	        var ident = new AssemblyIdentity(_nameTable.GetNameFor(name.Name), name.CultureInfo.Name, name.Version,
+	            name.GetPublicKeyToken(), name.CodeBase);
+	        return new Microsoft.Cci.Immutable.AssemblyReference(_host, ident);
+	    }
+
+	    private ModuleKind GetModuleKind()
+	    {
+	        switch (Parameters.OutputType)
+	        {
+	            case CompilerOutputType.Auto:
+                    return ContextAnnotations.GetEntryPoint(Context) != null ? ModuleKind.ConsoleApplication : ModuleKind.DynamicallyLinkedLibrary;
+	            case CompilerOutputType.Library:
+	                return ModuleKind.DynamicallyLinkedLibrary;
+	            case CompilerOutputType.ConsoleApplication:
+	                return ModuleKind.ConsoleApplication;
+	            case CompilerOutputType.WindowsApplication:
+	                return ModuleKind.WindowsApplication;
+	            default:
+	                throw new ArgumentOutOfRangeException();
+	        }
+	    }
+
+        /*
+	    AssemblyBuilderAccess GetAssemblyBuilderAccess()
         {
             if (Parameters.GenerateCollectible)
             {
@@ -5534,12 +5576,15 @@ namespace Boo.Lang.Compiler.Steps
             }
 
         }
+        */
 
-        System.Reflection.AssemblyName CreateAssemblyName(string outputFile)
+	    private System.Reflection.AssemblyName CreateAssemblyName(string outputFile)
         {
-            var assemblyName = new System.Reflection.AssemblyName();
-            assemblyName.Name = GetAssemblySimpleName(outputFile);
-            assemblyName.Version = GetAssemblyVersion();
+            var assemblyName = new System.Reflection.AssemblyName
+            {
+                Name = GetAssemblySimpleName(outputFile),
+                Version = GetAssemblyVersion()
+            };
             if (Parameters.DelaySign)
                 assemblyName.SetPublicKey(GetAssemblyKeyPair(outputFile).PublicKey);
             else
@@ -5547,7 +5592,7 @@ namespace Boo.Lang.Compiler.Steps
             return assemblyName;
         }
 
-        StrongNameKeyPair GetAssemblyKeyPair(string outputFile)
+        private System.Reflection.StrongNameKeyPair GetAssemblyKeyPair(string outputFile)
         {
             var attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyNameAttribute");
             if (Parameters.KeyContainer != null)
@@ -5555,7 +5600,7 @@ namespace Boo.Lang.Compiler.Steps
                 if (attribute != null)
                     Warnings.Add(CompilerWarningFactory.HaveBothKeyNameAndAttribute(attribute));
                 if (Parameters.KeyContainer.Length != 0)
-                    return new StrongNameKeyPair(Parameters.KeyContainer);
+                    return new System.Reflection.StrongNameKeyPair(Parameters.KeyContainer);
             }
             else if (attribute != null)
             {
@@ -5594,7 +5639,7 @@ namespace Boo.Lang.Compiler.Steps
             return null;
         }
 
-        string ResolveRelative(string targetFile, string srcFile, string relativeFile)
+	    private string ResolveRelative(string targetFile, string srcFile, string relativeFile)
         {
             //relative to current directory:
             var fname = Path.GetFullPath(relativeFile);
@@ -5616,12 +5661,12 @@ namespace Boo.Lang.Compiler.Steps
             return fname;
         }
 
-        private string ResolveRelativePath(string srcFile, string relativeFile)
+        private static string ResolveRelativePath(string srcFile, string relativeFile)
         {
             return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(srcFile), relativeFile));
         }
 
-        Version GetAssemblyVersion()
+	    private Version GetAssemblyVersion()
         {
             var version = GetAssemblyAttributeValue("System.Reflection.AssemblyVersionAttribute");
             if (version == null)
@@ -5645,47 +5690,42 @@ namespace Boo.Lang.Compiler.Steps
             return new Version(version);
         }
 
-        string GetAssemblyAttributeValue(string name)
+	    private string GetAssemblyAttributeValue(string name)
         {
-            Attribute attribute = GetAssemblyAttribute(name);
-            if (null != attribute)
-                return ((StringLiteralExpression)attribute.Arguments[0]).Value;
-            return null;
+            var attribute = GetAssemblyAttribute(name);
+            return null != attribute ? ((StringLiteralExpression)attribute.Arguments[0]).Value : null;
         }
 
-        Attribute GetAssemblyAttribute(string name)
+	    private Attribute GetAssemblyAttribute(string name)
         {
             return _assemblyAttributes.Get(name).FirstOrDefault();
         }
 
         protected override IType GetExpressionType(Expression node)
         {
-            IType type = base.GetExpressionType(node);
+            var type = base.GetExpressionType(node);
             if (TypeSystemServices.IsUnknown(type)) throw CompilerErrorFactory.InvalidNode(node);
             return type;
         }
 
-        static private MethodDefinition StringFormat
+        private IMethodDefinition StringFormat
         {
-            get
-            {
-                if (null != stringFormat)
-                    return stringFormat;
-                stringFormat = MethodOf<string, object, string>(typeof(string), "Format");
-                return stringFormat;
+            get {
+                return _stringFormat ?? (_stringFormat = MethodOf<string, object, string>(typeof(string), "Format"));
             }
         }
-        static MethodDefinition stringFormat;
 
-        static Dictionary<Type, MethodDefinition> _Nullable_HasValue = new Dictionary<Type, MethodDefinition>();
+	    private static IMethodDefinition _stringFormat;
 
-        static MethodDefinition GetNullableHasValue(Type type)
+        private readonly Dictionary<Type, IMethodDefinition> _nullableHasValue = new Dictionary<Type, IMethodDefinition>();
+
+        private IMethodDefinition GetNullableHasValue(Type type)
         {
-            MethodDefinition method;
-            if (_Nullable_HasValue.TryGetValue(type, out method))
+            IMethodDefinition method;
+            if (_nullableHasValue.TryGetValue(type, out method))
                 return method;
-            method = Types.Nullable.MakeGenericType(new Type[] { type }).GetProperty("HasValue").GetGetMethod();
-            _Nullable_HasValue.Add(type, method);
+            method = _mapper.GetMethod(Types.Nullable.MakeGenericType(new Type[] { type }).GetProperty("HasValue").GetGetMethod());
+            _nullableHasValue.Add(type, method);
             return method;
         }
     }
