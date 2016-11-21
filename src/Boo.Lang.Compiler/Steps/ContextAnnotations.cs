@@ -32,11 +32,13 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ContextAnnotations
+	public static class ContextAnnotations
 	{		
 		private static readonly object EntryPointKey = new object();
 		
 		private static readonly object AssemblyBuilderKey = new object();
+
+        private static readonly object AssemblyBuilderCciKey = new object();
 
 		public static Method GetEntryPoint(CompilerContext context)
 		{
@@ -85,8 +87,27 @@ namespace Boo.Lang.Compiler.Steps
 			context.Properties[AssemblyBuilderKey] = builder;
 		}
 
-		private ContextAnnotations()
-		{
-		}
+	    public static void SetAssemblyBuilderCci(CompilerContext context, Microsoft.Cci.MutableCodeModel.Assembly builder)
+	    {
+            if (null == context)
+            {
+                throw new ArgumentNullException("context");
+            }
+            if (null == builder)
+            {
+                throw new ArgumentNullException("builder");
+            }
+            context.Properties[AssemblyBuilderCciKey] = builder;
+        }
+
+        public static Microsoft.Cci.MutableCodeModel.Assembly GetAssemblyBuilderCci(CompilerContext context)
+        {
+            var builder = (Microsoft.Cci.MutableCodeModel.Assembly)context.Properties[AssemblyBuilderCciKey];
+            if (null == builder)
+            {
+                throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
+            }
+            return builder;
+        }
 	}
 }
