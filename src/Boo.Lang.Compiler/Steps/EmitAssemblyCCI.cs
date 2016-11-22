@@ -204,7 +204,6 @@ namespace Boo.Lang.Compiler.Steps
                 OnModule(module);
 
             EmitAttributes();
-            CreateTypes(types);
         }
 
         private sealed class AttributeEmitVisitor : FastDepthFirstVisitor
@@ -348,152 +347,6 @@ namespace Boo.Lang.Compiler.Steps
             var visitor = new AttributeEmitVisitor(this);
             foreach (Module module in CompileUnit.Modules)
                 module.Accept(visitor);
-        }
-
-        private void CreateTypes(List<TypeDefinition> types)
-        {
-            new TypeCreator(this, types).Run();
-        }
-
-        /// <summary>
-        /// Ensures that all types are created in the correct order.
-        /// </summary>
-        private sealed class TypeCreator
-        {
-            private EmitAssemblyCci _emitter;
-
-            private Set<TypeDefinition> _created;
-
-            private List<TypeDefinition> _types;
-
-            private TypeDefinition _current;
-
-            public TypeCreator(EmitAssemblyCci emitter, List<TypeDefinition> types)
-            {
-                _emitter = emitter;
-                _types = types;
-                _created = new Set<TypeDefinition>();
-            }
-
-            public void Run()
-            {
-                AppDomain domain = Thread.GetDomain();
-                try
-                {
-                    domain.TypeResolve += OnTypeResolve;
-                    CreateTypes();
-                }
-                finally
-                {
-                    domain.TypeResolve -= OnTypeResolve;
-                }
-            }
-
-            private Assembly OnTypeResolve(object sender, ResolveEventArgs args)
-            {
-                Trace("OnTypeResolve('{0}') during '{1}' creation.", args.Name, _current);
-                EnsureInternalFieldDependencies(_current);
-                return _emitter._asmBuilder;
-            }
-
-            private void CreateTypes()
-            {
-                foreach (var type in _types)
-                    CreateType(type);
-            }
-
-            private void CreateType(TypeDefinition type)
-            {
-                if (_created.Contains(type))
-                    return;
-
-                _created.Add(type);
-
-                var saved = _current;
-                _current = type;
-                try
-                {
-                    HandleTypeCreation(type);
-                }
-                catch (Exception e)
-                {
-                    throw CompilerErrorFactory.InternalError(type, string.Format("Failed to create '{0}' type.", type), e);
-                }
-                _current = saved;
-            }
-
-            private void HandleTypeCreation(TypeDefinition type)
-            {
-                Trace("creating type '{0}'", type);
-
-                if (IsNestedType(type))
-                    CreateOuterTypeOf(type);
-
-                CreateRelatedTypes(type);
-                var typeBuilder = (NamedTypeDefinition)_emitter.GetBuilder(type);
-                typeBuilder.CreateType();
-                Trace("type '{0}' successfully created", type);
-            }
-
-            private void CreateOuterTypeOf(TypeMember type)
-            {
-                CreateType(type.DeclaringType);
-            }
-
-            private void CreateRelatedTypes(TypeDefinition typedef)
-            {
-                CreateRelatedTypes(typedef.BaseTypes);
-                foreach (var gpd in typedef.GenericParameters)
-                    CreateRelatedTypes(gpd.BaseTypes);
-            }
-
-            private void EnsureInternalFieldDependencies(TypeDefinition typedef)
-            {
-                foreach (var field in typedef.Members.OfType<Field>())
-                    EnsureInternalDependencies((IType)field.Type.Entity);
-            }
-
-            private void CreateRelatedTypes(IEnumerable<Ast.TypeReference> typerefs)
-            {
-                foreach (var typeref in typerefs)
-                {
-                    var type = _emitter.GetType(typeref);
-                    EnsureInternalDependencies(type);
-                }
-            }
-
-            private void EnsureInternalDependencies(IType type)
-            {
-                var internalType = type as AbstractInternalType;
-                if (null != internalType)
-                {
-                    CreateType(internalType.TypeDefinition);
-                    return;
-                }
-
-                if (type.ConstructedInfo != null)
-                {
-                    EnsureInternalDependencies(type.ConstructedInfo.GenericDefinition);
-                    foreach (var typeArg in type.ConstructedInfo.GenericArguments)
-                        EnsureInternalDependencies(typeArg);
-                }
-            }
-
-            private static bool IsNestedType(TypeMember type)
-            {
-                switch (type.ParentNode.NodeType)
-                {
-                    case NodeType.ClassDefinition:
-                    case NodeType.InterfaceDefinition:
-                        return true;
-                }
-                return false;
-            }
-
-            private void Trace(string format, params object[] args)
-            {
-                _emitter.Context.TraceVerbose(format, args);
-            }
         }
 
         private List<TypeDefinition> CollectTypes()
@@ -2246,22 +2099,40 @@ namespace Boo.Lang.Compiler.Steps
 	    private IMethodReference _builtinsArrayTypedConstructor;
 	    private IMethodReference _builtinsArrayTypedCollectionConstructor;
         private IMethodReference _builtinsTypedMatrixConstructor;
+        private IMethodReference _timeSpanLongConstructor;
+        private IMethodReference _hashConstructor;
+        private IMethodReference _listEmptyConstructor;
+        private IMethodReference _listArrayBoolConstructor;
+	    private IMethodReference _regexConstructor;
+        private IMethodReference _regexConstructorOptions;
+	    private IMethodReference _stringBuilderToString;
+        private IMethodReference _stringBuilderConstructor;
+        private IMethodReference _stringBuilderConstructorString;
+        private IMethodReference _stringBuilderAppendObject;
+        private IMethodReference _stringBuilderAppendString;
 
-	    private void SetupBuiltins()
-	    {
-	        _matrixNameKey = _nameTable.GetNameFor("matrix").UniqueKey;
-            var lengthKey = _nameTable.GetNameFor("Length").UniqueKey;
-	        var arrayType = GetTypeReference<Array>();
-	        _arrayGetLength = arrayType.Properties.Single(p => p.Name.UniqueKey == lengthKey).Getter;
-            var createInstanceKey = _nameTable.GetNameFor("CreateInstance").UniqueKey;
-            _builtinsTypedMatrixConstructor = arrayType.Methods.Single(m => m.Name.UniqueKey == createInstanceKey && ParamsMatch(m, typeof(Type), typeof(int[])));
-	        _builtinsType = GetTypeReference<Builtins>();
-            var arrayKey = _nameTable.GetNameFor("array").UniqueKey;
-	        var arrayConstructors = _builtinsType.Methods.Where(m => m.Name.UniqueKey == arrayKey).ToArray();
-            _builtinsArrayGenericConstructor = arrayConstructors.Single(m => m.IsGeneric);
-	        _builtinsArrayTypedConstructor = arrayConstructors.Single(m => ParamsMatch(m, typeof(Type), typeof(int)));
-            _builtinsArrayTypedCollectionConstructor = arrayConstructors.Single(m => ParamsMatch(m, typeof(Type), typeof(ICollection)));
-	    }
+
+        private void SetupBuiltins()
+        {
+            _matrixNameKey = _nameTable.GetNameFor("matrix").UniqueKey;
+            _arrayGetLength = PropertyOf<Array>("Length").Getter;
+            _builtinsTypedMatrixConstructor = MethodOf<Array>("CreateInstance", typeof(Type), typeof(int[]));
+            _builtinsType = GetTypeReference<Builtins>();
+            _builtinsArrayGenericConstructor = MethodOf<Builtins>("array", typeof(int));
+            _builtinsArrayTypedConstructor = MethodOf<Builtins>("array", typeof(Type), typeof(int));
+            _builtinsArrayTypedCollectionConstructor = MethodOf<Builtins>("array", typeof(Type), typeof(ICollection));
+            _timeSpanLongConstructor = ConstructorOf<TimeSpan>(typeof(long));
+            _hashConstructor = ConstructorOf<Hash>();
+            _listEmptyConstructor = ConstructorOf<List>();
+            _listArrayBoolConstructor = ConstructorOf<List>(typeof(object[]), typeof(bool));
+            _regexConstructor = ConstructorOf<Regex>(typeof(string));
+            _regexConstructorOptions = ConstructorOf<Regex>(typeof(string), typeof(RegexOptions));
+            _stringBuilderToString = MethodOf<StringBuilder>("ToString");
+            _stringBuilderConstructor = ConstructorOf<StringBuilder>();
+            _stringBuilderConstructorString = ConstructorOf<StringBuilder>(typeof(string));
+            _stringBuilderAppendObject = MethodOf<StringBuilder>("Append", typeof(object), typeof(StringBuilder));
+            _stringBuilderAppendString = MethodOf<StringBuilder>("Append", typeof(string), typeof(StringBuilder));
+        }
 
 	    private bool MethodsEqual(IMethodReference m1, IMethodReference m2)
 	    {
@@ -2693,7 +2564,7 @@ namespace Boo.Lang.Compiler.Steps
         public override void OnTimeSpanLiteralExpression(TimeSpanLiteralExpression node)
         {
             EmitLoadLiteral(node.Value.Ticks);
-            _il.Emit(OperationCode.Newobj, TimeSpan_LongConstructor);
+            _il.Emit(OperationCode.Newobj, _timeSpanLongConstructor);
             PushType(TypeSystemServices.TimeSpanType);
         }
 
@@ -2853,7 +2724,7 @@ namespace Boo.Lang.Compiler.Steps
 
         public override void OnHashLiteralExpression(HashLiteralExpression node)
         {
-            _il.Emit(OperationCode.Newobj, Hash_Constructor);
+            _il.Emit(OperationCode.Newobj, _hashConstructor);
 
             var objType = TypeSystemServices.ObjectType;
             var hash_Add = MethodOf<object, object>(typeof(Hash), "Add");
@@ -2880,11 +2751,11 @@ namespace Boo.Lang.Compiler.Steps
             {
                 EmitObjectArray(node.Items);
                 _il.Emit(OperationCode.Ldc_I4_1);
-                _il.Emit(OperationCode.Newobj, List_ArrayBoolConstructor);
+                _il.Emit(OperationCode.Newobj, _listArrayBoolConstructor);
             }
             else
             {
-                _il.Emit(OperationCode.Newobj, List_EmptyConstructor);
+                _il.Emit(OperationCode.Newobj, _listEmptyConstructor);
             }
             PushType(TypeSystemServices.ListType);
         }
@@ -2903,12 +2774,12 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Ldstr, node.Pattern);
             if (options == RegexOptions.None)
             {
-                _il.Emit(OperationCode.Newobj, Regex_Constructor);
+                _il.Emit(OperationCode.Newobj, _regexConstructor);
             }
             else
             {
                 EmitLoadLiteral((int)options);
-                _il.Emit(OperationCode.Newobj, Regex_Constructor_Options);
+                _il.Emit(OperationCode.Newobj, _regexConstructorOptions);
             }
 
             PushType(node.ExpressionType);
@@ -3051,11 +2922,6 @@ namespace Boo.Lang.Compiler.Steps
         public override void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
         {
             Type stringBuilderType = typeof(StringBuilder);
-            IMethodReference constructor = stringBuilderType.GetConstructor(Type.EmptyTypes);
-            IMethodReference constructorString = stringBuilderType.GetConstructor(new Type[] { typeof(string) });
-
-            MethodDefinition appendObject = Methods.InstanceFunctionOf<StringBuilder, object, StringBuilder>(sb => sb.Append);
-            MethodDefinition appendString = Methods.InstanceFunctionOf<StringBuilder, string, StringBuilder>(sb => sb.Append);
             Expression arg0 = node.Expressions[0];
             IType argType = arg0.ExpressionType;
 
@@ -3068,11 +2934,11 @@ namespace Boo.Lang.Compiler.Steps
             {
                 Visit(arg0);
                 PopType();
-                _il.Emit(OperationCode.Newobj, constructorString);
+                _il.Emit(OperationCode.Newobj, _stringBuilderConstructorString);
             }
             else
             {
-                _il.Emit(OperationCode.Newobj, constructor);
+                _il.Emit(OperationCode.Newobj, _stringBuilderConstructor);
                 arg0 = null; /* arg0 is not a string so we want it to be appended below */
             }
 
@@ -3103,15 +2969,15 @@ namespace Boo.Lang.Compiler.Steps
 
                 if (TypeSystemServices.StringType == argType || !string.IsNullOrEmpty(formatString))
                 {
-                    Call(appendString);
+                    Call(_stringBuilderAppendString);
                 }
                 else
                 {
                     EmitCastIfNeeded(TypeSystemServices.ObjectType, argType);
-                    Call(appendObject);
+                    Call(_stringBuilderAppendObject);
                 }
             }
-            Call(stringBuilderType.GetMethod("ToString", Type.EmptyTypes));
+            Call(_stringBuilderToString);
             PushType(TypeSystemServices.StringType);
         }
 
@@ -4240,7 +4106,7 @@ namespace Boo.Lang.Compiler.Steps
             Castclass(expectedSystemType);
         }
 
-        private void Call(IMethodDefinition method)
+        private void Call(IMethodReference method)
         {
             _il.Emit(OperationCode.Call, method);
         }
@@ -4312,6 +4178,23 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        return MethodOf<T1, T2, T3>(GetTypeReference(type), name);
 	    }
+
+        private IMethodDefinition MethodOf<T>(string name, params Type[] args)
+        {
+            var typeRef = GetTypeReference(typeof(T));
+            return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
+        }
+
+        private IMethodDefinition ConstructorOf<T>(params Type[] args)
+        {
+            return MethodOf<T>(".ctor", args);
+        }
+
+        private IPropertyDefinition PropertyOf<T>(string name)
+        {
+            var typeRef = GetTypeReference(typeof(T));
+            return TypeHelper.GetProperty(typeRef, _nameTable.GetNameFor(name));
+        }
 
         private IMethodDefinition UnboxMethodFor(IType type)
         {
@@ -4414,12 +4297,7 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-	    private IMethodDefinition ConstructorOf<T>(params Type[] args)
-	    {
-	        return GetTypeReference(typeof(T)).Methods.Single(m => m.IsConstructor && ParamsMatch(m, args));
-	    }
-
-	    private CustomAttribute CreateDebuggableAttribute()
+        private CustomAttribute CreateDebuggableAttribute()
 	    {
 	        var ctor = ConstructorOf<DebuggableAttribute>(typeof(DebuggableAttribute.DebuggingModes));
 	        return new CustomAttribute {
@@ -5584,9 +5462,9 @@ namespace Boo.Lang.Compiler.Steps
         {
             private readonly Assembly _asmBuilder;
             private readonly Microsoft.Cci.MutableCodeModel.Module _moduleBuilder;
-            private readonly NameTable _nameTable;
+            private readonly INameTable _nameTable;
 
-            public SreResourceService(Assembly asmBuilder, Microsoft.Cci.MutableCodeModel.Module modBuilder, NameTable nameTable)
+            public SreResourceService(Assembly asmBuilder, Microsoft.Cci.MutableCodeModel.Module modBuilder, INameTable nameTable)
             {
                 _asmBuilder = asmBuilder;
                 _moduleBuilder = modBuilder;
