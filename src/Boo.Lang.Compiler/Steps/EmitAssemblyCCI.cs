@@ -2846,8 +2846,7 @@ namespace Boo.Lang.Compiler.Steps
 
         private void CallArrayMethod(IType arrayType, string methodName, Type returnType, Type[] parameterTypes)
         {
-            var method = _moduleBuilder.GetArrayMethod(
-                GetSystemType(arrayType), methodName, CallingConventions.HasThis, returnType, parameterTypes);
+            var method = MethodOf(GetTypeReference(GetSystemType(arrayType)), methodName, parameterTypes);
             Call(method);
             //Call(GetSystemType(arrayType).GetMethod(methodName));
         }
@@ -3471,9 +3470,9 @@ namespace Boo.Lang.Compiler.Steps
 
         private void SetProperty(IProperty property, Expression reference, Expression value, bool leaveValueOnStack)
         {
-            OperationCode callOpCode = OperationCode.Call;
+            var callOpCode = OperationCode.Call;
 
-            MethodDefinition setMethod = GetMethodInfo(property.GetSetMethod());
+            IMethodDefinition setMethod = GetMethodInfo(property.GetSetMethod());
             IType targetType = null;
             if (null != reference)
             {
@@ -3607,7 +3606,7 @@ namespace Boo.Lang.Compiler.Steps
             EmitArray(TypeSystemServices.ObjectType, items);
         }
 
-        const int InlineArrayItemCountLimit = 3;
+	    private const int InlineArrayItemCountLimit = 3;
 
         private void EmitArray(IType type, ExpressionCollection items)
         {
@@ -3658,6 +3657,8 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
+	    private uint _staticDataOffset = 0;
+
         private void EmitPackedArrayInit(IType type, ExpressionCollection items)
         {
             byte[] ba = CreateByteArrayFromLiteralCollection(type, items);
@@ -3671,7 +3672,22 @@ namespace Boo.Lang.Compiler.Steps
             if (!_packedArrays.TryGetValue(ba, out fb))
             {
                 //there is no previously emitted bytearray to reuse, create it then
-                fb = _moduleBuilder.DefineInitializedData(Context.GetUniqueName("newarr"), ba, FieldAttributes.Private);
+                fb = new FieldDefinition
+                {
+                    Name = _nameTable.GetNameFor(Context.GetUniqueName("newarr")),
+                    InternFactory = _host.InternFactory,
+                    Type = GetTypeReference(typeof(byte[])),
+                    ContainingTypeDefinition = _moduleClass,
+                    Visibility = TypeMemberVisibility.Private,
+                    FieldMapping = new SectionBlock
+                    {
+                        PESectionKind = PESectionKind.ConstantData,
+                        Data = new System.Collections.Generic.List<byte>(ba),
+                        Size = (uint)ba.Length,
+                        Offset = _staticDataOffset
+                    }
+                };
+                _staticDataOffset += (uint)ba.Length;
                 _packedArrays.Add(ba, fb);
             }
 
@@ -3680,13 +3696,13 @@ namespace Boo.Lang.Compiler.Steps
             Call(MethodOf<Array, RuntimeFieldHandle>(typeof(System.Runtime.CompilerServices.RuntimeHelpers), "InitializeArray"));
         }
 
-        Dictionary<byte[], FieldDefinition> _packedArrays = new Dictionary<byte[], FieldDefinition>(ValueTypeArrayEqualityComparer<byte>.Default);
+	    private readonly Dictionary<byte[], FieldDefinition> _packedArrays = new Dictionary<byte[], FieldDefinition>(ValueTypeArrayEqualityComparer<byte>.Default);
 
-        byte[] CreateByteArrayFromLiteralCollection(IType type, ExpressionCollection items)
+	    private byte[] CreateByteArrayFromLiteralCollection(IType type, ExpressionCollection items)
         {
-            using (MemoryStream ms = new MemoryStream(items.Count * TypeSystemServices.SizeOf(type)))
+            using (var ms = new MemoryStream(items.Count * TypeSystemServices.SizeOf(type)))
             {
-                using (BinaryWriter writer = new BinaryWriter(ms))
+                using (var writer = new BinaryWriter(ms))
                 {
                     foreach (Expression item in items)
                     {
@@ -3756,34 +3772,35 @@ namespace Boo.Lang.Compiler.Steps
             return TypeSystemServices.IsIntegerNumber(type);
         }
 
-        private MethodDefinition GetToDecimalConversionMethod(IType type)
+        private IMethodDefinition GetToDecimalConversionMethod(IType type)
         {
-            MethodDefinition method =
-                typeof(Decimal).GetMethod("op_Implicit", new Type[] { GetSystemType(type) });
+            var method =
+                typeof(decimal).GetMethod("op_Implicit", new Type[] { GetSystemType(type) });
 
             if (method == null)
             {
                 method =
-                    typeof(Decimal).GetMethod("op_Explicit", new Type[] { GetSystemType(type) });
+                    typeof(decimal).GetMethod("op_Explicit", new Type[] { GetSystemType(type) });
                 if (method == null)
                 {
                     NotImplemented(string.Format("Numeric promotion for {0} to decimal not implemented!", type));
+                    return null; //unreachable; NotImplemented throws.  Just silencing a compiler warning
                 }
             }
-            return method;
+            return MethodOf<decimal>(method.Name, method.GetParameters().Select(p => p.ParameterType).ToArray());
         }
 
-        private MethodDefinition GetFromDecimalConversionMethod(IType type)
+        private IMethodDefinition GetFromDecimalConversionMethod(IType type)
         {
             string toType = "To" + type.Name;
 
-            MethodDefinition method =
-                typeof(Decimal).GetMethod(toType, new Type[] { typeof(Decimal) });
+            var method =
+                typeof(decimal).GetMethod(toType, new Type[] { typeof(decimal) });
             if (method == null)
             {
                 NotImplemented(string.Format("Numeric promotion for decimal to {0} not implemented!", type));
             }
-            return method;
+            return MethodOf<decimal>(method.Name, method.GetParameters().Select(p => p.ParameterType).ToArray());
         }
 
         private OperationCode GetArithmeticOpCode(IType type, BinaryOperatorType op)
@@ -3813,7 +3830,7 @@ namespace Boo.Lang.Compiler.Steps
             throw new ArgumentException("op");
         }
 
-        OperationCode GetLoadEntityOpCode(IType type)
+        private OperationCode GetLoadEntityOpCode(IType type)
         {
             if (IsByAddress(type))
                 return OperationCode.Ldelema;
@@ -3871,7 +3888,7 @@ namespace Boo.Lang.Compiler.Steps
             return OperationCode.Ldelema;
         }
 
-        OperationCode GetStoreEntityOpCode(IType tag)
+        private OperationCode GetStoreEntityOpCode(IType tag)
         {
             if (tag.IsValueType || tag is TypeSystem.IGenericParameter)
             {
@@ -3914,7 +3931,7 @@ namespace Boo.Lang.Compiler.Steps
             return OperationCode.Stelem_Ref;
         }
 
-        OperationCode GetLoadRefParamCode(IType tag)
+        private OperationCode GetLoadRefParamCode(IType tag)
         {
             if (tag.IsValueType)
             {
@@ -4003,13 +4020,13 @@ namespace Boo.Lang.Compiler.Steps
             return OperationCode.Stind_Ref;
         }
 
-        bool IsAssignableFrom(IType expectedType, IType actualType)
+        private bool IsAssignableFrom(IType expectedType, IType actualType)
         {
             return (IsPtr(expectedType) && IsPtr(actualType))
                 || TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
         }
 
-        bool IsPtr(IType type)
+        private bool IsPtr(IType type)
         {
             return (type == TypeSystemServices.IntPtrType)
                 || (type == TypeSystemServices.UIntPtrType);
@@ -4116,14 +4133,15 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Castclass, expectedSystemType);
         }
 
-        private MethodDefinition _RuntimeServices_Coerce;
+        private IMethodDefinition _runtimeServicesCoerce;
 
-        private MethodDefinition RuntimeServices_Coerce
+        private IMethodDefinition RuntimeServices_Coerce
         {
             get
             {
-                if (_RuntimeServices_Coerce != null) return _RuntimeServices_Coerce;
-                return _RuntimeServices_Coerce = Types.RuntimeServices.GetMethod("Coerce", new Type[] { Types.Object, Types.Type });
+                if (_runtimeServicesCoerce != null) return _runtimeServicesCoerce;
+                MethodOf<RuntimeServices>("Coerce", typeof(object), typeof(Type));
+                return _runtimeServicesCoerce = MethodOf<RuntimeServices>("Coerce", typeof(object), typeof(Type));
             }
         }
 
@@ -4178,6 +4196,11 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        return MethodOf<T1, T2, T3>(GetTypeReference(type), name);
 	    }
+
+        private IMethodDefinition MethodOf(INamedTypeDefinition typeRef, string name, params Type[] args)
+        {
+            return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
+        }
 
         private IMethodDefinition MethodOf<T>(string name, params Type[] args)
         {
@@ -4340,7 +4363,7 @@ namespace Boo.Lang.Compiler.Steps
         {
             if (Context.Parameters.GenerateInMemory)
             {
-                Context.GeneratedAssembly = _asmBuilder;
+                Context.GeneratedAssemblyCci = _asmBuilder;
             }
 
             if (CompilerOutputType.Library != Parameters.OutputType)

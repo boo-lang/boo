@@ -178,6 +178,8 @@ namespace Boo.Lang.Compiler
 			set { _generatedAssembly = value; }
 		}
 
+        public Microsoft.Cci.MutableCodeModel.Assembly GeneratedAssemblyCci { get; set; }
+
 		public string GetUniqueName(params string[] components)
 		{
 			return My<UniqueNameProvider>.Instance.GetUniqueName(components);
