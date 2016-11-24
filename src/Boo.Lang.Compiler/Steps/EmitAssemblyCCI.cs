@@ -44,6 +44,7 @@ using Microsoft.Cci.MutableCodeModel;
 using Microsoft.Cci.ReflectionImporter;
 
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Steps.EmitCCI;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
@@ -86,8 +87,6 @@ namespace Boo.Lang.Compiler.Steps
 	    private Microsoft.Cci.MutableCodeModel.Module _moduleBuilder;
 	    private NamespaceTypeDefinition _moduleClass;
 
-        private Hashtable _symbolDocWriters = new Hashtable();
-
         // IL generation state
         private ILGenerator _il;
         private Method _method;       //current method
@@ -114,6 +113,8 @@ namespace Boo.Lang.Compiler.Steps
         private readonly AttributeCollection _assemblyAttributes = new AttributeCollection();
 
         private LoopInfoCci _currentLoopInfo;
+
+        private BooSourceDocument _currentDocument;
 
         private void EnterLoop(ILGeneratorLabel breakLabel, ILGeneratorLabel continueLabel)
         {
@@ -173,9 +174,9 @@ namespace Boo.Lang.Compiler.Steps
 
             // Define the unmanaged version information resource, which 
             // contains the attribute informaion applied earlier
-            _asmBuilder.DefineVersionInfoResource();
-
-            _moduleBuilder.CreateGlobalFunctions(); //setup global .data
+            // MW: Commenting out as this appears to create a resource containing no actual version info.
+            // https://github.com/dotnet/coreclr/blob/f8b8b6ab80f1c5b30cc04676ca2e084ce200161e/src/mscorlib/src/System/Reflection/Emit/AssemblyBuilder.cs#L1418
+            // _asmBuilder.DefineVersionInfoResource();
         }
 
         private void GatherAssemblyAttributes()
@@ -385,7 +386,6 @@ namespace Boo.Lang.Compiler.Steps
             base.Dispose();
 
             _asmBuilder = null;
-            _symbolDocWriters.Clear();
             _il = null;
             _returnStatements = 0;
             _hasLeaveWithStoredValue = false;
@@ -410,6 +410,7 @@ namespace Boo.Lang.Compiler.Steps
         {
             _perModuleRawArrayIndexing = AstAnnotations.IsRawIndexing(module);
             _checked = AstAnnotations.IsChecked(module, Parameters.Checked);
+            _currentDocument = (BooSourceDocument)module[AstAnnotations.CCI_DOC_KEY];
             Visit(module.Members);
         }
 
@@ -1729,7 +1730,7 @@ namespace Boo.Lang.Compiler.Steps
         {
             var doubleType = TypeSystemServices.DoubleType;
             LoadOperandsWithType(doubleType, node);
-            Call(MethodOf<double, double, double>(typeof(Math), "Pow"));
+            Call(_mathPow);
             PushType(doubleType);
         }
 
@@ -1764,7 +1765,7 @@ namespace Boo.Lang.Compiler.Steps
             IType type = GetExpressionType(expression);
             if (TypeSystemServices.ObjectType == type || TypeSystemServices.DuckType == type)
             {
-                Call(MethodOf<object, bool>(typeof(RuntimeServices), "ToBool"));
+                Call(_runtimeServicesToBoolObject);
                 return true;
             }
             else if (TypeSystemServices.IsNullable(type))
@@ -1779,7 +1780,7 @@ namespace Boo.Lang.Compiler.Steps
             }
             else if (TypeSystemServices.StringType == type)
             {
-                Call(MethodOf<string, bool>(typeof(string), "IsNullOrEmpty"));
+                Call(_stringIsNullOrEmpty);
                 if (!inNotContext)
                     EmitIntNot(); //reverse result (true for not empty)
                 else
@@ -1814,7 +1815,7 @@ namespace Boo.Lang.Compiler.Steps
             }
             else if (TypeSystemServices.DecimalType == type)
             {
-                Call(MethodOf<decimal, bool>(typeof(RuntimeServices), "ToBool"));
+                Call(_runtimeServicesToBoolDecimal);
                 return true;
             }
             else if (!type.IsValueType)
@@ -2110,7 +2111,14 @@ namespace Boo.Lang.Compiler.Steps
         private IMethodReference _stringBuilderConstructorString;
         private IMethodReference _stringBuilderAppendObject;
         private IMethodReference _stringBuilderAppendString;
-
+        private IMethodReference _mathPow;
+	    private IMethodReference _runtimeServicesToBoolObject;
+	    private IMethodReference _runtimeServicesToBoolDecimal;
+	    private IMethodReference _runtimeServicesNormalizeArrayIndex;
+	    private IMethodReference _stringIsNullOrEmpty;
+	    private IMethodReference _typeGetTypeFromHandle;
+	    private IMethodReference _hashAdd;
+	    private IMethodReference _runtimeHelpersInitializeArray;
 
         private void SetupBuiltins()
         {
@@ -2130,8 +2138,17 @@ namespace Boo.Lang.Compiler.Steps
             _stringBuilderToString = MethodOf<StringBuilder>("ToString");
             _stringBuilderConstructor = ConstructorOf<StringBuilder>();
             _stringBuilderConstructorString = ConstructorOf<StringBuilder>(typeof(string));
-            _stringBuilderAppendObject = MethodOf<StringBuilder>("Append", typeof(object), typeof(StringBuilder));
-            _stringBuilderAppendString = MethodOf<StringBuilder>("Append", typeof(string), typeof(StringBuilder));
+            _stringBuilderAppendObject = MethodOf<StringBuilder>("Append", typeof(object));
+            _stringBuilderAppendString = MethodOf<StringBuilder>("Append", typeof(string));
+            _mathPow = MethodOf(GetTypeReference(typeof(Math)), "Pow", typeof(double), typeof(double));
+            _runtimeServicesToBoolObject = MethodOf<RuntimeServices>("ToBool", typeof(object));
+            _runtimeServicesToBoolDecimal = MethodOf<RuntimeServices>("ToBool", typeof(decimal));
+            _stringIsNullOrEmpty = MethodOf<string>("IsNullOrEmpty", typeof(string));
+            _typeGetTypeFromHandle = MethodOf<Type>("GetTypeFromHandle", typeof(RuntimeTypeHandle));
+            _hashAdd = MethodOf<Hash>("Add", typeof(object), typeof(object));
+            _runtimeServicesNormalizeArrayIndex = MethodOf<RuntimeServices>("NormalizeArrayIndex", typeof(Array), typeof(int));
+            _runtimeHelpersInitializeArray =
+                MethodOf(GetTypeReference(typeof(System.Runtime.CompilerServices.RuntimeHelpers)), "InitializeArray", typeof(Array), typeof(RuntimeFieldHandle));
         }
 
 	    private bool MethodsEqual(IMethodReference m1, IMethodReference m2)
@@ -2398,7 +2415,7 @@ namespace Boo.Lang.Compiler.Steps
         private void EmitGetTypeFromHandle(Type type)
         {
             _il.Emit(OperationCode.Ldtoken, type);
-            Call(MethodOf<RuntimeTypeHandle, Type>(typeof(Type), "GetTypeFromHandle"));
+            Call(_typeGetTypeFromHandle);
             PushType(TypeSystemServices.TypeType);
         }
 
@@ -2727,14 +2744,13 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Newobj, _hashConstructor);
 
             var objType = TypeSystemServices.ObjectType;
-            var hash_Add = MethodOf<object, object>(typeof(Hash), "Add");
             foreach (var pair in node.Items)
             {
                 Dup();
 
                 LoadExpressionWithType(objType, pair.First);
                 LoadExpressionWithType(objType, pair.Second);
-                _il.Emit(OperationCode.Callvirt, hash_Add);
+                _il.Emit(OperationCode.Callvirt, _hashAdd);
             }
 
             PushType(TypeSystemServices.HashType);
@@ -2894,7 +2910,7 @@ namespace Boo.Lang.Compiler.Steps
                 {
                     Dup();
                     LoadIntExpression(index);
-                    Call(MethodOf<Array, int, int>(typeof(RuntimeServices), "NormalizeArrayIndex"));
+                    Call(_runtimeServicesNormalizeArrayIndex);
                 }
             }
             else
@@ -3531,9 +3547,7 @@ namespace Boo.Lang.Compiler.Steps
         {
             LexicalInfo start = startNode.LexicalInfo;
             if (!start.IsValid) return false;
-
-            ISymbolDocumentWriter writer = GetDocumentWriter(start.FullPath);
-            if (null == writer) return false;
+            if (_currentDocument == null) return false;
 
             // ensure there is no duplicate emitted
             if (_dbgSymbols.Contains(start))
@@ -3546,7 +3560,8 @@ namespace Boo.Lang.Compiler.Steps
 
             try
             {
-                _il.MarkSequencePoint(writer, start.Line, 0, start.Line + 1, 0);
+                ISourceLocation loc = _currentDocument.GetLocation(start);
+                _il.MarkSequencePoint(loc);
             }
             catch (Exception x)
             {
@@ -3561,27 +3576,7 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Nop);
         }
 
-        private ISymbolDocumentWriter GetDocumentWriter(string fname)
-        {
-            ISymbolDocumentWriter writer = GetCachedDocumentWriter(fname);
-            if (null != writer) return writer;
-
-            writer = _moduleBuilder.DefineDocument(
-                fname,
-                Guid.Empty,
-                Guid.Empty,
-                SymDocumentType.Text);
-            _symbolDocWriters.Add(fname, writer);
-
-            return writer;
-        }
-
-        private ISymbolDocumentWriter GetCachedDocumentWriter(string fname)
-        {
-            return (ISymbolDocumentWriter)_symbolDocWriters[fname];
-        }
-
-        bool IsBoolOrInt(IType type)
+        private bool IsBoolOrInt(IType type)
         {
             return TypeSystemServices.BoolType == type ||
                 TypeSystemServices.IntType == type;
@@ -3693,7 +3688,7 @@ namespace Boo.Lang.Compiler.Steps
 
             Dup(); //dup (newarr)
             _il.Emit(OperationCode.Ldtoken, fb);
-            Call(MethodOf<Array, RuntimeFieldHandle>(typeof(System.Runtime.CompilerServices.RuntimeHelpers), "InitializeArray"));
+            Call(_runtimeHelpersInitializeArray);
         }
 
 	    private readonly Dictionary<byte[], FieldDefinition> _packedArrays = new Dictionary<byte[], FieldDefinition>(ValueTypeArrayEqualityComparer<byte>.Default);
@@ -4172,31 +4167,6 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        private IMethodDefinition MethodOf<T1, T2>(ITypeDefinition type, string name)
-        {
-            var t1Type = UnitHelper.FindType(_nameTable, _coreAssembly, typeof(T1).FullName);
-            var t2Type = UnitHelper.FindType(_nameTable, _coreAssembly, typeof(T2).FullName);
-            return TypeHelper.GetMethod(type, _nameTable.GetNameFor(name), t1Type, t2Type);
-        }
-
-        private IMethodDefinition MethodOf<T1, T2>(Type type, string name)
-        {
-            return MethodOf<T1, T2>(GetTypeReference(type), name);
-        }
-
-        private IMethodDefinition MethodOf<T1, T2, T3>(ITypeDefinition type, string name)
-        {
-            var t1Type = UnitHelper.FindType(_nameTable, _coreAssembly, typeof(T1).FullName);
-            var t2Type = UnitHelper.FindType(_nameTable, _coreAssembly, typeof(T2).FullName);
-            var t3Type = UnitHelper.FindType(_nameTable, _coreAssembly, typeof(T3).FullName);
-            return TypeHelper.GetMethod(type, _nameTable.GetNameFor(name), t1Type, t2Type, t3Type);
-        }
-
-	    private IMethodDefinition MethodOf<T1, T2, T3>(Type type, string name)
-	    {
-	        return MethodOf<T1, T2, T3>(GetTypeReference(type), name);
-	    }
-
         private IMethodDefinition MethodOf(INamedTypeDefinition typeRef, string name, params Type[] args)
         {
             return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
@@ -4222,19 +4192,19 @@ namespace Boo.Lang.Compiler.Steps
         private IMethodDefinition UnboxMethodFor(IType type)
         {
             var runtimeServicesType = UnitHelper.FindType(_nameTable, _mapper.GetAssembly(typeof(RuntimeServices).Assembly), "Boo.Lang.Runtime.RuntimeServices");
-            if (type == TypeSystemServices.ByteType) return MethodOf<object, byte>(runtimeServicesType, "UnboxByte");
-            if (type == TypeSystemServices.SByteType) return MethodOf<object, sbyte>(runtimeServicesType, "UnboxSByte");
-            if (type == TypeSystemServices.ShortType) return MethodOf<object, short>(runtimeServicesType, "UnboxInt16");
-            if (type == TypeSystemServices.UShortType) return MethodOf<object, ushort>(runtimeServicesType, "UnboxUInt16");
-            if (type == TypeSystemServices.IntType) return MethodOf<object, int>(runtimeServicesType, "UnboxInt32");
-            if (type == TypeSystemServices.UIntType) return MethodOf<object, uint>(runtimeServicesType, "UnboxUInt32");
-            if (IsLong(type)) return MethodOf<object, long>(runtimeServicesType, "UnboxInt64");
-            if (type == TypeSystemServices.ULongType) return MethodOf<object, ulong>(runtimeServicesType, "UnboxUInt64");
-            if (type == TypeSystemServices.SingleType) return MethodOf<object, float>(runtimeServicesType, "UnboxSingle");
-            if (type == TypeSystemServices.DoubleType) return MethodOf<object, double>(runtimeServicesType, "UnboxDouble");
-            if (type == TypeSystemServices.DecimalType) return MethodOf<object, decimal>(runtimeServicesType, "UnboxDecimal");
-            if (type == TypeSystemServices.BoolType) return MethodOf<object, bool>(runtimeServicesType, "UnboxBoolean");
-            if (type == TypeSystemServices.CharType) return MethodOf<object, char>(runtimeServicesType, "UnboxChar");
+            if (type == TypeSystemServices.ByteType) return MethodOf(runtimeServicesType, "UnboxByte", typeof(object));
+            if (type == TypeSystemServices.SByteType) return MethodOf(runtimeServicesType, "UnboxSByte", typeof(object));
+            if (type == TypeSystemServices.ShortType) return MethodOf(runtimeServicesType, "UnboxInt16", typeof(object));
+            if (type == TypeSystemServices.UShortType) return MethodOf(runtimeServicesType, "UnboxUInt16", typeof(object));
+            if (type == TypeSystemServices.IntType) return MethodOf(runtimeServicesType, "UnboxInt32", typeof(object));
+            if (type == TypeSystemServices.UIntType) return MethodOf(runtimeServicesType, "UnboxUInt32", typeof(object));
+            if (IsLong(type)) return MethodOf(runtimeServicesType, "UnboxInt64", typeof(object));
+            if (type == TypeSystemServices.ULongType) return MethodOf(runtimeServicesType, "UnboxUInt64", typeof(object));
+            if (type == TypeSystemServices.SingleType) return MethodOf(runtimeServicesType, "UnboxSingle", typeof(object));
+            if (type == TypeSystemServices.DoubleType) return MethodOf(runtimeServicesType, "UnboxDouble", typeof(object));
+            if (type == TypeSystemServices.DecimalType) return MethodOf(runtimeServicesType, "UnboxDecimal", typeof(object));
+            if (type == TypeSystemServices.BoolType) return MethodOf(runtimeServicesType, "UnboxBoolean", typeof(object));
+            if (type == TypeSystemServices.CharType) return MethodOf(runtimeServicesType, "UnboxChar", typeof(object));
             return null;
         }
 
@@ -5510,7 +5480,7 @@ namespace Boo.Lang.Compiler.Steps
 
             public IResourceWriter DefineResource(string resourceName, string resourceDescription)
             {
-                return _moduleBuilder.DefineResource(resourceName, resourceDescription);
+                return new BooResourceWriter(_asmBuilder, _nameTable.GetNameFor(resourceName));
             }
         }
 
@@ -5523,6 +5493,7 @@ namespace Boo.Lang.Compiler.Steps
             var rootUnitNamespace = new RootUnitNamespace();
             _host = new PeReader.DefaultHost();
             _nameTable = _host.NameTable;
+            _coreAssembly = _host.LoadAssembly(_host.CoreAssemblySymbolicIdentity);
             _asmBuilder = new Assembly
             {
                 Name = _nameTable.GetNameFor(Path.GetFileNameWithoutExtension(baseFilename)),
@@ -5541,6 +5512,7 @@ namespace Boo.Lang.Compiler.Steps
             };
             rootUnitNamespace.Unit = _asmBuilder;
             _namespaceMap.Add("", rootUnitNamespace);
+            _mapper = new ReflectionMapper(_host);
 
             _moduleClass = new NamespaceTypeDefinition()
             {
@@ -5752,7 +5724,7 @@ namespace Boo.Lang.Compiler.Steps
         private IMethodDefinition StringFormat
         {
             get {
-                return _stringFormat ?? (_stringFormat = MethodOf<string, object, string>(typeof(string), "Format"));
+                return _stringFormat ?? (_stringFormat = MethodOf<string>("Format", typeof(string), typeof(object)));
             }
         }
 

@@ -36,6 +36,8 @@ namespace Boo.Lang.Compiler.Steps
 		public const string RawArrayIndexing = "rawarrayindexing";
 
 		public const string Checked = "checked";
+
+	    public const string CCI_DOC_KEY = "$CCI_DOC$";
 		
 		public static void MarkChecked(Node node)
 		{
