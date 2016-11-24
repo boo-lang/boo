@@ -280,21 +280,21 @@ namespace Boo.Lang.Compiler.Steps
                 setter(member, GetCustomAttributeBuilder(attribute));
         }
 
-        private void SetCustomAttribute(NamedTypeDefinition member, CustomAttribute attribute)
+        private static void SetCustomAttribute(NamedTypeDefinition member, CustomAttribute attribute)
         {
             if (member.Attributes == null)
                 member.Attributes = new System.Collections.Generic.List<ICustomAttribute>();
             member.Attributes.Add(attribute);
         }
 
-        private void SetCustomAttribute(TypeDefinitionMember member, CustomAttribute attribute)
+        private static void SetCustomAttribute(TypeDefinitionMember member, CustomAttribute attribute)
 	    {
 	        if (member.Attributes == null)
                 member.Attributes = new System.Collections.Generic.List<ICustomAttribute>();
             member.Attributes.Add(attribute);
 	    }
 
-        private void SetCustomAttribute(ParameterDefinition member, CustomAttribute attribute)
+        private static void SetCustomAttribute(ParameterDefinition member, CustomAttribute attribute)
         {
             if (member.Attributes == null)
                 member.Attributes = new System.Collections.Generic.List<ICustomAttribute>();
@@ -432,8 +432,14 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-	    private INamedTypeDefinition GetTypeReference(Type value)
+	    private ITypeDefinition GetTypeReference(Type value)
 	    {
+	        if (value.IsArray)
+                return new VectorTypeReference
+                {
+                    ElementType = GetTypeReference(value.GetElementType()),
+                    InternFactory = _host.InternFactory
+                }.ResolvedType;
 	        var reflectAsm = value.Assembly;
 	        var name = reflectAsm.GetName();
             var asm = _host.LoadAssembly(new AssemblyIdentity(
@@ -445,7 +451,7 @@ namespace Boo.Lang.Compiler.Steps
 	        return UnitHelper.FindType(_nameTable, asm, value.FullName);
 	    }
 
-        private INamedTypeDefinition GetTypeReference<T>()
+        private ITypeDefinition GetTypeReference<T>()
 	    {
 	        return GetTypeReference(typeof(T));
 	    }
@@ -2102,7 +2108,7 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private int _matrixNameKey;
 	    private IMethodReference _arrayGetLength;
-	    private INamedTypeDefinition _builtinsType;
+	    private ITypeDefinition _builtinsType;
 	    private IMethodReference _builtinsArrayGenericConstructor;
 	    private IMethodReference _builtinsArrayTypedConstructor;
 	    private IMethodReference _builtinsArrayTypedCollectionConstructor;
@@ -4174,7 +4180,7 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        private IMethodDefinition MethodOf(INamedTypeDefinition typeRef, string name, params Type[] args)
+        private IMethodDefinition MethodOf(ITypeDefinition typeRef, string name, params Type[] args)
         {
             return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
         }
@@ -4190,7 +4196,7 @@ namespace Boo.Lang.Compiler.Steps
             return MethodOf<T>(".ctor", args);
         }
 
-        private IMethodDefinition ConstructorOf(INamedTypeDefinition typeRef, params Type[] args)
+        private IMethodDefinition ConstructorOf(ITypeDefinition typeRef, params Type[] args)
         {
             return MethodOf(typeRef, ".ctor", args);
         }
