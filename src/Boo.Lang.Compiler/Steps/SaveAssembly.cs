@@ -26,41 +26,44 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Microsoft.Cci;
+
 namespace Boo.Lang.Compiler.Steps
 {
 	using System.IO;
-	using System.Reflection;
-	using System.Reflection.Emit;
+	using Microsoft.Cci.MutableCodeModel;
 
 	public class SaveAssembly : AbstractCompilerStep
 	{
-		override public void Run()
+		public override void Run()
 		{
 			if (Errors.Count > 0)
 				return;
 
-			var builder = ContextAnnotations.GetAssemblyBuilder(Context);
+			var builder = ContextAnnotations.GetAssemblyBuilderCci(Context);
 			var filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
 			Save(builder, filename);
 		}
 
-		void Save(AssemblyBuilder builder, string filename)
+		private void Save(Assembly builder, string filename)
 		{
 			switch (Parameters.Platform)
 			{
 				case "x86":
-					builder.Save(filename, PortableExecutableKinds.Required32Bit, ImageFileMachine.I386);
+                    builder.Machine = Machine.I386;
 					break;
 				case "x64":
-					builder.Save(filename, PortableExecutableKinds.PE32Plus, ImageFileMachine.AMD64);
+                    builder.Machine = Machine.AMD64;
 					break;
 				case "itanium":
-					builder.Save(filename, PortableExecutableKinds.PE32Plus, ImageFileMachine.IA64);
+                    builder.Machine = Machine.IA64;
 					break;
 				default: //AnyCPU
-					builder.Save(filename);
 					break;
 			}
+            Stream peStream = File.Create("hello.exe");
+            var host = ContextAnnotations.GetCciHost(Context);
+            PeWriter.WritePeToStream(builder, host, peStream);   
 		}
 	}
 }

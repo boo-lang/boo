@@ -34,7 +34,7 @@ namespace Boo.Lang.Compiler.Pipelines
 	{
 		public CompileToMemory()
 		{			
-			Add(new EmitAssembly());
+			Add(new EmitAssemblyCci());
 		}
 	}
 }

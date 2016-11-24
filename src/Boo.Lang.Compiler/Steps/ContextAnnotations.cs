@@ -40,6 +40,8 @@ namespace Boo.Lang.Compiler.Steps
 
         private static readonly object AssemblyBuilderCciKey = new object();
 
+        private static readonly object CciHostKey = new object();
+
 		public static Method GetEntryPoint(CompilerContext context)
 		{
 			if (null == context)
@@ -89,11 +91,11 @@ namespace Boo.Lang.Compiler.Steps
 
 	    public static void SetAssemblyBuilderCci(CompilerContext context, Microsoft.Cci.MutableCodeModel.Assembly builder)
 	    {
-            if (null == context)
+            if (context == null)
             {
                 throw new ArgumentNullException("context");
             }
-            if (null == builder)
+            if (builder == null)
             {
                 throw new ArgumentNullException("builder");
             }
@@ -103,11 +105,34 @@ namespace Boo.Lang.Compiler.Steps
         public static Microsoft.Cci.MutableCodeModel.Assembly GetAssemblyBuilderCci(CompilerContext context)
         {
             var builder = (Microsoft.Cci.MutableCodeModel.Assembly)context.Properties[AssemblyBuilderCciKey];
-            if (null == builder)
+            if (builder == null)
             {
                 throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
             }
             return builder;
+        }
+
+        public static void SetCciHost(CompilerContext context, Microsoft.Cci.PeReader.DefaultHost host)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException("context");
+            }
+            if (host == null)
+            {
+                throw new ArgumentNullException("host");
+            }
+            context.Properties[CciHostKey] = host;
+        }
+
+        public static Microsoft.Cci.PeReader.DefaultHost GetCciHost(CompilerContext context)
+	    {
+            var result = (Microsoft.Cci.PeReader.DefaultHost)context.Properties[CciHostKey];
+            if (result == null)
+            {
+                throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
+            }
+            return result;
         }
 	}
 }

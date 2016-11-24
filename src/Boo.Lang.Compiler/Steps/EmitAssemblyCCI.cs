@@ -434,7 +434,14 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private INamedTypeDefinition GetTypeReference(Type value)
 	    {
-	        var asm = _mapper.GetAssembly(value.Assembly);
+	        var reflectAsm = value.Assembly;
+	        var name = reflectAsm.GetName();
+            var asm = _host.LoadAssembly(new AssemblyIdentity(
+                _nameTable.GetNameFor(reflectAsm.FullName), 
+                name.CultureInfo.Name,
+                name.Version,
+                name.GetPublicKeyToken(),
+                reflectAsm.Location));
 	        return UnitHelper.FindType(_nameTable, asm, value.FullName);
 	    }
 
@@ -4183,6 +4190,11 @@ namespace Boo.Lang.Compiler.Steps
             return MethodOf<T>(".ctor", args);
         }
 
+        private IMethodDefinition ConstructorOf(INamedTypeDefinition typeRef, params Type[] args)
+        {
+            return MethodOf(typeRef, ".ctor", args);
+        }
+
         private IPropertyDefinition PropertyOf<T>(string name)
         {
             var typeRef = GetTypeReference(typeof(T));
@@ -4449,7 +4461,10 @@ namespace Boo.Lang.Compiler.Steps
             // If method is external, get its existing MethodDefinition
             var external = entity as ExternalMethod;
             if (null != external)
-                return _mapper.GetMethod((System.Reflection.MethodInfo)external.MethodInfo);
+            {
+                var mi = external.MethodInfo;
+                return MethodOf(GetTypeReference(mi.DeclaringType), mi.Name, mi.GetParameters().Select(p => p.ParameterType).ToArray());
+            }
 
             // If method is a constructed generic method, get its MethodDefinition from its definition
             if (entity is GenericConstructedMethod)
@@ -4479,7 +4494,10 @@ namespace Boo.Lang.Compiler.Steps
             // If constructor is external, get its existing IMethodReference
             var external = entity as ExternalConstructor;
             if (null != external)
-                return _mapper.GetMethod((System.Reflection.ConstructorInfo)external.MethodInfo);
+            {
+                var ci = (System.Reflection.ConstructorInfo) external.MethodInfo;
+                return ConstructorOf(GetTypeReference(ci.DeclaringType), ci.GetParameters().Select(p => p.ParameterType).ToArray());
+            }
 
             // If constructor is mapped from a generic type, get its IMethodReference on the constructed type
             var mapped = entity as GenericMappedConstructor;
@@ -4875,6 +4893,7 @@ namespace Boo.Lang.Compiler.Steps
 
         private void DefineParameters(ParameterDeclarationCollection parameters, MethodDefinition builder)
         {
+            builder.Parameters = new System.Collections.Generic.List<IParameterDefinition>(parameters.Count);
             for (int i = 0; i < parameters.Count; ++i)
             {
                 ParameterDefinition paramBuilder = MakeParameter(parameters[i], i, builder);
@@ -5104,7 +5123,7 @@ namespace Boo.Lang.Compiler.Steps
             NamedTypeDefinition typeBuilder = null;
             var enclosingType = type.ParentNode as ClassDefinition;
             var enumDef = type as EnumDefinition;
-            var enclosingNamespace = EnsureNamespace(type.EnclosingNamespace.Name);
+            var enclosingNamespace = type.EnclosingNamespace != null ? EnsureNamespace(type.EnclosingNamespace.Name) : (UnitNamespace)_asmBuilder.UnitNamespaceRoot;
 
             if (null == enclosingType)
             {
@@ -5113,10 +5132,12 @@ namespace Boo.Lang.Compiler.Steps
                     ContainingUnitNamespace = enclosingNamespace,
                     InternFactory = _host.InternFactory,
                     Name = _nameTable.GetNameFor(AnnotateGenericTypeName(type, type.Name)),
+                    Methods = new System.Collections.Generic.List<IMethodDefinition>()
                 };
                 enclosingNamespace.Members.Add((NamespaceTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
-                typeBuilder.BaseClasses.Add(GetTypeReference(baseType));
+                if (baseType != null)
+                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>{(GetTypeReference(baseType))};
                 GetTypeAttributes(type, (NamespaceTypeDefinition)typeBuilder);
             }
             else
@@ -5520,6 +5541,7 @@ namespace Boo.Lang.Compiler.Steps
                 InternFactory = _host.InternFactory,
                 IsClass = true,
                 Name = _nameTable.GetNameFor("<Module>"),
+                Methods = new System.Collections.Generic.List<IMethodDefinition>()
             };
             _asmBuilder.AllTypes.Add(_moduleClass);
 
@@ -5541,6 +5563,7 @@ namespace Boo.Lang.Compiler.Steps
 
             _sreResourceService = new SreResourceService(_asmBuilder, _moduleBuilder, _nameTable);
             ContextAnnotations.SetAssemblyBuilderCci(Context, _asmBuilder);
+            ContextAnnotations.SetCciHost(Context, _host);
 
             Context.GeneratedAssemblyFileName = outputFile;
         }
