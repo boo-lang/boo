@@ -473,6 +473,7 @@
     <Compile Include="Steps\EmitCCI\BooResourceWriter.cs" />
     <Compile Include="Steps\EmitCCI\BooSourceDocument.cs" />
     <Compile Include="Steps\EmitCCI\BooSourceLocation.cs" />
+    <Compile Include="Steps\EmitCCI\IlGeneratorHelper.cs" />
     <Compile Include="Steps\EntityPredicates.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />
     <Compile Include="Steps\ExpandComplexSlicingExpressions.cs" />

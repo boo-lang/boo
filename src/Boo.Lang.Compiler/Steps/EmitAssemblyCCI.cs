@@ -440,6 +440,15 @@ namespace Boo.Lang.Compiler.Steps
                     ElementType = GetTypeReference(value.GetElementType()),
                     InternFactory = _host.InternFactory
                 }.ResolvedType;
+	        if (value.IsNested)
+	        {
+	            var declaringType = GetTypeReference(value.DeclaringType);
+	            if (value.ContainsGenericParameters)
+	                throw new Exception("Generic nested types are not supported yet");
+	            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 0,
+	                value.IsEnum, value.IsValueType).ResolvedType;
+	        }
+
 	        var reflectAsm = value.Assembly;
 	        var name = reflectAsm.GetName();
             var asm = _host.LoadAssembly(new AssemblyIdentity(
@@ -521,7 +530,7 @@ namespace Boo.Lang.Compiler.Steps
             MethodDefinition methodBuilder = GetMethodBuilder(method);
             DefineExplicitImplementationInfo(method);
 
-            EmitMethod(method, new ILGenerator(_host, methodBuilder));
+            EmitMethod(method, methodBuilder);
             if (method.Name.StartsWith("$module_ctor"))
             {
                 _moduleConstructorMethods.Add(method);
@@ -548,17 +557,32 @@ namespace Boo.Lang.Compiler.Steps
             });
         }
 
-        private void EmitMethod(Method method, ILGenerator generator)
+        private System.Collections.Generic.List<ILocalDefinition> _locals;
+
+        private void EmitMethod(Method method, MethodDefinition builder)
         {
+            var generator = new ILGenerator(_host, builder);
             _il = generator;
             _method = method;
 
-            DefineLabels(method);
-            Visit(method.Locals);
+            var oldLocals = _locals;
+            _locals = new System.Collections.Generic.List<ILocalDefinition>();
+            try
+            {
+                DefineLabels(method);
+                Visit(method.Locals);
 
-            BeginMethodBody(GetEntity(method).ReturnType);
-            Visit(method.Body);
-            EndMethodBody(method);
+                BeginMethodBody(GetEntity(method).ReturnType);
+                Visit(method.Body);
+                EndMethodBody(method);
+                var body = new ILGeneratorMethodBody(generator, true, IlGeneratorHelper.MaxStackSize(generator),
+                    generator.Method, _locals, Enumerable.Empty<ITypeDefinition>());
+                builder.Body = body;
+            }
+            finally
+            {
+                _locals = oldLocals;
+            }
         }
 
         private void BeginMethodBody(IType returnType)
@@ -650,7 +674,7 @@ namespace Boo.Lang.Compiler.Steps
             if (constructor.IsRuntime) return;
 
             MethodDefinition builder = GetConstructorBuilder(constructor);
-            EmitMethod(constructor, new ILGenerator(_host, builder));
+            EmitMethod(constructor, builder);
         }
 
         public override void OnLocal(Local local)
@@ -660,8 +684,9 @@ namespace Boo.Lang.Compiler.Steps
             {
                 Name = _nameTable.GetNameFor(local.Name),
                 Type = GetTypeReference(GetSystemType(local)),
-                IsReference = info.Type.IsPointer
+                IsReference = info.Type.IsPointer,
             };
+            _locals.Add(info.LocalDefinition);
         }
 
         public override void OnForStatement(ForStatement node)
@@ -1461,7 +1486,7 @@ namespace Boo.Lang.Compiler.Steps
             var elementType = arrayType.ElementType;
             LoadArrayIndices(slice);
             var temp = LoadAssignmentOperand(elementType, node);
-            CallArrayMethod(arrayType, "Set", typeof(void), ParameterTypesForArraySet(arrayType));
+            CallArrayGet(arrayType);
             FlushAssignmentOperand(elementType, temp);
         }
 
@@ -2856,28 +2881,25 @@ namespace Boo.Lang.Compiler.Steps
         private void LoadMultiDimensionalArrayElement(SlicingExpression node, TypeSystem.IArrayType arrayType)
         {
             LoadArrayIndices(node);
-            CallArrayMethod(arrayType, "Get", GetSystemType(arrayType.ElementType), ParameterTypesForArrayGet(arrayType));
+            CallArraySet(arrayType);
         }
 
-        private static Type[] ParameterTypesForArrayGet(TypeSystem.IArrayType arrayType)
+	    private void CallArrayGet(IType arrayType)
+	    {
+	        var arrType = GetTypeReference(GetSystemType(arrayType));
+            _il.Emit(OperationCode.Array_Get, arrType);
+	    }
+
+        private void CallArraySet(IType arrayType)
         {
-            return Enumerable.Range(0, arrayType.Rank).Select(_ => typeof(int)).ToArray();
+            var arrType = GetTypeReference(GetSystemType(arrayType));
+            _il.Emit(OperationCode.Array_Set, arrType);
         }
 
-        private Type[] ParameterTypesForArraySet(TypeSystem.IArrayType arrayType)
+        private void CallArrayAddr(IType arrayType)
         {
-            var types = new Type[arrayType.Rank + 1];
-            for (var i = 0; i < arrayType.Rank; ++i)
-                types[i] = typeof(int);
-            types[arrayType.Rank] = GetSystemType(arrayType.ElementType);
-            return types;
-        }
-
-        private void CallArrayMethod(IType arrayType, string methodName, Type returnType, Type[] parameterTypes)
-        {
-            var method = MethodOf(GetTypeReference(GetSystemType(arrayType)), methodName, parameterTypes);
-            Call(method);
-            //Call(GetSystemType(arrayType).GetMethod(methodName));
+            var arrType = GetTypeReference(GetSystemType(arrayType));
+            _il.Emit(OperationCode.Array_Addr, arrType);
         }
 
         private void LoadArrayIndices(SlicingExpression node)
@@ -3280,7 +3302,7 @@ namespace Boo.Lang.Compiler.Steps
         private void LoadMultiDimensionalArrayElementAddress(SlicingExpression slicing, TypeSystem.IArrayType arrayType)
         {
             LoadArrayIndices(slicing);
-            CallArrayMethod(arrayType, "Address", GetSystemType(arrayType.ElementType).MakeByRefType(), ParameterTypesForArrayGet(arrayType));
+            CallArrayAddr(arrayType);
         }
 
         private void LoadSingleDimensionalArrayElementAddress(SlicingExpression slicing, TypeSystem.IArrayType arrayType)
@@ -4327,13 +4349,18 @@ namespace Boo.Lang.Compiler.Steps
 	    private CustomAttribute CreateRuntimeCompatibilityAttribute()
         {
             return new CustomAttribute{
-                Constructor = ConstructorOf<System.Runtime.CompilerServices.RuntimeCompatibilityAttribute>(typeof(bool)),
-                Arguments = new System.Collections.Generic.List<IMetadataExpression>
+                Constructor = ConstructorOf<System.Runtime.CompilerServices.RuntimeCompatibilityAttribute>(),
+                NamedArguments = new System.Collections.Generic.List<IMetadataNamedArgument>
                 {
-                    new MetadataConstant
+                    new MetadataNamedArgument
                     {
-                        Type = GetTypeReference<bool>(),
-                        Value = true
+                        ArgumentName = _nameTable.GetNameFor("WrapNonExceptionThrows"),
+                        ArgumentValue = new MetadataConstant
+                        {
+                            Type = GetTypeReference<bool>(),
+                            Value = true
+                        },
+                        Type = GetTypeReference<bool>()
                     }
                 }
             };
@@ -4392,7 +4419,7 @@ namespace Boo.Lang.Compiler.Steps
             foreach (var reference in _moduleConstructorMethods.OrderBy(reference => (int)reference["Ordering"]))
                 m.Body.Add(CodeBuilder.CreateMethodInvocation((IMethod)reference.Entity));
 
-            EmitMethod(m, new ILGenerator(_host, mb));
+            EmitMethod(m, mb);
         }
 
         private readonly Dictionary<Node, object> _builders = new Dictionary<Node, object>();
@@ -4406,7 +4433,7 @@ namespace Boo.Lang.Compiler.Steps
             _builders[node] = builder;
         }
 
-        object GetBuilder(Node node)
+	    private object GetBuilder(Node node)
         {
             return _builders[node];
         }
@@ -4426,22 +4453,22 @@ namespace Boo.Lang.Compiler.Steps
             return (FieldDefinition)_builders[node];
         }
 
-        MethodDefinition GetMethodBuilder(Method method)
+	    private MethodDefinition GetMethodBuilder(Method method)
         {
             return (MethodDefinition)_builders[method];
         }
 
-        MethodDefinition GetConstructorBuilder(Method method)
+	    private MethodDefinition GetConstructorBuilder(Method method)
         {
             return (MethodDefinition)_builders[method];
         }
 
-        LocalDefinition GetLocalBuilder(Node local)
+	    private LocalDefinition GetLocalBuilder(Node local)
         {
             return GetInternalLocal(local).LocalDefinition;
         }
 
-        IFieldDefinition GetFieldInfo(IField tag)
+	    private IFieldDefinition GetFieldInfo(IField tag)
         {
             // If field is external, get its existing IFieldDefinition
             ExternalField external = tag as ExternalField;
@@ -5059,10 +5086,12 @@ namespace Boo.Lang.Compiler.Steps
             {
                 InternFactory = _host.InternFactory,
                 IsRuntimeSpecial = true,
-                Name = _nameTable.GetNameFor(".ctor"),
-                CallingConvention = CallingConvention.Standard,
+                IsSpecialName = true,
+                IsStatic = constructor.IsStatic,
+                Name = _nameTable.GetNameFor(constructor.IsStatic ? ".cctor" : ".ctor"),
+                CallingConvention = constructor.IsStatic ? CallingConvention.Default : CallingConvention.HasThis,
                 ContainingTypeDefinition = typeBuilder,
-                IsCil = true,
+                Type = _host.PlatformType.SystemVoid
             };
             GetMethodAttributes(constructor, builder);
 
@@ -5527,6 +5556,7 @@ namespace Boo.Lang.Compiler.Steps
                 ModuleName = _nameTable.GetNameFor(baseFilename),
                 Location = outputFile,
                 Kind = GetModuleKind(),
+                PlatformType = _host.PlatformType,
                 TargetRuntimeVersion = _coreAssembly.TargetRuntimeVersion,
                 AssemblyAttributes = new System.Collections.Generic.List<ICustomAttribute>(),
                 ModuleAttributes = new System.Collections.Generic.List<ICustomAttribute>(),
@@ -5535,7 +5565,8 @@ namespace Boo.Lang.Compiler.Steps
                     .Cast<TypeSystem.Reflection.IAssemblyReference>()
                     .Select(ar => MakeAssemblyReference(ar.Assembly))),
                 TrackDebugData = true,
-                Version = asmName.Version
+                Version = asmName.Version,
+                RequiresStartupStub = _host.PointerSize == 4,
             };
             rootUnitNamespace.Unit = _asmBuilder;
             _namespaceMap.Add("", rootUnitNamespace);
