@@ -6,6 +6,9 @@ using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.Steps.EmitCCI
 {
+    // helper for calculating MaxStackSize from an IL stream.
+    // Algorithm reverse-engineered from CoreCLR Reflection.Emit code found in OpCodes.cs, Opcode.cs and ILGenerator.cs
+    // https://github.com/dotnet/coreclr/tree/master/src/mscorlib/src/System/Reflection/Emit
     public static class IlGeneratorHelper
     {
         private static readonly OperationCode[] ZERO =
@@ -84,7 +87,21 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             OperationCode.Cpblk, OperationCode.Initblk
         };
 
-        private static Dictionary<OperationCode, int> _opcodeDict;
+        private static readonly Dictionary<OperationCode, int> _opcodeDict;
+
+        private static readonly ISet<OperationCode> _endsUncondJmpBlk = new HashSet<OperationCode>
+        {
+            OperationCode.Jmp, OperationCode.Ret, OperationCode.Br_S, OperationCode.Br, OperationCode.Throw, 
+            OperationCode.Endfinally, OperationCode.Leave, OperationCode.Leave_S, OperationCode.Endfilter, 
+            OperationCode.Rethrow
+        };
+
+        private static readonly ISet<OperationCode> _calls = new HashSet<OperationCode>
+        {
+            OperationCode.Calli, OperationCode.Call, OperationCode.Callvirt, OperationCode.Newobj,
+            OperationCode.Array_Addr, OperationCode.Array_Create, OperationCode.Array_Create_WithLowerBound,
+            OperationCode.Array_Get, OperationCode.Array_Set
+        };
 
         static IlGeneratorHelper()
         {
@@ -105,15 +122,41 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             _opcodeDict = dict;
         }
 
+        public static int CallStackChange(IOperation call)
+        {
+            var result = 0;
+            var method = (IMethodReference) call.Value;
+            if (method.Type.TypeCode != PrimitiveTypeCode.Void)
+                ++result;
+            result -= method.ParameterCount;
+            if (method.ExtraParameters != null)
+                result -= method.ExtraParameters.Count();
+            if ((method.CallingConvention & CallingConvention.HasThis) == CallingConvention.HasThis)
+                --result;
+            if (call.OperationCode == OperationCode.Calli)
+                --result; //1 for the function pointer
+            return result;
+        }
+
         public static ushort MaxStackSize(ILGenerator gen)
         {
             var result = 0;
+            var blockMax = 0;
+            var blockCurrent = 0;
             foreach (var op in gen.GetOperations())
             {
-                var stackChange = _opcodeDict[op.OperationCode];
+                var stackChange = _calls.Contains(op.OperationCode) ? CallStackChange(op) : _opcodeDict[op.OperationCode];
+                blockCurrent += stackChange;
+                blockMax = Math.Max(blockMax, blockCurrent);
+                blockCurrent = Math.Max(blockCurrent, 0);
+                if (_endsUncondJmpBlk.Contains(op.OperationCode))
+                {
+                    result += blockMax;
+                    blockMax = 0;
+                    blockCurrent = 0;
+                }
             }
-            //TODO: Implement this
-            return 8;
+            return (ushort)result;
         }
     }
 }
