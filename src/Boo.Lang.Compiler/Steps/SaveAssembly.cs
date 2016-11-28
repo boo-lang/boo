@@ -61,9 +61,11 @@ namespace Boo.Lang.Compiler.Steps
 			        builder.Machine = Machine.Unknown;
 					break;
 			}
-            Stream peStream = File.Create(filename);
-            var host = ContextAnnotations.GetCciHost(Context);
-            PeWriter.WritePeToStream(builder, host, peStream);   
+		    using (Stream peStream = File.Create(filename))
+		    {
+		        var host = ContextAnnotations.GetCciHost(Context);
+		        PeWriter.WritePeToStream(builder, host, peStream);
+		    }
 		}
 	}
 }

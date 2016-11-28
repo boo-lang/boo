@@ -4805,6 +4805,13 @@ namespace Boo.Lang.Compiler.Steps
                 builder.IsPlatformInvoke = true;
             }
             SetMethodAttributesFor(method, builder);
+            if (!method.IsStatic)
+            {
+                var first = method.Parameters.FirstOrDefault();
+                if (first != null && first.Name == "self")
+                    builder.CallingConvention = CallingConvention.ExplicitThis;
+                else builder.CallingConvention = CallingConvention.HasThis;
+            }
         }
 
         private static void SetFieldAttributesFor(Field field, FieldDefinition builder)
