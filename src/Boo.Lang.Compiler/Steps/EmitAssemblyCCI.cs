@@ -102,8 +102,8 @@ namespace Boo.Lang.Compiler.Steps
         private bool _rawArrayIndexing = false;
         private bool _perModuleRawArrayIndexing = false;
 
-        private Dictionary<IType, Type> _typeCache = new Dictionary<IType, Type>();
-        private List<Method> _moduleConstructorMethods = new List<Method>();
+        private readonly Dictionary<IType, ITypeReference> _typeCache = new Dictionary<IType, ITypeReference>();
+        private readonly List<Method> _moduleConstructorMethods = new List<Method>();
 
         // keeps track of types on the IL stack
         private readonly Stack<IType> _types = new Stack<IType>();
@@ -501,7 +501,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 if (builder.Interfaces == null)
                     builder.Interfaces = new System.Collections.Generic.List<ITypeReference>();
-                builder.Interfaces.Add(GetTypeReference(GetSystemType(baseType)));
+                builder.Interfaces.Add(GetSystemType(baseType));
             }
         }
 
@@ -683,7 +683,7 @@ namespace Boo.Lang.Compiler.Steps
             info.LocalDefinition = new LocalDefinition
             {
                 Name = _nameTable.GetNameFor(local.Name),
-                Type = GetTypeReference(GetSystemType(local)),
+                Type = GetSystemType(local),
                 IsReference = info.Type.IsPointer,
             };
             _locals.Add(info.LocalDefinition);
@@ -833,7 +833,7 @@ namespace Boo.Lang.Compiler.Steps
             else
             {
                 // Begin a normal catch block of the appropriate type.
-                _il.BeginCatchBlock(GetTypeReference(GetSystemType(node.Declaration.Type)));
+                _il.BeginCatchBlock(GetSystemType(node.Declaration.Type));
 
                 // Clean up the stack or store the exception if not anonymous.
                 EmitStoreOrPopException(node);
@@ -1361,7 +1361,7 @@ namespace Boo.Lang.Compiler.Steps
             if (_defaultValueHolders.TryGetValue(type, out holder))
                 return holder;
 
-            holder = new LocalDefinition{Type = GetTypeReference(GetSystemType(type))};
+            holder = new LocalDefinition{Type = GetSystemType(type)};
             _defaultValueHolders.Add(type, holder);
             return holder;
         }
@@ -1571,7 +1571,7 @@ namespace Boo.Lang.Compiler.Steps
 
         private LocalDefinition StoreTempLocal(IType elementType)
         {
-            LocalDefinition temp = new LocalDefinition{Type = GetTypeReference(GetSystemType(elementType))};
+            LocalDefinition temp = new LocalDefinition{Type = GetSystemType(elementType)};
             _il.Emit(OperationCode.Stloc, temp);
             return temp;
         }
@@ -1687,7 +1687,7 @@ namespace Boo.Lang.Compiler.Steps
 
             EmitBoxIfNeeded(TypeSystemServices.ObjectType, actualType);
 
-            Type type = NodeType.TypeofExpression == node.Right.NodeType
+            var type = NodeType.TypeofExpression == node.Right.NodeType
                 ? GetSystemType(((TypeofExpression)node.Right).Type)
                 : GetSystemType(node.Right);
 
@@ -1809,7 +1809,7 @@ namespace Boo.Lang.Compiler.Steps
             else if (TypeSystemServices.IsNullable(type))
             {
                 _il.Emit(OperationCode.Ldloca, _currentLocal);
-                Type sType = GetSystemType(TypeSystemServices.GetNullableUnderlyingType(type));
+                var sType = GetSystemType(TypeSystemServices.GetNullableUnderlyingType(type));
                 Call(GetNullableHasValue(sType));
                 LocalDefinition hasValue = StoreTempLocal(TypeSystemServices.BoolType);
                 _il.Emit(OperationCode.Pop); //pop nullable address (ldloca)
@@ -2119,7 +2119,7 @@ namespace Boo.Lang.Compiler.Steps
             PushType(node.ExpressionType);
         }
 
-        private void Isinst(Type type)
+        private void Isinst(ITypeReference type)
         {
             _il.Emit(OperationCode.Isinst, type);
         }
@@ -2134,6 +2134,7 @@ namespace Boo.Lang.Compiler.Steps
 	    private int _matrixNameKey;
 	    private IMethodReference _arrayGetLength;
 	    private ITypeDefinition _builtinsType;
+	    private INamedTypeDefinition _nullableType;
 	    private IMethodReference _builtinsArrayGenericConstructor;
 	    private IMethodReference _builtinsArrayTypedConstructor;
 	    private IMethodReference _builtinsArrayTypedCollectionConstructor;
@@ -2164,6 +2165,7 @@ namespace Boo.Lang.Compiler.Steps
             _arrayGetLength = PropertyOf<Array>("Length").Getter;
             _builtinsTypedMatrixConstructor = MethodOf<Array>("CreateInstance", typeof(Type), typeof(int[]));
             _builtinsType = GetTypeReference<Builtins>();
+            _nullableType = (INamedTypeDefinition)GetTypeReference(typeof(Nullable<>));
             _builtinsArrayGenericConstructor = MethodOf<Builtins>("array", typeof(int));
             _builtinsArrayTypedConstructor = MethodOf<Builtins>("array", typeof(Type), typeof(int));
             _builtinsArrayTypedCollectionConstructor = MethodOf<Builtins>("array", typeof(Type), typeof(ICollection));
@@ -2273,10 +2275,10 @@ namespace Boo.Lang.Compiler.Steps
         private void EmitNewMatrix(MethodInvocationExpression node)
         {
             var expressionType = GetExpressionType(node);
-            var matrixType = GetSystemType(expressionType);
+            var matrixType = (IArrayTypeReference)GetSystemType(expressionType);
 
             // matrix of type(dimensions)
-            EmitGetTypeFromHandle(matrixType.GetElementType());
+            EmitGetTypeFromHandle(matrixType.ElementType);
             PopType();
 
             EmitArray(TypeSystemServices.IntType, node.Arguments);
@@ -2297,7 +2299,7 @@ namespace Boo.Lang.Compiler.Steps
         private void EmitNewArray(IType type, Expression length)
         {
             LoadIntExpression(length);
-            _il.Emit(OperationCode.Newarr, GetSystemType(type));
+            _il.Emit(OperationCode.Newarr, new VectorTypeReference{ElementType = GetSystemType(type)});
             PushType(type.MakeArrayType(1));
         }
 
@@ -2450,7 +2452,7 @@ namespace Boo.Lang.Compiler.Steps
             PushType(super.ReturnType);
         }
 
-        private void EmitGetTypeFromHandle(Type type)
+        private void EmitGetTypeFromHandle(ITypeReference type)
         {
             _il.Emit(OperationCode.Ldtoken, type);
             Call(_typeGetTypeFromHandle);
@@ -2534,8 +2536,8 @@ namespace Boo.Lang.Compiler.Steps
             Expression argument = node.Arguments[0];
             LoadAddressForInitObj(argument);
             var expressionType = GetExpressionType(argument);
-            System.Type type = GetSystemType(expressionType);
-            Debug.Assert(type.IsValueType || (type.IsGenericParameter && expressionType.IsValueType));
+            var type = GetSystemType(expressionType);
+            Debug.Assert(type.IsValueType || (type is Microsoft.Cci.IGenericParameter && expressionType.IsValueType));
             _il.Emit(OperationCode.Initobj, type);
             PushVoid();
         }
@@ -2886,19 +2888,19 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private void CallArrayGet(IType arrayType)
 	    {
-	        var arrType = GetTypeReference(GetSystemType(arrayType));
+	        var arrType = GetSystemType(arrayType);
             _il.Emit(OperationCode.Array_Get, arrType);
 	    }
 
         private void CallArraySet(IType arrayType)
         {
-            var arrType = GetTypeReference(GetSystemType(arrayType));
+            var arrType = GetSystemType(arrayType);
             _il.Emit(OperationCode.Array_Set, arrType);
         }
 
         private void CallArrayAddr(IType arrayType)
         {
-            var arrType = GetTypeReference(GetSystemType(arrayType));
+            var arrType = GetSystemType(arrayType);
             _il.Emit(OperationCode.Array_Addr, arrType);
         }
 
@@ -3282,7 +3284,7 @@ namespace Boo.Lang.Compiler.Steps
             if (!AstUtil.IsIndirection(expression))
             {
                 // declare local to hold value type
-                var temp = new LocalDefinition { Type = GetTypeReference(GetSystemType(PopType())) };
+                var temp = new LocalDefinition { Type = GetSystemType(PopType()) };
                 _il.Emit(OperationCode.Stloc, temp);
                 _il.Emit(OperationCode.Ldloca, temp);
             }
@@ -3504,7 +3506,7 @@ namespace Boo.Lang.Compiler.Steps
             if (leaveValueOnStack)
             {
                 Dup();
-                local = new LocalDefinition {Type = GetTypeReference(GetSystemType(field.Type))};
+                local = new LocalDefinition {Type = GetSystemType(field.Type)};
                 _il.Emit(OperationCode.Stloc, local);
             }
 
@@ -3548,7 +3550,7 @@ namespace Boo.Lang.Compiler.Steps
             if (leaveValueOnStack)
             {
                 Dup();
-                local = new LocalDefinition {Type = GetTypeReference(GetSystemType(property.Type))};
+                local = new LocalDefinition {Type = GetSystemType(property.Type)};
                 _il.Emit(OperationCode.Stloc, local);
             }
 
@@ -3641,7 +3643,7 @@ namespace Boo.Lang.Compiler.Steps
         private void EmitArray(IType type, ExpressionCollection items)
         {
             EmitLoadLiteral(items.Count);
-            _il.Emit(OperationCode.Newarr, GetSystemType(type));
+            _il.Emit(OperationCode.Newarr, new VectorTypeReference { ElementType = GetSystemType(type) });
 
             if (items.Count == 0)
                 return;
@@ -3804,20 +3806,19 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMethodDefinition GetToDecimalConversionMethod(IType type)
         {
-            var method =
-                typeof(decimal).GetMethod("op_Implicit", new Type[] { GetSystemType(type) });
-
-            if (method == null)
+            var decimalType = GetTypeReference<decimal>();
+            var toType = GetSystemType(type);
+            var method = TypeHelper.GetMethod(decimalType, _nameTable.GetNameFor("op_Implicit"), toType);
+            if (method == Dummy.MethodDefinition)
             {
-                method =
-                    typeof(decimal).GetMethod("op_Explicit", new Type[] { GetSystemType(type) });
-                if (method == null)
+                method = TypeHelper.GetMethod(decimalType, _nameTable.GetNameFor("op_Explicit"), toType);
+                if (method == Dummy.MethodDefinition)
                 {
                     NotImplemented(string.Format("Numeric promotion for {0} to decimal not implemented!", type));
                     return null; //unreachable; NotImplemented throws.  Just silencing a compiler warning
                 }
             }
-            return MethodOf<decimal>(method.Name, method.GetParameters().Select(p => p.ParameterType).ToArray());
+            return method;
         }
 
         private IMethodDefinition GetFromDecimalConversionMethod(IType type)
@@ -4158,7 +4159,7 @@ namespace Boo.Lang.Compiler.Steps
             _il.Emit(OperationCode.Call, method);
         }
 
-        private void Castclass(Type expectedSystemType)
+        private void Castclass(ITypeReference expectedSystemType)
         {
             _il.Emit(OperationCode.Castclass, expectedSystemType);
         }
@@ -4196,7 +4197,7 @@ namespace Boo.Lang.Compiler.Steps
             }
             else
             {
-                Type type = GetSystemType(expectedType);
+                var type = GetSystemType(expectedType);
                 _il.Emit(OperationCode.Unbox, type);
                 _il.Emit(OperationCode.Ldobj, type);
             }
@@ -4300,7 +4301,7 @@ namespace Boo.Lang.Compiler.Steps
             bool stobj = IsStobj(opcode); // value type sequence?
             if (stobj)
             {
-                Type systemType = GetSystemType(elementType);
+                var systemType = GetSystemType(elementType);
                 _il.Emit(OperationCode.Ldelema, systemType);
                 LoadExpressionWithType(elementType, value); // might need to cast to decimal
                 _il.Emit(opcode, systemType);
@@ -4538,7 +4539,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 var baseGeneric = GetConstructorInfo((IConstructor) mapped.SourceMember);
                 return new GenericMethodInstance((IMethodDefinition)baseGeneric,
-                    mapped.ConstructedInfo.GenericArguments.Select(t => GetTypeReference(GetSystemType(t))),
+                    mapped.ConstructedInfo.GenericArguments.Select(GetSystemType),
                     _host.InternFactory);
             }
 
@@ -4551,11 +4552,9 @@ namespace Boo.Lang.Compiler.Steps
         /// </summary>
         private IMethodDefinition GetConstructedMethodInfo(IConstructedMethodInfo constructedInfo)
         {
-            Type[] arguments = Array.ConvertAll<IType, Type>(constructedInfo.GenericArguments, GetSystemType);
+            ITypeReference[] arguments = Array.ConvertAll(constructedInfo.GenericArguments, GetSystemType);
             var baseGeneric = GetMethodInfo(constructedInfo.GenericDefinition);
-            return new GenericMethodInstance(baseGeneric,
-                constructedInfo.GenericArguments.Select(t => GetTypeReference(GetSystemType(t))),
-                _host.InternFactory);
+            return new GenericMethodInstance(baseGeneric, arguments,_host.InternFactory);
         }
 
         /// <summary>
@@ -4564,10 +4563,10 @@ namespace Boo.Lang.Compiler.Steps
         private IFieldDefinition GetMappedFieldInfo(IType targetType, IField source)
         {
             var fi = GetFieldInfo(source);
-            var genType = GetTypeReference(GetSystemType(targetType));
+            var genType = GetSystemType(targetType);
             var result = new Microsoft.Cci.MutableCodeModel.SpecializedFieldDefinition();
             result.Copy(fi, _host.InternFactory);
-            result.ContainingTypeDefinition = genType;
+            result.ContainingTypeDefinition = genType.ResolvedType;
             result.UnspecializedVersion = fi;
             return result;
         }
@@ -4578,37 +4577,37 @@ namespace Boo.Lang.Compiler.Steps
         private MethodDefinition GetMappedMethodInfo(IType targetType, IMethod source)
         {
             var mi = GetMethodInfo(source);
-            var genType = GetTypeReference(GetSystemType(targetType));
+            var genType = GetSystemType(targetType);
             var result = new Microsoft.Cci.MutableCodeModel.SpecializedMethodDefinition();
             result.Copy(mi, _host.InternFactory);
-            result.ContainingTypeDefinition = genType;
+            result.ContainingTypeDefinition = genType.ResolvedType;
             result.UnspecializedVersion = mi;
             return result;
         }
 
-        private Type GetSystemType(Node node)
+        private ITypeReference GetSystemType(Node node)
         {
             return GetSystemType(GetType(node));
         }
 
-        private Type GetSystemType(IType entity)
+        private ITypeReference GetSystemType(IType entity)
         {
-            Type existingType;
+            ITypeReference existingType;
             if (_typeCache.TryGetValue(entity, out existingType))
                 return existingType;
 
-            Type type = SystemTypeFrom(entity);
+            ITypeReference type = SystemTypeFrom(entity);
             if (type == null)
                 throw new InvalidOperationException(string.Format("Could not find a Type for {0}.", entity));
             _typeCache.Add(entity, type);
             return type;
         }
 
-        private Type SystemTypeFrom(IType entity)
+        private ITypeReference SystemTypeFrom(IType entity)
         {
             var external = entity as ExternalType;
             if (null != external)
-                return external.ActualType;
+                return GetTypeReference(external.ActualType);
 
             if (entity.IsArray)
             {
@@ -4616,32 +4615,48 @@ namespace Boo.Lang.Compiler.Steps
                 var systemType = GetSystemType(arrayType.ElementType);
                 var rank = arrayType.Rank;
 
-                return rank == 1 ? systemType.MakeArrayType() : systemType.MakeArrayType(rank);
+                var sysArrayType = rank == 1
+                    ? (IArrayTypeReference) new VectorTypeReference
+                    {
+                        InternFactory = _host.InternFactory,
+                        ElementType = systemType,
+                        Rank = 1
+                    }
+                    : (IArrayTypeReference) new MatrixTypeReference
+                    {
+                        InternFactory = _host.InternFactory,
+                        ElementType = systemType,
+                        Rank = (uint) rank
+
+                    };
+                return sysArrayType;
             }
 
             if (entity.ConstructedInfo != null)
             {
                 // Type is a constructed generic type - create it using its definition's system type
                 var arguments = Array.ConvertAll(entity.ConstructedInfo.GenericArguments, GetSystemType);
-                return GetSystemType(entity.ConstructedInfo.GenericDefinition).MakeGenericType(arguments);
+                var sysType = GetSystemType(entity.ConstructedInfo.GenericDefinition);
+                return GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)sysType.ResolvedType,
+                    arguments, _host.InternFactory);
             }
 
             if (entity.IsNull())
-                return Types.Object;
+                return _host.PlatformType.SystemObject;
 
             if (entity is InternalGenericParameter)
-                return (Type)GetBuilder(((InternalGenericParameter)entity).Node);
+                return (ITypeReference)GetBuilder(((InternalGenericParameter)entity).Node);
 
             if (entity is AbstractInternalType)
             {
                 TypeDefinition typedef = ((AbstractInternalType)entity).TypeDefinition;
-                var type = (Type)GetBuilder(typedef);
+                var type = (NamespaceTypeDefinition)GetBuilder(typedef);
 
-                if (null != entity.GenericInfo && !type.IsGenericType) //hu-oh, early-bound
+                if (null != entity.GenericInfo && !type.IsGeneric) //hu-oh, early-bound
                     DefineGenericParameters(typedef);
 
                 if (entity.IsPointer && null != type)
-                    return type.MakePointerType();
+                    return ManagedPointerType.GetManagedPointerType(type, _host.InternFactory);
 
                 return type;
             }
@@ -4834,7 +4849,7 @@ namespace Boo.Lang.Compiler.Steps
             var builder = new EventDefinition
             {
                 Name = _nameTable.GetNameFor(node.Name),
-                Type = GetTypeReference(GetSystemType(node.Type)),
+                Type = GetSystemType(node.Type),
                 ContainingTypeDefinition = typeBuilder,
                 Adder = DefineEventMethod(typeBuilder, node.Add),
                 Remover = DefineEventMethod(typeBuilder, node.Remove),
@@ -4856,7 +4871,7 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        var result = new ParameterDefinition
 	        {
-	            Type = GetTypeReference(GetSystemType(value.Type)),
+	            Type = GetSystemType(value.Type),
                 ContainingSignature = parent,
                 Index = (ushort)index,
                 IsByReference = value.IsByRef,
@@ -4874,7 +4889,7 @@ namespace Boo.Lang.Compiler.Steps
             var builder = new PropertyDefinition
             {
                 Name = _nameTable.GetNameFor(name),
-                Type = GetTypeReference(GetSystemType(property.Type)),
+                Type = GetSystemType(property.Type),
                 ContainingTypeDefinition = typeBuilder,
             };
             builder.Parameters = property.Parameters.Select((p, i) => MakeParameter(p, i, builder)).Cast<IParameterDefinition>().ToList();
@@ -4908,7 +4923,7 @@ namespace Boo.Lang.Compiler.Steps
             var builder = new FieldDefinition
             {
                 Name = _nameTable.GetNameFor(field.Name),
-                Type = GetTypeReference(GetSystemType(field)),
+                Type = GetSystemType(field),
                 ContainingTypeDefinition = typeBuilder,
                 CustomModifiers = GetFieldRequiredCustomModifiers(field)
                     .Select(cm => new Microsoft.Cci.Immutable.CustomModifier(false, GetTypeReference(cm)))
@@ -4987,7 +5002,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 returnType = TypeSystemServices.VoidType;
             }
-            builder.Type = GetTypeReference(GetSystemType(returnType));
+            builder.Type = GetSystemType(returnType);
 
             SetImplementationFlagsFor(method, builder);
 
@@ -5060,9 +5075,10 @@ namespace Boo.Lang.Compiler.Steps
                 // Set base type constraint
                 if (parameter.BaseType != TypeSystemServices.ObjectType)
                 {
-                    builder.Constraints.Add(GetTypeReference(GetSystemType(parameter.BaseType)));
+                    builder.Constraints.Add(GetSystemType(parameter.BaseType))
+                        ;
                 }
-                builder.Constraints.AddRange(parameter.GetInterfaces().Select(t => GetTypeReference(GetSystemType(t))));
+                builder.Constraints.AddRange(parameter.GetInterfaces().Select(GetSystemType));
             }
 
             // Set special attributes
@@ -5226,15 +5242,15 @@ namespace Boo.Lang.Compiler.Steps
 
                 // For some reason you can't call IsClass on constructed types created at compile time,
                 // so we'll ask the generic definition instead
-                if ((type.IsGenericType && type.GetGenericTypeDefinition().IsClass) || (type.IsClass))
+                if ((type.ResolvedType.IsGeneric && ((IGenericTypeInstance)type).GenericType.ResolvedType.IsClass) || (type.ResolvedType.IsClass))
                 {
-                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>{GetTypeReference(type)};
+                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>{type};
                 }
                 else
                 {
                     if (typeBuilder.Interfaces == null)
                         typeBuilder.Interfaces = new System.Collections.Generic.List<ITypeReference>();
-                    typeBuilder.Interfaces.Add(GetTypeReference(type));
+                    typeBuilder.Interfaces.Add(type);
                 }
             }
         }
@@ -5351,7 +5367,8 @@ namespace Boo.Lang.Compiler.Steps
                                             ((DoubleLiteralExpression)expression).Value);
 
                 case NodeType.TypeofExpression:
-                    return new MetadataConstant{Type = GetTypeReference<Type>(), Value = GetSystemType(((TypeofExpression) expression).Type)};
+                    throw new Exception("Typeof constant is not supported");
+                    //return new MetadataTypeOf{TypeToGet = GetSystemType(((TypeofExpression) expression).Type))};
 
                 case NodeType.CastExpression:
                     return GetValue(expectedType, ((CastExpression)expression).Target);
@@ -5365,7 +5382,8 @@ namespace Boo.Lang.Compiler.Steps
         {
             IEntity tag = GetEntity(expression);
             if (tag.EntityType == EntityType.Type)
-                return new MetadataConstant{Type = GetTypeReference<Type>(), Value = GetSystemType(expression)};
+                throw new Exception("Typeof constant is not supported");
+                //return new MetadataTypeOf{TypeToGet = GetSystemType(expression))};
 
             if (EntityType.Field == tag.EntityType)
             {
@@ -5393,8 +5411,15 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMetadataConstant ConvertValue(IType expectedType, object value)
         {
-            var newType = expectedType.IsEnum ? GetEnumUnderlyingType(expectedType) : GetSystemType(expectedType);
-            return new MetadataConstant { Type = GetTypeReference(newType), Value = Convert.ChangeType(value, newType) };
+            ITypeReference newType;
+            if (expectedType.IsEnum)
+            {
+                var enumType = GetEnumUnderlyingType(expectedType);
+                newType = GetTypeReference(enumType);
+                value = Convert.ChangeType(value, enumType);
+            }
+            else newType = GetSystemType(expectedType);
+            return new MetadataConstant { Type = newType, Value = value };
         }
 
         private static Type GetEnumUnderlyingType(EnumDefinition node)
@@ -5402,11 +5427,11 @@ namespace Boo.Lang.Compiler.Steps
             return ((InternalEnum)node.Entity).UnderlyingType;
         }
 
-        private Type GetEnumUnderlyingType(IType enumType)
+        private static Type GetEnumUnderlyingType(IType enumType)
         {
             return enumType is IInternalEntity
                 ? ((InternalEnum)enumType).UnderlyingType
-                : Enum.GetUnderlyingType(GetSystemType(enumType));
+                : Enum.GetUnderlyingType(((ExternalType)enumType).ActualType);
         }
 
         private void DefineTypeMembers(TypeDefinition typeDefinition)
@@ -5790,14 +5815,15 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private static IMethodDefinition _stringFormat;
 
-        private readonly Dictionary<Type, IMethodDefinition> _nullableHasValue = new Dictionary<Type, IMethodDefinition>();
+        private readonly Dictionary<ITypeReference, IMethodDefinition> _nullableHasValue = new Dictionary<ITypeReference, IMethodDefinition>();
 
-        private IMethodDefinition GetNullableHasValue(Type type)
+        private IMethodDefinition GetNullableHasValue(ITypeReference type)
         {
             IMethodDefinition method;
             if (_nullableHasValue.TryGetValue(type, out method))
                 return method;
-            method = _mapper.GetMethod(Types.Nullable.MakeGenericType(new Type[] { type }).GetProperty("HasValue").GetGetMethod());
+            var specializedType = GenericTypeInstance.GetGenericTypeInstance(_nullableType, new []{type}, _host.InternFactory);
+            method = TypeHelper.GetProperty(specializedType, _nameTable.GetNameFor("HasValue")).Getter.ResolvedMethod;
             _nullableHasValue.Add(type, method);
             return method;
         }

@@ -41,8 +41,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			var builder = ContextAnnotations.GetAssemblyBuilderCci(Context);
-			var filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
-			Save(builder, filename);
+			Save(builder, Context.GeneratedAssemblyFileName);
 		}
 
 		private void Save(Assembly builder, string filename)
