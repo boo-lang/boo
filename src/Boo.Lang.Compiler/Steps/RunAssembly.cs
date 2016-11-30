@@ -27,37 +27,44 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Reflection;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	public class RunAssembly : AbstractCompilerStep
 	{
-		override public void Run()
+        public override void Run()
 		{
 			if (Errors.Count > 0
 				|| CompilerOutputType.Library == Parameters.OutputType
-				|| Context.GeneratedAssembly == null)
+				|| Context.GeneratedAssemblyCci == null)
 				return;
 
-			AppDomain.CurrentDomain.AssemblyResolve += ResolveGeneratedAssembly;
+		    Assembly asm;
+            using (var peStream = new MemoryStream())
+            {
+                var host = ContextAnnotations.GetCciHost(Context);
+                PeWriter.WritePeToStream(Context.GeneratedAssemblyCci, host, peStream);
+                asm = Assembly.Load(peStream.GetBuffer());
+
+            }
+
+		    var asmName = Context.GeneratedAssemblyCci.Name.Value;
+		    ResolveEventHandler rga = (sender, args) => args.Name.Equals(asmName) ? asm : null;
+            AppDomain.CurrentDomain.AssemblyResolve += rga;
 			try
 			{
-				var entryPoint = Context.GeneratedAssembly.EntryPoint;
-				if (entryPoint.GetParameters().Length == 1)
-					entryPoint.Invoke(null, new object[] { new string[0] });
-				else
-					entryPoint.Invoke(null, null);
+			    var entryPoint = asm.EntryPoint;
+			    var argCount = entryPoint.GetParameters().Length;
+                entryPoint.Invoke(null, argCount == 1 ? new object[] { new string[0] } : null);
 			}
 			finally
 			{
-				AppDomain.CurrentDomain.AssemblyResolve -= ResolveGeneratedAssembly;
+                AppDomain.CurrentDomain.AssemblyResolve -= rga;
 			}
 		}
 
-		private Assembly ResolveGeneratedAssembly(object sender, ResolveEventArgs args)
-		{
-			return args.Name == Context.GeneratedAssembly.FullName ? Context.GeneratedAssembly : null;
-		}
 	}
 }
