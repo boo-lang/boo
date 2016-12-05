@@ -125,16 +125,24 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
         public static int CallStackChange(IOperation call)
         {
             var result = 0;
-            var method = (IMethodReference) call.Value;
-            if (method.Type.TypeCode != PrimitiveTypeCode.Void)
-                ++result;
-            result -= method.ParameterCount;
-            if (method.ExtraParameters != null)
-                result -= method.ExtraParameters.Count();
-            if ((method.CallingConvention & CallingConvention.HasThis) == CallingConvention.HasThis)
-                --result;
-            if (call.OperationCode == OperationCode.Calli)
-                --result; //1 for the function pointer
+            var method = call.Value as IMethodReference;
+            if (method != null)
+            {
+                if (method.Type.TypeCode != PrimitiveTypeCode.Void)
+                    ++result;
+                result -= method.ParameterCount;
+                if (method.ExtraParameters != null)
+                    result -= method.ExtraParameters.Count();
+                if ((method.CallingConvention & CallingConvention.HasThis) == CallingConvention.HasThis)
+                    --result;
+                if (call.OperationCode == OperationCode.Calli)
+                    --result; //1 for the function pointer
+            }
+            else
+            {
+                var type = (IArrayTypeReference) call.Value;
+                result -= (int)type.Rank;
+            }
             return result;
         }
 

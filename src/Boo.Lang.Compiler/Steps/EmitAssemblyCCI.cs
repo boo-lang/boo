@@ -1525,7 +1525,7 @@ namespace Boo.Lang.Compiler.Steps
             var elementType = arrayType.ElementType;
             LoadArrayIndices(slice);
             var temp = LoadAssignmentOperand(elementType, node);
-            CallArrayGet(arrayType);
+            CallArraySet(arrayType);
             FlushAssignmentOperand(elementType, temp);
         }
 
@@ -2922,7 +2922,7 @@ namespace Boo.Lang.Compiler.Steps
         private void LoadMultiDimensionalArrayElement(SlicingExpression node, TypeSystem.IArrayType arrayType)
         {
             LoadArrayIndices(node);
-            CallArraySet(arrayType);
+            CallArrayGet(arrayType);
         }
 
 	    private void CallArrayGet(IType arrayType)
@@ -4307,7 +4307,7 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMethodDefinition UnboxMethodFor(IType type)
         {
-            var runtimeServicesType = UnitHelper.FindType(_nameTable, _mapper.GetAssembly(typeof(RuntimeServices).Assembly), "Boo.Lang.Runtime.RuntimeServices");
+            var runtimeServicesType = GetTypeReference<RuntimeServices>();
             if (type == TypeSystemServices.ByteType) return MethodOf(runtimeServicesType, "UnboxByte", typeof(object));
             if (type == TypeSystemServices.SByteType) return MethodOf(runtimeServicesType, "UnboxSByte", typeof(object));
             if (type == TypeSystemServices.ShortType) return MethodOf(runtimeServicesType, "UnboxInt16", typeof(object));
