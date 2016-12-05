@@ -468,6 +468,8 @@ namespace Boo.Lang.Compiler.Steps
 	            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 0,
 	                value.IsEnum, value.IsValueType).ResolvedType;
 	        }
+            if (value.IsGenericType && !value.ContainsGenericParameters)
+                return GetGenericTypeReference(value);
 
 	        var reflectAsm = value.Assembly;
 	        var name = reflectAsm.GetName();
@@ -477,10 +479,26 @@ namespace Boo.Lang.Compiler.Steps
                 name.Version,
                 name.GetPublicKeyToken(),
                 reflectAsm.Location));
+            if (value.IsGenericType)
+                return UnitHelper.FindType(_nameTable, asm, NonGenericName(value.FullName), value.GetGenericArguments().Length);
 	        return UnitHelper.FindType(_nameTable, asm, value.FullName);
 	    }
 
-        private ITypeDefinition GetTypeReference<T>()
+	    private static string NonGenericName(string value)
+	    {
+	        var idx = value.IndexOf("`", StringComparison.Ordinal);
+	        return value.Substring(0, idx);
+	    }
+
+	    private ITypeDefinition GetGenericTypeReference(Type value)
+	    {
+	        var baseType = value.GetGenericTypeDefinition();
+	        var baseTypeRef = GetTypeReference(baseType);
+	        var args = value.GetGenericArguments().Select(GetTypeReference);
+            return GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)baseTypeRef, args, _host.InternFactory);
+	    }
+
+	    private ITypeDefinition GetTypeReference<T>()
 	    {
 	        return GetTypeReference(typeof(T));
 	    }
