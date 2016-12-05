@@ -4425,7 +4425,7 @@ namespace Boo.Lang.Compiler.Steps
                 Method method = ContextAnnotations.GetEntryPoint(Context);
                 if (method != null)
                 {
-                    var methodTypeNameKey = _nameTable.GetNameFor(method.DeclaringType.FullName).UniqueKey;
+                    var methodTypeNameKey = _nameTable.GetNameFor(method.DeclaringType.Name).UniqueKey;
                     MethodDefinition entryPoint = Context.Parameters.GenerateInMemory
                         ? _asmBuilder.AllTypes.Single(t => t.Name.UniqueKey == methodTypeNameKey).GetMembersNamed(_nameTable.GetNameFor(method.Name), false).OfType<MethodDefinition>().Single(m => m.IsStatic)
                         : GetMethodBuilder(method);
