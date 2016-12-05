@@ -5419,20 +5419,19 @@ namespace Boo.Lang.Compiler.Steps
             var i = 0;
             foreach (var parameter in fixedParameters)
             {
-                result[i] = GetValue(parameter.Type, args[i]);
+                result.Add(GetValue(parameter.Type, args[i]));
                 ++i;
             }
 
             if (varargs)
             {
                 var varArgType = parameters[lastIndex].Type.ElementType;
-                result[lastIndex] = new MetadataCreateArray
+                result.Add(new MetadataCreateArray
                 {
                     Initializers =
-                        args.Skip(lastIndex).Select(e => GetValue(varArgType, e)).Cast<IMetadataExpression>().ToList(),
-                };
+                        args.Skip(lastIndex).Select(e => GetValue(varArgType, e)).Cast<IMetadataExpression>().ToList()
+                });
             }
-
             return result;
         }
 
