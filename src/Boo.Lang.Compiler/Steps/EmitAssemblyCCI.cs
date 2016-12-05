@@ -2263,8 +2263,7 @@ namespace Boo.Lang.Compiler.Steps
 
             if (mi.IsGeneric)
             {
-                var mir = mi as IGenericMethodInstanceReference;
-                if (mir != null && MethodsEqual(_builtinsArrayGenericConstructor, mir.GenericMethod))
+                if (MethodsEqual(_builtinsArrayGenericConstructor, mi))
                 {
                     // optimize constructs such as:
                     //		array[of int](2)
