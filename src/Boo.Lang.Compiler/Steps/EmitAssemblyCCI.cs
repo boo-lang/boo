@@ -5234,11 +5234,12 @@ namespace Boo.Lang.Compiler.Steps
 	        {
 	            var subLength = name.LastIndexOf(".", StringComparison.InvariantCulture);
 	            var parentName = subLength > 0 ? name.Substring(0, subLength) : "";
+                var myName = name.Substring(subLength + 1);
 	            var parentNamespace = EnsureNamespace(parentName);
 	            result = new NestedUnitNamespace
 	            {
 	                ContainingUnitNamespace = parentNamespace,
-	                Name = _nameTable.GetNameFor(name)
+                    Name = _nameTable.GetNameFor(myName)
 	            };
                 _namespaceMap.Add(name, result);
 	        }
