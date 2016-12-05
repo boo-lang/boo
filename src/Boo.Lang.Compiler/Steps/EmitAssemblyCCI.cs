@@ -3137,7 +3137,7 @@ namespace Boo.Lang.Compiler.Steps
 
         IMetadataConstant GetInternalFieldStaticValue(InternalField field)
         {
-            return GetValue(field.Type, (Expression)field.StaticValue);
+            return (IMetadataConstant)GetValue(field.Type, (Expression)field.StaticValue);
         }
 
         private void EmitLoadLiteralField(Node node, IField fieldInfo)
@@ -5428,13 +5428,13 @@ namespace Boo.Lang.Compiler.Steps
                 result.Add(new MetadataCreateArray
                 {
                     Initializers =
-                        args.Skip(lastIndex).Select(e => GetValue(varArgType, e)).Cast<IMetadataExpression>().ToList()
+                        args.Skip(lastIndex).Select(e => GetValue(varArgType, e)).ToList()
                 });
             }
             return result;
         }
 
-        private IMetadataConstant GetValue(IType expectedType, Expression expression)
+        private IMetadataExpression GetValue(IType expectedType, Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -5460,8 +5460,7 @@ namespace Boo.Lang.Compiler.Steps
                                             ((DoubleLiteralExpression)expression).Value);
 
                 case NodeType.TypeofExpression:
-                    throw new Exception("Typeof constant is not supported");
-                    //return new MetadataTypeOf{TypeToGet = GetSystemType(((TypeofExpression) expression).Type))};
+                    return new MetadataTypeOf{TypeToGet = GetSystemType(((TypeofExpression) expression).Type)};
 
                 case NodeType.CastExpression:
                     return GetValue(expectedType, ((CastExpression)expression).Target);
@@ -5471,12 +5470,11 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        private IMetadataConstant GetComplexExpressionValue(IType expectedType, Expression expression)
+        private IMetadataExpression GetComplexExpressionValue(IType expectedType, Expression expression)
         {
             IEntity tag = GetEntity(expression);
             if (tag.EntityType == EntityType.Type)
-                throw new Exception("Typeof constant is not supported");
-                //return new MetadataTypeOf{TypeToGet = GetSystemType(expression))};
+                return new MetadataTypeOf{TypeToGet = GetSystemType(expression)};
 
             if (EntityType.Field == tag.EntityType)
             {
