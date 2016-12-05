@@ -5229,7 +5229,8 @@ namespace Boo.Lang.Compiler.Steps
                     ContainingUnitNamespace = enclosingNamespace,
                     InternFactory = _host.InternFactory,
                     Name = _nameTable.GetNameFor(AnnotateGenericTypeName(type, type.Name)),
-                    Methods = new System.Collections.Generic.List<IMethodDefinition>()
+                    Methods = new System.Collections.Generic.List<IMethodDefinition>(),
+                    Fields = new System.Collections.Generic.List<IFieldDefinition>()
                 };
                 enclosingNamespace.Members.Add((NamespaceTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
