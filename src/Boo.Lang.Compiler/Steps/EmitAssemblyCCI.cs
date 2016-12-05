@@ -4993,6 +4993,7 @@ namespace Boo.Lang.Compiler.Steps
 
             var builder = new MethodDefinition
             {
+                InternFactory = _host.InternFactory,
                 Name = _nameTable.GetNameFor(name),
                 ContainingTypeDefinition = typeBuilder
             };
