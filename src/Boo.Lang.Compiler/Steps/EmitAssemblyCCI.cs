@@ -4547,10 +4547,11 @@ namespace Boo.Lang.Compiler.Steps
 	    private IFieldDefinition GetFieldInfo(IField tag)
         {
             // If field is external, get its existing IFieldDefinition
-            ExternalField external = tag as ExternalField;
+            var external = tag as ExternalField;
             if (null != external)
             {
-                return _mapper.GetField(external.FieldInfo);
+                var baseType = GetSystemType(external.DeclaringType);
+                return TypeHelper.GetField(baseType.ResolvedType, _nameTable.GetNameFor(tag.Name));
             }
 
             // If field is mapped from a generic type, get its mapped IFieldDefinition
