@@ -162,22 +162,42 @@ namespace Boo.Lang.Compiler.Steps
             if (Errors.Count > 0)
                 return;
 
-            GatherAssemblyAttributes();
-            SetUpAssembly();
+            try
+            {
+                GatherAssemblyAttributes();
+                SetUpAssembly();
 
-            DefineTypes();
+                DefineTypes();
 
-            DefineResources();
-            DefineAssemblyAttributes();
-            DefineEntryPoint();
-            DefineModuleConstructor();
+                DefineResources();
+                DefineAssemblyAttributes();
+                DefineEntryPoint();
+                DefineModuleConstructor();
 
-            // Define the unmanaged version information resource, which 
-            // contains the attribute informaion applied earlier
-            // MW: Commenting out as this appears to create a resource containing no actual version info.
-            // https://github.com/dotnet/coreclr/blob/f8b8b6ab80f1c5b30cc04676ca2e084ce200161e/src/mscorlib/src/System/Reflection/Emit/AssemblyBuilder.cs#L1418
-            // _asmBuilder.DefineVersionInfoResource();
+                // Define the unmanaged version information resource, which 
+                // contains the attribute informaion applied earlier
+                // MW: Commenting out as this appears to create a resource containing no actual version info.
+                // https://github.com/dotnet/coreclr/blob/f8b8b6ab80f1c5b30cc04676ca2e084ce200161e/src/mscorlib/src/System/Reflection/Emit/AssemblyBuilder.cs#L1418
+                // _asmBuilder.DefineVersionInfoResource();
+            }
+            finally
+            {
+
+                Cleanup();
+            }
         }
+
+	    private void Cleanup()
+	    {
+            _typeCache.Clear();
+            _moduleConstructorMethods.Clear();
+            _assemblyAttributes.Clear();
+            _defaultValueHolders.Clear();
+            _packedArrays.Clear();
+            _builders.Clear();
+            _namespaceMap.Clear();
+            _nullableHasValue.Clear();
+	    }
 
         private void GatherAssemblyAttributes()
         {
