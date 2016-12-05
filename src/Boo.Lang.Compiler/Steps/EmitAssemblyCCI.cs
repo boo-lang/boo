@@ -3730,9 +3730,60 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private uint _staticDataOffset = 0;
 
+	    private NamespaceTypeDefinition GetPackedArrayType(int size)
+	    {
+	        NamespaceTypeDefinition result;
+	        if (!_packedArrayTypes.TryGetValue(size, out result))
+	        {
+	            var name = "$ArrayType$" + size.ToString();
+                result = new NamespaceTypeDefinition
+                {
+                    ContainingUnitNamespace = _asmBuilder.UnitNamespaceRoot,
+                    InternFactory = _host.InternFactory,
+                    Name = _nameTable.GetNameFor(name),
+                    Fields = new System.Collections.Generic.List<IFieldDefinition>(),
+                    BaseClasses = new System.Collections.Generic.List<ITypeReference> { (GetTypeReference<ValueType>()) },
+                    IsClass = true,
+                    IsSealed = true,
+                    IsValueType = true, 
+                    Layout = LayoutKind.Explicit,
+                    SizeOf = (uint)size
+                };
+                ((UnitNamespace)_asmBuilder.UnitNamespaceRoot).Members.Add(result);
+                _asmBuilder.AllTypes.Add(result);
+                _packedArrayTypes.Add(size, result);
+	        }
+	        return result;
+	    }
+
+	    private FieldDefinition DefineInitializedData(string name, byte[] ba)
+	    {
+            //there is no previously emitted bytearray to reuse, create it then
+            var result = new FieldDefinition
+            {
+                Name = _nameTable.GetNameFor(name),
+                InternFactory = _host.InternFactory,
+                Type = GetPackedArrayType(ba.Length),
+                ContainingTypeDefinition = _moduleClass,
+                Visibility = TypeMemberVisibility.Private,
+                IsStatic = true,
+                FieldMapping = new SectionBlock
+                {
+                    PESectionKind = PESectionKind.ConstantData,
+                    Data = new System.Collections.Generic.List<byte>(ba),
+                    Size = (uint)ba.Length,
+                    Offset = _staticDataOffset
+                }
+            };
+            _staticDataOffset += (uint)ba.Length;
+            _packedArrays.Add(ba, result);
+            _moduleClass.Fields.Add(result);
+	        return result;
+	    }
+
         private void EmitPackedArrayInit(IType type, ExpressionCollection items)
         {
-            byte[] ba = CreateByteArrayFromLiteralCollection(type, items);
+            var ba = CreateByteArrayFromLiteralCollection(type, items);
             if (null == ba)
             {
                 EmitInlineArrayInit(type, items);
@@ -3743,23 +3794,7 @@ namespace Boo.Lang.Compiler.Steps
             if (!_packedArrays.TryGetValue(ba, out fb))
             {
                 //there is no previously emitted bytearray to reuse, create it then
-                fb = new FieldDefinition
-                {
-                    Name = _nameTable.GetNameFor(Context.GetUniqueName("newarr")),
-                    InternFactory = _host.InternFactory,
-                    Type = GetTypeReference(typeof(byte[])),
-                    ContainingTypeDefinition = _moduleClass,
-                    Visibility = TypeMemberVisibility.Private,
-                    FieldMapping = new SectionBlock
-                    {
-                        PESectionKind = PESectionKind.ConstantData,
-                        Data = new System.Collections.Generic.List<byte>(ba),
-                        Size = (uint)ba.Length,
-                        Offset = _staticDataOffset
-                    }
-                };
-                _staticDataOffset += (uint)ba.Length;
-                _packedArrays.Add(ba, fb);
+                fb = DefineInitializedData(Context.GetUniqueName("newarr"), ba);
             }
 
             Dup(); //dup (newarr)
@@ -3768,6 +3803,7 @@ namespace Boo.Lang.Compiler.Steps
         }
 
 	    private readonly Dictionary<byte[], FieldDefinition> _packedArrays = new Dictionary<byte[], FieldDefinition>(ValueTypeArrayEqualityComparer<byte>.Default);
+        private readonly Dictionary<int, NamespaceTypeDefinition> _packedArrayTypes = new Dictionary<int, NamespaceTypeDefinition>();
 
 	    private byte[] CreateByteArrayFromLiteralCollection(IType type, ExpressionCollection items)
         {
@@ -5659,7 +5695,8 @@ namespace Boo.Lang.Compiler.Steps
                 InternFactory = _host.InternFactory,
                 IsClass = true,
                 Name = _nameTable.GetNameFor("<Module>"),
-                Methods = new System.Collections.Generic.List<IMethodDefinition>()
+                Methods = new System.Collections.Generic.List<IMethodDefinition>(),
+                Fields = new System.Collections.Generic.List<IFieldDefinition>()
             };
             _asmBuilder.AllTypes.Add(_moduleClass);
 
