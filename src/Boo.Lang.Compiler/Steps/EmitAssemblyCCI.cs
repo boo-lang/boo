@@ -445,9 +445,10 @@ namespace Boo.Lang.Compiler.Steps
                     ContainingTypeDefinition = typeBuilder,
                     Visibility = TypeMemberVisibility.Public,
                     IsStatic = true,
-                    IsCompileTimeConstant = true
+                    IsCompileTimeConstant = true,
+                    InternFactory = _host.InternFactory,
+                    CompileTimeValue = InitializerValueOf(member, node)
                 };
-                field.CompileTimeValue = InitializerValueOf(member, node);
                 SetBuilder(member, field);
             }
         }
@@ -4972,7 +4973,8 @@ namespace Boo.Lang.Compiler.Steps
                 ContainingTypeDefinition = typeBuilder,
                 CustomModifiers = GetFieldRequiredCustomModifiers(field)
                     .Select(cm => new Microsoft.Cci.Immutable.CustomModifier(false, GetTypeReference(cm)))
-                    .Cast<ICustomModifier>().ToList()
+                    .Cast<ICustomModifier>().ToList(),
+                InternFactory = _host.InternFactory
             };
             SetFieldAttributesFor(field, builder);
             SetBuilder(field, builder);
@@ -5231,7 +5233,8 @@ namespace Boo.Lang.Compiler.Steps
                     Name = _nameTable.GetNameFor(AnnotateGenericTypeName(type, type.Name)),
                     Methods = new System.Collections.Generic.List<IMethodDefinition>(),
                     Fields = new System.Collections.Generic.List<IFieldDefinition>(),
-                    Properties = new System.Collections.Generic.List<IPropertyDefinition>()
+                    Properties = new System.Collections.Generic.List<IPropertyDefinition>(),
+                    NestedTypes = new System.Collections.Generic.List<INestedTypeDefinition>()
                 };
                 enclosingNamespace.Members.Add((NamespaceTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
@@ -5247,10 +5250,15 @@ namespace Boo.Lang.Compiler.Steps
                     ContainingTypeDefinition = enclosingTypeBuilder,
                     InternFactory = _host.InternFactory,
                     Name = _nameTable.GetNameFor(AnnotateGenericTypeName(type, type.Name)),
+                    NestedTypes = new System.Collections.Generic.List<INestedTypeDefinition>(),
+                    Fields = new System.Collections.Generic.List<IFieldDefinition>(),
+                    Methods = new System.Collections.Generic.List<IMethodDefinition>(),
+                    Properties = new System.Collections.Generic.List<IPropertyDefinition>()
                 };
                 enclosingTypeBuilder.NestedTypes.Add((NestedTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
-                typeBuilder.BaseClasses.Add(GetTypeReference(baseType));
+                if (baseType != null)
+                    typeBuilder.BaseClasses.Add(GetTypeReference(baseType));
                 GetNestedTypeAttributes(type, (NestedTypeDefinition)typeBuilder);
             }
 
