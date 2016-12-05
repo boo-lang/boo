@@ -24,7 +24,7 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             OperationCode.Ldfld, OperationCode.Ldflda, OperationCode.Conv_Ovf_I1_Un, OperationCode.Conv_Ovf_I2_Un,
             OperationCode.Conv_Ovf_I4_Un, OperationCode.Conv_Ovf_I8_Un, OperationCode.Conv_Ovf_U1_Un,
             OperationCode.Conv_Ovf_U2_Un, OperationCode.Conv_Ovf_U4_Un, OperationCode.Conv_Ovf_U8_Un,
-            OperationCode.Conv_Ovf_I_Un, OperationCode.Conv_Ovf_U_Un, OperationCode.Box, OperationCode.Newarr,
+            OperationCode.Conv_Ovf_I_Un, OperationCode.Conv_Ovf_U_Un, OperationCode.Box,
             OperationCode.Ldlen, OperationCode.Stelem, OperationCode.Unbox_Any, OperationCode.Conv_Ovf_I1,
             OperationCode.Conv_Ovf_U1, OperationCode.Conv_Ovf_I2, OperationCode.Conv_Ovf_U2, OperationCode.Conv_Ovf_I4,
             OperationCode.Conv_Ovf_U4, OperationCode.Conv_Ovf_I8, OperationCode.Conv_Ovf_U8, OperationCode.Refanyval,
@@ -33,7 +33,7 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             OperationCode.Leave, OperationCode.Leave_S, OperationCode.Conv_U, OperationCode.Ldvirtftn,
             OperationCode.Localloc, OperationCode.Unaligned_, OperationCode.Volatile_, OperationCode.Tail_,
             OperationCode.Constrained_, OperationCode.Rethrow, OperationCode.Refanytype, OperationCode.Readonly_,
-            OperationCode.Invalid, OperationCode.No_, OperationCode.Array_Create, OperationCode.Array_Create_WithLowerBound, 
+            OperationCode.Invalid, OperationCode.No_, 
             OperationCode.Array_Get, OperationCode.Array_Set, OperationCode.Array_Addr
         };
 
@@ -49,7 +49,8 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             OperationCode.Ldc_R4, OperationCode.Ldc_R8, OperationCode.Dup, OperationCode.Ldstr, OperationCode.Newobj,
             OperationCode.Ldsfld, OperationCode.Ldsflda, OperationCode.Ldtoken, OperationCode.Arglist,
             OperationCode.Ldftn, OperationCode.Ldarg, OperationCode.Ldarga, OperationCode.Ldloc, OperationCode.Ldloca,
-            OperationCode.Sizeof
+            OperationCode.Sizeof, OperationCode.Array_Create, OperationCode.Array_Create_WithLowerBound,
+            OperationCode.Newarr
         };
 
         private static readonly OperationCode[] MINUS_ONE =
@@ -99,8 +100,7 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
         private static readonly ISet<OperationCode> _calls = new HashSet<OperationCode>
         {
             OperationCode.Calli, OperationCode.Call, OperationCode.Callvirt, OperationCode.Newobj,
-            OperationCode.Array_Addr, OperationCode.Array_Create, OperationCode.Array_Create_WithLowerBound,
-            OperationCode.Array_Get, OperationCode.Array_Set
+            OperationCode.Array_Addr, OperationCode.Array_Get, OperationCode.Array_Set
         };
 
         static IlGeneratorHelper()
