@@ -41,7 +41,6 @@ using System.Security;
 
 using Microsoft.Cci;
 using Microsoft.Cci.MutableCodeModel;
-using Microsoft.Cci.ReflectionImporter;
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.EmitCCI;
@@ -80,7 +79,6 @@ namespace Boo.Lang.Compiler.Steps
 	{
         private INameTable _nameTable;
         private PeReader.DefaultHost _host;
-	    private ReflectionMapper _mapper;
         private IAssembly _coreAssembly;
 
         private Assembly _asmBuilder;
@@ -5693,9 +5691,8 @@ namespace Boo.Lang.Compiler.Steps
             };
             rootUnitNamespace.Unit = _asmBuilder;
             _namespaceMap.Add("", rootUnitNamespace);
-            _mapper = new ReflectionMapper(_host);
-
-            _moduleClass = new NamespaceTypeDefinition()
+            
+            _moduleClass = new NamespaceTypeDefinition
             {
                 ContainingUnitNamespace = rootUnitNamespace,
                 InternFactory = _host.InternFactory,

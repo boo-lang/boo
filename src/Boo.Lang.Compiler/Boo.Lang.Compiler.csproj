@@ -106,9 +106,6 @@
     <Reference Include="Microsoft.Cci.SourceModel">
       <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\Microsoft.Cci.SourceModel.dll</HintPath>
     </Reference>
-    <Reference Include="ReflectionImporter">
-      <HintPath>..\..\..\..\Visual Studio 2015\Projects\CCI Metadata\Bin\Debug\ReflectionImporter.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core">
