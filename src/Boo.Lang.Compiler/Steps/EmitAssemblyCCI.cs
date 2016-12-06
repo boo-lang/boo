@@ -5394,7 +5394,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 ITypedEntity entity = (ITypedEntity)GetEntity(pair.First);
                 var value = GetValue(entity.Type, pair.Second);
-                var argType = GetSystemType(pair.Second.ExpressionType);
+                var argType = value.Type;
                 if (EntityType.Property == entity.EntityType)
                 {
                     result.Add(new MetadataNamedArgument
@@ -5472,8 +5472,12 @@ namespace Boo.Lang.Compiler.Steps
                     return ConvertValue(expectedType, intValue);
 
                 case NodeType.DoubleLiteralExpression:
-                    return ConvertValue(expectedType,
-                                            ((DoubleLiteralExpression)expression).Value);
+                    var dle = (DoubleLiteralExpression) expression;
+                    object floatValue;
+                    if (dle.IsSingle)
+                        floatValue = (float)dle.Value;
+                    else floatValue = dle.Value;
+                    return ConvertValue(expectedType, floatValue);
 
                 case NodeType.TypeofExpression:
                     return new MetadataTypeOf{TypeToGet = GetSystemType(((TypeofExpression) expression).Type)};

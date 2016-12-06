@@ -451,6 +451,7 @@
     <Compile Include="Steps\BranchChecking.cs" />
     <Compile Include="Steps\CacheRegularExpressionsInStaticFields.cs" />
     <Compile Include="Steps\CheckAttributesUsage.cs" />
+    <Compile Include="Steps\CheckAttributeTypes.cs" />
     <Compile Include="Steps\CheckGenericConstraints.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
     <Compile Include="Steps\CheckLiteralValues.cs" />
