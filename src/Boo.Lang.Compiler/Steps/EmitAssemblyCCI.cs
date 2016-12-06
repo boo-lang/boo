@@ -5464,8 +5464,12 @@ namespace Boo.Lang.Compiler.Steps
 
                 case NodeType.IntegerLiteralExpression:
                     var ile = (IntegerLiteralExpression)expression;
-                    return ConvertValue(expectedType,
-                                        ile.IsLong ? ile.Value : (int)ile.Value);
+                    object intValue;
+                    if (ile.IsLong)
+                        intValue = ile.Value;
+                    else
+                        intValue = (int) ile.Value;
+                    return ConvertValue(expectedType, intValue);
 
                 case NodeType.DoubleLiteralExpression:
                     return ConvertValue(expectedType,
