@@ -2896,7 +2896,7 @@ namespace Boo.Lang.Compiler.Steps
             }
             else /* force use of CLR-friendly string.Empty */
             {
-                _il.Emit(OperationCode.Ldsfld, typeof(string).GetField("Empty"));
+                _il.Emit(OperationCode.Ldsfld, _stringEmpty);
             }
             PushType(TypeSystemServices.StringType);
         }
