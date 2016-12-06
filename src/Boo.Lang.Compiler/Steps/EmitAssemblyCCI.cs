@@ -795,6 +795,8 @@ namespace Boo.Lang.Compiler.Steps
             ++_tryBlock;
             _il.BeginTryBody();
             Visit(node.ProtectedBlock);
+            var label = new ILGeneratorLabel();
+            _il.Emit(OperationCode.Leave, label);
 
             Visit(node.ExceptionHandlers);
 
@@ -808,10 +810,12 @@ namespace Boo.Lang.Compiler.Steps
             {
                 _il.BeginFinallyBlock();
                 Visit(node.EnsureBlock);
+                _il.Emit(OperationCode.Endfinally);
             }
 
             _il.EndTryBody();
             --_tryBlock;
+            _il.MarkLabel(label);
         }
 
         public override void OnExceptionHandler(ExceptionHandler node)
