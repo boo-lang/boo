@@ -5384,13 +5384,15 @@ namespace Boo.Lang.Compiler.Steps
             foreach (var pair in values)
             {
                 ITypedEntity entity = (ITypedEntity)GetEntity(pair.First);
-                object value = GetValue(entity.Type, pair.Second);
+                var value = GetValue(entity.Type, pair.Second);
+                var argType = GetSystemType(pair.Second.ExpressionType);
                 if (EntityType.Property == entity.EntityType)
                 {
                     result.Add(new MetadataNamedArgument
                     {
                         ArgumentName = _nameTable.GetNameFor(((IProperty) entity).Name),
-                        ArgumentValue = new MetadataConstant {Value = value}
+                        ArgumentValue = value,
+                        Type = argType
                     });
                 }
                 else
@@ -5398,8 +5400,9 @@ namespace Boo.Lang.Compiler.Steps
                     result.Add(new MetadataNamedArgument
                     {
                         ArgumentName = _nameTable.GetNameFor(((IField)entity).Name),
-                        ArgumentValue = new MetadataConstant { Value = value },
-                        IsField = true
+                        ArgumentValue = value,
+                        IsField = true,
+                        Type = argType
                     });
                 }
             }
