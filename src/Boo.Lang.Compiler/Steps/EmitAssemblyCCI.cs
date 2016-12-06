@@ -2199,6 +2199,7 @@ namespace Boo.Lang.Compiler.Steps
 	    private IMethodReference _typeGetTypeFromHandle;
 	    private IMethodReference _hashAdd;
 	    private IMethodReference _runtimeHelpersInitializeArray;
+	    private IFieldReference _stringEmpty;
 
         private void SetupBuiltins()
         {
@@ -2230,6 +2231,7 @@ namespace Boo.Lang.Compiler.Steps
             _runtimeServicesNormalizeArrayIndex = MethodOf<RuntimeServices>("NormalizeArrayIndex", typeof(Array), typeof(int));
             _runtimeHelpersInitializeArray =
                 MethodOf(GetTypeReference(typeof(System.Runtime.CompilerServices.RuntimeHelpers)), "InitializeArray", typeof(Array), typeof(RuntimeFieldHandle));
+            _stringEmpty = TypeHelper.GetField(GetTypeReference<string>(), _nameTable.GetNameFor("Empty"));
         }
 
 	    private bool MethodsEqual(IMethodReference m1, IMethodReference m2)
@@ -4976,17 +4978,22 @@ namespace Boo.Lang.Compiler.Steps
                 Name = _nameTable.GetNameFor(name),
                 Type = GetSystemType(property.Type),
                 ContainingTypeDefinition = typeBuilder,
+                Accessors = new System.Collections.Generic.List<IMethodReference>()
             };
             builder.Parameters = property.Parameters.Select((p, i) => MakeParameter(p, i, builder)).Cast<IParameterDefinition>().ToList();
             SetPropertyAttributesFor(property, builder);
             var getter = property.Getter;
             if (getter != null)
+            {
                 builder.Getter = DefinePropertyAccessor(typeBuilder, property, getter);
-
+                builder.Accessors.Add(builder.Getter);
+            }
             var setter = property.Setter;
             if (setter != null)
+            {
                 builder.Setter = DefinePropertyAccessor(typeBuilder, property, setter);
-
+                builder.Accessors.Add(builder.Setter);
+            }
             if (GetEntity(property).IsDuckTyped)
                 builder.Attributes = new System.Collections.Generic.List<ICustomAttribute>{CreateDuckTypedCustomAttribute()};
 
