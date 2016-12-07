@@ -5059,7 +5059,10 @@ namespace Boo.Lang.Compiler.Steps
         private static void SetImplementationFlagsFor(Method method, MethodDefinition builder)
         {
             if (method.IsRuntime)
+            {
                 builder.IsRuntimeImplemented = true;
+                builder.IsExternal = true;
+            }
             else builder.IsCil = true;
         }
 
