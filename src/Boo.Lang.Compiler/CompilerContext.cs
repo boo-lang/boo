@@ -29,12 +29,15 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Remoting.Contexts;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
+using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler
 {
@@ -174,7 +177,21 @@ namespace Boo.Lang.Compiler
 		
 		public Assembly GeneratedAssembly
 		{
-			get { return _generatedAssembly; }
+		    get
+		    {
+		        if (_generatedAssembly == null)
+		        {
+		            if (GeneratedAssemblyCci == null)
+		                return null;
+		            using (var peStream = new MemoryStream())
+		            {
+		                var host = ContextAnnotations.GetCciHost(this);
+		                PeWriter.WritePeToStream(GeneratedAssemblyCci, host, peStream);
+		                _generatedAssembly = Assembly.Load(peStream.GetBuffer());
+		            }
+		        }
+                return _generatedAssembly;
+		    }
 			set { _generatedAssembly = value; }
 		}
 

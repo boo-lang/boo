@@ -42,15 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 				|| Context.GeneratedAssemblyCci == null)
 				return;
 
-		    Assembly asm;
-            using (var peStream = new MemoryStream())
-            {
-                var host = ContextAnnotations.GetCciHost(Context);
-                PeWriter.WritePeToStream(Context.GeneratedAssemblyCci, host, peStream);
-                asm = Assembly.Load(peStream.GetBuffer());
-
-            }
-
+		    var asm = Context.GeneratedAssembly;
 		    var asmName = Context.GeneratedAssemblyCci.Name.Value;
 		    ResolveEventHandler rga = (sender, args) => args.Name.Equals(asmName) ? asm : null;
             AppDomain.CurrentDomain.AssemblyResolve += rga;
