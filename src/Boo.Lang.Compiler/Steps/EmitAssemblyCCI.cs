@@ -453,6 +453,11 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private ITypeDefinition GetTypeReference(Type value)
 	    {
+	        if (value.IsByRef)
+	        {
+	            var referredType = value.GetElementType();
+	            return GetTypeReference(referredType);
+	        }
 	        if (value.IsArray)
                 return new VectorTypeReference
                 {
@@ -714,15 +719,24 @@ namespace Boo.Lang.Compiler.Steps
             EmitMethod(constructor, builder);
         }
 
+        private LocalDefinition DefineLocal(string name, ITypeReference type, bool isRef = false)
+        {
+            if (name == null)
+                name = "V_" + _locals.Count.ToString();
+            var result = new LocalDefinition
+            {
+                Name = _nameTable.GetNameFor(name),
+                Type = type,
+                IsReference = isRef
+            };
+            _locals.Add(result);
+            return result;
+        }
+
         public override void OnLocal(Local local)
         {
             InternalLocal info = GetInternalLocal(local);
-            info.LocalDefinition = new LocalDefinition
-            {
-                Name = _nameTable.GetNameFor(local.Name),
-                Type = GetSystemType(local),
-                IsReference = info.Type.IsPointer,
-            };
+            info.LocalDefinition = DefineLocal(local.Name, GetSystemType(local), info.Type.IsPointer);
             _locals.Add(info.LocalDefinition);
         }
 
@@ -1402,7 +1416,7 @@ namespace Boo.Lang.Compiler.Steps
             if (_defaultValueHolders.TryGetValue(type, out holder))
                 return holder;
 
-            holder = new LocalDefinition{Type = GetSystemType(type)};
+            holder = DefineLocal(null, GetSystemType(type));
             _defaultValueHolders.Add(type, holder);
             return holder;
         }
@@ -1612,7 +1626,7 @@ namespace Boo.Lang.Compiler.Steps
 
         private LocalDefinition StoreTempLocal(IType elementType)
         {
-            LocalDefinition temp = new LocalDefinition{Type = GetSystemType(elementType)};
+            LocalDefinition temp = DefineLocal(null, GetSystemType(elementType) );
             _il.Emit(OperationCode.Stloc, temp);
             return temp;
         }
@@ -3327,7 +3341,7 @@ namespace Boo.Lang.Compiler.Steps
             if (!AstUtil.IsIndirection(expression))
             {
                 // declare local to hold value type
-                var temp = new LocalDefinition { Type = GetSystemType(PopType()) };
+                var temp = DefineLocal(null, GetSystemType(PopType()) );
                 _il.Emit(OperationCode.Stloc, temp);
                 _il.Emit(OperationCode.Ldloca, temp);
             }
@@ -3549,7 +3563,7 @@ namespace Boo.Lang.Compiler.Steps
             if (leaveValueOnStack)
             {
                 Dup();
-                local = new LocalDefinition {Type = GetSystemType(field.Type)};
+                local = DefineLocal(null, GetSystemType(field.Type) );
                 _il.Emit(OperationCode.Stloc, local);
             }
 
@@ -3593,7 +3607,7 @@ namespace Boo.Lang.Compiler.Steps
             if (leaveValueOnStack)
             {
                 Dup();
-                local = new LocalDefinition {Type = GetSystemType(property.Type)};
+                local = DefineLocal(null, GetSystemType(property.Type));
                 _il.Emit(OperationCode.Stloc, local);
             }
 
