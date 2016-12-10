@@ -122,18 +122,18 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             _opcodeDict = dict;
         }
 
-        public static int CallStackChange(IOperation call)
+        private static int CallStackChange(IOperation call)
         {
             var result = 0;
             var method = call.Value as IMethodReference;
             if (method != null)
             {
-                if (method.Type.TypeCode != PrimitiveTypeCode.Void)
+                if (method.Type.TypeCode != PrimitiveTypeCode.Void || call.OperationCode == OperationCode.Newobj)
                     ++result;
                 result -= method.ParameterCount;
                 if (method.ExtraParameters != null)
                     result -= method.ExtraParameters.Count();
-                if ((method.CallingConvention & CallingConvention.HasThis) == CallingConvention.HasThis)
+                if (call.OperationCode != OperationCode.Newobj && (method.CallingConvention & CallingConvention.HasThis) == CallingConvention.HasThis)
                     --result;
                 if (call.OperationCode == OperationCode.Calli)
                     --result; //1 for the function pointer
