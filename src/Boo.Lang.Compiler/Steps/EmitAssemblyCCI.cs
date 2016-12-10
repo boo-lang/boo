@@ -2241,7 +2241,7 @@ namespace Boo.Lang.Compiler.Steps
             _runtimeServicesToBoolDecimal = MethodOf<RuntimeServices>("ToBool", typeof(decimal));
             _stringIsNullOrEmpty = MethodOf<string>("IsNullOrEmpty", typeof(string));
             _typeGetTypeFromHandle = MethodOf<Type>("GetTypeFromHandle", typeof(RuntimeTypeHandle));
-            _hashAdd = MethodOf<Hash>("Add", typeof(object), typeof(object));
+            _hashAdd = MethodOf<Hashtable>("Add", typeof(object), typeof(object));
             _runtimeServicesNormalizeArrayIndex = MethodOf<RuntimeServices>("NormalizeArrayIndex", typeof(Array), typeof(int));
             _runtimeHelpersInitializeArray =
                 MethodOf(GetTypeReference(typeof(System.Runtime.CompilerServices.RuntimeHelpers)), "InitializeArray", typeof(Array), typeof(RuntimeFieldHandle));
