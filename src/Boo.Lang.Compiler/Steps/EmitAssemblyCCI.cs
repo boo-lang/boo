@@ -4744,7 +4744,7 @@ namespace Boo.Lang.Compiler.Steps
             if (entity is AbstractInternalType)
             {
                 TypeDefinition typedef = ((AbstractInternalType)entity).TypeDefinition;
-                var type = (NamespaceTypeDefinition)GetBuilder(typedef);
+                var type = (NamedTypeDefinition)GetBuilder(typedef);
 
                 if (null != entity.GenericInfo && !type.IsGeneric) //hu-oh, early-bound
                     DefineGenericParameters(typedef);
