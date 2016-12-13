@@ -27,17 +27,17 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	using System.Reflection;
 
 	public class ExternalParameter : IParameter
 	{
         ICciTypeSystemProvider _provider;
-		protected ParameterInfo _parameter;
+        protected IParameterDefinition _parameter;
 
-        public ExternalParameter(ICciTypeSystemProvider provider, ParameterInfo parameter)
+        public ExternalParameter(ICciTypeSystemProvider provider, IParameterDefinition parameter)
 		{
 			_provider = provider;
 			_parameter = parameter;
@@ -47,7 +47,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return _parameter.Name;
+				return _parameter.Name.Value;
 			}
 		}
 		
@@ -55,7 +55,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return _parameter.Name;
+				return _parameter.Name.Value;
 			}
 		}
 		
@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return _provider.Map(_parameter.ParameterType);
+				return _provider.Map(_parameter.Type);
 			}
 		}
 		

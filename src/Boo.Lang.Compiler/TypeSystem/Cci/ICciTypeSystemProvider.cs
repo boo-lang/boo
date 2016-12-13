@@ -29,18 +29,18 @@
 
 using System;
 using System.Reflection;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
 	public interface ICciTypeSystemProvider
 	{
-		IAssemblyReference ForAssembly(Assembly assembly);
-		IType Map(Type type);
-		IMethod Map(MethodInfo method);
-		IConstructor Map(ConstructorInfo ctor);
-		IEntity Map(MemberInfo[] members);
-		IEntity Map(MemberInfo member);
-		IParameter[] Map(ParameterInfo[] parameters);
+        AssemblyReferenceCci ForAssembly(IUnit assembly);
+        IType Map(ITypeDefinition type);
+        IMethod Map(IMethodDefinition method);
+        IEntity Map(ITypeDefinitionMember[] members);
+        IEntity Map(ITypeDefinitionMember member);
+		IParameter[] Map(IParameterDefinition[] parameters);
         ICciTypeSystemProvider Clone();
 	}
 }

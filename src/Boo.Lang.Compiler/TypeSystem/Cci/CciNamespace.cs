@@ -32,13 +32,14 @@ using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.Util;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
 	internal class CciNamespace : AbstractNamespace
 	{
 		private readonly MemoizedFunction<string, CciNamespace> _childNamespaces;
-		private readonly MemoizedFunction<string, List<Type>> _typeLists;
+        private readonly MemoizedFunction<string, List<INamedTypeDefinition>> _typeLists;
 		private List<INamespace> _modules;
 		private readonly ICciTypeSystemProvider _provider;
 
@@ -47,7 +48,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		public CciNamespace(ICciTypeSystemProvider provider)
 		{
 			_childNamespaces = new MemoizedFunction<string, CciNamespace>(StringComparer.Ordinal, CreateChildNamespace);
-			_typeLists = new MemoizedFunction<string, List<Type>>(StringComparer.Ordinal, NewTypeList);
+            _typeLists = new MemoizedFunction<string, List<INamedTypeDefinition>>(StringComparer.Ordinal, NewTypeList);
 			_provider = provider;
 		}
 
@@ -159,7 +160,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		private bool ResolveType(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-			List<Type> types;
+            List<INamedTypeDefinition> types;
 			if (Entities.IsFlagSet(typesToConsider, TypeSystem.EntityType.Type)
 			    && _typeLists.TryGetValue(name, out types))
 			{
@@ -182,9 +183,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return false;
 		}
 
-		private IEnumerable EntitiesFor(List<Type> types)
+        private IEnumerable EntitiesFor(List<INamedTypeDefinition> types)
 		{
-			foreach (Type type in types)
+			foreach (var type in types)
 				yield return _provider.Map(type);
 		}
 
@@ -193,7 +194,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			foreach (CciNamespace child in _childNamespaces.Values)
 				yield return child;
 
-			foreach (List<Type> typeList in _typeLists.Values)
+            foreach (List<INamedTypeDefinition> typeList in _typeLists.Values)
 				foreach (Type type in typeList)
 					yield return _provider.Map(type);
 
@@ -205,27 +206,27 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		#endregion
 
-		public void Add(Type type)
+        public void Add(INamedTypeDefinition type)
 		{
-			string typeName = TypeUtilities.TypeName(type);
+            var typeName = TypeUtilities.RemoveGenericSuffixFrom(type.Name.Value);
 			TypeListFor(typeName).Add(type);
 			if (IsModule(type))
 				AddModule(type);
 		}
 
-		private void AddModule(Type type)
+        private void AddModule(INamedTypeDefinition type)
 		{
 			if (_modules == null)
 				_modules = new List<INamespace>();
 			_modules.Add(_provider.Map(type));
 		}
 
-		private List<Type> TypeListFor(string name)
+        private List<INamedTypeDefinition> TypeListFor(string name)
 		{
 			return _typeLists.Invoke(name);
 		}
 
-		private static bool IsModule(Type type)
+        private static bool IsModule(INamedTypeDefinition type)
 		{
 			return type.IsClass
 				&& type.IsSealed
@@ -239,9 +240,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 				|| MetadataUtil.IsAttributeDefined(type, Types.ClrExtensionAttribute);
 		}
 
-		private static List<Type> NewTypeList(string name)
+        private static List<INamedTypeDefinition> NewTypeList(string name)
 		{
-			return new List<Type>();
+            return new List<INamedTypeDefinition>();
 		}
 	}
 }

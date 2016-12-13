@@ -29,17 +29,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
 	internal sealed class CciNamespaceBuilder
 	{
-		private Assembly _assembly;
+		private IAssembly _assembly;
 		private CciNamespace _root;
 
-		public CciNamespaceBuilder(ICciTypeSystemProvider provider, Assembly assembly)
+		public CciNamespaceBuilder(ICciTypeSystemProvider provider, IAssembly assembly)
 		{
 			_root = new CciNamespace(provider);
 			_assembly = assembly;
@@ -47,40 +48,28 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public INamespace Build()
 		{
-			try
-			{
-				CatalogPublicTypes(_assembly.GetTypes());
-			}
-			catch (ReflectionTypeLoadException x)
-			{
-				My<CompilerWarningCollection>.Instance.Add(CompilerWarningFactory.CustomWarning("Could not load types from '" + _assembly + "': " + Builtins.join(x.LoaderExceptions, "\n")));
-			}
+			CatalogPublicTypes(_assembly.GetAllTypes());
 			return _root;
 		}
 
-		private void CatalogPublicTypes(IEnumerable<Type> types)
+		private void CatalogPublicTypes(IEnumerable<INamedTypeDefinition> types)
 		{
 			string lastNs = "!!not a namespace!!";
 			CciNamespace lastNsEntity = null;
-
-			foreach (Type type in types)
+			foreach (var type in types.OfType<INamespaceTypeDefinition>())
 			{
 				if (!type.IsPublic) continue;
 
-				string ns = type.Namespace ?? string.Empty;
+				string ns = type.ContainingNamespace.Name.Value;
 				//retrieve the namespace only if we don't have it handy already
 				//usually we'll have it since GetExportedTypes() seems to export
 				//types in a sorted fashion.
-				if (ns != lastNs)
-				{
-					lastNs = ns;
-					lastNsEntity = GetNamespace(ns);
-					lastNsEntity.Add(type);
-				}
-				else
-				{
-					lastNsEntity.Add(type);
-				}
+			    if (ns != lastNs)
+			    {
+			        lastNs = ns;
+			        lastNsEntity = GetNamespace(ns);
+			    }
+			    lastNsEntity.Add(type);
 			}
 		}
 

@@ -27,26 +27,25 @@
 #endregion
 
 
-using System;
 using System.Collections.Generic;
-using System.Reflection;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	sealed class AssemblyEqualityComparer : IEqualityComparer<Assembly>
+    internal sealed class AssemblyEqualityComparer : IEqualityComparer<IUnit>
 	{
-		public static readonly IEqualityComparer<Assembly> Default = new AssemblyEqualityComparer();
+        public static readonly IEqualityComparer<IUnit> Default = new AssemblyEqualityComparer();
 
 		private AssemblyEqualityComparer()
 		{	
 		}
 
-		public bool Equals(Assembly x, Assembly y)
+        public bool Equals(IUnit x, IUnit y)
 		{
-			return object.ReferenceEquals(x, y);
+			return ReferenceEquals(x, y);
 		}
 
-		public int GetHashCode(Assembly obj)
+        public int GetHashCode(IUnit obj)
 		{
             return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
 		}

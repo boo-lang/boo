@@ -28,11 +28,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
@@ -40,23 +42,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 	{
         protected ICciTypeSystemProvider _provider;
 
-		private readonly Type _type;
+        private readonly ITypeDefinition _type;
 
-		IType[] _interfaces;
+        private IType[] _interfaces;
 
-		IEntity[] _members;
+        private IEntity[] _members;
 
-		Dictionary<string, List<IEntity>> _cache;
+		private Dictionary<string, List<IEntity>> _cache;
 
-		int _typeDepth = -1;
+        private int _typeDepth = -1;
 
-		string _primitiveName;
+        private string _primitiveName;
 
-		string _fullName;
+        private string _fullName;
 
 		private string _name;
 
-        public ExternalType(ICciTypeSystemProvider tss, Type type)
+        public ExternalType(ICciTypeSystemProvider tss, INamedTypeDefinition type)
 		{
 			if (null == type) throw new ArgumentException("type");
 			_provider = tss;
@@ -84,7 +86,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			get
 			{
 				if (null != _name) return _name;
-				return _name = TypeUtilities.TypeName(_type);
+                return _name = TypeUtilities.RemoveGenericSuffixFrom(TypeHelper.GetTypeName(_type));
 			}
 		}
 
@@ -105,7 +107,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public bool IsByRef
 		{
-			get { return _type.IsByRef; }
+			get { return false; } //ByRef types are not supported in CCI; ByRef params are
 		}
 
 		public virtual IEntity DeclaringEntity
@@ -117,23 +119,27 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				System.Type declaringType = _type.DeclaringType;
-				return null != declaringType
-				       	? _provider.Map(declaringType)
+			    var nested = _type as INestedTypeDefinition;
+				return nested != null
+				       	? _provider.Map(nested.ContainingTypeDefinition)
 				       	: null;
 			}
 		}
 
 		public bool IsDefined(IType attributeType)
 		{
-			ExternalType type = attributeType as ExternalType;
+			var type = attributeType as ExternalType;
 			if (null == type) return false;
-			return MetadataUtil.IsAttributeDefined(_type, type.ActualType);
+		    return _type.Attributes.Any(a => TypeHelper.TypesAreEquivalent(a.Type, type.ActualType));
 		}
 
 		public virtual IType ElementType
 		{
-			get { return _provider.Map(_type.GetElementType() ?? _type); }
+		    get
+		    {
+		        var at = _type as Microsoft.Cci.IArrayType;
+		        return _provider.Map(at != null ? at.ElementType.ResolvedType : _type);
+		    }
 		}
 
 		public virtual bool IsClass
@@ -168,7 +174,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public bool IsPointer
 		{
-			get { return _type.IsPointer; }
+            get { return _type is IPointerType; }
 		}
 		
 		public virtual bool IsVoid
@@ -180,24 +186,45 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				Type baseType = _type.BaseType;
+				var baseType = _type.BaseClasses.FirstOrDefault();
 				return null == baseType
 				       	? null
-				       	: _provider.Map(baseType);
+				       	: _provider.Map(baseType.ResolvedType);
 			}
 		}
-		
-		protected virtual MemberInfo[] GetDefaultMembers()
-		{
-			return ActualType.GetDefaultMembers();
-		}
+
+	    private ITypeDefinitionMember _defaultMember;
+
+	    private bool _defaultMemberFound;
+
+	    private static readonly ITypeReference _defaultMemberAttribute = SystemTypeMapper.GetTypeReference(typeof(DefaultMemberAttribute));
+
+        protected virtual ITypeDefinitionMember[] GetDefaultMembers()
+        {
+            if (!_defaultMemberFound)
+            {
+                var currentType = ActualType;
+                while (_defaultMember == null && currentType != null)
+                {
+                    _defaultMember = currentType.GetMatchingMembers(
+                            t => t.Attributes.Any(a => TypeHelper.TypesAreEquivalent(a.Type, _defaultMemberAttribute)))
+                        .FirstOrDefault();
+                    if (_defaultMember == null)
+                        currentType = (INamedTypeDefinition) currentType.BaseClasses.FirstOrDefault();
+                }
+                _defaultMemberFound = true;
+            }
+            if (_defaultMember != null)
+                return new []{_defaultMember};
+            return new ITypeDefinitionMember[0];
+        }
 
 		public IEntity GetDefaultMember()
 		{
 			return _provider.Map(GetDefaultMembers());
 		}
 
-		public Type ActualType
+		public ITypeDefinition ActualType
 		{
 			get { return _type; }
 		}
@@ -208,8 +235,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			if (external == null)
 				return false;
 
-			return _type.IsSubclassOf(external._type)
-				|| (external.IsInterface && external._type.IsAssignableFrom(_type));
+            return TypeHelper.Type1DerivesFromOrIsTheSameAsType2(_type, external._type)
+                || (external.IsInterface && TypeHelper.Type1ImplementsType2(_type, external._type));
 		}
 
 		public virtual bool IsAssignableFrom(IType other)
@@ -272,13 +299,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		protected virtual IEntity[] CreateMembers()
 		{
-			List<IEntity> result = new List<IEntity>();
+			var result = new List<IEntity>();
 			foreach (MemberInfo member in DeclaredMembers())
 				result.Add(_provider.Map(member));
 			return result.ToArray();
 		}
 
-		private MemberInfo[] DeclaredMembers()
+        private ITypeDefinitionMember[] DeclaredMembers()
 		{
 			return _type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 		}

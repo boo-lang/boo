@@ -570,6 +570,7 @@
     <Compile Include="TypeSystem\Cci\CciNamespace.cs" />
     <Compile Include="TypeSystem\Cci\CciNamespaceBuilder.cs" />
     <Compile Include="TypeSystem\Cci\CciTypeSystemProvider.cs" />
+    <Compile Include="TypeSystem\Cci\SystemTypeMapper.cs" />
     <Compile Include="TypeSystem\Core\AbstractType.cs" />
     <Compile Include="TypeSystem\Core\AliasedNamespace.cs" />
     <Compile Include="TypeSystem\Core\AnonymousCallableType.cs" />

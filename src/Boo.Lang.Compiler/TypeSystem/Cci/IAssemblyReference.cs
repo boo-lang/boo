@@ -33,4 +33,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 	{
 		System.Reflection.Assembly Assembly { get;  }
 	}
+
+    public interface IAssemblyReferenceCci : ICompileUnit
+    {
+        Microsoft.Cci.IAssembly Assembly { get; }
+    }
+
 }

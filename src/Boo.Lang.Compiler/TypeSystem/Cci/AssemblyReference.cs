@@ -27,40 +27,45 @@
 #endregion
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using Boo.Lang.Compiler.Util;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	class AssemblyReference : IAssemblyReference, IEquatable<AssemblyReference>
+    public class AssemblyReferenceCci : IAssemblyReferenceCci, IEquatable<AssemblyReferenceCci>
 	{
-		private readonly Assembly _assembly;
+		private readonly IAssembly _assembly;
 		private readonly CciTypeSystemProvider _provider;
 		private INamespace _rootNamespace;
+	    private readonly HashSet<INamedTypeDefinition> _types;
+        private readonly ITypeReference _multicastType;
 
-		private readonly MemoizedFunction<Type, IType> _typeEntityCache;
-		private readonly MemoizedFunction<MemberInfo, IEntity> _memberCache;
+        private readonly MemoizedFunction<ITypeReference, IType> _typeEntityCache;
+		private readonly MemoizedFunction<ITypeMemberReference, IEntity> _memberCache;
 
-		internal AssemblyReference(CciTypeSystemProvider provider, Assembly assembly)
+		internal AssemblyReferenceCci(CciTypeSystemProvider provider, IAssembly assembly)
 		{
 			if (null == assembly)
 				throw new ArgumentNullException("assembly");
 			_provider = provider;
 			_assembly = assembly;
-			_typeEntityCache = new MemoizedFunction<Type, IType>(NewType);
-			_memberCache = new MemoizedFunction<MemberInfo, IEntity>(NewEntityForMember);
+            _typeEntityCache = new MemoizedFunction<ITypeReference, IType>(NewType);
+            _memberCache = new MemoizedFunction<ITypeMemberReference, IEntity>(NewEntityForMember);
+		    _types = new HashSet<INamedTypeDefinition>(assembly.GetAllTypes());
+		    _multicastType = SystemTypeMapper.GetTypeReference(Types.MulticastDelegate);
 		}
 		
 		public string Name
 		{
-			get { return _name ?? (_name = new AssemblyName(_assembly.FullName).Name); }
+            get { return _name ?? (_name = FullName); }
 		}
 
 		string _name;
 
 		public string FullName
 		{
-			get { return _assembly.FullName; }
+			get { return _assembly.Name.Value; }
 		}
 		
 		public EntityType EntityType
@@ -68,7 +73,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			get { return EntityType.Assembly; }
 		}
 		
-		public Assembly Assembly
+		public IAssembly Assembly
 		{
 			get { return _assembly; }
 		}
@@ -97,11 +102,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			if (null == other) return false;
 			if (this == other) return true;
 
-			AssemblyReference aref = other as AssemblyReference;
+            AssemblyReferenceCci aref = other as AssemblyReferenceCci;
 			return Equals(aref);
 		}
 
-		public bool Equals(AssemblyReference other)
+        public bool Equals(AssemblyReferenceCci other)
 		{
 			if (null == other) return false;
 			if (this == other) return true;
@@ -109,7 +114,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return IsReferencing(other._assembly);
 		}
 
-		private bool IsReferencing(Assembly assembly)
+		private bool IsReferencing(IAssembly assembly)
 		{
 			return AssemblyEqualityComparer.Default.Equals(_assembly, assembly);
 		}
@@ -121,65 +126,79 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public override string ToString()
 		{
-			return _assembly.FullName;
+			return FullName;
 		}
 
-		public IType Map(Type type)
+		public IType Map(ITypeReference type)
 		{
 			AssertAssembly(type);
 			return _typeEntityCache.Invoke(type);
 		}
 
-		public IEntity MapMember(MemberInfo mi)
+        public IEntity MapMember(ITypeMemberReference mi)
 		{
 			AssertAssembly(mi);
-			if (mi.MemberType == MemberTypes.NestedType)
-				return Map((Type)mi);
+		    var type = mi as INestedTypeReference;
+			if (type != null)
+				return Map(type);
 			return _memberCache.Invoke(mi);
 		}
 
-		private void AssertAssembly(MemberInfo member)
+        private void AssertAssembly(ITypeReference member)
+        {
+            var rt = (INamedTypeDefinition)member.ResolvedType;
+            if (_types.Contains(rt))
+                throw new ArgumentException(string.Format("{0} doesn't belong to assembly '{1}'.", member, _assembly));
+        }
+
+        private void AssertAssembly(ITypeMemberReference member)
 		{
-			if (!IsReferencing(member.Module.Assembly))
-				throw new ArgumentException(string.Format("{0} doesn't belong to assembly '{1}'.", member, _assembly));
+            var rt = (INamedTypeDefinition)(member.ContainingType).ResolvedType;
+            if (_types.Contains(rt))
+                throw new ArgumentException(string.Format("{0} doesn't belong to assembly '{1}'.", member, _assembly));
 		}
 
-		private IEntity NewEntityForMember(MemberInfo mi)
-		{
-			switch (mi.MemberType)
-			{
-				case MemberTypes.Method:
-					return new ExternalMethod(_provider, (MethodBase)mi);
-				case MemberTypes.Constructor:
-					return new ExternalConstructor(_provider, (ConstructorInfo)mi);
-				case MemberTypes.Field:
-					return new ExternalField(_provider, (FieldInfo)mi);
-				case MemberTypes.Property:
-					return new ExternalProperty(_provider, (PropertyInfo)mi);
-				case MemberTypes.Event:
-					return new ExternalEvent(_provider, (EventInfo)mi);
-				default:
-					throw new NotImplementedException(mi.ToString());
-			}
+        private IEntity NewEntityForMember(ITypeMemberReference mi)
+        {
+            var method = mi as IMethodDefinition;
+		    if (method != null)
+		    {
+                if (method.IsConstructor)
+    		        return new ExternalConstructor(_provider, method);
+		        return new ExternalMethod(_provider, method);
+		    }
+            var field = mi as IFieldDefinition;
+		    if (field != null)
+				return new ExternalField(_provider, field);
+            var prop = mi as IPropertyDefinition;
+            if (prop != null)
+				return new ExternalProperty(_provider, prop);
+            var ev = mi as IEventDefinition;
+			if (ev != null)
+				return new ExternalEvent(_provider, ev);
+			throw new NotImplementedException(mi.ToString());
 		}
 
-		public void MapTo(Type type, IType entity)
+        public void MapTo(INamedTypeDefinition type, IType entity)
 		{
 			AssertAssembly(type);
 			_typeEntityCache.Add(type, entity);
 		}
 
-		private IType NewType(Type type)
-		{
-			return type.IsArray
-				? Map(type.GetElementType()).MakeArrayType(type.GetArrayRank())
+        private IType NewType(ITypeReference type)
+        {
+            var arr = type as IArrayTypeReference;
+			return arr != null
+				? Map(arr.ElementType).MakeArrayType((int)arr.Rank)
 				: CreateEntityForType(type);
 		}
 
-		private IType CreateEntityForType(Type type)
-		{
-			if (type.IsGenericParameter) return new ExternalGenericParameter(_provider, type);
-			if (type.IsSubclassOf(Types.MulticastDelegate)) return _provider.CreateEntityForCallableType(type);
+        private IType CreateEntityForType(ITypeReference type)
+        {
+            var gp = type as Microsoft.Cci.IGenericParameter;
+			if (gp != null) return new ExternalGenericParameter(_provider, gp);
+			if (TypeHelper.Type1DerivesFromOrIsTheSameAsType2(type.ResolvedType, _multicastType, true))
+                return _provider.CreateEntityForCallableType(type);
 			return _provider.CreateEntityForRegularType(type);
 		}
 

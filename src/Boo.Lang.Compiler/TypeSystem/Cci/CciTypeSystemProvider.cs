@@ -29,80 +29,92 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Boo.Lang.Compiler.Util;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
 	public class CciTypeSystemProvider : ICciTypeSystemProvider
 	{
-		private readonly MemoizedFunction<Assembly, AssemblyReference> _referenceCache;
+        private readonly MemoizedFunction<IUnit, AssemblyReferenceCci> _referenceCache;
 		
 		public CciTypeSystemProvider()
 		{
-			_referenceCache = new MemoizedFunction<Assembly, AssemblyReference>(AssemblyEqualityComparer.Default, CreateReference);
+            _referenceCache = new MemoizedFunction<IUnit, AssemblyReferenceCci>(AssemblyEqualityComparer.Default, CreateReference);
 			Initialize();
 		}
 
-		virtual protected void Initialize()
+        protected virtual void Initialize()
 		{
 			MapTo(typeof(object), new ObjectTypeImpl(this));
 			MapTo(typeof(Builtins.duck), new ObjectTypeImpl(this));
 			MapTo(typeof(void), new VoidTypeImpl(this));
 		}
 
-		protected void MapTo(Type type, IType entity)
+	    private void MapTo(Type type, IType entity)
+	    {
+	        MapTo((INamedTypeDefinition)SystemTypeMapper.GetTypeReference(type).ResolvedType, entity);
+	    }
+
+		protected void MapTo(INamedTypeDefinition type, IType entity)
 		{
-			AssemblyReferenceFor(type.Assembly).MapTo(type, entity);
+			AssemblyReferenceFor(type).MapTo(type, entity);
 		}
 
-		private CciTypeSystemProvider(MemoizedFunction<Assembly, AssemblyReference> referenceCache)
+        private CciTypeSystemProvider(MemoizedFunction<IUnit, AssemblyReferenceCci> referenceCache)
 		{
 			_referenceCache = referenceCache;
 		}
 
 		#region Implementation of ICompilerReferenceProvider
 
-		public IAssemblyReference ForAssembly(Assembly assembly)
+		public AssemblyReferenceCci ForAssembly(IUnit assembly)
 		{
 			return AssemblyReferenceFor(assembly);
 		}
 
-		private AssemblyReference AssemblyReferenceFor(Assembly assembly)
+        private AssemblyReferenceCci AssemblyReferenceFor(INamedTypeDefinition type)
+	    {
+	        INestedTypeDefinition nest;
+	        var currentType = type;
+	        while ((nest = currentType as INestedTypeDefinition) != null)
+	        {
+	            currentType = (INamedTypeDefinition) nest.ContainingTypeDefinition;
+	        }
+	        var nsType = (INamespaceTypeDefinition) currentType;
+	        return ForAssembly(nsType.ContainingUnitNamespace.Unit);
+	    }
+
+        private AssemblyReferenceCci AssemblyReferenceFor(IUnit assembly)
 		{
 			return _referenceCache.Invoke(assembly);
 		}
 
-		private AssemblyReference CreateReference(Assembly assembly)
+        private AssemblyReferenceCci CreateReference(IUnit assembly)
 		{
-			return new AssemblyReference(this, assembly);
+            return new AssemblyReferenceCci(this, (IAssembly)assembly);
 		}
 
 		#endregion
 
 		#region Implementation of IReflectionTypeSystemProvider
 
-		public IType Map(Type type)
+        public IType Map(ITypeDefinition type)
 		{
-			return AssemblyReferenceFor(type.Assembly).Map(type);
+			return AssemblyReferenceFor((INamedTypeDefinition)type).Map(type);
 		}
 
-		public IMethod Map(MethodInfo method)
+		public IMethod Map(IMethodDefinition method)
 		{
 			return (IMethod) MapMember(method);
 		}
 
-		public IConstructor Map(ConstructorInfo ctor)
-		{
-			return (IConstructor) MapMember(ctor);
-		}
-
-		public IEntity Map(MemberInfo mi)
+        public IEntity Map(ITypeDefinitionMember mi)
 		{
 			return MapMember(mi);
 		}
 
-		public IParameter[] Map(ParameterInfo[] parameters)
+        public IParameter[] Map(IParameterDefinition[] parameters)
 		{
 			var mapped = new IParameter[parameters.Length];
 			for (int i = 0; i < parameters.Length; ++i)
@@ -112,9 +124,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return mapped;
 		}
 
-		private IEntity MapMember(MemberInfo mi)
+        private IEntity MapMember(ITypeDefinitionMember mi)
 		{
-			return AssemblyReferenceFor(mi.DeclaringType.Assembly).MapMember(mi);
+			return AssemblyReferenceFor((INamedTypeDefinition)mi.ContainingTypeDefinition).MapMember(mi);
 		}
 
         public virtual ICciTypeSystemProvider Clone()
@@ -132,7 +144,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return new ExternalCallableType(this, type);
 		}
 
-		public IEntity Map(MemberInfo[] members)
+        public IEntity Map(ITypeDefinitionMember[] members)
 		{
 			switch (members.Length)
 			{
@@ -150,7 +162,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		#endregion
 
-		sealed class ObjectTypeImpl : ExternalType
+		private sealed class ObjectTypeImpl : ExternalType
 		{
             internal ObjectTypeImpl(ICciTypeSystemProvider provider)
 				: base(provider, Types.Object)
@@ -165,24 +177,24 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		}
 
 		#region VoidTypeImpl
-		sealed class VoidTypeImpl : ExternalType
+		private sealed class VoidTypeImpl : ExternalType
 		{
             internal VoidTypeImpl(ICciTypeSystemProvider provider)
 				: base(provider, Types.Void)
 			{
 			}
 
-			override public bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
+            public override bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 			{
 				return false;
 			}
 
-			override public bool IsSubclassOf(IType other)
+            public override bool IsSubclassOf(IType other)
 			{
 				return false;
 			}
 
-			override public bool IsAssignableFrom(IType other)
+            public override bool IsAssignableFrom(IType other)
 			{
 				return false;
 			}

@@ -26,21 +26,21 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	using System;
-
+	
 	public class ExternalCallableType : ExternalType, ICallableType
 	{
 		private readonly IMethod _invoke;
 
-        public ExternalCallableType(ICciTypeSystemProvider provider, Type type)
+        public ExternalCallableType(ICciTypeSystemProvider provider, ITypeDefinition type)
             : base(provider, type)
-		{
-			_invoke = provider.Map(type.GetMethod("Invoke"));
+        {
+            var host = CompilerContext.Current.Host;
+            _invoke = provider.Map(TypeHelper.GetMethod(type, host.NameTable.GetNameFor("invoke")));
 		}
 		
 		public CallableSignature GetSignature()
@@ -53,7 +53,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			get { return false; }
 		}
 
-		override public bool IsAssignableFrom(IType other)
+		public override bool IsAssignableFrom(IType other)
 		{	
 			return My<TypeSystemServices>.Instance.IsCallableTypeAssignableFrom(this, other);
 		}

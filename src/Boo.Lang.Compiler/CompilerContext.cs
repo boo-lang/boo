@@ -202,6 +202,8 @@ namespace Boo.Lang.Compiler
 			return My<UniqueNameProvider>.Instance.GetUniqueName(components);
 		}
 
+        public PeReader.DefaultHost Host { get; set; }
+
 		[Conditional("TRACE")]
 		public void TraceEnter(string format, params object[] args)
 		{

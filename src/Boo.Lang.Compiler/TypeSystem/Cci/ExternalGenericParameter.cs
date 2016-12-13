@@ -26,28 +26,28 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Reflection;
-using Boo.Lang.Compiler.TypeSystem;
+using System.Linq;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
 	public class ExternalGenericParameter : ExternalType, IGenericParameter
 	{
-		IMethod _declaringMethod = null;
+	    readonly IMethod _declaringMethod;
 
-        public ExternalGenericParameter(ICciTypeSystemProvider provider, Type type)
+        public ExternalGenericParameter(ICciTypeSystemProvider provider, Microsoft.Cci.IGenericParameter type)
             : base(provider, type)
-		{
-			if (type.DeclaringMethod != null)
+        {
+            var methodParam = type as IGenericMethodParameter;
+            if (methodParam != null)
 			{
-				_declaringMethod = (IMethod)provider.Map(type.DeclaringMethod);
+                _declaringMethod = provider.Map(methodParam.DefiningMethod);
 			}
 		}
 		
 		public int GenericParameterPosition
 		{
-			get { return ActualType.GenericParameterPosition; }
+			get { return ((Microsoft.Cci.IGenericParameter)ActualType).Index; }
 		}
 		
 		public override string FullName 
@@ -68,16 +68,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				GenericParameterAttributes variance = ActualType.GenericParameterAttributes & GenericParameterAttributes.VarianceMask;
+			    var variance = ((Microsoft.Cci.IGenericParameter) ActualType).Variance;
 				switch (variance)
 				{
-					case GenericParameterAttributes.None:
+					case TypeParameterVariance.NonVariant:
 						return Variance.Invariant;
 
-					case GenericParameterAttributes.Covariant:
+                    case TypeParameterVariance.Covariant:
 						return Variance.Covariant;
 
-					case GenericParameterAttributes.Contravariant:
+                    case TypeParameterVariance.Contravariant:
 						return Variance.Contravariant;
 
 					default:
@@ -88,16 +88,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public IType[] GetTypeConstraints()
 		{
-			return Array.ConvertAll<Type, IType>(
-				ActualType.GetGenericParameterConstraints(), 
-				_provider.Map);
+		    return ((Microsoft.Cci.IGenericParameter) ActualType).Constraints
+		        .Select(c => _provider.Map(c.ResolvedType)).ToArray();
 		}
 
 		public bool MustHaveDefaultConstructor
 		{
 			get
 			{
-				return (ActualType.GenericParameterAttributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
+			    var at = ((Microsoft.Cci.IGenericParameter) ActualType);
+			    return at.MustHaveDefaultConstructor;
 			}
 		}
 
@@ -105,7 +105,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return (ActualType.GenericParameterAttributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
+                var at = ((Microsoft.Cci.IGenericParameter)ActualType);
+                return at.MustBeReferenceType;
 			}
 		}
 
@@ -113,7 +114,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return (ActualType.GenericParameterAttributes & GenericParameterAttributes.NotNullableValueTypeConstraint) == GenericParameterAttributes.NotNullableValueTypeConstraint;
+                var at = ((Microsoft.Cci.IGenericParameter)ActualType);
+                return at.MustBeValueType;
 			}
 		}
 
