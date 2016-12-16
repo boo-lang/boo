@@ -26,8 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
@@ -69,10 +71,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			{
 				if (_arguments == null)
 				{
-					_arguments = Array.ConvertAll<Type, IType>(
-						_type.ActualType.GetGenericArguments(), _tss.Map);
+				    _arguments = _type.ActualType.GenericParameters
+				        .Select(gp => _tss.Map(((ITypeReference) gp).ResolvedType))
+				        .ToArray();
 				}
-				
 				return _arguments;
 			}
 		}

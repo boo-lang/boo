@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 	{
 		private readonly IMethod _invoke;
 
-        public ExternalCallableType(ICciTypeSystemProvider provider, ITypeDefinition type)
+        public ExternalCallableType(ICciTypeSystemProvider provider, INamedTypeDefinition type)
             : base(provider, type)
         {
             var host = CompilerContext.Current.Host;

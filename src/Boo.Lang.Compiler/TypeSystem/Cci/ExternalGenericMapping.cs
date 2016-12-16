@@ -26,16 +26,15 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	using System.Reflection;
 
 	public class ExternalGenericMapping : GenericMapping
 	{
-		ExternalType _constructedType;
+		private readonly ExternalType _constructedType;
 
 		public ExternalGenericMapping(ExternalType constructedType, IType[] arguments) : base(constructedType, arguments)
 		{
@@ -44,7 +43,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		protected override IMember CreateMappedMember(IMember source)
 		{
-			ExternalType targetType = _constructedType;
 			return FindByMetadataToken(source, _constructedType);
 		}
 
@@ -61,19 +59,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			// with the mapped members on a constructed type, we have to rely on them sharing the same
 			// metadata token.
 
-			MemberInfo sourceMemberInfo = ((IExternalEntity)source).MemberInfo;
-			MemberFilter filter = delegate(MemberInfo candidate, object metadataToken)
-			{
-				return candidate.MetadataToken.Equals(metadataToken);
-			};
+            var sourceMemberInfo = ((IExternalEntityCci)source).MemberInfo;
+		    var sourceName = CompilerContext.Current.Host.NameTable.GetNameFor(source.Name);
+		    var mappedMemberInfos = targetType.ActualType.GetMatchingMembersNamed(sourceName, false,
+		        tdm => tdm.ResolvedTypeDefinitionMember == sourceMemberInfo);
 
-			BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-			bindingFlags |= (source.IsStatic ? BindingFlags.Static : BindingFlags.Instance);
-
-			MemberInfo[] mappedMemberInfos = targetType.ActualType.FindMembers(
-				sourceMemberInfo.MemberType, bindingFlags, filter, sourceMemberInfo.MetadataToken);
-
-			return (IMember)TypeSystemServices.Map(mappedMemberInfos[0]);
+            return TypeSystemServices.Map(mappedMemberInfos.First());
 		}
 	}
 }

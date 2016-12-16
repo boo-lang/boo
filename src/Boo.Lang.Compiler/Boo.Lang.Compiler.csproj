@@ -553,7 +553,6 @@
     <Compile Include="TypeSystem\Cci\ExternalCallableType.cs" />
     <Compile Include="TypeSystem\Cci\ExternalConstructedMethodInfo.cs" />
     <Compile Include="TypeSystem\Cci\ExternalConstructedTypeInfo.cs" />
-    <Compile Include="TypeSystem\Cci\ExternalConstructor.cs" />
     <Compile Include="TypeSystem\Cci\ExternalEntity.cs" />
     <Compile Include="TypeSystem\Cci\ExternalEvent.cs" />
     <Compile Include="TypeSystem\Cci\ExternalField.cs" />

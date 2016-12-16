@@ -26,7 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem;
+using System.Linq;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
@@ -34,9 +35,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 	public class ExternalConstructedMethodInfo : IConstructedMethodInfo
 	{
-		ExternalMethod _method;
-        ICciTypeSystemProvider _tss;
-		IType[] _arguments = null;
+	    private readonly ExternalMethod _method;
+	    private readonly ICciTypeSystemProvider _tss;
+		private IType[] _arguments;
 
         public ExternalConstructedMethodInfo(ICciTypeSystemProvider tss, ExternalMethod method)
 		{
@@ -48,7 +49,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get 
 			{
-				return _tss.Map(((System.Reflection.MethodInfo)_method.MethodInfo).GetGenericMethodDefinition());
+				return _tss.Map(((IGenericMethodInstance)_method.MethodInfo).GenericMethod.ResolvedMethod);
 			}
 		}
 		
@@ -58,8 +59,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			{
 				if (_arguments == null)
 				{
-					_arguments = Array.ConvertAll<Type, IType>(
-						_method.MethodInfo.GetGenericArguments(), _tss.Map);
+				    _arguments =
+				        _method.MethodInfo.GenericParameters
+                            .Select(p => _tss.Map(((ITypeReference) p).ResolvedType))
+                            .ToArray();
 				}
 				
 				return _arguments;

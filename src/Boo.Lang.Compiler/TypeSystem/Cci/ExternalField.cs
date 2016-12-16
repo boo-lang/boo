@@ -27,40 +27,43 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.TypeSystem;
+using System.Linq;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {	
-	public class ExternalField : ExternalEntity<System.Reflection.FieldInfo>, IField
+	public class ExternalField : ExternalEntity<IFieldDefinition>, IField
 	{
-        public ExternalField(ICciTypeSystemProvider provider, System.Reflection.FieldInfo field)
+        public ExternalField(ICciTypeSystemProvider provider, IFieldDefinition field)
             : base(provider, field)
 		{	
 		}
 		
 		public virtual IType DeclaringType
 		{
-			get { return _provider.Map(_memberInfo.DeclaringType); }
+			get { return _provider.Map(_memberInfo.ContainingTypeDefinition); }
 		}
 		
 		public bool IsPublic
 		{
-			get { return _memberInfo.IsPublic; }
+			get { return _memberInfo.Visibility == TypeMemberVisibility.Public; }
 		}
 		
 		public bool IsProtected
 		{
-			get { return _memberInfo.IsFamily || _memberInfo.IsFamilyOrAssembly; }
+			get { return _memberInfo.Visibility == TypeMemberVisibility.Family
+                || _memberInfo.Visibility == TypeMemberVisibility.FamilyOrAssembly;
+            }
 		}
 
 		public bool IsPrivate
 		{
-			get { return _memberInfo.IsPrivate; }
+            get { return _memberInfo.Visibility == TypeMemberVisibility.Private; }
 		}
 
 		public bool IsInternal
 		{
-			get { return _memberInfo.IsAssembly; }
+            get { return _memberInfo.Visibility == TypeMemberVisibility.Assembly; }
 		}
 		
 		public bool IsStatic
@@ -70,60 +73,53 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		
 		public bool IsLiteral
 		{
-			get { return _memberInfo.IsLiteral; }
+			get { return _memberInfo.CompileTimeValue.Value != null; }
 		}
 		
 		public bool IsInitOnly
 		{
-			get { return _memberInfo.IsInitOnly; }
+			get { return _memberInfo.IsReadOnly; }
 		}
-		
-		override public EntityType EntityType
+
+        public override EntityType EntityType
 		{
 			get { return EntityType.Field; }
 		}
 		
 		public virtual IType Type
 		{
-			get { return _provider.Map(_memberInfo.FieldType); }
+			get { return _provider.Map(_memberInfo.Type.ResolvedType); }
 		}
 		
 		public object StaticValue
 		{
-			get { return _memberInfo.GetValue(null); }
+			get { return _memberInfo.CompileTimeValue.Value; }
 		}
 
-		static readonly Type IsVolatileType = typeof(System.Runtime.CompilerServices.IsVolatile);
-		bool? _isVolatile;
+		private static readonly ITypeReference IsVolatileType = SystemTypeMapper.GetTypeReference(
+            typeof(System.Runtime.CompilerServices.IsVolatile));
+
+		private bool? _isVolatile;
 
 		public bool IsVolatile
 		{
 			get {
-				if (null == _isVolatile)
+                if (_isVolatile == null)
 				{
-					Type[] mods = _memberInfo.GetRequiredCustomModifiers();
-					_isVolatile = false;
-					foreach (Type mod in mods)
-					{
-						if (mod == IsVolatileType)
-						{
-							_isVolatile = true;
-							break;
-						}
-					}
+					_isVolatile = _memberInfo.CustomModifiers.Any(m => TypeHelper.TypesAreEquivalent(m.Modifier, IsVolatileType));
 				}
 				return _isVolatile.Value;
 			}
 		}
 
-		public System.Reflection.FieldInfo FieldInfo
+		public IFieldDefinition FieldInfo
 		{
 			get { return _memberInfo; }
 		}
 		
-		protected override Type MemberType
+		protected override ITypeDefinition MemberType
 		{
-			get { return _memberInfo.FieldType; }
+			get { return _memberInfo.Type.ResolvedType; }
 		}
 	}
 }

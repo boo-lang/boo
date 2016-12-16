@@ -28,13 +28,13 @@
 
 
 using System;
-using System.Reflection;
-using Boo.Lang.Compiler.TypeSystem;
+using System.Linq;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	public abstract class ExternalEntity<T> : IExternalEntity, IEntityWithAttributes
-		where T: System.Reflection.MemberInfo
+	public abstract class ExternalEntity<T> : IExternalEntityCci, IEntityWithAttributes
+		where T: ITypeDefinitionMember
 	{
 		protected readonly T _memberInfo;
 
@@ -45,20 +45,20 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		private bool? _isDuckTyped;
 		private bool? _isExtension;
 
-        public ExternalEntity(ICciTypeSystemProvider typeSystemServices, T memberInfo)
+	    protected ExternalEntity(ICciTypeSystemProvider typeSystemServices, T memberInfo)
 		{
 			_provider = typeSystemServices;
 			_memberInfo = memberInfo;
 		}
 
-		public MemberInfo MemberInfo
+        public ITypeDefinitionMember MemberInfo
 		{
 			get { return _memberInfo;  }
 		}
 
 		public virtual string Name
 		{
-			get { return _memberInfo.Name; }
+			get { return _memberInfo.Name.Value; }
 		}
 
 		public string FullName
@@ -72,22 +72,24 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		protected virtual string BuildFullName()
 		{
-			return Map(_memberInfo.DeclaringType).FullName + "." + Name;
+			return Map(_memberInfo.ContainingType.ResolvedType).FullName + "." + Name;
 		}
 
-		protected IType Map(Type type)
+		protected IType Map(ITypeDefinition type)
 		{
 			return _provider.Map(type);
 		}
 
 		public abstract EntityType EntityType { get; }
 
-		protected abstract Type MemberType { get; }
+        protected abstract ITypeDefinition MemberType { get; }
 
 		public override string ToString()
 		{
 			return FullName;
 		}
+
+	    private static readonly ITypeReference _duckTypeAttribute = SystemTypeMapper.GetTypeReference(typeof(DuckTypedAttribute));
 
 		public bool IsDuckTyped
 		{
@@ -95,7 +97,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			{
 				if (!_isDuckTyped.HasValue)
 					_isDuckTyped =
-						!MemberType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DuckTypedAttribute);
+                        !MemberType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, _duckTypeAttribute);
 				return _isDuckTyped.Value;
 			}
 		}
@@ -110,16 +112,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			}
 		}
 
+        private static readonly ITypeReference _clrExtensionAttribute = SystemTypeMapper.GetTypeReference(typeof(System.Runtime.CompilerServices.ExtensionAttribute));
+
 		private bool IsClrExtension
 		{
-			get { return MetadataUtil.IsAttributeDefined(_memberInfo, Types.ClrExtensionAttribute); }
+		    get
+		    {
+                return MetadataUtil.IsAttributeDefined(_memberInfo, _clrExtensionAttribute);
+		    }
 		}
 
 		public bool IsDefined(IType attributeType)
 		{
-			ExternalType type = attributeType as ExternalType;
-			if (null == type) return false;
-			return MetadataUtil.IsAttributeDefined(_memberInfo, type.ActualType);
+			var type = attributeType as ExternalType;
+			if (type == null) return false;
+            return MetadataUtil.IsAttributeDefined(_memberInfo, type.ActualType);
 		}
 	}
 }

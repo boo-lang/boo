@@ -99,6 +99,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		#region Implementation of IReflectionTypeSystemProvider
 
+	    public IType Map(Type type)
+	    {
+	        return Map(SystemTypeMapper.GetTypeReference(type).ResolvedType);
+	    }
+
         public IType Map(ITypeDefinition type)
 		{
 			return AssemblyReferenceFor((INamedTypeDefinition)type).Map(type);
@@ -134,12 +139,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return new CciTypeSystemProvider(_referenceCache.Clone());
 		}
 
-		public virtual IType CreateEntityForRegularType(Type type)
+		public virtual IType CreateEntityForRegularType(INamedTypeDefinition type)
 		{
 			return new ExternalType(this, type);
 		}
 
-		public virtual IType CreateEntityForCallableType(Type type)
+        public virtual IType CreateEntityForCallableType(INamedTypeDefinition type)
 		{
 			return new ExternalCallableType(this, type);
 		}
@@ -165,14 +170,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		private sealed class ObjectTypeImpl : ExternalType
 		{
             internal ObjectTypeImpl(ICciTypeSystemProvider provider)
-				: base(provider, Types.Object)
+				: base(provider, CompilerContext.Current.Host.PlatformType.SystemObject.ResolvedType)
 			{
 			}
 
 			public override bool IsAssignableFrom(IType other)
 			{
 				var otherExternalType = other as ExternalType;
-				return otherExternalType == null || otherExternalType.ActualType != Types.Void;
+                return otherExternalType == null ||  !TypeHelper.TypesAreEquivalent(
+                    otherExternalType.ActualType,
+                    CompilerContext.Current.Host.PlatformType.SystemVoid);
 			}
 		}
 
@@ -180,7 +187,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		private sealed class VoidTypeImpl : ExternalType
 		{
             internal VoidTypeImpl(ICciTypeSystemProvider provider)
-				: base(provider, Types.Void)
+                : base(provider, CompilerContext.Current.Host.PlatformType.SystemVoid.ResolvedType)
 			{
 			}
 

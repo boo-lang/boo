@@ -26,9 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Core;
-using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.Util;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
@@ -39,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 	{
         protected ICciTypeSystemProvider _provider;
 		private IGenericParameter[] _parameters;
-		private Dictionary<IType[], T> _instances = new Dictionary<IType[], T>(ArrayEqualityComparer<IType>.Default);
+		private readonly Dictionary<IType[], T> _instances = new Dictionary<IType[], T>(ArrayEqualityComparer<IType>.Default);
 
         protected AbstractExternalGenericInfo(ICciTypeSystemProvider provider)
 		{	
@@ -52,9 +53,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			{
 				if (null == _parameters)
 				{
-					_parameters = Array.ConvertAll<Type, ExternalGenericParameter>(
-						GetActualGenericParameters(),
-						delegate(Type t) { return (ExternalGenericParameter)_provider.Map(t); });
+					_parameters = GetActualGenericParameters()
+                        .Select(t => (ExternalGenericParameter)_provider.Map(((ITypeReference)t).ResolvedType))
+                        .Cast<IGenericParameter>()
+                        .ToArray();
 				}
 				return _parameters;
 			}
@@ -64,7 +66,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			if (Array.TrueForAll(arguments, IsExternal))
 			{
-				Type[] actualTypes = Array.ConvertAll<IType, Type>(arguments, GetSystemType);
+				ITypeReference[] actualTypes = Array.ConvertAll(arguments, GetSystemType);
 
 				return ConstructExternalEntity(actualTypes);
 			}
@@ -78,11 +80,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return instance;
 		}
 
-		protected abstract Type[] GetActualGenericParameters();
+        protected abstract Microsoft.Cci.IGenericParameter[] GetActualGenericParameters();
 		protected abstract T ConstructInternalEntity(IType[] arguments);
-		protected abstract T ConstructExternalEntity(Type[] arguments);
+        protected abstract T ConstructExternalEntity(IEnumerable<ITypeReference> arguments);
 		
-		private bool IsExternal(IType type)
+		private static bool IsExternal(IType type)
 		{
 			if (type is ExternalType)
 			{
@@ -96,8 +98,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			
 			return false;
 		}
-		
-		private Type GetSystemType(IType type)
+
+        private ITypeReference GetSystemType(IType type)
 		{
 			// Get system type from external types
 			ExternalType et = type as ExternalType;
@@ -108,13 +110,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			ArrayType arrayType = type as ArrayType;
 			if (arrayType != null)
 			{			
-				Type elementType = GetSystemType(arrayType.ElementType);
+				var elementType = GetSystemType(arrayType.ElementType);
 				int rank = arrayType.Rank;
 
 				// Calling MakeArrayType(1) gives a multi-dimensional array with 1 dimensions,
 				// which is (surprisingly) not the same as calling MakeArrayType() which gives
 				// a single-dimensional array
-				return (rank == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType(rank));
+			    var factory = CompilerContext.Current.Host.InternFactory;
+                return (rank == 1 
+                    ? (ITypeReference)Microsoft.Cci.Immutable.Vector.GetVector(elementType, factory) 
+                    : Microsoft.Cci.Immutable.Matrix.GetMatrix(elementType, (uint)rank, factory));
 			}
 			
 			// This shouldn't happen since we only call GetSystemType on external types or arrays of such

@@ -26,49 +26,53 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem;
+using System.Linq;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
 	using System;
-	using System.Reflection;
 
-	public class ExternalMethod : ExternalEntity<MethodBase>, IMethod, IEquatable<ExternalMethod>
+	public class ExternalMethod : ExternalEntity<IMethodDefinition>, IMethod, IEquatable<ExternalMethod>
 	{
 		protected IParameter[] _parameters;
 		private bool? _acceptVarArgs;
 		private bool? _isPInvoke;
 		private bool? _isMeta;
 
-        internal ExternalMethod(ICciTypeSystemProvider provider, MethodBase mi)
+        internal ExternalMethod(ICciTypeSystemProvider provider, IMethodDefinition mi)
             : base(provider, mi)
 		{
 		}
+
+	    private static readonly ITypeReference _metaAttribute = SystemTypeMapper.GetTypeReference(typeof(MetaAttribute));
 
 		public bool IsMeta
 		{
 			get
 			{
 				if (_isMeta == null)
-					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, typeof(Boo.Lang.MetaAttribute));
+					_isMeta = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, _metaAttribute);
 				return _isMeta.Value;
 			}
 		}
+
+	    private static readonly ITypeReference _importAttribute = SystemTypeMapper.GetTypeReference(Types.DllImportAttribute);
 
 		public bool IsPInvoke
 		{
 			get
 			{
 				if (_isPInvoke == null)
-					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, Types.DllImportAttribute);
+					_isPInvoke = IsStatic && MetadataUtil.IsAttributeDefined(_memberInfo, _importAttribute);
 				return _isPInvoke.Value;
 			}
 		}
 		
 		public virtual IType DeclaringType
 		{
-			get { return _provider.Map(_memberInfo.DeclaringType); }
+			get { return _provider.Map(_memberInfo.ContainingTypeDefinition); }
 		}
 		
 		public bool IsStatic
@@ -78,17 +82,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		
 		public bool IsPublic
 		{
-			get { return _memberInfo.IsPublic; }
+			get { return _memberInfo.Visibility == TypeMemberVisibility.Public; }
 		}
 		
 		public bool IsProtected
 		{
-			get { return _memberInfo.IsFamily || _memberInfo.IsFamilyOrAssembly; }
+            get { return _memberInfo.Visibility == TypeMemberVisibility.Family 
+                || _memberInfo.Visibility == TypeMemberVisibility.FamilyOrAssembly; }
 		}
 
 		public bool IsPrivate
 		{
-			get { return _memberInfo.IsPrivate; }
+            get { return _memberInfo.Visibility == TypeMemberVisibility.Private; }
 		}
 		
 		public bool IsAbstract
@@ -98,7 +103,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public bool IsInternal
 		{
-			get { return _memberInfo.IsAssembly; }
+            get { return _memberInfo.Visibility == TypeMemberVisibility.Assembly; }
 		}
 		
 		public bool IsVirtual
@@ -108,7 +113,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public bool IsFinal
 		{
-			get { return _memberInfo.IsFinal;  }
+			get { return _memberInfo.IsSealed;  }
 		}
 		
 		public bool IsSpecialName
@@ -122,22 +127,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			{
 				if (_acceptVarArgs == null)
 				{
-					var parameters = _memberInfo.GetParameters();
-					_acceptVarArgs = parameters.Length > 0 && IsParamArray(parameters[parameters.Length-1]);
+					var parameters = _memberInfo.Parameters.ToArray();
+                    _acceptVarArgs = parameters.Length > 0 && parameters[parameters.Length-1].IsParameterArray;
 				}
 				return _acceptVarArgs.Value;
 			}
 		}
 
-		private bool IsParamArray(ParameterInfo parameter)
-		{
-			/* Hack to fix problem with mono-1.1.8.* and older */
-			return parameter.ParameterType.IsArray
-				&& parameter.GetCustomAttributes(Types.ParamArrayAttribute, false).Length > 0;
-		}
-
-		
-		override public EntityType EntityType
+        public override EntityType EntityType
 		{
 			get { return EntityType.Method; }
 		}
@@ -155,25 +152,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		public virtual IParameter[] GetParameters()
 		{
 			if (null != _parameters) return _parameters;
-			return _parameters = _provider.Map(_memberInfo.GetParameters());
+			return _parameters = _provider.Map(_memberInfo.Parameters.ToArray());
 		}
 
 		public virtual IType ReturnType
 		{
 			get
 			{
-				MethodInfo mi = _memberInfo as MethodInfo;
-				if (null != mi) return _provider.Map(mi.ReturnType);
-				return null;
+                return _provider.Map(_memberInfo.Type.ResolvedType);
 			}
 		}
 
-		public MethodBase MethodInfo
+		public IMethodDefinition MethodInfo
 		{
 			get { return _memberInfo; }
 		}
-		
-		override public bool Equals(object other)
+
+        public override bool Equals(object other)
 		{
 			if (null == other) return false;
 			if (this == other) return true;
@@ -184,18 +179,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public bool Equals(ExternalMethod other)
 		{
-			if (null == other) return false;
+			if (other == null) return false;
 			if (this == other) return true;
 
-			return _memberInfo.MethodHandle.Value == other._memberInfo.MethodHandle.Value;
+			return _memberInfo.InternedKey == other._memberInfo.InternedKey;
 		}
 
-		override public int GetHashCode()
+        public override int GetHashCode()
 		{
-			return _memberInfo.MethodHandle.Value.GetHashCode();
+			return _memberInfo.GetHashCode();
 		}
-		
-		override public string ToString()
+
+        public override string ToString()
 		{
 			return _memberInfo.ToString();
 		}
@@ -218,20 +213,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				if (!MethodInfo.IsGenericMethod)
+				if (!MethodInfo.IsGeneric)
 					return null;
 
 				return _genericMethodInfo ?? (_genericMethodInfo = new ExternalConstructedMethodInfo(_provider, this));
 			}
 		}
 
-		protected override Type MemberType
+		protected override ITypeDefinition MemberType
 		{
 			get
 			{
-				MethodInfo mi = _memberInfo as MethodInfo;
-				if (null != mi) return mi.ReturnType;
-				return null;
+				return _memberInfo.Type.ResolvedType;
 			}
 		}
 	}

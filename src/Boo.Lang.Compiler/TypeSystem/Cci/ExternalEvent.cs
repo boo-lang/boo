@@ -26,24 +26,24 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	public class ExternalEvent : ExternalEntity<System.Reflection.EventInfo>, IEvent
+	public class ExternalEvent : ExternalEntity<IEventDefinition>, IEvent
 	{
 	    private IMethod _add;
 
 	    private IMethod _remove;
 
-        public ExternalEvent(ICciTypeSystemProvider typeSystemServices, System.Reflection.EventInfo event_)
+        public ExternalEvent(ICciTypeSystemProvider typeSystemServices, IEventDefinition event_)
             : base(typeSystemServices, event_)
 		{
 		}
 		
 		public virtual IType DeclaringType
 		{
-			get { return _provider.Map(_memberInfo.DeclaringType); }
+			get { return _provider.Map(_memberInfo.ContainingTypeDefinition); }
 		}
 		
 		public virtual IMethod GetAddMethod()
@@ -54,7 +54,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 	    private IMethod FindAddMethod()
 	    {
-	        return (IMethod) _provider.Map(_memberInfo.GetAddMethod(true));
+	        return _provider.Map(_memberInfo.Adder.ResolvedMethod);
 	    }
 
 	    public virtual IMethod GetRemoveMethod()
@@ -65,15 +65,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 	    private IMethod FindRemoveMethod()
 	    {
-	        return (IMethod) _provider.Map(_memberInfo.GetRemoveMethod(true));
+	        return _provider.Map(_memberInfo.Remover.ResolvedMethod);
 	    }
 
 	    public virtual IMethod GetRaiseMethod()
 		{
-			return (IMethod) _provider.Map(_memberInfo.GetRaiseMethod(true));
+			return _provider.Map(_memberInfo.Caller.ResolvedMethod);
 		}
-		
-		public System.Reflection.EventInfo EventInfo
+
+        public IEventDefinition EventInfo
 		{
 			get { return _memberInfo; }
 		}
@@ -82,8 +82,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get { return GetAddMethod().IsPublic; }
 		}
-		
-		override public EntityType EntityType
+
+        public override EntityType EntityType
 		{
 			get { return EntityType.Event; }
 		}
@@ -92,7 +92,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return _provider.Map(_memberInfo.EventHandlerType);
+				return _provider.Map(_memberInfo.Type.ResolvedType);
 			}
 		}
 		
@@ -121,9 +121,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			}
 		}
 
-		override protected System.Type MemberType
+        protected override ITypeDefinition MemberType
 		{
-			get { return _memberInfo.EventHandlerType;  }
+			get { return _memberInfo.Type.ResolvedType;  }
 		}
 	}
 }

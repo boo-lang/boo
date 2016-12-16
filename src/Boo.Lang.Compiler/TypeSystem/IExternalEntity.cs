@@ -36,4 +36,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			get;
 		}
 	}
+
+    public interface IExternalEntityCci : IEntity
+    {
+        Microsoft.Cci.ITypeDefinitionMember MemberInfo
+        {
+            get;
+        }
+    }
 }

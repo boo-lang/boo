@@ -26,23 +26,22 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
-using System.Reflection;
-using Boo.Lang.Compiler.TypeSystem;
+using System.Linq;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	public class ExternalProperty : ExternalEntity<System.Reflection.PropertyInfo>, IProperty
+	public class ExternalProperty : ExternalEntity<IPropertyDefinition>, IProperty
 	{
 		private IParameter[] _parameters;
-		
-	    private System.Reflection.MethodInfo _accessor = null;
 
-	    private CachedMethod _getter = null;
+        private IMethodDefinition _accessor;
 
-	    private CachedMethod _setter = null;
+	    private CachedMethod _getter;
 
-        public ExternalProperty(ICciTypeSystemProvider typeSystemServices, System.Reflection.PropertyInfo property)
+	    private CachedMethod _setter;
+
+        public ExternalProperty(ICciTypeSystemProvider typeSystemServices, IPropertyDefinition property)
 			: base(typeSystemServices, property)
 		{
 		}
@@ -51,7 +50,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return _provider.Map(_memberInfo.DeclaringType);
+				return _provider.Map(_memberInfo.ContainingTypeDefinition);
 			}
 		}
 		
@@ -67,7 +66,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-			    return GetAccessor().IsPublic;
+			    return GetAccessor().Visibility == TypeMemberVisibility.Public;
 			}
 		}
 		
@@ -75,8 +74,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-			    System.Reflection.MethodInfo accessor = GetAccessor();
-                return accessor.IsFamily || accessor.IsFamilyOrAssembly;
+			    var accessor = GetAccessor();
+                return accessor.Visibility == TypeMemberVisibility.Family 
+                    || accessor.Visibility == TypeMemberVisibility.FamilyOrAssembly;
 			}
 		}
 		
@@ -84,7 +84,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-			    return GetAccessor().IsAssembly;
+			    return GetAccessor().Visibility == TypeMemberVisibility.Assembly;
 			}
 		}
 		
@@ -92,11 +92,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-			    return GetAccessor().IsPrivate;
+			    return GetAccessor().Visibility == TypeMemberVisibility.Private;
 			}
 		}
-		
-		override public EntityType EntityType
+
+        public override EntityType EntityType
 		{
 			get
 			{
@@ -108,11 +108,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return _provider.Map(_memberInfo.PropertyType);
+				return _provider.Map(_memberInfo.Type.ResolvedType);
 			}
 		}
 		
-		public System.Reflection.PropertyInfo PropertyInfo
+		public IPropertyDefinition PropertyInfo
 		{
 			get
 			{
@@ -128,16 +128,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			}
 		}
 
-		protected override Type MemberType
+		protected override ITypeDefinition MemberType
 		{
-			get { return _memberInfo.PropertyType; }
+			get { return _memberInfo.Type.ResolvedType; }
 		}
 		
 		public virtual IParameter[] GetParameters()
 		{
             if (null != _parameters) return _parameters;
 
-            return _parameters = _provider.Map(_memberInfo.GetIndexParameters());
+            return _parameters = _provider.Map(_memberInfo.Parameters.ToArray());
 		}
 		
 		public virtual IMethod GetGetMethod()
@@ -148,37 +148,32 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 	    private IMethod FindGetMethod()
 	    {
-	        System.Reflection.MethodInfo getter = _memberInfo.GetGetMethod(true);
+	        IMethodDefinition getter = _memberInfo.Getter.ResolvedMethod;
             if (null == getter)
             {
-                PropertyInfo baseProperty = FindBaseProperty();
+                var baseProperty = FindBaseProperty();
                 if (null == baseProperty) return null;
 
-                getter = baseProperty.GetGetMethod(true);
+                getter = baseProperty.Getter.ResolvedMethod;
                 if (null == getter) return null;
             }
 	        return _provider.Map(getter);
 	    }
 
-	    private PropertyInfo FindBaseProperty()
+	    private IPropertyDefinition FindBaseProperty()
 	    {
-			if (null == _memberInfo.DeclaringType.BaseType)
-				return null;
+	        var baseType = _memberInfo.ContainingTypeDefinition.BaseClasses.FirstOrDefault();
+	        while (baseType != null)
+	        {
 
-	        return _memberInfo.DeclaringType.BaseType.GetProperty(
-                                                        _memberInfo.Name,
-                                                        _memberInfo.PropertyType,
-                                                        GetParameterTypes(_memberInfo.GetIndexParameters()));
-	    }
-
-	    private static Type[] GetParameterTypes(ParameterInfo[] parameters)
-	    {
-	        Type[] types = new Type[parameters.Length];
-            for (int i=0; i<parameters.Length; ++i)
-            {
-                types[i] = parameters[i].ParameterType;
-            }
-	        return types;
+	            var candidates = baseType.ResolvedType.GetMembersNamed(_memberInfo.Name, false).OfType<IPropertyDefinition>();
+	            var result = candidates.SingleOrDefault(p => TypeHelper.TypesAreEquivalent(p.Type, _memberInfo.Type, true)
+	                            && TypeHelper.ParameterListsAreEquivalent(p.Parameters, _memberInfo.Parameters));
+	            if (result != null)
+	                return result;
+	            baseType = baseType.ResolvedType.BaseClasses.FirstOrDefault();
+	        }
+	        return null;
 	    }
 
         public virtual IMethod GetSetMethod()
@@ -189,23 +184,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 	    private IMethod FindSetMethod()
 	    {
-	        System.Reflection.MethodInfo setter = _memberInfo.GetSetMethod(true);
+	        var setter = _memberInfo.Setter;
 	        if (null == setter) return null;
-	        return _provider.Map(setter);
+	        return _provider.Map(setter.ResolvedMethod);
 	    }
-		
-		private System.Reflection.MethodInfo GetAccessor()
+
+        private IMethodDefinition GetAccessor()
 		{
             if (null != _accessor) return _accessor;
 
             return _accessor = FindAccessor();
 		}
 
-	    private System.Reflection.MethodInfo FindAccessor()
+	    private IMethodDefinition FindAccessor()
 	    {
-	        System.Reflection.MethodInfo getter = _memberInfo.GetGetMethod(true);
+	        var getter = _memberInfo.Getter.ResolvedMethod;
 	        if (null != getter) return getter;
-	        return _memberInfo.GetSetMethod(true);
+	        return _memberInfo.Setter.ResolvedMethod;
 	    }
 	}
 }

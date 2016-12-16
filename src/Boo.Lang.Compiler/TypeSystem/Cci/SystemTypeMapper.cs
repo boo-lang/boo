@@ -13,7 +13,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
     {
         public static ITypeReference GetTypeReference(Type value)
         {
-            var host = My<CompilerContext>.Instance.Host;
+            var host = CompilerContext.Current.Host;
 
             if (value.IsByRef)
             {

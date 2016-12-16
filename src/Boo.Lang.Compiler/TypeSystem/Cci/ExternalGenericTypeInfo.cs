@@ -26,17 +26,17 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	using System;
 	using System.Collections.Generic;
 
 	public class ExternalGenericTypeInfo : AbstractExternalGenericInfo<IType>, IGenericTypeInfo
 	{
-		private ExternalType _type;
+		private readonly ExternalType _type;
 
 		public ExternalGenericTypeInfo(ICciTypeSystemProvider provider, ExternalType type) : base(provider)
 		{	
@@ -48,14 +48,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return ConstructEntity(arguments);
 		}
 
-		protected override Type[] GetActualGenericParameters()
+        protected override Microsoft.Cci.IGenericParameter[] GetActualGenericParameters()
 		{
-			return _type.ActualType.GetGenericArguments();
+			return _type.ActualType.GenericParameters.Cast<Microsoft.Cci.IGenericParameter>().ToArray();
 		}
 		
-		protected override IType ConstructExternalEntity(Type[] arguments)
+		protected override IType ConstructExternalEntity(IEnumerable<ITypeReference> arguments)
 		{
-			return _provider.Map(_type.ActualType.MakeGenericType(arguments));
+		    var gtr = Microsoft.Cci.Immutable.GenericTypeInstance.GetGenericTypeInstance(
+                (INamedTypeDefinition)_type.ActualType,
+                arguments, 
+                CompilerContext.Current.Host.InternFactory);
+			return _provider.Map(gtr);
 		}
 		
 		protected override IType ConstructInternalEntity(IType[] arguments)

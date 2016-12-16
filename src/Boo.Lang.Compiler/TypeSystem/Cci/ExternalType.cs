@@ -31,10 +31,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Core;
-using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
-using Boo.Lang.Environments;
 using Microsoft.Cci;
+using Microsoft.Cci.Immutable;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
@@ -130,7 +129,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			var type = attributeType as ExternalType;
 			if (null == type) return false;
-		    return _type.Attributes.Any(a => TypeHelper.TypesAreEquivalent(a.Type, type.ActualType));
+		    return MetadataUtil.IsAttributeDefined(_type, type.ActualType);
 		}
 
 		public virtual IType ElementType
@@ -207,7 +206,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
                 while (_defaultMember == null && currentType != null)
                 {
                     _defaultMember = currentType.GetMatchingMembers(
-                            t => t.Attributes.Any(a => TypeHelper.TypesAreEquivalent(a.Type, _defaultMemberAttribute)))
+                            t => MetadataUtil.IsAttributeDefined(t, _defaultMemberAttribute))
                         .FirstOrDefault();
                     if (_defaultMember == null)
                         currentType = (INamedTypeDefinition) currentType.BaseClasses.FirstOrDefault();
@@ -235,7 +234,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			if (external == null)
 				return false;
 
-            return TypeHelper.Type1DerivesFromOrIsTheSameAsType2(_type, external._type)
+            return TypeHelper.Type1DerivesFromType2(_type, external._type)
                 || (external.IsInterface && TypeHelper.Type1ImplementsType2(_type, external._type));
 		}
 
@@ -254,19 +253,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			{
 				return false;
 			}
-			return _type.IsAssignableFrom(external._type);
+		    return TypeHelper.Type1DerivesFromOrIsTheSameAsType2(_type, external._type) ||
+		        TypeHelper.Type1ImplementsType2(_type, external._type);
 		}
 
 		public virtual IType[] GetInterfaces()
 		{
-			if (null == _interfaces)
+			if (_interfaces == null)
 			{
-				Type[] interfaces = _type.GetInterfaces();
-				_interfaces = new IType[interfaces.Length];
-				for (int i=0; i<_interfaces.Length; ++i)
-				{
-					_interfaces[i] = _provider.Map(interfaces[i]);
-				}
+				_interfaces = _type.Interfaces.Select(i => _provider.Map(i.ResolvedType)).ToArray();
 			}
 			return _interfaces;
 		}
@@ -299,15 +294,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		protected virtual IEntity[] CreateMembers()
 		{
-			var result = new List<IEntity>();
-			foreach (MemberInfo member in DeclaredMembers())
-				result.Add(_provider.Map(member));
-			return result.ToArray();
+		    return DeclaredMembers().Select(dm => _provider.Map(dm)).ToArray();
 		}
 
-        private ITypeDefinitionMember[] DeclaredMembers()
+        private IEnumerable<ITypeDefinitionMember> DeclaredMembers()
 		{
-			return _type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+			return _type.Members;
 		}
 
 		public int GetTypeDepth()
@@ -372,17 +364,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return found;
 		}
 
-		override public string ToString()
+        public override string ToString()
 		{
 			return this.DisplayName();
 		}
 
-		static int GetTypeDepth(Type type)
+		private static int GetTypeDepth(ITypeDefinition type)
 		{
-			if (type.IsByRef)
-			{
-				return GetTypeDepth(type.GetElementType());
-			}
 			if (type.IsInterface)
 			{
 				return GetInterfaceDepth(type);
@@ -390,64 +378,48 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return GetClassDepth(type);
 		}
 
-		static int GetClassDepth(Type type)
+        private static int GetClassDepth(ITypeDefinition type)
 		{
-			int depth = 0;
-			Type objectType = Types.Object;
-			while (type != null && type != objectType)
+			var depth = 0;
+		    var objectType = CompilerContext.Current.Host.PlatformType.SystemObject.ResolvedType;
+			while (type != null && !TypeHelper.TypesAreEquivalent(type, objectType))
 			{
-				type = type.BaseType;
+				var baseType = type.BaseClasses.FirstOrDefault();
+			    type = baseType != null ? baseType.ResolvedType : null;
 				++depth;
 			}
 			return depth;
 		}
 
-		static int GetInterfaceDepth(Type type)
+        private static int GetInterfaceDepth(ITypeDefinition type)
 		{
-			Type[] interfaces = type.GetInterfaces();
-			if (interfaces.Length > 0)
-			{
-				int current = 0;
-				foreach (Type i in interfaces)
-				{
-					int depth = GetInterfaceDepth(i);
-					if (depth > current)
-					{
-						current = depth;
-					}
-				}
-				return 1+current;
-			}
-			return 1;
+			var interfaces = type.Interfaces;
+			var current = interfaces.Select(i => GetInterfaceDepth(i.ResolvedType)).Concat(new[] {0}).Max();
+		    return current + 1;
 		}
 
 		protected virtual string BuildFullName()
 		{
-			if (_primitiveName != null) return _primitiveName;
-
-			// keep builtin names pretty ('ref int' instead of 'ref System.Int32')
-			if (_type.IsByRef) return "ref " + ElementType.FullName;
-
-			return TypeUtilities.GetFullName(_type);
+            return _primitiveName ?? TypeUtilitiesCci.GetFullName((INamedTypeDefinition)_type);
 		}
 
-		ExternalGenericTypeInfo _genericTypeDefinitionInfo = null;
+		ExternalGenericTypeInfo _genericTypeDefinitionInfo;
 		public virtual IGenericTypeInfo GenericInfo
 		{
 			get
 			{
-				if (ActualType.IsGenericTypeDefinition)
+				if (ActualType.IsGeneric)
 					return _genericTypeDefinitionInfo ?? (_genericTypeDefinitionInfo = new ExternalGenericTypeInfo(_provider, this));
 				return null;
 			}
 		}
 
-		ExternalConstructedTypeInfo _genericTypeInfo = null;
+		ExternalConstructedTypeInfo _genericTypeInfo;
 		public virtual IConstructedTypeInfo ConstructedInfo
 		{
 			get
 			{
-				if (ActualType.IsGenericType && !ActualType.IsGenericTypeDefinition)
+                if (ActualType is IGenericTypeInstanceReference)
 					return _genericTypeInfo ?? (_genericTypeInfo = new ExternalConstructedTypeInfo(_provider, this));
 				return null;
 			}
@@ -464,7 +436,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		public IType MakePointerType()
 		{
-			return _provider.Map(_type.MakePointerType());
+			return _provider.Map(PointerType.GetPointerType(_type, CompilerContext.Current.Host.InternFactory));
 		}
 	}
 }

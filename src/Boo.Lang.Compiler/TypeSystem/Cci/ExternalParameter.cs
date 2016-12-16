@@ -26,7 +26,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using Boo.Lang.Compiler.TypeSystem;
 using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
@@ -34,7 +33,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 	public class ExternalParameter : IParameter
 	{
-        ICciTypeSystemProvider _provider;
+        private readonly ICciTypeSystemProvider _provider;
         protected IParameterDefinition _parameter;
 
         public ExternalParameter(ICciTypeSystemProvider provider, IParameterDefinition parameter)
@@ -71,7 +70,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				return _provider.Map(_parameter.Type);
+				return _provider.Map(_parameter.Type.ResolvedType);
 			}
 		}
 		

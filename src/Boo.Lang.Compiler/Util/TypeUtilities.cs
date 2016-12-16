@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.Util
 {
@@ -59,4 +60,31 @@ namespace Boo.Lang.Compiler.Util
 			return typeName.Substring(0, index);
 		}
 	}
+
+    public class TypeUtilitiesCci
+    {
+        public static string GetFullName(INamedTypeDefinition type)
+        {
+            var nested = type as INestedTypeDefinition;
+            if (nested != null)
+                return GetFullName((INamedTypeDefinition)nested.ContainingTypeDefinition) + "." + TypeName(type);
+
+            var nameSpace = ((INamespaceTypeDefinition)type).ContainingUnitNamespace.Name.Value;
+            if (string.IsNullOrEmpty(nameSpace))
+                return TypeName(type);
+            return nameSpace + "." + TypeName(type);
+        }
+
+        public static string TypeName(INamedTypeDefinition type)
+        {
+            return RemoveGenericSuffixFrom(type.Name.Value);
+        }
+
+        public static string RemoveGenericSuffixFrom(string typeName)
+        {
+            int index = typeName.LastIndexOf('`');
+            if (index < 0) return typeName;
+            return typeName.Substring(0, index);
+        }
+    }
 }

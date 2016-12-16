@@ -30,7 +30,9 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem
 {
@@ -67,6 +69,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{	
 			return System.Attribute.IsDefined(member, attributeType);
 		}
-	}
+
+	    public static bool IsAttributeDefined(ITypeDefinitionMember member, ITypeReference attributeType)
+	    {
+	        return member.Attributes.Any(a => TypeHelper.TypesAreEquivalent(a.Type, attributeType, true));
+	    }
+
+        public static bool IsAttributeDefined(ITypeDefinition member, ITypeReference attributeType)
+        {
+            return member.Attributes.Any(a => TypeHelper.TypesAreEquivalent(a.Type, attributeType, true));
+        }
+    }
 }
 

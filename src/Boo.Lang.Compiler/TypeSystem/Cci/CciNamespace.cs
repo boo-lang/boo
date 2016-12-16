@@ -234,10 +234,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 				&& HasModuleMarkerAttribute(type);
 		}
 
-		private static bool HasModuleMarkerAttribute(Type type)
+        private static readonly ITypeReference _clrExtensionAttribute = SystemTypeMapper.GetTypeReference(Types.ClrExtensionAttribute);
+        private static readonly ITypeReference _moduleAttribute = SystemTypeMapper.GetTypeReference(Types.ModuleAttribute);
+
+        private static bool HasModuleMarkerAttribute(INamedTypeDefinition type)
 		{
-			return MetadataUtil.IsAttributeDefined(type, Types.ModuleAttribute)
-				|| MetadataUtil.IsAttributeDefined(type, Types.ClrExtensionAttribute);
+            return MetadataUtil.IsAttributeDefined(type, _moduleAttribute)
+                || MetadataUtil.IsAttributeDefined(type, _clrExtensionAttribute);
 		}
 
         private static List<INamedTypeDefinition> NewTypeList(string name)

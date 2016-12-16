@@ -36,6 +36,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 	public interface ICciTypeSystemProvider
 	{
         AssemblyReferenceCci ForAssembly(IUnit assembly);
+        IType Map(Type type);
         IType Map(ITypeDefinition type);
         IMethod Map(IMethodDefinition method);
         IEntity Map(ITypeDefinitionMember[] members);

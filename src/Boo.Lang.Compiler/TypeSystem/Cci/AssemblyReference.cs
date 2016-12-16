@@ -163,8 +163,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
             var method = mi as IMethodDefinition;
 		    if (method != null)
 		    {
-                if (method.IsConstructor)
-    		        return new ExternalConstructor(_provider, method);
 		        return new ExternalMethod(_provider, method);
 		    }
             var field = mi as IFieldDefinition;
@@ -197,9 +195,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
         {
             var gp = type as Microsoft.Cci.IGenericParameter;
 			if (gp != null) return new ExternalGenericParameter(_provider, gp);
-			if (TypeHelper.Type1DerivesFromOrIsTheSameAsType2(type.ResolvedType, _multicastType, true))
-                return _provider.CreateEntityForCallableType(type);
-			return _provider.CreateEntityForRegularType(type);
+            var rt = type.ResolvedType;
+			if (TypeHelper.Type1DerivesFromOrIsTheSameAsType2(rt, _multicastType, true))
+                return _provider.CreateEntityForCallableType((INamedTypeDefinition)rt);
+            return _provider.CreateEntityForRegularType((INamedTypeDefinition)rt);
 		}
 
 	}

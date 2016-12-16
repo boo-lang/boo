@@ -26,17 +26,17 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	using System;
 	using System.Collections.Generic;
 
 	public class ExternalGenericMethodInfo : AbstractExternalGenericInfo<IMethod>, IGenericMethodInfo
 	{
-		private ExternalMethod _method;
+		private readonly ExternalMethod _method;
 
         public ExternalGenericMethodInfo(ICciTypeSystemProvider provider, ExternalMethod method)
             : base(provider)
@@ -48,15 +48,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			return ConstructEntity(arguments);
 		}
-		
-		protected override Type[] GetActualGenericParameters()
+
+        protected override Microsoft.Cci.IGenericParameter[] GetActualGenericParameters()
 		{
-			return _method.MethodInfo.GetGenericArguments();
+            return _method.MethodInfo.GenericParameters.Cast<Microsoft.Cci.IGenericParameter>().ToArray();
 		}
-		
-		protected override IMethod ConstructExternalEntity(Type[] arguments)
-		{
-			return _provider.Map(((System.Reflection.MethodInfo)_method.MethodInfo).MakeGenericMethod(arguments));
+
+        protected override IMethod ConstructExternalEntity(IEnumerable<ITypeReference> arguments)
+        {
+            var gm = new Microsoft.Cci.Immutable.GenericMethodInstance(_method.MethodInfo, arguments,
+                CompilerContext.Current.Host.InternFactory);
+			return _provider.Map(gm);
 		}
 		
 		protected override IMethod ConstructInternalEntity(IType[] arguments)
