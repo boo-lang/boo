@@ -36,9 +36,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 	{
 		private readonly ExternalType _constructedType;
 
-		public ExternalGenericMapping(ExternalType constructedType, IType[] arguments) : base(constructedType, arguments)
+        private readonly ICciTypeSystemProvider _tss;
+
+        public ExternalGenericMapping(ICciTypeSystemProvider tss, ExternalType constructedType, IType[] arguments)
+            : base(constructedType, arguments)
 		{
 			_constructedType = constructedType;
+		    _tss = tss;
 		}
 
 		protected override IMember CreateMappedMember(IMember source)
@@ -64,7 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		    var mappedMemberInfos = targetType.ActualType.GetMatchingMembersNamed(sourceName, false,
 		        tdm => tdm.ResolvedTypeDefinitionMember == sourceMemberInfo);
 
-            return TypeSystemServices.Map(mappedMemberInfos.First());
+            return (IMember)_tss.Map(mappedMemberInfos.First());
 		}
 	}
 }

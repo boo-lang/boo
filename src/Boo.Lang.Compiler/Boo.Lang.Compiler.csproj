@@ -564,6 +564,7 @@
     <Compile Include="TypeSystem\Cci\ExternalParameter.cs" />
     <Compile Include="TypeSystem\Cci\ExternalProperty.cs" />
     <Compile Include="TypeSystem\Cci\ExternalType.cs" />
+    <Compile Include="TypeSystem\Cci\GenericHelpers.cs" />
     <Compile Include="TypeSystem\Cci\IAssemblyReference.cs" />
     <Compile Include="TypeSystem\Cci\ICciTypeSystemProvider.cs" />
     <Compile Include="TypeSystem\Cci\CciNamespace.cs" />

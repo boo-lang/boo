@@ -28,19 +28,16 @@
 
 using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem;
 using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
-	using System;
-
 	public class ExternalConstructedTypeInfo : IConstructedTypeInfo
 	{
-		ExternalType _type;
-        ICciTypeSystemProvider _tss;
-		IType[] _arguments = null;
-		GenericMapping _mapping = null;
+		private readonly ExternalType _type;
+        private readonly ICciTypeSystemProvider _tss;
+        private IType[] _arguments;
+		private GenericMapping _mapping;
 
         public ExternalConstructedTypeInfo(ICciTypeSystemProvider tss, ExternalType type)
 		{
@@ -50,38 +47,34 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 		protected GenericMapping GenericMapping
 		{
-			get
-			{
-				if (_mapping == null) _mapping = new ExternalGenericMapping(_type, GenericArguments);
-				return _mapping;
-			}
+			get { return _mapping ?? (_mapping = new ExternalGenericMapping(_tss, _type, GenericArguments)); }
 		}
 
 		public IType GenericDefinition
 		{
 			get 
 			{
-				return _tss.Map(_type.ActualType.GetGenericTypeDefinition());
+
+                return _tss.Map(((IGenericTypeInstance)_type.ActualType).GenericType.ResolvedType);
 			}
 		}
 		
 		public IType[] GenericArguments
 		{
-			get 
+			get
 			{
-				if (_arguments == null)
-				{
-				    _arguments = _type.ActualType.GenericParameters
-				        .Select(gp => _tss.Map(((ITypeReference) gp).ResolvedType))
-				        .ToArray();
-				}
-				return _arguments;
+			    return _arguments ?? (_arguments = _type.ActualType.GenericParameters
+			               .Select(gp => _tss.Map(((ITypeReference) gp).ResolvedType))
+			               .ToArray());
 			}
 		}
 					
 		public bool FullyConstructed	
 		{
-			get { return !_type.ActualType.ContainsGenericParameters; }
+		    get
+		    {
+		        return !_type.ActualType.ContainsGenericParameters();
+		    }
 		}
 
 		public IMember UnMap(IMember mapped)

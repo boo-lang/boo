@@ -230,7 +230,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			return type.IsClass
 				&& type.IsSealed
-				&& !type.IsNestedPublic
+				&& !(type is INestedTypeDefinition)
 				&& HasModuleMarkerAttribute(type);
 		}
 

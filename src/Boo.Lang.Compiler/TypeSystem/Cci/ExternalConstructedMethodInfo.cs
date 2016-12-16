@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		
 		public bool FullyConstructed
 		{
-			get { return !_method.MethodInfo.ContainsGenericParameters; }
+			get { return !_method.MethodInfo.ContainsGenericParameters(); }
 		}		
 	}	
 }

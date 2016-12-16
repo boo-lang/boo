@@ -200,7 +200,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		{
 			get
 			{
-				if (!MethodInfo.IsGenericMethodDefinition)
+				if (!MethodInfo.IsGenericMethodDefinition())
 					return null;
 
 				return _genericMethodDefinitionInfo ??
