@@ -27,7 +27,7 @@
 #endregion
 
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	sealed class CachedMethod
 	{

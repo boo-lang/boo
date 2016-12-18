@@ -27,11 +27,12 @@
 #endregion
 
 using System.Linq;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.Util;
 using Microsoft.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	using System;
 	using System.Collections.Generic;

@@ -27,12 +27,18 @@
 #endregion
 
 
-using System;
-using System.Linq;
 using Microsoft.Cci;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
+    internal static class ExternalEntityAttributes
+    {
+        internal static readonly ITypeReference _duckTypeAttribute = SystemTypeMapper.GetTypeReference(typeof(DuckTypedAttribute));
+
+        internal static readonly ITypeReference _clrExtensionAttribute = SystemTypeMapper.GetTypeReference(typeof(System.Runtime.CompilerServices.ExtensionAttribute));        
+    }
+
 	public abstract class ExternalEntity<T> : IExternalEntityCci, IEntityWithAttributes
 		where T: ITypeDefinitionMember
 	{
@@ -89,15 +95,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			return FullName;
 		}
 
-	    private static readonly ITypeReference _duckTypeAttribute = SystemTypeMapper.GetTypeReference(typeof(DuckTypedAttribute));
-
 		public bool IsDuckTyped
 		{
 			get
 			{
 				if (!_isDuckTyped.HasValue)
 					_isDuckTyped =
-                        !MemberType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, _duckTypeAttribute);
+                        !MemberType.IsValueType && MetadataUtil.IsAttributeDefined(_memberInfo, ExternalEntityAttributes._duckTypeAttribute);
 				return _isDuckTyped.Value;
 			}
 		}
@@ -112,13 +116,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			}
 		}
 
-        private static readonly ITypeReference _clrExtensionAttribute = SystemTypeMapper.GetTypeReference(typeof(System.Runtime.CompilerServices.ExtensionAttribute));
-
 		private bool IsClrExtension
 		{
 		    get
 		    {
-                return MetadataUtil.IsAttributeDefined(_memberInfo, _clrExtensionAttribute);
+                return MetadataUtil.IsAttributeDefined(_memberInfo, ExternalEntityAttributes._clrExtensionAttribute);
 		    }
 		}
 

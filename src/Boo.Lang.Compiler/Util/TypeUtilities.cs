@@ -63,6 +63,28 @@ namespace Boo.Lang.Compiler.Util
 
     public class TypeUtilitiesCci
     {
+        public static INamespaceDefinition GetNamespace(INamedTypeDefinition type)
+        {
+            var nested = type as INestedTypeDefinition;
+            while (nested != null)
+            {
+                type = (INamedTypeDefinition) nested.ContainingTypeDefinition;
+                nested = type as INestedTypeDefinition;
+            }
+            return ((INamespaceTypeDefinition) type).ContainingNamespace;
+        }
+
+        public static IUnit GetUnit(INamedTypeDefinition type)
+        {
+            var nested = type as INestedTypeDefinition;
+            while (nested != null)
+            {
+                type = (INamedTypeDefinition)nested.ContainingTypeDefinition;
+                nested = type as INestedTypeDefinition;
+            }
+            return ((INamespaceTypeDefinition)type).ContainingUnitNamespace.Unit;
+        }
+
         public static string GetFullName(INamedTypeDefinition type)
         {
             var nested = type as INestedTypeDefinition;

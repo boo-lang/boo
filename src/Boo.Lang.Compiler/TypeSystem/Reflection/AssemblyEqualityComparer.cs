@@ -31,7 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	sealed class AssemblyEqualityComparer : IEqualityComparer<Assembly>
 	{

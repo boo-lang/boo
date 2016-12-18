@@ -27,9 +27,8 @@
 #endregion
 
 using System;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {	
 	public class ExternalField : ExternalEntity<System.Reflection.FieldInfo>, IField
 	{

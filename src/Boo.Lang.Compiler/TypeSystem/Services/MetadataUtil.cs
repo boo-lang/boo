@@ -79,6 +79,12 @@ namespace Boo.Lang.Compiler.TypeSystem
         {
             return member.Attributes.Any(a => TypeHelper.TypesAreEquivalent(a.Type, attributeType, true));
         }
+
+        public static ICustomAttribute GetAttribute(ITypeDefinitionMember member, ITypeReference attributeType)
+        {
+            return member.Attributes.FirstOrDefault(a => TypeHelper.TypesAreEquivalent(a.Type, attributeType, true));
+        }
+
     }
 }
 

@@ -551,6 +551,7 @@
     <Compile Include="TypeSystem\Cci\AssemblyReference.cs" />
     <Compile Include="TypeSystem\Cci\CachedMethod.cs" />
     <Compile Include="TypeSystem\Cci\ExternalCallableType.cs" />
+    <Compile Include="TypeSystem\Cci\ExternalClassHelper.cs" />
     <Compile Include="TypeSystem\Cci\ExternalConstructedMethodInfo.cs" />
     <Compile Include="TypeSystem\Cci\ExternalConstructedTypeInfo.cs" />
     <Compile Include="TypeSystem\Cci\ExternalEntity.cs" />

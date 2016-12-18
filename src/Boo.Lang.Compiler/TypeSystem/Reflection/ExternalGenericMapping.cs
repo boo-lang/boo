@@ -27,9 +27,8 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	using System.Reflection;
 

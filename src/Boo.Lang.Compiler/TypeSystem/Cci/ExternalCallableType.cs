@@ -26,10 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Environments;
 using Microsoft.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	
 	public class ExternalCallableType : ExternalType, ICallableType

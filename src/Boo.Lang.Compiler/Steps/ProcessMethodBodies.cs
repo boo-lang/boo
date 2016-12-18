@@ -41,11 +41,14 @@ using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 using Boo.Lang.Runtime;
+using Microsoft.Cci;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+using IArrayType = Boo.Lang.Compiler.TypeSystem.IArrayType;
+using IGenericParameter = Boo.Lang.Compiler.TypeSystem.IGenericParameter;
 using Module = Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.Steps
@@ -4867,7 +4870,8 @@ namespace Boo.Lang.Compiler.Steps
 			MethodInvocationExpression mie = new MethodInvocationExpression();
 			GenericReferenceExpression gre = new GenericReferenceExpression();
 			gre.Target = new MemberReferenceExpression(new ReferenceExpression("System"), "Nullable");
-			gre.GenericArguments.Add(TypeReference.Lift(Nullable.GetUnderlyingType(((ExternalType) type).ActualType)));
+		    var xType = ((IGenericTypeInstance) ((ExternalType) type).ActualType).GenericArguments.First().ResolvedType;
+			gre.GenericArguments.Add(TypeReference.Lift(xType));
 			mie.Target = gre;
 			if (null != val && !IsNull(val))
 				mie.Arguments.Add(val);

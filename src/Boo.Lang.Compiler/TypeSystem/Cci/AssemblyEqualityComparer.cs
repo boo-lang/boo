@@ -30,7 +30,7 @@
 using System.Collections.Generic;
 using Microsoft.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
     internal sealed class AssemblyEqualityComparer : IEqualityComparer<IUnit>
 	{

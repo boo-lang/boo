@@ -29,8 +29,9 @@
 using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Microsoft.Cci;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	public class ExternalConstructedTypeInfo : IConstructedTypeInfo
 	{

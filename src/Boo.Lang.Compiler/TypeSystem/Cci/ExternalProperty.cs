@@ -27,9 +27,10 @@
 #endregion
 
 using System.Linq;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Microsoft.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	public class ExternalProperty : ExternalEntity<IPropertyDefinition>, IProperty
 	{

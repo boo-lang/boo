@@ -26,11 +26,11 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using System.Linq;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Microsoft.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {	
 	public class ExternalField : ExternalEntity<IFieldDefinition>, IField
 	{

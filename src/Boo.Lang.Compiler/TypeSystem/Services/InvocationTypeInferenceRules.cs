@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
+using ExternalType = Boo.Lang.Compiler.TypeSystem.Reflection.ExternalType;
 
 namespace Boo.Lang.Compiler.TypeSystem.Services
 {
@@ -13,17 +15,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 	public class TypeInferenceRuleProvider
 	{
-		public virtual string TypeInferenceRuleFor(MethodBase method)
+		public virtual string TypeInferenceRuleFor(IMethodDefinition method)
 		{
 			return TypeInferenceRuleFor(method, typeof(TypeInferenceRuleAttribute));
 		}
 
-		protected string TypeInferenceRuleFor(MethodBase method, Type attributeType)
-		{
-			var rule = System.Attribute.GetCustomAttribute(method, attributeType);
-			if (rule != null)
-				return rule.ToString();
-			return null;
+        protected string TypeInferenceRuleFor(IMethodDefinition method, Type attributeType)
+        {
+            var attr = MetadataUtil.GetAttribute(method, SystemTypeMapper.GetTypeReference(attributeType));
+            if (attr == null)
+                return null;
+
+            var rule = ExternalClassHelper.CreateAttribute(attr);
+			return rule.ToString();
 		}
 	}
 
@@ -36,7 +40,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			_attribute = ResolveAttribute(attribute);
 		}
 
-		public override string TypeInferenceRuleFor(MethodBase method)
+        public override string TypeInferenceRuleFor(IMethodDefinition method)
 		{
 			return base.TypeInferenceRuleFor(method) ?? TypeInferenceRuleFor(method, _attribute);
 		}
@@ -104,9 +108,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return rule(invocation, method);
 		}
 
-		Dictionary<IMethod, InvocationTypeInferenceRule> _invocationTypeInferenceRules = new Dictionary<IMethod, InvocationTypeInferenceRule>();
+        private readonly Dictionary<IMethod, InvocationTypeInferenceRule> _invocationTypeInferenceRules = new Dictionary<IMethod, InvocationTypeInferenceRule>();
 
-		TypeInferenceRuleProvider _provider = My<TypeInferenceRuleProvider>.Instance;
+	    private readonly TypeInferenceRuleProvider _provider = My<TypeInferenceRuleProvider>.Instance;
  
 		public InvocationTypeInferenceRules() : base(CompilerContext.Current)
 		{
@@ -155,7 +159,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			return BuiltinRules.NoTypeInference;
 		}
 
-		private string TypeInferenceRuleFor(MethodBase method)
+        private string TypeInferenceRuleFor(IMethodDefinition method)
 		{
 			return _provider.TypeInferenceRuleFor(method);
 		}

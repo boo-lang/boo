@@ -29,9 +29,8 @@
 
 using System;
 using System.Reflection;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	public abstract class ExternalEntity<T> : IExternalEntity, IEntityWithAttributes
 		where T: System.Reflection.MemberInfo

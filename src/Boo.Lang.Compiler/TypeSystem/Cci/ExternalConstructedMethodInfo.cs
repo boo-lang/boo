@@ -28,11 +28,10 @@
 
 using System.Linq;
 using Microsoft.Cci;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
-	using System;
-
 	public class ExternalConstructedMethodInfo : IConstructedMethodInfo
 	{
 	    private readonly ExternalMethod _method;

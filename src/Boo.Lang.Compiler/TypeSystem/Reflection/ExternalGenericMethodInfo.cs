@@ -27,12 +27,10 @@
 #endregion
 
 using Boo.Lang.Compiler.TypeSystem.Generics;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	using System;
-	using System.Collections.Generic;
 
 	public class ExternalGenericMethodInfo : AbstractExternalGenericInfo<IMethod>, IGenericMethodInfo
 	{

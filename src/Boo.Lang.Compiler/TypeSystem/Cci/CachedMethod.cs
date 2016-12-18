@@ -27,9 +27,9 @@
 #endregion
 
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
-	sealed class CachedMethod
+    public sealed class CachedMethod
 	{
 		public readonly IMethod Value;
 

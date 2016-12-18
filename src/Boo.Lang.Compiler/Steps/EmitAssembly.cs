@@ -2423,7 +2423,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (constructedMethod != null)
 				return GetConditionalSymbols(constructedMethod.GenericDefinition);
 
-			var externalMethod = method as ExternalMethod;
+			var externalMethod = method as TypeSystem.Reflection.ExternalMethod;
 			if (externalMethod != null)
 				return GetConditionalSymbols(externalMethod);
 
@@ -2436,7 +2436,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static readonly string[] NoSymbols = new string[0];
 
-		private IEnumerable<string> GetConditionalSymbols(ExternalMethod method)
+		private IEnumerable<string> GetConditionalSymbols(TypeSystem.Reflection.ExternalMethod method)
 		{
 			foreach (ConditionalAttribute attr in method.MethodInfo.GetCustomAttributes(typeof(ConditionalAttribute), false))
 				yield return attr.ConditionString;
@@ -4505,7 +4505,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		PropertyInfo GetPropertyInfo(IEntity tag)
 		{
-			ExternalProperty external = tag as ExternalProperty;
+			var external = tag as TypeSystem.Reflection.ExternalProperty;
 			if (null != external)
 			{
 				return external.PropertyInfo;
@@ -4516,7 +4516,7 @@ namespace Boo.Lang.Compiler.Steps
 		FieldInfo GetFieldInfo(IField tag)
 		{
 			// If field is external, get its existing FieldInfo
-			ExternalField external = tag as ExternalField;
+            var external = tag as TypeSystem.Reflection.ExternalField;
 			if (null != external)
 			{
 				return external.FieldInfo;
@@ -4537,7 +4537,7 @@ namespace Boo.Lang.Compiler.Steps
 		MethodInfo GetMethodInfo(IMethod entity)
 		{
 			// If method is external, get its existing MethodInfo
-			var external = entity as ExternalMethod;
+            var external = entity as TypeSystem.Reflection.ExternalMethod;
 			if (null != external)
 				return (MethodInfo)external.MethodInfo;
 

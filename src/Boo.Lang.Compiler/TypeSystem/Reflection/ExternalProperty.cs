@@ -28,9 +28,8 @@
 
 using System;
 using System.Reflection;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 
-namespace Boo.Lang.Compiler.TypeSystem
+namespace Boo.Lang.Compiler.TypeSystem.Reflection
 {
 	public class ExternalProperty : ExternalEntity<System.Reflection.PropertyInfo>, IProperty
 	{

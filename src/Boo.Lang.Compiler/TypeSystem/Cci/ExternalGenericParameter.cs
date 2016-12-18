@@ -27,9 +27,10 @@
 #endregion
 
 using System.Linq;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Microsoft.Cci;
 
-namespace Boo.Lang.Compiler.TypeSystem.Cci
+namespace Boo.Lang.Compiler.TypeSystem
 {
 	public class ExternalGenericParameter : ExternalType, IGenericParameter
 	{
@@ -60,7 +61,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			get 
 			{
 				//NB: do not use ?? op to workaround csc bug generating invalid IL
-				return (null != _declaringMethod) ? (IEntity) _declaringMethod : (IEntity) DeclaringType;
+                return _declaringMethod != null ? (IEntity)_declaringMethod : DeclaringType;
 			}
 		}
 

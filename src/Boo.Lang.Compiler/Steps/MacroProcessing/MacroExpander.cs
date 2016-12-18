@@ -34,9 +34,10 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.Steps.MacroProcessing
 {
@@ -271,7 +272,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				return;
 			}
 
-			ProcessMacro(externalType.ActualType, node);
+            ProcessMacro(ExternalClassHelper.GetType((INamedTypeDefinition)externalType.ActualType), node);
 		}
 
 		private void ProcessInternalMacro(InternalClass klass, MacroStatement node)

@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -35,8 +36,21 @@ namespace Boo.Lang.Compiler.Ast
 	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeReference))]
 	[System.Xml.Serialization.XmlInclude(typeof(GenericTypeDefinitionReference))]
 	public abstract partial class TypeReference
-	{	
-		public static TypeReference Lift(System.Type type)
+	{
+        public static TypeReference Lift(ITypeDefinition type)
+        {
+            if (type == null) return null;
+            if (type.IsGeneric)
+            {
+                var inst = type as IGenericTypeInstance;
+                if (inst != null)
+                    return LiftGenericType(inst);
+                return LiftGenericType((INamedTypeDefinition)type);
+            }
+            return new SimpleTypeReference(FullNameOf((INamedTypeDefinition)type));
+        }
+
+        public static TypeReference Lift(System.Type type)
 		{
 			if (type == null) return null;
 			if (type.IsGenericType) return LiftGenericType(type);
@@ -119,7 +133,28 @@ namespace Boo.Lang.Compiler.Ast
 			return Util.TypeUtilities.GetFullName(type);
 		}
 
-		private static TypeReference LiftGenericType(Type type)
+        private static string FullNameOf(INamedTypeDefinition type)
+        {
+            return Util.TypeUtilitiesCci.GetFullName(type);
+        }
+
+        private static TypeReference LiftGenericType(IGenericTypeInstanceReference type)
+        {
+            var genericTypeRef = new GenericTypeReference { Name = FullNameOf(type.GenericType.ResolvedType) };
+            foreach (var arg in type.GenericArguments)
+                genericTypeRef.GenericArguments.Add(Lift(arg.ResolvedType));
+            return genericTypeRef;
+        }
+
+        private static TypeReference LiftGenericType(INamedTypeDefinition type)
+        {
+            var genericTypeRef = new GenericTypeReference { Name = FullNameOf(type) };
+            foreach (var arg in type.GenericParameters)
+                genericTypeRef.GenericArguments.Add(Lift(arg));
+            return genericTypeRef;
+        }
+
+        private static TypeReference LiftGenericType(Type type)
 		{
 			var genericTypeRef = new GenericTypeReference { Name = FullNameOf(type) };
 			foreach (var arg in type.GetGenericArguments())
