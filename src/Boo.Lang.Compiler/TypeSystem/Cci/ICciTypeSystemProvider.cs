@@ -43,5 +43,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
         IEntity Map(ITypeDefinitionMember member);
 		IParameter[] Map(IParameterDefinition[] parameters);
         ICciTypeSystemProvider Clone();
+        PeReader.DefaultHost Host { get; }
 	}
 }

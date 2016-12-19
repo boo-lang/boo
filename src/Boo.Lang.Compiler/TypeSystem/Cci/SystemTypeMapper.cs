@@ -8,10 +8,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 {
     internal static class SystemTypeMapper
     {
+        public static IAssembly LoadAssembly(System.Reflection.Assembly reflectAsm)
+        {
+            var name = reflectAsm.GetName();
+            return Host.LoadAssembly(new AssemblyIdentity(
+                Host.NameTable.GetNameFor(reflectAsm.FullName),
+                name.CultureInfo.Name,
+                name.Version,
+                name.GetPublicKeyToken(),
+                reflectAsm.Location));
+        }
+
         public static ITypeReference GetTypeReference(Type value)
         {
-            var host = CompilerContext.Current.Host;
-
             if (value.IsByRef)
             {
                 var referredType = value.GetElementType();
@@ -21,7 +30,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
                 return new VectorTypeReference
                 {
                     ElementType = GetTypeReference(value.GetElementType()),
-                    InternFactory = host.InternFactory
+                    InternFactory = Host.InternFactory
                 }.ResolvedType;
             if (value.IsNested)
             {
@@ -30,23 +39,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
                     throw new Exception("Generic parameters are not supported yet");
                 if (value.ContainsGenericParameters)
                     throw new Exception("Generic nested types are not supported yet");
-                return new Microsoft.Cci.Immutable.NestedTypeReference(host, declaringType, host.NameTable.GetNameFor(value.Name), 0,
+                return new Microsoft.Cci.Immutable.NestedTypeReference(Host, declaringType, Host.NameTable.GetNameFor(value.Name), 0,
                     value.IsEnum, value.IsValueType).ResolvedType;
             }
             if (value.IsGenericType && !value.ContainsGenericParameters)
-                return GetGenericTypeReference(value, host);
+                return GetGenericTypeReference(value, Host);
 
             var reflectAsm = value.Assembly;
-            var name = reflectAsm.GetName();
-            var asm = host.LoadAssembly(new AssemblyIdentity(
-                host.NameTable.GetNameFor(reflectAsm.FullName),
-                name.CultureInfo.Name,
-                name.Version,
-                name.GetPublicKeyToken(),
-                reflectAsm.Location));
+            var asm = LoadAssembly(reflectAsm);
             if (value.IsGenericType)
-                return UnitHelper.FindType(host.NameTable, asm, NonGenericName(value.FullName), value.GetGenericArguments().Length);
-            return UnitHelper.FindType(host.NameTable, asm, value.FullName);
+                return UnitHelper.FindType(Host.NameTable, asm, NonGenericName(value.FullName), value.GetGenericArguments().Length);
+            return UnitHelper.FindType(Host.NameTable, asm, value.FullName);
         }
 
         private static string NonGenericName(string value)
@@ -62,6 +65,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
             var args = value.GetGenericArguments().Select(GetTypeReference);
             return GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)baseTypeRef, args, host.InternFactory);
         }
+
+        public static PeReader.DefaultHost Host { get; set; }
 
     }
 }

@@ -37,10 +37,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 	public class CciTypeSystemProvider : ICciTypeSystemProvider
 	{
         private readonly MemoizedFunction<IUnit, AssemblyReferenceCci> _referenceCache;
-		
-		public CciTypeSystemProvider()
+
+	    public CciTypeSystemProvider()
 		{
             _referenceCache = new MemoizedFunction<IUnit, AssemblyReferenceCci>(AssemblyEqualityComparer.Default, CreateReference);
+            Host = new PeReader.DefaultHost();
+            SystemTypeMapper.Host = Host;
 			Initialize();
 		}
 
@@ -66,7 +68,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 			_referenceCache = referenceCache;
 		}
 
-		#region Implementation of ICompilerReferenceProvider
+        public PeReader.DefaultHost Host { get; private set; }
+
+	    #region Implementation of ICompilerReferenceProvider
 
 		public AssemblyReferenceCci ForAssembly(IUnit assembly)
 		{
@@ -170,7 +174,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		private sealed class ObjectTypeImpl : ExternalType
 		{
             internal ObjectTypeImpl(ICciTypeSystemProvider provider)
-				: base(provider, CompilerContext.Current.Host.PlatformType.SystemObject.ResolvedType)
+                : base(provider, provider.Host.PlatformType.SystemObject.ResolvedType)
 			{
 			}
 
@@ -187,7 +191,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 		private sealed class VoidTypeImpl : ExternalType
 		{
             internal VoidTypeImpl(ICciTypeSystemProvider provider)
-                : base(provider, CompilerContext.Current.Host.PlatformType.SystemVoid.ResolvedType)
+                : base(provider, provider.Host.PlatformType.SystemVoid.ResolvedType)
 			{
 			}
 

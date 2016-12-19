@@ -33,6 +33,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Microsoft.Cci;
 using Module=Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.MetaProgramming
@@ -52,12 +53,12 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			return compile_(CreateCompileUnit(klass), references);
 		}
 
-		public static Assembly compile(Module module, params System.Reflection.Assembly[] references)
+		public static Assembly compile(Module module, params Assembly[] references)
 		{
 			return compile(new CompileUnit(module), references);
 		}
 
-		public static CompilerContext compile_(Module module, params System.Reflection.Assembly[] references)
+		public static CompilerContext compile_(Module module, params Assembly[] references)
 		{
 			return compile_(new CompileUnit(module), references);
 		}
@@ -76,8 +77,8 @@ namespace Boo.Lang.Compiler.MetaProgramming
 
 		public static CompilerContext compile_(CompileUnit unit, Assembly[] references)
 		{
-			BooCompiler compiler = NewCompiler();
-			foreach (Assembly reference in references)
+			var compiler = NewCompiler();
+			foreach (var reference in references)
 				compiler.Parameters.References.Add(reference);
 			return compiler.Run(unit);
 		}
@@ -89,21 +90,16 @@ namespace Boo.Lang.Compiler.MetaProgramming
 
 		private static BooCompiler NewCompilerWithReferences(IEnumerable<ICompileUnit> references)
 		{
-			BooCompiler compiler = NewCompiler(false);
+			var compiler = NewCompiler(false);
 			compiler.Parameters.References.AddAll(references);
 			return compiler;
 		}
 
-		private static BooCompiler NewCompiler()
+	    private static BooCompiler NewCompiler(bool loadDefaultReferences = true)
 		{
-			return NewCompiler(true);
-		}
-
-		private static BooCompiler NewCompiler(bool loadDefaultReferences)
-		{
-			BooCompiler compiler = new BooCompiler(new CompilerParameters(loadDefaultReferences));
+			var compiler = new BooCompiler(new CompilerParameters(loadDefaultReferences));
 			compiler.Parameters.OutputType = CompilerOutputType.Auto;
-			compiler.Parameters.Pipeline = new Boo.Lang.Compiler.Pipelines.CompileToMemory();
+			compiler.Parameters.Pipeline = new Pipelines.CompileToMemory();
 			return compiler;
 		}
 
@@ -114,9 +110,8 @@ namespace Boo.Lang.Compiler.MetaProgramming
 
 		private static Module CreateModule(TypeDefinition klass)
 		{
-			Module module = new Module();
-			module.Name = klass.Name;
-			module.Members.Add(klass);
+		    var module = new Module {Name = klass.Name};
+		    module.Members.Add(klass);
 			return module;
 		}
 	}

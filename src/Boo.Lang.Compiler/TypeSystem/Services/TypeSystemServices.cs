@@ -33,17 +33,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
+using Microsoft.Cci;
 using Attribute = System.Attribute;
+using ExternalType = Boo.Lang.Compiler.TypeSystem.Reflection.ExternalType;
 using Module = Boo.Lang.Compiler.Ast.Module;
 
 namespace Boo.Lang.Compiler.TypeSystem
@@ -882,34 +883,29 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeSystemProvider().Map(type);
 		}
 
-		private IReflectionTypeSystemProvider TypeSystemProvider()
+		private ICciTypeSystemProvider TypeSystemProvider()
 		{
 			return _typeSystemProvider.Instance;
 		}
 
-		private EnvironmentProvision<IReflectionTypeSystemProvider> _typeSystemProvider;
+        private EnvironmentProvision<ICciTypeSystemProvider> _typeSystemProvider;
 
-		public IParameter[] Map(ParameterInfo[] parameters)
+		public IParameter[] Map(IParameterDefinition[] parameters)
 		{
 			return TypeSystemProvider().Map(parameters);
 		}
 
-		public IConstructor Map(ConstructorInfo constructor)
+		public IMethod Map(IMethodDefinition method)
 		{
-			return (IConstructor) Map((MemberInfo) constructor);
+			return TypeSystemProvider().Map(method);
 		}
 
-		public IMethod Map(MethodInfo method)
-		{
-			return (IMethod) Map((MemberInfo) method);
-		}
-
-		public IEntity Map(MemberInfo[] members)
+		public IEntity Map(ITypeDefinitionMember[] members)
 		{
 			return TypeSystemProvider().Map(members);
 		}
 
-		public IEntity Map(MemberInfo mi)
+        public IEntity Map(ITypeDefinitionMember mi)
 		{
 			return TypeSystemProvider().Map(mi);
 		}
@@ -1080,10 +1076,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 	        return TypeCompatibilityRules.IsAssignableFrom(expectedType, actualType);
 	    }
 
-	    public virtual IConstructor GetStringExceptionConstructor()
-		{
-			return Map(typeof(Exception).GetConstructor(new[] {typeof(string)}));
-		}
+	    public virtual IMethod GetStringExceptionConstructor()
+	    {
+	        var exc = SystemTypeMapper.GetTypeReference(typeof(Exception)).ResolvedType;
+	        var host = CompilerContext.Current.Host;
+	        var ctor = host.NameTable.GetNameFor(".ctor");
+	        var constructorDef = exc.GetMembersNamed(ctor, false)
+	            .Cast<IMethodDefinition>()
+	            .Single(
+	                c =>
+	                    c.ParameterCount == 1 &&
+	                    TypeHelper.TypesAreEquivalent(c.Parameters.First().Type, host.PlatformType.SystemString));
+	        return Map(constructorDef);
+	    }
 
 		public virtual bool IsMacro(IType type)
 		{

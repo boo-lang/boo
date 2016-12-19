@@ -27,9 +27,6 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Reflection;
-using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler.Steps
 {

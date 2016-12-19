@@ -30,9 +30,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Compiler.Util;
-using Assembly = System.Reflection.Assembly;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler
 {
@@ -41,26 +41,31 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerReferenceCollection : Set<ICompileUnit>
 	{
-		private readonly IReflectionTypeSystemProvider _provider;
+        private readonly ICciTypeSystemProvider _provider;
 
-		public CompilerReferenceCollection(IReflectionTypeSystemProvider provider)
+        public CompilerReferenceCollection(ICciTypeSystemProvider provider)
 		{
 			if (null == provider)
 				throw new ArgumentNullException("provider");
 			_provider = provider;
 		}
 
-		public IReflectionTypeSystemProvider Provider
+        public ICciTypeSystemProvider Provider
 		{
 			get { return _provider; }
 		}
 
-		public void Add(Assembly assembly)
+	    public void Add(System.Reflection.Assembly value)
+	    {
+	        Add(SystemTypeMapper.LoadAssembly(value));
+	    }
+
+		public void Add(IAssembly assembly)
 		{
 			Add(_provider.ForAssembly(assembly));
 		}
 
-		public bool Contains(Assembly assembly)
+        public bool Contains(IAssembly assembly)
 		{
 			return Contains(_provider.ForAssembly(assembly));
 		}
@@ -74,7 +79,7 @@ namespace Boo.Lang.Compiler
 		[Obsolete("Use AddAll")]
 		public void Extend(IEnumerable assemblies)
 		{
-			foreach (Assembly assembly in assemblies)
+            foreach (IAssembly assembly in assemblies)
 				Add(assembly);
 		}
 		
@@ -86,7 +91,7 @@ namespace Boo.Lang.Compiler
 			return null;
 		}
 
-		public void Remove(Assembly assembly)
+        public void Remove(IAssembly assembly)
 		{
 			Remove(_provider.ForAssembly(assembly));
 		}

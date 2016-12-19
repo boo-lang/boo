@@ -30,13 +30,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Security;
 
 using Microsoft.Cci;
@@ -47,9 +46,9 @@ using Boo.Lang.Compiler.Steps.EmitCCI;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Runtime;
 using Microsoft.Cci.Immutable;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
@@ -97,8 +96,8 @@ namespace Boo.Lang.Compiler.Steps
         private IType _returnType;
         private int _tryBlock; // are we in a try block?
         private bool _checked = true;
-        private bool _rawArrayIndexing = false;
-        private bool _perModuleRawArrayIndexing = false;
+        private bool _rawArrayIndexing ;
+        private bool _perModuleRawArrayIndexing;
 
         private readonly Dictionary<IType, ITypeReference> _typeCache = new Dictionary<IType, ITypeReference>();
         private readonly List<Method> _moduleConstructorMethods = new List<Method>();
@@ -451,58 +450,12 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-	    private ITypeDefinition GetTypeReference(Type value)
+	    private static ITypeReference GetTypeReference(Type value)
 	    {
-	        if (value.IsByRef)
-	        {
-	            var referredType = value.GetElementType();
-	            return GetTypeReference(referredType);
-	        }
-	        if (value.IsArray)
-                return new VectorTypeReference
-                {
-                    ElementType = GetTypeReference(value.GetElementType()),
-                    InternFactory = _host.InternFactory
-                }.ResolvedType;
-	        if (value.IsNested)
-	        {
-	            var declaringType = GetTypeReference(value.DeclaringType);
-	            if (value.ContainsGenericParameters)
-	                throw new Exception("Generic nested types are not supported yet");
-	            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 0,
-	                value.IsEnum, value.IsValueType).ResolvedType;
-	        }
-            if (value.IsGenericType && !value.ContainsGenericParameters)
-                return GetGenericTypeReference(value);
-
-	        var reflectAsm = value.Assembly;
-	        var name = reflectAsm.GetName();
-            var asm = _host.LoadAssembly(new AssemblyIdentity(
-                _nameTable.GetNameFor(reflectAsm.FullName), 
-                name.CultureInfo.Name,
-                name.Version,
-                name.GetPublicKeyToken(),
-                reflectAsm.Location));
-            if (value.IsGenericType)
-                return UnitHelper.FindType(_nameTable, asm, NonGenericName(value.FullName), value.GetGenericArguments().Length);
-	        return UnitHelper.FindType(_nameTable, asm, value.FullName);
+	        return SystemTypeMapper.GetTypeReference(value);
 	    }
 
-	    private static string NonGenericName(string value)
-	    {
-	        var idx = value.IndexOf("`", StringComparison.Ordinal);
-	        return value.Substring(0, idx);
-	    }
-
-	    private ITypeDefinition GetGenericTypeReference(Type value)
-	    {
-	        var baseType = value.GetGenericTypeDefinition();
-	        var baseTypeRef = GetTypeReference(baseType);
-	        var args = value.GetGenericArguments().Select(GetTypeReference);
-            return GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)baseTypeRef, args, _host.InternFactory);
-	    }
-
-	    private ITypeDefinition GetTypeReference<T>()
+	    private static ITypeReference GetTypeReference<T>()
 	    {
 	        return GetTypeReference(typeof(T));
 	    }
@@ -1372,8 +1325,8 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        IType _byAddress = null;
-        bool IsByAddress(IType type)
+        IType _byAddress;
+        private bool IsByAddress(IType type)
         {
             return (_byAddress == type);
         }
@@ -1587,7 +1540,7 @@ namespace Boo.Lang.Compiler.Steps
             return temp;
         }
 
-        LocalDefinition _currentLocal = null;
+        private LocalDefinition _currentLocal;
 
         private void LoadLocal(LocalDefinition local, IType localType)
         {
@@ -1841,17 +1794,17 @@ namespace Boo.Lang.Compiler.Steps
             PushType(type);
         }
 
-        bool EmitToBoolIfNeeded(Expression expression)
+        private bool EmitToBoolIfNeeded(Expression expression)
         {
-            bool notContext = false;
+            var notContext = false;
             return EmitToBoolIfNeeded(expression, ref notContext);
         }
 
         //mostly used for logical operators and ducky mode
         //other cases of bool context are handled by PMB
-        bool EmitToBoolIfNeeded(Expression expression, ref bool notContext)
+        private bool EmitToBoolIfNeeded(Expression expression, ref bool notContext)
         {
-            bool inNotContext = notContext;
+            var inNotContext = notContext;
             notContext = false;
 
             //use a builtin conversion operator just for the logical operator trueness test
@@ -2188,7 +2141,7 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private int _matrixNameKey;
 	    private IMethodReference _arrayGetLength;
-	    private ITypeDefinition _builtinsType;
+	    private ITypeReference _builtinsType;
 	    private INamedTypeDefinition _nullableType;
 	    private IMethodReference _builtinsArrayGenericConstructor;
 	    private IMethodReference _builtinsArrayTypedConstructor;
@@ -2245,7 +2198,7 @@ namespace Boo.Lang.Compiler.Steps
             _runtimeServicesNormalizeArrayIndex = MethodOf<RuntimeServices>("NormalizeArrayIndex", typeof(Array), typeof(int));
             _runtimeHelpersInitializeArray =
                 MethodOf(GetTypeReference(typeof(System.Runtime.CompilerServices.RuntimeHelpers)), "InitializeArray", typeof(Array), typeof(RuntimeFieldHandle));
-            _stringEmpty = TypeHelper.GetField(GetTypeReference<string>(), _nameTable.GetNameFor("Empty"));
+            _stringEmpty = TypeHelper.GetField(_host.PlatformType.SystemString.ResolvedType, _nameTable.GetNameFor("Empty"));
         }
 
 	    private bool MethodsEqual(IMethodReference m1, IMethodReference m2)
@@ -2428,7 +2381,9 @@ namespace Boo.Lang.Compiler.Steps
 
         private static IEnumerable<string> GetConditionalSymbols(ExternalMethod method)
         {
-            return from ConditionalAttribute attr in method.MethodInfo.GetCustomAttributes(typeof(ConditionalAttribute), false) select attr.ConditionString;
+            var cond = GetTypeReference<ConditionalAttribute>();
+            var conds = method.MethodInfo.Attributes.Where(a => TypeHelper.TypesAreEquivalent(a.Type, cond, true));
+            return from ICustomAttribute attr in conds select (string)((IMetadataConstant)attr.Arguments.First()).Value;
         }
 
         private IEnumerable<string> GetConditionalSymbols(InternalMethod method)
@@ -2574,7 +2529,7 @@ namespace Boo.Lang.Compiler.Steps
 
                 case BuiltinFunctionType.Default:
                     {
-                        EmitDefaultValue((IType)node.ExpressionType);
+                        EmitDefaultValue(node.ExpressionType);
                         break;
                     }
 
@@ -3030,7 +2985,7 @@ namespace Boo.Lang.Compiler.Steps
 
         public override void OnExpressionInterpolationExpression(ExpressionInterpolationExpression node)
         {
-            Type stringBuilderType = typeof(StringBuilder);
+            var stringBuilderType = typeof(StringBuilder);
             Expression arg0 = node.Expressions[0];
             IType argType = arg0.ExpressionType;
 
@@ -3233,7 +3188,7 @@ namespace Boo.Lang.Compiler.Steps
 
         public override void OnGenericReferenceExpression(GenericReferenceExpression node)
         {
-            IEntity entity = TypeSystem.TypeSystemServices.GetEntity(node);
+            IEntity entity = TypeSystemServices.GetEntity(node);
             switch (entity.EntityType)
             {
                 case EntityType.Type:
@@ -3504,7 +3459,7 @@ namespace Boo.Lang.Compiler.Steps
 
             node.Right.Accept(this); // leaves type on stack
 
-            IType typeOnStack = null;
+            IType typeOnStack;
 
             if (leaveValueOnStack)
             {
@@ -3626,7 +3581,7 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        bool EmitDebugInfo(Node node)
+        private bool EmitDebugInfo(Node node)
         {
             if (!Parameters.Debug)
                 return false;
@@ -3746,7 +3701,7 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-	    private uint _staticDataOffset = 0;
+	    private uint _staticDataOffset;
 
 	    private NamespaceTypeDefinition GetPackedArrayType(int size)
 	    {
@@ -3899,7 +3854,7 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMethodDefinition GetToDecimalConversionMethod(IType type)
         {
-            var decimalType = GetTypeReference<decimal>();
+            var decimalType = _host.PlatformType.SystemDecimal.ResolvedType;
             var toType = GetSystemType(type);
             var method = TypeHelper.GetMethod(decimalType, _nameTable.GetNameFor("op_Implicit"), toType);
             if (method == Dummy.MethodDefinition)
@@ -3916,10 +3871,10 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMethodDefinition GetFromDecimalConversionMethod(IType type)
         {
-            string toType = "To" + type.Name;
+            var toType = "To" + type.Name;
 
             var method =
-                typeof(decimal).GetMethod(toType, new Type[] { typeof(decimal) });
+                typeof(decimal).GetMethod(toType, new[] { typeof(decimal) });
             if (method == null)
             {
                 NotImplemented(string.Format("Numeric promotion for decimal to {0} not implemented!", type));
@@ -4296,15 +4251,15 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        private IMethodDefinition MethodOf(ITypeDefinition typeRef, string name, params Type[] args)
+        private IMethodDefinition MethodOf(ITypeReference typeRef, string name, params Type[] args)
         {
-            return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
+            return TypeHelper.GetMethod(typeRef.ResolvedType, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
         }
 
         private IMethodDefinition MethodOf<T>(string name, params Type[] args)
         {
             var typeRef = GetTypeReference(typeof(T));
-            return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
+            return TypeHelper.GetMethod(typeRef.ResolvedType, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
         }
 
         private IMethodDefinition ConstructorOf<T>(params Type[] args)
@@ -4312,7 +4267,7 @@ namespace Boo.Lang.Compiler.Steps
             return MethodOf<T>(".ctor", args);
         }
 
-        private IMethodDefinition ConstructorOf(ITypeDefinition typeRef, params Type[] args)
+        private IMethodDefinition ConstructorOf(ITypeReference typeRef, params Type[] args)
         {
             return MethodOf(typeRef, ".ctor", args);
         }
@@ -4320,7 +4275,7 @@ namespace Boo.Lang.Compiler.Steps
         private IPropertyDefinition PropertyOf<T>(string name)
         {
             var typeRef = GetTypeReference(typeof(T));
-            return TypeHelper.GetProperty(typeRef, _nameTable.GetNameFor(name));
+            return TypeHelper.GetProperty(typeRef.ResolvedType, _nameTable.GetNameFor(name));
         }
 
         private IMethodDefinition UnboxMethodFor(IType type)
@@ -4342,46 +4297,46 @@ namespace Boo.Lang.Compiler.Steps
             return null;
         }
 
-        OperationCode GetNumericPromotionOpCode(IType type)
+        private OperationCode GetNumericPromotionOpCode(IType type)
         {
             return NumericPromotionOpcodeFor(TypeCodeFor(type), _checked);
         }
 
-        private static OperationCode NumericPromotionOpcodeFor(TypeCode typeCode, bool @checked)
+        private static OperationCode NumericPromotionOpcodeFor(PrimitiveTypeCode typeCode, bool @checked)
         {
             switch (typeCode)
             {
-                case TypeCode.SByte:
+                case PrimitiveTypeCode.Int8:
                     return @checked ? OperationCode.Conv_Ovf_I1 : OperationCode.Conv_I1;
-                case TypeCode.Byte:
+                case PrimitiveTypeCode.UInt8:
                     return @checked ? OperationCode.Conv_Ovf_U1 : OperationCode.Conv_U1;
-                case TypeCode.Int16:
+                case PrimitiveTypeCode.Int16:
                     return @checked ? OperationCode.Conv_Ovf_I2 : OperationCode.Conv_I2;
-                case TypeCode.UInt16:
-                case TypeCode.Char:
+                case PrimitiveTypeCode.UInt16:
+                case PrimitiveTypeCode.Char:
                     return @checked ? OperationCode.Conv_Ovf_U2 : OperationCode.Conv_U2;
-                case TypeCode.Int32:
+                case PrimitiveTypeCode.Int32:
                     return @checked ? OperationCode.Conv_Ovf_I4 : OperationCode.Conv_I4;
-                case TypeCode.UInt32:
+                case PrimitiveTypeCode.UInt32:
                     return @checked ? OperationCode.Conv_Ovf_U4 : OperationCode.Conv_U4;
-                case TypeCode.Int64:
+                case PrimitiveTypeCode.Int64:
                     return @checked ? OperationCode.Conv_Ovf_I8 : OperationCode.Conv_I8;
-                case TypeCode.UInt64:
+                case PrimitiveTypeCode.UInt64:
                     return @checked ? OperationCode.Conv_Ovf_U8 : OperationCode.Conv_U8;
-                case TypeCode.Single:
+                case PrimitiveTypeCode.Float32:
                     return OperationCode.Conv_R4;
-                case TypeCode.Double:
+                case PrimitiveTypeCode.Float64:
                     return OperationCode.Conv_R8;
                 default:
                     throw new ArgumentException(typeCode.ToString());
             }
         }
 
-        private static TypeCode TypeCodeFor(IType type)
+        private static PrimitiveTypeCode TypeCodeFor(IType type)
         {
             var externalType = type as ExternalType;
             if (externalType != null)
-                return Type.GetTypeCode(externalType.ActualType);
+                return externalType.ActualType.TypeCode;
             throw new NotImplementedException(string.Format("TypeCodeFor({0}) not implemented!", type));
         }
 
@@ -4588,10 +4543,9 @@ namespace Boo.Lang.Compiler.Steps
         {
             // If method is external, get its existing MethodDefinition
             var external = entity as ExternalMethod;
-            if (null != external)
+            if (external != null)
             {
-                var mi = external.MethodInfo;
-                return MethodOf(GetTypeReference(mi.DeclaringType), mi.Name, mi.GetParameters().Select(p => p.ParameterType).ToArray());
+                return external.MethodInfo;
             }
 
             // If method is a constructed generic method, get its MethodDefinition from its definition
@@ -4620,11 +4574,10 @@ namespace Boo.Lang.Compiler.Steps
         private IMethodReference GetConstructorInfo(IConstructor entity)
         {
             // If constructor is external, get its existing IMethodReference
-            var external = entity as ExternalConstructor;
+            var external = entity as ExternalMethod;
             if (null != external)
             {
-                var ci = (System.Reflection.ConstructorInfo) external.MethodInfo;
-                return ConstructorOf(GetTypeReference(ci.DeclaringType), ci.GetParameters().Select(p => p.ParameterType).ToArray());
+                return external.MethodInfo;
             }
 
             // If constructor is mapped from a generic type, get its IMethodReference on the constructed type
@@ -4701,7 +4654,7 @@ namespace Boo.Lang.Compiler.Steps
         {
             var external = entity as ExternalType;
             if (null != external)
-                return GetTypeReference(external.ActualType);
+                return external.ActualType;
 
             if (entity.IsArray)
             {
@@ -4716,7 +4669,7 @@ namespace Boo.Lang.Compiler.Steps
                         ElementType = systemType,
                         Rank = 1
                     }
-                    : (IArrayTypeReference) new MatrixTypeReference
+                    : new MatrixTypeReference
                     {
                         InternFactory = _host.InternFactory,
                         ElementType = systemType,
@@ -5283,7 +5236,7 @@ namespace Boo.Lang.Compiler.Steps
                 baseType = Types.ValueType;
             }
 
-            NamedTypeDefinition typeBuilder = null;
+            NamedTypeDefinition typeBuilder;
             var enclosingType = type.ParentNode as ClassDefinition;
             var enumDef = type as EnumDefinition;
             var enclosingNamespace = type.EnclosingNamespace != null ? EnsureNamespace(type.EnclosingNamespace.Name) : (UnitNamespace)_asmBuilder.UnitNamespaceRoot;
@@ -5559,7 +5512,7 @@ namespace Boo.Lang.Compiler.Steps
         {
             return enumType is IInternalEntity
                 ? ((InternalEnum)enumType).UnderlyingType
-                : Enum.GetUnderlyingType(((ExternalType)enumType).ActualType);
+                : ExternalClassHelper.GetType((INamedTypeDefinition)((ExternalType)enumType).ActualType.UnderlyingType.ResolvedType);
         }
 
         private void DefineTypeMembers(TypeDefinition typeDefinition)
@@ -5907,10 +5860,10 @@ namespace Boo.Lang.Compiler.Steps
                 var baseTime = new DateTime(2000, 1, 1);
                 var mark = DateTime.Now - baseTime;
                 if (sliced[2].StartsWith("*"))
-                    sliced[2] = Math.Round(mark.TotalDays).ToString();
+                    sliced[2] = Math.Round(mark.TotalDays).ToString(CultureInfo.InvariantCulture);
                 if (sliced.Length > 3)
                     if (sliced[3].StartsWith("*"))
-                        sliced[3] = Math.Round(mark.TotalSeconds).ToString();
+                        sliced[3] = Math.Round(mark.TotalSeconds).ToString(CultureInfo.InvariantCulture);
                 version = string.Join(".", sliced);
             }
             return new Version(version);

@@ -29,11 +29,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Remoting.Contexts;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.Steps;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
@@ -106,12 +104,13 @@ namespace Boo.Lang.Compiler
 
 			// FIXME: temporary hack to make sure the singleton is visible
 			// using the My<IReflectionTypeSystemProvider> idiom
-			RegisterService<IReflectionTypeSystemProvider>(_references.Provider);
-            RegisterService<CompilerParameters>(_parameters);
-			RegisterService<CompilerErrorCollection>(_errors);
-			RegisterService<CompilerWarningCollection>(_warnings);
-			RegisterService<CompileUnit>(_unit);
-            RegisterService<CompilerContext>(this);
+			RegisterService(_references.Provider);
+            RegisterService(_parameters);
+			RegisterService(_errors);
+			RegisterService(_warnings);
+			RegisterService(_unit);
+            RegisterService(this);
+            Host = _parameters.Host;
 		}
 
 		public IEnvironment Environment
@@ -173,7 +172,7 @@ namespace Boo.Lang.Compiler
 			get { return _codeBuilder; }
 		}
 
-		private EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
+		private readonly EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
 		
 		public Assembly GeneratedAssembly
 		{

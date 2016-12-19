@@ -146,11 +146,11 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				return;
 			}
 
-			context.References.Add(typeof(CompilerContext).Assembly);
+			context.References.Add(SystemTypeMapper.LoadAssembly(typeof(CompilerContext).Assembly));
 			_referenced = true;
 		}
 
-		override public void OnMacroStatement(MacroStatement node)
+        public override void OnMacroStatement(MacroStatement node)
 		{
 			EnsureCompilerAssemblyReference(Context);
 

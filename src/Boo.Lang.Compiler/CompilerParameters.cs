@@ -37,9 +37,10 @@ using System.Text.RegularExpressions;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.Cci;
 using Boo.Lang.Environments;
 using Boo.Lang.Resources;
+using Microsoft.Cci;
 
 namespace Boo.Lang.Compiler
 {
@@ -48,7 +49,9 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerParameters
 	{
-		public static IReflectionTypeSystemProvider SharedTypeSystemProvider = new ReflectionTypeSystemProvider();
+        private readonly PeReader.DefaultHost _host;
+
+        public static ICciTypeSystemProvider SharedTypeSystemProvider = new CciTypeSystemProvider();
 
 		private TextWriter _outputWriter;
 
@@ -77,6 +80,8 @@ namespace Boo.Lang.Compiler
 		private TypeMemberModifiers _defaultFieldVisibility = TypeMemberModifiers.Protected;
 		private bool _defaultVisibilitySettingsRead;
 
+        public PeReader.DefaultHost Host { get { return _host; } }
+
 		public CompilerParameters() : this(true)
 		{
 		}
@@ -85,14 +90,16 @@ namespace Boo.Lang.Compiler
 		{	
 		}
 
-		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider) : this(reflectionProvider, true)
+        public CompilerParameters(ICciTypeSystemProvider cciProvider)
+            : this(cciProvider, true)
 		{
 		}
 
-		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
-		{
+        public CompilerParameters(ICciTypeSystemProvider cciProvider, bool loadDefaultReferences)
+        {
+            _host = SharedTypeSystemProvider.Host;
 			_libPaths = new List<string>();
-			_systemDir = Permissions.WithDiscoveryPermission(() => GetSystemDir());
+			_systemDir = Permissions.WithDiscoveryPermission(GetSystemDir);
 			if (_systemDir != null)
 			{
 				_libPaths.Add(_systemDir);
@@ -100,7 +107,7 @@ namespace Boo.Lang.Compiler
 			}
 			_input = new CompilerInputCollection();
 			_resources = new CompilerResourceCollection();
-			_compilerReferences = new CompilerReferenceCollection(reflectionProvider);
+            _compilerReferences = new CompilerReferenceCollection(cciProvider);
 
 			MaxExpansionIterations = 12;
 			_outputAssembly = String.Empty;
@@ -130,11 +137,16 @@ namespace Boo.Lang.Compiler
 			return string.IsNullOrEmpty(booTraceLevel) ? TraceLevel.Off : (TraceLevel)Enum.Parse(typeof(TraceLevel), booTraceLevel);
 		}
 
+	    private IAssembly LoadAssembly(Assembly value)
+	    {
+            return SystemTypeMapper.LoadAssembly(value);
+	    }
+
 		public void LoadDefaultReferences()
 		{
 			//boo.lang.dll
 			_booAssembly = typeof(Builtins).Assembly;
-			_compilerReferences.Add(_booAssembly);
+			_compilerReferences.Add(LoadAssembly(_booAssembly));
 
 			//boo.lang.extensions.dll
 			//try loading extensions next to Boo.Lang (in the same directory)
@@ -143,7 +155,7 @@ namespace Boo.Lang.Compiler
 				_compilerReferences.Add(extensionsAssembly);
 
 			//boo.lang.compiler.dll
-			_compilerReferences.Add(GetType().Assembly);
+			_compilerReferences.Add(LoadAssembly(GetType().Assembly));
 
 			//mscorlib
 			_compilerReferences.Add(LoadAssembly("mscorlib", true));
@@ -160,7 +172,7 @@ namespace Boo.Lang.Compiler
 			});
 		}
 
-		private IAssemblyReference TryToLoadExtensionsAssembly()
+        private IAssemblyReferenceCci TryToLoadExtensionsAssembly()
 		{
 			const string booLangExtensionsDll = "Boo.Lang.Extensions.dll";
 			return Permissions.WithDiscoveryPermission(() =>
@@ -180,9 +192,9 @@ namespace Boo.Lang.Compiler
 
 				if (value != _booAssembly)
 				{
-					_compilerReferences.Remove(_booAssembly);
+					_compilerReferences.Remove(LoadAssembly(_booAssembly));
 					_booAssembly = value;
-					_compilerReferences.Add(value);
+					_compilerReferences.Add(LoadAssembly(value));
 				}
 			}
 		}
@@ -195,23 +207,23 @@ namespace Boo.Lang.Compiler
 		public void AddAssembly(Assembly asm)
 		{
 			if (null == asm) throw new ArgumentNullException();
-			_compilerReferences.Add(asm);
+			_compilerReferences.Add(LoadAssembly(asm));
 		}
 
-		public IAssemblyReference LoadAssembly(string assembly)
+        public IAssemblyReferenceCci LoadAssembly(string assembly)
 		{
 			return LoadAssembly(assembly, true);
 		}
 
-		public IAssemblyReference LoadAssembly(string assemblyName, bool throwOnError)
+        public IAssemblyReferenceCci LoadAssembly(string assemblyName, bool throwOnError)
 		{
 			var assembly = ForName(assemblyName, throwOnError);
 			return assembly != null ? AssemblyReferenceFor(assembly) : null;
 		}
 
-		private IAssemblyReference AssemblyReferenceFor(Assembly assembly)
+		private IAssemblyReferenceCci AssemblyReferenceFor(Assembly assembly)
 		{
-			return _compilerReferences.Provider.ForAssembly(assembly);
+			return _compilerReferences.Provider.ForAssembly(LoadAssembly(assembly));
 		}
 
 		protected virtual Assembly ForName(string assembly, bool throwOnError)
@@ -219,7 +231,7 @@ namespace Boo.Lang.Compiler
 			Assembly a = null;
 			try
 			{
-				if (assembly.IndexOfAny(new char[] {'/', '\\'}) != -1)
+				if (assembly.IndexOfAny(new [] {'/', '\\'}) != -1)
 					a = Assembly.LoadFrom(assembly);
 				else
 					a = LoadAssemblyFromGac(assembly);
@@ -231,17 +243,17 @@ namespace Boo.Lang.Compiler
 			catch (BadImageFormatException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_BadFormat, e.FusionLog), e);
+					throw new ApplicationException(string.Format(Lang.Resources.StringResources.BooC_BadFormat, e.FusionLog), e);
 			}
 			catch (FileLoadException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_UnableToLoadAssembly, e.FusionLog), e);
+					throw new ApplicationException(string.Format(Lang.Resources.StringResources.BooC_UnableToLoadAssembly, e.FusionLog), e);
 			}
 			catch (ArgumentNullException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(Boo.Lang.Resources.StringResources.BooC_NullAssembly, e);
+					throw new ApplicationException(Lang.Resources.StringResources.BooC_NullAssembly, e);
 			}
 			return a ?? LoadAssemblyFromLibPaths(assembly, false);
 		}

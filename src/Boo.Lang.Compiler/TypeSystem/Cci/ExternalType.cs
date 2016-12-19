@@ -196,7 +196,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
 
 	    private bool _defaultMemberFound;
 
-	    private static readonly ITypeReference _defaultMemberAttribute = SystemTypeMapper.GetTypeReference(typeof(DefaultMemberAttribute));
+	    private static readonly Lazy<ITypeReference> _defaultMemberAttribute = 
+            new Lazy<ITypeReference>(() => SystemTypeMapper.GetTypeReference(typeof(DefaultMemberAttribute)));
 
         protected virtual ITypeDefinitionMember[] GetDefaultMembers()
         {
@@ -206,7 +207,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
                 while (_defaultMember == null && currentType != null)
                 {
                     _defaultMember = currentType.GetMatchingMembers(
-                            t => MetadataUtil.IsAttributeDefined(t, _defaultMemberAttribute))
+                            t => MetadataUtil.IsAttributeDefined(t, _defaultMemberAttribute.Value))
                         .FirstOrDefault();
                     if (_defaultMember == null)
                         currentType = (INamedTypeDefinition) currentType.BaseClasses.FirstOrDefault();

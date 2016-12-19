@@ -147,14 +147,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Cci
         private void AssertAssembly(ITypeReference member)
         {
             var rt = (INamedTypeDefinition)member.ResolvedType;
-            if (_types.Contains(rt))
+            if (!_types.Contains(rt))
                 throw new ArgumentException(string.Format("{0} doesn't belong to assembly '{1}'.", member, _assembly));
         }
 
         private void AssertAssembly(ITypeMemberReference member)
 		{
             var rt = (INamedTypeDefinition)(member.ContainingType).ResolvedType;
-            if (_types.Contains(rt))
+            if (!_types.Contains(rt))
                 throw new ArgumentException(string.Format("{0} doesn't belong to assembly '{1}'.", member, _assembly));
 		}
 
