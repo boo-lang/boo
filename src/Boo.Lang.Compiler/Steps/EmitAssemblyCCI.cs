@@ -4296,6 +4296,20 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
+	    private IMethodDefinition GenericMethodOf(ITypeDefinition typeRef, string name, Type[] args, Type[] genericArgs)
+	    {
+	        var genericTypes = genericArgs.Select(GetTypeReference).ToArray();
+            var argTypes = args.Select(GetTypeReference).ToArray();
+	        var baseMethodCandidates = typeRef.GetMembersNamed(_nameTable.GetNameFor(name), false)
+	            .OfType<IMethodDefinition>()
+	            .Where(mr => mr.GenericParameterCount == genericArgs.Length)
+                .ToArray();
+	        var constructedCandidates = baseMethodCandidates
+	            .Select(c => new GenericMethodInstance(c, genericTypes, _host.InternFactory))
+	            .ToArray();
+	        return constructedCandidates.Single(c => ParamsMatch(c, argTypes));
+	    }
+
         private IMethodDefinition MethodOf(ITypeDefinition typeRef, string name, params Type[] args)
         {
             return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
@@ -4588,9 +4602,11 @@ namespace Boo.Lang.Compiler.Steps
         {
             // If method is external, get its existing MethodDefinition
             var external = entity as ExternalMethod;
-            if (null != external)
+            if (external != null)
             {
                 var mi = external.MethodInfo;
+                if (mi.IsGenericMethod)
+                    return GenericMethodOf(GetTypeReference(mi.DeclaringType), mi.Name, mi.GetParameters().Select(p => p.ParameterType).ToArray(), mi.GetGenericArguments());
                 return MethodOf(GetTypeReference(mi.DeclaringType), mi.Name, mi.GetParameters().Select(p => p.ParameterType).ToArray());
             }
 
@@ -4616,6 +4632,16 @@ namespace Boo.Lang.Compiler.Steps
 	        return args.Zip(types, Tuple.Create)
 	            .All(p => intern.GetTypeReferenceInternedKey(p.Item1.Type) == intern.GetTypeReferenceInternedKey(GetTypeReference(p.Item2)));
 	    }
+
+        private bool ParamsMatch(IMethodDefinition mb, params ITypeDefinition[] types)
+        {
+            var args = mb.Parameters.ToArray();
+            if (args.Length != types.Length)
+                return false;
+            var intern = _host.InternFactory;
+            return args.Zip(types, Tuple.Create)
+                .All(p => intern.GetTypeReferenceInternedKey(p.Item1.Type) == intern.GetTypeReferenceInternedKey(p.Item2));
+        }
 
         private IMethodReference GetConstructorInfo(IConstructor entity)
         {
