@@ -467,8 +467,21 @@ namespace Boo.Lang.Compiler.Steps
 	        if (value.IsNested)
 	        {
 	            var declaringType = GetTypeReference(value.DeclaringType);
-	            if (value.ContainsGenericParameters)
-	                throw new Exception("Generic nested types are not supported yet");
+                if (value.ContainsGenericParameters)
+                {
+                    if (value.IsGenericParameter)
+                    {
+                        if (value.DeclaringType != null)
+                            return new GenericTypeParameter
+                            {
+                                InternFactory = _host.InternFactory,
+                                Name = _nameTable.GetNameFor(value.Name),
+                                DefiningType = GetTypeReference(value.DeclaringType),
+                                Index = (ushort)value.GenericParameterPosition
+                            };
+                    }
+                    throw new Exception("Generic nested types are not supported yet");
+                }
 	            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 0,
 	                value.IsEnum, value.IsValueType).ResolvedType;
 	        }
@@ -4659,9 +4672,8 @@ namespace Boo.Lang.Compiler.Steps
             if (mapped != null)
             {
                 var baseGeneric = GetConstructorInfo((IConstructor) mapped.SourceMember);
-                return new GenericMethodInstance((IMethodDefinition)baseGeneric,
-                    mapped.ConstructedInfo.GenericArguments.Select(GetSystemType),
-                    _host.InternFactory);
+                var baseType = (IGenericTypeInstance)GetSystemType(mapped.DeclaringType);
+                return TypeHelper.GetMethod(baseType, baseGeneric);
             }
 
             // If constructor is internal, get its MethodDefinition
