@@ -2279,7 +2279,7 @@ namespace Boo.Lang.Compiler.Steps
             if (!TypesEqual(mi.ContainingTypeDefinition, _builtinsType))
                 return false;
 
-            if (mi.IsGeneric)
+            if (mi is IGenericMethodInstance)
             {
                 if (MethodsEqual(_builtinsArrayGenericConstructor, mi))
                 {
