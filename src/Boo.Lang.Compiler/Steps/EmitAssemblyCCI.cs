@@ -1680,7 +1680,7 @@ namespace Boo.Lang.Compiler.Steps
                             Dup();
                             PushType(param.Type);
                         }
-                        _il.Emit(OperationCode.Starg, param.Index);
+                        _il.Emit(OperationCode.Starg, (ParameterDefinition) GetBuilder(param.Parameter));
                         break;
                     }
 
