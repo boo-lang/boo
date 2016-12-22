@@ -5349,7 +5349,8 @@ namespace Boo.Lang.Compiler.Steps
                     Methods = new System.Collections.Generic.List<IMethodDefinition>(),
                     Fields = new System.Collections.Generic.List<IFieldDefinition>(),
                     Properties = new System.Collections.Generic.List<IPropertyDefinition>(),
-                    NestedTypes = new System.Collections.Generic.List<INestedTypeDefinition>()
+                    NestedTypes = new System.Collections.Generic.List<INestedTypeDefinition>(),
+                    Events = new System.Collections.Generic.List<IEventDefinition>()
                 };
                 enclosingNamespace.Members.Add((NamespaceTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
