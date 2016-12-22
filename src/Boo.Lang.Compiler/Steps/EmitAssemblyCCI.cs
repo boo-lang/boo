@@ -52,6 +52,7 @@ using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Runtime;
 using Microsoft.Cci.Immutable;
+using AssemblyName = System.Reflection.AssemblyName;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 using IAssemblyReference = Microsoft.Cci.IAssemblyReference;
 using Module = Boo.Lang.Compiler.Ast.Module;
@@ -490,15 +491,28 @@ namespace Boo.Lang.Compiler.Steps
 
 	        var reflectAsm = value.Assembly;
 	        var name = reflectAsm.GetName();
-            var asm = _host.LoadAssembly(new AssemblyIdentity(
-                _nameTable.GetNameFor(reflectAsm.FullName), 
-                name.CultureInfo.Name,
-                name.Version,
-                name.GetPublicKeyToken(),
-                reflectAsm.Location));
+	        var asm = LoadAssembly(reflectAsm, name);
             if (value.IsGenericType)
                 return UnitHelper.FindType(_nameTable, asm, NonGenericName(value.FullName), value.GetGenericArguments().Length);
 	        return UnitHelper.FindType(_nameTable, asm, value.FullName);
+	    }
+
+        private readonly Dictionary<System.Reflection.Assembly, IAssembly> _asmCache = new Dictionary<System.Reflection.Assembly, IAssembly>();
+
+	    private IAssembly LoadAssembly(System.Reflection.Assembly reflectAsm, AssemblyName name)
+	    {
+	        IAssembly result;
+	        if (!_asmCache.TryGetValue(reflectAsm, out result))
+	        {
+	            result = _host.LoadAssembly(new AssemblyIdentity(
+	                _nameTable.GetNameFor(reflectAsm.FullName),
+	                name.CultureInfo.Name,
+	                name.Version,
+	                name.GetPublicKeyToken(),
+	                reflectAsm.Location));
+                _asmCache.Add(reflectAsm, result);
+	        }
+	        return result;
 	    }
 
 	    private static string NonGenericName(string value)
