@@ -3328,7 +3328,7 @@ namespace Boo.Lang.Compiler.Steps
                             if (param.Parameter.IsByRef)
                                 LoadParam(param);
                             else
-                                _il.Emit(OperationCode.Ldarga, param.Index);
+                                _il.Emit(OperationCode.Ldarga, (ParameterDefinition)GetBuilder(param.Parameter));
                             return;
                         }
 
