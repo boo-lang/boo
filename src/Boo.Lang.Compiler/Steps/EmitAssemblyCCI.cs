@@ -3207,7 +3207,7 @@ namespace Boo.Lang.Compiler.Steps
             }
             else if (type == TypeSystemServices.StringType)
             {
-                _il.Emit(OperationCode.Ldstr, (string)value);
+                _il.Emit(OperationCode.Ldstr, value is string ? (string)value : (string)((IMetadataConstant)value).Value);
             }
             else if (type == TypeSystemServices.CharType)
             {
