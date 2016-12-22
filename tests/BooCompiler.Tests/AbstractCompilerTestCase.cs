@@ -73,18 +73,23 @@ namespace BooCompiler.Tests
 			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
 			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, GetRelativeTestCasesPath());
-			_compiler = new BooCompiler();
-			_parameters = _compiler.Parameters;
-			_parameters.OutputWriter = _output = new StringWriter();
-			_parameters.Pipeline = SetUpCompilerPipeline();
-			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
-			_parameters.References.Add(typeof(BooCompiler).Assembly);
-			Directory.CreateDirectory(TestOutputPath);
-			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
-			_parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
-			CustomizeCompilerParameters();
 			if (VerifyGeneratedAssemblies) CopyDependencies();
 		}
+
+        private void BuildCompiler()
+        {
+            GC.Collect();
+            _compiler = new BooCompiler();
+            _parameters = _compiler.Parameters;
+            _parameters.OutputWriter = _output = new StringWriter();
+            _parameters.Pipeline = SetUpCompilerPipeline();
+            _parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
+            _parameters.References.Add(typeof(BooCompiler).Assembly);
+            Directory.CreateDirectory(TestOutputPath);
+            _parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
+            _parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
+            CustomizeCompilerParameters();
+        }
 
 		private string TestOutputPath
 		{
@@ -154,7 +159,8 @@ namespace BooCompiler.Tests
 		{
 			System.Threading.Thread current = System.Threading.Thread.CurrentThread;
 
-			_parameters.OutputType = CompilerOutputType.Auto;
+            BuildCompiler();
+            _parameters.OutputType = CompilerOutputType.Auto;
 			_parameters.Input.Clear();
 			_parameters.Strict = false;
 			_parameters.ResetWarnings();
