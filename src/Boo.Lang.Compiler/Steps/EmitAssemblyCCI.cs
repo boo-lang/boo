@@ -5179,7 +5179,13 @@ namespace Boo.Lang.Compiler.Steps
         /// </summary>
         private void DefineGenericParameters(NamedTypeDefinition builder, GenericParameterDeclaration[] parameters)
         {
-            var builders = parameters.Select(gpd => new GenericTypeParameter { Name = _nameTable.GetNameFor(gpd.Name), DefiningType = builder }).ToArray();
+            var builders = parameters.Select((gpd, i) => new GenericTypeParameter
+            {
+                Name = _nameTable.GetNameFor(gpd.Name),
+                DefiningType = builder,
+                Index = (ushort) i,
+                InternFactory = _host.InternFactory
+            }).ToArray();
             builder.GenericParameters = new System.Collections.Generic.List<IGenericTypeParameter>(builders);
 
             DefineGenericParameters(builders, parameters);
@@ -5190,10 +5196,16 @@ namespace Boo.Lang.Compiler.Steps
         /// </summary>
         private void DefineGenericParameters(MethodDefinition builder, GenericParameterDeclaration[] parameters)
         {
-            var builders = parameters.Select(gpd => new GenericMethodParameter() { Name = _nameTable.GetNameFor(gpd.Name), DefiningMethod = builder }).ToArray();
+            var builders = parameters.Select((gpd, i) => new GenericMethodParameter{
+                Name = _nameTable.GetNameFor(gpd.Name),
+                DefiningMethod = builder,
+                Index = (ushort)i,
+                InternFactory = _host.InternFactory
+            }).ToArray();
             builder.GenericParameters = new System.Collections.Generic.List<IGenericMethodParameter>(builders);
 
             DefineGenericParameters(builders, parameters);
+            builder.CallingConvention |= CallingConvention.Generic;
         }
 
         private void DefineGenericParameters(GenericParameter[] builders, GenericParameterDeclaration[] declarations)
