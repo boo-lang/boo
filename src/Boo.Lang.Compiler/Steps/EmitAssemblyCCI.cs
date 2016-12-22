@@ -2279,9 +2279,10 @@ namespace Boo.Lang.Compiler.Steps
             if (!TypesEqual(mi.ContainingTypeDefinition, _builtinsType))
                 return false;
 
-            if (mi is IGenericMethodInstance)
+            var gen = mi as IGenericMethodInstance;
+            if (gen != null)
             {
-                if (MethodsEqual(_builtinsArrayGenericConstructor, mi))
+                if (MethodsEqual(_builtinsArrayGenericConstructor, gen.GenericMethod))
                 {
                     // optimize constructs such as:
                     //		array[of int](2)
