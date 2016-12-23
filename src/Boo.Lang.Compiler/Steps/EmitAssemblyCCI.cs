@@ -436,6 +436,7 @@ namespace Boo.Lang.Compiler.Steps
         public override void OnEnumDefinition(EnumDefinition node)
         {
             var typeBuilder = GetTypeBuilder(node);
+            typeBuilder.IsValueType = true;
             foreach (EnumMember member in node.Members)
             {
                 var field = new FieldDefinition
@@ -446,9 +447,11 @@ namespace Boo.Lang.Compiler.Steps
                     IsStatic = true,
                     IsCompileTimeConstant = true,
                     InternFactory = _host.InternFactory,
-                    CompileTimeValue = InitializerValueOf(member, node)
+                    CompileTimeValue = InitializerValueOf(member, node),
+                    Type = typeBuilder
                 };
                 SetBuilder(member, field);
+                typeBuilder.Fields.Add(field);
             }
         }
 
