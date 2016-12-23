@@ -852,6 +852,7 @@ namespace Boo.Lang.Compiler.Steps
                 {
                     _il.BeginFaultBlock();
                     Visit(node.FailureBlock);
+                    _il.Emit(OperationCode.Endfinally);
                 }
 
                 if (null != node.EnsureBlock)
