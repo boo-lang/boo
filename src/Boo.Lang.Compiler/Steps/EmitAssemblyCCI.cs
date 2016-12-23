@@ -833,32 +833,42 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
+        private ILGeneratorLabel _exceptionExitPoint;
+
         public override void OnTryStatement(TryStatement node)
         {
             ++_tryBlock;
             _il.BeginTryBody();
             Visit(node.ProtectedBlock);
-            var label = new ILGeneratorLabel();
-            _il.Emit(OperationCode.Leave, label);
-
-            Visit(node.ExceptionHandlers);
-
-            if (null != node.FailureBlock)
+            var oldExit = _exceptionExitPoint;
+            try
             {
-                _il.BeginFaultBlock();
-                Visit(node.FailureBlock);
-            }
+                _exceptionExitPoint = new ILGeneratorLabel();
+                _il.Emit(OperationCode.Leave, _exceptionExitPoint);
 
-            if (null != node.EnsureBlock)
+                Visit(node.ExceptionHandlers);
+
+                if (null != node.FailureBlock)
+                {
+                    _il.BeginFaultBlock();
+                    Visit(node.FailureBlock);
+                }
+
+                if (null != node.EnsureBlock)
+                {
+                    _il.BeginFinallyBlock();
+                    Visit(node.EnsureBlock);
+                    _il.Emit(OperationCode.Endfinally);
+                }
+
+                _il.EndTryBody();
+                --_tryBlock;
+                _il.MarkLabel(_exceptionExitPoint);
+            }
+            finally
             {
-                _il.BeginFinallyBlock();
-                Visit(node.EnsureBlock);
-                _il.Emit(OperationCode.Endfinally);
+                _exceptionExitPoint = oldExit;
             }
-
-            _il.EndTryBody();
-            --_tryBlock;
-            _il.MarkLabel(label);
         }
 
         public override void OnExceptionHandler(ExceptionHandler node)
@@ -926,6 +936,7 @@ namespace Boo.Lang.Compiler.Steps
             }
 
             Visit(node.Block);
+            _il.Emit(OperationCode.Leave, _exceptionExitPoint);
         }
 
         private void EmitStoreOrPopException(ExceptionHandler node)
@@ -4701,11 +4712,9 @@ namespace Boo.Lang.Compiler.Steps
             {
                 var baseGeneric = GetConstructorInfo((IConstructor) mapped.SourceMember);
                 var baseType = (IGenericTypeInstance)GetSystemType(mapped.DeclaringType);
-                var newTypes = new System.Collections.Generic.List<INamedTypeDefinition>();
                 var spec = new GenericMethodSpecializer(_host, baseType.GenericArguments.OfType<IGenericParameterReference>());
                 var specialized = spec.Substitute(baseGeneric);
                 return GetGenericMethod(baseType, specialized);
-                return TypeHelper.GetMethod(baseType, baseGeneric);
             }
 
             // If constructor is internal, get its MethodDefinition
