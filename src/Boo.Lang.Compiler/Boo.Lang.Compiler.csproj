@@ -471,6 +471,7 @@
     <Compile Include="Steps\EmitCCI\BooResourceWriter.cs" />
     <Compile Include="Steps\EmitCCI\BooSourceDocument.cs" />
     <Compile Include="Steps\EmitCCI\BooSourceLocation.cs" />
+    <Compile Include="Steps\EmitCCI\GenericMethodSpecializer.cs" />
     <Compile Include="Steps\EmitCCI\IlGeneratorHelper.cs" />
     <Compile Include="Steps\EntityPredicates.cs" />
     <Compile Include="Steps\ExpandAstLiterals.cs" />

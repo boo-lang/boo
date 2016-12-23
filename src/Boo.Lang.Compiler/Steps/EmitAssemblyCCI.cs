@@ -489,7 +489,7 @@ namespace Boo.Lang.Compiler.Steps
 	            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 0,
 	                value.IsEnum, value.IsValueType).ResolvedType;
 	        }
-            if (value.IsGenericType && !value.ContainsGenericParameters)
+            if (value.IsGenericType && (!value.ContainsGenericParameters || value.FullName == null))
                 return GetGenericTypeReference(value);
 
 	        var reflectAsm = value.Assembly;
@@ -522,7 +522,8 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        var idx = value.IndexOf("`", StringComparison.Ordinal);
 	        return value.Substring(0, idx);
-	    }
+	    
+        }
 
 	    private ITypeDefinition GetGenericTypeReference(Type value)
 	    {
@@ -4327,7 +4328,17 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-	    private IMethodDefinition GenericMethodOf(ITypeDefinition typeRef, string name, Type[] args, Type[] genericArgs)
+        private IMethodReference GetGenericMethod(IGenericTypeInstance type, IMethodReference method)
+        {
+            var candidates = type.GetMembersNamed(method.Name, false)
+                .OfType<IMethodDefinition>()
+                .Where(md => md.ParameterCount == method.ParameterCount && md.GenericParameterCount == method.GenericParameterCount)
+                .ToArray();
+            var result = candidates.Single(c => MemberHelper.GenericMethodSignaturesAreEqual(method, c));
+            return result;
+        }
+
+        private IMethodDefinition GenericMethodOf(ITypeDefinition typeRef, string name, Type[] args, Type[] genericArgs)
 	    {
 	        var genericTypes = genericArgs.Select(GetTypeReference).ToArray();
             var argTypes = args.Select(GetTypeReference).ToArray();
@@ -4690,6 +4701,10 @@ namespace Boo.Lang.Compiler.Steps
             {
                 var baseGeneric = GetConstructorInfo((IConstructor) mapped.SourceMember);
                 var baseType = (IGenericTypeInstance)GetSystemType(mapped.DeclaringType);
+                var newTypes = new System.Collections.Generic.List<INamedTypeDefinition>();
+                var spec = new GenericMethodSpecializer(_host, baseType.GenericArguments.OfType<IGenericParameterReference>());
+                var specialized = spec.Substitute(baseGeneric);
+                return GetGenericMethod(baseType, specialized);
                 return TypeHelper.GetMethod(baseType, baseGeneric);
             }
 
@@ -4697,7 +4712,7 @@ namespace Boo.Lang.Compiler.Steps
             return GetConstructorBuilder(((InternalMethod)entity).Method);
         }
 
-        /// <summary>
+	    /// <summary>
         /// Retrieves the MethodDefinition for a generic constructed method.
         /// </summary>
         private IMethodDefinition GetConstructedMethodInfo(IConstructedMethodInfo constructedInfo)
