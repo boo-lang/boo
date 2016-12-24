@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Microsoft.Cci;
 using Microsoft.Cci.MutableCodeModel;
 
@@ -9,12 +6,12 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
 {
     public class GenericMethodSpecializer : MetadataCopier
     {
-        private readonly IGenericParameterReference[] _refs;
+        private readonly Dictionary<int, ITypeDefinition> _refs;
 
-        public GenericMethodSpecializer(IMetadataHost targetHost, IEnumerable<IGenericParameterReference> refs)
+        public GenericMethodSpecializer(IMetadataHost targetHost, Dictionary<int, ITypeDefinition> refs)
             : base(targetHost)
         {
-            _refs = refs.ToArray();
+            _refs = refs;
         }
 
         protected override ITypeReference DeepCopy(ITypeReference value)
@@ -22,8 +19,10 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             var gen = value as IGenericParameterReference;
             if (gen == null)
                 return base.DeepCopy(value);
-            var replacement = _refs.SingleOrDefault(r => r.Name.UniqueKey == gen.Name.UniqueKey);
-            return replacement ?? base.DeepCopy(value);
+            ITypeDefinition replacement;
+            if (_refs.TryGetValue(gen.Name.UniqueKey, out replacement))
+                return replacement;
+            return base.DeepCopy(value);
         }
 
     }

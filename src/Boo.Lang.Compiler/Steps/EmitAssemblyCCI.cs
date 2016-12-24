@@ -4348,7 +4348,7 @@ namespace Boo.Lang.Compiler.Steps
                 .OfType<IMethodDefinition>()
                 .Where(md => md.ParameterCount == method.ParameterCount && md.GenericParameterCount == method.GenericParameterCount)
                 .ToArray();
-            var result = candidates.Single(c => MemberHelper.GenericMethodSignaturesAreEqual(method, c));
+            var result = candidates.SingleOrDefault(c => MemberHelper.GenericMethodSignaturesAreEqual(method, c));
             return result;
         }
 
@@ -4717,10 +4717,23 @@ namespace Boo.Lang.Compiler.Steps
             if (mapped != null)
             {
                 var baseGeneric = GetConstructorInfo((IConstructor) mapped.SourceMember);
-                var baseType = (IGenericTypeInstance)GetSystemType(mapped.DeclaringType);
-                var spec = new GenericMethodSpecializer(_host, baseType.GenericArguments.OfType<IGenericParameterReference>());
-                var specialized = spec.Substitute(baseGeneric);
-                return GetGenericMethod(baseType, specialized);
+                var baseType = (IGenericTypeInstance) GetSystemType(mapped.DeclaringType);
+                var result = GetGenericMethod(baseType, baseGeneric);
+                if (result == null)
+                {
+                    var mapping = baseType.GenericType.ResolvedType.GenericParameters
+                        .Zip(baseType.GenericArguments, (p, a) => Tuple.Create(p.Name.UniqueKey, a.ResolvedType))
+                        .ToDictionary(t => t.Item1, t => t.Item2);
+                    var spec = new GenericMethodSpecializer(_host,
+                        mapping);
+                    var specialized = spec.Substitute(baseGeneric);
+                    result = GetGenericMethod(baseType, specialized);
+                    if (result == null)
+                    {
+                        throw new NotSupportedException("Unable to lookup generic constructor");
+                    }
+                }
+                return result;
             }
 
             // If constructor is internal, get its MethodDefinition
@@ -4788,7 +4801,9 @@ namespace Boo.Lang.Compiler.Steps
             var result = GetSystemType(entity).ResolvedType;
             if (entity.GenericInfo != null && result.IsGeneric)
             {
-
+                var args = entity.GenericInfo.GenericParameters;
+                var cciArgs = args.Select(GetFullSystemType).ToArray();
+                return GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)result, cciArgs, _host.InternFactory);
             }
             return result;
         }
