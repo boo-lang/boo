@@ -491,6 +491,8 @@ namespace Boo.Lang.Compiler.Steps
 	        }
             if (value.IsGenericType && (!value.ContainsGenericParameters || value.FullName == null))
                 return GetGenericTypeReference(value);
+            if (value.IsPointer)
+                return PointerType.GetPointerType(GetTypeReference(value.GetElementType()), _host.InternFactory);
 
 	        var reflectAsm = value.Assembly;
 	        var name = reflectAsm.GetName();
