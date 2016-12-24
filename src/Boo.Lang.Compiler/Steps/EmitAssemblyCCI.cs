@@ -2431,9 +2431,24 @@ namespace Boo.Lang.Compiler.Steps
             if (targetType is TypeSystem.IGenericParameter)
                 _il.Emit(OperationCode.Constrained_, GetSystemType(targetType));
 
+            mi = ResolveGenericMethod(mi);
             _il.Emit(GetCallOpCode(target, method), mi);
 
             PushType(method.ReturnType);
+        }
+
+        private IMethodDefinition ResolveGenericMethod(IMethodDefinition mi)
+        {
+            var ctd = mi.ContainingTypeDefinition;
+            if (ctd.IsGeneric)
+            {
+                var baseType = GenericTypeInstance.GetGenericTypeInstance(
+                    (INamedTypeDefinition)ctd,
+                    ctd.GenericParameters,
+                    _host.InternFactory);
+                return GetGenericMethod(baseType, mi).ResolvedMethod;
+            }
+            return mi;
         }
 
         //returns true if no conditional attribute match the defined symbols
