@@ -5083,6 +5083,7 @@ namespace Boo.Lang.Compiler.Steps
                 Remover = DefineEventMethod(typeBuilder, node.Remove),
                 Caller = node.Raise != null ? DefineEventMethod(typeBuilder, node.Raise) : null
             };
+            builder.Accessors = new System.Collections.Generic.List<IMethodReference>{builder.Adder, builder.Remover, builder.Caller};
             SetBuilder(node, builder);
             typeBuilder.Events.Add(builder);
         }
