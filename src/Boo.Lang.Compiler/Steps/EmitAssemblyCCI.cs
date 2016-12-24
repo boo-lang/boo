@@ -5579,7 +5579,7 @@ namespace Boo.Lang.Compiler.Steps
             var parameters = ctor.GetParameters();
             var result = new System.Collections.Generic.List<IMetadataExpression>(parameters.Length);
             var lastIndex = parameters.Length - 1;
-            var fixedParameters = (varargs ? parameters.Take(lastIndex) : parameters);
+            var fixedParameters = varargs ? parameters.Take(lastIndex) : parameters;
 
             var i = 0;
             foreach (var parameter in fixedParameters)
@@ -5634,7 +5634,8 @@ namespace Boo.Lang.Compiler.Steps
                     return ConvertValue(expectedType, floatValue);
 
                 case NodeType.TypeofExpression:
-                    return new MetadataTypeOf{TypeToGet = GetSystemType(((TypeofExpression) expression).Type)};
+                    var typeofType = GetSystemType(((TypeofExpression)expression).Type);
+                    return new MetadataTypeOf{TypeToGet = typeofType, Type = _host.PlatformType.SystemType};
 
                 case NodeType.CastExpression:
                     return GetValue(expectedType, ((CastExpression)expression).Target);
