@@ -5484,8 +5484,7 @@ namespace Boo.Lang.Compiler.Steps
                     ContainingTypeDefinition = typeBuilder
                 });
             }
-
-            if (IsValueType(type))
+            else if (IsValueType(type))
                 typeBuilder.Layout = LayoutKind.Sequential;
 
             return typeBuilder;
