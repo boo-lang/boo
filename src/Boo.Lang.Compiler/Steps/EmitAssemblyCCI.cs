@@ -5485,6 +5485,9 @@ namespace Boo.Lang.Compiler.Steps
                 });
             }
 
+            if (IsValueType(type))
+                typeBuilder.Layout = LayoutKind.Sequential;
+
             return typeBuilder;
         }
 
