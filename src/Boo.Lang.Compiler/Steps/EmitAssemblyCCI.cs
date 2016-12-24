@@ -4783,6 +4783,16 @@ namespace Boo.Lang.Compiler.Steps
             return type;
         }
 
+        private ITypeReference GetFullSystemType(IType entity)
+        {
+            var result = GetSystemType(entity).ResolvedType;
+            if (entity.GenericInfo != null && result.IsGeneric)
+            {
+
+            }
+            return result;
+        }
+
         private ITypeReference SystemTypeFrom(IType entity)
         {
             var external = entity as ExternalType;
@@ -4832,7 +4842,7 @@ namespace Boo.Lang.Compiler.Steps
                 TypeDefinition typedef = ((AbstractInternalType)entity).TypeDefinition;
                 var type = (NamedTypeDefinition)GetBuilder(typedef);
 
-                if (null != entity.GenericInfo && !type.IsGeneric) //hu-oh, early-bound
+                if (entity.GenericInfo != null && !type.IsGeneric) //hu-oh, early-bound
                     DefineGenericParameters(typedef);
 
                 if (entity.IsPointer && null != type)
@@ -5284,10 +5294,10 @@ namespace Boo.Lang.Compiler.Steps
                 // Set base type constraint
                 if (parameter.BaseType != TypeSystemServices.ObjectType)
                 {
-                    builder.Constraints.Add(GetSystemType(parameter.BaseType))
+                    builder.Constraints.Add(GetFullSystemType(parameter.BaseType))
                         ;
                 }
-                builder.Constraints.AddRange(parameter.GetInterfaces().Select(GetSystemType));
+                builder.Constraints.AddRange(parameter.GetInterfaces().Select(GetFullSystemType));
             }
 
             // Set special attributes
@@ -5392,7 +5402,7 @@ namespace Boo.Lang.Compiler.Steps
                 {
                     ContainingUnitNamespace = enclosingNamespace,
                     InternFactory = _host.InternFactory,
-                    Name = _nameTable.GetNameFor(AnnotateGenericTypeName(type, type.Name)),
+                    Name = _nameTable.GetNameFor(type.Name),
                     Methods = new System.Collections.Generic.List<IMethodDefinition>(),
                     Fields = new System.Collections.Generic.List<IFieldDefinition>(),
                     Properties = new System.Collections.Generic.List<IPropertyDefinition>(),
@@ -5412,7 +5422,7 @@ namespace Boo.Lang.Compiler.Steps
                 {
                     ContainingTypeDefinition = enclosingTypeBuilder,
                     InternFactory = _host.InternFactory,
-                    Name = _nameTable.GetNameFor(AnnotateGenericTypeName(type, type.Name)),
+                    Name = _nameTable.GetNameFor(type.Name),
                     NestedTypes = new System.Collections.Generic.List<INestedTypeDefinition>(),
                     Fields = new System.Collections.Generic.List<IFieldDefinition>(),
                     Methods = new System.Collections.Generic.List<IMethodDefinition>(),
@@ -5442,15 +5452,6 @@ namespace Boo.Lang.Compiler.Steps
             }
 
             return typeBuilder;
-        }
-
-        private static string AnnotateGenericTypeName(TypeDefinition typeDef, string name)
-        {
-            if (typeDef.HasGenericParameters)
-            {
-                return name + "`" + typeDef.GenericParameters.Count;
-            }
-            return name;
         }
 
         private void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, NamedTypeDefinition typeBuilder)
