@@ -3644,6 +3644,7 @@ namespace Boo.Lang.Compiler.Steps
             var callOpCode = OperationCode.Call;
 
             IMethodDefinition setMethod = GetMethodInfo(property.GetSetMethod());
+            setMethod = ResolveGenericMethod(setMethod);
             IType targetType = null;
             if (null != reference)
             {
