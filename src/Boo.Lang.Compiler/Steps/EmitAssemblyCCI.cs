@@ -5446,7 +5446,10 @@ namespace Boo.Lang.Compiler.Steps
                 enclosingTypeBuilder.NestedTypes.Add((NestedTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
                 if (baseType != null)
+                {
+                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>();
                     typeBuilder.BaseClasses.Add(GetTypeReference(baseType));
+                }
                 GetNestedTypeAttributes(type, (NestedTypeDefinition)typeBuilder);
             }
 
