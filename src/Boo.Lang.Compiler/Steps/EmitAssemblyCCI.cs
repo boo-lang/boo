@@ -4368,7 +4368,10 @@ namespace Boo.Lang.Compiler.Steps
 
         private IMethodDefinition MethodOf(ITypeDefinition typeRef, string name, params Type[] args)
         {
-            return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), args.Select(GetTypeReference).ToArray());
+            var argTypes = args.Select(GetTypeReference).ToArray();
+            if (args.Any(t => t.IsByRef))
+                return CciLookupHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), argTypes);
+            return TypeHelper.GetMethod(typeRef, _nameTable.GetNameFor(name), argTypes);
         }
 
         private IMethodDefinition MethodOf<T>(string name, params Type[] args)
