@@ -4763,6 +4763,11 @@ namespace Boo.Lang.Compiler.Steps
         {
             ITypeReference[] arguments = Array.ConvertAll(constructedInfo.GenericArguments, GetSystemType);
             var baseGeneric = GetMethodInfo(constructedInfo.GenericDefinition);
+            var gmi = baseGeneric as IGenericMethodInstance;
+            if (gmi != null)
+            {
+                baseGeneric = gmi.GenericMethod.ResolvedMethod;
+            }
             return new GenericMethodInstance(baseGeneric, arguments,_host.InternFactory);
         }
 
