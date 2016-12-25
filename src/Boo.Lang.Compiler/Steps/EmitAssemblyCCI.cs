@@ -837,48 +837,74 @@ namespace Boo.Lang.Compiler.Steps
 
         private ILGeneratorLabel _exceptionExitPoint;
 
-        public override void OnTryStatement(TryStatement node)
+        private void EmitTryBlock(Action action)
         {
             ++_tryBlock;
             _il.BeginTryBody();
-            Visit(node.ProtectedBlock);
             var oldExit = _exceptionExitPoint;
+            _exceptionExitPoint = new ILGeneratorLabel();
             try
             {
-                _exceptionExitPoint = new ILGeneratorLabel();
+                action();
+            }
+            finally
+            {
+                _il.EndTryBody();
+                --_tryBlock;
+                _il.MarkLabel(_exceptionExitPoint);
+                _exceptionExitPoint = oldExit;
+            }
+        }
+
+	    private void EmitTryBlockIf(bool condition, Action action)
+	    {
+	        if (condition)
+	        {
+	            EmitTryBlock(action);
                 _il.Emit(OperationCode.Leave, _exceptionExitPoint);
+	        }
+	        else action();
+	    }
 
-                Visit(node.ExceptionHandlers);
-
-                if (null != node.FailureBlock)
+        public override void OnTryStatement(TryStatement node)
+        {
+            EmitTryBlock(() =>
+            {
+                EmitTryBlockIf(node.EnsureBlock != null && (node.FailureBlock != null || node.ExceptionHandlers.Count > 0), () =>
                 {
-                    _il.BeginFaultBlock();
-                    Visit(node.FailureBlock);
-                    _il.Emit(OperationCode.Endfinally);
-                }
+                    EmitTryBlockIf(node.FailureBlock != null && node.ExceptionHandlers.Count > 0, () =>
+                    {
+                        Visit(node.ProtectedBlock);
+                        _il.Emit(OperationCode.Leave, _exceptionExitPoint);
 
-                if (null != node.EnsureBlock)
+                        if (node.ExceptionHandlers.Count > 0)
+                        {
+                            Visit(node.ExceptionHandlers);
+                        }
+                    });
+
+                    if (node.FailureBlock != null)
+                    {
+                        _il.BeginFaultBlock();
+                        Visit(node.FailureBlock);
+                        _il.Emit(OperationCode.Endfinally);
+                    }
+                });
+
+                if (node.EnsureBlock != null)
                 {
                     _il.BeginFinallyBlock();
                     Visit(node.EnsureBlock);
                     _il.Emit(OperationCode.Endfinally);
                 }
-
-                _il.EndTryBody();
-                --_tryBlock;
-                _il.MarkLabel(_exceptionExitPoint);
-            }
-            finally
-            {
-                _exceptionExitPoint = oldExit;
-            }
+            });
         }
 
         public override void OnExceptionHandler(ExceptionHandler node)
         {
             if ((node.Flags & ExceptionHandlerFlags.Filter) == ExceptionHandlerFlags.Filter)
             {
-                _il.BeginFilterBody();
+                _il.BeginFilterBlock();
 
                 ILGeneratorLabel endLabel = new ILGeneratorLabel();
 
@@ -927,7 +953,7 @@ namespace Boo.Lang.Compiler.Steps
                 _il.Emit(OperationCode.Ldc_I4_0);
                 _il.Emit(OperationCode.Cgt_Un);
 
-                _il.BeginFilterBlock();
+                _il.BeginFilterBody();
             }
             else
             {
