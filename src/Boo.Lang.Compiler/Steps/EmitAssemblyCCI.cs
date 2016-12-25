@@ -455,6 +455,33 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
+        private ITypeDefinition GetNestedTypeReference(Type value)
+        {
+            var declaringType = GetTypeReference(value.DeclaringType);
+            if (value.IsGenericParameter)
+            {
+                if (value.DeclaringType != null)
+                    return new GenericTypeParameter
+                    {
+                        InternFactory = _host.InternFactory,
+                        Name = _nameTable.GetNameFor(value.Name),
+                        DefiningType = GetTypeReference(value.DeclaringType),
+                        Index = (ushort)value.GenericParameterPosition
+                    };
+            }
+            ushort genArgCount;
+            if (value.ContainsGenericParameters)
+            {
+                genArgCount = (ushort)value.GetGenericArguments()
+                    .Select(g => g.Name)
+                    .Except(value.DeclaringType.GetGenericArguments().Select(g => g.Name))
+                    .Count();
+            }
+            else genArgCount = 0;
+            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 
+                genArgCount, value.IsEnum, value.IsValueType, true).ResolvedType;
+        }
+
 	    private ITypeDefinition GetTypeReference(Type value)
 	    {
 	        if (value.IsByRef)
@@ -469,26 +496,7 @@ namespace Boo.Lang.Compiler.Steps
                     InternFactory = _host.InternFactory
                 }.ResolvedType;
 	        if (value.IsNested)
-	        {
-	            var declaringType = GetTypeReference(value.DeclaringType);
-                if (value.ContainsGenericParameters)
-                {
-                    if (value.IsGenericParameter)
-                    {
-                        if (value.DeclaringType != null)
-                            return new GenericTypeParameter
-                            {
-                                InternFactory = _host.InternFactory,
-                                Name = _nameTable.GetNameFor(value.Name),
-                                DefiningType = GetTypeReference(value.DeclaringType),
-                                Index = (ushort)value.GenericParameterPosition
-                            };
-                    }
-                    throw new Exception("Generic nested types are not supported yet");
-                }
-	            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 0,
-	                value.IsEnum, value.IsValueType).ResolvedType;
-	        }
+                return GetNestedTypeReference(value);
             if (value.IsGenericType && (!value.ContainsGenericParameters || value.FullName == null))
                 return GetGenericTypeReference(value);
             if (value.IsPointer)
