@@ -419,6 +419,7 @@
     <Compile Include="Pipelines\CompileToFile.cs" />
     <Compile Include="Pipelines\CompileToFileAndVerify.cs" />
     <Compile Include="Pipelines\CompileToMemory.cs" />
+    <Compile Include="Pipelines\CompileToMemoryForTest.cs" />
     <Compile Include="Pipelines\ExpandMacros.cs" />
     <Compile Include="Pipelines\Parse.cs" />
     <Compile Include="Pipelines\ParseAndPrint.cs" />

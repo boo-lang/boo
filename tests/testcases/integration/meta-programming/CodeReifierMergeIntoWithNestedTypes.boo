@@ -46,7 +46,7 @@ module = [|
 		pass
 |]
 
-pipeline = Pipelines.CompileToMemory()
+pipeline = Pipelines.CompileToMemoryForTest()
 pipeline.InsertAfter(Steps.TypeInference, ImplementIFoo())
 
 parameters = CompilerParameters(Pipeline: pipeline)

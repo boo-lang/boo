@@ -8,7 +8,7 @@ def compile(code as string, references):
 	compiler = BooCompiler()
 	compiler.Parameters.OutputType = CompilerOutputType.Library
 	compiler.Parameters.Input.Add(StringInput("<code>", code))
-	compiler.Parameters.Pipeline = CompileToMemory()
+	compiler.Parameters.Pipeline = CompileToMemoryForTest()
 	for reference in references:
 		compiler.Parameters.References.Add(reference)
 	
