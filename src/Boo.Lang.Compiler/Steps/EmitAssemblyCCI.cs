@@ -5150,6 +5150,13 @@ namespace Boo.Lang.Compiler.Steps
 	        return result;
 	    }
 
+	    private ParameterDefinition NewParameter(ParameterDeclaration value, int index, ISignature parent)
+        {
+            var result = MakeParameter(value, index, parent);
+            SetBuilder(value, result);
+            return result;
+        }
+
         private void DefineProperty(NamedTypeDefinition typeBuilder, Property property)
         {
             var name = property.ExplicitInfo != null
@@ -5163,7 +5170,9 @@ namespace Boo.Lang.Compiler.Steps
                 ContainingTypeDefinition = typeBuilder,
                 Accessors = new System.Collections.Generic.List<IMethodReference>()
             };
-            builder.Parameters = property.Parameters.Select((p, i) => MakeParameter(p, i, builder)).Cast<IParameterDefinition>().ToList();
+            if (!property.IsStatic)
+                builder.CallingConvention = CallingConvention.HasThis;
+            builder.Parameters = property.Parameters.Select((p, i) => NewParameter(p, i, builder)).Cast<IParameterDefinition>().ToList();
             SetPropertyAttributesFor(property, builder);
             var getter = property.Getter;
             if (getter != null)
