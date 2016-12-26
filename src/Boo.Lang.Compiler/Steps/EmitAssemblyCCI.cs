@@ -5321,8 +5321,38 @@ namespace Boo.Lang.Compiler.Steps
 
             if (typeDefinition.GenericParameters.Count > 0)
             {
-                DefineGenericParameters(type, typeDefinition.GenericParameters.ToArray());
+                var nested = type as NestedTypeDefinition;
+                if (nested != null)
+                    DefineNestedGenericParameters(type, nested.ContainingTypeDefinition, typeDefinition.GenericParameters.ToArray());
+                else DefineGenericParameters(type, typeDefinition.GenericParameters.ToArray());
             }
+        }
+
+        private void DefineNestedGenericParameters(NamedTypeDefinition builder, ITypeDefinition parent, GenericParameterDeclaration[] parameters)
+        {
+            var parentParams = parent.GenericParameters.ToDictionary(p => p.Name.Value);
+            var builders = parameters
+                .Where(p => !parentParams.ContainsKey(p.Name))
+                .Select((gpd, i) => new GenericTypeParameter
+                {
+                    Name = _nameTable.GetNameFor(gpd.Name),
+                    DefiningType = builder,
+                    Index = (ushort)i,
+                    InternFactory = _host.InternFactory
+                })
+                .ToArray();
+            if (builders.Length > 0)
+            {
+                builder.GenericParameters = new System.Collections.Generic.List<IGenericTypeParameter>(builders);
+                DefineGenericParameters(builders, parameters);
+            }
+            if (builders.Length < parameters.Length)
+                foreach (var param in parameters)
+                {
+                    IGenericTypeParameter decl;
+                    if (parentParams.TryGetValue(param.Name, out decl)) 
+                        SetBuilder(param, decl);
+                }
         }
 
         /// <summary>
