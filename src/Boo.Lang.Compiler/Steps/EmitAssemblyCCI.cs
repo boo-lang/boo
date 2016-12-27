@@ -778,7 +778,6 @@ namespace Boo.Lang.Compiler.Steps
         {
             InternalLocal info = GetInternalLocal(local);
             info.LocalDefinition = DefineLocal(local.Name, GetSystemType(local), info.Type.IsPointer);
-            _locals.Add(info.LocalDefinition);
         }
 
         public override void OnForStatement(ForStatement node)
