@@ -4703,11 +4703,38 @@ namespace Boo.Lang.Compiler.Steps
                 return GetMappedFieldInfo(mapped.DeclaringType, mapped.SourceMember);
             }
 
+            if (tag.DeclaringType.GenericInfo != null && tag.DeclaringType.ConstructedInfo == null)
+                return GetSelfMappedField(tag);
+
             // If field is internal, get its FieldDefinition
             return GetFieldBuilder(((InternalField)tag).Field);
         }
 
-        private IMethodDefinition GetMethodInfo(IMethod entity)
+        private readonly Dictionary<IType, ITypeDefinition> _selfMap = new Dictionary<IType, ITypeDefinition>();
+        private readonly Dictionary<IField, IFieldDefinition> _selfFieldMap = new Dictionary<IField, IFieldDefinition>();
+
+	    private IFieldDefinition GetSelfMappedField(IField tag)
+	    {
+	        IFieldDefinition result;
+	        if (!_selfFieldMap.TryGetValue(tag, out result))
+	        {
+	            var genericParent = tag.DeclaringType;
+	            ITypeDefinition genericParentType;
+	            if (!_selfMap.TryGetValue(genericParent, out genericParentType))
+	            {
+	                var gpBuilder = GetTypeBuilder(((AbstractInternalType) genericParent).TypeDefinition);
+	                Debug.Assert(gpBuilder.IsGeneric);
+	                genericParentType = GenericTypeInstance.GetGenericTypeInstance(gpBuilder, gpBuilder.GenericParameters,
+	                    _host.InternFactory);
+	                _selfMap.Add(genericParent, genericParentType);
+	            }
+	            result = GetMappedFieldInfo(genericParentType, GetFieldBuilder(((InternalField)tag).Field));
+	            _selfFieldMap.Add(tag, result);
+	        }
+	        return result;
+	    }
+
+	    private IMethodDefinition GetMethodInfo(IMethod entity)
         {
             // If method is external, get its existing MethodDefinition
             var external = entity as ExternalMethod;
@@ -4810,8 +4837,13 @@ namespace Boo.Lang.Compiler.Steps
         /// </summary>
         private IFieldDefinition GetMappedFieldInfo(IType targetType, IField source)
         {
-            var fi = GetFieldInfo(source);
             var genType = GetSystemType(targetType);
+            var fi = GetFieldInfo(source);
+            return GetMappedFieldInfo(genType, fi);
+        }
+
+        private IFieldDefinition GetMappedFieldInfo(ITypeReference genType, IFieldDefinition fi)
+        {
             var result = new Microsoft.Cci.MutableCodeModel.SpecializedFieldDefinition();
             result.Copy(fi, _host.InternFactory);
             result.ContainingTypeDefinition = genType.ResolvedType;
