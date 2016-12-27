@@ -3254,7 +3254,7 @@ namespace Boo.Lang.Compiler.Steps
             return field.StaticValue;
         }
 
-        IMetadataConstant GetInternalFieldStaticValue(InternalField field)
+        private IMetadataConstant GetInternalFieldStaticValue(InternalField field)
         {
             return (IMetadataConstant)GetValue(field.Type, (Expression)field.StaticValue);
         }
@@ -3270,7 +3270,8 @@ namespace Boo.Lang.Compiler.Steps
                 value = Convert.ChangeType(value, underlyingType);
             }
 
-            if (null == value)
+            var md = value as IMetadataConstant;
+            if (null == value || (md != null && md.Value == null))
             {
                 _il.Emit(OperationCode.Ldnull);
             }
@@ -3280,7 +3281,7 @@ namespace Boo.Lang.Compiler.Steps
             }
             else if (type == TypeSystemServices.StringType)
             {
-                _il.Emit(OperationCode.Ldstr, value is string ? (string)value : (string)((IMetadataConstant)value).Value);
+                _il.Emit(OperationCode.Ldstr, value is string ? (string)value : (string)md.Value);
             }
             else if (type == TypeSystemServices.CharType)
             {
