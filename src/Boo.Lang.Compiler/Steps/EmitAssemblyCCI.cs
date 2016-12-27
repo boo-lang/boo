@@ -470,17 +470,23 @@ namespace Boo.Lang.Compiler.Steps
                     };
             }
             ushort genArgCount;
+            var specializedBase = 0;
             if (value.ContainsGenericParameters)
             {
                 genArgCount = (ushort)value.GetGenericArguments()
                     .Select(g => g.Name)
                     .Except(value.DeclaringType.GetGenericArguments().Select(g => g.Name))
                     .Count();
+                if (declaringType.IsGeneric)
+                {
+                    specializedBase = declaringType.GenericParameterCount;
+                    declaringType = GetSelfMappedClass(declaringType);
+                }
             }
             else genArgCount = 0;
             var result = new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 
                 genArgCount, value.IsEnum, value.IsValueType, true).ResolvedType;
-            if (genArgCount == 0 && value.IsGenericType)
+            if (genArgCount == 0 && value.IsGenericType && specializedBase == 0)
             {
                 return GenericTypeInstance.GetGenericTypeInstance(result,
                     value.GetGenericArguments().Select(GetTypeReference),
@@ -4720,6 +4726,14 @@ namespace Boo.Lang.Compiler.Steps
         private readonly Dictionary<IType, ITypeDefinition> _selfMap = new Dictionary<IType, ITypeDefinition>();
         private readonly Dictionary<IField, IFieldDefinition> _selfFieldMap = new Dictionary<IField, IFieldDefinition>();
 
+        private ITypeDefinition GetSelfMappedClass(ITypeDefinition value)
+        {
+            Debug.Assert(value.IsGeneric);
+            var result = GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)value, value.GenericParameters,
+                _host.InternFactory);
+            return result;
+        }
+
 	    private IFieldDefinition GetSelfMappedField(IField tag)
 	    {
 	        IFieldDefinition result;
@@ -4730,9 +4744,7 @@ namespace Boo.Lang.Compiler.Steps
 	            if (!_selfMap.TryGetValue(genericParent, out genericParentType))
 	            {
 	                var gpBuilder = GetTypeBuilder(((AbstractInternalType) genericParent).TypeDefinition);
-	                Debug.Assert(gpBuilder.IsGeneric);
-	                genericParentType = GenericTypeInstance.GetGenericTypeInstance(gpBuilder, gpBuilder.GenericParameters,
-	                    _host.InternFactory);
+	                genericParentType = GetSelfMappedClass(gpBuilder);
 	                _selfMap.Add(genericParent, genericParentType);
 	            }
 	            result = GetMappedFieldInfo(genericParentType, GetFieldBuilder(((InternalField)tag).Field));
@@ -4801,23 +4813,28 @@ namespace Boo.Lang.Compiler.Steps
             if (mapped != null)
             {
                 var baseGeneric = GetConstructorInfo((IConstructor) mapped.SourceMember);
-                var baseType = (IGenericTypeInstance) GetSystemType(mapped.DeclaringType);
-                var result = GetGenericMethod(baseType, baseGeneric);
-                if (result == null)
+                var declaringType = GetSystemType(mapped.DeclaringType);
+                var baseType = declaringType as IGenericTypeInstance;
+                if (baseType != null)
                 {
-                    var mapping = baseType.GenericType.ResolvedType.GenericParameters
-                        .Zip(baseType.GenericArguments, (p, a) => Tuple.Create(p.Name.UniqueKey, a.ResolvedType))
-                        .ToDictionary(t => t.Item1, t => t.Item2);
-                    var spec = new GenericMethodSpecializer(_host,
-                        mapping);
-                    var specialized = spec.Substitute(baseGeneric);
-                    result = GetGenericMethod(baseType, specialized);
+                    var result = GetGenericMethod(baseType, baseGeneric);
                     if (result == null)
                     {
-                        throw new NotSupportedException("Unable to lookup generic constructor");
+                        var mapping = baseType.GenericType.ResolvedType.GenericParameters
+                            .Zip(baseType.GenericArguments, (p, a) => Tuple.Create(p.Name.UniqueKey, a.ResolvedType))
+                            .ToDictionary(t => t.Item1, t => t.Item2);
+                        var spec = new GenericMethodSpecializer(_host,
+                            mapping);
+                        var specialized = spec.Substitute(baseGeneric);
+                        result = GetGenericMethod(baseType, specialized);
+                        if (result == null)
+                        {
+                            throw new NotSupportedException("Unable to lookup generic constructor");
+                        }
                     }
+                    return result;
                 }
-                return result;
+                return TypeHelper.GetMethod(declaringType.ResolvedType, baseGeneric, true);
             }
 
             // If constructor is internal, get its MethodDefinition
@@ -4936,8 +4953,7 @@ namespace Boo.Lang.Compiler.Steps
                 // Type is a constructed generic type - create it using its definition's system type
                 var arguments = Array.ConvertAll(entity.ConstructedInfo.GenericArguments, GetSystemType);
                 var sysType = GetSystemType(entity.ConstructedInfo.GenericDefinition);
-                return GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)sysType.ResolvedType,
-                    arguments, _host.InternFactory);
+                return SpecializeType(sysType, arguments);
             }
 
             if (entity.IsNull())
@@ -4963,7 +4979,24 @@ namespace Boo.Lang.Compiler.Steps
             return null;
         }
 
-        private static void GetNestedTypeAttributes(TypeMember type, NestedTypeDefinition member)
+	    private ITypeReference SpecializeType(ITypeReference sysType, ITypeReference[] arguments)
+	    {
+	        var nested = sysType as ISpecializedNestedTypeDefinition;
+            if (nested != null && nested.ContainingTypeDefinition is IGenericTypeInstance)
+            {
+                var container = (GenericTypeInstance)SpecializeType(nested.ContainingTypeDefinition, arguments).ResolvedType;
+                return new Microsoft.Cci.Immutable.SpecializedNestedTypeDefinition(nested.UnspecializedVersion,
+                    nested.UnspecializedVersion,
+                    container,
+                    container,
+                    _host.InternFactory);
+            }
+            var gti = sysType as GenericTypeInstance;
+            var baseType = gti != null ? gti.GenericType : (INamedTypeDefinition)sysType.ResolvedType;
+            return GenericTypeInstance.GetGenericTypeInstance(baseType.ResolvedType, arguments, _host.InternFactory);
+	    }
+
+	    private static void GetNestedTypeAttributes(TypeMember type, NestedTypeDefinition member)
         {
             GetExtendedTypeAttributes(type, member);
             member.Visibility = GetTypeVisibilityAttributes(type);
