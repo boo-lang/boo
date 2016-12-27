@@ -478,8 +478,15 @@ namespace Boo.Lang.Compiler.Steps
                     .Count();
             }
             else genArgCount = 0;
-            return new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 
+            var result = new Microsoft.Cci.Immutable.NestedTypeReference(_host, declaringType, _nameTable.GetNameFor(value.Name), 
                 genArgCount, value.IsEnum, value.IsValueType, true).ResolvedType;
+            if (genArgCount == 0 && value.IsGenericType)
+            {
+                return GenericTypeInstance.GetGenericTypeInstance(result,
+                    value.GetGenericArguments().Select(GetTypeReference),
+                    _host.InternFactory);
+            }
+            return result;
         }
 
 	    private ITypeDefinition GetTypeReference(Type value)
