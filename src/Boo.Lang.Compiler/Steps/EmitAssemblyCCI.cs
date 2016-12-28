@@ -4728,11 +4728,36 @@ namespace Boo.Lang.Compiler.Steps
 
         private ITypeDefinition GetSelfMappedClass(ITypeDefinition value)
         {
-            Debug.Assert(value.IsGeneric);
-            var result = GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)value, value.GenericParameters,
-                _host.InternFactory);
+            ITypeDefinition result;
+            Debug.Assert(value.IsGeneric || IsNestedGeneric(value));
+            if (value.IsGeneric)
+            {
+                result = GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition) value,
+                    value.GenericParameters,
+                    _host.InternFactory);
+            }
+            else
+            {
+                var parent = GetSelfMappedClass(((INestedTypeDefinition) value).ContainingTypeDefinition);
+                result =
+                    new Microsoft.Cci.Immutable.NestedTypeReference(_host, parent,
+                        ((INamedTypeDefinition) value).Name, 0, value.IsEnum, value.IsValueType, true).ResolvedType;
+            }
             return result;
         }
+
+	    private static bool IsNestedGeneric(ITypeDefinition value)
+	    {
+	        var nested = value as INestedTypeDefinition;
+	        while (nested != null)
+	        {
+	            var parent = nested.ContainingTypeDefinition;
+	            if (parent.IsGeneric)
+	                return true;
+	            nested = parent as INestedTypeDefinition;
+	        }
+	        return false;
+	    }
 
 	    private IFieldDefinition GetSelfMappedField(IField tag)
 	    {
