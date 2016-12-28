@@ -17,7 +17,7 @@ def compile(code, references):
 	for reference in references:
 		compiler.Parameters.References.Add(reference)
 	compiler.Parameters.Input.Add(StringInput("code", code))
-	compiler.Parameters.Pipeline = CompileToMemory()
+	compiler.Parameters.Pipeline = CompileToMemoryForTest()
 	compiler.Parameters.OutputType = CompilerOutputType.Library
 	result = compiler.Run()
 	assert 0 == len(result.Errors), result.Errors.ToString()

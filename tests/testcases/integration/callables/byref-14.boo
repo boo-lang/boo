@@ -7,7 +7,7 @@ import System.Reflection
 def compile(name as string, code as string, *references as (Assembly)):
 	compiler = BooCompiler()
 	compiler.Parameters.Input.Add(IO.StringInput(name, code))
-	compiler.Parameters.Pipeline = Pipelines.CompileToMemory()
+	compiler.Parameters.Pipeline = Pipelines.CompileToMemoryForTest()
 	compiler.Parameters.References.Extend(references)
 	result = compiler.Run()
 	assert 0 == len(result.Errors), result.Errors.ToString(true)
