@@ -3852,20 +3852,32 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ReplaceMetaMethodInvocationSite(MethodInvocationExpression node, Node replacement)
 		{
+			Node statementParent;
 			if (replacement == null || replacement is Statement)
 			{
 				if (node.ParentNode.NodeType != NodeType.ExpressionStatement)
 					NotImplemented(node, "Cant use an statement where an expression is expected.");
-				var statementParent = node.ParentNode.ParentNode;
+				statementParent = node.ParentNode.ParentNode;
 				statementParent.Replace(node.ParentNode, replacement);
 				if (replacement != null)
 					replacement = My<CodeReifier>.Instance.Reify((Statement)replacement);
 			}
 			else
 			{
-				node.ParentNode.Replace(node, replacement);
+				statementParent = node.ParentNode;
+				statementParent.Replace(node, replacement);
 				replacement = My<CodeReifier>.Instance.Reify((Expression) replacement);
 			}
+
+			// if we reify a statement with a modifier, the statement's parent can be changed.
+			// Make sure to visit the new hierarchy!
+			var replacementNode = replacement;
+			while (replacementNode != null && replacementNode.ParentNode != statementParent)
+			{
+				replacementNode = replacementNode.ParentNode;
+			}
+			if (replacementNode != null)
+				replacement = replacementNode;
 			Visit(replacement);
 		}
 
