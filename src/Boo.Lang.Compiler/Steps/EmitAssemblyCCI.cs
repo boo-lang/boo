@@ -773,7 +773,7 @@ namespace Boo.Lang.Compiler.Steps
             EmitMethod(constructor, builder);
         }
 
-        private LocalDefinition DefineLocal(string name, ITypeReference type, bool isRef = false)
+        private LocalDefinition DefineLocal(string name, ITypeReference type, bool isPinned = false)
         {
             if (name == null)
                 name = "V_" + _locals.Count.ToString();
@@ -781,7 +781,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 Name = _nameTable.GetNameFor(name),
                 Type = type,
-                IsReference = isRef
+                IsPinned = isPinned
             };
             _locals.Add(result);
             return result;
@@ -4996,7 +4996,7 @@ namespace Boo.Lang.Compiler.Steps
                     DefineGenericParameters(typedef);
 
                 if (entity.IsPointer && null != type)
-                    return ManagedPointerType.GetManagedPointerType(type, _host.InternFactory);
+                    return PointerType.GetPointerType(type, _host.InternFactory);
 
                 return type;
             }
@@ -5665,10 +5665,35 @@ namespace Boo.Lang.Compiler.Steps
             else if (IsValueType(type))
                 typeBuilder.Layout = LayoutKind.Sequential;
 
+            var layout = type.Attributes.FirstOrDefault(a => a.Entity is ExternalConstructor && 
+                ((ExternalConstructor)a.Entity).ConstructorInfo.DeclaringType == typeof(System.Runtime.InteropServices.StructLayoutAttribute));
+            if (layout != null)
+                ApplyLayoutAttribute(layout, typeBuilder);
+
             return typeBuilder;
         }
 
-        private void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, NamedTypeDefinition typeBuilder)
+	    private void ApplyLayoutAttribute(Attribute layout, NamedTypeDefinition typeBuilder)
+	    {
+            var layoutKind = layout.Arguments.Single();
+            if (layoutKind.NodeType == NodeType.MemberReferenceExpression)
+                typeBuilder.Layout = (LayoutKind)Enum.Parse(typeof(LayoutKind), ((MemberReferenceExpression)layoutKind).Name);
+            else typeBuilder.Layout = (LayoutKind) int.Parse(layoutKind.ToString());
+            foreach (var namedArg in layout.NamedArguments)
+            {
+                switch (namedArg.First.ToString())
+                {
+                    case "Size":
+                        typeBuilder.SizeOf = uint.Parse(namedArg.Second.ToString());
+                        break;
+                    default:
+                        CompilerContext.Current.Warnings.Add(new CompilerWarning(namedArg.LexicalInfo, "Attribute " + namedArg.First + " is not supported"));
+                        break;
+                }
+            }
+	    }
+
+	    private void EmitBaseTypesAndAttributes(TypeDefinition typeDefinition, NamedTypeDefinition typeBuilder)
         {
             foreach (Ast.TypeReference baseType in typeDefinition.BaseTypes)
             {
