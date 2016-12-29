@@ -39,11 +39,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (Errors.Count > 0
 				|| CompilerOutputType.Library == Parameters.OutputType
-				|| Context.GeneratedAssemblyCci == null)
+                || (Context.GeneratedAssemblyCci == null && Context.GeneratedAssembly == null))
 				return;
 
 		    var asm = Context.GeneratedAssembly;
-		    var asmName = Context.GeneratedAssemblyCci.Name.Value;
+            var asmName = Context.GeneratedAssemblyCci == null ? Context.GeneratedAssembly.FullName : Context.GeneratedAssemblyCci.Name.Value;
 		    ResolveEventHandler rga = (sender, args) => args.Name.Equals(asmName) ? asm : null;
             AppDomain.CurrentDomain.AssemblyResolve += rga;
 			try
