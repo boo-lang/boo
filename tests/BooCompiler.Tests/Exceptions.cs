@@ -15,12 +15,6 @@ namespace BooCompiler.Tests
 			{
 				return;
 			}
-            catch (Boo.Lang.Compiler.CompilerError e)
-            {
-                if (e.InnerException is T)
-                    return;
-                throw;
-            }
 			Assert.Fail("{0} expected!", typeof(T).Name);
 		}
 	}
