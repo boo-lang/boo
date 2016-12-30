@@ -45,4 +45,10 @@ namespace System.Drawing
 			return string.Format("MyPoint({0}, {1})", X, Y);
 		}
 	}
+
+    public struct Rectangle
+    {
+        public Rectangle(int x, int y, int w, int h)
+        { }
+    }
 }
