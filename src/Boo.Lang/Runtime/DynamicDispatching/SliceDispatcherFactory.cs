@@ -108,7 +108,13 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 
 		private MemberInfo[] ResolveMember()
 		{
+#if !DNXCORE50
 			MemberInfo[] candidates = _type.GetMember(_name, MemberTypes.Property | MemberTypes.Field, RuntimeServices.DefaultBindingFlags);
+#else
+		    MemberInfo[] candidates = _type.GetMember(_name, RuntimeServices.DefaultBindingFlags);
+		    candidates = candidates.Where((v) => v.MemberType == MemberTypes.Property || v.MemberType == MemberTypes.Field)
+		        .ToArray();
+#endif
 			if (candidates.Length == 0) throw MissingField();
 			return candidates;
 		}

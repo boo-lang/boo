@@ -30,6 +30,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Boo.Lang.Environments
 {
@@ -57,8 +58,13 @@ namespace Boo.Lang.Environments
 		TNeed IEnvironment.Provide<TNeed>()
 		{
 			foreach (var binding in _bindings)
+#if !DNXCORE50
 				if (typeof(TNeed).IsAssignableFrom(binding.Key))
 					return (TNeed) binding.Value();
+#else
+		        if (typeof(TNeed).GetTypeInfo().IsAssignableFrom(binding.Key))
+		            return (TNeed) binding.Value();
+#endif
 			return null;
 		}
 	}

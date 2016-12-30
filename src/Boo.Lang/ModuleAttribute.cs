@@ -34,7 +34,9 @@ namespace Boo.Lang
 	/// Marks a type as a boo module.
 	/// </summary>
 	[Obsolete("[Boo.Lang.Module] attribute is deprecated. Use [System.Runtime.CompilerServices.CompilerGlobalScope] instead.", true)]
+#if !NO_SERIALIZATION_INFO
 	[Serializable]
+#endif
 	[AttributeUsage(AttributeTargets.Class)]
 	public class ModuleAttribute : Attribute
 	{

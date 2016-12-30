@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Reflection;
+
 namespace Boo.Lang
 {
 	/// <summary>
@@ -40,7 +42,11 @@ namespace Boo.Lang
 
 		private static string GetString(string name)
 		{
+#if !DNXCORE50
 			return (string)typeof(Boo.Lang.Resources.StringResources).GetField(name).GetValue(null);
+#else
+		    return (string)typeof(Boo.Lang.Resources.StringResources).GetTypeInfo().GetField(name).GetValue(null);
+#endif
 		}
 	}
 }

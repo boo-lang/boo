@@ -1,0 +1,21 @@
+﻿{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable",
+    "define": [
+      "NO_SERIALIZATION_INFO;NO_SYSTEM_PROCESS;DNXCORE50;IGNOREKEYFILE"
+    ]
+  },
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "System.Collections.NonGeneric": "4.3.0",
+    "System.Reflection.Emit": "4.3.0",
+    "System.Reflection.TypeExtensions": "4.3.0",
+	"System.Reflection.Emit.Lightweight": "4.3.0"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  }
+}

@@ -26,6 +26,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Reflection;
+
 namespace Boo.Lang
 {
 	using System;
@@ -37,7 +39,11 @@ namespace Boo.Lang
 
 		override public string ToString()
 		{
+#if !DNXCORE50
 			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)Attribute.GetCustomAttribute(GetType(), typeof(EnumeratorItemTypeAttribute));
+#else
+		    EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)GetType().GetTypeInfo().GetCustomAttribute(typeof(EnumeratorItemTypeAttribute));
+#endif
 			return string.Format("generator({0})", attribute.ItemType);
 		}
 	}
