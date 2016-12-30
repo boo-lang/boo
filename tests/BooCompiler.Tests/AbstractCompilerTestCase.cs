@@ -85,6 +85,7 @@ namespace BooCompiler.Tests
             _parameters.Pipeline = SetUpCompilerPipeline();
             _parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
             _parameters.References.Add(typeof(BooCompiler).Assembly);
+            _parameters.References.Add(typeof(System.Xml.Serialization.XmlIgnoreAttribute).Assembly);
             Directory.CreateDirectory(TestOutputPath);
             _parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
             _parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
