@@ -5590,15 +5590,16 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private object CreateTypeBuilder(TypeDefinition type)
         {
-            Type baseType = null;
+            ITypeReference baseType;
             if (IsEnumDefinition(type))
             {
-                baseType = typeof(Enum);
+                baseType = _host.PlatformType.SystemEnum;
             }
             else if (IsValueType(type))
             {
-                baseType = Types.ValueType;
+                baseType = _host.PlatformType.SystemValueType;
             }
+            else baseType = type.BaseTypes.Select(t => t.Entity).Cast<IType>().Where(t => t.IsClass).Select(GetSystemType).FirstOrDefault();
 
             NamedTypeDefinition typeBuilder = null;
             var enclosingType = type.ParentNode as ClassDefinition;
@@ -5621,7 +5622,7 @@ namespace Boo.Lang.Compiler.Steps
                 enclosingNamespace.Members.Add((NamespaceTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
                 if (baseType != null)
-                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>{(GetTypeReference(baseType))};
+                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>{baseType};
                 GetTypeAttributes(type, (NamespaceTypeDefinition)typeBuilder);
             }
             else
@@ -5640,10 +5641,7 @@ namespace Boo.Lang.Compiler.Steps
                 enclosingTypeBuilder.NestedTypes.Add((NestedTypeDefinition)typeBuilder);
                 _asmBuilder.AllTypes.Add(typeBuilder);
                 if (baseType != null)
-                {
-                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference>();
-                    typeBuilder.BaseClasses.Add(GetTypeReference(baseType));
-                }
+                    typeBuilder.BaseClasses = new System.Collections.Generic.List<ITypeReference> { baseType };
                 GetNestedTypeAttributes(type, (NestedTypeDefinition)typeBuilder);
             }
 
