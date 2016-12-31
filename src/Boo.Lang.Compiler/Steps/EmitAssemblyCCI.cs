@@ -5583,6 +5583,7 @@ namespace Boo.Lang.Compiler.Steps
 	                ContainingUnitNamespace = parentNamespace,
                     Name = _nameTable.GetNameFor(myName)
 	            };
+                parentNamespace.Members.Add((NestedUnitNamespace)result);
                 _namespaceMap.Add(name, result);
 	        }
 	        return result;
