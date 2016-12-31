@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Remoting.Contexts;
@@ -173,8 +174,10 @@ namespace Boo.Lang.Compiler
 			get { return _codeBuilder; }
 		}
 
-		private EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
+		private readonly EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
 		
+        private static readonly Dictionary<Assembly, IAssembly> _codegenMap = new Dictionary<Assembly, IAssembly>();
+
 		public Assembly GeneratedAssembly
 		{
 		    get
@@ -189,11 +192,22 @@ namespace Boo.Lang.Compiler
 		                PeWriter.WritePeToStream(GeneratedAssemblyCci, host, peStream);
 		                _generatedAssembly = Assembly.Load(peStream.GetBuffer());
 		            }
+                    _codegenMap.Add(_generatedAssembly, GeneratedAssemblyCci);
 		        }
                 return _generatedAssembly;
 		    }
 			set { _generatedAssembly = value; }
 		}
+
+	    public IEnumerable<KeyValuePair<Assembly, IAssembly>> CodegenMap
+	    {
+	        get { return _codegenMap; }
+	    }
+
+	    internal static void ClearCodegenMap()
+	    {
+	        _codegenMap.Clear();
+	    }
 
         public Microsoft.Cci.MutableCodeModel.Assembly GeneratedAssemblyCci { get; set; }
 

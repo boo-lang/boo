@@ -36,7 +36,6 @@ namespace Boo.Lang.Compiler.Pipelines
 		public Run()
 		{	
 			Add(new RunAssembly());
-		    Replace(typeof(EmitAssemblyCci), new EmitAssembly());
 		}
 
 		override protected void Prepare(CompilerContext context)

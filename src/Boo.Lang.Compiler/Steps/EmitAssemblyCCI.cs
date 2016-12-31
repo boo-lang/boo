@@ -50,6 +50,7 @@ using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Environments;
 using Boo.Lang.Runtime;
 using Microsoft.Cci.Immutable;
 using AssemblyName = System.Reflection.AssemblyName;
@@ -79,7 +80,7 @@ namespace Boo.Lang.Compiler.Steps
     public class EmitAssemblyCci : AbstractFastVisitorCompilerStep
 	{
         private INameTable _nameTable;
-        private PeReader.DefaultHost _host;
+        private static PeReader.DefaultHost _host;
         private IAssembly _coreAssembly;
 
         private Assembly _asmBuilder;
@@ -114,6 +115,12 @@ namespace Boo.Lang.Compiler.Steps
         private LoopInfoCci _currentLoopInfo;
 
         private BooSourceDocument _currentDocument;
+
+	    public static void Reset() //necessary for automated testing; should not be called otherwise
+	    {
+	        _host = null;
+	        CompilerContext.ClearCodegenMap();
+	    }
 
         private void EnterLoop(ILGeneratorLabel breakLabel, ILGeneratorLabel continueLabel)
         {
@@ -6039,7 +6046,8 @@ namespace Boo.Lang.Compiler.Steps
             var asmName = CreateAssemblyName(outputFile);
             //var assemblyBuilderAccess = GetAssemblyBuilderAccess();
             var rootUnitNamespace = new RootUnitNamespace();
-            _host = new PeReader.DefaultHost();
+            if (_host == null)
+                _host = new PeReader.DefaultHost();
             _nameTable = _host.NameTable;
             _coreAssembly = _host.LoadAssembly(_host.CoreAssemblySymbolicIdentity);
             _asmBuilder = new Assembly
@@ -6060,6 +6068,8 @@ namespace Boo.Lang.Compiler.Steps
                 Version = asmName.Version,
                 RequiresStartupStub = _host.PointerSize == 4,
             };
+            foreach (var pair in Context.CodegenMap.Where(p => !_asmCache.ContainsKey(p.Key)))
+                _asmCache.Add(pair.Key, pair.Value);
             rootUnitNamespace.Unit = _asmBuilder;
             _namespaceMap.Add("", rootUnitNamespace);
             

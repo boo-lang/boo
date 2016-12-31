@@ -36,7 +36,7 @@ d()
 compiler = BooCompiler()
 compiler.Parameters.References.Add(createUIntPtrDelegateAssembly())
 compiler.Parameters.Input.Add(StringInput("test", code))
-compiler.Parameters.Pipeline = Pipelines.CompileToMemoryForTest()
+compiler.Parameters.Pipeline = Pipelines.CompileToMemory()
 compiler.Parameters.GenerateInMemory = true
 result = compiler.Run()
 assert 0 == len(result.Errors), result.Errors.ToString(false)

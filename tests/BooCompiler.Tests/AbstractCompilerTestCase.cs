@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using System.Reflection;
 
 namespace BooCompiler.Tests
@@ -67,6 +68,8 @@ namespace BooCompiler.Tests
 		}
 #endif
 
+	    private ResolveEventHandler _rga;
+
 		[TestFixtureSetUp]
 		public virtual void SetUpFixture()
 		{
@@ -74,11 +77,18 @@ namespace BooCompiler.Tests
 
 			_baseTestCasesPath = Path.Combine(BooTestCaseUtil.TestCasesPath, GetRelativeTestCasesPath());
 			if (VerifyGeneratedAssemblies) CopyDependencies();
+		    _rga = delegate(object sender, ResolveEventArgs args)
+		    {
+		        var result = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => args.Name.Equals(a.FullName));
+		        return result;
+		    };
+            AppDomain.CurrentDomain.AssemblyResolve += _rga;
 		}
 
         private void BuildCompiler()
         {
             GC.Collect();
+            EmitAssemblyCci.Reset();
             _compiler = new BooCompiler();
             _parameters = _compiler.Parameters;
             _parameters.OutputWriter = _output = new StringWriter();
@@ -152,7 +162,8 @@ namespace BooCompiler.Tests
 
 		[TestFixtureTearDown]
 		public virtual void TearDownFixture()
-		{	
+		{
+            AppDomain.CurrentDomain.AssemblyResolve -= _rga;
 		}
 
 		[SetUp]

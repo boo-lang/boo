@@ -12,7 +12,7 @@ def compile(name as string, code as string, reference as Assembly):
 	compiler.Parameters.OutputType = CompilerOutputType.Library
 	compiler.Parameters.References.Add(reference) if reference
 	compiler.Parameters.Input.Add(StringInput(name, code))
-	compiler.Parameters.Pipeline = CompileToMemoryForTest()
+	compiler.Parameters.Pipeline = CompileToMemory()
 	return compiler.Run()
 
 code1 = """	

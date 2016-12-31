@@ -100,7 +100,6 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			var compiler = new BooCompiler(new CompilerParameters(loadDefaultReferences));
 			compiler.Parameters.OutputType = CompilerOutputType.Auto;
             var pipeline = new Pipelines.CompileToMemory();
-		    pipeline.Replace(typeof(EmitAssemblyCci), new EmitAssembly());
 		    compiler.Parameters.Pipeline = pipeline;
 			return compiler;
 		}
