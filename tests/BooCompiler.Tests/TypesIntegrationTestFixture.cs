@@ -653,7 +653,13 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"interfaces-22.boo");
 		}
-		
+
+        [Test]
+        public void interfaces_23()
+        {
+            RunCompilerTestCase(@"interfaces-23.boo");
+        }		
+
 		[Test]
 		public void interfaces_3()
 		{

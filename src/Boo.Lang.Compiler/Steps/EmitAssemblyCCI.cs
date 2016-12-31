@@ -5129,6 +5129,7 @@ namespace Boo.Lang.Compiler.Steps
             {
                 builder.IsAbstract = true;
                 builder.IsVirtual = true;
+                builder.IsNewSlot = member.IsNew || builder.ContainingTypeDefinition.IsInterface;
             }
             else if (member.IsVirtual || member.IsOverride)
             {
