@@ -28,7 +28,9 @@
 
 #if !NO_SYSTEM_REFLECTION_EMIT
 using System;
+#if DNXCORE50
 using System.Reflection;
+#endif
 using System.Reflection.Emit;
 
 namespace Boo.Lang.Runtime.DynamicDispatching.Emitters

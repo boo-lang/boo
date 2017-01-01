@@ -26,7 +26,9 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+#if DNXCORE50
 using System.Reflection;
+#endif
 
 namespace Boo.Lang
 {

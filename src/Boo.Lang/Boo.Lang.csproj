@@ -14,6 +14,7 @@
     <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -70,8 +71,8 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include='System'/>
-    <Reference Include='System.Core'/>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractGenerator.cs" />

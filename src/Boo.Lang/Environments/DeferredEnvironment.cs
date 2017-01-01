@@ -30,7 +30,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if DNXCORE50
 using System.Reflection;
+#endif
 
 namespace Boo.Lang.Environments
 {

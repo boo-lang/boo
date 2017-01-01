@@ -28,7 +28,9 @@
 
 using System;
 using System.Collections.Generic;
+#if DNXCORE50
 using System.Linq;
+#endif
 using System.Reflection;
 
 namespace Boo.Lang.Runtime.DynamicDispatching
