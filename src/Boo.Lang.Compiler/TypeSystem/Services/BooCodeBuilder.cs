@@ -34,7 +34,9 @@ using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
@@ -394,6 +396,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateMemberReference(field);
 		}
 
+	    public GenericReferenceExpression CreateGenericReference(ReferenceExpression baseRef,
+	        IEnumerable<TypeReference> typeArgs)
+	    {
+            var gre = new GenericReferenceExpression { Target = baseRef };
+            foreach (var arg in typeArgs)
+                gre.GenericArguments.Add(arg);
+            var entity = My<NameResolutionService>.Instance.ResolveGenericReferenceExpression(gre, gre.Target.Entity);
+            gre.Entity = entity;
+	        return gre;
+;	    }
+
         public MemberReferenceExpression CreateReference(Property property)
         {
             return CreateReference((IProperty)property.Entity);
@@ -462,8 +475,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateReference(li, TypeSystemServices.Map(type));
 		}
 
+	    private MemberReferenceExpression CreateNestedReference(IType type)
+	    {
+	        var baseType = CreateReference(type.DeclaringEntity);
+            return new MemberReferenceExpression(baseType, type.Name) { Entity = type, IsSynthetic = true };
+	    }
+
 		public ReferenceExpression CreateReference(IType type)
 		{
+		    if (type.DeclaringEntity is GenericConstructedType)
+		        return CreateNestedReference(type);
 			return new ReferenceExpression(type.FullName) {Entity = type, IsSynthetic = true};
 		}
 
@@ -646,6 +667,37 @@ namespace Boo.Lang.Compiler.TypeSystem
 			type.Members.Add(constructor);
 			return constructor;
 		}
+
+        public MethodInvocationExpression CreateGenericConstructorInvocation(IType classType,
+	        IEnumerable<GenericParameterDeclaration> genericArgs)
+	    {
+	        var args = genericArgs.Select(gpd => new SimpleTypeReference(gpd.Name){Entity = gpd.Entity});
+            return CreateGenericConstructorInvocation(classType, args);
+	    }
+
+	    public MethodInvocationExpression CreateGenericConstructorInvocation(IType classType,
+	        IEnumerable<TypeReference> genericArgs)
+	    {
+            var gpp = classType as IGenericParametersProvider;
+            IConstructor constructor;
+            if (gpp == null || !genericArgs.Any())
+            {
+                constructor = classType.GetConstructors().First();
+                return CreateConstructorInvocation(constructor);
+            }
+
+            classType = new Generics.GenericConstructedType(
+                classType,
+                genericArgs.Select(a => a.Entity).Cast<IType>().ToArray());
+            constructor = classType.GetConstructors().First();
+
+            var result = new MethodInvocationExpression();
+            result.Target = CreateGenericReference(CreateReference(constructor.DeclaringType), genericArgs);
+            result.Target.Entity = constructor;
+            result.ExpressionType = constructor.DeclaringType;
+
+	        return result;
+	    }
 
 		public MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
 		{

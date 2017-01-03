@@ -125,8 +125,15 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"implicit-conversion-extension-2.boo");
 		}
-		
-		[Category("FailsOnMono")][Test]
+
+        [Test]
+        public void linq_operator()
+        {
+            RunCompilerTestCase(@"linq-operator.boo");
+        }
+
+        [Category("FailsOnMono")]
+        [Test]
 		public void per_module_extensions()
 		{
 			RunCompilerTestCase(@"per-module-extensions.boo");

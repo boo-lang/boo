@@ -29,6 +29,7 @@
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
 
@@ -57,12 +58,13 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		GeneratorSkeleton CreateGeneratorSkeleton(Node sourceNode, Method enclosingMethod, IType generatorItemType)
 		{
 			// create the class skeleton for type inference to work
-			var builder = SetUpEnumerableClassBuilder(sourceNode, enclosingMethod, generatorItemType);
+            var replacer = new TypeReplacer();
+            var builder = SetUpEnumerableClassBuilder(sourceNode, enclosingMethod, generatorItemType, replacer);
 			var getEnumeratorBuilder = SetUpGetEnumeratorMethodBuilder(sourceNode, builder, generatorItemType);
 
 			enclosingMethod.DeclaringType.Members.Add(builder.ClassDefinition);
 
-			return new GeneratorSkeleton(builder, getEnumeratorBuilder, generatorItemType);
+			return new GeneratorSkeleton(builder, getEnumeratorBuilder, generatorItemType, replacer);
 		}
 
 		private BooMethodBuilder SetUpGetEnumeratorMethodBuilder(Node sourceNode, BooClassBuilder builder, IType generatorItemType)
@@ -74,10 +76,11 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return getEnumeratorBuilder;
 		}
 
-		private BooClassBuilder SetUpEnumerableClassBuilder(Node sourceNode, Method enclosingMethod, IType generatorItemType)
+		private BooClassBuilder SetUpEnumerableClassBuilder(Node sourceNode, Method enclosingMethod, IType generatorItemType,
+            TypeReplacer replacer)
 		{
 			var builder = CodeBuilder.CreateClass(
-				Context.GetUniqueName(enclosingMethod.Name),
+				Context.GetUniqueName(enclosingMethod.Name, "Enumerable"),
 				TypeMemberModifiers.Internal | TypeMemberModifiers.Final);
 
 			if (enclosingMethod.DeclaringType.IsTransient)
@@ -88,7 +91,12 @@ namespace Boo.Lang.Compiler.Steps.Generators
 					TypeSystemServices.Map(typeof(GenericGenerator<>)).GenericInfo.ConstructType(generatorItemType));
 
 			builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
-			return builder;
+            foreach (var gen in enclosingMethod.GenericParameters)
+		    {
+		        var replacement = builder.AddGenericParameter(gen.Name);
+                replacer.Replace((IType)gen.Entity, (IType)replacement.Entity);
+		    }
+		    return builder;
 		}
 	}
 }
