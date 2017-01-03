@@ -187,7 +187,21 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private MethodInvocationExpression CreateGetEnumeratorInvocation(MethodInvocationExpression enumerableConstructorInvocation)
 		{
-			return CodeBuilder.CreateMethodInvocation(enumerableConstructorInvocation, GetGetEnumeratorEntity());
+            IMethod enumeratorEntity = GetGetEnumeratorEntity();
+            var enumeratorInfo = enumeratorEntity.DeclaringType.GenericInfo;
+            var genParams = _generator.Method.GenericParameters;
+            if (enumeratorInfo != null && !genParams.IsEmpty)
+            {
+                var argList = new List<IType>();
+                foreach (var param in enumeratorInfo.GenericParameters)
+                {
+                    var replacement = genParams.SingleOrDefault(gp => gp.Name.Equals(param.Name));
+                    argList.Add(replacement == null ? param : (IType)replacement.Entity);
+                }
+                var baseType = (IConstructedTypeInfo) new GenericConstructedType(enumeratorEntity.DeclaringType, argList.ToArray());
+                enumeratorEntity = (IMethod) baseType.Map(enumeratorEntity);
+            }
+			return CodeBuilder.CreateMethodInvocation(enumerableConstructorInvocation, enumeratorEntity);
 		}
 
 		private InternalMethod GetGetEnumeratorEntity()
@@ -223,25 +237,24 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
         private void CreateEnumerator()
 		{
-			var abstractEnumeratorType =
-				TypeSystemServices.Map(typeof(GenericGeneratorEnumerator<>)).
-					GenericInfo.ConstructType(_generatorItemType);
-			
-			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
-			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
-			_yieldDefault = NameResolutionService.ResolveMethod(abstractEnumeratorType, "YieldDefault");
-
             _enumerator = CodeBuilder.CreateClass("$Enumerator");
 			_enumerator.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
 			_enumerator.Modifiers |= _enumerable.Modifiers;
 			_enumerator.LexicalInfo = this.LexicalInfo;
-			_enumerator.AddBaseType(abstractEnumeratorType);
-			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
             foreach (var param in _generator.Method.GenericParameters)
             {
                 var replacement = _enumerator.AddGenericParameter(param.Name);
                 _methodToEnumeratorMapper.Replace((IType)param.Entity, (IType)replacement.Entity);
             }
+            var abstractEnumeratorType =
+                TypeSystemServices.Map(typeof(GenericGeneratorEnumerator<>)).
+                    GenericInfo.ConstructType(_methodToEnumeratorMapper.MapType(_generatorItemType));
+
+            _state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
+            _yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
+            _yieldDefault = NameResolutionService.ResolveMethod(abstractEnumeratorType, "YieldDefault");
+            _enumerator.AddBaseType(abstractEnumeratorType);
+            _enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
 
 			CreateEnumeratorConstructor();
 			CreateMoveNext();
