@@ -60,15 +60,17 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			// create the class skeleton for type inference to work
             var replacer = new TypeReplacer();
             var builder = SetUpEnumerableClassBuilder(sourceNode, enclosingMethod, generatorItemType, replacer);
-			var getEnumeratorBuilder = SetUpGetEnumeratorMethodBuilder(sourceNode, builder, generatorItemType);
+			var getEnumeratorBuilder = SetUpGetEnumeratorMethodBuilder(sourceNode, builder, generatorItemType, replacer);
 
 			enclosingMethod.DeclaringType.Members.Add(builder.ClassDefinition);
 
 			return new GeneratorSkeleton(builder, getEnumeratorBuilder, generatorItemType, replacer);
 		}
 
-		private BooMethodBuilder SetUpGetEnumeratorMethodBuilder(Node sourceNode, BooClassBuilder builder, IType generatorItemType)
-		{
+        private BooMethodBuilder SetUpGetEnumeratorMethodBuilder(Node sourceNode, BooClassBuilder builder, IType generatorItemType,
+            TypeReplacer replacer)
+        {
+            generatorItemType = replacer.MapType(generatorItemType);
 			var getEnumeratorBuilder = builder.AddVirtualMethod(
 				"GetEnumerator",
 				TypeSystemServices.IEnumeratorGenericType.GenericInfo.ConstructType(generatorItemType));
@@ -87,15 +89,16 @@ namespace Boo.Lang.Compiler.Steps.Generators
 				builder.Modifiers |= TypeMemberModifiers.Transient;
 
 			builder.LexicalInfo = new LexicalInfo(sourceNode.LexicalInfo);
-  			builder.AddBaseType(
-					TypeSystemServices.Map(typeof(GenericGenerator<>)).GenericInfo.ConstructType(generatorItemType));
-
 			builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
             foreach (var gen in enclosingMethod.GenericParameters)
 		    {
 		        var replacement = builder.AddGenericParameter(gen.Name);
                 replacer.Replace((IType)gen.Entity, (IType)replacement.Entity);
 		    }
+		    generatorItemType = replacer.MapType(generatorItemType);
+            builder.AddBaseType(
+                    TypeSystemServices.Map(typeof(GenericGenerator<>)).GenericInfo.ConstructType(generatorItemType));
+
 		    return builder;
 		}
 	}
