@@ -26,12 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
 
@@ -39,37 +40,43 @@ namespace Boo.Lang.Compiler.Steps.Generators
 {
 	internal class GeneratorMethodProcessor : AbstractTransformerCompilerStep
 	{
-		readonly InternalMethod _generator;
-		
-		InternalMethod _moveNext;
+		private readonly InternalMethod _generator;
 
-		readonly BooClassBuilder _enumerable;
-		
-		BooClassBuilder _enumerator;
-		
-		BooMethodBuilder _enumeratorConstructor;
-		
-		BooMethodBuilder _enumerableConstructor;
-		
-		IField _state;
-		
-		IMethod _yield;
+        private InternalMethod _moveNext;
 
-		IMethod _yieldDefault;
-		
-		Field _externalEnumeratorSelf;
+        private readonly BooClassBuilder _enumerable;
 
-		readonly List<LabelStatement> _labels;
+        private BooClassBuilder _enumerator;
 
-		readonly System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
+        private BooMethodBuilder _enumeratorConstructor;
 
-		readonly Hashtable _mapping;
+        private BooMethodBuilder _enumerableConstructor;
 
-		readonly IType _generatorItemType;
+        private IField _state;
 
-		readonly BooMethodBuilder _getEnumeratorBuilder;
+        private IMethod _yield;
 
-		public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
+        private IMethod _yieldDefault;
+
+        private Field _externalEnumeratorSelf;
+
+        private readonly List<LabelStatement> _labels;
+
+        private readonly System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
+
+        private readonly Hashtable _mapping;
+
+        private readonly IType _generatorItemType;
+
+        private readonly BooMethodBuilder _getEnumeratorBuilder;
+
+        private readonly TypeReplacer _methodToEnumerableMapper;
+
+        private readonly TypeReplacer _methodToEnumeratorMapper = new TypeReplacer();
+
+        private readonly Dictionary<IEntity, IEntity> _entityMapper = new Dictionary<IEntity, IEntity>();
+
+        public GeneratorMethodProcessor(CompilerContext context, InternalMethod method)
 		{
 			_labels = new List<LabelStatement>();
 			_mapping = new Hashtable();
@@ -79,6 +86,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_generatorItemType = skeleton.GeneratorItemType;
 			_enumerable = skeleton.GeneratorClassBuilder;
 			_getEnumeratorBuilder = skeleton.GetEnumeratorBuilder;
+            _methodToEnumerableMapper = skeleton.GeneratorClassTypeReplacer;
 
 			Initialize(context);
 		}
@@ -88,18 +96,22 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			get { return _generator.Method.LexicalInfo; }
 		}
 
-		override public void Run()
+		public override void Run()
 		{
 			CreateEnumerableConstructor();
 			CreateEnumerator();
-			var enumerableConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerable.ClassDefinition);
-			var enumeratorConstructorInvocation = CodeBuilder.CreateConstructorInvocation(_enumerator.ClassDefinition);
+		    var enumerableConstructorInvocation = CodeBuilder.CreateGenericConstructorInvocation(
+                (IType)_enumerable.ClassDefinition.Entity,
+                _generator.Method.GenericParameters);
+            var enumeratorConstructorInvocation = CodeBuilder.CreateGenericConstructorInvocation(
+                (IType)_enumerator.ClassDefinition.Entity,
+                _enumerable.ClassDefinition.GenericParameters);
 			PropagateReferences(enumerableConstructorInvocation, enumeratorConstructorInvocation);
 			CreateGetEnumeratorBody(enumeratorConstructorInvocation);
 			FixGeneratorMethodBody(enumerableConstructorInvocation);
 		}
-		
-		void FixGeneratorMethodBody(MethodInvocationExpression enumerableConstructorInvocation)
+
+        private void FixGeneratorMethodBody(MethodInvocationExpression enumerableConstructorInvocation)
 		{
 			var body = _generator.Method.Body;
 			body.Clear();
@@ -111,18 +123,48 @@ namespace Boo.Lang.Compiler.Steps.Generators
 						? CreateGetEnumeratorInvocation(enumerableConstructorInvocation)
 						: enumerableConstructorInvocation));
 		}
-		
-		void PropagateReferences(MethodInvocationExpression enumerableConstructorInvocation,
+
+        private ParameterDeclaration MapParamType(ParameterDeclaration parameter)
+	    {
+            if (parameter.Type.NodeType == NodeType.GenericTypeReference)
+            {
+                var gen = (GenericTypeReference)parameter.Type;
+                var genEntityType = gen.Entity as IConstructedTypeInfo;
+                if (genEntityType == null)
+                    return parameter;
+                var trc = new TypeReferenceCollection();
+                foreach (var genArg in gen.GenericArguments)
+                {
+                    var replacement = genArg;
+                    foreach (var genParam in _enumerable.ClassDefinition.GenericParameters)
+                        if (genParam.Name.Equals(genArg.Entity.Name))
+                        {
+                            replacement = new SimpleTypeReference(genParam.Name) {Entity = genParam.Entity};
+                            break;
+                        }
+                    trc.Add(replacement);
+                }
+                parameter = parameter.CloneNode();
+                gen = (GenericTypeReference)parameter.Type;
+                gen.GenericArguments = trc;
+                gen.Entity = new GenericConstructedType(genEntityType.GenericDefinition, trc.Select(a => a.Entity).Cast<IType>().ToArray());
+            }
+	        return parameter;
+	    }
+
+        private void PropagateReferences(MethodInvocationExpression enumerableConstructorInvocation,
 		                         MethodInvocationExpression enumeratorConstructorInvocation)
 		{
 			// propagate the necessary parameters from
 			// the enumerable to the enumerator
 			foreach (ParameterDeclaration parameter in _generator.Method.Parameters)
 			{
-				var entity = (InternalParameter)parameter.Entity;
+			    var myParam = MapParamType(parameter);
+
+                var entity = (InternalParameter)myParam.Entity;
 				if (entity.IsUsed)
 				{
-					enumerableConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(parameter));
+                    enumerableConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(myParam));
 					
 					PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
 					                                    entity.Name,
@@ -163,46 +205,51 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return returnsEnumerator;
 		}
 
-		void CreateGetEnumeratorBody(Expression enumeratorExpression)
+        private void CreateGetEnumeratorBody(Expression enumeratorExpression)
 		{
 			_getEnumeratorBuilder.Body.Add(
 				new ReturnStatement(enumeratorExpression));
 		}
 
-		void CreateEnumerableConstructor()
+        private void CreateEnumerableConstructor()
 		{
 			_enumerableConstructor = CreateConstructor(_enumerable);
 		}
-		
-		void CreateEnumeratorConstructor()
+
+        private void CreateEnumeratorConstructor()
 		{
 			_enumeratorConstructor = CreateConstructor(_enumerator);
 		}
-		
-		void CreateEnumerator()
+
+        private void CreateEnumerator()
 		{
 			var abstractEnumeratorType =
 				TypeSystemServices.Map(typeof(GenericGeneratorEnumerator<>)).
-					GenericInfo.ConstructType(new IType[] {_generatorItemType});
+					GenericInfo.ConstructType(_generatorItemType);
 			
 			_state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
 			_yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
 			_yieldDefault = NameResolutionService.ResolveMethod(abstractEnumeratorType, "YieldDefault");
-			
-			_enumerator = CodeBuilder.CreateClass("$");
+
+            _enumerator = CodeBuilder.CreateClass("$Enumerator");
 			_enumerator.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
 			_enumerator.Modifiers |= _enumerable.Modifiers;
 			_enumerator.LexicalInfo = this.LexicalInfo;
 			_enumerator.AddBaseType(abstractEnumeratorType);
 			_enumerator.AddBaseType(TypeSystemServices.IEnumeratorType);
+            foreach (var param in _generator.Method.GenericParameters)
+            {
+                var replacement = _enumerator.AddGenericParameter(param.Name);
+                _methodToEnumeratorMapper.Replace((IType)param.Entity, (IType)replacement.Entity);
+            }
 
 			CreateEnumeratorConstructor();
 			CreateMoveNext();
 			
 			_enumerable.ClassDefinition.Members.Add(_enumerator.ClassDefinition);
 		}
-		
-		void CreateMoveNext()
+
+        private void CreateMoveNext()
 		{
 			Method generator = _generator.Method;
 			
@@ -254,9 +301,9 @@ namespace Boo.Lang.Compiler.Steps.Generators
 				var entity = (InternalParameter)parameter.Entity;
 				if (entity.IsUsed)
 				{
-					Field field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
+					var field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
 					                                                              entity.Name,
-					                                                              entity.Type);
+					                                                              _methodToEnumeratorMapper.MapType(entity.Type));
 					_mapping[entity] = field.Entity;
 				}
 			}
@@ -280,12 +327,15 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		private void AddToMoveNextMethod(Local local)
 		{
+            var newLocal = new InternalLocal(local, _methodToEnumerableMapper.MapType(((InternalLocal)local.Entity).Type));
+		    _entityMapper.Add(local.Entity, newLocal);
+		    local.Entity = newLocal;
 			_moveNext.Method.Locals.Add(local);
 		}
 
 		private void AddInternalFieldFor(InternalLocal entity)
 		{
-			Field field = _enumerator.AddInternalField(UniqueName(entity.Name), entity.Type);
+            Field field = _enumerator.AddInternalField(UniqueName(entity.Name), _methodToEnumeratorMapper.MapType(entity.Type));
 			_mapping[entity] = field.Entity;
 		}
 
@@ -298,12 +348,21 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 		MethodInvocationExpression CallMethodOnSelf(IMethod method)
 		{
+            var entity = _enumerator.Entity;
+            var genParams = _enumerator.ClassDefinition.GenericParameters;
+            if (!genParams.IsEmpty)
+            {
+                var args = genParams.Select(gpd => gpd.Entity).Cast<IType>().ToArray();
+                entity = new GenericConstructedType(entity, args);
+                var mapping = new InternalGenericMapping(entity, args);
+                method = mapping.Map(method);
+            }
 			return CodeBuilder.CreateMethodInvocation(
-				CodeBuilder.CreateSelfReference(_enumerator.Entity),
+				CodeBuilder.CreateSelfReference(entity),
 				method);
 		}
-		
-		IMethod CreateDisposeMethod()
+
+        private IMethod CreateDisposeMethod()
 		{
 			BooMethodBuilder mn = _enumerator.AddVirtualMethod("Dispose", TypeSystemServices.VoidType);
 			mn.Method.LexicalInfo = this.LexicalInfo;
@@ -346,38 +405,42 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			                  	disposeLabels));
 			return mn.Entity;
 		}
-		
-		void PropagateFromEnumerableToEnumerator(MethodInvocationExpression enumeratorConstructorInvocation,
+
+        private void PropagateFromEnumerableToEnumerator(MethodInvocationExpression enumeratorConstructorInvocation,
 		                                         string parameterName,
 		                                         IType parameterType)
-		{
-			Field field = DeclareFieldInitializedFromConstructorParameter(_enumerable, _enumerableConstructor, parameterName, parameterType);
+        {
+			Field field = DeclareFieldInitializedFromConstructorParameter(
+                _enumerable,
+                _enumerableConstructor,
+                parameterName,
+                _methodToEnumerableMapper.MapType(parameterType));
 			enumeratorConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(field));
 		}
-		
-		Field DeclareFieldInitializedFromConstructorParameter(BooClassBuilder type,
+
+        private Field DeclareFieldInitializedFromConstructorParameter(BooClassBuilder type,
 		                                                      BooMethodBuilder constructor,
 		                                                      string parameterName,
 		                                                      IType parameterType)
-		{
+        {
 			Field field = type.AddInternalField(UniqueName(parameterName), parameterType);
 			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
 			return field;
 		}
-		
-		void InitializeFieldFromConstructorParameter(BooMethodBuilder constructor,
+
+        private void InitializeFieldFromConstructorParameter(BooMethodBuilder constructor,
 		                                             Field field,
 		                                             string parameterName,
 		                                             IType parameterType)
 		{
-			ParameterDeclaration parameter = constructor.AddParameter(parameterName, parameterType);
+            ParameterDeclaration parameter = constructor.AddParameter(parameterName, parameterType);
 			constructor.Body.Add(
 				CodeBuilder.CreateAssignment(
 					CodeBuilder.CreateReference(field),
 					CodeBuilder.CreateReference(parameter)));
 		}
 		
-		override public void OnReferenceExpression(ReferenceExpression node)
+		public override void OnReferenceExpression(ReferenceExpression node)
 		{
 			InternalField mapped = (InternalField)_mapping[node.Entity];
 			if (null != mapped)
@@ -390,12 +453,12 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			}
 		}
 		
-		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
+		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
 			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, ExternalEnumeratorSelf()));
 		}
 
-		override public void OnSuperLiteralExpression(SuperLiteralExpression node)
+		public override void OnSuperLiteralExpression(SuperLiteralExpression node)
 		{
 			var externalSelf = CodeBuilder.CreateReference(node.LexicalInfo, ExternalEnumeratorSelf());
 			if (AstUtil.IsTargetOfMethodInvocation(node)) // super(...)
@@ -403,6 +466,50 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			else // super.Method(...)
 				ReplaceCurrentNode(externalSelf);
 		}
+
+	    private IMethod RemapMethod(Node node, GenericMappedMethod gmm, GenericParameterDeclarationCollection genParams)
+	    {
+            var sourceMethod = gmm.SourceMember;
+	        if (sourceMethod.GenericInfo != null)
+	            throw new CompilerError(node, "Mapping generic methods in generators is not implemented yet");
+
+	        var baseType = sourceMethod.DeclaringType;
+	        var genericInfo = baseType.GenericInfo;
+	        if (genericInfo == null)
+	            throw new CompilerError(node, "Mapping generic nested types in generators is not implemented yet");
+
+	        var genericArgs = ((IGenericArgumentsProvider)gmm.DeclaringType).GenericArguments;
+	        var mapList = new List<IType>();
+	        foreach (var arg in genericArgs)
+	        {
+	            var mappedArg = genParams.SingleOrDefault(gp => gp.Name == arg.Name);
+	            if (mappedArg != null)
+	                mapList.Add((IType)mappedArg.Entity);
+	            else mapList.Add(arg);
+	        }
+	        var newType = (IConstructedTypeInfo)new GenericConstructedType(baseType, mapList.ToArray());
+	        return (IMethod)newType.Map(sourceMethod);
+	    }
+
+        public override void OnMemberReferenceExpression(MemberReferenceExpression node)
+        {
+            base.OnMemberReferenceExpression(node);
+            var gmm = node.Entity as GenericMappedMethod;
+            if (gmm != null)
+            {
+                var genParams = _enumerator.ClassDefinition.GenericParameters;
+                if (genParams.IsEmpty)
+                    return;
+                node.Entity = RemapMethod(node, gmm, genParams);
+            }
+        }
+
+        public override void OnDeclaration(Declaration node)
+        {
+            base.OnDeclaration(node);
+            if (_entityMapper.ContainsKey(node.Entity))
+                node.Entity = _entityMapper[node.Entity];
+        }
 
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
@@ -439,7 +546,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			get { return _generator.Method.DeclaringType; }
 		}
 
-		private bool IsInvocationOnSuperMethod(MethodInvocationExpression node)
+		private static bool IsInvocationOnSuperMethod(MethodInvocationExpression node)
 		{
 			if (node.Target is SuperLiteralExpression)
 				return true;
@@ -462,7 +569,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return _externalEnumeratorSelf;
 		}
 
-		sealed class TryStatementInfo
+		private sealed class TryStatementInfo
 		{
 			internal TryStatement _statement;
 			internal TryStatementInfo _parent;
@@ -473,14 +580,15 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			
 			internal IMethod _ensureMethod;
 		}
-		
-		System.Collections.Generic.List<TryStatementInfo> _convertedTryStatements = new System.Collections.Generic.List<TryStatementInfo>();
-		Stack<TryStatementInfo> _tryStatementStack = new Stack<TryStatementInfo>();
-		int _finishedStateNumber;
+
+	    private readonly System.Collections.Generic.List<TryStatementInfo> _convertedTryStatements 
+            = new System.Collections.Generic.List<TryStatementInfo>();
+        private readonly Stack<TryStatementInfo> _tryStatementStack = new Stack<TryStatementInfo>();
+		private int _finishedStateNumber;
 		
 		public override bool EnterTryStatement(TryStatement node)
 		{
-			TryStatementInfo info = new TryStatementInfo();
+			var info = new TryStatementInfo();
 			info._statement = node;
 			if (_tryStatementStack.Count > 0)
 				info._parent = _tryStatementStack.Peek();
@@ -488,7 +596,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return true;
 		}
 		
-		BinaryExpression SetStateTo(int num)
+		private BinaryExpression SetStateTo(int num)
 		{
 			return CodeBuilder.CreateAssignment(CodeBuilder.CreateMemberReference(_state),
 			                                    CodeBuilder.CreateIntegerLiteral(num));
@@ -516,13 +624,13 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			}
 		}
 		
-		void ConvertTryStatement(TryStatementInfo currentTry)
+		private void ConvertTryStatement(TryStatementInfo currentTry)
 		{
 			if (currentTry._containsYield)
 				return;
 			currentTry._containsYield = true;
 			currentTry._stateNumber = _labels.Count;
-			Block tryReplacement = new Block();
+			var tryReplacement = new Block();
 			//tryReplacement.Add(CreateLabel(tryReplacement));
 			// when the MoveNext() is called while the enumerator is still in running state, don't jump to the
 			// try block, but handle it like MoveNext() calls when the enumerator is in the finished state.
@@ -532,13 +640,13 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			currentTry._replacement = tryReplacement;
 		}
 		
-		override public void LeaveYieldStatement(YieldStatement node)
+		public override void LeaveYieldStatement(YieldStatement node)
 		{
-			TryStatementInfo currentTry = (_tryStatementStack.Count > 0) ? _tryStatementStack.Peek() : null;
+			TryStatementInfo currentTry = _tryStatementStack.Count > 0 ? _tryStatementStack.Peek() : null;
 			if (currentTry != null) {
 				ConvertTryStatement(currentTry);
 			}
-			Block block = new Block();
+			var block = new Block();
 			block.Add(
 				new ReturnStatement(
 					node.LexicalInfo,
@@ -553,7 +661,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			ReplaceCurrentNode(block);
 		}
 
-		MethodInvocationExpression CreateYieldInvocation(LexicalInfo sourceLocation, int newState, Expression value)
+		private MethodInvocationExpression CreateYieldInvocation(LexicalInfo sourceLocation, int newState, Expression value)
 		{
 			MethodInvocationExpression invocation = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateSelfReference(_enumerator.Entity),
@@ -564,7 +672,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return invocation;
 		}
 
-		LabelStatement CreateLabel(Node sourceNode)
+		private LabelStatement CreateLabel(Node sourceNode)
 		{
 			InternalLabel label = CodeBuilder.CreateLabel(sourceNode, "$state$" + _labels.Count);
 			_labels.Add(label.LabelStatement);
@@ -572,7 +680,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return label.LabelStatement;
 		}
 		
-		BooMethodBuilder CreateConstructor(BooClassBuilder builder)
+		private BooMethodBuilder CreateConstructor(BooClassBuilder builder)
 		{
 			BooMethodBuilder constructor = builder.AddConstructor();
 			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));

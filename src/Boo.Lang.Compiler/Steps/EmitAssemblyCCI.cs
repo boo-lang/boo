@@ -222,10 +222,10 @@ namespace Boo.Lang.Compiler.Steps
                 DefineType(type);
 
             foreach (var type in types)
-            {
                 DefineGenericParameters(type);
+
+            foreach (var type in types)
                 DefineTypeMembers(type);
-            }
 
             foreach (var module in CompileUnit.Modules)
                 OnModule(module);
@@ -5482,12 +5482,19 @@ namespace Boo.Lang.Compiler.Steps
         /// </summary>
         private void DefineGenericParameters(MethodDefinition builder, GenericParameterDeclaration[] parameters)
         {
-            var builders = parameters.Select((gpd, i) => new GenericMethodParameter{
-                Name = _nameTable.GetNameFor(gpd.Name),
-                DefiningMethod = builder,
-                Index = (ushort)i,
-                InternFactory = _host.InternFactory
-            }).ToArray();
+            var builders = parameters.Select(delegate(GenericParameterDeclaration gpd, int i)
+                {
+                    var result = new GenericMethodParameter
+                    {
+                        Name = _nameTable.GetNameFor(gpd.Name),
+                        DefiningMethod = builder,
+                        Index = (ushort) i,
+                        InternFactory = _host.InternFactory
+                    };
+                    SetBuilder(gpd, result);
+                    return result;
+                }
+            ).ToArray();
             builder.GenericParameters = new System.Collections.Generic.List<IGenericMethodParameter>(builders);
 
             DefineGenericParameters(builders, parameters);
@@ -5599,7 +5606,7 @@ namespace Boo.Lang.Compiler.Steps
 
 	    private object CreateTypeBuilder(TypeDefinition type)
         {
-            ITypeReference baseType;
+            ITypeReference baseType = null;
             if (IsEnumDefinition(type))
             {
                 baseType = _host.PlatformType.SystemEnum;
@@ -5608,7 +5615,6 @@ namespace Boo.Lang.Compiler.Steps
             {
                 baseType = _host.PlatformType.SystemValueType;
             }
-            else baseType = type.BaseTypes.Select(t => t.Entity).Cast<IType>().Where(t => t.IsClass).Select(GetSystemType).FirstOrDefault();
 
             NamedTypeDefinition typeBuilder = null;
             var enclosingType = type.ParentNode as ClassDefinition;
