@@ -43,8 +43,13 @@ namespace Boo.Lang.Runtime
 
 		public static int CalculateArgumentScore(Type paramType, Type argType)
 		{
+#if !DNXCORE50
 			if (null == argType)
 				return !paramType.IsValueType ? ExactMatchScore : -1;
+#else
+		    if (null == argType)
+		        return !paramType.GetTypeInfo().IsValueType ? ExactMatchScore : -1;
+#endif
 
 			if (paramType == argType) return ExactMatchScore;
 			if (paramType.IsAssignableFrom(argType)) return UpCastScore;

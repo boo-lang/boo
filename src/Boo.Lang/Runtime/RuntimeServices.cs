@@ -49,7 +49,9 @@ namespace Boo.Lang.Runtime
 														 BindingFlags.Instance;
 
 		internal const BindingFlags DefaultBindingFlags = InstanceMemberFlags |
+#if !DNXCORE50
 												BindingFlags.OptionalParamBinding |
+#endif
 												BindingFlags.Static |
 												BindingFlags.FlattenHierarchy;
 
@@ -110,6 +112,7 @@ namespace Boo.Lang.Runtime
 				return DoCreateMethodDispatcher(null, type, name, args);
 
 			var targetType = target.GetType();
+#if !DNXCORE50
 			if (targetType.IsCOMObject)
 			{
 				// COM methods cant be seen through reflection
@@ -119,7 +122,20 @@ namespace Boo.Lang.Runtime
 				return
 					(o, arguments) => o.GetType().InvokeMember(name, InvokeBindingFlags, null, target, arguments);
 			}
-			
+#else
+		    if (targetType.GetTypeInfo().IsCOMObject)
+		    {
+		        // COM methods cant be seen through reflection
+		        // so maybe the proper way to support parameter conversions
+		        // is indeed by creating a specific Binder object
+		        // which knows the boo conversion rules
+
+		        // TODO
+		        //return
+		        //    (o, arguments) => o.GetType().InvokeMember(name, InvokeBindingFlags, null, target, arguments);
+		        throw new NotImplementedException("InvokeMember");
+		    }
+#endif
 			return DoCreateMethodDispatcher(target, targetType, name, args);
 		}
 
@@ -158,8 +174,15 @@ namespace Boo.Lang.Runtime
 				return DoCreatePropGetDispatcher(null, type, name);
 
 			var targetType = target.GetType();
+#if !DNXCORE50
 			if (targetType.IsCOMObject)
 				return (o, args) => o.GetType().InvokeMember(name, GetPropertyBindingFlags, null, o, null);
+#else
+		    if (targetType.GetTypeInfo().IsCOMObject)
+		        // TODO
+		        //return (o, args) => o.GetType().InvokeMember(name, GetPropertyBindingFlags, null, o, null);
+		        throw new NotImplementedException("InvokeMember");
+#endif
 
 			return DoCreatePropGetDispatcher(target, target.GetType(), name);
 		}
@@ -187,9 +210,15 @@ namespace Boo.Lang.Runtime
 				return DoCreatePropSetDispatcher(null, type, name, value);
 
 			var targetType = target.GetType();
+#if !DNXCORE50
 			if (targetType.IsCOMObject)
 				return (o, args) => o.GetType().InvokeMember(name, SetPropertyBindingFlags, null, o, args);
-
+#else
+		    if (targetType.GetTypeInfo().IsCOMObject)
+		        // TODO
+		        //return (o, args) => o.GetType().InvokeMember(name, SetPropertyBindingFlags, null, o, args);
+		        throw new NotImplementedException("InvokeMember");
+#endif
 			return DoCreatePropSetDispatcher(target, targetType, name, value);
 		}
 
@@ -255,7 +284,11 @@ namespace Boo.Lang.Runtime
 
 		private static Dispatcher EmitPromotionDispatcher(Type fromType, Type toType)
 		{
+#if !DNXCORE50
 			return (Dispatcher)Delegate.CreateDelegate(typeof(Dispatcher), typeof(NumericPromotions).GetMethod("From" + Type.GetTypeCode(fromType) + "To" + Type.GetTypeCode(toType)));
+#else
+		    return (Dispatcher)typeof(NumericPromotions).GetMethod("From" + Type.GetTypeCode(fromType) + "To" + Type.GetTypeCode(toType)).CreateDelegate(typeof(Dispatcher));
+#endif
 		}
 
 		private static bool IsPromotableNumeric(Type fromType)
@@ -339,7 +372,11 @@ namespace Boo.Lang.Runtime
 
 		internal static String GetDefaultMemberName(Type type)
 		{
+#if !DNXCORE50
 			var attribute = (DefaultMemberAttribute)Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
+#else
+		    var attribute = (DefaultMemberAttribute)type.GetTypeInfo().GetCustomAttribute(typeof(DefaultMemberAttribute));
+#endif
 			return attribute != null ? attribute.MemberName : "";
 		}
 
@@ -543,10 +580,18 @@ namespace Boo.Lang.Runtime
 		public static object MoveNext(IEnumerator enumerator)
 		{
 			if (enumerator == null)
+#if !DNXCORE50
 				throw new ApplicationException(StringResources.CantUnpackNull);
+#else
+		        throw new Exception(StringResources.CantUnpackNull);
+#endif
 			if (!enumerator.MoveNext())
+#if !DNXCORE50
 				throw new ApplicationException(StringResources.UnpackListOfWrongSize);
-			return enumerator.Current;
+#else
+		        throw new Exception(StringResources.UnpackListOfWrongSize);
+#endif
+		    return enumerator.Current;
 		}
 
 		public static int Len(object obj)
@@ -601,7 +646,11 @@ namespace Boo.Lang.Runtime
 					ranges[2 * i + 1] <= ranges[2 * i])
 				{
 					// FIXME: Better error reporting
+#if !DNXCORE50
 					throw new ApplicationException("Invalid array.");
+#else
+				    throw new Exception("Invalid array.");
+#endif
 				}
 			}
 
@@ -617,7 +666,11 @@ namespace Boo.Lang.Runtime
 
 			if (source.Rank != destSubsetRank)
 			{
+#if !DNXCORE50
 				throw new ApplicationException(String.Format("Cannot assign array of rank {0} into an array subset of rank {1}.",source.Rank,destSubsetRank));
+#else
+			    throw new Exception(String.Format("Cannot assign array of rank {0} into an array subset of rank {1}.",source.Rank,destSubsetRank));
+#endif
 			}
 			
 			int[] lensDest = new int[dest.Rank];
@@ -652,7 +705,11 @@ namespace Boo.Lang.Runtime
 					dest_subset_dims.Append(" x ");
 					dest_subset_dims.Append(lensDestSubset[i]);
 				}
+#if !DNXCORE50
 				throw new ApplicationException(String.Format("Cannot assign array with dimensions {0} into array subset of dimensions {1}.",source_dims.ToString(),dest_subset_dims.ToString()));
+#else
+			    throw new Exception(String.Format("Cannot assign array with dimensions {0} into array subset of dimensions {1}.",source_dims.ToString(),dest_subset_dims.ToString()));
+#endif
 			}
 
 			int[] prodInd = new int[source.Rank];
@@ -751,7 +808,11 @@ namespace Boo.Lang.Runtime
 		{
 			if (null == array)
 			{
+#if !DNXCORE50
 				throw new ApplicationException(StringResources.CantUnpackNull);
+#else
+			    throw new Exception(StringResources.CantUnpackNull);
+#endif
 			}
 			if (expected > array.Length)
 			{
@@ -783,7 +844,11 @@ namespace Boo.Lang.Runtime
 		public static IEnumerable GetEnumerable(object enumerable)
 		{
 			if (null == enumerable)
+#if !DNXCORE50
 				throw new ApplicationException(StringResources.CantEnumerateNull);
+#else
+		        throw new Exception(StringResources.CantEnumerateNull);
+#endif
 
 			var iterator = enumerable as IEnumerable;
 			if (null != iterator) return iterator;
@@ -791,7 +856,11 @@ namespace Boo.Lang.Runtime
 			var reader = enumerable as TextReader;
 			if (null != reader) return TextReaderEnumerator.lines(reader);
 
+#if !DNXCORE50
 			throw new ApplicationException(StringResources.ArgumentNotEnumerable);
+#else
+		    throw new Exception(StringResources.ArgumentNotEnumerable);
+#endif
 		}
 
 		#region global operators
@@ -1740,7 +1809,11 @@ namespace Boo.Lang.Runtime
 		{
 			MethodInfo method = FindImplicitConversionOperator(type, typeof(bool));
 			if (null != method) return EmitImplicitConversionDispatcher(method);
+#if !DNXCORE50
 			if (type.IsValueType) return UnboxBooleanDispatcher;
+#else
+		    if (type.GetTypeInfo().IsValueType) return UnboxBooleanDispatcher;
+#endif
 			return ToBoolTrue;
 		}
 		#endregion
@@ -1779,17 +1852,26 @@ namespace Boo.Lang.Runtime
 
 		static void Error(string format, params object[] args)
 		{
+#if !DNXCORE50
 			throw new ApplicationException(string.Format(format, args));
+#else
+		    throw new Exception(string.Format(format, args));
+#endif
 		}
 
 		public static string RuntimeDisplayName
 		{
 			get
 			{
+#if !DNXCORE50
+                string version = Environment.Version.ToString();
+#else
+			    string version = "DNXCORE50";
+#endif
 				var runtime = Type.GetType("Mono.Runtime");
 				return (runtime != null)
 					? (string) runtime.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null)
-					: string.Concat("CLR ", Environment.Version.ToString());
+					: string.Concat("CLR ", version);
 			}
 		}
 	}

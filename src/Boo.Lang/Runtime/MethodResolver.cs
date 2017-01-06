@@ -126,14 +126,22 @@ namespace Boo.Lang.Runtime
 
 		private static int GetTypeGenerity(Type type)
 		{
+#if !DNXCORE50
 			if (!type.ContainsGenericParameters) return 0;
+#else
+		    if (!type.GetTypeInfo().ContainsGenericParameters) return 0;
+#endif
 			return type.GetGenericArguments().Length;
 		}
 
 		private static int GetLogicalTypeDepth(Type type)
 		{
 			int depth = GetTypeDepth(type);
-			return (type.IsValueType) ? depth - 1 : depth;
+#if !DNXCORE50
+		    return (type.IsValueType) ? depth - 1 : depth;
+#else
+		    return (type.GetTypeInfo().IsValueType) ? depth - 1 : depth;
+#endif
 		}
 
 		private static int GetTypeDepth(Type type)
@@ -142,8 +150,12 @@ namespace Boo.Lang.Runtime
 			{
 				return GetTypeDepth(type.GetElementType());
 			}
+#if !DNXCORE50
 			else if (type.IsInterface)
-			{
+#else
+			else if (type.GetTypeInfo().IsInterface)
+#endif
+		    {
 				return GetInterfaceDepth(type);
 			}
 			return GetClassDepth(type);
@@ -155,7 +167,11 @@ namespace Boo.Lang.Runtime
 			Type objectType = typeof(object);
 			while (type != null && type != objectType)
 			{
+#if !DNXCORE50
 				type = type.BaseType;
+#else
+			    type = type.GetTypeInfo().BaseType;
+#endif
 				++depth;
 			}
 			return depth;

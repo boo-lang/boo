@@ -29,6 +29,9 @@
 
 using System;
 using System.Collections.Generic;
+#if DNXCORE50
+using System.Reflection;
+#endif
 
 namespace Boo.Lang.Environments
 {
@@ -65,8 +68,13 @@ namespace Boo.Lang.Environments
 
 		public void Add(Type type, object instance)
 		{
+#if !DNXCORE50
 			if (!type.IsInstanceOfType(instance))
 				throw new ArgumentException(string.Format("{0} is not an instance of {1}", instance, type));
+#else
+		    if (!type.GetTypeInfo().IsInstanceOfType(instance))
+		        throw new ArgumentException(string.Format("{0} is not an instance of {1}", instance, type));
+#endif
 
 			_cache.Add(type, instance);
 
