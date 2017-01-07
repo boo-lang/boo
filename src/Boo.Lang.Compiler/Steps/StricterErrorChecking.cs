@@ -526,7 +526,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (null == klass || null == klass.BaseType)
 				return;
 
-			if (Parameters.DisabledWarnings.Contains("BCW0025"))
+			if (Parameters.DisabledDiagnostics.Contains("BCW0025"))
 				return;
 
 			klass = klass.BaseType as InternalClass;
@@ -559,7 +559,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void CheckImplicitReturn(Method node)
 		{
-			if (Parameters.DisabledWarnings.Contains("BCW0023"))
+			if (Parameters.DisabledDiagnostics.Contains("BCW0023"))
 				return;
 
 			if (null == node.ReturnType

@@ -30,6 +30,7 @@ using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Compiler.Diagnostics;
 using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler
@@ -84,6 +85,11 @@ namespace Boo.Lang.Compiler
 		protected CompilerWarningCollection Warnings
 		{
 			get { return Context.Warnings; }
+		}
+
+		protected DiagnosticsEngine Diagnostics
+		{
+			get { return _context.Diagnostics; }
 		}
 		
 		protected TypeSystem.TypeSystemServices TypeSystemServices

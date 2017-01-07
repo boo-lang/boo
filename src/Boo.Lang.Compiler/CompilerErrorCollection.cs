@@ -30,16 +30,62 @@ using System;
 using System.Text;
 using Boo.Lang;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Diagnostics;
 
 namespace Boo.Lang.Compiler
 {
+	public class CompilerErrorEventArgs : CancellableEventArgs
+	{
+		private readonly CompilerError _error;
+
+		public CompilerErrorEventArgs(CompilerError error)
+		{
+			_error = error;
+		}
+
+		public CompilerError Error
+		{
+			get { return _error;  }
+		}
+	}
+
 	/// <summary>
 	/// Compiler errors.
 	/// </summary>
 	public class CompilerErrorCollection : List<CompilerError>
 	{
+		public event EventHandler<CompilerErrorEventArgs> Adding;
+
 		public CompilerErrorCollection()
 		{
+		}
+
+		override public List<CompilerError> Add(CompilerError error)
+		{
+			return OnAdding(error) ? base.Add(error) : this;
+		}
+
+		public List<CompilerError> Add(Diagnostic diag)
+		{
+			var error = new CompilerError(
+				String.Format("BCE{0:0000}", diag.Code),
+				diag.Caret,
+				diag.Arguments == null
+					? diag.Message
+					: String.Format(diag.Message, diag.Arguments),
+				null
+			);
+			return base.Add(error);
+		}
+
+		protected bool OnAdding(CompilerError error)
+		{
+			EventHandler<CompilerErrorEventArgs> adding = Adding;
+			if (null == adding)
+				return true;
+			var args = new CompilerErrorEventArgs(error);
+			adding(this, args);
+			return !args.IsCancelled;
 		}
 		
 		override public string ToString()

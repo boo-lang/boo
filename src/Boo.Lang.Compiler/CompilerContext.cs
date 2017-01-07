@@ -35,6 +35,7 @@ using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
+using Boo.Lang.Compiler.Diagnostics;
 
 namespace Boo.Lang.Compiler
 {
@@ -54,6 +55,8 @@ namespace Boo.Lang.Compiler
 		private readonly CompilerErrorCollection _errors;
 
 		private readonly CompilerWarningCollection _warnings;
+
+		private readonly DiagnosticsEngine _diagnostics;
 
 		private Assembly _generatedAssembly;
 
@@ -83,9 +86,49 @@ namespace Boo.Lang.Compiler
 			if (null == unit) throw new ArgumentNullException("unit");
 
 			_unit = unit;
+
+			_diagnostics = new DiagnosticsEngine();
+			_diagnostics.WarningsAsErrors = options.WarnAsError;
+			_diagnostics.IgnoreAllWarnings = options.NoWarn;
+
+			var codes = new int[options.WarningsAsErrors.Count];
+			int i = 0;
+			foreach (string codestr in options.WarningsAsErrors)
+			{
+				if (!int.TryParse(codestr, out codes[i])) 
+				{
+					// Legacy BCWxxxx are mapped between 1000 and 2000
+					int.TryParse(codestr.Substring(3), out codes[i]);
+					codes[i] += 1000;
+				}
+				i++;
+			}
+			_diagnostics.PromotedCodes = codes;
+
+			codes = new int[options.DisabledDiagnostics.Count];
+			i = 0;
+			foreach (string codestr in options.DisabledDiagnostics)
+			{
+				if (!int.TryParse(codestr, out codes[i])) 
+				{
+					// Legacy BCWxxxx are mapped between 1000 and 2000
+					int.TryParse(codestr.Substring(3), out codes[i]);
+					codes[i] += 1000;
+				}
+			}
+			_diagnostics.IgnoredCodes = codes;
+
+			// Attach any user supplied handler
+			if (null != options.OnDiagnostic)
+				_diagnostics.Handler += options.OnDiagnostic;
+
+			// Attach the legacy sync handler
+			_diagnostics.Handler += OnDiagnostic;
+			// Map old style errors to the new diagnostics
 			_errors = new CompilerErrorCollection();
+			_errors.Adding += OnErrorToDiagnostic;
 			_warnings = new CompilerWarningCollection();
-			_warnings.Adding += OnCompilerWarning;
+			_warnings.Adding += OnWarningToDiagnostic;
 
 			_references = options.References;
 			_parameters = options;
@@ -107,6 +150,7 @@ namespace Boo.Lang.Compiler
             RegisterService<CompilerParameters>(_parameters);
 			RegisterService<CompilerErrorCollection>(_errors);
 			RegisterService<CompilerWarningCollection>(_warnings);
+			RegisterService<DiagnosticsEngine>(_diagnostics);
 			RegisterService<CompileUnit>(_unit);
             RegisterService<CompilerContext>(this);
 		}
@@ -148,6 +192,11 @@ namespace Boo.Lang.Compiler
 		public CompilerReferenceCollection References
 		{
 			get { return _references; }
+		}
+
+		public DiagnosticsEngine Diagnostics
+		{
+			get { return _diagnostics; }
 		}
 
 		public CompilerErrorCollection Errors
@@ -367,15 +416,31 @@ namespace Boo.Lang.Compiler
 			component.Initialize(this);
 		}
 
-		void OnCompilerWarning(object o, CompilerWarningEventArgs args)
+		// Converts old style warnings to diagnostic objects
+		void OnWarningToDiagnostic(object o, CompilerWarningEventArgs args)
 		{
-			CompilerWarning warning = args.Warning;
-			if (Parameters.NoWarn || Parameters.DisabledWarnings.Contains(warning.Code))
-				args.Cancel();
-			if (Parameters.WarnAsError || Parameters.WarningsAsErrors.Contains(warning.Code))
-			{
-				Errors.Add(new CompilerError(warning.Code, warning.LexicalInfo, warning.Message, null));
-				args.Cancel();
+			_diagnostics.Consume(Diagnostic.FromCompilerWarning(args.Warning));
+			args.Cancel();
+		}
+
+		// Converts old style errors to diagnostic objects
+		void OnErrorToDiagnostic(object o, CompilerErrorEventArgs args)
+		{
+			_diagnostics.Consume(Diagnostic.FromCompilerError(args.Error));
+			args.Cancel();
+		}
+
+		void OnDiagnostic(DiagnosticLevel level, Diagnostic diag)
+		{
+			// Inject diagnostics in the legacy errors collections
+			switch (level) {
+			case DiagnosticLevel.Warning:
+				_warnings.Add(diag);
+				break;
+			case DiagnosticLevel.Error:
+			case DiagnosticLevel.Fatal:
+				_errors.Add(diag);
+				break;
 			}
 		}
 	}

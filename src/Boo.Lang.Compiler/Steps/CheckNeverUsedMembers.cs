@@ -31,6 +31,7 @@ namespace Boo.Lang.Compiler.Steps
 {
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
+	using Boo.Lang.Compiler.Diagnostics;
 
 	public class CheckNeverUsedMembers : AbstractTransformerCompilerStep
 	{
@@ -54,7 +55,8 @@ namespace Boo.Lang.Compiler.Steps
 				//do not be pedantic about System, the corlib is to be ref'ed anyway
 				if (ImportAnnotations.IsUsedImport(import) || import.Namespace == moduleNamespace || import.Namespace == "System")
 					continue;
-				Warnings.Add(CompilerWarningFactory.NamespaceNeverUsed(import) );
+
+				Diag(DiagnosticFactory.NamespaceNeverUsed(import));
 			}
 		}
 

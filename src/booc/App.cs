@@ -34,7 +34,8 @@ using System.IO;
 using Boo.Lang.Resources;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler;
-using Boo.Lang;
+using Boo.Lang.Compiler.Diagnostics;
+
 
 namespace booc
 {
@@ -43,6 +44,8 @@ namespace booc
 	/// </summary>
 	public class App
 	{
+		private ConsolePrinter _printer;
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -71,6 +74,11 @@ namespace booc
 			}
 		}
 
+		protected void OnDiagnostic(DiagnosticLevel level, Diagnostic diag)
+		{
+			_printer.Print(diag, level);
+		}
+
 		public int Run(string[] args)
 		{
 			int resultCode = 127;
@@ -79,7 +87,9 @@ namespace booc
 			
 			CheckBooCompiler();
 
+
 			var parameters = new CompilerParameters(false);
+			parameters.OnDiagnostic = OnDiagnostic;
 			try
 			{
 				var setupTime = Stopwatch.StartNew();
@@ -88,7 +98,10 @@ namespace booc
 
 				if (0 == parameters.Input.Count)
 					throw new ApplicationException(StringResources.BooC_NoInputSpecified);
-				
+
+				_printer = new ConsolePrinter();
+				_printer.ShowCode = parameters.TraceLevel > TraceLevel.Off;
+
 				var compiler = new BooCompiler(parameters);
 				setupTime.Stop();
 
@@ -96,29 +109,39 @@ namespace booc
 				var context = compiler.Run();
 				processingTime.Stop();
 
-				if (context.Warnings.Count > 0)
-				{
-					Console.Error.WriteLine(context.Warnings);
-					Console.Error.WriteLine(StringResources.BooC_Warnings, context.Warnings.Count);
-				}
-
-				if (context.Errors.Count == 0)
-					resultCode = 0;
-				else
-				{
-					foreach (CompilerError error in context.Errors)
-						Console.Error.WriteLine(error.ToString(parameters.TraceInfo));
-					Console.Error.WriteLine(StringResources.BooC_Errors, context.Errors.Count);
-				}
-
 				if (parameters.TraceWarning)
-					Console.Error.WriteLine(StringResources.BooC_ProcessingTime, parameters.Input.Count,
-					                        processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds);
+					Console.Error.WriteLine(StringResources.BooC_ProcessingTime, parameters.Input.Count, parameters.Input.Count != 1 ? "s" : "",
+											processingTime.ElapsedMilliseconds, setupTime.ElapsedMilliseconds);
+
+				var diags = context.Diagnostics;
+				if (diags.WarningCount > 0 && diags.ErrorCount > 0)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.Error.WriteLine(StringResources.BooC_Warnings_Errors,
+						diags.WarningCount, diags.WarningCount > 1 ? "s" : "",
+						diags.ErrorCount, diags.ErrorCount > 1 ? "s" : "");
+				}
+				else if (diags.WarningCount > 0)
+				{
+					Console.ForegroundColor = ConsoleColor.Magenta;
+					Console.Error.WriteLine(StringResources.BooC_Warnings, diags.WarningCount, diags.WarningCount > 1 ? "s" : "");
+				}
+				else if (diags.ErrorCount > 0)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.Error.WriteLine(StringResources.BooC_Errors, diags.ErrorCount, diags.ErrorCount > 1 ? "s" : "");
+				}
+
+				Console.ResetColor();
+
+				resultCode = diags.ErrorCount;
 			}
 			catch (Exception x)
 			{
 				var message = (parameters.TraceWarning) ? x : (object)x.Message;
+				Console.ForegroundColor = ConsoleColor.Red;
 				Console.Error.WriteLine(string.Format(Boo.Lang.Resources.StringResources.BooC_FatalError, message));
+				resultCode = 1;
 			}
 			return resultCode;
 		}
@@ -155,6 +178,6 @@ namespace booc
 				return Assembly.LoadFile(fileName);
 			return null;
 		}
-		
+
 	}
 }

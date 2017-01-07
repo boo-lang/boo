@@ -38,6 +38,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.Diagnostics;
 using Boo.Lang.Environments;
 using Boo.Lang.Resources;
 
@@ -587,56 +588,80 @@ namespace Boo.Lang.Compiler
 			throw new ArgumentException("visibility", String.Format("Invalid visibility: '{0}'", visibility));
 		}
 
-		Util.Set<string> _disabledWarnings = new Util.Set<string>();
-		Util.Set<string> _promotedWarnings = new Util.Set<string>();
+		Util.Set<string> _disabledDiagnostics = new Util.Set<string>();
+		Util.Set<string> _promotedDiagnostics = new Util.Set<string>();
 
 		public bool NoWarn { get; set; }
 
 		public bool WarnAsError { get; set; }
 
+		public ICollection<string> DisabledDiagnostics
+		{
+			get { return _disabledDiagnostics; }
+		}
+
+		[Obsolete("use DisabledDiagnostics")]
 		public ICollection<string> DisabledWarnings
 		{
-			get { return _disabledWarnings; }
+			get { return _disabledDiagnostics; }
 		}
 
 		public ICollection<string> WarningsAsErrors
 		{
-			get { return _promotedWarnings; }
+			get { return _promotedDiagnostics; }
 		}
 
+		public void EnableDiagnostic(string code)
+		{
+			if (_disabledDiagnostics.Contains(code))
+				_disabledDiagnostics.Remove(code);
+		}
+
+		[Obsolete("use EnableDiagnostic")]
 		public void EnableWarning(string code)
 		{
-			if (_disabledWarnings.Contains(code))
-				_disabledWarnings.Remove(code);
+			EnableDiagnostic(code);
 		}
 
+		public void DisableDiagnostic(string code)
+		{
+			_disabledDiagnostics.Add(code);
+		}
+
+		[Obsolete("use DisableDiagnostic")]
 		public void DisableWarning(string code)
 		{
-			_disabledWarnings.Add(code);
+			DisableDiagnostic(code);
 		}
 
-		public void ResetWarnings()
+		public void ResetDiagnostics()
 		{
 			NoWarn = false;
-			_disabledWarnings.Clear();
+			_disabledDiagnostics.Clear();
 			Strict = _strict;
+		}
+
+		[Obsolete("use ResetDiagnostics")]
+		public void ResetWarnings()
+		{
+			ResetDiagnostics();
 		}
 
 		public void EnableWarningAsError(string code)
 		{
-			_promotedWarnings.Add(code);
+			_promotedDiagnostics.Add(code);
 		}
 
 		public void DisableWarningAsError(string code)
 		{
-			if (_promotedWarnings.Contains(code))
-				_promotedWarnings.Remove(code);
+			if (_promotedDiagnostics.Contains(code))
+				_promotedDiagnostics.Remove(code);
 		}
 
 		public void ResetWarningsAsErrors()
 		{
 			WarnAsError = false;
-			_promotedWarnings.Clear();
+			_promotedDiagnostics.Clear();
 		}
 
 		public bool Strict
@@ -659,9 +684,9 @@ namespace Boo.Lang.Compiler
 			_defaultEventVisibility = TypeMemberModifiers.Public;
 			_defaultFieldVisibility = TypeMemberModifiers.Protected;
 
-			DisableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
-			DisableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
-			DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
+			DisableDiagnostic(CompilerWarningFactory.Codes.ImplicitReturn);
+			DisableDiagnostic(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
+			DisableDiagnostic(CompilerWarningFactory.Codes.ImplicitDowncast);
 		}
 
 		protected virtual void OnStrictMode()
@@ -672,12 +697,12 @@ namespace Boo.Lang.Compiler
 			_defaultEventVisibility = TypeMemberModifiers.Private;
 			_defaultFieldVisibility = TypeMemberModifiers.Private;
 
-			EnableWarning(CompilerWarningFactory.Codes.ImplicitReturn);
-			EnableWarning(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
+			EnableDiagnostic(CompilerWarningFactory.Codes.ImplicitReturn);
+			EnableDiagnostic(CompilerWarningFactory.Codes.VisibleMemberDoesNotDeclareTypeExplicitely);
 
 			//by default strict mode forbids implicit downcasts
 			//disable warning so we get only the regular incompatible type error
-			DisableWarning(CompilerWarningFactory.Codes.ImplicitDowncast);
+			DisableDiagnostic(CompilerWarningFactory.Codes.ImplicitDowncast);
 		}
 
 		public bool Unsafe { get; set; }
@@ -685,5 +710,10 @@ namespace Boo.Lang.Compiler
 		public string Platform { get; set; }
 
 		public IEnvironment Environment { get; set; }
+
+		/// <summary>
+		/// Register here your diagnostics handler to act upon generated diagnostics
+		/// </summary>
+		public DiagnosticEventHandler OnDiagnostic { get; set; }
 	}
 }

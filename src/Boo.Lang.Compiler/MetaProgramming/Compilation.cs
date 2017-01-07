@@ -71,7 +71,7 @@ namespace Boo.Lang.Compiler.MetaProgramming
 
 		private static void AssertNoErrors(CompilerContext result)
 		{
-			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
+			if (result.Diagnostics.HasErrors) throw new CompilationErrorsException(result.Errors);
 		}
 
 		public static CompilerContext compile_(CompileUnit unit, Assembly[] references)

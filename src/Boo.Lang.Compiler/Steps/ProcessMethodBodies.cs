@@ -43,6 +43,7 @@ using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Compiler.TypeSystem.Services;
+using Boo.Lang.Compiler.Diagnostics;
 using Boo.Lang.Environments;
 using Boo.Lang.Runtime;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
@@ -5332,7 +5333,10 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsLikelyMacroExtensionMethodInvocation(sourceEntity))
 				Error(CompilerErrorFactory.MacroExpansionError(sourceNode));
 			else
-				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity, GetSignature(args)));
+			{
+				Diag(DiagnosticFactory.MethodSignature(sourceNode, sourceEntity, GetSignature(args)));
+				// TODO: Generate notes with supported signatures
+			}
 			return false;
 		}
 
@@ -5990,17 +5994,18 @@ namespace Boo.Lang.Compiler.Steps
 
 		void InvalidOperatorForType(UnaryExpression node)
 		{
-			Error(node, CompilerErrorFactory.InvalidOperatorForType(node,
-																	GetUnaryOperatorText(node.Operator),
-																	GetExpressionType(node.Operand)));
+			Diag(DiagnosticFactory.InvalidOperatorForType(node,
+							  							  GetUnaryOperatorText(node.Operator),
+														  GetExpressionType(node.Operand)));
 		}
 
 		void InvalidOperatorForTypes(BinaryExpression node)
 		{
-			Error(node, CompilerErrorFactory.InvalidOperatorForTypes(node,
-																	 GetBinaryOperatorText(node.Operator),
-																	 GetExpressionType(node.Left),
-																	 GetExpressionType(node.Right)));
+			Diag(DiagnosticFactory.InvalidOperatorForTypes(node,
+	 													   GetBinaryOperatorText(node.Operator),
+														   GetExpressionType(node.Left),
+														   GetExpressionType(node.Right)));
+
 		}
 
 	    void TraceReturnType(Method method, IMethod tag)

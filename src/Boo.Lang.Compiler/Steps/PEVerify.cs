@@ -38,7 +38,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void Run()
 		{			
 #if !NO_SYSTEM_PROCESS
-			if (Errors.Count > 0)
+			if (Diagnostics.HasErrors)
 				return;
 
 			string command = null;
