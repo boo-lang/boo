@@ -142,8 +142,6 @@ class CompilerParameters(BooCompilerParameters):
                 except ex:
                     Context.TraceError('Error loading compilation cache for "{0}": {1}', asmname, ex)
 
-            context = Context
-
             # Create new compiler context
             ctxt = ForkCompiler(asmname, path)
 

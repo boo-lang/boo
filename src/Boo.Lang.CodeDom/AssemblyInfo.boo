@@ -34,9 +34,3 @@ import System.Reflection
 
 [assembly: AssemblyTitle("Boo CodeDom")]
 [assembly: AssemblyDescription("An implementation of System.CodeDom for Boo.")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyVersion("2.0.9.5")]

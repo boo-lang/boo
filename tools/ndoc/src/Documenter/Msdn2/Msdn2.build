@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<project name="NDoc.Documenter.Msdn2" default="compile">
+	<target name="compile">
+		<csc target="library" warnaserror="true" output="${current.bin.dir}/${project::get-name()}.dll" debug="${current.build.debug}" optimize="${current.build.optimize}" unsafe="false" checked="false" define="${current.build.defines}" doc="${current.bin.dir}/${project::get-name()}.xml">
+			<warnaserror>
+				<!-- do not treat obsolete warnings as error on .NET 2.0 -->
+				<exclude number="0618" if="${framework::get-target-framework() == 'net-2.0'}" />
+				<!-- do not treat usage of AssemblyKeyFile attribute as error on .NET 2.0 -->
+				<exclude number="1699" if="${framework::get-target-framework() == 'net-2.0'}" />
+			</warnaserror>
+			<sources>
+				<include name="**/*.cs" />
+				<include name="../../CommonAssemblyInfo.cs" />
+			</sources>
+			<references>
+				<include name="System.dll" />
+				<include name="System.Xml.dll" />
+				<include name="System.Drawing.Design.dll" />
+				<include name="System.Design.dll" />
+				<include name="System.Drawing.dll" />
+				<include name="System.Data.dll" />
+				<include name="${current.bin.dir}/NDoc.Core.dll" />
+			</references>
+			<resources prefix="NDoc.Documenter.Msdn2" dynamicprefix="true">
+				<include name="**/*.css" />
+				<include name="**/*.gif" />
+				<include name="**/*.js" />
+				<include name="**/*.xslt" />
+				<include name="**/*.html" />
+			</resources>
+		</csc>
+	</target>
+</project>

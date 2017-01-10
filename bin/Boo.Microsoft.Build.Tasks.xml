@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Boo.Microsoft.Build.Tasks</name>
+  </assembly>
+  <members>
+    <member name="N:Boo.Microsoft.Build.Tasks.Properties">
+      <summary>Author: Sorin Ionescu (sorin.ionescu@gmail.com)</summary>
+    </member>
+    <member name="M:Boo.Microsoft.Build.Tasks.Booc.FindPathForNames(System.String)">
+      <summary>Support the case of Mono using directly the managed exe</summary>
+    </member>
+    <member name="M:Boo.Microsoft.Build.Tasks.Booc.AddResponseFileCommands(Microsoft.Build.Tasks.CommandLineBuilderExtension)">
+      <summary>Ignore standard response file commands</summary>
+    </member>
+    <member name="M:Boo.Microsoft.Build.Tasks.Booc.AddCommandLineCommands(Microsoft.Build.Tasks.CommandLineBuilderExtension)">
+      <summary>Ignore standard command line commands</summary>
+    </member>
+    <member name="M:Boo.Microsoft.Build.Tasks.Booc.GenerateCommandLineCommands">
+      <summary>Build a totally customized command line</summary>
+    </member>
+  </members>
+</doc>

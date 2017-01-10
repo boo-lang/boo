@@ -394,66 +394,78 @@ namespace booc
 
 					case 'd':
 						{
-							switch (arg.Substring(1))
+							if (arg.StartsWith("-doc:"))
 							{
-								case "debug":
-								case "debug+":
-									{
-										_options.Debug = true;
-										break;
-									}
-
-								case "debug-":
-									{
-										_options.Debug = false;
-										break;
-									}
-
-								case "ducky":
-									{
-										_options.Ducky = true;
-										break;
-									}
-
-								case "debug-steps":
-									{
-										_debugSteps = true;
-										break;
-									}
-
-								case "delaysign":
-									{
-										_options.DelaySign = true;
-										break;
-									}
-
-								default:
-									{
-										if (arg.StartsWith("-d:") || arg.StartsWith("-define:"))
+								_options.CreateDoc = true;
+								_options.OutputDoc = arg.Substring(5);
+							}
+							else
+							{
+								switch (arg.Substring(1))
+								{
+									case "doc":
+										_options.CreateDoc = true;
+										_options.OutputDoc = null;
+										break;										
+									case "debug":
+									case "debug+":
 										{
-											string[] symbols = ValueOf(arg).Split(",".ToCharArray());
-											foreach (string symbol in symbols)
+											_options.Debug = true;
+											break;
+										}
+	
+									case "debug-":
+										{
+											_options.Debug = false;
+											break;
+										}
+	
+									case "ducky":
+										{
+											_options.Ducky = true;
+											break;
+										}
+	
+									case "debug-steps":
+										{
+											_debugSteps = true;
+											break;
+										}
+	
+									case "delaysign":
+										{
+											_options.DelaySign = true;
+											break;
+										}
+	
+									default:
+										{
+											if (arg.StartsWith("-d:") || arg.StartsWith("-define:"))
 											{
-												string[] s_v = symbol.Split("=".ToCharArray(), 2);
-												if (s_v[0].Length < 1) continue;
-												if (_options.Defines.ContainsKey(s_v[0]))
+												string[] symbols = ValueOf(arg).Split(",".ToCharArray());
+												foreach (string symbol in symbols)
 												{
-													_options.Defines[s_v[0]] = (s_v.Length > 1) ? s_v[1] : null;
-													TraceInfo("REPLACED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
-												}
-												else
-												{
-													_options.Defines.Add(s_v[0], (s_v.Length > 1) ? s_v[1] : null);
-													TraceInfo("ADDED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
+													string[] s_v = symbol.Split("=".ToCharArray(), 2);
+													if (s_v[0].Length < 1) continue;
+													if (_options.Defines.ContainsKey(s_v[0]))
+													{
+														_options.Defines[s_v[0]] = (s_v.Length > 1) ? s_v[1] : null;
+														TraceInfo("REPLACED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
+													}
+													else
+													{
+														_options.Defines.Add(s_v[0], (s_v.Length > 1) ? s_v[1] : null);
+														TraceInfo("ADDED DEFINE '" + s_v[0] + "' WITH VALUE '" + ((s_v.Length > 1) ? s_v[1] : string.Empty) + "'");
+													}
 												}
 											}
+											else
+											{
+												InvalidOption(arg);
+											}
+											break;
 										}
-										else
-										{
-											InvalidOption(arg);
-										}
-										break;
-									}
+								}
 							}
 							break;
 						}
@@ -559,6 +571,7 @@ namespace booc
 					" -debug[+|-]          Generate debugging information (default: +)\n" +
 					" -define:S1[,Sn]      Defines symbols S1..Sn with optional values (=val) (-d:)\n" +
 					" -delaysign           Delays assembly signing\n" +
+					" -doc[:FILE]          Creates a FILE with XML documentation\n"+
 					" -ducky               Turns on duck typing by default\n" +
 					" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n" +
 					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
@@ -717,6 +730,8 @@ namespace booc
 			{
 				if (arg.StartsWith("@") && arg.Length > 2)
 					result.AddRange(LoadResponseFile(arg.Substring(1)));
+				else if (arg.StartsWith("/"))
+					result.Add("-"+arg.Substring(1));
 				else
 					result.Add(arg);
 			}

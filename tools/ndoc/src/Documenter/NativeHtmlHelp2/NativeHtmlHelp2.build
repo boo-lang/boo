@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<project name="NDoc.Documenter.NativeHtmlHelp2" default="compile">
+	<target name="compile" depends="locate-help-compilerservices-typelib" unless="${framework::get-family(framework::get-target-framework())=='mono'}">
+		<if test="${property::exists('help.compilerservices.typelib')}">
+			<!-- generate COM interop assembly for Microsoft Help Compiler Services 1.0 -->
+			<tlbimp typelib="${help.compilerservices.typelib}" output="${current.bin.dir}/Interop.MSHelpCompiler.dll" namespace="MSHelpCompiler" asmversion="1.0.0.0" keyfile="../../../NDoc.snk" />
+			<!-- compile the assembly -->
+			<csc target="library" output="${current.bin.dir}/${project::get-name()}.dll" debug="${current.build.debug}" optimize="${current.build.optimize}" unsafe="false" checked="false" define="${current.build.defines}" doc="${current.bin.dir}/${project::get-name()}.xml">
+				<sources>
+					<include name="**/*.cs" />
+					<include name="../../CommonAssemblyInfo.cs" />
+				</sources>
+				<references>
+					<include name="System.dll" />
+					<include name="System.Xml.dll" />
+					<include name="${current.bin.dir}/Interop.MSHelpCompiler.dll" />
+					<include name="${current.bin.dir}/NDoc.Core.dll" />
+				</references>
+				<resources prefix="NDoc.Documenter.NativeHtmlHelp2" dynamicprefix="true">
+					<include name="graphics/*.*" />
+					<include name="includes/*.*" />
+					<include name="xslt/*.*" />
+					<include name="Engine/NamespaceMapping/*.x*" />
+					<include name="HxProject/HelpCollection/*.*" />
+					<include name="HxProject/HelpTitle/*.*" />
+				</resources>
+			</csc>
+		</if>
+	</target>
+	<target name="locate-help-compilerservices-typelib" unless="${framework::get-family(framework::get-target-framework())=='mono'}">
+		<readregistry property="help.compilerservices.typelib" key="TypeLib\{314111EE-A502-11D2-BBCA-00C04F8EC294}\1.0\0\win32\"
+			hive="ClassesRoot" failonerror="false" />
+		<if test="${not property::exists('help.compilerservices.typelib')}">
+			<if test="${property::exists('project.build.package') and project.build.package}">
+				<fail message="Microsoft Help Compiler Services 1.0 is not available. Please ensure that you've installed the Visual Studio Help Integration Kit 2002 or 2003." />
+			</if>
+			<if test="${not property::exists('project.build.package') or not project.build.package}">
+				<echo message="Microsoft Help Compiler Services 1.0 is not available. Build skipped." />
+			</if>
+		</if>
+	</target>
+</project>

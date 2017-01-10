@@ -45,7 +45,7 @@ class TraceMethodCallsAttribute(AbstractAstAttribute):
 	beginning and end.
 """	
 
-	[property(TraceMethod)]
+	[Property(TraceMethod)]
 	_traceMethod as ReferenceExpression
 	
 	def constructor():

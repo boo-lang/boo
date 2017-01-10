@@ -1,0 +1,39 @@
+<project SchemaVersion="1.3">
+    <assemblies>
+        <assembly location="..\src\Test\bin\Debug\NDoc.Test.dll" documentation="..\src\Test\bin\Debug\NDoc.Test.xml" />
+    </assemblies>
+    <documenters>
+        <documenter name="JavaDoc">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="SdkDocVersion" value="SDK_v1_1" />
+            <property name="DocumentAttributes" value="True" />
+            <property name="CleanIntermediates" value="True" />
+        </documenter>
+        <documenter name="LaTeX">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="TextFileFullName" value="NDocTest.tex" />
+            <property name="TexFileBaseName" value="NDocTest" />
+            <property name="LatexCompiler" value="pdflatex" />
+            <property name="TexFileFullPath" value=".\Test\NDocTest.tex" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="SdkDocVersion" value="SDK_v1_1" />
+            <property name="CleanIntermediates" value="True" />
+        </documenter>
+        <documenter name="XML">
+            <property name="OutputFile" value=".\Test\doc.xml" />
+            <property name="SdkDocVersion" value="SDK_v1_1" />
+        </documenter>
+        <documenter name="MSDN">
+            <property name="OutputDirectory" value=".\Test\" />
+            <property name="HtmlHelpName" value="NDocTest" />
+            <property name="Title" value="NDoc Test Documentation" />
+            <property name="ShowVisualBasic" value="True" />
+            <property name="ShowCSharp" value="True" />
+            <property name="UseNamespaceDocSummaries" value="True" />
+            <property name="SdkDocVersion" value="SDK_v1_1" />
+            <property name="DocumentAttributes" value="True" />
+            <property name="CleanIntermediates" value="True" />
+        </documenter>
+    </documenters>
+</project>

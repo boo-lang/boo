@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>summary</title>
+		<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+		<LINK href="css/ndoc.css" type="text/css" rel="stylesheet" name="ndocstyle">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;summary&gt; tag is used to provide a short description of a type or 
+				member.
+			</p>
+			<pre class="syntax">&lt;summary&gt;<I>description</I>&lt;/summary&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt><I>description</I>
+					<dd>
+						A summary of the object.
+					</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>All Types and Members.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>This tag should be&nbsp;treated&nbsp;as mandatory for all publicly accesible 
+				types and members. It is the primary description used by IntelliSense and the 
+				Object Browser in VisualStudio, and most other development tools.</p>
+			<P>Use <A href="vclrfremarks.htm">&lt;remarks&gt;</A> to add supplemental 
+				information to a type or member description.</P>
+			<h4 class="dtH4">Example</h4>
+			<pre class="csharpcode"><SPAN class=lang>[C#]</SPAN>
+<span class=rem>/// text for class MyClass</span>
+<span class=kwrd>public</span> <span class=kwrd>class</span> MyClass
+{
+   <span class=rem>/// &lt;summary&gt;MyMethod is a method in the MyClass class.</span>
+   <span class=rem>/// &lt;para&gt;Here's how you could make a second paragraph in a description. &lt;see cref="System.Console.WriteLine"/&gt; for information about output statements.&lt;/para&gt;</span>
+   <span class=rem>/// &lt;seealso cref="MyClass.Main"/&gt;</span>
+   <span class=rem>/// &lt;/summary&gt;</span>
+   <span class=kwrd>public</span> <span class=kwrd>static</span> <span class=kwrd>void</span> MyMethod(<span class=kwrd>int</span> Int1)
+   {
+   }
+
+   <span class=rem>/// text for Main</span>
+   <span class=kwrd>public</span> <span class=kwrd>static</span> <span class=kwrd>void</span> Main ()
+   {
+   }
+}</pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <A href="tags.htm">NDoc&nbsp;Tags</A>&nbsp;|
+				<a HREF="tag_remarks.htm">&lt;remarks&gt;</a>&nbsp;| <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfsummary.htm">
+					Microsoft's definition</A></p>
+		</div>
+	</body>
+</html>

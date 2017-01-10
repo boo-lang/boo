@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Linking to Other Titles</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css" />
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h3 class="dtH3">XLinks</h3>
+	<p>Unlike Html Help 1, which uses HTML &lt;A&gt; links, Html Help 2 uses an implementation 
+	of <a target="_blank" href="http://www.w3.org/XML/Linking">XLinks</a> to reference 
+	topics in external help titles. An XLink is much like an HTML &lt;A&gt; link but allows 
+	for additional linking meta-data and more complex types of links. Html Help 
+	2 uses XLinks to look-up topic by keyword, rather than by file name. This de-couples 
+	the link from the physical layout of the target help title.</p>
+	<p>NDoc generates XLinks to topics in the .NET framework. The following is an 
+	NDoc generated link to the Framework SDK topic on <b>System.Void</b>:</p>
+	<blockquote>
+		<p class="MsoNormal">
+		<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:link</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span></p>
+		<p class="MsoNormal" style="text-indent:.5in">
+		<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">keywords</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;frlrfSystemVoidClassTopic&quot;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+		</span></p>
+		<p class="MsoNormal" style="text-indent:.5in">
+		<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">indexMoniker</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;!DefaultAssociativeIndex&quot;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+		</span></p>
+		<p class="MsoNormal" style="text-indent:.5in">
+		<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">namespace</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;ms-help://MS.NETFrameworkSDKv1.1&quot;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">&gt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;">void<span style="color:blue">&lt;/</span><span style="color:maroon">MSHelp:link</span><span style="color:blue">&gt;</span></span></p>
+		<p class="fineprint">Example XLink</p>
+	</blockquote>
+	<p>The three attributes on the above link tell the Html Help 2 system exactly 
+	how to resolve the desired topic. The first item required is a <b>namespace</b>. 
+	Each help collection registered on a machine has a unique namespace. The namespace 
+	above identifies the .NET Framework 1.1 SDK documentation. The <b>indexMoniker</b> 
+	identifies a specific type of index within that namespace. There can be numerous 
+	types of indices within a help collection, but the <b>DefaultAssociativeIndex</b> 
+	is used to create associations between topics. Finally, the <b>keyword</b> attribute 
+	identifies the specific topic desired within the index.</p>
+	<p>Keywords are defined within a help topic as part of the embedded XML data 
+	that is generated in the HTML header. The keyword for <b>System.Void</b> is 
+	declared as follows within the Html Help for that topic:</p>
+	<p class="MsoNormal" style="text-indent:.5in">
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:blue">&lt;</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:maroon">MSHelp:Keyword</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+	</span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:red">
+	Index</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;A&quot;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+	</span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:red">
+	Term</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;frlrfSystemVoidMembersTopic&quot;/&gt;</span></p>
+	<h3 class="dtH3">Links to Framework Topics</h3>
+	<p>Framework keywords are generated from the full name of the type or member. 
+	NDoc generates links to framework topics, either through inheritance or via 
+	the &lt;see&gt; tag, by determining the keyword identifier from the item being linked 
+	to and within the framework SDK help namespace. </p>
+	<h3 class="dtH3">Links to Non-Framework Topics</h3>
+	<p>It is also possible to create links to your own Html Help 2 
+	titles using the same XLinking mechanism. For NDoc to properly generate an XLink 
+	to an external title, it needs to know both the help namespace and the keyword 
+	value within the <b>DefaultAssociativeIndex</b>.</p>
+	<p>When NDoc generates an Html Help 2 topic, it includes an XML 
+	data island that includes an associative index term similar to those that appear 
+	within framework topics. Since NDoc can document <b>private</b> and <b>internal</b> 
+	members, the index generated is slightly more complicated than framework keywords, 
+	but the keyword value is generated deterministically. </p>
+	<p>The thing that cannot be determined is the value of the help 
+	namespace. The mapping between managed type names and help namespaces is provided 
+	by specifying a mapping file via the
+	<a href="vsnet.htm#UseHelpNamespaceMappingFile">UseHelpNamespaceMappingFile</a> 
+	setting. This setting points to an XML file that conforms to the
+	<a href="examples/NamespaceMap.xsd">namespace map XSD schema</a>.</p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">
+	&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:maroon">namespaceMap</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+	</span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:red">
+	xmlns</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;urn:ndoc-sourceforge-net:documenters.NativeHtmlHelp2.schemas.namespaceMap&quot;&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span style="color:blue">&lt;</span><span style="color:maroon">helpNamespace</span><span style="color:fuchsia">
+	</span><span style="color:red">ns</span><span style="color:blue">=&quot;ms-help://companyX.sharedhelpcollection&quot;&gt;</span></span></p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span style="color:blue">&lt;</span><span style="color:maroon">managedNamespace</span><span style="color:fuchsia">
+	</span><span style="color:red">ns</span><span style="color:blue">=&quot;CompanyX&quot;/&gt;</span></span></p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span style="color:blue">&lt;/</span><span style="color:maroon">helpNamespace</span><span style="color:blue">&gt;</span></span></p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span style="color:blue">&lt;</span><span style="color:maroon">helpNamespace</span><span style="color:fuchsia">
+	</span><span style="color:red">ns</span><span style="color:blue">=&quot;ms-help://companyX.producthelpcollection&quot;&gt;</span></span></p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span style="color:blue">&lt;</span><span style="color:maroon">managedNamespace</span><span style="color:fuchsia">
+	</span><span style="color:red">ns</span><span style="color:blue">=&quot;CompanyX.Product1&quot;/&gt;</span></span></p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span style="color:blue">&lt;</span><span style="color:maroon">managedNamespace</span><span style="color:fuchsia">
+	</span><span style="color:red">ns</span><span style="color:blue">=&quot;CompanyX.Product2&quot;/&gt;</span></span></p>
+	<p class="MsoNormal" style="text-indent: .5in; text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;/</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">helpNamespace</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:blue">&gt;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;">&nbsp;&nbsp;&nbsp;&nbsp; </span></p>
+	<p class="MsoNormal">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;/</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">namespaceMap</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&gt;</span></p>
+	<p>This file specifies the managed namespace to help namespace 
+	mapping that will be used when creating XLinks to managed types that are not 
+	part of the documentation set being processed. Each <b>helpNamespace</b> entry 
+	can contain <b>1..n</b> <b>managedNamespace</b> entries. When resolving the 
+	help namespace of a managed type, the most specific <b>managedNamespace</b> 
+	entry will be used to select the appropriate help namespace.</p>
+	<p>The managed type <b>CompanyX.Product2.Class1</b> would map to
+	<b>ms-help://companyX.producthelpcollection</b>, while <b>CompanyX.Core.Class1</b> 
+	would map to <b>ms-help://companyX.sharedhelpcollection</b>.</p>
+	<h4 class="dtH4">See Also</h4>
+	<p><a href="vsnet.htm">The VS.NET Documenter</a>, <a href="examples/NamespaceMap.xsd">Namespace Map Schema</a></p>
+</div>
+
+</body>
+
+</html>

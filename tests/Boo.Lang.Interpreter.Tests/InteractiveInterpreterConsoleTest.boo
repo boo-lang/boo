@@ -37,7 +37,7 @@ class InteractiveInterpreterConsoleTest:
 	
 	_interpreter as InteractiveInterpreter
 	_console as InteractiveInterpreterConsole
-	
+		
 	[SetUp]
 	def SetUp():
 		_interpreter = InteractiveInterpreter()

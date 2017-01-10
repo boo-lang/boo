@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Creating an NDoc Project</title>
+<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css"/>
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h3 class="dtH3">Creating a New Project and Adding Assemblies</h3>
+	<p>If you use Visual Studio.NET as your development environment, the easiest 
+	way to create a new NDoc project is to select the &quot;New From Visual Studio&quot; button 
+	on the toolbar. </p>
+	<img src="images/newfromvsnet.JPG" border="1">
+	<p>&nbsp;</p>
+	<p>After browsing to your solution file, you will be asked to select a configuration 
+	within the solution. This determines what assemblies (debug or release versions) 
+	will be used to generate your documentation.</p>
+	<p>&nbsp;</p>
+	<img src="images/configuration.JPG" border="1">
+	<p><strong class="fineprint">The Configuration Selection Dialog</strong></p>
+	<p><strong></strong>&nbsp;</p>
+	<p>Once you select a configuration, the NDoc project designer will add all of 
+	the managed assembly projects from that solution to your new NDoc project.</p>
+	<p>If you don&#39;t use Visual Studio.NET, you can add assemblies to your project 
+	either by browsing for them with the <strong>Add</strong> button, or dragging 
+	them into the assembly list view directly from Window Explorer. Make sure that 
+	you are generating XML documentation during your compiles, otherwise NDoc will only be able to produce minimal documentation...</p>
+	<h3 class="dtH3">Choosing a Documenter</h3>
+	<p>NDoc ships with a number of different options for generating documentation 
+	for your code. Each different format is referred to as a <strong>Documenter</strong>. 
+	Each Documenter determines it own layout, formatting, and in some cases content 
+	for the generated documentation.</p>
+	<p>The two most popular documenters are the MSDN documenter, which generate 
+	compiled CHM type documentation similar to MSDN online help, and the VS.NET 
+	documenter, which generates compiled html help compatible with Visual Studio.NET.</p>
+	<p>&nbsp;</p>
+	<img src="images/selectdocumenter.JPG" border="1">
+	<p><strong class="fineprint">NDoc Documenters</strong></p>
+	<p>&nbsp;</p>
+	<p>All documenters share certain settings, such as what types of members to document. 
+	Each documenter also has its own set of custom settings which you can use to 
+	control the exact content of your documentation.</p>
+	<p>For more details about configuring documenters, refer to the
+	<a href="documenters.htm">Documenters section</a>.</p>
+	<h3 class="dtH3">Building the Documentation</h3>
+	<p>Once you&#39;ve chosen a Documenter, and configured it to your liking, hit the 
+	Build Button to create your documentation. As the project builds and compiles, 
+	you will see build status in the Output Window at the bottom of the Designer 
+	Screen, as well as in a progress indicator on the status bar.</p>
+	<img src="images/buildprogress.JPG" border="1">
+	<p><strong class="fineprint">NDoc Build Progress</strong></p>
+	<h3 class="dtH3">Viewing the Documentation</h3>
+	<p>Once the build completes, you can view the resulting 
+	documentation by clicking the View button.</div>
+
+</body>
+
+</html>

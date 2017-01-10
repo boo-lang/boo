@@ -1,0 +1,1449 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Boo.Lang.Compiler</name>
+    </assembly>
+    <members>
+        <member name="T:Boo.Lang.Compiler.Ast.Node">
+            <summary>
+            Base class for every node in the AST.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.ReplaceNodes(Boo.Lang.Compiler.Ast.Node,Boo.Lang.Compiler.Ast.Node)">
+            <summary>
+            Replaces all occurrences of the pattern pattern anywhere in the tree
+            with a clone of template.
+            </summary>
+            <returns>the number of nodes replaced</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.ReplaceNodes(Boo.Lang.Compiler.Ast.NodePredicate,Boo.Lang.Compiler.Ast.Node)">
+            <summary>
+            Replaces all node for which predicate returns true anywhere in the tree
+            with a clone of template.
+            </summary>
+            <returns>the number of nodes replaced</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.CleanClone">
+            <summary>
+            Returns a Clone of the this node with any
+            annotations removed (including type system bindings).
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.GetAncestor(Boo.Lang.Compiler.Ast.NodeType)">
+            <summary>
+            Returns the closest ancestor node of type <paramref name="ancestorType"/>
+            or null if no ancestor of requested type has been found.
+            </summary>
+            <param name="ancestorType">The type of node you request.</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.GetAncestor(Boo.Lang.Compiler.Ast.NodeType,System.Int32)">
+            <summary>
+            Returns the closest ancestor node of type <paramref name="ancestorType"/>
+            within <paramref name="limitDepth"/> or null if no ancestor of requested
+            type has been found.
+            </summary>
+            <param name="ancestorType">The type of node you request.</param>
+            <param name="limitDepth">Maximum depth difference from this node to ancestor.</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.GetAncestor``1">
+            <summary>
+            Returns the closest ancestor node of type <paramref name="TAncestor"/>
+            or null if no ancestor of requested type has been found.
+            </summary>
+            <param name="TAncestor">The type of node you request.</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.GetRootAncestor``1">
+            <summary>
+            Returns the farthest ancestor node of type <paramref name="TAncestor"/>
+            or null if no ancestor of requested type has been found.
+            </summary>
+            <param name="TAncestor">The type of node you request.</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Node.GetAncestors``1">
+            <summary>
+            Yields <paramref name="TAncestor"/> ancestors in order from closest to farthest from this node.
+            </summary>
+            <param name="TAncestor">The type of node you request.</param>
+        </member>
+        <member name="P:Boo.Lang.Compiler.Ast.Node.IsSynthetic">
+            <summary>
+            true when the node was constructed by the compiler.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.Ast.Node.Tags">
+            <summary>
+            Strongly typed annotation mechanism.
+            
+            <example>
+            generatorSkeleton = generator.Tags.Get[of GeneratorSkeleton]()
+            </example>
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.Ast.Node.LexicalInfo">
+            <summary>
+            Where this element appears in the source file.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.Ast.Node.EndSourceLocation">
+            <summary>
+            Where this element ends in the source file.
+            This information is generally available and/or accurate
+            only for blocks and member definitions.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Expression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.LiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ListLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ArrayLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TypeReference.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ArrayTypeReference.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.NodeCollection`1">
+            <summary>
+            Node collection base class.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.INodeWithArguments">
+            <summary>
+            Uma AST para ns que armazenam parmetros como atributos e
+            invocaes de mtodo.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Attribute.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.BinaryExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.INodeWithParameters">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.INodeWithBody">
+            <summary>
+            An AST node with a Body property.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.BlockExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Statement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Block.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.BoolLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.BreakStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.INodeWithAttributes">
+            <summary>
+            Summary description for INodeWithAttributes.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TypeMember.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.INodeWithGenericParameters">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CallableDefinition.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CallableTypeReference.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CastExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.StringLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CharLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TypeDefinition.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ClassDefinition.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.FastDepthFirstVisitor">
+             <summary>
+             Visitor implementation that avoids the overhead of cloning collections
+             before visiting them.
+            
+             Avoid mutating collections when using this implementation.
+             </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CollectionInitializationExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CompileUnit.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ConditionalExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ConditionalStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Method.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Constructor.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ContinueStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CustomExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.CustomStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Declaration.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.DeclarationStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Destructor.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.DoubleLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.EnumDefinition.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.EnumMember.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Event.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ExceptionHandler.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ExplicitMemberInfo.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ExpressionInterpolationExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ExpressionPair.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ExpressionStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ExtendedGeneratorExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Field.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ForStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.GeneratorExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.GenericParameterDeclaration.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.GenericReferenceExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SimpleTypeReference.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.GenericTypeDefinitionReference.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.GenericTypeReference.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.GotoStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.HashLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.IfStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Import.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Import.#ctor(System.String,Boo.Lang.Compiler.Ast.ReferenceExpression,Boo.Lang.Compiler.Ast.ReferenceExpression)">
+            <summary>
+            This is used by SharpDevelop
+            </summary>
+            <param name="namespace">The namespace</param>
+            <param name="assemblyReference">Reference to a particular assembly</param>
+            <param name="alias">The alias name</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.IntegerLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.InterfaceDefinition.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.LabelStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Local.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.MacroStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ReferenceExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.MemberReferenceExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.MethodInvocationExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Module.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.NamespaceDeclaration.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.NullLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ParameterDeclaration.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Property.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.QuasiquoteExpression.CleanClone">
+            <summary>
+            <see cref="!:Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.RaiseStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.RELiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.ReturnStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SelfLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.Slice.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SlicingExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SpliceExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SpliceMemberReferenceExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SpliceParameterDeclaration.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SpliceTypeDefinitionBody.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SpliceTypeMember.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SpliceTypeReference.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.StatementModifier.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.StatementTypeMember.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.StructDefinition.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.SuperLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TimeSpanLiteralExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TryCastExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TryStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TypeMemberStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.TypeofExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.UnaryExpression.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.UnlessStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.UnpackStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.WhileStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Ast.YieldStatement.CleanClone">
+            <summary>
+            <see cref="M:Boo.Lang.Compiler.Ast.Node.CleanClone"/>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.Visitors.TextEmitter">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.Visitors.PseudoCSharpPrinterVisitor">
+            <summary>
+            Prints a boo ast in pseudo C#.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.Visitors.TreePrinterVisitor">
+            <summary>
+            Prints the AST tree structure
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.PreservingLexicalInfoMacro">
+            <summary>
+            Delimits a block of code where the original lexical info for code literals should be preserved.
+            
+            preservingLexicalInfo:
+                print [| foo |].LexicalInfo.FileName # prints current file name
+            print [| bar |].LexicalInfo.FileName # prints nothing
+            
+            Useful for stepping into macro generated code.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.ICompilerComponent">
+            <summary>
+            A component that is invoked during the compilation
+            process.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Ast.OmittedExpression">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.StrictModeAttribute">
+            <summary>
+            Provides a simple way of enabling strict mode directly in code.
+            
+            <example>[assembly: StrictMode]</example>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.IO.FileInput">
+            <summary>
+            File based compiler input.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.ICompilerInput">
+            <summary>
+            An input to the compiler.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.IO.ReaderInput">
+            <summary>
+            TextReader based compiler input.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.IO.StringInput">
+            <summary>
+            String based compiler input.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerPipeline">
+            <summary>
+            A ordered set of <see cref="T:Boo.Lang.Compiler.ICompilerStep"/> implementations
+            that should be executed in sequence.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Pipelines.CompileToFile">
+            <summary>
+            Standard compilation pipeline: parses input files and go all
+            the way to assembly emission.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Pipelines.CompileToFileAndVerify">
+            <summary>
+            Verifies the generated assembly after compilation.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Services.UniqueNameProvider.GetUniqueName(System.String[])">
+            <summary>Generates a name that will be unique within the CompilerContext.</summary>
+            <param name="components">Zero or more string(s) that will compose the generated name.</param>
+            <returns>Returns the generated unique name.</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.Generators.GeneratorExpressionProcessor.GetMember(Boo.Lang.Compiler.TypeSystem.IType,System.String,Boo.Lang.Compiler.TypeSystem.EntityType)">
+            <summary>
+            Gets the member of the specified type with the specified name, assuming there is only one.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.MacroProcessing.BindAndApplyAttributes">
+            <summary>
+            Step 2. Processes AST attributes.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.ActionStep">
+            <summary>
+            Promotes a closure to a compiler step.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Services.ITypeMemberReifier">
+            <summary>
+            Implemented by compiler steps that need to take part in type member
+            reification.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.GenericParametersNamespaceExtender">
+            <summary>
+            Provides a quasi-namespace that can resolve a type's generic parameters before its base types are bound.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.INamespace">
+            <summary>
+            A namespace.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.INamespace.Resolve(System.Collections.Generic.ICollection{Boo.Lang.Compiler.TypeSystem.IEntity},System.String,Boo.Lang.Compiler.TypeSystem.EntityType)">
+            <summary>
+            Resolves the name passed as argument to the appropriate elements
+            in the namespace, all elements with the specified name must be
+            added to the resultingSet.
+            </summary>
+            <param name="resultingSet">list where to put the found elements</param>
+            <param name="name">name of the desired elements</param>
+            <param name="typesToConsider">element filter</param>
+            <returns>
+            true if at least one element was added to the resultingSet, false
+            otherwise.
+            </returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.INamespace.GetMembers">
+            <summary>
+            Returns all members of this namespace.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.TypeSystem.INamespace.ParentNamespace">
+            <summary>
+            The parent namespace.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.BindMethods">
+            <summary>
+            Pre-binds methods and constructors before resolving type references, 
+            to enable correct resolution of generic type references.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.CheckMembersProtectionLevel">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.DocEvent">
+            <summary>
+            Event on XML documentation. Provides the designator
+            of thee documented entity and the documentation itself
+            as a string in XML form.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.CreateAndSaveDocs">
+            <summary>
+            Description of CreateAndSaveDocs.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.CreateAndSaveDocs.CilTypeName(Boo.Lang.Compiler.Steps.CreateAndSaveDocs.GenericTypeParameters,Boo.Lang.Compiler.Ast.TypeReference)">
+            <summary>
+            Returns the CIL designator of a particular type.
+            </summary>
+            <param name="tref">The reference to a type. Entity must have been resolved.</param>
+            <returns></returns>
+        </member>
+        <member name="F:Boo.Lang.Compiler.Steps.CreateAndSaveDocs._rawPatternTag">
+            <summary>
+            A sequence of string defining the tags in a Boo
+            documentation. Its in fact a sequence of string pairs,
+            where the first one is a regex and the second is the
+            name of an XML tag that corresponds in a standard
+            XML doc.
+            The pattern defines the groups "name" or "cref" and
+            "rest".
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.Compiler.Steps.CreateAndSaveDocs._prefixTagPairs">
+            <summary>
+            A sequence of string pairs where the first string is
+            the prefix of a line introducing a new section in a Boo
+            documentation and the second string is the corresponding
+            XML tag in a standard XML documentation.
+            </summary>
+            <remarks></remarks>
+        </member>
+        <!-- Ungültiger XML-Kommentar wurde für den Member "M:Boo.Lang.Compiler.Steps.CreateAndSaveDocs.WriteText(System.Xml.XmlWriter,System.String)" ignoriert -->
+        <member name="M:Boo.Lang.Compiler.Steps.CreateAndSaveDocs.WriteDoc(System.Xml.XmlWriter,Boo.Lang.Compiler.Ast.Node)">
+            <summary>
+            Produce a string in standard XML notation.
+            </summary>
+            <param name="doc">String documentation in Boo form.</param>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.CreateAndSaveDocs.GenericTypeParameters">
+            <summary>
+            Some collections of parameter type names.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.Steps.CreateAndSaveDocs.GenericTypeParameters.FirstOrderParams">
+            <summary>
+            List of parameter names introduced by a single backquote `
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.Steps.CreateAndSaveDocs.GenericTypeParameters.SecondOrderParams">
+            <summary>
+            List of parameter names introduced by a double backquote ``++
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.EmitAssembly.GetConstructedMethodInfo(Boo.Lang.Compiler.TypeSystem.IConstructedMethodInfo)">
+            <summary>
+            Retrieves the MethodInfo for a generic constructed method.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.EmitAssembly.GetMappedFieldInfo(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IField)">
+            <summary>
+            Retrieves the FieldInfo for a field as mapped on a generic type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.EmitAssembly.GetMappedMethodInfo(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IMethod)">
+            <summary>
+            Retrieves the MethodInfo for a method as mapped on a generic type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.EmitAssembly.GetMappedConstructorInfo(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IConstructor)">
+            <summary>
+            Retrieves the ConstructorInfo for a constructor as mapped on a generic type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.EmitAssembly.DefineGenericParameters(System.Reflection.Emit.TypeBuilder,Boo.Lang.Compiler.Ast.GenericParameterDeclaration[])">
+            <summary>
+            Defines the generic parameters of an internal generic type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.EmitAssembly.DefineGenericParameters(System.Reflection.Emit.MethodBuilder,Boo.Lang.Compiler.Ast.GenericParameterDeclaration[])">
+            <summary>
+            Defines the generic parameters of an internal generic method.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.EmitAssembly.TypeCreator">
+            <summary>
+            Ensures that all types are created in the correct order.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.ExpandDuckTypedExpressions">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Services.IStatementReifier">
+            <summary>
+            Implemented by compiler steps that need to take part in statement
+            reification.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Services.IExpressionReifier">
+            <summary>
+            Implemented by compiler steps that need to take part in expression
+            reification.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.NormalizeIterationStatements">
+            <summary>
+            AST semantic evaluation.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.OptimizeIterationStatements">
+            <summary>
+            AST semantic evaluation.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.OptimizeIterationStatements.CheckForItemInRangeLoop(Boo.Lang.Compiler.Ast.ForStatement)">
+            <summary>
+            Optimize the <c>for item in range()</c> construct
+            </summary>
+            <param name="node">the for statement to check</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.OptimizeIterationStatements.CheckForItemInArrayLoop(Boo.Lang.Compiler.Ast.ForStatement)">
+            <summary>
+            Optimize the <c>for item in array</c> construct
+            </summary>
+            <param name="node">the for statement to check</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.OptimizeIterationStatements.UnpackExpression(Boo.Lang.Compiler.Ast.Block,Boo.Lang.Compiler.Ast.Expression,Boo.Lang.Compiler.Ast.DeclarationCollection)">
+            <summary>
+            Unpacks an expression onto a list of declarations.
+            </summary>
+            <param name="block">Block this takes place in</param>
+            <param name="expression">expression to explode</param>
+            <param name="declarations">list of declarations to set</param>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.PrintAst">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.PrintBoo">
+            <summary>	
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.ProcessAssignmentsToSpecialMembers">
+            <summary>
+            Summary description for ProcessAssignmentsToSpecialMembers.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.ProcessAssignmentsToValueTypeMembers">
+            <summary>
+            see BOO-313
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.ProcessInheritedAbstractMembers.ProcessBaseTypes(Boo.Lang.Compiler.Ast.ClassDefinition,Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.Ast.TypeReference)">
+            <summary>
+            This method scans all inherited types (classes and interfaces) and checks if abstract members of base types
+            were implemented in current class definition. If abstract member is not implemented then stub is created.
+            Stubs are created in two cases:
+            1) if any member of base interfaces is not implemented 
+            2) if any member of base types is not implemented and current class definition is not abstract.
+            </summary>
+            <param name="originalNode"></param>
+            <param name="currentType"></param>
+            <param name="rootBaseType"></param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.ProcessInheritedAbstractMembers.CheckInheritsImplementation(Boo.Lang.Compiler.Ast.ClassDefinition,Boo.Lang.Compiler.TypeSystem.IMember)">
+            <summary>
+            This function checks for inheriting implementations from EXTERNAL classes only.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.ProcessMethodBodies">
+            <summary>
+            AST semantic evaluation.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.ProcessMethodBodies.GetGeneratorReturnType(Boo.Lang.Compiler.TypeSystem.Internal.InternalMethod)">
+            <summary>
+            Allows a different language to use custom rules for generator
+            return types.
+            </summary>
+            <param name="generator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.Steps.ProcessMethodBodies.ProcessIterator(Boo.Lang.Compiler.Ast.Expression,Boo.Lang.Compiler.Ast.DeclarationCollection)">
+            <summary>
+            Process a iterator and its declarations and returns a new iterator
+            expression if necessary.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Services.ITypeReferenceReifier">
+            <summary>
+            Implemented by compiler steps that need to take part in type reference
+            reification.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.SerializeToXml">
+            <summary>
+            Writes a xml representation of the AST to the console.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.TypeInference">
+            <summary>
+            Marker step for code that depends to run after type inference has been completed.
+            
+            <example>
+            my(CompilerPipeline).InsertAfter(TypeInference, ActionStep({ PerformTypeDependentOperation() })
+            </example>
+            
+            <example>
+            my(CompilerPipeline).AfterStep += def (sender, args as CompilerStepEventArgs):
+                if args.Step isa TypeInference: PerformTypeDependentOperation()
+            </example>
+            
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Steps.VerifyExtensionMethods">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericConstructedMethod">
+            <summary>
+            A method constructed by supplying type arguments to a generic method, involving internal types.
+            </summary>
+            <remarks>
+            Constructed methods constructed from external generic methods with external type parameters 
+            are themselves external, and are represented as ExternalMethod instances. All other cases
+            are represented by this type.
+            </remarks>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericConstructedType">
+            <summary>
+            A type constructed by supplying type parameters to a generic type, involving internal types.
+            </summary>
+            <remarks>
+            Constructed types constructed from an external generic type with external type arguments 
+            are themselves external, and are represented as ExternalType instances. All other cases
+            are represented by this type.
+            </remarks>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericConstructionChecker">
+            <summary>
+            Checks a generic construction for several kinds of errors.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMappedMember`1">
+            <summary>
+            A base class for a member mapped from a generic type onto a constructed type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMappedAccessibleMember`1">
+            <summary>
+            A base class for an accessible member mapped from a generic type onto a constructed type.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMappedMethod">
+            <summary>
+            A method on a generic constructed type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMappedConstructor">
+            <summary>
+            A constructor on a generic constructed type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMappedProperty">
+            <summary>
+            A property on a generic constructed type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMappedEvent">
+            <summary>
+            An event in a constructed generic type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMappedField">
+            <summary>
+            A field on a generic constructed type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Generics.GenericMapping">
+            <summary>
+            Maps entities onto their constructed counterparts, substituting type arguments for generic parameters.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericMapping.#ctor(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IType[])">
+            <summary>
+            Constructs a new generic mapping between a generic type and one of its constructed types.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericMapping.#ctor(Boo.Lang.Compiler.TypeSystem.IMethod,Boo.Lang.Compiler.TypeSystem.IType[])">
+            <summary>
+            Constructs a new generic mapping between a generic method and one of its constructed methods.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericMapping.#ctor(Boo.Lang.Compiler.TypeSystem.IGenericParameter[],Boo.Lang.Compiler.TypeSystem.IType[])">
+            <summary>
+            Constrcuts a new GenericMapping for a specific mapping of generic parameters to type arguments.
+            </summary>
+            <param name="parameters">The generic parameters that should be mapped.</param>
+            <param name="arguments">The type arguments to map generic parameters to.</param>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericMapping.MapType(Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Maps a type involving generic parameters to the corresponding type after substituting concrete
+            arguments for generic parameters.
+            </summary>
+            <remarks>
+            If the source type is a generic parameter, it is mapped to the corresponding argument.
+            If the source type is an open generic type using any of the specified generic parameters, it 
+            is mapped to a closed constructed type based on the specified arguments.
+            </remarks>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericMapping.Map(Boo.Lang.Compiler.TypeSystem.IEntity)">
+            <summary>
+            Maps a type member involving generic arguments to its constructed counterpart, after substituting 
+            concrete types for generic arguments.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericMapping.UnMap(Boo.Lang.Compiler.TypeSystem.IMember)">
+            <summary>
+            Gets the method from which the specified method was mapped.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.TypeInferrer.FinalizeInference">
+            <summary>
+            Finalizes the inference by attempting to fix all inferred types.
+            </summary>
+            <returns>Whether the inference was completed successfully.</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.TypeInferrer.Infer(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Attempts to infer the type of generic parameters that occur in a formal parameter type
+            according to its actual argument type. 
+            </summary>
+            <returns>False if inference failed; otherwise, true. </returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.TypeInferrer.Infer(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.Generics.TypeInference)">
+            <summary>
+            Attempts to infer the type of generic parameters that occur in a formal parameter type
+            according to its actual argument type. 
+            </summary>
+            <returns>False if inference failed; otherwise, true. </returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericParameterInferrer.InferExplicits">
+            <summary>
+            Performs inference on explicitly typed arguments.
+            </summary>
+            <remarks>
+            Corresponds to the first phase in generic parameter inference according to the C# 3.0 spec.
+            </remarks>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericParameterInferrer.InferCallables">
+            <summary>
+            Performs inference on implicitly typed callables whose input types have already been inferred.
+            </summary>
+            <remarks>
+            Corresponds to the second phase in generic parameter inference according to the C# 3.0 spec.
+            </remarks>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.ConstructEntity(Boo.Lang.Compiler.Ast.Node,Boo.Lang.Compiler.TypeSystem.IEntity,Boo.Lang.Compiler.TypeSystem.IType[])">
+            <summary>
+            Constructs an entity from a generic definition and arguments, after ensuring the construction is valid.
+            </summary>
+            <param name="definition">The generic definition entity.</param>
+            <param name="constructionNode">The node in which construction occurs.</param>
+            <param name="typeArguments">The generic type arguments to substitute for generic parameters.</param>
+            <returns>The constructed entity.</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.ConstructAmbiguousEntity(Boo.Lang.Compiler.Ast.Node,Boo.Lang.Compiler.TypeSystem.Ambiguous,Boo.Lang.Compiler.TypeSystem.IType[])">
+            <summary>
+            Validates and constructs generic entities out of an ambiguous generic definition entity.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.CheckGenericConstruction(Boo.Lang.Compiler.TypeSystem.IEntity,Boo.Lang.Compiler.TypeSystem.IType[])">
+            <summary>
+            Checks whether a given set of arguments can be used to construct a generic type or method from a specified definition.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.CheckGenericConstruction(Boo.Lang.Compiler.Ast.Node,Boo.Lang.Compiler.TypeSystem.IEntity,Boo.Lang.Compiler.TypeSystem.IType[],System.Boolean)">
+            <summary>
+            Checks whether a given set of arguments can be used to construct a generic type or method from a specified definition.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.InferMethodGenericArguments(Boo.Lang.Compiler.TypeSystem.IMethod,Boo.Lang.Compiler.Ast.ExpressionCollection)">
+            <summary>
+            Attempts to infer the generic parameters of a method from a set of arguments.
+            </summary>
+            <returns>
+            An array consisting of inferred types for the method's generic arguments,
+            or null if type inference failed.
+            </returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.FindGenericParameters(Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Yields the generic parameters used in a (bound) type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.FindConstructedTypes(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Finds types constructed from the specified definition in the specified type's interfaces and base types.
+            </summary>
+            <param name="type">The type in whose hierarchy to search for constructed types.</param>
+            <param name="definition">The generic type definition whose constructed versions to search for.</param>
+            <returns>Yields the matching types.</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.FindConstructedType(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Finds a single constructed occurance of a specified generic definition
+            in the specified type's inheritence hierarchy.
+            </summary>
+            <param name="type">The type in whose hierarchy to search for constructed types.</param>
+            <param name="definition">The generic type definition whose constructed versions to search for.</param>
+            <returns>
+            The single constructed occurance of the generic definition in the
+            specified type, or null if there are none or more than one.
+            </returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.HasConstructedType(Boo.Lang.Compiler.TypeSystem.IType,Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Checks that at least one constructed occurence of a specified generic
+            definition is present in the specified type's inheritance hierarchy.
+            </summary>
+            <param name="type">The type in whose hierarchy to search for constructed type.</param>
+            <param name="definition">The generic type definition whose constructed versions to search for.</param>
+            <returns>
+            True if a occurence has been found, False otherwise.
+            </returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.IsOpenGenericType(Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Determines whether a specified type is an open generic type - 
+            that is, if it contains generic parameters.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.GetGenericParameters(Boo.Lang.Compiler.TypeSystem.IEntity)">
+            <summary>
+            Gets the generic parameters associated with a generic type or generic method definition.
+            </summary>
+            <returns>An array of IGenericParameter objects, or null if the specified entity isn't a generic definition.</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.GenericsServices.GetTypeGenerity(Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Determines the number of open generic parameters in the specified type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.InferredType.Fix">
+            <summary>
+            Attempts to infer the type based upon its bounds.
+            </summary>
+            <returns>True if the type could be inferred; otherwise, false.</returns>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.Generics.InferredType.FindSink(System.Collections.Generic.IEnumerable{Boo.Lang.Compiler.TypeSystem.IType},Boo.Lang.Compiler.TypeSystem.Generics.InferredType.Relation{Boo.Lang.Compiler.TypeSystem.IType})">
+            <summary>
+            Gets a type that acts as a sink in a set of types, in regard to
+            a specified relation.
+            </summary>
+            <param name="types">The set of types to find a sink for.</param>
+            <param name="relation">The directed relation for the sink.</param>
+            <returns>A type that maintains the specified relation with every other type
+            in the specified set, or null if none exists.</returns>
+        </member>
+        <member name="P:Boo.Lang.Compiler.TypeSystem.Generics.InferredType.ResultingType">
+            <summary>
+            Gets the type resulting from the inference, or null if none exists.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.TypeSystem.IParameter.IsByRef">
+            <summary>
+            Is the parameter out or ref?
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.Compiler.TypeSystem.Generics.TypeInference.Exact">
+            <summary>
+            The type parameter must be set to the exact actual type.
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.Compiler.TypeSystem.Generics.TypeInference.AllowCovariance">
+            <summary>
+            The type parameter can be set to a supertype of the actual type.
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.Compiler.TypeSystem.Generics.TypeInference.AllowContravariance">
+            <summary>
+            The type parameter is allowed to be set to a type derived from the actual type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.ICompileUnit">
+            <summary>
+            A compile unit represents a precompiled assembly or the root of an in memory
+            ast.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Internal.InternalGenericMapping">
+            <summary>
+            Maps entities onto their constructed counterparts, substituting type arguments for generic parameters.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Internal.InternalGenericMethod">
+            <summary>
+            A generic method definition on an internal type.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Internal.InternalGenericParameter">
+            <summary>
+            A generic type parameter of an internal generic type or method.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.TypeSystem.ILocalEntity.IsShared">
+            <summary>
+            Is this variable shared among closures?
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.TypeSystem.ILocalEntity.IsUsed">
+            <summary>
+            Is this variable ever used in the body of the method?
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.CallableResolutionService">
+            <summary>
+            Overload resolution service.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Services.CodeReifier">
+            <summary>
+            Reifies ast nodes.
+            
+            Reification of an ast node means compiling it up to the point of being ready for inclusion into <see cref="P:Boo.Lang.Compiler.CompilerContext.CompileUnit"/>.
+            
+            This allows code generated through the AST api or code literals to be added to the current CompileUnit without having to go through
+            bureaucratic <see cref="P:Boo.Lang.Compiler.CompilerContext.CodeBuilder"/> calls.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.MetadataUtil">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.TypeSystem.Services.NameResolutionService">
+            <summary>
+            Means to find the entity of a type reference or to set
+            the entity of type references (resolve the reference).
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.TypeSystemServices.IsReferenceType(Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Returns true if the type is a reference type or a generic parameter
+            type that is constrained to represent a reference type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.TypeSystemServices.IsAnyType(Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            Returns true if the type can be either a reference type or a value type.
+            Currently it returns true only for an unconstrained generic parameter type.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.TypeSystem.TypeSystemServices.IsSystemObject(Boo.Lang.Compiler.TypeSystem.IType)">
+            <summary>
+            checks if the passed type will be equivalente to
+            System.Object in runtime (accounting for the presence
+            of duck typing).
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Util.ArrayEqualityComparer`1">
+            <summary>
+            Compares reference type arrays based on their items.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.Util.ValueTypeArrayEqualityComparer`1">
+            <summary>
+            Compares value type arrays based on their items.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.BooCompiler">
+            <summary>
+            The compiler: a facade to the CompilerParameters/CompilerContext/Pipeline subsystem.
+            </summary>
+        </member>
+        <member name="M:Boo.Lang.Compiler.CompilerContext.RegisterService``1(``0)">
+            <summary>Registers a (new) compiler service.</summary>
+            <typeparam name="T">The Type of the service to register. It must be a reference type.</typeparam>
+            <param name="service">An instance of the service.</param>
+            <exception cref="T:System.ArgumentException">Thrown when <typeparamref name="T"/> is already registered.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="service"/> is null.</exception>
+            <remarks>Services are unregistered (and potentially disposed) when a pipeline has been ran.</remarks>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerError">
+            <summary>
+            A compilation error.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerErrorCollection">
+            <summary>
+            Compiler errors.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerInputCollection">
+            <summary>
+            A collection of <see cref="T:Boo.Lang.Compiler.ICompilerInput"/> objects.
+            </summary>
+        </member>
+        <member name="F:Boo.Lang.Compiler.CompilerOutputType.Auto">
+            <summary>
+            Automatically detects the output type depending if there's an entry point (ConsoleApplication)
+            or not (Library).
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerParameters">
+            <summary>
+            Compiler parameters.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.CompilerParameters.MaxExpansionIterations">
+            <summary>
+            Max number of iterations for the application of AST attributes and the
+            expansion of macros.		
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.CompilerParameters.Pipeline">
+            <summary>
+            The compilation pipeline.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.CompilerParameters.OutputAssembly">
+            <summary>
+            The name (full or partial) for the file
+            that should receive the resulting assembly.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.CompilerParameters.OutputDoc">
+            <summary>
+            File name of the XML documentation (if such a documentation
+            shall be created).
+            </summary>
+            <see cref="P:Boo.Lang.Compiler.CompilerParameters.CreateDoc"/>
+        </member>
+        <member name="P:Boo.Lang.Compiler.CompilerParameters.CreateDoc">
+            <summary>
+            True iff a XML file with documentation info shall be created.
+            If true, <see cref="!:OuputDoc"/> will be used to create a destination file.
+            If this property is undefined, use <see cref="P:Boo.Lang.Compiler.CompilerParameters.OutputAssembly"/> with
+            stripped file name extension but appended ".xml". 
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.CompilerParameters.OutputType">
+            <summary>
+            Type and execution subsystem for the generated portable
+            executable file.
+            </summary>
+        </member>
+        <member name="P:Boo.Lang.Compiler.CompilerParameters.Ducky">
+            <summary>
+            Treat System.Object as duck
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerReferenceCollection">
+            <summary>
+            Referenced assemblies collection.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerResourceCollection">
+            <summary>
+            A collection of <see cref="!:CompilerResource"/> objects.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerWarning">
+            <summary>
+            A compilation error.
+            </summary>
+        </member>
+        <member name="T:Boo.Lang.Compiler.CompilerWarningCollection">
+            <summary>
+            Compiler errors.
+            </summary>
+        </member>
+    </members>
+</doc>

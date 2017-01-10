@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE HelpIndex SYSTEM "MS-Help://Hx/Resources/HelpIndex.dtd" >
+<HelpIndex DTDVersion = "1.0"
+   Name="K"
+   Id = "KLinks"
+   AutoInclude="Yes"
+   Merge="Yes"
+   Sort="Yes"
+   Title="Keyword Index"
+   Visible="Yes"
+   LangId="1033"
+   Font="Tahoma"
+   FontSize="10"
+   Charset="1">
+</HelpIndex>

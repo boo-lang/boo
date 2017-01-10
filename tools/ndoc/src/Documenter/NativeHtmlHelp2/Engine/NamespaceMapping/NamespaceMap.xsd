@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<xs:schema id="namespaceMap" targetNamespace="urn:ndoc-sourceforge-net:documenters.NativeHtmlHelp2.schemas.namespaceMap"
+	xmlns:mstns="urn:ndoc-sourceforge-net:documenters.NativeHtmlHelp2.schemas.namespaceMap"
+	xmlns="urn:ndoc-sourceforge-net:documenters.NativeHtmlHelp2.schemas.namespaceMap" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" 
+	attributeFormDefault="qualified" elementFormDefault="qualified">
+	<xs:element name="namespaceMap" msdata:IsDataSet="false" msdata:EnforceConstraints="False">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="helpNamespace" minOccurs="1" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="managedNamespace" minOccurs="1" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:attribute name="ns" form="unqualified" type="xs:token" use="required" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="ns" form="unqualified" type="xs:anyURI" use="required" />
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

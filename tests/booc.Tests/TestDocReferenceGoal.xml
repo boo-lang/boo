@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TestDoc</name>
+    </assembly>
+    <members>
+        <member name="T:MyNamespace.MyClass">
+            <summary>
+            Performs specific duties. 
+            </summary>
+        </member>
+        <member name="F:MyNamespace.MyClass._rand">
+            <summary>
+            A documented field.
+            </summary>
+        </member>
+        <member name="M:MyNamespace.MyClass.#ctor">
+            <summary>
+            Initializes an instance of <see cref="T:MyNamespace.MyClass"/>.
+            </summary>
+        </member>
+        <member name="M:MyNamespace.MyClass.Commit">
+            <summary>
+            Commits an action.
+            </summary>
+            <see cref="M:MyNamespace.MyClass.Generic``2(``0)"/>
+            <see cref="M:MyNamespace.MyClass.Generic``2(``0)"/>
+        </member>
+        <member name="M:MyNamespace.MyClass.CalculateDouble(System.Int32)">
+            <summary>
+            Returns double the value of <paramref name="i"/>. 
+            </summary>
+            <param name="i">An <see cref="T:System.Int32"/> to be doubled. Or in other words: An <see cref="T:System.Int32"/> not as a <see cref="T:System.Double"/> but doubled.</param>
+            <returns></returns>
+        </member>
+        <member name="M:MyNamespace.MyClass.CauseError(System.Collections.ICollection,System.String,System.Object,System.Collections.Generic.ICollection{System.Int32})">
+            <summary>
+            Causes an error. Put the overall summary always on top. 
+            </summary>
+            <remarks>This method has not been implemented.
+                     If you want to add more lines, you should indent.
+            However, this line will also be added to the remarks. But you
+            will have the problem to read this in the source code.
+            </remarks>
+            <param name="irrelevantArg1"></param>
+            <param name="irrelevantArg2"></param>
+            <param name="irrelevantArg3"></param>
+            <param name="irrelevantArg4"></param>
+            <exception cref="T:System.NotImplementedException">This has not been implemented yet.</exception>
+        </member>
+        <member name="M:MyNamespace.MyClass.Generic``2(``0)">
+            <summary>
+            A generic method that does nothing.
+            </summary>
+            <param name="arg">An argument</param>
+            <returns></returns>
+        </member>
+        <member name="P:MyNamespace.MyClass.Rand">
+            <summary>
+            A documented property.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -38,12 +38,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CommandLineParserTest.cs" />
+    <Compile Include="DocOptionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="TestDoc.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
       <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
       <Name>Boo.Lang.Compiler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
+      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
+      <Name>Boo.Lang.Parser</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Boo.Lang\Boo.Lang.csproj">
       <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
@@ -58,6 +66,15 @@
     <Reference Include="nunit.framework">
       <HintPath>..\build\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestDoc.boo">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDocReference.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>see</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;see&gt; tag specifies a link to other documentation from within text.</p>
+			<pre class="syntax">&lt;see cref="<I>member</I>"&gt;[<EM>label</EM>]&lt;/see&gt;
+<b>OR</b>
+&lt;see href="<I>URL</I>"&gt;[<EM>label</EM>]&lt;/see&gt;
+<b>OR</b>
+&lt;see langword="null | sealed 
+| static | abstract | virtual | true | false"/&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt><I>label</I>
+					<dd>
+						text to display as the link <dt>cref = "<I>member</I>"
+							<dd>
+								A reference to a member or field that is available to be called from the 
+								current compilation environment. The compiler checks that the given code 
+								element exists and passes <I>member</I> to the element name in the output XML.<I> member</I>
+								must appear within double quotation marks (" "). <dt>href = "<I>URL</I>" <FONT color="#ff9933">
+										[NDoc extension]</FONT>
+									<dd>
+										A reference to an external resource at the address given by the URL. <dt>langword <FONT color="#ff9933">[NDoc 
+												extension]</FONT>
+											<dd>
+												A common .NET language keyword. These keywords are highlighted, and, in some 
+												cases, expanded into descriptive phrases (see remarks for further details). 
+												Note that although the syntax&nbsp;above only shows the common keywords, any 
+												word specified will be highlighted.</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>Can be used inline within any other markup.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>
+				Use <a href="tag_seealso.htm">&lt;seealso&gt;</a> to indicate text that you 
+				might want to appear in a <STRONG>See Also</STRONG> section.</p>
+			<P><STRONG>Note:</STRONG></TD> As of release 1.3, the MSDN and VS.NET documenters 
+				will only create a link on the first occurrence of each unique&nbsp;cref 
+				specified&nbsp;within a documentation section; further &lt;see&gt; tags will 
+				just be highlighted.&nbsp; This improves the readability of the documentation.
+			</P>
+			<h5 class="dtH5">langword expansions</h5>
+			<div class="tablediv">
+				<table class="dtTABLE" cellspacing="0" ID="Table1">
+					<tr>
+						<th>
+							keyword</th>
+						<th>
+							expansion
+						</th>
+					</tr>
+					<tr>
+						<td>null</td>
+						<td>
+							null reference (<b>Nothing</b> in Visual Basic)
+						</td>
+					</tr>
+					<tr>
+						<td>sealed</td>
+						<td>
+							sealed (<b>NotInheritable</b> in Visual Basic)
+						</td>
+					</tr>
+					<tr>
+						<td>static</td>
+						<td>
+							static (<b>Shared</b> in Visual Basic)
+						</td>
+					</tr>
+					<tr>
+						<td>abstract</td>
+						<td>
+							abstract (<b>MustInherit</b> in Visual Basic)
+						</td>
+					</tr>
+					<tr>
+						<td>virtual</td>
+						<td>
+							virtual (<b>CanOverride</b> in Visual Basic)
+						</td>
+					</tr>
+				</table>
+			</div>
+			<h4 class="dtH4">Example</h4>
+			<p>See <a href="tag_summary.htm">&lt;summary&gt;</a> for an example of using 
+				&lt;see&gt;.</p>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a HREF="tags.htm">NDoc&nbsp;Tags</a>&nbsp;|
+				<a href="tag_seealso.htm">&lt;seealso&gt;</a>&nbsp;| <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfsee.htm">
+					Microsoft's definition</A></p>
+		</div>
+	</body>
+</html>

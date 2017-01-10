@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>booc</name>
+    </assembly>
+    <members>
+        <member name="T:booc.App">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="M:booc.App.Main(System.String[])">
+            <summary>
+            The main entry point for the application.
+            </summary>
+        </member>
+    </members>
+</doc>

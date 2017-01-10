@@ -30,17 +30,5 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("boo - an extensible programming language for the CLI")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("boo - an extensible programming language for the CLI")]
-[assembly: AssemblyCopyright("(C) 2003-2007 Rodrigo Barreto de Oliveira")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.0.9.5")]
-[assembly: AssemblyDelaySign(false)]
-#if !IGNOREKEYFILE
-[assembly: AssemblyKeyFile("../src/boo.snk")]
-#endif
-[assembly: AssemblyKeyName("")]
 
 [assembly: System.Resources.NeutralResourcesLanguage("en")]

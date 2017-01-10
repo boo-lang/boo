@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Decorating Your Code</title>
+<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css" />
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h1 class="dtH1">The more, the better</h1>
+	<p>The more code comments you add to your code, the more descriptive the generated 
+	help topics will be. That makes your help file more useful to the users of your 
+	assemblies.</p>
+	<p>At a minimum each public type, and the public and protected members of your 
+	public types, should have a <strong><a href="tags.htm#summary">&lt;summary&gt;</a></strong> 
+	item describing what the member does or represents.</p>
+	<p>The VS.NET C# code editor has a handy feature that makes it easy to create 
+	the basic code comments for each type and member:</p>
+	<p>For the following code snippet:</p>
+	<div class="csharpcode">
+		<span class="kwrd">public class</span> MyClass() {
+		<div class="codescopeblock">
+			<span class="kwrd">public</span> MyClass( <span class="kwrd">string</span> 
+			s ) { } </div>
+		} </div>
+	<p>if you place your cursor just above the <b>MyClass</b> constructor, and hit 
+	the &#39;/&#39; character three times in a row, VS.NET will create the skeleton of a 
+	code comment block for that member: </p>
+	<div class="csharpcode">
+		<span class="kwrd">public class</span> MyClass() {
+		<div class="codescopeblock">
+			<div class="codecomment">
+				/// &lt;summary&gt; </div>
+			<div class="codecomment">
+				/// </div>
+			<div class="codecomment">
+				/// &lt;/summary&gt; </div>
+			<div class="codecomment">
+				/// &lt;param name=&quot;s&quot;&gt;&lt;/param&gt; </div>
+			<span class="kwrd">public</span> MyClass( <span class="kwrd">string</span> 
+			s ) { } </div>
+		} </div>
+	<p>This applies to any type or member that can have code comment tags associated 
+	with it. Further more, once you have a code comment block, when you hit the 
+	&#39;&lt;&#39; key to start a new tag, VS.NET will display an intellisense selector showing 
+	the appropriate list of code comment tags. Unfortunately this list won&#39;t include 
+	the additional tags that NDoc supports, but you can still add them by hand.</p>
+	<p>NDoc includes options that allow you to generate documentation for private 
+	and internal items. This is useful when you are using NDoc to generate in-house 
+	documentation. If you plan to use NDoc in this way you should also add code 
+	comments to types and members that would not normally be visible outside of 
+	the assembly.</p>
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>exception</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;exception&gt; tag&nbsp; describes which exceptions can be thrown by a 
+				member.</p>
+			<pre class="syntax">&lt;exception cref="<I>member</I>"&gt;<I>description</I>&lt;/exception&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt>cref = "<I>member</I>"
+					<dd>
+						A reference to an exception that is available from the current compilation 
+						environment. The compiler checks that the given exception exists and translates <I>member</I>
+						to the canonical element name in the output XML. <I>member</I> must appear 
+						within double quotation marks (" "). <dt><I>description</I>
+							<dd>
+								A description.</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>Property, Method, Event, Operator, Type Conversion</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>
+				This tag is applied to a method definition.</p>
+			<h4 class="dtH4">Example</h4>
+			<pre class="csharpcode"><SPAN class="lang">[C#]</SPAN>
+<span class="kwrd">using</span> System;
+
+<span class="rem">/// comment for class</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> EClass : Exception 
+{
+   <span class="rem">// class definition ...</span>
+}
+
+<span class="rem">/// &lt;exception cref="System.Exception"&gt;Thrown when... .&lt;/exception&gt;</span>
+<span class="kwrd">class</span> TestClass 
+{
+   <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Main() 
+   {
+      <span class="kwrd">try</span> 
+      {
+      }
+      <span class="kwrd">catch</span>(EClass) 
+      {
+      }
+   }
+}
+</pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a href="tags.htm">NDoc&nbsp;Tags</a>&nbsp;| <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfexception.htm">
+					Microsoft's definition</A></p>
+		</div>
+	</body>
+</html>

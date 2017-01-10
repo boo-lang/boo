@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>overloads</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;overloads&gt; tag provides documentation that applies to all the 
+				overloads of a member.</p>
+			<pre class="syntax">
+<span style="FONT-FAMILY:Verdana"><b>Short Form</b></span>
+&lt;overloads&gt;
+   <i>summary_description</i>
+&lt;/overloads&gt;
+</pre>
+			<pre class="syntax">
+<span style="FONT-FAMILY:Verdana"><b>Expanded Form</b></span>
+&lt;overloads&gt;
+   &lt;summary&gt;<i>summary_description&lt;</i>/summary&gt;
+   [&lt;remarks&gt;<i>remarks_description&lt;</i>/remarks&gt;]
+   [&lt;example&gt;<i>examples_description&lt;</i>/example&gt;]
+&lt;/overloads&gt;
+</pre>
+			<p>where:</p>
+			<dl>
+				<dt><I>term</I>
+					<dd>
+						A term to define, which will be defined in <I>description</I>. <dt><I>description</I>
+							<dd>
+								Either an item in a bullet or numbered list or the definition of a <I>term</I>.</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>Property, Method, Event, Operator.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>This tag only needs to be specified on the first overload.</p>
+			<p>The tag can have two forms:</p>
+			<UL>
+				<LI>
+				In the short form, it includes only one or more text blocks that are treated as 
+				the summary.
+				<LI>
+					In the expanded form, it can include one or more applicable section tags 
+					(summary, remarks and example).
+				</LI>
+			</UL>
+			<h4 class="dtH4">Examples</h4>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a href="tags.htm"> NDoc&nbsp;Tags</a>&nbsp;| <a HREF="tag_summary.htm">&lt;summary&gt;</a>&nbsp;| <a HREF="tag_remarks.htm">&lt;remarks&gt;</a>&nbsp;| <a HREF="tag_example.htm">&lt;example&gt;</a></p>
+		</div>
+	</body>
+</html>

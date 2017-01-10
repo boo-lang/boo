@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Boo.Lang.Extensions</name>
+  </assembly>
+  <members>
+    <member name="T:Boo.Lang.Extensions.GetterAttribute">
+      <summary>Creates a field accessor.  Example: class Customer: [getter(FirstName)] _fname as string [getter(LastName)] _lname as string</summary>
+    </member>
+    <member name="T:Boo.Lang.Environments.FunctionInvoker">
+      <summary>workaround for compiler not supporting closures capturing generic parameters</summary>
+    </member>
+    <member name="M:Boo.Lang.Environments.EnvironmentExtensionsModule.Run(Boo.Lang.Environments.IEnvironment,System.Action)">
+      <summary>Runs the given action in this environment.</summary>
+    </member>
+    <member name="M:Boo.Lang.Environments.EnvironmentExtensionsModule.Invoke``1(Boo.Lang.Environments.IEnvironment,System.Func{``0})">
+      <summary>Invokes the given function in this environment and returns the result.</summary>
+    </member>
+    <member name="M:Boo.Lang.Extensions.PropertyMacroParser.PropertyGetIsStaticClass(Boo.Lang.Compiler.Ast.MacroStatement)">
+      <summary>Analyses the parent node of the macro statement in order to find out whether this property is part of a static class. in this case, the property shall create a static property. </summary>
+    </member>
+    <member name="T:Boo.Lang.Extensions.UnsafeMacro.Indirector">
+      <summary>Replaces all occurences of explode operator on the declared pointer variable with indirection operators within the unsafe context. </summary>
+    </member>
+  </members>
+</doc>

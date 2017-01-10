@@ -1383,6 +1383,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BOO_GH94_1()
+		{
+			RunCompilerTestCase(@"BOO-GH94-1.boo");
+		}
+		
+		[Test]
 		public void complex_iterators_1()
 		{
 			RunCompilerTestCase(@"complex-iterators-1.boo");

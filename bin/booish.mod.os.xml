@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>booish.mod.os</name>
+  </assembly>
+  <members>
+    <member name="F:Booish.Mod.Os.Directory._dirStack">
+      <summary>A list representing the stack of visited directories.</summary>
+    </member>
+    <member name="M:Booish.Mod.Os.Directory.Cd(System.Object)">
+      <summary>Change current directory.</summary>
+    </member>
+    <member name="M:Booish.Mod.Os.Directory.Pwd">
+      <summary>Show the current working directory.</summary>
+    </member>
+    <member name="T:Booish.Mod.Os.Directory">
+      <summary>Implements CD, DIR, LS and PWD commands.</summary>
+    </member>
+    <member name="N:Booish.Mod.Os">
+      <summary>The classes of this namespace implement commands for the \"booish\" shell affecting the file system like \"dir\" or \"pwd\". On the on hand, these classes allow to use \"booish\" like \"cmd.exe\". On the other hand, these classes may serve as an example for extendind the \"booish\" shell by linking assemblies.</summary>
+    </member>
+    <member name="M:Booish.Mod.Os.File.Move(System.String,System.String)">
+      <summary>Move a file to another directory or rename it. </summary>
+    </member>
+    <member name="M:Booish.Mod.Os.File.Copy(System.String,System.String)">
+      <summary>Copy files to another directory. </summary>
+    </member>
+    <member name="M:Booish.Mod.Os.File.Delete(System.String)">
+      <summary>Delete a file. </summary>
+    </member>
+    <member name="M:Booish.Mod.Os.File.Encrypt(System.String)">
+      <summary>Encrypt a file. </summary>
+    </member>
+    <member name="M:Booish.Mod.Os.File.Decrypt(System.String)">
+      <summary>Decrypt a file. </summary>
+    </member>
+    <member name="M:Booish.Mod.Os.File.Type(System.String)">
+      <summary>Type the content of a file. </summary>
+    </member>
+    <member name="M:Booish.Mod.Os.File.Run(System.String,System.String)">
+      <summary>If suffix of the file is .BOO, then run this file within this interpreter. Otherwise, pass the file to the system for starting a process. </summary>
+    </member>
+    <member name="T:Booish.Mod.Os.File">
+      <summary>Implements Move, Del, Copy commands.</summary>
+    </member>
+  </members>
+</doc>

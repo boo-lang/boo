@@ -35,7 +35,7 @@ public class GetterAttribute(PropertyAttribute):
 """
 Creates a field accessor.
 
-@example
+Example:
 class Customer:
 	[getter(FirstName)] _fname as string
 	[getter(LastName)] _lname as string

@@ -65,7 +65,27 @@
 
 	</target>
 
-	<target name="compile" depends="init">
+	<target name="compile-interpreter-tests" depends="init">
+		<property name="fixture" value="" dynamic="true" overwrite="false" />
+		<booc
+			target="library"
+			output="build/Boo.Lang.Interpreter.Tests.dll"
+			debug="true"
+			if="${fixture == '' or fixture == 'Boo.Lang.Interpreter'}">
+
+			<sources basedir="Boo.Lang.Interpreter.Tests">
+				<include name="**/*.boo" />
+			</sources>
+
+			<references basedir="build">
+				<include name="Boo.Lang.Interpreter.dll" />
+				<include name="Boo.Lang.Extensions.dll" />
+				<include name="Boo.Lang.Compiler.dll" />
+				<include name="${nunit.framework.dll}" />
+			</references>
+		</booc>
+	</target>
+	<target name="compile" depends="compile-interpreter-tests">
 
 		<property name="fixture" value="" dynamic="true" overwrite="false" />
 
@@ -90,6 +110,7 @@
 		<csc
 			target="library"
 			output="build/booc.Tests.dll">
+			debug="true"
 			
 			<sources basedir="booc.Tests">
 				<include name="**/*.cs" />
@@ -102,10 +123,13 @@
 				<include name="booc.exe" />
 			</references>
 		</csc>
+		<copy todir="build" file="booc.Tests/TestDoc.boo" />
+		<copy todir="build" file="booc.Tests/TestDocReference.xml" />
 
 		<booc
 			target="library"
 			output="build/BooModules.dll">
+			debug="true"
 
 			<sources basedir="BooModules">
 				<include name="*.boo" />
@@ -114,6 +138,7 @@
 
 		<booc
 			target="library"
+			debug="true"
 			output="build/BooSupportingClasses.dll">
 
 			<sources basedir="BooSupportingClasses">
@@ -122,6 +147,7 @@
 		</booc>
 
 		<booc target="library" output="build/Boo.Lang.PatternMatching.Tests.dll"
+ 			  debug="true"
 		      if="${fixture == '' or fixture == 'Boo.Lang.PatternMatching'}">
 			<sources basedir="Boo.Lang.PatternMatching.Tests">
 				<include name="*.boo" />
@@ -135,6 +161,7 @@
 		<csc
 			target="library"
 			output="build/Boo.Lang.Runtime.Tests.dll"
+			debug="true"
 			unsafe="true" if="${fixture == '' or fixture == 'Boo.Lang.Runtime'}">
 
 			<sources basedir="Boo.Lang.Runtime.Tests">
@@ -153,6 +180,7 @@
 		<csc
 			target="library"
 			output="build/BooCompiler.Tests.dll"
+			debug="true"
 			unsafe="true">
 			<!-- always compile this one, it is referenced by tests below -->
 
@@ -189,6 +217,7 @@
 				<csc
 					target="library"
 					output="build/${currentFixture}.Tests.dll"
+					debug="true"
 					unsafe="true"
 					if="${fixture == '' or fixture == currentFixture}">
 
@@ -212,6 +241,7 @@
 		<csc
 			target="library"
 			output="build/Boo.Lang.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang'}">
 
 			<sources basedir="Boo.Lang.Tests">
@@ -228,6 +258,7 @@
 		<booc
 			target="library"
 			output="build/Boo.Lang.Useful.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.Useful'}">
 
 			<sources basedir="Boo.Lang.Useful.Tests">
@@ -244,6 +275,7 @@
 		<booc
 			target="library"
 			output="build/Boo.Lang.Compiler.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.Compiler'}">
 
 			<sources basedir="Boo.Lang.Compiler.Tests">
@@ -259,6 +291,7 @@
 		<booc
 			target="library"
 			output="build/BooCompilerResources.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'BooCompilerResources'}">
 
 			<sources basedir="BooCompilerResources.Tests">
@@ -269,26 +302,11 @@
 				<include name="${nunit.framework.dll}" />
 			</references>
 		</booc>
-
-		<booc
-			target="library"
-			output="build/Boo.Lang.Interpreter.Tests.dll"
-			if="${fixture == '' or fixture == 'Boo.Lang.Interpreter'}">
-
-			<sources basedir="Boo.Lang.Interpreter.Tests">
-				<include name="**/*.boo" />
-			</sources>
-
-			<references basedir="build">
-				<include name="Boo.Lang.Interpreter.dll" />
-				<include name="Boo.Lang.Compiler.dll" />
-				<include name="${nunit.framework.dll}" />
-			</references>
-		</booc>
-
+		
 		<booc
 			target="library"
 			output="build/Boo.Lang.CodeDom.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.CodeDom'}">
 
 			<sources basedir="Boo.Lang.CodeDom.Tests">
@@ -304,6 +322,7 @@
 		<csc
 			target="library"
 			output="build/Boo.Lang.Parser.Tests.dll"
+			debug="true"
 			if="${fixture == '' or fixture == 'Boo.Lang.Parser'}">
 
 			<sources>
@@ -323,7 +342,9 @@
 	</target>
 
 	<target name="init">
+		<!--
 		<delete dir="build" if="${directory::exists('build')}" />
+		-->
 		<mkdir dir="build" />
 		
 		<copy todir="build" overwrite="true">

@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>The NDoc Console Application</title>
+		<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<h3 class="dtH3">Overview</h3>
+			<div id="nstext0">The NDoc console application (<b>NDocConsole.exe</b>) exposes the 
+				full building capability of the GUI application and designed to be integrated 
+				into automated build process.
+			</div>
+			<h3 class="dtH3">Syntax</h3>
+			<div class="nstext0">The console application uses a simple name-value-pair syntax 
+				for specifying options. Named options are prefixed with a dash in the following 
+				fashion: <b>-name=value</b>, with no white-space after the dash or around the 
+				equals sign. All parameters described below that are enclosed in square 
+				brackets are optional. Paths containing spaces need to be quoted.</div>
+			<h4 class="dtH4">Usage 1</h4>
+			<DIV>
+				<pre> NDocConsole  assembly[,xmldoc] [assembly[,xmldoc]]...
+                    [[-referencepath=dir] [-referencepath=dir]...]
+                    [-namespacesummaries=filename]
+                    [-documenter=documenter_name]
+                    [[-property=value] [-property=value]...]
+                    [-verbose]
+</pre>
+			</DIV>
+			<DIV>where:
+			</DIV>
+			<DIV>
+				<UL>
+					<li>
+						<b>assembly</b>
+					is the full path to an assembly to be documented
+					<li>
+						<b>xmldoc</b> is the full path to the compiler generated /doc file
+						<p dir="ltr" style="MARGIN-RIGHT: 0px"><EM> if not specified, NDoc will look (in the 
+								same directory as <B>assembly</B>) for a file with the name of the assembly 
+								but&nbsp;with an extension of .xml instead of .dll or .exe</EM></p>
+					<li>
+						<b>referencepath</b>
+					is the full path to a directory where referenced assemblies can be located
+					<LI>
+						<STRONG>namespacesummaries</STRONG> is the full path to a <A href="#namespace_summary">
+							namespace summary XML document</A>
+					<LI>
+						<STRONG>documenter</STRONG> is the <a href="#documenter_names">name of the 
+							documenter</a> to use
+						<p dir="ltr" style="MARGIN-RIGHT: 0px"><EM>if not specified, the MSDN documenter will 
+								be used</EM></p>
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>property</STRONG> is the case 
+							sensitive name of a property to set on <STRONG>documenter</STRONG></P>
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>value</STRONG> is the value to set <STRONG>
+								property</STRONG> to</P>
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>verbose</STRONG> causes full 
+							progress information to be displayed during the build</P>
+					</LI>
+				</UL>
+			</DIV>
+			<h4 class="dtH4">Usage 2</h4>
+			<div>
+				<pre>NDocConsole -recurse=dir[,maxDepth]
+		[[-referencepath=dir]
+		[-referencepath=dir]...]
+		[-namespacesummaries=filename] 
+		[-documenter=documenter_name]
+		[[-property=value] [-property=value]...] 
+		[-verbose] </pre>
+			</div>
+			<DIV>where:
+			</DIV>
+			<DIV>
+				<UL>
+					<li>
+						<STRONG>recurse</STRONG>
+					will document all assemblies in the specified directory if they have a /doc XML 
+					file named&nbsp;with the name of the assembly but&nbsp;with an extension of 
+					.xml instead of .dll or .exe
+					<LI>
+						<STRONG>maxDepth</STRONG> is the maximum depth of sub-directories below <STRONG>dir</STRONG>
+					to search
+					<LI>
+						<B>referencepath</B>
+					is the full path to a directory where referenced assemblies can be located
+					<LI>
+						<STRONG>namespacesummaries</STRONG> is the full path to a <A href="#namespace_summary">
+							namespace summary XML document</A>
+					<LI>
+						<STRONG>documenter</STRONG> is the <a href="#documenter_names">name of the 
+							documenter</a> to use
+						<p dir="ltr" style="MARGIN-RIGHT: 0px"><EM>if not specified, the MSDN documenter will 
+								be used</EM></p>
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>property</STRONG> is the case 
+							sensitive name of a property to set on <STRONG>documenter</STRONG></P>
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>value</STRONG> is the value to set <STRONG>
+								property</STRONG> to</P>
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>verbose</STRONG> causes full 
+							progress information to be displayed during the build</P>
+					</LI>
+				</UL>
+			</DIV>
+			<h4 class="dtH4">Usage 3</h4>
+			<div>
+				<pre>NDocConsole [-documenter=documenter_name]
+	       -project=ndocfile 
+	       [-verbose]</pre>
+			</div>
+			<DIV>where:
+			</DIV>
+			<DIV>
+				<UL>
+					<LI>
+						<STRONG>documenter</STRONG> is the <a href="#documenter_names">name of the 
+							documenter</a> to use
+						<p dir="ltr" style="MARGIN-RIGHT: 0px"><EM>if not specified, the MSDN documenter will 
+								be used</EM></p>
+					<LI>
+						<STRONG>project</STRONG>
+					is the full path to an NDoc project file
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>verbose</STRONG> causes full 
+							progress information to be displayed during the build</P>
+					</LI>
+				</UL>
+			</DIV>
+			<h4 class="dtH4">Usage 4</h4>
+			<div>
+				<pre>NDocConsole [-help]
+	       [documenter_name [property_name]]</pre>
+			</div>
+			<DIV>where:
+			</DIV>
+			<DIV>
+				<UL>
+					<LI>
+						<STRONG>help&nbsp;</STRONG>displays help information&nbsp;
+						<p dir="ltr" style="MARGIN-RIGHT: 0px"><EM>if <STRONG>documenter_name</STRONG> is not 
+								specified, basic usage syntax&nbsp;will be displayed</EM></p>
+					<LI>
+						<STRONG>documenter_name</STRONG> displays help about a specific documenter
+						<p dir="ltr" style="MARGIN-RIGHT: 0px"><EM>if <STRONG>property_name</STRONG> is not 
+								specified a list of all the settable properties on <STRONG>documenter_name</STRONG>
+								will be displayed</EM></p>
+					<LI>
+						<P dir="ltr" style="MARGIN-RIGHT: 0px"><STRONG>property_name</STRONG> is the name 
+							of the property on <STRONG>documenter_name</STRONG> to display help about</P>
+					</LI>
+				</UL>
+			</DIV>
+			<h3 class="dtH3"><a name="documenter_names">Available Documenters </a>
+			</h3>
+			<div class="nstext0">The currently supported documenter names are: <STRONG>JavaDoc</STRONG>,
+				<STRONG>LaTeX</STRONG>, <STRONG>LinearHtml</STRONG>, <STRONG>MSDN</STRONG>, <STRONG>
+					VS.NET_2003</STRONG>, and <STRONG>XML</STRONG>.</div>
+			<h3 class="dtH3"><a name="namespace_summary">Namespace Summaries File Syntax</a></h3>
+			<pre>
+&lt;namespaces&gt;
+	&lt;namespace name="My.NameSpace"&gt;My summary.&lt;/namespace&gt;
+	&lt;namespace name="My.OtherNameSpace"&gt;My other summary.&lt;/namespace&gt;
+	...
+&lt;/namespaces&gt;
+</pre>
+		</div>
+	</body>
+</html>

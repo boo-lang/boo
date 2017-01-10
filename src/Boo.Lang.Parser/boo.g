@@ -218,12 +218,12 @@ module_macro[Module module]
 {
 	MacroStatement s = null;
 }:
-	s=macro_stmt { module.Globals.Add(s); }
+	s=macro_stmt { if (s != null) module.Globals.Add(s); }
 ;
 			
 protected docstring[Node node]:
 	(
-		doc:TRIPLE_QUOTED_STRING { node.Documentation = DocStringFormatter.Format(doc.getText()); }
+		doc:TRIPLE_QUOTED_STRING { node.Documentation = DocStringFormatter.Format(node, doc.getText()); }
 		(eos)?
 	)?
 ;
@@ -765,31 +765,35 @@ method [TypeMemberCollection container]
 		TypeMember typeMember = null;
 		IToken id = null;
 	}: 
-	t:DEF
-	(		
-		(
+	(
+		t:DEF
+		(		
 			(
-				(emi=explicit_member_info)?
-				(id=member | spliceBegin:SPLICE_BEGIN nameSplice=atom)
-			) {
-				IToken token = id ?? spliceBegin;
-				if (emi != null) {
-					m = new Method(emi.LexicalInfo);
-				} else {
-					m = new Method(ToLexicalInfo(token));
+				(
+					(emi=explicit_member_info)?
+					(id=member | spliceBegin:SPLICE_BEGIN nameSplice=atom)
+				) {
+					IToken token = id ?? spliceBegin;
+					if (emi != null) {
+						m = new Method(emi.LexicalInfo);
+					} else {
+						m = new Method(ToLexicalInfo(token));
+					}
+					m.Name = token.getText();
+					m.ExplicitInfo  = emi;
+					
+					if (nameSplice != null) {
+						typeMember = new SpliceTypeMember(m, nameSplice);
+					} else {
+						typeMember = m;
+					}
 				}
-				m.Name = token.getText();
-				m.ExplicitInfo  = emi;
-				
-				if (nameSplice != null) {
-					typeMember = new SpliceTypeMember(m, nameSplice);
-				} else {
-					typeMember = m;
-				}
-			}
+			)
+			| c:CONSTRUCTOR { typeMember = m = new Constructor(ToLexicalInfo(c)); } /* why do ctors and dtors need a def */
+			| d:DESTRUCTOR { typeMember = m = new Destructor(ToLexicalInfo(d)); }
 		)
-		| c:CONSTRUCTOR { typeMember = m = new Constructor(ToLexicalInfo(c)); }
-		| d:DESTRUCTOR { typeMember = m = new Destructor(ToLexicalInfo(d)); }
+		| cc:CONSTRUCTOR { typeMember = m = new Constructor(ToLexicalInfo(cc)); } /* why do ctors and dtors need a def */
+		| dd:DESTRUCTOR { typeMember = m = new Destructor(ToLexicalInfo(dd)); }
 	)
 	{
 		m.Modifiers = _modifiers;
@@ -800,7 +804,7 @@ method [TypeMemberCollection container]
 		statements = body.Statements;
 	}
 	(LBRACK (OF)? generic_parameter_declaration_list[genericParameters] RBRACK)?
-	LPAREN parameter_declaration_list[parameters] RPAREN
+	(LPAREN parameter_declaration_list[parameters] RPAREN)? /* why does this require a formal parameter list? */
 	attributes { AddAttributes(m.ReturnTypeAttributes); }
 	(AS rt=type_reference { m.ReturnType = rt; })?
 	begin_block_with_doc[m, body]

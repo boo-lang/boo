@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <assembly>
+    <name>Boo.Lang.Interpreter</name>
+  </assembly>
+  <members>
+    <member name="M:Boo.Lang.Interpreter.AbstractInterpreter.SuggestCompletionsFor(System.String)">
+      <summary>The code must contain a __codecomplete__ member reference as a placeholder to the suggestion.  The return value is a an environment bound array of candidate members and/or namespaces to replace __codecomplete__. </summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdClassAttribute._name">
+      <summary>The name of this block of commands.</summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.CmdClassAttribute">
+      <summary>A class containing builtin commands. blocks of commands can be activated and deactivated. Classes with this attribute shall either be static or the activator shall be able to create instances. Within these classes, the shell will scan for <see cref="BuiltinDeclarationAttribute" />.</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdDeclarationAttribute._name">
+      <summary>Primary name of the command.</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdDeclarationAttribute._shortcuts">
+      <summary>The name of the command that shall be used to start it in a shell.</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdDeclarationAttribute._description">
+      <summary>The description on the command that shall be displayed to the user whenever appropriate.</summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.CmdDeclarationAttribute">
+      <summary>Declares builtin shell commands. Builtins have a name and an optional description that shall be displayed to the user whenever appropriate.</summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.CmdArgumentCompletion">
+      <summary>Options of the <see cref="CommandArgumentAttribute" /> defining a kind of argument completion.</summary>
+    </member>
+    <member name="P:Boo.Lang.Interpreter.CmdArgumentAttribute.DefaultValue">
+      <summary>This is an optional property and will be passed to the CompletionMethod. </summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.CmdArgumentAttribute">
+      <summary>An optional</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdExecution._cmdObjects">
+      <summary>Objects that are required for non-static ShellCmd.</summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.CmdExecution.AddCmdObject(System.Object)">
+      <summary>The argument will be registered as an instance to be used for the execution of shell commands.</summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.CmdExecution.MaybeACommand(System.String)">
+      <summary>True iff shell commands are preferred or line starts with a slash. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.CmdExecution.GetSuggestionsForCmdArg(System.String)">
+      <summary>Returns a string array of suggestions for the completion of a shell command argument or <see cref="c" />null&lt;/c&gt; if query is not a shell command. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.CmdExecution.TryRunCommand(System.String)">
+      <summary>Run the buitin command as stated by a line string. Return false, if the line does not start a builtin command. Returns false if no command has been processed, true otherwise. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.CmdExecution.DisplayHelp(System.String)">
+      <summary>Displays helping information on the available shell command on the Console.</summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.CmdExecution">
+      <summary>Collects and executes shell commands.</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdParser._lastArgClosed">
+      <summary>True if either the last arg has been closed with a bracket or with a blank. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.CmdParser.SetOnlyOneArgument">
+      <summary>The caller recognized after analysing <paramref name="_Cmd" /> that this method only has one argument. Thus, all arguments shall be joined into one. </summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdParser._Cmd">
+      <summary>Name of the parsed builtin command.</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdParser._Args">
+      <summary>The arguments that have been found.</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdParser._startPosArg">
+      <summary>The start positions of the shell arguments.</summary>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.CmdParser._endPosArg">
+      <summary>The end positions of the shell arguments.</summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.CmdParser">
+      <summary>Parses a line that might be a builtin command (without preceeding slash). This class will isolate the command and try its best to create an array of arguments, each represented by a string. You may use quotes or double quotes to compose arguments of more than one word. You may also use brackets, square brackets, or curly brackets to embrace an argument. The difference between to approaches: "an "arg" will be parsed into two arguments "an " and "arg\"". "this is exactly "" one arg" will be parsed into "this is exactly \" one arg". (an (expr) containing <paramref name="additional" /> expressions) will be parsed into exactly one argument "an (expr) containing <paramref name="additional" /> expressions". Brackets and quotes will be removed from the resulting argument string, if the parser suspects that these characters have been used to quote the argument.</summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.ColorScheme">
+      <summary>Collection of colors that will be used by the interactive shell.</summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.DescribeModule.DescribeDoc(System.String,System.Xml.XmlNodeList,bool)">
+      <summary />
+      <param name="doc">XML nodes containing the documentation of a code entity.</param>
+      <param name="indent">A string that is used to introduce new lines.</param>
+      <returns> A string  Return a string showing the documentation on a particular objects. Use <paramref name="indent" /> to indent lines. <paramref name="detailed" /> requests with true an output containing all details. If this is false, only the summary and parameters will be returned. </returns>
+      <remarks> I could provide some more details here but I don't know anything that remains to be explained.</remarks>
+    </member>
+    <member name="F:Boo.Lang.Interpreter.InteractiveInterpreterConsole._autoIndention">
+      <summary>Turn auto indention on and off. </summary>
+    </member>
+    <member name="P:Boo.Lang.Interpreter.InteractiveInterpreterConsole.LineIndentWidth">
+      <summary>The number of columns that the line indention covers if written on the console. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.InteractiveInterpreterConsole.DeleteInMultilineMode">
+      <summary>Delete the last character in multiline mode. This is the least support for edits. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.InteractiveInterpreterConsole.DisplaySuggestions">
+      <summary>Displays suggestions to complete the current line. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.InteractiveInterpreterConsole.DisplaySuggestions(System.String)">
+      <summary>Displays suggestions to complete <see cref="query" /> in order to get a valid expression or shell command. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.InteractiveInterpreterConsole.GetSuggestionsForCmdArg(System.String)">
+      <summary>Returns a string array of suggestions for the completion of a shell command argument or <see cref="c" />null&lt;/c&gt; if query is not a shell command. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.InteractiveInterpreterConsole.TryRunCommand(System.String)">
+      <summary>Run the buitin command as stated by a line string. Return false, if the line does not start a builtin command. Returns false if no command has been processed, true otherwise. </summary>
+    </member>
+    <member name="P:Boo.Lang.Interpreter.Namespace.FullName">
+      <summary>Full name of the namespace including qualifiers. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.Namespace.FindChild(System.String)">
+      <summary>Search this namespace or its children (that use this namespace as qualifier) for one of a particular name. </summary>
+    </member>
+    <member name="P:Boo.Lang.Interpreter.Namespace.Types">
+      <summary>The types that this namespace provides. </summary>
+    </member>
+    <member name="M:Boo.Lang.Interpreter.Namespace.GetType(System.String)">
+      <summary>Finds a type of a particular name among the types that this namespace provides. </summary>
+    </member>
+    <member name="P:Boo.Lang.Interpreter.Namespace.Namespaces">
+      <summary>The namespaces that are qualified by this namespace. </summary>
+    </member>
+    <member name="P:Boo.Lang.Interpreter.Namespace.NamespacesNames">
+      <summary>Short names of namespaces that refer to this namespace as qualifier. </summary>
+    </member>
+    <member name="T:Boo.Lang.Interpreter.Namespace">
+      <summary>Namespace introspection helper.  &gt;&gt;&gt; root = Boo.Lang.Interpreter.Namespace.GetRootNamespace() &gt;&gt;&gt; types = root["System"]["Collections"].Types &gt;&gt;&gt; print join(types, "\n")</summary>
+    </member>
+  </members>
+</doc>

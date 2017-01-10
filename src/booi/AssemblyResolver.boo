@@ -37,10 +37,10 @@ class AssemblyResolver:
 
 	_cache = {}
 	
-	def AddAssembly([required] asm as Assembly):
+	def AddAssembly([Required] asm as Assembly):
 		_cache[GetSimpleName(asm.FullName)] = asm
 		
-	def LoadAssembly([required] name as string):
+	def LoadAssembly([Required] name as string):
 		asm = ProbeFile(name)
 		if asm is not null:
 			_cache[asm.GetName().Name] = asm
