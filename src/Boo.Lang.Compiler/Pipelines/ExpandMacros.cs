@@ -43,6 +43,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new IntroduceGlobalNamespaces());
 			Add(new TransformCallableDefinitions());
 
+		    Add(new InheritNestedGenericParameters());
 			Add(new BindTypeDefinitions());
 			Add(new BindGenericParameters());
 			Add(new ResolveImports());

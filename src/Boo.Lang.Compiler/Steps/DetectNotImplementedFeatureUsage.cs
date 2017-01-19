@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 
@@ -97,6 +97,14 @@ namespace Boo.Lang.Compiler.Steps
 			var declaringEntity = genericParameterRef.DeclaringEntity;
 			if (declaringEntity == _currentMethod || declaringEntity == _currentType)
 				return;
+
+            var currentTypeNode = ((IInternalEntity)_currentType).Node as TypeDefinition;
+            var currentTypeParameter = currentTypeNode.GenericParameters.FirstOrDefault(p => p.Name.Equals(genericParameterRef.Name));
+            if (currentTypeParameter != null && currentTypeParameter.Entity is IGenericParameter)
+            {
+                node.Entity = currentTypeParameter.Entity;
+                return;
+            }
 
 			Errors.Add(CompilerErrorFactory.NotImplemented(node, "referencing generic parameter of outer type"));
 		}

@@ -103,14 +103,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			
 			var selfNode = this.Node;
 			var otherNode = otherInternal.Node;
-			while (otherNode.ContainsAnnotation("InternalGenericParent"))
-			{
-				otherNode = (Node)otherNode["InternalGenericParent"];
-				if (otherNode == selfNode)
-					return true;
-			}
-			return false;
+            return CheckGenericInheritance(otherNode, selfNode) || CheckGenericInheritance(selfNode, otherNode);
 		}
+
+	    private static bool CheckGenericInheritance(Node thisNode, Node parentNode)
+	    {
+            while (thisNode != null && thisNode.ContainsAnnotation("InternalGenericParent"))
+            {
+                thisNode = (Node)thisNode["InternalGenericParent"];
+                if (thisNode == parentNode)
+                    return true;
+            }
+	        return false;
+	    }
 
 		public override IEntity DeclaringEntity
 		{

@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
@@ -78,6 +79,13 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			return getEnumeratorBuilder;
 		}
 
+        private static void CopyConstraints(GenericParameterDeclaration fromParam, GenericParameterDeclaration toParam)
+        {
+            toParam.Constraints = fromParam.Constraints;
+            foreach (var baseType in fromParam.BaseTypes)
+                toParam.BaseTypes.Add(baseType.CloneNode());
+        }
+
 		private BooClassBuilder SetUpEnumerableClassBuilder(Node sourceNode, Method enclosingMethod, IType generatorItemType,
             TypeReplacer replacer)
 		{
@@ -90,9 +98,10 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
 			builder.LexicalInfo = new LexicalInfo(sourceNode.LexicalInfo);
 			builder.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
-            foreach (var gen in enclosingMethod.GenericParameters)
+            foreach (var gen in enclosingMethod.DeclaringType.GenericParameters.Concat(enclosingMethod.GenericParameters))
 		    {
 		        var replacement = builder.AddGenericParameter(gen.Name);
+                CopyConstraints(gen, replacement);
                 replacer.Replace((IType)gen.Entity, (IType)replacement.Entity);
 		    }
 		    generatorItemType = replacer.MapType(generatorItemType);

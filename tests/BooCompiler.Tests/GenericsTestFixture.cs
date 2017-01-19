@@ -104,13 +104,19 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"enumerable-type-inference-5.boo");
 		}
 		
-		[Ignore("generic generators not supported yet")][Test]
+		[Test]
 		public void generator_with_type_constraint_1()
 		{
 			RunCompilerTestCase(@"generator-with-type-constraint-1.boo");
 		}
-		
-		[Test]
+
+        [Test]
+        public void generator_with_type_constraint_manually_expanded()
+        {
+            RunCompilerTestCase(@"generator-with-type-constraint-manually-expanded.boo");
+        }
+
+        [Test]
 		public void generators_1()
 		{
 			RunCompilerTestCase(@"generators-1.boo");

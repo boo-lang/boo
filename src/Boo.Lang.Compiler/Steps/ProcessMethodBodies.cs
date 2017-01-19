@@ -1933,8 +1933,25 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IEntity entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
-			Bind(node, entity);
+            IEntity entity;
+            try
+            {
+                entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
+                Bind(node, entity);
+            }
+            catch (CompilerError er)
+            {
+                if (!er.Code.Equals("BCE0139"))
+                    throw;
+                var replacement = er.Data["TypeRefReplacement"] as GenericReferenceExpression;
+                if (replacement == null)
+                    throw;
+                replacement.LexicalInfo = node.LexicalInfo;
+                node.ParentNode.Replace(node, replacement);
+                node = replacement;
+                Visit(node);
+                entity = node.Entity;
+            }
 
 			if (entity.EntityType == EntityType.Type)
 			{
@@ -1988,7 +2005,13 @@ namespace Boo.Lang.Compiler.Steps
 			PostProcessReferenceExpression(node);
 		}
 
-		private static bool AlreadyBound(ReferenceExpression node)
+        private static IType SelfMapGenericType(IType type)
+        {
+            return type.GenericInfo.ConstructType(
+                Array.ConvertAll(type.GenericInfo.GenericParameters, gp => (IType)gp));
+	    }
+
+	    private static bool AlreadyBound(ReferenceExpression node)
 		{
 			return null != node.ExpressionType;
 		}
@@ -4305,7 +4328,12 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			var ctor = GetCorrectConstructor(node, type, node.Arguments);
+            if (type.GenericInfo != null && !(type is IGenericArgumentsProvider))
+            {
+                type = SelfMapGenericType(type);
+            }
+
+            var ctor = GetCorrectConstructor(node, type, node.Arguments);
 			if (ctor != null)
 			{
 				BindConstructorInvocation(node, ctor);
@@ -5797,6 +5825,20 @@ namespace Boo.Lang.Compiler.Steps
 				&& ((type.GenericInfo != null && type.GenericInfo.GenericParameters.Length > 0)
 					|| (type.ConstructedInfo != null && !type.ConstructedInfo.FullyConstructed)))
 			{
+                var it = type as IInternalEntity;
+                if (it != null)
+                {
+                    var typenode = it.Node;
+                    var replacement = typenode["TypeRefReplacement"] as GenericReferenceExpression;
+                    if (replacement != null && !sourceNode.Matches(replacement))
+                    {
+                        replacement = replacement.CloneNode();
+                        replacement.LexicalInfo = sourceNode.LexicalInfo;
+                        sourceNode.ParentNode.Replace(sourceNode, replacement);
+                        Visit(replacement);
+                        return true;
+                    }
+                }
 				Error(CompilerErrorFactory.GenericTypesMustBeConstructedToBeInstantiated(sourceNode));
 				return false;
 			}

@@ -2501,6 +2501,11 @@ namespace Boo.Lang.Compiler.Steps
                     _host.InternFactory);
                 return GetGenericMethod(baseType, mi).ResolvedMethod;
             }
+            if (IsNestedGeneric(ctd))
+            {
+                var baseType = GetSelfMappedClass(ctd);
+                mi = TypeHelper.GetMethod(baseType, mi, true);
+            }
             return mi;
         }
 
@@ -4737,18 +4742,19 @@ namespace Boo.Lang.Compiler.Steps
         {
             ITypeDefinition result;
             Debug.Assert(value.IsGeneric || IsNestedGeneric(value));
-            if (value.IsGeneric)
+            if (IsNestedGeneric(value))
             {
-                result = GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition) value,
-                    value.GenericParameters,
-                    _host.InternFactory);
-            }
-            else
-            {
-                var parent = GetSelfMappedClass(((INestedTypeDefinition) value).ContainingTypeDefinition);
+                var parent = GetSelfMappedClass(((INestedTypeDefinition)value).ContainingTypeDefinition);
                 result =
                     new Microsoft.Cci.Immutable.NestedTypeReference(_host, parent,
-                        ((INamedTypeDefinition) value).Name, 0, value.IsEnum, value.IsValueType, true).ResolvedType;
+                        ((INamedTypeDefinition)value).Name, value.GenericParameterCount, value.IsEnum, value.IsValueType, true).ResolvedType;
+            }
+            else result = value;
+            if (result.IsGeneric)
+            {
+                result = GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)result,
+                    value.GenericParameters,
+                    _host.InternFactory);
             }
             return result;
         }
@@ -4852,7 +4858,7 @@ namespace Boo.Lang.Compiler.Steps
                     var result = GetGenericMethod(baseType, baseGeneric);
                     if (result == null)
                     {
-                        var mapping = baseType.GenericType.ResolvedType.GenericParameters
+                        var mapping = GetAllGenericParameters(baseType.GenericType.ResolvedType)
                             .Zip(baseType.GenericArguments, (p, a) => Tuple.Create(p.Name.UniqueKey, a.ResolvedType))
                             .ToDictionary(t => t.Item1, t => t.Item2);
                         var spec = new GenericMethodSpecializer(_host,
@@ -4872,6 +4878,15 @@ namespace Boo.Lang.Compiler.Steps
             // If constructor is internal, get its MethodDefinition
             return GetConstructorBuilder(((InternalMethod)entity).Method);
         }
+
+	    private IEnumerable<IGenericTypeParameter> GetAllGenericParameters(INamedTypeDefinition typeDef)
+	    {
+	        var result = typeDef.GenericParameters;
+	        var nested = typeDef as INestedTypeDefinition;
+	        if (nested != null)
+	            result = GetAllGenericParameters((INamedTypeDefinition) nested.ContainingType.ResolvedType).Concat(result);
+	        return result;
+	    }
 
 	    /// <summary>
         /// Retrieves the MethodDefinition for a generic constructed method.
@@ -5435,9 +5450,9 @@ namespace Boo.Lang.Compiler.Steps
 
         private void DefineNestedGenericParameters(NamedTypeDefinition builder, ITypeDefinition parent, GenericParameterDeclaration[] parameters)
         {
-            var parentParams = parent.GenericParameters.ToDictionary(p => p.Name.Value);
-            var builders = parameters
-                .Where(p => !parentParams.ContainsKey(p.Name))
+            var parentParams = GetAllGenericParameters((INamedTypeDefinition)parent).ToDictionary(p => p.Name.Value);
+            var ownParameters = parameters.Where(p => !parentParams.ContainsKey(p.Name)).ToArray();
+            var builders = ownParameters
                 .Select((gpd, i) => new GenericTypeParameter
                 {
                     Name = _nameTable.GetNameFor(gpd.Name),
@@ -5446,18 +5461,19 @@ namespace Boo.Lang.Compiler.Steps
                     InternFactory = _host.InternFactory
                 })
                 .ToArray();
-            if (builders.Length > 0)
-            {
-                builder.GenericParameters = new System.Collections.Generic.List<IGenericTypeParameter>(builders);
-                DefineGenericParameters(builders, parameters);
-            }
             if (builders.Length < parameters.Length)
                 foreach (var param in parameters)
                 {
                     IGenericTypeParameter decl;
-                    if (parentParams.TryGetValue(param.Name, out decl)) 
+                    if (parentParams.TryGetValue(param.Name, out decl))
                         SetBuilder(param, decl);
                 }
+            if (builders.Length > 0)
+            {
+                builder.GenericParameters = new System.Collections.Generic.List<IGenericTypeParameter>(
+                    builders.Where(p => !parentParams.ContainsKey(p.Name.Value)));
+                DefineGenericParameters(builders, ownParameters);
+            }
         }
 
         /// <summary>
@@ -5489,7 +5505,8 @@ namespace Boo.Lang.Compiler.Steps
                         Name = _nameTable.GetNameFor(gpd.Name),
                         DefiningMethod = builder,
                         Index = (ushort) i,
-                        InternFactory = _host.InternFactory
+                        InternFactory = _host.InternFactory,
+                        Constraints = gpd.BaseTypes.Select(GetSystemType).ToList()
                     };
                     SetBuilder(gpd, result);
                     return result;
