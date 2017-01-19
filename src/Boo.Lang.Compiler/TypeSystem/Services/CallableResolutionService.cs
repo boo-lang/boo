@@ -224,7 +224,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 	        {
                 if (scores[i] == GenericInstantiateScore)
                 {
-                    args[i].ExpressionType = value.Parameters[i].Type;
+                    var j = Math.Min(i, value.Parameters.Length - 1); //needed to support params* arguments
+                    args[i].ExpressionType = value.Parameters[j].Type;
                 }
 	        }
 	        return value.Method;
@@ -552,7 +553,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 				var callableArg = argumentType as ICallableType;
 				if (callableType != null && callableArg != null)
 					return CalculateCallableScore(callableType, callableArg);
-                if (parameterType is IGenericArgumentsProvider && !(argumentType is IGenericArgumentsProvider))
+                if (parameterType is IGenericArgumentsProvider && !(argumentType is IGenericArgumentsProvider) && !argumentType.IsNull())
                     return GenericInstantiateScore;
 				return UpCastScore;
 			}
