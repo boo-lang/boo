@@ -321,7 +321,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (candidate.EntityType == EntityType.Field)
 						continue;
 
-					string candidateName = abstractMember.DeclaringType.IsInterface
+					string candidateName = abstractMember.DeclaringType.IsInterface && abstractMember.EntityType != EntityType.Method
 					                       	? SimpleNameOf(candidate)
 					                       	: candidate.Name;
 					if (candidateName == abstractMember.Name)

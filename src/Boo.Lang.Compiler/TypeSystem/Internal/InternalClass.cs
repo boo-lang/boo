@@ -102,6 +102,20 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			return _provider.IsSystemObject(type);
 		}
 
+	    public override bool IsAssignableFrom(IType other)
+	    {
+	        var result = base.IsAssignableFrom(other);
+	        if (!result)
+	        {
+	            var ic = other as InternalClass;
+	            if (ic != null)
+	            {
+	                result = ic.Node == this.Node;
+	            }
+	        }
+	        return result;
+	    }
+
 		override protected IType CreateElementType()
 		{
 			return new InternalClass(_provider, _node, true);

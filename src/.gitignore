@@ -5,3 +5,5 @@ obj
 .vscode/
 **/.idea/
 **/.vscode/
+packages
+.nuget

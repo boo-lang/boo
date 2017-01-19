@@ -45,12 +45,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// </summary>
 	public class CallableResolutionService : AbstractCompilerComponent
 	{
-		protected const int CallableExactMatchScore = 10;
-		protected const int CallableUpCastScore = 9;
-		protected const int CallableImplicitConversionScore = 8;
-		protected const int ExactMatchScore = 8;
-		protected const int UpCastScore = 7;
-		protected const int WideningPromotion = 6;
+		protected const int CallableExactMatchScore = 11;
+		protected const int CallableUpCastScore = 10;
+		protected const int CallableImplicitConversionScore = 9;
+		protected const int ExactMatchScore = 9;
+		protected const int UpCastScore = 8;
+        protected const int GenericInstantiateScore = 7;
+        protected const int WideningPromotion = 6;
 		protected const int ImplicitConversionScore = 5;
 		protected const int NarrowingPromotion = 4;
 		protected const int DowncastScore = 3;
@@ -200,20 +201,34 @@ namespace Boo.Lang.Compiler.TypeSystem
 			FindApplicableCandidates();
 
 			if (ValidCandidates.Count == 0) return null;
-			if (ValidCandidates.Count == 1) return (ValidCandidates[0]).Method;
+			if (ValidCandidates.Count == 1) return CheckCandidate(ValidCandidates[0], args);
 
 			List<Candidate> dataPreserving = FindDataPreservingCandidates();
 			if (dataPreserving.Count > 0)
 			{
 				FindBestMethod(dataPreserving);
-				if (dataPreserving.Count == 1) return (dataPreserving[0]).Method;
+                if (dataPreserving.Count == 1) return CheckCandidate(dataPreserving[0], args);
 			}
 
 			FindBestMethod(_candidates);
 			if (ValidCandidates.Count > 1) PreferInternalEntitiesOverNonInternal();
-			if (ValidCandidates.Count == 1) return (ValidCandidates[0].Method);
+            if (ValidCandidates.Count == 1) return CheckCandidate(ValidCandidates[0], args);
 			return null;
 		}
+
+        // Required to support nested generic types
+        private static IMethod CheckCandidate(Candidate value, ExpressionCollection args)
+	    {
+	        var scores = value.ArgumentScores;
+            for (var i = 0; i < scores.Length; ++i)
+	        {
+                if (scores[i] == GenericInstantiateScore)
+                {
+                    args[i].ExpressionType = value.Parameters[i].Type;
+                }
+	        }
+	        return value.Method;
+	    }
 
 		private void PreferInternalEntitiesOverNonInternal()
 		{
@@ -537,6 +552,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				var callableArg = argumentType as ICallableType;
 				if (callableType != null && callableArg != null)
 					return CalculateCallableScore(callableType, callableArg);
+                if (parameterType is IGenericArgumentsProvider && !(argumentType is IGenericArgumentsProvider))
+                    return GenericInstantiateScore;
 				return UpCastScore;
 			}
 

@@ -96,13 +96,16 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			get { return _generator.Method.LexicalInfo; }
 		}
 
+        private GenericParameterDeclaration[] _genericParams;
+
 		public override void Run()
 		{
-			CreateEnumerableConstructor();
+            _genericParams = _generator.Method.DeclaringType.GenericParameters.Concat(_generator.Method.GenericParameters).ToArray();
+            CreateEnumerableConstructor();
 			CreateEnumerator();
 		    var enumerableConstructorInvocation = CodeBuilder.CreateGenericConstructorInvocation(
                 (IType)_enumerable.ClassDefinition.Entity,
-                _generator.Method.GenericParameters);
+                 _genericParams);
             var enumeratorConstructorInvocation = CodeBuilder.CreateGenericConstructorInvocation(
                 (IType)_enumerator.ClassDefinition.Entity,
                 _enumerable.ClassDefinition.GenericParameters);
@@ -189,13 +192,12 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		{
             IMethod enumeratorEntity = GetGetEnumeratorEntity();
             var enumeratorInfo = enumeratorEntity.DeclaringType.GenericInfo;
-            var genParams = _generator.Method.GenericParameters;
-            if (enumeratorInfo != null && !genParams.IsEmpty)
+            if (enumeratorInfo != null && _genericParams.Length > 0)
             {
                 var argList = new List<IType>();
                 foreach (var param in enumeratorInfo.GenericParameters)
                 {
-                    var replacement = genParams.SingleOrDefault(gp => gp.Name.Equals(param.Name));
+                    var replacement = _genericParams.SingleOrDefault(gp => gp.Name.Equals(param.Name));
                     argList.Add(replacement == null ? param : (IType)replacement.Entity);
                 }
                 var baseType = (IConstructedTypeInfo) new GenericConstructedType(enumeratorEntity.DeclaringType, argList.ToArray());
@@ -241,7 +243,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			_enumerator.AddAttribute(CodeBuilder.CreateAttribute(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute)));
 			_enumerator.Modifiers |= _enumerable.Modifiers;
 			_enumerator.LexicalInfo = this.LexicalInfo;
-            foreach (var param in _generator.Method.GenericParameters)
+            foreach (var param in _genericParams)
             {
                 var replacement = _enumerator.AddGenericParameter(param.Name);
                 _methodToEnumeratorMapper.Replace((IType)param.Entity, (IType)replacement.Entity);
