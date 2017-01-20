@@ -454,6 +454,7 @@
     <Compile Include="Steps\Generators\GeneratorMethodProcessor.cs" />
     <Compile Include="Steps\Generators\GeneratorSkeleton.cs" />
     <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />
+    <Compile Include="Steps\Generators\GeneratorTypeReplacer.cs" />
     <Compile Include="Steps\GenericConstraintsValidator.cs" />
     <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
