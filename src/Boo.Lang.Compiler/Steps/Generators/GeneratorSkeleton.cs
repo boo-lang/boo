@@ -29,7 +29,6 @@
 
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
-using Boo.Lang.Compiler.TypeSystem.Generics;
 
 namespace Boo.Lang.Compiler.Steps.Generators
 {
@@ -38,9 +37,9 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		public readonly BooClassBuilder GeneratorClassBuilder;
 		public readonly IType GeneratorItemType;
 		public readonly BooMethodBuilder GetEnumeratorBuilder;
-	    public readonly TypeReplacer GeneratorClassTypeReplacer;
+        public readonly GeneratorTypeReplacer GeneratorClassTypeReplacer;
 
-        public GeneratorSkeleton(BooClassBuilder generatorBuilder, BooMethodBuilder getEnumeratorBuilder, IType generatorItemType, TypeReplacer generatorClassTypeReplacer)
+        public GeneratorSkeleton(BooClassBuilder generatorBuilder, BooMethodBuilder getEnumeratorBuilder, IType generatorItemType, GeneratorTypeReplacer generatorClassTypeReplacer)
 		{
 			GeneratorClassBuilder = generatorBuilder;
 			GeneratorItemType = generatorItemType;

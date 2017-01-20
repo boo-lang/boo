@@ -59,7 +59,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		GeneratorSkeleton CreateGeneratorSkeleton(Node sourceNode, Method enclosingMethod, IType generatorItemType)
 		{
 			// create the class skeleton for type inference to work
-            var replacer = new TypeReplacer();
+            var replacer = new GeneratorTypeReplacer();
             var builder = SetUpEnumerableClassBuilder(sourceNode, enclosingMethod, generatorItemType, replacer);
 			var getEnumeratorBuilder = SetUpGetEnumeratorMethodBuilder(sourceNode, builder, generatorItemType, replacer);
 

@@ -70,9 +70,9 @@ namespace Boo.Lang.Compiler.Steps.Generators
 
         private readonly BooMethodBuilder _getEnumeratorBuilder;
 
-        private readonly TypeReplacer _methodToEnumerableMapper;
+        private readonly GeneratorTypeReplacer _methodToEnumerableMapper;
 
-        private readonly TypeReplacer _methodToEnumeratorMapper = new TypeReplacer();
+        private readonly GeneratorTypeReplacer _methodToEnumeratorMapper = new GeneratorTypeReplacer();
 
         private readonly Dictionary<IEntity, IEntity> _entityMapper = new Dictionary<IEntity, IEntity>();
 
@@ -179,11 +179,12 @@ namespace Boo.Lang.Compiler.Steps.Generators
 			if (null != _externalEnumeratorSelf)
 			{
 				var type = (IType)_externalEnumeratorSelf.Type.Entity;
-				enumerableConstructorInvocation.Arguments.Add(CodeBuilder.CreateSelfReference(type));
+				enumerableConstructorInvocation.Arguments.Add(
+                    CodeBuilder.CreateSelfReference(_methodToEnumerableMapper.MapType(type)));
 				
 				PropagateFromEnumerableToEnumerator(enumeratorConstructorInvocation,
 				                                    "self_",
-				                                    type);
+				                                    _methodToEnumeratorMapper.MapType(type));
 			}
 			
 		}
@@ -316,9 +317,11 @@ namespace Boo.Lang.Compiler.Steps.Generators
 				var entity = (InternalParameter)parameter.Entity;
 				if (entity.IsUsed)
 				{
-					var field = DeclareFieldInitializedFromConstructorParameter(_enumerator, _enumeratorConstructor,
-					                                                              entity.Name,
-					                                                              _methodToEnumeratorMapper.MapType(entity.Type));
+					var field = DeclareFieldInitializedFromConstructorParameter(_enumerator, 
+                                                                                _enumeratorConstructor,
+					                                                            entity.Name,
+					                                                            entity.Type,
+                                                                                _methodToEnumeratorMapper);
 					_mapping[entity] = field.Entity;
 				}
 			}
@@ -429,15 +432,18 @@ namespace Boo.Lang.Compiler.Steps.Generators
                 _enumerable,
                 _enumerableConstructor,
                 parameterName,
-                _methodToEnumerableMapper.MapType(parameterType));
+                parameterType,
+                _methodToEnumerableMapper);
 			enumeratorConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(field));
 		}
 
         private Field DeclareFieldInitializedFromConstructorParameter(BooClassBuilder type,
 		                                                      BooMethodBuilder constructor,
 		                                                      string parameterName,
-		                                                      IType parameterType)
+		                                                      IType parameterType,
+                                                              TypeReplacer replacer)
         {
+            parameterType = replacer.MapType(parameterType);
 			Field field = type.AddInternalField(UniqueName(parameterName), parameterType);
 			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
 			return field;
@@ -454,8 +460,43 @@ namespace Boo.Lang.Compiler.Steps.Generators
 					CodeBuilder.CreateReference(field),
 					CodeBuilder.CreateReference(parameter)));
 		}
-		
-		public override void OnReferenceExpression(ReferenceExpression node)
+
+	    private void OnTypeReference(TypeReference node)
+	    {
+            var type = (IType)node.Entity;
+            node.Entity = _methodToEnumeratorMapper.MapType(type);	        
+	    }
+
+	    public override void OnSimpleTypeReference(SimpleTypeReference node)
+	    {
+            OnTypeReference(node);
+	    }
+
+        public override void OnArrayTypeReference(ArrayTypeReference node)
+        {
+            base.OnArrayTypeReference(node);
+            OnTypeReference(node);
+        }
+
+        public override void OnCallableTypeReference(CallableTypeReference node)
+        {
+            base.OnCallableTypeReference(node);
+            OnTypeReference(node);
+        }
+
+        public override void OnGenericTypeReference(GenericTypeReference node)
+	    {
+            base.OnGenericTypeReference(node);
+            OnTypeReference(node);
+        }
+
+        public override void OnGenericTypeDefinitionReference(GenericTypeDefinitionReference node)
+        {
+            base.OnGenericTypeDefinitionReference(node);
+            OnTypeReference(node);
+        }
+
+        public override void OnReferenceExpression(ReferenceExpression node)
 		{
 			InternalField mapped = (InternalField)_mapping[node.Entity];
 			if (null != mapped)
@@ -578,7 +619,8 @@ namespace Boo.Lang.Compiler.Steps.Generators
 					_enumerator,
 					_enumeratorConstructor,
 					"self_",
-					_generator.DeclaringType);
+					_generator.DeclaringType,
+                    _methodToEnumeratorMapper);
 			}
 
 			return _externalEnumeratorSelf;
