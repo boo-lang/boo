@@ -235,10 +235,10 @@ namespace Boo.Lang.Compiler.Steps
 				DefineType(type);
 
 			foreach (var type in types)
-			{
 				DefineGenericParameters(type);
-				DefineTypeMembers(type);
-			}
+
+            foreach (var type in types)
+                DefineTypeMembers(type);
 
 			foreach (var module in CompileUnit.Modules)
 				OnModule(module);

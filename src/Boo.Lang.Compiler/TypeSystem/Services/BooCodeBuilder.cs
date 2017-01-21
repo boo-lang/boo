@@ -671,7 +671,7 @@ namespace Boo.Lang.Compiler.TypeSystem
         public MethodInvocationExpression CreateGenericConstructorInvocation(IType classType,
 	        IEnumerable<GenericParameterDeclaration> genericArgs)
 	    {
-	        var args = genericArgs.Select(gpd => new SimpleTypeReference(gpd.Name){Entity = gpd.Entity});
+	        var args = genericArgs.Select(gpd => new SimpleTypeReference(gpd.Name){Entity = gpd.Entity}).Cast<TypeReference>();
             return CreateGenericConstructorInvocation(classType, args);
 	    }
 
