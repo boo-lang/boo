@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>include</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;include&gt; tag lets you refer to comments in another file that describe 
+				the types and members in your source code.</p>
+			<pre class="syntax">&lt;include file='<I>filename</I>' path='<I>tagpath</I>[@<I>name</I>="<I>id</I>"]' /&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt><I>filename</I>
+					<dd>
+						The name of the file containing the documentation. The file name can be 
+						qualified with a path. Enclose <I>filename</I> in single quotation marks 
+						('&nbsp;'). <dt><I>tagpath</I>
+							<dd>
+								The path of the tags in <I>filename</I> that leads to the tag <I>name</I>. 
+								Enclose the path in single quotation marks (' '). <dt><I>name</I>
+									<dd>
+										The name specifier in the tag that precedes the comments; <I>name</I> will have 
+										an <I>id</I>. <dt><I>id</I>
+											<dd>
+												The ID for the tag that precedes the comments. Enclose the ID in double 
+												quotation marks (" ").</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>All Types and Members.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>
+				This is an alternative to placing documentation comments directly in your 
+				source code file.</p>
+			<p>The &lt;include&gt; tag uses the XML XPath syntax. Refer to XPath documentation 
+				for ways to customize your &lt;include&gt; use.</p>
+			<h4 class="dtH4">Example</h4>
+			<p>This is a multi-file example. The first file, which uses &lt;include&gt;, is 
+				listed below:</p>
+			<pre class="csharpcode"><SPAN class="lang">[C#]</SPAN>
+<span class="rem">/// &lt;include file='xml_include_tag.doc' path='MyDocs/MyMembers[@name="test"]/*' /&gt;</span>
+<span class="kwrd">class</span> Test
+{
+   <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Main()
+   {
+   }
+}
+
+<span class="rem">/// &lt;include file='xml_include_tag.doc' path='MyDocs/MyMembers[@name="test2"]/*' /&gt;</span>
+<span class="kwrd">class</span> Test2
+{
+   <span class="kwrd">public</span> <span class="kwrd">void</span> Test()
+   {
+   }
+}</pre>
+			<p>The second file, xml_include_tag.doc, contains the following documentation 
+				comments:</p>
+			<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">MyDocs</span><span class="kwrd">&gt;</span>
+
+<span class="kwrd">&lt;</span><span class="html">MyMembers</span> <span class="attr">name</span><span class="kwrd">="test"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+The summary for this type.
+<span class="kwrd">&lt;/</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">MyMembers</span><span class="kwrd">&gt;</span>
+
+<span class="kwrd">&lt;</span><span class="html">MyMembers</span> <span class="attr">name</span><span class="kwrd">="test2"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+The summary for this other type.
+<span class="kwrd">&lt;/</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">MyMembers</span><span class="kwrd">&gt;</span>
+
+<span class="kwrd">&lt;/</span><span class="html">MyDocs</span><span class="kwrd">&gt;</span></pre>
+			<h4 class="dtH4">Compiler XML&nbsp;Output</h4>
+			<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span>?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">doc</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">assembly</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">name</span><span class="kwrd">&gt;</span>t2<span class="kwrd">&lt;/</span><span class="html">name</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">assembly</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">members</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">member</span> <span class="attr">name</span><span class="kwrd">="T:Test"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+The summary for this type.
+<span class="kwrd">&lt;/</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">member</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">member</span> <span class="attr">name</span><span class="kwrd">="T:Test2"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+The summary for this other type.
+<span class="kwrd">&lt;/</span><span class="html">summary</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">member</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">members</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">doc</span><span class="kwrd">&gt;</span></pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a href="tags.htm">NDoc&nbsp;Tags</a>&nbsp;| <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfinclude.htm">
+					Microsoft's definition</A></p>
+		</div>
+	</body>
+</html>

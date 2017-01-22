@@ -1,0 +1,109 @@
+.nav
+{
+	width: 100%;
+	padding: 1;
+}
+
+.nav1 
+{
+	background-color: #EEEEFF;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #000000;
+	padding: 0;
+}
+
+.nav1sel
+{
+	background-color: #00008B;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+
+.logo
+{
+	font-size: x-small;
+	font-weight: bold;
+	font-style: italic;
+	text-align: right;
+}
+
+.nav2
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: xx-small;
+}
+
+.title
+{
+	text-align: center;
+}
+
+.table
+{
+	width: 100%;
+	border: 1px outset;
+}
+
+.table th, .table td
+{
+	border: 1px inset;
+}
+
+.table thead th
+{
+	background-color: #CCCCFF;
+	text-align: left;
+	font-weight: bold;
+	font-size: large;
+}
+
+.namespaceName
+{
+	font-size: x-small;
+}
+
+.className
+{
+}
+
+.name, .fieldType, .propertyType, .returnType, .eventType
+{
+	width: 20%;
+	font-size: x-small;
+	padding: 3px;
+}
+
+.name
+{
+	text-align: left;
+}
+
+.fieldType, .propertyType, .returnType, .eventType
+{
+	text-align: right;
+}
+
+.namespace, .constructor, .type, .field, .property, .method, .event
+{
+	padding: 3px;
+}
+
+.subtable
+{
+	width: 100%;
+	border: 1px outset;
+}
+
+.subtable th, .subtable td
+{
+	border: 1px inset;
+}
+
+.subtable thead th
+{
+	background-color: #EEEEFF;
+	text-align: left;
+	font-weight: bold;
+	font-size: small;
+}
+

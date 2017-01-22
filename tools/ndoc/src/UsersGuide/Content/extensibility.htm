@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html XMLNS:MSHelp>
+	<head>
+		<title>Extending NDoc</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<h3 class="dtH3">NDoc Extensibility</h3>
+			<p>Both the MSDN and VS.NET documenters support an extensibility model that allows 
+				you to define your own tags and control where and how they appear in the 
+				documentation. NDoc relies heavily on XSLT to generate documentation and the 
+				extensibility model is based on XSLT as well.
+			</p>
+			<ol>
+				<li>
+					<p>The first step is to add your custom tag to the code comments in your C# files:</p>
+					<span class="lang">[C#]</span>
+					<pre class="csharpcode"><span class="rem">/// &lt;myTag&gt;This is a custom tag&lt;/myTag&gt;
+/// &lt;summary&gt;
+///   When processed by the VS.NET or MSDN documenters, 
+///   using the stylesheet "extend-ndoc.xslt" as the ExtensibilityStylesheet 
+///   property will result in end-user defined tags being displayed in the 
+///   final help output topics 
+/// &lt;/summary&gt;</span>
+<span class="rem">/// &lt;remarks&gt;This is a test of an inline &lt;null/&gt; tag&lt;/remarks&gt;</span>					
+<span class="kwrd">public</span> <span class="kwrd">class</span> ABunchOfCustomTags
+{
+}</pre>
+					<p>When the compiler generates the /doc summary file, it will include your custom 
+						tag in the XML.</p>
+				<li>
+					<p>Next create an XSLT file with templates that control where and how your tag will 
+						be displayed:</p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;COLOR:blue;FONT-FAMILY:'Lucida Console'">&lt;</span><span style="FONT-SIZE:8pt;COLOR:maroon;FONT-FAMILY:'Lucida Console'">xsl:stylesheet</span><span style="FONT-SIZE:8pt;COLOR:fuchsia;FONT-FAMILY:'Lucida Console'">
+						</span><span style="FONT-SIZE:8pt;COLOR:red;FONT-FAMILY:'Lucida Console'">version</span><span style="FONT-SIZE:8pt;COLOR:blue;FONT-FAMILY:'Lucida Console'">="1.0"</span><span style="FONT-SIZE:8pt;COLOR:fuchsia;FONT-FAMILY:'Lucida Console'">
+						</span><span style="FONT-SIZE:8pt;COLOR:maroon;FONT-FAMILY:'Lucida Console'">xmlns</span><span style="FONT-SIZE:8pt;COLOR:fuchsia;FONT-FAMILY:'Lucida Console'">:</span><span style="FONT-SIZE:8pt;COLOR:red;FONT-FAMILY:'Lucida Console'">xsl</span><span style="FONT-SIZE:8pt;COLOR:blue;FONT-FAMILY:'Lucida Console'">=&quot;<A href="http://www.w3.org/1999/XSL/Transform">http://www.w3.org/1999/XSL/Transform</A>&quot;
+							<FONT color="#800000">xmlns</FONT><FONT color="#ff0000">:MSHelp</FONT>="http://msdn.microsoft.com/mshelp"&gt;
+					</p>
+					<P class="MsoNormal" style="mso-layout-grid-align: none"><SPAN style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><SPAN style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							</SPAN><SPAN style="COLOR: blue">&lt;</SPAN><SPAN style="COLOR: maroon">xsl:template</SPAN><SPAN style="COLOR: fuchsia">
+							</SPAN><SPAN style="COLOR: red">match</SPAN><SPAN style="COLOR: blue">="node()"</SPAN><SPAN style="COLOR: fuchsia">
+							</SPAN><SPAN style="COLOR: red">mode</SPAN><SPAN style="COLOR: blue">="xml-data-island"
+								<FONT color="#ff0000">priority</FONT>="1"&gt;</SPAN></SPAN></P>
+					<P class="MsoNormal" style="mso-layout-grid-align: none"><SPAN style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><SPAN style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+								&lt;<FONT color="#800000">MSHelp:Attr<FONT color="#0000ff"> </FONT><FONT color="#ff0000">
+										Name</FONT></FONT><FONT color="#0000ff">="TargetOS"</FONT> <FONT color="#ff0000">
+									Value</FONT>="Windows"/&gt; </SPAN></SPAN>
+					</P>
+					<P class="MsoNormal"><SPAN style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'; mso-fareast-font-family: 'Times New Roman'; mso-bidi-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA"><SPAN style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							</SPAN><SPAN style="COLOR: blue">&lt;/</SPAN><SPAN style="COLOR: maroon">xsl:template</SPAN><SPAN style="COLOR: blue">&gt;</SPAN></SPAN>&nbsp;</SPAN>&nbsp;
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<p class="MsoNormal" style="mso-layout-grid-align: none">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><span style="mso-tab-count: 1">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="COLOR: blue">&lt;</span><span style="COLOR: maroon">xsl:template</span><span style="COLOR: fuchsia">
+									</span><span style="COLOR: red">match</span><span style="COLOR: blue">="ndoc"</span><span style="COLOR: fuchsia">
+									</span><span style="COLOR: red">mode</span><span style="COLOR: blue">="header-section"&gt;</span></span></p>
+							<p class="MsoNormal" style="mso-layout-grid-align: none">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><span style="mso-tab-count: 1">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</span><span style="COLOR: blue">&lt;</span><span style="COLOR: maroon">style</span><span style="COLOR: fuchsia">
+									</span><span style="COLOR: red">type</span><span style="COLOR: blue">="text/css"&gt;
+									</span></span>
+							</p>
+							<p class="MsoNormal" style="mso-layout-grid-align: none">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><span style="mso-tab-count: 1">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+									.green </span>
+							</p>
+							<p class="MsoNormal" style="mso-layout-grid-align: none">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><span style="mso-tab-count: 1">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+									{ </span>
+							</p>
+							<p class="MsoNormal" style="mso-layout-grid-align: none">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><span style="mso-tab-count: 1">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+									<span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>color:green;
+								</span>
+							</p>
+							<p class="MsoNormal" style="mso-layout-grid-align: none">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><span style="mso-tab-count: 1">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+									} </span>
+							</p>
+							<p class="MsoNormal" style="mso-layout-grid-align: none">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'"><span style="mso-tab-count: 1">
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									</span><span style="COLOR: blue">&lt;/</span><span style="COLOR: maroon">style</span><span style="COLOR: blue">&gt;
+									</span></span>
+							</p>
+							<p class="MsoNormal">
+								<span style="FONT-SIZE: 8pt; FONT-FAMILY: 'Lucida Console'; mso-fareast-font-family: 'Times New Roman'; mso-bidi-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA">
+									<span style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="COLOR: blue">
+										&lt;/</span><span style="COLOR: maroon">xsl:template</span><span style="COLOR: blue">&gt;</span></span>
+								<br>
+								<span style="COLOR:blue">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;</span><span style="COLOR:maroon">xsl:template</span><span style="COLOR:fuchsia">
+								</span><span style="COLOR:red">match</span><span style="COLOR:blue">="myTag"</span><span style="COLOR:fuchsia">
+								</span><span style="COLOR:red">mode</span><span style="COLOR:blue">="seealso-section"&gt;</span>
+						</span>
+					</P>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<span style="COLOR:blue">&lt;</span><span style="COLOR:maroon">h1</span><span style="COLOR:fuchsia">
+							</span><span style="COLOR:red">class</span><span style="COLOR:blue">="green"&gt;</span></span></p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<span style="COLOR:blue">&lt;</span><span style="COLOR:maroon">xsl:</span></span><span style="COLOR:#800000; font-size:8pt; font-family:Lucida Console">apply-templates</span><span style="COLOR:blue; font-size:8pt; font-family:Lucida Console"> </span>
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'"><span style="COLOR:red">select</span><span style="COLOR:blue">="./node()&quot;</span></span><span style="COLOR:fuchsia; font-size:8pt; font-family:Lucida Console">
+							</span>
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'"><span style="COLOR:red">mode</span><span style="COLOR:blue">="slashdoc&quot;</span></span><span style="COLOR:blue; font-size:8pt; font-family:Lucida Console">/&gt;</span></p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<span style="COLOR:blue">&lt;/</span><span style="COLOR:maroon">h1</span><span style="COLOR:blue">&gt;</span></span></p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<span style="COLOR:blue">&lt;/</span><span style="COLOR:maroon">xsl:template</span><span style="COLOR:blue">&gt;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</span>
+					</p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<span style="COLOR:blue">&lt;</span><span style="COLOR:maroon">xsl:template</span><span style="COLOR:fuchsia">
+							</span><span style="COLOR:red">match</span><span style="COLOR:blue">="null"</span><span style="COLOR:fuchsia">
+							</span><span style="COLOR:red">mode</span><span style="COLOR:blue">="slashdoc"&gt;</span></span></p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<span style="COLOR:blue">&lt;</span><span style="COLOR:maroon">xsl:text</span><span style="COLOR:blue">&gt;</span>
+							null reference (Nothing in Visual Basic) <span style="COLOR:blue">&lt;/</span><span style="COLOR:maroon">xsl:text</span><span style="COLOR:blue">&gt;</span></span></p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;FONT-FAMILY:'Lucida Console'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<span style="COLOR:blue">&lt;/</span><span style="COLOR:maroon">xsl:template</span><span style="COLOR:blue">&gt;</span></span></p>
+					<p class="MsoNormal">
+						<span style="FONT-SIZE:8pt;COLOR:blue;FONT-FAMILY:'Lucida Console'">&lt;/</span><span style="FONT-SIZE:8pt;COLOR:maroon;FONT-FAMILY:'Lucida Console'">xsl:stylesheet</span><span style="FONT-SIZE:8pt;COLOR:blue;FONT-FAMILY:'Lucida Console'">&gt;</span></p>
+					<p>This stylesheet must be valid XSLT markup, and must also include the XSLT 
+						namespace.</p>
+					<p>The templates in this stylesheet need to be written to match the names of your 
+						tags. The <b>match</b> attribute is an XPath query that defines the context at 
+						which your template will execute. The most common usage is to simply match the 
+						name of your custom tag, but it is also possible to change the behavior of your 
+						tag based on what sort of code artifact it is associated with.</p>
+					<blockquote style="BORDER-RIGHT:black 1px solid; PADDING-RIGHT:2px; BORDER-TOP:black 1px solid; PADDING-LEFT:2px; PADDING-BOTTOM:2px; BORDER-LEFT:black 1px solid; PADDING-TOP:2px; BORDER-BOTTOM:black 1px solid; BACKGROUND-COLOR:#ffffee"><b>Note:&nbsp;</b>If 
+						you want NDoc to perform standard processing of tags <i>within</i> your tags 
+						(for example, expanding in-line tags such as &lt;see&gt;) you must include the 
+						following within your processing <blockquote><pre style="FONT-SIZE:8pt;FONT-FAMILY:Lucida Console, Courier"><font color="#0000ff">&lt;</font><font color="#800000">xsl:apply-templates</font> <font color="#ff0000">select</font><font color="#0000ff">="."</font> <font color="#ff0000">mode</font><font color="#0000ff">="slashdoc"/&gt;</font></pre>
+						</blockquote></blockquote>
+					<p>The <b>header-section</b> template allows you to specify additional content in 
+						the <b>&lt;head&gt;</b> of the generated html. This allows stylesheet authors 
+						to define custom css styles or override NDoc's default styles.</p>
+					<p>The <b>mode</b> attribute is used to specify where in the documentation your tag 
+						will be displayed. There are two types of extensibility tags that can be 
+						defined:</p>
+			<ol>
+				<li>
+					<b>Section Tags - </b>These are block tags that will be rendered in a 
+					particular section of the documentation. For a section tag, the mode of the 
+					template needs to correspond to a predefined list of section names. <a href="extensibility-sections.htm">
+						Refer to the section topic</a>
+				for a complete list of sections and their descriptions.
+				<li>
+					<b>Inline Tags - </b>These are tags that appear inline with text and other tags 
+					within a comment. To define an inline tag, the mode of its template should be 
+					set to <b>"slashdoc"</b>. These templates will then be executed whenever the 
+					tag is encountered within a block of text.</li>
+			</ol>
+			<p>If a template matches any of the generic XPath selections: <STRONG>node()</STRONG>,
+				<STRONG>text()</STRONG>, <STRONG>*</STRONG>, or <STRONG>@*</STRONG> you will 
+				need to supply a <STRONG>priority</STRONG> attribute on the template with a 
+				value greater than 0.5. This forces XSLT to use your templates rather than the 
+				default templates that NDoc includes for the various extensibility sections.</p>
+			<p><i><b>Remember</b></i>: XSLT is case sensitive; so both the <b>match</b> pattern 
+				and the <b>mode</b> names must be the correct case or your templates will be 
+				ignored.</p>
+			<li>
+				<p>Next, set the <a href="vsnet.htm#ExtensibilityStylesheet">ExtensibilityStylesheet</a>
+					property of your MSDN or VS.NET project to the path to your stylesheet. When 
+					NDoc builds the documentation, it will include this stylesheet and display your 
+					tags according to the rules you specify in the XSLT templates.</p>
+			</li>
+			</ol>
+			<p>The resulting overview page for this topic will look like:</p>
+			<img src="images/extendexample.jpg" style="BORDER-RIGHT: 1px solid; PADDING-RIGHT: 4px; BORDER-TOP: 1px solid; PADDING-LEFT: 4px; PADDING-BOTTOM: 1px; BORDER-LEFT: 1px solid; PADDING-TOP: 1px; BORDER-BOTTOM: 1px solid">
+			<p class="fineprint">Example Extensibility Output</p>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="extensibility-sections.htm">Extensibility Sections</a></p>
+		</div>
+	</body>
+</html>

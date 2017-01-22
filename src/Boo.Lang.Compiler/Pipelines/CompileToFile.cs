@@ -40,6 +40,7 @@ namespace Boo.Lang.Compiler.Pipelines
 		public CompileToFile()
 		{				
 			Add(new SaveAssembly());
+			Add(new CreateAndSaveDocs(true));
 		}
 	}
 }

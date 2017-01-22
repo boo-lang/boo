@@ -39,6 +39,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 {
 	public delegate bool EntityNameMatcher(IEntity candidate, string name);
 
+	/// <summary>
+	/// Means to find the entity of a type reference or to set
+	/// the entity of type references (resolve the reference).
+	/// </summary>
 	public class NameResolutionService
 	{
 		public static readonly char[] DotArray = new char[] { '.' };

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <RootNamespace>Boo.Lang.Interpreter</RootNamespace>
@@ -14,10 +14,17 @@
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <UsePartialTypes>false</UsePartialTypes>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <NoStdLib>False</NoStdLib>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Strict>False</Strict>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
     <OutputPath>bin\Debug\</OutputPath>
     <Optimize>False</Optimize>
@@ -36,10 +43,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>Full</DebugType>
     <culture />
     <ducky>false</ducky>
     <genwarnings>false</genwarnings>
+    <Ducky>false</Ducky>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -47,28 +55,37 @@
     <ducky>false</ducky>
     <genwarnings>false</genwarnings>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Drawing" />
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\..\build\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\..\build\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang.Useful, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\AssemblyInfo.boo">
+      <Link>AssemblyInfo.boo</Link>
+    </Compile>
     <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="CmdDeclaration .boo" />
+    <Compile Include="CmdExecution.boo" />
+    <Compile Include="CmdParser.boo" />
+    <Compile Include="ColorScheme.boo" />
+    <Compile Include="describe.boo" />
+    <Compile Include="dir.boo" />
     <Compile Include="Namespace.boo" />
     <Compile Include="AbstractInterpreter.boo" />
-    <Compile Include="ConsoleCapture.boo" />
     <Compile Include="InteractiveInterpreter.boo" />
     <Compile Include="InteractiveInterpreterConsole.boo" />
-    <Compile Include="Builtins\repr.boo" />
-    <Compile Include="Builtins\describe.boo" />
-    <Compile Include="Builtins\dir.boo" />
+    <Compile Include="repr.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
-  <ItemGroup>
-    <Folder Include="Builtins\" />
-  </ItemGroup>
 </Project>

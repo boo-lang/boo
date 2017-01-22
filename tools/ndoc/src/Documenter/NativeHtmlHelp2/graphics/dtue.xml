@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UI>
+<String Id="L_FeedbackLink_TEXT">Send feedback to Microsoft</String>
+<String Id="L_MessageLink_TEXT">Microsoft Product Support Knowledge Base Link</String>
+<String Id="L_MailToLink_TEXT">Send feedback to Microsoft</String>
+<String Id="L_SeeAlso_TEXT">See Also</String>
+<String Id="L_Requirements_TEXT">Requirements</String>
+<String Id="L_QuickInfo_TEXT">QuickInfo</String>
+<String Id="L_FilterTip_TEXT">Language Filter</String>
+<String Id="L_Language_TEXT">Language</String>
+<String Id="L_ShowAll_TEXT">Show All</String>
+<String Id="L_Animation_Text">Click to animate</String>
+<String Id="L_ExpandAll_TEXT">Expand All</String>
+<String Id="L_CollapseAll_TEXT">Collapse All</String>
+<String Id="L_ExColl_TEXT">Click to Expand or Collapse</String>
+<String Id="L_Keyword_TEXT">Keyword =</String>
+<String Id="L_IndexMoniker_TEXT">IndexMoniker =</String>
+<String Id="L_URL_TEXT">Source URL =</String>
+</UI>

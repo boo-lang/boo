@@ -1,0 +1,3 @@
+REGEDIT4
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\VisualStudio\7.0\PreloadAddinState]
+"NDocBuild.Connect"=dword:1

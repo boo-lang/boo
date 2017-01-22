@@ -13,6 +13,7 @@
     <FileAlignment>4096</FileAlignment>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ProductVersion>9.0.30729</ProductVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>

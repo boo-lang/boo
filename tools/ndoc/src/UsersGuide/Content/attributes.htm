@@ -1,0 +1,87 @@
+<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<html>
+	<head>
+		<title>Attributes supported by NDoc</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+		<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The MSDN and VS.NET documenters that ship with NDoc use a number of <a href="http://msdn.microsoft.com/library/en-us/cpguide/html/cpconextendingmetadatausingattributes.asp ">
+					custom attributes</a> to augment the code comment tags when generating documentation. 
+			</p>
+			<p>When a type or member is decorated with the attributes described 
+				below, NDoc will use this information in order to make the help file more 
+				descriptive.
+			</p>
+			<table class="dtTABLE" id="Table2" style="WIDTH: 94%" cellspacing="0">
+				<thead>
+					<tr valign="top">
+						<th width="20%">
+							Attribute</th>
+						<th width="80%">
+							Comments</th>
+					</tr>
+				</thead>
+				<tr valign="top">
+					<td>
+						<p><b><a href="ms-help://MS.NETFrameworkSDKv1.1/cpref/html/frlrfsystemobsoleteattributeclasstopic.htm">
+									ObsoleteAttribute</a></b></p>
+					</td>
+					<td>
+						<p>
+							Marks program elements that are no longer in use.</p>
+						<P>NDoc will include warning text for each item that is marked as obsolete.</P>
+					</td>
+				</tr>
+				<TR>
+					<TD>
+						<p><b><a href="ms-help://MS.NETFrameworkSDKv1.1/cpref/html/frlrfsystemflagsattributeclasstopic.htm">
+									FlagsAttribute</a></b></p>
+					</TD>
+					<TD><p>Indicates that an enumeration can be treated as a bit field; that is, a set of 
+							flags.</p>
+						<p>NDoc enhances the documentation as follows,</p>
+						<ul>
+							<li>
+								A standard sentence is added after the summary section.
+								<p>"This enumeration has a <A href="frlrfsystemflagsattributeclasstopic.htm">FlagsAttribute</A>
+									attribute that allows a bitwise combination of its member values."</p>
+							</li>
+							<li>
+								An additional column is added to the member table to document the underlying 
+								value of each enumeration member.</li></ul>
+					</TD>
+				</TR>
+				<tr valign="top">
+					<td>
+						<p><b><a href="ms-help://MS.NETFrameworkSDKv1.1/cpref/html/frlrfSystemComponentModelEditorBrowsableAttributeClassTopic.htm">
+									EditorBrowsableAttribute</a></b></p>
+					</td>
+					<td>
+						<p>This attribute prevents types of members from showing up in editor or type 
+							browsers. If the project setting <strong>EditorBrowsableFilter</strong> is set 
+							to <strong>true</strong>, then no documentation will be generated for items 
+							decorated with this attribute.</p>
+						<p>
+							<i>As of version 1.3 of NDoc, the <b><a href="tags.htm#exclude">&lt;exclude/&gt;</a></b>
+								tag is the preferred mechanism for suppressing the documentation of types or 
+								members.</i></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<p><b> <a href="ms-help://MS.NETFrameworkSDKv1.1/cpref/html/frlrfSystemReflectionAssemblyVersionAttributeClassTopic.htm">
+									AssemblyVersionAttribute</a></b></p>
+					</td>
+					<td>
+						<p>If the <strong>IncludeAssemblyVersion</strong> project setting is <strong>true</strong>, 
+							then the assembly version will be included on each topic page.</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<documentation>
+	<class name="IncludeExample">
+		<summary>This is an included summary.</summary>
+		<remarks>These are some included remarks.</remarks>
+		<example>
+			<para>This is an included example.</para>
+			<code>
+				Foo foo = new Foo();
+				foo.Bar();</code>
+			<para>This next example is not indented in the include file.</para>
+			<code>
+Foo foo = new Foo();
+foo.Bar();</code>
+		</example>
+	</class>
+</documentation>

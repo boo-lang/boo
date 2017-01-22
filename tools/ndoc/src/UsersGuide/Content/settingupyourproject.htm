@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Setting up Your C# Project</title>
+<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css"/>
+<script src="script/ndoc.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<p>The first thing you want to do is make sure that Visual Studio.NET is creating 
+	the XML documentation file each time it recompiles your assembly projects. You 
+	do this by setting the &quot;XML Documentation File&quot; property in the project setting 
+	dialog. </p>
+	<p>While not absolutely necessary, it is best to name the XML documentation file 
+	with the same base name as the name of your assembly:</p>
+	<p>&nbsp;</p>
+	<img src="images/assemblynamedialog.jpg" alt="Finding the assembly name">
+	<p><strong class="fineprint">Finding the assembly name</strong></p>
+	<p>&nbsp;</p>
+	<p>Set the XML Documentation File property to the assembly name, but with the 
+	.xml extension. do not forget to select the &quot;All Configurations&quot; option before 
+	you set this property. That way you can document both release and debug builds.
+	</p>
+	<p>&nbsp;</p>
+	<p>
+	<img src="images/xmldocnamedialog.jpg" alt="Setting the documentation file name">
+	</p>
+	<p><strong class="fineprint">Setting the XML Documentation Property</strong></p>
+	<p>&nbsp;</p>
+	<p>Now, each time VS.NET compiles your assembly, it will aggregate all of the 
+	code comments that you include in the source files, in the XML Documentation 
+	File.</p>
+	<p>If you do not use Visual Studio.NET, make sure to compile your C# projects 
+	using the
+	<a href="ms-help://MS.NETFrameworkSDKv1.1/cscomp/html/vcerrDocProcessDocumentationComments.htm">
+	/doc compiler option</a>.</p>
+</div>
+
+</body>
+
+</html>

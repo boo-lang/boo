@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>seealso</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+<script src="script/ndoc_tags.js"></script>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<p>The &lt;seealso&gt; tag is used to specify links appearing in a <b>See Also</b> section.</p>
+	<pre class="syntax">&lt;seealso cref=&quot;<i>member</i>&quot;&gt;[<em>label</em>]&lt;/seealso&gt;
+<b>OR</b>
+&lt;seealso href=&quot;<i>URL</i>&quot;&gt;[<em>label</em>]&lt;/seealso&gt;</pre>
+	<p>where:</p>
+	<dl>
+		<dt><i>label</i> </dt>
+		<dd>text to display as the link </dd>
+		<dt>cref = &quot;<i>member</i>&quot; </dt>
+		<dd>A reference to a member or field that is available to be called from the current compilation environment. The compiler 
+		checks that the given code element exists and passes <i>member</i> to the element name in the output XML.<i> member</i> must 
+		appear within double quotation marks (&quot; &quot;). </dd>
+		<dt>href = &quot;<i>URL</i>&quot; <font color="#ff9933">[NDoc extension]</font> </dt>
+		<dd>A reference to a member or field that is available to be called from the current compilation environment. The compiler 
+		checks that the given code element exists and passes <i>member</i> to the element name in the output XML.<i> member</i> must 
+		appear within double quotation marks (&quot; &quot;).</dd>
+	</dl>
+	<h4 class="dtH4">Applies To</h4>
+	<p>All Types and Members.</p>
+	<h4 class="dtH4">Remarks</h4>
+	<p>Use <a href="tag_see.htm">&lt;see&gt;</a> to specify an in-line link within text.</p>
+	<p>This is a &#39;top-level&#39; tag. Do <b>not</b> nest this within other tags.</p>
+	<blockquote>
+		<p><b>Note:</b> Do not apply this tag to enumeration members. In the MSDN-style documenters, enumeration members are listed in a table 
+		on the enumeration type topic rather than individual topics, and any &lt;seealso&gt; tags will be ignored.</p>
+	</blockquote>
+	<h4 class="dtH4">Example</h4>
+	<p>See <a href="tag_summary.htm">&lt;summary&gt;</a> for an example of using &lt;seealso&gt;.</p>
+	<h4 class="dtH4">See Also</h4>
+	<p><a href="tagsusage.htm">Tag Usage</a> | <a href="tags.htm">NDoc Tags</a> | <a href="tag_see.htm">&lt;see&gt;</a> |
+	<a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfseealso.htm">Microsoft&#39;s definition</a></p>
+</div>
+
+</body>
+
+</html>

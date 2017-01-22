@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>Html Help 2 Deployment</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<h3 class="dtH3">Deploying Html Help 2</h3>
+			<p>The Html Help 2 system maintains a registry of all help collections and titles 
+				currently installed on a machine. This registry determines what help titles are 
+				included in each help collection as well as maintains references between help 
+				collections.</p>
+			<p>In order to view an Html Help 2 title or collection it is required that it be 
+				registered. This makes deploying Html Help 2 documentation more complex than 
+				simply delivering a single file as with CHM based help.</p>
+			<h4 class="dtH4">Windows Installer</h4>
+			<p>It is possible to create Windows Installer packages to deploy and properly 
+				register help collections and titles. VSHIK <a href="ms-help://ms.vshik.2003/dv_mshlpwrk/html/hxconRedistributingHelpFiles.htm">
+					includes detailed instructions</a> on how to go about this as well as a set 
+				of merge modules that contain the registration actions. Unfortunately, it is a 
+				rather involved process that includes a number of manual steps to create the 
+				proper records in the installer database. There is currently no way to automate 
+				the generation of Windows Installer packages for Html Help 2 files.</p>
+			<h4 class="dtH4">H2Reg</h4>
+			<p>Another option is to use the <a target="_blank" href="http://helpware.net/mshelp2/h2reg.htm">
+					shareware tool H2Reg.exe</a> from <a target="_blank" href="http://www.helpware.net">
+					helpware.net</a>. H2Reg is a command line utility that will register help 
+				collections and titles during installation. It can be included in scripted 
+				installer as well as Windows Installer packages as a custom action.</p>
+			<p>If the setting <a href="vsnet.htm#GenerateCollectionFiles">GenerateCollectionFiles</a>
+				is <b>true</b>, NDoc will create an H2Reg compatible INI file that contains the 
+				proper values to register the generated help title, as well as plug it into the 
+				VS.NET help collection.</p>
+			<p>In order to deploy the NDoc generated Html Help 2 files with H2Reg, follow these 
+				steps:</p>
+			<ol>
+				<li>
+					Set <b>GenerateCollectionFiles</b> to <b>true</b>
+				<li>
+				Include all of the generated help files as well as the generated INI file in 
+				your installer.
+				<li>
+					Include the H2Reg executable as well as the file <b>H2Reg.ini</b>
+				(located in the directory where you installed H2Reg) in your installer.
+				<li>
+				During installation copy the help files as well as the generated INI file to 
+				there final location.
+				<li>
+					Execute H2Reg with the following syntax:
+					<p class="code">H2reg -r "CmdFile=&lt;full path to the generated INI file&gt;"</p>
+				<li>
+					During uninstallation, before the help files are removed, execute H2Reg with 
+					the following syntax:
+					<p class="code">H2reg -u "CmdFile=&lt;full path to the generated INI file&gt;"
+					</p>
+				</li>
+			</ol>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="vsnet.htm">The VS.NET Documenter</a>, <a href="vsnet.htm#GenerateCollectionFiles">
+					GenerateCollectionFiles</a>, <a href="ms-help://ms.vshik.2003/dv_mshlpwrk/html/hxconRedistributingHelpFiles.htm">
+					VSHIK Deployment Instructions</a>, <a target="_blank" href="http://www.helpware.net">
+					H2Reg online</a></p>
+		</div>
+	</body>
+</html>

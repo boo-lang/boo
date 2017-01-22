@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>permission</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+		<p>The &lt;permission&gt; tag lets you document the security access of a member.</p>
+			<pre class="syntax">&lt;permission cref="<I>member</I>"&gt;<I>description</I>&lt;/permission&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt>cref = "<I>member</I>"
+					<dd>
+						A reference to a member or field that is available to be called from the 
+						current compilation environment. The compiler checks that the given code 
+						element exists and translates <I>member</I> to the canonical element name in 
+						the output XML.<I> member</I> must appear within double quotation marks (" "). <dt><I>description</I>
+							<dd>
+								A description of the access to the member.</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>All Members.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>
+				The <B>System.Security.PermissionSet</B> lets you specify access to a member.</p>
+			<h4 class="dtH4">Example</h4>
+			<pre class="csharpcode"><SPAN class="lang">[C#]</SPAN>
+<span class="kwrd">using</span> System;
+<span class="kwrd">class</span> TestClass
+{
+   <span class="rem">/// &lt;permission cref="System.Security.PermissionSet"&gt;Everyone can access this method.&lt;/permission&gt;</span>
+   <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Test()
+   {
+   }
+   <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Main()
+   {
+   }
+}</pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <a href="tags.htm"> NDoc&nbsp;Tags</a>&nbsp;| <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfpermission.htm">
+					Microsoft's definition</A></p>
+		</div>
+	</body>
+</html>

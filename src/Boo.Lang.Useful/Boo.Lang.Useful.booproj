@@ -14,6 +14,8 @@
     <UsePartialTypes>false</UsePartialTypes>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -58,6 +60,8 @@
     <Compile Include="CommandLine\EventBasedParser.boo" />
     <Compile Include="CommandLine\OptionAttribute.boo" />
     <Compile Include="CommandLine\Parser.boo" />
+    <Compile Include="Doc\AssemblyDoc.boo" />
+    <Compile Include="Doc\DocDB.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionEvaluator.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionLexer.boo" />
     <Compile Include="IO\Impl\PreProcessorExpressionParser.boo" />
@@ -69,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IO\" />
+    <Folder Include="Doc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
@@ -76,6 +81,10 @@
       <Name>Boo.Lang.Parser</Name>
     </ProjectReference>
     <!-- <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" /> -->
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
-  <Import Project="$(BooToolPath)\Boo.Microsoft.Build.targets" />
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

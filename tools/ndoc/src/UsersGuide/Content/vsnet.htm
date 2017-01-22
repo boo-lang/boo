@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>The Visual Studio .NET Documenter</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<h3 class="dtH3">Overview</h3>
+			<p>The VS.NET documenter creates compiled Html Help version 2 titles similar in 
+				format to the .NET Framework SDK collection. Html Help 2 is the help technology 
+				used by the Visual Studio.NET help system as well as by newer version of MSDN 
+				and the SDK documentation.</p>
+			<p>Documentation generated with this documenter can be integrated into Visual 
+				Studio and MSDN. This entails inclusion in the combined table of contents, 
+				index and search functions, as well as context sensitive and dynamic help from 
+				with the Visual Studio IDE.</p>
+			<h3 class="dtH3">Settings</h3>
+			<p>All documenters share <a href="documenters.htm">a common set of documenter settings</a>.</p>
+			<table class="dtTABLE" id="table1" style="WIDTH: 94%" cellspacing="0">
+				<tr valign="top">
+					<th width="33%">
+						Setting</th>
+					<th width="67%">
+						Description</th>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>AboutPageIconPage</b></td>
+					<td>HTML file that displays the Help About image.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>AboutPageInfo</b></td>
+					<td>Displays product information in Help About.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>AdditionalContentResourceDirectory</b></td>
+					<td>Directory that contains resources (images etc.) used by the additional content 
+						pages. This directory will be recursively compiled into the help file.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>BuildSeparateIndexFile</b></td>
+					<td>If <b>true</b> a separate index file is generated, otherwise it is compiled 
+						into the HxS (recommended).</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>CharacterSet</b></td>
+					<td>The character set that will be used when compiling the help file</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="CollectionNamespace"><b>CollectionNamespace</b></a></td>
+					<td>The Html Help 2 registry namespace (avoid spaces). Used in conjunction with <b><a href="#GenerateCollectionFiles">
+								GenerateCollectionFiles</a></b> and <b><a href="#RegisterTitleWithNamespace">RegisterTitleWithNamespace</a>.</b></td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>CollectionTOCStyle</b></td>
+					<td>Determines how the collection table of contents will appear in the help 
+						browser.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>CreateFullTextIndex</b></td>
+					<td>If <b>true</b>, creates a full text index for the help file.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="DocSetList"><b>DocSetList</b></a></td>
+					<td>A comma-separated list of <b><a href="ms-help://ms.vshik.2003/dv_vshik_2/html/vhconDynamicHelpAttributeConventions.htm#vhcondocsetattribute">
+								DocSet</a></b> filter identifiers in which topics in this title will be 
+						included.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>EmptyIndexTermPage</b></td>
+					<td>Displays when a user chooses a keyword index term that has sub keywords but is 
+						not directly associated with a topic itself.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="ExtensibilityStylesheet"/>
+						<b>ExtensibilityStylesheet</b></td>
+					<td>Path to an XSLT stylesheet that contains templates for documenting 
+						extensibility tags.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>FooterHtml</b></td>
+					<td>Raw HTML that is used as a page footer instead of the default footer. 
+						%FILE_NAME% is dynamically replaced by the name of the file for the current 
+						html page. %ASSEMBLY_NAME% is dynamically replaced by the name of the assembly 
+						for the current page. %ASSEMBLY_VERSION% is dynamically replaced by the version 
+						of the assembly for the current page. %TOPIC_TITLE% is dynamically replaced by 
+						the title of the current page.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="GenerateCollectionFiles"><b>GenerateCollectionFiles</b></a></td>
+					<td>If <b>true</b>, creates collection files to contain the help title. These all 
+						the title to be plugged into the Visual Studio help namespace during 
+						deployment.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>HeaderHtml</b></td>
+					<td>Raw HTML that is used as a page header instead of the default blue banner. 
+						%FILE_NAME%\" is dynamically replaced by the name of the file for the current 
+						html page. %TOPIC_TITLE%\" is dynamically replaced by the title of the current 
+						page.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="HtmlHelpName"><b>HtmlHelpName</b></a></td>
+					<td>The HTML Help project file and the compiled HTML Help file use this property 
+						plus the appropriate extension as names.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>IncludeDefaultStopWordList</b></td>
+					<td>If <b>true</b>, the default stop-word list is compiled into the help file. (A 
+						stop-word list is a list of words that will be ignored during a full text 
+						search)</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>IntroductionPage</b></td>
+					<td>An HTML page that will be displayed when the root TOC node is selected.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>LangID</b></td>
+					<td>The language ID of the locale used by the compiled help file</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>LinkToSdkDocVersion</b></td>
+					<td>Specifies to which version of the .NET Framework SDK documentation the links to 
+						system types will be pointing.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>NavFailPage</b></td>
+					<td>Page that opens if a link to a topic or URL is broken.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>OmitSyntaxSection</b></td>
+					<td>If <b>true</b>, the syntax section on member topics will not be generated 
+						(improves performance)</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>OutputDirectory</b></td>
+					<td>The directory in which .html files and the .Hx* files will be generated.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="PlugInNamespace"><b>PlugInNamespace</b></a></td>
+					<td>If <b><a href="#GenerateCollectionFiles">GenerateCollectionFiles</a></b> is 
+						true, the resulting collection will be plugged into this namespace during 
+						deployment</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="RegisterTitleAsCollection"><b>RegisterTitleAsCollection</b></a></td>
+					<td>If&nbsp;<B>true</B> , the HxS title will be registered as a collection after a 
+						successful compilation of the documentation. (ignored if <b><a href="#RegisterTitleWithNamespace">
+								RegisterTitleWithNamespace</a></b> is true)
+						<p><i>Note: This is a development aid and only applies to the machine where the build 
+								is run.</i></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="RegisterTitleWithNamespace"><b>RegisterTitleWithNamespace</b></a></td>
+					<td>Should the compiled Html 2 title be registered on this machine after it is 
+						compiled. Good for testing. (If true <b><a href="#CollectionNamespace">CollectionNamespace</a></b>
+						is required)<p><i>Note: This is a development aid and only applies to the machine where 
+								the build is run.</i></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>Title</b></td>
+					<td>This is the title displayed at the top of every page.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<a name="UseHelpNamespaceMappingFile"><b>UseHelpNamespaceMappingFile</b></a></td>
+					<td>If the documentation includes references to types registered in a separate html 
+						help 2 namespace, supplying a mapping file allows <b>XLinks</b> to be created 
+						to topics within that namespace.</td>
+				</tr>
+				<tr valign="top">
+					<td>
+						<b>Version</b></td>
+					<td>The version number for the help file (#.#.#.#)</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

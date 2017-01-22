@@ -1,0 +1,370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Integrating with Visual Studio</title>
+<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css" />
+<script src="script/ndoc.js"></script>
+<style>
+<!--
+
+.saveHistory {behavior:url(#default#savehistory);}
+-->
+</style>
+</head>
+
+<body class="dtBODY" id="bodyID" onload="InitTitle()">
+
+<div id="nstext">
+	<h3 class="dtH3">Visual Studio Integration</h3>
+	<p>Each Html Help 2 topic includes an XML data island, that is used by the help 
+	system for creating indices, linking topics, looking up keywords, filtering 
+	topics and a number of other features. A typical XML data island looks like:</p>
+	<p class="MsoNormal" style="text-autospace: none">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">
+	&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:maroon">xml</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:TOCTitle</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Title</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;Object Class&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:RLTitle</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Title</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;Object Class&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Keyword</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Index</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;K&quot;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+	</span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:red">
+	Term</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;Object 
+	class, about Object class&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Keyword</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Index</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;A&quot;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+	</span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:red">
+	Term</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;frlrfSystemObjectClassTopic&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Keyword</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Index</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;F&quot;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:fuchsia">
+	</span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:red">
+	Term</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;System.Object&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;DocSet&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;NETFramework&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;TopicType&quot;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;kbSyntax&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;DevLang&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;CSharp&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;DevLang&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;VB&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;DevLang&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;C++&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;DevLang&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;JScript&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;DevLang&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;VJ#&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;Technology&quot;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;WFC&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;Technology&quot;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;ManagedC&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;TechnologyVers&quot;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;kbWFC&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;TechnologyVers&quot;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;kbManagedC&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;Locale&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;kbEnglish&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;DocSet&quot;</span><span style="font-size:8.0pt;font-family:
+&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;NETCompactFramework&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;TechnologyVers&quot;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;kbProfile2NETCF&quot;/&gt;</span></p>
+	<p class="MsoNormal" style="text-autospace: none; margin-left: .5in">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">MSHelp:Attr</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:fuchsia"> </span>
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:red">Name</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">=&quot;HelpPriority&quot;</span><span style="font-size:8.0pt;
+font-family:&quot;Lucida Console&quot;;color:fuchsia"> </span>
+	<span style="font-size:
+8.0pt;font-family:&quot;Lucida Console&quot;;color:red">Value</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;color:blue">=&quot;2&quot;/&gt;</span></p>
+	<p class="MsoNormal">
+	<span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&lt;/</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:maroon">xml</span><span style="font-size:8.0pt;font-family:&quot;Lucida Console&quot;;
+color:blue">&gt;</span></p>
+	<p>When NDoc generates an Html Help 2 topic, it creates an XML data island similar. 
+	This allows the help title to be integrated into Visual Studio.NET in such a 
+	way that your topics will show up in the help index, the help contents, the 
+	search pane, the dynamic help pane and even in context sensitive help from the 
+	code editor. This level of integration makes it very easy for consumers of your 
+	code to get the information they need right from the development environment 
+	and is one of the most valuable features of Html Help 2.</p>
+	<h3 class="dtH3">Requirements</h3>
+	<p>Even though NDoc generates the necessary XML data island for each topic, 
+	the nature of the Html Help 2 system requires some additional information in 
+	order to integrate generated help with VS.NET.</p>
+	<ol>
+		<li>
+		<p>The help title must be part of a collection.</p>
+		<p>Html Help 2 defines two levels of containment for help sets: collections 
+		and titles. A title is a single set of related Html Help topics, compiled 
+		into an HxS file. A collection is one or more related sets of help title. 
+		(Confusing the issue: help titles can also be treated as collections, but 
+		not vice-a-versa). Each help collection must be assigned a unique namespace.</p>
+		<p>Only help collections can be integrated into the VS.NET help system.</p>
+		</li>
+		<li>
+		<p>The collection must be registered on each machine.</p>
+		<p>The Html Help 2 system maintains a registry (not to be confused with 
+		the windows registry) of all of the help topics currently installed on the 
+		machine. This registry is used when traversing links, doing searches, displaying 
+		indices etc. It is an essential part of the implementation of Html Help 
+		2. For this reason the help collection needs to be registered when it is 
+		deployed, otherwise it will not be accessible from VS.NET.</p>
+		</li>
+		<li>
+		<p>The registered help collection must be &quot;plugged-in&quot; to the VS.NET help 
+		namespace.</p>
+		<p>Any registered help collection can be referenced from any other registered 
+		help collection. This allows one collection to include the title in another 
+		collection, even though those titles are not directly part of the parent 
+		collection. It is via this &quot;plug-in&quot; mechanism that third party help collections 
+		can be added to the VS.NET help system.</p>
+		<p>The namespace for the VS.NET 2003 help collection is: <b>MS.VSCC.2003</b></p>
+		</li>
+	</ol>
+	<h3 class="dth3">Confused yet?</h3>
+	<p>Html Help 2 is fairly complex technology. Further information can be found 
+	in the <a href="ms-help://ms.vshik.2003/dv_vshik_2/html/vsoriVSHIK2.htm">VSHIK 
+	documentation</a>. The website
+	<a target="_blank" href="http://www.helpware.net">helpware.net</a> also has 
+	a lot of useful information and tutorials on Html Help 2. HelpWare also has 
+	a shareware <a target="_blank" href="http://helpware.net/FAR/index.html">tool by the name of 
+	FAR</a> that will prove invaluable for exploring the capabilities of the Html 
+	Help 2 system.</p>
+	<p>The VS.NET documenter has a number of settings meant to simplify this entire 
+	process.</p>
+	<ul>
+		<li>
+		<p>First, make sure that <a href="vsnet.htm#GenerateCollectionFiles">GenerateCollectionFiles</a> is set to true. 
+		This will generate the necessary Html Help 2 collection meta data files 
+		that will allow you to plug into VS.NET.</p>
+		</li>
+		<li>
+		<p>Second, supply a value for <a href="vsnet.htm#CollectionNamespace">CollectionNamespace</a>. Don&#39;t use spaces 
+		or any URI special characters. It is also a good idea to make an effort 
+		to assure that this namespace will be globally unique. The same rules you 
+		use to generate unique managed namespaces also work well here.</p>
+		</li>
+		<li>
+		<p>Third, make sure you supply the correct value for 
+		<a href="vsnet.htm#PlugInNamespace">PlugInNamespace</a>. 
+		This makes sure that when you <a href="vsnet-deploying.htm">deploy your 
+		help files with h2reg.exe</a>, they will be plugged into VS.NET. (The 
+		default value of <b>ms.vscc</b> allows h2reg to decide at install time whether 
+		VS.NET 2002 or 2003 should be used.)</p>
+		</li>
+	</ul>
+	<h3 class="dth3">Filters</h3>
+	<p>Each help topic&#39;s XML data island can have one or more DocSet values. The 
+	DocSet is what VS.NET uses when it filters the help index and search panes. 
+	DocSets are defined at the collection level, and then individual topics can 
+	be included in a DocSet via its XML data island.</p>
+	<p>MSDN defines a number of set filters as follows:</p>
+	<div class="saveHistory" id="section3" style="BORDER-RIGHT: #ffff99 1px solid; BORDER-TOP: #ffff99 1px solid; BORDER-LEFT: #ffff99 1px solid; BORDER-BOTTOM: #ffff99 1px solid; BACKGROUND-COLOR: #ffffdd">
+		<pre>Windows Client SDK,     	Query: &quot;DocSet&quot;=&quot;WCSDK&quot;
+NET Framework,            	Query: (&quot;DocSet&quot;=&quot;NETFramework&quot; OR &quot;DocSet&quot; = &quot;NETFrameworkExtender&quot;) OR ((&quot;DocSet&quot;=&quot;C#&quot; OR &quot;DocSet&quot;=&quot;Visual Basic&quot; OR  &quot;DocSet&quot;=&quot;Visual C++&quot; OR &quot;DocSet&quot;=&quot;VBA&quot; OR &quot;DocSet&quot;=&quot;VJ#&quot; OR &quot;DocSet&quot;=&quot;Visual Studio&quot;) AND &quot;Technology&quot;=&quot;ManagedCode&quot;)
+Visual Studio Macros,    	Query: &quot;DocSet&quot; = &quot;VSM&quot; OR &quot;DocSet&quot; = &quot;NETFramework&quot;
+Visual Basic,              	Query: &quot;DocSet&quot; = &quot;Visual Basic&quot; OR &quot;DocSet&quot; = &quot;NETFramework&quot; OR &quot;DocSet&quot; = &quot;NETFrameworkExtender&quot; OR &quot;DocSet&quot; = &quot;DHTML&quot; OR &quot;DocSet&quot; = &quot;XML&quot; OR (&quot;DocSet&quot; = &quot;kbmsdn&quot; AND &quot;ProductVers&quot; = &quot;kbVBp700&quot;)
+Visual C++,                	Query: &quot;DevLang&quot; = &quot;C&quot; OR &quot;DevLang&quot; = &quot;C++&quot; OR &quot;Product&quot; = &quot;VC&quot; OR &quot;DocSet&quot; = &quot;PSDK&quot; OR &quot;DocSet&quot; = &quot;NETFramework&quot; OR (&quot;DocSet&quot; = &quot;kbmsdn&quot; AND &quot;ProductVers&quot; = &quot;kbVC700&quot;)
+Platform SDK,              	Query: &quot;DocSet&quot; = &quot;PSDK&quot;
+(no filter),               	Query: 
+Enterprise Servers,        	Query: &quot;DocSet&quot; = &quot;NETEnterpriseServers&quot; OR &quot;DocSet&quot; = &quot;SQL Server&quot;
+Internet Development,      	Query: &quot;DocSet&quot; = &quot;DHTML&quot; OR &quot;DocSet&quot; = &quot;XML&quot; OR &quot;DevLang&quot; = &quot;DHTML&quot; OR &quot;DevLang&quot; = &quot;HTML&quot; OR &quot;DevLang&quot; = &quot;VBScript&quot; OR &quot;DevLang&quot; = &quot;JScript&quot; OR &quot;DevLang&quot; = &quot;ASP&quot; OR &quot;Technology&quot; = &quot;kbSOAP&quot; OR &quot;Technology&quot; = &quot;ASPNET&quot; OR &quot;Technology&quot; = &quot;HPS&quot;
+Visual Studio,             	Query: &quot;DocSet&quot; = &quot;Visual Studio&quot; OR &quot;DocSet&quot; = &quot;Visual Studio SDK&quot; OR &quot;DocSet&quot; = &quot;CrystalReports&quot; OR &quot;DocSet&quot; = &quot;Visual Source Safe&quot; OR &quot;DocSet&quot; =  &quot;VSAnalyzer&quot; OR &quot;DocSet&quot; = &quot;PSDK&quot; OR &quot;DocSet&quot; = &quot;NETFramework&quot; OR &quot;DocSet&quot; = &quot;NETFrameworkExtender&quot; OR &quot;DocSet&quot; = &quot;NETEnterpriseServers&quot; OR (&quot;DocSet&quot; = &quot;kbmsdn&quot; AND &quot;ProductVers&quot; = &quot;kbVS700&quot;)
+Visual C#,                 	Query: &quot;DocSet&quot; = &quot;C#&quot; OR &quot;DocSet&quot; = &quot;NETFramework&quot; OR &quot;DocSet&quot; = &quot;NETFrameworkExtender&quot; OR &quot;DocSet&quot; = &quot;DHTML&quot; OR &quot;DocSet&quot; = &quot;XML&quot; OR (&quot;DocSet&quot; = &quot;kbmsdn&quot; AND &quot;ProductVers&quot; = &quot;C#&quot;)
+Samples,                   	Query: &quot;TopicType&quot;=&quot;kbSampleProd&quot;
+Visual FoxPro,             	Query: &quot;DocSet&quot; = &quot;Visual FoxPro&quot; OR (&quot;DocSet&quot; = &quot;kbmsdn&quot; AND &quot;ProductVers&quot; = &quot;kbVFP700&quot;)
+Knowledge Base,            	Query: &quot;DocSet&quot; = &quot;kbKB&quot;
+Visual J#,                 	Query: &quot;DocSet&quot; = &quot;VJ#&quot; OR &quot;DocSet&quot; = &quot;NETFramework&quot; OR &quot;DocSet&quot; = &quot;NETFrameworkExtender&quot; OR &quot;DocSet&quot; = &quot;DHTML&quot; OR &quot;DocSet&quot; = &quot;XML&quot; OR (&quot;DocSet&quot; = &quot;kbmsdn&quot; AND &quot;ProductVers&quot; = &quot;VJ#&quot;)
+.NET Compact Framework,    	Query: &quot;DocSet&quot;=&quot;Smart Devices&quot; OR &quot;DocSet&quot;=&quot;NetCompactFramework&quot;</pre>
+	</div>
+	<p>Adding your collection to any of the above sets is as easy as supplying a 
+	comma separated list via the <a href="vsnet.htm#DocSetList">DocSetList</a> property. An entry will be made 
+	in each topic&#39;s data island for each item in this list. When you deploy your 
+	help, your topics will show up when the user is filtering by sets which you 
+	have defined.</p>
+	<p>NDoc will however create and register a single DocSet filter corresponding 
+	to the value of <a href="vsnet.htm#HtmlHelpName">HtmlHelpName</a>, and each topic will be included in that 
+	set. Defining additional custom filters is possible, but is outside of the scope 
+	of NDoc. To do so you will need to delve more deeply into the deployment and 
+	registration process as described in VSHIK.</p>
+	<h4 class="dtH4">See Also</h4>
+	<p><a href="vsnet.htm">The VS.NET Documenter</a>, <a href="ms-help://ms.vshik.2003/dv_vshik_2/html/vsoriVSHIK2.htm">VSHIK 
+	documentation</a>, <a href="vsnet-deploying.htm">Deploying Html Help 2</a></p>
+</div>
+
+</body>
+
+</html>

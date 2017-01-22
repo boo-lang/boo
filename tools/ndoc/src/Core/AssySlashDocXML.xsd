@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema targetNamespace="http://ndoc.sf.net/AssySlashDocXML" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://ndoc.sf.net/AssySlashDocXML" xmlns:NS="http://ndoc.sf.net/AssySlashDocXML"
+	elementFormDefault="qualified" version="1.0">
+	<!-- -->
+	<xs:element name="ndoc">
+		<xs:annotation>
+			<xs:documentation>The root of an NDoc XML file</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="feedbackEmail" minOccurs="0" />
+				<xs:element ref="copyright" minOccurs="0" />
+				<xs:element ref="threadsafety" minOccurs="0" />
+				<xs:element name="preliminary" minOccurs="0" />
+				<xs:element ref="namespaceHierarchies" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="assembly" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="SchemaVersion" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="feedbackEmail" type="xs:string" />
+	<!-- -->
+	<xs:element name="copyright">
+		<xs:complexType>
+			<xs:attribute name="text" type="xs:string" use="required" />
+			<xs:attribute name="href" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="threadsafety">
+		<xs:complexType>
+			<xs:attribute name="static" type="xs:string" use="required" />
+			<xs:attribute name="instance" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="platform">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="os">
+					<xs:complexType mixed="true">
+						<xs:attribute name="predefined" type="xs:string" use="required" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="frameworks" minOccurs="0">
+					<xs:complexType>
+						<xs:choice maxOccurs="unbounded">
+							<xs:element name="custom" type="xs:string" />
+							<xs:element name="mono" type="xs:string" />
+							<xs:element name="compact" type="xs:string" />
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="attribute">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="field" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="name" type="xs:string" use="required" />
+						<xs:attribute name="type" type="xs:string" use="required" />
+						<xs:attribute name="value" type="xs:string" use="required" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="property" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="name" type="xs:string" use="required" />
+						<xs:attribute name="type" type="xs:string" use="required" />
+						<xs:attribute name="value" type="xs:string" use="optional" />
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="target" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="namespaceHierarchies">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="namespaceHierarchy" minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="namespaceHierarchy">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hierarchyType" minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="hierarchyType">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hierarchyInterfaces" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="hierarchyType" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="id" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="hierarchyInterfaces">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="hierarchyInterface" minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="hierarchyInterface">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="assembly">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="module" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="version" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="module">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="namespace" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="namespace">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="class" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="interface" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="structure" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="delegate" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="enumeration" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="obsolete" type="xs:string" />
+	<!-- -->
+	<xs:element name="class">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element ref="base" minOccurs="0" />
+				<xs:element name="implements" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType mixed="true">
+						<xs:attribute name="inherited" type="xs:boolean" use="optional" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="constructor" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="field" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="method" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="operator" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="typeAccess" use="required" />
+			<xs:attribute name="hiding" type="xs:boolean" use="optional" />
+			<xs:attribute name="abstract" type="xs:boolean" use="optional" />
+			<xs:attribute name="sealed" type="xs:boolean" use="optional" />
+			<xs:attribute name="baseType" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="structure">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element ref="base" minOccurs="0" />
+				<xs:element name="implements" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType mixed="true">
+						<xs:attribute name="inherited" type="xs:boolean" use="optional" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="constructor" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="field" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="method" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="operator" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="typeAccess" use="required" />
+			<xs:attribute name="hiding" type="xs:boolean" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="interface">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element name="implements" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="property" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="method" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="event" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="typeAccess" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="enumeration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element ref="field" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="typeAccess" use="required" />
+			<xs:attribute name="baseType" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="delegate">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="name" type="xs:string" use="required" />
+						<xs:attribute name="type" type="xs:string" use="required" />
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="typeAccess" use="required" />
+			<xs:attribute name="returnType" type="xs:string" use="optional" />
+			<xs:attribute name="valueType" type="xs:boolean" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="base">
+		<xs:annotation>
+			<xs:documentation>Recursive type describing inheritance chain</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="base" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="type" type="xs:string" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="constructor">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="memberAccess" use="required" />
+			<xs:attribute name="contract" type="methodcontract" use="required" />
+			<xs:attribute name="overload" type="xs:unsignedInt" use="optional" />
+			<xs:attribute name="unsafe" type="xs:boolean" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="field">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element name="implements" type="memberimplements" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="memberAccess" use="required" />
+			<xs:attribute name="contract" type="methodcontract" use="required" />
+			<xs:attribute name="type" type="xs:string" use="required" />
+			<xs:attribute name="valueType" type="xs:boolean" use="required" />
+			<xs:attribute name="declaringType" type="xs:string" use="optional" />
+			<xs:attribute name="unsafe" type="xs:boolean" use="optional" />
+			<xs:attribute name="hiding" type="xs:string" use="optional" />
+			<xs:attribute name="literal" type="xs:boolean" use="optional" />
+			<xs:attribute name="initOnly" type="xs:boolean" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="property">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="implements" type="memberimplements" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="memberAccess" use="required" />
+			<xs:attribute name="contract" type="methodcontract" use="required" />
+			<xs:attribute name="type" type="xs:string" use="required" />
+			<xs:attribute name="valueType" type="xs:boolean" use="required" />
+			<xs:attribute name="declaringType" type="xs:string" use="optional" />
+			<xs:attribute name="overload" type="xs:unsignedInt" use="optional" />
+			<xs:attribute name="unsafe" type="xs:boolean" use="optional" />
+			<xs:attribute name="hiding" type="xs:boolean" use="optional" />
+			<xs:attribute name="interface" type="xs:string" use="optional" />
+			<xs:attribute name="get" type="xs:boolean" use="required" />
+			<xs:attribute name="set" type="xs:boolean" use="required" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="method">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="implements" type="memberimplements" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="memberAccess" use="required" />
+			<xs:attribute name="contract" type="methodcontract" use="required" />
+			<xs:attribute name="returnType" type="xs:string" use="required" />
+			<xs:attribute name="valueType" type="xs:boolean" use="required" />
+			<xs:attribute name="declaringType" type="xs:string" use="optional" />
+			<xs:attribute name="overload" type="xs:unsignedInt" use="optional" />
+			<xs:attribute name="unsafe" type="xs:boolean" use="optional" />
+			<xs:attribute name="hiding" type="xs:boolean" use="optional" />
+			<xs:attribute name="interface" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="event">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element name="implements" type="memberimplements" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="memberAccess" use="required" />
+			<xs:attribute name="contract" type="methodcontract" use="required" />
+			<xs:attribute name="type" type="xs:string" use="required" />
+			<xs:attribute name="valueType" type="xs:boolean" use="required" />
+			<xs:attribute name="declaringType" type="xs:string" use="optional" />
+			<xs:attribute name="interface" type="xs:string" use="optional" />
+			<xs:attribute name="multicast" type="xs:boolean" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="operator">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="documentation" minOccurs="0" />
+				<xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="obsolete" minOccurs="0" />
+				<xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="id" type="xs:string" use="required" />
+			<xs:attribute name="access" type="memberAccess" use="required" />
+			<xs:attribute name="contract" type="methodcontract" use="required" />
+			<xs:attribute name="returnType" type="xs:string" use="required" />
+			<xs:attribute name="valueType" type="xs:boolean" use="required" />
+			<xs:attribute name="declaringType" type="xs:string" use="optional" />
+			<xs:attribute name="overload" type="xs:unsignedInt" use="optional" />
+			<xs:attribute name="unsafe" type="xs:boolean" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:element name="parameter">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="attribute" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="type" type="xs:string" use="required" />
+			<xs:attribute name="valueType" type="xs:boolean" use="required" />
+			<xs:attribute name="unsafe" type="xs:string" use="optional" />
+			<xs:attribute name="direction" type="xs:string" use="optional" />
+			<xs:attribute name="isParamArray" type="xs:boolean" use="optional" />
+			<xs:attribute name="optional" type="xs:boolean" use="optional" />
+			<xs:attribute name="defaultValue" type="xs:string" use="optional" />
+		</xs:complexType>
+	</xs:element>
+	<!-- -->
+	<xs:complexType name="memberimplements">
+		<xs:annotation>
+			<xs:documentation>what interface member is implemented</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="name" type="xs:string" use="required" />
+		<xs:attribute name="id" type="xs:string" use="required" />
+		<xs:attribute name="interface" type="xs:string" use="required" />
+		<xs:attribute name="interfaceId" type="xs:string" use="required" />
+		<xs:attribute name="declaringType" type="xs:string" use="required" />
+	</xs:complexType>
+	<!-- -->
+	<xs:simpleType name="methodcontract">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Static" />
+			<xs:enumeration value="Final" />
+			<xs:enumeration value="Virtual" />
+			<xs:enumeration value="Override" />
+			<xs:enumeration value="Normal" />
+			<xs:enumeration value="Abstract" />
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- -->
+	<xs:simpleType name="typeAccess">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Public" />
+			<xs:enumeration value="NotPublic" />
+			<xs:enumeration value="NestedPublic" />
+			<xs:enumeration value="NestedFamily" />
+			<xs:enumeration value="NestedFamilyOrAssembly" />
+			<xs:enumeration value="NestedAssembly" />
+			<xs:enumeration value="NestedFamilyAndAssembly" />
+			<xs:enumeration value="NestedPrivate" />
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- -->
+	<xs:simpleType name="memberAccess">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Public" />
+			<xs:enumeration value="NestedPublic" />
+			<xs:enumeration value="Family" />
+			<xs:enumeration value="FamilyOrAssembly" />
+			<xs:enumeration value="Assembly" />
+			<xs:enumeration value="FamilyAndAssembly" />
+			<xs:enumeration value="Private" />
+			<xs:enumeration value="PrivateScope" />
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- -->
+	<xs:element name="documentation">
+		<xs:complexType mixed="true">
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:any namespace="##other" processContents="skip" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

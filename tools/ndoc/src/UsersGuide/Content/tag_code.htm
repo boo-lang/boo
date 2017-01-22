@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>code</title>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;code&gt; is used to indicate multiple lines as code.</p>
+			<pre class="syntax">&lt;code [lang="<em>language</em>"][escaped="true"]&gt;<em>content</em>&lt;/code&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt>lang="<i>language</i>" <font color="#ff9933">[NDoc extension]</font>
+					<dd>
+						Applies a filter for this language. (Optional) <dt>escaped="true" <font color="#ff9933">
+								[NDoc extension]</font>
+							<dd>
+								Escapes all reserved characters within <i>content</i>. (Optional) <dt><i>content</i>
+									<dd>
+										The text you want marked as code.</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>Can be used inline within any other markup.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>A language filter can be attached using the optional <em>lang</em> attribute. 
+				Standard languages are <b>Visual Basic</b>, <b>C#</b>, <b>C++</b> and <b>JScript</b>. 
+				Multiple languages can be specified as a comma separated list such as "Visual 
+				Basic, C#, C++".</p>
+			<p>The <i>escaped</i> attribute can be used to escape all reserved characters 
+				within the text.</p>
+			<blockquote><p><b>Note:</b>&nbsp;&nbsp;All content within xml comments must be 
+					well-formed!!!</p>
+			</blockquote>
+			<h4 class="dtH4">Example</h4>
+			<p>Note how, in the following comments, the xml text can be entered verbatim 
+				because the <font face="Courier New">escaped="true"</font> attribute has been 
+				applied.</p>
+		</div>
+		<pre class="csharpcode">   <SPAN class="lang">[C#]</SPAN>
+   <span class="rem">/// &lt;summary&gt;</span>
+   <span class="rem">/// Loads the XML.</span>
+   <span class="rem">/// &lt;/summary&gt;</span>
+   <span class="rem">/// &lt;example&gt; The XML should have the following format.</span>
+   <span class="rem">/// &lt;code escaped="true"&gt;</span>
+   <span class="rem">///   &lt;root&gt;</span>
+   <span class="rem">///     &lt;member name="name"/&gt;</span>
+   <span class="rem">///   &lt;/root&gt;</span>
+   <span class="rem">/// &lt;/code&gt;</span>
+   <span class="rem">/// &lt;/example&gt;</span>
+   <span class="kwrd">public</span> <span class="kwrd">void</span> LoadXml(<span class="kwrd">string</span> xml) 
+   {
+      <span class="rem">//do something here...</span>
+   }
+</pre>
+		<div id="nstext">
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag Usage</a> | <a href="tags.htm">NDoc Tags</a> | <a href="tag_c.htm">
+					&lt;c&gt;</a> | <a href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfcode.htm">
+					Microsoft's definition</a></p>
+		</div>
+	</body>
+</html>

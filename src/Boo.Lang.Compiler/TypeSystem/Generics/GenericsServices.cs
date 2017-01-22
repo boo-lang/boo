@@ -323,7 +323,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				return 1;
 
 			// Generic parameters and generic arguments both contribute 
-			// to a types genrity. Note that a nested type can be both a generic definition 
+			// to a types generity. Note that a nested type can be both a generic definition 
 			// and a constructed type: Outer[of int].Inner[of T]
 			int generity = 0;
 

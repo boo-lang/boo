@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	This file specifies the managed namespace to help namespace mapping
+	that will be used when creating XLinks to managed types that are not
+	part of the documentation set being processed.
+	
+	Each helpNamespace entry can contain 1..n managedNamespace entries.
+	
+	When resolving the help namespace of a managed type, the most specific
+	managedNamespace entry will be used to select the appropriate help namespace.
+	
+	For example, given the following map file:
+	
+	<namespaceMap xmlns="urn:ndoc-sourceforge-net:documenters.NativeHtmlHelp2.schemas.namespaceMap">
+		<helpNamespace ns="ms-help://companyX.sharedhelpcollection">
+			<managedNamespace ns="CompanyX"/>
+		</helpNamespace>
+		<helpNamespace ns="ms-help://companyX.producthelpcollection">
+			<managedNamespace ns="CompanyX.Product1"/>
+			<managedNamespace ns="CompanyX.Product2"/>
+		</helpNamespace>	
+	</namespaceMap>
+	
+	The managed type CompanyX.Product2.Class1 would map to ms-help://companyX.producthelpcollection,
+	while CompanyX.Core.Class1 would map to ms-help://companyX.sharedhelpcollection
+-->
+<namespaceMap xmlns="urn:ndoc-sourceforge-net:documenters.NativeHtmlHelp2.schemas.namespaceMap">
+	<!-- 
+		In addition to your custom mapping file, the NativeHtmlHelp2 documenter uses this 
+		file as a default map in order to include links to the Microsoft .NET SDK. 
+		There is no need to include System or Microsoft namespaces in your custom mapping file.
+	-->
+    <helpNamespace ns="ms-help://MS.NETFrameworkSDKv1.1">
+        <managedNamespace ns="System" />
+        <managedNamespace ns="Microsoft" />
+    </helpNamespace>
+</namespaceMap>

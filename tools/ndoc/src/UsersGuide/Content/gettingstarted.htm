@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>Getting Started</title>
+		<meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1">
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link href="css/ndoc.css" rel="stylesheet" name="ndocstyle" type="text/css">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>There are some additional tools you'll need to get in order to produce certain 
+				kinds of help titles. These tools are available online.
+			</p>
+			<h1 class="dtH1">HTML Help Compilers</h1>
+			<p>The necessary HTML Help compilers are freely available from Microsoft.</p>
+			<h4 class="dtH4">HTML Help Version 1</h4>
+			<p>HTML Help 1 titles are the CHM files that most applications use for their help 
+				file format. This is the help technology used by MSDN prior to the release of 
+				Visual Studio.NET.
+			</p>
+			<p>If you plan to create compiled Html Help 1 titles (CHM files), you will need to 
+				make sure you have <a target="_blank" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp">
+					Microsoft's HTML Help Workshop</a>. This download includes the compiler 
+				capable of creating CHM help titles.
+			</p>
+			<p></p>
+			<h4 class="dtH4">HTML Help Version 2</h4>
+			<p>HTML Help 2 is the help technology the Visual Studio.NET 2002 and 2003, and 
+				current versions of MSDN use.
+			</p>
+			<p>If you plan to create help titles that integrate with the VS.NET help system, 
+				you will need to <a target="_blank" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwmscextendingnethelp.asp">
+					download the Visual Studio Help Integration Kit (VSHIK)</a>. This download 
+				includes the compiler capable of creating HxS help titles.
+			</p>
+			<h4 class="dtH4">Latex Compiler</h4>
+			<p>If you intend to use the LaTeX documenter, you will need a compiler capable of 
+				generating dvi or pdf files. You can download a free one from <a href="http://www.miktex.org">
+					http://www.miktex.org</a>.</p>
+			<h3 class="dtH3">Other Tools</h3>
+			<h4 class="dtH4">H2Reg</h4>
+			<p>Deploying compiled HTML Help 2 titles and integrating them into your customers 
+				Visual Studio.NET help system can be tricky. The VSHIK download <a href="ms-help://ms.vshik.2003/dv_mshlpwrk/html/hxconRedistributingHelpFiles.htm">
+					includes detailed instructions on how to do this</a> using Windows 
+				Installer and a set of merge modules that are part of the integration kit 
+				download.
+			</p>
+			<p>An alternative method is to <a target="_blank" href="http://helpware.net/mshelp2/h2reg.htm">
+					use the H2Reg utility</a> from <a target="_blank" href="http://www.helpware.net">
+					helpware.net</a>.
+			</p>
+			<p>H2Reg is a shareware executable that can be included in your help title 
+				deployment projects. It can be used to register help titles, and plug them into 
+				the VS.NET help system.</p>
+			<p>H2Reg uses an INI file to describe the help title and to control how it is 
+				registered and plugged into existing help collections. The VS.NET Documenter 
+				includes an option that will generate an H2Reg compatible INI file for your 
+				NDoc created HTML Help 2 titles.
+			</p>
+		</div>
+	</body>
+</html>

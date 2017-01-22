@@ -78,7 +78,6 @@ namespace booc
 			AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 			
 			CheckBooCompiler();
-
 			var parameters = new CompilerParameters(false);
 			try
 			{

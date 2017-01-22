@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>value</title>
+		<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+		<LINK href="css/ndoc.css" type="text/css" rel="stylesheet" name="ndocstyle">
+		<script src="script/ndoc_tags.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<p>The &lt;value&gt; tag is used to describe&nbsp;the value of a property.</p>
+			<pre class="syntax">&lt;value&gt;<I>property-description</I>&lt;/value&gt;</pre>
+			<p>where:</p>
+			<dl>
+				<dt><I>property-description</I>
+					<dd>
+						A description for the property.
+					</dd>
+			</dl>
+			<h4 class="dtH4">Applies To</h4>
+			<p>Property.</p>
+			<h4 class="dtH4">Remarks</h4>
+			<p>By convention, properties should always have a &lt;value&gt; tag.
+			</p>
+			<P>For read-only properties, the text in the &lt;value&gt; tag will often be 
+				substantially the same as that in the &lt;summary&gt; tag.</P>
+			<h4 class="dtH4">Example</h4>
+			<pre class="csharpcode"><SPAN class=lang>[C#]</SPAN>
+<span class=rem>/// text for class MyClass</SPAN>
+<span class=kwrd>public</SPAN> <span class=kwrd>class</SPAN> MyClass
+{
+   <span class=rem>/// &lt;summary&gt;MyProperty is a property in the MyClass class.&lt;/summary&gt;</SPAN>
+   <span class=rem>/// &lt;value&gt;A string containing the text "MyProperty String".&lt;/value&gt;</SPAN>
+   <span class=kwrd>public</SPAN> <span class=kwrd>string</SPAN> MyProperty()
+   {
+       <span class=kwrd>get</SPAN>
+       {
+           <span class=kwrd>return</SPAN> <span class=str>"MyProperty String"</SPAN>;
+       }
+   }
+
+}</pre>
+			<h4 class="dtH4">See Also</h4>
+			<p><a href="tagsusage.htm">Tag&nbsp;Usage</a>&nbsp;| <A href="tags.htm">NDoc&nbsp;Tags</A>&nbsp;| <A href="tag_summary.htm">&lt;summary&gt;</A>&nbsp;| <A href="ms-help://MS.NETFrameworkSDKv1.1/csref/html/vclrfvalue.htm">
+					Microsoft's definition</A></p>
+		</div>
+	</body>
+</html>

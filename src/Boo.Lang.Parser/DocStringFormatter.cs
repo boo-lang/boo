@@ -31,29 +31,17 @@ namespace Boo.Lang.Parser
 {
 	public class DocStringFormatter
 	{
-		// every new line is transformed to '\n'
-		// trailing and leading newlines are removed
-		public static string Format(string s)
+		/// <summary>
+		/// Normalize line endings, remove trailing empty lines.
+		/// </summary>
+		/// <param name="node">The documented node. This is required to get parameters of methods and functions.</param>
+		/// <param name="s">The documentation as string.</param>
+		/// <returns></returns>
+		public static string Format(Boo.Lang.Compiler.Ast.Node node, string s)
 		{
 			if (s.Length == 0) return string.Empty;
-
-			s = s.Replace("\r\n", "\n");
-
-			int length = s.Length;
-			int startIndex = 0;
-			if ('\n' == s[0])
-			{
-				// assumes '\n'
-				startIndex++;
-				length--;
-			}
-			if ('\n' == s[s.Length - 1])
-			{
-				length--;
-			}
-			
-			if (length > 0) return s.Substring(startIndex, length);
-			return string.Empty;
+			s = s.Replace("\r\n", "\n");			
+			return s.Trim('\n');
 		}
 	}
 }

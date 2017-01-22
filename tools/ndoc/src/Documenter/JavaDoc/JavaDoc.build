@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<project name="NDoc.Documenter.JavaDoc" default="compile">
+	<target name="compile">
+		<csc target="library" output="${current.bin.dir}/${project::get-name()}.dll" debug="${current.build.debug}" optimize="${current.build.optimize}" unsafe="false" checked="false" define="${current.build.defines}" doc="${current.bin.dir}/${project::get-name()}.xml">
+			<sources>
+				<include name="**/*.cs" />
+				<include name="../../CommonAssemblyInfo.cs" />
+			</sources>
+			<references>
+				<include name="System.dll" />
+				<include name="System.Xml.dll" />
+				<include name="System.Design.dll" />
+				<include name="System.Drawing.Design.dll" />
+				<include name="System.Drawing.dll" />
+				<include name="${current.bin.dir}/NDoc.Core.dll" />
+			</references>
+			<resources prefix="NDoc.Documenter.JavaDoc" dynamicprefix="true">
+				<include name="**/*.css" />
+				<include name="**/*.xslt" />
+			</resources>
+		</csc>
+	</target>
+</project>

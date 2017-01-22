@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title>Build Process</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<meta content="http://schemas.microsoft.com/intellisense/ie5" name="vs_targetSchema">
+		<LINK href="css/ndoc.css" type="text/css" rel="stylesheet" name="ndocstyle">
+		<script src="script/ndoc.js"></script>
+	</head>
+	<body class="dtBODY" id="bodyID" onload="InitTitle()">
+		<div id="nstext">
+			<h3 class="dtH3">Using NAnt</h3>
+			<p>paragraph
+			</p>
+			<h3 class="dtH3">Using VS.NET Build Events</h3>
+			<p>Build events can be used to invoke NDoc when build a VS.NET solution. Because 
+				NDoc builds can be time consuming it is recommended that they only be included 
+				in Release builds or in a special documentation build configuration.
+			</p>
+			<p>Because build events for C# projects are not configuration based, it is 
+				necessary to check the configuration name if you do not want NDoc to run every 
+				time a build occurs. This can be accomplished using VS.NET's built in build 
+				variables:</p>
+			<PRE>	if $(ConfigurationName) == Release</PRE>
+			<P>Because specifying all of NDoc's command line paramters directly in the build 
+				event editing window can be difficult and error prone, calling a batch file can 
+				be easier to manage and maintain. Use the Post-Build event for the last project 
+				in the solution that will be built or for each project for which you want 
+				seperate documentation.</P>
+			<IMG src="images/build_event.jpg">
+			<P><STRONG class="fineprint">Calling a batch file from the post-build event</STRONG></P>
+			<p>For simple solutions the following batch file will invoke NDoc for each Release 
+				build.</p>
+			<BLOCKQUOTE dir="ltr" style="MARGIN-RIGHT: 0px">
+				<pre>IF NOT %1 == Release GOTO end
+
+"%ProgramFiles%\NDoc 1.3\bin\net\1.1\NDocConsole.exe" -recurse="%2bin\%1"
+
+:end</pre>
+			</BLOCKQUOTE>
+			<p>More complex solutions may require additional parameters such as reference 
+				directories etc.</p>
+			<H3 class="dtH3">Using Other Build Tools</H3>
+			<p>NDoc can be included in builds orchestrated by any build tool that supports 
+				executing command line applications. The exact mechanism will be specific to 
+				the tool, but most (if not all) support arbitrary execution of executables with 
+				paramters.</p>
+		</div>
+	</body>
+</html>

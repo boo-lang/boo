@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E483DCDD-A621-4DD6-92A3-5D9F4F9A7FC9}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>NDoc.Documenter.Msdn2</AssemblyName>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)ndoc.snk</AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>NDoc.Documenter.Msdn2</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>957743104</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG;NET_2_0</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.Msdn2.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>957743104</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;NET_2_0</DefineConstants>
+    <DocumentationFile>NDoc.Documenter.Msdn2.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Design">
+      <Name>System.Design</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Drawing.Design">
+      <Name>System.Drawing.Design</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <ProjectReference Include="..\..\Core\Core.csproj">
+      <Name>Core</Name>
+      <Project>{DBA75D67-23C9-4A78-ABC2-CF8802FDB7CA}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ExternalHtmlProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HtmlHelp.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Msdn2Documenter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Msdn2DocumenterConfig.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Msdn2DocumenterInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsdnWorkspace.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MsdnXsltUtilities.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StyleSheetCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="boo.snk" />
+    <None Include="Msdn2.build" />
+    <EmbeddedResource Include="css\ndoc.css" />
+    <EmbeddedResource Include="css\ndoc.js" />
+    <EmbeddedResource Include="images\AnimButton1.gif" />
+    <EmbeddedResource Include="images\AnimButton2.gif" />
+    <EmbeddedResource Include="images\coC.gif" />
+    <EmbeddedResource Include="images\coe.gif" />
+    <EmbeddedResource Include="images\Filter1a.gif" />
+    <EmbeddedResource Include="images\filter1b.gif" />
+    <EmbeddedResource Include="images\filter1c.gif" />
+    <EmbeddedResource Include="images\intevent.gif" />
+    <EmbeddedResource Include="images\intfield.gif" />
+    <EmbeddedResource Include="images\intmethod.gif" />
+    <EmbeddedResource Include="images\intoperator.gif" />
+    <EmbeddedResource Include="images\intproperty.gif" />
+    <EmbeddedResource Include="images\privevent.gif" />
+    <EmbeddedResource Include="images\privfield.gif" />
+    <EmbeddedResource Include="images\privmethod.gif" />
+    <EmbeddedResource Include="images\privoperator.gif" />
+    <EmbeddedResource Include="images\privproperty.gif" />
+    <EmbeddedResource Include="images\protevent.gif" />
+    <EmbeddedResource Include="images\protfield.gif" />
+    <EmbeddedResource Include="images\protmethod.gif" />
+    <EmbeddedResource Include="images\protoperator.gif" />
+    <EmbeddedResource Include="images\protproperty.gif" />
+    <EmbeddedResource Include="images\pubevent.gif" />
+    <EmbeddedResource Include="images\pubfield.gif" />
+    <EmbeddedResource Include="images\pubmethod.gif" />
+    <EmbeddedResource Include="images\puboperator.gif" />
+    <EmbeddedResource Include="images\pubproperty.gif" />
+    <EmbeddedResource Include="images\Requirements1a.gif" />
+    <EmbeddedResource Include="images\requirements1b.gif" />
+    <EmbeddedResource Include="images\requirements1c.gif" />
+    <EmbeddedResource Include="images\seealso1a.gif" />
+    <EmbeddedResource Include="images\seealso1b.gif" />
+    <EmbeddedResource Include="images\seealso1c.gif" />
+    <EmbeddedResource Include="images\static.gif" />
+    <EmbeddedResource Include="onlinefiles\tree.css" />
+    <EmbeddedResource Include="onlinefiles\tree.js" />
+    <EmbeddedResource Include="onlinefiles\treenodedot.gif" />
+    <EmbeddedResource Include="onlinefiles\treenodeminus.gif" />
+    <EmbeddedResource Include="onlinefiles\treenodeplus.gif" />
+    <EmbeddedResource Include="onlinetemplates\index.html" />
+    <EmbeddedResource Include="xslt\allmembers.xslt" />
+    <EmbeddedResource Include="xslt\blank.xslt" />
+    <EmbeddedResource Include="xslt\common.xslt" />
+    <EmbeddedResource Include="xslt\event.xslt" />
+    <EmbeddedResource Include="xslt\field.xslt" />
+    <EmbeddedResource Include="xslt\filenames.xslt" />
+    <EmbeddedResource Include="xslt\htmlcontents.xslt" />
+    <EmbeddedResource Include="xslt\individualmembers.xslt" />
+    <EmbeddedResource Include="xslt\links.xslt" />
+    <EmbeddedResource Include="xslt\member.xslt" />
+    <EmbeddedResource Include="xslt\memberoverload.xslt" />
+    <EmbeddedResource Include="xslt\memberscommon.xslt" />
+    <EmbeddedResource Include="xslt\namespace.xslt" />
+    <EmbeddedResource Include="xslt\namespacehierarchy.xslt" />
+    <EmbeddedResource Include="xslt\property.xslt" />
+    <EmbeddedResource Include="xslt\syntax-map.xslt" />
+    <EmbeddedResource Include="xslt\syntax.xslt" />
+    <EmbeddedResource Include="xslt\tags.xslt">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="xslt\type.xslt" />
+    <EmbeddedResource Include="xslt\typehierarchy.xslt" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 und x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>copy "$(TargetName).*" "$(SolutionDir)src\Gui\bin\$(ConfigurationName)\"
+copy "$(TargetName).*" "$(SolutionDir)src\Console\bin\$(ConfigurationName)\"
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

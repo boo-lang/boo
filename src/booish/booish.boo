@@ -27,31 +27,98 @@
 #endregion
 
 import System
+import System.Collections.Generic
 import System.Diagnostics
+import System.IO
 import Boo.Lang.Interpreter
 
-console = InteractiveInterpreterConsole()
+static class Options:
+	public console = InteractiveInterpreterConsole()
+	public nologo = false
+	public loadRequests = System.Collections.Generic.List[of string]()
+	public importRequests = System.Collections.Generic.List[of string]()
+	public debugOrWarnings=false
+	public exit=false
 
-loadRequests = System.Collections.Generic.List[of string]()
+	def Read(options as IEnumerable[of string]):
+		for arg in options:
+			if arg == "--help" or arg == "-help" or arg == "-h":
+				PrintOptions()
+				exit=true
+			elif arg == "--print-modules" or arg == "-print-modules":
+				console.PrintModules = true
+			elif arg == "--debug" or arg == "-debug" or arg == "-d":
+				debugOrWarnings=true
+				Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
+			elif arg == "-w":
+				debugOrWarnings=true
+				console.ShowWarnings = true
+			elif arg == "-autoindent+":
+				console.AutoIndention = true
+			elif arg == "-autoindent-":
+				console.AutoIndention = false
+			elif arg == "-s" or arg == "-shell":
+				console.TurnOnPreferenceShellCommands()
+			elif arg.StartsWith("-r:"):
+				loadRequests.Add(arg.Substring(3))
+			elif arg == "-colors-" or arg == "--colors-":
+				ColorScheme.DisableColors = true
+			elif arg == "-colors" or arg == "--colors" or arg == "-colors+" or arg == "--colors+":
+				ColorScheme.DisableColors = false
+			elif arg.StartsWith("-i:"):
+				if arg.Contains(","):
+					args=arg.Substring(3).Split(","[0])
+					importRequests.Add("import "+args[0]+" from "+args[1])
+				else:
+					importRequests.Add("import "+arg.Substring(3))
+			elif arg == "--nologo" or arg == "-nologo":
+				nologo = true
+			elif not arg.StartsWith("-"):
+				loadRequests.Add(arg)
+		
+	def PrintOptions():
+		print "booish [OPTIONS] [BooFile]*"
+		print "-h/-help/--help        Print this information"
+		print "-d/-debug/--debug      Turn on a mode printing debug information"
+		print "-w                     Turn on mode showing warnings"
+		print "-autoindent+           Turn on indention automatic (default)"
+		print "-autoindent-           Turn off indention automatic"
+		print "-colors-               Disable use of colors"
+		print "-colors+               Enable use of colors"
+		print "-s/-shell              Turn on shell mode. Accept shell commands without introducing slash"
+		print "-r:BooFile             Interpret a BOO file on start"
+		print "-r:AssemblyFile        Add reference to this assembly"
+		print "-r:AssemblyPartialName Add reference to this assembly"
+		print "-i:Namespace           Import a namespace"
+		print "-i:Namespace Assembly  Import a namespace from an assembly"
 
-for arg in argv:
-	if arg == "--print-modules" or arg == "-print-modules":
-		console.PrintModules = true
-	if arg == "--debug" or arg == "-debug":
-		Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
-	if arg == "-w":
-		console.ShowWarnings = true
-	if arg.StartsWith("-r:"):
-		loadRequests.Add(arg.Substring(3))
-	if arg == "--nologo" or arg == "-nologo":
-		nologo = true
-	if not arg.StartsWith("-"):
-		loadRequests.Add(arg)
+ColorScheme.Init()
 
-console.DisplayLogo() unless nologo
+Options.Read(argv)
+return if Options.exit
 
-for req in loadRequests:
-	console.Load(req)
+rspBaseName=Path.GetFileNameWithoutExtension(AppDomain.CurrentDomain.FriendlyName)+'.rsp'
+rspPath=Path.Combine(AppDomain.CurrentDomain.BaseDirectory, rspBaseName)
 
-console.Eval("import Boo.Lang.Interpreter.Builtins")
-console.ReadEvalPrintLoop()
+if File.Exists(rspPath):
+	print "Options in ${rspBaseName}:" if Options.debugOrWarnings
+	for rspLine in File.OpenText(rspPath).ReadToEnd().Split(*"\n\r".ToCharArray()):
+		if not rspLine.StartsWith('#') and not rspLine.StartsWith('//'):
+			for rspOpt in rspLine.Split(*" ".ToCharArray()):
+				if not string.IsNullOrEmpty(rspOpt):
+					print rspOpt if Options.debugOrWarnings
+					Options.Read((rspOpt,))
+					return if Options.exit
+	print
+
+Console.ForegroundColor = ColorScheme.InterpreterColor if not ColorScheme.DisableColors
+Console.BackgroundColor = ColorScheme.BackgroundColor if not ColorScheme.DisableColors
+Options.console.DisplayLogo() unless Options.nologo
+
+for req in Options.loadRequests:
+	Options.console.Load(req) if not string.IsNullOrEmpty(req)
+for req in Options.importRequests:
+	print req
+	Options.console.Eval(req)
+
+Options.console.ReadEvalPrintLoop()
