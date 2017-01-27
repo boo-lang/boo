@@ -39,8 +39,6 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		public static readonly System.Reflection.ConstructorInfo List_IEnumerableConstructor = Methods.ConstructorOf(() => new List(default(IEnumerable)));
 
-	    private Method _current;
-		
 		public override void Run()
 		{
             if (Errors.Count > 0) return;
@@ -60,18 +58,6 @@ namespace Boo.Lang.Compiler.Steps
 		public override void OnField(Field node)
 		{
 			// ignore
-		}
-		
-		public override void OnConstructor(Constructor method)
-		{
-			_current = method;
-			Visit(_current.Body);
-		}
-		
-		public override bool EnterMethod(Method method)
-		{
-			_current = method;
-			return true;
 		}
 		
 		public override void LeaveMethod(Method method)

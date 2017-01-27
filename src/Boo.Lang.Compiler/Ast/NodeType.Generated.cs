@@ -125,6 +125,8 @@ namespace Boo.Lang.Compiler.Ast
 		TryCastExpression,
 		CastExpression,
 		TypeofExpression,
+		AsyncBlockExpression,
+		AwaitExpression,
 		CustomStatement,
 		CustomExpression,
 		StatementTypeMember

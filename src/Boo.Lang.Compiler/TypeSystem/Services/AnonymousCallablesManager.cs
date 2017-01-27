@@ -108,16 +108,17 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			cd.Members.Add(beginInvoke);
 
 			cd.Members.Add(CreateEndInvokeMethod(anonymousType));
-			AddGenericTypes(cd);
+			AddGenericTypes(cd, sourceNode.NodeType != NodeType.BlockExpression);
 			module.Members.Add(cd);
 			return (IType)cd.Entity;
 		}
 
-		private void AddGenericTypes(ClassDefinition cd)
+		private void AddGenericTypes(ClassDefinition cd, bool adaptInnerGenerics)
 		{
 			var collector = new GenericTypeCollector(this.CodeBuilder);
 			collector.Process(cd);
-			
+		    if (!adaptInnerGenerics) return;
+
 			var counter = cd.GenericParameters.Count;
 			var innerCollector = new DetectInnerGenerics();
 			cd.Accept(innerCollector);

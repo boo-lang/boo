@@ -124,6 +124,8 @@ namespace Boo.Lang.Compiler.Ast
 		void OnTryCastExpression(TryCastExpression node);
 		void OnCastExpression(CastExpression node);
 		void OnTypeofExpression(TypeofExpression node);
+		void OnAsyncBlockExpression(AsyncBlockExpression node);
+		void OnAwaitExpression(AwaitExpression node);
 		void OnCustomStatement(CustomStatement node);
 		void OnCustomExpression(CustomExpression node);
 		void OnStatementTypeMember(StatementTypeMember node);

@@ -1326,6 +1326,13 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine();
 		}
 
+	    override public void OnAwaitExpression(AwaitExpression value)
+	    {
+	        Write("await ( ");
+            base.OnAwaitExpression(value);
+            Write(")");
+	    }
+        
 		#endregion
 		
 		public static string GetUnaryOperatorText(UnaryOperatorType op)

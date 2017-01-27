@@ -63,8 +63,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			if (sourceType.ConstructedInfo != null)
 				return MapConstructedType(sourceType);
 
-			// TODO: Map nested types
-			// GenericType[of T].NestedType => GenericType[of int].NestedType
+            var de = sourceType.DeclaringEntity;
+		    if (de != null && de.EntityType == EntityType.Type && !(sourceType is IGenericParameter))
+		        return MapNestedType(sourceType);
 
 			var array = sourceType as IArrayType;
 			if (array != null)
@@ -76,7 +77,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				: sourceType;
 		}
 
-		public virtual IType MapByRefType(IType sourceType)
+	    public virtual IType MapByRefType(IType sourceType)
 		{
             var et = sourceType.ElementType;
             if (sourceType.IsAssignableFrom(et))
@@ -111,12 +112,31 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				sourceType.ConstructedInfo.GenericArguments,
 				MapType);
 
-			IType mapped = mappedDefinition.GenericInfo.ConstructType(mappedArguments);
+			var genericInfo = mappedDefinition.GenericInfo ?? mappedDefinition.ConstructedInfo.GenericDefinition.GenericInfo;
+			IType mapped = genericInfo.ConstructType(mappedArguments);
 
 			return mapped;
 		}
 
-		internal IParameter[] MapParameters(IParameter[] parameters)
+        public virtual IType MapNestedType(IType sourceType)
+        {
+            var containingType = (IType)sourceType.DeclaringEntity;
+            var mappedContainingType = MapType(containingType);
+            if (containingType == mappedContainingType)
+            {
+                return sourceType;
+            }
+
+            var mt = sourceType as IGenericMappedType;
+            if (mt != null)
+            {
+                sourceType = mt.SourceType;
+            }
+
+            return GenericMappedType.Create(sourceType, (GenericConstructedType)mappedContainingType);
+        }
+
+        internal IParameter[] MapParameters(IParameter[] parameters)
 		{
 			return Array.ConvertAll<IParameter, IParameter>(parameters, MapParameter);
 		}

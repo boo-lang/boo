@@ -26,12 +26,10 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System;
 using System.Linq;
-using Boo.Lang;
-using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
+using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -39,23 +37,25 @@ using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ForeignReferenceCollector : FastDepthFirstVisitor
-	{
-		IType _currentType;
-		
-		List _references;
+    using System.Collections.Generic;
 
-		List _recursiveReferences;
+    public class ForeignReferenceCollector : FastDepthFirstVisitor
+	{
+        private IType _currentType;
+
+        private readonly List<Expression> _references;
+
+        private readonly List<MemberReferenceExpression> _recursiveReferences;
 		
-		Hash _referencedEntities;
+		private readonly Dictionary<IEntity, InternalField> _referencedEntities;
 		
-		SelfEntity _selfEntity;
+		private SelfEntity _selfEntity;
 		
 		public ForeignReferenceCollector()
 		{
-			_references = new List();
-			_recursiveReferences = new List();
-			_referencedEntities = new Hash();
+            _references = new List<Expression>();
+            _recursiveReferences = new List<MemberReferenceExpression>();
+			_referencedEntities = new Dictionary<IEntity, InternalField>();
 		}
 		
 		public Node SourceNode { get; set; }
@@ -73,13 +73,13 @@ namespace Boo.Lang.Compiler.Steps
 					_selfEntity.Type = value;
 			}
 		}
-		
-		public List References
+
+        public List<Expression> References
 		{
 			get { return _references; }
 		}
 		
-		public Hash ReferencedEntities
+		public Dictionary<IEntity, InternalField> ReferencedEntities
 		{
 			get { return _referencedEntities; }
 		}
@@ -108,7 +108,7 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _codeBuilder; }
 		}
 
-		private EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
+		private readonly EnvironmentProvision<BooCodeBuilder> _codeBuilder = new EnvironmentProvision<BooCodeBuilder>();
 		
 		public BooClassBuilder CreateSkeletonClass(string name, LexicalInfo lexicalInfo)
 		{
@@ -123,28 +123,57 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public void DeclareFieldsAndConstructor(BooClassBuilder builder)
 		{
+		    var keys = _referencedEntities.Keys.Cast<ITypedEntity>().ToArray();
+		    foreach (var entity in keys)
+		        _collector.Visit(entity.Type);
+		    if (_collector.Matches.Any())
+		        BuildTypeMap(builder.ClassDefinition);
+
 			// referenced entities turn into fields
-			foreach (ITypedEntity entity in Builtins.array(_referencedEntities.Keys))
+            foreach (var entity in keys)
 			{
-				Field field = builder.AddInternalField(GetUniqueName(entity.Name), entity.Type);
-				_referencedEntities[entity] = field.Entity;
+				Field field = builder.AddInternalField(GetUniqueName(entity.Name), _mapper.MapType(entity.Type));
+				_referencedEntities[entity] = (InternalField) field.Entity;
 			}
 
 			// single constructor taking all referenced entities
 			BooMethodBuilder constructor = builder.AddConstructor();
 			constructor.Modifiers = TypeMemberModifiers.Public;			
 			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));
-			foreach (ITypedEntity entity in _referencedEntities.Keys)
+			foreach (var entity in _referencedEntities.Keys)
 			{
-				InternalField field = (InternalField)_referencedEntities[entity];
-				ParameterDeclaration parameter = constructor.AddParameter(field.Name, entity.Type);
+				InternalField field = _referencedEntities[entity];
+				ParameterDeclaration parameter = constructor.AddParameter(field.Name, ((ITypedEntity)entity).Type);
 				constructor.Body.Add(
 					CodeBuilder.CreateAssignment(CodeBuilder.CreateReference(field),
 									CodeBuilder.CreateReference(parameter)));
 			}
 		}
 
-		private string GetUniqueName(string name)
+        private readonly TypeCollector _collector = new TypeCollector(type => type is IGenericParameter);
+
+        private readonly GeneratorTypeReplacer _mapper = new GeneratorTypeReplacer();
+
+        private void BuildTypeMap(ClassDefinition newClass)
+        {
+            string lastName = null;
+            IType lastType = null;
+            int i = 0;
+	        foreach (var newParam in _collector.Matches.Cast<IGenericParameter>().OrderBy(t => t.GenericParameterPosition))
+	        {
+	            if (!newParam.Name.Equals(lastName))
+	            {
+	                lastName = newParam.Name;
+	                var genParam = CodeBuilder.CreateGenericParameterDeclaration(i, newParam.Name);
+	                newClass.GenericParameters.Add(genParam);
+	                lastType = (IType) genParam.Entity;
+	                ++i;
+	            }
+                _mapper.Replace(newParam, lastType);
+	        }
+	    }
+
+	    private string GetUniqueName(string name)
 		{
 			return _uniqueNameProvider.Instance.GetUniqueName(name);
 		}
@@ -155,12 +184,17 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Expression reference in _references)
 			{
-				var entity = (InternalField)_referencedEntities[reference.Entity];
-				if (null != entity)
-					reference.ParentNode.Replace(reference, CodeBuilder.CreateReference(entity));
+				InternalField entity;
+                _referencedEntities.TryGetValue(reference.Entity, out entity);
+			    if (null != entity)
+			    {
+			        reference.ParentNode.Replace(reference, CodeBuilder.CreateReference(entity));
+			        if (reference.ParentNode.NodeType == NodeType.MemberReferenceExpression)
+                        Remap((MemberReferenceExpression)reference.ParentNode);
+			    }
 			}
 
-			foreach (ReferenceExpression reference in _recursiveReferences)
+			foreach (var reference in _recursiveReferences)
 			{
 				reference.ParentNode.Replace(
 					reference,
@@ -169,12 +203,28 @@ namespace Boo.Lang.Compiler.Steps
 						CurrentMethod.Entity));
 			}
 		}
-		
-		public MethodInvocationExpression CreateConstructorInvocationWithReferencedEntities(IType type)
-		{
-			MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(type.GetConstructors().First());
-			foreach (ITypedEntity entity in _referencedEntities.Keys)
+
+	    private static void Remap(MemberReferenceExpression mre)
+	    {
+            var parentType = ((ITypedEntity)mre.Target.Entity).Type as TypeSystem.Generics.GenericConstructedType;
+            if (parentType == null) return;
+            var entity = (IMember)mre.Entity;
+            var gmm = entity as TypeSystem.Generics.IGenericMappedMember;
+            if (gmm != null)
+                entity = gmm.SourceMember;
+	        mre.Entity = parentType.ConstructedInfo.Map(entity);
+            mre.ExpressionType = ((ITypedEntity)mre.Entity).Type;
+	    }
+
+	    public MethodInvocationExpression CreateConstructorInvocationWithReferencedEntities(IType type, Method containingMethod)
+	    {
+            GeneratorTypeReplacer mapper;
+            type = GeneratorTypeReplacer.MapTypeInMethodContext(type, containingMethod, out mapper);
+	        MethodInvocationExpression mie = CodeBuilder.CreateConstructorInvocation(type.GetConstructors().First());
+			foreach (var entity in _referencedEntities.Keys)
 				mie.Arguments.Add(CreateForeignReference(entity));
+            if (mapper != null)
+                mie.Accept(new GenericTypeMapper(mapper));
 			return mie;
 		}
 		
@@ -193,7 +243,7 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(node.Target);
 		}
 
-		override public void OnReferenceExpression(ReferenceExpression node)
+		public override void OnReferenceExpression(ReferenceExpression node)
 		{
 			if (IsForeignReference(node))
 			{
@@ -202,7 +252,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void OnSelfLiteralExpression(SelfLiteralExpression node)
+		public override void OnSelfLiteralExpression(SelfLiteralExpression node)
 		{
 			var entity = GetSelfEntity();
 			node.Entity = entity;
@@ -210,9 +260,9 @@ namespace Boo.Lang.Compiler.Steps
 			_referencedEntities[entity] = null;
 		}
 
-		private bool IsRecursiveReference(Node node)
+        private bool IsRecursiveReference(MemberReferenceExpression node)
 		{
-			return (CurrentMethod != null && node.Entity == CurrentMethod.Entity);
+			return CurrentMethod != null && node.Entity == CurrentMethod.Entity;
 		}
 		
 		bool IsForeignReference(ReferenceExpression node)

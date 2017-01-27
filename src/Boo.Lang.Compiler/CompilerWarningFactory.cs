@@ -222,6 +222,11 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCW0029", AstUtil.SafeLexicalInfo(anchor), hidingMethod, hiddenMethod);
 		}
 
+		public static CompilerWarning AsyncNoAwait(Method anchor)
+		{
+			return Instantiate("BCW0030", AstUtil.SafeLexicalInfo(anchor));
+		}
+
 		private static CompilerWarning Instantiate(string code, LexicalInfo location, params object[] args)
 		{
 			return new CompilerWarning(code, location, Array.ConvertAll<object, string>(args, CompilerErrorFactory.DisplayStringFor));

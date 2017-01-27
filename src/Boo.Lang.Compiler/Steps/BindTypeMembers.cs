@@ -324,9 +324,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				modifiers |= TypeMemberModifiers.Protected | TypeMemberModifiers.Internal;
 			}
-			
+
+			var returnType = ((ICallableType)node.Type.Entity).GetSignature().ReturnType;
+
 			var method = CodeBuilder.CreateMethod("raise_" + node.Name,
-				TypeSystemServices.VoidType,
+				returnType,
 				modifiers);
 
 			var type = GetEntity(node.Type) as ICallableType;
@@ -366,7 +368,9 @@ namespace Boo.Lang.Compiler.Steps
 		        Condition = CodeBuilder.CreateReference(local),
 		        TrueBlock = new Block()
 		    };
-		    stmt.TrueBlock.Add(mie);
+			if (returnType == TypeSystemServices.VoidType)
+				stmt.TrueBlock.Add(mie);
+			else stmt.TrueBlock.Add(new ReturnStatement(mie));
 			method.Body.Add(stmt);
 
 			return method;

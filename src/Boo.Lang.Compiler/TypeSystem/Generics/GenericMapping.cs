@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 
@@ -139,18 +140,27 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				return CacheMember(source, CreateMappedMember(source));
 			}
 
+			IType[] genArgs = null;
 			// If member is declared on a basetype of our source, that is itself constructed, let its own mapper map it
 			IType declaringType = source.DeclaringType;
 			if (declaringType.ConstructedInfo != null)
 			{
+				var genMethod = source as IConstructedMethodInfo;
+				if (genMethod != null)
+				{
+					genArgs = genMethod.GenericArguments;
+					source = genMethod.GenericDefinition;
+				}
 				source = declaringType.ConstructedInfo.UnMap(source);
 			}
 
 			IType mappedDeclaringType = MapType(declaringType);
 			if (mappedDeclaringType.ConstructedInfo != null)
 			{
-				return mappedDeclaringType.ConstructedInfo.Map(source);
+				source = mappedDeclaringType.ConstructedInfo.Map(source);
 			}
+			if (genArgs != null)
+				source = ((IMethod)source).GenericInfo.ConstructMethod(genArgs.Select(MapType).ToArray());
 
 			return source;
 		}

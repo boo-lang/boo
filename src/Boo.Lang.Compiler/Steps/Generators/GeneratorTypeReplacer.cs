@@ -41,11 +41,43 @@ namespace Boo.Lang.Compiler.Steps.Generators
                 var match = TypeMap.Keys.FirstOrDefault(t => t.Name.Equals(param.Name));
                 if (match == null)
                     break;
-                typeMap.Add(match);
+                typeMap.Add(TypeMap[match]);
             }
             if (typeMap.Count > 0)
                 return sourceType.GenericInfo.ConstructType(typeMap.ToArray());
             return sourceType;
+        }
+
+        public static IType MapTypeInMethodContext(IType type, Ast.Method method)
+        {
+            GeneratorTypeReplacer mapper;
+            return MapTypeInMethodContext(type, method, out mapper);
+        }
+
+        public bool ContainsType(IType type)
+        {
+            return TypeMap.ContainsKey(type);
+        }
+
+        public bool Any
+        {
+            get { return TypeMap.Count > 0; }
+        }
+
+        public static IType MapTypeInMethodContext(IType type, Ast.Method method, out GeneratorTypeReplacer mapper)
+        {
+	        if (type.GenericInfo != null && type.ConstructedInfo == null)
+	        {
+	            var td = method.GetAncestor<Ast.TypeDefinition>();
+	            var allGenParams = td.GenericParameters.Concat(method.GenericParameters)
+	                .Select(gp => (IGenericParameter) gp.Entity).ToArray();
+                mapper = new GeneratorTypeReplacer();
+                foreach (var genParam in type.GenericInfo.GenericParameters)
+                    mapper.Replace(genParam, allGenParams.First(gp => gp.Name.Equals(genParam.Name)));
+	            return mapper.MapType(type);
+	        }
+            mapper = null;
+            return type;
         }
     }
 }

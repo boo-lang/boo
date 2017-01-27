@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using Boo.Lang.Compiler.Ast;
@@ -39,12 +40,21 @@ namespace Boo.Lang.Compiler.Steps
 {
 	class ClosureSignatureInferrer
 	{
-		private BlockExpression _closure;
+		private readonly BlockExpression _closure;
+	    private readonly Node _parent;
+		private readonly Expression _asyncParent;
 		private IType[] _inputTypes;
 
 		public ClosureSignatureInferrer(BlockExpression closure)
 		{
 			_closure = closure;
+		    var parent = closure.ParentNode;
+			if (parent.NodeType == NodeType.AsyncBlockExpression)
+			{
+				_asyncParent = (Expression)parent;
+				parent = parent.ParentNode;
+			}
+		    _parent = parent;
 			InitializeInputTypes();
 		}
 
@@ -67,8 +77,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get 
 			{
-				MethodInvocationExpression mie = Closure.ParentNode as MethodInvocationExpression;
-				if (mie != null && mie.Arguments.Contains(Closure)) return mie;
+                MethodInvocationExpression mie = _parent as MethodInvocationExpression;
+				if (mie != null && 
+					(mie.Arguments.Contains(Closure) || (_asyncParent != null && mie.Arguments.Contains(_asyncParent))))
+					return mie;
 				return null;
 			}
 		}
@@ -86,14 +98,42 @@ namespace Boo.Lang.Compiler.Steps
 				GetTypeFromMethodInvocationContext() ??
 				GetTypeFromDeclarationContext() ??
 				GetTypeFromBinaryExpressionContext() ??
-				GetTypeFromCastContext()) as ICallableType;
+				GetTypeFromCastContext() /*??
+                GetTypeFromAsyncContext() */) as ICallableType;
 
 			return contextType;
 		}
 
+/*	    private IType GetTypeFromAsyncContext()
+	    {
+	        var async = Closure.ParentNode as AsyncBlockExpression;
+	        if (async == null)
+	            return null;
+
+	        var oldClosure = _closure;
+	        _closure = async;
+	        try
+	        {
+	            var unwrappedType = InferCallableType();
+                if (unwrappedType == null)
+                    return null;
+                async.WrappedType = WrapType(unwrappedType);
+                return unwrappedType;
+	        }
+	        finally
+	        {
+	            _closure = oldClosure;
+	        }
+	    }
+
+        private static IType WrapType(ICallableType unwrappedType)
+	    {
+            return My<TypeSystemServices>.Instance.GenericTaskType.GenericInfo.ConstructType(unwrappedType);
+	    }
+        */
 		private IType GetTypeFromBinaryExpressionContext()
 		{
-			BinaryExpression binary = Closure.ParentNode as BinaryExpression;
+            BinaryExpression binary = _parent as BinaryExpression;
 			if (binary == null || Closure != binary.Right) return null;
 			return binary.Left.ExpressionType;
 		}
@@ -101,13 +141,13 @@ namespace Boo.Lang.Compiler.Steps
 		private IType GetTypeFromDeclarationContext()
 		{
 			TypeReference tr = null;
-			DeclarationStatement ds = Closure.ParentNode as DeclarationStatement;
+            DeclarationStatement ds = _parent as DeclarationStatement;
 			if (ds != null)
 			{
 				tr = ds.Declaration.Type;
 			}
-			
-			Field fd = Closure.ParentNode as Field;
+
+            Field fd = _parent as Field;
 			if (fd != null)
 			{
 				tr = fd.Type;
@@ -121,10 +161,31 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (MethodInvocationContext == null) return null;
 
-			IMethod method = MethodInvocationContext.Target.Entity as IMethod;
-			if (method == null) return null;
-
 			int argumentIndex = MethodInvocationContext.Arguments.IndexOf(Closure);
+			if (argumentIndex == -1 && _asyncParent != null)
+				argumentIndex = MethodInvocationContext.Arguments.IndexOf(_asyncParent);
+
+			var entity = MethodInvocationContext.Target.Entity;
+			var method = entity as IMethodBase;
+			if (method == null)
+			{
+				if (entity.EntityType == EntityType.Type)
+				{
+					var ctors = ((IType)MethodInvocationContext.Target.Entity).GetConstructors().ToArray();
+					if (ctors.Length == 1)
+						method = ctors[0];
+					else if (ctors.Length == 0)
+						return null;
+					else entity = new Ambiguous(ctors);
+				}
+				if (entity.EntityType == EntityType.Ambiguous)
+				{
+					method = ResolveAmbiguousInvocationContext((Ambiguous) entity, argumentIndex);
+				}
+				if (method == null)
+					return null;
+			}
+
 			IParameter[] parameters = method.GetParameters();
 			
 			if (argumentIndex < parameters.Length) return parameters[argumentIndex].Type;
@@ -132,12 +193,38 @@ namespace Boo.Lang.Compiler.Steps
 			return null;
 		}
 
+		// Sometimes, for the purpose of overload resolution, it doesn't matter which overload
+		// you pick, because they all take the same callable type and only differ in the rest of
+		// the param list
+		private IMethod ResolveAmbiguousInvocationContext(Ambiguous entity, int argumentIndex)
+		{
+			var candidates = entity.Entities
+				.OfType<IMethod>()
+				.Where(m => m.GetParameters().Length > argumentIndex && m.GetParameters()[argumentIndex].Type is ICallableType)
+				.ToArray();
+			if (candidates.Length > 0)
+			{
+				var first = candidates[0];
+				if (candidates.Length == 1)
+					return first;
+				var correspondingType = first.GetParameters()[argumentIndex].Type;
+				if (candidates.Skip(1).All(m => m.GetParameters()[argumentIndex].Type == correspondingType))
+					return first;
+				var returnType = ((ICallableType)first.GetParameters()[argumentIndex].Type).GetSignature().ReturnType;
+				if (candidates.Skip(1).All(m => ((ICallableType)m.GetParameters()[argumentIndex].Type).GetSignature().ReturnType == returnType))
+					_closure["$InferredReturnType"] = returnType;
+			}
+			AstAnnotations.MarkAmbiguousSignature(MethodInvocationContext);
+			AstAnnotations.MarkAmbiguousSignature(_closure);
+			return null;
+		}
+
 		private IType GetTypeFromCastContext()
 		{
-			TryCastExpression tryCast = Closure.ParentNode as TryCastExpression;
+            TryCastExpression tryCast = _parent as TryCastExpression;
 			if (tryCast != null) return tryCast.Type.Entity as IType;
 
-			CastExpression cast = Closure.ParentNode as CastExpression;
+            CastExpression cast = _parent as CastExpression;
 			if (cast != null) return cast.Type.Entity as IType;
 
 			return null;

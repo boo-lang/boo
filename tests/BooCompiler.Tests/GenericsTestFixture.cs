@@ -175,8 +175,26 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"generic-array-3.boo");
 		}
-		
-		[Test]
+
+	    [Test]
+	    public void generic_closures()
+	    {
+	        RunCompilerTestCase(@"generic-closures.boo");
+	    }
+
+        [Test]
+        public void generic_closures_2()
+        {
+            RunCompilerTestCase(@"generic-closures-2.boo");
+        }
+
+        [Test]
+        public void generic_closures_3()
+        {
+            RunCompilerTestCase(@"generic-closures-3.boo");
+        }
+
+        [Test]
 		public void generic_extension_1()
 		{
 			RunCompilerTestCase(@"generic-extension-1.boo");
@@ -301,7 +319,14 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"generic-overload-6.boo");
 		}
-		
+
+        [Test]
+        public void generic_overload_7()
+        {
+            RunCompilerTestCase(@"generic-overload-7.boo");
+        }
+	        
+
 		[Test]
 		public void generic_ref_parameter()
 		{

@@ -42,7 +42,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			if (type.IsByRef) VisitByRefType(type);
 
-			if (type.ConstructedInfo != null) VisitConstructedType(type);
+			if (type.ConstructedInfo != null) 
+                VisitConstructedType(type);
+            else if (type.GenericInfo != null)
+			{
+			    foreach (var gp in type.GenericInfo.GenericParameters)
+                    Visit(gp);
+			}
 
 			ICallableType callableType = type as ICallableType;
 			if (callableType != null) VisitCallableType(callableType);
@@ -67,14 +73,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		private Stack<ICallableType> _inCallableTypes = new Stack<ICallableType>();
+
 		public virtual void VisitCallableType(ICallableType callableType)
 		{
-			CallableSignature sig = callableType.GetSignature();
-			foreach (IParameter parameter in sig.Parameters)
+			if (_inCallableTypes.Contains(callableType))
+				return;
+
+			_inCallableTypes.Push(callableType);
+			try
 			{
-				Visit(parameter.Type);
+				CallableSignature sig = callableType.GetSignature();
+				foreach (IParameter parameter in sig.Parameters)
+				{
+					Visit(parameter.Type);
+				}
+				Visit(sig.ReturnType);
 			}
-			Visit(sig.ReturnType);
+			finally
+			{
+				_inCallableTypes.Pop();
+			}
 		}
 	}
 }

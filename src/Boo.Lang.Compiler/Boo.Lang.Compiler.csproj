@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <!--<DefineConstants>COLLECTIBLE_NOT_SUPPORTED</DefineConstants>-->
   </PropertyGroup>
@@ -32,6 +32,7 @@
     <!--<DefineConstants Condition=" $(DefineConstants.EndsWith('; ')) ">$(DefineConstants.Remove($(DefineConstants.LastIndexOf("; "))))</DefineConstants>-->
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,6 +41,7 @@
     <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Net-1.1|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,6 +51,7 @@
     <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug Net-1.1' ">
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
@@ -71,6 +74,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Micro-Release|AnyCPU' ">
     <OutputPath>bin\Micro-Release\</OutputPath>
@@ -80,6 +84,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -100,8 +105,10 @@
     <Compile Include="Ast\ArrayTypeReference.cs" />
     <Compile Include="Ast\AstNodePredicates.cs" />
     <Compile Include="Ast\AstUtil.cs" />
+    <Compile Include="Ast\AsyncBlockExpression.cs" />
     <Compile Include="Ast\Attribute.cs" />
     <Compile Include="Ast\AttributeCollection.cs" />
+    <Compile Include="Ast\AwaitExpression.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />
     <Compile Include="Ast\BinaryOperatorKind.Generated.cs" />
     <Compile Include="Ast\BinaryOperatorType.Generated.cs" />
@@ -161,8 +168,10 @@
     <Compile Include="Ast\IfStatement.cs" />
     <Compile Include="Ast\Impl\ArrayLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ArrayTypeReferenceImpl.cs" />
+    <Compile Include="Ast\Impl\AsyncBlockExpressionImpl.cs" />
     <Compile Include="Ast\Impl\AttributeCollectionImpl.cs" />
     <Compile Include="Ast\Impl\AttributeImpl.cs" />
+    <Compile Include="Ast\Impl\AwaitExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BinaryExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BlockExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BlockImpl.cs" />
@@ -418,6 +427,13 @@
     <Compile Include="Steps\AbstractVisitorCompilerStep.cs" />
     <Compile Include="Steps\ActionStep.cs" />
     <Compile Include="Steps\AstAnnotations.cs" />
+    <Compile Include="Steps\AsyncAwait\AsyncExceptionHandlerRewriter.cs" />
+    <Compile Include="Steps\AsyncAwait\AsyncMethodBuilderMemberCollection.cs" />
+    <Compile Include="Steps\AsyncAwait\AsyncMethodProcessor.cs" />
+    <Compile Include="Steps\AsyncAwait\AsyncTypeHelper.cs" />
+    <Compile Include="Steps\AsyncAwait\AwaitExpressionSpiller.cs" />
+    <Compile Include="Steps\AsyncAwait\LabelCollector.cs" />
+    <Compile Include="Steps\AsyncAwait\LocalReferenceCollector.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
     <Compile Include="Steps\BindEnumMembers.cs" />
     <Compile Include="Steps\BindGenericParameters.cs" />
@@ -426,6 +442,7 @@
     <Compile Include="Steps\BindTypeMembers.cs" />
     <Compile Include="Steps\BranchChecking.cs" />
     <Compile Include="Steps\CacheRegularExpressionsInStaticFields.cs" />
+    <Compile Include="Steps\CallableTypeElision.cs" />
     <Compile Include="Steps\CheckAttributesUsage.cs" />
     <Compile Include="Steps\CheckGenericConstraints.cs" />
     <Compile Include="Steps\CheckIdentifiers.cs" />
@@ -456,6 +473,8 @@
     <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />
     <Compile Include="Steps\Generators\GeneratorTypeReplacer.cs" />
     <Compile Include="Steps\GenericConstraintsValidator.cs" />
+    <Compile Include="Steps\GenericTypeFinder.cs" />
+    <Compile Include="Steps\GenericTypeMapper.cs" />
     <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\Inheritance\BaseTypeResolution.cs" />
@@ -490,6 +509,7 @@
     <Compile Include="Steps\ProcessAssignmentsToValueTypeMembers.cs" />
     <Compile Include="Steps\ProcessClosures.cs" />
     <Compile Include="Steps\ProcessGenerators.cs" />
+    <Compile Include="Steps\ProcessGeneratorsAndAsyncMethods.cs" />
     <Compile Include="Steps\ProcessInheritedAbstractMembers.cs" />
     <Compile Include="Steps\ProcessMethodBodies.cs" />
     <Compile Include="Steps\ProcessMethodBodiesWithDuckTyping.cs" />
@@ -503,8 +523,11 @@
     <Compile Include="Steps\SaveAssembly.cs" />
     <Compile Include="Steps\SelfEntity.cs" />
     <Compile Include="Steps\SerializeToXml.cs" />
+    <Compile Include="Steps\StateMachine\MethodToStateMachineTransformer.cs" />
+    <Compile Include="Steps\StateMachine\StateMachineStates.cs" />
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
+    <Compile Include="Steps\TypeFinder.cs" />
     <Compile Include="Steps\TypeInference.cs" />
     <Compile Include="Steps\VerifyExtensionMethods.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />
@@ -539,6 +562,7 @@
     <Compile Include="TypeSystem\Generics\GenericConstructedType.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructionChecker.cs" />
     <Compile Include="TypeSystem\Generics\GenericMappedMembers.cs" />
+    <Compile Include="TypeSystem\Generics\GenericMappedType.cs" />
     <Compile Include="TypeSystem\Generics\GenericMappedTypeParameter.cs" />
     <Compile Include="TypeSystem\Generics\GenericMapping.cs" />
     <Compile Include="TypeSystem\Generics\GenericParameterInferrer.cs" />
@@ -632,6 +656,7 @@
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProvider.cs" />
     <Compile Include="TypeSystem\Services\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\Services\AnonymousCallablesManager.cs" />
+    <Compile Include="TypeSystem\Services\AsyncHelper.cs" />
     <Compile Include="TypeSystem\Services\BooCodeBuilder.cs" />
     <Compile Include="TypeSystem\Services\CallableResolutionService.cs" />
     <Compile Include="TypeSystem\Services\CodeReifier.cs" />

@@ -52,6 +52,28 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			Visit(CompileUnit);
+
+			CheckFieldInvocations();
+		}
+
+		private void CheckFieldInvocations()
+		{
+			var invocations = ContextAnnotations.GetFieldInvocations();
+			if (invocations == null) return;
+
+			foreach (var node in invocations)
+			{
+				var et = node.Target.ExpressionType;
+				if (et is AnonymousCallableType)
+				{
+					et = ((AnonymousCallableType) et).ConcreteType;
+					node.Target.ExpressionType = et;
+				}
+				var invoke = NameResolutionService.Resolve(et, "Invoke") as IMethod;
+				if (invoke == null)
+					throw new System.NotSupportedException("Invoke method on callable field not found");
+				node.Target = CodeBuilder.CreateMemberReference(node.Target.LexicalInfo, node.Target, invoke);
+			}
 		}
 
 		override public void LeaveExpressionStatement(ExpressionStatement node)
@@ -290,14 +312,39 @@ namespace Boo.Lang.Compiler.Steps
 			if (expectedCallable != null)
 			{
 				var argumentType = (ICallableType) GetExpressionType(argument);
-				if (argumentType.GetSignature() != expectedCallable.GetSignature())
-					return Adapt(expectedCallable, CreateDelegate(GetConcreteExpressionType(argument), argument));
+                var expectedSig = expectedCallable.GetSignature();
+                var argSig = argumentType.GetSignature();
+                if (argSig != expectedSig)
+                {
+                    if (TypeSystemServices.CompatibleSignatures(argSig, expectedSig) ||
+						(TypeSystemServices.CompatibleGenericSignatures(argSig, expectedSig) /*&& IsUnspecializedGenericMethodReference(argument)*/)
+					   )
+                    {
+                        argument.ExpressionType = expectedType;
+                        return CreateDelegate(expectedType, argument);
+                    }
+                    return Adapt(expectedCallable, CreateDelegate(GetConcreteExpressionType(argument), argument));
+                }
 				return CreateDelegate(expectedType, argument);
 			}
 			return CreateDelegate(GetConcreteExpressionType(argument), argument);
 		}
 
-		Expression Adapt(ICallableType expected, Expression callable)
+	    private static bool IsUnspecializedGenericMethodReference(Expression argument)
+	    {
+	        if (argument.NodeType != NodeType.MemberReferenceExpression)
+	            return false;
+	        var target = ((MemberReferenceExpression) argument).Target;
+            if (target.NodeType != NodeType.MethodInvocationExpression)
+                return false;
+            target = ((MethodInvocationExpression)target).Target;
+	        if (target.Entity.EntityType != EntityType.Constructor)
+	            return false;
+	        var cls = ((IConstructor) target.Entity).DeclaringType;
+	        return cls.GenericInfo != null && (cls.ConstructedInfo == null || !cls.ConstructedInfo.FullyConstructed);
+	    }
+
+	    Expression Adapt(ICallableType expected, Expression callable)
 		{
 			ICallableType actual = GetExpressionType(callable) as ICallableType;
 			if (null == actual)
@@ -436,7 +483,9 @@ namespace Boo.Lang.Compiler.Steps
                 ? CodeBuilder.CreateNullLiteral()
                 : ((MemberReferenceExpression)source).Target;
 
-			return CodeBuilder.CreateConstructorInvocation(GetConcreteType(type).GetConstructors().First(),
+			var cType = GetConcreteType(type) ?? 
+				TypeSystemServices.GetConcreteCallableType(source, (AnonymousCallableType) type);
+			return CodeBuilder.CreateConstructorInvocation(cType.GetConstructors().First(),
 									target,
 									CodeBuilder.CreateAddressOfExpression(method));
 		}

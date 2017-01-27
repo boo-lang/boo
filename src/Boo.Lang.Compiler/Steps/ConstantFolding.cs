@@ -143,6 +143,10 @@ namespace Boo.Lang.Compiler.Steps
 					         : GetFoldedIntegerLiteral(node.Operator, Convert.ToUInt64(lhs), Convert.ToUInt64(rhs));
 				}
 			}
+			else if (node.Operator == BinaryOperatorType.TypeTest && lhsType.IsValueType)
+			{
+				folded = GetFoldedValueTypeTest(node, lhsType, (IType) node.Right.Entity);
+			}
 
 			if (null != folded)
 			{
@@ -151,6 +155,12 @@ namespace Boo.Lang.Compiler.Steps
 				folded.Annotate(FoldedExpression, node);
 				ReplaceCurrentNode(folded);
 			}
+		}
+
+		private BoolLiteralExpression GetFoldedValueTypeTest(Expression node, IType leftType, IType rightType)
+		{
+			Context.Warnings.Add(CompilerWarningFactory.ConstantExpression(node));
+			return CodeBuilder.CreateBoolLiteral(rightType.IsAssignableFrom(leftType));
 		}
 
 		override public void LeaveUnaryExpression(UnaryExpression node)
@@ -185,6 +195,19 @@ namespace Boo.Lang.Compiler.Steps
 				folded.LexicalInfo = node.LexicalInfo;
 				folded.ExpressionType = GetExpressionType(node);
 				ReplaceCurrentNode(folded);
+			}
+		}
+
+		public override void LeaveTryCastExpression(TryCastExpression node)
+		{
+			base.LeaveTryCastExpression(node);
+			var target = GetExpressionType(node.Target);
+			if (target.IsValueType)
+			{
+				var toType = GetType(node.Type);
+				ReplaceCurrentNode(toType.IsAssignableFrom(target)
+					? CodeBuilder.CreateCast(toType, node.Target)
+					: CodeBuilder.CreateNullLiteral());
 			}
 		}
 

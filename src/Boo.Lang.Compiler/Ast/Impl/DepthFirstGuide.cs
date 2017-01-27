@@ -2141,6 +2141,54 @@ namespace Boo.Lang.Compiler.Ast
 			if (handler != null)
 				handler(node);
 		}
+		public event NodeEvent<AsyncBlockExpression> OnAsyncBlockExpression;
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		void IAstVisitor.OnAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{	
+			{
+				var parameters = node.Parameters;
+				if (parameters != null)
+				{
+					var innerList = parameters.InnerList;
+					var count = innerList.Count;
+					for (var i=0; i<count; ++i)
+						innerList.FastAt(i).Accept(this);
+				}
+			}
+			{
+				var returnType = node.ReturnType;
+				if (returnType != null)
+					returnType.Accept(this);
+			}
+			{
+				var body = node.Body;
+				if (body != null)
+					body.Accept(this);
+			}
+			{
+				var block = node.Block;
+				if (block != null)
+					block.Accept(this);
+			}
+			var handler = OnAsyncBlockExpression;
+			if (handler != null)
+				handler(node);
+		}
+		public event NodeEvent<AwaitExpression> OnAwaitExpression;
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		void IAstVisitor.OnAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{	
+			{
+				var baseExpression = node.BaseExpression;
+				if (baseExpression != null)
+					baseExpression.Accept(this);
+			}
+			var handler = OnAwaitExpression;
+			if (handler != null)
+				handler(node);
+		}
 		public event NodeEvent<CustomStatement> OnCustomStatement;
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
