@@ -21,7 +21,7 @@ class TestCase:
         //When test complete, set the flag.
         Driver.CompletedSignal.Set()
 
-    [async] public def Foo1() as Task[of int]:
+    [async] public def Foo1() as Task[of IntObject]:
         await Task.Delay(1)
         TestCase.Count++
         var i = 0

@@ -2788,6 +2788,61 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.AsyncBlockExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.Parameters))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Parameters"),
+						SerializeCollection(node, "Boo.Lang.Compiler.Ast.ParameterDeclarationCollection", node.Parameters)));
+			}
+			if (ShouldSerialize(node.ReturnType))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "ReturnType"),
+						Serialize(node.ReturnType)));
+			}
+			if (ShouldSerialize(node.Body))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Body"),
+						Serialize(node.Body)));
+			}
+			if (ShouldSerialize(node.Block))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Block"),
+						Serialize(node.Block)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.AwaitExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.BaseExpression))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "BaseExpression"),
+						Serialize(node.BaseExpression)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public void OnCustomStatement(Boo.Lang.Compiler.Ast.CustomStatement node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(

@@ -7,7 +7,7 @@ import System.Diagnostics
 import System.Threading.Tasks
 
 class Test:
-    static i as int = 0
+    public static i as int = 0
     [async] public static def F() as Task:
         await(Task.Factory.StartNew({ Test.i = 42} ))
 

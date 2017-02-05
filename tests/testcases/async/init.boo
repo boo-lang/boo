@@ -46,7 +46,7 @@ class TestCase:
         //When test complete, set the flag.
         Driver.CompletedSignal.Set()
 
-    public var MethodCount = 0
+    public MethodCount = 0
 
 class Driver:
     public static Result = -1
@@ -56,7 +56,7 @@ class Driver:
 static def Main():
     var t = TestCase()
     t.Run()
-    CompletedSignal.WaitOne()
+    Driver.CompletedSignal.WaitOne()
     // 0 - success
     // 1 - failed (test completed)
     // -1 - failed (test incomplete - deadlock, etc)

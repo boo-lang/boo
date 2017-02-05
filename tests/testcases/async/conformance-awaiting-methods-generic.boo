@@ -27,7 +27,7 @@ public class MyTask[of T]:
 
 public class MyTaskAwaiter[of T](INotifyCompletion):
 
-    public OnCompleted(continuationAction as Action) as void:
+    public def OnCompleted(continuationAction as Action) as void:
         pass
 
     public def GetResult() as T:

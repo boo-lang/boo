@@ -29,7 +29,7 @@ class TestCase:
             var tests = 0
             var i = Impl()
             tests++
-            await i.Method[of Task[of C]](3m, 4m)
+            await i.Method[of Task[of C]](3, 4)
             Driver.Result = Driver.Count - tests
         ensure:
             //When test complete, set the flag.

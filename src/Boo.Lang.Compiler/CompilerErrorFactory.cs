@@ -967,7 +967,17 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0177", node);
 		}
 
-		public static CompilerError Instantiate(string code, Exception error, params object[] args)
+        public static CompilerError InvalidAsyncType(TypeReference tr)
+        {
+            return Instantiate("BCE0178", tr);
+        }
+
+        public static CompilerError InvalidAwaitType(Expression e)
+        {
+            return Instantiate("BCE0179", e);
+        }
+
+        public static CompilerError Instantiate(string code, Exception error, params object[] args)
 		{
 			return new CompilerError(code, error, args);
 		}

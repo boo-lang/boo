@@ -10,7 +10,7 @@ struct TestCase:
     private t as Task[of int]
 
     [async] public def Run():
-        int tests = 0
+        tests as int = 0
         try:
             tests++
             t = Task.Run(async({ await(Task.Delay(1)); return 1 }))

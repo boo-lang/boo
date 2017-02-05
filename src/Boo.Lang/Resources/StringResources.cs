@@ -180,6 +180,8 @@ namespace Boo.Lang.Resources
 		public const string BCE0175 = "Nested type '{0}' cannot extend enclosing type '{1}'.";
 		public const string BCE0176 = "Incompatible partial definition for type '{0}', expecting '{1}' but got '{2}'.";
 		public const string BCE0177 = "Default expression requires a type.";
+        public const string BCE0178 = "Async methods must return void, Task, or Task<T>";
+        public const string BCE0179 = "Await requires an expression of type Task or Task<T>";
 		public const string BCW0000 = "WARNING: {0}";
 		public const string BCW0001 = "WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.";
 		public const string BCW0002 = "WARNING: Statement modifiers have no effect in labels.";

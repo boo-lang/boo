@@ -39,7 +39,7 @@ struct TestCase:
             ms.myEvent += MyClass[of string].Meth
             await ms.TriggerEvent(str)
         ensure:
-            Driver.Result = TestCase.Count - this.tests
+            Driver.Result = TestCase.Count - self.tests
             //When test complete, set the flag.
             Driver.CompletedSignal.Set()
 

@@ -731,6 +731,22 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessClosureBody(node);
 		}
 
+	    public override void OnAwaitExpression(AwaitExpression node)
+	    {
+	        Visit(node.BaseExpression);
+            node.ExpressionType = AsyncHelper.GetAwaitType(node.BaseExpression);
+	    }
+
+	    public override void OnAsyncBlockExpression(AsyncBlockExpression node)
+	    {
+	        Visit(node.Block);
+	        var entity = (InternalMethod) node.Block.Entity;
+	        var returnType = entity.Type == TypeSystemServices.VoidType
+	            ? TypeSystemServices.TaskType
+	            : TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(entity.Type);
+	        node.ExpressionType = returnType;
+	    }
+
 		private void InferClosureSignature(BlockExpression node)
 		{
 			ClosureSignatureInferrer inferrer = new ClosureSignatureInferrer(node);
@@ -5812,6 +5828,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return
 				node.NodeType == NodeType.MethodInvocationExpression ||
+                node.NodeType == NodeType.AwaitExpression ||
 				AstUtil.IsAssignment(node) ||
 				AstUtil.IsIncDec(node);
 		}

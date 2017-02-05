@@ -11,4 +11,4 @@ static class Program:
         return
 
 def Main():
-    M(0).Wait()
+    Program.M(0).Wait()

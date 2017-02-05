@@ -4,8 +4,8 @@
 
 namespace CompilerCrashRepro2
 
-using System
-using System.Threading.Tasks
+import System
+import System.Threading.Tasks
 
 public class Item[of T]:
     [Property(Value)]

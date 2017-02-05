@@ -124,8 +124,10 @@
     <Compile Include="Ast\ArrayTypeReference.cs" />
     <Compile Include="Ast\AstNodePredicates.cs" />
     <Compile Include="Ast\AstUtil.cs" />
+    <Compile Include="Ast\AsyncBlockExpression.cs" />
     <Compile Include="Ast\Attribute.cs" />
     <Compile Include="Ast\AttributeCollection.cs" />
+    <Compile Include="Ast\AwaitExpression.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />
     <Compile Include="Ast\BinaryOperatorKind.Generated.cs" />
     <Compile Include="Ast\BinaryOperatorType.Generated.cs" />
@@ -185,8 +187,10 @@
     <Compile Include="Ast\IfStatement.cs" />
     <Compile Include="Ast\Impl\ArrayLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ArrayTypeReferenceImpl.cs" />
+    <Compile Include="Ast\Impl\AsyncBlockExpressionImpl.cs" />
     <Compile Include="Ast\Impl\AttributeCollectionImpl.cs" />
     <Compile Include="Ast\Impl\AttributeImpl.cs" />
+    <Compile Include="Ast\Impl\AwaitExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BinaryExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BlockExpressionImpl.cs" />
     <Compile Include="Ast\Impl\BlockImpl.cs" />
@@ -664,6 +668,7 @@
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProvider.cs" />
     <Compile Include="TypeSystem\Services\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\Services\AnonymousCallablesManager.cs" />
+    <Compile Include="TypeSystem\Services\AsyncHelper.cs" />
     <Compile Include="TypeSystem\Services\BooCodeBuilder.cs" />
     <Compile Include="TypeSystem\Services\CallableResolutionService.cs" />
     <Compile Include="TypeSystem\Services\CodeReifier.cs" />

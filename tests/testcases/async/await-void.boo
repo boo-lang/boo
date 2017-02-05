@@ -7,7 +7,7 @@ import System.Threading
 import System.Threading.Tasks
 
 class Test:
-    static i = 0
+    internal static i = 0
 
     [async] public static def F(handle as AutoResetEvent):
         await Task.Factory.StartNew({ Test.i = 42 })

@@ -113,6 +113,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType ValueTypeType;
 		public IType VoidType;
 
+	    public IType TaskType;
+	    public IType GenericTaskType;
+
 		private Module _compilerGeneratedTypesModule;
 		private readonly Set<string> _literalPrimitives = new Set<string>();
 		private readonly Dictionary<string, IEntity> _primitives = new Dictionary<string, IEntity>(StringComparer.Ordinal);
@@ -190,6 +193,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IListType = Map(typeof (IList));
 			IAstMacroType = Map(typeof(IAstMacro));
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
+		    TaskType = Map(typeof(System.Threading.Tasks.Task));
+            GenericTaskType = Map(typeof(System.Threading.Tasks.Task<>));
 
 			ObjectArrayType = ObjectType.MakeArrayType(1);
 

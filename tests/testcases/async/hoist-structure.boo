@@ -14,7 +14,7 @@ struct TestStruct:
 
 static class Program:
     [async] def TestAsync() as Task:
-        TestStruct t
+        t as TestStruct
         t.i = 12
         Console.WriteLine("Before {0}", t.i); // emits "Before 12"
         await Task.Delay(100);

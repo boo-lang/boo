@@ -8,8 +8,8 @@ import System.Threading.Tasks
 
 class TestCase:
     [async] public def Run():
-        int test = 0
-        int result = 0
+        test as int = 0
+        result as int = 0
         try:
             test++
             __switch__({await (async ({ await(Task.Delay(1)); return 5 }))}(), d, d, d, d, d, r)

@@ -12,7 +12,7 @@ class TestCase(Test):
 
     [async] public static def Run():
         try:
-            int x = await(Test.GetValue[of int](1))
+            x as int = await(Test.GetValue[of int](1))
             if x != 1:
                 Count++
         ensure:

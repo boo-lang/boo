@@ -42,6 +42,8 @@ namespace Boo.Lang.Compiler.Steps
 
         private static readonly object CciHostKey = new object();
 
+        private static readonly object AsyncKey = new object();
+
 		public static Method GetEntryPoint(CompilerContext context)
 		{
 			if (null == context)
@@ -134,5 +136,15 @@ namespace Boo.Lang.Compiler.Steps
             }
             return result;
         }
-	}
+
+        public static void MarkAsync(INodeWithBody node)
+	    {
+	        ((Node)node).Annotate(AsyncKey);
+	    }
+
+	    public static bool IsAsync(INodeWithBody node)
+	    {
+	        return ((Node) node).ContainsAnnotation(AsyncKey);
+	    }
+    }
 }

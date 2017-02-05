@@ -12,7 +12,7 @@ public class MyTask:
         return MyTaskAwaiter()
 
     [async]public def Run():
-        int tests = 0
+        tests as int = 0
         try:
             tests++
             var myTask = MyTask()

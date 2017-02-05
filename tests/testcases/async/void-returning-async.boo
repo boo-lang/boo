@@ -9,7 +9,7 @@ import System.Threading.Tasks
 
 class Test:
 
-    static i as int = 0
+    public static i as int = 0
 
     [async] public static def F(handle as AutoResetEvent) as void:
         try:

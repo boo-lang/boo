@@ -5,7 +5,7 @@ class Program:
     ien as System.Collections.Generic.IEnumerable[of int] = null
     [async] def Test(id as IDisposable, task as Task[of int]) as Task[of int]:
         try:
-            foreach i in ien:
+            for i in ien:
                 return await(task)
             using id:
                 return await(task)

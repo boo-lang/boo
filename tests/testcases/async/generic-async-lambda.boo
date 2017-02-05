@@ -14,7 +14,7 @@ class G[of T]:
         var tt = action(t)
         var completed = tt.Wait(1000)
         Debug.Assert(completed)
-        this.t = tt.Result
+        self.t = tt.Result
 
     public override def ToString() as string:
         return t.ToString()

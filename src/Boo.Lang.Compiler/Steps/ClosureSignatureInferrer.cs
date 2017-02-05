@@ -39,12 +39,17 @@ namespace Boo.Lang.Compiler.Steps
 {
 	class ClosureSignatureInferrer
 	{
-		private BlockExpression _closure;
+		private readonly BlockExpression _closure;
+	    private readonly Node _parent;
 		private IType[] _inputTypes;
 
 		public ClosureSignatureInferrer(BlockExpression closure)
 		{
 			_closure = closure;
+		    var parent = closure.ParentNode;
+		    if (parent.NodeType == NodeType.AsyncBlockExpression)
+		        parent = parent.ParentNode;
+		    _parent = parent;
 			InitializeInputTypes();
 		}
 
@@ -67,7 +72,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get 
 			{
-				MethodInvocationExpression mie = Closure.ParentNode as MethodInvocationExpression;
+                MethodInvocationExpression mie = _parent as MethodInvocationExpression;
 				if (mie != null && mie.Arguments.Contains(Closure)) return mie;
 				return null;
 			}
@@ -86,14 +91,42 @@ namespace Boo.Lang.Compiler.Steps
 				GetTypeFromMethodInvocationContext() ??
 				GetTypeFromDeclarationContext() ??
 				GetTypeFromBinaryExpressionContext() ??
-				GetTypeFromCastContext()) as ICallableType;
+				GetTypeFromCastContext() /*??
+                GetTypeFromAsyncContext() */) as ICallableType;
 
 			return contextType;
 		}
 
+/*	    private IType GetTypeFromAsyncContext()
+	    {
+	        var async = Closure.ParentNode as AsyncBlockExpression;
+	        if (async == null)
+	            return null;
+
+	        var oldClosure = _closure;
+	        _closure = async;
+	        try
+	        {
+	            var unwrappedType = InferCallableType();
+                if (unwrappedType == null)
+                    return null;
+                async.WrappedType = WrapType(unwrappedType);
+                return unwrappedType;
+	        }
+	        finally
+	        {
+	            _closure = oldClosure;
+	        }
+	    }
+
+        private static IType WrapType(ICallableType unwrappedType)
+	    {
+            return My<TypeSystemServices>.Instance.GenericTaskType.GenericInfo.ConstructType(unwrappedType);
+	    }
+        */
 		private IType GetTypeFromBinaryExpressionContext()
 		{
-			BinaryExpression binary = Closure.ParentNode as BinaryExpression;
+            BinaryExpression binary = _parent as BinaryExpression;
 			if (binary == null || Closure != binary.Right) return null;
 			return binary.Left.ExpressionType;
 		}
@@ -101,13 +134,13 @@ namespace Boo.Lang.Compiler.Steps
 		private IType GetTypeFromDeclarationContext()
 		{
 			TypeReference tr = null;
-			DeclarationStatement ds = Closure.ParentNode as DeclarationStatement;
+            DeclarationStatement ds = _parent as DeclarationStatement;
 			if (ds != null)
 			{
 				tr = ds.Declaration.Type;
 			}
-			
-			Field fd = Closure.ParentNode as Field;
+
+            Field fd = _parent as Field;
 			if (fd != null)
 			{
 				tr = fd.Type;
@@ -134,10 +167,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IType GetTypeFromCastContext()
 		{
-			TryCastExpression tryCast = Closure.ParentNode as TryCastExpression;
+            TryCastExpression tryCast = _parent as TryCastExpression;
 			if (tryCast != null) return tryCast.Type.Entity as IType;
 
-			CastExpression cast = Closure.ParentNode as CastExpression;
+            CastExpression cast = _parent as CastExpression;
 			if (cast != null) return cast.Type.Entity as IType;
 
 			return null;

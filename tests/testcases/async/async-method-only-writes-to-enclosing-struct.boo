@@ -11,4 +11,4 @@ public static def Main():
     var test = 12
     var _int = GenC[of int]()
     _int.Test(test)
-    System.Console.WriteLine((_int.valueN if not _int.IsNull else 1))
+    System.Console.WriteLine((_int.valueN if _int.valueN.HasValue else 1))

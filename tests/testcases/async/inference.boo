@@ -20,7 +20,7 @@ class TestCase[of U]:
         return t
     
     [async] public def Run():
-        int tests = 0
+        tests as int = 0
         var t = Test()
         tests++
         var x1 = await(TestCase[of string].GetValue(await(t.Foo)))

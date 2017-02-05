@@ -9,8 +9,8 @@ import System.Threading
 import System.Threading.Tasks
 
 class TestCase:
-    static int test = 0
-    static int count = 0
+    static test as int = 0
+    static count as int = 0
 
     [async] public static def Run() as Task:
         try:
@@ -28,7 +28,7 @@ class TestCase:
 
 class Driver:
     static public CompleteSignal = AutoResetEvent(false)
-    public static int Result = -1
+    public static Result as int = -1
 
 public static def Main():
     TestCase.Run()

@@ -2,11 +2,11 @@
 0
 """
 
-using System
-using System.Collections.Generic
-using System.Text
-using System.Threading
-using System.Threading.Tasks
+import System
+import System.Collections.Generic
+import System.Text
+import System.Threading
+import System.Threading.Tasks
 
 class TestCase:
     static test = 0
@@ -15,7 +15,8 @@ class TestCase:
     [async] public static def Run() as Task:
         try:
             test++
-            f as Func[of int, object] = {checked: await(Bar())}
+            f as Func[of int, object] = do():
+                checked: await(Bar())
             var x = f(1)
             if (x cast string) != "1":
                 count--
@@ -30,7 +31,7 @@ class TestCase:
 
 class Driver:
     static public CompleteSignal = AutoResetEvent(false)
-    public static int Result = -1
+    public static Result as int = -1
 
     public static def Main():
         TestCase.Run()
