@@ -721,7 +721,11 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnBlockExpression(BlockExpression node)
 		{
 			if (WasVisited(node)) return;
-			if (ShouldDeferClosureProcessing(node)) return;
+            if (ShouldDeferClosureProcessing(node))
+            {
+                node.Annotate("$Deferred$");
+                return; 
+            }
 
 			InferClosureSignature(node);
 			ProcessClosureBody(node);
@@ -3734,6 +3738,16 @@ namespace Boo.Lang.Compiler.Steps
 						return null;
 					return m.GenericInfo.ConstructMethod(arguments);
 				}).Where(m => m != null).ToArray();
+
+            //check for unprocessed deferred closures
+            var orphanClosures = node.Arguments
+                .OfType<BlockExpression>()
+                .Where(b => b.ExpressionType == null && b.ContainsAnnotation("$Deferred$")).ToArray();
+            foreach (var closure in orphanClosures)
+            {
+                InferClosureSignature(closure);
+                ProcessClosureBody(closure);
+            }
 
 			var resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, methods);
 			if (null == resolved)
