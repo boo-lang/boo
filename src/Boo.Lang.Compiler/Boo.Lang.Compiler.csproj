@@ -15,7 +15,7 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <!--<DefineConstants>COLLECTIBLE_NOT_SUPPORTED</DefineConstants>-->
   </PropertyGroup>
@@ -446,6 +446,7 @@
     <Compile Include="Steps\AbstractVisitorCompilerStep.cs" />
     <Compile Include="Steps\ActionStep.cs" />
     <Compile Include="Steps\AstAnnotations.cs" />
+    <Compile Include="Steps\AsyncAwait\AsyncMethodBuilderMemberCollection.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
     <Compile Include="Steps\BindEnumMembers.cs" />
     <Compile Include="Steps\BindGenericParameters.cs" />

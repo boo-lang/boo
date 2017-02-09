@@ -115,6 +115,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 	    public IType TaskType;
 	    public IType GenericTaskType;
+	    public IType AsyncGenericTaskMethodBuilderType;
+        public IType AsyncTaskMethodBuilderType;
+	    public IType AsyncVoidMethodBuilderType;
+	    public IType IAsyncStateMachineType;
 
 		private Module _compilerGeneratedTypesModule;
 		private readonly Set<string> _literalPrimitives = new Set<string>();
@@ -195,6 +199,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
 		    TaskType = Map(typeof(System.Threading.Tasks.Task));
             GenericTaskType = Map(typeof(System.Threading.Tasks.Task<>));
+            AsyncGenericTaskMethodBuilderType = Map(typeof(System.Runtime.CompilerServices.AsyncTaskMethodBuilder<>));
+            AsyncTaskMethodBuilderType = Map(typeof(System.Runtime.CompilerServices.AsyncTaskMethodBuilder));
+            AsyncVoidMethodBuilderType = Map(typeof(System.Runtime.CompilerServices.AsyncVoidMethodBuilder));
+            IAsyncStateMachineType = Map(typeof(System.Runtime.CompilerServices.IAsyncStateMachine));
 
 			ObjectArrayType = ObjectType.MakeArrayType(1);
 
