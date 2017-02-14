@@ -446,7 +446,10 @@
     <Compile Include="Steps\AbstractVisitorCompilerStep.cs" />
     <Compile Include="Steps\ActionStep.cs" />
     <Compile Include="Steps\AstAnnotations.cs" />
+    <Compile Include="Steps\AsyncAwait\AsyncExceptionHandlerRewriter.cs" />
     <Compile Include="Steps\AsyncAwait\AsyncMethodBuilderMemberCollection.cs" />
+    <Compile Include="Steps\AsyncAwait\LabelCollector.cs" />
+    <Compile Include="Steps\AsyncAwait\LocalReferenceCollector.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
     <Compile Include="Steps\BindEnumMembers.cs" />
     <Compile Include="Steps\BindGenericParameters.cs" />

@@ -164,7 +164,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return expression;
 		}
 
-		public TypeofExpression CreateTypeofExpression(IType type)
+        public Expression CreateAsCast(IType type, Expression target)
+        {
+            if (type == target.ExpressionType)
+                return target;
+
+            var expression = new TryCastExpression(target.LexicalInfo)
+            {
+                Type = CreateTypeReference(type),
+                Target = target,
+                ExpressionType = type
+            };
+            return expression;
+        }
+
+        public TypeofExpression CreateTypeofExpression(IType type)
 		{
 			return new TypeofExpression
 					{
@@ -353,7 +367,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateTypedReference(name, entity);
 		}
 
-		public ReferenceExpression CreateTypedReference(string name, ITypedEntity entity)
+        public ReferenceExpression CreateLocalReference(InternalLocal entity)
+        {
+            return CreateTypedReference(entity.Name, entity);
+        }
+
+        public ReferenceExpression CreateTypedReference(string name, ITypedEntity entity)
 		{
 			ReferenceExpression expression = new ReferenceExpression(name);
 			expression.Entity = entity;
@@ -511,6 +530,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 			eval.ExpressionType = value.ExpressionType;
 			return eval;
 		}
+
+        public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li, params Expression[] args)
+        {
+            MethodInvocationExpression eval = CreateEvalInvocation(li);
+            IType et = null;
+            foreach (var arg in args)
+            {
+                eval.Arguments.Add(arg);
+                et = arg.ExpressionType;
+            }
+            eval.ExpressionType = et;
+            return eval;
+        }
+
+        public MethodInvocationExpression CreateDefaultInvocation(LexicalInfo li, IType type)
+	    {
+	        var result = CreateBuiltinInvocation(li, BuiltinFunction.Default);
+            result.Arguments.Add(CreateTypeofExpression(type));
+	        result.ExpressionType = type;
+	        return result;
+	    }
 
 		public UnpackStatement CreateUnpackStatement(DeclarationCollection declarations, Expression expression)
 		{
@@ -1004,6 +1044,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
 		}
+
+	    public GotoStatement CreateGoto(LexicalInfo li, InternalLabel target)
+	    {
+	        return new GotoStatement(li, CreateLabelReference(target.LabelStatement));
+	    }
+
+	    public GotoStatement CreateGoto(InternalLabel target)
+	    {
+	        return CreateGoto(LexicalInfo.Empty, target);
+	    }
 
 		public TypeMember CreateStub(ClassDefinition node, IMember member)
 		{
