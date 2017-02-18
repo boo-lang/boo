@@ -448,6 +448,8 @@
     <Compile Include="Steps\AstAnnotations.cs" />
     <Compile Include="Steps\AsyncAwait\AsyncExceptionHandlerRewriter.cs" />
     <Compile Include="Steps\AsyncAwait\AsyncMethodBuilderMemberCollection.cs" />
+    <Compile Include="Steps\AsyncAwait\AsyncTypeHelper.cs" />
+    <Compile Include="Steps\AsyncAwait\AwaitExpressionSpiller.cs" />
     <Compile Include="Steps\AsyncAwait\LabelCollector.cs" />
     <Compile Include="Steps\AsyncAwait\LocalReferenceCollector.cs" />
     <Compile Include="Steps\BindBaseTypes.cs" />
