@@ -530,6 +530,19 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             ReplaceCurrentNode(UpdateExpression(builder, node));
         }
 
+        public override void OnArrayLiteralExpression(ArrayLiteralExpression node)
+        {
+            OnListLiteralExpression(node);
+        }
+
+        public override void OnHashLiteralExpression(HashLiteralExpression node)
+        {
+
+            BoundSpillSequenceBuilder builder = null;
+            node.Items = VisitExpressionPairList(ref builder, node.Items);
+            ReplaceCurrentNode(UpdateExpression(builder, node));
+        }
+
         public override void OnTryCastExpression(TryCastExpression node)
         {
             BoundSpillSequenceBuilder builder = null;

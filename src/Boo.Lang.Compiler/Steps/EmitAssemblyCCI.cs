@@ -55,6 +55,7 @@ using Boo.Lang.Runtime;
 using Microsoft.Cci.Immutable;
 using AssemblyName = System.Reflection.AssemblyName;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
+using IArrayType = Boo.Lang.Compiler.TypeSystem.IArrayType;
 using IAssemblyReference = Microsoft.Cci.IAssemblyReference;
 using Module = Boo.Lang.Compiler.Ast.Module;
 
@@ -509,12 +510,26 @@ namespace Boo.Lang.Compiler.Steps
 	            var referredType = value.GetElementType();
 	            return GetTypeReference(referredType);
 	        }
-	        if (value.IsArray)
-                return new VectorTypeReference
-                {
-                    ElementType = GetTypeReference(value.GetElementType()),
-                    InternFactory = _host.InternFactory
-                }.ResolvedType;
+            if (value.IsArray)
+            {
+                var elementType = GetTypeReference(value.GetElementType());
+                var rank = value.GetArrayRank();
+                var sysArrayType = rank == 1
+                    ? (IArrayTypeReference)new VectorTypeReference
+                    {
+                        InternFactory = _host.InternFactory,
+                        ElementType = elementType,
+                        Rank = 1
+                    }
+                    : (IArrayTypeReference)new MatrixTypeReference
+                    {
+                        InternFactory = _host.InternFactory,
+                        ElementType = elementType,
+                        Rank = (uint)rank
+                    };
+                return sysArrayType.ResolvedType;
+
+            }
 	        if (value.IsNested)
                 return GetNestedTypeReference(value);
             if (value.IsGenericType && (!value.ContainsGenericParameters || value.FullName == null))
@@ -4990,7 +5005,6 @@ namespace Boo.Lang.Compiler.Steps
                         InternFactory = _host.InternFactory,
                         ElementType = systemType,
                         Rank = (uint) rank
-
                     };
                 return sysArrayType;
             }
