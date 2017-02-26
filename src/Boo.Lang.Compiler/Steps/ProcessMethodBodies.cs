@@ -74,6 +74,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		const string TempInitializerName = "$___temp_initializer";
 
+	    private bool _inExceptionHandler;
+        private bool _seenAwaitInExceptionHandler;
+
 		public override void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
@@ -735,6 +738,7 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        Visit(node.BaseExpression);
             node.ExpressionType = AsyncHelper.GetAwaitType(node.BaseExpression);
+	        _seenAwaitInExceptionHandler |= _inExceptionHandler;
 	    }
 
 	    public override void OnAsyncBlockExpression(AsyncBlockExpression node)
@@ -1298,9 +1302,24 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodBody(entity, entity);
 		}
 
-		void ProcessMethodBody(InternalMethod entity, INamespace ns)
+	    private void ProcessMethodBody(InternalMethod entity, INamespace ns)
 		{
-			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
+		    var ieh = _inExceptionHandler;
+		    var seenAwaitInExceptionHandler = _seenAwaitInExceptionHandler;
+            _inExceptionHandler = false;
+            _seenAwaitInExceptionHandler = false;
+
+		    try
+		    {
+                ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
+                if (_seenAwaitInExceptionHandler)
+                    ContextAnnotations.AwaitInExceptionHandler(entity.Method);
+		    }
+		    finally
+		    {
+                _inExceptionHandler = ieh;
+                _seenAwaitInExceptionHandler = seenAwaitInExceptionHandler;
+            }
 		}
 
 		void ProcessNodeInMethodContext(InternalMethod entity, INamespace ns, Node node)
@@ -1454,7 +1473,24 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, TypeSystemServices.CharType);
 		}
 
-		private void CheckCharLiteralValue(CharLiteralExpression node)
+	    public override void OnTryStatement(TryStatement node)
+	    {
+            Visit(node.ProtectedBlock);
+	        var ieh = _inExceptionHandler;
+            _inExceptionHandler = true;
+	        try
+	        {
+	            Visit(node.ExceptionHandlers);
+	            Visit(node.FailureBlock);
+	            Visit(node.EnsureBlock);
+	        }
+	        finally
+	        {
+	            _inExceptionHandler = ieh;
+	        }
+	    }
+
+	    private void CheckCharLiteralValue(CharLiteralExpression node)
 		{
 			var value = node.Value;
 			if (value == null || value.Length != 1)

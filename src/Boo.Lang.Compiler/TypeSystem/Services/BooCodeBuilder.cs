@@ -1001,6 +1001,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new RaiseStatement(lexicalInfo, CreateConstructorInvocation(lexicalInfo, exceptionConstructor, args));
 		}
 
+	    public TryStatement CreateTryExcept(LexicalInfo lexicalInfo, Block protecteBlock,
+	        params ExceptionHandler[] handlers)
+	    {
+	        var result = new TryStatement(lexicalInfo) {ProtectedBlock = protecteBlock};
+            result.ExceptionHandlers.AddRange(handlers);
+	        return result;
+	    }
+
+	    public ExceptionHandler CreateExceptionHandler(LexicalInfo lexicalInfo, Declaration definition, Block body)
+	    {
+	        return new ExceptionHandler(lexicalInfo){ Declaration = definition, Block = body};
+	    }
+
 		public InternalLocal DeclareTempLocal(Method node, IType type)
 		{
 			var local = DeclareLocal(node, My<UniqueNameProvider>.Instance.GetUniqueName(), type);
@@ -1017,7 +1030,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return entity;
 		}
 
-		public void BindParameterDeclarations(bool isStatic, INodeWithParameters node)
+        public Declaration CreateDeclaration(Method method, string name, IType type, out InternalLocal local)
+        {
+            var result = new Declaration(name, CreateTypeReference(type));
+            local = this.DeclareLocal(method, name, type);
+            method.Locals.Add(local.Local);
+            result.Entity = local;
+            return result;
+        }
+
+        public void BindParameterDeclarations(bool isStatic, INodeWithParameters node)
 		{
 			// arg0 is the this pointer when member is not static
 			int delta = isStatic ? 0 : 1;

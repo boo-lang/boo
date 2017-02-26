@@ -16,14 +16,12 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         private readonly BooCodeBuilder _F;
         private readonly Method _currentMethod;
-        private readonly Node _currentNode;
         private readonly TypeSystemServices _tss;
 
-        private AwaitExpressionSpiller(Method method, Node node, TypeSystemServices tss)
+        private AwaitExpressionSpiller(Method method, TypeSystemServices tss)
         {
             _F = My<BooCodeBuilder>.Instance;
             _currentMethod = method;
-            _currentNode = node;
             _tss = tss;
         }
 
@@ -137,10 +135,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             }
         }
 
-        internal static Statement Rewrite(Statement body, Method method)
+        internal static Statement Rewrite(Method method)
         {
-            var spiller = new AwaitExpressionSpiller(method, body, My<TypeSystemServices>.Instance);
-            var result = spiller.Visit(body);
+            var spiller = new AwaitExpressionSpiller(method, My<TypeSystemServices>.Instance);
+            var result = spiller.Visit(method.Body);
             return result;
         }
 
@@ -339,7 +337,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                             builder.AddStatement(new ExpressionStatement(expression));
                             return null;
                         }
-                        Debug.Assert(_currentNode.NodeType == NodeType.AwaitExpression);
                         var replacement = _F.DeclareTempLocal(_currentMethod, expression.ExpressionType);
 
                         var assignToTemp = _F.CreateAssignment(
@@ -769,7 +766,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             }
             else
             {
-                Debug.Assert(_currentNode.NodeType == NodeType.AwaitExpression);
                 var tmp = _F.DeclareTempLocal(_currentMethod, node.ExpressionType);
                 tmp.Local["SynthesizedKind"] = AWAIT_SPILL_MARKER;
 

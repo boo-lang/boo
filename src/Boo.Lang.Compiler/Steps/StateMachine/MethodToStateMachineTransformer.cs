@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 
         protected InternalMethod _moveNext;
 
-        protected IField _state;
+        protected InternalField _state;
 
         protected readonly GeneratorTypeReplacer _methodToStateMachineMapper = new GeneratorTypeReplacer();
 
@@ -448,7 +448,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			return true;
 		}
 		
-		protected BinaryExpression SetStateTo(int num)
+		protected virtual BinaryExpression SetStateTo(int num)
 		{
 			return CodeBuilder.CreateAssignment(CodeBuilder.CreateMemberReference(_state),
 			                                    CodeBuilder.CreateIntegerLiteral(num));

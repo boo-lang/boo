@@ -44,6 +44,8 @@ namespace Boo.Lang.Compiler.Steps
 
         private static readonly object AsyncKey = new object();
 
+        private static readonly object AwaitInExceptionHandlerKey = new object();
+
 		public static Method GetEntryPoint(CompilerContext context)
 		{
 			if (null == context)
@@ -146,5 +148,15 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        return ((Node) node).ContainsAnnotation(AsyncKey);
 	    }
-    }
+
+        public static void MarkAwaitInExceptionHandler(INodeWithBody node)
+        {
+            ((Node)node).Annotate(AwaitInExceptionHandlerKey);
+        }
+
+        public static bool AwaitInExceptionHandler(INodeWithBody node)
+	    {
+            return ((Node)node).ContainsAnnotation(AwaitInExceptionHandlerKey);
+	    }
+	}
 }

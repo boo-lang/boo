@@ -105,24 +105,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         ///             handler
         ///             raise pendingException
         /// </summary>
-        public static Statement Rewrite(
-            Method containingSymbol,
-            Statement statement)
+        public static void Rewrite(Method containingMethod)
         {
-            if (containingSymbol == null) throw new ArgumentNullException("containingSymbol");
-            if (statement == null) throw new ArgumentNullException("statement");
+            if (containingMethod == null) throw new ArgumentNullException("containingMethod");
 
-            var analysis = new AwaitInFinallyAnalysis(statement);
-            if (!analysis.ContainsAwaitInHandlers())
+            var body = containingMethod.Body;
+            var analysis = new AwaitInFinallyAnalysis(body);
+            if (analysis.ContainsAwaitInHandlers())
             {
-                return statement;
+                var factory = CompilerContext.Current.CodeBuilder;
+                var rewriter = new AsyncExceptionHandlerRewriter(containingMethod, factory, analysis);
+                containingMethod.Body = (Block)rewriter.Visit(body);
             }
-
-            var factory = My<BooCodeBuilder>.Instance;
-            var rewriter = new AsyncExceptionHandlerRewriter(containingSymbol, factory, analysis);
-            var loweredStatement = rewriter.Visit(statement);
-
-            return loweredStatement;
         }
 
         public override void OnTryStatement(TryStatement node)
@@ -658,7 +652,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         public override void OnBlockExpression(BlockExpression node)
         {
-            //Can't process BlockExpressions here.  Rewrite them to methods and then process them
+            throw new NotImplementedException(); //should have been rewritten already
         }
 
         private AwaitFinallyFrame PushFrame(TryStatement statement)

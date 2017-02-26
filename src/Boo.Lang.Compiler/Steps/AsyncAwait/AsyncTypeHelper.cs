@@ -25,5 +25,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         {
             return type == _typeReferenceType || type == _argIteratorType || type == _runtimeArgumentHandleType;
         }
+
+        internal static bool IsVerifierReference(this IType type)
+        {
+            return !type.IsValueType && type.EntityType != EntityType.GenericParameter;
+        }
     }
 }

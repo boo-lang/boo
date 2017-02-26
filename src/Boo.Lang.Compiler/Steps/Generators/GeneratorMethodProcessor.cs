@@ -192,7 +192,7 @@ namespace Boo.Lang.Compiler.Steps.Generators
                 TypeSystemServices.Map(typeof(GenericGeneratorEnumerator<>)).
                     GenericInfo.ConstructType(_methodToStateMachineMapper.MapType(_generatorItemType));
 
-            _state = NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
+            _state = (InternalField)NameResolutionService.ResolveField(abstractEnumeratorType, "_state");
             _yield = NameResolutionService.ResolveMethod(abstractEnumeratorType, "Yield");
             _yieldDefault = NameResolutionService.ResolveMethod(abstractEnumeratorType, "YieldDefault");
             _stateMachineClass.AddBaseType(abstractEnumeratorType);

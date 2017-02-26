@@ -65,7 +65,7 @@ namespace Boo.Lang.Compiler.Pipelines
 
 			Add(new ProcessSharedLocals());
 			Add(new ProcessClosures());
-			Add(new ProcessGenerators());
+			Add(new ProcessGeneratorsAndAsyncMethods());
 
 			Add(new ExpandVarArgsMethodInvocations());
 			

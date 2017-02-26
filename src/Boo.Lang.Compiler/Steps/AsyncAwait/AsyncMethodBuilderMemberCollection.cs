@@ -62,7 +62,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         /// <summary>
         /// Begins running the builder with the associated state machine.
         /// </summary>
-        public readonly IMethod Start;
+        public readonly IGenericMethodInfo Start;
 
         /// <summary>
         /// Associates the builder with the specified state machine.
@@ -82,7 +82,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             IMethod setResult,
             IMethod awaitOnCompleted,
             IMethod awaitUnsafeOnCompleted,
-            IMethod start,
+            IGenericMethodInfo start,
             IMethod setStateMachine,
             IProperty task)
         {
@@ -128,7 +128,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 (IMethod) members["SetResult"],
                 (IMethod) members["AwaitOnCompleted"],
                 (IMethod) members["AwaitUnsafeOnCompleted"],
-                (IMethod) members["Start"],
+                (IGenericMethodInfo)members["Start"],
                 (IMethod) members["SetStateMachine"],
                 (IProperty) members["Task"]);
 
