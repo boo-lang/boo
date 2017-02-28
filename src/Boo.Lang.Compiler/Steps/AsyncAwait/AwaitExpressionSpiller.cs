@@ -666,13 +666,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         public override void OnMethodInvocationExpression(MethodInvocationExpression node)
         {
             BoundSpillSequenceBuilder builder = null;
-            if (node.Entity == BuiltinFunction.Eval)
+            var entity = node.Target.Entity;
+            if (entity.EntityType == EntityType.BuiltinFunction)
             {
-                OnEval(node);
+                if (entity == BuiltinFunction.Eval)
+                {
+                    OnEval(node);
+                }
+                else base.OnMethodInvocationExpression(node);
                 return;
             }
 
-            var method = (IMethod) node.Entity;
+            var method = (IMethod) entity;
             var refs = method.GetParameters().Select(p => p.IsByRef).ToList();
             node.Arguments = VisitExpressionList(ref builder, node.Arguments, refs);
 

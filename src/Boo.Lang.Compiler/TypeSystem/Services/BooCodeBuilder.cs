@@ -33,6 +33,7 @@ using System.Linq;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
+using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
@@ -1067,7 +1068,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
 		}
 
-	    public GotoStatement CreateGoto(LexicalInfo li, InternalLabel target)
+        public InternalLabel CreateLabel(Node sourceNode, string name, int depth)
+        {
+            var result = CreateLabel(sourceNode, name);
+            AstAnnotations.SetTryBlockDepth(result.LabelStatement, depth);
+            return result;
+        }
+
+        public GotoStatement CreateGoto(LexicalInfo li, InternalLabel target)
 	    {
 	        return new GotoStatement(li, CreateLabelReference(target.LabelStatement));
 	    }
@@ -1077,7 +1085,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 	        return CreateGoto(LexicalInfo.Empty, target);
 	    }
 
-		public TypeMember CreateStub(ClassDefinition node, IMember member)
+        public GotoStatement CreateGoto(InternalLabel target, int depth)
+        {
+            var result = CreateGoto(LexicalInfo.Empty, target);
+            AstAnnotations.SetTryBlockDepth(result, depth);
+            return result;
+        }
+
+        public TypeMember CreateStub(ClassDefinition node, IMember member)
 		{
 			IMethod baseMethod = member as IMethod;
 			if (null != baseMethod)

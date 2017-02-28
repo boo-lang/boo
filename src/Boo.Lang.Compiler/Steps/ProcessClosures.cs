@@ -42,7 +42,13 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(CompileUnit);
 		}
 
-		override public void LeaveBlockExpression(BlockExpression node)
+	    public override void OnAsyncBlockExpression(AsyncBlockExpression node)
+	    {
+	        var result = Visit(node.Block);
+	        ReplaceCurrentNode(result);
+	    }
+
+	    override public void LeaveBlockExpression(BlockExpression node)
 		{
 			var closureEntity = GetEntity(node) as InternalMethod;
 			if (closureEntity == null)

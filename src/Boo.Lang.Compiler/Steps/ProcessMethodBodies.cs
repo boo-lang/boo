@@ -744,11 +744,8 @@ namespace Boo.Lang.Compiler.Steps
 	    public override void OnAsyncBlockExpression(AsyncBlockExpression node)
 	    {
 	        Visit(node.Block);
-	        var entity = (InternalMethod) node.Block.Entity;
-	        var returnType = entity.Type == TypeSystemServices.VoidType
-	            ? TypeSystemServices.TaskType
-	            : TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(entity.Type);
-	        node.ExpressionType = returnType;
+	        node.Entity = node.Block.Entity;
+	        node.ExpressionType = node.Block.ExpressionType;
 	    }
 
 		private void InferClosureSignature(BlockExpression node)
@@ -833,6 +830,9 @@ namespace Boo.Lang.Compiler.Steps
 			// Allow closure body to reference itself using its explicit name (BOO-1085)
 			if (explicitClosureName != null)
 				ns.DelegateTo(new AliasedNamespace(explicitClosureName, closureEntity));
+
+            if (ContextAnnotations.IsAsync(node))
+                ContextAnnotations.MarkAsync(closure);
 
 			ProcessMethodBody(closureEntity, ns);
 
@@ -1415,15 +1415,23 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveReturnType(InternalMethod entity)
 		{
 			var method = entity.Method;
-			method.ReturnType = entity.ReturnExpressions == null
+            if (ContextAnnotations.IsAsync(method))
+            {
+                method.ReturnType = entity.ReturnExpressions == null
+                    ? CodeBuilder.CreateTypeReference(TypeSystemServices.TaskType)
+                    : GetMostGenericTypeReference(entity.ReturnExpressions, true);
+            }
+			else method.ReturnType = entity.ReturnExpressions == null
 				? CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType)
-				: GetMostGenericTypeReference(entity.ReturnExpressions);
+				: GetMostGenericTypeReference(entity.ReturnExpressions, false);
 			TraceReturnType(method, entity);
 		}
 
-		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions)
+		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions, bool isAsync)
 		{
 			var type = MapWildcardType(GetMostGenericType(expressions));
+		    if (isAsync)
+		        type = TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(type);
 			return CodeBuilder.CreateTypeReference(type);
 		}
 

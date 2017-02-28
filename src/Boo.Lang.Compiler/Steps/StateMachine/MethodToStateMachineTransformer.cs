@@ -43,13 +43,13 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 
         protected InternalMethod _moveNext;
 
-        protected InternalField _state;
+        protected IField _state;
 
         protected readonly GeneratorTypeReplacer _methodToStateMachineMapper = new GeneratorTypeReplacer();
 
         protected BooClassBuilder _stateMachineClass;
 
-        private BooMethodBuilder _stateMachineConstructor;
+        protected BooMethodBuilder _stateMachineConstructor;
 
         protected Field _externalSelfField;
 
@@ -388,7 +388,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			return GetEntity(accessor);
 		}
 
-		private string UniqueName(string name)
+		protected string UniqueName(string name)
 		{
 			return Context.GetUniqueName(name);
 		}
@@ -500,7 +500,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			return label.LabelStatement;
 		}
 		
-		protected BooMethodBuilder CreateConstructor(BooClassBuilder builder)
+		protected virtual BooMethodBuilder CreateConstructor(BooClassBuilder builder)
 		{
 			BooMethodBuilder constructor = builder.AddConstructor();
 			constructor.Body.Add(CodeBuilder.CreateSuperConstructorInvocation(builder.Entity.BaseType));

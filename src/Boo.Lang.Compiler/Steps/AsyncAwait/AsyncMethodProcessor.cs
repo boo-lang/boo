@@ -70,14 +70,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         public override void Run()
         {
             base.Run();
-            if (ContextAnnotations.AwaitInExceptionHandler(_method.Method))
-            {
-                AsyncExceptionHandlerRewriter.Rewrite(_method.Method);
-            }
-            var spilled = AwaitExpressionSpiller.Rewrite(_method.Method);
-            _method.Method.Body.Clear();
-            _method.Method.Body.Add(spilled);
-            CreateMoveNext();
             FixAsyncMethodBody(_stateMachineConstructorInvocation);
         }
 
@@ -103,7 +95,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             var stateMachineVariable = CodeBuilder.DeclareLocal(
                 method,
-                Context.GetUniqueName("async"),
+                UniqueName("async"),
                 _stateMachineClass.Entity);
 
             bodyBuilder.Add(CodeBuilder.CreateAssignment(
@@ -137,17 +129,17 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             bodyBuilder.Add(
                 CodeBuilder.CreateMethodInvocation(
                     CodeBuilder.CreateLocalReference(builderVariable),
-                    methodScopeAsyncMethodBuilderMemberCollection.Start.ConstructMethod(_stateMachineClass.Entity),
+                    methodScopeAsyncMethodBuilderMemberCollection.Start.GenericInfo.ConstructMethod(_stateMachineClass.Entity),
                     CodeBuilder.CreateLocalReference(stateMachineVariable)));
 
             bodyBuilder.Add(method.ReturnType.Entity == TypeSystemServices.VoidType
                 ? new ReturnStatement()
                 : new ReturnStatement(
-                    CodeBuilder.CreateMemberReference(
+                    CodeBuilder.CreateMethodInvocation(
                         CodeBuilder.CreateMemberReference(
                             CodeBuilder.CreateLocalReference(stateMachineVariable),
                             (IField)_asyncMethodBuilderField.Entity),
-                        methodScopeAsyncMethodBuilderMemberCollection.Task)));
+                        methodScopeAsyncMethodBuilderMemberCollection.Task.GetGetMethod())));
 
             _method.Method.Body = bodyBuilder;
         }
@@ -167,7 +159,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 
                 string fieldName = Context.GetUniqueName("_awaiter", slotIndex.ToString());
 
-                result = CodeBuilder.CreateField(fieldName, awaiterType);
+                result = _stateMachineClass.AddField(fieldName, awaiterType);
                 _awaiterFields.Add(awaiterType, result);
             }
 
@@ -185,19 +177,22 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             methodBuilder.Method.LexicalInfo = asyncMethod.LexicalInfo;
             _moveNext = methodBuilder.Entity;
 
-            _exprReturnLabel = CodeBuilder.CreateLabel(methodBuilder.Method, "exprReturn");
-            _exitLabel = CodeBuilder.CreateLabel(methodBuilder.Method, "exitLabel");
+            TransformLocalsIntoFields(asyncMethod);
+            TransformParametersIntoFieldsInitializedByConstructor(_method.Method);
+
+            _exprReturnLabel = CodeBuilder.CreateLabel(methodBuilder.Method, "exprReturn", 0);
+            _exitLabel = CodeBuilder.CreateLabel(methodBuilder.Method, "exitLabel", 0);
             _isGenericTask = _method.ReturnType.GenericInfo != null;
             _exprRetValue = _isGenericTask
                 ? CodeBuilder.DeclareTempLocal(_method.Method, _asyncMethodBuilderMemberCollection.ResultType)
                 : null;
 
-            var rewrittenBody = (Block) Visit(_method.Method.Body);
+            _cachedState = CodeBuilder.DeclareLocal(methodBuilder.Method, UniqueName("state"),
+                TypeSystemServices.IntType);
+
+            var rewrittenBody = (Block)Visit(_method.Method.Body);
 
             var bodyBuilder = methodBuilder.Body;
-
-            _cachedState = CodeBuilder.DeclareLocal(methodBuilder.Method, Context.GetUniqueName("state"),
-                TypeSystemServices.IntType);
 
             bodyBuilder.Add(CodeBuilder.CreateAssignment(
                 CodeBuilder.CreateLocalReference(_cachedState),
@@ -216,7 +211,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 {
                     Declaration = CodeBuilder.CreateDeclaration(
                         methodBuilder.Method,
-                        Context.GetUniqueName("exception"),
+                        UniqueName("exception"),
                         TypeSystemServices.ExceptionType,
                         out exceptionLocal),
                     Block = new Block(
@@ -226,9 +221,9 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                             CodeBuilder.CreateIntegerLiteral(StateMachineStates.FinishedStateMachine)),
                         new ExpressionStatement(
                             CodeBuilder.CreateMethodInvocation(
-                                CodeBuilder.MemberReferenceForEntity(
+                                CodeBuilder.CreateMemberReference(
                                     CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
-                                    _asyncMethodBuilderField.Entity),
+                                    (IField)_asyncMethodBuilderField.Entity),
                                 _asyncMethodBuilderMemberCollection.SetException,
                                 CodeBuilder.CreateLocalReference(exceptionLocal))),
                         GenerateReturn())
@@ -245,11 +240,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             // builder.SetResult([RetVal])
             var setResultInvocation = CodeBuilder.CreateMethodInvocation(
-                CodeBuilder.MemberReferenceForEntity(
+                CodeBuilder.CreateMemberReference(
                     CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
-                    _asyncMethodBuilderField.Entity),
-                _asyncMethodBuilderMemberCollection.SetResult,
-                CodeBuilder.CreateLocalReference(exceptionLocal));
+                    (IField)_asyncMethodBuilderField.Entity),
+                _asyncMethodBuilderMemberCollection.SetResult);
             if (_isGenericTask)
                 setResultInvocation.Arguments.Add(CodeBuilder.CreateLocalReference(_exprRetValue));
 
@@ -262,7 +256,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         private Statement GenerateReturn()
         {
-            return CodeBuilder.CreateGoto(_exitLabel);
+            return CodeBuilder.CreateGoto(_exitLabel, 1);
         }
 
         #region Visitors
@@ -298,11 +292,9 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         {
             var expression = Visit(node.BaseExpression);
             resultPlace = Visit(resultPlace);
-            var taskMethods = node.ExpressionType.GetMembers().OfType<IMethod>().ToDictionary(m => m.Name);
-            var taskProps = node.ExpressionType.GetMembers().OfType<IProperty>().ToDictionary(m => m.Name);
-            var getAwaiter = taskMethods["GetAwaiter"];
-            var getResult = taskMethods["GetResult"];
-            var isCompletedMethod = taskProps["IsCompleted"].GetGetMethod();
+            var getAwaiter = node.ExpressionType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetAwaiter"));
+            var getResult = getAwaiter.ReturnType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetResult"));
+            var isCompletedMethod = getAwaiter.ReturnType.GetMembers().OfType<IProperty>().Single(p => p.Name.Equals("IsCompleted")).GetGetMethod();
             var type = node.ExpressionType;
 
             // The awaiter temp facilitates EnC method remapping and thus have to be long-lived.
@@ -390,9 +382,9 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             blockBuilder.Add(resumeLabel);
 
-            var awaiterFieldRef = CodeBuilder.MemberReferenceForEntity(
+            var awaiterFieldRef = CodeBuilder.CreateMemberReference(
                 CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
-                awaiterField.Entity);
+                (IField)awaiterField.Entity);
             blockBuilder.Add(
                 // $awaiterTemp = this.<>t__awaiter   or   $awaiterTemp = (AwaiterType)this.<>t__awaiter
                 // $this.<>t__awaiter = null;
@@ -426,16 +418,16 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             var useUnsafeOnCompleted = loweredAwaiterType.IsAssignableFrom(ICriticalNotifyCompletionType);
 
-            var onCompleted = ((IGenericMethodInfo)(useUnsafeOnCompleted ?
+            var onCompleted = (useUnsafeOnCompleted ?
                     _asyncMethodBuilderMemberCollection.AwaitUnsafeOnCompleted :
-                    _asyncMethodBuilderMemberCollection.AwaitOnCompleted))
-                .ConstructMethod(loweredAwaiterType, _stateMachineClass.Entity);
+                    _asyncMethodBuilderMemberCollection.AwaitOnCompleted)
+                .GenericInfo.ConstructMethod(loweredAwaiterType, _stateMachineClass.Entity);
 
             var result =
                 CodeBuilder.CreateMethodInvocation(
-                    CodeBuilder.MemberReferenceForEntity(
+                    CodeBuilder.CreateMemberReference(
                         CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
-                        _asyncMethodBuilderField.Entity),
+                        (IField)_asyncMethodBuilderField.Entity),
                     onCompleted,
                     CodeBuilder.CreateLocalReference(awaiterTemp),
                     selfTemp != null ? 
@@ -457,7 +449,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         public override void OnReturnStatement(ReturnStatement node)
         {
-            Statement result;
+            Statement result = CodeBuilder.CreateGoto(_exprReturnLabel, _tryStatementStack.Count);
             if (node.Expression != null)
             {
                 Debug.Assert(_isGenericTask);
@@ -466,9 +458,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                         CodeBuilder.CreateAssignment(
                             CodeBuilder.CreateLocalReference(_exprRetValue), 
                             Visit(node.Expression))),
-                    CodeBuilder.CreateGoto(_exprReturnLabel));
+                    result);
             }
-            else result = CodeBuilder.CreateGoto(_exprReturnLabel);
             ReplaceCurrentNode(result);
         }
 
@@ -478,8 +469,15 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         protected override void PropagateReferences()
         {
-            // propagate the necessary parameters from
-            // the enumerable to the enumerator
+            var ctor = _stateMachineConstructor;
+            // propagate the external self reference if necessary
+            if (_externalSelfField != null)
+            {
+                var type = (IType)_externalSelfField.Type.Entity;
+                _stateMachineConstructorInvocation.Arguments.Add(
+                    CodeBuilder.CreateSelfReference(_methodToStateMachineMapper.MapType(type)));
+            }
+            // propagate the necessary parameters from the original method to the state machine
             foreach (var parameter in _method.Method.Parameters)
             {
                 var myParam = MapParamType(parameter);
@@ -490,15 +488,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     _stateMachineConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(myParam));
                 }
             }
-
-            // propagate the external self reference if necessary
-            if (_externalSelfField != null)
-            {
-                var type = (IType)_externalSelfField.Type.Entity;
-                _stateMachineConstructorInvocation.Arguments.Add(
-                    CodeBuilder.CreateSelfReference(_methodToStateMachineMapper.MapType(type)));
-            }
-
         }
 
         protected override BinaryExpression SetStateTo(int num)
@@ -524,7 +513,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         protected override void SetupStateMachine()
         {
             _stateMachineClass.AddBaseType(TypeSystemServices.ValueTypeType);
-            _stateMachineClass.AddBaseType(TypeSystemServices.Map(typeof(IAsyncStateMachine)));
+            _stateMachineClass.AddBaseType(TypeSystemServices.IAsyncStateMachineType);
+            _stateMachineClass.Modifiers |= TypeMemberModifiers.Final;
             var ctr = TypeSystemServices.Map(typeof(AsyncStateMachineAttribute)).GetConstructors().Single();
             _method.Method.Attributes.Add(
                 CodeBuilder.CreateAttribute(
@@ -536,21 +526,34 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 _methodToStateMachineMapper,
                 out _asyncMethodBuilderMemberCollection);
 
-            _asyncMethodBuilderField = _stateMachineClass.AddField(
-                Context.GetUniqueName("Builder"),
+            _state = (IField)_stateMachineClass.AddInternalField(UniqueName("State"), TypeSystemServices.IntType).Entity;
+            _asyncMethodBuilderField = _stateMachineClass.AddInternalField(
+                UniqueName("Builder"),
                 _asyncMethodBuilderMemberCollection.BuilderType);
             CreateSetStateMachine();
+            PreprocessMethod();
+        }
+
+        private void PreprocessMethod()
+        {
+            if (ContextAnnotations.AwaitInExceptionHandler(_method.Method))
+            {
+                AsyncExceptionHandlerRewriter.Rewrite(_method.Method);
+            }
+            AwaitExpressionSpiller.Rewrite(_method.Method);
         }
 
         private void CreateSetStateMachine()
         {
             var method = _stateMachineClass.AddMethod("SetStateMachine", TypeSystemServices.VoidType);
-            var stateMachineIntfType = TypeSystemServices.Map(typeof(IAsyncStateMachine));
+            var stateMachineIntfType = TypeSystemServices.IAsyncStateMachineType;
             var input = method.AddParameter("stateMachine", stateMachineIntfType, false);
+            method.Modifiers |= TypeMemberModifiers.Virtual | TypeMemberModifiers.Final;
             method.Method.ExplicitInfo = new ExplicitMemberInfo
             {
                 InterfaceType = (SimpleTypeReference)CodeBuilder.CreateTypeReference(stateMachineIntfType),
-                Entity = TypeSystemServices.Map(typeof(IAsyncStateMachine).GetMethod("SetStateMachine"))
+                Entity = TypeSystemServices.IAsyncStateMachineType.GetMembers().OfType<IMethod>()
+                    .Single(m => m.Name.Equals("SetStateMachine"))
             };
             method.Body.Add(
                 CodeBuilder.CreateMethodInvocation(
@@ -559,6 +562,12 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                         (IField) _asyncMethodBuilderField.Entity),
                     _asyncMethodBuilderMemberCollection.SetStateMachine,
                     CodeBuilder.CreateReference(input)));
+        }
+
+        protected override BooMethodBuilder CreateConstructor(BooClassBuilder builder)
+        {
+            BooMethodBuilder constructor = builder.AddConstructor();
+            return constructor;
         }
 
         #endregion
