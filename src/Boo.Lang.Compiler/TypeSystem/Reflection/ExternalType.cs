@@ -219,6 +219,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 				{
 					return !IsValueType;
 				}
+                if (other.ConstructedInfo != null && this.ConstructedInfo != null
+                    && ConstructedInfo.GenericDefinition == other.ConstructedInfo.GenericDefinition)
+                {
+                    for (int i = 0; i < ConstructedInfo.GenericArguments.Length; ++i)
+                    {
+                        if (!ConstructedInfo.GenericArguments[i].IsAssignableFrom(other.ConstructedInfo.GenericArguments[i]))
+                            return false;
+                    }
+                    return true;
+                }
 				return other.IsSubclassOf(this);
 			}
 			if (other == _provider.Map(Types.Void))

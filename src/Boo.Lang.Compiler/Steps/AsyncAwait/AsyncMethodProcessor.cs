@@ -182,7 +182,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             _exprReturnLabel = CodeBuilder.CreateLabel(methodBuilder.Method, "exprReturn", 0);
             _exitLabel = CodeBuilder.CreateLabel(methodBuilder.Method, "exitLabel", 0);
-            _isGenericTask = _method.ReturnType.GenericInfo != null;
+            _isGenericTask = _method.ReturnType.ConstructedInfo != null;
             _exprRetValue = _isGenericTask
                 ? CodeBuilder.DeclareTempLocal(_method.Method, _asyncMethodBuilderMemberCollection.ResultType)
                 : null;
@@ -265,18 +265,26 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         {
             if (node.Expression.NodeType == NodeType.AwaitExpression)
             {
-                ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression)node.Expression, null));
+                ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression)node.Expression, (Expression)null));
                 return;
             }
 
-            if (node.Expression.NodeType == NodeType.BinaryExpression 
-                && ((BinaryExpression)node.Expression).Operator == BinaryOperatorType.Assign)
+            if (node.Expression.NodeType == NodeType.BinaryExpression)
             {
-                var expression = (BinaryExpression)node.Expression;
-                if (expression.Right.NodeType == NodeType.AwaitExpression)
+                List<Expression> list = null;
+                var expression = (BinaryExpression) node.Expression;
+                while (expression != null && expression.Operator == BinaryOperatorType.Assign)
                 {
-                    ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression)expression.Right, expression.Left));
-                    return;
+                    list = list ?? new List<Expression>();
+                    list.Add(expression.Left);
+                    if (expression.Right.NodeType == NodeType.AwaitExpression)
+                    {
+                        ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression) expression.Right, list.ToArray()));
+                        return;
+                    }
+                    expression = expression.Right.NodeType == NodeType.BinaryExpression
+                        ? (BinaryExpression) expression.Right
+                        : null;
                 }
             }
             base.OnExpressionStatement(node);
@@ -286,6 +294,19 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         {
             // await expressions must, by now, have been moved to the top level.
             throw new ArgumentException("Should be unreachable");
+        }
+
+        private Block VisitAwaitExpression(AwaitExpression node, Expression[] resultPlace)
+        {
+            var last = Visit(resultPlace[resultPlace.Length - 1]);
+            var result = VisitAwaitExpression(node, last);
+            for (int i = resultPlace.Length - 2; i >= 0; --i)
+            {
+                var next = Visit(resultPlace[i]);
+                result.Add(CodeBuilder.CreateAssignment(next, last));
+                last = next;
+            }
+            return result;
         }
 
         private Block VisitAwaitExpression(AwaitExpression node, Expression resultPlace)
@@ -452,7 +473,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             Statement result = CodeBuilder.CreateGoto(_exprReturnLabel, _tryStatementStack.Count);
             if (node.Expression != null)
             {
-                Debug.Assert(_isGenericTask);
+                Debug.Assert(_isGenericTask || node.Expression.ExpressionType == TypeSystemServices.TaskType);
                 result = new Block(
                     new ExpressionStatement(
                         CodeBuilder.CreateAssignment(

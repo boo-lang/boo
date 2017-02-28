@@ -119,7 +119,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         private static bool TryCreate(IType builderType, IType resultType,
             out AsyncMethodBuilderMemberCollection collection)
         {
-            var members = builderType.GetMembers().ToDictionary(m => m.Name);
+            var members = builderType.GetMembers().OfType<IMember>().Where(m => m.IsPublic).ToDictionary(m => m.Name);
             collection = new AsyncMethodBuilderMemberCollection(
                 builderType,
                 resultType,

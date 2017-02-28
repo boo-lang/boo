@@ -2600,7 +2600,15 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IType returnType = _currentMethod.ReturnType;
+            // Keep async returns from erroring out
+            if (ContextAnnotations.IsAsync(_currentMethod.Method))
+            {
+                expressionType = expressionType == TypeSystemServices.VoidType
+                    ? TypeSystemServices.TaskType
+                    : TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(expressionType);
+            }
+
+            IType returnType = _currentMethod.ReturnType;
 			if (TypeSystemServices.IsUnknown(returnType))
 				_currentMethod.AddReturnExpression(node.Expression);
 			else
