@@ -29,6 +29,7 @@
 using Boo.Lang.Compiler.Ast;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Core;
 
 namespace Boo.Lang.Compiler.TypeSystem.Generics
@@ -310,6 +311,24 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				return ((IMethod) definition).GenericInfo.GenericParameters;
 			return null;
 		}
+
+	    public static int GetTypeConcreteness(IType type)
+	    {
+            if (type.IsByRef || type.IsArray)
+                return GetTypeConcreteness(type.ElementType);
+
+            if (type is IGenericParameter)
+                return 0;
+
+	        if (type.ConstructedInfo != null)
+	        {
+	            var result = 0;
+                foreach (IType typeArg in type.ConstructedInfo.GenericArguments)
+                    result += GetTypeConcreteness(typeArg);
+	            return result;
+	        }
+	        return 1;
+	    }
 
 		/// <summary>
 		/// Determines the number of open generic parameters in the specified type.

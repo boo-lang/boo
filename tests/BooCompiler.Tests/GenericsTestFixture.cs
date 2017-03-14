@@ -301,7 +301,14 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"generic-overload-6.boo");
 		}
-		
+
+        [Test]
+        public void generic_overload_7()
+        {
+            RunCompilerTestCase(@"generic-overload-7.boo");
+        }
+	        
+
 		[Test]
 		public void generic_ref_parameter()
 		{

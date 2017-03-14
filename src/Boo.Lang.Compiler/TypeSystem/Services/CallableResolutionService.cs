@@ -432,11 +432,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (t1.IsArray && t2.IsArray || t1.IsByRef && t2.IsByRef)
 				return MoreSpecific(t1.ElementType, t2.ElementType);
 
-			// The less-generic type is more specific.
+            // A more concrete type is more specfic
+            int result = GenericsServices.GetTypeConcreteness(t1) - GenericsServices.GetTypeConcreteness(t2);
+            if (result != 0) return result;
+
+			// With equal concreteness, the more generic type is more specific.
 			//First search for open args, then for all args
-			int result = GenericsServices.GetTypeGenerity(t2) - GenericsServices.GetTypeGenerity(t1);
+			result = GenericsServices.GetTypeGenerity(t1) - GenericsServices.GetTypeGenerity(t2);
 			if (result != 0) return result;
-			result = GenericsServices.GetTypeGenericDepth(t2) - GenericsServices.GetTypeGenericDepth(t1);
+			result = GenericsServices.GetTypeGenericDepth(t1) - GenericsServices.GetTypeGenericDepth(t2);
 			if (result != 0) return result;
 
 			// If both types have the same genrity, the deeper-nested type is more specific
