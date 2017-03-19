@@ -574,7 +574,7 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        var baseType = value.GetGenericTypeDefinition();
 	        var baseTypeRef = GetTypeReference(baseType);
-	        var args = value.GetGenericArguments().Select(GetTypeReference);
+	        var args = value.GetGenericArguments().Select(GetTypeReference).ToArray();
             return GenericTypeInstance.GetGenericTypeInstance((INamedTypeDefinition)baseTypeRef, args, _host.InternFactory);
 	    }
 
@@ -4545,7 +4545,7 @@ namespace Boo.Lang.Compiler.Steps
             var externalType = type as ExternalType;
             if (externalType != null)
                 return Type.GetTypeCode(externalType.ActualType);
-            throw new NotImplementedException(string.Format("TypeCodeFor({0}) not implemented!", type));
+            return TypeCode.Object;
         }
 
         private void StoreEntity(OperationCode opcode, int index, Expression value, IType elementType)

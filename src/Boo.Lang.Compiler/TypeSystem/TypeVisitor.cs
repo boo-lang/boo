@@ -42,7 +42,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			if (type.IsByRef) VisitByRefType(type);
 
-			if (type.ConstructedInfo != null) VisitConstructedType(type);
+			if (type.ConstructedInfo != null) 
+                VisitConstructedType(type);
+            else if (type.GenericInfo != null)
+			{
+			    foreach (var gp in type.GenericInfo.GenericParameters)
+                    Visit(gp);
+			}
 
 			ICallableType callableType = type as ICallableType;
 			if (callableType != null) VisitCallableType(callableType);

@@ -363,7 +363,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new SelfLiteralExpression { ExpressionType = expressionType };
 		}
 
-		public ReferenceExpression CreateLocalReference(string name, InternalLocal entity)
+        public SelfLiteralExpression CreateSelfReference(IMethod method, IType expressionType)
+        {
+            return new SelfLiteralExpression { ExpressionType = expressionType, Entity = method };
+        }
+
+        public ReferenceExpression CreateLocalReference(string name, InternalLocal entity)
 		{
 			return CreateTypedReference(name, entity);
 		}
@@ -463,6 +468,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
 			reference.Target = target;
 			reference.Name = entity.Name;
+            var genType = target.ExpressionType as IConstructedTypeInfo;
+            if (genType != null && entity is IMember && !(entity is IGenericMappedMember))
+            {
+                entity = genType.Map((IMember)entity);
+            }
 			reference.Entity = entity;
 			return reference;
 		}
@@ -727,14 +737,13 @@ namespace Boo.Lang.Compiler.TypeSystem
                 return CreateConstructorInvocation(constructor);
             }
 
-            classType = new Generics.GenericConstructedType(
+            classType = new GenericConstructedType(
                 classType,
                 genericArgs.Select(a => a.Entity).Cast<IType>().ToArray());
             constructor = classType.GetConstructors().First();
 
-            var result = new MethodInvocationExpression();
-            result.Target = CreateGenericReference(CreateReference(constructor.DeclaringType), genericArgs);
-            result.Target.Entity = constructor;
+	        var result = new MethodInvocationExpression {Target = CreateReference(constructor.DeclaringType)};
+	        result.Target.Entity = constructor;
             result.ExpressionType = constructor.DeclaringType;
 
 	        return result;
@@ -838,7 +847,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 
-		public Property CreateProperty(string name, IType type)
+        public Method CreateGenericMethod(string name, TypeReference returnType, TypeMemberModifiers modifiers, GenericParameterDeclaration[] genParams)
+        {
+            Method method = new Method(name);
+            method.Modifiers = modifiers;
+            method.ReturnType = returnType;
+            method.IsSynthetic = true;
+            method.GenericParameters.AddRange(genParams);
+            EnsureEntityFor(method);
+            return method;
+        }
+
+        public Property CreateProperty(string name, IType type)
 		{
 			Property property = new Property(name);
 			property.Modifiers = TypeMemberModifiers.Public;

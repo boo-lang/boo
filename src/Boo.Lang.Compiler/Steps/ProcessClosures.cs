@@ -27,17 +27,18 @@
 #endregion
 
 using System.Linq;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Steps.Generators;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class ProcessClosures : AbstractTransformerCompilerStep
 	{
-		override public void Run()
+        public override void Run()
 		{
 			Visit(CompileUnit);
 		}
@@ -48,7 +49,9 @@ namespace Boo.Lang.Compiler.Steps
 	        ReplaceCurrentNode(result);
 	    }
 
-	    override public void LeaveBlockExpression(BlockExpression node)
+        private GeneratorTypeReplacer _mapper;
+
+        public override void LeaveBlockExpression(BlockExpression node)
 		{
 			var closureEntity = GetEntity(node) as InternalMethod;
 			if (closureEntity == null)
@@ -57,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 			var collector = new ForeignReferenceCollector();
 			{
 				collector.CurrentMethod = closureEntity.Method;
-				collector.CurrentType = (IType)closureEntity.DeclaringType;
+				collector.CurrentType = closureEntity.DeclaringType;
 				closureEntity.Method.Body.Accept(collector);
 				
 				if (collector.ContainsForeignLocalReferences)
@@ -65,11 +68,17 @@ namespace Boo.Lang.Compiler.Steps
 					BooClassBuilder closureClass = CreateClosureClass(collector, closureEntity);
 					closureClass.ClassDefinition.LexicalInfo = node.LexicalInfo;
 					collector.AdjustReferences();
-					
-					ReplaceCurrentNode(
+
+                    if (_mapper != null)
+                    {
+                        closureClass.ClassDefinition.Accept(new GenericTypeMapper(_mapper));
+                    }
+
+                    ReplaceCurrentNode(
 						CodeBuilder.CreateMemberReference(
 							collector.CreateConstructorInvocationWithReferencedEntities(
-								closureClass.Entity),
+								closureClass.Entity,
+                                node.GetAncestor<Method>()),
 							closureEntity));
 				}
 				else
@@ -105,7 +114,25 @@ namespace Boo.Lang.Compiler.Steps
 			method.Modifiers = TypeMemberModifiers.Public;
 			var coll = new GenericTypeCollector(CodeBuilder);
 			coll.Process(builder.ClassDefinition);
+            if (builder.ClassDefinition.GenericParameters.Count > 0)
+                MapGenerics(builder.ClassDefinition);
 			return builder;
 		}
+
+	    private void MapGenerics(ClassDefinition cd)
+	    {
+	        var finder = new GenericTypeFinder();
+	        foreach (var member in cd.Members)
+                member.Accept(finder);
+
+            _mapper = new GeneratorTypeReplacer();
+            var genParams = cd.GenericParameters;
+	        foreach (var genType in finder.Results)
+	        {
+	            var replacement = genParams.First(p => p.Name == genType.Name);
+                if (genType != replacement.Entity)
+                    _mapper.Replace(genType, (IType)replacement.Entity);
+	        }
+	    }
 	}
 }

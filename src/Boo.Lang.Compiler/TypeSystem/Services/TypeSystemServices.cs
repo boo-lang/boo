@@ -1140,5 +1140,40 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ObjectArrayType;
 			return type;
 		}
+
+	    private bool SameOrEquivalentGenericTypes(IType t1, IType t2, ref bool genericType)
+	    {
+	        if (t1 == t2) return true;
+            var g1 = t1 as IGenericParameter;
+            var g2 = t2 as IGenericParameter;
+            if (g1 == null || g2 == null)
+                return false;
+            genericType = true;
+            var constraints = g2.GetTypeConstraints();
+            if (constraints.Length > 0 && !constraints.Any(c => TypeCompatibilityRules.IsAssignableFrom(g1, c)))
+                return false;
+            return (g1.Variance == g2.Variance && g1.MustHaveDefaultConstructor == g2.MustHaveDefaultConstructor);
+	    }
+
+	    public bool CompatibleGenericSignatures(CallableSignature sig1, CallableSignature sig2)
+	    {
+	        if (sig1.Parameters.Length != sig2.Parameters.Length)
+	            return false;
+	        if (sig1.AcceptVarArgs != sig2.AcceptVarArgs)
+	            return false;
+            var seenGeneric = false;
+            for (var i = 0; i < sig1.Parameters.Length; ++i)
+	        {
+	            var p1 = sig1.Parameters[i];
+	            var p2 = sig2.Parameters[i];
+	            if (p1.IsByRef != p2.IsByRef)
+	                return false;
+                if (!SameOrEquivalentGenericTypes(p1.Type, p2.Type, ref seenGeneric))
+                    return false;
+	        }
+            if (!SameOrEquivalentGenericTypes(sig1.ReturnType, sig2.ReturnType, ref seenGeneric))
+                return false;
+	        return seenGeneric;
+	    }
 	}
 }

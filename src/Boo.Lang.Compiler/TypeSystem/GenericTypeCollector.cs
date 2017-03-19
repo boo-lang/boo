@@ -83,8 +83,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			var parameters = GenericParameters.ToArray();
 			for (var i = 0; i < parameters.Length; ++i)
 			{
-				var param = parameters[i];
-				var gen = _codeBuilder.CreateGenericParameterDeclaration(i, param.Name);
+			    var param = parameters[i];
+                var gen = cd.GenericParameters.FirstOrDefault(gp => gp.Name.Equals(param.Name));
+			    var found = gen != null;
+				if (!found)
+                    gen = _codeBuilder.CreateGenericParameterDeclaration(i, param.Name);
 				foreach (IType baseType in param.GetTypeConstraints())
 				{
 					gen.BaseTypes.Add(_codeBuilder.CreateTypeReference(baseType));
@@ -99,14 +102,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 						gen.Constraints |= GenericParameterConstraints.Covariant;
 				else if (param.Variance == Variance.Contravariant)
 						gen.Constraints |= GenericParameterConstraints.Contravariant;
-				cd.GenericParameters.Add(gen);
+                if (!found)
+				    cd.GenericParameters.Add(gen);
 			}
 		}
 		
 		private IEnumerable<IGenericParameter> GenericParameters
 		{
-			get { return _matches.Cast<IGenericParameter>().Distinct(new DistinctGenericComparer()).
-						OrderBy(p => p.GenericParameterPosition); }
+			get { return _matches.Distinct(new DistinctGenericComparer()).OrderBy(p => p.GenericParameterPosition); }
 		}
 
 	}

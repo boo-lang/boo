@@ -290,14 +290,37 @@ namespace Boo.Lang.Compiler.Steps
 			if (expectedCallable != null)
 			{
 				var argumentType = (ICallableType) GetExpressionType(argument);
-				if (argumentType.GetSignature() != expectedCallable.GetSignature())
-					return Adapt(expectedCallable, CreateDelegate(GetConcreteExpressionType(argument), argument));
+                var expectedSig = expectedCallable.GetSignature();
+                var argSig = argumentType.GetSignature();
+                if (argSig != expectedSig)
+                {
+                    if (TypeSystemServices.CompatibleGenericSignatures(argSig, expectedSig) && IsUnspecializedGenericMethodReference(argument))
+                    {
+                        argument.ExpressionType = expectedType;
+                        return CreateDelegate(expectedType, argument);
+                    }
+                    return Adapt(expectedCallable, CreateDelegate(GetConcreteExpressionType(argument), argument));
+                }
 				return CreateDelegate(expectedType, argument);
 			}
 			return CreateDelegate(GetConcreteExpressionType(argument), argument);
 		}
 
-		Expression Adapt(ICallableType expected, Expression callable)
+	    private static bool IsUnspecializedGenericMethodReference(Expression argument)
+	    {
+	        if (argument.NodeType != NodeType.MemberReferenceExpression)
+	            return false;
+	        var target = ((MemberReferenceExpression) argument).Target;
+            if (target.NodeType != NodeType.MethodInvocationExpression)
+                return false;
+            target = ((MethodInvocationExpression)target).Target;
+	        if (target.Entity.EntityType != EntityType.Constructor)
+	            return false;
+	        var cls = ((IConstructor) target.Entity).DeclaringType;
+	        return cls.GenericInfo != null && (cls.ConstructedInfo == null || !cls.ConstructedInfo.FullyConstructed);
+	    }
+
+	    Expression Adapt(ICallableType expected, Expression callable)
 		{
 			ICallableType actual = GetExpressionType(callable) as ICallableType;
 			if (null == actual)

@@ -49,7 +49,6 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new CheckIdentifiers());
 			Add(new CheckSlicingExpressions());
 			Add(new StricterErrorChecking());
-			Add(new DetectNotImplementedFeatureUsage());
 			Add(new CheckAttributesUsage());
 
 			Add(new ExpandDuckTypedExpressions());
@@ -66,6 +65,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ProcessSharedLocals());
 			Add(new ProcessClosures());
 			Add(new ProcessGeneratorsAndAsyncMethods());
+            Add(new DetectNotImplementedFeatureUsage());
 
 			Add(new ExpandVarArgsMethodInvocations());
 			

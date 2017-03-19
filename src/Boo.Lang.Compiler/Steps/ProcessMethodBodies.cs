@@ -1836,6 +1836,11 @@ namespace Boo.Lang.Compiler.Steps
 			var declaration = node.Declaration;
 			if (declaration.Type != null) return;
 			declaration.Type = CodeBuilder.CreateTypeReference(declaration.LexicalInfo, InferDeclarationType(node));
+            var typeEntity = (IType)declaration.Type.Entity;
+            if (typeEntity.GenericInfo != null && typeEntity.ConstructedInfo == null)
+            {
+                declaration.Type.Entity = GeneratorTypeReplacer.MapTypeInMethodContext(typeEntity, node.GetAncestor<Method>());
+            }
 		}
 
 		private IType InferDeclarationType(DeclarationStatement node)
