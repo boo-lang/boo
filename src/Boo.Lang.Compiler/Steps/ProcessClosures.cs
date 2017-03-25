@@ -129,8 +129,8 @@ namespace Boo.Lang.Compiler.Steps
             var genParams = cd.GenericParameters;
 	        foreach (var genType in finder.Results)
 	        {
-	            var replacement = genParams.First(p => p.Name == genType.Name);
-                if (genType != replacement.Entity)
+	            var replacement = genParams.FirstOrDefault(p => p.Name.Equals(genType.Name));
+                if (replacement != null && genType != replacement.Entity)
                     _mapper.Replace(genType, (IType)replacement.Entity);
 	        }
 	    }

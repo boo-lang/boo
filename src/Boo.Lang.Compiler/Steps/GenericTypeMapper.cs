@@ -34,6 +34,38 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
+        public override void OnMemberReferenceExpression(MemberReferenceExpression node)
+        {
+            base.OnMemberReferenceExpression(node);
+            var member = node.Entity as IMember;
+            if (member != null)
+            {
+                var type = member.Type;
+                var mappedType = _replacer.MapType(type);
+                if (mappedType != type)
+                {
+                    _replacer.Replace(type, mappedType);
+                    node.ExpressionType = mappedType;
+                    ReplaceMappedEntity(node, mappedType);
+                }
+            }
+        }
+
+        private void ReplaceMappedEntity(MemberReferenceExpression node, IType mappedType)
+        {
+            var entity = (IMember)node.Entity;
+            var targetType = node.Target.ExpressionType;
+            node.Entity = NameResolutionService.ResolveMethod(targetType, entity.Name);
+            if (((ITypedEntity)node.Entity).Type != mappedType)
+                throw new System.NotImplementedException("Incorrect mapped type for " + node.ToCodeString());
+        }
+
+        public override void OnMethodInvocationExpression(MethodInvocationExpression node)
+        {
+            base.OnMethodInvocationExpression(node);
+            node.ExpressionType = _replacer.MapType(node.ExpressionType);
+        }
+
         public override void OnField(Field node)
         {
             base.OnField(node);

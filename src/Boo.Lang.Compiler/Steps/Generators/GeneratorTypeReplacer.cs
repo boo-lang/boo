@@ -54,6 +54,16 @@ namespace Boo.Lang.Compiler.Steps.Generators
             return MapTypeInMethodContext(type, method, out mapper);
         }
 
+        public bool ContainsType(IType type)
+        {
+            return TypeMap.ContainsKey(type);
+        }
+
+        public bool Any
+        {
+            get { return TypeMap.Count > 0; }
+        }
+
         public static IType MapTypeInMethodContext(IType type, Ast.Method method, out GeneratorTypeReplacer mapper)
         {
 	        if (type.GenericInfo != null && type.ConstructedInfo == null)

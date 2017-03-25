@@ -193,16 +193,13 @@ namespace Boo.Lang.Compiler.Steps
                 builder.AddBaseType(TypeSystemServices.ObjectType);
 
                 var genericsSet = new HashSet<string>();
+                var replacer = new GeneratorTypeReplacer();
                 foreach (ILocalEntity local in _shared)
                 {
+                    CheckTypeForGenericParams(local.Type, genericsSet, builder, replacer);
                     Field field = builder.AddInternalField(
                                     string.Format("${0}", local.Name),
-                                    local.Type);
-                    if (local.Type is IGenericParameter && !genericsSet.Contains(local.Type.Name))
-                    {
-                        builder.AddGenericParameter(local.Type.Name);
-                        genericsSet.Add(local.Type.Name);
-                    }
+                                    replacer.MapType(local.Type));
 
                     _mappings[local] = (IField)field.Entity;
                 }
@@ -211,6 +208,36 @@ namespace Boo.Lang.Compiler.Steps
                     CodeBuilder.CreateSuperConstructorInvocation(TypeSystemServices.ObjectType));
 
                 _sharedLocalsClass = builder.ClassDefinition;
+            }
+        }
+
+        private static void CheckTypeForGenericParams(
+            IType type, 
+            HashSet<string> genericsSet,
+            BooClassBuilder builder,
+            GeneratorTypeReplacer mapper)
+        {
+            if (type is IGenericParameter)
+            {
+                if (!genericsSet.Contains(type.Name))
+                {
+                    builder.AddGenericParameter(type.Name);
+                    genericsSet.Add(type.Name);
+                }
+                if (!mapper.ContainsType(type))
+                {
+                    mapper.Replace(
+                        type,
+                        (IType)builder.ClassDefinition.GenericParameters
+                            .First(gp => gp.Name.Equals(type.Name)).Entity);
+                }
+            }
+            else
+            {
+                var genType = type as IConstructedTypeInfo;
+                if (genType != null)
+                    foreach (var arg in genType.GenericArguments)
+                        CheckTypeForGenericParams(arg, genericsSet, builder, mapper);
             }
         }
 

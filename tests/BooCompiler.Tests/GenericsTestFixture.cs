@@ -189,6 +189,12 @@ namespace BooCompiler.Tests
         }
 
         [Test]
+        public void generic_closures_3()
+        {
+            RunCompilerTestCase(@"generic-closures-3.boo");
+        }
+
+        [Test]
 		public void generic_extension_1()
 		{
 			RunCompilerTestCase(@"generic-extension-1.boo");
