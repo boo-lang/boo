@@ -1147,7 +1147,20 @@ namespace Boo.Lang.Compiler.TypeSystem
             var g1 = t1 as IGenericParameter;
             var g2 = t2 as IGenericParameter;
             if (g1 == null || g2 == null)
-                return false;
+            {
+                var c1 = t1 as IConstructedTypeInfo;
+                var c2 = t2 as IConstructedTypeInfo;
+                if (c1 == null || c2 == null)
+                    return false;
+                if (c1.GenericDefinition != c2.GenericDefinition)
+                    return false;
+                for (var i = 0; i < c1.GenericArguments.Length; ++i)
+                {
+                    if (!SameOrEquivalentGenericTypes(c1.GenericArguments[i], c2.GenericArguments[i], ref genericType))
+                        return false;
+                }
+                return true;
+            }
             genericType = true;
             var constraints = g2.GetTypeConstraints();
             if (constraints.Length > 0 && !constraints.Any(c => TypeCompatibilityRules.IsAssignableFrom(g1, c)))
