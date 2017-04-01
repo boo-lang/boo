@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Generics;
 
 namespace Boo.Lang.Compiler.Steps.AsyncAwait
 {
@@ -98,7 +97,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             Task = task;
         }
 
-        public static bool TryCreate(TypeSystemServices tss, Method method, TypeMapper typeMap,
+        public static bool TryCreate(TypeSystemServices tss, Method method, IType genericArg,
             out AsyncMethodBuilderMemberCollection collection)
         {
             if (ContextAnnotations.IsAsync(method))
@@ -110,7 +109,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     return TryCreateTask(tss, out collection);
                 if (returnType.ConstructedInfo != null &&
                     returnType.ConstructedInfo.GenericDefinition == tss.GenericTaskType)
-                    return TryCreateGenericTask(tss, method, typeMap, out collection);
+                    return TryCreateGenericTask(tss, genericArg, out collection);
             }
 
             throw CompilerErrorFactory.InvalidAsyncType(method.ReturnType);
@@ -135,19 +134,13 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             return true;
         }
 
-        private static bool TryCreateGenericTask(TypeSystemServices tss, Method method,
-            TypeMapper typeMap, out AsyncMethodBuilderMemberCollection collection)
+        private static bool TryCreateGenericTask(TypeSystemServices tss,
+            IType genericArg, out AsyncMethodBuilderMemberCollection collection)
         {
-            var returnType = (IType) method.ReturnType.Entity;
-            var genericType = returnType.ConstructedInfo;
-            var resultType = genericType.GenericArguments.Single();
-            if (typeMap != null)
-                resultType = typeMap.MapType(resultType);
-
-            var builderType = tss.AsyncGenericTaskMethodBuilderType.GenericInfo.ConstructType(resultType);
+            var builderType = tss.AsyncGenericTaskMethodBuilderType.GenericInfo.ConstructType(genericArg);
             return TryCreate(
                 builderType,
-                resultType,
+                genericArg,
                 out collection);
         }
 

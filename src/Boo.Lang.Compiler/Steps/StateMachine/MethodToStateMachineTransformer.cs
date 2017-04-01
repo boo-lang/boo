@@ -154,9 +154,9 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 
 		    SetupStateMachine();
             CreateStateMachineConstructor();
+
+            SaveStateMachineClass(_stateMachineClass.ClassDefinition);
             CreateMoveNext();
-			
-			SaveStateMachineClass(_stateMachineClass.ClassDefinition);
 		}
 
         protected abstract void SaveStateMachineClass(ClassDefinition cd);
@@ -331,15 +331,19 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 	            throw new CompilerError(node, "Mapping generic nested types in generators is not implemented yet");
 
 	        var genericArgs = ((IGenericArgumentsProvider)gmm.DeclaringType).GenericArguments;
-	        var mapList = new List<IType>();
+            var collector = new TypeCollector(type => type is IGenericParameter);
 	        foreach (var arg in genericArgs)
-	        {
-	            var mappedArg = genParams.SingleOrDefault(gp => gp.Name == arg.Name);
+                collector.Visit(arg);
+            var mapper = new GeneratorTypeReplacer();
+            foreach (var genParam in collector.Matches)
+            {
+                var mappedArg = genParams.SingleOrDefault(gp => gp.Name == genParam.Name);
 	            if (mappedArg != null)
-	                mapList.Add((IType)mappedArg.Entity);
-	            else mapList.Add(arg);
+	                mapper.Replace(genParam, (IType)mappedArg.Entity);
 	        }
-	        var newType = (IConstructedTypeInfo)new GenericConstructedType(baseType, mapList.ToArray());
+	        var newType = (IConstructedTypeInfo)new GenericConstructedType(
+                baseType, 
+                genericArgs.Select(mapper.MapType).ToArray());
 	        return (IMethod)newType.Map(sourceMethod);
 	    }
 
@@ -353,6 +357,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
                 if (genParams.IsEmpty)
                     return;
                 node.Entity = RemapMethod(node, gmm, genParams);
+                node.ExpressionType = ((IMethod)node.Entity).CallableType;
             }
         }
 
@@ -367,6 +372,8 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 		{
 			var superInvocation = IsInvocationOnSuperMethod(node);
 			base.OnMethodInvocationExpression(node);
+			if (node.Target.ExpressionType != null)
+				node.ExpressionType = ((ICallableType)node.Target.ExpressionType).GetSignature().ReturnType;
 			if (!superInvocation)
 				return;
 

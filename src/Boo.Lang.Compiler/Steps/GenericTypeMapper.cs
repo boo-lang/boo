@@ -55,14 +55,20 @@ namespace Boo.Lang.Compiler.Steps
         {
             var entity = (IMember)node.Entity;
             var targetType = node.Target.ExpressionType;
-            node.Entity = NameResolutionService.ResolveMethod(targetType, entity.Name);
-            if (((ITypedEntity)node.Entity).Type != mappedType)
+            node.Entity = NameResolutionService.ResolveMember(targetType, entity.Name, entity.EntityType);
+            if (!((IMember)node.Entity).Type.Equals(mappedType))
                 throw new System.NotImplementedException("Incorrect mapped type for " + node.ToCodeString());
         }
 
         public override void OnMethodInvocationExpression(MethodInvocationExpression node)
         {
             base.OnMethodInvocationExpression(node);
+            node.ExpressionType = _replacer.MapType(node.ExpressionType);
+        }
+
+        public override void OnAwaitExpression(AwaitExpression node)
+        {
+            base.OnAwaitExpression(node);
             node.ExpressionType = _replacer.MapType(node.ExpressionType);
         }
 

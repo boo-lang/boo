@@ -2618,9 +2618,12 @@ namespace Boo.Lang.Compiler.Steps
 
         private OperationCode GetCallOpCode(Expression target, IMethod method)
         {
-            if (method.IsStatic) return OperationCode.Call;
+            if (method.IsStatic) 
+                return OperationCode.Call;
             if (NodeType.SuperLiteralExpression == target.NodeType) return OperationCode.Call;
-            if (IsValueTypeMethodCall(target, method)) return OperationCode.Call;
+            if (IsValueTypeMethodCall(target, method)) 
+                return OperationCode.Call;
+            if (method.IsPrivate || (method.IsProtected && !method.IsVirtual && !method.IsAbstract)) return OperationCode.Call;
             return OperationCode.Callvirt;
         }
 
@@ -4940,10 +4943,17 @@ namespace Boo.Lang.Compiler.Steps
         /// <summary>
         /// Retrieves the MethodDefinition for a method as mapped on a generic type.
         /// </summary>
-        private MethodDefinition GetMappedMethodInfo(IType targetType, IMethod source)
+        private IMethodDefinition GetMappedMethodInfo(IType targetType, IMethod source)
         {
             var mi = GetMethodInfo(source);
             var genType = GetSystemType(targetType);
+            var gmi = mi as IGenericMethodInstanceReference;
+            if (gmi != null)
+            {
+                var resolved = MemberHelper.ResolveMethod(gmi.GenericMethod, _host, type: genType.ResolvedType);
+                Debug.Assert(!(resolved is Dummy));
+                return new GenericMethodInstance(resolved, gmi.GenericArguments, _host.InternFactory);
+            }
             var result = new Microsoft.Cci.MutableCodeModel.SpecializedMethodDefinition();
             result.Copy(mi, _host.InternFactory);
             result.ContainingTypeDefinition = genType.ResolvedType;
@@ -5037,8 +5047,23 @@ namespace Boo.Lang.Compiler.Steps
                 return type;
             }
 
+            if (entity is IGenericMappedType)
+                return GetMappedSystemType((IGenericMappedType)entity);
+
             return null;
         }
+
+	    private ITypeReference GetMappedSystemType(IGenericMappedType entity)
+	    {
+            var containingType = (GenericTypeInstance)SystemTypeFrom((IType)entity.DeclaringEntity).ResolvedType;
+            var sourceType = (INestedTypeDefinition)SystemTypeFrom(entity.SourceType);
+            return new Microsoft.Cci.Immutable.SpecializedNestedTypeDefinition(
+                sourceType,
+                sourceType,
+                containingType,
+                containingType,
+                _host.InternFactory);
+	    }
 
 	    private ITypeReference SpecializeType(ITypeReference sysType, ITypeReference[] arguments)
 	    {

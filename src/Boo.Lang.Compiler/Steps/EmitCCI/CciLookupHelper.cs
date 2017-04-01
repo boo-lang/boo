@@ -22,7 +22,7 @@ namespace Boo.Lang.Compiler.Steps.EmitCCI
             foreach (var param in parameters)
             {
                 var arg = argTypes[i];
-                if (!TypeHelper.TypesAreEquivalent(param.Type, arg, true))
+                if (!TypeHelper.TypesAreEquivalentAssumingGenericMethodParametersAreEquivalentIfTheirIndicesMatch(param.Type, arg, true))
                     return false;
                 ++i;
             }

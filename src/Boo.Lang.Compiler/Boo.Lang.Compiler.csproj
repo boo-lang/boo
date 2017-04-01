@@ -504,6 +504,8 @@
     <Compile Include="Steps\Generators\GeneratorSkeletonBuilder.cs" />
     <Compile Include="Steps\Generators\GeneratorTypeReplacer.cs" />
     <Compile Include="Steps\GenericConstraintsValidator.cs" />
+    <Compile Include="Steps\GenericTypeFinder.cs" />
+    <Compile Include="Steps\GenericTypeMapper.cs" />
     <Compile Include="Steps\GotoOnTopLevelContinue.cs" />
     <Compile Include="Steps\ImplementICallableOnCallableDefinitions.cs" />
     <Compile Include="Steps\Inheritance\BaseTypeResolution.cs" />
@@ -590,6 +592,7 @@
     <Compile Include="TypeSystem\Generics\GenericConstructedType.cs" />
     <Compile Include="TypeSystem\Generics\GenericConstructionChecker.cs" />
     <Compile Include="TypeSystem\Generics\GenericMappedMembers.cs" />
+    <Compile Include="TypeSystem\Generics\GenericMappedType.cs" />
     <Compile Include="TypeSystem\Generics\GenericMappedTypeParameter.cs" />
     <Compile Include="TypeSystem\Generics\GenericMapping.cs" />
     <Compile Include="TypeSystem\Generics\GenericParameterInferrer.cs" />

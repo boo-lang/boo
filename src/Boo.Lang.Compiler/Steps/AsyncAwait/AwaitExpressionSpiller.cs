@@ -151,7 +151,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 // we force the await expression to be assigned to a temp variable
                 var awaitExpression = (AwaitExpression)expression;
                 awaitExpression.BaseExpression = VisitExpression(ref builder, awaitExpression.BaseExpression);
-                awaitExpression.ExpressionType = awaitExpression.BaseExpression.ExpressionType;
 
                 var local = _F.DeclareTempLocal(_currentMethod, awaitExpression.ExpressionType);
                 var replacement = _F.CreateAssignment(
@@ -165,7 +164,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
                 builder.AddLocal(local);
                 builder.AddStatement(new ExpressionStatement(replacement));
-                return replacement;
+                return _F.CreateLocalReference(local);
             }
 
             var e = Visit(expression);

@@ -6,6 +6,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.StateMachine;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
 
@@ -84,19 +85,21 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             if (!AsyncMethodBuilderMemberCollection.TryCreate(
                     TypeSystemServices,
                     method,
-                    _methodToStateMachineMapper,
+                    MethodGenArg(false),
                     out methodScopeAsyncMethodBuilderMemberCollection))
             {
-                throw new NotImplementedException("CUstom async patterns are not supported");
+                throw new NotImplementedException("Custom async patterns are not supported");
             }
 
             var bodyBuilder = new Block();
             var builderVariable = CodeBuilder.DeclareTempLocal(method, methodScopeAsyncMethodBuilderMemberCollection.BuilderType);
 
+            var stateMachineType = stateMachineConstructorInvocation.ExpressionType;
+
             var stateMachineVariable = CodeBuilder.DeclareLocal(
                 method,
                 UniqueName("async"),
-                _stateMachineClass.Entity);
+                stateMachineType);
 
             bodyBuilder.Add(CodeBuilder.CreateAssignment(
                 CodeBuilder.CreateLocalReference(stateMachineVariable),
@@ -129,7 +132,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             bodyBuilder.Add(
                 CodeBuilder.CreateMethodInvocation(
                     CodeBuilder.CreateLocalReference(builderVariable),
-                    methodScopeAsyncMethodBuilderMemberCollection.Start.GenericInfo.ConstructMethod(_stateMachineClass.Entity),
+                    methodScopeAsyncMethodBuilderMemberCollection.Start.GenericInfo.ConstructMethod(stateMachineType),
                     CodeBuilder.CreateLocalReference(stateMachineVariable)));
 
             bodyBuilder.Add(method.ReturnType.Entity == TypeSystemServices.VoidType
@@ -139,7 +142,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                         CodeBuilder.CreateMemberReference(
                             CodeBuilder.CreateLocalReference(stateMachineVariable),
                             (IField)_asyncMethodBuilderField.Entity),
-                        methodScopeAsyncMethodBuilderMemberCollection.Task.GetGetMethod())));
+                        _asyncMethodBuilderMemberCollection.Task.GetGetMethod())));
 
             _method.Method.Body = bodyBuilder;
         }
@@ -184,7 +187,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             _exitLabel = CodeBuilder.CreateLabel(methodBuilder.Method, "exitLabel", 0);
             _isGenericTask = _method.ReturnType.ConstructedInfo != null;
             _exprRetValue = _isGenericTask
-                ? CodeBuilder.DeclareTempLocal(_method.Method, _asyncMethodBuilderMemberCollection.ResultType)
+                ? CodeBuilder.DeclareTempLocal(_moveNext.Method, _methodToStateMachineMapper.MapType(_asyncMethodBuilderMemberCollection.ResultType))
                 : null;
 
             _cachedState = CodeBuilder.DeclareLocal(methodBuilder.Method, UniqueName("state"),
@@ -265,26 +268,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         {
             if (node.Expression.NodeType == NodeType.AwaitExpression)
             {
-                ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression)node.Expression, (Expression)null));
+                ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression)node.Expression, null));
                 return;
             }
 
-            if (node.Expression.NodeType == NodeType.BinaryExpression)
+            if (node.Expression.NodeType == NodeType.BinaryExpression
+                && ((BinaryExpression)node.Expression).Operator == BinaryOperatorType.Assign)
             {
-                List<Expression> list = null;
-                var expression = (BinaryExpression) node.Expression;
-                while (expression != null && expression.Operator == BinaryOperatorType.Assign)
+                var expression = (BinaryExpression)node.Expression;
+                if (expression.Right.NodeType == NodeType.AwaitExpression)
                 {
-                    list = list ?? new List<Expression>();
-                    list.Add(expression.Left);
-                    if (expression.Right.NodeType == NodeType.AwaitExpression)
-                    {
-                        ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression) expression.Right, list.ToArray()));
-                        return;
-                    }
-                    expression = expression.Right.NodeType == NodeType.BinaryExpression
-                        ? (BinaryExpression) expression.Right
-                        : null;
+                    ReplaceCurrentNode(VisitAwaitExpression((AwaitExpression)expression.Right, expression.Left));
+                    return;
                 }
             }
             base.OnExpressionStatement(node);
@@ -296,27 +291,16 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             throw new ArgumentException("Should be unreachable");
         }
 
-        private Block VisitAwaitExpression(AwaitExpression node, Expression[] resultPlace)
-        {
-            var last = Visit(resultPlace[resultPlace.Length - 1]);
-            var result = VisitAwaitExpression(node, last);
-            for (int i = resultPlace.Length - 2; i >= 0; --i)
-            {
-                var next = Visit(resultPlace[i]);
-                result.Add(CodeBuilder.CreateAssignment(next, last));
-                last = next;
-            }
-            return result;
-        }
-
         private Block VisitAwaitExpression(AwaitExpression node, Expression resultPlace)
         {
             var expression = Visit(node.BaseExpression);
             resultPlace = Visit(resultPlace);
-            var getAwaiter = node.ExpressionType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetAwaiter"));
+            var getAwaiter = expression.ExpressionType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetAwaiter"));
             var getResult = getAwaiter.ReturnType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetResult"));
             var isCompletedMethod = getAwaiter.ReturnType.GetMembers().OfType<IProperty>().Single(p => p.Name.Equals("IsCompleted")).GetGetMethod();
-            var type = node.ExpressionType;
+            var type = expression.ExpressionType.ConstructedInfo == null 
+                ? TypeSystemServices.VoidType 
+                : expression.ExpressionType.ConstructedInfo.GenericArguments[0];
 
             // The awaiter temp facilitates EnC method remapping and thus have to be long-lived.
             // It transfers the awaiter objects from the old version of the MoveNext method to the new one.
@@ -434,6 +418,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             // this.builder.AwaitOnCompleted<TAwaiter,TSM>(ref $awaiterTemp, ref this)
             //    or
             // this.builder.AwaitOnCompleted<TAwaiter,TSM>(ref $awaiterArrayTemp[0], ref this)
+            var localEntity = MapNestedType(_stateMachineClass.Entity);
 
             InternalLocal selfTemp = _stateMachineClass.Entity.IsValueType ? null : CodeBuilder.DeclareTempLocal(_moveNext.Method, _stateMachineClass.Entity);
 
@@ -442,18 +427,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             var onCompleted = (useUnsafeOnCompleted ?
                     _asyncMethodBuilderMemberCollection.AwaitUnsafeOnCompleted :
                     _asyncMethodBuilderMemberCollection.AwaitOnCompleted)
-                .GenericInfo.ConstructMethod(loweredAwaiterType, _stateMachineClass.Entity);
+                .GenericInfo.ConstructMethod(loweredAwaiterType, localEntity);
 
             var result =
                 CodeBuilder.CreateMethodInvocation(
                     CodeBuilder.CreateMemberReference(
-                        CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
+                        CodeBuilder.CreateSelfReference(localEntity),
                         (IField)_asyncMethodBuilderField.Entity),
                     onCompleted,
                     CodeBuilder.CreateLocalReference(awaiterTemp),
                     selfTemp != null ? 
-                        CodeBuilder.CreateLocalReference(selfTemp) : 
-                        (Expression) CodeBuilder.CreateSelfReference(_stateMachineClass.Entity));
+                        CodeBuilder.CreateLocalReference(selfTemp) :
+                        (Expression)CodeBuilder.CreateSelfReference(localEntity));
 
             if (selfTemp != null)
             {
@@ -461,16 +446,32 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     LexicalInfo.Empty,
                     CodeBuilder.CreateAssignment(
                         CodeBuilder.CreateLocalReference(selfTemp),
-                        CodeBuilder.CreateSelfReference(_stateMachineClass.Entity)),
+                        CodeBuilder.CreateSelfReference(localEntity)),
                     result);
             }
 
             return new ExpressionStatement(result);
         }
 
+        private static IType MapNestedType(IType entity)
+        {
+            if (entity.DeclaringEntity == null || entity.DeclaringEntity.EntityType != EntityType.Type)
+                return entity;
+
+            var parentType = MapNestedType((IType) entity.DeclaringEntity);
+            GenericConstructedType constructedParent = null;
+            if (parentType.GenericInfo != null && parentType.ConstructedInfo == null)
+                constructedParent = (GenericConstructedType)parentType.GenericInfo.ConstructType(parentType.GenericInfo.GenericParameters);
+            constructedParent = constructedParent ?? parentType as GenericConstructedType;
+            if (constructedParent == null || entity.DeclaringEntity == constructedParent)
+                return entity;
+
+            return GenericMappedType.Create(entity, constructedParent);
+        }
+
         public override void OnReturnStatement(ReturnStatement node)
         {
-            Statement result = CodeBuilder.CreateGoto(_exprReturnLabel, _tryStatementStack.Count);
+            Statement result = CodeBuilder.CreateGoto(_exprReturnLabel, _tryStatementStack.Count + 1);
             if (node.Expression != null)
             {
                 Debug.Assert(_isGenericTask || node.Expression.ExpressionType == TypeSystemServices.TaskType);
@@ -523,7 +524,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         protected override string StateMachineClassName
         {
-            get { return "$Async"; }
+            get { return Context.GetUniqueName("Async"); }
         }
 
         protected override void SaveStateMachineClass(ClassDefinition cd)
@@ -544,7 +545,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             AsyncMethodBuilderMemberCollection.TryCreate(
                 TypeSystemServices,
                 _method.Method,
-                _methodToStateMachineMapper,
+                MethodGenArg(true),
                 out _asyncMethodBuilderMemberCollection);
 
             _state = (IField)_stateMachineClass.AddInternalField(UniqueName("State"), TypeSystemServices.IntType).Entity;
@@ -553,6 +554,21 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 _asyncMethodBuilderMemberCollection.BuilderType);
             CreateSetStateMachine();
             PreprocessMethod();
+        }
+
+        private IType MethodGenArg(bool remap)
+        {
+            var rt = _method.ReturnType;
+            if (rt.ConstructedInfo != null)
+            {
+                var result = rt.ConstructedInfo.GenericArguments[0];
+                return remap ? _methodToStateMachineMapper.MapType(result) : result;
+            }
+            if (rt.GenericInfo != null)
+            {
+                return rt.GenericInfo.GenericParameters[0];
+            }
+            return null;
         }
 
         private void PreprocessMethod()

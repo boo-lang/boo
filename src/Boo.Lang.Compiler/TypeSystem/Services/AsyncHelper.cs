@@ -59,7 +59,11 @@ namespace Boo.Lang.Compiler.TypeSystem
                 if (awaiterType.Resolve(awaiterSet, "GetResult", EntityType.Method))
                 {
                     var getResult = GetNoArgs(awaiterSet, tss);
-                    return getResult == null ? null : getResult.ReturnType;
+                    if (getResult == null)
+                        return null;
+                    if (getResult.ReturnType == tss.VoidType)
+                        return tss.TaskType;
+                    return getResult.ReturnType;
                 }
             }
             return null;

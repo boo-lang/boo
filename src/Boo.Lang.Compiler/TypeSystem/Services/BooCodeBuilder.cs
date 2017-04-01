@@ -471,7 +471,12 @@ namespace Boo.Lang.Compiler.TypeSystem
             var genType = target.ExpressionType as IConstructedTypeInfo;
             if (genType != null && entity is IMember && !(entity is IGenericMappedMember))
             {
+                var gcm = entity as GenericConstructedMethod;
+                if (gcm != null)
+                    entity = gcm.GenericDefinition;
                 entity = genType.Map((IMember)entity);
+                if (gcm != null)
+                    entity = ((GenericMappedMethod)entity).GenericInfo.ConstructMethod(gcm.GenericArguments);
             }
 			reference.Entity = entity;
 			return reference;
