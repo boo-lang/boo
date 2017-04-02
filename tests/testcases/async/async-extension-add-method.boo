@@ -16,7 +16,7 @@ public def Add[of T](stack as Stack[of T], item as T):
     stack.Push(item)
 
 class TestCase:
-    handle = AutoResetEvent(false)
+    public handle = AutoResetEvent(false)
 
     [async] private def GetVal[of T](x as T) as Task[of T]:
         await Task.Delay(1)

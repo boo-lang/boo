@@ -119,6 +119,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             out AsyncMethodBuilderMemberCollection collection)
         {
             var members = builderType.GetMembers().OfType<IMember>().Where(m => m.IsPublic).ToDictionary(m => m.Name);
+	        var task = members.ContainsKey("Task") ? (IProperty) members["Task"] : null;
             collection = new AsyncMethodBuilderMemberCollection(
                 builderType,
                 resultType,
@@ -129,7 +130,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 (IMethod) members["AwaitUnsafeOnCompleted"],
                 (IMethod) members["Start"],
                 (IMethod) members["SetStateMachine"],
-                (IProperty) members["Task"]);
+				task);
 
             return true;
         }
