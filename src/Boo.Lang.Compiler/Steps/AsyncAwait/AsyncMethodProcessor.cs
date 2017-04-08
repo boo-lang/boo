@@ -201,15 +201,21 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 CodeBuilder.CreateLocalReference(_cachedState),
                 CodeBuilder.CreateMemberReference(_state)));
 
+			Block bodyBlock;
+			if (_labels.Count > 0)
+			{
+				bodyBlock = new Block(
+					CodeBuilder.CreateSwitch(
+						this.LexicalInfo,
+						CodeBuilder.CreateLocalReference(_cachedState),
+						_labels),
+					rewrittenBody);
+			}
+			else bodyBlock = rewrittenBody;
             InternalLocal exceptionLocal;
             bodyBuilder.Add(CodeBuilder.CreateTryExcept(
                 this.LexicalInfo,
-                new Block(
-                    CodeBuilder.CreateSwitch(
-                        this.LexicalInfo,
-                        CodeBuilder.CreateLocalReference(_cachedState),
-                        _labels),
-                    rewrittenBody),
+				bodyBlock,
                 new ExceptionHandler
                 {
                     Declaration = CodeBuilder.CreateDeclaration(
@@ -491,15 +497,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         protected override void PropagateReferences()
         {
-            var ctor = _stateMachineConstructor;
-            // propagate the external self reference if necessary
-            if (_externalSelfField != null)
-            {
-                var type = (IType)_externalSelfField.Type.Entity;
-                _stateMachineConstructorInvocation.Arguments.Add(
-                    CodeBuilder.CreateSelfReference(_methodToStateMachineMapper.MapType(type)));
-            }
-            // propagate the necessary parameters from the original method to the state machine
+			var ctor = _stateMachineConstructor;
+			// propagate the necessary parameters from the original method to the state machine
             foreach (var parameter in _method.Method.Parameters)
             {
                 var myParam = MapParamType(parameter);
@@ -510,7 +509,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     _stateMachineConstructorInvocation.Arguments.Add(CodeBuilder.CreateReference(myParam));
                 }
             }
-        }
+			// propagate the external self reference if necessary
+			if (_externalSelfField != null)
+			{
+				var type = _method.DeclaringType;
+				_stateMachineConstructorInvocation.Arguments.Add(
+					CodeBuilder.CreateSelfReference(TypeSystemServices.SelfMapGenericType(type)));
+			}
+		}
 
         protected override BinaryExpression SetStateTo(int num)
         {

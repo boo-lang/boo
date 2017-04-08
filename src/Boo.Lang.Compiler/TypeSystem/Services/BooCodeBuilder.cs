@@ -411,6 +411,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return e;
 		}
 
+		public MemberReferenceExpression CreateMappedReference(LexicalInfo nodeLexicalInfo,
+			Field field,
+			IType type)
+		{
+			if (type.GenericInfo != null && type.ConstructedInfo == null)
+				type = TypeSystemServices.SelfMapGenericType(type);
+			var entity = type.ConstructedInfo != null ?
+				(IField)type.ConstructedInfo.Map((IField)field.Entity) :
+				(IField)field.Entity;
+			return CreateReference(entity);
+		}
+
 		public MemberReferenceExpression CreateReference(Field field)
 		{
 			return CreateReference((IField)field.Entity);

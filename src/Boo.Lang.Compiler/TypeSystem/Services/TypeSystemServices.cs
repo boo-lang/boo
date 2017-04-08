@@ -82,6 +82,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType IListGenericType;
 		public IType IListType;
 
+		public IType NullableGenericType;
+
 		public IType IEnumeratorGenericType;
 		public IType IEnumeratorType;
 		public IType IQuackFuType;
@@ -196,6 +198,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ICollectionGenericType = Map(typeof(ICollection<>));
 			IListGenericType = Map(typeof (IList<>));
 			IListType = Map(typeof (IList));
+			NullableGenericType = Map(Types.Nullable);
 			IAstMacroType = Map(typeof(IAstMacro));
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
 		    TaskType = Map(typeof(System.Threading.Tasks.Task));
@@ -1188,5 +1191,14 @@ namespace Boo.Lang.Compiler.TypeSystem
                 return false;
 	        return seenGeneric;
 	    }
+
+		public static IType SelfMapGenericType(IType type)
+		{
+			if (type.GenericInfo != null && type.ConstructedInfo == null)
+				return type.GenericInfo.ConstructType(
+					Array.ConvertAll(type.GenericInfo.GenericParameters, gp => (IType)gp));
+			return type;
+		}
+
 	}
 }

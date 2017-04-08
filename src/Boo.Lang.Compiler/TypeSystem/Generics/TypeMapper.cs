@@ -112,7 +112,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				sourceType.ConstructedInfo.GenericArguments,
 				MapType);
 
-			IType mapped = mappedDefinition.GenericInfo.ConstructType(mappedArguments);
+			var genericInfo = mappedDefinition.GenericInfo ?? mappedDefinition.ConstructedInfo.GenericDefinition.GenericInfo;
+			IType mapped = genericInfo.ConstructType(mappedArguments);
 
 			return mapped;
 		}

@@ -2074,12 +2074,6 @@ namespace Boo.Lang.Compiler.Steps
 			PostProcessReferenceExpression(node);
 		}
 
-        private static IType SelfMapGenericType(IType type)
-        {
-            return type.GenericInfo.ConstructType(
-                Array.ConvertAll(type.GenericInfo.GenericParameters, gp => (IType)gp));
-	    }
-
 	    private static bool AlreadyBound(ReferenceExpression node)
 		{
 			return null != node.ExpressionType;
@@ -2575,6 +2569,23 @@ namespace Boo.Lang.Compiler.Steps
 			var trueType = GetExpressionType(node.TrueValue);
 			var falseType = GetExpressionType(node.FalseValue);
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
+
+			// special-case handling for nullable types
+			var genBase = node.ExpressionType.ConstructedInfo;
+			if (genBase != null && 
+				genBase.GenericDefinition == TypeSystemServices.NullableGenericType &&
+				trueType != falseType)
+			{
+				var ctor = node.ExpressionType.GetConstructors().First(c => c.GetParameters().Length == 1);
+				var genType = genBase.GenericArguments[0];
+				Expression baseExpr = null;
+				if (trueType == genType)
+					baseExpr = node.TrueValue;
+				else if (falseType == genType)
+					baseExpr = node.FalseValue;
+				if (baseExpr != null)
+					node.Replace(baseExpr, CodeBuilder.CreateConstructorInvocation(ctor, baseExpr));
+			}
 		}
 
 		override public void LeaveYieldStatement(YieldStatement node)
@@ -4417,7 +4428,7 @@ namespace Boo.Lang.Compiler.Steps
 
             if (type.GenericInfo != null && !(type is IGenericArgumentsProvider))
             {
-                type = SelfMapGenericType(type);
+				type = TypeSystemServices.SelfMapGenericType(type);
             }
 
             var ctor = GetCorrectConstructor(node, type, node.Arguments);

@@ -148,7 +148,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			_stateMachineClass.LexicalInfo = this.LexicalInfo;
             foreach (var param in _genericParams)
             {
-                var replacement = _stateMachineClass.AddGenericParameter(param.Name);
+                var replacement = _stateMachineClass.AddGenericParameter(param);
                 _methodToStateMachineMapper.Replace((IType)param.Entity, (IType)replacement.Entity);
             }
 
@@ -239,9 +239,9 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 		                                                      IType parameterType,
                                                               TypeReplacer replacer)
         {
-            parameterType = replacer.MapType(parameterType);
-			Field field = type.AddInternalField(UniqueName(parameterName), parameterType);
-			InitializeFieldFromConstructorParameter(constructor, field, parameterName, parameterType);
+            var internalFieldType = replacer.MapType(parameterType);
+			Field field = type.AddInternalField(UniqueName(parameterName), internalFieldType);
+			InitializeFieldFromConstructorParameter(constructor, field, parameterName, internalFieldType);
 			return field;
 		}
 
@@ -306,8 +306,12 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
         }
 
         public override void OnSelfLiteralExpression(SelfLiteralExpression node)
-		{
-			ReplaceCurrentNode(CodeBuilder.CreateReference(node.LexicalInfo, ExternalEnumeratorSelf()));
+        {
+			var newNode = CodeBuilder.CreateMappedReference(
+				node.LexicalInfo, 
+				ExternalEnumeratorSelf(), 
+				_stateMachineClass.Entity);
+			ReplaceCurrentNode(newNode);
 		}
 
 		public override void OnSuperLiteralExpression(SuperLiteralExpression node)
@@ -319,7 +323,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 				ReplaceCurrentNode(externalSelf);
 		}
 
-	    private IMethod RemapMethod(Node node, GenericMappedMethod gmm, GenericParameterDeclarationCollection genParams)
+	    private static IMethod RemapMethod(Node node, GenericMappedMethod gmm, IType[] genParams)
 	    {
             var sourceMethod = gmm.SourceMember;
 	        if (sourceMethod.GenericInfo != null)
@@ -339,7 +343,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
             {
                 var mappedArg = genParams.SingleOrDefault(gp => gp.Name == genParam.Name);
 	            if (mappedArg != null)
-	                mapper.Replace(genParam, (IType)mappedArg.Entity);
+	                mapper.Replace(genParam, mappedArg);
 	        }
 	        var newType = (IConstructedTypeInfo)new GenericConstructedType(
                 baseType, 
@@ -350,18 +354,64 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             base.OnMemberReferenceExpression(node);
-            var gmm = node.Entity as GenericMappedMethod;
+
+			var genParams = GetGenericParams(node);
+			if (genParams == null)
+				return;
+			var gmm = node.Entity as GenericMappedMethod;
             if (gmm != null)
             {
-                var genParams = _stateMachineClass.ClassDefinition.GenericParameters;
-                if (genParams.IsEmpty)
-                    return;
                 node.Entity = RemapMethod(node, gmm, genParams);
                 node.ExpressionType = ((IMethod)node.Entity).CallableType;
+				return;
             }
+			var member = node.Entity as IMember;
+			if (member != null)
+				MapMember(node, member);
         }
 
-        public override void OnDeclaration(Declaration node)
+	    private static void MapMember(MemberReferenceExpression node, IMember member)
+	    {
+		    var baseType = member.DeclaringType;
+		    var mapped = member as IGenericMappedMember;
+		    if (mapped != null)
+		    {
+			    if (baseType == node.Target.ExpressionType)
+				    return;
+			    member = mapped.SourceMember;
+		    }
+		    var newType = node.Target.ExpressionType.ConstructedInfo;
+			if (newType == null)
+			{
+				if (node.Target.ExpressionType.GenericInfo == null)
+					return;
+				throw new System.InvalidOperationException("Bad target type");
+			}
+		    member = newType.Map(member);
+		    node.Entity = member;
+		    node.ExpressionType = member.Type;
+	    }
+
+	    private static IType[] GetGenericParams(MemberReferenceExpression node)
+	    {
+			var target = node.Target.Entity ?? node.Target.ExpressionType;			
+		    IType targetType;
+			if (target is IMember)
+				targetType = ((IMember)target).DeclaringType;
+			else if (target.EntityType == EntityType.Type)
+				targetType = (IType)target;
+			else return null;
+
+		    IType[] genParams;
+		    if (targetType.ConstructedInfo != null)
+			    genParams = targetType.ConstructedInfo.GenericArguments;
+		    else if (targetType.GenericInfo != null)
+			    genParams = System.Array.ConvertAll(targetType.GenericInfo.GenericParameters, igp => (IType) igp);
+		    else genParams = null;
+		    return genParams;
+	    }
+
+	    public override void OnDeclaration(Declaration node)
         {
             base.OnDeclaration(node);
             if (_entityMapper.ContainsKey(node.Entity))
@@ -422,7 +472,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 					_stateMachineClass,
 					_stateMachineConstructor,
 					"self_",
-					_method.DeclaringType,
+					TypeSystemServices.SelfMapGenericType(_method.DeclaringType),
                     _methodToStateMachineMapper);
 			}
 
