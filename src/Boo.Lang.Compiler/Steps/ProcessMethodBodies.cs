@@ -3832,6 +3832,8 @@ namespace Boo.Lang.Compiler.Steps
                 InferClosureSignature(closure);
                 ProcessClosureBody(closure);
             }
+			if (orphanClosures.Length > 0)
+				return ResolveCallableReference(node, entity);
 
 			var resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, methods);
 			if (null == resolved)
