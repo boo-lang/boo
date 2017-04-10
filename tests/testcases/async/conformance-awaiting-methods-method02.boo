@@ -15,13 +15,13 @@ interface IImplicit:
     def Method[of T(Task[of C])](*d as (decimal)) as T
 
 class Impl(IImplicit):
-    [async] public def Method[of T(Task[of C])](*d as (decimal)) as T:
+    public def Method[of T(Task[of C])](*d as (decimal)) as T:
         //this will fail until Run and RunEx<C> are merged
-        result = Task.Run() do():
+        aTask = async() do():
             await Task.Delay(1)
             Driver.Count++
             return C(Status: 1)
-        return result cast T
+        return Task.Run(aTask) cast T
 
 class TestCase:
     [async] public def Run():
