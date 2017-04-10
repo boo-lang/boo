@@ -15,8 +15,8 @@ class TestCase:
     [async] public static def Run() as Task:
         try:
             test++
-            f as Func[of int, object] = do():
-                checked: await(Bar())
+            checked:
+                var f = Func[of int, object](await(Bar()))
             var x = f(1)
             if (x cast string) != "1":
                 count--
@@ -37,3 +37,5 @@ class Driver:
         TestCase.Run()
         CompleteSignal.WaitOne()
         Console.Write(Result)
+
+Driver.Main()

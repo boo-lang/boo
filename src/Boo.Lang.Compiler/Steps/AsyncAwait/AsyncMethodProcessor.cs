@@ -328,7 +328,11 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                         GenerateAwaitForIncompleteTask(awaiterTemp),
                         null));
 
-            var getResultCall = CodeBuilder.CreateMethodInvocation(
+			TryStatementInfo currentTry = _tryStatementStack.Count > 0 ? _tryStatementStack.Peek() : null;
+			if (currentTry != null)
+				ConvertTryStatement(currentTry);
+
+			var getResultCall = CodeBuilder.CreateMethodInvocation(
                 CodeBuilder.CreateLocalReference(awaiterTemp),
                 getResult);
 

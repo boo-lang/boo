@@ -25,7 +25,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
-using System.Collections.Generic;
 using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Generators;
@@ -36,7 +35,9 @@ using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps.StateMachine
 {
-    internal abstract class MethodToStateMachineTransformer : AbstractTransformerCompilerStep
+	using System.Collections.Generic;
+
+	internal abstract class MethodToStateMachineTransformer : AbstractTransformerCompilerStep
     {
  
 		protected readonly InternalMethod _method;
@@ -55,7 +56,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 
         protected readonly List<LabelStatement> _labels;
 
-        protected readonly System.Collections.Generic.List<TryStatementInfo> _tryStatementInfoForLabels = new System.Collections.Generic.List<TryStatementInfo>();
+        protected readonly List<TryStatementInfo> _tryStatementInfoForLabels = new List<TryStatementInfo>();
 
         private readonly Dictionary<IEntity, InternalField> _mapping = new Dictionary<IEntity, InternalField>();
 
