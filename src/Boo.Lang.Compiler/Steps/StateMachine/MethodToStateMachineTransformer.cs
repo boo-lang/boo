@@ -415,7 +415,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 	    public override void OnDeclaration(Declaration node)
         {
             base.OnDeclaration(node);
-            if (_entityMapper.ContainsKey(node.Entity))
+			if (node.Entity != null && _entityMapper.ContainsKey(node.Entity))
                 node.Entity = _entityMapper[node.Entity];
         }
 
@@ -526,10 +526,14 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 					// leave try block, reset state to prevent ensure block from being called again
 					info._replacement.Add(SetStateTo(_finishedStateNumber));
 				}
-				BooMethodBuilder ensureMethod = _stateMachineClass.AddMethod("$ensure" + info._stateNumber, TypeSystemServices.VoidType, TypeMemberModifiers.Private);
-				ensureMethod.Body.Add(info._statement.EnsureBlock);
-				info._ensureMethod = ensureMethod.Entity;
-				info._replacement.Add(CallMethodOnSelf(ensureMethod.Entity));
+				if (info._statement.EnsureBlock != null)
+				{
+					BooMethodBuilder ensureMethod = _stateMachineClass.AddMethod("$ensure" + info._stateNumber,
+						TypeSystemServices.VoidType, TypeMemberModifiers.Private);
+					ensureMethod.Body.Add(info._statement.EnsureBlock);
+					info._ensureMethod = ensureMethod.Entity;
+					info._replacement.Add(CallMethodOnSelf(ensureMethod.Entity));
+				}
 				_convertedTryStatements.Add(info);
 			}
 		}

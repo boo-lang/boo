@@ -29,6 +29,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         private AwaitCatchFrame _currentAwaitCatchFrame;
         private AwaitFinallyFrame _currentAwaitFinallyFrame;
 
+		private int _tryDepth = 1;
+
         static AsyncExceptionHandlerRewriter()
         {
             var tss = My<TypeSystemServices>.Instance;
@@ -128,7 +130,9 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             if (!finallyContainsAwaits)
             {
                 finalizedRegion = RewriteFinalizedRegion(node);
+				++_tryDepth;
                 rewrittenFinally = (Block)Visit(node.EnsureBlock);
+				--_tryDepth;
 
                 if (rewrittenFinally == null)
                 {
@@ -159,7 +163,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             var context = CompilerContext.Current;
             var exceptionType = _tss.ObjectType;
             var pendingExceptionLocal = _F.DeclareTempLocal(_containingMethod, exceptionType);
-            var finallyLabel = _F.CreateLabel(node.EnsureBlock, context.GetUniqueName("finallyLabel"));
+            var finallyLabel = _F.CreateLabel(node.EnsureBlock, context.GetUniqueName("finallyLabel"), _tryDepth);
             var pendingBranchVar =_F.DeclareTempLocal(_containingMethod, _tss.IntType);
 
             var catchAll = new ExceptionHandler
@@ -172,7 +176,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             var tryBlock = new Block(
                     finalizedRegion,
-                    _F.CreateGoto(finallyLabel),
+                    _F.CreateGoto(finallyLabel, _tryDepth),
                     PendBranches(frame, pendingBranchVar, finallyLabel))
             ;
             var catchAndPendException = new TryStatement {ProtectedBlock = tryBlock};
@@ -260,7 +264,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 _F.CreateIntegerLiteral(i)));
 
             // skip other proxies
-            bodyStatements.Add(_F.CreateGoto(finallyLabel));
+			bodyStatements.Add(_F.CreateGoto(finallyLabel, _tryDepth));
         }
 
         private Statement UnpendBranches(
@@ -283,7 +287,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 {
                     var target = proxiedLabels[i - 1];
                     var parentProxy = parent.ProxyLabelIfNeeded(target);
-                    cases.Add(_F.CreateGoto(parentProxy));
+					cases.Add(_F.CreateGoto(parentProxy, _tryDepth));
                 }
             }
 
@@ -308,7 +312,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 {
                     if (pendingValue == null)
                     {
-                        unpendReturn = _F.CreateGoto(returnLabel);
+						unpendReturn = _F.CreateGoto(returnLabel, _tryDepth);
                     }
                     else
                     {
@@ -316,24 +320,24 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                             new ExpressionStatement(
                                 _F.CreateAssignment(_F.CreateLocalReference(returnValue),
                                     _F.CreateLocalReference((InternalLocal)pendingValue.Entity))),
-                            _F.CreateGoto(returnLabel));
+							_F.CreateGoto(returnLabel, _tryDepth));
                     }
                 }
 
                 cases.Add(unpendReturn);
             }
 
-            var defaultLabel = _F.CreateLabel(_containingMethod, CompilerContext.Current.GetUniqueName("default"));
-            cases.Insert(0, _F.CreateGoto(defaultLabel));
+            var defaultLabel = _F.CreateLabel(_containingMethod, CompilerContext.Current.GetUniqueName("default"), _tryDepth);
+			cases.Insert(0, _F.CreateGoto(defaultLabel, _tryDepth));
             return CreateSwitch(cases, defaultLabel, pendingBranchVar);
         }
 
         private Block SwitchBlock(Statement body, int ordinal, InternalLabel endpoint)
         {
             var result = new Block();
-            result.Add(_F.CreateLabel(result, CompilerContext.Current.GetUniqueName("L" + ordinal)).LabelStatement);
+			result.Add(_F.CreateLabel(result, CompilerContext.Current.GetUniqueName("L" + ordinal), _tryDepth).LabelStatement);
             result.Add(body);
-            result.Add(_F.CreateGoto(endpoint));
+			result.Add(_F.CreateGoto(endpoint, _tryDepth));
             return result;
         }
 
@@ -378,11 +382,11 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                             _F.CreateAssignment(
                                 _F.CreateLocalReference(returnValue),
                                 returnExpr)),
-                        _F.CreateGoto(returnLabel));
+						_F.CreateGoto(returnLabel, _tryDepth));
             }
             else
             {
-                result = _F.CreateGoto(returnLabel);
+				result = _F.CreateGoto(returnLabel, _tryDepth);
             }
             ReplaceCurrentNode(result);
         }
@@ -471,15 +475,16 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             var currentAwaitCatchFrame = _currentAwaitCatchFrame;
             if (currentAwaitCatchFrame != null)
             {
-                var handledLabel = _F.CreateLabel(tryWithCatches, CompilerContext.Current.GetUniqueName("handled"));
+				var handledLabel = _F.CreateLabel(tryWithCatches, CompilerContext.Current.GetUniqueName("handled"), _tryDepth);
                 var handlersList = currentAwaitCatchFrame.handlers;
-                var handlers = new List<Statement>{_F.CreateGoto(handledLabel)};
+				_tryDepth = node.GetAncestors<TryStatement>().Count() + 1;
+				var handlers = new List<Statement> { _F.CreateGoto(handledLabel, _tryDepth) };
                 for (int i = 0, l = handlersList.Count; i < l; i++)
                 {
                     handlers.Add(
                         new Block(
                             handlersList[i],
-                            _F.CreateGoto(handledLabel)));
+							_F.CreateGoto(handledLabel, _tryDepth)));
                 }
 
                 _containingMethod.Locals.Add(currentAwaitCatchFrame.pendingCaughtException.Local);
@@ -492,8 +497,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                             _F.CreateLocalReference(currentAwaitCatchFrame.pendingCatch),
                             _F.CreateDefaultInvocation(LexicalInfo.Empty, currentAwaitCatchFrame.pendingCatch.Type))),
                     tryWithCatches,
-                    CreateSwitch(handlers, handledLabel, currentAwaitCatchFrame.pendingCatch),
-                    handledLabel.LabelStatement);
+                    CreateSwitch(handlers, handledLabel, currentAwaitCatchFrame.pendingCatch));
             }
 
             _currentAwaitCatchFrame = origAwaitCatchFrame;
@@ -589,7 +593,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             if (filterOpt == null)
             {
                 var sourceOpt = node.Declaration;
-                if (sourceOpt != null)
+                if (sourceOpt != null && sourceOpt.Entity != null)
                 {
                     Expression assignSource = AssignCatchSource((Declaration)Visit(sourceOpt), currentAwaitCatchFrame);
                     handlerStatements.Add(new ExpressionStatement(assignSource));
@@ -630,6 +634,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         public override void OnDeclaration(Declaration node)
         {
+			if (node.Entity == null)
+				return;
             var catchFrame = _currentAwaitCatchFrame;
             InternalLocal hoistedLocal = null;
             if (catchFrame == null || !catchFrame.TryGetHoistedLocal((InternalLocal)node.Entity, out hoistedLocal))
@@ -657,7 +663,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         private AwaitFinallyFrame PushFrame(TryStatement statement)
         {
-            var newFrame = new AwaitFinallyFrame(_currentAwaitFinallyFrame, _analysis.Labels(statement), statement, _F);
+            var newFrame = new AwaitFinallyFrame(_currentAwaitFinallyFrame, _analysis.Labels(statement), statement, _F, _tryDepth);
             _currentAwaitFinallyFrame = newFrame;
             return newFrame;
         }
@@ -817,12 +823,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             public InternalLabel returnProxyLabel;
             public InternalLocal returnValue;
 
+	        private int _tryDepth;
+
             public AwaitFinallyFrame(BooCodeBuilder builder)
             {
                 _builder = builder;
             }
 
-            public AwaitFinallyFrame(AwaitFinallyFrame parent, HashSet<InternalLabel> labelsOpt, TryStatement TryStatement, BooCodeBuilder builder)
+            public AwaitFinallyFrame(AwaitFinallyFrame parent, HashSet<InternalLabel> labelsOpt, TryStatement TryStatement, BooCodeBuilder builder, int depth)
             {
                 Debug.Assert(parent != null);
                 Debug.Assert(TryStatement != null);
@@ -831,6 +839,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 _labelsOpt = labelsOpt;
                 _tryStatementOpt = TryStatement;
                 _builder = builder;
+	            _tryDepth = depth;
             }
 
             private bool IsRoot()
@@ -859,7 +868,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 InternalLabel proxy;
                 if (!proxyLabels.TryGetValue(label, out proxy))
                 {
-                    proxy = _builder.CreateLabel(label.LabelStatement, "proxy" + label.Name);
+					proxy = _builder.CreateLabel(label.LabelStatement, "proxy" + label.Name, _tryDepth);
                     proxyLabels.Add(label, proxy);
                     proxiedLabels.Add(label);
                 }
@@ -883,7 +892,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 var returnProxy = returnProxyLabel;
                 if (returnProxy == null)
                 {
-                    returnProxyLabel = returnProxy = _builder.CreateLabel(valueOpt ?? containingMethod, "returnProxy");
+					returnProxyLabel = returnProxy = _builder.CreateLabel(valueOpt ?? containingMethod, "returnProxy", _tryDepth);
                 }
 
                 if (valueOpt != null)

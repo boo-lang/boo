@@ -1070,7 +1070,10 @@ namespace Boo.Lang.Compiler.Steps
 
         private static ILGeneratorLabel LabelFor(Expression expression)
         {
-            return ((InternalLabel)expression.Entity).LabelCci;
+			var result = ((InternalLabel)expression.Entity).LabelCci;
+			if (result == null)
+				throw new ArgumentException(string.Format("Label {0} has no generated CCI label", expression.Entity));
+            return result;
         }
 
         public override void OnGotoStatement(GotoStatement node)

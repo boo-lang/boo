@@ -1313,7 +1313,7 @@ namespace Boo.Lang.Compiler.Steps
 		    {
                 ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
                 if (_seenAwaitInExceptionHandler)
-                    ContextAnnotations.AwaitInExceptionHandler(entity.Method);
+                    ContextAnnotations.MarkAwaitInExceptionHandler(entity.Method);
 		    }
 		    finally
 		    {
