@@ -301,14 +301,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         {
             var expression = Visit(node.BaseExpression);
             resultPlace = Visit(resultPlace);
-            var getAwaiter = expression.ExpressionType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetAwaiter"));
+	        var resolveList = new List<IEntity>();
+	        IMethod getAwaiter;
+	        if (expression.ExpressionType.Resolve(resolveList, "GetAwaiter", EntityType.Method))
+				getAwaiter = resolveList.Cast<IMethod>().Single(m => m.GetParameters().Length == 0 && m.IsPublic);
+			else throw new InvalidOperationException(string.Format("Type {0} does not contain a valid GetAwaiter method", expression.ExpressionType));
             var getResult = getAwaiter.ReturnType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetResult"));
             var isCompletedMethod = getAwaiter.ReturnType.GetMembers().OfType<IProperty>().Single(p => p.Name.Equals("IsCompleted")).GetGetMethod();
             var type = expression.ExpressionType.ConstructedInfo == null 
                 ? TypeSystemServices.VoidType 
                 : expression.ExpressionType.ConstructedInfo.GenericArguments[0];
 
-            // The awaiter temp facilitates EnC method remapping and thus have to be long-lived.
+			// The awaiter temp facilitates EnC method remapping and thus have to be long-lived.
             // It transfers the awaiter objects from the old version of the MoveNext method to the new one.
             var awaiterType = getAwaiter.ReturnType;
             var awaiterTemp = CodeBuilder.DeclareTempLocal(_moveNext.Method, awaiterType);
@@ -476,7 +480,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             if (constructedParent == null || entity.DeclaringEntity == constructedParent)
                 return entity;
 
-            return GenericMappedType.Create(entity, constructedParent);
+            IType result = GenericMappedType.Create(entity, constructedParent);
+			if (result.GenericInfo != null && result.ConstructedInfo == null)
+				result = result.GenericInfo.ConstructType(result.GenericInfo.GenericParameters);
+			return result;
         }
 
         public override void OnReturnStatement(ReturnStatement node)
