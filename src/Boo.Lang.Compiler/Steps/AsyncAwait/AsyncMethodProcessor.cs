@@ -135,14 +135,17 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     methodScopeAsyncMethodBuilderMemberCollection.Start.GenericInfo.ConstructMethod(stateMachineType),
                     CodeBuilder.CreateLocalReference(stateMachineVariable)));
 
+	        var methodBuilderField = stateMachineType.ConstructedInfo == null
+		        ? (IField) _asyncMethodBuilderField.Entity
+		        : stateMachineType.ConstructedInfo.Map((IField) _asyncMethodBuilderField.Entity);
             bodyBuilder.Add(method.ReturnType.Entity == TypeSystemServices.VoidType
                 ? new ReturnStatement()
                 : new ReturnStatement(
                     CodeBuilder.CreateMethodInvocation(
                         CodeBuilder.CreateMemberReference(
                             CodeBuilder.CreateLocalReference(stateMachineVariable),
-                            (IField)_asyncMethodBuilderField.Entity),
-                        _asyncMethodBuilderMemberCollection.Task.GetGetMethod())));
+                            methodBuilderField),
+						methodScopeAsyncMethodBuilderMemberCollection.Task.GetGetMethod())));
 
             _method.Method.Body = bodyBuilder;
         }
@@ -477,10 +480,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             if (parentType.GenericInfo != null && parentType.ConstructedInfo == null)
                 constructedParent = (GenericConstructedType)parentType.GenericInfo.ConstructType(parentType.GenericInfo.GenericParameters);
             constructedParent = constructedParent ?? parentType as GenericConstructedType;
-            if (constructedParent == null || entity.DeclaringEntity == constructedParent)
-                return entity;
-
-            IType result = GenericMappedType.Create(entity, constructedParent);
+			IType result = constructedParent == null || entity.DeclaringEntity == constructedParent 
+				? entity 
+				: GenericMappedType.Create(entity, constructedParent);
+            
 			if (result.GenericInfo != null && result.ConstructedInfo == null)
 				result = result.GenericInfo.ConstructType(result.GenericInfo.GenericParameters);
 			return result;

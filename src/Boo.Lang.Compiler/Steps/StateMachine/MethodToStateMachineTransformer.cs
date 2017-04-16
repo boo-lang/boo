@@ -422,8 +422,12 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
 			var superInvocation = IsInvocationOnSuperMethod(node);
+			var et = node.ExpressionType;
 			base.OnMethodInvocationExpression(node);
-			if (node.Target.ExpressionType != null)
+			if (et != null && 
+				((et.GenericInfo != null || 
+					(et.ConstructedInfo != null && !et.ConstructedInfo.FullyConstructed)) 
+					&& node.Target.ExpressionType != null))
 				node.ExpressionType = ((ICallableType)node.Target.ExpressionType).GetSignature().ReturnType;
 			if (!superInvocation)
 				return;
