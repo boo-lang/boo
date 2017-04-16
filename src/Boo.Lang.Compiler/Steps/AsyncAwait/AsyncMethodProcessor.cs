@@ -304,7 +304,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 	        var resolveList = new List<IEntity>();
 	        IMethod getAwaiter;
 	        if (expression.ExpressionType.Resolve(resolveList, "GetAwaiter", EntityType.Method))
-				getAwaiter = resolveList.Cast<IMethod>().Single(m => m.GetParameters().Length == 0 && m.IsPublic);
+				getAwaiter = resolveList.Cast<IMethod>().First(m => m.GetParameters().Length == 0 && m.IsPublic);
 			else throw new InvalidOperationException(string.Format("Type {0} does not contain a valid GetAwaiter method", expression.ExpressionType));
             var getResult = getAwaiter.ReturnType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetResult"));
             var isCompletedMethod = getAwaiter.ReturnType.GetMembers().OfType<IProperty>().Single(p => p.Name.Equals("IsCompleted")).GetGetMethod();
