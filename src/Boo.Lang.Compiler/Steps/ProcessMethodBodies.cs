@@ -809,6 +809,26 @@ namespace Boo.Lang.Compiler.Steps
 				node.ReturnType ?? CodeBuilder.CreateTypeReference(Unknown.Default),
 				ClosureModifiers());
 
+			if (!_currentMethod.Method.GenericParameters.IsEmpty)
+			{
+				var finder = new GenericTypeFinder();
+				closure.Accept(finder);
+				var genParams = finder.Results.Cast<InternalGenericParameter>().Where(gp => gp.DeclaringEntity == _currentMethod).ToArray();
+				if (genParams.Length > 0)
+				{
+					var mapper = new GeneratorTypeReplacer();
+					foreach (var param in genParams)
+					{
+						var clone = ((GenericParameterDeclaration)param.Node).CleanClone();
+						closure.GenericParameters.Add(clone);
+						clone.Entity = new InternalGenericParameter(TypeSystemServices, clone);
+						mapper.Replace(param, (IGenericParameter) clone.Entity);
+					}
+					closure.Entity = new InternalGenericMethod(My<InternalTypeSystemProvider>.Instance, closure);
+					closure["GenericMapper"] = mapper;
+				}
+			}
+
 			MarkVisited(closure);
 
 			var closureEntity = (InternalMethod)closure.Entity;

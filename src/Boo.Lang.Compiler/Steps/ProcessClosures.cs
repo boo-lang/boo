@@ -96,6 +96,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method method = closure.Method;
 			TypeDefinition parent = method.DeclaringType;
 			parent.Members.Remove(method);
+			_mapper = method["GenericMapper"] as GeneratorTypeReplacer;
 			
 			BooClassBuilder builder = collector.CreateSkeletonClass(closure.Name, method.LexicalInfo);
 			parent.Members.Add(builder.ClassDefinition);
@@ -125,7 +126,7 @@ namespace Boo.Lang.Compiler.Steps
 	        foreach (var member in cd.Members)
                 member.Accept(finder);
 
-            _mapper = new GeneratorTypeReplacer();
+            _mapper = _mapper ?? new GeneratorTypeReplacer();
             var genParams = cd.GenericParameters;
 	        foreach (var genType in finder.Results)
 	        {

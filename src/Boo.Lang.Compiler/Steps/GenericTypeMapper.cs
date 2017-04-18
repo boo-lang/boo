@@ -32,6 +32,9 @@ namespace Boo.Lang.Compiler.Steps
                     node.Entity = new InternalLocal(local.Local, mappedType);
                 }
             }
+			var te = node.Entity as ITypedEntity;
+			if (te != null && te.Type != node.ExpressionType)
+				node.ExpressionType = te.Type;
         }
 
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)

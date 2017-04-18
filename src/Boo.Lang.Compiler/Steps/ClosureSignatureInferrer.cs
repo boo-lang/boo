@@ -41,14 +41,18 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		private readonly BlockExpression _closure;
 	    private readonly Node _parent;
+		private readonly Expression _asyncParent;
 		private IType[] _inputTypes;
 
 		public ClosureSignatureInferrer(BlockExpression closure)
 		{
 			_closure = closure;
 		    var parent = closure.ParentNode;
-		    if (parent.NodeType == NodeType.AsyncBlockExpression)
-		        parent = parent.ParentNode;
+			if (parent.NodeType == NodeType.AsyncBlockExpression)
+			{
+				_asyncParent = (Expression)parent;
+				parent = parent.ParentNode;
+			}
 		    _parent = parent;
 			InitializeInputTypes();
 		}
@@ -73,7 +77,9 @@ namespace Boo.Lang.Compiler.Steps
 			get 
 			{
                 MethodInvocationExpression mie = _parent as MethodInvocationExpression;
-				if (mie != null && mie.Arguments.Contains(Closure)) return mie;
+				if (mie != null && 
+					(mie.Arguments.Contains(Closure) || (_asyncParent != null && mie.Arguments.Contains(_asyncParent))))
+					return mie;
 				return null;
 			}
 		}
