@@ -809,26 +809,6 @@ namespace Boo.Lang.Compiler.Steps
 				node.ReturnType ?? CodeBuilder.CreateTypeReference(Unknown.Default),
 				ClosureModifiers());
 
-			if (!_currentMethod.Method.GenericParameters.IsEmpty)
-			{
-				var finder = new GenericTypeFinder();
-				closure.Accept(finder);
-				var genParams = finder.Results.Cast<InternalGenericParameter>().Where(gp => gp.DeclaringEntity == _currentMethod).ToArray();
-				if (genParams.Length > 0)
-				{
-					var mapper = new GeneratorTypeReplacer();
-					foreach (var param in genParams)
-					{
-						var clone = ((GenericParameterDeclaration)param.Node).CleanClone();
-						closure.GenericParameters.Add(clone);
-						clone.Entity = new InternalGenericParameter(TypeSystemServices, clone);
-						mapper.Replace(param, (IGenericParameter) clone.Entity);
-					}
-					closure.Entity = new InternalGenericMethod(My<InternalTypeSystemProvider>.Instance, closure);
-					closure["GenericMapper"] = mapper;
-				}
-			}
-
 			MarkVisited(closure);
 
 			var closureEntity = (InternalMethod)closure.Entity;
@@ -856,11 +836,46 @@ namespace Boo.Lang.Compiler.Steps
 
 			ProcessMethodBody(closureEntity, ns);
 
+			if (!_currentMethod.Method.GenericParameters.IsEmpty)
+			{
+				CheckForGenericClosure(closure, ref closureEntity);
+			}
+
 			if (closureEntity.ReturnType is Unknown)
 				TryToResolveReturnType(closureEntity);
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+		}
+
+		private void CheckForGenericClosure(Method closure, ref InternalMethod closureEntity)
+		{
+			var finder = new GenericTypeFinder(true);
+			closure.Accept(finder);
+			var genParams =
+				finder.Results.OfType<InternalGenericParameter>().Where(gp => gp.DeclaringEntity == _currentMethod).ToArray();
+			if (genParams.Length > 0)
+			{
+				var mapper = new GeneratorTypeReplacer();
+				foreach (var param in genParams)
+				{
+					var clone = ((GenericParameterDeclaration) param.Node).CleanClone();
+					closure.GenericParameters.Add(clone);
+					clone.Entity = new InternalGenericParameter(TypeSystemServices, clone);
+					mapper.Replace(param, (IGenericParameter) clone.Entity);
+				}
+				var newClosureEntity = new InternalGenericMethod(My<InternalTypeSystemProvider>.Instance, closure);
+				var rets = closureEntity.ReturnExpressions;
+				if (rets != null)
+					foreach (var ret in rets)
+						newClosureEntity.AddReturnExpression(ret);
+				if (closureEntity.IsGenerator)
+					foreach (var yld in closureEntity.YieldExpressions)
+						newClosureEntity.AddYieldStatement((YieldStatement) yld.ParentNode);
+				closure.Entity = newClosureEntity;
+				closureEntity = newClosureEntity;
+				closure["GenericMapper"] = mapper;
+			}
 		}
 
 		protected Method CurrentMethod

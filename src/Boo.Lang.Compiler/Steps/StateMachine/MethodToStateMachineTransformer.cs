@@ -304,6 +304,10 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
                         CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
                         mapped));
             }
+			else if (node.Entity is IGenericMappedMember)
+			{
+				node.Accept(new GenericTypeMapper(_methodToStateMachineMapper));
+			}
         }
 
         public override void OnSelfLiteralExpression(SelfLiteralExpression node)
@@ -357,21 +361,22 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
             base.OnMemberReferenceExpression(node);
 
 			var genParams = GetGenericParams(node);
-			if (genParams == null)
-				return;
-			var gmm = node.Entity as GenericMappedMethod;
-            if (gmm != null)
-            {
-                node.Entity = RemapMethod(node, gmm, genParams);
-                node.ExpressionType = ((IMethod)node.Entity).CallableType;
-				return;
-            }
+			if (genParams != null)
+			{
+				var gmm = node.Entity as GenericMappedMethod;
+				if (gmm != null)
+				{
+					node.Entity = RemapMethod(node, gmm, genParams);
+					node.ExpressionType = ((IMethod)node.Entity).CallableType;
+					return;
+				}
+			}
 			var member = node.Entity as IMember;
 			if (member != null)
 				MapMember(node, member);
         }
 
-	    private static void MapMember(MemberReferenceExpression node, IMember member)
+	    private void MapMember(MemberReferenceExpression node, IMember member)
 	    {
 		    var baseType = member.DeclaringType;
 		    var mapped = member as IGenericMappedMember;
@@ -381,14 +386,33 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 				    return;
 			    member = mapped.SourceMember;
 		    }
-		    var newType = node.Target.ExpressionType.ConstructedInfo;
-			if (newType == null)
+			if (node.Target.ExpressionType != null)
 			{
-				if (node.Target.ExpressionType.GenericInfo == null)
-					return;
-				throw new System.InvalidOperationException("Bad target type");
+				var newType = node.Target.ExpressionType.ConstructedInfo;
+				if (newType == null)
+				{
+					if (node.Target.ExpressionType.GenericInfo == null)
+						return;
+					throw new System.InvalidOperationException("Bad target type");
+				}
+				member = newType.Map(member);
 			}
-		    member = newType.Map(member);
+			else
+			{
+				var gen = member as IGenericMethodInfo;
+				if (gen != null)
+				{
+					foreach (var gp in gen.GenericParameters)
+						if (!_methodToStateMachineMapper.ContainsType(gp))
+						{
+							var replacement = this._genericParams.FirstOrDefault(p => p.Name == gp.Name);
+							if (replacement != null)
+								_methodToStateMachineMapper.Replace(gp, _methodToStateMachineMapper.MapType((IType)replacement.Entity));
+						}
+					member = gen.ConstructMethod(
+						gen.GenericParameters.Select(_methodToStateMachineMapper.MapType).ToArray());
+				}
+			}
 		    node.Entity = member;
 		    node.ExpressionType = member.Type;
 	    }
@@ -428,7 +452,9 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 				((et.GenericInfo != null || 
 					(et.ConstructedInfo != null && !et.ConstructedInfo.FullyConstructed)) 
 					&& node.Target.ExpressionType != null))
-				node.ExpressionType = ((ICallableType)node.Target.ExpressionType).GetSignature().ReturnType;
+				node.ExpressionType = node.Target.Entity.EntityType == EntityType.Constructor ?
+					((IConstructor)node.Target.Entity).DeclaringType:
+					((ICallableType)node.Target.ExpressionType).GetSignature().ReturnType;
 			if (!superInvocation)
 				return;
 

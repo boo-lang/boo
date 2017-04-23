@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Diagnostics;
 using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Generators;
@@ -66,6 +67,8 @@ namespace Boo.Lang.Compiler.Steps
 				if (collector.ContainsForeignLocalReferences)
 				{
 					BooClassBuilder closureClass = CreateClosureClass(collector, closureEntity);
+					if (closureEntity is InternalGenericMethod)
+						closureEntity = GetEntity(closureEntity.Method) as InternalMethod;
 					closureClass.ClassDefinition.LexicalInfo = node.LexicalInfo;
 					collector.AdjustReferences();
 
@@ -83,6 +86,9 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
+					_mapper = closureEntity.Method["GenericMapper"] as GeneratorTypeReplacer;
+					if (_mapper != null)
+						closureEntity.Method.Accept(new GenericTypeMapper(_mapper));
 					Expression expression = CodeBuilder.CreateMemberReference(closureEntity);
 					expression.LexicalInfo = node.LexicalInfo;
 					TypeSystemServices.GetConcreteExpressionType(expression);
@@ -115,12 +121,30 @@ namespace Boo.Lang.Compiler.Steps
 			method.Modifiers = TypeMemberModifiers.Public;
 			var coll = new GenericTypeCollector(CodeBuilder);
 			coll.Process(builder.ClassDefinition);
-            if (builder.ClassDefinition.GenericParameters.Count > 0)
+			if (!method.GenericParameters.IsEmpty)
+			{
+				MapMethodGenerics(builder, method);
+			}
+			if (builder.ClassDefinition.GenericParameters.Count > 0)
                 MapGenerics(builder.ClassDefinition);
 			return builder;
 		}
 
-	    private void MapGenerics(ClassDefinition cd)
+		private void MapMethodGenerics(BooClassBuilder builder, Method method)
+		{
+			Debug.Assert(_mapper != null);
+			var classParams = builder.ClassDefinition.GenericParameters;
+			foreach (var genParam in method.GenericParameters)
+			{
+				var replacement = classParams.FirstOrDefault(p => p.Name.Equals(genParam.Name));
+				if (replacement != null && genParam != replacement.Entity)
+					_mapper.Replace((IType) genParam.Entity, (IType) replacement.Entity);
+			}
+			method.GenericParameters.Clear();
+			method.Entity = new InternalMethod(Environments.My<InternalTypeSystemProvider>.Instance, method);
+		}
+
+		private void MapGenerics(ClassDefinition cd)
 	    {
 	        var finder = new GenericTypeFinder();
 	        foreach (var member in cd.Members)

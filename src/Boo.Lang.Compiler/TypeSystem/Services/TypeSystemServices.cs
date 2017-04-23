@@ -533,6 +533,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _compilerGeneratedTypesModule ?? (_compilerGeneratedTypesModule = NewModule("CompilerGenerated"));
 		}
 
+		public bool CompilerGeneratedTypesModuleExists()
+		{
+			return _compilerGeneratedTypesModule != null;
+		}
+
 		private Module NewModule(string nameSpace)
 		{
 			return NewModule(nameSpace, nameSpace);
@@ -1144,7 +1149,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type;
 		}
 
-	    private bool SameOrEquivalentGenericTypes(IType t1, IType t2, ref bool genericType)
+	    private static bool SameOrEquivalentGenericTypes(IType t1, IType t2, ref bool genericType)
 	    {
 	        if (t1 == t2) return true;
             var g1 = t1 as IGenericParameter;
@@ -1171,7 +1176,25 @@ namespace Boo.Lang.Compiler.TypeSystem
             return (g1.Variance == g2.Variance && g1.MustHaveDefaultConstructor == g2.MustHaveDefaultConstructor);
 	    }
 
-	    public bool CompatibleGenericSignatures(CallableSignature sig1, CallableSignature sig2)
+		public static bool CompatibleSignatures(CallableSignature sig1, CallableSignature sig2)
+		{
+			if (sig1.Parameters.Length != sig2.Parameters.Length)
+				return false;
+			if (sig1.AcceptVarArgs != sig2.AcceptVarArgs)
+				return false;
+			for (var i = 0; i < sig1.Parameters.Length; ++i)
+			{
+				var p1 = sig1.Parameters[i];
+				var p2 = sig2.Parameters[i];
+				if (p1.IsByRef != p2.IsByRef)
+					return false;
+				if (p1.Type != p2.Type)
+					return false;
+			}
+			return sig1.ReturnType == sig2.ReturnType;
+		}
+
+		public static bool CompatibleGenericSignatures(CallableSignature sig1, CallableSignature sig2)
 	    {
 	        if (sig1.Parameters.Length != sig2.Parameters.Length)
 	            return false;

@@ -73,14 +73,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 			}
 		}
 
+		private Stack<ICallableType> _inCallableTypes = new Stack<ICallableType>();
+
 		public virtual void VisitCallableType(ICallableType callableType)
 		{
-			CallableSignature sig = callableType.GetSignature();
-			foreach (IParameter parameter in sig.Parameters)
+			if (_inCallableTypes.Contains(callableType))
+				return;
+
+			_inCallableTypes.Push(callableType);
+			try
 			{
-				Visit(parameter.Type);
+				CallableSignature sig = callableType.GetSignature();
+				foreach (IParameter parameter in sig.Parameters)
+				{
+					Visit(parameter.Type);
+				}
+				Visit(sig.ReturnType);
 			}
-			Visit(sig.ReturnType);
+			finally
+			{
+				_inCallableTypes.Pop();
+			}
 		}
 	}
 }

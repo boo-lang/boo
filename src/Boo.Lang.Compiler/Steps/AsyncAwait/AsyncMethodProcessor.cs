@@ -542,9 +542,11 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     CodeBuilder.CreateIntegerLiteral(num)));
         }
 
+		private string _className;
+
         protected override string StateMachineClassName
         {
-            get { return Context.GetUniqueName("Async"); }
+			get { return _className ?? (_className = Context.GetUniqueName("Async")); }
         }
 
         protected override void SaveStateMachineClass(ClassDefinition cd)

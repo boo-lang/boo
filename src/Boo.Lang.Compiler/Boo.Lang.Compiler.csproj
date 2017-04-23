@@ -466,6 +466,7 @@
     <Compile Include="Steps\BindTypeMembers.cs" />
     <Compile Include="Steps\BranchChecking.cs" />
     <Compile Include="Steps\CacheRegularExpressionsInStaticFields.cs" />
+    <Compile Include="Steps\CallableTypeElision.cs" />
     <Compile Include="Steps\CheckAttributesUsage.cs" />
     <Compile Include="Steps\CheckAttributeTypes.cs" />
     <Compile Include="Steps\CheckGenericConstraints.cs" />
@@ -558,6 +559,7 @@
     <Compile Include="Steps\StateMachine\StateMachineStates.cs" />
     <Compile Include="Steps\StricterErrorChecking.cs" />
     <Compile Include="Steps\TransformCallableDefinitions.cs" />
+    <Compile Include="Steps\TypeFinder.cs" />
     <Compile Include="Steps\TypeInference.cs" />
     <Compile Include="Steps\VerifyExtensionMethods.cs" />
     <Compile Include="TypeSystem\Ambiguous.cs" />

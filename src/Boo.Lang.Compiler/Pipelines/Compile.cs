@@ -70,6 +70,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new ExpandVarArgsMethodInvocations());
 			
 			Add(new InjectCallableConversions());
+			Add(new CallableTypeElision());
 			Add(new ImplementICallableOnCallableDefinitions());
 
 			Add(new RemoveDeadCode());

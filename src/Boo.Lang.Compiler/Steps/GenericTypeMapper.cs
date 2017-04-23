@@ -1,6 +1,7 @@
 ﻿using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
@@ -33,8 +34,12 @@ namespace Boo.Lang.Compiler.Steps
                 }
             }
 			var te = node.Entity as ITypedEntity;
-			if (te != null && te.Type != node.ExpressionType)
-				node.ExpressionType = te.Type;
+	        if (te != null)
+	        {
+				if (node.Entity is IGenericMappedMember)
+					ReplaceMappedEntity(node, te.Type);
+				node.ExpressionType = ((ITypedEntity)node.Entity).Type;
+			}
         }
 
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
@@ -54,7 +59,13 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        private void ReplaceMappedEntity(MemberReferenceExpression node, IType mappedType)
+	    public override void OnSelfLiteralExpression(SelfLiteralExpression node)
+	    {
+		    base.OnSelfLiteralExpression(node);
+		    node.ExpressionType = _replacer.MapType(node.ExpressionType);
+	    }
+
+	    private void ReplaceMappedEntity(MemberReferenceExpression node, IType mappedType)
         {
             var entity = (IMember)node.Entity;
             var targetType = node.Target.ExpressionType;
@@ -63,7 +74,14 @@ namespace Boo.Lang.Compiler.Steps
                 throw new System.NotImplementedException("Incorrect mapped type for " + node.ToCodeString());
         }
 
-        public override void OnMethodInvocationExpression(MethodInvocationExpression node)
+		private void ReplaceMappedEntity(ReferenceExpression node, IType mappedType)
+		{
+			var entity = (IMember)node.Entity;
+			var targetType = _replacer.MapType(entity.DeclaringType);
+			node.Entity = NameResolutionService.ResolveMember(targetType, entity.Name, entity.EntityType);
+		}
+
+		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
         {
             base.OnMethodInvocationExpression(node);
             node.ExpressionType = _replacer.MapType(node.ExpressionType);

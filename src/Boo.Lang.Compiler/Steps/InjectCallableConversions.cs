@@ -294,7 +294,9 @@ namespace Boo.Lang.Compiler.Steps
                 var argSig = argumentType.GetSignature();
                 if (argSig != expectedSig)
                 {
-                    if (TypeSystemServices.CompatibleGenericSignatures(argSig, expectedSig) && IsUnspecializedGenericMethodReference(argument))
+                    if (TypeSystemServices.CompatibleSignatures(argSig, expectedSig) ||
+						(TypeSystemServices.CompatibleGenericSignatures(argSig, expectedSig) && IsUnspecializedGenericMethodReference(argument))
+					   )
                     {
                         argument.ExpressionType = expectedType;
                         return CreateDelegate(expectedType, argument);
