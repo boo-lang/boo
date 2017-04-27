@@ -448,6 +448,8 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			var superInvocation = IsInvocationOnSuperMethod(node);
 			var et = node.ExpressionType;
 			base.OnMethodInvocationExpression(node);
+			if (node.Target.Entity.EntityType == EntityType.Field)
+				ContextAnnotations.AddFieldInvocation(node);
 			if (et != null && 
 				((et.GenericInfo != null || 
 					(et.ConstructedInfo != null && !et.ConstructedInfo.FullyConstructed)) 

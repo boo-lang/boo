@@ -5053,6 +5053,9 @@ namespace Boo.Lang.Compiler.Steps
             if (entity is IGenericMappedType)
                 return GetMappedSystemType((IGenericMappedType)entity);
 
+			if (entity is TypeSystem.Core.AnonymousCallableType)
+				return SystemTypeFrom(((TypeSystem.Core.AnonymousCallableType)entity).ConcreteType);
+
             return null;
         }
 
@@ -5735,9 +5738,13 @@ namespace Boo.Lang.Compiler.Steps
                 });
             }
             else if (IsValueType(type))
-                typeBuilder.Layout = LayoutKind.Sequential;
+	        {
+		        typeBuilder.Layout = LayoutKind.Sequential;
+		        if (!type.Members.OfType<Field>().Any())
+			        typeBuilder.SizeOf = 1;
+	        }
 
-            var layout = type.Attributes.FirstOrDefault(a => a.Entity is ExternalConstructor && 
+	        var layout = type.Attributes.FirstOrDefault(a => a.Entity is ExternalConstructor && 
                 ((ExternalConstructor)a.Entity).ConstructorInfo.DeclaringType == typeof(System.Runtime.InteropServices.StructLayoutAttribute));
             if (layout != null)
                 ApplyLayoutAttribute(layout, typeBuilder);

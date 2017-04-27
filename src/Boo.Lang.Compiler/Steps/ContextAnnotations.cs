@@ -28,6 +28,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
@@ -45,6 +46,8 @@ namespace Boo.Lang.Compiler.Steps
         private static readonly object AsyncKey = new object();
 
         private static readonly object AwaitInExceptionHandlerKey = new object();
+
+		private static readonly object FieldInvocationKey = new object();
 
 		public static Method GetEntryPoint(CompilerContext context)
 		{
@@ -158,5 +161,23 @@ namespace Boo.Lang.Compiler.Steps
 	    {
             return ((Node)node).ContainsAnnotation(AwaitInExceptionHandlerKey);
 	    }
+
+		public static void AddFieldInvocation(MethodInvocationExpression node)
+		{
+			var context = CompilerContext.Current;
+			var list = context[FieldInvocationKey] as List<MethodInvocationExpression>;
+			if (list == null)
+			{
+				list = new List<MethodInvocationExpression>();
+				context[FieldInvocationKey] = list;
+			}
+			list.Add(node);
+		}
+
+		public static List<MethodInvocationExpression> GetFieldInvocations()
+		{
+			var context = CompilerContext.Current;
+			return context[FieldInvocationKey] as List<MethodInvocationExpression>;
+		}
 	}
 }

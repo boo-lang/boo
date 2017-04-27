@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Ast.Visitors;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Environments;
@@ -202,7 +204,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             return builder.Update(expression);
         }
 
-        private Statement UpdateStatement(BoundSpillSequenceBuilder builder, Statement statement)
+	    private static void UpdateConditionalStatement(ConditionalStatement stmt)
+	    {
+		    var builder = (BoundSpillSequenceBuilder) stmt.Condition;
+		    Debug.Assert(stmt.ParentNode.NodeType == NodeType.Block);
+			Debug.Assert(builder.Value.ExpressionType == My<TypeSystemServices>.Instance.BoolType);
+			var spills = new Block(builder.GetStatements().ToArray());
+			var statements = ((Block)stmt.ParentNode).Statements;
+			statements.Insert(statements.IndexOf(stmt), spills);
+		    stmt.Condition = builder.Value;
+	    }
+
+        private static Statement UpdateStatement(BoundSpillSequenceBuilder builder, Statement statement)
         {
             if (builder == null)
             {
@@ -479,7 +492,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             ReplaceCurrentNode(UpdateStatement(builder, node));
         }
 
-        #endregion
+	    public override void OnIfStatement(IfStatement node)
+	    {
+			base.OnIfStatement(node);
+			if (node.Condition.NodeType == SpillSequenceBuilder)
+			    UpdateConditionalStatement(node);
+	    }
+
+	    #endregion
 
         #region Expression Visitors
 

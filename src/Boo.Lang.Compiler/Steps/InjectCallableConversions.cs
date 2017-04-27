@@ -52,6 +52,28 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			Visit(CompileUnit);
+
+			CheckFieldInvocations();
+		}
+
+		private void CheckFieldInvocations()
+		{
+			var invocations = ContextAnnotations.GetFieldInvocations();
+			if (invocations == null) return;
+
+			foreach (var node in invocations)
+			{
+				var et = node.Target.ExpressionType;
+				if (et is AnonymousCallableType)
+				{
+					et = ((AnonymousCallableType) et).ConcreteType;
+					node.Target.ExpressionType = et;
+				}
+				var invoke = NameResolutionService.Resolve(et, "Invoke") as IMethod;
+				if (invoke == null)
+					throw new System.NotSupportedException("Invoke method on callable field not found");
+				node.Target = CodeBuilder.CreateMemberReference(node.Target.LexicalInfo, node.Target, invoke);
+			}
 		}
 
 		override public void LeaveExpressionStatement(ExpressionStatement node)
@@ -461,7 +483,9 @@ namespace Boo.Lang.Compiler.Steps
                 ? CodeBuilder.CreateNullLiteral()
                 : ((MemberReferenceExpression)source).Target;
 
-			return CodeBuilder.CreateConstructorInvocation(GetConcreteType(type).GetConstructors().First(),
+			var cType = GetConcreteType(type) ?? 
+				TypeSystemServices.GetConcreteCallableType(source, (AnonymousCallableType) type);
+			return CodeBuilder.CreateConstructorInvocation(cType.GetConstructors().First(),
 									target,
 									CodeBuilder.CreateAddressOfExpression(method));
 		}
