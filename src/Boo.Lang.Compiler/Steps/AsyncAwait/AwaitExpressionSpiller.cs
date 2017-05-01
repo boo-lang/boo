@@ -99,7 +99,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     return;
                 }
 
-                left.AddRange(right);
+                left.AddRange(right.Except(left));
             }
 
             public void AddLocal(InternalLocal local)
@@ -130,9 +130,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             internal void AddExpressions(IEnumerable<Expression> expressions)
             {
+				var existingHash = new HashSet<Expression>(_statements.OfType<ExpressionStatement>().Select(es => es.Expression));
                 foreach (var expression in expressions)
                 {
-                    AddStatement(new ExpressionStatement(expression.LexicalInfo, expression) { IsSynthetic = true });
+	                if (expression.NodeType == SpillSequenceBuilder)
+	                {
+		                var sb = (BoundSpillSequenceBuilder) expression;
+						Include(sb);
+						if (!existingHash.Contains(sb.Value))
+							AddStatement(new ExpressionStatement(sb.LexicalInfo, sb.Value) { IsSynthetic = true });
+	                }
+                    else if (!existingHash.Contains(expression))
+						AddStatement(new ExpressionStatement(expression.LexicalInfo, expression) { IsSynthetic = true });
                 }
             }
         }
