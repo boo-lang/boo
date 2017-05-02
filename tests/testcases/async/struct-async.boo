@@ -18,7 +18,7 @@ struct TestCase:
             if x == 1: Driver.Count++;
             tests++
             t = Task.Run(async({ await(Task.Delay(1)); return 1 }))
-            var x2 = await(this.t)
+            var x2 = await(self.t)
             if x2 == 1: Driver.Count++
         ensure:
             Driver.Result = Driver.Count - tests
