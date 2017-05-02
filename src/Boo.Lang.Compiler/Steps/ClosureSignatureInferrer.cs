@@ -161,9 +161,19 @@ namespace Boo.Lang.Compiler.Steps
 			if (MethodInvocationContext == null) return null;
 
 			IMethod method = MethodInvocationContext.Target.Entity as IMethod;
-			if (method == null) return null;
+			if (method == null)
+			{
+				if (MethodInvocationContext.Target.Entity.EntityType == EntityType.Ambiguous)
+				{
+					AstAnnotations.MarkAmbiguousSignature(MethodInvocationContext);
+					AstAnnotations.MarkAmbiguousSignature(_closure);
+				}
+				return null;
+			}
 
 			int argumentIndex = MethodInvocationContext.Arguments.IndexOf(Closure);
+			if (argumentIndex == -1 && _asyncParent != null)
+				argumentIndex = MethodInvocationContext.Arguments.IndexOf(_asyncParent);
 			IParameter[] parameters = method.GetParameters();
 			
 			if (argumentIndex < parameters.Length) return parameters[argumentIndex].Type;

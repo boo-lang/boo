@@ -4155,6 +4155,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected virtual void ProcessMethodInvocation(MethodInvocationExpression node, IMethod method)
 		{
+			if (AstAnnotations.HasAmbiguousSignature(node))
+				FixAmbiguousSignatures(node);
+
 			if (ResolvedAsExtension(node)) PostNormalizeExtensionInvocation(node, method);
 
 			var targetMethod = InferGenericMethodInvocation(node, method);
@@ -4175,6 +4178,32 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+		}
+
+		private void FixAmbiguousSignatures(MethodInvocationExpression node)
+		{
+			foreach (var be in node.Arguments.OfType<BlockExpression>())
+			{
+				var expr = be.NodeType == NodeType.AsyncBlockExpression ? ((AsyncBlockExpression) be).Block : be;
+				if (AstAnnotations.HasAmbiguousSignature(expr))
+				{
+					expr.ExpressionType = null;
+					InferClosureSignature(expr);
+					if (be != expr)
+						be.ExpressionType = expr.ExpressionType;
+					var associatedMethod = ((InternalMethod)expr.Entity).Method;
+					var sig = ((ICallableType)expr.ExpressionType).GetSignature();
+					if (associatedMethod.ReturnType.Entity != sig.ReturnType)
+						associatedMethod.ReturnType = CreateTypeReference(associatedMethod.ReturnType.LexicalInfo, sig.ReturnType);
+					var parameters = sig.Parameters;
+					for (int i = 0; i < associatedMethod.Parameters.Count; ++i)
+					{
+						var param = associatedMethod.Parameters[i];
+						if (param.Type.Entity != parameters[i].Type)
+							param.Type = CreateTypeReference(param.Type.LexicalInfo, parameters[i].Type);
+					}
+				}
+			}
 		}
 
 		private IMethod InferGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
