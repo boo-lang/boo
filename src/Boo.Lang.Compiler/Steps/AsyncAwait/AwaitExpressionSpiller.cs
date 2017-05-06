@@ -822,7 +822,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
-            if (node.Entity.EntityType == EntityType.Field)
+            if (node.Entity.EntityType == EntityType.Field || node.Entity.EntityType == EntityType.Method)
             {
                 BoundSpillSequenceBuilder builder = null;
                 node.Target = VisitExpression(ref builder, node.Target);

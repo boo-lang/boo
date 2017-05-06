@@ -34,7 +34,7 @@ static class Program:
         var nonAliasReferences = await(FindReferencesInTokensAsync(
             document,
             await(GetTokensWithIdentifierAsync())
-            )).ConfigureAwait(true)
+            ).ConfigureAwait(true))
         return "done!"
 
 public def Main(args as (string)):
