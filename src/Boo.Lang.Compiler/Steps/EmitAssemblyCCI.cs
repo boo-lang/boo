@@ -1823,6 +1823,12 @@ namespace Boo.Lang.Compiler.Steps
 
         private void SetByRefParam(InternalParameter param, Expression right, bool leaveValueOnStack)
         {
+			if (!leaveValueOnStack && IsGenericDefaultInvocation(right))
+			{
+				LoadParam(param);
+				_il.Emit(OperationCode.Initobj, GetSystemType(((MethodInvocationExpression)right).ExpressionType));
+				return;
+			}
             LocalDefinition temp = null;
             IType tempType = null;
             if (leaveValueOnStack)
@@ -1851,7 +1857,17 @@ namespace Boo.Lang.Compiler.Steps
                 LoadLocal(temp, tempType);
         }
 
-        private void EmitTypeTest(BinaryExpression node)
+		private static bool IsGenericDefaultInvocation(Expression node)
+		{
+			if (node.NodeType != NodeType.MethodInvocationExpression)
+				return false;
+			var target = ((MethodInvocationExpression) node).Target;
+			if (target.Entity != BuiltinFunction.Default)
+				return false;
+			return node.ExpressionType is InternalGenericParameter;
+		}
+
+		private void EmitTypeTest(BinaryExpression node)
         {
             Visit(node.Left);
             IType actualType = PopType();

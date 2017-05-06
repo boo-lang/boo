@@ -9,7 +9,7 @@ import System
 callable MyDel[of U](ref u as U) as Task
 
 class MyClass[of T]:
-    [async] public static def Meth(ref t as T) as Task:
+    public static def Meth(ref t as T) as Task:
         t = Default(T)
         return Task.Run(async ({ await(Task.Delay(1)); TestCase.Count++ }))
 

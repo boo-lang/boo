@@ -532,7 +532,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 		    if (type.DeclaringEntity is GenericConstructedType)
 		        return CreateNestedReference(type);
-			return new ReferenceExpression(type.FullName) {Entity = type, IsSynthetic = true};
+			if (type.GenericInfo != null)
+				type = type.GenericInfo.ConstructType(type.GenericInfo.GenericParameters);
+			return new ReferenceExpression(type.FullName) {Entity = type, ExpressionType = type, IsSynthetic = true};
 		}
 
 		public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li)

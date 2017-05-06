@@ -304,7 +304,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
                         CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
                         mapped));
             }
-			else if (node.Entity is IGenericMappedMember)
+			else if (node.Entity is IGenericMappedMember || node.Entity is IGenericParameter)
 			{
 				node.Accept(new GenericTypeMapper(_methodToStateMachineMapper));
 			}
@@ -386,18 +386,19 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 				    return;
 			    member = mapped.SourceMember;
 		    }
+			var didMap = false;
 			if (node.Target.ExpressionType != null)
 			{
 				var newType = node.Target.ExpressionType.ConstructedInfo;
-				if (newType == null)
+				if (newType != null)
 				{
-					if (node.Target.ExpressionType.GenericInfo == null)
-						return;
-					throw new System.InvalidOperationException("Bad target type");
+					member = newType.Map(member);
+					didMap = true;
 				}
-				member = newType.Map(member);
+				else if (node.Target.ExpressionType.GenericInfo != null)
+					throw new System.InvalidOperationException("Bad target type");				
 			}
-			else
+			if (!didMap)
 			{
 				var gen = member as IGenericMethodInfo;
 				if (gen != null)
@@ -450,6 +451,11 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			base.OnMethodInvocationExpression(node);
 			if (node.Target.Entity.EntityType == EntityType.Field)
 				ContextAnnotations.AddFieldInvocation(node);
+			else if (node.Target.Entity.EntityType == EntityType.BuiltinFunction)
+			{
+				if (node.Target.Entity == BuiltinFunction.Default)
+					node.ExpressionType = node.Arguments[0].ExpressionType;
+			}
 			if (et != null && 
 				((et.GenericInfo != null || 
 					(et.ConstructedInfo != null && !et.ConstructedInfo.FullyConstructed)) 

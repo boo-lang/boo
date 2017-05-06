@@ -4199,7 +4199,8 @@ namespace Boo.Lang.Compiler.Steps
 					for (int i = 0; i < associatedMethod.Parameters.Count; ++i)
 					{
 						var param = associatedMethod.Parameters[i];
-						if (param.Type.Entity != parameters[i].Type)
+						if (param.Type.Entity != parameters[i].Type && 
+							   (param.Type.Entity == null || !parameters[i].Type.IsAssignableFrom((IType)param.Type.Entity)))
 							param.Type = CreateTypeReference(param.Type.LexicalInfo, parameters[i].Type);
 					}
 				}

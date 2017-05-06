@@ -38,6 +38,11 @@ namespace Boo.Lang.Compiler.Steps
 	        {
 				if (node.Entity is IGenericMappedMember)
 					ReplaceMappedEntity(node, te.Type);
+				else if (node.Entity.EntityType == EntityType.Type)
+				{
+					var type = (IType)node.Entity;
+					node.Entity = _replacer.MapType(type);					
+				}
 				node.ExpressionType = ((ITypedEntity)node.Entity).Type;
 			}
         }

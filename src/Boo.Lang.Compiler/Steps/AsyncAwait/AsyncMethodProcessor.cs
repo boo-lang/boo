@@ -494,7 +494,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             Statement result = CodeBuilder.CreateGoto(_exprReturnLabel, _tryStatementStack.Count + 1);
             if (node.Expression != null)
             {
-                Debug.Assert(_isGenericTask || node.Expression.ExpressionType == TypeSystemServices.TaskType);
+				Debug.Assert(_isGenericTask || node.Expression.ExpressionType == TypeSystemServices.TaskType);
+				if (_exprRetValue == null)
+					_exprRetValue = CodeBuilder.DeclareTempLocal(_moveNext.Method, TypeSystemServices.TaskType);
+
                 result = new Block(
                     new ExpressionStatement(
                         CodeBuilder.CreateAssignment(
