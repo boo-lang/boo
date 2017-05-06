@@ -52,8 +52,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         /// in a Task's MoveNext method because an awaited task may complete after the awaiter has
         /// tested whether the subtask is complete but before the awaiter has returned)
         /// </summary>
-        private InternalLocal _cachedState; 
-        
+        private InternalLocal _cachedState;
+
+		/// <summary>
+		/// Used to track whether or not a method contains await expressions, for the purpose of emitting a
+		/// warning if it does not contain any.
+		/// </summary>
+		private bool _seenAwait;        
+
         private readonly Dictionary<IType, Field> _awaiterFields;
         private int _nextAwaiterId;
 
@@ -196,7 +202,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             _cachedState = CodeBuilder.DeclareLocal(methodBuilder.Method, UniqueName("state"),
                 TypeSystemServices.IntType);
 
+	        _seenAwait = false;
             var rewrittenBody = (Block)Visit(_method.Method.Body);
+	        if (!_seenAwait)
+		        Context.Warnings.Add(CompilerWarningFactory.AsyncNoAwait(_method.Method));
 
             var bodyBuilder = methodBuilder.Body;
 
@@ -302,6 +311,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         private Block VisitAwaitExpression(AwaitExpression node, Expression resultPlace)
         {
+	        _seenAwait = true;
             var expression = Visit(node.BaseExpression);
             resultPlace = Visit(resultPlace);
 	        var resolveList = new List<IEntity>();
@@ -547,7 +557,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
 		private string _className;
 
-        protected override string StateMachineClassName
+	    protected override string StateMachineClassName
         {
 			get { return _className ?? (_className = Context.GetUniqueName("Async")); }
         }

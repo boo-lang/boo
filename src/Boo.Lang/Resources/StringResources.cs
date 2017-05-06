@@ -214,6 +214,7 @@ namespace Boo.Lang.Resources
 		public const string BCW0027 = "WARNING: Obsolete syntax '{0}'. Use '{1}'.";
 		public const string BCW0028 = "WARNING: Implicit downcast from '{0}' to '{1}'.";
 		public const string BCW0029 = "WARNING: Method '{0}' hides inherited non virtual method '{1}'. Declare '{0}' as a 'new' method.";
+		public const string BCW0030 = "WARNING: This async method lacks \'await\' operators and will run synchronously. Consider using the \'await\' operator to await non-blocking API calls, or \'await Task.Run(...)\' to do CPU-bound work on a background thread.";
 		public const string BCE0500 = "Response file '{0}' listed more than once.";
 		public const string BCE0501 = "Response file '{0}' could not be found.";
 		public const string BCE0502 = "An error occurred while loading response file '{0}'.";
