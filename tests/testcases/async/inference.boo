@@ -9,7 +9,7 @@ import System.Threading.Tasks
 
 struct Test:
     public Foo as Task[of string]:
-        [async] get: return Task.Run[of string](async ({ await(Task.Delay(1)); return "abc" }))
+        get: return Task.Run[of string](async ({ await(Task.Delay(1)); return "abc" }))
 
 class TestCase[of U]:
     [async] public static def GetValue(x as object) as Task[of object]:
