@@ -1465,7 +1465,7 @@ namespace Boo.Lang.Compiler.Steps
 		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions, bool isAsync)
 		{
 			var type = MapWildcardType(GetMostGenericType(expressions));
-		    if (isAsync)
+		    if (isAsync && type != TypeSystemServices.TaskType)
 		        type = TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(type);
 			return CodeBuilder.CreateTypeReference(type);
 		}
@@ -2654,7 +2654,7 @@ namespace Boo.Lang.Compiler.Steps
             // Keep async returns from erroring out
             if (ContextAnnotations.IsAsync(_currentMethod.Method))
             {
-                expressionType = expressionType == TypeSystemServices.VoidType
+				expressionType = expressionType == TypeSystemServices.VoidType || expressionType == TypeSystemServices.TaskType
                     ? TypeSystemServices.TaskType
                     : TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(expressionType);
             }

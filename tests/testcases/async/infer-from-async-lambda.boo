@@ -14,7 +14,9 @@ static class Program:
         await CallWithCatch(async({await(LoadTestData())}))
 
     [async] private def LoadTestData() as Task:
-        await Task.Run({ })
+        nullLambda = do():
+            pass
+        await Task.Run(nullLambda)
 
 public def Main(args as (string)):
     var t = Program.LoadTestDataAsync()
