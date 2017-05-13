@@ -1971,14 +1971,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveTryCastExpression(TryCastExpression node)
 		{
-			var target = GetExpressionType(node.Target);
 			var toType = GetType(node.Type);
-
-			if (target.IsValueType)
-				Error(CompilerErrorFactory.CantCastToValueType(node.Target, target));
-			else if (toType.IsValueType)
+			if (toType.IsValueType)
 				Error(CompilerErrorFactory.CantCastToValueType(node.Type, toType));
-
 			BindExpressionType(node, toType);
 		}
 
@@ -2654,9 +2649,7 @@ namespace Boo.Lang.Compiler.Steps
             // Keep async returns from erroring out
             if (ContextAnnotations.IsAsync(_currentMethod.Method))
             {
-				expressionType = expressionType == TypeSystemServices.VoidType || expressionType == TypeSystemServices.TaskType
-                    ? TypeSystemServices.TaskType
-                    : TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(expressionType);
+	            expressionType = GetAsyncReturnExpressionType(expressionType);
             }
 
             IType returnType = _currentMethod.ReturnType;
@@ -2673,6 +2666,27 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(mre);
 				node.Replace(node.Expression, mre);
 			}
+		}
+
+		private IType GetAsyncReturnExpressionType(IType expressionType)
+		{
+			if (expressionType == TypeSystemServices.VoidType || expressionType == TypeSystemServices.TaskType)
+				return TypeSystemServices.TaskType;
+
+			var newExpressionType = TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(expressionType);
+
+			//covariance check
+			var cRet = _currentMethod.ReturnType;
+			if (cRet != newExpressionType &&
+				!TypeSystemServices.IsUnknown(cRet) &&
+				cRet.ConstructedInfo != null &&
+				cRet.ConstructedInfo.GenericDefinition == TypeSystemServices.GenericTaskType)
+			{
+				var cRetArg = cRet.ConstructedInfo.GenericArguments[0];
+				if (cRetArg.IsAssignableFrom(expressionType))
+					newExpressionType = cRet;
+			}
+			return newExpressionType;
 		}
 
 		protected Expression GetCorrectIterator(Expression iterator)
@@ -5088,7 +5102,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindTypeTest(BinaryExpression node)
 		{
-			if (CheckIsNotValueType(node, node.Left) && CheckIsaArgument(node.Right))
+			if (CheckIsaArgument(node.Right))
 				BindExpressionType(node, TypeSystemServices.BoolType);
 			else
 				Error(node);

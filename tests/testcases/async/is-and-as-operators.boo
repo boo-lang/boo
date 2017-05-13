@@ -21,7 +21,7 @@ class TestCase:
         //When test complete, set the flag.
         Driver.CompletedSignal.Set()
 
-    [async] public def Foo1() as Task[of IntObject]:
+    [async] public def Foo1() as Task[of int]:
         await Task.Delay(1)
         TestCase.Count++
         var i = 0
@@ -36,11 +36,11 @@ class Driver:
     public static Result = -1
     public static CompletedSignal = AutoResetEvent(false)
 
-    static def Main():
-        var t = TestCase()
-        t.Run()
-        CompletedSignal.WaitOne()
-        // 0 - success
-        // 1 - failed (test completed)
-        // -1 - failed (test incomplete - deadlock, etc)
-        Console.Write(Driver.Result)
+def Main():
+    var t = TestCase()
+    t.Run()
+    Driver.CompletedSignal.WaitOne()
+    // 0 - success
+    // 1 - failed (test completed)
+    // -1 - failed (test incomplete - deadlock, etc)
+    Console.Write(Driver.Result)
