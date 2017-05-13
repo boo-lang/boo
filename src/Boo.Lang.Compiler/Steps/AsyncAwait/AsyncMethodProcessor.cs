@@ -382,9 +382,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 		        getResult = getAwaiter.ReturnType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetResult"));
 	        }
 	        Debug.Assert(getAwaiter != null && getResult != null);
-            var isCompletedMethod = getAwaiter.ReturnType.GetMembers().OfType<IProperty>().Single(p => p.Name.Equals("IsCompleted")).GetGetMethod();
+            var isCompletedProp = getAwaiter.ReturnType.GetMembers().OfType<IProperty>().SingleOrDefault(p => p.Name.Equals("IsCompleted"));
+	        if (isCompletedProp == null)
+	        {
+				var resolveList = new List<IEntity>();
+		        if (getAwaiter.ReturnType.Resolve(resolveList, "IsCompleted", EntityType.Property))
+					isCompletedProp = resolveList.Cast<IProperty>().First(p => p.GetParameters().Length == 0 && p.IsPublic);
+				if (isCompletedProp == null)
+					throw new ArgumentException("No valid IsCompleted property found");
+	        }
+	        var isCompletedMethod = isCompletedProp.GetGetMethod();
             IType type;
-			if (getAwaiter.IsExtension)
+			if (IsCustomTaskType(expression.ExpressionType))
 				type = getResult.ReturnType;
 			else type = expression.ExpressionType.ConstructedInfo == null
 				? TypeSystemServices.VoidType
@@ -447,7 +456,16 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 new ExpressionStatement(nullAwaiter));
         }
 
-        private Expression GenerateGetIsCompleted(InternalLocal awaiterTemp, IMethod getIsCompletedMethod)
+	    private bool IsCustomTaskType(IType type)
+	    {
+		    if (type == TypeSystemServices.VoidType || type == TypeSystemServices.TaskType)
+			    return false;
+		    if (type.ConstructedInfo != null && type.ConstructedInfo.GenericDefinition == TypeSystemServices.GenericTaskType)
+			    return false;
+		    return true;
+	    }
+
+	    private Expression GenerateGetIsCompleted(InternalLocal awaiterTemp, IMethod getIsCompletedMethod)
         {
             return CodeBuilder.CreateMethodInvocation(CodeBuilder.CreateLocalReference(awaiterTemp), getIsCompletedMethod);
         }
