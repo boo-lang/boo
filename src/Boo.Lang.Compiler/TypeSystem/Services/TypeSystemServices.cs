@@ -609,7 +609,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		private IEntity[] FindExtension(IType fromType, string name)
+		internal IEntity[] FindExtension(IType fromType, string name)
 		{
 			IEntity extension = NameResolutionService.ResolveExtension(fromType, name);
 			if (null == extension) return Ambiguous.NoEntities;

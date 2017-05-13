@@ -987,6 +987,11 @@ namespace Boo.Lang.Compiler
 	        return Instantiate("BCE0181", e);
 	    }
 
+		public static CompilerError MissingGetAwaiter(Expression e)
+		{
+			return Instantiate("BCE0182", e.LexicalInfo, e.ExpressionType);
+		}
+
         public static CompilerError Instantiate(string code, Exception error, params object[] args)
 		{
 			return new CompilerError(code, error, args);

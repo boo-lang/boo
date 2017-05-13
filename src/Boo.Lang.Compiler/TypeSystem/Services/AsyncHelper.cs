@@ -35,7 +35,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         private static IMethod GetNoArgsNoVoid(IEnumerable<IEntity> value, TypeSystemServices tss)
         {
-            return value.Cast<IMethod>().SingleOrDefault(m => m.GetParameters().Length == 0 && m.ReturnType != tss.VoidType);
+			return value.Cast<IMethod>().SingleOrDefault(m => 
+				((m.GetParameters().Length == 0) || (m.IsExtension && m.GetParameters().Length == 1)) && 
+				m.ReturnType != tss.VoidType);
         }
 
         public static IType GetAwaitType(Expression value)
@@ -46,25 +48,29 @@ namespace Boo.Lang.Compiler.TypeSystem
                 return type;
             if (type.ConstructedInfo != null && type.ConstructedInfo.GenericDefinition == tss.GenericTaskType)
                 return type.ConstructedInfo.GenericArguments[0];
+
             var awaiterSet = new List<IEntity>();
-            if (type.Resolve(awaiterSet, "GetAwaiter", EntityType.Method))
+			IEntity[] candidates = type.Resolve(awaiterSet, "GetAwaiter", EntityType.Method) ?
+				awaiterSet.ToArray() : 
+				tss.FindExtension(type, "GetAwaiter");
+
+            var awaiter = GetNoArgsNoVoid(candidates , tss);
+            if (awaiter == null)
+                return null;
+			value["$GetAwaiter"] = awaiter;
+			var awaiterType = awaiter.ReturnType;
+            if (awaiterType == null || awaiterType == tss.VoidType)
+                return null;
+            awaiterSet.Clear();
+            if (awaiterType.Resolve(awaiterSet, "GetResult", EntityType.Method))
             {
-                var awaiter = GetNoArgsNoVoid(awaiterSet, tss);
-                if (awaiter == null)
+                var getResult = GetNoArgs(awaiterSet, tss);
+                if (getResult == null)
                     return null;
-                var awaiterType = awaiter.ReturnType;
-                if (awaiterType == null || awaiterType == tss.VoidType)
-                    return null;
-                awaiterSet.Clear();
-                if (awaiterType.Resolve(awaiterSet, "GetResult", EntityType.Method))
-                {
-                    var getResult = GetNoArgs(awaiterSet, tss);
-                    if (getResult == null)
-                        return null;
-                    if (getResult.ReturnType == tss.VoidType)
-                        return tss.TaskType;
-                    return getResult.ReturnType;
-                }
+				value["$GetResult"] = getResult;
+                if (getResult.ReturnType == tss.VoidType)
+                    return tss.TaskType;
+                return getResult.ReturnType;
             }
             return null;
         }

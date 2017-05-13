@@ -184,6 +184,7 @@ namespace Boo.Lang.Resources
         public const string BCE0179 = "Await requires an expression of type Task or Task<T>";
         public const string BCE0180 = "Type '{0}' is not valid in an async method";
         public const string BCE0181 = "Unsafe method calls returning a pointer are not valid in an async method";
+		public const string BCE0182 = "Type {0} does not contain a valid GetAwaiter method";
 		public const string BCW0000 = "WARNING: {0}";
 		public const string BCW0001 = "WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.";
 		public const string BCW0002 = "WARNING: Statement modifiers have no effect in labels.";

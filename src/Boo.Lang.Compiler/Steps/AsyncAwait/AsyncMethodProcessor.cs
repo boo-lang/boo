@@ -370,28 +370,40 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 	        _seenAwait = true;
             var expression = Visit(node.BaseExpression);
             resultPlace = Visit(resultPlace);
-	        var resolveList = new List<IEntity>();
-	        IMethod getAwaiter;
-	        if (expression.ExpressionType.Resolve(resolveList, "GetAwaiter", EntityType.Method))
-				getAwaiter = resolveList.Cast<IMethod>().First(m => m.GetParameters().Length == 0 && m.IsPublic);
-			else throw new InvalidOperationException(string.Format("Type {0} does not contain a valid GetAwaiter method", expression.ExpressionType));
-            var getResult = getAwaiter.ReturnType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetResult"));
+	        var getAwaiter = (IMethod)node["$GetAwaiter"];
+			var getResult = (IMethod)node["$GetResult"];
+	        if (getAwaiter == null)
+	        {
+		        var resolveList = new List<IEntity>();
+		        if (expression.ExpressionType.Resolve(resolveList, "GetAwaiter", EntityType.Method))
+			        getAwaiter = resolveList.Cast<IMethod>().First(m => m.GetParameters().Length == 0 && m.IsPublic);
+		        else
+			        throw CompilerErrorFactory.MissingGetAwaiter(expression);
+		        getResult = getAwaiter.ReturnType.GetMembers().OfType<IMethod>().Single(m => m.Name.Equals("GetResult"));
+	        }
+	        Debug.Assert(getAwaiter != null && getResult != null);
             var isCompletedMethod = getAwaiter.ReturnType.GetMembers().OfType<IProperty>().Single(p => p.Name.Equals("IsCompleted")).GetGetMethod();
-            var type = expression.ExpressionType.ConstructedInfo == null 
-                ? TypeSystemServices.VoidType 
-                : expression.ExpressionType.ConstructedInfo.GenericArguments[0];
+            IType type;
+			if (getAwaiter.IsExtension)
+				type = getResult.ReturnType;
+			else type = expression.ExpressionType.ConstructedInfo == null
+				? TypeSystemServices.VoidType
+				: expression.ExpressionType.ConstructedInfo.GenericArguments[0];
 
 			// The awaiter temp facilitates EnC method remapping and thus have to be long-lived.
             // It transfers the awaiter objects from the old version of the MoveNext method to the new one.
             var awaiterType = getAwaiter.ReturnType;
             var awaiterTemp = CodeBuilder.DeclareTempLocal(_moveNext.Method, awaiterType);
 
+			var getAwaiterInvocation = getAwaiter.IsExtension ?
+				CodeBuilder.CreateMethodInvocation(getAwaiter, expression) :
+				CodeBuilder.CreateMethodInvocation(expression, getAwaiter);
             var awaitIfIncomplete = new Block(
                     // temp $awaiterTemp = <expr>.GetAwaiter();
                     new ExpressionStatement(
                         CodeBuilder.CreateAssignment(
                             CodeBuilder.CreateLocalReference(awaiterTemp),
-                            CodeBuilder.CreateMethodInvocation(expression, getAwaiter))),
+                            getAwaiterInvocation)),
 
                     // if(!($awaiterTemp.IsCompleted)) { ... }
                     new IfStatement(

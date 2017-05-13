@@ -738,6 +738,13 @@ namespace Boo.Lang.Compiler.Steps
 	    {
 	        Visit(node.BaseExpression);
             node.ExpressionType = AsyncHelper.GetAwaitType(node.BaseExpression);
+			if (node.ExpressionType == null)
+				Context.Errors.Add(CompilerErrorFactory.MissingGetAwaiter(node.BaseExpression));
+			else 
+			{
+				node["$GetAwaiter"] = node.BaseExpression["$GetAwaiter"];
+				node["$GetResult"] = node.BaseExpression["$GetResult"];
+			}
 	        _seenAwaitInExceptionHandler |= _inExceptionHandler;
 	    }
 
