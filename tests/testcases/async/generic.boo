@@ -23,7 +23,7 @@ class TestCase:
 
     [async] static def Qux[of T](x as Func[of Task[of T]]):
         var y = await(x())
-        if y cast int == 1:
+        if (y cast object) cast int == 1:
             count++
 
 class Driver:
