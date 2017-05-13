@@ -398,7 +398,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 				else if (node.Target.ExpressionType.GenericInfo != null)
 					throw new System.InvalidOperationException("Bad target type");				
 			}
-			if (!didMap)
+			if (!didMap && member.EntityType == EntityType.Method)
 			{
 				var gen = member as IGenericMethodInfo;
 				if (gen != null)
@@ -412,6 +412,15 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 						}
 					member = gen.ConstructMethod(
 						gen.GenericParameters.Select(_methodToStateMachineMapper.MapType).ToArray());
+				}
+				else
+				{
+					var con = member as IConstructedMethodInfo;
+					if (con != null)
+					{
+						var gd = (IGenericMethodInfo)con.GenericDefinition;
+						member = gd.ConstructMethod(con.GenericArguments.Select(_methodToStateMachineMapper.MapType).ToArray());
+					}
 				}
 			}
 		    node.Entity = member;
@@ -528,6 +537,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			internal Block _replacement;
 			
 			internal IMethod _ensureMethod;
+			internal ExceptionHandlerCollection _handlers;
 		}
 
         protected readonly System.Collections.Generic.List<TryStatementInfo> _convertedTryStatements 
@@ -555,6 +565,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			TryStatementInfo info = _tryStatementStack.Pop();
 			if (info._containsYield) {
 				ReplaceCurrentNode(info._replacement);
+				info._handlers = node.ExceptionHandlers;
 				TryStatementInfo currentTry = (_tryStatementStack.Count > 0) ? _tryStatementStack.Peek() : null;
 				info._replacement.Add(node.ProtectedBlock);
 				if (currentTry != null) {

@@ -32,7 +32,7 @@ class TestCase:
         //object type init
         tests++
         try:
-            MyProperty = Task.Run[of long](async ({ await(Task.Delay(1)); raise DataMisalignedException(); return 1 }))
+            MyProperty = Task.Run[of long](async ({ await(Task.Delay(1)); raise DataMisalignedException(); return 1L }))
             var obj = ObjInit(
                 async: await(t), 
                 t: GetVal(Task.Run(async({ await(Task.Delay(1))}))),

@@ -213,15 +213,18 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 CodeBuilder.CreateLocalReference(_cachedState),
                 CodeBuilder.CreateMemberReference(_state)));
 
+	        CheckForTryExcept();
+
 			Block bodyBlock;
 			if (_labels.Count > 0)
 			{
-				bodyBlock = new Block(
+				var dispatch =
 					CodeBuilder.CreateSwitch(
 						this.LexicalInfo,
 						CodeBuilder.CreateLocalReference(_cachedState),
-						_labels),
-					rewrittenBody);
+						_labels);
+				CheckTryJumps((MethodInvocationExpression)((ExpressionStatement)dispatch).Expression);
+				bodyBlock = new Block(dispatch, rewrittenBody);
 			}
 			else bodyBlock = rewrittenBody;
             InternalLocal exceptionLocal;
@@ -275,7 +278,60 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             bodyBuilder.Add(new ReturnStatement());
         }
 
-        private Statement GenerateReturn()
+	    private void CheckForTryExcept()
+	    {
+		    var handlerBlocks = _convertedTryStatements.Where(ct => ct._handlers.Count > 0).ToArray();
+		    foreach (var handlerBlock in handlerBlocks)
+		    {
+			    var rep = handlerBlock._replacement;
+			    var parent = rep.ParentNode;
+			    var tryBlock = new TryStatement
+			    {
+				    ProtectedBlock = rep,
+				    ExceptionHandlers = handlerBlock._handlers
+			    };
+			    parent.Replace(rep, tryBlock);
+		    }
+		}
+
+	    private void CheckTryJumps(MethodInvocationExpression dispatch)
+		{
+			var stateArg = dispatch.Arguments[0];
+			IEnumerable<IGrouping<TryStatement, InternalLabel>> labels;
+			do
+			{
+				labels = dispatch.Arguments
+			    .Skip(1)
+			    .Select(arg => (InternalLabel) arg.Entity)
+			    .Where(l => l.LabelStatement.GetAncestor<TryStatement>() != null)
+			    .GroupBy(l => l.LabelStatement.GetAncestor<TryStatement>());
+				foreach (var labelGroup in labels)
+				{
+					var newLabel = CodeBuilder.CreateLabel(dispatch, UniqueName("TryLabel"));
+					var parent = (Block) labelGroup.Key.ParentNode;
+					parent.Insert(parent.Statements.IndexOf(labelGroup.Key), newLabel.LabelStatement);
+					AstAnnotations.SetTryBlockDepth(newLabel.LabelStatement, parent.GetAncestors<TryStatement>().Count());
+					IfStatement innerDispatch = null;
+					foreach (var label in labelGroup)
+					{
+						var depth = label.LabelStatement.GetAncestors<TryStatement>().Count();
+						var switchArg = dispatch.Arguments.First(arg => arg.Entity == label);
+						switchArg.Entity = newLabel;
+						innerDispatch = new IfStatement(
+							CodeBuilder.CreateBoundBinaryExpression(
+								TypeSystemServices.BoolType,
+								BinaryOperatorType.Equality,
+								stateArg.CloneNode(),
+								new IntegerLiteralExpression(dispatch.Arguments.IndexOf(switchArg) - 1)),
+							new Block(CodeBuilder.CreateGoto(label, depth)),
+							innerDispatch != null ? new Block(innerDispatch) : null);
+						labelGroup.Key.ProtectedBlock.Insert(0, innerDispatch);
+					}
+				}
+			} while (labels.Any());
+		}
+
+	    private Statement GenerateReturn()
         {
             return CodeBuilder.CreateGoto(_exitLabel, 1);
         }
@@ -413,6 +469,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             blockBuilder.Add(GenerateReturn());
 
             blockBuilder.Add(resumeLabel);
+			AstAnnotations.SetTryBlockDepth(resumeLabel, blockBuilder.GetAncestors<TryStatement>().Count());
 
             var awaiterFieldRef = CodeBuilder.CreateMemberReference(
                 CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
