@@ -477,6 +477,12 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 awaitExpression.BaseExpression = VisitExpression(ref builder, awaitExpression.BaseExpression);
                 expr = awaitExpression;
             }
+			else if (node.Expression.NodeType == NodeType.MethodInvocationExpression && 
+				((MethodInvocationExpression)node.Expression).Target.Entity == BuiltinFunction.Switch) 
+			{
+				OnSwitch((MethodInvocationExpression)node.Expression, ref builder);
+				expr = node.Expression;
+			}
             else
             {
                 expr = VisitExpression(ref builder, node.Expression);
@@ -689,15 +695,19 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         {
             BoundSpillSequenceBuilder builder = null;
             var entity = node.Target.Entity;
-            if (entity.EntityType == EntityType.BuiltinFunction)
-            {
-                if (entity == BuiltinFunction.Eval)
-                {
-                    OnEval(node);
-                }
-                else base.OnMethodInvocationExpression(node);
-                return;
-            }
+	        if (entity.EntityType == EntityType.BuiltinFunction)
+	        {
+		        if (entity == BuiltinFunction.Eval)
+		        {
+			        OnEval(node);
+		        }
+		        else if (entity == BuiltinFunction.Switch)
+		        {
+					throw new ArgumentException("Should be unreachable: Await spiller on switch");
+		        }
+				else base.OnMethodInvocationExpression(node);
+				return;
+			}
 
             var method = (IMethod) entity;
             var refs = method.GetParameters().Select(p => p.IsByRef).ToList();
@@ -723,7 +733,12 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             ReplaceCurrentNode(UpdateExpression(builder, node));
         }
 
-        private static bool TargetSpillRefKind(Expression target)
+		private void OnSwitch(MethodInvocationExpression node, ref BoundSpillSequenceBuilder builder)
+		{
+			node.Arguments = VisitExpressionList(ref builder, node.Arguments);
+		}
+
+	    private static bool TargetSpillRefKind(Expression target)
         {
             if (target.ExpressionType.IsValueType)
             {
