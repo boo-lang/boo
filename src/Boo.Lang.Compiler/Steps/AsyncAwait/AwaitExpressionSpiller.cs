@@ -442,23 +442,17 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
         private SliceCollection VisitSliceCollection(
             ref BoundSpillSequenceBuilder builder,
-            SliceCollection args,
-            bool forceSpill = false,
-            bool sideEffectsOnly = false)
+            SliceCollection args)
         {
-            var args1 = new ExpressionCollection();
-            args1.AddRange(args.Select(p => p.Begin));
-            var args2 = new ExpressionCollection();
-            args2.AddRange(args.Select(p => p.End));
-            var args3 = new ExpressionCollection();
-            args3.AddRange(args.Select(p => p.Step));
-            args1 = VisitExpressionList(ref builder, args1, null, forceSpill, sideEffectsOnly);
-            args2 = VisitExpressionList(ref builder, args2, null, forceSpill, sideEffectsOnly);
-            args3 = VisitExpressionList(ref builder, args3, null, forceSpill, sideEffectsOnly);
-            args.Clear();
-            args.AddRange(
-                args1.Zip(args2, Tuple.Create)
-                .Zip(args3, (t, step) => new Slice(t.Item1.LexicalInfo, t.Item1, t.Item2, step)));
+	        foreach (var arg in args)
+	        {
+		        if (arg.Begin != null)
+			        VisitExpression(ref builder, arg.Begin);
+				if (arg.End != null)
+					VisitExpression(ref builder, arg.End);
+				if (arg.Step != null)
+					VisitExpression(ref builder, arg.Step);
+			}
             return args;
         }
 
