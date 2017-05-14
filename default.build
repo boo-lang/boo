@@ -13,6 +13,8 @@
 	<property name="defines" value="" unless="${property::exists('defines')}" />
 
 	<property name="mono" value="${'mono' == framework::get-family(framework::get-runtime-framework())}" />
+	<property name="mono-framework-dir" value="${framework::get-framework-directory(framework::get-target-framework())}\..\..\.." if="${mono}" />
+	<property name="mono-bin-dir" value="${mono-framework-dir}\bin" if="${mono}" />
 
 	<property name="java" value="java" />
 	<property name="antlr.jar" value="lib/antlr-2.7.5/antlr-2.7.5.jar" />
@@ -118,7 +120,7 @@
 			</items>
 		</in>
 		<do>
-			<exec program="pedump" workingdir="${build.dir}">
+			<exec program="${mono-bin-dir}/pedump" workingdir="${build.dir}">
 				<environment>
 					<variable name="MONO_PATH" path="${build.dir}" />
 				</environment>
