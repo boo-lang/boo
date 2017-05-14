@@ -3,10 +3,15 @@
 set -e
 
 source ./build-tools/versions
+MONO_VERSION=${1:-Current}
 
 cat >./.config-build <<EOL
 source ./build-tools/versions
-export PKG_CONFIG_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig/
+export MONO_VERSION=${MONO_VERSION}
+export MONO_DIR=/Library/Frameworks/Mono.framework/Versions/\${MONO_VERSION}
+export MONO_BIN_DIR=\${MONO_DIR}/bin
+export MONO_PATH=\${MONO_BIN_DIR}/mono
+export PKG_CONFIG_PATH=\${MONO_DIR}/lib/pkgconfig/
 export BUILD_TOOLS_DIR=./build-tools/tools
 EOL
 
@@ -42,7 +47,7 @@ unzip -qq -o "${NANT_DOWNLOAD_FILE_PATH}"
 rm -rf nant
 cd "nant-${NANT_COMMIT}"
 # On Mono 4.x the gmcs command is no longer present
-make MCS=mcs setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
+PATH=$PATH:${MONO_BIN_DIR} make MCS=${MONO_BIN_DIR}/mcs setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
 cp -r bootstrap ../nant
 cd -
 rm -r "nant-${NANT_COMMIT}"
