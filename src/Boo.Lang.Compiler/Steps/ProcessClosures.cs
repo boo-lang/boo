@@ -89,14 +89,26 @@ namespace Boo.Lang.Compiler.Steps
 					_mapper = closureEntity.Method["GenericMapper"] as GeneratorTypeReplacer;
 					if (_mapper != null)
 						closureEntity.Method.Accept(new GenericTypeMapper(_mapper));
-					Expression expression = CodeBuilder.CreateMemberReference(closureEntity);
+					IMethod entity = closureEntity;
+					if (entity.GenericInfo != null)
+					{
+						entity = MapGenericMethod(entity, node.GetAncestor<Method>().GenericParameters);
+					}
+					Expression expression = CodeBuilder.CreateMemberReference(entity);
 					expression.LexicalInfo = node.LexicalInfo;
 					TypeSystemServices.GetConcreteExpressionType(expression);
 					ReplaceCurrentNode(expression);
 				}
 			}
 		}
-		
+
+		private static IMethod MapGenericMethod(IMethod method, GenericParameterDeclarationCollection genericArgs)
+		{
+			var args = method.GenericInfo.GenericParameters
+				.Select(gp => (IType)genericArgs.First(ga => ga.Name == gp.Name).Entity).ToArray();
+			return method.GenericInfo.ConstructMethod(args);
+		}
+
 		BooClassBuilder CreateClosureClass(ForeignReferenceCollector collector, InternalMethod closure)
 		{
 			Method method = closure.Method;

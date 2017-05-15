@@ -116,7 +116,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 CodeBuilder.CreateAssignment(
                     CodeBuilder.CreateMemberReference(
                         CodeBuilder.CreateLocalReference(stateMachineVariable),
-                        (IField)_asyncMethodBuilderField.Entity),
+						ExternalFieldEntity((IField)_asyncMethodBuilderField.Entity, stateMachineType)),
                     CodeBuilder.CreateMethodInvocation(methodScopeAsyncMethodBuilderMemberCollection.CreateBuilder)));
 
             // local.$stateField = NotStartedStateMachine
@@ -124,7 +124,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 CodeBuilder.CreateAssignment(
                     CodeBuilder.CreateMemberReference(
                         CodeBuilder.CreateLocalReference(stateMachineVariable),
-                        _state),
+                        ExternalFieldEntity(_state, stateMachineType)),
                     CodeBuilder.CreateIntegerLiteral(StateMachineStates.NotStartedStateMachine)));
 
             bodyBuilder.Add(
@@ -132,7 +132,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     CodeBuilder.CreateLocalReference(builderVariable),
                     CodeBuilder.CreateMemberReference(
                         CodeBuilder.CreateLocalReference(stateMachineVariable),
-                        (IField)_asyncMethodBuilderField.Entity)));
+                        ExternalFieldEntity((IField)_asyncMethodBuilderField.Entity, stateMachineType))));
 
             // local.$builder.Start(ref local) -- binding to the method AsyncTaskMethodBuilder<typeArgs>.Start()
             bodyBuilder.Add(
@@ -156,6 +156,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             _method.Method.Body = bodyBuilder;
         }
 
+	    private static IField ExternalFieldEntity(IField field, IType stateMachineType)
+	    {
+		    if (stateMachineType.ConstructedInfo != null)
+		    {
+			    field = (IField)stateMachineType.ConstructedInfo.Map(field);
+		    }
+		    return field;
+	    }
 
         private Field GetAwaiterField(IType awaiterType)
         {

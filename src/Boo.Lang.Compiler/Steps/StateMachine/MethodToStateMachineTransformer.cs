@@ -304,7 +304,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
                         CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
                         mapped));
             }
-			else if (node.Entity is IGenericMappedMember || node.Entity is IGenericParameter)
+			else if (node.Entity is IGenericMappedMember || node.Entity is IGenericParameter || node.Entity is InternalLocal)
 			{
 				node.Accept(new GenericTypeMapper(_methodToStateMachineMapper));
 			}
@@ -427,6 +427,46 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 		    node.ExpressionType = member.Type;
 	    }
 
+		private void MapMember(GenericReferenceExpression node, IMember member)
+		{
+			if (member.EntityType == EntityType.Constructor)
+			{
+				//if this is an External constructor, we don't care about mapping it here.
+				var mappedCtor = member as GenericMappedConstructor;
+				if (mappedCtor != null)
+					MapConstructor(node, mappedCtor);
+				return;
+			}
+			var genArgs = node.GenericArguments
+				.Select(ga => _methodToStateMachineMapper.MapType((IType) ga.Entity))
+				.ToArray();
+			var mapped = member as IGenericMappedMember;
+			if (mapped != null)
+			{
+				var source = mapped.SourceMember;
+				member = source.DeclaringType.GenericInfo.ConstructType(genArgs).ConstructedInfo.Map(source);
+			}
+			else
+			{
+				var method = ((IMethod)member).ConstructedInfo;
+				member = method.GenericDefinition.GenericInfo.ConstructMethod(genArgs);
+			}
+
+			node.Entity = member;
+			node.ExpressionType = member.Type;
+		}
+
+	    private void MapConstructor(GenericReferenceExpression node, GenericMappedConstructor member)
+	    {
+		    var source = member.SourceMember;
+		    var genArgs = node.GenericArguments
+				.Select(ga => _methodToStateMachineMapper.MapType((IType) ga.Entity))
+				.ToArray();
+		    var result = source.DeclaringType.GenericInfo.ConstructType(genArgs).ConstructedInfo.Map(source);
+		    node.Entity = result;
+		    node.ExpressionType = result.Type;
+	    }
+
 	    private static IType[] GetGenericParams(MemberReferenceExpression node)
 	    {
 			var target = node.Target.Entity ?? node.Target.ExpressionType;			
@@ -477,6 +517,15 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 
 			var accessor = CreateAccessorForSuperMethod(node.Target);
 			Bind(node.Target, accessor);
+		}
+
+		public override void OnGenericReferenceExpression(GenericReferenceExpression node)
+		{
+			base.OnGenericReferenceExpression(node);
+			node.ExpressionType = _methodToStateMachineMapper.MapType(node.ExpressionType);
+			var member = node.Entity as IMember;
+			if (member != null)
+				MapMember(node, member);
 		}
 
 		private IEntity CreateAccessorForSuperMethod(Expression target)

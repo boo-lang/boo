@@ -30,7 +30,7 @@ namespace Boo.Lang.Compiler.Steps
                 var mappedType = _replacer.MapType(type);
                 if (mappedType != type)
                 {
-                    node.Entity = new InternalLocal(local.Local, mappedType);
+                    node.Entity = UpdateLocal(local.Local, mappedType);
                 }
             }
 			var te = node.Entity as ITypedEntity;
@@ -47,7 +47,16 @@ namespace Boo.Lang.Compiler.Steps
 			}
         }
 
-        public override void OnMemberReferenceExpression(MemberReferenceExpression node)
+	    private static IEntity UpdateLocal(Local local, IType type)
+	    {
+		    if (type != ((ITypedEntity) local.Entity).Type)
+		    {
+			    local.Entity = new InternalLocal(local, type);
+		    }
+		    return local.Entity;
+	    }
+
+	    public override void OnMemberReferenceExpression(MemberReferenceExpression node)
         {
             base.OnMemberReferenceExpression(node);
             var member = node.Entity as IMember;
@@ -63,6 +72,12 @@ namespace Boo.Lang.Compiler.Steps
                 }
             }
         }
+
+	    public override void OnGenericReferenceExpression(GenericReferenceExpression node)
+	    {
+		    base.OnGenericReferenceExpression(node);
+		    node.ExpressionType = _replacer.MapType(node.ExpressionType);
+	    }
 
 	    public override void OnSelfLiteralExpression(SelfLiteralExpression node)
 	    {
