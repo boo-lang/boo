@@ -71,6 +71,8 @@ namespace Boo.Lang.Compiler.Steps
 		private InternalMethod _currentMethod;
 
 		private bool _optimizeNullComparisons = true;
+		
+		private Dictionary<string, ITypedEntity> _ranges = new Dictionary<string, ITypedEntity>();
 
 		const string TempInitializerName = "$___temp_initializer";
 
@@ -2110,8 +2112,40 @@ namespace Boo.Lang.Compiler.Steps
 			node.Entity = entity;
 			PostProcessReferenceExpression(node);
 		}
-
-	    private static bool AlreadyBound(ReferenceExpression node)
+		
+		private IType GetElementType(ITypedEntity entity)
+		{
+      		var type = (entity).Type;		   
+   		   var IEnum = (from intf in type.GetInterfaces()
+   		                where intf.Name.StartsWith("IEnumerable")
+   		                orderby intf.Name.Length descending
+   		                select intf).FirstOrDefault();
+   		   return GetEnumeratorItemType(IEnum);
+		}
+		
+		override public void OnFromClauseExpression(FromClauseExpression node)
+		{
+		   Visit(node.Container);
+		   var entity = node.Container.Entity as ITypedEntity;
+		   if (node.Identifier.Type == null)
+		   {
+   		   var elType = GetElementType(entity);
+   		   node.Identifier.Type = TypeReference.Lift(elType.FullName);
+   		   entity = DeclareLocal(node.Identifier, node.Identifier.Name, GetElementType(entity)) as ITypedEntity;
+		   } else {
+		      Visit(node.Identifier.Type);
+		      entity = node.Identifier.Type.Entity as ITypedEntity;
+		   }
+   		_ranges.Add(node.Identifier.Name, entity);
+		}
+		
+		override public void OnQueryExpression(QueryExpression node)
+		{
+		   base.OnQueryExpression(node);
+		   _ranges.Clear();
+		}
+		
+		private static bool AlreadyBound(ReferenceExpression node)
 		{
 			return null != node.ExpressionType;
 		}

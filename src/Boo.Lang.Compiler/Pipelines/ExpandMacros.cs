@@ -52,6 +52,7 @@ namespace Boo.Lang.Compiler.Pipelines
 			Add(new MacroAndAttributeExpansion());
 			Add(new RemoveEmptyBlocks());
 			Add(mergePartialTypes);
+			Add(new QueryTransformer());
 		}
 	}
 }
