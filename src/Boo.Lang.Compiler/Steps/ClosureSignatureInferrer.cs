@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using Boo.Lang.Compiler.Ast;
@@ -160,24 +161,61 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (MethodInvocationContext == null) return null;
 
-			IMethod method = MethodInvocationContext.Target.Entity as IMethod;
-			if (method == null)
-			{
-				if (MethodInvocationContext.Target.Entity.EntityType == EntityType.Ambiguous)
-				{
-					AstAnnotations.MarkAmbiguousSignature(MethodInvocationContext);
-					AstAnnotations.MarkAmbiguousSignature(_closure);
-				}
-				return null;
-			}
-
 			int argumentIndex = MethodInvocationContext.Arguments.IndexOf(Closure);
 			if (argumentIndex == -1 && _asyncParent != null)
 				argumentIndex = MethodInvocationContext.Arguments.IndexOf(_asyncParent);
+
+			var entity = MethodInvocationContext.Target.Entity;
+			var method = entity as IMethodBase;
+			if (method == null)
+			{
+				if (entity.EntityType == EntityType.Type)
+				{
+					var ctors = ((IType)MethodInvocationContext.Target.Entity).GetConstructors().ToArray();
+					if (ctors.Length == 1)
+						method = ctors[0];
+					else if (ctors.Length == 0)
+						return null;
+					else entity = new Ambiguous(ctors);
+				}
+				if (entity.EntityType == EntityType.Ambiguous)
+				{
+					method = ResolveAmbiguousInvocationContext((Ambiguous) entity, argumentIndex);
+				}
+				if (method == null)
+					return null;
+			}
+
 			IParameter[] parameters = method.GetParameters();
 			
 			if (argumentIndex < parameters.Length) return parameters[argumentIndex].Type;
 			if (method.AcceptVarArgs) return parameters[parameters.Length - 1].Type;
+			return null;
+		}
+
+		// Sometimes, for the purpose of overload resolution, it doesn't matter which overload
+		// you pick, because they all take the same callable type and only differ in the rest of
+		// the param list
+		private IMethod ResolveAmbiguousInvocationContext(Ambiguous entity, int argumentIndex)
+		{
+			var candidates = entity.Entities
+				.OfType<IMethod>()
+				.Where(m => m.GetParameters().Length > argumentIndex && m.GetParameters()[argumentIndex].Type is ICallableType)
+				.ToArray();
+			if (candidates.Length > 0)
+			{
+				var first = candidates[0];
+				if (candidates.Length == 1)
+					return first;
+				var correspondingType = first.GetParameters()[argumentIndex].Type;
+				if (candidates.Skip(1).All(m => m.GetParameters()[argumentIndex].Type == correspondingType))
+					return first;
+				var returnType = ((ICallableType)first.GetParameters()[argumentIndex].Type).GetSignature().ReturnType;
+				if (candidates.Skip(1).All(m => ((ICallableType)m.GetParameters()[argumentIndex].Type).GetSignature().ReturnType == returnType))
+					_closure["$InferredReturnType"] = returnType;
+			}
+			AstAnnotations.MarkAmbiguousSignature(MethodInvocationContext);
+			AstAnnotations.MarkAmbiguousSignature(_closure);
 			return null;
 		}
 

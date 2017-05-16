@@ -317,7 +317,7 @@ namespace Boo.Lang.Compiler.Steps
                 if (argSig != expectedSig)
                 {
                     if (TypeSystemServices.CompatibleSignatures(argSig, expectedSig) ||
-						(TypeSystemServices.CompatibleGenericSignatures(argSig, expectedSig) && IsUnspecializedGenericMethodReference(argument))
+						(TypeSystemServices.CompatibleGenericSignatures(argSig, expectedSig) /*&& IsUnspecializedGenericMethodReference(argument)*/)
 					   )
                     {
                         argument.ExpressionType = expectedType;

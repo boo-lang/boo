@@ -1,4 +1,5 @@
-﻿using Boo.Lang.Compiler.Ast;
+﻿using System.Linq;
+using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Generics;
@@ -89,9 +90,23 @@ namespace Boo.Lang.Compiler.Steps
         {
             var entity = (IMember)node.Entity;
             var targetType = node.Target.ExpressionType;
-            node.Entity = NameResolutionService.ResolveMember(targetType, entity.Name, entity.EntityType);
-            if (!((IMember)node.Entity).Type.Equals(mappedType))
-                throw new System.NotImplementedException("Incorrect mapped type for " + node.ToCodeString());
+			var newEntity = (IMember)NameResolutionService.ResolveMember(targetType, entity.Name, entity.EntityType);
+			node.Entity = newEntity;
+			if (!newEntity.Type.Equals(mappedType))
+			{
+				var gmi = newEntity as IGenericMethodInfo;
+				if (gmi != null)
+				{
+					var args = ((IConstructedMethodInfo)entity).GenericArguments.Select(_replacer.MapType).ToArray();
+					newEntity = gmi.ConstructMethod(args);
+					if (newEntity.Type.Equals(mappedType))
+					{
+						node.Entity = newEntity;
+						return;
+					}
+				}
+				throw new System.NotImplementedException("Incorrect mapped type for " + node.ToCodeString());
+			}
         }
 
 		private void ReplaceMappedEntity(ReferenceExpression node, IType mappedType)
