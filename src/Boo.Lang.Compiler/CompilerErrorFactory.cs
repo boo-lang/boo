@@ -961,8 +961,38 @@ namespace Boo.Lang.Compiler
 		{
 			return Instantiate("BCE0176", node, typeName, expectedType, actualType);
 		}
+		
+		public static CompilerError TypeExpected(Node node)
+		{
+			return Instantiate("BCE0177", node);
+		}
 
-		public static CompilerError Instantiate(string code, Exception error, params object[] args)
+        public static CompilerError InvalidAsyncType(TypeReference tr)
+        {
+            return Instantiate("BCE0178", tr);
+        }
+
+        public static CompilerError InvalidAwaitType(Expression e)
+        {
+            return Instantiate("BCE0179", e);
+        }
+
+        public static CompilerError RestrictedAwaitType(Node n, IType t)
+        {
+            return Instantiate("BCE0180", n, t);
+        }
+
+	    public static CompilerError UnsafeReturnInAsync(Expression e)
+	    {
+	        return Instantiate("BCE0181", e);
+	    }
+
+		public static CompilerError MissingGetAwaiter(Expression e)
+		{
+			return Instantiate("BCE0182", e.LexicalInfo, e.ExpressionType);
+		}
+
+        public static CompilerError Instantiate(string code, Exception error, params object[] args)
 		{
 			return new CompilerError(code, error, args);
 		}

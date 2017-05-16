@@ -93,7 +93,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 
 			if (typeParameters.Length != TypeArguments.Length)
 			{
-				Errors.Add(CompilerErrorFactory.GenericDefinitionArgumentCount(ConstructionNode, definition, typeParameters.Length));
+			    var error = CompilerErrorFactory.GenericDefinitionArgumentCount(ConstructionNode, definition, typeParameters.Length);
+                var internalType = definition as IInternalEntity;
+                if (internalType != null)
+                {
+                    var node = internalType.Node;
+                    var replacementNode = node["TypeRefReplacement"] as GenericReferenceExpression;
+                    if (replacementNode != null && replacementNode.GenericArguments.Count == typeParameters.Length)
+                    {
+                        error.Data["TypeRefReplacement"] = replacementNode.CloneNode();
+                        throw error;
+                    }
+                }
+				Errors.Add(error);
 				return false;
 			}
 			return true;

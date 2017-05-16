@@ -2708,6 +2708,85 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{	
+			if (EnterAsyncBlockExpression(node))
+			{
+				Visit(node.Parameters);
+				TypeReference currentReturnTypeValue = node.ReturnType;
+				if (null != currentReturnTypeValue)
+				{			
+					TypeReference newValue = (TypeReference)VisitNode(currentReturnTypeValue);
+					if (!object.ReferenceEquals(newValue, currentReturnTypeValue))
+					{
+						node.ReturnType = newValue;
+					}
+				}
+				Block currentBodyValue = node.Body;
+				if (null != currentBodyValue)
+				{			
+					Block newValue = (Block)VisitNode(currentBodyValue);
+					if (!object.ReferenceEquals(newValue, currentBodyValue))
+					{
+						node.Body = newValue;
+					}
+				}
+				BlockExpression currentBlockValue = node.Block;
+				if (null != currentBlockValue)
+				{			
+					BlockExpression newValue = (BlockExpression)VisitNode(currentBlockValue);
+					if (!object.ReferenceEquals(newValue, currentBlockValue))
+					{
+						node.Block = newValue;
+					}
+				}
+
+				LeaveAsyncBlockExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{	
+			if (EnterAwaitExpression(node))
+			{
+				Expression currentBaseExpressionValue = node.BaseExpression;
+				if (null != currentBaseExpressionValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentBaseExpressionValue);
+					if (!object.ReferenceEquals(newValue, currentBaseExpressionValue))
+					{
+						node.BaseExpression = newValue;
+					}
+				}
+
+				LeaveAwaitExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnCustomStatement(Boo.Lang.Compiler.Ast.CustomStatement node)
 		{	
 			if (EnterCustomStatement(node))

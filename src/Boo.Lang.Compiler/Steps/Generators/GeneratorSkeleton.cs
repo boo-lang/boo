@@ -37,12 +37,14 @@ namespace Boo.Lang.Compiler.Steps.Generators
 		public readonly BooClassBuilder GeneratorClassBuilder;
 		public readonly IType GeneratorItemType;
 		public readonly BooMethodBuilder GetEnumeratorBuilder;
+        public readonly GeneratorTypeReplacer GeneratorClassTypeReplacer;
 
-		public GeneratorSkeleton(BooClassBuilder generatorBuilder, BooMethodBuilder getEnumeratorBuilder, IType generatorItemType)
+        public GeneratorSkeleton(BooClassBuilder generatorBuilder, BooMethodBuilder getEnumeratorBuilder, IType generatorItemType, GeneratorTypeReplacer generatorClassTypeReplacer)
 		{
 			GeneratorClassBuilder = generatorBuilder;
 			GeneratorItemType = generatorItemType;
 			GetEnumeratorBuilder = getEnumeratorBuilder;
+		    GeneratorClassTypeReplacer = generatorClassTypeReplacer;
 		}
 	}
 }

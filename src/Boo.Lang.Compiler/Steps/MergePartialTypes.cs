@@ -27,6 +27,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
@@ -101,7 +102,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (fromModule == toModule) return;
 			if (toModule.ContainsAnnotation(fromModule)) return;
 			
-			toModule.Imports.ExtendWithClones(fromModule.Imports);
+			toModule.Imports.ExtendWithClones(fromModule.Imports.Where(i => !toModule.Imports.Any(i2 => i.Matches(i2))));
 			// annotate so we remember not to merge the imports
 			// again in the future
 			toModule.Annotate(fromModule);

@@ -82,6 +82,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType IListGenericType;
 		public IType IListType;
 
+		public IType NullableGenericType;
+
 		public IType IEnumeratorGenericType;
 		public IType IEnumeratorType;
 		public IType IQuackFuType;
@@ -112,6 +114,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		public IType ValueTypeType;
 		public IType VoidType;
+
+	    public IType TaskType;
+	    public IType GenericTaskType;
+	    public IType AsyncGenericTaskMethodBuilderType;
+        public IType AsyncTaskMethodBuilderType;
+	    public IType AsyncVoidMethodBuilderType;
+	    public IType IAsyncStateMachineType;
+	    public IType GenericFuncType;
 
 		private Module _compilerGeneratedTypesModule;
 		private readonly Set<string> _literalPrimitives = new Set<string>();
@@ -188,8 +198,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ICollectionGenericType = Map(typeof(ICollection<>));
 			IListGenericType = Map(typeof (IList<>));
 			IListType = Map(typeof (IList));
+			NullableGenericType = Map(Types.Nullable);
 			IAstMacroType = Map(typeof(IAstMacro));
 			IAstGeneratorMacroType = Map(typeof(IAstGeneratorMacro));
+		    TaskType = Map(typeof(System.Threading.Tasks.Task));
+            GenericTaskType = Map(typeof(System.Threading.Tasks.Task<>));
+            AsyncGenericTaskMethodBuilderType = Map(typeof(System.Runtime.CompilerServices.AsyncTaskMethodBuilder<>));
+            AsyncTaskMethodBuilderType = Map(typeof(System.Runtime.CompilerServices.AsyncTaskMethodBuilder));
+            AsyncVoidMethodBuilderType = Map(typeof(System.Runtime.CompilerServices.AsyncVoidMethodBuilder));
+            IAsyncStateMachineType = Map(typeof(System.Runtime.CompilerServices.IAsyncStateMachine));
+		    GenericFuncType = Map(typeof(System.Func<>));
 
 			ObjectArrayType = ObjectType.MakeArrayType(1);
 
@@ -515,6 +533,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _compilerGeneratedTypesModule ?? (_compilerGeneratedTypesModule = NewModule("CompilerGenerated"));
 		}
 
+		public bool CompilerGeneratedTypesModuleExists()
+		{
+			return _compilerGeneratedTypesModule != null;
+		}
+
 		private Module NewModule(string nameSpace)
 		{
 			return NewModule(nameSpace, nameSpace);
@@ -586,7 +609,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return null;
 		}
 
-		private IEntity[] FindExtension(IType fromType, string name)
+		internal IEntity[] FindExtension(IType fromType, string name)
 		{
 			IEntity extension = NameResolutionService.ResolveExtension(fromType, name);
 			if (null == extension) return Ambiguous.NoEntities;
@@ -987,6 +1010,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddBuiltin(BuiltinFunction.AddressOf);
 			AddBuiltin(BuiltinFunction.Eval);
 			AddBuiltin(BuiltinFunction.Switch);
+			AddBuiltin(BuiltinFunction.Default);
 		}
 
 		protected void AddPrimitiveType(string name, IType type)
@@ -1124,5 +1148,80 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return ObjectArrayType;
 			return type;
 		}
+
+	    private static bool SameOrEquivalentGenericTypes(IType t1, IType t2, ref bool genericType)
+	    {
+	        if (t1 == t2) return true;
+            var g1 = t1 as IGenericParameter;
+            var g2 = t2 as IGenericParameter;
+            if (g1 == null || g2 == null)
+            {
+                var c1 = t1 as IConstructedTypeInfo;
+                var c2 = t2 as IConstructedTypeInfo;
+                if (c1 == null || c2 == null)
+                    return false;
+                if (c1.GenericDefinition != c2.GenericDefinition)
+                    return false;
+                for (var i = 0; i < c1.GenericArguments.Length; ++i)
+                {
+                    if (!SameOrEquivalentGenericTypes(c1.GenericArguments[i], c2.GenericArguments[i], ref genericType))
+                        return false;
+                }
+                return true;
+            }
+            genericType = true;
+            var constraints = g2.GetTypeConstraints();
+            if (constraints.Length > 0 && !constraints.Any(c => TypeCompatibilityRules.IsAssignableFrom(g1, c)))
+                return false;
+            return (g1.Variance == g2.Variance && g1.MustHaveDefaultConstructor == g2.MustHaveDefaultConstructor);
+	    }
+
+		public static bool CompatibleSignatures(CallableSignature sig1, CallableSignature sig2)
+		{
+			if (sig1.Parameters.Length != sig2.Parameters.Length)
+				return false;
+			if (sig1.AcceptVarArgs != sig2.AcceptVarArgs)
+				return false;
+			for (var i = 0; i < sig1.Parameters.Length; ++i)
+			{
+				var p1 = sig1.Parameters[i];
+				var p2 = sig2.Parameters[i];
+				if (p1.IsByRef != p2.IsByRef)
+					return false;
+				if (p1.Type != p2.Type)
+					return false;
+			}
+			return sig1.ReturnType == sig2.ReturnType;
+		}
+
+		public static bool CompatibleGenericSignatures(CallableSignature sig1, CallableSignature sig2)
+	    {
+	        if (sig1.Parameters.Length != sig2.Parameters.Length)
+	            return false;
+	        if (sig1.AcceptVarArgs != sig2.AcceptVarArgs)
+	            return false;
+            var seenGeneric = false;
+            for (var i = 0; i < sig1.Parameters.Length; ++i)
+	        {
+	            var p1 = sig1.Parameters[i];
+	            var p2 = sig2.Parameters[i];
+	            if (p1.IsByRef != p2.IsByRef)
+	                return false;
+                if (!SameOrEquivalentGenericTypes(p1.Type, p2.Type, ref seenGeneric))
+                    return false;
+	        }
+            if (!SameOrEquivalentGenericTypes(sig1.ReturnType, sig2.ReturnType, ref seenGeneric))
+                return false;
+	        return seenGeneric;
+	    }
+
+		public static IType SelfMapGenericType(IType type)
+		{
+			if (type.GenericInfo != null && type.ConstructedInfo == null)
+				return type.GenericInfo.ConstructType(
+					Array.ConvertAll(type.GenericInfo.GenericParameters, gp => (IType)gp));
+			return type;
+		}
+
 	}
 }

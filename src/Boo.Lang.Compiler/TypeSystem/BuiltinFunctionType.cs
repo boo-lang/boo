@@ -37,6 +37,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Quack, // duck typing support,
 		Switch, // switch IL opcode
 		InitValueType, // initobj IL opcode
-		Custom // custom builtin function
+		Custom, // custom builtin function
+		Default // C# style default<T>
 	}
 }

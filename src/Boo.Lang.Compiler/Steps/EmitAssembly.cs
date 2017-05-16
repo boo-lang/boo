@@ -144,6 +144,7 @@ namespace Boo.Lang.Compiler.Steps
 		bool _perModuleRawArrayIndexing = false;
 
 		Dictionary<IType, Type> _typeCache = new Dictionary<IType, Type>();
+		List<Method> _moduleConstructorMethods = new List<Method>();
 
 		// keeps track of types on the IL stack
 		readonly Stack<IType> _types = new Stack<IType>();
@@ -208,6 +209,7 @@ namespace Boo.Lang.Compiler.Steps
 			DefineResources();
 			DefineAssemblyAttributes();
 			DefineEntryPoint();
+			DefineModuleConstructor();
 
             // Define the unmanaged version information resource, which 
             // contains the attribute informaion applied earlier
@@ -233,10 +235,10 @@ namespace Boo.Lang.Compiler.Steps
 				DefineType(type);
 
 			foreach (var type in types)
-			{
 				DefineGenericParameters(type);
-				DefineTypeMembers(type);
-			}
+
+            foreach (var type in types)
+                DefineTypeMembers(type);
 
 			foreach (var module in CompileUnit.Modules)
 				OnModule(module);
@@ -653,6 +655,10 @@ namespace Boo.Lang.Compiler.Steps
 			DefineExplicitImplementationInfo(method);
 
 			EmitMethod(method, methodBuilder.GetILGenerator());
+			if (method.Name.StartsWith("$module_ctor"))
+			{
+				_moduleConstructorMethods.Add(method);
+			}
 		}
 
 		private void DefineExplicitImplementationInfo(Method method)
@@ -1779,6 +1785,13 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void SetByRefParam(InternalParameter param, Expression right, bool leaveValueOnStack)
 		{
+			if (!leaveValueOnStack && IsGenericDefaultInvocation(right))
+			{
+				LoadParam(param);
+				_il.Emit(OpCodes.Initobj, GetSystemType(((MethodInvocationExpression)right).ExpressionType));
+				return;
+			}
+
 			LocalBuilder temp = null;
 			IType tempType = null;
 			if (leaveValueOnStack)
@@ -1805,6 +1818,16 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (null != temp)
 				LoadLocal(temp, tempType);
+		}
+
+		private static bool IsGenericDefaultInvocation(Expression node)
+		{
+			if (node.NodeType != NodeType.MethodInvocationExpression)
+				return false;
+			var target = ((MethodInvocationExpression)node).Target;
+			if (target.Entity != BuiltinFunction.Default)
+				return false;
+			return node.ExpressionType is InternalGenericParameter;
 		}
 
 		void EmitTypeTest(BinaryExpression node)
@@ -2582,6 +2605,12 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 
+				case BuiltinFunctionType.Default:
+					{
+						EmitDefaultValue((IType)node.ExpressionType);
+						break;
+					}
+					
 				default:
 					{
 						NotImplemented(node, "BuiltinFunction: " + function.FunctionType);
@@ -4417,6 +4446,20 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		void DefineModuleConstructor()
+		{
+			if (_moduleConstructorMethods.Count == 0)
+				return;
+			
+			var attrs = MethodAttributes.Static | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+			MethodBuilder mb = this._moduleBuilder.DefineGlobalMethod(".cctor", attrs, null, new Type[]{});
+			Method m = CodeBuilder.CreateMethod(".cctor", TypeSystemServices.VoidType, TypeMemberModifiers.Static);
+			foreach (var reference in _moduleConstructorMethods.OrderBy(reference => (int)reference["Ordering"]))
+				m.Body.Add(CodeBuilder.CreateMethodInvocation((IMethod)reference.Entity));
+			
+			EmitMethod(m, mb.GetILGenerator());
+		}
+
 		Type[] GetParameterTypes(ParameterDeclarationCollection parameters)
 		{
 			Type[] types = new Type[parameters.Count];
@@ -4676,6 +4719,20 @@ namespace Boo.Lang.Compiler.Steps
 				return type;
 			}
 
+			if (entity is IGenericMappedType)
+				return GetMappedSystemType((IGenericMappedType)entity);
+
+			if (entity is TypeSystem.Core.AnonymousCallableType)
+				return SystemTypeFrom(((TypeSystem.Core.AnonymousCallableType)entity).ConcreteType);
+
+			return null;
+		}
+
+		private Type GetMappedSystemType(IGenericMappedType entity)
+		{
+			var containingType = SystemTypeFrom((IType)entity.DeclaringEntity);
+			var sourceType = SystemTypeFrom(entity.SourceType);
+			NotImplemented("GetMappedSystemType");
 			return null;
 		}
 
@@ -5140,14 +5197,30 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (null == enclosingType)
 			{
-				typeBuilder = _moduleBuilder.DefineType(
+				if (((IType)type.Entity).IsValueType && !((IType)type.Entity).IsEnum && !((IType)type.Entity).GetMembers().OfType<Field>().Any())
+				{
+					typeBuilder = _moduleBuilder.DefineType(
+										AnnotateGenericTypeName(type, type.QualifiedName),
+										GetTypeAttributes(type),
+										baseType,
+										1);					
+				}
+				else typeBuilder = _moduleBuilder.DefineType(
 					AnnotateGenericTypeName(type, type.QualifiedName),
 					GetTypeAttributes(type),
 					baseType);
 			}
 			else
 			{
-				typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(
+				if (((IType)type.Entity).IsValueType && !((IType)type.Entity).IsEnum && !((IType)type.Entity).GetMembers().OfType<Field>().Any())
+				{
+					typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(
+										AnnotateGenericTypeName(type, type.Name),
+										GetNestedTypeAttributes(type),
+										baseType,
+										1);					
+				}
+				else typeBuilder = GetTypeBuilder(enclosingType).DefineNestedType(
 					AnnotateGenericTypeName(type, type.Name),
 					GetNestedTypeAttributes(type),
 					baseType);

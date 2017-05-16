@@ -33,6 +33,9 @@ namespace Boo.Lang.Compiler.Steps
 	public class AstAnnotations
 	{
 		private static object TryBlockDepthKey = new object();
+
+		private static object AmbiguousSigatureKey = new object();
+
 		public const string RawArrayIndexing = "rawarrayindexing";
 
 		public const string Checked = "checked";
@@ -78,6 +81,16 @@ namespace Boo.Lang.Compiler.Steps
 		public static int GetTryBlockDepth(Node node)
 		{
 			return (int)node[TryBlockDepthKey];
+		}
+
+		public static void MarkAmbiguousSignature(Expression node)
+		{
+			node.Annotate(AmbiguousSigatureKey);
+		}
+
+		public static bool HasAmbiguousSignature(Expression node)
+		{
+			return node.ContainsAnnotation(AmbiguousSigatureKey);
 		}
 	}
 }

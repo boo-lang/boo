@@ -84,6 +84,7 @@ namespace BooCompiler.Tests
 			Directory.CreateDirectory(TestOutputPath);
 			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
 			_parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
+			_parameters.GenerateCollectible = false;
 			CustomizeCompilerParameters();
 			if (VerifyGeneratedAssemblies) CopyDependencies();
 		}

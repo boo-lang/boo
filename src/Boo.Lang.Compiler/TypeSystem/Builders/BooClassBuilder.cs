@@ -153,5 +153,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Builders
 			genericParameters.Add(declaration);
 			return declaration;
 		}
+
+		public GenericParameterDeclaration AddGenericParameter(GenericParameterDeclaration source)
+		{
+			var result = AddGenericParameter(source.Name);
+			result.Constraints = source.Constraints;
+			foreach (var baseType in source.BaseTypes)
+			{
+				result.BaseTypes.Add(baseType.CloneNode());
+			}
+			return result;
+		}
 	}
 }

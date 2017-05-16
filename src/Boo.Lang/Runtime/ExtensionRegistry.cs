@@ -65,7 +65,11 @@ namespace Boo.Lang.Runtime
 		{
 			foreach (MemberInfo member in type.GetMembers(BindingFlags.Static | BindingFlags.Public))
 			{
+#if !DNXCORE50
 				if (!Attribute.IsDefined(member, typeof(System.Runtime.CompilerServices.ExtensionAttribute))) continue;
+#else
+			    if (!member.IsDefined(typeof(System.Runtime.CompilerServices.ExtensionAttribute))) continue;
+#endif
 				if (extensions.Contains(member)) continue;
 				extensions.Add(member);
 			}

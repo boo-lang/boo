@@ -28,6 +28,9 @@
 
 using System;
 using System.Collections.Generic;
+#if DNXCORE50
+using System.Linq;
+#endif
 using System.Reflection;
 
 namespace Boo.Lang.Runtime.DynamicDispatching
@@ -50,7 +53,12 @@ namespace Boo.Lang.Runtime.DynamicDispatching
 
 		private Dispatcher Create(SetOrGet gos)
 		{
+#if !DNXCORE50
 			MemberInfo[] candidates = _type.GetMember(_name, MemberTypes.Property|MemberTypes.Field, RuntimeServices.DefaultBindingFlags);
+#else
+		    MemberInfo[] candidates = _type.GetMember(_name, RuntimeServices.DefaultBindingFlags);
+		    candidates = candidates.Where((v) => v.MemberType == MemberTypes.Property || v.MemberType == MemberTypes.Field).ToArray();
+#endif
 			if (candidates.Length == 0) return FindExtension(GetCandidateExtensions(gos));
 			if (candidates.Length > 1) throw new AmbiguousMatchException(Builtins.join(candidates, ", "));
 			return EmitDispatcherFor(candidates[0], gos);

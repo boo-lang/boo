@@ -1,4 +1,3 @@
-#ignore generic generators not supported yet
 """
 D
 """

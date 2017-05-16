@@ -49,12 +49,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		private List<INamespace> _namespaceList;
 
+		private Dictionary<string, List<IEntity>> _memberCache;
 		public InternalModule(InternalTypeSystemProvider provider, Module module)
 		{
 			_provider = provider;
 			_module = module;			
 			_namespace = SafeNamespace(module);
 			_module.Imports.Changed += (sender, e) => _namespaceList = null;
+			_module.Members.Changed += (sender, e) => _memberCache = null;
 		}
 
 		public static string SafeNamespace(Module module)
@@ -148,18 +150,38 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			return _namespaceList;
 		}
 
-		bool ResolveModuleMember(ICollection<IEntity> targetList, string name, EntityType flags)
+		private void BuildMemberCache()
 		{
-			bool found = false;
+			var mc = new Dictionary<string, List<IEntity>>();
+			_memberCache = mc;
+			List<IEntity> list;
 			foreach (TypeMember member in _module.Members)
 			{
-				if (name != member.Name) continue;
-
-				IEntity entity = _provider.EntityFor(member);
-				if (Entities.IsFlagSet(flags, entity.EntityType))
+				if (!mc.TryGetValue(member.Name, out list))
 				{
-					targetList.Add(entity);
-					found = true;
+					list = new List<IEntity>();
+					mc.Add(member.Name, list);
+				}
+				list.Add(_provider.EntityFor(member));
+			}
+		}
+		bool ResolveModuleMember(ICollection<IEntity> targetList, string name, EntityType flags)
+		{
+			if (_memberCache == null)
+			{
+				BuildMemberCache();
+			}
+			
+			List<IEntity> entities;
+			bool found = _memberCache.TryGetValue(name, out entities);
+			if (found)
+			{
+				foreach (var entity in entities)
+				{
+					if (Entities.IsFlagSet(flags, entity.EntityType))
+					{
+						targetList.Add(entity);
+					}
 				}
 			}
 			return found;

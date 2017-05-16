@@ -65,7 +65,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching.Emitters
 
 		protected void EmitCastOrUnbox(Type type)
 		{
-			if (type.IsValueType)
+#if !DNXCORE50
+		    if (type.IsValueType)
+#else
+            if (type.GetTypeInfo().IsValueType)
+#endif
 			{
 				_il.Emit(OpCodes.Unbox, type);
 				_il.Emit(OpCodes.Ldobj, type);
@@ -78,7 +82,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching.Emitters
 
 		protected void BoxIfNeeded(Type returnType)
 		{
-			if (returnType.IsValueType)
+#if !DNXCORE50
+		    if (returnType.IsValueType)
+#else
+		    if (returnType.GetTypeInfo().IsValueType)
+#endif
 			{
 				_il.Emit(OpCodes.Box, returnType);
 			}
@@ -87,7 +95,11 @@ namespace Boo.Lang.Runtime.DynamicDispatching.Emitters
 		protected void EmitLoadTargetObject(Type expectedType)
 		{
 			_il.Emit(OpCodes.Ldarg_0); // target object is the first argument
-			if (expectedType.IsValueType) 
+#if !DNXCORE50
+		    if (expectedType.IsValueType)
+#else
+		    if (expectedType.GetTypeInfo().IsValueType)
+#endif
 			{
 				_il.Emit(OpCodes.Unbox, expectedType);
 			}

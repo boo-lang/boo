@@ -76,6 +76,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		const string TempInitializerName = "$___temp_initializer";
 
+	    private bool _inExceptionHandler;
+        private bool _seenAwaitInExceptionHandler;
+
 		public override void Initialize(CompilerContext context)
 		{
 			base.Initialize(context);
@@ -723,11 +726,36 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnBlockExpression(BlockExpression node)
 		{
 			if (WasVisited(node)) return;
-			if (ShouldDeferClosureProcessing(node)) return;
+            if (ShouldDeferClosureProcessing(node))
+            {
+                node.Annotate("$Deferred$");
+                return; 
+            }
 
 			InferClosureSignature(node);
 			ProcessClosureBody(node);
 		}
+
+	    public override void OnAwaitExpression(AwaitExpression node)
+	    {
+	        Visit(node.BaseExpression);
+            node.ExpressionType = AsyncHelper.GetAwaitType(node.BaseExpression);
+			if (node.ExpressionType == null)
+				Context.Errors.Add(CompilerErrorFactory.MissingGetAwaiter(node.BaseExpression));
+			else 
+			{
+				node["$GetAwaiter"] = node.BaseExpression["$GetAwaiter"];
+				node["$GetResult"] = node.BaseExpression["$GetResult"];
+			}
+	        _seenAwaitInExceptionHandler |= _inExceptionHandler;
+	    }
+
+	    public override void OnAsyncBlockExpression(AsyncBlockExpression node)
+	    {
+	        Visit(node.Block);
+	        node.Entity = node.Block.Entity;
+	        node.ExpressionType = node.Block.ExpressionType;
+	    }
 
 		private void InferClosureSignature(BlockExpression node)
 		{
@@ -812,13 +840,51 @@ namespace Boo.Lang.Compiler.Steps
 			if (explicitClosureName != null)
 				ns.DelegateTo(new AliasedNamespace(explicitClosureName, closureEntity));
 
+            if (ContextAnnotations.IsAsync(node))
+                ContextAnnotations.MarkAsync(closure);
+
 			ProcessMethodBody(closureEntity, ns);
+
+			if (!_currentMethod.Method.GenericParameters.IsEmpty)
+			{
+				CheckForGenericClosure(closure, ref closureEntity);
+			}
 
 			if (closureEntity.ReturnType is Unknown)
 				TryToResolveReturnType(closureEntity);
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+		}
+
+		private void CheckForGenericClosure(Method closure, ref InternalMethod closureEntity)
+		{
+			var finder = new GenericTypeFinder(true);
+			closure.Accept(finder);
+			var genParams =
+				finder.Results.OfType<InternalGenericParameter>().Where(gp => gp.DeclaringEntity == _currentMethod).ToArray();
+			if (genParams.Length > 0)
+			{
+				var mapper = new GeneratorTypeReplacer();
+				foreach (var param in genParams)
+				{
+					var clone = ((GenericParameterDeclaration) param.Node).CleanClone();
+					closure.GenericParameters.Add(clone);
+					clone.Entity = new InternalGenericParameter(TypeSystemServices, clone);
+					mapper.Replace(param, (IGenericParameter) clone.Entity);
+				}
+				var newClosureEntity = new InternalGenericMethod(My<InternalTypeSystemProvider>.Instance, closure);
+				var rets = closureEntity.ReturnExpressions;
+				if (rets != null)
+					foreach (var ret in rets)
+						newClosureEntity.AddReturnExpression(ret);
+				if (closureEntity.IsGenerator)
+					foreach (var yld in closureEntity.YieldExpressions)
+						newClosureEntity.AddYieldStatement((YieldStatement) yld.ParentNode);
+				closure.Entity = newClosureEntity;
+				closureEntity = newClosureEntity;
+				closure["GenericMapper"] = mapper;
+			}
 		}
 
 		protected Method CurrentMethod
@@ -1280,9 +1346,24 @@ namespace Boo.Lang.Compiler.Steps
 			ProcessMethodBody(entity, entity);
 		}
 
-		void ProcessMethodBody(InternalMethod entity, INamespace ns)
+	    private void ProcessMethodBody(InternalMethod entity, INamespace ns)
 		{
-			ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
+		    var ieh = _inExceptionHandler;
+		    var seenAwaitInExceptionHandler = _seenAwaitInExceptionHandler;
+            _inExceptionHandler = false;
+            _seenAwaitInExceptionHandler = false;
+
+		    try
+		    {
+                ProcessNodeInMethodContext(entity, ns, entity.Method.Body);
+                if (_seenAwaitInExceptionHandler)
+                    ContextAnnotations.MarkAwaitInExceptionHandler(entity.Method);
+		    }
+		    finally
+		    {
+                _inExceptionHandler = ieh;
+                _seenAwaitInExceptionHandler = seenAwaitInExceptionHandler;
+            }
 		}
 
 		void ProcessNodeInMethodContext(InternalMethod entity, INamespace ns, Node node)
@@ -1378,15 +1459,23 @@ namespace Boo.Lang.Compiler.Steps
 		void ResolveReturnType(InternalMethod entity)
 		{
 			var method = entity.Method;
-			method.ReturnType = entity.ReturnExpressions == null
+            if (ContextAnnotations.IsAsync(method))
+            {
+                method.ReturnType = entity.ReturnExpressions == null
+                    ? CodeBuilder.CreateTypeReference(TypeSystemServices.TaskType)
+                    : GetMostGenericTypeReference(entity.ReturnExpressions, true);
+            }
+			else method.ReturnType = entity.ReturnExpressions == null
 				? CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType)
-				: GetMostGenericTypeReference(entity.ReturnExpressions);
+				: GetMostGenericTypeReference(entity.ReturnExpressions, false);
 			TraceReturnType(method, entity);
 		}
 
-		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions)
+		private TypeReference GetMostGenericTypeReference(ExpressionCollection expressions, bool isAsync)
 		{
 			var type = MapWildcardType(GetMostGenericType(expressions));
+		    if (isAsync && type != TypeSystemServices.TaskType)
+		        type = TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(type);
 			return CodeBuilder.CreateTypeReference(type);
 		}
 
@@ -1436,7 +1525,24 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, TypeSystemServices.CharType);
 		}
 
-		private void CheckCharLiteralValue(CharLiteralExpression node)
+	    public override void OnTryStatement(TryStatement node)
+	    {
+            Visit(node.ProtectedBlock);
+	        var ieh = _inExceptionHandler;
+            _inExceptionHandler = true;
+	        try
+	        {
+	            Visit(node.ExceptionHandlers);
+	            Visit(node.FailureBlock);
+	            Visit(node.EnsureBlock);
+	        }
+	        finally
+	        {
+	            _inExceptionHandler = ieh;
+	        }
+	    }
+
+	    private void CheckCharLiteralValue(CharLiteralExpression node)
 		{
 			var value = node.Value;
 			if (value == null || value.Length != 1)
@@ -1774,6 +1880,11 @@ namespace Boo.Lang.Compiler.Steps
 			var declaration = node.Declaration;
 			if (declaration.Type != null) return;
 			declaration.Type = CodeBuilder.CreateTypeReference(declaration.LexicalInfo, InferDeclarationType(node));
+            var typeEntity = (IType)declaration.Type.Entity;
+            if (typeEntity.GenericInfo != null && typeEntity.ConstructedInfo == null)
+            {
+                declaration.Type.Entity = GeneratorTypeReplacer.MapTypeInMethodContext(typeEntity, node.GetAncestor<Method>());
+            }
 		}
 
 		private IType InferDeclarationType(DeclarationStatement node)
@@ -1869,14 +1980,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void LeaveTryCastExpression(TryCastExpression node)
 		{
-			var target = GetExpressionType(node.Target);
 			var toType = GetType(node.Type);
-
-			if (target.IsValueType)
-				Error(CompilerErrorFactory.CantCastToValueType(node.Target, target));
-			else if (toType.IsValueType)
+			if (toType.IsValueType)
 				Error(CompilerErrorFactory.CantCastToValueType(node.Type, toType));
-
 			BindExpressionType(node, toType);
 		}
 
@@ -1935,8 +2041,25 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IEntity entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
-			Bind(node, entity);
+            IEntity entity;
+            try
+            {
+                entity = NameResolutionService.ResolveGenericReferenceExpression(node, node.Target.Entity);
+                Bind(node, entity);
+            }
+            catch (CompilerError er)
+            {
+                if (!er.Code.Equals("BCE0139"))
+                    throw;
+                var replacement = er.Data["TypeRefReplacement"] as GenericReferenceExpression;
+                if (replacement == null)
+                    throw;
+                replacement.LexicalInfo = node.LexicalInfo;
+                node.ParentNode.Replace(node, replacement);
+                node = replacement;
+                Visit(node);
+                entity = node.Entity;
+            }
 
 			if (entity.EntityType == EntityType.Type)
 			{
@@ -2517,6 +2640,23 @@ namespace Boo.Lang.Compiler.Steps
 			var trueType = GetExpressionType(node.TrueValue);
 			var falseType = GetExpressionType(node.FalseValue);
 			BindExpressionType(node, GetMostGenericType(trueType, falseType));
+
+			// special-case handling for nullable types
+			var genBase = node.ExpressionType.ConstructedInfo;
+			if (genBase != null && 
+				genBase.GenericDefinition == TypeSystemServices.NullableGenericType &&
+				trueType != falseType)
+			{
+				var ctor = node.ExpressionType.GetConstructors().First(c => c.GetParameters().Length == 1);
+				var genType = genBase.GenericArguments[0];
+				Expression baseExpr = null;
+				if (trueType == genType)
+					baseExpr = node.TrueValue;
+				else if (falseType == genType)
+					baseExpr = node.FalseValue;
+				if (baseExpr != null)
+					node.Replace(baseExpr, CodeBuilder.CreateConstructorInvocation(ctor, baseExpr));
+			}
 		}
 
 		override public void LeaveYieldStatement(YieldStatement node)
@@ -2547,7 +2687,13 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			IType returnType = _currentMethod.ReturnType;
+            // Keep async returns from erroring out
+            if (ContextAnnotations.IsAsync(_currentMethod.Method))
+            {
+	            expressionType = GetAsyncReturnExpressionType(expressionType);
+            }
+
+            IType returnType = _currentMethod.ReturnType;
 			if (TypeSystemServices.IsUnknown(returnType))
 				_currentMethod.AddReturnExpression(node.Expression);
 			else
@@ -2561,6 +2707,27 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(mre);
 				node.Replace(node.Expression, mre);
 			}
+		}
+
+		private IType GetAsyncReturnExpressionType(IType expressionType)
+		{
+			if (expressionType == TypeSystemServices.VoidType || expressionType == TypeSystemServices.TaskType)
+				return TypeSystemServices.TaskType;
+
+			var newExpressionType = TypeSystemServices.GenericTaskType.GenericInfo.ConstructType(expressionType);
+
+			//covariance check
+			var cRet = _currentMethod.ReturnType;
+			if (cRet != newExpressionType &&
+				!TypeSystemServices.IsUnknown(cRet) &&
+				cRet.ConstructedInfo != null &&
+				cRet.ConstructedInfo.GenericDefinition == TypeSystemServices.GenericTaskType)
+			{
+				var cRetArg = cRet.ConstructedInfo.GenericArguments[0];
+				if (cRetArg.IsAssignableFrom(expressionType))
+					newExpressionType = cRet;
+			}
+			return newExpressionType;
 		}
 
 		protected Expression GetCorrectIterator(Expression iterator)
@@ -3504,6 +3671,12 @@ namespace Boo.Lang.Compiler.Steps
 						break;
 					}
 
+				case BuiltinFunctionType.Default:
+					{
+						ProcessDefaultValueInvocation(node);
+						break;
+					}
+					
 				default:
 					{
 						NotImplemented(node, "BuiltinFunction: " + function);
@@ -3568,6 +3741,35 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		void ProcessDefaultValueInvocation(MethodInvocationExpression node)
+		{
+			if (node.Arguments.Count != 1)
+			{
+				Error(node, CompilerErrorFactory.MethodArgumentCount(node.Target, "__default__", 1));
+			}
+			else
+			{
+				Expression arg = node.Arguments[0];
+				if (arg.Entity == null)
+				{
+					Error(node, CompilerErrorFactory.TypeExpected(arg));
+					return;
+				}
+				var entity = GetEntity(arg);
+
+				EntityType type = entity.EntityType;
+
+				if (type != EntityType.Type)
+				{
+					Error(node, CompilerErrorFactory.TypeExpected(arg));
+				}
+				else
+				{
+					BindExpressionType(node, (IType)entity);
+				}
+			}
+		}
+		
 		void ProcessAddressOfInvocation(MethodInvocationExpression node)
 		{
 			if (node.Arguments.Count != 1)
@@ -3710,6 +3912,18 @@ namespace Boo.Lang.Compiler.Steps
 						return null;
 					return m.GenericInfo.ConstructMethod(arguments);
 				}).Where(m => m != null).ToArray();
+
+            //check for unprocessed deferred closures
+            var orphanClosures = node.Arguments
+                .OfType<BlockExpression>()
+                .Where(b => b.ExpressionType == null && b.ContainsAnnotation("$Deferred$")).ToArray();
+            foreach (var closure in orphanClosures)
+            {
+                InferClosureSignature(closure);
+                ProcessClosureBody(closure);
+            }
+			if (orphanClosures.Length > 0)
+				return ResolveCallableReference(node, entity);
 
 			var resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, methods);
 			if (null == resolved)
@@ -3995,6 +4209,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected virtual void ProcessMethodInvocation(MethodInvocationExpression node, IMethod method)
 		{
+			if (AstAnnotations.HasAmbiguousSignature(node))
+				FixAmbiguousSignatures(node);
+
 			if (ResolvedAsExtension(node)) PostNormalizeExtensionInvocation(node, method);
 
 			var targetMethod = InferGenericMethodInvocation(node, method);
@@ -4015,6 +4232,33 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+		}
+
+		private void FixAmbiguousSignatures(MethodInvocationExpression node)
+		{
+			foreach (var be in node.Arguments.OfType<BlockExpression>())
+			{
+				var expr = be.NodeType == NodeType.AsyncBlockExpression ? ((AsyncBlockExpression) be).Block : be;
+				if (AstAnnotations.HasAmbiguousSignature(expr))
+				{
+					expr.ExpressionType = null;
+					InferClosureSignature(expr);
+					if (be != expr)
+						be.ExpressionType = expr.ExpressionType;
+					var associatedMethod = ((InternalMethod)expr.Entity).Method;
+					var sig = ((ICallableType)expr.ExpressionType).GetSignature();
+					if (associatedMethod.ReturnType.Entity != sig.ReturnType)
+						associatedMethod.ReturnType = CreateTypeReference(associatedMethod.ReturnType.LexicalInfo, sig.ReturnType);
+					var parameters = sig.Parameters;
+					for (int i = 0; i < associatedMethod.Parameters.Count; ++i)
+					{
+						var param = associatedMethod.Parameters[i];
+						if (param.Type.Entity != parameters[i].Type && 
+							   (param.Type.Entity == null || !parameters[i].Type.IsAssignableFrom((IType)param.Type.Entity)))
+							param.Type = CreateTypeReference(param.Type.LexicalInfo, parameters[i].Type);
+					}
+				}
+			}
 		}
 
 		private IMethod InferGenericMethodInvocation(MethodInvocationExpression node, IMethod targetMethod)
@@ -4303,7 +4547,12 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			var ctor = GetCorrectConstructor(node, type, node.Arguments);
+            if (type.GenericInfo != null && !(type is IGenericArgumentsProvider))
+            {
+				type = TypeSystemServices.SelfMapGenericType(type);
+            }
+
+            var ctor = GetCorrectConstructor(node, type, node.Arguments);
 			if (ctor != null)
 			{
 				BindConstructorInvocation(node, ctor);
@@ -4893,7 +5142,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindTypeTest(BinaryExpression node)
 		{
-			if (CheckIsNotValueType(node, node.Left) && CheckIsaArgument(node.Right))
+			if (CheckIsaArgument(node.Right))
 				BindExpressionType(node, TypeSystemServices.BoolType);
 			else
 				Error(node);
@@ -5768,6 +6017,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return
 				node.NodeType == NodeType.MethodInvocationExpression ||
+                node.NodeType == NodeType.AwaitExpression ||
 				AstUtil.IsAssignment(node) ||
 				AstUtil.IsIncDec(node);
 		}
@@ -5795,6 +6045,20 @@ namespace Boo.Lang.Compiler.Steps
 				&& ((type.GenericInfo != null && type.GenericInfo.GenericParameters.Length > 0)
 					|| (type.ConstructedInfo != null && !type.ConstructedInfo.FullyConstructed)))
 			{
+                var it = type as IInternalEntity;
+                if (it != null)
+                {
+                    var typenode = it.Node;
+                    var replacement = typenode["TypeRefReplacement"] as GenericReferenceExpression;
+                    if (replacement != null && !sourceNode.Matches(replacement))
+                    {
+                        replacement = replacement.CloneNode();
+                        replacement.LexicalInfo = sourceNode.LexicalInfo;
+                        sourceNode.ParentNode.Replace(sourceNode, replacement);
+                        Visit(replacement);
+                        return true;
+                    }
+                }
 				Error(CompilerErrorFactory.GenericTypesMustBeConstructedToBeInstantiated(sourceNode));
 				return false;
 			}

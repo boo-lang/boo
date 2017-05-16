@@ -27,7 +27,9 @@
 #endregion
 
 using System;
+#if !NO_SERIALIZATION_INFO
 using System.Runtime.Serialization;
+#endif
 
 namespace Boo.Lang.Runtime
 {
@@ -36,7 +38,9 @@ namespace Boo.Lang.Runtime
 	/// The AssertMacro injects code to raise this exception if the provided
 	/// condition evaluates to false.
 	/// </summary>
+#if !NO_SERIALIZATION_INFO
 	[Serializable]
+#endif
 	public class AssertionFailedException : RuntimeException
 	{
 		public AssertionFailedException(string message) : base(message)

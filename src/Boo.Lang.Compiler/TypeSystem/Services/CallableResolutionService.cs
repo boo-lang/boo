@@ -45,12 +45,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 	/// </summary>
 	public class CallableResolutionService : AbstractCompilerComponent
 	{
-		protected const int CallableExactMatchScore = 10;
-		protected const int CallableUpCastScore = 9;
-		protected const int CallableImplicitConversionScore = 8;
-		protected const int ExactMatchScore = 8;
-		protected const int UpCastScore = 7;
-		protected const int WideningPromotion = 6;
+		protected const int CallableExactMatchScore = 11;
+		protected const int CallableUpCastScore = 10;
+		protected const int CallableImplicitConversionScore = 9;
+		protected const int ExactMatchScore = 9;
+		protected const int UpCastScore = 8;
+        protected const int GenericInstantiateScore = 7;
+        protected const int WideningPromotion = 6;
 		protected const int ImplicitConversionScore = 5;
 		protected const int NarrowingPromotion = 4;
 		protected const int DowncastScore = 3;
@@ -200,20 +201,35 @@ namespace Boo.Lang.Compiler.TypeSystem
 			FindApplicableCandidates();
 
 			if (ValidCandidates.Count == 0) return null;
-			if (ValidCandidates.Count == 1) return (ValidCandidates[0]).Method;
+			if (ValidCandidates.Count == 1) return CheckCandidate(ValidCandidates[0], args);
 
 			List<Candidate> dataPreserving = FindDataPreservingCandidates();
 			if (dataPreserving.Count > 0)
 			{
 				FindBestMethod(dataPreserving);
-				if (dataPreserving.Count == 1) return (dataPreserving[0]).Method;
+                if (dataPreserving.Count == 1) return CheckCandidate(dataPreserving[0], args);
 			}
 
 			FindBestMethod(_candidates);
 			if (ValidCandidates.Count > 1) PreferInternalEntitiesOverNonInternal();
-			if (ValidCandidates.Count == 1) return (ValidCandidates[0].Method);
+            if (ValidCandidates.Count == 1) return CheckCandidate(ValidCandidates[0], args);
 			return null;
 		}
+
+        // Required to support nested generic types
+        private static IMethod CheckCandidate(Candidate value, ExpressionCollection args)
+	    {
+	        var scores = value.ArgumentScores;
+            for (var i = 0; i < scores.Length; ++i)
+	        {
+                if (scores[i] == GenericInstantiateScore)
+                {
+                    var j = Math.Min(i, value.Parameters.Length - 1); //needed to support params* arguments
+                    args[i].ExpressionType = value.Parameters[j].Type;
+                }
+	        }
+	        return value.Method;
+	    }
 
 		private void PreferInternalEntitiesOverNonInternal()
 		{
@@ -416,11 +432,15 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (t1.IsArray && t2.IsArray || t1.IsByRef && t2.IsByRef)
 				return MoreSpecific(t1.ElementType, t2.ElementType);
 
-			// The less-generic type is more specific.
+            // A more concrete type is more specfic
+            int result = GenericsServices.GetTypeConcreteness(t1) - GenericsServices.GetTypeConcreteness(t2);
+            if (result != 0) return result;
+
+			// With equal concreteness, the more generic type is more specific.
 			//First search for open args, then for all args
-			int result = GenericsServices.GetTypeGenerity(t2) - GenericsServices.GetTypeGenerity(t1);
+			result = GenericsServices.GetTypeGenerity(t1) - GenericsServices.GetTypeGenerity(t2);
 			if (result != 0) return result;
-			result = GenericsServices.GetTypeGenericDepth(t2) - GenericsServices.GetTypeGenericDepth(t1);
+			result = GenericsServices.GetTypeGenericDepth(t1) - GenericsServices.GetTypeGenericDepth(t2);
 			if (result != 0) return result;
 
 			// If both types have the same genrity, the deeper-nested type is more specific
@@ -537,6 +557,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 				var callableArg = argumentType as ICallableType;
 				if (callableType != null && callableArg != null)
 					return CalculateCallableScore(callableType, callableArg);
+                if (parameterType is IGenericArgumentsProvider && !(argumentType is IGenericArgumentsProvider) && !argumentType.IsNull())
+                    return GenericInstantiateScore;
 				return UpCastScore;
 			}
 

@@ -38,52 +38,38 @@ namespace Boo.Lang.Compiler.Steps
 	public class ProcessGenerators : AbstractTransformerCompilerStep
 	{
 		public static readonly System.Reflection.ConstructorInfo List_IEnumerableConstructor = Methods.ConstructorOf(() => new List(default(IEnumerable)));
-		
-		Method _current;
-		
-		override public void Run()
+
+		public override void Run()
 		{
             if (Errors.Count > 0) return;
 			Visit(CompileUnit.Modules);
 		}
 		
-		override public void OnInterfaceDefinition(InterfaceDefinition node)
+		public override void OnInterfaceDefinition(InterfaceDefinition node)
 		{
 			// ignore
 		}
 		
-		override public void OnEnumDefinition(EnumDefinition node)
+		public override void OnEnumDefinition(EnumDefinition node)
 		{
 			// ignore
 		}
 		
-		override public void OnField(Field node)
+		public override void OnField(Field node)
 		{
 			// ignore
 		}
 		
-		override public void OnConstructor(Constructor method)
+		public override void LeaveMethod(Method method)
 		{
-			_current = method;
-			Visit(_current.Body);
-		}
-		
-		override public bool EnterMethod(Method method)
-		{
-			_current = method;
-			return true;
-		}
-		
-		override public void LeaveMethod(Method method)
-		{
-			InternalMethod entity = (InternalMethod)method.Entity;
+			var entity = (InternalMethod)method.Entity;
 			if (!entity.IsGenerator) return;
 
 			var processor = new GeneratorMethodProcessor(Context, entity);
 			processor.Run();
 		}
 
-		override public void OnListLiteralExpression(ListLiteralExpression node)
+		public override void OnListLiteralExpression(ListLiteralExpression node)
 		{
 			var generator = AstUtil.IsListGenerator(node);
 			Visit(node.Items);
@@ -94,7 +80,7 @@ namespace Boo.Lang.Compiler.Steps
 						node.Items[0]));
 		}
 		
-		override public void LeaveGeneratorExpression(GeneratorExpression node)
+		public override void LeaveGeneratorExpression(GeneratorExpression node)
 		{
 			var collector = new ForeignReferenceCollector { CurrentType = TypeContaining(node) };
 			node.Accept(collector);
@@ -105,7 +91,7 @@ namespace Boo.Lang.Compiler.Steps
 			ReplaceCurrentNode(processor.CreateEnumerableConstructorInvocation());
 		}
 
-		private IType TypeContaining(GeneratorExpression node)
+		private static IType TypeContaining(GeneratorExpression node)
 		{
 			return (IType) AstUtil.GetParentClass(node).Entity;
 		}

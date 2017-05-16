@@ -30,14 +30,21 @@ namespace Boo.Lang
 {
 	using System;
 	using System.Collections;
+#if DNXCORE50
+    using System.Reflection;
+#endif
 
-	public abstract class AbstractGenerator : IEnumerable
+    public abstract class AbstractGenerator : IEnumerable
 	{
 		public abstract IEnumerator GetEnumerator();
 
-		override public string ToString()
+		public override string ToString()
 		{
+#if !DNXCORE50
 			EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)Attribute.GetCustomAttribute(GetType(), typeof(EnumeratorItemTypeAttribute));
+#else
+		    EnumeratorItemTypeAttribute attribute = (EnumeratorItemTypeAttribute)GetType().GetTypeInfo().GetCustomAttribute(typeof(EnumeratorItemTypeAttribute));
+#endif
 			return string.Format("generator({0})", attribute.ItemType);
 		}
 	}

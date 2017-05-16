@@ -67,11 +67,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.Initializer is ListLiteralExpression)
 				foreach (var item in ((ListLiteralExpression)node.Initializer).Items)
 					// temp.Add(item)
-					initialization.Arguments.Add(NewAddInvocation(item.LexicalInfo, temp, item));
+					initialization.Arguments.Add(NewAddInvocation(item.LexicalInfo, temp.CloneNode(), item));
 			else
 				foreach (var pair in ((HashLiteralExpression)node.Initializer).Items)
 					// temp.Add(key, value)
-					initialization.Arguments.Add(NewAddInvocation(pair.LexicalInfo, temp, pair.First, pair.Second));
+					initialization.Arguments.Add(NewAddInvocation(pair.LexicalInfo, temp.CloneNode(), pair.First, pair.Second));
 
 			// return temp
 			initialization.Arguments.Add(temp.CloneNode());
