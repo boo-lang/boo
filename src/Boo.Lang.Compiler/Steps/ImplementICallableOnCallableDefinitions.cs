@@ -26,11 +26,13 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Compiler.Steps.Generators;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	using System.Diagnostics;
+	using System.Linq;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.TypeSystem;
 	
@@ -207,8 +209,31 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				call.Body.Add(new ReturnStatement(mie));
 			}
+			CheckMethodGenerics(call, node);
 		}
-		
+
+		private static void CheckMethodGenerics(Method call, ClassDefinition node)
+		{
+			if (node.GenericParameters.Count > 0)
+			{
+				var tf = new GenericTypeFinder();
+				call.Body.Accept(tf);
+				var results = tf.Results.ToArray();
+				if (results.Length > 0)
+				{
+					var replacer = new GeneratorTypeReplacer();
+					foreach (var gtype in results)
+					{
+						var replacement = node.GenericParameters.FirstOrDefault(gp => gp.Name == gtype.Name);
+						if (replacement != null)
+							replacer.Replace(gtype, (IType) replacement.Entity);
+					}
+					if (replacer.Any)
+						call.Body.Accept(new GenericTypeMapper(replacer));
+				}
+			}
+		}
+
 		MethodInvocationExpression CreateInvokeInvocation(InternalCallableType type)
 		{
 			return CodeBuilder.CreateMethodInvocation(

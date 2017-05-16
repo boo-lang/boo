@@ -179,6 +179,12 @@ namespace Boo.Lang.Resources
 		public const string BCE0174 = "'{0}' is not an interface. Only interface members can be explicitly implemented.";
 		public const string BCE0175 = "Nested type '{0}' cannot extend enclosing type '{1}'.";
 		public const string BCE0176 = "Incompatible partial definition for type '{0}', expecting '{1}' but got '{2}'.";
+		public const string BCE0177 = "Default expression requires a type.";
+        public const string BCE0178 = "Async methods must return void, Task, or Task<T>";
+        public const string BCE0179 = "Await requires an expression of type Task or Task<T>";
+        public const string BCE0180 = "Type '{0}' is not valid in an async method";
+        public const string BCE0181 = "Unsafe method calls returning a pointer are not valid in an async method";
+		public const string BCE0182 = "Type {0} does not contain a valid GetAwaiter method";
 		public const string BCW0000 = "WARNING: {0}";
 		public const string BCW0001 = "WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.";
 		public const string BCW0002 = "WARNING: Statement modifiers have no effect in labels.";
@@ -209,6 +215,7 @@ namespace Boo.Lang.Resources
 		public const string BCW0027 = "WARNING: Obsolete syntax '{0}'. Use '{1}'.";
 		public const string BCW0028 = "WARNING: Implicit downcast from '{0}' to '{1}'.";
 		public const string BCW0029 = "WARNING: Method '{0}' hides inherited non virtual method '{1}'. Declare '{0}' as a 'new' method.";
+		public const string BCW0030 = "WARNING: This async method lacks \'await\' operators and will run synchronously. Consider using the \'await\' operator to await non-blocking API calls, or \'await Task.Run(...)\' to do CPU-bound work on a background thread.";
 		public const string BCE0500 = "Response file '{0}' listed more than once.";
 		public const string BCE0501 = "Response file '{0}' could not be found.";
 		public const string BCE0502 = "An error occurred while loading response file '{0}'.";

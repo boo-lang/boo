@@ -30,35 +30,34 @@
 using System;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.Util;
-using Boo.Lang.Runtime;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class BindTypeMembers : BindMethods
 	{
-		Boo.Lang.List _parameters = new Boo.Lang.List();
-		Boo.Lang.List _events = new Boo.Lang.List();
-		IMethod _delegate_Combine;
-		IMethod _delegate_Remove;
+        private readonly List _parameters = new List();
+        private readonly List _events = new List();
+        private IMethod _delegate_Combine;
+		private IMethod _delegate_Remove;
 
-		const string PrivateMemberNeverUsed = "PrivateMemberNeverUsed";
+		private const string PrivateMemberNeverUsed = "PrivateMemberNeverUsed";
 
-		override public void OnMethod(Method node)
+		public override void OnMethod(Method node)
 		{
 			_parameters.Add(node);
 			base.OnMethod(node);
 		}
-		
-		void BindAllParameters()
+
+        private void BindAllParameters()
 		{
 			Method entryPoint = ContextAnnotations.GetEntryPoint(Context);
 
 			foreach (INodeWithParameters node in _parameters)
 			{
-				TypeMember member = (TypeMember)node;
+				var member = (TypeMember)node;
 
 				if (member.ContainsAnnotation(PrivateMemberNeverUsed))
 					continue;
@@ -77,13 +76,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void OnConstructor(Constructor node)
+		public override void OnConstructor(Constructor node)
 		{
 			_parameters.Add(node);
 			base.OnConstructor(node);
 		}
 		
-		override public void OnField(Field node)
+		public override void OnField(Field node)
 		{
 			if (null == node.Entity)
 			{
@@ -95,7 +94,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void OnProperty(Property node)
+		public override void OnProperty(Property node)
 		{
 			EnsureEntityFor(node);
 			_parameters.Add(node);
@@ -105,12 +104,12 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.ExplicitInfo);
 		}
 
-		override public void OnEvent(Event node)
+		public override void OnEvent(Event node)
 		{
 			_events.Add(node);
 		}
 
-		void BindAllEvents()
+        private void BindAllEvents()
 		{
 			foreach (Event node in _events)
 			{
@@ -118,13 +117,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void BindEvent(Event node)
+        private void BindEvent(Event node)
 		{
 			EnsureEntityFor(node);
 
-			IType type = GetType(node.Type);
-			IType declaringType = GetType(node.DeclaringType);
-			bool typeIsCallable = type is ICallableType;
+			var type = GetType(node.Type);
+			var declaringType = GetType(node.DeclaringType);
+			var typeIsCallable = type is ICallableType;
 			if (!typeIsCallable)
 			{
 				Errors.Add(
@@ -151,7 +150,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void BindClassEvent(Event node, IType type, bool typeIsCallable)
 		{
-			Field backingField = CodeBuilder.CreateField("$event$" + node.Name, type);
+			var backingField = CodeBuilder.CreateField("$event$" + node.Name, type);
 			backingField.IsSynthetic = true;
 			backingField.Modifiers = TypeMemberModifiers.Private;
 			if (node.HasTransientModifier)
@@ -189,13 +188,13 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
-		override public void Run()
+		public override void Run()
 		{
 			base.Run();
 			BindAll();
 		}
 
-		override public TypeMember Reify(TypeMember node)
+		public override TypeMember Reify(TypeMember node)
 		{
 			base.Reify(node);
 			BindAll();
@@ -215,7 +214,7 @@ namespace Boo.Lang.Compiler.Steps
 			_events.Clear();
 		}
 
-		IMethod Delegate_Combine
+        private IMethod Delegate_Combine
 		{
 			get
 			{
@@ -224,7 +223,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		IMethod Delegate_Remove
+        private IMethod Delegate_Remove
 		{
 			get
 			{
@@ -233,7 +232,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		void InitializeDelegateMethods()
+        private void InitializeDelegateMethods()
 		{
 			if (null != _delegate_Combine)
 			{
@@ -243,9 +242,9 @@ namespace Boo.Lang.Compiler.Steps
 			_delegate_Remove = TypeSystemServices.Map(Methods.Of<Delegate, Delegate, Delegate>(Delegate.Remove));
 		}
 
-		Method CreateInterfaceEventMethod(Event node, string prefix)
+        private Method CreateInterfaceEventMethod(Event node, string prefix)
 		{
-			Method method = CodeBuilder.CreateMethod(prefix + node.Name,
+			var method = CodeBuilder.CreateMethod(prefix + node.Name,
 				TypeSystemServices.VoidType,
 				TypeMemberModifiers.Public | TypeMemberModifiers.Virtual | TypeMemberModifiers.Abstract);
 			method.Parameters.Add(
@@ -255,20 +254,20 @@ namespace Boo.Lang.Compiler.Steps
 				GetType(node.Type)));
 			return method;
 		}
-		
-		Method CreateInterfaceEventAddMethod(Event node)
+
+        private Method CreateInterfaceEventAddMethod(Event node)
 		{
 			return CreateInterfaceEventMethod(node, "add_"); 
 		}
 
-		Method CreateInterfaceEventRemoveMethod(Event node)
+        private Method CreateInterfaceEventRemoveMethod(Event node)
 		{
 			return CreateInterfaceEventMethod(node, "remove_");
 		}
 
-		Method CreateEventMethod(Event node, string prefix)
+		private Method CreateEventMethod(Event node, string prefix)
 		{
-			Method method = CodeBuilder.CreateMethod(prefix + node.Name,
+			var method = CodeBuilder.CreateMethod(prefix + node.Name,
 				TypeSystemServices.VoidType,
 				node.Modifiers);
 			method.Parameters.Add(
@@ -279,9 +278,9 @@ namespace Boo.Lang.Compiler.Steps
 			return method;
 		}
 		
-		Method CreateEventAddMethod(Event node, Field backingField)
+		private Method CreateEventAddMethod(Event node, Field backingField)
 		{
-			Method m = CreateEventMethod(node, "add_");
+			var m = CreateEventMethod(node, "add_");
 			m.Body.Add(
 				CodeBuilder.CreateAssignment(
 				CodeBuilder.CreateReference(backingField),
@@ -292,9 +291,9 @@ namespace Boo.Lang.Compiler.Steps
 			return m;
 		}
 		
-		Method CreateEventRemoveMethod(Event node, Field backingField)
+		private Method CreateEventRemoveMethod(Event node, Field backingField)
 		{
-			Method m = CreateEventMethod(node, "remove_");
+			var m = CreateEventMethod(node, "remove_");
 			m.Body.Add(
 				CodeBuilder.CreateAssignment(
 				CodeBuilder.CreateReference(backingField),
@@ -305,16 +304,16 @@ namespace Boo.Lang.Compiler.Steps
 			return m;
 		}
 		
-		TypeMemberModifiers RemoveAccessiblityModifiers(TypeMemberModifiers modifiers)
+		private static TypeMemberModifiers RemoveAccessiblityModifiers(TypeMemberModifiers modifiers)
 		{
-			TypeMemberModifiers mask = TypeMemberModifiers.Public |
-				TypeMemberModifiers.Protected |
-				TypeMemberModifiers.Private |
-				TypeMemberModifiers.Internal;
-			return modifiers & ~mask ;
+		    const TypeMemberModifiers mask = TypeMemberModifiers.Public |
+		                                     TypeMemberModifiers.Protected |
+		                                     TypeMemberModifiers.Private |
+		                                     TypeMemberModifiers.Internal;
+		    return modifiers & ~mask ;
 		}
 		
-		Method CreateEventRaiseMethod(Event node, Field backingField)
+		private Method CreateEventRaiseMethod(Event node, Field backingField)
 		{
 			TypeMemberModifiers modifiers = RemoveAccessiblityModifiers(node.Modifiers);
 			if (node.IsPrivate)
@@ -325,16 +324,18 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				modifiers |= TypeMemberModifiers.Protected | TypeMemberModifiers.Internal;
 			}
-			
-			Method method = CodeBuilder.CreateMethod("raise_" + node.Name,
-				TypeSystemServices.VoidType,
+
+			var returnType = ((ICallableType)node.Type.Entity).GetSignature().ReturnType;
+
+			var method = CodeBuilder.CreateMethod("raise_" + node.Name,
+				returnType,
 				modifiers);
 
-			ICallableType type = GetEntity(node.Type) as ICallableType;
+			var type = GetEntity(node.Type) as ICallableType;
 			if (null != type)
 			{
-				int index = CodeBuilder.GetFirstParameterIndex(node);
-				foreach (IParameter parameter in type.GetSignature().Parameters)
+				var index = CodeBuilder.GetFirstParameterIndex(node);
+				foreach (var parameter in type.GetSignature().Parameters)
 				{
 					method.Parameters.Add(
 						CodeBuilder.CreateParameterDeclaration(
@@ -347,25 +348,29 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			//assign backingField to local to avoid potential race condition between null-check and Invoke
-			InternalLocal local = CodeBuilder.DeclareTempLocal(method, GetType(backingField.Type));
-			BinaryExpression assignment = new BinaryExpression(
+			var local = CodeBuilder.DeclareTempLocal(method, GetType(backingField.Type));
+			var assignment = new BinaryExpression(
 				BinaryOperatorType.Assign,
 				CodeBuilder.CreateReference(local),
 				CodeBuilder.CreateReference(backingField));
 			method.Body.Add(assignment);
 
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+			var mie = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateReference(local),
 				NameResolutionService.ResolveMethod(GetType(backingField.Type), "Invoke"));
-			foreach (ParameterDeclaration parameter in method.Parameters)
+			foreach (var parameter in method.Parameters)
 			{
 				mie.Arguments.Add(CodeBuilder.CreateReference(parameter));
 			}
-			
-			IfStatement stmt = new IfStatement(node.LexicalInfo);
-			stmt.Condition = CodeBuilder.CreateReference(local);
-			stmt.TrueBlock = new Block();
-			stmt.TrueBlock.Add(mie);
+
+		    var stmt = new IfStatement(node.LexicalInfo)
+		    {
+		        Condition = CodeBuilder.CreateReference(local),
+		        TrueBlock = new Block()
+		    };
+			if (returnType == TypeSystemServices.VoidType)
+				stmt.TrueBlock.Add(mie);
+			else stmt.TrueBlock.Add(new ReturnStatement(mie));
 			method.Body.Add(stmt);
 
 			return method;

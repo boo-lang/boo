@@ -32,7 +32,9 @@ using System.Collections.Generic;
 
 namespace Boo.Lang
 {
-	[Serializable]
+#if !NO_SERIALIZATION_INFO
+    [Serializable]
+#endif
 	public class BooHashCodeProvider : IEqualityComparer, IEqualityComparer<object>
 	{
 		public static readonly IEqualityComparer Default = new BooHashCodeProvider();

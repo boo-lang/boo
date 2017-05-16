@@ -3,7 +3,9 @@
 import Boo.Lang.Compiler.Ast
 
 macro initialization:
-	macro order(value as IntegerLiteralExpression):
+	macro order:
+		assert len(order.Arguments) == 1 and order.Arguments[0] isa IntegerLiteralExpression, "order <integer>"
+		value as IntegerLiteralExpression = order.Arguments[0] 
 		initialization['Ordering'] = value.Value
 	
 	name = Context.GetUniqueName('module_ctor')

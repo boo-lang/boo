@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Services;
@@ -68,11 +69,43 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		}
 
 		protected string BuildFullName()
-		{
+		{/*
+            var sb = new StringBuilder();
+		    sb.Append(_definition.FullName);
+		    sb.Append("[of ");
+		    for (var i = 0; i < _arguments.Length; ++i)
+		    {
+		        sb.Append(_arguments[i].FullName);
+		        if (i < _arguments.Length - 1)
+		            sb.Append(", ");
+		    }
+		    sb.Append("]");
+			return sb.ToString();
+		  */
 			return _definition.FullName;
 		}
 
-		protected GenericMapping GenericMapping
+	    public override bool Equals(object other)
+	    {
+	        if (other == null)
+	            return false;
+
+            if (other.GetType() != this.GetType())
+	            return false;
+
+	        var otherType = (GenericConstructedType) other;
+	        if (otherType._definition != _definition)
+	            return false;
+
+	        for (var i = 0; i < _arguments.Length; ++i)
+	        {
+	            if (!_arguments[i].Equals(otherType._arguments[i]))
+	                return false;
+	        }
+	        return true;
+	    }
+
+		protected internal GenericMapping GenericMapping
 		{
 			get { return _genericMapping; }
 		}
@@ -203,18 +236,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return false;
 		}
 
-		public bool IsGenericAssignableFrom(IType other)
-		{
-			var ci = this.ConstructedInfo;
-			if (ci == null)
-				return false;
-			var gd = ci.GenericDefinition;
-			if (gd == null)
-				return false;
-			
-			return gd.IsAssignableFrom(other);
-		}
-		
+        public bool IsGenericAssignableFrom(IType other)
+        {
+            var gd = _definition;
+            if (gd != null && gd.IsAssignableFrom(other))
+                return true;
+            var otherConstruct = other as GenericConstructedType;
+            if (otherConstruct == null || otherConstruct._definition != gd)
+                return false;
+            for (var i = 0; i < _arguments.Length; ++i)
+            {
+                if (!_arguments[i].IsAssignableFrom(otherConstruct._arguments[i]))
+                    return false;
+            }
+            return true;
+        }
+	
+
 		public IGenericTypeInfo GenericInfo
 		{
 			get { return _definition.GenericInfo; }

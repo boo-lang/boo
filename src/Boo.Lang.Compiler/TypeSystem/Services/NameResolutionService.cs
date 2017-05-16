@@ -135,9 +135,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private IEntity ResolveImpl(string name, EntityType flags)
 		{
-			var resultingSet = new Set<IEntity>();
+			var resultingSet = Namespaces.AcquireSet();
+			try {
 			Resolve(resultingSet, name, flags);
 			return Entities.EntityFromList(resultingSet);
+			}
+			finally {
+				Namespaces.ReleaseSet(resultingSet);
+			}
 		}
 
 		public void ClearResolutionCacheFor(string name)
@@ -153,9 +158,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IEnumerable<TEntityOut> Select<TEntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
 		{
+			var result = new List<TEntityOut>();
 			foreach (var candidate in candidates)
 				if (Matches(candidate, name, typesToConsider))
-					yield return (TEntityOut) candidate;
+					result.Add((TEntityOut) candidate);
+			return result;
 		}
 
 	    public bool Resolve(string name, IEnumerable<IEntity> candidates, EntityType typesToConsider, ICollection<IEntity> resolvedSet)
@@ -220,13 +227,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private IEntity ResolveExtensionForType(INamespace ns, IType type, string name)
 		{
-			var extensions = new Set<IEntity>();
+			var extensions = Namespaces.AcquireSet();
+			try {
 			if (!ns.Resolve(extensions, name, EntityType.Method | EntityType.Property))
 				return null;
 
 			Predicate<IEntity> notExtensionPredicate = item => !IsExtensionOf(type, item as IExtensionEnabled);
 			extensions.RemoveAll(notExtensionPredicate);
 			return Entities.EntityFromList(extensions);
+			}
+			finally {
+				Namespaces.ReleaseSet(extensions);
+			}
 		}
 
 		private bool IsExtensionOf(IType type, IExtensionEnabled entity)
@@ -266,9 +278,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			if (!IsQualifiedName(name))
 				return Resolve(name, flags);
 
-			var resultingSet = new Set<IEntity>();
+			var resultingSet = Namespaces.AcquireSet();
+			try {
 			ResolveQualifiedName(resultingSet, name, flags);
 			return Entities.EntityFromList(resultingSet);
+			}
+			finally {
+				Namespaces.ReleaseSet(resultingSet);
+			}
 		}
 
 		private bool ResolveQualifiedName(ICollection<IEntity> targetList, string name, EntityType flags)
@@ -544,9 +561,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			if (@namespace == null)
 				throw new ArgumentNullException("namespace");
-			Set<IEntity> resultingSet = new Set<IEntity>();
+			Set<IEntity> resultingSet = Namespaces.AcquireSet();
+			try {
 			ResolveCoalescingNamespaces(@namespace, name, elementType, resultingSet);
 			return Entities.EntityFromList(resultingSet);
+			}
+			finally {
+				Namespaces.ReleaseSet(resultingSet);
+			}
 		}
 
 		private bool ResolveCoalescingNamespaces(INamespace ns, string name, EntityType elementType, ICollection<IEntity> resultingSet)
@@ -657,9 +679,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public IEntity ResolveQualifiedName(INamespace namespaceToResolveAgainst, string name)
 		{
-			Set<IEntity> resultingSet = new Set<IEntity>();
+			Set<IEntity> resultingSet = Namespaces.AcquireSet();
+			try {
 			ResolveQualifiedNameAgainst(namespaceToResolveAgainst, name, EntityType.Any, resultingSet);
 			return Entities.EntityFromList(resultingSet);
+			}
+			finally {
+				Namespaces.ReleaseSet(resultingSet);
+			}
 		}
 	}
 }

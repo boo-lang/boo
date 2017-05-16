@@ -552,6 +552,12 @@ class CastExpression(Expression):
 class TypeofExpression(Expression):
 	Type as TypeReference
 
+class AsyncBlockExpression(BlockExpression):
+	Block as BlockExpression
+
+class AwaitExpression(Expression):
+	BaseExpression as Expression
+
 class CustomStatement(Statement):
 	pass
 	

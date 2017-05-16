@@ -1695,6 +1695,51 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{				
+			if (EnterAsyncBlockExpression(node))
+			{
+				Visit(node.Parameters);
+				Visit(node.ReturnType);
+				Visit(node.Body);
+				Visit(node.Block);
+				LeaveAsyncBlockExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveAsyncBlockExpression(Boo.Lang.Compiler.Ast.AsyncBlockExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{				
+			if (EnterAwaitExpression(node))
+			{
+				Visit(node.BaseExpression);
+				LeaveAwaitExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveAwaitExpression(Boo.Lang.Compiler.Ast.AwaitExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnCustomStatement(Boo.Lang.Compiler.Ast.CustomStatement node)
 		{				
 			if (EnterCustomStatement(node))

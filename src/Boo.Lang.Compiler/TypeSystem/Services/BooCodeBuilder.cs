@@ -33,8 +33,11 @@ using System.Linq;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
+using Boo.Lang.Compiler.Steps;
 using Boo.Lang.Compiler.TypeSystem.Builders;
+using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
+using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Environments;
 using Attribute = Boo.Lang.Compiler.Ast.Attribute;
 
@@ -162,7 +165,21 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return expression;
 		}
 
-		public TypeofExpression CreateTypeofExpression(IType type)
+        public Expression CreateAsCast(IType type, Expression target)
+        {
+            if (type == target.ExpressionType)
+                return target;
+
+            var expression = new TryCastExpression(target.LexicalInfo)
+            {
+                Type = CreateTypeReference(type),
+                Target = target,
+                ExpressionType = type
+            };
+            return expression;
+        }
+
+        public TypeofExpression CreateTypeofExpression(IType type)
 		{
 			return new TypeofExpression
 					{
@@ -346,12 +363,22 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new SelfLiteralExpression { ExpressionType = expressionType };
 		}
 
-		public ReferenceExpression CreateLocalReference(string name, InternalLocal entity)
+        public SelfLiteralExpression CreateSelfReference(IMethod method, IType expressionType)
+        {
+            return new SelfLiteralExpression { ExpressionType = expressionType, Entity = method };
+        }
+
+        public ReferenceExpression CreateLocalReference(string name, InternalLocal entity)
 		{
 			return CreateTypedReference(name, entity);
 		}
 
-		public ReferenceExpression CreateTypedReference(string name, ITypedEntity entity)
+        public ReferenceExpression CreateLocalReference(InternalLocal entity)
+        {
+            return CreateTypedReference(entity.Name, entity);
+        }
+
+        public ReferenceExpression CreateTypedReference(string name, ITypedEntity entity)
 		{
 			ReferenceExpression expression = new ReferenceExpression(name);
 			expression.Entity = entity;
@@ -384,6 +411,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return e;
 		}
 
+		public MemberReferenceExpression CreateMappedReference(LexicalInfo nodeLexicalInfo,
+			Field field,
+			IType type)
+		{
+			if (type.GenericInfo != null && type.ConstructedInfo == null)
+				type = TypeSystemServices.SelfMapGenericType(type);
+			var entity = type.ConstructedInfo != null ?
+				(IField)type.ConstructedInfo.Map((IField)field.Entity) :
+				(IField)field.Entity;
+			return CreateReference(entity);
+		}
+
 		public MemberReferenceExpression CreateReference(Field field)
 		{
 			return CreateReference((IField)field.Entity);
@@ -393,6 +432,17 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return CreateMemberReference(field);
 		}
+
+	    public GenericReferenceExpression CreateGenericReference(ReferenceExpression baseRef,
+	        IEnumerable<TypeReference> typeArgs)
+	    {
+            var gre = new GenericReferenceExpression { Target = baseRef };
+            foreach (var arg in typeArgs)
+                gre.GenericArguments.Add(arg);
+            var entity = My<NameResolutionService>.Instance.ResolveGenericReferenceExpression(gre, gre.Target.Entity);
+            gre.Entity = entity;
+	        return gre;
+;	    }
 
         public MemberReferenceExpression CreateReference(Property property)
         {
@@ -430,6 +480,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			MemberReferenceExpression reference = new MemberReferenceExpression(target.LexicalInfo);
 			reference.Target = target;
 			reference.Name = entity.Name;
+            var genType = target.ExpressionType as IConstructedTypeInfo;
+            if (genType != null && entity is IMember && !(entity is IGenericMappedMember))
+            {
+                var gcm = entity as GenericConstructedMethod;
+                if (gcm != null)
+                    entity = gcm.GenericDefinition;
+                entity = genType.Map((IMember)entity);
+                if (gcm != null)
+                    entity = ((GenericMappedMethod)entity).GenericInfo.ConstructMethod(gcm.GenericArguments);
+            }
 			reference.Entity = entity;
 			return reference;
 		}
@@ -462,9 +522,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateReference(li, TypeSystemServices.Map(type));
 		}
 
+	    private MemberReferenceExpression CreateNestedReference(IType type)
+	    {
+	        var baseType = CreateReference(type.DeclaringEntity);
+            return new MemberReferenceExpression(baseType, type.Name) { Entity = type, IsSynthetic = true };
+	    }
+
 		public ReferenceExpression CreateReference(IType type)
 		{
-			return new ReferenceExpression(type.FullName) {Entity = type, IsSynthetic = true};
+		    if (type.DeclaringEntity is GenericConstructedType)
+		        return CreateNestedReference(type);
+			if (type.GenericInfo != null)
+				type = type.GenericInfo.ConstructType(type.GenericInfo.GenericParameters);
+			return new ReferenceExpression(type.FullName) {Entity = type, ExpressionType = type, IsSynthetic = true};
 		}
 
 		public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li)
@@ -490,6 +560,27 @@ namespace Boo.Lang.Compiler.TypeSystem
 			eval.ExpressionType = value.ExpressionType;
 			return eval;
 		}
+
+        public MethodInvocationExpression CreateEvalInvocation(LexicalInfo li, params Expression[] args)
+        {
+            MethodInvocationExpression eval = CreateEvalInvocation(li);
+            IType et = null;
+            foreach (var arg in args)
+            {
+                eval.Arguments.Add(arg);
+                et = arg.ExpressionType;
+            }
+            eval.ExpressionType = et;
+            return eval;
+        }
+
+        public MethodInvocationExpression CreateDefaultInvocation(LexicalInfo li, IType type)
+	    {
+	        var result = CreateBuiltinInvocation(li, BuiltinFunction.Default);
+            result.Arguments.Add(CreateTypeofExpression(type));
+	        result.ExpressionType = type;
+	        return result;
+	    }
 
 		public UnpackStatement CreateUnpackStatement(DeclarationCollection declarations, Expression expression)
 		{
@@ -647,6 +738,36 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return constructor;
 		}
 
+        public MethodInvocationExpression CreateGenericConstructorInvocation(IType classType,
+	        IEnumerable<GenericParameterDeclaration> genericArgs)
+	    {
+	        var args = genericArgs.Select(gpd => new SimpleTypeReference(gpd.Name){Entity = gpd.Entity}).Cast<TypeReference>();
+            return CreateGenericConstructorInvocation(classType, args);
+	    }
+
+	    public MethodInvocationExpression CreateGenericConstructorInvocation(IType classType,
+	        IEnumerable<TypeReference> genericArgs)
+	    {
+            var gpp = classType as IGenericParametersProvider;
+            IConstructor constructor;
+            if (gpp == null || !genericArgs.Any())
+            {
+                constructor = classType.GetConstructors().First();
+                return CreateConstructorInvocation(constructor);
+            }
+
+            classType = new GenericConstructedType(
+                classType,
+                genericArgs.Select(a => a.Entity).Cast<IType>().ToArray());
+            constructor = classType.GetConstructors().First();
+
+	        var result = new MethodInvocationExpression {Target = CreateReference(constructor.DeclaringType)};
+	        result.Target.Entity = constructor;
+            result.ExpressionType = constructor.DeclaringType;
+
+	        return result;
+	    }
+
 		public MethodInvocationExpression CreateConstructorInvocation(ClassDefinition cd)
 		{
 			IConstructor constructor = ((IType)cd.Entity).GetConstructors().First();
@@ -745,7 +866,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return method;
 		}
 
-		public Property CreateProperty(string name, IType type)
+        public Method CreateGenericMethod(string name, TypeReference returnType, TypeMemberModifiers modifiers, GenericParameterDeclaration[] genParams)
+        {
+            Method method = new Method(name);
+            method.Modifiers = modifiers;
+            method.ReturnType = returnType;
+            method.IsSynthetic = true;
+            method.GenericParameters.AddRange(genParams);
+            EnsureEntityFor(method);
+            return method;
+        }
+
+        public Property CreateProperty(string name, IType type)
 		{
 			Property property = new Property(name);
 			property.Modifiers = TypeMemberModifiers.Public;
@@ -909,6 +1041,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new RaiseStatement(lexicalInfo, CreateConstructorInvocation(lexicalInfo, exceptionConstructor, args));
 		}
 
+	    public TryStatement CreateTryExcept(LexicalInfo lexicalInfo, Block protecteBlock,
+	        params ExceptionHandler[] handlers)
+	    {
+	        var result = new TryStatement(lexicalInfo) {ProtectedBlock = protecteBlock};
+            result.ExceptionHandlers.AddRange(handlers);
+	        return result;
+	    }
+
+	    public ExceptionHandler CreateExceptionHandler(LexicalInfo lexicalInfo, Declaration definition, Block body)
+	    {
+	        return new ExceptionHandler(lexicalInfo){ Declaration = definition, Block = body};
+	    }
+
 		public InternalLocal DeclareTempLocal(Method node, IType type)
 		{
 			var local = DeclareLocal(node, My<UniqueNameProvider>.Instance.GetUniqueName(), type);
@@ -925,7 +1070,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return entity;
 		}
 
-		public void BindParameterDeclarations(bool isStatic, INodeWithParameters node)
+        public Declaration CreateDeclaration(Method method, string name, IType type, out InternalLocal local)
+        {
+            var result = new Declaration(name, CreateTypeReference(type));
+            local = this.DeclareLocal(method, name, type);
+            method.Locals.Add(local.Local);
+            result.Entity = local;
+            return result;
+        }
+
+        public void BindParameterDeclarations(bool isStatic, INodeWithParameters node)
 		{
 			// arg0 is the this pointer when member is not static
 			int delta = isStatic ? 0 : 1;
@@ -953,7 +1107,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return new InternalLabel(new LabelStatement(sourceNode.LexicalInfo, name));
 		}
 
-		public TypeMember CreateStub(ClassDefinition node, IMember member)
+        public InternalLabel CreateLabel(Node sourceNode, string name, int depth)
+        {
+            var result = CreateLabel(sourceNode, name);
+            AstAnnotations.SetTryBlockDepth(result.LabelStatement, depth);
+            return result;
+        }
+
+        public GotoStatement CreateGoto(LexicalInfo li, InternalLabel target)
+	    {
+	        return new GotoStatement(li, CreateLabelReference(target.LabelStatement));
+	    }
+
+	    public GotoStatement CreateGoto(InternalLabel target)
+	    {
+	        return CreateGoto(LexicalInfo.Empty, target);
+	    }
+
+        public GotoStatement CreateGoto(InternalLabel target, int depth)
+        {
+            var result = CreateGoto(LexicalInfo.Empty, target);
+            AstAnnotations.SetTryBlockDepth(result, depth);
+            return result;
+        }
+
+        public TypeMember CreateStub(ClassDefinition node, IMember member)
 		{
 			IMethod baseMethod = member as IMethod;
 			if (null != baseMethod)

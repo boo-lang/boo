@@ -26,23 +26,33 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Diagnostics;
 using System.Linq;
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.Steps.Generators;
+using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	
 	public class ProcessClosures : AbstractTransformerCompilerStep
 	{
-		override public void Run()
+        public override void Run()
 		{
 			Visit(CompileUnit);
 		}
 
-		override public void LeaveBlockExpression(BlockExpression node)
+	    public override void OnAsyncBlockExpression(AsyncBlockExpression node)
+	    {
+	        var result = Visit(node.Block);
+	        ReplaceCurrentNode(result);
+	    }
+
+        private GeneratorTypeReplacer _mapper;
+
+        public override void LeaveBlockExpression(BlockExpression node)
 		{
 			var closureEntity = GetEntity(node) as InternalMethod;
 			if (closureEntity == null)
@@ -51,36 +61,60 @@ namespace Boo.Lang.Compiler.Steps
 			var collector = new ForeignReferenceCollector();
 			{
 				collector.CurrentMethod = closureEntity.Method;
-				collector.CurrentType = (IType)closureEntity.DeclaringType;
+				collector.CurrentType = closureEntity.DeclaringType;
 				closureEntity.Method.Body.Accept(collector);
 				
 				if (collector.ContainsForeignLocalReferences)
 				{
 					BooClassBuilder closureClass = CreateClosureClass(collector, closureEntity);
+					if (closureEntity is InternalGenericMethod)
+						closureEntity = GetEntity(closureEntity.Method) as InternalMethod;
 					closureClass.ClassDefinition.LexicalInfo = node.LexicalInfo;
 					collector.AdjustReferences();
-					
-					ReplaceCurrentNode(
+
+                    if (_mapper != null)
+                    {
+                        closureClass.ClassDefinition.Accept(new GenericTypeMapper(_mapper));
+                    }
+
+                    ReplaceCurrentNode(
 						CodeBuilder.CreateMemberReference(
 							collector.CreateConstructorInvocationWithReferencedEntities(
-								closureClass.Entity),
+								closureClass.Entity,
+                                node.GetAncestor<Method>()),
 							closureEntity));
 				}
 				else
 				{
-					Expression expression = CodeBuilder.CreateMemberReference(closureEntity);
+					_mapper = closureEntity.Method["GenericMapper"] as GeneratorTypeReplacer;
+					if (_mapper != null)
+						closureEntity.Method.Accept(new GenericTypeMapper(_mapper));
+					IMethod entity = closureEntity;
+					if (entity.GenericInfo != null)
+					{
+						entity = MapGenericMethod(entity, node.GetAncestor<Method>().GenericParameters);
+					}
+					Expression expression = CodeBuilder.CreateMemberReference(entity);
 					expression.LexicalInfo = node.LexicalInfo;
 					TypeSystemServices.GetConcreteExpressionType(expression);
 					ReplaceCurrentNode(expression);
 				}
 			}
 		}
-		
+
+		private static IMethod MapGenericMethod(IMethod method, GenericParameterDeclarationCollection genericArgs)
+		{
+			var args = method.GenericInfo.GenericParameters
+				.Select(gp => (IType)genericArgs.First(ga => ga.Name == gp.Name).Entity).ToArray();
+			return method.GenericInfo.ConstructMethod(args);
+		}
+
 		BooClassBuilder CreateClosureClass(ForeignReferenceCollector collector, InternalMethod closure)
 		{
 			Method method = closure.Method;
 			TypeDefinition parent = method.DeclaringType;
 			parent.Members.Remove(method);
+			_mapper = method["GenericMapper"] as GeneratorTypeReplacer;
 			
 			BooClassBuilder builder = collector.CreateSkeletonClass(closure.Name, method.LexicalInfo);
 			parent.Members.Add(builder.ClassDefinition);
@@ -99,7 +133,43 @@ namespace Boo.Lang.Compiler.Steps
 			method.Modifiers = TypeMemberModifiers.Public;
 			var coll = new GenericTypeCollector(CodeBuilder);
 			coll.Process(builder.ClassDefinition);
+			if (!method.GenericParameters.IsEmpty)
+			{
+				MapMethodGenerics(builder, method);
+			}
+			if (builder.ClassDefinition.GenericParameters.Count > 0)
+                MapGenerics(builder.ClassDefinition);
 			return builder;
 		}
+
+		private void MapMethodGenerics(BooClassBuilder builder, Method method)
+		{
+			Debug.Assert(_mapper != null);
+			var classParams = builder.ClassDefinition.GenericParameters;
+			foreach (var genParam in method.GenericParameters)
+			{
+				var replacement = classParams.FirstOrDefault(p => p.Name.Equals(genParam.Name));
+				if (replacement != null && genParam != replacement.Entity)
+					_mapper.Replace((IType) genParam.Entity, (IType) replacement.Entity);
+			}
+			method.GenericParameters.Clear();
+			method.Entity = new InternalMethod(Environments.My<InternalTypeSystemProvider>.Instance, method);
+		}
+
+		private void MapGenerics(ClassDefinition cd)
+	    {
+	        var finder = new GenericTypeFinder();
+	        foreach (var member in cd.Members)
+                member.Accept(finder);
+
+            _mapper = _mapper ?? new GeneratorTypeReplacer();
+            var genParams = cd.GenericParameters;
+	        foreach (var genType in finder.Results)
+	        {
+	            var replacement = genParams.FirstOrDefault(p => p.Name.Equals(genType.Name));
+                if (replacement != null && genType != replacement.Entity)
+                    _mapper.Replace(genType, (IType)replacement.Entity);
+	        }
+	    }
 	}
 }

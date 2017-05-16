@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Boo.Lang.Compiler.Ast;
@@ -36,25 +37,33 @@ using Boo.Lang.Compiler.Util;
 
 namespace Boo.Lang.Compiler.Steps
 {
+    internal enum InheritsImplementationStyle
+    {
+        None,
+        IsVirtual,
+        IsLocal,
+        IsExternal
+    }
+
 	public class ProcessInheritedAbstractMembers : AbstractVisitorCompilerStep, ITypeMemberReifier
 	{
 		private List<TypeDefinition> _newAbstractClasses;
 		private Set<IEntity> _explicitMembers;
 
-		override public void Run()
+        public override void Run()
 		{	
 			_newAbstractClasses = new List<TypeDefinition>();
 			Visit(CompileUnit.Modules);
 			ProcessNewAbstractClasses();
 		}
 
-		override public void Dispose()
+        public override void Dispose()
 		{
 			_newAbstractClasses = null;
 			base.Dispose();
 		}
 
-		override public void OnProperty(Property node)
+        public override void OnProperty(Property node)
 		{
 			if (node.IsAbstract && null == node.Type)
 				node.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.ObjectType);
@@ -68,7 +77,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		override public void OnMethod(Method node)
+        public override void OnMethod(Method node)
 		{
 			if (node.IsAbstract && null == node.ReturnType)
 				node.ReturnType = CodeBuilder.CreateTypeReference(TypeSystemServices.VoidType);
@@ -82,7 +91,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		override public void OnExplicitMemberInfo(ExplicitMemberInfo node)
+        public override void OnExplicitMemberInfo(ExplicitMemberInfo node)
 		{
 			var member = (TypeMember)node.ParentNode;
 			if (!CheckExplicitMemberValidity((IExplicitMember)member))
@@ -208,22 +217,36 @@ namespace Boo.Lang.Compiler.Steps
 			return explicitMembers;
 		}
 
+        private IMember GetBaseImplememtation(ClassDefinition node, IMember abstractMember)
+        {
+            foreach (var baseTypeRef in node.BaseTypes)
+            {
+                IType type = GetType(baseTypeRef);
+                if (type.IsInterface)
+                    continue;
+
+                IMember implementation = FindBaseMemberOf(abstractMember, type);
+                if (implementation != null)
+                    return implementation;
+            }
+            return null;
+        }
+
 		/// <summary>
 		/// This function checks for inheriting implementations from EXTERNAL classes only.
 		/// </summary>
-		bool CheckInheritsImplementation(ClassDefinition node, IMember abstractMember)
+        private InheritsImplementationStyle CheckInheritsImplementation(ClassDefinition node, IMember abstractMember)
 		{
-			foreach (var baseTypeRef in node.BaseTypes)
+            IMember implementation = GetBaseImplememtation(node, abstractMember);
+            if (implementation != null && !IsAbstract(implementation))
 			{
-				IType type = GetType(baseTypeRef);
-				if (type.IsInterface)
-					continue;
-
-				IMember implementation = FindBaseMemberOf(abstractMember, type);
-				if (null != implementation && !IsAbstract(implementation))
-					return true;
+                if (IsVirtualImplementation(implementation, abstractMember))
+			        return InheritsImplementationStyle.IsVirtual;
+                if (abstractMember is IExternalEntity)
+                    return InheritsImplementationStyle.IsExternal;
+                return InheritsImplementationStyle.IsLocal;
 			}
-			return false;
+            return InheritsImplementationStyle.None;
 		}
 
 		private IMember FindBaseMemberOf(IMember member, IType inType)
@@ -261,7 +284,32 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 
-		private IEnumerable<IMember> ImplementationCandidatesFor(IMember abstractMember, IType inBaseType)
+        private static bool IsVirtualImplementation(IEntity member, IEntity candidate)
+        {
+            switch (member.EntityType)
+            {
+                case EntityType.Method:
+                    return ((IMethod) candidate).IsVirtual;
+                case EntityType.Event:
+                    return true;
+                case EntityType.Property:
+                    if (CheckVirtualPropImpl((IProperty)candidate, (IProperty)member))
+                        return true;
+                    break;
+            }
+            return false;
+        }
+
+	    private static bool CheckVirtualPropImpl(IProperty candidate, IProperty member)
+	    {
+            if (candidate.GetGetMethod() != null && !member.GetGetMethod().IsVirtual)
+	            return false;
+            if (candidate.GetSetMethod() != null && !member.GetSetMethod().IsVirtual)
+                return false;
+	        return true;
+	    }
+
+	    private IEnumerable<IMember> ImplementationCandidatesFor(IMember abstractMember, IType inBaseType)
 		{
 			while (inBaseType != null)
 			{
@@ -273,7 +321,7 @@ namespace Boo.Lang.Compiler.Steps
 					if (candidate.EntityType == EntityType.Field)
 						continue;
 
-					string candidateName = abstractMember.DeclaringType.IsInterface
+					string candidateName = abstractMember.DeclaringType.IsInterface && abstractMember.EntityType != EntityType.Method
 					                       	? SimpleNameOf(candidate)
 					                       	: candidate.Name;
 					if (candidateName == abstractMember.Name)
@@ -347,18 +395,19 @@ namespace Boo.Lang.Compiler.Steps
 						return;
 			}
 
-			if (CheckInheritsImplementation(node, baseProperty))
-				return;
-
-			AbstractMemberNotImplemented(node, rootBaseType, baseProperty);
-		}
-
-		private ClassDefinition ClassDefinitionFor(TypeReference parent)
-		{
-			var internalClass = GetType(parent) as InternalClass;
-			return internalClass != null
-			       	? (ClassDefinition) internalClass.TypeDefinition
-			       	: null;
+		    var style = CheckInheritsImplementation(node, baseProperty);
+		    switch (style)
+		    {
+		        case InheritsImplementationStyle.None:
+		            AbstractMemberNotImplemented(node, rootBaseType, baseProperty);;
+		            break;
+		        case InheritsImplementationStyle.IsVirtual:
+		            break;
+		        case InheritsImplementationStyle.IsLocal:
+		        case InheritsImplementationStyle.IsExternal:
+                    ResolveNonVirtualPropertyImplementation(node, rootBaseType, baseProperty, style);
+		            break;
+		    }
 		}
 
 		private bool ResolveAsImplementationOf(IProperty baseProperty, Property property)
@@ -410,18 +459,18 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			if (CheckInheritsImplementation(node, baseEvent))
+			if (CheckInheritsImplementation(node, baseEvent) != InheritsImplementationStyle.None)
 				return;
 
-				TypeMember conflicting;
-				if (null != (conflicting = node.Members[baseEvent.Name]))
-				{
-					//we've got a non-resolved conflicting member
-					Error(CompilerErrorFactory.ConflictWithInheritedMember(conflicting, (IMember)GetEntity(conflicting), baseEvent));
-					return;
-				}
-				AddStub(node, CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, baseEvent));
-				AbstractMemberNotImplemented(node, baseTypeRef, baseEvent);
+			TypeMember conflicting;
+			if (null != (conflicting = node.Members[baseEvent.Name]))
+			{
+				//we've got a non-resolved conflicting member
+				Error(CompilerErrorFactory.ConflictWithInheritedMember(conflicting, (IMember)GetEntity(conflicting), baseEvent));
+				return;
+			}
+			AddStub(node, CodeBuilder.CreateAbstractEvent(baseTypeRef.LexicalInfo, baseEvent));
+			AbstractMemberNotImplemented(node, baseTypeRef, baseEvent);
 			
 		}
 
@@ -449,18 +498,80 @@ namespace Boo.Lang.Compiler.Steps
 				if (ResolveAsImplementationOf(baseAbstractMethod, method))
 					return;
 
-			if (CheckInheritsImplementation(node, baseAbstractMethod))
-				return;
+		    var style = CheckInheritsImplementation(node, baseAbstractMethod);
+		    switch (style)
+		    {
+		        case InheritsImplementationStyle.None:
+		            break;
+		        case InheritsImplementationStyle.IsVirtual:
+		            return;
+		        case InheritsImplementationStyle.IsLocal:
+		        case InheritsImplementationStyle.IsExternal:
+		            ResolveNonVirtualMethodImplementation(node, rootBaseType, baseAbstractMethod, style);
+		            break;
+		    }
 
 			if (!AbstractMemberNotImplemented(node, rootBaseType, baseAbstractMethod))
 			{
 				//BEHAVIOR < 0.7.7: no stub, mark class as abstract
 				AddStub(node, CodeBuilder.CreateAbstractMethod(rootBaseType.LexicalInfo, baseAbstractMethod));
 			}
-			
 		}
 
-		private bool ResolveAsImplementationOf(IMethod baseMethod, Method method)
+	    private void ResolveNonVirtualPropertyImplementation(ClassDefinition node, TypeReference rootBaseType,
+	        IProperty baseAbstractProperty, InheritsImplementationStyle style)
+	    {
+            if (!((IType)rootBaseType.Entity).IsInterface)
+                return;
+            var impl = (IProperty) GetBaseImplememtation(node, baseAbstractProperty);
+            var abstractAccessor = baseAbstractProperty.GetGetMethod();
+            if (abstractAccessor != null)
+            {
+                var getter = impl.GetGetMethod();
+                if (!getter.IsVirtual)
+                    ResolveNonVirtualMethodImplementation(node, getter, style);
+            }
+            abstractAccessor = baseAbstractProperty.GetSetMethod();
+            if (abstractAccessor != null)
+            {
+                var setter = impl.GetGetMethod();
+                if (!setter.IsVirtual)
+                    ResolveNonVirtualMethodImplementation(node, setter, style);
+            }
+	    }
+
+	    private void ResolveNonVirtualMethodImplementation(ClassDefinition node, TypeReference rootBaseType,
+            IMethod baseAbstractMethod, InheritsImplementationStyle style)
+	    {
+            if (!((IType)rootBaseType.Entity).IsInterface)
+                return;
+            var impl = (IMethod)GetBaseImplememtation(node, baseAbstractMethod);
+            ResolveNonVirtualMethodImplementation(node, impl, style);
+        }
+
+        private void ResolveNonVirtualMethodImplementation(ClassDefinition node, IMethod resolvedMethod,
+            InheritsImplementationStyle style)
+        {
+            if (style == InheritsImplementationStyle.IsLocal)
+            {
+                var method = ((InternalMethod)resolvedMethod).Method;
+                method.Modifiers |= TypeMemberModifiers.Virtual | TypeMemberModifiers.Final;
+            }
+            else
+            {
+                var coverMethod = CodeBuilder.CreateMethodFromPrototype(resolvedMethod,
+                    TypeMemberModifiers.Public | TypeMemberModifiers.Virtual | TypeMemberModifiers.Final | TypeMemberModifiers.New);
+                var superCall = CodeBuilder.CreateSuperMethodInvocation(resolvedMethod);
+                foreach (var param in resolvedMethod.GetParameters())
+                    superCall.Arguments.Add(CodeBuilder.CreateReference(param));
+                if (resolvedMethod.ReturnType == TypeSystemServices.VoidType)
+                    coverMethod.Body.Add(superCall);
+                else coverMethod.Body.Add(new ReturnStatement(superCall));
+                node.Members.Add(coverMethod);
+            }
+        }
+
+        private bool ResolveAsImplementationOf(IMethod baseMethod, Method method)
 		{
 			if (!TypeSystemServices.CheckOverrideSignature(GetEntity(method), baseMethod))
 				return false;

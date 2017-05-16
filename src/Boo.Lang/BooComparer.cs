@@ -35,7 +35,9 @@ namespace Boo.Lang
 	/// Compares items lexicographically through IEnumerable whenever
 	/// they don't implement IComparable.
 	/// </summary>
+#if !NO_SERIALIZATION_INFO
 	[Serializable]
+#endif
 	public class BooComparer : IComparer
 	{
 		public static readonly IComparer Default = new BooComparer();
