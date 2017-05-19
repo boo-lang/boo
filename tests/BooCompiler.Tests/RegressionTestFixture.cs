@@ -1429,7 +1429,25 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"override-inference.boo");
 		}
-		
+
+		[Test]
+		public void linq_filter_error()
+		{
+			RunCompilerTestCase(@"linq-filter-error.boo");
+		}
+
+		[Test]
+		public void linq_filter_error_2()
+		{
+			RunCompilerTestCase(@"linq-filter-error-2.boo");
+		}
+
+		[Test]
+		public void delegate_overload()
+		{
+			RunCompilerTestCase(@"delegate-overload.boo");
+		}
+
 
 		override protected string GetRelativeTestCasesPath()
 		{

@@ -4209,6 +4209,16 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					expr.ExpressionType = null;
 					InferClosureSignature(expr);
+					if (expr.ExpressionType == null)
+					{
+						if (node.Target.Entity != null && node.Target.Entity.EntityType == EntityType.Method)
+						{
+							var index = node.Arguments.IndexOf(be);
+							if (index == -1) continue;
+							expr.ExpressionType = ((IMethod)node.Target.Entity).GetParameters()[index].Type;
+						}
+						continue;
+					}
 					if (be != expr)
 						be.ExpressionType = expr.ExpressionType;
 					var associatedMethod = ((InternalMethod)expr.Entity).Method;

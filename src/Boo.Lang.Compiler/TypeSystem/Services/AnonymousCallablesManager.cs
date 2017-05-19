@@ -132,7 +132,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 					cd.GenericParameters.Add(gp);
 					++counter;
 				}
-				node.Entity = new InternalGenericParameter(this.TypeSystemServices, gp);
+				node.Entity = gp.Entity;
 				gp["InternalGenericParent"] = (param as InternalGenericParameter).Node;
 			}
 		}

@@ -418,7 +418,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 					var con = member as IConstructedMethodInfo;
 					if (con != null)
 					{
-						var gd = (IGenericMethodInfo)con.GenericDefinition;
+						var gd = con.GenericDefinition.GenericInfo;
 						member = gd.ConstructMethod(con.GenericArguments.Select(_methodToStateMachineMapper.MapType).ToArray());
 					}
 				}
