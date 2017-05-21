@@ -17,7 +17,7 @@ env:
     - PKG_CONFIG_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig/
 
 install:
-  - ./bootstrap
+  - ./build-tools/bootstrap
 
 script:
  - ./nant

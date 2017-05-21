@@ -2,7 +2,11 @@
 
 set -e
 
-if [ ! -e ./.config-build ]
+SCRIPT_DIR=$(dirname "$0")
+BUILD_TOOLS_DIR=${SCRIPT_DIR}/build-tools
+CONFIG_FILE=${BUILD_TOOLS_DIR}/.config-build
+
+if [ ! -e ${CONFIG_FILE} ]
 then
     echo ''
     echo "Run './build-tools/bootstrap [<mono version>]' prior to building"
@@ -10,13 +14,13 @@ then
     exit 1
 fi
 
-source ./.config-build
+source ${CONFIG_FILE}
 
-${MONO_PATH} --runtime=v4.0 ${BUILD_TOOLS_DIR}/nant/NAnt.exe -t:mono-4.5 ${1:-compile-tests}
+${MONO_PATH} --runtime=v4.0 ${TOOLS_DIR}/nant/NAnt.exe -t:mono-4.5 ${1:-compile-tests}
 echo "Running tests..."
 
 pushd tests
 # Replace the nunit framework dll with the downloaded version
-cp -f "../${BUILD_TOOLS_DIR}/NUnit-${NUNIT_VERSION}/bin/framework/nunit.framework.dll" build/.
+cp -f "../${TOOLS_DIR}/NUnit-${NUNIT_VERSION}/bin/framework/nunit.framework.dll" build/.
 cd build
-PEVERIFY=false ${MONO_PATH} --runtime=v4.0 "../../${BUILD_TOOLS_DIR}/NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.5 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -domain=none -exclude=FailsOnMono,FailsOnMono4 *.Tests.dll
+PEVERIFY=false ${MONO_PATH} --runtime=v4.0 "../../${TOOLS_DIR}/NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.5 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -domain=none -exclude=FailsOnMono,FailsOnMono4 *.Tests.dll

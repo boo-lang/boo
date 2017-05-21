@@ -18,7 +18,7 @@ You'll need to install compatible versions of NAnt and NUnit. See [build-tools/v
 Just type:
 
 ```
-./bootstrap [<mono version>]
+./build-tools/bootstrap [<mono version>]
 ```
 
 This will install compatible versions of NAnt and NUnit into the ```build-tools``` directory.

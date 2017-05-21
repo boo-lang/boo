@@ -2,23 +2,28 @@
 
 set -e
 
-source ./build-tools/versions
+SCRIPT_DIR=$(dirname "$0")
+
+source ${SCRIPT_DIR}/versions
 MONO_VERSION=${1:-Current}
 
-cat >./.config-build <<EOL
-source ./build-tools/versions
+CONFIG_FILE=${SCRIPT_DIR}/.config-build
+
+cat >${CONFIG_FILE} <<EOL
+SCRIPT_DIR=\$(dirname "$0")
+source \${SCRIPT_DIR}/versions
 export MONO_VERSION=${MONO_VERSION}
 export MONO_DIR=/Library/Frameworks/Mono.framework/Versions/\${MONO_VERSION}
 export MONO_BIN_DIR=\${MONO_DIR}/bin
 export MONO_PATH=\${MONO_BIN_DIR}/mono
 export PKG_CONFIG_PATH=\${MONO_DIR}/lib/pkgconfig/
-export BUILD_TOOLS_DIR=./build-tools/tools
+export TOOLS_DIR=${SCRIPT_DIR}/tools
 EOL
 
-source ./.config-build
+source ${CONFIG_FILE}
 
-mkdir -p ${BUILD_TOOLS_DIR}
-cd ${BUILD_TOOLS_DIR}
+mkdir -p ${TOOLS_DIR}
+cd ${TOOLS_DIR}
 
 download_if_missing() {
     url=$1
