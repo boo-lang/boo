@@ -77,7 +77,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
         internal static bool InAsyncMethod(Expression value)
         {
-            INodeWithBody ancestor = value.GetAncestor<BlockExpression>() ?? (INodeWithBody) value.GetAncestor<Method>();
+			INodeWithBody ancestor = value.GetAncestor<BlockExpression>();
+			if (ancestor == null) ancestor = value.GetAncestor<Method>();
             return ContextAnnotations.IsAsync(ancestor);
         }
     }
