@@ -107,6 +107,16 @@ def Main(argv as (string)):
 		{
 	""")
 	
+	GenerateTestFixture("async", "BooCompiler.Tests/AsyncTestFixture.cs", "BooCompiler.Async", """
+	namespace BooCompiler.Tests
+	{
+		using NUnit.Framework;
+
+		[TestFixture]
+		public class AsyncTestFixture : AbstractCompilerTestCase
+		{
+	""")
+
 	GenerateTestFixture("attributes", "BooCompiler.Tests/AttributesTestFixture.cs", "BooCompiler.Attributes", """
 	namespace BooCompiler.Tests
 	{
