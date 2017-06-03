@@ -288,8 +288,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
 	    private void CheckForTryExcept()
 	    {
-		    var handlerBlocks = _convertedTryStatements.Where(ct => ct._handlers.Count > 0).ToArray();
-		    foreach (var handlerBlock in handlerBlocks)
+			var handlerBlocks = _convertedTryStatements
+				.Where(ct => ct._handlers.Count > 0 || ct._ensureMethod != null)
+				.ToArray();
+			foreach (var handlerBlock in handlerBlocks)
 		    {
 			    var rep = handlerBlock._replacement;
 			    var parent = rep.ParentNode;
@@ -298,21 +300,28 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 				    ProtectedBlock = rep,
 				    ExceptionHandlers = handlerBlock._handlers
 			    };
-			    parent.Replace(rep, tryBlock);
+				if (handlerBlock._ensureMethod != null)
+				{
+					var failBlock = new Block();
+					failBlock.Add(CallMethodOnSelf(handlerBlock._ensureMethod));
+					tryBlock.FailureBlock = failBlock;
+				}
+				parent.Replace(rep, tryBlock);
 		    }
 		}
 
 	    private void CheckTryJumps(MethodInvocationExpression dispatch)
 		{
+			var realLabels = _labels.Distinct().Select(l => int.Parse(l.Name.Substring(7))).ToList();
 			var stateArg = dispatch.Arguments[0];
 			IEnumerable<IGrouping<TryStatement, InternalLabel>> labels;
 			do
 			{
 				labels = dispatch.Arguments
-			    .Skip(1)
-			    .Select(arg => (InternalLabel) arg.Entity)
-			    .Where(l => l.LabelStatement.GetAncestor<TryStatement>() != null)
-			    .GroupBy(l => l.LabelStatement.GetAncestor<TryStatement>());
+					.Skip(1)
+					.Select(arg => (InternalLabel) arg.Entity)
+					.Where(l => l.LabelStatement.GetAncestor<TryStatement>() != null)
+					.GroupBy(l => l.LabelStatement.GetAncestor<TryStatement>());
 				foreach (var labelGroup in labels)
 				{
 					var newLabel = CodeBuilder.CreateLabel(dispatch, UniqueName("TryLabel"));
@@ -322,19 +331,22 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 					IfStatement innerDispatch = null;
 					foreach (var label in labelGroup)
 					{
-						var depth = label.LabelStatement.GetAncestors<TryStatement>().Count();
 						var switchArg = dispatch.Arguments.First(arg => arg.Entity == label);
 						switchArg.Entity = newLabel;
+						var state = dispatch.Arguments.IndexOf(switchArg) - 1;
+						if (!realLabels.Contains(state)) continue;
+						var depth = label.LabelStatement.GetAncestors<TryStatement>().Count();
 						innerDispatch = new IfStatement(
 							CodeBuilder.CreateBoundBinaryExpression(
 								TypeSystemServices.BoolType,
 								BinaryOperatorType.Equality,
 								stateArg.CloneNode(),
-								new IntegerLiteralExpression(dispatch.Arguments.IndexOf(switchArg) - 1)),
+								new IntegerLiteralExpression(state)),
 							new Block(CodeBuilder.CreateGoto(label, depth)),
 							innerDispatch != null ? new Block(innerDispatch) : null);
-						labelGroup.Key.ProtectedBlock.Insert(0, innerDispatch);
 					}
+					if (innerDispatch != null)
+						labelGroup.Key.ProtectedBlock.Insert(0, innerDispatch);
 				}
 			} while (labels.Any());
 		}
