@@ -1,3 +1,4 @@
+#ignore Requires better closure signature inferring
 """
 0
 """
