@@ -1,8 +1,0 @@
-#!/bin/bash
-
-set -e
-
-SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
-
-${SCRIPT_DIR}/nant compile-tests
-${SCRIPT_DIR}/nunit
