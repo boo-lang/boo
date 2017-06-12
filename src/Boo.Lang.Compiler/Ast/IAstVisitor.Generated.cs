@@ -128,6 +128,16 @@ namespace Boo.Lang.Compiler.Ast
 		void OnAwaitExpression(AwaitExpression node);
 		void OnCustomStatement(CustomStatement node);
 		void OnCustomExpression(CustomExpression node);
+		void OnFromClauseExpression(FromClauseExpression node);
+		void OnQueryContinuationExpression(QueryContinuationExpression node);
+		void OnSelectClauseExpression(SelectClauseExpression node);
+		void OnLetClauseExpression(LetClauseExpression node);
+		void OnWhereClauseExpression(WhereClauseExpression node);
+		void OnJoinClauseExpression(JoinClauseExpression node);
+		void OnGroupClauseExpression(GroupClauseExpression node);
+		void OnOrderByClauseExpression(OrderByClauseExpression node);
+		void OnOrderingExpression(OrderingExpression node);
+		void OnQueryExpression(QueryExpression node);
 		void OnStatementTypeMember(StatementTypeMember node);
 
 	}

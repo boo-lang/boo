@@ -56,6 +56,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			get { return Source.GenericParameterPosition; }
 		}
+		
+		public override bool HasBaseTypes()
+		{
+			return Source.HasBaseTypes();
+		}
 
 		public override IType[] GetTypeConstraints()
 		{

@@ -50,6 +50,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			EnsureEntityFor(node);
 			Visit(node.Members);
+			Visit(node.Globals);
 		}
 		
 		override public void OnStructDefinition(StructDefinition node)

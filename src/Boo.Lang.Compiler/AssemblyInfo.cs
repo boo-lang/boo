@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -40,3 +41,4 @@ using System.Security;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.5")]
 [assembly: AssemblyDelaySign(false)]
+[assembly: CLSCompliant(false)]

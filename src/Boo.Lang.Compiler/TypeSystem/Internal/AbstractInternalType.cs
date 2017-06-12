@@ -161,6 +161,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 			get { return false; }
 		}
 
+		public bool IsVoid
+		{
+			get { return false; }
+		}
+
 		public virtual int GetTypeDepth()
 		{
 			return 1;

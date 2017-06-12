@@ -53,6 +53,7 @@ def createLockedBlock(context as CompilerContext, monitor as Expression, block a
 		|].Body
 
 	assignment = [| $temp = $monitor |].withLexicalInfoFrom(monitor)
+	assignment.IsSynthetic = true
 	return [|
 		$assignment
 		$monitorEntry

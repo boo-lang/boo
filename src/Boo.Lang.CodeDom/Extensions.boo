@@ -42,6 +42,7 @@ namespace Boo.Lang.CodeDom
 
 import System
 import System.Collections
+import Boo.Lang.Compiler
 
 [Extension]
 def IsValid(c as ICollection):

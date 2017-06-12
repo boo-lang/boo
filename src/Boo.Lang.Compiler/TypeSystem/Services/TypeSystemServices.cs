@@ -78,6 +78,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType IEnumerableGenericType;
 		public IType IEnumerableType;
+		public IType ExpressionTreeType;
 
 		public IType IListGenericType;
 		public IType IListType;
@@ -195,6 +196,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			ConditionalAttribute = Map(typeof(ConditionalAttribute));
 			IEnumerableGenericType = Map(Types.IEnumerableGeneric);
 			IEnumeratorGenericType = Map(typeof(IEnumerator<>));
+			ExpressionTreeType = Map(Types.ExpressionTree);
 			ICollectionGenericType = Map(typeof(ICollection<>));
 			IListGenericType = Map(typeof (IList<>));
 			IListType = Map(typeof (IList));
@@ -703,6 +705,32 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return _canBeReachedByPromotion.Invoke(expectedType, actualType);
 		}
 
+		public ICallableType ExpressionTreeTypeFor(IType typ)
+		{
+			if (typ.ConstructedInfo is ExternalConstructedTypeInfo && typ.ConstructedInfo.GenericDefinition.IsAssignableFrom(ExpressionTreeType))
+			{
+				var ct = (ExternalConstructedTypeInfo)typ.ConstructedInfo;
+				if (ct.GenericArguments.Length != 1)
+					return null;
+				return ct.GenericArguments[0] as ExternalCallableType;
+			}
+			return null;
+		}
+
+		private bool IsCompatibleLambda(IType expectedType, ICallableType actualType)
+		{
+			if (actualType == null)
+				return false;
+			ICallableType expectedBase = ExpressionTreeTypeFor(expectedType);
+			if (expectedBase == null)
+				return false;
+			var ebSig = expectedBase.GetSignature();
+			var atSig = actualType.GetSignature();
+			if (ebSig.Parameters.Count() != atSig.Parameters.Count())
+				return false;
+			return expectedBase.IsAssignableFrom(actualType);
+		}
+
 		private bool CanBeReachedByPromotionImpl(IType expectedType, IType actualType)
 		{
 			if (IsNullable(expectedType) && actualType.IsNull())
@@ -711,7 +739,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 				return true;
 			if (IsIntegerNumber(expectedType) && CanBeExplicitlyCastToPrimitiveNumber(actualType))
 				return true;
-			return (expectedType.IsValueType && IsNumber(expectedType) && IsNumber(actualType));
+			if (expectedType.IsValueType)
+				return (IsNumber(expectedType) && IsNumber(actualType));
+			if (expectedType.ConstructedInfo != null &&
+			    expectedType.ConstructedInfo.GenericDefinition.IsAssignableFrom(ExpressionTreeType) &&
+			    IsCompatibleLambda(expectedType, actualType as ICallableType))
+				return true;
+			return false;
 		}
 
 		public bool CanBeExplicitlyCastToPrimitiveNumber(IType type)

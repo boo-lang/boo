@@ -38,7 +38,7 @@ import System.Text.RegularExpressions
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.TypeSystem
 import PatternMatching
-import Environments
+import Boo.Lang.Environments
 
 class InteractiveInterpreterConsole:
 	

@@ -60,6 +60,7 @@ namespace Boo.Lang.Compiler.Pipelines
 
 			Add(new ReifyTypes());
 			Add(new TypeInference()); // marks the end of the type inference phase
+			Add(new ClosuresToExpressionTrees());
 		}
 	}
 }

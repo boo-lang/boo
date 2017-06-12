@@ -1,10 +1,10 @@
 ﻿#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -42,7 +42,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 	public class NameResolutionService
 	{
 		public static readonly char[] DotArray = new char[] { '.' };
-		
+
 		protected INamespace _global;
 
 		private EntityNameMatcher _entityNameMatcher = Matches;
@@ -72,52 +72,57 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				_entityNameMatcher = value;
 			}
 		}
-		
+
 		public INamespace GlobalNamespace
 		{
 			get { return _global; }
-			
+
 			set
 			{
 				if (null == value)
 					throw new ArgumentNullException("GlobalNamespace");
 				_global = value;
 			}
-		}		
-		
+		}
+
 		private Stack<MemoizedFunction<string, EntityType, IEntity>> _stackNameCaches = new Stack<MemoizedFunction<string, EntityType, IEntity>>();
 		private Stack<MemoizedFunction<string, IType, IEntity>> _stackExtensionCaches = new Stack<MemoizedFunction<string, IType, IEntity>>();
+
 		public void EnterNamespace(INamespace ns)
 		{
 			if (null == ns)
                 throw new ArgumentNullException("ns");
+
 			_stackNameCaches.Push(_resolveName);
 			_stackExtensionCaches.Push(_resolveExtensionFor);
 			_resolveName = _resolveName.Clone();
 			_resolveExtensionFor = _resolveExtensionFor.Clone();
+
 			CurrentNamespace = ns;
 		}
-		
+
 		public INamespace CurrentNamespace
 		{
 			get { return _current.Value; }
 			private set { _current.Value = value; }
 		}
-		
+
 		public void Reset()
 		{
 			_stackNameCaches.Clear();
 			_stackExtensionCaches.Clear();
+
 			EnterNamespace(_global);
 		}
-		
+
 		public void LeaveNamespace()
 		{
 			CurrentNamespace = CurrentNamespace.ParentNamespace;
+
 			_resolveName = _stackNameCaches.Pop();
 			_resolveExtensionFor = _stackExtensionCaches.Pop();
 		}
-		
+
 		public IEntity Resolve(string name)
 		{
 			return Resolve(name, EntityType.Any);
@@ -150,7 +155,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			_resolveName.Clear();
 			_resolveExtensionFor.Clear();
 		}
-				
+
 		public IEnumerable<TEntityOut> Select<TEntityOut>(IEnumerable<IEntity> candidates, string name, EntityType typesToConsider)
 		{
 			var result = new List<TEntityOut>();
@@ -264,12 +269,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		}
 
 		public IEntity ResolveQualifiedName(string name)
-		{	
+		{
 			return ResolveQualifiedName(name, EntityType.Any);
 		}
 
 		private IEntity ResolveQualifiedName(string name, EntityType flags)
-		{	
+		{
 			if (!IsQualifiedName(name))
 				return Resolve(name, flags);
 
@@ -342,7 +347,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			if (null != node.Entity) return;
 
 			ResolveTypeReference(node.ElementType);
-			
+
 			IType elementType = TypeSystemServices.GetType(node.ElementType);
 			if (TypeSystemServices.IsError(elementType))
 			{
@@ -362,19 +367,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				ResolveTypeReference(tr);
 			}
 		}
-		
+
 		public void ResolveSimpleTypeReference(SimpleTypeReference node)
 		{
 			if (null != node.Entity) return;
-			
+
 			var entity = ResolveQualifiedName(node.Name, EntityType.Type);
-			
+
 			if (entity == null)
 			{
 				node.Entity = NameNotType(node, null);
 				return;
 			}
-			
+
 			IEntity firstCandidate = null;
 			if (entity.IsAmbiguous())
 			{
@@ -383,7 +388,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 				firstCandidate = resultingSet.First();
 				FilterGenericTypes(resultingSet, node);
 				entity = Entities.EntityFromList(resultingSet);
-			}		
+			}
 
 			if (NodeType.SimpleTypeReference == node.NodeType)
 			{
@@ -391,7 +396,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 					firstCandidate = entity;
 					entity = null;
 				}
-				
+
 				if (entity == null)
 				{
 					//Generic parameters are missing because there is no candidates after filtering out generic types
@@ -400,14 +405,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 					return;
 				}
 			}
-			
+
 			if (NodeType.GenericTypeReference == node.NodeType)
-			{				
+			{
 				var gtr = node as GenericTypeReference;
 				entity = ResolveGenericTypeReference(gtr, entity);
 			}
 
-			
+
 			if (NodeType.GenericTypeDefinitionReference == node.NodeType)
 			{
 				var gtdr = node as GenericTypeDefinitionReference;
@@ -463,7 +468,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			ResolveTypeReferenceCollection(gtr.GenericArguments);
 			IType[] typeArguments = gtr.GenericArguments.ToArray(t => TypeSystemServices.GetType(t));
-			
+
 			return My<GenericsServices>.Instance.ConstructEntity(gtr, definition, typeArguments);
 		}
 
@@ -471,13 +476,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			ResolveTypeReferenceCollection(gre.GenericArguments);
 			IType[] typeArguments = gre.GenericArguments.ToArray(t => TypeSystemServices.GetType(t));
-			
+
 			return My<GenericsServices>.Instance.ConstructEntity(
 				gre, definition, typeArguments);
 		}
 
-		private void FilterGenericTypes(Set<IEntity> types, SimpleTypeReference node)		
-		{			
+		private void FilterGenericTypes(Set<IEntity> types, SimpleTypeReference node)
+		{
 			bool genericRequested = (node is GenericTypeReference || node is GenericTypeDefinitionReference);
 			if (genericRequested)
 				types.RemoveAll(IsNotGenericType);
@@ -514,7 +519,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			CompilerErrors().Add(CompilerErrorFactory.AmbiguousReference(node, node.Name, entity.Entities));
 			return TypeSystemServices.ErrorEntity;
 		}
-		
+
 		private void GenericArgumentsCountMismatch(TypeReference node, IType type)
 		{
 		    CompilerErrorEmitter().GenericArgumentsCountMismatch(node, type);
@@ -529,21 +534,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			return (IField)ResolveMember(type, name, EntityType.Field);
 		}
-		
+
 		public IMethod ResolveMethod(IType type, string name)
 		{
 			return (IMethod)ResolveMember(type, name, EntityType.Method);
 		}
-		
+
 		public IProperty ResolveProperty(IType type, string name)
 		{
 			return (IProperty)ResolveMember(type, name, EntityType.Property);
 		}
-		
+
 		public IEntity ResolveMember(IType type, string name, EntityType elementType)
 		{
 			foreach (IEntity member in type.GetMembers())
-			{				
+			{
 				if (elementType == member.EntityType && _entityNameMatcher(member, name))
 				{
 					return member;
@@ -551,7 +556,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			}
 			return null;
 		}
-		
+
 		public IEntity Resolve(INamespace @namespace, string name, EntityType elementType)
 		{
 			if (@namespace == null)
@@ -634,7 +639,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 					return string.Join(".", namespaceHierarchy);
 				}
 			}
-		
+
 			System.Collections.Generic.List<INamespace> nsList = new System.Collections.Generic.List<INamespace>();
 			FlattenChildNamespaces(nsList, GetGlobalNamespace());
 			nsList.Reverse();//most recently added namespaces first

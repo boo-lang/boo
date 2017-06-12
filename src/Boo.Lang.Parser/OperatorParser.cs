@@ -32,34 +32,48 @@ using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Parser
 {
-	public class OperatorParser
-	{
-		public static BinaryOperatorType ParseComparison(string op)
-		{
-			switch (op)
-			{
-				case "<=": return BinaryOperatorType.LessThanOrEqual;
-				case ">=": return BinaryOperatorType.GreaterThanOrEqual;
-				case "==": return BinaryOperatorType.Equality;
-				case "!=": return BinaryOperatorType.Inequality;
-				case "=~": return BinaryOperatorType.Match;
-				case "!~": return BinaryOperatorType.NotMatch;
-			}
-			throw new ArgumentException(op, "op");
-		}
+    public class OperatorParser
+    {
+        public static BinaryOperatorType ParseComparison(string op)
+        {
+            switch (op)
+            {
+                case "<=": return BinaryOperatorType.LessThanOrEqual;
+                case ">=": return BinaryOperatorType.GreaterThanOrEqual;
+                case "==": return BinaryOperatorType.Equality;
+                case "!=": return BinaryOperatorType.Inequality;
+                case "=~": return BinaryOperatorType.Match;
+                case "!~": return BinaryOperatorType.NotMatch;
+            }
+            throw new ArgumentException(op, "op");
+        }
 
-		public static BinaryOperatorType ParseAssignment(string op)
-		{
-			switch (op)
-			{
-				case "=": return BinaryOperatorType.Assign;
-				case "+=": return BinaryOperatorType.InPlaceAddition;
-				case "-=": return BinaryOperatorType.InPlaceSubtraction;
-				case "/=": return BinaryOperatorType.InPlaceDivision;
-				case "*=": return BinaryOperatorType.InPlaceMultiply;
-				case "%=": return BinaryOperatorType.InPlaceModulus;
-			}
-			throw new ArgumentException(op, "op");
-		}
-	}
+        public static BinaryOperatorType ParseAssignment(string op)
+        {
+            switch (op)
+            {
+                case "=": return BinaryOperatorType.Assign;
+                case "+=": return BinaryOperatorType.InPlaceAddition;
+                case "-=": return BinaryOperatorType.InPlaceSubtraction;
+                case "/=": return BinaryOperatorType.InPlaceDivision;
+                case "*=": return BinaryOperatorType.InPlaceMultiply;
+                case "%=": return BinaryOperatorType.InPlaceModulus;
+            }
+            throw new ArgumentException(op, "op");
+        }
+
+        public static BinaryOperatorType ParseCondAssignment(string op)
+        {
+            switch (op)
+            {
+                case "=": return BinaryOperatorType.Assign;
+                case "|=": return BinaryOperatorType.InPlaceBitwiseOr;
+                case "^=": return BinaryOperatorType.InPlaceExclusiveOr;
+                case "&=": return BinaryOperatorType.InPlaceBitwiseAnd;
+                case "<<=": return BinaryOperatorType.InPlaceShiftLeft;
+                case ">>=": return BinaryOperatorType.InPlaceShiftRight;
+            }
+            throw new ArgumentException(op, "op");
+        }
+    }
 }

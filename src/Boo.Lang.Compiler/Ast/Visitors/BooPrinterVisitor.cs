@@ -779,16 +779,26 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		{
 			Visit(e.Target);
 			Write("(");
-			WriteCommaSeparatedList(e.Arguments);
-			if (e.NamedArguments.Count > 0)
+			if ((e.Arguments.Count > 0) && (e.NamedArguments.Count == 0) 
+			    && (e.Arguments.Last is BlockExpression) && !IsSimpleClosure((BlockExpression)e.Arguments.Last))
 			{
-				if (e.Arguments.Count > 0)
+				var args = e.Arguments.ToArray();
+				Array.Resize(ref args, args.Length - 1);
+				WriteCommaSeparatedList(args);
+				Write(")");
+				Visit(e.Arguments.Last);
+			} else {
+				WriteCommaSeparatedList(e.Arguments);
+				if (e.NamedArguments.Count > 0)
 				{
-					Write(", ");
+					if (e.Arguments.Count > 0)
+					{
+						Write(", ");
+					}
+					WriteCommaSeparatedList(e.NamedArguments);
 				}
-				WriteCommaSeparatedList(e.NamedArguments);
+				Write(")");
 			}
-			Write(")");
 		}
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
@@ -1333,7 +1343,102 @@ namespace Boo.Lang.Compiler.Ast.Visitors
             Write(")");
 	    }
         
-		#endregion
+      override public void OnFromClauseExpression(FromClauseExpression node)
+      {
+			WriteKeyword("from ");
+			Visit(node.Identifier);
+			WriteKeyword(" in ");
+			Visit(node.Container);
+			Write(" ");
+      }
+      
+      override public void OnQueryContinuationExpression(QueryContinuationExpression node)
+      {
+			WriteKeyword("into ");
+			Write(node.Ident);
+			WriteLine();
+			WriteIndented();
+			Visit(node.Body);
+      }
+      
+      override public void OnSelectClauseExpression(SelectClauseExpression node)
+      {
+			WriteKeyword("select ");
+			Visit(node.BaseExpr);
+			Write(" ");
+      }
+      
+      override public void OnLetClauseExpression(LetClauseExpression node)
+      {
+			WriteKeyword("let ");
+			Write(node.Identifier);
+			Write(" = ");
+			Visit(node.Value);
+			Write(" ");         
+      }
+      
+      override public void OnWhereClauseExpression(WhereClauseExpression node)
+      {
+			WriteKeyword("where ");
+			Visit(node.Cond);
+			Write(" ");                  
+      }
+      
+      override public void OnJoinClauseExpression(JoinClauseExpression node)
+      {
+			WriteKeyword("join ");
+			Visit(node.Identifier);
+			WriteKeyword(" in ");
+			Visit(node.Container);
+			WriteKeyword(" on ");
+			Visit(node.Left);
+			WriteKeyword(" equals ");
+			Visit(node.Right);
+			if (node.Into != null)
+			{
+			   WriteKeyword(" into ");
+			   Visit(node.Into);
+			}
+			Write(" ");
+      }
+      
+      override public void OnGroupClauseExpression(GroupClauseExpression node)
+      {
+         WriteKeyword("group ");
+         Visit(node.BaseExpr);
+         WriteKeyword(" by ");
+         Visit(node.Criterion);
+         Write(" ");
+      }
+      
+      override public void OnOrderByClauseExpression(OrderByClauseExpression node)
+      {
+         WriteKeyword("orderby ");
+         int high = node.Orderings.Count - 1;
+         for (int i = 0; i <= high; ++i)
+         {
+            Visit(node.Orderings[i]);
+            if (i < high)
+               Write(", ");
+         }
+         Write(" ");
+      }
+      
+      override public void OnOrderingExpression(OrderingExpression node)
+      {
+         Visit(node.BaseExpr);
+         if (node.Descending)
+            Write(" descending");
+      }
+      
+      override public void OnQueryExpression(QueryExpression node)
+      {
+         WriteIndented();
+         base.OnQueryExpression(node);
+         WriteLine();         
+      }
+         
+   #endregion
 		
 		public static string GetUnaryOperatorText(UnaryOperatorType op)
 		{

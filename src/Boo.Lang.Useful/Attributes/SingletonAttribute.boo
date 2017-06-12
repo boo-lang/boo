@@ -184,7 +184,7 @@ Enforces constraint that no static members exist on the singleton class (as a re
 		classRef = ReferenceExpression(_classDef.Name)
 		
 		nestedInstanceClass = [| 
-			[transient]
+			#[transient]
 			private final class $NESTED_CLASS_NAME:
 				static def constructor():
 					self.$INSTANCE_FIELD_NAME = $classRef()

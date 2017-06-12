@@ -71,6 +71,8 @@ namespace Boo.Lang.Compiler.Steps
 		private InternalMethod _currentMethod;
 
 		private bool _optimizeNullComparisons = true;
+		
+		private Dictionary<string, ITypedEntity> _ranges = new Dictionary<string, ITypedEntity>();
 
 		const string TempInitializerName = "$___temp_initializer";
 
@@ -89,6 +91,18 @@ namespace Boo.Lang.Compiler.Steps
 			_invocationTypeReferenceRules = new EnvironmentProvision<InvocationTypeInferenceRules>();
 			_typeChecker = new EnvironmentProvision<TypeChecker>();
 			_methodCache = new EnvironmentProvision<RuntimeMethodCache>();
+		}
+		
+		// Added to support special processing in ClosuresToExpressionTrees
+		internal Action Initialize(CompilerContext context, Method currentMethod)
+		{
+			Initialize(context);
+			_currentModule = currentMethod.GetAncestor<Module>();
+			var im = (InternalMethod)currentMethod.Entity;
+			PushMethodInfo(im);
+			var cn = CurrentNamespace;
+			EnterNamespace(im);
+			return () => EnterNamespace(cn);
 		}
 
 		override public void Run()
@@ -138,6 +152,12 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(module.AssemblyAttributes);
 
 			LeaveNamespace();
+		}
+
+		//is this necessary? Better safe than sorry
+		override public void LeaveModule(Module node)
+		{
+			_namespaceLookup.Clear();
 		}
 
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
@@ -805,6 +825,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ProcessClosureBody(BlockExpression node)
 		{
+			if (WasVisited(node))
+				return;
 			MarkVisited(node);
 			if (node.ContainsAnnotation("inline"))
 				AddOptionalReturnStatement(node.Body);
@@ -853,6 +875,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			node.ExpressionType = closureEntity.Type;
 			node.Entity = closureEntity;
+			node.ReturnType = closureEntity.Method.ReturnType;
 		}
 
 		private void CheckForGenericClosure(Method closure, ref InternalMethod closureEntity)
@@ -1110,6 +1133,7 @@ namespace Boo.Lang.Compiler.Steps
 		static void SetPropertyAccessorOverride(Method accessor)
 		{
 			if (null == accessor) return;
+			if ((accessor.Modifiers & TypeMemberModifiers.New) == TypeMemberModifiers.New) return;
 			accessor.Modifiers |= TypeMemberModifiers.Override;
 		}
 
@@ -1148,7 +1172,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void PropagateOverrideToAccessors(Property property)
 		{
-			if (property.IsOverride)
+			if (property.IsOverride && !property.IsNew)
 			{
 				SetPropertyAccessorOverride(property.Getter);
 				SetPropertyAccessorOverride(property.Setter);
@@ -1984,7 +2008,7 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, toType);
 		}
 
-		protected Expression CreateMemberReferenceTarget(Node sourceNode, IMember member)
+		protected virtual Expression CreateMemberReferenceTarget(Node sourceNode, IMember member)
 		{
 			Expression target = null;
 
@@ -2074,7 +2098,7 @@ namespace Boo.Lang.Compiler.Steps
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			if (AlreadyBound(node))
-                return;
+				return;
 
 			IEntity entity = ResolveName(node, node.Name);
 			if (null == entity)
@@ -2110,8 +2134,40 @@ namespace Boo.Lang.Compiler.Steps
 			node.Entity = entity;
 			PostProcessReferenceExpression(node);
 		}
-
-	    private static bool AlreadyBound(ReferenceExpression node)
+		
+		private IType GetElementType(ITypedEntity entity)
+		{
+			var type = (entity).Type;		   
+			var IEnum = (from intf in type.GetInterfaces()
+			             where intf.Name.StartsWith("IEnumerable")
+			             orderby intf.Name.Length descending
+			             select intf).FirstOrDefault();
+			return GetEnumeratorItemType(IEnum);
+		}
+		
+		override public void OnFromClauseExpression(FromClauseExpression node)
+		{
+			Visit(node.Container);
+			var entity = node.Container.Entity as ITypedEntity;
+			if (node.Identifier.Type == null)
+			{
+				var elType = GetElementType(entity);
+				node.Identifier.Type = TypeReference.Lift(elType.FullName);
+				entity = DeclareLocal(node.Identifier, node.Identifier.Name, GetElementType(entity)) as ITypedEntity;
+			} else {
+				Visit(node.Identifier.Type);
+				entity = node.Identifier.Type.Entity as ITypedEntity;
+			}
+			_ranges.Add(node.Identifier.Name, entity);
+		}
+		
+		override public void OnQueryExpression(QueryExpression node)
+		{
+			base.OnQueryExpression(node);
+			_ranges.Clear();
+		}
+		
+		private static bool AlreadyBound(ReferenceExpression node)
 		{
 			return null != node.ExpressionType;
 		}
@@ -5332,9 +5388,34 @@ namespace Boo.Lang.Compiler.Steps
 			return BooPrinterVisitor.GetUnaryOperatorText(op);
 		}
 
+		private Dictionary<INamespace, Dictionary<string, IEntity>> _namespaceLookup = new Dictionary<INamespace, Dictionary<string, IEntity>>();
+
+		IEntity CachedNamespaceLookup(INamespace ns, string name, ICollection<IEntity> resultingSet)
+		{
+			if (ns == null)
+				return My<TypeSystemServices>.Instance.ResolvePrimitive(name);
+		
+			IEntity result;
+			Dictionary<string, IEntity> D1;
+			if (!_namespaceLookup.TryGetValue(ns, out D1))
+			{
+				D1 = new Dictionary<string, IEntity>();
+				_namespaceLookup.Add(ns, D1);
+			}
+			if (D1.TryGetValue(name, out result))
+				return result;
+			
+			//if it exists here, do a full lookup, to make sure ambiguity rules remain unchanged
+			if (ns.Resolve(resultingSet, name, EntityType.Any))
+				result = NameResolutionService.Resolve(name);
+			else result = CachedNamespaceLookup(ns.ParentNamespace, name, resultingSet);
+			D1.Add(name, result);
+			return result;
+		}
+
 		IEntity ResolveName(Node node, string name)
 		{
-			var entity = NameResolutionService.Resolve(name);
+			var entity = CachedNamespaceLookup(NameResolutionService.CurrentNamespace, name, new Boo.Lang.Compiler.Util.Set<IEntity>());
 			CheckNameResolution(node, name, entity);
 			return entity;
 		}
@@ -5640,9 +5721,12 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (!IsError(type))
 			{
-				if (type is IGenericParameter)
-					Error(CompilerErrorFactory.CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(sourceNode, type));
-				else
+				if (type is IGenericParameter) {
+					/*if (((IGenericParameter)type).MustHaveDefaultConstructor)
+						new InternalGenericMapping(
+					else*/
+						Error(CompilerErrorFactory.CannotCreateAnInstanceOfGenericParameterWithoutDefaultConstructorConstraint(sourceNode, type));
+				} else
 					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, type, GetSignature(arguments)));
 			}
 			return null;
@@ -5685,15 +5769,22 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 			
-			var candidate = candidates[0];
-			var constructor = candidate as IConstructor;
-			if (constructor != null)
+			if (candidates.Length > 0)
 			{
-				Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, constructor.DeclaringType, GetSignature(args)));
+				var candidate = candidates[0];
+				var constructor = candidate as IConstructor;
+				if (constructor != null)
+				{
+					Error(CompilerErrorFactory.NoApropriateConstructorFound(sourceNode, constructor.DeclaringType, GetSignature(args)));
+				}
+				else
+				{
+					Error(CompilerErrorFactory.NoApropriateOverloadFound(sourceNode, GetSignature(args), candidate.FullName));
+				}
 			}
 			else
 			{
-				Error(CompilerErrorFactory.NoApropriateOverloadFound(sourceNode, GetSignature(args), candidate.FullName));
+				Error(CompilerErrorFactory.UnknownIdentifier(sourceNode, sourceNode.ToString()));
 			}
 		}
 
@@ -5969,7 +6060,7 @@ namespace Boo.Lang.Compiler.Steps
 			_memberStack.Pop();
 		}
 
-		void PushMethodInfo(InternalMethod entity)
+		public void PushMethodInfo(InternalMethod entity)
 		{
 			_methodStack.Push(_currentMethod);
 

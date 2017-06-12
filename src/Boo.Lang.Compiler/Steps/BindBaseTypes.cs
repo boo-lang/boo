@@ -36,24 +36,60 @@ namespace Boo.Lang.Compiler.Steps
 {
 	public class BindBaseTypes : AbstractFastVisitorCompilerStep, ITypeMemberReifier
 	{
+		
+		/*
+		 * The point of fixups is to deal with accidental temporal coupling: when a
+		 * type references another type that hasn't been bound yet, it can throw an
+		 * exception, when the only thing wrong is the arbitrary order in which the
+		 * compiler is processing definitions.  The fixups mechanism catches these
+		 * and retries once the pass is over, and repeats until everything binds,
+		 * or nothing does.  In the latter case, report it as a real error.
+		*/
+		private List<TypeDefinition> _fixups = new List<TypeDefinition>();
+		
+		override public void Run()
+		{
+			base.Run();
+			bool realError = false;
+			while ((_fixups.Count > 0) && !realError)
+			{
+				int fixupCount = _fixups.Count;
+				var fixups = _fixups.ToArray();
+				_fixups.Clear();
+				foreach (var fixup in fixups)
+					Visit(fixup);
+				realError = _fixups.Count == fixupCount;
+			}
+			
+			if (realError)
+				foreach (var errNode in _fixups)
+					CompilerContext.Current.Errors.Add(CompilerErrorFactory.InvalidNode(errNode));
+		}
+		
 		override public void OnEnumDefinition(EnumDefinition node)
 		{
 		}
 		
 		override public void OnClassDefinition(ClassDefinition node)
 		{
-			// Visit type definition's members to resolve base types on nested types
-			Visit(node.Members);
-
-			// Resolve and check base types
-			ResolveBaseTypesOf(node);
-			CheckBaseTypes(node);
-			
-			if (node.IsFinal)
-				return;
-
-			if (((IType)node.Entity).IsFinal)
-				node.Modifiers |= TypeMemberModifiers.Final;
+			try {
+				// Visit type definition's members to resolve base types on nested types
+				Visit(node.Members);
+	
+				// Resolve and check base types
+				ResolveBaseTypesOf(node);
+				CheckBaseTypes(node);
+				
+				if (node.IsFinal)
+					return;
+	
+				if (((IType)node.Entity).IsFinal)
+					node.Modifiers |= TypeMemberModifiers.Final;
+			} catch (CompilerError e) {
+				if (e.Code == "BCE0015")
+					_fixups.Add(node);
+				else throw;
+			}
 		}
 
 		private void ResolveBaseTypesOf(TypeDefinition node)
@@ -63,8 +99,14 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnInterfaceDefinition(InterfaceDefinition node)
 		{
-			ResolveBaseTypesOf(node);
-			CheckInterfaceBaseTypes(node);
+			try {
+				ResolveBaseTypesOf(node);
+				CheckInterfaceBaseTypes(node);
+			} catch (CompilerError e) {
+				if (e.Code == "BCE0015")
+					_fixups.Add(node);
+				else throw;
+			}
 		}
 
 		public override void OnMethod(Method node)

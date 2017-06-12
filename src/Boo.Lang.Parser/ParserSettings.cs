@@ -49,6 +49,7 @@ namespace Boo.Lang.Parser
 		}
 
 		public ParserErrorHandler ErrorHandler { get; set; }
+		public ParserV4.ParserErrorHandler ErrorHandlerV4 { get; set; }
 
 		/// <summary>
 		/// If different to 0 will force the parser to trigger an error if the rules

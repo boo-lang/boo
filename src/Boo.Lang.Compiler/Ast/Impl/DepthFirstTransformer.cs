@@ -2822,6 +2822,362 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnFromClauseExpression(Boo.Lang.Compiler.Ast.FromClauseExpression node)
+		{	
+			if (EnterFromClauseExpression(node))
+			{
+				Declaration currentIdentifierValue = node.Identifier;
+				if (null != currentIdentifierValue)
+				{			
+					Declaration newValue = (Declaration)VisitNode(currentIdentifierValue);
+					if (!object.ReferenceEquals(newValue, currentIdentifierValue))
+					{
+						node.Identifier = newValue;
+					}
+				}
+				Expression currentContainerValue = node.Container;
+				if (null != currentContainerValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentContainerValue);
+					if (!object.ReferenceEquals(newValue, currentContainerValue))
+					{
+						node.Container = newValue;
+					}
+				}
+
+				LeaveFromClauseExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterFromClauseExpression(Boo.Lang.Compiler.Ast.FromClauseExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveFromClauseExpression(Boo.Lang.Compiler.Ast.FromClauseExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnQueryContinuationExpression(Boo.Lang.Compiler.Ast.QueryContinuationExpression node)
+		{	
+			if (EnterQueryContinuationExpression(node))
+			{
+				QueryExpression currentBodyValue = node.Body;
+				if (null != currentBodyValue)
+				{			
+					QueryExpression newValue = (QueryExpression)VisitNode(currentBodyValue);
+					if (!object.ReferenceEquals(newValue, currentBodyValue))
+					{
+						node.Body = newValue;
+					}
+				}
+
+				LeaveQueryContinuationExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterQueryContinuationExpression(Boo.Lang.Compiler.Ast.QueryContinuationExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveQueryContinuationExpression(Boo.Lang.Compiler.Ast.QueryContinuationExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnSelectClauseExpression(Boo.Lang.Compiler.Ast.SelectClauseExpression node)
+		{	
+			if (EnterSelectClauseExpression(node))
+			{
+				Expression currentBaseExprValue = node.BaseExpr;
+				if (null != currentBaseExprValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentBaseExprValue);
+					if (!object.ReferenceEquals(newValue, currentBaseExprValue))
+					{
+						node.BaseExpr = newValue;
+					}
+				}
+
+				LeaveSelectClauseExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterSelectClauseExpression(Boo.Lang.Compiler.Ast.SelectClauseExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveSelectClauseExpression(Boo.Lang.Compiler.Ast.SelectClauseExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnLetClauseExpression(Boo.Lang.Compiler.Ast.LetClauseExpression node)
+		{	
+			if (EnterLetClauseExpression(node))
+			{
+				Expression currentValueValue = node.Value;
+				if (null != currentValueValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentValueValue);
+					if (!object.ReferenceEquals(newValue, currentValueValue))
+					{
+						node.Value = newValue;
+					}
+				}
+
+				LeaveLetClauseExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterLetClauseExpression(Boo.Lang.Compiler.Ast.LetClauseExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveLetClauseExpression(Boo.Lang.Compiler.Ast.LetClauseExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnWhereClauseExpression(Boo.Lang.Compiler.Ast.WhereClauseExpression node)
+		{	
+			if (EnterWhereClauseExpression(node))
+			{
+				Expression currentCondValue = node.Cond;
+				if (null != currentCondValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentCondValue);
+					if (!object.ReferenceEquals(newValue, currentCondValue))
+					{
+						node.Cond = newValue;
+					}
+				}
+
+				LeaveWhereClauseExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterWhereClauseExpression(Boo.Lang.Compiler.Ast.WhereClauseExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveWhereClauseExpression(Boo.Lang.Compiler.Ast.WhereClauseExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnJoinClauseExpression(Boo.Lang.Compiler.Ast.JoinClauseExpression node)
+		{	
+			if (EnterJoinClauseExpression(node))
+			{
+				Declaration currentIdentifierValue = node.Identifier;
+				if (null != currentIdentifierValue)
+				{			
+					Declaration newValue = (Declaration)VisitNode(currentIdentifierValue);
+					if (!object.ReferenceEquals(newValue, currentIdentifierValue))
+					{
+						node.Identifier = newValue;
+					}
+				}
+				Expression currentContainerValue = node.Container;
+				if (null != currentContainerValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentContainerValue);
+					if (!object.ReferenceEquals(newValue, currentContainerValue))
+					{
+						node.Container = newValue;
+					}
+				}
+				Expression currentLeftValue = node.Left;
+				if (null != currentLeftValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentLeftValue);
+					if (!object.ReferenceEquals(newValue, currentLeftValue))
+					{
+						node.Left = newValue;
+					}
+				}
+				Expression currentRightValue = node.Right;
+				if (null != currentRightValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentRightValue);
+					if (!object.ReferenceEquals(newValue, currentRightValue))
+					{
+						node.Right = newValue;
+					}
+				}
+				ReferenceExpression currentIntoValue = node.Into;
+				if (null != currentIntoValue)
+				{			
+					ReferenceExpression newValue = (ReferenceExpression)VisitNode(currentIntoValue);
+					if (!object.ReferenceEquals(newValue, currentIntoValue))
+					{
+						node.Into = newValue;
+					}
+				}
+
+				LeaveJoinClauseExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterJoinClauseExpression(Boo.Lang.Compiler.Ast.JoinClauseExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveJoinClauseExpression(Boo.Lang.Compiler.Ast.JoinClauseExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnGroupClauseExpression(Boo.Lang.Compiler.Ast.GroupClauseExpression node)
+		{	
+			if (EnterGroupClauseExpression(node))
+			{
+				Expression currentBaseExprValue = node.BaseExpr;
+				if (null != currentBaseExprValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentBaseExprValue);
+					if (!object.ReferenceEquals(newValue, currentBaseExprValue))
+					{
+						node.BaseExpr = newValue;
+					}
+				}
+				Expression currentCriterionValue = node.Criterion;
+				if (null != currentCriterionValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentCriterionValue);
+					if (!object.ReferenceEquals(newValue, currentCriterionValue))
+					{
+						node.Criterion = newValue;
+					}
+				}
+
+				LeaveGroupClauseExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterGroupClauseExpression(Boo.Lang.Compiler.Ast.GroupClauseExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveGroupClauseExpression(Boo.Lang.Compiler.Ast.GroupClauseExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnOrderByClauseExpression(Boo.Lang.Compiler.Ast.OrderByClauseExpression node)
+		{	
+			if (EnterOrderByClauseExpression(node))
+			{
+				Visit(node.Orderings);
+
+				LeaveOrderByClauseExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterOrderByClauseExpression(Boo.Lang.Compiler.Ast.OrderByClauseExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveOrderByClauseExpression(Boo.Lang.Compiler.Ast.OrderByClauseExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnOrderingExpression(Boo.Lang.Compiler.Ast.OrderingExpression node)
+		{	
+			if (EnterOrderingExpression(node))
+			{
+				Expression currentBaseExprValue = node.BaseExpr;
+				if (null != currentBaseExprValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentBaseExprValue);
+					if (!object.ReferenceEquals(newValue, currentBaseExprValue))
+					{
+						node.BaseExpr = newValue;
+					}
+				}
+
+				LeaveOrderingExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterOrderingExpression(Boo.Lang.Compiler.Ast.OrderingExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveOrderingExpression(Boo.Lang.Compiler.Ast.OrderingExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnQueryExpression(Boo.Lang.Compiler.Ast.QueryExpression node)
+		{	
+			if (EnterQueryExpression(node))
+			{
+				Visit(node.Clauses);
+				QueryEndingExpression currentEndingValue = node.Ending;
+				if (null != currentEndingValue)
+				{			
+					QueryEndingExpression newValue = (QueryEndingExpression)VisitNode(currentEndingValue);
+					if (!object.ReferenceEquals(newValue, currentEndingValue))
+					{
+						node.Ending = newValue;
+					}
+				}
+				QueryContinuationExpression currentContValue = node.Cont;
+				if (null != currentContValue)
+				{			
+					QueryContinuationExpression newValue = (QueryContinuationExpression)VisitNode(currentContValue);
+					if (!object.ReferenceEquals(newValue, currentContValue))
+					{
+						node.Cont = newValue;
+					}
+				}
+
+				LeaveQueryExpression(node);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual bool EnterQueryExpression(Boo.Lang.Compiler.Ast.QueryExpression node)
+		{
+			return true;
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void LeaveQueryExpression(Boo.Lang.Compiler.Ast.QueryExpression node)
+		{
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnStatementTypeMember(Boo.Lang.Compiler.Ast.StatementTypeMember node)
 		{	
 			if (EnterStatementTypeMember(node))

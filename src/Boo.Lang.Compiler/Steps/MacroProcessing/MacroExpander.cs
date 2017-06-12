@@ -74,13 +74,19 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ExpandModules()
 		{
 			foreach (Module module in CompileUnit.Modules)
+			{
 				ExpandOnModuleNamespace(module, VisitModule);
+				_namespaceLookup.Clear();
+			}
 		}
 
 		private void ExpandModuleGlobalsIgnoringUnknownMacros()
 		{
 			foreach (Module module in CompileUnit.Modules)
+			{
 				ExpandModuleGlobalsIgnoringUnknownMacros(module);
+				_namespaceLookup.Clear();
+			}
 		}
 
 		private void ExpandModuleGlobalsIgnoringUnknownMacros(Module current)
@@ -419,9 +425,34 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 				?? entity; //return as-is
 		}
 
+		private Dictionary<INamespace, Dictionary<string, IEntity>> _namespaceLookup = new Dictionary<INamespace, Dictionary<string, IEntity>>();
+
+		IEntity CachedNamespaceLookup(INamespace ns, string name, ICollection<IEntity> resultingSet)
+		{
+			if (ns == null)
+				return null;
+		
+			IEntity result;
+			Dictionary<string, IEntity> D1;
+			if (!_namespaceLookup.TryGetValue(ns, out D1))
+			{
+				D1 = new Dictionary<string, IEntity>();
+				_namespaceLookup.Add(ns, D1);
+			}
+			if (D1.TryGetValue(name, out result))
+				return result;
+			
+			//if it exists here, do a full lookup, to make sure ambiguity rules remain unchanged
+			if (ns.Resolve(resultingSet, name, EntityType.Any))
+				result = NameResolutionService.ResolveQualifiedName(name);
+			else result = CachedNamespaceLookup(ns.ParentNamespace, name, resultingSet);
+			D1.Add(name, result);
+			return result;
+		}
+
 		private IEntity ResolvePreferringInternalMacros(string macroTypeName)
 		{
-			IEntity resolved = NameResolutionService.ResolveQualifiedName(macroTypeName);
+			IEntity resolved = CachedNamespaceLookup(NameResolutionService.CurrentNamespace, macroTypeName, new HashSet<IEntity>());
 			Ambiguous ambiguous = resolved as Ambiguous;
 			if (null != ambiguous && ambiguous.AllEntitiesAre(EntityType.Type))
 				return Entities.PreferInternalEntitiesOverExternalOnes(ambiguous);

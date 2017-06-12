@@ -33,7 +33,7 @@ using Boo.Lang.Compiler.Services;
 using Boo.Lang.Environments;
 
 // ReSharper disable CheckNamespace
-namespace Boo.Lang
+namespace Boo.Lang.Compiler
 // ReSharper restore CheckNamespace
 {
 	public class ExtensionAttribute : AbstractAstAttribute

@@ -53,22 +53,25 @@ namespace Boo.Lang
 
 			if (rhs == null)
 				return 1;
-
-			var lhsComparable = lhs as IComparable;
-			if (lhsComparable == null)
-			{
-				var rhsComparable = rhs as IComparable;
-				if (rhsComparable == null)
+			try {
+				var lhsComparable = lhs as IComparable;
+				if (lhsComparable == null)
 				{
-					var lhsEnumerable = lhs as IEnumerable;
-					var rhsEnumerable = rhs as IEnumerable;
-					if (lhsEnumerable != null && rhsEnumerable != null)
-						return CompareEnumerables(lhsEnumerable, rhsEnumerable);
-					return lhs.Equals(rhs) ? 0 : 1;
+					var rhsComparable = rhs as IComparable;
+					if (rhsComparable == null)
+					{
+						var lhsEnumerable = lhs as IEnumerable;
+						var rhsEnumerable = rhs as IEnumerable;
+						if (lhsEnumerable != null && rhsEnumerable != null)
+							return CompareEnumerables(lhsEnumerable, rhsEnumerable);
+						return lhs.Equals(rhs) ? 0 : 1;
+					}
+					return -1*(rhsComparable.CompareTo(lhs));
 				}
-				return -1*(rhsComparable.CompareTo(lhs));
+				return lhsComparable.CompareTo(rhs);
+			} catch (System.ArgumentException) {
+				return -1;
 			}
-			return lhsComparable.CompareTo(rhs);
 		}
 
 		int CompareEnumerables(IEnumerable lhs, IEnumerable rhs)

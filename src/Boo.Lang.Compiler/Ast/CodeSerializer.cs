@@ -30,6 +30,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -84,6 +85,11 @@ namespace Boo.Lang.Compiler.Ast
 		public static string LiftName(ReferenceExpression node)
 		{
 			return node.Name;
+		}
+		
+		public static string LiftName(Expression node)
+		{
+			return node.ToCodeString();
 		}
 
 		private readonly bool _preserveLexicalInfo;
@@ -262,7 +268,7 @@ namespace Boo.Lang.Compiler.Ast
 				SerializeSpliceMemberReferenceExpression(node);
 				return;
 			}
-			var ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression");
+			var ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression.Combine");
 			ctor.Arguments.Add(Serialize(node.Target));
 			ctor.Arguments.Add(LiftMemberName(node.NameExpression));
 			Push(ctor);

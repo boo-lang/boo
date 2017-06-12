@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System;
 using System.Reflection;
 
 [assembly: AssemblyTitle("boo antlr based parser")]
@@ -38,3 +39,4 @@ using System.Reflection;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("2.0.9.5")]
 [assembly: AssemblyDelaySign(false)]
+[assembly: CLSCompliant(false)]

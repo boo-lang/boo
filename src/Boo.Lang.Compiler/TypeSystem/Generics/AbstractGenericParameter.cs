@@ -110,6 +110,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			get { return false; }
 		}
 
+		public bool IsVoid
+		{
+			get { return false; }
+		}
+
 		public int GetTypeDepth()
 		{
 			return DeclaringType.GetTypeDepth() + 1;
@@ -135,8 +140,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return Array.FindAll(GetTypeConstraints(), type => type.IsInterface);
 		}
 
-		public bool IsSubclassOf(IType other)
+		public virtual bool IsSubclassOf(IType other)
 		{
+			
 			return (other == BaseType || BaseType.IsSubclassOf(other));
 		}
 		
@@ -232,5 +238,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			return null;
 		}
+		
+		abstract public bool HasBaseTypes();
 	}
 }

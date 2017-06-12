@@ -535,6 +535,56 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			{
 				OnExpression(node);
 			}
+			
+			override public void LeaveFromClauseExpression(FromClauseExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveQueryContinuationExpression(QueryContinuationExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveSelectClauseExpression(SelectClauseExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveLetClauseExpression(LetClauseExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveWhereClauseExpression(WhereClauseExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveJoinClauseExpression(JoinClauseExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveGroupClauseExpression(GroupClauseExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveOrderByClauseExpression(OrderByClauseExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveOrderingExpression(OrderingExpression node)
+			{
+				OnExpression(node);
+			}
+			
+			override public void LeaveQueryExpression(QueryExpression node)
+			{
+				OnExpression(node);
+			}
 		}
 	}
 }

@@ -160,6 +160,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			get { return _definition.IsPointer; }
 		}
 
+		public bool IsVoid
+		{
+			get { return false; }
+		}
+
 		public int GetTypeDepth()
 		{
 			return _definition.GetTypeDepth();
@@ -225,7 +230,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			if (other == null)
 				return false;
 
-            if (other == this || other.IsSubclassOf(this) || (other.IsNull() && !IsValueType) || IsGenericAssignableFrom(other))
+			if (other == this || other.IsSubclassOf(this) || (other.IsNull() && !IsValueType) || IsGenericAssignableFrom(other))
 				return true;
 
 			return false;

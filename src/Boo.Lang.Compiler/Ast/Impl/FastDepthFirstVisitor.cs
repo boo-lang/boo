@@ -1841,6 +1841,156 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnFromClauseExpression(Boo.Lang.Compiler.Ast.FromClauseExpression node)
+		{				
+			{
+				var identifier = node.Identifier;
+				if (identifier != null)
+					identifier.Accept(this);
+			}
+			{
+				var container = node.Container;
+				if (container != null)
+					container.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnQueryContinuationExpression(Boo.Lang.Compiler.Ast.QueryContinuationExpression node)
+		{				
+			{
+				var body = node.Body;
+				if (body != null)
+					body.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnSelectClauseExpression(Boo.Lang.Compiler.Ast.SelectClauseExpression node)
+		{				
+			{
+				var baseExpr = node.BaseExpr;
+				if (baseExpr != null)
+					baseExpr.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnLetClauseExpression(Boo.Lang.Compiler.Ast.LetClauseExpression node)
+		{				
+			{
+				var value = node.Value;
+				if (value != null)
+					value.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnWhereClauseExpression(Boo.Lang.Compiler.Ast.WhereClauseExpression node)
+		{				
+			{
+				var cond = node.Cond;
+				if (cond != null)
+					cond.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnJoinClauseExpression(Boo.Lang.Compiler.Ast.JoinClauseExpression node)
+		{				
+			{
+				var identifier = node.Identifier;
+				if (identifier != null)
+					identifier.Accept(this);
+			}
+			{
+				var container = node.Container;
+				if (container != null)
+					container.Accept(this);
+			}
+			{
+				var left = node.Left;
+				if (left != null)
+					left.Accept(this);
+			}
+			{
+				var right = node.Right;
+				if (right != null)
+					right.Accept(this);
+			}
+			{
+				var into = node.Into;
+				if (into != null)
+					into.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnGroupClauseExpression(Boo.Lang.Compiler.Ast.GroupClauseExpression node)
+		{				
+			{
+				var baseExpr = node.BaseExpr;
+				if (baseExpr != null)
+					baseExpr.Accept(this);
+			}
+			{
+				var criterion = node.Criterion;
+				if (criterion != null)
+					criterion.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnOrderByClauseExpression(Boo.Lang.Compiler.Ast.OrderByClauseExpression node)
+		{				
+			{
+				var orderings = node.Orderings;
+				if (orderings != null)
+				{
+					var innerList = orderings.InnerList;
+					var count = innerList.Count;
+					for (var i=0; i<count; ++i)
+						innerList.FastAt(i).Accept(this);
+				}
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnOrderingExpression(Boo.Lang.Compiler.Ast.OrderingExpression node)
+		{				
+			{
+				var baseExpr = node.BaseExpr;
+				if (baseExpr != null)
+					baseExpr.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public virtual void OnQueryExpression(Boo.Lang.Compiler.Ast.QueryExpression node)
+		{				
+			{
+				var clauses = node.Clauses;
+				if (clauses != null)
+				{
+					var innerList = clauses.InnerList;
+					var count = innerList.Count;
+					for (var i=0; i<count; ++i)
+						innerList.FastAt(i).Accept(this);
+				}
+			}
+			{
+				var ending = node.Ending;
+				if (ending != null)
+					ending.Accept(this);
+			}
+			{
+				var cont = node.Cont;
+				if (cont != null)
+					cont.Accept(this);
+			}
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		public virtual void OnStatementTypeMember(Boo.Lang.Compiler.Ast.StatementTypeMember node)
 		{				
 			{

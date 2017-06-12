@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Steps;
+using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
@@ -570,8 +571,30 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 			if (MyDowncastPermissions().CanBeReachedByDowncast(parameterType, argumentType))
 				return DowncastScore;
+			
+			if (argumentType is AnonymousCallableType && parameterType is ExternalType &&
+				((ExternalType)parameterType).BaseType != null &&
+				((ExternalType)parameterType).BaseType.FullName == "System.Linq.Expressions.LambdaExpression" &&
+				IsLambdaAssignableToExpressionTree((ExternalType)parameterType, (AnonymousCallableType)argumentType))
+				return UpCastScore;
 
 			return -1;
+		}
+		
+		private bool IsLambdaAssignableToExpressionTree(ExternalType paramType, AnonymousCallableType argumentType)
+		{
+			var baseCallable = (ExternalCallableType)paramType.ConstructedInfo.GenericArguments[0];
+			if (!baseCallable.IsAssignableFrom(argumentType))
+				return false;
+			
+			//For some reason, IsAssignableFrom will return true if paramType has more args than argumentType.
+			//We don't want that behavior here; signatures have to match.
+			int BaseArgCount = baseCallable.ConstructedInfo.GenericArguments.Count();
+			CallableSignature sig = argumentType.GetSignature();
+			int ArgumentArgCount = sig.Parameters.Count();
+			if (sig.ReturnType != null && sig.ReturnType != TypeSystemServices.VoidType)
+				++ArgumentArgCount;
+			return BaseArgCount == ArgumentArgCount;
 		}
 
 		private DowncastPermissions MyDowncastPermissions()

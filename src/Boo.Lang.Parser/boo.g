@@ -121,6 +121,19 @@ tokens
 	VIRTUAL="virtual";
 	WHILE="while";
 	YIELD="yield";
+
+	LET="let";
+	WHERE="where";
+	JOIN="join";
+	ON="on";
+	EQUALS="equals";
+	INTO="into";
+	ORDERBY="orderby";
+	ASCENDING="ascending";
+	DESCENDING="descending";
+	SELECT="select";
+	GROUP="group";
+	BY="by";
 }
 
 {		
@@ -133,6 +146,26 @@ tokens
 	protected bool _inArray;
 	
 	protected bool _compact = false;
+	
+	int _inQuery = 0;
+
+	private void EnterQuery()
+	{
+		++_inQuery;
+	}
+	
+	private void LeaveQuery()
+	{
+		--_inQuery;
+	}
+
+	private bool InQuery
+	{
+		get
+		{
+			return _inQuery > 0;
+		}
+	}
 	
 	protected void ResetMemberData()
 	{
@@ -280,6 +313,7 @@ import_directive_ returns [Import returnValue]
 {
 	Expression ns = null;
 	IToken id = null;
+	IToken alias = null;
 	returnValue = null;
 }:
 	imp:IMPORT ns=namespace_expression
@@ -296,7 +330,7 @@ import_directive_ returns [Import returnValue]
 		}				
 	)?
 	(
-		AS alias:ID
+		AS alias=macro_name
 		{
 			returnValue.Alias = new ReferenceExpression(ToLexicalInfo(alias));
 			returnValue.Alias.Name = alias.getText();
@@ -365,8 +399,9 @@ callable_definition [TypeMemberCollection container]
 		CallableDefinition cd = null;
 		TypeReference returnType = null;
 		GenericParameterDeclarationCollection genericParameters = null;
+		IToken id = null;
 	}:
-	CALLABLE id:ID
+	CALLABLE id=macro_name
 	{
 		cd = new CallableDefinition(ToLexicalInfo(id));
 		cd.Name = id.getText();
@@ -387,8 +422,9 @@ enum_definition [TypeMemberCollection container]
 	{
 		EnumDefinition ed = null;
 		TypeMemberCollection members = null;
+		IToken id = null;
 	}:
-	ENUM id:ID { ed = new EnumDefinition(ToLexicalInfo(id)); }
+	ENUM id=macro_name { ed = new EnumDefinition(ToLexicalInfo(id)); }
 	begin_with_doc[ed]
 		{
 			ed.Name = id.getText();
@@ -409,9 +445,10 @@ enum_member [TypeMemberCollection container]
 	{	
 		EnumMember em = null;
 		Expression initializer = null;
+		IToken id = null;
 	}: 
 	attributes
-	id:ID (ASSIGN initializer=simple_initializer)?
+	id=macro_name (ASSIGN initializer=simple_initializer)?
 	{
 		em = new EnumMember(ToLexicalInfo(id));
 		em.Name = id.getText();
@@ -491,13 +528,14 @@ class_definition [TypeMemberCollection container]
 		TypeMemberCollection members = null;
 		GenericParameterDeclarationCollection genericParameters = null;
 		Expression nameSplice = null;
+		IToken id = null;
 	}:
 	(
 		CLASS { td = new ClassDefinition(); } |
 		STRUCT { td = new StructDefinition(); }
 	)
 	(
-		id:ID
+		id=macro_name
 		| begin:SPLICE_BEGIN nameSplice=atom
 	)				
 	{		
@@ -562,8 +600,9 @@ interface_definition [TypeMemberCollection container]
 		TypeMemberCollection members = null;
 		GenericParameterDeclarationCollection genericParameters = null;
 		Expression nameSplice = null;
+		IToken id = null;
 	} :
-	INTERFACE (id:ID | (begin:SPLICE_BEGIN nameSplice=atom))
+	INTERFACE (id=macro_name | (begin:SPLICE_BEGIN nameSplice=atom))
 	{
 		IToken token = id ?? begin;
 		itf = new InterfaceDefinition(ToLexicalInfo(token));
@@ -652,7 +691,7 @@ interface_property [TypeMemberCollection container]
                 TypeReference tr = null;
                 ParameterDeclarationCollection parameters = null;
         }:
-        (id1:ID {id=id1;} | s:SELF {id=s;})
+        (id=macro_name | s:SELF {id=s;})
         {
                 p = new Property(ToLexicalInfo(id));
                 p.Name = id.getText();
@@ -708,9 +747,10 @@ event_declaration [TypeMemberCollection container]
 	{
 		Event e = null;
 		TypeReference tr = null;
+		IToken id = null;
 	}:
 	t:EVENT
-	id:ID AS tr=type_reference eos
+	id=macro_name AS tr=type_reference eos
 	{
 		e = new Event(ToLexicalInfo(id), id.getText(), tr);
 		e.Modifiers = _modifiers;
@@ -724,16 +764,18 @@ protected
 explicit_member_info returns [ExplicitMemberInfo emi]
 	{
 		emi = null; _sbuilder.Length = 0;
+		IToken id = null;
+		IToken id2 = null;
 	}:
 	(ID DOT)=>(
 		(
-			(id:ID DOT)
+			(id=macro_name DOT)
 			{
 				emi = new ExplicitMemberInfo(ToLexicalInfo(id));
 				_sbuilder.Append(id.getText());
 			}
 			(
-				(id2:ID DOT)
+				(id2=macro_name DOT)
 				{
 					_sbuilder.Append('.');
 					_sbuilder.Append(id2.getText());
@@ -832,6 +874,7 @@ protected
 field_or_property [TypeMemberCollection container]
 {
 	IToken id = null;
+	IToken id2 = null;
 	TypeMember tm = null;
 	TypeReference tr = null;
 	Property p = null;
@@ -844,7 +887,7 @@ field_or_property [TypeMemberCollection container]
 (	
 	(property_header)=>(
 		(emi=explicit_member_info)?
-		(id1:ID {id=id1;}
+		(id=macro_name
 		| begin1:SPLICE_BEGIN nameSplice=atom {id=begin1;}
 		| s:SELF {id=s;})
 		(		
@@ -879,7 +922,7 @@ field_or_property [TypeMemberCollection container]
 		=> tm=member_macro
 	|	
 	(
-		(id2:ID | begin2:SPLICE_BEGIN nameSplice=atom)
+		(id2=macro_name | begin2:SPLICE_BEGIN nameSplice=atom)
 		{
 			IToken token = id2 ?? begin2;
 			field = new Field(ToLexicalInfo(token));
@@ -1056,14 +1099,14 @@ parameter_declaration[ParameterDeclarationCollection c]
 	(
 		(
 			MULTIPLY { variableArguments=true; }
-			(id1:ID { id = id1; }
+			(id=macro_name
 			| begin1:SPLICE_BEGIN nameSplice=atom { id = begin1; })
 			(AS tr=array_type_reference)?
 		)
 		|
 		(
 			(pm=parameter_modifier)?
-			(id2:ID { id = id2; }
+			(id=macro_name
 			| begin2:SPLICE_BEGIN nameSplice=atom { id = begin2; })
 			(AS tr=type_reference)?
 		)
@@ -1134,8 +1177,9 @@ protected
 generic_parameter_declaration[GenericParameterDeclarationCollection c]
 	{
 		GenericParameterDeclaration gpd = null;
+		IToken id = null;
 	}:
-	id:ID 
+	id=macro_name 
 	{
 		gpd = new GenericParameterDeclaration(ToLexicalInfo(id));
 		gpd.Name = id.getText();
@@ -1477,18 +1521,34 @@ macro_stmt returns [MacroStatement returnValue]
 protected
 macro_name returns [antlr.IToken name]
 {
-	name = null;
+	name = new BooToken();
 }:
 	id:ID { name = id; }
 	| then:THEN { name = then; }
+	| {!InQuery}? 
+	(
+		j:JOIN {name = j;} |
+		l:LET {name = l;} |
+		w:WHERE {name = w;} |
+		o:ON {name = o;} |
+		e:EQUALS {name = e;} |
+		i:INTO {name = i;} |
+		r:ORDERBY {name = r;} |
+		a:ASCENDING {name = a;} |
+		d:DESCENDING {name = d;} |
+		s:SELECT {name = s;} |
+		g:GROUP {name = g;} |
+		b:BY {name = b;}
+	)
 ;
 
 protected
 goto_stmt returns [GotoStatement stmt]
 	{
 		stmt = null;
+		IToken label = null;
 	}:
-	token:GOTO label:ID
+	token:GOTO label=macro_name
 	{
 		stmt = new GotoStatement(ToLexicalInfo(token),
 					new ReferenceExpression(ToLexicalInfo(label), label.getText()));
@@ -1499,9 +1559,11 @@ protected
 label_stmt returns [LabelStatement stmt]
 	{
 		stmt = null;
+		IToken label = null;
 	}:
-	token:COLON label:ID
+	token:COLON label=macro_name
 	{
+	
 		stmt = new LabelStatement(ToLexicalInfo(token), label.getText());
 	}
 	;
@@ -1513,8 +1575,9 @@ nested_function returns [Statement stmt]
 	BlockExpression be = null;
 	Block body = null;
 	TypeReference rt = null;
+	IToken id = null;
 }:
-	def:DEF id:ID
+	def:DEF id=macro_name
 	{
 		be = new BlockExpression(ToLexicalInfo(id));
 		body = be.Body;
@@ -1786,8 +1849,9 @@ exception_handler [TryStatement t]
 		ExceptionHandler eh = null;		
 		TypeReference tr = null;
 		Expression e = null;
+		IToken x = null;
 	}:
-	c:EXCEPT (x:ID)? (AS tr=type_reference)? ((IF|u:UNLESS) e=boolean_expression)?
+	c:EXCEPT (x=macro_name)? (AS tr=type_reference)? ((IF|u:UNLESS) e=boolean_expression)?
 	{
 		eh = new ExceptionHandler(ToLexicalInfo(c));
 		
@@ -1855,8 +1919,9 @@ declaration_stmt returns [DeclarationStatement s]
 		TypeReference tr = null;
 		Expression initializer = null;
 		StatementModifier m = null;
+		IToken id = null;
 	}:
-	id:ID AS tr=type_reference
+	id=macro_name AS tr=type_reference
 	(
 		(
 			ASSIGN 
@@ -1984,8 +2049,8 @@ for_stmt returns [ForStatement fs]
 	{
 		fs = null;
 		Expression iterator = null;
-		DeclarationCollection declarations = null;
-		Block body = null;
+		var declarations = new DeclarationCollection();
+		var body = new Block();
 	}:
 	f:FOR
 	{
@@ -2107,8 +2172,9 @@ declaration returns [Declaration d]
 	{
 		d = null;
 		TypeReference tr = null;
+		IToken id = null;
 	}:
-	id:ID (AS tr=type_reference)?
+	id=macro_name (AS tr=type_reference)?
 	{
 		d = new Declaration(ToLexicalInfo(id));
 		d.Name = id.getText();
@@ -2670,7 +2736,10 @@ unary_expression returns [Expression e]
 				postinc:INCREMENT { op = postinc; uOperator = UnaryOperatorType.PostIncrement; } |
 				postdec:DECREMENT { op = postdec; uOperator = UnaryOperatorType.PostDecrement; }
 			)?
-		)
+		) |
+		(
+			e=query_expression
+		) 
 	)
 	{
 		if (null != op)
@@ -2819,6 +2888,210 @@ paren_expression returns [Expression e]
 ;
 
 protected
+query_expression returns [QueryExpression e]
+{
+	e = null;
+	FromClauseExpression f = null;
+	EnterQuery();
+}: 
+	f=from_clause
+	{
+		e = new QueryExpression(f.LexicalInfo);
+		e.Clauses.Add(f);
+	}
+	query_body[e]
+	{
+		LeaveQuery();
+	}
+;
+
+protected
+from_clause returns [FromClauseExpression f]
+{
+	f = null;
+	Declaration ident = null;
+	Expression enumerable = null;
+}:
+	fr: FROM ident=declaration IN enumerable=expression
+	{
+		f = new FromClauseExpression(ToLexicalInfo(fr));
+		f.Identifier = ident;
+		f.Container = enumerable;
+		f.DeclaredType = (ident.Type != null);
+	}
+;
+
+protected query_body [QueryExpression q]
+{
+	//If we're in guessing mode, it's possible for q to be null here.
+	//This can happen if we're parsing a macro invocation.
+	var clauses = q != null ? q.Clauses : new ExpressionCollection();
+	QueryEndingExpression e = null;
+	QueryContinuationExpression c = null;
+}:
+        query_body_clause[clauses] (e=select_clause | e=group_clause) (c=query_continuation)?
+	{
+		q.Ending = e;
+		q.Cont = c;
+	}
+;
+
+protected
+query_body_clause [ExpressionCollection c]
+{
+	QueryClauseExpression next = null;
+}:
+	(
+		(next=from_clause|	
+		next=let_clause |
+		next=where_clause |
+		next=join_clause |
+		next=orderby_clause)
+		{
+			c.Add(next);
+		}
+	)*
+;
+
+protected
+let_clause returns [LetClauseExpression l]
+{
+	l = null;
+	Expression identifier = null;
+	Expression expr = null;
+	IToken ident = null;
+}:
+	{
+		l = new LetClauseExpression(ToLexicalInfo(le));
+		l.Value = expr;
+	}
+;
+
+protected
+where_clause returns [WhereClauseExpression w]
+{
+	w = null;
+	Expression where = null;
+}:
+	wh: WHERE where=boolean_expression
+	{
+		w = new WhereClauseExpression(ToLexicalInfo(wh));
+		w.Cond = where;
+	}
+;
+
+protected
+join_clause returns [JoinClauseExpression j]
+{
+	j = null;
+	Declaration ident = null;
+	Expression enumerable = null;
+	Expression onExprL = null;
+	Expression onExprR = null;
+	ReferenceExpression intoExpr = null;
+}:
+	jo: JOIN ident=declaration IN enumerable=expression ON onExprL=expression EQUALS onExprR=expression ("into" intoExpr=identifier_expression)?
+	{
+		j = new JoinClauseExpression(ToLexicalInfo(jo));
+		j.Identifier = ident;
+		j.Container = enumerable;
+		j.DeclaredType = (ident.Type != null);
+		j.Left = onExprL;
+		j.Right = onExprR;
+		j.Into = intoExpr;
+	}
+;
+
+protected
+orderby_clause returns [OrderByClauseExpression o]
+{
+	o = null;
+	OrderingExpressionCollection ord = null;
+}:
+	ob: ORDERBY ord=orderings
+	{
+		o = new OrderByClauseExpression(ToLexicalInfo(ob));
+		o.Orderings = ord;
+	}
+;
+
+protected
+orderings returns [OrderingExpressionCollection l]
+{
+	l = null;
+	OrderingExpression oe = null;
+}:
+	oe=ordering
+	{
+		l = new OrderingExpressionCollection();
+		l.Add(oe);
+	}
+	(
+		COMMA oe=ordering
+		{l.Add(oe);}
+	)*
+;
+
+protected
+ordering returns [OrderingExpression o]
+{
+	o = null;
+	Expression baseExpr = null;
+	bool desc = false;
+}:
+	baseExpr=expression (ASCENDING | (DESCENDING){desc = true;} )?
+	{
+		o = new OrderingExpression(baseExpr.LexicalInfo);
+		o.BaseExpr = baseExpr;
+		o.Descending = desc;
+	}
+;
+
+protected
+select_clause returns [SelectClauseExpression s]
+{
+	s = null;
+	Expression baseExpr = null;
+}:
+	sel: SELECT baseExpr=expression
+	{
+		s = new SelectClauseExpression(ToLexicalInfo(sel));
+		s.BaseExpr = baseExpr;
+	}
+;
+
+protected
+group_clause returns [GroupClauseExpression g]
+{
+	g = null;
+	Expression baseExpr = null;
+	Expression criterion = null;
+}:
+	gr: GROUP baseExpr=expression BY criterion=expression
+	{
+		g = new GroupClauseExpression(ToLexicalInfo(gr));
+		g.BaseExpr = baseExpr;
+		g.Criterion = criterion;
+	}
+;
+
+protected
+query_continuation returns [QueryContinuationExpression q]
+{
+	q = null;
+	QueryExpression body = null;
+	IToken id = null;
+}:
+	qb: INTO id=macro_name
+	{
+		q = new QueryContinuationExpression(ToLexicalInfo(qb));
+		q.Ident = id.getText();
+		q.Body = new QueryExpression();
+	}
+	query_body[q.Body]
+;
+
+protected
 typed_array returns [Expression e]
 	{
 		e = null;
@@ -2851,8 +3124,9 @@ protected
 member returns [IToken name]
 	{
 		name = null;
+		IToken id = null;
 	}:
-	id:ID { name=id; } |
+	id=macro_name { name=id; } |
 	set:SET { name=set; } |
 	get:GET { name=get; } |
 	t1:INTERNAL { name=t1; } |
@@ -3120,13 +3394,13 @@ integer_literal returns [IntegerLiteralExpression e]
 		i:INT
 		{
 			number = sign != null ? sign.getText() + i.getText() : i.getText();
-			e = PrimitiveParser.ParseIntegerLiteralExpression(i, number, false);
+			e = PrimitiveParser.ParseIntegerLiteralExpression(ToLexicalInfo(i), number, false);
 		}
 		|
 		l:LONG
 		{
 			number = sign != null ? sign.getText() + l.getText() : l.getText();
-			e = PrimitiveParser.ParseIntegerLiteralExpression(l, number, true);
+			e = PrimitiveParser.ParseIntegerLiteralExpression(ToLexicalInfo(l), number, true);
 		}
 	)
 	;
@@ -3165,6 +3439,7 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 	e = null;
 	Expression param = null;
 	LexicalInfo info = null;
+	IToken formatString = null;
 }:
 	(firstseparator:ESEPARATOR)?
 	(options { greedy = true; }:
@@ -3178,7 +3453,7 @@ expression_interpolation returns [ExpressionInterpolationExpression e]
 		}
 		param=expression
 		((format_sep:COLON)?
-			formatString:ID
+			formatString=macro_name
 		)?
 		{
 			if (null != param)
@@ -3277,7 +3552,7 @@ double_literal returns [DoubleLiteralExpression rle]
 	{
 		val = value.getText();
 		if (neg != null) val = neg.getText() + val;
-		rle = new DoubleLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseDouble(value, val));
+		rle = new DoubleLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseDouble(ToLexicalInfo(value), val));
 	}
 	|
 	single:FLOAT
@@ -3285,7 +3560,7 @@ double_literal returns [DoubleLiteralExpression rle]
 		val = single.getText();
 		val = val.Substring(0, val.Length-1);
 		if (neg != null) val = neg.getText() + val;
-		rle = new DoubleLiteralExpression(ToLexicalInfo(single), PrimitiveParser.ParseDouble(single, val, true), true);
+		rle = new DoubleLiteralExpression(ToLexicalInfo(single), PrimitiveParser.ParseDouble(ToLexicalInfo(single), val, true), true);
 	}
 	;
 	
@@ -3296,7 +3571,7 @@ timespan_literal returns [TimeSpanLiteralExpression tsle] { tsle = null; }:
 	{
 		string val = value.getText();
 		if (neg != null) val = neg.getText() + val;
-		tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(value, val)); 
+		tsle = new TimeSpanLiteralExpression(ToLexicalInfo(value), PrimitiveParser.ParseTimeSpan(ToLexicalInfo(value), val)); 
 	}
 	;
 	
@@ -3386,7 +3661,7 @@ options
 	antlr.TokenStreamSelector _selector;
 
 	bool _preserveComments;
-	
+
 	internal void Initialize(antlr.TokenStreamSelector selector, int tabSize, antlr.TokenCreator tokenCreator)
 	{
 		setTabSize(tabSize);

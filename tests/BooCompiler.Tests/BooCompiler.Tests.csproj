@@ -99,20 +99,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Boo.Lang.Extensions, Version=2.0.9.2, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\Boo.Lang.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.PatternMatching, Version=2.0.9.2, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\Boo.Lang.PatternMatching.dll</HintPath>
-    </Reference>
     <Reference Include="Moq, Version=3.1.416.3, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\moq-3.1.416.3\Moq.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <Package>mono-nunit</Package>
+      <HintPath>..\..\src\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -251,9 +243,17 @@
       <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
       <Name>Boo.Lang.Compiler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Boo.Lang.Extensions\Boo.Lang.Extensions.booproj">
+      <Project>{48E18542-C08D-4BAF-99D0-BA2882259F40}</Project>
+      <Name>Boo.Lang.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
       <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
       <Name>Boo.Lang.Parser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Boo.Lang.PatternMatching\Boo.Lang.PatternMatching.booproj">
+      <Project>{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}</Project>
+      <Name>Boo.Lang.PatternMatching</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Boo.Lang\Boo.Lang.csproj">
       <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>

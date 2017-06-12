@@ -124,6 +124,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			return valid;
 		}
 
+		private void DelayValidate(IGenericParameter parameter, IType argument)
+		{
+			/*
+			if (parameter.IsClass && !(argument.IsClass || argument.IsInterface))
+			{
+				if (argument.GetTypeConstraints().Length == 0) {
+					Errors.Add(CompilerErrorFactory.GenericArgumentMustBeReferenceType(ConstructionNode, parameter, argument));
+					valid = false;
+				} else {
+					DelayValidate(parameter, argument);
+				}
+			}
+			*/
+		}
+		
 		private bool MaintainsParameterConstraints(IGenericParameter parameter, IType argument)
 		{
 			if (argument == null || TypeSystemServices.IsError(argument))
@@ -143,8 +158,13 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			// Check type semantics constraints
 			if (parameter.IsClass && !(argument.IsClass || argument.IsInterface))
 			{
-				Errors.Add(CompilerErrorFactory.GenericArgumentMustBeReferenceType(ConstructionNode, parameter, argument));
-				valid = false;
+				var argParam = argument as IGenericParameter;
+				if ((argParam == null) || !(argParam.HasBaseTypes())) {
+					Errors.Add(CompilerErrorFactory.GenericArgumentMustBeReferenceType(ConstructionNode, parameter, argument));
+					valid = false;
+				} else {
+					DelayValidate(parameter, argument);
+				}
 			}
 
 			if (parameter.IsValueType && !argument.IsValueType)

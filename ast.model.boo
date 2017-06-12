@@ -171,6 +171,7 @@ class LocalCollection:
 class BlockExpression(Expression, INodeWithParameters, INodeWithBody):
 	Parameters as ParameterDeclarationCollection
 	ReturnType as TypeReference
+	IsExpressionTree as bool
 	[auto]
 	Body as Block
 
@@ -562,7 +563,61 @@ class CustomStatement(Statement):
 	
 class CustomExpression(Expression):
 	pass
+
+abstract class QueryClauseExpression(Expression):
+	pass
 	
+class FromClauseExpression(QueryClauseExpression):
+	Identifier as Declaration
+	[ignore]
+	DeclaredType as bool
+	Container as Expression
+
+class QueryContinuationExpression(Expression):
+	Ident as string
+	Body as QueryExpression
+
+abstract class QueryEndingExpression(QueryClauseExpression):
+	BaseExpr as Expression
+
+class SelectClauseExpression(QueryEndingExpression):
+	pass
+
+class LetClauseExpression(QueryClauseExpression):
+	Identifier as string
+	Value as Expression
+
+class WhereClauseExpression(QueryClauseExpression):
+	Cond as Expression
+   
+class JoinClauseExpression(QueryClauseExpression):
+	Identifier as Declaration
+	[ignore]
+	DeclaredType as bool
+	Container as Expression
+	Left as Expression
+	Right as Expression
+	Into as ReferenceExpression
+
+class GroupClauseExpression(QueryEndingExpression):
+	Criterion as Expression   
+
+class OrderByClauseExpression(QueryClauseExpression):
+	Orderings as OrderingExpressionCollection
+
+class OrderingExpression(Expression):
+	Descending as bool
+	BaseExpr as Expression
+
+[collection(OrderingExpression)]
+class OrderingExpressionCollection:
+	pass
+
+class QueryExpression(Expression):
+	Clauses as ExpressionCollection
+	Ending as QueryEndingExpression
+	Cont as QueryContinuationExpression
+
 class StatementTypeMember(TypeMember):
 """
 Allow for macros and initializing statements inside type definition bodies.

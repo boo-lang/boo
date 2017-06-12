@@ -153,6 +153,7 @@
     <Compile Include="Ast\ExtendedGeneratorExpression.cs" />
     <Compile Include="Ast\Field.cs" />
     <Compile Include="Ast\ForStatement.cs" />
+    <Compile Include="Ast\FromClauseExpression.Generated.cs" />
     <Compile Include="Ast\GeneratorExpression.cs" />
     <Compile Include="Ast\GeneratorExpressionCollection.cs" />
     <Compile Include="Ast\GenericParameterConstraints.Generated.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Ast\GenericTypeDefinitionReference.cs" />
     <Compile Include="Ast\GenericTypeReference.cs" />
     <Compile Include="Ast\GotoStatement.cs" />
+    <Compile Include="Ast\GroupClauseExpression.Generated.cs" />
     <Compile Include="Ast\HashLiteralExpression.cs" />
     <Compile Include="Ast\IAstVisitor.Generated.cs" />
     <Compile Include="Ast\IExplicitMember.cs" />
@@ -215,6 +217,7 @@
     <Compile Include="Ast\Impl\FastDepthFirstVisitor.cs" />
     <Compile Include="Ast\Impl\FieldImpl.cs" />
     <Compile Include="Ast\Impl\ForStatementImpl.cs" />
+    <Compile Include="Ast\Impl\FromClauseExpressionImpl.cs" />
     <Compile Include="Ast\Impl\GeneratorExpressionCollectionImpl.cs" />
     <Compile Include="Ast\Impl\GeneratorExpressionImpl.cs" />
     <Compile Include="Ast\Impl\GenericParameterDeclarationCollectionImpl.cs" />
@@ -223,13 +226,16 @@
     <Compile Include="Ast\Impl\GenericTypeDefinitionReferenceImpl.cs" />
     <Compile Include="Ast\Impl\GenericTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\GotoStatementImpl.cs" />
+    <Compile Include="Ast\Impl\GroupClauseExpressionImpl.cs" />
     <Compile Include="Ast\Impl\HashLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\IfStatementImpl.cs" />
     <Compile Include="Ast\Impl\ImportCollectionImpl.cs" />
     <Compile Include="Ast\Impl\ImportImpl.cs" />
     <Compile Include="Ast\Impl\IntegerLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\InterfaceDefinitionImpl.cs" />
+    <Compile Include="Ast\Impl\JoinClauseExpressionImpl.cs" />
     <Compile Include="Ast\Impl\LabelStatementImpl.cs" />
+    <Compile Include="Ast\Impl\LetClauseExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ListLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\LiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\LocalCollectionImpl.cs" />
@@ -242,14 +248,22 @@
     <Compile Include="Ast\Impl\ModuleImpl.cs" />
     <Compile Include="Ast\Impl\NamespaceDeclarationImpl.cs" />
     <Compile Include="Ast\Impl\NullLiteralExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\OrderByClauseExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\OrderingExpressionCollectionImpl.cs" />
+    <Compile Include="Ast\Impl\OrderingExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ParameterDeclarationCollectionImpl.cs" />
     <Compile Include="Ast\Impl\ParameterDeclarationImpl.cs" />
     <Compile Include="Ast\Impl\PropertyImpl.cs" />
     <Compile Include="Ast\Impl\QuasiquoteExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\QueryClauseExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\QueryContinuationExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\QueryEndingExpressionImpl.cs" />
+    <Compile Include="Ast\Impl\QueryExpressionImpl.cs" />
     <Compile Include="Ast\Impl\RaiseStatementImpl.cs" />
     <Compile Include="Ast\Impl\ReferenceExpressionImpl.cs" />
     <Compile Include="Ast\Impl\RELiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\ReturnStatementImpl.cs" />
+    <Compile Include="Ast\Impl\SelectClauseExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SelfLiteralExpressionImpl.cs" />
     <Compile Include="Ast\Impl\SimpleTypeReferenceImpl.cs" />
     <Compile Include="Ast\Impl\SliceCollectionImpl.cs" />
@@ -282,6 +296,7 @@
     <Compile Include="Ast\Impl\UnaryExpressionImpl.cs" />
     <Compile Include="Ast\Impl\UnlessStatementImpl.cs" />
     <Compile Include="Ast\Impl\UnpackStatementImpl.cs" />
+    <Compile Include="Ast\Impl\WhereClauseExpressionImpl.cs" />
     <Compile Include="Ast\Impl\WhileStatementImpl.cs" />
     <Compile Include="Ast\Impl\YieldStatementImpl.cs" />
     <Compile Include="Ast\Import.cs" />
@@ -293,7 +308,9 @@
     <Compile Include="Ast\INodeWithParameters.cs" />
     <Compile Include="Ast\IntegerLiteralExpression.cs" />
     <Compile Include="Ast\InterfaceDefinition.cs" />
+    <Compile Include="Ast\JoinClauseExpression.Generated.cs" />
     <Compile Include="Ast\LabelStatement.cs" />
+    <Compile Include="Ast\LetClauseExpression.Generated.cs" />
     <Compile Include="Ast\LexicalInfo.cs" />
     <Compile Include="Ast\ListLiteralExpression.cs" />
     <Compile Include="Ast\LiteralExpression.cs" />
@@ -313,15 +330,23 @@
     <Compile Include="Ast\NodeType.Generated.cs" />
     <Compile Include="Ast\NullLiteralExpression.cs" />
     <Compile Include="Ast\OmittedExpression.cs" />
+    <Compile Include="Ast\OrderByClauseExpression.Generated.cs" />
+    <Compile Include="Ast\OrderingExpression.Generated.cs" />
+    <Compile Include="Ast\OrderingExpressionCollection.Generated.cs" />
     <Compile Include="Ast\ParameterDeclaration.cs" />
     <Compile Include="Ast\ParameterDeclarationCollection.cs" />
     <Compile Include="Ast\ParameterModifiers.Generated.cs" />
     <Compile Include="Ast\Property.cs" />
     <Compile Include="Ast\QuasiquoteExpression.cs" />
+    <Compile Include="Ast\QueryClauseExpression.Generated.cs" />
+    <Compile Include="Ast\QueryContinuationExpression.Generated.cs" />
+    <Compile Include="Ast\QueryEndingExpression.Generated.cs" />
+    <Compile Include="Ast\QueryExpression.Generated.cs" />
     <Compile Include="Ast\RaiseStatement.cs" />
     <Compile Include="Ast\ReferenceExpression.cs" />
     <Compile Include="Ast\RELiteralExpression.cs" />
     <Compile Include="Ast\ReturnStatement.cs" />
+    <Compile Include="Ast\SelectClauseExpression.Generated.cs" />
     <Compile Include="Ast\SelfLiteralExpression.cs" />
     <Compile Include="Ast\SimpleTypeReference.cs" />
     <Compile Include="Ast\Slice.cs" />
@@ -363,6 +388,7 @@
     <Compile Include="Ast\Visitors\PseudoCSharpPrinterVisitor.cs" />
     <Compile Include="Ast\Visitors\TextEmitter.cs" />
     <Compile Include="Ast\Visitors\TreePrinterVisitor.cs" />
+    <Compile Include="Ast\WhereClauseExpression.Generated.cs" />
     <Compile Include="Ast\WhileStatement.cs" />
     <Compile Include="Ast\YieldStatement.cs" />
     <Compile Include="Attributes\ExtensionAttribute.cs" />
@@ -453,6 +479,7 @@
     <Compile Include="Steps\CheckNeverUsedMembers.cs" />
     <Compile Include="Steps\CheckSlicingExpressions.cs" />
     <Compile Include="Steps\ClosureSignatureInferrer.cs" />
+    <Compile Include="Steps\ClosuresToExpressionTrees.cs" />
     <Compile Include="Steps\ConstantFolding.cs" />
     <Compile Include="Steps\ContextAnnotations.cs" />
     <Compile Include="Steps\DetectInnerGenerics.cs" />
@@ -514,6 +541,15 @@
     <Compile Include="Steps\ProcessMethodBodies.cs" />
     <Compile Include="Steps\ProcessMethodBodiesWithDuckTyping.cs" />
     <Compile Include="Steps\ProcessSharedLocals.cs" />
+    <Compile Include="Steps\Query\DegenerateQueryProtector.cs" />
+    <Compile Include="Steps\Query\GroupByTransormer.cs" />
+    <Compile Include="Steps\Query\QueryCastTransformer.cs" />
+    <Compile Include="Steps\Query\QueryContinuationTransformer.cs" />
+    <Compile Include="Steps\Query\QuerySimplifier.cs" />
+    <Compile Include="Steps\Query\QueryTransformerStep.cs" />
+    <Compile Include="Steps\Query\SelectTransformer.cs" />
+    <Compile Include="Steps\Query\TranparentIdentifierInjector.cs" />
+    <Compile Include="Steps\QueryTransformer.cs" />
     <Compile Include="Steps\ReifyTypes.cs" />
     <Compile Include="Steps\RemoveDeadCode.cs" />
     <Compile Include="Steps\ResolveImports.cs" />
@@ -706,14 +742,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Steps\MethodProcessing\" />
+    <Folder Include="Steps\Query" />
+    <Folder Include="TypeSystem\Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Boo.Lang\Boo.Lang.csproj">
       <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
       <Name>Boo.Lang</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Steps\MethodProcessing\" />
-    <Folder Include="TypeSystem\Extensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

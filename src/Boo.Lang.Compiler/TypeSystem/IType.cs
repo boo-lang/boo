@@ -48,6 +48,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		bool IsArray { get; }
 
 		bool IsPointer { get; }
+		
+		bool IsVoid { get; }
 
 		IEntity DeclaringEntity { get; }
 		

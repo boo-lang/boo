@@ -51,5 +51,36 @@ namespace Boo.Lang.Compiler.Ast
 		public MemberReferenceExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
 		}
+		
+		public static Expression Combine(Expression left, string right)
+		{
+			return new MemberReferenceExpression(left, right);
+		}
+		
+		public static Expression Combine(Expression left, Expression right)
+		{
+			var mre = right as MemberReferenceExpression;
+			if (mre != null)
+			{
+				return new MemberReferenceExpression(left.LexicalInfo, Combine(left, mre.Target), mre.Name);
+			}
+			var re = right as ReferenceExpression;
+			if (re != null)
+			{
+				return new MemberReferenceExpression(left.LexicalInfo, left, re.Name);
+			}
+			var sl = right as SlicingExpression;
+			if (sl != null)
+			{
+				return new SlicingExpression(Combine(left, sl.Target), sl.Indices.ToArray()){LexicalInfo = left.LexicalInfo};
+			}
+			var mie = right as MethodInvocationExpression;
+			if (mie != null)
+			{
+				return new MethodInvocationExpression(left.LexicalInfo, Combine(left, mie.Target), mie.Arguments.ToArray());
+			}
+			throw new CompilerError(right.LexicalInfo, string.Format(
+				"Unable to combine RHS of type {0} into a MemberReferenceExpression", right.GetType()));
+		}
 	}
 }

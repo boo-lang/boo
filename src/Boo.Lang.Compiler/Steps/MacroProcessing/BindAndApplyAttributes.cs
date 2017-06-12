@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
@@ -283,11 +284,19 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 						
 			if (entity.IsAmbiguous())
 			{
-				Error(attribute, CompilerErrorFactory.AmbiguousReference(
-				                 	attribute,
-				                 	attribute.Name,
-				                 	((Ambiguous)entity).Entities));
-				return;
+				//Disambiguate between actual attributes and methods in the global scope
+				var entities = ((Ambiguous)entity).Entities;
+				var types = entities.OfType<IType>().ToArray();
+				if (types.Length == 1)
+				{
+					entity = types[0];
+				} else {
+					Error(attribute, CompilerErrorFactory.AmbiguousReference(
+					                 	attribute,
+					                 	attribute.Name,
+					                 	entities));
+					return;
+				}
 			}
 
 			if (EntityType.Type != entity.EntityType)

@@ -33,6 +33,8 @@ using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Environments;
+using Boo.Lang.Compiler.TypeSystem.Services;
 	
 namespace Boo.Lang.Compiler.Steps
 {
@@ -441,6 +443,7 @@ namespace Boo.Lang.Compiler.Steps
 			
 			var collector = new GenericTypeCollector(this.CodeBuilder);
 			collector.Process(adaptor.ClassDefinition);
+			
 			RegisterAdaptor(to, from, adaptor.ClassDefinition);
 			
 			return adaptor.ClassDefinition;
