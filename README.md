@@ -2,45 +2,22 @@
 
 The Boo Programming Language (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 
-Prerequisites
-=============
-
-## Mono
-
-If you are building on Mono, you need to have a compatible version from the 4.2.x line. The most recent compatible version is [4.2.4](https://download.mono-project.com/archive/4.2.4/).
-
-## Build Tools
-
-### Windows/Linux
-You'll need to install compatible versions of NAnt and NUnit. See [build-tools/versions](build-tools/versions) for known-good versions. _NAnt must be cloned and built from sources_; the last official release (0.92) does not work.
-
-### Mac
-Just type:
-
-```
-./build-tools/bootstrap [<mono version>]
-```
-
-This will install compatible versions of NAnt and NUnit into the ```build-tools``` directory.
-
 Building
 ========
 
-### Build Tools
-
 Just type:
 	
-	# Installed on system
 	nant
-
-	# Installed via bootstrap
-	./nant
 	
 to build the project.
 
 	nant test
 	
 will also run all the unit tests.
+
+mono users might want to do this instead:
+
+	nant compile-tests && nunit-console tests/build/*Tests.dll	
 
 to rebuild everything from scratch:
 

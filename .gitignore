@@ -12,6 +12,3 @@ _ReSharper*
 .gradle
 .DS_Store
 gradle.properties
-build-tools/tools
-build-tools/.config-mono
-
