@@ -17,31 +17,10 @@ env:
     - PKG_CONFIG_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig/
 
 install:
-  # Fetch a version of NAnt compatible with Mono 3
-  - wget -nv --no-check-certificate "https://github.com/nant/nant/archive/${NANT_COMMIT}.zip"
-  - unzip -qq "${NANT_COMMIT}"
-  - cd "nant-${NANT_COMMIT}"
-  # On Mono 4.x the gmcs command is no longer present
-  - make MCS=mcs setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
-  - cp -r bootstrap ../nant
-  - cd -
-  # Fetch a recent version of NUnit
-  - wget -nv --no-check-certificate "https://launchpad.net/nunitv2/trunk/${NUNIT_VERSION}/+download/NUnit-${NUNIT_VERSION}.zip"
-  - unzip -qq "NUnit-${NUNIT_VERSION}.zip"
-
-before_script:
- # Build Boo...
- - mono --runtime=v4.0 nant/NAnt.exe -t:mono-4.5 rebuild
+  - ./build-tools/bootstrap
 
 script:
- - echo "Running tests..."
- # Build the tests
- - pushd tests
- - mono --runtime=v4.0 ../nant/NAnt.exe -t:mono-4.0 compile
- # Replace the nunit framework dll with the downloaded version
- - cp -f "../NUnit-${NUNIT_VERSION}/bin/framework/nunit.framework.dll" build/.
- - cd build
- - MONO_PATH=. PEVERIFY=false mono --runtime=v4.0 --gc=boehm "../../NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.5 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -domain=none -exclude=FailsOnMono,FailsOnMono4 *.Tests.dll
+ - ./ci
 
 after_success:
  # Generate a simple distribution file
