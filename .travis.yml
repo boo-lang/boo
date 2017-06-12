@@ -20,7 +20,7 @@ install:
   - ./build-tools/bootstrap
 
 script:
- - ./nant
+ - ./ci
 
 after_success:
  # Generate a simple distribution file

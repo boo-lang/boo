@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
+source ${SCRIPT_DIR}/build-tools/.config-build
+
+pushd tests
+# Replace the nunit framework dll with the downloaded version
+cp -f "${TOOLS_DIR}/NUnit-${NUNIT_VERSION}/bin/nunit.framework.dll" build/.
+cd build
+PEVERIFY=false ${MONO_PATH} --runtime=v4.0 "${TOOLS_DIR}/NUnit-${NUNIT_VERSION}/bin/nunit-console.exe" -framework=4.5 -stoponerror -nologo -timeout=10000 -noresult -output=stdout.txt -domain=none -exclude=FailsOnMono,FailsOnMono4 *.Tests.dll
