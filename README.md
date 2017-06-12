@@ -36,15 +36,11 @@ Just type:
 	# Installed via bootstrap
 	./nant
 	
-to build the project
+to build the project.
 
 	nant test
 	
 will also run all the unit tests.
-
-mono users might want to do this instead:
-
-	nant compile-tests && nunit-console tests/build/*Tests.dll	
 
 to rebuild everything from scratch:
 

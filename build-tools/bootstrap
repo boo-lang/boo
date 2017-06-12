@@ -1,26 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
-SCRIPT_DIR=$(dirname "$0")
+SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 
 source ${SCRIPT_DIR}/versions
 MONO_VERSION=${1:-Current}
+MONO_CONFIG_FILE=${SCRIPT_DIR}/.config-mono
 
-CONFIG_FILE=${SCRIPT_DIR}/.config-build
-
-cat >${CONFIG_FILE} <<EOL
-SCRIPT_DIR=\$(dirname "$0")
-source \${SCRIPT_DIR}/versions
+cat >${MONO_CONFIG_FILE} <<EOL
 export MONO_VERSION=${MONO_VERSION}
-export MONO_DIR=/Library/Frameworks/Mono.framework/Versions/\${MONO_VERSION}
-export MONO_BIN_DIR=\${MONO_DIR}/bin
-export MONO_PATH=\${MONO_BIN_DIR}/mono
-export PKG_CONFIG_PATH=\${MONO_DIR}/lib/pkgconfig/
-export TOOLS_DIR=${SCRIPT_DIR}/tools
 EOL
 
-source ${CONFIG_FILE}
+source ${SCRIPT_DIR}/.config-build
 
 mkdir -p ${TOOLS_DIR}
 cd ${TOOLS_DIR}
