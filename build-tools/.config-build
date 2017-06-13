@@ -11,8 +11,23 @@ fi
 
 source ${SCRIPT_DIR}/.config-mono
 source ${SCRIPT_DIR}/versions
-export MONO_DIR=/Library/Frameworks/Mono.framework/Versions/${MONO_VERSION}
-export MONO_BIN_DIR=${MONO_DIR}/bin
-export MONO_PATH=${MONO_BIN_DIR}/mono
+
+if [ "$MONO_DIR" = "" ]
+then
+    export MONO_DIR=/Library/Frameworks/Mono.framework/Versions/${MONO_VERSION}
+fi
+if [ "$MONO_BIN_DIR" = "" ]
+then
+    export MONO_BIN_DIR=${MONO_DIR}/bin
+fi
+if [ "$MONO_PATH" = "" ]
+then
+    export MONO_PATH=${MONO_BIN_DIR}/mono
+fi
+if [ "$MCS_PATH" = "" ]
+then
+    export MCS_PATH=${MONO_BIN_DIR}/mcs
+fi
+
 export PKG_CONFIG_PATH=${MONO_DIR}/lib/pkgconfig/
 export TOOLS_DIR=${SCRIPT_DIR}/tools

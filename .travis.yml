@@ -14,7 +14,8 @@ env:
     - EnableNuGetPackageRestore=true
     - NUNIT_VERSION="2.6.3"
     - NANT_COMMIT="e3644541bf083d8e33f450bfbd1a4147e494769c"
-    - PKG_CONFIG_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib/pkgconfig/
+    - MONO_PATH=mono
+    - MCS_PATH=mcs
 
 install:
   - ./build-tools/bootstrap

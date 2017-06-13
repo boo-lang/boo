@@ -44,7 +44,7 @@ unzip -qq -o "${NANT_DOWNLOAD_FILE_PATH}"
 rm -rf nant
 cd "nant-${NANT_COMMIT}"
 # On Mono 4.x the gmcs command is no longer present
-PATH=$PATH:${MONO_BIN_DIR} make MCS=${MONO_BIN_DIR}/mcs setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
+make MCS=${MCS_PATH} setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
 cp -r bootstrap ../nant
 cd -
 rm -r "nant-${NANT_COMMIT}"
