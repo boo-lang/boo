@@ -1,0 +1,10 @@
+install:
+ - cmd: >-
+    "%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
+
+    powershell .\build-tools\bootstrap
+
+build_script:
+ - ps: .\ci
+
+test: off

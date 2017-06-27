@@ -4,7 +4,6 @@ set -e
 
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 
-source ${SCRIPT_DIR}/versions
 MONO_VERSION=${1:-Current}
 MONO_CONFIG_FILE=${SCRIPT_DIR}/.config-mono
 
