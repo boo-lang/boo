@@ -44,9 +44,15 @@ class MalformedOptionException(CommandLineException):
 
 class AbstractParser:
 
+	[Getter(Empty)]
+	private _empty as bool
+
 	virtual def Parse(args as (string)):
-		for arg in args:
-			ParseArg arg
+		if args.Length == 0:
+			_empty = true
+		else: 
+			for arg in args:
+				ParseArg arg
 			
 	def ParseArg(arg as string):
 		if arg.StartsWith("@"):

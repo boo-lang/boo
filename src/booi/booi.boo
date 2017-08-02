@@ -418,7 +418,7 @@ def Main(argv as (string)) as int:
         print Program.Version
         return Program.DefaultSuccessCode
 
-    if not cmdline.IsValid or cmdline.DoHelp:
+    if cmdline.Empty or cmdline.DoHelp:
         print "Usage: booi [options] <script|-> [-- [script options]]"
         print "Options:"
         cmdline.PrintOptions(Console.Out)

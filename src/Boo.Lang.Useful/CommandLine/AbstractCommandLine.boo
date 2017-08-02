@@ -39,6 +39,9 @@ class AbstractCommandLine:
 	
 	static OptionValueDescriptionRegex = /\{(.+)\}/
 	
+	[Getter(Empty)]
+	_empty as bool
+	
 	virtual ParseableMembersFlags:
 		get:
 			return BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance
@@ -46,6 +49,7 @@ class AbstractCommandLine:
 	virtual def Parse([required] argv as (string)):
 		parser = CreateParser()
 		parser.Parse(argv)
+		_empty = parser.Empty
 		
 	virtual def PrintOptions():
 		self.PrintOptions(Console.Out)
