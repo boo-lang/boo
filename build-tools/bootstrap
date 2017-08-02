@@ -1,0 +1,58 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
+
+MONO_VERSION=${1:-Current}
+MONO_CONFIG_FILE=${SCRIPT_DIR}/.config-mono
+
+cat >${MONO_CONFIG_FILE} <<EOL
+export MONO_VERSION=${MONO_VERSION}
+EOL
+
+source ${SCRIPT_DIR}/.config-build
+
+mkdir -p ${TOOLS_DIR}
+cd ${TOOLS_DIR}
+
+download_if_missing() {
+    url=$1
+    file_path=$2
+    if [ ! -e "${file_path}" ]
+    then
+        echo "Downloading ${url} to ${file_path}"
+        if [ $(which wget) ]
+        then
+            wget -nv --no-check-certificate "${url}" -O "${file_path}"
+        else
+            curl --fail -L -o "${file_path}" "${url}"
+        fi
+    fi
+}
+
+# Fetch a version of NAnt compatible with Mono 3
+
+NANT_DOWNLOAD_FILE_NAME=${NANT_COMMIT}.zip
+NANT_DOWNLOAD_FILE_PATH="${NANT_DOWNLOAD_FILE_NAME}"
+NANT_URL=https://github.com/nant/nant/archive/${NANT_DOWNLOAD_FILE_NAME}
+
+download_if_missing "${NANT_URL}" "${NANT_DOWNLOAD_FILE_PATH}"
+unzip -qq -o "${NANT_DOWNLOAD_FILE_PATH}"
+
+rm -rf nant
+cd "nant-${NANT_COMMIT}"
+# On Mono 4.x the gmcs command is no longer present
+make MCS=${MCS_PATH} setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll
+cp -r bootstrap ../nant
+cd -
+rm -r "nant-${NANT_COMMIT}"
+
+# Fetch a recent version of NUnit
+
+NUNIT_DOWNLOAD_FILE_NAME=NUnit-${NUNIT_VERSION}.zip
+NUNIT_DOWNLOAD_FILE_PATH=${NUNIT_DOWNLOAD_FILE_NAME}
+NUNIT_URL=https://launchpad.net/nunitv2/trunk/${NUNIT_VERSION}/+download/${NUNIT_DOWNLOAD_FILE_NAME}
+
+download_if_missing "${NUNIT_URL}" "${NUNIT_DOWNLOAD_FILE_PATH}"
+unzip -qq -o "${NUNIT_DOWNLOAD_FILE_PATH}"

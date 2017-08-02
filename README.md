@@ -2,29 +2,88 @@
 
 The Boo Programming Language (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 
+Prerequisites
+=============
+
+## Windows
+
+- .NET 4.5
+- [Visual C++ Build Tools*](http://landinghub.visualstudio.com/visual-cpp-build-tools)
+
+\* Boo is built with NAnt, which must be buit from sources, which requires NMake, which comes with the Visual C++ Build Tools.
+
+## Mac/Linux
+
+- Mono 4.2.x (4.2.4 is the latest and recommended)
+- Bash
+
+Build Tools
+==============
+
+You can install compatible versions of the required tools into the ```build-tools``` directory, where the build scripts will execute them from, by running the bootstrap script.
+
+## Windows
+The bootstrap script is a PowerShell script; however, it must be run from a x86 Native Tools Command Prompt:
+```
+# FROM A x86 NATIVE TOOLS COMMAND PROMPT
+powershell .\build-tools\bootstrap
+```
+
+## Mac/Linux
+
+```
+./build-tools/bootstrap
+```
+
+### Mac
+
+Building Boo requires Mono 4.2.x, which is not likely to be your "Current" version of Mono. To avoid having to switch your current version every time you want to work on Boo, you can specify the version to use when you run the bootstrap script. The build scripts will then use that version of Mono, regardless of your current version.
+
+```
+./build-tools/bootstrap [<mono version>]
+```
+
 Building
 ========
 
-Just type:
-	
-	nant
-	
-to build the project.
+To build the repository, run the ```nant``` script:
 
-	nant test
-	
-will also run all the unit tests.
+```PowerShell
+# Windows (PowerShell)
+.\nant [<target>]
+```
 
-mono users might want to do this instead:
+```sh
+# Mac/Linux
+./nant [<target>]
+```
 
-	nant compile-tests && nunit-console tests/build/*Tests.dll	
+With no target specified, this will build the repository (code and tests) incrementally. To clean and build the repository from scratch, run the "rebuild" target. This will also cause the ast classes and parser
+to be regenerated (needs a java vm)
 
-to rebuild everything from scratch:
+To run the unit tests that have already been built with ```nant```, run the ```nunit``` script:
 
-	nant rebuild
-	
-the rebuild target will also cause the ast classes and parser
-to be regenerated (needs a java vm).
+```PowerShell
+# Windows (PowerShell)
+.\nunit
+```
+
+```sh
+# Mac/Linux
+./nunit
+```
+
+To build and test the entire repository, the same way the CI build does, run the ```ci``` script:
+
+```PowerShell
+# Windows (PowerShell)
+.\ci
+```
+
+```sh
+# Mac/Linux
+./ci
+```
 
 How to Start
 ============

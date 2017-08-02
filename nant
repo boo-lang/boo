@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
+source ${SCRIPT_DIR}/build-tools/.config-build
+
+${MONO_PATH} --runtime=v4.0 ${TOOLS_DIR}/nant/NAnt.exe -t:mono-4.5 ${1:-compile-tests}
