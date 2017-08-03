@@ -73,7 +73,11 @@ namespace Boo.Lang.Compiler.Steps.Generators
 	                .Select(gp => (IGenericParameter) gp.Entity).ToArray();
                 mapper = new GeneratorTypeReplacer();
                 foreach (var genParam in type.GenericInfo.GenericParameters)
-                    mapper.Replace(genParam, allGenParams.First(gp => gp.Name.Equals(genParam.Name)));
+                {
+                    var replacement = allGenParams.FirstOrDefault(gp => gp.Name.Equals(genParam.Name));
+                    if (replacement != null)
+                        mapper.Replace(genParam, replacement);
+                }
 	            return mapper.MapType(type);
 	        }
             mapper = null;
