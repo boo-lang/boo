@@ -378,7 +378,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 
 	    private void MapMember(MemberReferenceExpression node, IMember member)
 	    {
-            if (member.Type.GenericInfo == null && member.Type.ConstructedInfo == null)
+            if (!_methodToStateMachineMapper.Any)
                 return;
             var baseType = member.DeclaringType;
 		    var mapped = member as IGenericMappedMember;
