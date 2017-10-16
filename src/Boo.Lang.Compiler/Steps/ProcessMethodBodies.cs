@@ -2359,7 +2359,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		virtual protected void ProcessMemberReferenceExpression(MemberReferenceExpression node)
 		{
-			var entity = ResolveMember(node);
+            if (node.Target.ExpressionType is Unknown)
+            {
+                FixUnknownExpression(node.Target);
+            }
+
+            var entity = ResolveMember(node);
 			if (null == entity)
 				return;
 
@@ -2429,7 +2434,46 @@ namespace Boo.Lang.Compiler.Steps
 			PostProcessReferenceExpression(node);
 		}
 
-		private static Node MemberAnchorFor(Node node)
+        void FixUnknownExpression(Expression target)
+        {
+            var entity = (target.Entity as ITypedEntity);
+            if (entity == null)
+                return;
+            var type = FixEntityType(entity);
+            if (type != null)
+                target.ExpressionType = type;
+        }
+
+        IType FixEntityType(ITypedEntity entity)
+        {
+            var internalType = entity as IInternalEntity;
+            if (internalType != null)
+            {
+                var node = internalType.Node;
+                var oldNamespace = CurrentNamespace;
+                try
+                {
+                    Visit(node);
+                }
+                finally
+                {
+                    //hack because there's no more accessible way to set the CurrentNamespace property
+                    My<CurrentScope>.Instance.Value = oldNamespace;
+                }
+                var nodeEntity = node.Entity as ITypedEntity;
+                return nodeEntity == null ? null : nodeEntity.Type;
+
+            }
+            var gen = entity as IGenericMappedMember;
+            if (gen != null)
+            {
+                FixEntityType(gen.SourceMember);
+                return gen.Type;
+            }
+            return null;
+        }
+
+        private static Node MemberAnchorFor(Node node)
 		{
 			return AstUtil.GetMemberAnchor(node);
 		}
