@@ -515,6 +515,7 @@
 
 			<references>
 				<include name="${build.dir}/Boo.Lang.dll" />
+				<include name="System.Numerics.dll" />
 				<!--include name="${build.dir}/Boo.Lang.Ast.dll" /-->
 			</references>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
