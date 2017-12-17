@@ -500,7 +500,14 @@ namespace booc
 							break;
 						}
 
-					default:
+                    case 'i':
+                        {
+                            string icon = arg.Substring(3).Trim();
+                            _options.Icon = icon;
+                            break;
+                        }
+
+                    default:
 						{
 							if (arg == "--help")
 							{
@@ -561,6 +568,7 @@ namespace booc
 					" -delaysign           Delays assembly signing\n" +
 					" -ducky               Turns on duck typing by default\n" +
 					" -embedres:FILE[,ID]  Embeds FILE with the optional ID\n" +
+                    " -i:ICON              Sets the generated assembly's icon to the specified file\n" +
 					" -keycontainer:NAME   The key pair container used to strongname the assembly\n" +
 					" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
 					" -lib:DIRS            Adds the comma-separated DIRS to the assembly search path\n" +

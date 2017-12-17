@@ -594,6 +594,8 @@ namespace Boo.Lang.Compiler
 
 		public bool WarnAsError { get; set; }
 
+        public string Icon { get; set; }
+
 		public ICollection<string> DisabledWarnings
 		{
 			get { return _disabledWarnings; }

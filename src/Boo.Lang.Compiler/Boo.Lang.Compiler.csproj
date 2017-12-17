@@ -88,6 +88,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core">
       <SpecificVersion>False</SpecificVersion>
@@ -414,6 +415,7 @@
     <Compile Include="Pipelines\Run.cs" />
     <Compile Include="Resources\EmbeddedFileResource.cs" />
     <Compile Include="Resources\FileResource.cs" />
+    <Compile Include="Resources\UnmanagedResourceHelper.cs" />
     <Compile Include="Resources\NamedEmbeddedFileResource.cs" />
     <Compile Include="Resources\NamedFileResource.cs" />
     <Compile Include="Services\ExtensionTagger.cs" />

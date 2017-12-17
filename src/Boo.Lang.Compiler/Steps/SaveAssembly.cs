@@ -42,9 +42,15 @@ namespace Boo.Lang.Compiler.Steps
 			var builder = ContextAnnotations.GetAssemblyBuilder(Context);
 			var filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
 			Save(builder, filename);
-		}
 
-		void Save(AssemblyBuilder builder, string filename)
+            var resFilename = (string)Context.Properties["ResFileName"];
+            if (resFilename != null)
+            {
+                File.Delete(resFilename);
+            }
+        }
+
+        void Save(AssemblyBuilder builder, string filename)
 		{
 			switch (Parameters.Platform)
 			{

@@ -52,6 +52,7 @@ using Module = Boo.Lang.Compiler.Ast.Module;
 using System.Collections.Generic;
 using Method = Boo.Lang.Compiler.Ast.Method;
 using ExceptionHandler = Boo.Lang.Compiler.Ast.ExceptionHandler;
+using Boo.Lang.Compiler.Resources;
 
 namespace Boo.Lang.Compiler.Steps
 {
@@ -211,12 +212,46 @@ namespace Boo.Lang.Compiler.Steps
 			DefineEntryPoint();
 			DefineModuleConstructor();
 
-            // Define the unmanaged version information resource, which 
-            // contains the attribute informaion applied earlier
-            _asmBuilder.DefineVersionInfoResource();
+            // Define the unmanaged information resources, which 
+            // contains the attribute informaion applied earlier,
+            // plus icon data if applicable
+            DefineUnmanagedResource();
 
 			_moduleBuilder.CreateGlobalFunctions(); //setup global .data
 		}
+
+        private Stream GetIconFile(string filename)
+        {
+            if (!Path.IsPathRooted(filename))
+            {
+                filename = Path.GetFullPath(filename);
+            }
+            try
+            {
+                return File.Open(filename, FileMode.Open);
+            }
+            catch (FileNotFoundException)
+            {
+                Context.Warnings.Add(CompilerWarningFactory.IconNotFound(filename));
+                return null;
+            }
+        }
+
+        private void DefineUnmanagedResource()
+        {
+            // always pass true for noManifest and a null manifest stream for now.  This can be updated
+            // later if we add support for manifests to Boo
+            var filename = BuildOutputAssemblyName();
+            var isExe = filename.EndsWith(".exe");
+            var iconName = Context.Parameters.Icon;
+            var iconStream = iconName != null ? GetIconFile(iconName) : null;
+            var resourceBytes = UnamangedResourceHelper.CreateDefaultWin32Resources(
+                true, isExe, null, iconStream, _asmBuilder);
+            var resFilename = Path.GetTempFileName();
+            Context.Properties["ResFileName"] = resFilename;
+            File.WriteAllBytes(resFilename, resourceBytes);
+            _asmBuilder.DefineUnmanagedResource(resFilename);
+        }
 
 		void GatherAssemblyAttributes()
 		{
