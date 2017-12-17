@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/boo-lang/boo.png?branch=master)](https://travis-ci.org/boo-lang/boo)
+[![Build Status](https://travis-ci.org/boo-lang/boo.svg?branch=master)](https://travis-ci.org/boo-lang/boo)
 
 The Boo Programming Language (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 
@@ -10,7 +10,7 @@ Prerequisites
 - .NET 4.5
 - [Visual C++ Build Tools*](http://landinghub.visualstudio.com/visual-cpp-build-tools)
 
-\* Boo is built with NAnt, which must be buit from sources, which requires NMake, which comes with the Visual C++ Build Tools.
+\* Boo is built with NAnt, which must be built from sources, which requires NMake, which comes with the Visual C++ Build Tools.
 
 ## Mac/Linux
 
