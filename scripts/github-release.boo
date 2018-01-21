@@ -58,7 +58,7 @@ def client():
     wc.Headers['Authorization'] = 'token ' + Environment.GetEnvironmentVariable('GITHUB_TOKEN')
     # The API requires this custom Accept header while in beta
     wc.Headers.Add('Accept', 'application/vnd.github.manifold-preview')
-	wc.Headers.Add('user-agent', 'boo-lang')
+    wc.Headers.Add('user-agent', 'boo-lang')
     return wc
 
 if len(argv) < 2:
