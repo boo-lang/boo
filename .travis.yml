@@ -26,9 +26,9 @@ script:
 after_success:
  # Generate a simple distribution file
  - popd
- - cp -r build boo-alpha
- - zip boo-alpha.zip boo-alpha/*
- - mono --debug build/booi.exe scripts/github-release.boo -- alpha boo-alpha.zip
+ - cp -r build boo-latest
+ - zip boo-latest.zip boo-latest/*
+ - mono --debug build/booi.exe scripts/github-release.boo -- unstable boo-latest.zip
 
 # Notify development list when needed
 notifications:

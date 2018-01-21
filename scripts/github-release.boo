@@ -58,6 +58,7 @@ def client():
     wc.Headers['Authorization'] = 'token ' + Environment.GetEnvironmentVariable('GITHUB_TOKEN')
     # The API requires this custom Accept header while in beta
     wc.Headers.Add('Accept', 'application/vnd.github.manifold-preview')
+	wc.Headers.Add('user-agent', 'boo-lang')
     return wc
 
 if len(argv) < 2:
@@ -68,12 +69,11 @@ if not Environment.GetEnvironmentVariable('GITHUB_TOKEN'):
     raise 'GITHUB_TOKEN environment variable not set'
 
 MAX_UPLOAD_RETRIES = 5
-USERNAME = 'bamboo'
+USERNAME = 'boo-lang'
 REPO = 'boo'
 API_URL = "https://api.github.com/repos/$USERNAME/$REPO/releases"
 RELEASE_NAME = argv[0]
 ASSET_FILE = argv[1]
-RELEASE_URL = "https://api.github.com/repos/drslump/boo/releases/$RELEASE_NAME"
 ASSET_NAME = Path.GetFileName(ASSET_FILE)
 
 json = JavaScriptSerializer()
