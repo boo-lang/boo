@@ -11,7 +11,7 @@
 """
 
 from System import Environment
-from System.IO import Path
+from System.IO import Path, File
 from System.Net import WebClient, WebException, HttpWebResponse
 from System.Collections.Generic import List
 import System.Web.Script.Serialization from System.Web.Extensions
@@ -98,12 +98,15 @@ for asset in release.assets:
         client().UploadData(asset.url as string, "DELETE", array(byte, 0))
         break
 
-upload_url = (release.upload_url as string).Replace('{?name,label}', "?name=$ASSET_NAME,label=$RELEASE_NAME")
+upload_url = (release.upload_url as string).Replace('{?name,label}', "?name=$ASSET_NAME&label=$RELEASE_NAME")
 print "Uploading $ASSET_FILE to $upload_url"
 retries = 0
 :retry
 try: 
-    client().UploadFile(upload_url, ASSET_FILE)
+    using uploadClient = client():
+        uploadClient.Headers.Add("Content-Type", "application/zip")
+        using fileStream = File.OpenRead(filePath), requestStream = client.OpenWrite(Uri(upload_url), "POST"):
+            fileStream.CopyTo(requestStream)
 except ex as WebException:
     var e2 = ex.Response cast HttpWebResponse
     using sr = System.IO.StreamReader(e2.GetResponseStream()):
@@ -114,3 +117,5 @@ except ex as WebException:
         raise ex 
     print "Upload failed ($(ex.Message)), retrying..."
     goto retry
+
+print 'Upload successful.'
