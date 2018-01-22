@@ -105,8 +105,8 @@ retries = 0
 try: 
     client().UploadFile(upload_url, ASSET_FILE)
 except ex as WebException:
-    var e = ex.Response cast HttpWebResponse
-    using sr = System.IO.StreamReader(e.GetResponseStream()):
+    var e2 = ex.Response cast HttpWebResponse
+    using sr = System.IO.StreamReader(e2.GetResponseStream()):
         print sr.ReadToEnd()
     retries += 1
     if retries >= MAX_UPLOAD_RETRIES:
