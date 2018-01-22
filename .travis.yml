@@ -10,7 +10,7 @@ mono:
 env:
   global:
     # GITHUB_TOKEN=xxxx
-    - secure: "Nk6IRV4woRpCk3D/6oVTpAfDRPQnxEBdJN9955X/mtDPLuw/lSYFEKOhIc9LQ29fcCGyQPS1eb+rhCAFsqlOGfhkWWb1whnMGCahi2uXP7naCg3rg7A1HeNY/JcuR+xXgQDQmdbm7aiI9IG0Z2vOIXNQhCuR9j/a8wpEdwrJ8/k="
+    - secure: "WtlJfRgv+SakyU28p9agDZ6NMqAHVzLhqSYpuivySv9gWw/RLkEzCeVFPg1sQ9WsqFvEVYwt5Hcasb2U1NydkUdk6tasqy3D+vtKHbisg8jFy2Wdxffu8b5p8laMB7qKCtaBUyDZhvL2ZKXBYDxtYzut/+nSx6V3bMh/FIvN7Fs="
     - EnableNuGetPackageRestore=true
     - NUNIT_VERSION="2.6.3"
     - NANT_COMMIT="e3644541bf083d8e33f450bfbd1a4147e494769c"

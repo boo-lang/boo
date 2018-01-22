@@ -12,7 +12,7 @@
 
 from System import Environment
 from System.IO import Path
-from System.Net import WebClient, WebException
+from System.Net import WebClient, WebException, HttpWebResponse
 from System.Collections.Generic import List
 import System.Web.Script.Serialization from System.Web.Extensions
 
@@ -79,7 +79,13 @@ ASSET_NAME = Path.GetFileName(ASSET_FILE)
 json = JavaScriptSerializer()
 
 print "Looking for release $RELEASE_NAME"
-result = client().DownloadString(API_URL)
+try:
+    result = client().DownloadString(API_URL)
+except wx as WebException:
+    var e = wx.Response cast HttpWebResponse
+    using sr = System.IO.StreamReader(e.GetResponseStream()):
+        print sr.ReadToEnd()
+    raise
 releases = json.Deserialize[of List[of Release]](result)
 release = releases.Find({rel | rel.tag_name == RELEASE_NAME})
 
