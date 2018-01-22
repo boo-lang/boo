@@ -10,7 +10,7 @@
 
 """
 
-from System import Environment
+from System import Environment, Uri
 from System.IO import Path, File
 from System.Net import WebClient, WebException, HttpWebResponse
 from System.Collections.Generic import List
@@ -105,7 +105,7 @@ retries = 0
 try: 
     using uploadClient = client():
         uploadClient.Headers.Add("Content-Type", "application/zip")
-        using fileStream = File.OpenRead(filePath), requestStream = client.OpenWrite(Uri(upload_url), "POST"):
+        using fileStream = File.OpenRead(ASSET_FILE), requestStream = uploadClient.OpenWrite(Uri(upload_url), "POST"):
             fileStream.CopyTo(requestStream)
 except ex as WebException:
     var e2 = ex.Response cast HttpWebResponse
