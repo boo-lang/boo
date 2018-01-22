@@ -98,7 +98,7 @@ for asset in release.assets:
         client().UploadData(asset.url as string, "DELETE", array(byte, 0))
         break
 
-upload_url = (release.upload_url as string).Replace('{?name}', "?name=$ASSET_NAME")
+upload_url = (release.upload_url as string).Replace('{?name,label}', "?name=$ASSET_NAME,label=$RELEASE_NAME")
 print "Uploading $ASSET_FILE to $upload_url"
 retries = 0
 :retry
