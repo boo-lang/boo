@@ -39,6 +39,7 @@ import Boo.Lang.Compiler.TypeSystem.Services
 class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 	private static final Usage = "Usage: `macro [<parent.>+]<name>[(arg0,...)]`"
+	private static final NoNesting = "Macros cannot be declared inside of a type definition"
 
 	_macro as MacroStatement
 	_name as string
@@ -56,6 +57,8 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 
 	override protected def ExpandGeneratorImpl(macro as MacroStatement):
 		raise Usage if len(macro.Arguments) != 1
+		td = macro.GetAncestor[of TypeDefinition]()
+		raise NoNesting unless td isa Module
 
 		_macro = macro
 
