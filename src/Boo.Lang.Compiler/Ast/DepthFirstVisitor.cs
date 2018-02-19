@@ -50,6 +50,11 @@ namespace Boo.Lang.Compiler.Ast
 				{
 					throw;
 				}
+				catch (System.IO.FileNotFoundException error)
+				{
+					//catch this specially, so we can actually see what file was missing
+					Console.WriteLine("Could not locate file " + error.FileName);
+				}
 				catch (Exception error)
 				{
 					OnError(node, error);
