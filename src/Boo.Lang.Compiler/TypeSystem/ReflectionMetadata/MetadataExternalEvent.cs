@@ -144,6 +144,9 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 			get { return _type; }
 		}
 
-		public override string Name => throw new System.NotImplementedException();
-	}
+		public override string Name
+		{
+			get { return _reader.GetString(_memberInfo.Name); }
+		}
+}
 }

@@ -196,7 +196,10 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 
 		public string Name { get { return _reader.GetString(_gp.Name); } }
 
-		public EntityType EntityType => throw new NotImplementedException();
+		public EntityType EntityType
+		{
+			get { return EntityType.GenericParameter; }
+		}
 
 		public override string ToString()
 		{

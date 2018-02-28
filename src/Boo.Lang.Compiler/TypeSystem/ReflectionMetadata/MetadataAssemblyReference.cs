@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 	using AssemblyContentType = System.Reflection.AssemblyContentType;
 	using AssemblyNameFlags = System.Reflection.AssemblyNameFlags;
 
-	class MetadataAssemblyReference : ICompileUnit, IEquatable<MetadataAssemblyReference>
+	public class MetadataAssemblyReference : ICompileUnit, IEquatable<MetadataAssemblyReference>
 	{
 		private struct FullNameRef
 		{
@@ -75,8 +75,11 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 				throw new ArgumentNullException("assembly");
 			_assemblyName = assembly;
 			_provider = provider;
-			_peReader = new PEReader(File.OpenRead(assembly));
-			_reader = _peReader.GetMetadataReader();
+			using (var stream = File.OpenRead(assembly))
+			{
+				_peReader = new PEReader(stream);
+				_reader = _peReader.GetMetadataReader();
+			}
 			_name = _reader.GetString(_reader.GetAssemblyDefinition().Name);
 			_fullName = GetFullName();
 			_typeSpecEntityCache = new MemoizedFunction<TypeSpecification, IType>(NewType);
