@@ -728,7 +728,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			_returnType = returnType;
 			_returnStatements = 0;
-			_returnImplicit = IsVoid(returnType);
+			_returnImplicit = returnType.IsVoid;
 			_hasLeaveWithStoredValue = false;
 
 			//we may not actually use (any/all of) them, but at least they're ready
@@ -747,7 +747,7 @@ namespace Boo.Lang.Compiler.Steps
 			//2) load of a default value (implicit returns [e.g return without expression])
 			//3) load of the `leave' stored value
 
-			bool hasDefaultValueReturn = _returnImplicit && !IsVoid(_returnType);
+			bool hasDefaultValueReturn = _returnImplicit && !_returnType.IsVoid;
 			if (hasDefaultValueReturn)
 			{
 				if (_returnStatements == -1) //emit branch only if instructed to do so (-1)
@@ -1040,13 +1040,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DiscardValueOnStack()
 		{
-			if (!IsVoid(PopType()))
+			if (!PopType().IsVoid)
 				_il.Emit(OpCodes.Pop);
-		}
-
-		bool IsVoid(IType type)
-		{
-			return type == TypeSystemServices.VoidType;
 		}
 
 		override public void OnUnlessStatement(UnlessStatement node)

@@ -160,6 +160,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			get { return _definition.IsPointer; }
 		}
 
+		public virtual bool IsVoid
+		{
+			get { return false; }
+		}
+
 		public int GetTypeDepth()
 		{
 			return _definition.GetTypeDepth();

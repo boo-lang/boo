@@ -49,6 +49,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		bool IsPointer { get; }
 
+		bool IsVoid { get; }
+
 		IEntity DeclaringEntity { get; }
 		
 		int GetTypeDepth();

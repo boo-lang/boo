@@ -186,6 +186,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			{
 				return false;
 			}
+
+			public override bool IsVoid
+			{
+				get { return true; }
+			}
 		}
 
 		#endregion

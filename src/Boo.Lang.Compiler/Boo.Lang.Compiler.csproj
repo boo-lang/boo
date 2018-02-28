@@ -87,8 +87,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8df3f1eee85cc956, processorArchitecture=MSIL">
+      <HintPath>..\packages\NetFx.Extensions.Primitives.2.0.1\lib\net40\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8df3f1eee85cc956, processorArchitecture=MSIL">
+      <HintPath>..\packages\Net40.Collections.Immutable.2.0.3\lib\net40\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Reflection.Metadata, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8df3f1eee85cc956, processorArchitecture=MSIL">
+      <HintPath>..\packages\Net40.Reflection.Metadata.2.0.3\lib\net40\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Core">
       <SpecificVersion>False</SpecificVersion>
@@ -598,6 +607,7 @@
     <Compile Include="TypeSystem\IMember.cs" />
     <Compile Include="TypeSystem\IMethod.cs" />
     <Compile Include="TypeSystem\IMethodBase.cs" />
+    <Compile Include="TypeSystem\IModifiedType.cs" />
     <Compile Include="TypeSystem\INameSpace.cs" />
     <Compile Include="TypeSystem\Internal\AbstractInternalType.cs" />
     <Compile Include="TypeSystem\Internal\AbstractLocalEntity.cs" />
@@ -632,6 +642,25 @@
     <Compile Include="TypeSystem\IType.cs" />
     <Compile Include="TypeSystem\ITypedEntity.cs" />
     <Compile Include="TypeSystem\Null.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataAbstractExternalGenericInfo.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalCallableType.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalConstructedMethodInfo.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalConstructor.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalEvent.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalField.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalGenericMethodInfo.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalGenericParameter.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalGenericTypeInfo.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalMethodr.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalEntity.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalParameter.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalProperty.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataExternalType.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataAssemblyReference.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataNamespace.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataNamespaceBuilder.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataPointerType.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataSignatureDecoder.cs" />
     <Compile Include="TypeSystem\Reflection\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyEqualityComparer.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyReference.cs" />
@@ -656,6 +685,7 @@
     <Compile Include="TypeSystem\Reflection\ReflectionNamespace.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionNamespaceBuilder.cs" />
     <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProvider.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataTypeSystemProvider.cs" />
     <Compile Include="TypeSystem\Services\AccessibilityChecker.cs" />
     <Compile Include="TypeSystem\Services\AnonymousCallablesManager.cs" />
     <Compile Include="TypeSystem\Services\AsyncHelper.cs" />
@@ -692,6 +722,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="boo.snk" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
