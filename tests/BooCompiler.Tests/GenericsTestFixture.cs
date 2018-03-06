@@ -614,7 +614,13 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"nullable-6.boo");
 		}
-		
+
+		[Test]
+		public void nullable_7()
+		{
+			RunCompilerTestCase(@"nullable-7.boo");
+		}
+
 		[Test]
 		public void override_1()
 		{

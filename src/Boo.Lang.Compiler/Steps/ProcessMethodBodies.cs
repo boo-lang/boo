@@ -2710,7 +2710,7 @@ namespace Boo.Lang.Compiler.Steps
 				AssertTypeCompatibility(node.Expression, returnType, expressionType);
 
 			//bind to nullable Value if needed
-			if (TypeSystemServices.IsNullable(expressionType) && !TypeSystemServices.IsNullable(returnType))
+			if (TypeSystemServices.IsNullable(expressionType) && !(TypeSystemServices.IsNullable(returnType) || TypeSystemServices.IsUnknown(returnType)))
 			{
 				// TODO: move to later steps or introduce an implicit conversion operator
 				var mre = new MemberReferenceExpression(node.Expression.LexicalInfo, node.Expression, "Value");
