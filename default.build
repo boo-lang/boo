@@ -516,6 +516,8 @@
 			<references>
 				<include name="${build.dir}/Boo.Lang.dll" />
 				<include name="System.Numerics.dll" />
+				<include name="System.Collections.Immutable.dll" />
+				<include name="System.Reflection.Metadata.dll" />
 				<!--include name="${build.dir}/Boo.Lang.Ast.dll" /-->
 			</references>
 			<arg line="/keyfile:${keyfile.path}" unless="${keyfile.path == ''}" />
