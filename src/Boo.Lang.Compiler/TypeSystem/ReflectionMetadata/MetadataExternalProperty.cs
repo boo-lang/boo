@@ -47,7 +47,10 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 			: base(provider, pd, reader)
 		{
 			_parent = parent;
-			var sig = pd.DecodeSignature(new MetadataSignatureDecoder(provider, reader), new MetadataGenericContext(null, null));
+			var gi = parent.GenericInfo;
+			var sig = pd.DecodeSignature(
+				new MetadataSignatureDecoder(provider, reader),
+				new MetadataGenericContext(gi == null ? null : gi.GenericParameters, null));
 			_type = sig.ReturnType;
 			var accessors = pd.GetAccessors();
 			if (!accessors.Getter.IsNil)

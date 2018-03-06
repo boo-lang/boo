@@ -26,6 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Linq;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Services;
@@ -75,6 +76,19 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		override public bool IsAssignableFrom(IType other)
 		{
 			return _provider.IsCallableTypeAssignableFrom(this, other);
+		}
+
+		public bool IsGenericType
+		{
+			get
+			{
+				return _signature.Parameters.Any(p => p.Type.IsGenericType) || _signature.ReturnType.IsGenericType;
+			}
+		}
+
+		public IType GenericDefinition
+		{
+			get { return this.IsGenericType ? this : null; }
 		}
 	}
 }

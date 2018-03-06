@@ -86,5 +86,15 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		{
 			return _element.GetTypeDepth() + 1;
 		}
+
+		public bool IsGenericType
+		{
+			get { return false; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return null; }
+		}
 	}
 }

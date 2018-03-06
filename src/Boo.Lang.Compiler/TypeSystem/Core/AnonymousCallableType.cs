@@ -94,5 +94,25 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		{
 			return 3;
 		}
+
+		public bool IsGenericType
+		{
+			get
+			{
+				if (_concreteType == null)
+					throw new InvalidOperationException();
+				return _concreteType.IsGenericType;
+			}
+		}
+
+		public IType GenericDefinition
+		{
+			get
+			{
+				if (_concreteType == null)
+					throw new InvalidOperationException();
+				return _concreteType.GenericDefinition;
+			}
+		}
 	}
 }

@@ -47,12 +47,15 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 
 		public MetadataExternalGenericParameter(MetadataTypeSystemProvider provider, GenericParameter type, MetadataExternalType parent, MetadataReader reader)
 		{
-			if (type.Parent.Kind == HandleKind.MethodDefinition)
-			{
-				_declaringMethod = provider.Map(parent, reader.GetMethodDefinition((MethodDefinitionHandle)(type.Parent)));
-			} else {
-				_declaringType = parent;
-			}
+			_declaringType = parent;
+			_provider = provider;
+			_gp = type;
+			_reader = reader;
+		}
+
+		public MetadataExternalGenericParameter(MetadataTypeSystemProvider provider, GenericParameter type, MetadataExternalMethod parent, MetadataReader reader)
+		{
+			_declaringMethod = parent;
 			_provider = provider;
 			_gp = type;
 			_reader = reader;
@@ -263,6 +266,16 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		public bool IsDefined(IType attributeType)
 		{
 			return _provider.GetCustomAttributeTypes(_gp.GetCustomAttributes(), _reader).Contains(attributeType);
+		}
+
+		public bool IsGenericType
+		{
+			get { return false; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return null; }
 		}
 	}
 

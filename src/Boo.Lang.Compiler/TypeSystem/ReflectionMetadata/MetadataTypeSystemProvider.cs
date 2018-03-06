@@ -37,14 +37,14 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 {
 	public class MetadataTypeSystemProvider
 	{
-		private readonly MemoizedFunction<string, MetadataAssemblyReference> _referenceCache;
+		private readonly Dictionary<string, MetadataAssemblyReference> _referenceCache;
 
 		private Dictionary<TypeDefinition, MetadataAssemblyReference> _assemblyTypeMap =
 			new Dictionary<TypeDefinition, MetadataAssemblyReference>();
 
 		public MetadataTypeSystemProvider()
 		{
-			_referenceCache = new MemoizedFunction<string, MetadataAssemblyReference>(CreateReference);
+			_referenceCache = new Dictionary<string, MetadataAssemblyReference>();
 			_typeDefCache = new MemoizedFunction<MetadataReader, TypeDefinition, MetadataExternalType>(TypeFromDefinition);
 			_typeRefCache = new MemoizedFunction<MetadataReader, TypeReference, TypeDefinition>(DereferenceTypeRef);
 			Initialize();
@@ -55,6 +55,11 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 			MapTo(typeof(object), new ObjectTypeImpl(this));
 			MapTo(typeof(Builtins.duck), new ObjectTypeImpl(this));
 			MapTo(typeof(void), new VoidTypeImpl(this));
+
+			//special cases to avoid a stack overflow
+			var asm = AssemblyReferenceFor(typeof(object).Assembly);
+			var mDel = asm.TypeDefinitionFromName("System", "MulticastDelegate");
+			MapTo(typeof(System.MulticastDelegate), new MetadataExternalType(this, mDel, asm.Reader));
 		}
 
 		protected void MapTo(Type type, IType entity)
@@ -63,7 +68,7 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		}
 
 		private MetadataTypeSystemProvider(
-			MemoizedFunction<string, MetadataAssemblyReference> referenceCache)
+			Dictionary<string, MetadataAssemblyReference> referenceCache)
 		{
 			_referenceCache = referenceCache;
 		}
@@ -77,12 +82,45 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 
 		private MetadataAssemblyReference AssemblyReferenceFor(System.Reflection.Assembly assembly)
 		{
-			return _referenceCache.Invoke(assembly.Location);
+			var name = System.IO.Path.GetFileNameWithoutExtension(assembly.Location);
+			MetadataAssemblyReference result;
+			if (!_referenceCache.TryGetValue(name, out result))
+			{
+				result = CreateReference(assembly.Location);
+				_referenceCache.Add(name, result);
+			}
+			return result;
+		}
+
+		private HashSet<string> _loadingReferences = new HashSet<string>();
+
+		internal void LoadReferences(MetadataReader reader, string localDir)
+		{
+			var refs = reader.AssemblyReferences.Select(reader.GetAssemblyReference);
+			foreach (var reference in refs)
+			{
+				var name = reader.GetString(reference.Name);
+				if (!(_referenceCache.ContainsKey(name) || _loadingReferences.Contains(name)))
+				{
+					_loadingReferences.Add(name);
+					try
+					{
+						var loadPath = MetadataReferenceResolver.FindAssembly(reference, reader, localDir);
+						var newAsm = CreateReference(loadPath);
+						_referenceCache.Add(name, newAsm);
+					}
+					finally {
+						_loadingReferences.Remove(name);
+					}
+				}
+			}
 		}
 
 		private MetadataAssemblyReference CreateReference(string assembly)
 		{
 			var result = new MetadataAssemblyReference(this, assembly);
+			foreach (var type in result.AllTypes)
+				_assemblyTypeMap[type] = result;
 			_assemblyCache[result.Reader] = result;
 			return result;
 		}
@@ -143,7 +181,7 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		private TypeDefinition DereferenceAssemblyRefTypeRef(MetadataReader reader, AssemblyReference ar, string ns, string name)
 		{
 			var asmName = reader.GetString(ar.Name);
-			var otherReader = _referenceCache.Invoke(asmName).Reader;
+			var otherReader = _referenceCache[asmName].Reader;
 			return DereferenceTypeRefByName(otherReader, ns, name);
 		}
 
@@ -160,6 +198,8 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 
 		internal IType GetTypeFromEntityHandle(EntityHandle handle, MetadataReader reader)
 		{
+			if (handle.IsNil)
+				return null;
 			switch (handle.Kind)
 			{
 				case HandleKind.TypeDefinition:
@@ -241,12 +281,12 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 
 		public virtual MetadataTypeSystemProvider Clone()
 		{
-			return new MetadataTypeSystemProvider(_referenceCache.Clone());
+			return new MetadataTypeSystemProvider(new Dictionary<string, MetadataAssemblyReference>(_referenceCache));
 		}
 
-		public virtual IType CreateEntityForRegularType(TypeDefinition type)
+		public virtual IType CreateEntityForRegularType(TypeDefinition type, MetadataReader reader)
 		{
-			return new MetadataExternalType(this, type, _assemblyTypeMap[type].Reader);
+			return new MetadataExternalType(this, type, reader);
 		}
 
 		public virtual IType CreateEntityForCallableType(TypeDefinition type)

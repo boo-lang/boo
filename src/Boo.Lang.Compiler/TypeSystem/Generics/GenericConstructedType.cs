@@ -359,6 +359,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			return null;
 		}
+
+		public bool IsGenericType
+		{
+			get { return true; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return _definition; }
+		}
 	}
 
 	public class GenericConstructedCallableType : GenericConstructedType, ICallableType

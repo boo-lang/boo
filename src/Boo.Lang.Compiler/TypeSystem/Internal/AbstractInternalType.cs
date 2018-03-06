@@ -288,5 +288,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		{
 			return null;
 		}
+
+		public bool IsGenericType
+		{
+			get { return _node.GenericParameters.Count > 0; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return this.IsGenericType ? this : null; }
+		}
 	}
 }

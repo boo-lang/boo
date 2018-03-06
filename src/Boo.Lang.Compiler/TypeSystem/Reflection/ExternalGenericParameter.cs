@@ -120,6 +120,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 		{
 			return Name;
 		}
+
+		public bool IsGenericType
+		{
+			get { return false; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return null; }
+		}
 	}
 
 }

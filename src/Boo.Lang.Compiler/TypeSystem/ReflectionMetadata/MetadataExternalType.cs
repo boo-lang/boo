@@ -138,6 +138,19 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 			return attrs.Any(a => a.Equals(attributeType));
 		}
 
+		public CustomAttributeValue<IType>? GetCustomAttribute(IType attributeType)
+		{
+			var coll = _type.GetCustomAttributes();
+			if (coll.Count == 0)
+				return null;
+			var attrs = _provider.GetCustomAttributeTypes(coll, _reader).ToArray();
+			var idx = Array.IndexOf(attrs, attributeType);
+			if (idx == -1)
+				return null;
+			var value = _reader.GetCustomAttribute(coll.ToArray()[idx]);
+			return value.DecodeValue(new MetadataSignatureDecoder(_provider, _reader));
+		}
+
 		public virtual IType ElementType
 		{
 			get { return this; }
@@ -459,6 +472,16 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		public IType MakePointerType()
 		{
 			return new MetadataPointerType(_provider, this, _reader);
+		}
+
+		public bool IsGenericType
+		{
+			get { return this.GenericDefinition != null; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return IsGenericType ? this : null; }
 		}
 	}
 }

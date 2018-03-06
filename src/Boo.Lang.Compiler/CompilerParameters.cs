@@ -37,7 +37,7 @@ using System.Text.RegularExpressions;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.ReflectionMetadata;
 using Boo.Lang.Environments;
 using Boo.Lang.Resources;
 
@@ -48,7 +48,7 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerParameters
 	{
-		public static IReflectionTypeSystemProvider SharedTypeSystemProvider = new ReflectionTypeSystemProvider();
+		public static MetadataTypeSystemProvider SharedTypeSystemProvider = new MetadataTypeSystemProvider();
 
 		private TextWriter _outputWriter;
 
@@ -85,11 +85,11 @@ namespace Boo.Lang.Compiler
 		{	
 		}
 
-		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider) : this(reflectionProvider, true)
+		public CompilerParameters(MetadataTypeSystemProvider reflectionProvider) : this(reflectionProvider, true)
 		{
 		}
 
-		public CompilerParameters(IReflectionTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
+		public CompilerParameters(MetadataTypeSystemProvider reflectionProvider, bool loadDefaultReferences)
 		{
 			_libPaths = new List<string>();
 			_systemDir = Permissions.WithDiscoveryPermission(() => GetSystemDir());
@@ -160,7 +160,7 @@ namespace Boo.Lang.Compiler
 			});
 		}
 
-		private IAssemblyReference TryToLoadExtensionsAssembly()
+		private MetadataAssemblyReference TryToLoadExtensionsAssembly()
 		{
 			const string booLangExtensionsDll = "Boo.Lang.Extensions.dll";
 			return Permissions.WithDiscoveryPermission(() =>
@@ -198,20 +198,20 @@ namespace Boo.Lang.Compiler
 			_compilerReferences.Add(asm);
 		}
 
-		public IAssemblyReference LoadAssembly(string assembly)
+		public MetadataAssemblyReference LoadAssembly(string assembly)
 		{
 			return LoadAssembly(assembly, true);
 		}
 
-		public IAssemblyReference LoadAssembly(string assemblyName, bool throwOnError)
+		public MetadataAssemblyReference LoadAssembly(string assemblyName, bool throwOnError)
 		{
 			var assembly = ForName(assemblyName, throwOnError);
 			return assembly != null ? AssemblyReferenceFor(assembly) : null;
 		}
 
-		private IAssemblyReference AssemblyReferenceFor(Assembly assembly)
+		private MetadataAssemblyReference AssemblyReferenceFor(Assembly assembly)
 		{
-			return _compilerReferences.Provider.ForAssembly(assembly);
+			return (MetadataAssemblyReference)_compilerReferences.Provider.ForAssembly(assembly);
 		}
 
 		protected virtual Assembly ForName(string assembly, bool throwOnError)

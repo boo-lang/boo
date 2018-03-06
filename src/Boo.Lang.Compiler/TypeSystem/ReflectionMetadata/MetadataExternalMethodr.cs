@@ -44,13 +44,22 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		private readonly MetadataExternalType _parent;
 		private readonly MethodSignature<IType> _signature;
 
-		internal MetadataExternalMethod(MetadataTypeSystemProvider provider, MethodDefinition mi, MetadataExternalType parent, MetadataReader reader)
-			: base(provider, mi, reader)
+		internal MetadataExternalMethod(MetadataTypeSystemProvider provider, MethodDefinition md, MetadataExternalType parent, MetadataReader reader)
+			: base(provider, md, reader)
 		{
-			var decoder = new MetadataSignatureDecoder(provider, reader);
-			_signature = mi.DecodeSignature(decoder, null);
-			_acceptVarArgs = _signature.RequiredParameterCount != _signature.ParameterTypes.Length;
 			_parent = parent;
+			var decoder = new MetadataSignatureDecoder(provider, reader);
+			_signature = md.DecodeSignature(decoder, GetGenericContext(parent, md));
+			_acceptVarArgs = _signature.RequiredParameterCount != _signature.ParameterTypes.Length;
+		}
+
+		private MetadataGenericContext GetGenericContext(MetadataExternalType parent, MethodDefinition md)
+		{
+			var gi = parent.GenericInfo;
+			var parentGenParams = gi != null ? gi.GenericParameters : Enumerable.Empty<IGenericParameter>();
+			var gi2 = this.GenericInfo;
+			var selfGenParams = gi2 != null ? gi2.GenericParameters : Enumerable.Empty<IGenericParameter>();
+			return new MetadataGenericContext(parentGenParams, selfGenParams);
 		}
 
 		public bool IsMeta

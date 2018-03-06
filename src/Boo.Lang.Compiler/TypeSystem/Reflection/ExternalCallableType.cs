@@ -57,6 +57,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return My<TypeSystemServices>.Instance.IsCallableTypeAssignableFrom(this, other);
 		}
 
+		public bool IsGenericType
+		{
+			get { return _invoke.GenericInfo != null; }
+		}
 
+		public IType GenericDefinition
+		{
+			get { return this.IsGenericType ? this : null; }
+		}
 	}
 }

@@ -71,6 +71,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 		
 		IConstructedTypeInfo ConstructedInfo { get; }
 
+		bool IsGenericType { get; }
+
+		IType GenericDefinition { get; }
+
 		IArrayType MakeArrayType(int rank);
 
 		IType MakePointerType();

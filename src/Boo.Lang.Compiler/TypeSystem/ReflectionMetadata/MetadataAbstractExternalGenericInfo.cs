@@ -42,6 +42,7 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		private Dictionary<IType[], T> _instances = new Dictionary<IType[], T>(ArrayEqualityComparer<IType>.Default);
 		protected readonly MetadataReader _reader;
 		protected readonly MetadataExternalType _parent;
+		protected readonly MetadataExternalMethod _method;
 
 		protected MetadataAbstractExternalGenericInfo(
 			MetadataTypeSystemProvider provider,
@@ -53,15 +54,31 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 			_parent = parent;
 		}
 
+		protected MetadataAbstractExternalGenericInfo(
+			MetadataTypeSystemProvider provider,
+			MetadataExternalMethod parent,
+			MetadataReader reader)
+		{
+			_provider = provider;
+			_reader = reader;
+			_method = parent;
+			_parent = (MetadataExternalType)parent.DeclaringType;
+		}
+
 		public IGenericParameter[] GenericParameters
 		{
 			get
 			{
 				if (null == _parameters)
 				{
-					_parameters = Array.ConvertAll<GenericParameter, MetadataExternalGenericParameter>(
-						GetActualGenericParameters(),
-						t => new MetadataExternalGenericParameter(_provider, t, _parent, _reader));
+					if (_method != null)
+						_parameters = Array.ConvertAll(
+							GetActualGenericParameters(),
+							t => new MetadataExternalGenericParameter(_provider, t, _method, _reader));
+					else
+						_parameters = Array.ConvertAll(
+							GetActualGenericParameters(),
+							t => new MetadataExternalGenericParameter(_provider, t, _parent, _reader));
 				}
 				return _parameters;
 			}

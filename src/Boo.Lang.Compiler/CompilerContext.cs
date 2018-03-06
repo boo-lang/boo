@@ -31,7 +31,7 @@ using System.Diagnostics;
 using System.IO;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.Services;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.ReflectionMetadata;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
@@ -103,7 +103,7 @@ namespace Boo.Lang.Compiler
 
 			// FIXME: temporary hack to make sure the singleton is visible
 			// using the My<IReflectionTypeSystemProvider> idiom
-			RegisterService<IReflectionTypeSystemProvider>(_references.Provider);
+			RegisterService<MetadataTypeSystemProvider>(_references.Provider);
             RegisterService<CompilerParameters>(_parameters);
 			RegisterService<CompilerErrorCollection>(_errors);
 			RegisterService<CompilerWarningCollection>(_warnings);

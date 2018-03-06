@@ -542,6 +542,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return CreateBuiltinInvocation(li, BuiltinFunction.Eval);
 		}
 
+		public MethodInvocationExpression CreateSizeofInvocation(LexicalInfo li, IType type)
+		{
+			var result = CreateBuiltinInvocation(li, BuiltinFunction.Sizeof);
+			result.Arguments.Add(CreateReference(type));
+			return result;
+		}
+
 		private static MethodInvocationExpression CreateBuiltinInvocation(LexicalInfo li, BuiltinFunction builtin)
 		{
 			return new MethodInvocationExpression(li) { Target = CreateBuiltinReference(builtin) };

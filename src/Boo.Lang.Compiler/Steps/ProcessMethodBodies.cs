@@ -5344,22 +5344,17 @@ namespace Boo.Lang.Compiler.Steps
 
 					BindExpressionType(node, left);
 
-					int size = TypeSystemServices.SizeOf(left);
-					if (size == 1)
-						return true; //no need for normalization
-
 					//normalize RHS wrt size of pointer
-					IntegerLiteralExpression literal = node.Right as IntegerLiteralExpression;
-					Expression normalizedRhs = (null != literal)
-						? (Expression)
-							new IntegerLiteralExpression(literal.Value * size)
-						: (Expression)
+					var cb = My<BooCodeBuilder>.Instance;
+					var call = new MethodInvocationExpression(
+						cb.CreateSizeofInvocation(node.Right.LexicalInfo, left));
+					Expression normalizedRhs = 
 							new BinaryExpression(BinaryOperatorType.Multiply,
 								node.Right,
-								new IntegerLiteralExpression(size));
+								call);
 					node.Replace(node.Right, normalizedRhs);
 					Visit(node.Right);
-					node.Annotate("pointerSizeNormalized", size);
+					node.Annotate("pointerSizeNormalized");
 					return true;
 			}
 

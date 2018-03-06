@@ -43,7 +43,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public static BuiltinFunction InitValueType = new BuiltinFunction("__initobj__", BuiltinFunctionType.InitValueType);
 		
 		public static BuiltinFunction Default = new BuiltinFunction("__default__", BuiltinFunctionType.Default);
-		
+
+		public static BuiltinFunction Sizeof = new BuiltinFunction("__sizeof__", BuiltinFunctionType.Sizeof);
+
 		BuiltinFunctionType _type;
 		
 		string _name;

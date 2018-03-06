@@ -253,6 +253,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 		{
 			return null;
 		}
+
+		public bool IsGenericType
+		{
+			get { return false; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return null; }
+		}
 	}
 }
 

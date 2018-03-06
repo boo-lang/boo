@@ -38,6 +38,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		Switch, // switch IL opcode
 		InitValueType, // initobj IL opcode
 		Custom, // custom builtin function
-		Default // C# style default<T>
+		Default, // C# style default<T>
+		Sizeof // sizeof IL opcode
 	}
 }

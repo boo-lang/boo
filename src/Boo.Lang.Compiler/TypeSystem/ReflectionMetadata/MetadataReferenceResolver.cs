@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,46 +26,24 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-using System.Linq;
-using Boo.Lang.Environments;
+using System;
+using System.Reflection.Metadata;
 
 namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 {
-	using System.Reflection.Metadata;
+	using Boo.Lang.Compiler.TypeSystem.ReflectionMetadata.Resolvers;
 
-	public class MetadataExternalCallableType : MetadataExternalType, ICallableType
+	class MetadataReferenceResolver
 	{
-		private readonly IMethod _invoke;
-
-		public MetadataExternalCallableType(MetadataTypeSystemProvider provider, TypeDefinition type, MetadataReader reader)
-			: base(provider, type, reader)
+		internal static string FindAssembly(AssemblyReference reference, MetadataReader reader, string localDir)
 		{
-			_invoke = this.GetMembers().OfType<IMethod>().Where(m => m.Name == "Invoke").Single();
-		}
-
-		public CallableSignature GetSignature()
-		{
-			return _invoke.CallableType.GetSignature();
-		}
-
-		public bool IsAnonymous
-		{
-			get { return false; }
-		}
-
-		override public bool IsAssignableFrom(IType other)
-		{
-			return My<TypeSystemServices>.Instance.IsCallableTypeAssignableFrom(this, other);
-		}
-
-		public bool IsGenericType
-		{
-			get { return _invoke.GenericInfo != null; }
-		}
-
-		public IType GenericDefinition
-		{
-			get { return this.IsGenericType ? this : null; }
+			var name = new AssemblyReferenceData(reference, reader);
+			var resolver = new CompositeAssemblyReferenceResolver(
+				new GacAssemblyReferenceResolver(),
+				new SameDirectoryAssemblyReferenceResolver(localDir));
+			string result = null;
+			resolver.TryGetAssemblyPath(name, out result);
+			return result;
 		}
 	}
 }

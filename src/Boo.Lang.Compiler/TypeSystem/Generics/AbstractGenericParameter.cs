@@ -237,5 +237,15 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		{
 			return null;
 		}
+
+		public bool IsGenericType
+		{
+			get { return false; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return null; }
+		}
 	}
 }

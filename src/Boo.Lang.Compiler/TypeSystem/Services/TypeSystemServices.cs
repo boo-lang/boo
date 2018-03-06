@@ -39,7 +39,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Internal;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.ReflectionMetadata;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
 using Boo.Lang.Environments;
@@ -799,14 +799,14 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public static bool IsNullable(IType type)
 		{
-			var et = type as ExternalType;
-			return (null != et && et.ActualType.IsGenericType && et.ActualType.GetGenericTypeDefinition() == Types.Nullable);
+			return (type.IsGenericType && type.GenericDefinition == My<TypeSystemServices>.Instance.NullableGenericType);
 		}
 
 		public IType GetNullableUnderlyingType(IType type)
 		{
-			var et = type as ExternalType;
-			return Map(Nullable.GetUnderlyingType(et.ActualType));
+			if (type.ConstructedInfo != null)
+				return type.ConstructedInfo.GenericArguments[0];
+			return type.GenericInfo.GenericParameters[0];
 		}
 
 		public static bool IsUnknown(Expression node)
@@ -905,16 +905,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return TypeSystemProvider().Map(type);
 		}
 
-		private IReflectionTypeSystemProvider TypeSystemProvider()
+		private MetadataTypeSystemProvider TypeSystemProvider()
 		{
 			return _typeSystemProvider.Instance;
 		}
 
-		private EnvironmentProvision<IReflectionTypeSystemProvider> _typeSystemProvider;
+		private Reflection.IReflectionTypeSystemProvider LegacyTypeSystemProvider()
+		{
+			return _legacyTypeSystemProvider.Instance;
+		}
+
+		private EnvironmentProvision<MetadataTypeSystemProvider> _typeSystemProvider;
+
+		private EnvironmentProvision<Reflection.IReflectionTypeSystemProvider> _legacyTypeSystemProvider;
 
 		public IParameter[] Map(ParameterInfo[] parameters)
 		{
-			return TypeSystemProvider().Map(parameters);
+			return LegacyTypeSystemProvider().Map(parameters);
 		}
 
 		public IConstructor Map(ConstructorInfo constructor)
@@ -929,12 +936,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IEntity Map(MemberInfo[] members)
 		{
-			return TypeSystemProvider().Map(members);
+			return LegacyTypeSystemProvider().Map(members);
 		}
 
 		public IEntity Map(MemberInfo mi)
 		{
-			return TypeSystemProvider().Map(mi);
+			return LegacyTypeSystemProvider().Map(mi);
 		}
 
 		public static string GetSignature(IEntityWithParameters method)
@@ -957,7 +964,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsLiteralPrimitive(IType type)
 		{
-			var typ = type as ExternalType;
+			var mTyp = type as MetadataExternalType;
+			if (mTyp != null)
+			return mTyp.PrimitiveName != null
+				   && _literalPrimitives.Contains(mTyp.PrimitiveName);
+			var typ = type as Reflection.ExternalType;
 			return typ != null
 			       && typ.PrimitiveName != null
 			       && _literalPrimitives.Contains(typ.PrimitiveName);
@@ -975,7 +986,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public bool IsPointerCompatible(IType type)
 		{
-			return IsPrimitiveNumber(type) || (type.IsValueType && 0 != SizeOf(type));
+			return type.IsValueType;
 		}
 
 		protected virtual void PreparePrimitives()
@@ -1011,12 +1022,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			AddBuiltin(BuiltinFunction.Eval);
 			AddBuiltin(BuiltinFunction.Switch);
 			AddBuiltin(BuiltinFunction.Default);
+			AddBuiltin(BuiltinFunction.Sizeof);
 		}
 
 		protected void AddPrimitiveType(string name, IType type)
 		{
 			_primitives[name] = type;
-			((ExternalType) type).PrimitiveName = name;
+			((MetadataExternalType) type).PrimitiveName = name;
 		}
 
 		protected void AddLiteralPrimitiveType(string name, IType type)
@@ -1035,18 +1047,35 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type.GetConstructors().FirstOrDefault(constructor => 0 == constructor.GetParameters().Length);
 		}
 
-		private IType GetExternalEnumeratorItemType(IType iteratorType)
+		private IType GetMetadataEnumeratorItemType(MetadataExternalType iteratorType)
 		{
-			Type type = ((ExternalType) iteratorType).ActualType;
+			var attr = iteratorType.GetCustomAttribute(TypeSystemProvider().Map(typeof(EnumeratorItemTypeAttribute)));
+			if (!attr.HasValue)
+				return null;
+			var attrValue = attr.Value;
+			if (attrValue.FixedArguments.Length > 0)
+				return (IType)attrValue.FixedArguments[0].Value;
+			return (IType)attrValue.NamedArguments[0].Value;
+		}
+
+		private IType GetExternalEnumeratorItemType(Reflection.ExternalType iteratorType)
+		{
+			Type type = iteratorType.ActualType;
 			var attribute = (EnumeratorItemTypeAttribute) Attribute.GetCustomAttribute(type, typeof(EnumeratorItemTypeAttribute));
 			return null != attribute ? Map(attribute.ItemType) : null;
 		}
 
 		private IType GetEnumeratorItemTypeFromAttribute(IType iteratorType)
 		{
+			var metaIteratorType = iteratorType as MetadataExternalType;
+			if (metaIteratorType != null)
+				return GetMetadataEnumeratorItemType(metaIteratorType);
+
+
 			// If iterator type is external get its attributes via reflection
-			if (iteratorType is ExternalType)
-				return GetExternalEnumeratorItemType(iteratorType);
+			var extIteratorType = iteratorType as Reflection.ExternalType;
+			if (extIteratorType != null)
+				return GetExternalEnumeratorItemType(extIteratorType);
 
 			// If iterator type is a generic constructed type, get its attribute from its definition
 			// and map generic parameters 
@@ -1113,6 +1142,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return type.IsSubclassOf(IAstMacroType) || type.IsSubclassOf(IAstGeneratorMacroType);
 		}
 
+		[Obsolete("This may give incorrect values and should not be trusted. Use the sizeof() metamethod from Boo.Lang.Extensions instead.", true)]
 		public virtual int SizeOf(IType type)
 		{
 			if (type.IsPointer)
@@ -1120,7 +1150,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == type || !type.IsValueType)
 				return 0;
 
-			var et = type as ExternalType;
+			var et = type as Reflection.ExternalType;
 			if (null != et)
 				return Marshal.SizeOf(et.ActualType);
 

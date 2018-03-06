@@ -30,7 +30,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Boo.Lang.Compiler.TypeSystem;
-using Boo.Lang.Compiler.TypeSystem.Reflection;
+using Boo.Lang.Compiler.TypeSystem.ReflectionMetadata;
 using Boo.Lang.Compiler.Util;
 using Assembly = System.Reflection.Assembly;
 
@@ -41,16 +41,16 @@ namespace Boo.Lang.Compiler
 	/// </summary>
 	public class CompilerReferenceCollection : Set<ICompileUnit>
 	{
-		private readonly IReflectionTypeSystemProvider _provider;
+		private readonly MetadataTypeSystemProvider _provider;
 
-		public CompilerReferenceCollection(IReflectionTypeSystemProvider provider)
+		public CompilerReferenceCollection(MetadataTypeSystemProvider provider)
 		{
 			if (null == provider)
 				throw new ArgumentNullException("provider");
 			_provider = provider;
 		}
 
-		public IReflectionTypeSystemProvider Provider
+		public MetadataTypeSystemProvider Provider
 		{
 			get { return _provider; }
 		}

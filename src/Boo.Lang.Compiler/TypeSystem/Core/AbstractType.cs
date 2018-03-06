@@ -166,6 +166,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			get { return null; }
 		}
 
+		public bool IsGenericType
+		{
+			get { return false; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return null; }
+		}
+
 		public bool IsDefined(IType attributeType)
 		{
 			return false;

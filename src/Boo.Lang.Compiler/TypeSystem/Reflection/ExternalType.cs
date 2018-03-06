@@ -451,6 +451,16 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		{
 			return _provider.Map(_type.MakePointerType());
 		}
+
+		public bool IsGenericType
+		{
+			get { return _type.IsGenericType; }
+		}
+
+		public IType GenericDefinition
+		{
+			get { return _provider.Map(_type.GetGenericTypeDefinition()); }
+		}
 	}
 }
 

@@ -657,7 +657,14 @@
     <Compile Include="TypeSystem\ReflectionMetadata\MetadataNamespace.cs" />
     <Compile Include="TypeSystem\ReflectionMetadata\MetadataNamespaceBuilder.cs" />
     <Compile Include="TypeSystem\ReflectionMetadata\MetadataPointerType.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\MetadataReferenceResolver.cs" />
     <Compile Include="TypeSystem\ReflectionMetadata\MetadataSignatureDecoder.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\Resolvers\AssemblyReferenceData.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\Resolvers\CompositeAssemblyReferenceResolver.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\Resolvers\GacAssemblyReferenceResolver.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\Resolvers\HResult.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\Resolvers\IAssemblyReferenceResolver.cs" />
+    <Compile Include="TypeSystem\ReflectionMetadata\Resolvers\SameDirectoryAssemblyReferenceResolver.cs" />
     <Compile Include="TypeSystem\Reflection\AbstractExternalGenericInfo.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyEqualityComparer.cs" />
     <Compile Include="TypeSystem\Reflection\AssemblyReference.cs" />

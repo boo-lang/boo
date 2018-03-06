@@ -40,19 +40,13 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 	using AssemblyFlags = System.Reflection.AssemblyFlags;
 	using AssemblyContentType = System.Reflection.AssemblyContentType;
 	using AssemblyNameFlags = System.Reflection.AssemblyNameFlags;
+	using TypeAttributes = System.Reflection.TypeAttributes;
 
 	public class MetadataAssemblyReference : ICompileUnit, IEquatable<MetadataAssemblyReference>
 	{
-		private struct FullNameRef
+		private string FullNameRef(string ns, string name)
 		{
-			public string NS;
-			public string Name;
-
-			public FullNameRef(string ns, string name)
-			{
-				NS = string.Intern(ns);
-				Name = string.Intern(name);
-			}
+			return string.Format("{0}::{1}", ns, name);
 		}
 
 		private readonly MetadataReader _reader;
@@ -67,19 +61,25 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		private readonly MemoizedFunction<MetadataExternalType, PropertyDefinition, IProperty> _propertyCache;
 		private readonly MemoizedFunction<MetadataExternalType, FieldDefinition, IField> _fieldCache;
 		private readonly MemoizedFunction<MetadataExternalType, EventDefinition, IEvent> _eventCache;
-		private Dictionary<FullNameRef, TypeDefinition> _allTypeDefs;
+		private Dictionary<string, TypeDefinition> _allTypeDefs;
+		private readonly Stream _stream;
 
 		internal MetadataAssemblyReference(MetadataTypeSystemProvider provider, string assembly)
 		{
 			if (string.IsNullOrEmpty(assembly))
 				throw new ArgumentNullException("assembly");
-			_assemblyName = assembly;
+			_assemblyName = Path.GetFileNameWithoutExtension(assembly);
 			_provider = provider;
+			/*
 			using (var stream = File.OpenRead(assembly))
 			{
-				_peReader = new PEReader(stream);
+				_peReader = new PEReader(stream, PEStreamOptions.PrefetchEntireImage & PEStreamOptions.PrefetchMetadata);
 				_reader = _peReader.GetMetadataReader();
-			}
+			}*/
+			_stream = File.OpenRead(assembly);
+			_peReader = new PEReader(_stream, PEStreamOptions.PrefetchEntireImage & PEStreamOptions.PrefetchMetadata);
+			_reader = _peReader.GetMetadataReader();
+			_provider.LoadReferences(_reader, Path.GetDirectoryName(assembly));
 			_name = _reader.GetString(_reader.GetAssemblyDefinition().Name);
 			_fullName = GetFullName();
 			_typeSpecEntityCache = new MemoizedFunction<TypeSpecification, IType>(NewType);
@@ -88,9 +88,33 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 			_propertyCache = new MemoizedFunction<MetadataExternalType, PropertyDefinition, IProperty>(NewEntityForProperty);
 			_fieldCache = new MemoizedFunction<MetadataExternalType, FieldDefinition, IField>(NewEntityForField);
 			_eventCache = new MemoizedFunction<MetadataExternalType, EventDefinition, IEvent>(NewEntityForEvent);
+			DebugAllTypeDefs();
 			_allTypeDefs = _reader.TypeDefinitions
 				.Select(tdh => _reader.GetTypeDefinition(tdh))
-				.ToDictionary(td => new FullNameRef(_reader.GetString(td.Namespace), _reader.GetString(td.Name)));
+				.Where(td => (!td.NamespaceDefinition.IsNil) && (td.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public)
+				.ToDictionary(td => FullNameRef(_reader.GetString(td.Namespace), _reader.GetString(td.Name)));
+		}
+
+		private void DebugAllTypeDefs()
+		{
+			var result = _reader.TypeDefinitions
+				.Select(tdh => _reader.GetTypeDefinition(tdh))
+				.Where(td => (!td.NamespaceDefinition.IsNil) && (td.Attributes & TypeAttributes.VisibilityMask) == TypeAttributes.Public);
+			var tracking = new HashSet<string>();
+			foreach (var td in result)
+			{
+				var fnr = FullNameRef(_reader.GetString(td.Namespace), _reader.GetString(td.Name));
+				if (tracking.Contains(fnr))
+				{}
+				else {
+					tracking.Add(fnr);
+				}
+			}
+		}
+
+		internal IEnumerable<TypeDefinition> AllTypes
+		{
+			get { return _allTypeDefs.Values; }
 		}
 
 		public string Name
@@ -109,7 +133,7 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 
 		internal TypeDefinition TypeDefinitionFromName(string ns, string name)
 		{
-			return _allTypeDefs[new FullNameRef(ns, name)];
+			return _allTypeDefs[FullNameRef(ns, name)];
 		}
 
 		internal MetadataReader Reader { get { return _reader; } }
@@ -197,6 +221,12 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		public IType Map(Type type)
 		{
 			AssertAssembly(type);
+			if (type.IsNested)
+			{
+				var parent = type.DeclaringType;
+				var parentType = Map(parent);
+				return parentType.GetMembers().OfType<IType>().Single(t => t.Name == type.Name);
+			}
 			return this.Map(TypeDefinitionFromName(type.Namespace, type.Name));
 		}
 
@@ -264,7 +294,16 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 		public void MapTo(Type type, IType entity)
 		{
 			AssertAssembly(type);
-			var typedef = TypeDefinitionFromName(type.Namespace, type.Name);
+			TypeDefinition typedef;
+			if (type.DeclaringType == null)
+			{
+				typedef = TypeDefinitionFromName(type.Namespace, type.Name);
+			} else {
+				var parent = TypeDefinitionFromName(type.Namespace, type.DeclaringType.Name);
+				typedef = parent.GetNestedTypes()
+					.Select(_reader.GetTypeDefinition)
+					.Single(td => _reader.GetString(td.Name).Equals(type.Name));
+			}
 			_typeEntityCache.Add(typedef, entity);
 		}
 
@@ -275,15 +314,19 @@ namespace Boo.Lang.Compiler.TypeSystem.ReflectionMetadata
 
 		private IType CreateEntityForType(TypeDefinition type)
 		{
-			var baseType = _provider.GetTypeFromEntityHandle(type.BaseType, _reader);
-			if (baseType.IsAssignableFrom(My<TypeSystemServices>.Instance.MulticastDelegateType))
-				return _provider.CreateEntityForCallableType(type);
-			return _provider.CreateEntityForRegularType(type);
+			if (!type.BaseType.IsNil)
+			{
+				var baseType = _provider.GetTypeFromEntityHandle(type.BaseType, _reader);
+				if (baseType.IsAssignableFrom(_provider.Map(Types.MulticastDelegate)))
+					return _provider.CreateEntityForCallableType(type);
+			}
+			return _provider.CreateEntityForRegularType(type, _reader);
 		}
 
 		internal TypeDefinition GetTypeDefinition(Type t)
 		{
-			throw new NotImplementedException("GetTypeDefinition is not implemented yet");
+			var result = this.TypeDefinitionFromName(t.Namespace, t.Name);
+			return result;
 		}
 
 	}
