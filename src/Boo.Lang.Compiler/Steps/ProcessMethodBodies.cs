@@ -1004,11 +1004,28 @@ namespace Boo.Lang.Compiler.Steps
 			Warnings.Add(CompilerWarningFactory.MethodHidesInheritedNonVirtual(hidingMethod.Method, hidingMethod, hiddenMethod));
 		}
 
+		Property GetInternalProperty(IProperty value)
+		{
+			var mapped = value as GenericMappedProperty;
+			if (mapped != null)
+				value = mapped.SourceMember;
+
+			var internalProperty = value as InternalProperty;
+			if (internalProperty != null)
+				return internalProperty.Property;
+
+			return null;
+		}
+
 		IMethod FindPropertyAccessorOverridenBy(Property property, Method accessor)
 		{
 			var baseProperty = ((InternalProperty)property.Entity).Overriden;
 			if (baseProperty == null)
 				return null;
+
+			var overriddenProperty = GetInternalProperty(baseProperty);
+			if (overriddenProperty != null)
+				EnsureMemberWasVisited(overriddenProperty);
 
 			var baseAccessor = property.Getter == accessor ? baseProperty.GetGetMethod() : baseProperty.GetSetMethod();
 			if (baseAccessor != null && TypeSystemServices.CheckOverrideSignature((IMethod) accessor.Entity, baseAccessor))
@@ -5774,6 +5791,8 @@ namespace Boo.Lang.Compiler.Steps
 						IMethod methodEntity = (IMethod)entity;
 						if (TypeSystemServices.IsUnknown(methodEntity.ReturnType))
 						{
+							if (node.ParentNode.NodeType == NodeType.Property)
+								EnsureMemberWasVisited((TypeMember)node.ParentNode);
 							// try to preprocess the method to resolve its return type
 							Method method = (Method)node;
 							PreProcessMethod(method);
