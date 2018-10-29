@@ -130,6 +130,11 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				return InferArrayType(arrayType, actualType, inference);
 			}
 
+			if (formalType.IsByRef)
+			{
+				return Infer(formalType.ElementType, actualType, inference);
+			}
+
 			return InferSimpleType(formalType, actualType, inference);
 		}
 
