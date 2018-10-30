@@ -73,6 +73,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		public IType ICallableType;
 		public IType ICollectionGenericType;
+		public IType IReadOnlyCollectionGenericType;
 		public IType ICollectionType;
 		public IType IDisposableType;
 
@@ -80,6 +81,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public IType IEnumerableType;
 
 		public IType IListGenericType;
+		public IType IReadOnlyListGenericType;
 		public IType IListType;
 
 		public IType NullableGenericType;
@@ -196,7 +198,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IEnumerableGenericType = Map(Types.IEnumerableGeneric);
 			IEnumeratorGenericType = Map(typeof(IEnumerator<>));
 			ICollectionGenericType = Map(typeof(ICollection<>));
+			IReadOnlyCollectionGenericType = Map(typeof(IReadOnlyCollection<>));
 			IListGenericType = Map(typeof (IList<>));
+			IReadOnlyListGenericType = Map(typeof(IReadOnlyList<>));
 			IListType = Map(typeof (IList));
 			NullableGenericType = Map(Types.Nullable);
 			IAstMacroType = Map(typeof(IAstMacro));

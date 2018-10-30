@@ -144,14 +144,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Core
 			TypeSystemServices services = My<TypeSystemServices>.Instance;
 			if (other == services.ArrayType || services.ArrayType.IsSubclassOf(other))
 				return true;
-			
-			// Arrays also implement generic IEnumerable of their element type 
-			if (other.ConstructedInfo != null && 
-			    other.ConstructedInfo.GenericDefinition == services.IEnumerableGenericType &&
+
+			// Arrays also implement several generic collection interfaces of their element type 
+			if (other.ConstructedInfo != null && other.IsInterface &&
+			    IsSupportedInterfaceType(services, other.ConstructedInfo.GenericDefinition) &&
 			    IsSubclassOfGenericEnumerable(other))
 				return true;
 
 			return false;
+		}
+
+		protected bool IsSupportedInterfaceType(TypeSystemServices services, IType definition)
+		{
+			return definition == services.IEnumerableGenericType
+			       || definition == services.IListGenericType
+			       || definition == services.ICollectionGenericType
+			       || definition == services.IReadOnlyListGenericType
+			       || definition == services.IReadOnlyCollectionGenericType;
 		}
 
 		protected virtual bool IsSubclassOfGenericEnumerable(IType enumerableType)
