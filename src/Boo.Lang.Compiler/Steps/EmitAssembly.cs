@@ -2943,7 +2943,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
 		{
-			var type = (IArrayType)node.ExpressionType;
+			var type = node.ExpressionType;
 			EmitArray(type.ElementType, node.Items);
 			PushType(type);
 		}
