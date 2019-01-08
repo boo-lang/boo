@@ -748,6 +748,8 @@
 			if (context.AS() != null)
 				result.ReturnType = VisitType_reference(context.type_reference());
 			CheckDocumentation(result, context.docstring());
+			if (nameSplice != null)
+				return new SpliceTypeMember(result, nameSplice);
 			return result;
 		}
 
