@@ -1,4 +1,4 @@
-![Boo](image)
+![Boo](icon.png)
 
 [![Build Status](https://travis-ci.org/boo-lang/boo.svg?branch=master)](https://travis-ci.org/boo-lang/boo)
 
