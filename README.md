@@ -1,3 +1,5 @@
+![Boo](image)
+
 [![Build Status](https://travis-ci.org/boo-lang/boo.svg?branch=master)](https://travis-ci.org/boo-lang/boo)
 
 The Boo Programming Language (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
