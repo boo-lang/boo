@@ -10,7 +10,7 @@ Prerequisites
 ## Windows
 
 - .NET 4.5
-- [Visual C++ Build Tools*](http://landinghub.visualstudio.com/visual-cpp-build-tools)
+- [Visual C++ Build Tools*](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 
 \* Boo is built with NAnt, which must be built from sources, which requires NMake, which comes with the Visual C++ Build Tools.
 
