@@ -259,11 +259,15 @@ class InteractiveInterpreterConsole:
 		_indent--
 
 	protected def Delete(count as int): #if count is 0, forward-delete
+		return if LineLen == 0
 		cx = Console.CursorLeft+(Console.CursorTop-originalYPosition)*Console.WindowWidth-len(CurrentPrompt)-count
-		return if cx < len(CurrentPrompt) and count == 0 		
+		//return if cx < len(CurrentPrompt) and count == 0
+		count = 1 if cx >= LineLen and count == 0
+		return if cx >= LineLen
 		dcount = (count if count != 0 else 1)
 		_line.Remove(cx, dcount)
-		curX = Console.CursorLeft - dcount
+		//curX = Console.CursorLeft - dcount
+		curX = Console.CursorLeft - count
 		curY = Console.CursorTop
 		if curX < 0:
 			curX = Console.WindowWidth-1
@@ -472,6 +476,8 @@ class InteractiveInterpreterConsole:
 
 		if newLine:
 			_multiline = false
+			last_line = Top((len(CurrentPrompt) + LineLen),Console.WindowWidth)
+			Console.CursorTop = originalYPosition + last_line -1
 			Console.Write(Environment.NewLine)
 
 			if not TryRunCommand(Line):
