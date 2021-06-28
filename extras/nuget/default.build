@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<project name="boo.nuget" default="build">
+
+	<property name="root.dir" value="${path::get-full-path('../..')}" />
+	<property name="boo.dir" value="${root.dir}/build" />
+	<property name="nuget.bin" value="${path::get-full-path('NuGet.exe')}" />
+	<property name="nuget.feed" value="" />
+	<property name="nuget.apikey" value="" />
+
+	<loadfile file="${root.dir}/version.txt" property="version.txt" />
+	<property name="boo.version" value="${string::trim(version.txt)}" />
+
+	<include buildfile="properties.build" if="${file::exists('properties.build')}" />
+	
+	<target name="build" depends="init">
+		<!-- copy nuspec templates interpolating their variables -->
+		<copy todir="build" overwrite="true">
+			<fileset basedir=".">
+				<include name="*.nuspec" />
+			</fileset>
+			<filterchain>
+				<replacetokens>
+					<token key="version" value="${boo.version}" />
+				</replacetokens>
+			</filterchain>
+		</copy>
+
+		<!-- build each nuspec file -->
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="build/*.nuspec" />
+				</items>
+			</in>
+			<do>
+				<exec
+						basedir="${nant::get-base-directory()}"
+						program="${nuget.bin}"
+						workingdir="."
+						managed="true">
+					<arg value="pack" />
+					<arg value="-NonInteractive" />
+					<arg value="-OutputDirectory" /> <arg value="build" />
+					<arg value="-BasePath" /> <arg value="${boo.dir}" />
+					<arg value="${filename}" />
+				</exec>
+			</do>
+		</foreach>
+	</target>
+
+	<target name="publish" depends="build">
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="build/*.nupkg" />
+				</items>
+			</in>
+			<do>
+				<exec
+						basedir="${nant::get-base-directory()}"
+						program="${nuget.bin}"
+						workingdir="."
+						managed="true">
+					<arg value="push" />
+					<arg value="-NonInteractive" />
+					<arg value="-ApiKey" if="${nuget.apikey != ''}" />
+					<arg value="${nuget.apikey}" if="${nuget.apikey != ''}" />
+					<arg value="-Source" if="${nuget.feed != ''}" />
+					<arg value="${nuget.feed}" if="${nuget.feed != ''}" />
+					<arg value="build/${path::get-file-name(filename)}" />  <!-- In *nix we have to use relative path -->
+				</exec>
+			</do>
+		</foreach>
+	</target>
+	
+	<target name="rebuild" depends="clean, build">
+	</target>	
+
+	<target name="init">
+		<mkdir dir="build" unless="${directory::exists('build')}" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="build" if="${directory::exists('build')}" />
+	</target>
+</project>

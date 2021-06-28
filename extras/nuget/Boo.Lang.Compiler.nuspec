@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Boo.Lang.Compiler</id>
+    <version>@version@</version>
+    <title>Boo compiler service</title>
+    <authors>Boo Community</authors>
+    <owners>Boo Community</owners>
+    <iconUrl>http://oi41.tinypic.com/2usy2js.jpg</iconUrl>
+    <licenseUrl>http://raw.github.com/bamboo/boo/master/license.txt</licenseUrl>
+    <projectUrl>http://boo.codehaus.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Boo compiler service.</description>
+    <summary>Boo compiler service.</summary>
+    <tags>boo dsl compiler</tags>
+    <dependencies>
+      <dependency id="Boo.Lang" version="@version@" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Boo.Lang.Parser.dll" target="lib/net40" />
+    <file src="Boo.Lang.Extensions.dll" target="lib/net40" />
+    <file src="Boo.Lang.Compiler.dll" target="lib/net40" />
+  </files>
+</package>
