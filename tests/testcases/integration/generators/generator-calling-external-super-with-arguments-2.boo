@@ -4,6 +4,7 @@ B: bar!
 """
 namespace Generators
 
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 class A:
@@ -24,4 +25,4 @@ code = [|
 		print i
 |]
 
-compile(code, typeof(A).Assembly).EntryPoint.Invoke(null, (null,))
+compile(code, typeof(A).Assembly).GetEntryPoint().Invoke(null, (null,))

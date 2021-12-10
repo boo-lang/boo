@@ -2,6 +2,8 @@
 it works for explicit self
 it works for implicit self
 """
+import Boo.Lang.Compiler
+
 class Foo:
 	def Bar():
 		self.Baz("explicit self")

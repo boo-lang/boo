@@ -67,7 +67,7 @@ namespace BooCompiler.Tests
 		}
 #endif
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public virtual void SetUpFixture()
 		{
 			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -114,9 +114,11 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Compiler.Ast.Node).Assembly);
 			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
+#if !NET
 			CopyAssembly(Assembly.Load("BooSupportingClasses"));
 #if !MSBUILD
 			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
+#endif
 #endif
 		}
 		
@@ -145,7 +147,7 @@ namespace BooCompiler.Tests
 			return File.GetLastWriteTime(fileName) > File.GetLastWriteTime(thanFileName);
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public virtual void TearDownFixture()
 		{	
 		}

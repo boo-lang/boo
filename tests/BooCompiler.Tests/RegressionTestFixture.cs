@@ -193,13 +193,15 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"BOO-1086.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void BOO_1088_1()
 		{
 			RunCompilerTestCase(@"BOO-1088-1.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void BOO_1091_1()
 		{

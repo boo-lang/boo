@@ -7,6 +7,8 @@ op_Equality(self as char, rhs as string)
 op_Equality(self as string, rhs as char)
 True
 """
+import Boo.Lang.Compiler
+
 [Extension]
 internal def op_Equality(lhs as string, rhs as char):
 	print "op_Equality(self as string, rhs as char)"

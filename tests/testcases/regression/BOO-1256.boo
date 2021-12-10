@@ -30,4 +30,4 @@ main = [|
 	print Bar()
 |]
 
-compile(CompileUnit(n1, n2, main)).EntryPoint.Invoke(null, (null,))
+compile(CompileUnit(n1, n2, main)).GetEntryPoint().Invoke(null, (null,))

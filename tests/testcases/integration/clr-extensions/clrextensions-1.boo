@@ -3,6 +3,7 @@ drawrof
 citats
 """
 import System
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 extensionAttribute = Type.GetType("System.Runtime.CompilerServices.ExtensionAttribute, System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
@@ -31,5 +32,5 @@ code = [|
 
 	print reverse
 |]
-compile(code, compile(library, extensionAttribute.Assembly)).EntryPoint.Invoke(null, (null,))
+compile(code, compile(library, extensionAttribute.Assembly)).GetEntryPoint().Invoke(null, (null,))
 

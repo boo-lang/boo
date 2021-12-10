@@ -51,5 +51,5 @@ code = [|
 	print f.Bar
 |]
 
-compile(code, typeof(OnceAttribute).Assembly).EntryPoint.Invoke(null, (null,))		
+compile(code, typeof(OnceAttribute).Assembly).GetEntryPoint().Invoke(null, (null,))		
 

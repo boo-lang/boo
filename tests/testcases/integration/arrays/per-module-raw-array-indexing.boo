@@ -15,7 +15,7 @@ module = [|
 AstAnnotations.MarkRawArrayIndexing(module)
 
 try:
-	compile(module).EntryPoint.Invoke(null, (null,))
+	compile(module).GetEntryPoint().Invoke(null, (null,))
 except x:
 	assert x.InnerException isa System.IndexOutOfRangeException
 	print "it worked!"

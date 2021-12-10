@@ -50,7 +50,15 @@ namespace Boo.Lang.Compiler.Steps
             }
         }
 
-        void Save(AssemblyBuilder builder, string filename)
+#if NET
+		static void Save(AssemblyBuilder builder, string filename)
+		{
+			var generator = new Lokad.ILPack.AssemblyGenerator();
+			generator.GenerateAssembly(builder, filename);
+			//builder.Save(filename);
+		}
+#else
+		void Save(AssemblyBuilder builder, string filename)
 		{
 			switch (Parameters.Platform)
 			{
@@ -68,5 +76,6 @@ namespace Boo.Lang.Compiler.Steps
 					break;
 			}
 		}
+#endif
 	}
 }

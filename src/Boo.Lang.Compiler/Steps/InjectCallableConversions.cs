@@ -27,7 +27,6 @@
 #endregion
 
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.Util;
@@ -40,10 +39,6 @@ namespace Boo.Lang.Compiler.Steps
 	{
 		IMethod _current;
 		
-		IType _asyncResultType;
-		
-		IMethod _asyncResultTypeAsyncDelegateGetter;
-
 		readonly List<AdaptorRecord> _adaptors = new List<AdaptorRecord>();
 		
 		override public void Run()
@@ -158,8 +153,9 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (IsEndInvokeOnStandaloneMethodReference(node) && AstUtil.IsTargetOfMethodInvocation(node))
 			{
-				ReplaceEndInvokeTargetByGetAsyncDelegate((MethodInvocationExpression)node.ParentNode);
-				return;
+				//ReplaceEndInvokeTargetByGetAsyncDelegate((MethodInvocationExpression)node.ParentNode);
+				//return;
+				throw new System.PlatformNotSupportedException("BeginInvoke/EndInvoke is not supported on .NET Core");
 			}
 
 			var newTarget = ConvertExpression(node.Target);
@@ -212,6 +208,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 		
+		/*
 		void InitializeAsyncResultType()
 		{
 			if (_asyncResultType != null)
@@ -221,11 +218,10 @@ namespace Boo.Lang.Compiler.Steps
 			_asyncResultType = TypeSystemServices.Map(type);
 			_asyncResultTypeAsyncDelegateGetter = TypeSystemServices.Map(Methods.GetterOf<AsyncResult, object>(r => r.AsyncDelegate));
 		}
+		*/
 		
 		override public void Dispose()
 		{
-			_asyncResultType = null;
-			_asyncResultTypeAsyncDelegateGetter = null;
 			_adaptors.Clear();
 			base.Dispose();
 		}
@@ -461,6 +457,7 @@ namespace Boo.Lang.Compiler.Steps
 			return false;
 		}
 		
+		/*
 		void ReplaceEndInvokeTargetByGetAsyncDelegate(MethodInvocationExpression node)
 		{
 			InitializeAsyncResultType();
@@ -474,6 +471,7 @@ namespace Boo.Lang.Compiler.Steps
 										CodeBuilder.CreateCast(_asyncResultType, asyncResult.CloneNode()),
 										_asyncResultTypeAsyncDelegateGetter));
 		}
+		*/
 
 		Expression CreateDelegate(IType type, Expression source)
 		{

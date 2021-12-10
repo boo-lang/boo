@@ -3,6 +3,8 @@ Extension.Bar
 Foo2.Baz
 Foo.Bar
 """
+import Boo.Lang.Compiler
+
 class Foo:
 	protected def Bar():
 		print "Foo.Bar"

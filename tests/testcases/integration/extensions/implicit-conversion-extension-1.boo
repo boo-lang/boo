@@ -1,6 +1,8 @@
 """
 1, 2, 3
 """
+import Boo.Lang.Compiler
+
 [Extension]
 def op_Implicit(a as System.Array) as string:
 	return join(a, ', ')

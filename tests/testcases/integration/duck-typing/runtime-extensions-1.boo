@@ -1,6 +1,7 @@
 """
 3
 """
+import Boo.Lang.Compiler
 import Boo.Lang.Runtime
 
 class My:

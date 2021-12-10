@@ -2,6 +2,7 @@
 StringExtensions.length
 3
 """
+import Boo.Lang.Compiler
 import StringExtensions
 
 class StringExtensions:

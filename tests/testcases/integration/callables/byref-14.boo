@@ -24,4 +24,4 @@ print i
 """
 
 assembly = compile("code", code, Assembly.GetExecutingAssembly())
-assembly.EntryPoint.Invoke(null, (null,))
+assembly.GetEntryPoint().Invoke(null, (null,))

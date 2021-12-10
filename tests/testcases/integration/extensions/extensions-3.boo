@@ -4,6 +4,8 @@ Hello
 interface
 extensions
 """
+import Boo.Lang.Compiler
+
 [Extension]
 def Each(e as System.Collections.IEnumerable, action as callable(object)):
 	print "IEnumerable.Each"

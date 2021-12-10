@@ -8,6 +8,8 @@ Foo(value)
 Foo()
 Foo(value)
 """
+import Boo.Lang.Compiler
+
 [Extension]
 def Foo[of T](context as object):
 	print "Foo()"

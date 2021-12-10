@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace Boo.Lang.Compiler.Steps
@@ -43,9 +44,13 @@ namespace Boo.Lang.Compiler.Steps
 			AppDomain.CurrentDomain.AssemblyResolve += ResolveGeneratedAssembly;
 			try
 			{
+#if NET
+				var entryPoint = Context.GeneratedAssembly.GetEntryPoint();
+#else
 				var entryPoint = Context.GeneratedAssembly.EntryPoint;
+#endif
 				if (entryPoint.GetParameters().Length == 1)
-					entryPoint.Invoke(null, new object[] { new string[0] });
+					entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
 				else
 					entryPoint.Invoke(null, null);
 			}
@@ -55,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private Assembly ResolveGeneratedAssembly(object sender, ResolveEventArgs args)
+        private Assembly ResolveGeneratedAssembly(object sender, ResolveEventArgs args)
 		{
 			return args.Name == Context.GeneratedAssembly.FullName ? Context.GeneratedAssembly : null;
 		}

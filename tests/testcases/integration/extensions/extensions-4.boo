@@ -8,6 +8,8 @@ IEnumerable.Each
 2
 3
 """
+import Boo.Lang.Compiler
+
 [Extension]
 def Each(e as System.Collections.IEnumerable, action as callable(object)):
 	print "IEnumerable.Each"

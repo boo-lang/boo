@@ -55,19 +55,19 @@ namespace Boo.Lang.Compiler.Resources
             _typeName = typeName;
         }
 
-        public string TypeName => _typeName;
+        public string TypeName {get {return _typeName; }}
 
-        public int TypeId => _typeId;
+        public int TypeId {get {return _typeId;}}
+ 
+        public string Name {get {return  _name;}}
 
-        public string Name => _name;
+        public int Id {get {return _id;}}
 
-        public int Id => _id;
+        public DWORD LanguageId {get {return _languageId; }}
 
-        public DWORD LanguageId => _languageId;
+        public DWORD CodePage {get {return _codePage; }}
 
-        public DWORD CodePage => _codePage;
-
-        public IEnumerable<byte> Data => _data;
+        public IEnumerable<byte> Data {get {return _data; }}
     }
 
     internal static class VersionHelper
@@ -883,6 +883,7 @@ namespace Boo.Lang.Compiler.Resources
             var productNameAttr = sourceAssembly.GetCustomAttribute<AssemblyProductAttribute>();
             var descAttr = sourceAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>();
             var companyAttr = sourceAssembly.GetCustomAttribute<AssemblyCompanyAttribute>();
+            /*
             AppendVersionToResourceStream(resourceStream,
                 !isApplication,
                 fileVersion: versionAttr.Version,
@@ -896,6 +897,7 @@ namespace Boo.Lang.Compiler.Resources
                 productName: productNameAttr?.Product,
                 comments: descAttr?.Description,
                 companyName: companyAttr?.Company);
+                */
         }
 
         private const string DefaultManifest = @"﻿<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>

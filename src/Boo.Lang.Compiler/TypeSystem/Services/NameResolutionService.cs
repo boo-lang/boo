@@ -132,8 +132,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			var resultingSet = Namespaces.AcquireSet();
 			try {
-			Resolve(resultingSet, name, flags);
-			return Entities.EntityFromList(resultingSet);
+				Resolve(resultingSet, name, flags);
+				return Entities.EntityFromList(resultingSet);
 			}
 			finally {
 				Namespaces.ReleaseSet(resultingSet);

@@ -308,6 +308,10 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 			{
 				node.Accept(new GenericTypeMapper(_methodToStateMachineMapper));
 			}
+			if (_entityMapper.ContainsKey(node.Entity))
+			{
+				node.Entity = _entityMapper[node.Entity];
+			}
         }
 
         public override void OnSelfLiteralExpression(SelfLiteralExpression node)

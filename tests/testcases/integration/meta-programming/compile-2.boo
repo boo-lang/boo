@@ -1,6 +1,7 @@
 """
 Hello, world!
 """
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 code = [|
@@ -9,5 +10,5 @@ code = [|
 	print "Hello, world!"
 |]
 
-compile(code).EntryPoint.Invoke(null, (null,))
+compile(code).GetEntryPoint().Invoke(null, (null,))
 

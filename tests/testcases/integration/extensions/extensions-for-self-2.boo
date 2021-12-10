@@ -4,6 +4,8 @@ it works for implicit self
 no arguments
 no arguments
 """
+import Boo.Lang.Compiler
+
 class Foo:
 	def Bar():
 		self.Baz("explicit self")

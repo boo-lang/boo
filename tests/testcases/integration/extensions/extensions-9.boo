@@ -3,6 +3,8 @@ Extensions.Bar
 Foo2.Baz
 Foo.Bar
 """
+import Boo.Lang.Compiler
+
 import Extensions
 
 class Foo:

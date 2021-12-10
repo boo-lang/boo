@@ -3,6 +3,7 @@ OK
 20
 10
 """
+import Boo.Lang.Compiler
 
 [extension] #string has a builtin implicit conversion (BOO-1035)
 def op_Implicit(s as string) as bool:

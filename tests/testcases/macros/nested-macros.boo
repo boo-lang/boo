@@ -5,6 +5,7 @@ yummy
 """
 namespace NestedMacros
 
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 macro foo:
@@ -27,5 +28,5 @@ code = [|
 		bar # yummy
 |]
 result = compile(code, typeof(FooMacro).Assembly)
-result.EntryPoint.Invoke(null, (null,))
+result.GetEntryPoint().Invoke(null, (null,))
 

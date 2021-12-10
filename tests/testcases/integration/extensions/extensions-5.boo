@@ -25,6 +25,7 @@ def compile(code, references):
 	
 code = """
 namespace MyExtensions
+import Boo.Lang.Compiler
 
 [Extension]
 def Each(e as System.Collections.IEnumerable, action as callable(object)):

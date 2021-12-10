@@ -10,7 +10,8 @@ import Boo.Lang.Compiler.MetaProgramming
 def makeModule(name as string):
 	m = [|
 		import System
-		
+		import Boo.Lang.Compiler
+
 		[extension] def puts(this as string):
 			print $name, this
 			

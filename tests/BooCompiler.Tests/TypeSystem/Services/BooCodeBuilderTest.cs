@@ -15,7 +15,7 @@ namespace BooCompiler.Tests.TypeSystem.Services
 			{
 				var genericType = TypeSystemServices.Map(typeof(System.Collections.Generic.List<int>));
 				var resultingTypeRef = CodeBuilder.CreateTypeReference(genericType);
-				Assert.IsInstanceOfType(typeof(GenericTypeReference), resultingTypeRef);
+				Assert.IsInstanceOf<GenericTypeReference>(resultingTypeRef);
 
 				var genericTypeRef = (GenericTypeReference)resultingTypeRef;
 				Assert.AreEqual(1, genericTypeRef.GenericArguments.Count);

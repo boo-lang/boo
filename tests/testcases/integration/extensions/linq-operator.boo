@@ -5,6 +5,8 @@
 namespace Testing
 import System
 
+import Boo.Lang.Compiler
+
 [Extension]
 def IndexWhere[of T]([Required] coll as T*, [Required] filter as Func[of T, bool]) as int*:
 	return IndexWhereImpl(coll, filter)

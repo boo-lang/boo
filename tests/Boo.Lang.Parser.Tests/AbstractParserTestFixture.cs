@@ -11,7 +11,7 @@ namespace Boo.Lang.Parser.Tests
 	{
 		protected Boo.Lang.Compiler.BooCompiler _compiler;
 		
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void SetUpFixture()
 		{
 			_compiler = new Boo.Lang.Compiler.BooCompiler();
