@@ -30,7 +30,7 @@
 
   <ItemGroup>
     <Reference Include="Boo.Lang.Extensions">
-      <HintPath>..\..\bin\Boo.Lang.Extensions.dll</HintPath>
+      <HintPath>..\..\bin.core\Boo.Lang.Extensions.dll</HintPath>
     </Reference>
   </ItemGroup>
 

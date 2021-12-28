@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Booc.Core": {
+      "commandName": "Project",
+      "commandLineArgs": "-t:library -o:..\\..\\bin.core\\Boo.Lang.Extensions.dll -srcdir:. -srcdir:.\\Environments -srcdir:.\\Attributes -srcdir:.\\Macros -srcdir:.\\MetaMethods -nostdlib -r:..\\Boo.Lang.Compiler\\bin\\Debug\\Boo.Lang.Compiler.dll",
+      "workingDirectory": "D:\\GitHub\\boo\\src\\Boo.Lang.Extensions"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 """
 GetComponent(System.String)
 """
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 [TypeInferenceRule(TypeInferenceRules.TypeReferencedByFirstArgument)]
@@ -13,4 +14,4 @@ code = [|
 	GetComponent(String)
 |]
 
-compile(code, System.Reflection.Assembly.GetExecutingAssembly()).EntryPoint.Invoke(null, (null,))
+compile(code, System.Reflection.Assembly.GetExecutingAssembly()).GetEntryPoint().Invoke(null, (null,))

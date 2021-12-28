@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\ILPack\src\Lokad.ILPack.csproj" />
     <ProjectReference Include="..\Boo.Lang\Boo.Lang Core.csproj" />
   </ItemGroup>
 

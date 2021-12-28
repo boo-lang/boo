@@ -27,7 +27,11 @@ namespace BooCompiler.Tests.TypeSystem.Core
 		[Test]
 		public void CompilerContextAssumptions()
 		{
+#if NET
+			Assert.AreEqual(6, Context.References.Count);
+#else
 			Assert.AreEqual(2, Context.References.Count);
+#endif
 		}
 
 		[Test]

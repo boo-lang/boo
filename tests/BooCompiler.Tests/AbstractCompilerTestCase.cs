@@ -62,7 +62,9 @@ namespace BooCompiler.Tests
 		}
 
 #if !MSBUILD
-		static bool GetEnvironmentFlag(string name, bool defaultValue)		{			var value = Environment.GetEnvironmentVariable(name);
+		static bool GetEnvironmentFlag(string name, bool defaultValue)
+		{
+			var value = Environment.GetEnvironmentVariable(name);
 			return value == null ? defaultValue : bool.Parse(value);
 		}
 #endif
@@ -80,7 +82,11 @@ namespace BooCompiler.Tests
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
 			Directory.CreateDirectory(TestOutputPath);
+#if NET
+			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.dll");
+#else
 			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
+#endif
 			_parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
 			_parameters.GenerateCollectible = false;
 			CustomizeCompilerParameters();
@@ -232,6 +238,7 @@ namespace BooCompiler.Tests
 				if (stdin != null)
 					Console.SetIn(new StringReader(stdin));
 
+				_parameters.Pipeline = SetUpCompilerPipeline();
 				context = _compiler.Run();
 
 				if (HasErrors(context) && !IgnoreErrors)

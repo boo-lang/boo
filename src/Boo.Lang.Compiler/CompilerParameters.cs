@@ -122,7 +122,20 @@ namespace Boo.Lang.Compiler
 
 			if (loadDefaultReferences)
 				LoadDefaultReferences();
+#if NET
+			else LoadSystemReferences();
+#endif
 		}
+
+#if NET
+		private void LoadSystemReferences()
+        {
+			_compilerReferences.Add(typeof(System.Type).Assembly);
+			_compilerReferences.Add(typeof(System.Console).Assembly);
+			_compilerReferences.Add(typeof(System.Text.RegularExpressions.Regex).Assembly);
+			_compilerReferences.Add(typeof(System.IO.File).Assembly);
+		}
+#endif
 
 		private static TraceLevel DefaultTraceLevel()
 		{

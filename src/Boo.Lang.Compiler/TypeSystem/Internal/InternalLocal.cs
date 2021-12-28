@@ -27,6 +27,7 @@
 #endregion
 
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
@@ -84,6 +85,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		}
 
 		public LocalBuilder LocalBuilder { get; set; }
+
+		public int LocalVariableIndex { get; set; }
 
 		public Declaration OriginalDeclaration
 		{

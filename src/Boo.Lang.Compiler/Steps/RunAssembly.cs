@@ -29,11 +29,32 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	public class RunAssembly : AbstractCompilerStep
 	{
+#if NET
+		override public void Run()
+		{
+			if (Errors.Count > 0 || Context.GeneratedPEBuilder == null)
+				return;
+			var serializer = Context.GeneratedBlobBuilder;
+			if (serializer == null)
+			{
+				var builder = Context.GeneratedPEBuilder;
+				serializer = new BlobBuilder();
+				builder.Serialize(serializer);
+			}
+			var asm = Assembly.Load(serializer.ToArray());
+			var entryPoint = asm.GetEntryPoint();
+			if (entryPoint.GetParameters().Length == 1)
+				entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
+			else
+				entryPoint.Invoke(null, null);
+		}
+#else
 		override public void Run()
 		{
 			if (Errors.Count > 0
@@ -44,11 +65,7 @@ namespace Boo.Lang.Compiler.Steps
 			AppDomain.CurrentDomain.AssemblyResolve += ResolveGeneratedAssembly;
 			try
 			{
-#if NET
-				var entryPoint = Context.GeneratedAssembly.GetEntryPoint();
-#else
 				var entryPoint = Context.GeneratedAssembly.EntryPoint;
-#endif
 				if (entryPoint.GetParameters().Length == 1)
 					entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
 				else
@@ -64,5 +81,6 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			return args.Name == Context.GeneratedAssembly.FullName ? Context.GeneratedAssembly : null;
 		}
+#endif
 	}
 }

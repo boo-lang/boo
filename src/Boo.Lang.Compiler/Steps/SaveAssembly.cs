@@ -29,9 +29,13 @@
 namespace Boo.Lang.Compiler.Steps
 {
 	using System.IO;
+#if NET
+	using System.Reflection.Metadata;
+    using System.Reflection.PortableExecutable;
+#else
 	using System.Reflection;
 	using System.Reflection.Emit;
-
+#endif
 	public class SaveAssembly : AbstractCompilerStep
 	{
 		override public void Run()
@@ -39,10 +43,14 @@ namespace Boo.Lang.Compiler.Steps
 			if (Errors.Count > 0)
 				return;
 
+#if NET
+			var builder = ContextAnnotations.GetPEBuilder(Context);
+#else
 			var builder = ContextAnnotations.GetAssemblyBuilder(Context);
-			var filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
+			//var filename = Path.GetFileName(Context.GeneratedAssemblyFileName);
+#endif
+			var filename = Context.GeneratedAssemblyFileName;
 			Save(builder, filename);
-
             var resFilename = (string)Context.Properties["ResFileName"];
             if (resFilename != null)
             {
@@ -51,11 +59,12 @@ namespace Boo.Lang.Compiler.Steps
         }
 
 #if NET
-		static void Save(AssemblyBuilder builder, string filename)
+		void Save(PEBuilder builder, string filename)
 		{
-			var generator = new Lokad.ILPack.AssemblyGenerator();
-			generator.GenerateAssembly(builder, filename);
-			//builder.Save(filename);
+			var serializer = new BlobBuilder();
+			builder.Serialize(serializer);
+			Context.GeneratedBlobBuilder = serializer;
+			File.WriteAllBytes(filename, serializer.ToArray());
 		}
 #else
 		void Save(AssemblyBuilder builder, string filename)

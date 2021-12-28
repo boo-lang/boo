@@ -35,6 +35,10 @@ using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
+#if NET
+using System.Reflection.PortableExecutable;
+using System.Reflection.Metadata;
+#endif
 
 namespace Boo.Lang.Compiler
 {
@@ -177,6 +181,11 @@ namespace Boo.Lang.Compiler
 			get { return _generatedAssembly; }
 			set { _generatedAssembly = value; }
 		}
+
+#if NET
+		public PEBuilder GeneratedPEBuilder { get; set; }
+		public BlobBuilder GeneratedBlobBuilder { get; set; }
+#endif
 
 		public string GetUniqueName(params string[] components)
 		{

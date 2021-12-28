@@ -28,6 +28,7 @@
 
 using System;
 using System.Reflection.Emit;
+using System.Reflection.Metadata.Ecma335;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.TypeSystem.Internal
@@ -79,5 +80,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		}
 
 		public Label Label { get; set; }
+
+		public LabelHandle LabelHandle { get; set; }
 	}
 }
