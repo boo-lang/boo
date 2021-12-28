@@ -36,7 +36,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
 		private TypeBuilder(TypeDefinition type, BlobBuilder ilBuilder, TypeAttributes attrs, TypeSystemBridge typeSystem, bool isDebug)
 		{
-			_name = AnnotateGenericTypeName(type, type.QualifiedName);
+			_name = AnnotateGenericTypeName(type, type.Name);
 			_attrs = attrs;
 			_type = type;
 			_ilBuilder = ilBuilder;

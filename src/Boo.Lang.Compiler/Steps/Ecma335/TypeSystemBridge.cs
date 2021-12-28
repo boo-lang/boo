@@ -38,8 +38,15 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         {
             _tss = tss;
             AssemblyBuilder = builder;
-            ObjectType = (TypeReferenceHandle)LookupType(tss.ObjectType);
             VoidTypeEntity = tss.VoidType;
+
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var runtimeName = loadedAssemblies.Single(a => a.GetName().Name == "System.Runtime").GetName();
+            var privateAsm = loadedAssemblies.Single(a => a.GetName().Name == "System.Private.CoreLib");
+            var handle = HandleForAssemblyName(runtimeName);
+            _assemblyLookup[privateAsm] = handle;
+
+            ObjectType = (TypeReferenceHandle)LookupType(tss.ObjectType);
         }
 
         public TypeReferenceHandle ObjectType { get; }
@@ -104,10 +111,11 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         private EntityHandle LookupExternalType(ExternalType type)
         {
+            var name = type.GenericInfo != null ? $"{type.Name}`{type.GenericInfo.GenericParameters.Length}" : type.Name;
             var result = AssemblyBuilder.AddTypeReference(
                 GetTypeScope(type),
                 AssemblyBuilder.GetOrAddString(type.ActualType.Namespace),
-                AssemblyBuilder.GetOrAddString(type.Name));
+                AssemblyBuilder.GetOrAddString(name));
             _typeLookup.Add(type, result);
             return result;
         }
@@ -124,16 +132,21 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 return result;
             }
             var asmName = parentAsm.GetName();
+            var handle = HandleForAssemblyName(asmName);
+            _assemblyLookup[parentAsm] = handle;
+            return handle;
+        }
+
+        private EntityHandle HandleForAssemblyName(AssemblyName asmName)
+        {
             var keyOrToken = asmName.GetPublicKeyToken() ?? asmName.GetPublicKey();
-            var handle = AssemblyBuilder.AddAssemblyReference(
+            return AssemblyBuilder.AddAssemblyReference(
                 AssemblyBuilder.GetOrAddString(asmName.Name),
                 asmName.Version,
                 AssemblyBuilder.GetOrAddString(asmName.CultureName),
                 AssemblyBuilder.GetOrAddBlob(keyOrToken),
                 ConvertAssemblyNameFlags(asmName.Flags),
                 default);
-            _assemblyLookup[parentAsm] = handle;
-            return handle;
         }
 
         public static AssemblyFlags ConvertAssemblyNameFlags(AssemblyNameFlags flags)
@@ -187,6 +200,10 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             {
                 EncodeConstructedType(enc, type.ConstructedInfo);
             }
+            else if (type.GenericInfo != null)
+            {
+                EncodeUnconstructedType(enc, type);
+            }
             else if (type.IsArray)
             {
                 EncodeType(enc.SZArray(), type.ElementType);
@@ -198,10 +215,23 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             else EncodeBasicType(enc, type);
         }
 
+        private void EncodeUnconstructedType(SignatureTypeEncoder enc, IType type)
+        {
+            var gi = type.GenericInfo;
+            var argEncoder = enc.GenericInstantiation(
+                LookupType(type),
+                gi.GenericParameters.Length,
+                type.IsValueType);
+            foreach (var param in gi.GenericParameters)
+            {
+                argEncoder.AddArgument().GenericTypeParameter(param.GenericParameterPosition);
+            }
+        }
+
         private void EncodeConstructedType(SignatureTypeEncoder enc, IConstructedTypeInfo ci)
         {
             var argEncoder = enc.GenericInstantiation(
-                TypeHandle(ci.GenericDefinition),
+                LookupType(ci.GenericDefinition),
                 ci.GenericArguments.Length,
                 ci.GenericDefinition.IsValueType);
             foreach (var arg in ci.GenericArguments)
@@ -215,7 +245,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             { "System.Void", PrimitiveTypeCode.Void },
             { "void", PrimitiveTypeCode.Void },
             { "System.Boolean", PrimitiveTypeCode.Boolean },
-            { "boolean", PrimitiveTypeCode.Boolean },
+            { "bool", PrimitiveTypeCode.Boolean },
             { "System.Char", PrimitiveTypeCode.Char },
             { "char", PrimitiveTypeCode.Char },
             { "System.SByte", PrimitiveTypeCode.SByte },

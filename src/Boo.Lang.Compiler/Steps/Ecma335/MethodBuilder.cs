@@ -172,6 +172,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         public void EndTryBody()
         {
+            Branch(ILOpCode.Leave, _exceptionExitPoints.Peek());
             MarkLabel(_tryLabels.Peek().end);
         }
         
