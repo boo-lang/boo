@@ -332,6 +332,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (var type in types)
 				DefineTypeMembers(type);
 
+			_moduleTypeOrder = types.ToLookup(t => t.GetAncestor<Module>());
 			foreach (var module in CompileUnit.Modules)
 				OnModule(module);
 
@@ -597,7 +598,7 @@ namespace Boo.Lang.Compiler.Steps
 					case NodeType.InterfaceDefinition:
 					case NodeType.ClassDefinition:
 						{
-							var typeDefinition = ((TypeDefinition)member);
+							var typeDefinition = (TypeDefinition)member;
 							types.Add(typeDefinition);
 							CollectTypes(types, typeDefinition.Members);
 							break;
@@ -632,7 +633,17 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			_perModuleRawArrayIndexing = AstAnnotations.IsRawIndexing(module);
 			_checked = AstAnnotations.IsChecked(module, Parameters.Checked);
-			Visit(module.Members);
+			foreach (var member in module.Members.Where(m => m.Entity.EntityType != EntityType.Type))
+            {
+				Visit(member);
+            }
+			if (_moduleTypeOrder.Contains(module))
+            {
+				foreach (var type in _moduleTypeOrder[module])
+                {
+					Visit(type);
+                }
+            }
 		}
 
 		private const FieldAttributes ENUM_ATTRIBUTES = 
@@ -717,7 +728,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitTypeDefinition(TypeDefinition node)
 		{
-			Visit(node.Members);
+			foreach (var member in node.Members.Where(m => m.Entity.EntityType != EntityType.Type))
+			{
+				Visit(member);
+			}
 			TypeBuilder current = GetTypeBuilder(node);
 			current.Build();
 		}
@@ -789,7 +803,6 @@ namespace Boo.Lang.Compiler.Steps
 			DefineLabels(method);
 			Visit(method.Locals);
 
-			System.Diagnostics.Debug.WriteLine($"New stack analyzer: {method.FullName}.  Current depth: 0");
 			BeginMethodBody(GetEntity(method).ReturnType);
 			Visit(method.Body);
 			EndMethodBody(method);
@@ -1768,7 +1781,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void OnAssignment(BinaryExpression node)
 		{
-			if (NodeType.SlicingExpression == node.Left.NodeType)
+			if (node.Left.NodeType == NodeType.SlicingExpression)
 			{
 				OnAssignmentToSlice(node);
 				return;
@@ -2341,7 +2354,12 @@ namespace Boo.Lang.Compiler.Steps
 			if (method == _arrayGetLength)
 			{
 				// don't use ldlen for System.Array
-				if (!GetType((node.Target as MemberReferenceExpression)?.Target ?? node.Target).IsArray)
+				var target = (node.Target as MemberReferenceExpression)?.Target;
+				if (target == null || target.Entity == null)
+                {
+					target = node.Target;
+                }
+				if (!GetType(target).IsArray)
 					return false;
 
 				// optimize constructs such as:
@@ -2393,7 +2411,7 @@ namespace Boo.Lang.Compiler.Steps
 				//		array(int, (1, 2, 3))
 				//		array(byte, [1, 2, 3, 4])
 				IType type = TypeSystemServices.GetReferencedType(node.Arguments[0]);
-				if (null != type)
+				if (type != null)
 				{
 					if (node.Arguments[1] is ListLiteralExpression items)
 					{
@@ -3397,11 +3415,11 @@ namespace Boo.Lang.Compiler.Steps
 						var idx = local.LocalVariableIndex;
 						if (local.Type.IsPointer)
 						{
-							_il.LoadLocalAddress(idx);
+							_il.LoadLocal(idx);
 						}
 						else
 						{
-							_il.LoadLocal(idx);
+							_il.LoadLocalAddress(idx);
 						}
 						return;
 					}
@@ -5207,6 +5225,7 @@ namespace Boo.Lang.Compiler.Steps
         private TypeDefinitionHandle _typeModuleHandle;
         static readonly Dictionary<IType, IMethod> _Nullable_HasValue = new();
 		private IMethod _nullableHasValueBase;
+		private ILookup<Module, TypeDefinition> _moduleTypeOrder;
 
 		private IMethod GetNullableHasValue(IType type)
 		{

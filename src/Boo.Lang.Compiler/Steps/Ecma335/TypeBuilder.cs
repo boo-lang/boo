@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -226,9 +227,8 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             {
 				ev.Build();
             }
-			foreach (var intf in _interfaceImplementations)
+			foreach (var iHandle in _interfaceImplementations.Select(_typeSystem.LookupType).OrderBy(ExtractRowId))
             {
-				var iHandle = _typeSystem.LookupType(intf);
 				asm.AddInterfaceImplementation(handle, iHandle);
             }
 			foreach (var exp in _explicitImpls)
@@ -237,7 +237,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             }
 			foreach (var nested in _nestedTypes)
             {
-				nested.Build();
+				asm.AddNestedType((TypeDefinitionHandle)nested._handle, (TypeDefinitionHandle)_handle);
             }
 			if (_genParams != null)
             {
@@ -247,6 +247,9 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 }
             }
         }
+
+        private int ExtractRowId(EntityHandle arg) =>
+            (int)typeof(EntityHandle).GetProperty("RowId", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(arg);
 
         internal GenericTypeParameterBuilder[] DefineGenericParameters(IEnumerable<IGenericParameter> parameters)
         {

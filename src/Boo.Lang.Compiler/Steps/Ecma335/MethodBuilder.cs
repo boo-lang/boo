@@ -346,7 +346,8 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             foreach (var param in _params)
             {
                 param.Build();
-                _typeSystem.EncodeType(parms.AddParameter().Type(), ((IParameter)param.Entity).Type);
+                var entity = (IParameter)param.Entity;
+                _typeSystem.EncodeType(parms.AddParameter().Type(entity.IsByRef), entity.Type);
             }
             var pHandles = _params.Select(p => (ParameterHandle)p.Handle).ToArray();
             return (_asmBuilder.GetOrAddBlob(builder.Builder), pHandles);
