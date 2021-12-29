@@ -72,9 +72,8 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         public void Switch(LabelHandle[] labels)
         {
             OpCode(ILOpCode.Switch);
+            var tokenBlob = _il.CodeBuilder.ReserveBytes((labels.Length + 1) * sizeof(int));
             var switchPos = _il.Offset;
-            _il.CodeBuilder.WriteInt32(labels.Length);
-            var tokenBlob = _il.CodeBuilder.ReserveBytes(labels.Length * sizeof(int));
             _switches.Add((switchPos, labels, tokenBlob));
             _maxStackAnalyzer.Operation(ILOpCode.Switch);
         }
@@ -376,6 +375,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             foreach (var (offset, labels, blob) in _switches)
             {
                 var writer = new BlobWriter(blob);
+                writer.WriteUInt32((uint)labels.Length);
                 foreach (var label in labels)
                 {
                     writer.WriteInt32(_labelPositions[label] - offset);
@@ -411,8 +411,8 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         public void Build()
         {
-            var bodyOffset = BuildBody();
             CleanupSwitches();
+            var bodyOffset = BuildBody();
             var (sig, pHandles) = BuildSignature();
             var explicitInfo = ((Method)((InternalMethod)_method).Node).ExplicitInfo;
             var name = _method is IConstructor ? 
