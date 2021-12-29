@@ -227,7 +227,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             {
 				ev.Build();
             }
-			foreach (var iHandle in _interfaceImplementations.Select(_typeSystem.LookupType).OrderBy(ExtractRowId))
+			foreach (var iHandle in _interfaceImplementations.Select(_typeSystem.LookupType).OrderBy(CodedIndex.TypeDefOrRefOrSpec))
             {
 				asm.AddInterfaceImplementation(handle, iHandle);
             }
@@ -247,9 +247,6 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 }
             }
         }
-
-        private int ExtractRowId(EntityHandle arg) =>
-            (int)typeof(EntityHandle).GetProperty("RowId", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(arg);
 
         internal GenericTypeParameterBuilder[] DefineGenericParameters(IEnumerable<IGenericParameter> parameters)
         {
