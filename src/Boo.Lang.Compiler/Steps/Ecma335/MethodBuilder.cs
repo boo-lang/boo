@@ -94,13 +94,29 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             _maxStackAnalyzer.CallArrayMethod(parameterTypes.Length, returnType != _typeSystem.VoidTypeEntity);
         }
 
-        public void LoadConstant(long value) => _il.LoadConstantI8(value);
+        public void LoadConstant(long value)
+        {
+            _il.LoadConstantI8(value);
+            _maxStackAnalyzer.Operation(ILOpCode.Ldc_i8);_maxStackAnalyzer.Operation(ILOpCode.Ldc_i8);
+        }
 
-        public void LoadConstant(int value) => _il.LoadConstantI4(value);
+        public void LoadConstant(int value)
+        {
+            _il.LoadConstantI4(value);
+            _maxStackAnalyzer.Operation(ILOpCode.Ldc_i4);
+        }
 
-        public void LoadString(string value) => _il.LoadString(_asmBuilder.GetOrAddUserString(value));
+        public void LoadString(string value)
+        {
+            _il.LoadString(_asmBuilder.GetOrAddUserString(value));
+            _maxStackAnalyzer.Operation(ILOpCode.Ldstr);
+        }
 
-        public void LoadArgumentAddress(int idx) => _il.LoadArgumentAddress(idx);
+        public void LoadArgumentAddress(int idx)
+        {
+            _il.LoadArgumentAddress(idx);
+            _maxStackAnalyzer.Operation(ILOpCode.Ldarga);
+        }
 
         public BlobBuilder CodeBuilder => _il.CodeBuilder;
 
@@ -121,15 +137,30 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         public void Token(EntityHandle handle) => _il.Token(handle);
 
-        public void LoadLocal(int idx) => _il.LoadLocal(idx);
+        public void LoadLocal(int idx) {
+            _il.LoadLocal(idx);
+            _maxStackAnalyzer.Operation(ILOpCode.Ldloc);
+        }
 
-        public void LoadLocalAddress(int idx) => _il.LoadLocalAddress(idx);
+        public void LoadLocalAddress(int idx) {
+            _il.LoadLocalAddress(idx);
+            _maxStackAnalyzer.Operation(ILOpCode.Ldloca);
+        }
 
-        public void StoreLocal(int temp) => _il.StoreLocal(temp);
+        public void StoreLocal(int temp) {
+            _il.StoreLocal(temp);
+            _maxStackAnalyzer.Operation(ILOpCode.Stloc);
+        }
 
-        public void LoadArgument(int index) => _il.LoadArgument(index);
+        public void LoadArgument(int index) {
+            _il.LoadArgument(index);
+            _maxStackAnalyzer.Operation(ILOpCode.Ldarg);
+        }
 
-        public void StoreArgument(int index) => _il.StoreArgument(index);
+        public void StoreArgument(int index) {
+            _il.StoreArgument(index);
+            _maxStackAnalyzer.Operation(ILOpCode.Starg);
+        }
 
         //get the default value holder (a local actually) for a given type
         //default value holder pool is cleared before each method body processing

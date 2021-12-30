@@ -4282,7 +4282,7 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Branch(ILOpCode.Brtrue, skipCoercion);
 
 				EmitGetTypeFromHandle(expectedSystemType); PopType();
-				Call(_RuntimeServices_Coerce);
+				Call(RuntimeServices_Coerce);
 
 				_il.MarkLabel(skipCoercion);
 			}
