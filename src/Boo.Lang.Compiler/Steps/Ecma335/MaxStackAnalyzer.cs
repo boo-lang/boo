@@ -63,7 +63,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             ILOpCode.Add_ovf, ILOpCode.Add_ovf_un, ILOpCode.Mul_ovf, ILOpCode.Mul_ovf_un,
             ILOpCode.Sub_ovf, ILOpCode.Sub_ovf_un, ILOpCode.Ceq, ILOpCode.Cgt, ILOpCode.Cgt_un,
             ILOpCode.Clt, ILOpCode.Clt_un, ILOpCode.Starg, ILOpCode.Stloc, ILOpCode.Endfilter,
-            ILOpCode.Initobj
+            ILOpCode.Initobj, ILOpCode.Switch,
         };
 
         private static readonly ILOpCode[] MINUS_TWO = new[]
@@ -72,7 +72,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             ILOpCode.Bne_un_s, ILOpCode.Bge_un_s, ILOpCode.Bgt_un_s, ILOpCode.Ble_un_s,
             ILOpCode.Blt_un_s, ILOpCode.Beq, ILOpCode.Bge, ILOpCode.Bgt, ILOpCode.Ble,
             ILOpCode.Blt, ILOpCode.Bne_un, ILOpCode.Bge_un, ILOpCode.Bgt_un, ILOpCode.Ble_un,
-            ILOpCode.Blt_un, ILOpCode.Switch, ILOpCode.Stind_ref, ILOpCode.Stind_i1,
+            ILOpCode.Blt_un, ILOpCode.Stind_ref, ILOpCode.Stind_i1,
             ILOpCode.Stind_i2, ILOpCode.Stind_i4, ILOpCode.Stind_i8, ILOpCode.Stind_r4,
             ILOpCode.Stind_r8, ILOpCode.Cpobj, ILOpCode.Stfld, ILOpCode.Stobj, ILOpCode.Stind_i
         };

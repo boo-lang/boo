@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -206,7 +207,17 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             }
             else if (type.IsArray)
             {
-                EncodeType(enc.SZArray(), type.ElementType);
+                var arr = (IArrayType)type;
+                if (arr.Rank == 1)
+                {
+                    EncodeType(enc.SZArray(), type.ElementType);
+                }
+                else
+                {
+                    enc.Array(out var elemEnc, out var shapeEnc);
+                    EncodeType(elemEnc, type.ElementType);
+                    shapeEnc.Shape(arr.Rank, ImmutableArray.Create<int>(), default);
+                }
             }
             else if (type.IsPointer)
             {
