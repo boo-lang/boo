@@ -3064,8 +3064,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void CallArrayMethod(IType arrayType, string methodName, IType returnType, IType[] parameterTypes)
 		{
-			var method = _typeSystem.MethodOf(arrayType, methodName, parameterTypes);
-			Call(method);
+			_il.CallArrayMethod(arrayType, methodName, returnType, parameterTypes);
 		}
 
 		private void LoadArrayIndices(SlicingExpression node)

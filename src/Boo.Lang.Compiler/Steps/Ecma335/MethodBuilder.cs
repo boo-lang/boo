@@ -86,6 +86,14 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             _maxStackAnalyzer.Call(op, method);
         }
 
+        public void CallArrayMethod(IType arrayType, string methodName, IType returnType, IType[] parameterTypes)
+        {
+            var handle = _typeSystem.GetArrayMethod(arrayType, methodName, returnType, parameterTypes);
+            _il.OpCode(ILOpCode.Call);
+            _il.Token(handle);
+            _maxStackAnalyzer.CallArrayMethod(parameterTypes.Length, returnType != _typeSystem.VoidTypeEntity);
+        }
+
         public void LoadConstant(long value) => _il.LoadConstantI8(value);
 
         public void LoadConstant(int value) => _il.LoadConstantI4(value);

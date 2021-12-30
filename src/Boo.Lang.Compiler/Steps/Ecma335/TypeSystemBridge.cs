@@ -361,23 +361,26 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             return AssemblyBuilder.GetOrAddBlob(enc.Builder);
         }
 
-        private int _depth = 0;
+        //private int _depth = 0;
 
         private EntityHandle LookupMethodSpec(IMethod m)
         {
-            ++_depth;
-            if (_depth > 10) System.Diagnostics.Debugger.Break();
-            var definition = m.ConstructedInfo.GenericDefinition;
-            var defHandle = LookupMethod(definition);
-            var args = m.ConstructedInfo.GenericArguments;
-            var enc = new BlobEncoder(new BlobBuilder()).MethodSpecificationSignature(args.Length);
-            foreach (var arg in args)
+            if (!_methodLookup.TryGetValue(m, out var result))
             {
-                EncodeType(enc.AddArgument(), arg);
+                //++_depth;
+                //if (_depth > 10) System.Diagnostics.Debugger.Break();
+                var definition = m.ConstructedInfo.GenericDefinition;
+                var defHandle = LookupMethod(definition);
+                var args = m.ConstructedInfo.GenericArguments;
+                var enc = new BlobEncoder(new BlobBuilder()).MethodSpecificationSignature(args.Length);
+                foreach (var arg in args)
+                {
+                    EncodeType(enc.AddArgument(), arg);
+                }
+                result = AssemblyBuilder.AddMethodSpecification(defHandle, AssemblyBuilder.GetOrAddBlob(enc.Builder));
+                _methodLookup.Add(m, result);
+                //--_depth;
             }
-            var result = AssemblyBuilder.AddMethodSpecification(defHandle, AssemblyBuilder.GetOrAddBlob(enc.Builder));
-            _methodLookup.Add(definition, result);
-            --_depth;
             return result;
         }
 
@@ -395,7 +398,34 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             return result;
         }
 
-        public IMethod LookupMethodHandle(EntityHandle method) => _reversemethodLookup[method];
+        private readonly Dictionary<(IType type, string name), EntityHandle> _arrayMethods = new();
+
+        public EntityHandle GetArrayMethod(IType arrayType, string methodName, IType returnType, IType[] parameterTypes)
+        {
+            (IType type, string name) key = (arrayType, methodName);
+            if (!_arrayMethods.TryGetValue(key, out var result))
+            {
+                var typ = LookupType(arrayType);
+                var builder = new BlobEncoder(new BlobBuilder());
+                var sig = builder.MethodSignature(SignatureCallingConvention.Default, 0, true);
+                sig.Parameters(parameterTypes.Length, out var retEnc, out var paramEnc);
+                if (returnType == VoidTypeEntity)
+                {
+                    retEnc.Void();
+                }
+                else
+                {
+                    EncodeType(retEnc.Type(), returnType);
+                }
+                foreach (var param in parameterTypes)
+                {
+                    EncodeType(paramEnc.AddParameter().Type(), param);
+                }
+                result = AssemblyBuilder.AddMemberReference(typ, AssemblyBuilder.GetOrAddString(methodName), AssemblyBuilder.GetOrAddBlob(sig.Builder));
+                _arrayMethods[key] = result;
+            }
+            return result;
+        }
 
         public IMethodBase MethodOf(IType typ, string name, params IType[] args)
         {

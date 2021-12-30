@@ -158,5 +158,12 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 --result; //1 for the function pointer
             Adjust(result, op);
         }
+
+        internal void CallArrayMethod(int length, bool hasReturnValue)
+        {
+            var result = hasReturnValue ? 1 : 0;
+            result -= length;
+            Adjust(result, ILOpCode.Call);
+        }
     }
 }
