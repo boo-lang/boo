@@ -16,7 +16,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
     internal class MethodBuilder : IBuilder
     {
         private readonly MetadataBuilder _asmBuilder;
-        private readonly IMethod _method;
+        private readonly InternalMethod _method;
         private readonly MethodBodyStreamEncoder _streamEncoder;
         private readonly MethodAttributes _baseAttrs;
         private readonly bool _isDebug;
@@ -32,11 +32,11 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         private GenericTypeParameterBuilder[] _genParams;
 
-        public MethodBuilder(IMethod method, MethodBodyStreamEncoder encoder, MethodAttributes attrs, bool debug, TypeSystemBridge typeSystem)
+        public MethodBuilder(InternalMethod method, MethodBodyStreamEncoder encoder, MethodAttributes attrs, bool debug, TypeSystemBridge typeSystem)
             : this(method, encoder, attrs, debug, typeSystem, typeSystem.ReserveMethod(method))
         { }
 
-        public MethodBuilder(IMethod method, MethodBodyStreamEncoder encoder, MethodAttributes attrs, bool debug, TypeSystemBridge typeSystem, EntityHandle handle)
+        public MethodBuilder(InternalMethod method, MethodBodyStreamEncoder encoder, MethodAttributes attrs, bool debug, TypeSystemBridge typeSystem, EntityHandle handle)
         {
             _asmBuilder = typeSystem.AssemblyBuilder;
             _method = method;
@@ -453,16 +453,17 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             CleanupSwitches();
             var bodyOffset = BuildBody();
             var (sig, pHandles) = BuildSignature();
-            var explicitInfo = ((Method)((InternalMethod)_method).Node).ExplicitInfo;
+            var explicitInfo = ((Method)_method.Node).ExplicitInfo;
             var name = _method is IConstructor ? 
                 (_method.IsStatic ? ".cctor" : ".ctor") :
                 (explicitInfo != null ? explicitInfo.InterfaceType.Name + "." + _method.Name : _method.Name);
+            var isRuntime = ((Method)_method.Node).ImplementationFlags.HasFlag(MethodImplementationFlags.Runtime);
             var handle = _asmBuilder.AddMethodDefinition(
                 GetMethodAttributes(_method) | _baseAttrs,
-                MethodImplAttributes.IL,
+                isRuntime ? MethodImplAttributes.Runtime : MethodImplAttributes.IL,
                 _asmBuilder.GetOrAddString(name),
                 sig,
-                bodyOffset,
+                isRuntime ? -1 : bodyOffset,
                 pHandles.Length > 0
                     ? pHandles[0]
                     : MetadataTokens.ParameterHandle(_asmBuilder.GetRowCount(TableIndex.Param) + 1));

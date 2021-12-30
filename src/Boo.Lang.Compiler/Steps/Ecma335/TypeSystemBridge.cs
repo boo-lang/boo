@@ -115,7 +115,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             var name = type.GenericInfo != null ? $"{type.Name}`{type.GenericInfo.GenericParameters.Length}" : type.Name;
             var result = AssemblyBuilder.AddTypeReference(
                 GetTypeScope(type),
-                AssemblyBuilder.GetOrAddString(type.ActualType.Namespace),
+                type.DeclaringType == null ? AssemblyBuilder.GetOrAddString(type.ActualType.Namespace) : default,
                 AssemblyBuilder.GetOrAddString(name));
             _typeLookup.Add(type, result);
             return result;

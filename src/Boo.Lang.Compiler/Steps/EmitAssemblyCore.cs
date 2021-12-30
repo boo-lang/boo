@@ -4486,7 +4486,7 @@ namespace Boo.Lang.Compiler.Steps
 			Method m = CodeBuilder.CreateMethod(".cctor", TypeSystemServices.VoidType, TypeMemberModifiers.Static);
 			foreach (var reference in _moduleConstructorMethods.OrderBy(reference => (int)reference["Ordering"]))
 				m.Body.Add(CodeBuilder.CreateMethodInvocation((IMethod)reference.Entity));
-			var mb = new MethodBuilder((IMethod)m.Entity, new MethodBodyStreamEncoder(_ilBlock), attrs, Parameters.Debug, _typeSystem, _moduleInitHandle);
+			var mb = new MethodBuilder((InternalMethod)m.Entity, new MethodBodyStreamEncoder(_ilBlock), attrs, Parameters.Debug, _typeSystem, _moduleInitHandle);
 			mb.Build();
 		}
 
@@ -4687,7 +4687,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		MethodBuilder DefineMethod(TypeBuilder typeBuilder, Method method, MethodAttributes attributes)
 		{
-			MethodBuilder builder = typeBuilder.DefineMethod((IMethod)method.Entity, attributes);
+			MethodBuilder builder = typeBuilder.DefineMethod((InternalMethod)method.Entity, attributes);
 
 			if (method.GenericParameters.Count != 0)
 			{

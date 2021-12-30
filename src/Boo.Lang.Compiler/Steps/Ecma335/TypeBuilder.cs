@@ -7,6 +7,7 @@ using System.Reflection.Metadata.Ecma335;
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Internal;
 using TypeDefinition = Boo.Lang.Compiler.Ast.TypeDefinition;
 
 namespace Boo.Lang.Compiler.Steps.Ecma335
@@ -67,7 +68,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 			return result;
 		}
 
-		public MethodBuilder DefineMethod(IMethod method, MethodAttributes attrs)
+		public MethodBuilder DefineMethod(InternalMethod method, MethodAttributes attrs)
 		{
 			var result = new MethodBuilder(method, new MethodBodyStreamEncoder(_ilBuilder), attrs, _isDebug, _typeSystem);
 			_methods.Add(result);
