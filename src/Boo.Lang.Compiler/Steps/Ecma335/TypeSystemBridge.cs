@@ -24,7 +24,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         private readonly Dictionary<IField, EntityHandle> _fieldLookup = new();
         private readonly Dictionary<IEvent, EntityHandle> _eventLookup = new();
         private readonly Dictionary<IProperty, EntityHandle> _propLookup = new();
-        private readonly Dictionary<IParameter, EntityHandle> _paramLookup = new();
+        //private readonly Dictionary<IParameter, EntityHandle> _paramLookup = new();
         private readonly Dictionary<IGenericParameter, EntityHandle> _genericParamLookup = new();
         private readonly TypeSystemServices _tss;
 
@@ -506,7 +506,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         {
             ++_params;
             var result = MetadataTokens.ParameterHandle(_params);
-            _paramLookup.Add(pa, result);
+            //_paramLookup.Add(pa, result);
             return result;
         }
 
