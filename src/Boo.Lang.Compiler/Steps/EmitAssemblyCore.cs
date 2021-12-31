@@ -249,6 +249,8 @@ namespace Boo.Lang.Compiler.Steps
 
         private void FinalizeAssembly()
         {
+			_typeSystem.BuildGenericParameters();
+			_typeSystem.BuildNestedTypes();
 			var rootBuilder = new MetadataRootBuilder(_asmBuilder);
 			var header = new PEHeaderBuilder(imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll);
 			var peBuilder = new ManagedPEBuilder(
@@ -327,10 +329,13 @@ namespace Boo.Lang.Compiler.Steps
 				DefineType(type);
 
 			foreach (var type in types)
+			{
 				DefineGenericParameters(type);
-
-			foreach (var type in types)
 				DefineTypeMembers(type);
+			}
+
+			//foreach (var type in types)
+			//	DefineTypeMembers(type);
 
 			_moduleTypeOrder = types.ToLookup(t => t.GetAncestor<Module>());
 			foreach (var module in CompileUnit.Modules)
@@ -4748,7 +4753,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			for (int i = 0; i < builders.Length; i++)
 			{
-				SetBuilder(declarations[i], builders[i]);
+				//SetBuilder(declarations[i], builders[i]);
 				DefineGenericParameter((InternalGenericParameter)declarations[i].Entity, builders[i]);
 			}
 		}

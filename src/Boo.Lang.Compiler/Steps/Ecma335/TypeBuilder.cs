@@ -56,7 +56,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
 		IEntity IBuilder.Entity => _type.Entity;
 
-		EntityHandle IBuilder.Handle => _handle;
+		public EntityHandle Handle => _handle;
 
 		public bool IsGenericType => ((IType)_type.Entity).ConstructedInfo != null;
 
@@ -238,14 +238,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             }
 			foreach (var nested in _nestedTypes)
             {
-				asm.AddNestedType((TypeDefinitionHandle)nested._handle, (TypeDefinitionHandle)_handle);
-            }
-			if (_genParams != null)
-            {
-				foreach (var param in _genParams)
-                {
-					param.Build();
-                }
+				_typeSystem.RegisterNestedType(Handle, nested);
             }
         }
 

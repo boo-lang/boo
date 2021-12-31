@@ -471,13 +471,6 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             {
                 throw new EcmaBuildException($"Method build handle {handle} does not match reserved handle {_handle}.");
             }
-            if (_genParams != null)
-            {
-                foreach (var param in _genParams)
-                {
-                    param.Build();
-                }
-            }
         }
     }
 }

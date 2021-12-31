@@ -8,9 +8,9 @@ using System.Reflection.Metadata.Ecma335;
 
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
+using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Generics;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
-using Boo.Lang.Environments;
 
 namespace Boo.Lang.Compiler.Steps.Ecma335
 {
@@ -25,15 +25,15 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         private readonly Dictionary<IEvent, EntityHandle> _eventLookup = new();
         private readonly Dictionary<IProperty, EntityHandle> _propLookup = new();
         //private readonly Dictionary<IParameter, EntityHandle> _paramLookup = new();
-        private readonly Dictionary<IGenericParameter, EntityHandle> _genericParamLookup = new();
         private readonly TypeSystemServices _tss;
+        private readonly List<(EntityHandle parent, GenericTypeParameterBuilder builder)> _genParamBuilders = new();
+        private readonly List<(EntityHandle parent, TypeBuilder builder)> _typeBuilders = new();
 
         private int _methods = 0;
         private int _fields = 0;
         private int _events = 0;
         private int _props = 0;
         private int _params = 0;
-        private int _genParams = 0;
 
         public TypeSystemBridge(MetadataBuilder builder, TypeSystemServices tss)
         {
@@ -80,6 +80,10 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             if (type.IsArray || type is AbstractGenericParameter || type.ConstructedInfo != null)
             {
                 return LookupTypeSpec(type);
+            }
+            if (type is AnonymousCallableType act)
+            {
+                return LookupType(act.ConcreteType);
             }
             if (type is ExternalType et)
             {
@@ -305,9 +309,13 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             {
                 return result;
             }
-            if (method is IMethod m && m.ConstructedInfo?.FullyConstructed == true)
+            if (method is IMethod m && (m.ConstructedInfo?.FullyConstructed == true || m is GenericConstructedMethod))
             {
                 return LookupMethodSpec(m);
+            }
+            if (method is GenericMappedMethod gmm)
+            {
+                return LookupMappedMethodSpec(gmm);
             }
             if (method is ExternalMethod em)
             {
@@ -317,13 +325,18 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         }
 
-        private EntityHandle LookupExternalMethod(ExternalMethod method)
+        private EntityHandle LookupExternalMethod(IMethod method)
         {
             var typeRef = LookupType(method.DeclaringType);
             var name = method.EntityType == EntityType.Constructor ? (method.IsStatic ? ".cctor" : ".ctor") : method.Name;
             var result = AssemblyBuilder.AddMemberReference(typeRef, AssemblyBuilder.GetOrAddString(name), GetMethodSignature(method));
             _methodLookup.Add(method, result);
             return result;
+        }
+
+        private EntityHandle LookupMappedMethodSpec(GenericMappedMethod method)
+        {
+            return LookupExternalMethod(method); //see if this works
         }
 
         private BlobHandle GetMethodSignature(IMethod method)
@@ -510,14 +523,6 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             return result;
         }
 
-        internal EntityHandle ReserveGenericParameter(IGenericParameter gp)
-        {
-            ++_genParams;
-            var result = MetadataTokens.GenericParameterHandle(_genParams);
-            _genericParamLookup.Add(gp, result);
-            return result;
-        }
-
         internal readonly Func<Expression, object> GetExpressionValue;
 
         internal CustomAttributeHandle SetCustomAttribute(IBuilder builder, AttributeBuilder attr) =>
@@ -530,6 +535,34 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         {
             var constructedMethod = (IMethod)baseMethod.DeclaringType.GenericInfo.ConstructType(type).ConstructedInfo.Map(baseMethod);
             return (MethodSpecificationHandle)LookupMethod(constructedMethod);
+        }
+
+        internal void RegisterGenericParameter(EntityHandle parent, GenericTypeParameterBuilder builder)
+        {
+            _genParamBuilders.Add((parent, builder));
+        }
+
+        internal void BuildGenericParameters()
+        {
+            foreach (var (handle, builder) in _genParamBuilders.OrderBy(p => CodedIndex.TypeOrMethodDef(p.parent)))
+            {
+                var idx = CodedIndex.TypeOrMethodDef(handle);
+                builder.Build();
+            }
+        }
+
+        internal void RegisterNestedType(EntityHandle parent, TypeBuilder builder)
+        {
+            _typeBuilders.Add((parent, builder));
+        }
+
+        internal void BuildNestedTypes()
+        {
+            foreach (var (handle, builder) in _typeBuilders.OrderBy(p => CodedIndex.TypeDefOrRef(p.builder.Handle)))
+            {
+                var idx = CodedIndex.TypeDefOrRef(handle);
+                AssemblyBuilder.AddNestedType((TypeDefinitionHandle)builder.Handle, (TypeDefinitionHandle)handle);
+            }
         }
     }
 }
