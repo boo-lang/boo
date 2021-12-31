@@ -181,9 +181,9 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             if (_isDebug)
             {
                 _asmBuilder.AddLocalVariable(
-                    name.Contains('$') ? LocalVariableAttributes.DebuggerHidden : LocalVariableAttributes.None,
+                    name?.Contains('$') == true ? LocalVariableAttributes.DebuggerHidden : LocalVariableAttributes.None,
                     _locals.Count,
-                    _asmBuilder.GetOrAddString(name));
+                    name != null ? _asmBuilder.GetOrAddString(name) : default);
             }
             return result;
         }

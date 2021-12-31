@@ -1007,14 +1007,15 @@ namespace Boo.Lang.Compiler.Steps
 			if (isFilter)
 			{
 				OnFilterExceptionHandler(node);
+				_il.BeginCatchBlock(GetSystemType(node.Declaration.Type));
 			}
 			else
 			{
+				_il.BeginCatchBlock(GetSystemType(node.Declaration.Type));
 				// Clean up the stack or store the exception if not anonymous.
 				EmitStoreOrPopException(node);
 			}
 
-			_il.BeginCatchBlock(GetSystemType(node.Declaration.Type));
 			Visit(node.Declaration);
 			Visit(node.Block);
 			_il.EndCatchBlock();
