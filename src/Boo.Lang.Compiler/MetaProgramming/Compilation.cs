@@ -45,7 +45,16 @@ namespace Boo.Lang.Compiler.MetaProgramming
 		{
 			var result = compile_(klass, references);
 			AssertNoErrors(result);
-			return result.GeneratedAssembly.GetType(klass.Name);
+
+#if NET
+			var builder = result.GeneratedPEBuilder;
+			var serializer = new System.Reflection.Metadata.BlobBuilder();
+			builder.Serialize(serializer);
+			var asm = Assembly.Load(serializer.ToArray());
+#else
+			var asm = result.GeneratedAssembly
+#endif
+			return asm.GetType(klass.Name);
 		}
 
 		public static CompilerContext compile_(TypeDefinition klass, params Assembly[] references)
@@ -67,10 +76,17 @@ namespace Boo.Lang.Compiler.MetaProgramming
 		{
 			CompilerContext result = compile_(unit, references);
 			AssertNoErrors(result);
+#if NET
+			var builder = result.GeneratedPEBuilder;
+			var serializer = new System.Reflection.Metadata.BlobBuilder();
+			builder.Serialize(serializer);
+			return Assembly.Load(serializer.ToArray());
+#else
 			return result.GeneratedAssembly;
-		}
+#endif
+	}
 
-		private static void AssertNoErrors(CompilerContext result)
+	private static void AssertNoErrors(CompilerContext result)
 		{
 			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
 		}
