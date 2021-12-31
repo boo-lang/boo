@@ -2374,6 +2374,7 @@ namespace Boo.Lang.Compiler.Steps
 				Visit(node.Target);
 				PopType();
 				_il.OpCode(ILOpCode.Ldlen);
+				_il.OpCode(ILOpCode.Conv_i4);
 				PushType(TypeSystemServices.IntType);
 				return true;
 			}
@@ -3232,6 +3233,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitLoadField(Expression self, IField fieldInfo)
 		{
+			fieldInfo = SelfMapFieldIfNeeded(fieldInfo);
 			if (fieldInfo.IsStatic)
 			{
 				if (fieldInfo.IsLiteral)
@@ -3257,7 +3259,18 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(fieldInfo.Type);
 		}
 
-		object GetStaticValue(IField field)
+        private static IField SelfMapFieldIfNeeded(IField field)
+        {
+			var type = field.DeclaringType;
+			if (type.ConstructedInfo == null && type.GenericInfo != null)
+            {
+				var conType = type.GenericInfo.ConstructType(type.GenericInfo.GenericParameters);
+				return (IField)conType.ConstructedInfo.Map(field);
+            }
+			return field;
+        }
+
+        object GetStaticValue(IField field)
 		{
 			if (field is InternalField internalField)
 			{
@@ -3626,6 +3639,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void SetField(Node sourceNode, IField field, Expression reference, Expression value, bool leaveValueOnStack)
 		{
+			field = SelfMapFieldIfNeeded(field);
 			ILOpCode opSetField = ILOpCode.Stsfld;
 			if (!field.IsStatic)
 			{

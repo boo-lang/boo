@@ -472,11 +472,17 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         internal EntityHandle FieldOf(IType type, string fieldName)
         {
             var field = type.GetMembers().OfType<IField>().Single(f => f.Name == fieldName);
+            return LookupField(field);
+        }
+
+        internal EntityHandle LookupField(IField field)
+        {
             if (!_fieldLookup.TryGetValue(field, out var result))
             {
-                var sigField = type.ConstructedInfo == null 
-                    ? field 
-                    : type.ConstructedInfo.GenericDefinition.GetMembers().OfType<IField>().Single(f => f.Name == fieldName);
+                var type = field.DeclaringType;
+                var sigField = type.ConstructedInfo == null
+                    ? field
+                    : type.ConstructedInfo.GenericDefinition.GetMembers().OfType<IField>().Single(f => f.Name == field.Name);
                 var sig = new BlobEncoder(new BlobBuilder());
                 EncodeType(sig.FieldSignature(), sigField.Type);
                 var typeHandle = LookupType(type);
@@ -488,8 +494,6 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             }
             return result;
         }
-
-        internal EntityHandle LookupField(IField field) => FieldOf(field.DeclaringType, field.Name);
 
         public EntityHandle ReserveField(IField field)
         {
