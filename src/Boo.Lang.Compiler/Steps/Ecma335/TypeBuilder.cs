@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -12,6 +13,7 @@ using TypeDefinition = Boo.Lang.Compiler.Ast.TypeDefinition;
 
 namespace Boo.Lang.Compiler.Steps.Ecma335
 {
+	[DebuggerDisplay("{_type}")]
     internal class TypeBuilder : IBuilder
     {
         private readonly string _name;
@@ -186,6 +188,10 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 					_interfaceImplementations.Add(type);
 				}
 			}
+			if (_type is EnumDefinition)
+            {
+				_parent = _typeSystem.EnumTypeEntity;
+            }
 		}
 
         internal void AddMethodImplementation(EntityHandle ifaceInfo, EntityHandle implInfo)

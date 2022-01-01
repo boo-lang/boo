@@ -657,7 +657,7 @@ namespace Boo.Lang.Compiler.Steps
 		public override void OnEnumDefinition(EnumDefinition node)
 		{
 			var typeBuilder = GetTypeBuilder(node);
-			foreach (EnumMember member in node.Members)
+			foreach (var member in node.Members.OfType<EnumMember>())
 			{
 				var field = typeBuilder.DefineField(
 					(IField)member.Entity,
@@ -666,6 +666,7 @@ namespace Boo.Lang.Compiler.Steps
 					InitializerValueOf(member, node));
 				SetBuilder(member, field);
 			}
+			typeBuilder.Build();
 		}
 
 		private object InitializerValueOf(EnumMember enumMember, EnumDefinition enumType)
@@ -3290,8 +3291,10 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			object value = GetStaticValue(fieldInfo);
 			IType type = fieldInfo.Type;
+			IType enumType = null;
 			if (type.IsEnum)
 			{
+				enumType = type;
 				Type underlyingType = GetEnumUnderlyingType(type);
 				type = TypeSystemServices.Map(underlyingType);
 				value = Convert.ChangeType(value, underlyingType);
@@ -3357,6 +3360,11 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				NotImplemented(node, "Literal field type: " + type.ToString());
 			}
+			if (enumType != null)
+            {
+				var local = StoreTempLocal(enumType);
+				_il.LoadLocal(local);
+            }
 		}
 
 		public override void OnGenericReferenceExpression(GenericReferenceExpression node)
@@ -4836,11 +4844,13 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsEnumDefinition(type))
 			{
 				var fld = My<BooCodeBuilder>.Instance.CreateField("value__", GetEnumUnderlyingType(enumDef));
-				typeBuilder.DefineField((IField)fld.Entity,
+				type.Members.Add(fld);
+				var fldBuilder = typeBuilder.DefineField((IField)fld.Entity,
 								((IField)fld.Entity).Type,
 								FieldAttributes.Public |
 								FieldAttributes.SpecialName |
 								FieldAttributes.RTSpecialName);
+				SetBuilder(fld, fldBuilder);
 			}
 
 			return typeBuilder;

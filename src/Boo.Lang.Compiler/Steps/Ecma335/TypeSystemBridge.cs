@@ -41,6 +41,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             AssemblyBuilder = builder;
             VoidTypeEntity = tss.VoidType;
             TypeTypeEntity = tss.TypeType;
+            EnumTypeEntity = tss.EnumType;
 
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             var runtimeName = loadedAssemblies.Single(a => a.GetName().Name == "System.Runtime").GetName();
@@ -58,6 +59,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         public IType VoidTypeEntity { get; }
         public IType TypeTypeEntity { get; }
+        public IType EnumTypeEntity { get; }
 
         public MetadataBuilder AssemblyBuilder { get; }
 
