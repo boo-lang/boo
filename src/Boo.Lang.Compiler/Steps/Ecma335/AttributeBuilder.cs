@@ -25,24 +25,27 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         public void Build()
         {
-            var encoder = new BlobEncoder(new BlobBuilder());
-            encoder.CustomAttributeSignature(out var fixedBuilder, out var namedBuilder);
-            foreach(var fArg in _attr.Arguments)
+            if (_attr.Arguments.Count + _attr.NamedArguments.Count > 0)
             {
-                EncodeValue(fixedBuilder.AddArgument(), fArg);
-            }
-            if (_attr.NamedArguments.Count > 0)
-            {
-                var enc = namedBuilder.Count(_attr.NamedArguments.Count);
-                foreach (var nArg in _attr.NamedArguments)
+                var encoder = new BlobEncoder(new BlobBuilder());
+                encoder.CustomAttributeSignature(out var fixedBuilder, out var namedBuilder);
+                foreach (var fArg in _attr.Arguments)
                 {
-                    enc.AddArgument(nArg.First.Entity is IField, out var typeEncoder, out var nameEncoder, out var valueEncoder);
-                    EncodeType(typeEncoder, nArg.Second.ExpressionType);
-                    nameEncoder.Name(nArg.First.Entity.Name);
-                    EncodeValue(valueEncoder, nArg.Second);
+                    EncodeValue(fixedBuilder.AddArgument(), fArg);
                 }
-            }
-            Handle = _ts.AssemblyBuilder.GetOrAddBlob(encoder.Builder);
+                if (_attr.NamedArguments.Count > 0)
+                {
+                    var enc = namedBuilder.Count(_attr.NamedArguments.Count);
+                    foreach (var nArg in _attr.NamedArguments)
+                    {
+                        enc.AddArgument(nArg.First.Entity is IField, out var typeEncoder, out var nameEncoder, out var valueEncoder);
+                        EncodeType(typeEncoder, nArg.Second.ExpressionType);
+                        nameEncoder.Name(nArg.First.Entity.Name);
+                        EncodeValue(valueEncoder, nArg.Second);
+                    }
+                }
+                Handle = _ts.AssemblyBuilder.GetOrAddBlob(encoder.Builder);
+            };
         }
 
         private static void EncodeType(NamedArgumentTypeEncoder encoder, IType type)
@@ -109,6 +112,10 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             if (arg is TypeofExpression type)
             {
                 encoder.Scalar().SystemType(type.Type.Entity.FullName);
+            }
+            else if (arg is ReferenceExpression && arg.ExpressionType == _ts.TypeTypeEntity)
+            {
+                encoder.Scalar().SystemType(arg.ExpressionType.FullName);
             }
             else if (arg is ArrayLiteralExpression array)
             {

@@ -161,7 +161,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		public void SetupTypeSystem()
 		{
-			_typeSystem = new(_asmBuilder, TypeSystemServices);
+			_typeSystem = new(_asmBuilder, TypeSystemServices, this.GetValue);
 			_arrayGetLength = TypeSystemServices.Map(Array_get_Length);
 			_builtinsArrayGenericConstructor = TypeSystemServices.Map(Builtins_ArrayGenericConstructor);
 			_builtinsArrayTypedConstructor = TypeSystemServices.Map(Builtins_ArrayTypedConstructor);
@@ -719,6 +719,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				builder.AddInterfaceImplementation((IType)baseType.Entity);
 			}
+			builder.Build();
 		}
 
 		public override void OnMacroStatement(MacroStatement node)
@@ -3220,6 +3221,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		void EmitLoadFieldAddress(Expression expression, IField field)
 		{
+			field = SelfMapFieldIfNeeded(field);
 			if (field.IsStatic)
 			{
 				_il.OpCode(ILOpCode.Ldsflda, GetFieldInfo(field));
@@ -4882,12 +4884,40 @@ namespace Boo.Lang.Compiler.Steps
 				case NodeType.CastExpression:
 					return GetValue(expectedType, ((CastExpression)expression).Target);
 
+				case NodeType.BinaryExpression:
+					return GetBinaryValue(expectedType, (BinaryExpression)expression);
+
 				default:
 					return GetComplexExpressionValue(expectedType, expression);
 			}
 		}
 
-		private object GetComplexExpressionValue(IType expectedType, Expression expression)
+        private object GetBinaryValue(IType expectedType, BinaryExpression expression)
+        {
+            var l = GetValue(expectedType, expression.Left);
+			var r = GetValue(expectedType, expression.Right);
+			switch (expression.Operator)
+            {
+				case BinaryOperatorType.BitwiseOr:
+					return BitOrValues(l, r);
+				default:
+					throw new EcmaBuildException($"Unsupported GetBinaryValue operator: {expression.Operator}");
+            }
+        }
+
+        private static object BitOrValues(object l, object r)
+        {
+			if (l.GetType() == r.GetType())
+			{
+				if (l is Enum)
+				{
+					return Enum.ToObject(l.GetType(), Convert.ToInt64(l) | Convert.ToInt64(r));
+				}
+			}
+			throw new EcmaBuildException($"Unsupported binary operation");
+		}
+
+        private object GetComplexExpressionValue(IType expectedType, Expression expression)
 		{
 			IEntity tag = GetEntity(expression);
 			if (EntityType.Type == tag.EntityType)

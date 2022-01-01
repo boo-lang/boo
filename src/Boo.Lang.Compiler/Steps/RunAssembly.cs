@@ -40,14 +40,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (Errors.Count > 0 || Context.GeneratedPEBuilder == null)
 				return;
-			var serializer = Context.GeneratedBlobBuilder;
-			if (serializer == null)
-			{
-				var builder = Context.GeneratedPEBuilder;
-				serializer = new BlobBuilder();
-				builder.Serialize(serializer);
-			}
-			var asm = Assembly.Load(serializer.ToArray());
+			var asm = Context.GetGeneratedAssembly();
 			var entryPoint = asm.GetEntryPoint();
 			if (entryPoint.GetParameters().Length == 1)
 				entryPoint.Invoke(null, new object[] { Array.Empty<string>() });

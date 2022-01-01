@@ -35,11 +35,12 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         private int _props = 0;
         private int _params = 0;
 
-        public TypeSystemBridge(MetadataBuilder builder, TypeSystemServices tss)
+        public TypeSystemBridge(MetadataBuilder builder, TypeSystemServices tss, Func<IType, Expression, object> getValue)
         {
             _tss = tss;
             AssemblyBuilder = builder;
             VoidTypeEntity = tss.VoidType;
+            TypeTypeEntity = tss.TypeType;
 
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             var runtimeName = loadedAssemblies.Single(a => a.GetName().Name == "System.Runtime").GetName();
@@ -48,10 +49,15 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             _assemblyLookup[privateAsm] = handle;
 
             ObjectType = (TypeReferenceHandle)LookupType(tss.ObjectType);
+            _getValue = getValue;
         }
 
         public TypeReferenceHandle ObjectType { get; }
+
+        private readonly Func<IType, Expression, object> _getValue;
+
         public IType VoidTypeEntity { get; }
+        public IType TypeTypeEntity { get; }
 
         public MetadataBuilder AssemblyBuilder { get; }
 
@@ -348,8 +354,9 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             }
             var parameters = method.GetParameters();
             var enc = new BlobEncoder(new BlobBuilder());
-            var sig = enc.MethodSignature(genericParameterCount: method.ConstructedInfo?.GenericArguments?.Length ?? 0,
-                    isInstanceMethod: !method.IsStatic);
+            var sig = enc.MethodSignature(
+                genericParameterCount: method.ConstructedInfo?.GenericArguments?.Length ?? method.GenericInfo?.GenericParameters?.Length ?? 0,
+                isInstanceMethod: !method.IsStatic);
             sig.Parameters(parameters.Length, out var retEnc, out var paramEnc);
             if (method.ReturnType == _tss.VoidType)
             {
@@ -527,13 +534,19 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             return result;
         }
 
-        internal readonly Func<Expression, object> GetExpressionValue;
+        internal object GetExpressionValue(Expression expr) => _getValue(expr.ExpressionType, expr);
 
         internal CustomAttributeHandle SetCustomAttribute(IBuilder builder, AttributeBuilder attr) =>
             SetCustomAttribute(builder.Handle, attr);
 
-        internal CustomAttributeHandle SetCustomAttribute(EntityHandle handle, AttributeBuilder attr) =>
-            AssemblyBuilder.AddCustomAttribute(handle, attr.ConstructorHandle, attr.Handle);
+        internal CustomAttributeHandle SetCustomAttribute(EntityHandle handle, AttributeBuilder attr)
+        {
+            if (attr.Handle.IsNil)
+            {
+                attr.Build();
+            }
+            return AssemblyBuilder.AddCustomAttribute(handle, attr.ConstructorHandle, attr.Handle);
+        }
 
         internal MethodSpecificationHandle ConstructMethodOfGenericType(IMethod baseMethod, IType type)
         {

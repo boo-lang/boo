@@ -211,7 +211,6 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             {
 				throw new EcmaBuildException($"Type handle {handle} does not match reserved handle {_handle}.");
             }
-			//EmitBaseTypes();
 			foreach (var field in _fields)
             {
 				field.Build();
