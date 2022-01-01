@@ -200,7 +200,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 			var firstField = _fields.FirstOrDefault();
 			var firstMethod = _methods.FirstOrDefault();
 			var handle = asm.AddTypeDefinition(
-				GetTypeAttributes(_type) | _attrs,
+				_attrs,
 				_type.EnclosingNamespace == null ? default : asm.GetOrAddString(_type.EnclosingNamespace.Name),
 				asm.GetOrAddString(_name),
 				_parent == null ? _typeSystem.ObjectType : _typeSystem.LookupType(_parent),

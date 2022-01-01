@@ -80,7 +80,7 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (result.Errors.Count == 0)
 			{
 				TraceInfo("Macro '{0}' successfully compiled to '{1}'", node, result.GeneratedAssembly);
-				return result.GeneratedAssembly.GetType(node.FullName);
+				return result.GetGeneratedAssembly().GetType(node.FullName);
 			}
 			Context.Errors.Extend(result.Errors);
 			Context.Warnings.Extend(result.Warnings);

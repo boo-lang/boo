@@ -463,7 +463,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 isRuntime ? MethodImplAttributes.Runtime : MethodImplAttributes.IL,
                 _asmBuilder.GetOrAddString(name),
                 sig,
-                isRuntime ? -1 : bodyOffset,
+                isRuntime || _method.IsAbstract ? -1 : bodyOffset,
                 pHandles.Length > 0
                     ? pHandles[0]
                     : MetadataTokens.ParameterHandle(_asmBuilder.GetRowCount(TableIndex.Param) + 1));

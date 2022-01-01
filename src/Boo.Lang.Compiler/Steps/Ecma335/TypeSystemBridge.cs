@@ -125,7 +125,9 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             var name = type.GenericInfo != null ? $"{type.Name}`{type.GenericInfo.GenericParameters.Length}" : type.Name;
             var result = AssemblyBuilder.AddTypeReference(
                 GetTypeScope(type),
-                type.DeclaringType == null ? AssemblyBuilder.GetOrAddString(type.ActualType.Namespace) : default,
+                type.DeclaringType == null && type.ActualType.Namespace != null
+                    ? AssemblyBuilder.GetOrAddString(type.ActualType.Namespace) 
+                    : default,
                 AssemblyBuilder.GetOrAddString(name));
             _typeLookup.Add(type, result);
             return result;
@@ -534,7 +536,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             return result;
         }
 
-        internal object GetExpressionValue(Expression expr) => _getValue(expr.ExpressionType, expr);
+        internal object GetExpressionValue(Expression expr, IType expectedType) => _getValue(expectedType ?? expr.ExpressionType, expr);
 
         internal CustomAttributeHandle SetCustomAttribute(IBuilder builder, AttributeBuilder attr) =>
             SetCustomAttribute(builder.Handle, attr);
