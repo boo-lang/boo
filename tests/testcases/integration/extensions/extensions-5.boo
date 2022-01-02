@@ -21,7 +21,7 @@ def compile(code, references):
 	compiler.Parameters.OutputType = CompilerOutputType.Library
 	result = compiler.Run()
 	assert 0 == len(result.Errors), result.Errors.ToString()
-	return result.GeneratedAssembly
+	return result.GetGeneratedAssembly()
 	
 code = """
 namespace MyExtensions

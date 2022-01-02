@@ -657,15 +657,6 @@ namespace Boo.Lang.Compiler.Steps
 		public override void OnEnumDefinition(EnumDefinition node)
 		{
 			var typeBuilder = GetTypeBuilder(node);
-			foreach (var member in node.Members.OfType<EnumMember>())
-			{
-				var field = typeBuilder.DefineField(
-					(IField)member.Entity,
-					GetEnumUnderlyingType(node),
-					ENUM_ATTRIBUTES,
-					InitializerValueOf(member, node));
-				SetBuilder(member, field);
-			}
 			typeBuilder.Build();
 		}
 
@@ -2352,12 +2343,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		void InvokeMethod(IMethod method, MethodInvocationExpression node)
 		{
-			var mi = GetMethodInfo(method);
-			if (!InvokeOptimizedMethod(method, mi, node))
-				InvokeRegularMethod(method, mi, node);
+			if (!InvokeOptimizedMethod(method, node))
+				InvokeRegularMethod(method, node);
 		}
 
-		bool InvokeOptimizedMethod(IMethod method, EntityHandle mi, MethodInvocationExpression node)
+		bool InvokeOptimizedMethod(IMethod method, MethodInvocationExpression node)
 		{
 			if (method == _arrayGetLength)
 			{
@@ -2469,8 +2459,9 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(type.MakeArrayType(1));
 		}
 
-		void InvokeRegularMethod(IMethod method, EntityHandle mi, MethodInvocationExpression node)
+		void InvokeRegularMethod(IMethod method, MethodInvocationExpression node)
 		{
+			method = SelfMapMethodIfNeeded(method);
 			// Do not emit call if conditional attributes (if any) do not match defined symbols
 			if (!CheckConditionalAttributes(method))
 			{
@@ -2501,9 +2492,9 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(method.ReturnType);
 		}
 
-		//returns true if no conditional attribute match the defined symbols
-		//else return false (which means the method won't get emitted)
-		private bool CheckConditionalAttributes(IMethod method)
+        //returns true if no conditional attribute match the defined symbols
+        //else return false (which means the method won't get emitted)
+        private bool CheckConditionalAttributes(IMethod method)
 		{
 			foreach (string conditionalSymbol in GetConditionalSymbols(method))
 				if (!Parameters.Defines.ContainsKey(conditionalSymbol))
@@ -3273,7 +3264,18 @@ namespace Boo.Lang.Compiler.Steps
 			return field;
         }
 
-        object GetStaticValue(IField field)
+		private static IMethod SelfMapMethodIfNeeded(IMethod method)
+		{
+			var type = method.DeclaringType;
+			if (type.ConstructedInfo == null && type.GenericInfo != null)
+			{
+				var conType = type.GenericInfo.ConstructType(type.GenericInfo.GenericParameters);
+				return (IMethod)conType.ConstructedInfo.Map(method);
+			}
+			return method;
+		}
+
+		object GetStaticValue(IField field)
 		{
 			if (field is InternalField internalField)
 			{
@@ -4674,6 +4676,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineField(TypeBuilder typeBuilder, Field field)
 		{
+			if (field.ParentNode.NodeType == NodeType.EnumDefinition)
+				return;
+
 			var attrs = FieldAttributesFor(field);
 			var constValue = attrs.HasFlag(FieldAttributes.Literal) ? GetInternalFieldStaticValue((InternalField)field.Entity) : null;
 			var builder = typeBuilder.DefineField((IField)field.Entity, (IType)field.Type.Entity, attrs, constValue);
@@ -4976,10 +4981,6 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineTypeMembers(TypeDefinition typeDefinition)
 		{
-			if (IsEnumDefinition(typeDefinition))
-			{
-				return;
-			}
 			var typeBuilder = GetTypeBuilder(typeDefinition);
 			TypeMemberCollection members = typeDefinition.Members;
 			foreach (TypeMember member in members)
@@ -5014,8 +5015,27 @@ namespace Boo.Lang.Compiler.Steps
 							DefineEvent(typeBuilder, (Event)member);
 							break;
 						}
+					case NodeType.EnumMember:
+                        {
+							DefineEnumMember(typeBuilder, (EnumMember)member, (EnumDefinition)typeDefinition);
+							break;
+                        }
 				}
 			}
+		}
+
+        private void DefineEnumMember(TypeBuilder typeBuilder, EnumMember member, EnumDefinition parent)
+        {
+			if (member.Entity == null)
+			{
+				member.Entity = My<InternalTypeSystemProvider>.Instance.EntityFor(member);
+			}
+			var field = typeBuilder.DefineField(
+				(IField)member.Entity,
+				GetEnumUnderlyingType(parent),
+				ENUM_ATTRIBUTES,
+				InitializerValueOf(member, parent));
+			SetBuilder(member, field);
 		}
 
 		private static string GetAssemblySimpleName(string fname) =>
