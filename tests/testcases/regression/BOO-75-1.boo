@@ -14,7 +14,7 @@ def compile(code as string, references):
 	
 	result = compiler.Run()
 	assert len(result.Errors) == 0, result.Errors.ToString(true)
-	return result.GeneratedAssembly	
+	return result.GetGeneratedAssembly()
 	
 library1 = """
 class Foo:

@@ -8,7 +8,7 @@ def compile(src, references):
 	compiler.Parameters.OutputType = CompilerOutputType.Library
 	result = compiler.Run()
 	assert 0 == len(result.Errors), result.Errors.ToString(true)
-	return result.GeneratedAssembly
+	return result.GetGeneratedAssembly()
 	
 
 librarySource = """

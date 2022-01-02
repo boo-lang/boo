@@ -288,6 +288,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             {
                 throw new InvalidOperationException("EndFilter called without a matching call to BeginFilter");
             }
+            Branch(ILOpCode.Leave, _exceptionExitPoints.Peek());
             MarkLabel(bodyFrame.end);
             var tryFrame = _tryLabels.Peek();
             _il.ControlFlowBuilder.AddFilterRegion(tryFrame.start, tryFrame.end, bodyFrame.start, bodyFrame.end, exprFrame.start);

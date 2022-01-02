@@ -28,7 +28,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 		private readonly List<MethodBuilder> _methods = new();
 		private readonly List<PropertyBuilder> _properties = new();
 		private readonly List<EventBuilder> _events = new();
-		private readonly List<IType> _interfaceImplementations = new();
+		private readonly HashSet<IType> _interfaceImplementations = new();
 		private readonly List<KeyValuePair<EntityHandle, EntityHandle>> _explicitImpls = new();
 		private readonly TypeSystemBridge _typeSystem;
 
@@ -171,7 +171,6 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         public void AddInterfaceImplementation(IType intf)
         {
 			_interfaceImplementations.Add(intf);
-			//to build: _asmBuilder.AddInterfaceImplementation(handle, lookup type(intf));
 		}
 
 		private void EmitBaseTypes()
@@ -191,6 +190,10 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 			if (_type is EnumDefinition)
             {
 				_parent = _typeSystem.EnumTypeEntity;
+            } 
+			else if (_type is StructDefinition)
+            {
+				_parent = _typeSystem.ValueTypeEntity;
             }
 		}
 

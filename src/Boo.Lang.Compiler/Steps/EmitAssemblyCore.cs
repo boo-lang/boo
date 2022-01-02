@@ -1005,7 +1005,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (isFilter)
 			{
 				OnFilterExceptionHandler(node);
-				_il.BeginCatchBlock(GetSystemType(node.Declaration.Type));
+				_il.BeginFilterBody();
 			}
 			else
 			{
@@ -1016,7 +1016,14 @@ namespace Boo.Lang.Compiler.Steps
 
 			Visit(node.Declaration);
 			Visit(node.Block);
-			_il.EndCatchBlock();
+			if (isFilter)
+			{
+				_il.EndFilter();
+			}
+			else
+			{
+				_il.EndCatchBlock();
+			}
 		}
 
 		private void OnFilterExceptionHandler(ExceptionHandler node)
@@ -1048,7 +1055,6 @@ namespace Boo.Lang.Compiler.Steps
 				_il.OpCode(ILOpCode.Ldc_i4_0);
 				_il.Branch(ILOpCode.Br, endLabel);
 				_il.MarkLabel(filterCondition);
-
 			}
 			else if ((node.Flags & ExceptionHandlerFlags.Anonymous) == ExceptionHandlerFlags.None)
 			{
@@ -1068,7 +1074,6 @@ namespace Boo.Lang.Compiler.Steps
 			_il.MarkLabel(endLabel);
 			_il.OpCode(ILOpCode.Ldc_i4_0);
 			_il.OpCode(ILOpCode.Cgt_un);
-			_il.EndFilter();
 		}
 
 		private void EmitStoreOrPopException(ExceptionHandler node)
@@ -1861,7 +1866,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
-			int temp = default;
+			int temp = 0;
 			IType tempType = null;
 			if (leaveValueOnStack)
 			{
@@ -1871,7 +1876,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			LoadParam(param);
-			if (temp != default)
+			if (tempType != null)
 			{
 				LoadLocal(temp, tempType);
 				PopType();
@@ -1887,7 +1892,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			
 
-			if (temp != default)
+			if (tempType != null)
 				LoadLocal(temp, tempType);
 		}
 
@@ -2748,9 +2753,8 @@ namespace Boo.Lang.Compiler.Steps
 				case EntityType.Constructor:
 					{
 						IConstructor constructorInfo = (IConstructor)entity;
-						var ci = GetConstructorInfo(constructorInfo);
 
-						if (NodeType.SuperLiteralExpression == node.Target.NodeType || node.Target.NodeType == NodeType.SelfLiteralExpression)
+						if (node.Target.NodeType is NodeType.SuperLiteralExpression or NodeType.SelfLiteralExpression)
 						{
 							// super constructor call
 							_il.OpCode(ILOpCode.Ldarg_0);
@@ -3253,7 +3257,16 @@ namespace Boo.Lang.Compiler.Steps
 			PushType(fieldInfo.Type);
 		}
 
-        private static IField SelfMapFieldIfNeeded(IField field)
+		private static IType SelfMapTypeIfNeeded(IType type)
+        {
+			if (type.ConstructedInfo == null && type.GenericInfo != null)
+			{
+				type = type.GenericInfo.ConstructType(type.GenericInfo.GenericParameters);
+			}
+			return type;
+		}
+
+		private static IField SelfMapFieldIfNeeded(IField field)
         {
 			var type = field.DeclaringType;
 			if (type.ConstructedInfo == null && type.GenericInfo != null)
@@ -3689,7 +3702,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			ILOpCode callOpCode = ILOpCode.Call;
 
-			var setMethod = property.GetSetMethod();
+			var setMethod = SelfMapMethodIfNeeded(property.GetSetMethod());
 			IType targetType = null;
 			if (null != reference)
 			{
@@ -4792,13 +4805,17 @@ namespace Boo.Lang.Compiler.Steps
 			// Set base type constraint
 			if (parameter.BaseType != TypeSystemServices.ObjectType)
 			{
-				builder.SetBaseTypeConstraint(parameter.BaseType);
+				var baseType = SelfMapTypeIfNeeded(parameter.BaseType);
+				builder.SetBaseTypeConstraint(baseType);
 			}
 
 			// Set interface constraints
 			var interfaceTypes = parameter.GetInterfaces();
 
-			builder.SetInterfaceConstraints(interfaceTypes);
+			if (interfaceTypes.Length > 0)
+			{
+				builder.SetInterfaceConstraints(interfaceTypes.Select(SelfMapTypeIfNeeded).ToArray());
+			}
 
 			// Set special attributes
 			GenericParameterAttributes attributes = GenericParameterAttributes.None;
@@ -4835,7 +4852,6 @@ namespace Boo.Lang.Compiler.Steps
 		TypeBuilder CreateTypeBuilder(TypeDefinition type)
 		{
 			TypeBuilder typeBuilder;
-			var enumDef = type as EnumDefinition;
 
 			if (type.ParentNode is ClassDefinition enclosingType)
 			{
@@ -4844,18 +4860,6 @@ namespace Boo.Lang.Compiler.Steps
 			else
 			{
 				typeBuilder = new TypeBuilder(type, _ilBlock, _typeSystem, Parameters.Debug);
-			}
-
-			if (IsEnumDefinition(type))
-			{
-				var fld = My<BooCodeBuilder>.Instance.CreateField("value__", GetEnumUnderlyingType(enumDef));
-				type.Members.Add(fld);
-				var fldBuilder = typeBuilder.DefineField((IField)fld.Entity,
-								((IField)fld.Entity).Type,
-								FieldAttributes.Public |
-								FieldAttributes.SpecialName |
-								FieldAttributes.RTSpecialName);
-				SetBuilder(fld, fldBuilder);
 			}
 
 			return typeBuilder;
@@ -5022,9 +5026,21 @@ namespace Boo.Lang.Compiler.Steps
                         }
 				}
 			}
+			if (IsEnumDefinition(typeDefinition))
+			{
+				var enumDef = typeDefinition as EnumDefinition;
+				var fld = My<BooCodeBuilder>.Instance.CreateField("value__", GetEnumUnderlyingType(enumDef));
+				typeDefinition.Members.Add(fld);
+				var fldBuilder = typeBuilder.DefineField((IField)fld.Entity,
+								((IField)fld.Entity).Type,
+								FieldAttributes.Public |
+								FieldAttributes.SpecialName |
+								FieldAttributes.RTSpecialName);
+				SetBuilder(fld, fldBuilder);
+			}
 		}
 
-        private void DefineEnumMember(TypeBuilder typeBuilder, EnumMember member, EnumDefinition parent)
+		private void DefineEnumMember(TypeBuilder typeBuilder, EnumMember member, EnumDefinition parent)
         {
 			if (member.Entity == null)
 			{

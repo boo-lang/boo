@@ -23,6 +23,7 @@ namespace Boo.Lang.Compiler
 				var builder = ctx.GeneratedPEBuilder;
 				serializer = new BlobBuilder();
 				builder.Serialize(serializer);
+				ctx.GeneratedBlobBuilder = serializer;
 			}
 			return Assembly.Load(serializer.ToArray());
 		}

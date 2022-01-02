@@ -29,13 +29,14 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             var varargs = entity.AcceptVarArgs;
             if (varargs || _attr.Arguments.Count + _attr.NamedArguments.Count > 0)
             {
-                var fixedParamCount = entity.GetParameters().Length;
+                var constructorParams = entity.GetParameters();
+                var fixedParamCount = constructorParams.Length;
                 if (varargs) --fixedParamCount;
                 var encoder = new BlobEncoder(new BlobBuilder());
                 encoder.CustomAttributeSignature(out var fixedBuilder, out var namedBuilder);
                 for (int i = 0; i < fixedParamCount; ++i)
                 {
-                    EncodeValue(fixedBuilder.AddArgument(), _attr.Arguments[i]);
+                    EncodeValue(fixedBuilder.AddArgument(), _attr.Arguments[i], constructorParams[i].Type);
                 }
                 if (varargs)
                 {
@@ -46,17 +47,14 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                         EncodeValue(arrBuilder.AddLiteral(), _attr.Arguments[i], varargElementType);
                     }
                 }
-                if (_attr.NamedArguments.Count > 0)
+                var enc = namedBuilder.Count(_attr.NamedArguments.Count);
+                foreach (var nArg in _attr.NamedArguments)
                 {
-                    var enc = namedBuilder.Count(_attr.NamedArguments.Count);
-                    foreach (var nArg in _attr.NamedArguments)
-                    {
-                        enc.AddArgument(nArg.First.Entity is IField, out var typeEncoder, out var nameEncoder, out var valueEncoder);
-                        var propType = ((ITypedEntity)nArg.First.Entity).Type;
-                        EncodeType(typeEncoder, propType);
-                        nameEncoder.Name(nArg.First.Entity.Name);
-                        EncodeValue(valueEncoder, nArg.Second, propType);
-                    }
+                    enc.AddArgument(nArg.First.Entity is IField, out var typeEncoder, out var nameEncoder, out var valueEncoder);
+                    var propType = ((ITypedEntity)nArg.First.Entity).Type;
+                    EncodeType(typeEncoder, propType);
+                    nameEncoder.Name(nArg.First.Entity.Name);
+                    EncodeValue(valueEncoder, nArg.Second, propType);
                 }
                 Handle = _ts.AssemblyBuilder.GetOrAddBlob(encoder.Builder);
             };
@@ -123,13 +121,9 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         private void EncodeValue(LiteralEncoder encoder, Expression arg, IType expectedType = null)
         {
-            if (arg is TypeofExpression type)
+            if (expectedType == _ts.ObjectTypeEntity)
             {
-                encoder.Scalar().SystemType(type.Type.Entity.FullName);
-            }
-            else if (arg is ReferenceExpression && arg.ExpressionType == _ts.TypeTypeEntity)
-            {
-                encoder.Scalar().SystemType(arg.ExpressionType.FullName);
+                EncodeTaggedValue(encoder, arg);
             }
             else if (arg is ArrayLiteralExpression array)
             {
@@ -139,22 +133,59 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                     EncodeValue(subEncoder.AddLiteral(), el);
                 }
             }
+            else EncodeScalarValue(encoder.Scalar(), arg, expectedType);
+        }
+
+        void EncodeScalarValue(ScalarEncoder encoder, Expression arg, IType expectedType = null)
+        { 
+            if (arg is TypeofExpression type)
+            {
+                encoder.SystemType(type.Type.Entity.FullName);
+            }
+            else if (arg is ReferenceExpression && arg.ExpressionType == _ts.TypeTypeEntity)
+            {
+                encoder.SystemType(arg.ExpressionType.FullName);
+            }
             else if (arg is NullLiteralExpression)
             {
                 if (arg.ExpressionType.IsArray)
                 {
-                    encoder.Scalar().NullArray();
+                    encoder.NullArray();
                 }
                 else
                 {
-                    encoder.Scalar().Constant(null);
+                    encoder.Constant(null);
                 }
             }
             else
             {
-                encoder.Scalar().Constant(_ts.GetExpressionValue(arg, expectedType));
+                encoder.Constant(_ts.GetExpressionValue(arg, expectedType));
             }
         }
 
+        private void EncodeTaggedValue(LiteralEncoder encoder, Expression arg)
+        {
+            if (arg.ExpressionType.IsArray)
+            {
+                throw new EcmaBuildException("Tagged arrays are not supported");
+            }
+            encoder.TaggedScalar(out var typeEnc, out var valueEnc);
+            var exprType = arg.ExpressionType;
+            if (exprType == _ts.TypeTypeEntity)
+            {
+                typeEnc.SystemType();
+                valueEnc.SystemType(exprType.FullName);
+            }
+            else if (exprType.IsEnum)
+            {
+                typeEnc.Enum(exprType.FullName);
+                valueEnc.Constant(arg.Entity.Name);
+            }
+            else
+            {
+                typeEnc.PrimitiveType(GetPrimitiveTypeCode(arg.ExpressionType));
+                EncodeScalarValue(valueEnc, arg, arg.ExpressionType);
+            }
+        }
     }
 }
