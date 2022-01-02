@@ -81,6 +81,7 @@ namespace BooCompiler.Tests
 			_parameters.Pipeline = SetUpCompilerPipeline();
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
+			_parameters.References.Add(typeof(System.Collections.Generic.Stack<>).Assembly);
 			Directory.CreateDirectory(TestOutputPath);
 #if NET
 			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.dll");
