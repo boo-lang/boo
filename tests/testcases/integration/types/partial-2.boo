@@ -44,6 +44,6 @@ import NS2
 
 partial class A(IFoo):
 	pass
-"""], context.GeneratedAssembly)
+"""], context.GetGeneratedAssembly())
 
 print context.Errors.ToString()

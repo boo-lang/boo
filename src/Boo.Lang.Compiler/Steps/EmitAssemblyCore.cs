@@ -848,14 +848,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				//load the stored return value and `ret'
 				_il.MarkLabel(_leaveLabel);
-				if (_returnType.IsValueType)
-				{
-					_il.LoadLocal(_il.GetDefaultValueHolder(_returnType));
-				}
-				else
-				{
-					_il.OpCode(ILOpCode.Ldnull);
-				}
+				_il.LoadLocal(_il.GetDefaultValueHolder(_returnType));
 			}
 
 			if (_returnImplicit || _returnStatements != 0)
