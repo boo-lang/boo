@@ -27,37 +27,34 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         {
             var entity = (IConstructor)_attr.Entity;
             var varargs = entity.AcceptVarArgs;
-            if (varargs || _attr.Arguments.Count + _attr.NamedArguments.Count > 0)
+            var constructorParams = entity.GetParameters();
+            var fixedParamCount = constructorParams.Length;
+            if (varargs) --fixedParamCount;
+            var encoder = new BlobEncoder(new BlobBuilder());
+            encoder.CustomAttributeSignature(out var fixedBuilder, out var namedBuilder);
+            for (int i = 0; i < fixedParamCount; ++i)
             {
-                var constructorParams = entity.GetParameters();
-                var fixedParamCount = constructorParams.Length;
-                if (varargs) --fixedParamCount;
-                var encoder = new BlobEncoder(new BlobBuilder());
-                encoder.CustomAttributeSignature(out var fixedBuilder, out var namedBuilder);
-                for (int i = 0; i < fixedParamCount; ++i)
+                EncodeValue(fixedBuilder.AddArgument(), _attr.Arguments[i], constructorParams[i].Type);
+            }
+            if (varargs)
+            {
+                var arrBuilder = fixedBuilder.AddArgument().Vector().Count(_attr.Arguments.Count - fixedParamCount);
+                var varargElementType = entity.GetParameters()[fixedParamCount].Type.ElementType;
+                for (int i = fixedParamCount; i < _attr.Arguments.Count; ++i)
                 {
-                    EncodeValue(fixedBuilder.AddArgument(), _attr.Arguments[i], constructorParams[i].Type);
+                    EncodeValue(arrBuilder.AddLiteral(), _attr.Arguments[i], varargElementType);
                 }
-                if (varargs)
-                {
-                    var arrBuilder = fixedBuilder.AddArgument().Vector().Count(_attr.Arguments.Count - fixedParamCount);
-                    var varargElementType = entity.GetParameters()[fixedParamCount].Type.ElementType;
-                    for (int i = fixedParamCount; i < _attr.Arguments.Count; ++i)
-                    {
-                        EncodeValue(arrBuilder.AddLiteral(), _attr.Arguments[i], varargElementType);
-                    }
-                }
-                var enc = namedBuilder.Count(_attr.NamedArguments.Count);
-                foreach (var nArg in _attr.NamedArguments)
-                {
-                    enc.AddArgument(nArg.First.Entity is IField, out var typeEncoder, out var nameEncoder, out var valueEncoder);
-                    var propType = ((ITypedEntity)nArg.First.Entity).Type;
-                    EncodeType(typeEncoder, propType);
-                    nameEncoder.Name(nArg.First.Entity.Name);
-                    EncodeValue(valueEncoder, nArg.Second, propType);
-                }
-                Handle = _ts.AssemblyBuilder.GetOrAddBlob(encoder.Builder);
-            };
+            }
+            var enc = namedBuilder.Count(_attr.NamedArguments.Count);
+            foreach (var nArg in _attr.NamedArguments)
+            {
+                enc.AddArgument(nArg.First.Entity is IField, out var typeEncoder, out var nameEncoder, out var valueEncoder);
+                var propType = ((ITypedEntity)nArg.First.Entity).Type;
+                EncodeType(typeEncoder, propType);
+                nameEncoder.Name(nArg.First.Entity.Name);
+                EncodeValue(valueEncoder, nArg.Second, propType);
+            }
+            Handle = _ts.AssemblyBuilder.GetOrAddBlob(encoder.Builder);
         }
 
         private static void EncodeType(NamedArgumentTypeEncoder encoder, IType type)

@@ -252,7 +252,9 @@ namespace Boo.Lang.Compiler.Steps
 			_typeSystem.BuildGenericParameters();
 			_typeSystem.BuildNestedTypes();
 			var rootBuilder = new MetadataRootBuilder(_asmBuilder);
-			var header = new PEHeaderBuilder(imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll);
+			var header = new PEHeaderBuilder(
+				imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll,
+				majorImageVersion: 1);
 			var peBuilder = new ManagedPEBuilder(
 				header: header,
 				metadataRootBuilder: rootBuilder,
@@ -4478,6 +4480,17 @@ namespace Boo.Lang.Compiler.Steps
 			return new AttributeBuilder(attr, _typeSystem);
         }
 
+		AttributeBuilder CreateTargetFrameworkAttribute()
+		{
+			var cb = My<BooCodeBuilder>.Instance;
+			var type = typeof(System.Runtime.Versioning.TargetFrameworkAttribute);
+			var s = cb.CreateStringLiteral(".NETCoreApp,Version=v5.0");
+			var attr = cb.CreateAttribute(TypeSystemServices.Map(type.GetConstructors().First()), s);
+			var prop = TypeSystemServices.Map(type.GetProperty("FrameworkDisplayName"));
+			attr.NamedArguments.Add(new(cb.CreateReference(prop), cb.CreateStringLiteral("")));
+			return new AttributeBuilder(attr, _typeSystem);
+		}
+
 		private AttributeBuilder CreateUnverifiableCodeAttribute()
 		{
 			var cb = My<BooCodeBuilder>.Instance;
@@ -5145,7 +5158,7 @@ namespace Boo.Lang.Compiler.Steps
             }
 			_moduleBuilder = _asmBuilder.AddModule(
 				0,
-				_asmBuilder.GetOrAddString(asmName.Name),
+				_asmBuilder.GetOrAddString(asmName.Name + ".dll"),
 				_asmBuilder.GetOrAddGuid(Guid.NewGuid()),
 				default,
 				default);
@@ -5159,6 +5172,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			_typeSystem.SetCustomAttribute(_asmHandle, CreateRuntimeCompatibilityAttribute());
+			_typeSystem.SetCustomAttribute(_asmHandle, CreateTargetFrameworkAttribute());
 
 			if (Parameters.Unsafe)
 				_typeSystem.SetCustomAttribute(_moduleBuilder, CreateUnverifiableCodeAttribute());

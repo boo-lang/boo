@@ -212,7 +212,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 				_attrs,
 				_type.EnclosingNamespace == null ? default : asm.GetOrAddString(_type.EnclosingNamespace.Name),
 				asm.GetOrAddString(_name),
-				_parent == null ? _typeSystem.ObjectType : _typeSystem.LookupType(_parent),
+				_parent == null ? (_type.NodeType == NodeType.InterfaceDefinition ? default : _typeSystem.ObjectType) : _typeSystem.LookupType(_parent),
 				firstField != null ? (FieldDefinitionHandle)firstField.Handle : MetadataTokens.FieldDefinitionHandle(asm.GetRowCount(TableIndex.Field) + 1),
 				firstMethod != null ? (MethodDefinitionHandle)firstMethod.Handle : MetadataTokens.MethodDefinitionHandle(asm.GetRowCount(TableIndex.MethodDef) + 1)
 			);
