@@ -130,7 +130,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         private EntityHandle LookupExternalType(ExternalType type)
         {
-            var name = type.GenericInfo != null ? $"{type.Name}`{type.GenericInfo.GenericParameters.Length}" : type.Name;
+            var name = type.ActualType.Name;
             var result = AssemblyBuilder.AddTypeReference(
                 GetTypeScope(type),
                 type.DeclaringType == null && type.ActualType.Namespace != null
