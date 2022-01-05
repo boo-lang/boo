@@ -2594,7 +2594,7 @@ namespace Boo.Lang.Compiler.Steps
 		private static bool IsValueTypeMethodCall(Expression target, IMethod method)
 		{
 			IType type = target.ExpressionType;
-			return type.IsValueType && method.DeclaringType == type;
+			return type.IsValueType && (method.DeclaringType == type || method.DeclaringType.ConstructedInfo?.GenericDefinition == type);
 		}
 
 		void InvokeSuperMethod(IMethod method, MethodInvocationExpression node)
@@ -2631,7 +2631,7 @@ namespace Boo.Lang.Compiler.Steps
 		void OnAddressOf(MethodInvocationExpression node)
 		{
 			MemberReferenceExpression methodRef = (MemberReferenceExpression)node.Arguments[0];
-			var ent = (IMethod)GetEntity(methodRef);
+			var ent = SelfMapMethodIfNeeded((IMethod)GetEntity(methodRef));
 			var method = GetMethodInfo(ent);
 			if (ent.IsVirtual)
 			{
@@ -2747,7 +2747,7 @@ namespace Boo.Lang.Compiler.Steps
 
 				case EntityType.Constructor:
 					{
-						IConstructor constructorInfo = (IConstructor)entity;
+						IConstructor constructorInfo = (IConstructor)SelfMapMethodIfNeeded((IMethod)entity);
 
 						if (node.Target.NodeType is NodeType.SuperLiteralExpression or NodeType.SelfLiteralExpression)
 						{
