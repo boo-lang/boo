@@ -7,6 +7,9 @@ namespace BooCompiler.Tests
 	{
 	
 		[Test]
+#if NET
+		[Ignore("Remoting is not available in Core")]
+#endif
 		public void RealProxy_1()
 		{
 			RunCompilerTestCase(@"RealProxy-1.boo");

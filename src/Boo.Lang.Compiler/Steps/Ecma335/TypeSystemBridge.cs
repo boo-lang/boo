@@ -305,6 +305,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             { "System.UIntPtr", PrimitiveTypeCode.UIntPtr },
             { "System.Object", PrimitiveTypeCode.Object },
             { "object", PrimitiveTypeCode.Object },
+            { "duck", PrimitiveTypeCode.Object },
         };
 
         private void EncodeBasicType(SignatureTypeEncoder enc, IType type)
@@ -381,6 +382,10 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 if (param.Type.IsByRef)
                 {
                     EncodeType(paramEnc.AddParameter().Type(true), param.Type.ElementType);
+                }
+                else if (param.IsByRef)
+                {
+                    EncodeType(paramEnc.AddParameter().Type(true), param.Type);
                 }
                 else
                 {

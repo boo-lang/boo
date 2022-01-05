@@ -171,7 +171,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             if (exprType == _ts.TypeTypeEntity)
             {
                 typeEnc.SystemType();
-                valueEnc.SystemType(exprType.FullName);
+                valueEnc.SystemType(((TypeofExpression)arg).Type.Entity.Name);
             }
             else if (exprType.IsEnum)
             {

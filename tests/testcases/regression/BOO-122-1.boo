@@ -16,7 +16,7 @@ def run(src as string, references):
 	compiler.Parameters.Pipeline = Run()
 	result = compiler.Run()
 	assert len(result.Errors) == 0, result.Errors.ToString()
-	return result.GeneratedAssembly
+	return result.GetGeneratedAssembly()
 
 level1 = """
 class Level1:

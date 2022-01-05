@@ -70,9 +70,16 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			CompilerContext result = compile_(unit, references);
 			AssertNoErrors(result);
 			return result.GetGeneratedAssembly();
-	}
+		}
 
-	private static void AssertNoErrors(CompilerContext result)
+		public static void SaveCompiledAssembly(CompilerContext ctx)
+        {
+			var save = new Steps.SaveAssembly();
+			save.Initialize(ctx);
+			save.Run();
+		}
+
+		private static void AssertNoErrors(CompilerContext result)
 		{
 			if (result.Errors.Count > 0) throw new CompilationErrorsException(result.Errors);
 		}
@@ -82,7 +89,14 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			BooCompiler compiler = NewCompiler();
 			foreach (Assembly reference in references)
 				compiler.Parameters.References.Add(reference);
-			return compiler.Run(unit);
+			var result = compiler.Run(unit);
+			if (result.Errors?.Count == 0)
+			{
+				SaveCompiledAssembly(result);
+				var asm = result.GetGeneratedAssembly();
+				CompilerContext.AssemblyLookup[asm.FullName] = asm;
+			}
+			return result;
 		}
 
 		public static CompilerContext compile_(CompileUnit unit, params ICompileUnit[] references)

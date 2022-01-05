@@ -5136,7 +5136,7 @@ namespace Boo.Lang.Compiler.Steps
 			var asmName = CreateAssemblyName(outputFile);
 			_asmHandle = _asmBuilder.AddAssembly(
 				_asmBuilder.GetOrAddString(asmName.Name),
-				asmName.Version,
+				new Version(1,0,0,0),
 				asmName.CultureName != null ? _asmBuilder.GetOrAddString(asmName.CultureName) : default,
 				asmName.GetPublicKey()?.Length > 0 ? _asmBuilder.GetOrAddBlob(asmName.GetPublicKey()) : default,
 				TypeSystemBridge.ConvertAssemblyNameFlags(asmName.Flags),

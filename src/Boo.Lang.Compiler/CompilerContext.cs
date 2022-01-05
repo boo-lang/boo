@@ -38,6 +38,7 @@ using Boo.Lang.Environments;
 #if NET
 using System.Reflection.PortableExecutable;
 using System.Reflection.Metadata;
+using Boo.Lang.Compiler.Util;
 #endif
 
 namespace Boo.Lang.Compiler
@@ -64,7 +65,15 @@ namespace Boo.Lang.Compiler
 		private string _generatedAssemblyFileName;
 
 		private readonly Hash _properties;
-		
+
+#if NET
+		static CompilerContext()
+        {
+			AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+				AssemblyLookup.TryGetValue(args.Name, out var result) ? result : null;
+		}
+#endif
+
 		public CompilerContext() : this(new CompileUnit())
 		{
 		}
@@ -185,6 +194,7 @@ namespace Boo.Lang.Compiler
 #if NET
 		public PEBuilder GeneratedPEBuilder { get; set; }
 		public BlobBuilder GeneratedBlobBuilder { get; set; }
+		public static WeakValueDictionary<string, Assembly> AssemblyLookup { get; } = new();
 #endif
 
 		public string GetUniqueName(params string[] components)
