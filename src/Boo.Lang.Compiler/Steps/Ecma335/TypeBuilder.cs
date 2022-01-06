@@ -18,7 +18,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
     {
         private readonly string _name;
 		private IType _parent;
-		private readonly TypeAttributes _attrs;
+		private TypeAttributes _attrs;
         private readonly TypeDefinition _type;
         private readonly BlobBuilder _ilBuilder;
         private readonly EntityHandle _handle;
@@ -172,6 +172,15 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         {
 			_interfaceImplementations.Add(intf);
 		}
+
+		internal void SetLayout(TypeAttributes layout)
+        {
+			if ((layout & TypeAttributes.LayoutMask) != layout)
+            {
+				throw new EcmaBuildException($"Non-layout value '{layout}' passed to SetLayout");
+            }
+			_attrs = (_attrs & ~TypeAttributes.LayoutMask) | layout;
+        }
 
 		private void EmitBaseTypes()
 		{

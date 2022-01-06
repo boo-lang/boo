@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Compiler.TypeSystem.Reflection;
 
 namespace Boo.Lang.Compiler.Steps.Ecma335
 {
-    internal class AttributeBuilder 
+    internal class AttributeBuilder
     {
         private readonly Ast.Attribute _attr;
 
@@ -55,6 +59,58 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 EncodeValue(valueEncoder, nArg.Second, propType);
             }
             Handle = _ts.AssemblyBuilder.GetOrAddBlob(encoder.Builder);
+        }
+
+        private static readonly Dictionary<Type, Func<IBuilder, Ast.Attribute, TypeSystemBridge, bool>> _specialTypes = new ()
+        {
+            {typeof(System.Runtime.InteropServices.StructLayoutAttribute), SpecialTypeLayout},
+        };
+
+        public bool IsSpecial
+        {
+            get { return _specialTypes.ContainsKey((((IConstructor)_attr.Entity).DeclaringType as ExternalType)?.ActualType); }
+        }
+
+        public bool HandleSpecialAttribute(IBuilder parent)
+        {
+            var ext = (((IConstructor)_attr.Entity).DeclaringType as ExternalType).ActualType;
+            return _specialTypes[ext](parent, _attr, _ts);
+        }
+
+        private static ReferenceExpression PACK_EXPR = new("Pack");
+        private static ReferenceExpression SIZE_EXPR = new("Size");
+
+        private static bool SpecialTypeLayout(IBuilder parent, Ast.Attribute attr, TypeSystemBridge ts)
+        {
+            var na = attr.NamedArguments;
+            if (na != null)
+            {
+                var pack = (ushort)((na.FirstOrDefault(p => p.First.Matches(PACK_EXPR))?.Second as IntegerLiteralExpression)?.Value ?? 0);
+                var size = (ushort)((na.FirstOrDefault(p => p.First.Matches(SIZE_EXPR))?.Second as IntegerLiteralExpression)?.Value ?? 0);
+            
+                if (pack != 0 || size != 0)
+                {
+                    ts.AssemblyBuilder.AddTypeLayout((TypeDefinitionHandle)parent.Handle, pack, size);
+                }
+            }
+            var arg = attr.Arguments[0];
+            LayoutKind lk = arg.NodeType == NodeType.IntegerLiteralExpression
+                ? (LayoutKind)Enum.ToObject(typeof(LayoutKind), (byte)((IntegerLiteralExpression)arg).Value)
+                : Enum.Parse<LayoutKind>(((ReferenceExpression)arg).Name);
+            var tb = (TypeBuilder)parent;
+            switch (lk)
+            {
+                case LayoutKind.Sequential:
+                    tb.SetLayout(TypeAttributes.SequentialLayout);
+                    break;
+                case LayoutKind.Explicit:
+                    tb.SetLayout(TypeAttributes.ExplicitLayout);
+                    break;
+                default:
+                    tb.SetLayout(TypeAttributes.AutoLayout);
+                    break;
+            }
+            return true;
         }
 
         private static void EncodeType(NamedArgumentTypeEncoder encoder, IType type)

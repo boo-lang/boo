@@ -551,8 +551,13 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         internal object GetExpressionValue(Expression expr, IType expectedType) => _getValue(expectedType ?? expr.ExpressionType, expr);
 
-        internal CustomAttributeHandle SetCustomAttribute(IBuilder builder, AttributeBuilder attr) =>
-            SetCustomAttribute(builder.Handle, attr);
+        internal CustomAttributeHandle SetCustomAttribute(IBuilder builder, AttributeBuilder attr)
+        {
+            if (attr.IsSpecial && attr.HandleSpecialAttribute(builder))
+            {
+                return default;
+            } else return SetCustomAttribute(builder.Handle, attr);
+        }
 
         internal CustomAttributeHandle SetCustomAttribute(EntityHandle handle, AttributeBuilder attr)
         {
