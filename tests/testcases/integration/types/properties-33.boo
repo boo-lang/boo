@@ -1,7 +1,7 @@
 """
 bar
 """
-import System.Xml from System.Xml
+import System.Xml
 
 doc = XmlDocument()
 a = doc.CreateAttribute("foo")

@@ -2,7 +2,7 @@
 0
 100
 """
-import System.Drawing from System.Drawing
+import System.Drawing
 
 sz as Size
 sz.Height = 100

@@ -2,7 +2,7 @@
 DerivedClass
 """
 import System
-import System.Xml.Serialization from System.Xml
+import System.Xml.Serialization from System.Private.Xml
 import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
 
 class C:

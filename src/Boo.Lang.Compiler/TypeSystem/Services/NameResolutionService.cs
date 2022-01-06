@@ -299,7 +299,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private bool ResolveQualifiedNameAgainst(INamespace current, string name, EntityType flags, ICollection<IEntity> resultingSet)
 		{
-			string[] parts = name.Split(DotArray);
+			string[] parts = name.Split('.');
 			for (int i=0; i<parts.Length - 1; ++i)
 			{
 				current = Resolve(current, parts[i], EntityType.Namespace | EntityType.Type) as INamespace;

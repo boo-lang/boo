@@ -1,4 +1,4 @@
-import System.Drawing from System.Drawing
+import System.Drawing from System.Drawing.Primitives
 
 s as Size
 s.Width = 100
