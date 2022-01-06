@@ -42,6 +42,7 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			var asm = Context.GetGeneratedAssembly();
 			var entryPoint = asm.GetEntryPoint();
+			CompilerContext.AssemblyLookup[asm.FullName] = asm;
 			if (entryPoint.GetParameters().Length == 1)
 				entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
 			else
