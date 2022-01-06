@@ -4386,7 +4386,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (type == TypeSystemServices.UShortType) return _typeSystem.MethodOf<RuntimeServices>("UnboxUInt16", typeof(object));
 			if (type == TypeSystemServices.IntType) return _typeSystem.MethodOf<RuntimeServices>("UnboxInt32", typeof(object));
 			if (type == TypeSystemServices.UIntType) return _typeSystem.MethodOf<RuntimeServices>("UnboxUInt32", typeof(object));
-			if (IsLong(type)) _typeSystem.MethodOf<RuntimeServices>("UnboxInt64", typeof(object));
+			if (IsLong(type)) return _typeSystem.MethodOf<RuntimeServices>("UnboxInt64", typeof(object));
 			if (type == TypeSystemServices.ULongType) return _typeSystem.MethodOf<RuntimeServices>("UnboxUInt64", typeof(object));
 			if (type == TypeSystemServices.SingleType) return _typeSystem.MethodOf<RuntimeServices>("UnboxSingle", typeof(object));
 			if (type == TypeSystemServices.DoubleType) return _typeSystem.MethodOf<RuntimeServices>("UnboxDouble", typeof(object));

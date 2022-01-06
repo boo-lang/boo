@@ -85,6 +85,7 @@ namespace BooCompiler.Tests
 			_parameters.References.Add(typeof(System.Drawing.Color).Assembly);
 			_parameters.References.Add(typeof(System.ComponentModel.BindingList<>).Assembly);
 			_parameters.References.Add(typeof(System.Xml.XmlDocument).Assembly);
+			_parameters.References.Add(typeof(System.Diagnostics.Process).Assembly);
 			Directory.CreateDirectory(TestOutputPath);
 #if NET
 			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.dll");
