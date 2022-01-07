@@ -186,12 +186,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null == other) return false;
 			if (this == other) return true;
 
-			return _memberInfo.MethodHandle.Value == other._memberInfo.MethodHandle.Value;
+			return _memberInfo.MethodHandle.Value == other._memberInfo.MethodHandle.Value && _memberInfo.DeclaringType == other._memberInfo.DeclaringType;
 		}
 
 		override public int GetHashCode()
 		{
-			return _memberInfo.MethodHandle.Value.GetHashCode();
+			return HashCode.Combine(_memberInfo.MethodHandle.Value.GetHashCode(), _memberInfo.DeclaringType.GetHashCode());
 		}
 		
 		override public string ToString()

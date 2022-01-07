@@ -68,7 +68,11 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
         public bool IsSpecial
         {
-            get { return _specialTypes.ContainsKey((((IConstructor)_attr.Entity).DeclaringType as ExternalType)?.ActualType); }
+            get
+            {
+                var type = (((IConstructor)_attr.Entity).DeclaringType as ExternalType)?.ActualType;
+                return type != null && _specialTypes.ContainsKey(type);
+            }
         }
 
         public bool HandleSpecialAttribute(IBuilder parent)
