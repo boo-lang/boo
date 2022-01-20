@@ -65,6 +65,13 @@ namespace Boo.Lang.Compiler.Steps
 			builder.Serialize(serializer);
 			Context.GeneratedBlobBuilder = serializer;
 			File.WriteAllBytes(filename, serializer.ToArray());
+			if (Context.GeneratedPdbBuilder != null)
+            {
+				var pdbFilename = Path.ChangeExtension(filename, ".pdb");
+				var pdbBlob = new BlobBuilder();
+				Context.GeneratedPdbBuilder.Serialize(pdbBlob);
+				File.WriteAllBytes(pdbFilename, pdbBlob.ToArray());
+			}
 		}
 #else
 		void Save(AssemblyBuilder builder, string filename)

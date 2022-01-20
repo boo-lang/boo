@@ -194,6 +194,7 @@ namespace Boo.Lang.Compiler
 #if NET
 		public PEBuilder GeneratedPEBuilder { get; set; }
 		public BlobBuilder GeneratedBlobBuilder { get; set; }
+		public System.Reflection.Metadata.Ecma335.PortablePdbBuilder GeneratedPdbBuilder { get; set; }
 		public static WeakValueDictionary<string, Assembly> AssemblyLookup { get; } = new();
 #endif
 

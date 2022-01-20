@@ -28,6 +28,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         private readonly MaxStackAnalyzer _maxStackAnalyzer = new(My<TypeSystemServices>.Instance);
         readonly Dictionary<LabelHandle, int> _labelPositions = new();
         readonly List<(int position, LabelHandle[] tokens, Blob buffer)> _switches = new();
+        private LocalVariableHandle _firstVar = default;
         private readonly EntityHandle _handle;
 
         private GenericTypeParameterBuilder[] _genParams;
@@ -180,10 +181,14 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             _locals.Add(type);
             if (_isDebug)
             {
-                _asmBuilder.AddLocalVariable(
+                var lvar = _typeSystem.DebugBuilder.AddLocalVariable(
                     name?.Contains('$') == true ? LocalVariableAttributes.DebuggerHidden : LocalVariableAttributes.None,
                     _locals.Count,
-                    name != null ? _asmBuilder.GetOrAddString(name) : default);
+                    name != null ? _typeSystem.DebugBuilder.GetOrAddString(name) : default);
+                if (_firstVar.IsNil)
+                {
+                    _firstVar = lvar;
+                }
             }
             return result;
         }
@@ -392,7 +397,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             return (_asmBuilder.GetOrAddBlob(builder.Builder), pHandles);
         }
 
-        private int BuildBody()
+        private (int offset, StandaloneSignatureHandle handle) BuildBody()
         {
             StandaloneSignatureHandle sigHandle = default;
             if (_locals.Count > 0)
@@ -407,7 +412,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             }
             int stackDepth = _maxStackAnalyzer.Total;
             var offset = _streamEncoder.AddMethodBody(_il, stackDepth, sigHandle);
-            return offset;
+            return (offset, sigHandle);
         }
 
         private void CleanupSwitches()
@@ -449,10 +454,54 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             _sequencePoints[pos] = info;
         }
 
+        private void BuildSequencePoints(StandaloneSignatureHandle signature)
+        {
+            var arr = _sequencePoints.OrderBy(kvp => kvp.Key).ToArray();
+            if (arr.Length == 0)
+            {
+                _typeSystem.DebugBuilder.AddMethodDebugInformation(default, default);
+                return;
+            }
+            var multiDoc = arr.Select(kvp => kvp.Value.FileName).Distinct().Count() > 1;
+            var builder = new BlobBuilder();
+            builder.WriteCompressedInteger(MetadataTokens.GetRowNumber(signature));
+            var docHandle = _typeSystem.LookupDocument(arr[0].Value.FileName);
+            if (multiDoc)
+            {
+                builder.WriteCompressedInteger(MetadataTokens.GetRowNumber(docHandle));
+            }
+            var last = arr[0];
+            builder.WriteCompressedInteger(last.Key);
+            builder.WriteCompressedInteger(1);
+            builder.WriteCompressedSignedInteger(-last.Value.Column);
+            builder.WriteCompressedInteger(last.Value.Line);
+            builder.WriteCompressedInteger(last.Value.Column);
+            for (int i = 1; i < arr.Length; i++)
+            {
+                var next = arr[i];
+                if (multiDoc && next.Value.FileName != last.Value.FileName)
+                {
+                    builder.WriteCompressedInteger(0);
+                    docHandle = _typeSystem.LookupDocument(next.Value.FileName);
+                    builder.WriteCompressedInteger(MetadataTokens.GetRowNumber(docHandle));
+                }
+                builder.WriteCompressedInteger(next.Key - last.Key);
+                builder.WriteCompressedInteger(1);
+                builder.WriteCompressedSignedInteger(-next.Value.Column);
+                builder.WriteCompressedInteger(next.Value.Line - last.Value.Line);
+                builder.WriteCompressedSignedInteger(next.Value.Column - last.Value.Column);
+                last = next;
+            }
+            var seqBlob = _typeSystem.DebugBuilder.GetOrAddBlob(builder);
+            _typeSystem.DebugBuilder.AddMethodDebugInformation(
+                multiDoc ? default : _typeSystem.LookupDocument(arr[0].Value.FileName),
+                seqBlob);
+        }
+
         public void Build()
         {
             CleanupSwitches();
-            var bodyOffset = BuildBody();
+            var (bodyOffset, localSig) = BuildBody();
             var (sig, pHandles) = BuildSignature();
             var explicitInfo = ((Method)_method.Node).ExplicitInfo;
             var name = _method is IConstructor ? 
@@ -471,6 +520,12 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
             if (handle != _handle)
             {
                 throw new EcmaBuildException($"Method build handle {handle} does not match reserved handle {_handle}.");
+            }
+            if (_isDebug)
+            {
+                BuildSequencePoints(localSig);
+                var db = _typeSystem.DebugBuilder;
+                db.AddLocalScope(handle, _typeSystem.NullImportHandle, _firstVar, default, bodyOffset, _il.CodeBuilder.Count);
             }
         }
     }

@@ -253,13 +253,23 @@ namespace Boo.Lang.Compiler.Steps
 			_typeSystem.BuildNestedTypes();
 			var rootBuilder = new MetadataRootBuilder(_asmBuilder);
 			var header = new PEHeaderBuilder(
-				imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll,
+				imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll | Characteristics.LargeAddressAware,
 				majorImageVersion: 1);
+			DebugDirectoryBuilder debugBuilder = null;
+			if (Parameters.Debug)
+            {
+				var rows = _asmBuilder.GetRowCounts();
+				var pdb = new PortablePdbBuilder(_typeSystem.DebugBuilder, rows, default);
+				var pdbBlob = new BlobBuilder();
+				pdb.Serialize(pdbBlob);
+				debugBuilder = new();
+				debugBuilder.AddEmbeddedPortablePdbEntry(pdbBlob, pdb.FormatVersion);
+			}
 			var peBuilder = new ManagedPEBuilder(
 				header: header,
 				metadataRootBuilder: rootBuilder,
 				ilStream: _ilBlock,
-				//debugDirectoryBuilder: _debugDirectoryBuilder,
+				debugDirectoryBuilder: debugBuilder,
 				nativeResources: _resWriter
 				);
 			ContextAnnotations.SetPEBuilder(Context, peBuilder);
@@ -269,7 +279,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private Stream GetIconFile(string filename)
+        private Stream GetIconFile(string filename)
 		{
 			if (!Path.IsPathRooted(filename))
 			{

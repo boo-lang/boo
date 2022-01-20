@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -24,10 +25,13 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         private readonly Dictionary<IField, EntityHandle> _fieldLookup = new();
         private readonly Dictionary<IEvent, EntityHandle> _eventLookup = new();
         private readonly Dictionary<IProperty, EntityHandle> _propLookup = new();
-        //private readonly Dictionary<IParameter, EntityHandle> _paramLookup = new();
+        private readonly Dictionary<string, DocumentHandle> _documentLookup = new();
         private readonly TypeSystemServices _tss;
         private readonly List<(EntityHandle parent, GenericTypeParameterBuilder builder)> _genParamBuilders = new();
         private readonly List<(EntityHandle parent, TypeBuilder builder)> _typeBuilders = new();
+
+        private const string BOO_LANG_GUID = "9d4ac6e1-65ce-4f04-8419-b743b0eb5718";
+        private readonly GuidHandle _booLangGuidHandle;
 
         private int _methods = 0;
         private int _fields = 0;
@@ -39,6 +43,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         {
             _tss = tss;
             AssemblyBuilder = builder;
+            DebugBuilder = new();
             VoidTypeEntity = tss.VoidType;
             TypeTypeEntity = tss.TypeType;
             EnumTypeEntity = tss.EnumType;
@@ -55,6 +60,8 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
 
             ObjectType = (TypeReferenceHandle)LookupType(tss.ObjectType);
             _getValue = getValue;
+            _booLangGuidHandle = DebugBuilder.GetOrAddGuid(new Guid(BOO_LANG_GUID));
+            NullImportHandle = DebugBuilder.AddImportScope(default, default);
         }
 
         public TypeReferenceHandle ObjectType { get; }
@@ -68,6 +75,8 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
         public IType ObjectTypeEntity { get; }
 
         public MetadataBuilder AssemblyBuilder { get; }
+        public MetadataBuilder DebugBuilder { get; }
+        public ImportScopeHandle NullImportHandle { get; }
 
         public EntityHandle TypeHandle(IType type) => _typeLookup[type];
 
@@ -600,6 +609,19 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 var idx = CodedIndex.TypeDefOrRef(handle);
                 AssemblyBuilder.AddNestedType((TypeDefinitionHandle)builder.Handle, (TypeDefinitionHandle)handle);
             }
+        }
+
+        internal DocumentHandle LookupDocument(string name)
+        {
+            // Normalize filename, just in case
+            name = Path.GetFullPath(name);
+            if (!_documentLookup.TryGetValue(name, out var result))
+            {
+                var handle = DebugBuilder.GetOrAddDocumentName(name);
+                result = DebugBuilder.AddDocument(handle, default, default, _booLangGuidHandle);
+                _documentLookup[name] = result;
+            }
+            return result;
         }
     }
 }
