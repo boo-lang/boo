@@ -462,10 +462,14 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 _typeSystem.DebugBuilder.AddMethodDebugInformation(default, default);
                 return;
             }
-            var multiDoc = arr.Select(kvp => kvp.Value.FileName).Distinct().Count() > 1;
+            var multiDoc = arr.Select(kvp => kvp.Value.FileName).Where(f => !string.IsNullOrEmpty(f)).Distinct().Count() > 1;
             var builder = new BlobBuilder();
             builder.WriteCompressedInteger(MetadataTokens.GetRowNumber(signature));
-            var docHandle = _typeSystem.LookupDocument(arr[0].Value.FileName);
+            var first = arr.FirstOrDefault(sp => !string.IsNullOrEmpty(sp.Value.FileName)).Value;
+            if (first == null) {
+                return;
+            }
+            var docHandle = _typeSystem.LookupDocument(first.FileName);
             if (multiDoc)
             {
                 builder.WriteCompressedInteger(MetadataTokens.GetRowNumber(docHandle));
@@ -488,7 +492,7 @@ namespace Boo.Lang.Compiler.Steps.Ecma335
                 builder.WriteCompressedInteger(next.Key - last.Key);
                 builder.WriteCompressedInteger(1);
                 builder.WriteCompressedSignedInteger(-next.Value.Column);
-                builder.WriteCompressedInteger(next.Value.Line - last.Value.Line);
+                builder.WriteCompressedInteger(Math.Max(next.Value.Line - last.Value.Line, 1));
                 builder.WriteCompressedSignedInteger(next.Value.Column - last.Value.Column);
                 last = next;
             }

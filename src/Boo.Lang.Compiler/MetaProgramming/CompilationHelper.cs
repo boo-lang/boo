@@ -11,9 +11,9 @@ namespace Boo.Lang.Compiler
 #if NET
 		public static MethodInfo GetEntryPoint(this Assembly asm) =>
 			asm.DefinedTypes
-				.Single(t => t.GetCustomAttribute<EntryPointTypeAttribute>() != null)
-				.DeclaredMethods
-				.Single(t => t.GetCustomAttribute<EntryPointAttribute>() != null);
+				.SingleOrDefault(t => t.GetCustomAttribute<EntryPointTypeAttribute>() != null)
+				?.DeclaredMethods
+				?.Single(t => t.GetCustomAttribute<EntryPointAttribute>() != null);
 
 		public static Assembly GetGeneratedAssembly(this CompilerContext ctx)
         {

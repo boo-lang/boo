@@ -41,14 +41,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private readonly MemoizedFunction<string, List<Type>> _typeLists;
 		private List<INamespace> _modules;
 		private readonly IReflectionTypeSystemProvider _provider;
+        private readonly Dictionary<string, List<IEntity>> _cache = new Dictionary<string, List<IEntity>>();
 
-		private readonly Dictionary<string, List<IEntity>> _cache = new Dictionary<string, List<IEntity>>();
-
-		public ReflectionNamespace(IReflectionTypeSystemProvider provider)
+		public ReflectionNamespace(IReflectionTypeSystemProvider provider, string name)
 		{
 			_childNamespaces = new MemoizedFunction<string, ReflectionNamespace>(StringComparer.Ordinal, CreateChildNamespace);
 			_typeLists = new MemoizedFunction<string, List<Type>>(StringComparer.Ordinal, NewTypeList);
 			_provider = provider;
+			Name = name;
 		}
 
 		public ReflectionNamespace Produce(string name)
@@ -56,7 +56,9 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			return _childNamespaces.Invoke(name);
 		}
 
-		private ReflectionNamespace CreateChildNamespace(string name)
+        public override string Name { get; }
+
+        private ReflectionNamespace CreateChildNamespace(string name)
 		{
 			return new ChildReflectionNamespace(this, name);
 		}
@@ -64,17 +66,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private sealed class ChildReflectionNamespace : ReflectionNamespace
 		{
 			private readonly ReflectionNamespace _parent;
-			private string _name;
 
-			public ChildReflectionNamespace(ReflectionNamespace parent, string name) : base(parent._provider)
+			public ChildReflectionNamespace(ReflectionNamespace parent, string name) : base(parent._provider, name)
 			{
 				_parent = parent;
-				_name = name;
-			}
-
-			public override string Name
-			{
-				get { return _name; }
 			}
 
 			public override INamespace ParentNamespace

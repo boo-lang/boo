@@ -41,7 +41,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 		public ReflectionNamespaceBuilder(IReflectionTypeSystemProvider provider, Assembly assembly)
 		{
-			_root = new ReflectionNamespace(provider);
+			_root = new ReflectionNamespace(provider, assembly.FullName);
 			_assembly = assembly;
 		}
 

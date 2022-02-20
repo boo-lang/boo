@@ -159,7 +159,8 @@ namespace Boo.Lang.Compiler
 			_compilerReferences.Add(GetType().Assembly);
 
 #if NET
-			_compilerReferences.Add(typeof(System.Type).Assembly);
+			_compilerReferences.Add(Assembly.Load("System.Runtime"));
+			//_compilerReferences.Add(typeof(System.Type).Assembly);
 			_compilerReferences.Add(typeof(System.Console).Assembly);
 			_compilerReferences.Add(typeof(System.Text.RegularExpressions.Regex).Assembly);
 			_compilerReferences.Add(typeof(System.IO.File).Assembly);

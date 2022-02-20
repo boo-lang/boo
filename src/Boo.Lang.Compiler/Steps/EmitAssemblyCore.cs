@@ -124,14 +124,14 @@ namespace Boo.Lang.Compiler.Steps
 		private EntityHandle _stringEmptyField;
 		private IMethod _hashAdd;
 
-		private readonly MetadataBuilder _asmBuilder = new();
+		private MetadataBuilder _asmBuilder = new();
 		private AssemblyDefinitionHandle _asmHandle;
 		private ModuleDefinitionHandle _moduleBuilder;
 
 		readonly Dictionary<string, ISymbolDocumentWriter> _symbolDocWriters = new();
 
 		// IL generation state
-		readonly BlobBuilder _ilBlock = new();
+		BlobBuilder _ilBlock = new();
 		MethodBuilder _il;
 		Method _method;       //current method
 		int _returnStatements;//number of return statements in current method
@@ -633,6 +633,8 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			base.Dispose();
 
+			_asmBuilder = new();
+			_ilBlock = new();
 			_symbolDocWriters.Clear();
 			_types.Clear();
 			_typeCache.Clear();
@@ -5199,10 +5201,13 @@ namespace Boo.Lang.Compiler.Steps
                 Name = GetAssemblySimpleName(outputFile),
                 Version = GetAssemblyVersion()
             };
-            if (Parameters.DelaySign)
-				assemblyName.SetPublicKey(GetAssemblyKeyPair(outputFile).PublicKey);
-			else
-				assemblyName.KeyPair = GetAssemblyKeyPair(outputFile);
+			try
+			{
+				if (Parameters.DelaySign)
+					assemblyName.SetPublicKey(GetAssemblyKeyPair(outputFile).PublicKey);
+				else
+					assemblyName.KeyPair = GetAssemblyKeyPair(outputFile);
+			} catch (PlatformNotSupportedException) { }
 			return assemblyName;
 		}
 
