@@ -83,12 +83,14 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"byref-8.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void byref_9()
 		{
 			RunCompilerTestCase(@"byref-9.boo");
 		}
+#endif
 		
 		[Test]
 		public void callables_1()
@@ -101,30 +103,34 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"callables-10.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void callables_11()
 		{
 			RunCompilerTestCase(@"callables-11.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void callables_12()
 		{
 			RunCompilerTestCase(@"callables-12.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void callables_13()
 		{
 			RunCompilerTestCase(@"callables-13.boo");
 		}
-		
+
 		[Test]
 		public void callables_14()
 		{
 			RunCompilerTestCase(@"callables-14.boo");
 		}
+#endif
 		
 		[Test]
 		public void callables_15()
@@ -173,13 +179,15 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"callables-21.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void callables_22()
 		{
 			RunCompilerTestCase(@"callables-22.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void callables_23()
 		{
@@ -317,25 +325,29 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"callables-43.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void callables_44()
 		{
 			RunCompilerTestCase(@"callables-44.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void callables_45()
 		{
 			RunCompilerTestCase(@"callables-45.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void callables_46()
 		{
 			RunCompilerTestCase(@"callables-46.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void callables_47()
 		{
@@ -347,13 +359,15 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"callables-48.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void callables_49()
 		{
 			RunCompilerTestCase(@"callables-49.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void callables_5()
 		{
@@ -497,13 +511,15 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"delegates-7.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void delegates_8()
 		{
 			RunCompilerTestCase(@"delegates-8.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void delegates_9()
 		{

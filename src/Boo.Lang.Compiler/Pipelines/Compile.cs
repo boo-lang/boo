@@ -33,7 +33,8 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class Compile : ResolveExpressions
 	{
 		public Compile()
-		{	
+		{
+			Add(new NestMultipleExceptionHandlers());
 			Add(new InjectImplicitBooleanConversions());
 
 			Add(new ConstantFolding());

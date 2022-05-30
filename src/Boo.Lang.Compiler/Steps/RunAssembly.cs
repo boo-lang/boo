@@ -27,12 +27,28 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 
 namespace Boo.Lang.Compiler.Steps
 {
 	public class RunAssembly : AbstractCompilerStep
 	{
+#if NET
+		override public void Run()
+		{
+			if (Errors.Count > 0 || Context.GeneratedPEBuilder == null)
+				return;
+			var asm = Context.GetGeneratedAssembly();
+			var entryPoint = asm.GetEntryPoint();
+			CompilerContext.AssemblyLookup[asm.FullName] = asm;
+			if (entryPoint.GetParameters().Length == 1)
+				entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
+			else
+				entryPoint.Invoke(null, null);
+		}
+#else
 		override public void Run()
 		{
 			if (Errors.Count > 0
@@ -45,7 +61,7 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				var entryPoint = Context.GeneratedAssembly.EntryPoint;
 				if (entryPoint.GetParameters().Length == 1)
-					entryPoint.Invoke(null, new object[] { new string[0] });
+					entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
 				else
 					entryPoint.Invoke(null, null);
 			}
@@ -55,9 +71,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private Assembly ResolveGeneratedAssembly(object sender, ResolveEventArgs args)
+        private Assembly ResolveGeneratedAssembly(object sender, ResolveEventArgs args)
 		{
 			return args.Name == Context.GeneratedAssembly.FullName ? Context.GeneratedAssembly : null;
 		}
+#endif
 	}
 }

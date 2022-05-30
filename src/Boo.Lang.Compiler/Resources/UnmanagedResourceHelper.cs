@@ -3,6 +3,8 @@
 //
 // Adapted for Boo compiler from Roslyn codebase by Mason Wheeler
 
+using Boo.Lang.Compiler.Ast;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -55,24 +57,24 @@ namespace Boo.Lang.Compiler.Resources
             _typeName = typeName;
         }
 
-        public string TypeName => _typeName;
+        public string TypeName {get {return _typeName; }}
 
-        public int TypeId => _typeId;
+        public int TypeId {get {return _typeId;}}
+ 
+        public string Name {get {return  _name;}}
 
-        public string Name => _name;
+        public int Id {get {return _id;}}
 
-        public int Id => _id;
+        public DWORD LanguageId {get {return _languageId; }}
 
-        public DWORD LanguageId => _languageId;
+        public DWORD CodePage {get {return _codePage; }}
 
-        public DWORD CodePage => _codePage;
-
-        public IEnumerable<byte> Data => _data;
+        public IEnumerable<byte> Data {get {return _data; }}
     }
 
     internal static class VersionHelper
     {
-        internal readonly static Version NullVersion = new Version(0, 0, 0, 0);
+        internal readonly static Version NullVersion = new(0, 0, 0, 0);
 
         /// <summary>
         /// Parses a version string of the form "major [ '.' minor [ '.' build [ '.' revision ] ] ]".
@@ -128,7 +130,7 @@ namespace Boo.Lang.Compiler.Resources
 
             // If the wildcard is being used, the first two elements must be specified explicitly, and
             // the last must be a exactly single asterisk without whitespace.
-            bool hasWildcard = allowWildcard && elements[elements.Length - 1] == "*";
+            bool hasWildcard = allowWildcard && elements[^1] == "*";
 
             if ((hasWildcard && elements.Length < 3) || elements.Length > 4)
             {
@@ -168,7 +170,6 @@ namespace Boo.Lang.Compiler.Resources
                     }
 
                     bool invalidFormat = false;
-                    System.Numerics.BigInteger number = 0;
 
                     //There could be an invalid character in the input so check for the presence of one and
                     //parse up to that point. examples of invalid characters are alphas and punctuation
@@ -178,7 +179,7 @@ namespace Boo.Lang.Compiler.Resources
                         {
                             invalidFormat = true;
 
-                            TryGetValue(elements[i].Substring(0, idx), out values[i]);
+                            TryGetValue(elements[i][..idx], out values[i]);
                             break;
                         }
                     }
@@ -217,8 +218,7 @@ namespace Boo.Lang.Compiler.Resources
 
         private static bool TryGetValue(string s, out ushort value)
         {
-            System.Numerics.BigInteger number;
-            if (System.Numerics.BigInteger.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out number))
+            if (System.Numerics.BigInteger.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out var number))
             {
                 //The old compiler would take the 16 least significant bits and use their value as the output
                 //so we'll do that too.
@@ -636,12 +636,9 @@ namespace Boo.Lang.Compiler.Resources
             {
                 //There's nothing guaranteeing that these are n.n.n.n format.
                 //The documentation says that if they're not that format the behavior is undefined.
-                Version fileVersion;
-                VersionHelper.TryParse(_fileVersionContents, version: out fileVersion);
+                VersionHelper.TryParse(_fileVersionContents, version: out Version fileVersion);
 
-
-                Version productVersion;
-                VersionHelper.TryParse(_productVersionContents, version: out productVersion);
+                VersionHelper.TryParse(_productVersionContents, version: out Version productVersion);
 
                 writer.Write((DWORD)0xFEEF04BD);
                 writer.Write((DWORD)0x00010000);
@@ -857,17 +854,57 @@ namespace Boo.Lang.Compiler.Resources
         internal static void AppendNullResource(Stream resourceStream)
         {
             var writer = new BinaryWriter(resourceStream);
-            writer.Write((UInt32)0);
-            writer.Write((UInt32)0x20);
-            writer.Write((UInt16)0xFFFF);
-            writer.Write((UInt16)0);
-            writer.Write((UInt16)0xFFFF);
-            writer.Write((UInt16)0);
-            writer.Write((UInt32)0);            //DataVersion
-            writer.Write((UInt16)0);            //MemoryFlags
-            writer.Write((UInt16)0);            //LanguageId
-            writer.Write((UInt32)0);            //Version 
-            writer.Write((UInt32)0);            //Characteristics 
+            writer.Write((DWORD)0);
+            writer.Write((DWORD)0x20);
+            writer.Write((WORD)0xFFFF);
+            writer.Write((WORD)0);
+            writer.Write((WORD)0xFFFF);
+            writer.Write((WORD)0);
+            writer.Write((DWORD)0);           //DataVersion
+            writer.Write((WORD)0);            //MemoryFlags
+            writer.Write((WORD)0);            //LanguageId
+            writer.Write((DWORD)0);           //Version 
+            writer.Write((DWORD)0);           //Characteristics 
+        }
+
+        private static string FirstStringArg(Ast.Attribute attr)
+        {
+            if (attr == null)
+                return null;
+            if (attr.Arguments.Count > 0)
+                return (attr.Arguments[0] as StringLiteralExpression)?.Value;
+            if (attr.NamedArguments.Count > 0)
+                return (attr.NamedArguments[0].Second as StringLiteralExpression)?.Value;
+            return null;
+        }
+
+        private static void AppendDefaultVersionResourceFromAstData(Stream resourceStream, Dictionary<Type, Ast.Attribute> attributes,
+            bool isApplication)
+        {
+            var context = CompilerContext.Current;
+            attributes.TryGetValue(typeof(AssemblyVersionAttribute), out var versionAttr);
+            var version = new AssemblyVersionAttribute(FirstStringArg(versionAttr) ?? "0.0.0.0").Version;
+            attributes.TryGetValue(typeof(AssemblyTitleAttribute), out var titleAttr);
+            var filename = context.Parameters.OutputAssembly;
+            attributes.TryGetValue(typeof(AssemblyInformationalVersionAttribute), out var informationVersionAttr);
+            attributes.TryGetValue(typeof(AssemblyCopyrightAttribute), out var copytrightAttr);
+            attributes.TryGetValue(typeof(AssemblyTrademarkAttribute), out var trademarkAttr);
+            attributes.TryGetValue(typeof(AssemblyProductAttribute), out var productNameAttr);
+            attributes.TryGetValue(typeof(AssemblyDescriptionAttribute), out var descAttr);
+            attributes.TryGetValue(typeof(AssemblyCompanyAttribute), out var companyAttr);
+            AppendVersionToResourceStream(resourceStream,
+                !isApplication,
+                fileVersion: version,
+                originalFileName: filename,
+                internalName: filename,
+                productVersion: FirstStringArg(informationVersionAttr) ?? version,
+                fileDescription: FirstStringArg(titleAttr) ?? " ", //alink would give this a blank if nothing was supplied.
+                assemblyVersion: new Version(version),
+                legalCopyright: FirstStringArg(copytrightAttr) ?? " ", //alink would give this a blank if nothing was supplied.
+                legalTrademarks: FirstStringArg(trademarkAttr),
+                productName: FirstStringArg(productNameAttr),
+                comments: FirstStringArg(descAttr),
+                companyName: FirstStringArg(companyAttr));
         }
 
         private static void AppendDefaultVersionResource(Stream resourceStream, AssemblyBuilder sourceAssembly,
@@ -917,6 +954,28 @@ namespace Boo.Lang.Compiler.Resources
         internal static byte[] CreateDefaultWin32Resources(bool noManifest, bool isApplication,
             Stream manifestContents, Stream iconInIcoFormat, AssemblyBuilder sourceAssembly)
         {
+            return DoCreateDefaultWin32Resources(noManifest, isApplication, manifestContents, iconInIcoFormat,
+                (stream, isApp) => AppendDefaultVersionResource(stream, sourceAssembly, isApp));
+        }
+
+        internal static byte[] CreateDefaultWin32Resources(bool noManifest, bool isApplication,
+            Stream manifestContents, Stream iconInIcoFormat, CompileUnit compilation)
+        {
+            var asmAttributes = compilation.Modules
+                .SelectMany(m => m.AssemblyAttributes)
+                .Where(a => a.Entity is ExternalType)
+                .ToDictionary(a => ((ExternalType)a.Entity).ActualType);
+            return DoCreateDefaultWin32Resources(noManifest, isApplication, manifestContents, iconInIcoFormat,
+                (stream, isApp) => AppendDefaultVersionResourceFromAstData(stream, asmAttributes, isApp));
+        }
+
+
+        /// <summary>
+        /// Create a stream filled with default win32 resources, and return its contents as a byte buffer.
+        /// </summary>
+        private static byte[] DoCreateDefaultWin32Resources(bool noManifest, bool isApplication,
+            Stream manifestContents, Stream iconInIcoFormat, Action<Stream, bool> writeVersionResource)
+        {
             //Win32 resource encodings use a lot of 16bit values. Do all of the math checked with the
             //expectation that integer types are well-chosen with size in mind.
             checked
@@ -926,7 +985,7 @@ namespace Boo.Lang.Compiler.Resources
                 //start with a null resource just as rc.exe does
                 AppendNullResource(result);
 
-                AppendDefaultVersionResource(result, sourceAssembly, isApplication);
+                writeVersionResource(result, isApplication);
 
                 if (!noManifest)
                 {

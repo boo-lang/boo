@@ -1,6 +1,7 @@
 """
 System.Diagnostics.DebuggableAttribute
 System.Runtime.CompilerServices.RuntimeCompatibilityAttribute
+System.Runtime.Versioning.TargetFrameworkAttribute
 FooAttribute
 """
 import System

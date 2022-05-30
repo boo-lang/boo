@@ -35,9 +35,9 @@ class Default:
     print Class.Method(42)
     print Class.Method[of single](42)
 """
-compiled2 = compile("<code>", code2, compiled1.GeneratedAssembly)
+compiled2 = compile("<code>", code2, compiled1.GetGeneratedAssembly())
 
 print compiled2.Errors.ToString() if compiled2.Errors.Count
 print compiled2.Warnings.ToString() if compiled2.Warnings.Count
 
-compiled2.GeneratedAssembly.GetType('Default').GetMethod('Main').Invoke(null, (,))
+compiled2.GetGeneratedAssembly().GetType('Default').GetMethod('Main').Invoke(null, (,))

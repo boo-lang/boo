@@ -28,37 +28,38 @@
 
 
 using System;
-using System.Collections.Generic;
 using Boo.Lang.Compiler.Ast;
 
 namespace Boo.Lang.Compiler.Steps
 {
-	public class ContextAnnotations
+	public static class ContextAnnotations
 	{		
-		private static readonly object EntryPointKey = new object();
+		private static readonly object EntryPointKey = new();
 		
-		private static readonly object AssemblyBuilderKey = new object();
+		private static readonly object AssemblyBuilderKey = new();
 
-        private static readonly object AsyncKey = new object();
+		private static readonly object MetadataBuilderKey = new(); 
 
-        private static readonly object AwaitInExceptionHandlerKey = new object();
+		private static readonly object AsyncKey = new();
 
-		private static readonly object FieldInvocationKey = new object();
+        private static readonly object AwaitInExceptionHandlerKey = new();
+
+		private static readonly object FieldInvocationKey = new();
 
 		public static Method GetEntryPoint(CompilerContext context)
 		{
-			if (null == context)
+			if (context == null)
 			{
-				throw new ArgumentNullException("context");
+				throw new ArgumentNullException(nameof(context));
 			}
 			return (Method)context.Properties[EntryPointKey];
 		}
 		
 		public static void SetEntryPoint(CompilerContext context, Method method)
 		{
-			if (null == method)
+			if (method == null)
 			{
-				throw new ArgumentNullException("method");
+				throw new ArgumentNullException(nameof(method));
 			}
 			
 			Method current = GetEntryPoint(context);
@@ -71,8 +72,8 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public static System.Reflection.Emit.AssemblyBuilder GetAssemblyBuilder(CompilerContext context)
 		{
-			System.Reflection.Emit.AssemblyBuilder builder = (System.Reflection.Emit.AssemblyBuilder)context.Properties[AssemblyBuilderKey];
-			if (null == builder)
+			var builder = (System.Reflection.Emit.AssemblyBuilder)context.Properties[AssemblyBuilderKey];
+			if (builder == null)
 			{
 				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
 			}
@@ -81,22 +82,35 @@ namespace Boo.Lang.Compiler.Steps
 		
 		public static void SetAssemblyBuilder(CompilerContext context, System.Reflection.Emit.AssemblyBuilder builder)
 		{
-			if (null == context)
+			if (context == null)
 			{
-				throw new ArgumentNullException("context");
+				throw new ArgumentNullException(nameof(context));
 			}
-			if (null == builder)
-			{
-				throw new ArgumentNullException("builder");
-			}
-			context.Properties[AssemblyBuilderKey] = builder;
+
+            context.Properties[AssemblyBuilderKey] = builder ?? throw new ArgumentNullException(nameof(builder));
 		}
 
-		private ContextAnnotations()
+		public static System.Reflection.PortableExecutable.ManagedPEBuilder GetPEBuilder(CompilerContext context)
+        {
+			var builder = (System.Reflection.PortableExecutable.ManagedPEBuilder)context.Properties[MetadataBuilderKey];
+			if (builder == null)
+			{
+				throw CompilerErrorFactory.InvalidAssemblySetUp(context.CompileUnit);
+			}
+			return builder;
+		}
+
+		public static void SetPEBuilder(CompilerContext context, System.Reflection.PortableExecutable.ManagedPEBuilder builder)
 		{
+			if (context == null)
+			{
+				throw new ArgumentNullException(nameof(context));
+			}
+
+			context.Properties[MetadataBuilderKey] = builder ?? throw new ArgumentNullException(nameof(builder));
 		}
 
-        public static void MarkAsync(INodeWithBody node)
+		public static void MarkAsync(INodeWithBody node)
 	    {
 	        ((Node)node).Annotate(AsyncKey);
 	    }
@@ -119,13 +133,12 @@ namespace Boo.Lang.Compiler.Steps
 		public static void AddFieldInvocation(MethodInvocationExpression node)
 		{
 			var context = CompilerContext.Current;
-			var list = context[FieldInvocationKey] as List<MethodInvocationExpression>;
-			if (list == null)
-			{
-				list = new List<MethodInvocationExpression>();
-				context[FieldInvocationKey] = list;
-			}
-			list.Add(node);
+            if (context[FieldInvocationKey] is not List<MethodInvocationExpression> list)
+            {
+                list = new List<MethodInvocationExpression>();
+                context[FieldInvocationKey] = list;
+            }
+            list.Add(node);
 		}
 
 		public static List<MethodInvocationExpression> GetFieldInvocations()

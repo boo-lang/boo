@@ -49,8 +49,13 @@ namespace BooCompiler.Tests
 		{
 			get
 			{
+#if NET
+				var codebase = new Uri(Assembly.GetExecutingAssembly().Location);
+				return new Uri(codebase, "../../..").LocalPath;
+#else
 				var codebase = new Uri(Assembly.GetExecutingAssembly().CodeBase);
 				return new Uri(codebase, "../..").LocalPath;
+#endif
 			}
 		}
 

@@ -3,7 +3,7 @@
 {X=0, Y=0}
 """
 
-import System.Drawing from System.Drawing
+import System.Drawing from System.Drawing.Primitives
 
 class C:
 	pf as PointF = Point(1,1)

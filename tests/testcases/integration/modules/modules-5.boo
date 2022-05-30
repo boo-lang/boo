@@ -32,13 +32,13 @@ compiler.Parameters.Pipeline = CompileToMemory()
 result = compiler.Run()
 assert 0 == len(result.Errors), "\n" + result.Errors.ToString(true)
 
-types = result.GeneratedAssembly.GetTypes()
+types = result.GetGeneratedAssembly().GetTypes()
 assert 1 == len(types)
 
 type = types[0]
 assert "MyModule" == type.Name
 
-entry = result.GeneratedAssembly.EntryPoint
+entry = result.GetGeneratedAssembly().GetEntryPoint()
 assert entry is not null
 assert "Main" == entry.Name
 assert Attribute.GetCustomAttribute(entry, STAThreadAttribute) is not null

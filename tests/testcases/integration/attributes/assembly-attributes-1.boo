@@ -19,7 +19,7 @@ compiler.Parameters.Pipeline = CompileToMemory()
 result = compiler.Run()
 assert len(result.Errors) == 0, result.Errors.ToString(true)
 
-asm = result.GeneratedAssembly
+asm = result.GetGeneratedAssembly()
 title as AssemblyTitleAttribute = Attribute.GetCustomAttribute(asm, AssemblyTitleAttribute)
 assert title is not null, "AssemblyTitleAttribute"
 assert "foo" == title.Title

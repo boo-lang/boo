@@ -193,13 +193,15 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"BOO-1086.boo");
 		}
-		
+
+#if !NET
 		[Test]
 		public void BOO_1088_1()
 		{
 			RunCompilerTestCase(@"BOO-1088-1.boo");
 		}
-		
+#endif
+
 		[Test]
 		public void BOO_1091_1()
 		{
@@ -925,13 +927,15 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"BOO-705-1.boo");
 		}
-		
+
+#if !NET
 		[Category("FailsOnMono")][Test]
 		public void BOO_707_1()
 		{
 			RunCompilerTestCase(@"BOO-707-1.boo");
 		}
-		
+#endif
+
 		[Category("FailsOnMono")][Test]
 		public void BOO_709_1()
 		{

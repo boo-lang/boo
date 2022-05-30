@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<AssemblyName>Booc</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Boo.Lang.Compiler\Boo.Lang.Compiler Core.csproj" />
+    <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.Core.csproj" />
+    <ProjectReference Include="..\Boo.Lang\Boo.Lang Core.csproj" />
+  </ItemGroup>
+
+</Project>

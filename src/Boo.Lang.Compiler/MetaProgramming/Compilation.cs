@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Boo.Lang.Compiler.Ast;
@@ -44,7 +45,9 @@ namespace Boo.Lang.Compiler.MetaProgramming
 		{
 			var result = compile_(klass, references);
 			AssertNoErrors(result);
-			return result.GeneratedAssembly.GetType(klass.Name);
+
+			var asm = result.GetGeneratedAssembly();
+			return asm.GetType(klass.Name);
 		}
 
 		public static CompilerContext compile_(TypeDefinition klass, params Assembly[] references)
@@ -66,7 +69,14 @@ namespace Boo.Lang.Compiler.MetaProgramming
 		{
 			CompilerContext result = compile_(unit, references);
 			AssertNoErrors(result);
-			return result.GeneratedAssembly;
+			return result.GetGeneratedAssembly();
+		}
+
+		public static void SaveCompiledAssembly(CompilerContext ctx)
+        {
+			var save = new Steps.SaveAssembly();
+			save.Initialize(ctx);
+			save.Run();
 		}
 
 		private static void AssertNoErrors(CompilerContext result)
@@ -79,7 +89,14 @@ namespace Boo.Lang.Compiler.MetaProgramming
 			BooCompiler compiler = NewCompiler();
 			foreach (Assembly reference in references)
 				compiler.Parameters.References.Add(reference);
-			return compiler.Run(unit);
+			var result = compiler.Run(unit);
+			if (result.Errors?.Count == 0)
+			{
+				SaveCompiledAssembly(result);
+				var asm = result.GetGeneratedAssembly();
+				CompilerContext.AssemblyLookup[asm.FullName] = asm;
+			}
+			return result;
 		}
 
 		public static CompilerContext compile_(CompileUnit unit, params ICompileUnit[] references)

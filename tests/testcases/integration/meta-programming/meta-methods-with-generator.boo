@@ -5,6 +5,7 @@
 7
 9
 """
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.MetaProgramming
 
@@ -19,4 +20,4 @@ module = [|
 		print item
 |]
 
-compile(module, System.Reflection.Assembly.GetExecutingAssembly()).EntryPoint.Invoke(null, (null,))
+compile(module, System.Reflection.Assembly.GetExecutingAssembly()).GetEntryPoint().Invoke(null, (null,))

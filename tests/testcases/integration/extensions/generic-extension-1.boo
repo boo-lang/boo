@@ -1,6 +1,7 @@
 """
 42
 """
+import Boo.Lang.Compiler
 
 import System.Collections.Generic
 

@@ -122,7 +122,20 @@ namespace Boo.Lang.Compiler
 
 			if (loadDefaultReferences)
 				LoadDefaultReferences();
+#if NET
+			else LoadSystemReferences();
+#endif
 		}
+
+#if NET
+		private void LoadSystemReferences()
+        {
+			_compilerReferences.Add(typeof(System.Type).Assembly);
+			_compilerReferences.Add(typeof(System.Console).Assembly);
+			_compilerReferences.Add(typeof(System.Text.RegularExpressions.Regex).Assembly);
+			_compilerReferences.Add(typeof(System.IO.File).Assembly);
+		}
+#endif
 
 		private static TraceLevel DefaultTraceLevel()
 		{
@@ -145,12 +158,20 @@ namespace Boo.Lang.Compiler
 			//boo.lang.compiler.dll
 			_compilerReferences.Add(GetType().Assembly);
 
+#if NET
+			_compilerReferences.Add(Assembly.Load("System.Runtime"));
+			//_compilerReferences.Add(typeof(System.Type).Assembly);
+			_compilerReferences.Add(typeof(System.Console).Assembly);
+			_compilerReferences.Add(typeof(System.Text.RegularExpressions.Regex).Assembly);
+			_compilerReferences.Add(typeof(System.IO.File).Assembly);
+#else
 			//mscorlib
 			_compilerReferences.Add(LoadAssembly("mscorlib", true));
 			//System
 			_compilerReferences.Add(LoadAssembly("System", true));
 			//System.Core
 			_compilerReferences.Add(LoadAssembly("System.Core", true));
+#endif
 
 			Permissions.WithDiscoveryPermission<object>(() =>
 			{

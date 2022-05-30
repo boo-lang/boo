@@ -37,7 +37,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             var exceptionDispatchInfo = tss.Map(typeof(System.Runtime.ExceptionServices.ExceptionDispatchInfo));
             var methods = exceptionDispatchInfo.GetMembers().OfType<IMethod>().ToArray();
             _exceptionDispatchInfoCapture = methods.SingleOrDefault(m => m.Name.Equals("Capture"));
-            _exceptionDispatchInfoThrow = methods.SingleOrDefault(m => m.Name.Equals("Throw"));
+            _exceptionDispatchInfoThrow = methods.SingleOrDefault(m => m.Name.Equals("Throw") && m.GetParameters().Length == 0);
         }
 
         private AsyncExceptionHandlerRewriter(

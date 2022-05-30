@@ -1,5 +1,6 @@
 """
 """
+import Boo.Lang.Compiler
 
 [extension]
 def IsTypeFullName[of T](s as string):

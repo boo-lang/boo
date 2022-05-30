@@ -35,6 +35,11 @@ using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Assembly = System.Reflection.Assembly;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
+#if NET
+using System.Reflection.PortableExecutable;
+using System.Reflection.Metadata;
+using Boo.Lang.Compiler.Util;
+#endif
 
 namespace Boo.Lang.Compiler
 {
@@ -60,7 +65,15 @@ namespace Boo.Lang.Compiler
 		private string _generatedAssemblyFileName;
 
 		private readonly Hash _properties;
-		
+
+#if NET
+		static CompilerContext()
+        {
+			AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+				AssemblyLookup.TryGetValue(args.Name, out var result) ? result : null;
+		}
+#endif
+
 		public CompilerContext() : this(new CompileUnit())
 		{
 		}
@@ -177,6 +190,13 @@ namespace Boo.Lang.Compiler
 			get { return _generatedAssembly; }
 			set { _generatedAssembly = value; }
 		}
+
+#if NET
+		public PEBuilder GeneratedPEBuilder { get; set; }
+		public BlobBuilder GeneratedBlobBuilder { get; set; }
+		public System.Reflection.Metadata.Ecma335.PortablePdbBuilder GeneratedPdbBuilder { get; set; }
+		public static WeakValueDictionary<string, Assembly> AssemblyLookup { get; } = new();
+#endif
 
 		public string GetUniqueName(params string[] components)
 		{

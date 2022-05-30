@@ -1,6 +1,7 @@
 """
 exception message: false
 """
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.MetaProgramming
 
@@ -15,6 +16,6 @@ module = [|
 |]
 
 try:
-	compile(module, System.Reflection.Assembly.GetExecutingAssembly()).EntryPoint.Invoke(null, (null,))
+	compile(module, System.Reflection.Assembly.GetExecutingAssembly()).GetEntryPoint().Invoke(null, (null,))
 except x:
 	print "exception message:", (x.InnerException or x).Message

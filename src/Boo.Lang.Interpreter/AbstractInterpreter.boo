@@ -240,19 +240,19 @@ class AbstractInterpreter:
 		
 		RecordImports(savedImports)
 		
-		asm = result.GeneratedAssembly
+		asm = result.GetGeneratedAssembly()
 		_compiler.Parameters.References.Add(asm)
 		
 		InitializeModuleInterpreter(asm, module)
 		
-		ExecuteEntryPoint(asm) if asm.EntryPoint is not null
+		ExecuteEntryPoint(asm) if asm.GetEntryPoint() is not null
 			
 		return result
 		
 	def ExecuteEntryPoint(asm as System.Reflection.Assembly):
 		AppDomain.CurrentDomain.AssemblyResolve += AppDomain_AssemblyResolve
 		try:
-			asm.EntryPoint.Invoke(null, (null,)) 
+			asm.GetEntryPoint().Invoke(null, (null,)) 
 		ensure:
 			AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_AssemblyResolve
 			

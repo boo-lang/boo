@@ -33,8 +33,12 @@ namespace Boo.Lang.Compiler.Pipelines
 	public class CompileToMemory : Compile
 	{
 		public CompileToMemory()
-		{			
+		{
+#if NET
+			Add(new EmitAssemblyCore());
+#else
 			Add(new EmitAssembly());
+#endif
 		}
 	}
 }

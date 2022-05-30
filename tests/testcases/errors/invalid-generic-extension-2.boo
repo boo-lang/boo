@@ -1,7 +1,7 @@
 """
 invalid-generic-extension-2.boo(11,4): BCE0019: 'Test' is not a member of 'int'.
 """
-
+import Boo.Lang.Compiler
 import System.Collections.Generic
 
 [Extension]

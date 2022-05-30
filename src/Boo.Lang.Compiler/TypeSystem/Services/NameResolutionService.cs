@@ -132,8 +132,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		{
 			var resultingSet = Namespaces.AcquireSet();
 			try {
-			Resolve(resultingSet, name, flags);
-			return Entities.EntityFromList(resultingSet);
+				Resolve(resultingSet, name, flags);
+				return Entities.EntityFromList(resultingSet);
 			}
 			finally {
 				Namespaces.ReleaseSet(resultingSet);
@@ -299,7 +299,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private bool ResolveQualifiedNameAgainst(INamespace current, string name, EntityType flags, ICollection<IEntity> resultingSet)
 		{
-			string[] parts = name.Split(DotArray);
+			string[] parts = name.Split('.');
 			for (int i=0; i<parts.Length - 1; ++i)
 			{
 				current = Resolve(current, parts[i], EntityType.Namespace | EntityType.Type) as INamespace;
@@ -651,25 +651,24 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			if (null == ns) return null;
 
 			string expectedSoundex = StringUtilities.GetSoundex(name);
-			string lastMemberName = null;
-			foreach (IEntity member in ns.GetMembers())
+			var members = (elementType == EntityType.Any ? ns.GetMembers() : ns.GetMembers().Where(m => m.EntityType == elementType))
+				.DistinctBy(m => m.Name)
+				.Where(m => StringUtilities.GetSoundex(m.Name) == expectedSoundex)
+				.ToArray();
+			return members.Length switch
 			{
-				if (EntityType.Any != elementType && elementType != member.EntityType)
-					continue;
-				if (lastMemberName == member.Name)
-					continue;//no need to check this name again
-				//TODO: try Levenshtein distance or Metaphone instead of Soundex.
-				if (expectedSoundex == StringUtilities.GetSoundex(member.Name))
-				{
-					//return properties without get_/set_ prefix
-					IMethod method = member as IMethod;
-					if (null != method && method.IsSpecialName)
-						return member.Name.Substring(4);
-					return member.Name;
-				}
-				lastMemberName = member.Name;
-			}
-			return null;
+				0 => null,
+				1 => members[0].Name,
+				_ => members.Select(m => GetMemberName(m)).MinBy(s => StringUtilities.GetDistance(name, s))
+			};
+		}
+
+		private static string GetMemberName(IEntity member)
+		{
+			IMethod method = member as IMethod;
+			if (null != method && method.IsSpecialName)
+				return member.Name.Substring(4);
+			return member.Name;
 		}
 
 		public IEntity ResolveQualifiedName(INamespace namespaceToResolveAgainst, string name)
@@ -684,4 +683,35 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			}
 		}
 	}
+
+	internal static class LinqHelper
+    {
+		public static IEnumerable<T> DistinctBy<T, U>(this IEnumerable<T> elements, Func<T, U> selector)
+        {
+			var seen = new HashSet<U>();
+			foreach (var element in elements)
+            {
+				if (seen.Add(selector(element)))
+                {
+					yield return element;
+                }
+            }
+        }
+
+		public static T MinBy<T>(this IEnumerable<T> elements, Func<T, int> selector)
+        {
+			var max = int.MaxValue;
+			var result = default(T);
+			foreach (var element in elements)
+            {
+				var value = selector(element);
+				if (value < max)
+                {
+					result = element;
+					max = value;
+                }
+            }
+			return result;
+        }
+    }
 }

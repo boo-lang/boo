@@ -12,19 +12,21 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
 
-def compile(code, references):
+def compile(code, references, name):
 	compiler = BooCompiler()
 	for reference in references:
 		compiler.Parameters.References.Add(reference)
-	compiler.Parameters.Input.Add(StringInput("code", code))
+	compiler.Parameters.Input.Add(StringInput(name, code))
 	compiler.Parameters.Pipeline = CompileToMemory()
 	compiler.Parameters.OutputType = CompilerOutputType.Library
 	result = compiler.Run()
 	assert 0 == len(result.Errors), result.Errors.ToString()
-	return result.GeneratedAssembly
+	Boo.Lang.Compiler.MetaProgramming.Compilation.SaveCompiledAssembly(result)
+	return result.GetGeneratedAssembly()
 	
 code = """
 namespace MyExtensions
+import Boo.Lang.Compiler
 
 [Extension]
 def Each(e as System.Collections.IEnumerable, action as callable(object)):
@@ -33,7 +35,7 @@ def Each(e as System.Collections.IEnumerable, action as callable(object)):
 		action(item)
 """
 
-library = compile(code, [])
+library = compile(code, [], "code")
 
 code = """
 import MyExtensions
@@ -43,7 +45,7 @@ class App:
 		(1, 2, 3).Each(print)
 """
 
-app = compile(code, [library])
+app = compile(code, [library], "code2")
 (app.GetType("App") as duck).Main()
 
 	

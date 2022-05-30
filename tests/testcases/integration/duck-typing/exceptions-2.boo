@@ -1,5 +1,5 @@
 #category FailsOnMono
-
+import Boo.Lang.Compiler
 import Boo.Lang.Runtime
 import My
 

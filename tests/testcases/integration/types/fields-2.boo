@@ -1,5 +1,5 @@
 import System
-import System.Xml.Serialization from System.Xml
+import System.Xml.Serialization
 
 class Customer:
 

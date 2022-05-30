@@ -3,6 +3,7 @@ ok
 """
 namespace regression
 
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 class Entity:
@@ -20,5 +21,5 @@ code = [|
 	XXX()
 |]
 
-compile(code, typeof(Entity).Assembly).EntryPoint.Invoke(null, (null,))
+compile(code, typeof(Entity).Assembly).GetEntryPoint().Invoke(null, (null,))
 

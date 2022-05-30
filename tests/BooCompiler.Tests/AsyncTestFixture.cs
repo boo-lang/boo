@@ -208,12 +208,6 @@ namespace BooCompiler.Tests
 		}
 		
         [Test]
-		public void mutating_array_of_structs()
-		{
-			RunCompilerTestCase(@"mutating-array-of-structs.boo");
-		}
-		
-        [Test]
 		public void mutating_struct_with_using()
 		{
 			RunCompilerTestCase(@"mutating-struct-with-using.boo");

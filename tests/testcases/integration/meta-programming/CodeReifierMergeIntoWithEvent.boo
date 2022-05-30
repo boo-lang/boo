@@ -63,7 +63,7 @@ parameters.References.Add(typeof(IFoo).Assembly)
 result = BooCompiler(parameters).Run(CompileUnit(module))
 assert len(result.Errors) == 0, result.Errors.ToString(true)
 
-assembly = result.GeneratedAssembly
+assembly = result.GetGeneratedAssembly()
 test assembly.GetType("Foo")()
 test assembly.GetType("Bar")()
 	

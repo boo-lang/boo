@@ -7,6 +7,8 @@
 import System
 import System.Collections.Generic
 
+import Boo.Lang.Compiler
+
 callable Transform[of TIn, TOut](arg as TIn) as TOut
 
 [Extension]

@@ -37,8 +37,8 @@ namespace Boo.Lang.Compiler
 		/// or not (Library).
 		/// </summary>
 		Auto, 
-		Library = PEFileKinds.Dll,
-		ConsoleApplication = PEFileKinds.ConsoleApplication,
-		WindowsApplication = PEFileKinds.WindowApplication,
+		Library /*= PEFileKinds.Dll*/,
+		ConsoleApplication /*= PEFileKinds.ConsoleApplication*/,
+		WindowsApplication /*= PEFileKinds.WindowApplication*/,
 	}
 }

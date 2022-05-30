@@ -1,4 +1,4 @@
-import System.Xml.Serialization as xs
+import System.Xml.Serialization from System.Private.Xml as xs
 
 class Class1:
 

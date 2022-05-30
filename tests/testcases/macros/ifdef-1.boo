@@ -38,11 +38,11 @@ def compileWithDefines(module as Module, *defines as (string)):
 
 	result = compiler.Run(CompileUnit(module.CloneNode()))
 	assert len(result.Errors) == 0, result.Errors.ToString(true)
-	return result.GeneratedAssembly
+	return result.GetGeneratedAssembly()
 	
 def runWithDefines(code as Module, *defines as (string)):
 	print "DEFINES:", join(defines, ', ')
-	return compileWithDefines(code, *defines).EntryPoint.Invoke(null, (null,))
+	return compileWithDefines(code, *defines).GetEntryPoint().Invoke(null, (null,))
 	
 macro printIfdef(expression as Expression):
 	yield [|

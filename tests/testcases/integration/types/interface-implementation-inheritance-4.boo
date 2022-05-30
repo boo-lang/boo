@@ -2,6 +2,7 @@
 foo
 bar
 """
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 interface IDocument(System.Collections.Generic.IList[of string]):
@@ -24,4 +25,4 @@ code = [|
 	printAllText d
 |]
 
-compile(code, typeof(IDocument).Assembly).EntryPoint.Invoke(null, (null,))
+compile(code, typeof(IDocument).Assembly).GetEntryPoint().Invoke(null, (null,))

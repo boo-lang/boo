@@ -23,7 +23,7 @@ compiler.Parameters.Pipeline = CompileToMemory()
 result = compiler.Run()
 assert len(result.Errors) == 0, result.Errors.ToString(true)
 
-name = result.GeneratedAssembly.GetName()
+name = result.GetGeneratedAssembly().GetName()
 assert "test" == name.Name
 assert "1.0.0.0" == name.Version.ToString()
 assert name.GetPublicKeyToken() is not null, "AssemblyKeyFileAttribute must result in strongly named assembly"

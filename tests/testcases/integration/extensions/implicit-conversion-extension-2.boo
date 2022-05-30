@@ -1,3 +1,5 @@
+import Boo.Lang.Compiler
+
 enum E:
 	None
 	Foo = 1

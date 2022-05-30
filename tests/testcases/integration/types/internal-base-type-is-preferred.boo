@@ -1,6 +1,7 @@
 """
 Hooray!
 """
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 import Boo.Lang.Compiler.Ast
 
@@ -19,4 +20,4 @@ module2 = [|
 		
 	print Derived()
 |]
-compile(CompileUnit(module1, module2)).EntryPoint.Invoke(null, (null,))
+compile(CompileUnit(module1, module2)).GetEntryPoint().Invoke(null, (null,))

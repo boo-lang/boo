@@ -15,6 +15,7 @@
 
 namespace NestedMacros3
 
+import Boo.Lang.Compiler
 import Boo.Lang.Compiler.MetaProgramming
 
 macro one:
@@ -49,5 +50,5 @@ code = [|
 				four 1, 2, 3, 4
 |]
 result = compile(code, typeof(OneMacro).Assembly)
-result.EntryPoint.Invoke(null, (null,))
+result.GetEntryPoint().Invoke(null, (null,))
 

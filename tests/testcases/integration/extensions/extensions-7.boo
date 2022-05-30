@@ -2,6 +2,7 @@
 Foo.Bar
 Extension.Bar
 """
+import Boo.Lang.Compiler
 class Foo:
 	def Bar():
 		print "Foo.Bar"

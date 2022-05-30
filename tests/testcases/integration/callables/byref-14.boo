@@ -11,7 +11,7 @@ def compile(name as string, code as string, *references as (Assembly)):
 	compiler.Parameters.References.Extend(references)
 	result = compiler.Run()
 	assert 0 == len(result.Errors), result.Errors.ToString(true)
-	return result.GeneratedAssembly
+	return result.GetGeneratedAssembly()
 
 def foo(ref i as int):
 	i = 42
@@ -24,4 +24,4 @@ print i
 """
 
 assembly = compile("code", code, Assembly.GetExecutingAssembly())
-assembly.EntryPoint.Invoke(null, (null,))
+assembly.GetEntryPoint().Invoke(null, (null,))

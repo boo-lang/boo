@@ -21,6 +21,7 @@ Sarkozy crie: CASSE-TOI PAUVRE CON!!!!
 ###module in order to validate that the nested and correct, and of course provide
 ###the redirection to the actual generated macro type.
 ###
+import Boo.Lang.Compiler
 
 [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
 [extension]

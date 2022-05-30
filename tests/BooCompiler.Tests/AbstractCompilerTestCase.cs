@@ -62,12 +62,14 @@ namespace BooCompiler.Tests
 		}
 
 #if !MSBUILD
-		static bool GetEnvironmentFlag(string name, bool defaultValue)		{			var value = Environment.GetEnvironmentVariable(name);
+		static bool GetEnvironmentFlag(string name, bool defaultValue)
+		{
+			var value = Environment.GetEnvironmentVariable(name);
 			return value == null ? defaultValue : bool.Parse(value);
 		}
 #endif
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public virtual void SetUpFixture()
 		{
 			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -79,8 +81,17 @@ namespace BooCompiler.Tests
 			_parameters.Pipeline = SetUpCompilerPipeline();
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
+			_parameters.References.Add(typeof(System.Collections.Generic.Stack<>).Assembly);
+			_parameters.References.Add(typeof(System.Drawing.Color).Assembly);
+			_parameters.References.Add(typeof(System.ComponentModel.BindingList<>).Assembly);
+			_parameters.References.Add(typeof(System.Xml.XmlDocument).Assembly);
+			_parameters.References.Add(typeof(System.Diagnostics.Process).Assembly);
 			Directory.CreateDirectory(TestOutputPath);
+#if NET
+			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.dll");
+#else
 			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
+#endif
 			_parameters.Defines.Add("BOO_COMPILER_TESTS_DEFINED_CONDITIONAL", null);
 			_parameters.GenerateCollectible = false;
 			CustomizeCompilerParameters();
@@ -114,9 +125,11 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Compiler.Ast.Node).Assembly);
 			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
+#if !NET
 			CopyAssembly(Assembly.Load("BooSupportingClasses"));
 #if !MSBUILD
 			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
+#endif
 #endif
 		}
 		
@@ -145,7 +158,7 @@ namespace BooCompiler.Tests
 			return File.GetLastWriteTime(fileName) > File.GetLastWriteTime(thanFileName);
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public virtual void TearDownFixture()
 		{	
 		}
@@ -230,6 +243,7 @@ namespace BooCompiler.Tests
 				if (stdin != null)
 					Console.SetIn(new StringReader(stdin));
 
+				_parameters.Pipeline = SetUpCompilerPipeline();
 				context = _compiler.Run();
 
 				if (HasErrors(context) && !IgnoreErrors)
