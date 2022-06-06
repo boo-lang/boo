@@ -1,0 +1,29 @@
+<Project>
+    <PropertyGroup Label="Files">
+        <BooKeyFile>$([MSBuild]::GetPathOfFileAbove(boo.snk))</BooKeyFile>
+        <AuthorsFile>$([MSBuild]::GetPathOfFileAbove(AUTHORS))</AuthorsFile>
+        <VersionFile>$([MSBuild]::GetPathOfFileAbove(version.txt))</VersionFile>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Nuget">
+        <Company />
+        <Authors>$([System.IO.File]::ReadAllText($(AuthorsFile)).Trim())</Authors>
+        <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/boo-lang/boo</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/boo-lang/boo</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <NeutralLanguage>en</NeutralLanguage>
+        <Copyright>© Rodrigo Barreto de Oliveira</Copyright>
+    </PropertyGroup>
+    
+    <PropertyGroup Label="Versions">
+        <Version>$([System.IO.File]::ReadAllText($(VersionFile)).Trim())</Version>
+        <AssemblyVersion>2.$(Version)</AssemblyVersion>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="Exists('$(BooKeyFile)')">
+        <SignAssembly>true</SignAssembly>
+        <DelaySign>false</DelaySign>
+        <AssemblyOriginatorKeyFile>$(BooKeyFile)</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
+</Project>
