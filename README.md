@@ -135,7 +135,11 @@ your code by the compiler use the boo pipeline, run:
 More Information
 ================
 
+Boo development Google group:
 https://groups.google.com/forum/#!forum/boolang
+
+Boo community Discord:
+https://discord.gg/7eGXt6kx
 
 Contributors
 ============
