@@ -139,7 +139,7 @@ Boo development Google group:
 https://groups.google.com/forum/#!forum/boolang
 
 Boo community Discord:
-https://discord.gg/7eGXt6kx
+[https://discord.gg/J4Guxadwma](https://discord.gg/J4Guxadwma)
 
 Contributors
 ============
