@@ -1,8 +1,5 @@
 The boo programming language (c) 2009- Rodrigo Barreto de Oliveira (rbo@acm.org)
 
-Distribution of binaries available at
-http://www.sieda.com/de-wAssets/en/docs/products/Boo-distrib/.
-
 This distribution contains contributions of Harald Meyer auf'm Hofe (harald_meyer@users.sourceforge.net)
 
 Building
