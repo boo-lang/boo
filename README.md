@@ -96,13 +96,8 @@ Boo.
 More Information
 ================
 
-http://boo-lang.org/
-https://groups.google.com/forum/#!forum/boolang
-
-Contributors
-============
-
-See: https://github.com/hmah/boo/graphs/contributors
+* [The project's home page](http://boo-language.github.io/)
+* [Contributors](https://github.com/hmah/boo/graphs/contributors)
 
 Differences to the original distribution
 =======================================
