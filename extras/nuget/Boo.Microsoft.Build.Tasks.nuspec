@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Boo.Microsoft.Build.Tasks</id>
+    <version>@version@</version>
+    <title>Boo MSBuild compiler tasks</title>
+    <authors>Boo Community</authors>
+    <owners>Boo Community</owners>
+    <iconUrl>http://oi41.tinypic.com/2usy2js.jpg</iconUrl>
+    <licenseUrl>http://raw.github.com/bamboo/boo/master/license.txt</licenseUrl>
+    <projectUrl>http://boo.codehaus.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Boo MSBuild compiler tasks.</description>
+    <summary>Boo MSBuild compiler tasks.</summary>
+    <tags>boo msbuild xbuild</tags>
+    <dependencies>
+      <dependency id="Boo.Lang" version="@version@" />
+      <dependency id="booc" version="@version@" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Boo.Microsoft.Build.Tasks.dll" target="lib/net20" />
+  </files>
+</package>
