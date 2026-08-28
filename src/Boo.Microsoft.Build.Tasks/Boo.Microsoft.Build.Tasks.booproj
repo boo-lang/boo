@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <!-- ManagedCompiler, which Booc derives from, lives in Tasks.Core. -->
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.11.4" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.11.4" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.9.6" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="18.9.6" />
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
     <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
     <ProjectReference Include="../Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
