@@ -138,6 +138,16 @@ namespace BooCompiler.Tests
 			return File.GetLastWriteTime(fileName) > File.GetLastWriteTime(thanFileName);
 		}
 
+		[TearDown]
+		public void QueueGeneratedAssemblyForVerification()
+		{
+			if (!VerifyGeneratedAssemblies)
+				return;
+
+			VerificationQueue.Enqueue(_parameters.OutputAssembly,
+				GetType().Name + "." + TestContext.CurrentContext.Test.Name);
+		}
+
 		[OneTimeTearDown]
 		public virtual void TearDownFixture()
 		{	
