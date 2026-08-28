@@ -129,6 +129,10 @@ namespace Boo.Lang.Compiler.Steps
 
 		Hashtable _symbolDocWriters = new Hashtable();
 
+		// Sequence points and local names, which AssemblyImage turns into an
+		// embedded portable PDB.
+		bool _emitSymbols;
+
 		// IL generation state
 		ILGenerator _il;
 		Method _method;		  //current method
@@ -218,6 +222,13 @@ namespace Boo.Lang.Compiler.Steps
             DefineUnmanagedResource();
 
 			_moduleBuilder.CreateGlobalFunctions(); //setup global .data
+
+			// A persisted builder cannot execute what it emits, so callers that
+			// want to run the code get a real assembly loaded from the image.
+			// Assembly.EntryPoint only works this way: the builder has no
+			// SetEntryPoint any more.
+			if (Parameters.GenerateInMemory && Errors.Count == 0)
+				Context.GeneratedAssembly = GeneratedAssemblies.Load(AssemblyImage.Of(Context, Parameters));
 		}
 
         private Stream GetIconFile(string filename)
@@ -245,12 +256,10 @@ namespace Boo.Lang.Compiler.Steps
             var isExe = filename.EndsWith(".exe");
             var iconName = Context.Parameters.Icon;
             var iconStream = iconName != null ? GetIconFile(iconName) : null;
-            var resourceBytes = UnamangedResourceHelper.CreateDefaultWin32Resources(
-                true, isExe, null, iconStream, _asmBuilder);
-            var resFilename = Path.GetTempFileName();
-            Context.Properties["ResFileName"] = resFilename;
-            File.WriteAllBytes(resFilename, resourceBytes);
-            _asmBuilder.DefineUnmanagedResource(resFilename);
+            if (iconStream == null)
+                return;
+
+            throw new NotSupportedException("-icon is not implemented on this backend yet");
         }
 
 		void GatherAssemblyAttributes()
@@ -333,6 +342,12 @@ namespace Boo.Lang.Compiler.Steps
 			public override void OnClassDefinition(ClassDefinition node)
 			{
 				base.OnClassDefinition(node);
+				_emitter.EmitTypeAttributes(node);
+			}
+
+			public override void OnStructDefinition(StructDefinition node)
+			{
+				base.OnStructDefinition(node);
 				_emitter.EmitTypeAttributes(node);
 			}
 
@@ -681,6 +696,14 @@ namespace Boo.Lang.Compiler.Steps
 			Visit(node.Members);
 		}
 
+		// The IL of a method body is written into a chain of buffers this size.
+		// A short branch whose operand lands on the last byte of one of them
+		// loses the byte that follows it, so the body ends in the middle of an
+		// instruction and the runtime rejects it. Bodies get a buffer big
+		// enough to hold them whole; Boo's own largest is under 3KB.
+		// See dotnet/runtime#127261, fixed by #127262 in main but not in .NET 10.
+		const int ILStreamSize = 8192;
+
 		override public void OnMethod(Method method)
 		{
 			if (method.IsRuntime) return;
@@ -689,7 +712,11 @@ namespace Boo.Lang.Compiler.Steps
 			MethodBuilder methodBuilder = GetMethodBuilder(method);
 			DefineExplicitImplementationInfo(method);
 
-			EmitMethod(method, methodBuilder.GetILGenerator());
+			// An abstract method has no body. The runtime builder tolerated a
+			// stray GetILGenerator call; the persisted one rejects it with
+			// "Method body should not exist".
+			if (!methodBuilder.IsAbstract)
+				EmitMethod(method, methodBuilder.GetILGenerator(ILStreamSize));
 			if (method.Name.StartsWith("$module_ctor"))
 			{
 				_moduleConstructorMethods.Add(method);
@@ -811,7 +838,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (constructor.IsRuntime) return;
 
 			ConstructorBuilder builder = GetConstructorBuilder(constructor);
-			EmitMethod(constructor, builder.GetILGenerator());
+			EmitMethod(constructor, builder.GetILGenerator(ILStreamSize));
 		}
 
 		override public void OnLocal(Local local)
@@ -820,7 +847,8 @@ namespace Boo.Lang.Compiler.Steps
 			info.LocalBuilder = _il.DeclareLocal(GetSystemType(local), info.Type.IsPointer);
 			if (Parameters.Debug)
 			{
-				info.LocalBuilder.SetLocalSymInfo(local.Name);
+				if (_emitSymbols)
+					info.LocalBuilder.SetLocalSymInfo(local.Name);
 			}
 		}
 
@@ -2447,9 +2475,48 @@ namespace Boo.Lang.Compiler.Steps
 			if (targetType != null && targetType is IGenericParameter)
 				_il.Emit(OpCodes.Constrained, GetSystemType(targetType));
 
-			_il.EmitCall(GetCallOpCode(target, method), mi, null);
+			_il.EmitCall(GetCallOpCode(target, method), CallTargetFor(mi), null);
 
 			PushType(method.ReturnType);
+		}
+
+		/// <summary>
+		/// The token to call a method through.
+		/// </summary>
+		/// <remarks>
+		/// A MethodDef on a generic type definition is not a valid call target:
+		/// the receiver on the stack is the self-instantiation, so the call has to
+		/// go through a MemberRef on a TypeSpec. That is what TypeBuilder.GetMethod
+		/// produces, and what csc emits for the same code. The runtime
+		/// AssemblyBuilder used to paper over the difference.
+		/// </remarks>
+		MethodInfo CallTargetFor(MethodInfo mi)
+		{
+			var declaringType = mi.DeclaringType as TypeBuilder;
+			if (declaringType == null || !declaringType.IsGenericTypeDefinition)
+				return mi;
+
+			if (!(mi is MethodBuilder))
+				return mi;
+
+			return TypeBuilder.GetMethod(SelfInstantiation(declaringType), mi);
+		}
+
+		ConstructorInfo CallTargetFor(ConstructorInfo ci)
+		{
+			var declaringType = ci.DeclaringType as TypeBuilder;
+			if (declaringType == null || !declaringType.IsGenericTypeDefinition)
+				return ci;
+
+			if (!(ci is ConstructorBuilder))
+				return ci;
+
+			return TypeBuilder.GetConstructor(SelfInstantiation(declaringType), ci);
+		}
+
+		Type SelfInstantiation(TypeBuilder typeBuilder)
+		{
+			return typeBuilder.MakeGenericType(typeBuilder.GetGenericArguments());
 		}
 
 		//returns true if no conditional attribute match the defined symbols
@@ -2603,11 +2670,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (method.IsVirtual)
 			{
 				Dup();
-				_il.Emit(OpCodes.Ldvirtftn, method);
+				_il.Emit(OpCodes.Ldvirtftn, CallTargetFor(method));
 			}
 			else
 			{
-				_il.Emit(OpCodes.Ldftn, method);
+				_il.Emit(OpCodes.Ldftn, CallTargetFor(method));
 			}
 			PushType(TypeSystemServices.IntPtrType);
 		}
@@ -2721,13 +2788,13 @@ namespace Boo.Lang.Compiler.Steps
 							// super constructor call
 							_il.Emit(OpCodes.Ldarg_0);
 							PushArguments(constructorInfo, node.Arguments);
-							_il.Emit(OpCodes.Call, ci);
+							_il.Emit(OpCodes.Call, CallTargetFor(ci));
 							PushVoid();
 						}
 						else
 						{
 							PushArguments(constructorInfo, node.Arguments);
-							_il.Emit(OpCodes.Newobj, ci);
+							_il.Emit(OpCodes.Newobj, CallTargetFor(ci));
 
 							// constructor invocation resulting type is
 							PushType(constructorInfo.DeclaringType);
@@ -3693,7 +3760,7 @@ namespace Boo.Lang.Compiler.Steps
 				callOpCode = OpCodes.Callvirt;
 			}
 
-			_il.EmitCall(callOpCode, setMethod, null);
+			_il.EmitCall(callOpCode, CallTargetFor(setMethod), null);
 
 			if (leaveValueOnStack)
 			{
@@ -3715,6 +3782,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		bool EmitDebugInfo(Node startNode, Node endNode)
 		{
+			if (!_emitSymbols) return false;
+
 			LexicalInfo start = startNode.LexicalInfo;
 			if (!start.IsValid) return false;
 
@@ -3751,11 +3820,7 @@ namespace Boo.Lang.Compiler.Steps
 			ISymbolDocumentWriter writer = GetCachedDocumentWriter(fname);
 			if (null != writer) return writer;
 
-			writer = _moduleBuilder.DefineDocument(
-				fname,
-				Guid.Empty,
-				Guid.Empty,
-				SymDocumentType.Text);
+			writer = _moduleBuilder.DefineDocument(fname);
 			_symbolDocWriters.Add(fname, writer);
 
 			return writer;
@@ -4292,7 +4357,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void Call(MethodInfo method)
 		{
-			_il.EmitCall(OpCodes.Call, method, null);
+			_il.EmitCall(OpCodes.Call, CallTargetFor(method), null);
 		}
 
 		private void Castclass(Type expectedSystemType)
@@ -4434,7 +4499,11 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Attribute attribute in _assemblyAttributes)
 			{
-				_asmBuilder.SetCustomAttribute(GetCustomAttributeBuilder(attribute));
+				var builder = GetCustomAttributeBuilder(attribute);
+				if (DeferredAssemblyAttributes.Defers(builder))
+					ContextAnnotations.AddDeferredAssemblyAttribute(Context, builder);
+				else
+					_asmBuilder.SetCustomAttribute(builder);
 			}
 		}
 
@@ -4459,20 +4528,12 @@ namespace Boo.Lang.Compiler.Steps
 
 		void DefineEntryPoint()
 		{
-			if (Context.Parameters.GenerateInMemory)
-			{
-				Context.GeneratedAssembly = _asmBuilder;
-			}
-
 			if (CompilerOutputType.Library != Parameters.OutputType)
 			{
 				Method method = ContextAnnotations.GetEntryPoint(Context);
 				if (null != method)
 				{
-					MethodInfo entryPoint = Context.Parameters.GenerateInMemory
-						? _asmBuilder.GetType(method.DeclaringType.FullName).GetMethod(method.Name, BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static)
-						: GetMethodBuilder(method);
-					_asmBuilder.SetEntryPoint(entryPoint, (PEFileKinds)Parameters.OutputType);
+					ContextAnnotations.SetEntryPointBuilder(Context, GetMethodBuilder(method));
 				}
 				else
 				{
@@ -4492,7 +4553,7 @@ namespace Boo.Lang.Compiler.Steps
 			foreach (var reference in _moduleConstructorMethods.OrderBy(reference => (int)reference["Ordering"]))
 				m.Body.Add(CodeBuilder.CreateMethodInvocation((IMethod)reference.Entity));
 			
-			EmitMethod(m, mb.GetILGenerator());
+			EmitMethod(m, mb.GetILGenerator(ILStreamSize));
 		}
 
 		Type[] GetParameterTypes(ParameterDeclarationCollection parameters)
@@ -5150,17 +5211,36 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		/// <summary>
+		/// The system type to constrain a generic parameter to.
+		/// </summary>
+		/// <remarks>
+		/// A self-referencing constraint such as class Base[of T(Base[of T])]
+		/// resolves to the type definition rather than a constructed type, and
+		/// emitting the definition produces a TypeDef constraint that will not
+		/// load. csc emits a TypeSpec for Base&lt;!0&gt;, which is what
+		/// instantiating the definition with its own parameters gives.
+		/// </remarks>
+		private Type ConstraintType(IType type)
+		{
+			var systemType = GetSystemType(type);
+			var typeBuilder = systemType as TypeBuilder;
+			return typeBuilder != null && typeBuilder.IsGenericTypeDefinition
+				? SelfInstantiation(typeBuilder)
+				: systemType;
+		}
+
 		private void DefineGenericParameter(InternalGenericParameter parameter, GenericTypeParameterBuilder builder)
 		{
 			// Set base type constraint
 			if (parameter.BaseType != TypeSystemServices.ObjectType)
 			{
-				builder.SetBaseTypeConstraint(GetSystemType(parameter.BaseType));
+				builder.SetBaseTypeConstraint(ConstraintType(parameter.BaseType));
 			}
 
 			// Set interface constraints
 			Type[] interfaceTypes = Array.ConvertAll<IType, Type>(
-				parameter.GetInterfaces(), GetSystemType);
+				parameter.GetInterfaces(), ConstraintType);
 
 			builder.SetInterfaceConstraints(interfaceTypes);
 
@@ -5212,6 +5292,40 @@ namespace Boo.Lang.Compiler.Steps
 		InternalLocal GetInternalLocal(Node local)
 		{
 			return (InternalLocal)GetEntity(local);
+		}
+
+		/// <summary>
+		/// Records the size and packing a StructLayout asks for, which the
+		/// builder keeps only for explicit layouts.
+		/// </summary>
+		void DeferTypeLayout(TypeDefinition type, TypeBuilder builder)
+		{
+			foreach (Attribute attribute in type.Attributes)
+			{
+				var constructor = attribute.Entity as IConstructor;
+				if (null == constructor
+					|| "System.Runtime.InteropServices.StructLayoutAttribute" != constructor.DeclaringType.FullName)
+					continue;
+
+				int size = 0;
+				int packing = 0;
+				foreach (ExpressionPair named in attribute.NamedArguments)
+				{
+					var value = named.Second as IntegerLiteralExpression;
+					if (null == value)
+						continue;
+
+					var name = named.First.ToString();
+					if ("Size" == name)
+						size = (int) value.Value;
+					else if ("Pack" == name)
+						packing = (int) value.Value;
+				}
+
+				if (0 != size || 0 != packing)
+					DeferredTypeLayouts.Defer(Context, builder, size, packing);
+				return;
+			}
 		}
 
 		object CreateTypeBuilder(TypeDefinition type)
@@ -5272,6 +5386,7 @@ namespace Boo.Lang.Compiler.Steps
 								FieldAttributes.RTSpecialName);
 			}
 
+			DeferTypeLayout(type, typeBuilder);
 			return typeBuilder;
 		}
 
@@ -5529,7 +5644,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		string GetTargetDirectory(string fname)
 		{
-			return Permissions.WithDiscoveryPermission(() => Path.GetDirectoryName(Path.GetFullPath(fname)));
+			return Path.GetDirectoryName(Path.GetFullPath(fname));
 		}
 
 		string BuildOutputAssemblyName()
@@ -5551,7 +5666,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private string TryToGetFullPath(string path)
 		{
-			return Permissions.WithDiscoveryPermission(() => Path.GetFullPath(path)) ?? path;
+			return Path.GetFullPath(path);
 		}
 
 		private bool HasDllOrExeExtension(string fname)
@@ -5587,13 +5702,12 @@ namespace Boo.Lang.Compiler.Steps
 
 			public bool EmbedFile(string resourceName, string fname)
 			{
-				_moduleBuilder.DefineManifestResource(resourceName, File.OpenRead(fname), ResourceAttributes.Public);
-				return true;
+				throw new NotSupportedException("embedding resources is not implemented on this backend yet");
 			}
 
 			public IResourceWriter DefineResource(string resourceName, string resourceDescription)
 			{
-				return _moduleBuilder.DefineResource(resourceName, resourceDescription);
+				throw new NotSupportedException("managed resources are not implemented on this backend yet");
 			}
 		}
 
@@ -5601,11 +5715,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			var outputFile = BuildOutputAssemblyName();
 			var asmName = CreateAssemblyName(outputFile);
-			var assemblyBuilderAccess = GetAssemblyBuilderAccess();
-			var targetDirectory = GetTargetDirectory(outputFile);
-			_asmBuilder = string.IsNullOrEmpty(targetDirectory)
-				? AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess)
-				: AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, assemblyBuilderAccess, targetDirectory);
+			_asmBuilder = new PersistedAssemblyBuilder(asmName, typeof(object).Assembly);
 
 			if (Parameters.Debug)
 			{
@@ -5616,7 +5726,9 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			_asmBuilder.SetCustomAttribute(CreateRuntimeCompatibilityAttribute());
-			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name, Path.GetFileName(outputFile), Parameters.Debug);
+			_moduleBuilder = _asmBuilder.DefineDynamicModule(asmName.Name);
+
+			_emitSymbols = Parameters.Debug;
 
 			if (Parameters.Unsafe)
 				_moduleBuilder.SetCustomAttribute(CreateUnverifiableCodeAttribute());
@@ -5627,82 +5739,64 @@ namespace Boo.Lang.Compiler.Steps
 			Context.GeneratedAssemblyFileName = outputFile;
 		}
 
-		AssemblyBuilderAccess GetAssemblyBuilderAccess()
-		{
-			if (Parameters.GenerateCollectible)
-			{
-#if !NET_40_OR_GREATER
-				
-				Context.Warnings.Add(CompilerWarningFactory.CustomWarning("Collectible Assemblies are available only on .NET Framework 4.0 or later (https://msdn.microsoft.com/en-us/library/dd554932(v=vs.100).aspx)"));
-				return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
-#else
-				return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndCollect : AssemblyBuilderAccess.Save;
-#endif
-			}
-			else
-			{
-				return Parameters.GenerateInMemory ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.Save;
-			}
-
-		}
-
 		AssemblyName CreateAssemblyName(string outputFile)
 		{
 			var assemblyName = new AssemblyName();
-			assemblyName.Name = GetAssemblySimpleName(outputFile);
+			assemblyName.Name = UncollidedAssemblyName(GetAssemblySimpleName(outputFile));
 			assemblyName.Version = GetAssemblyVersion();
-			if (Parameters.DelaySign)
-				assemblyName.SetPublicKey(GetAssemblyKeyPair(outputFile).PublicKey);
-			else
-				assemblyName.KeyPair = GetAssemblyKeyPair(outputFile);
+
+			// .NET neither signs nor verifies assemblies, and AssemblyName.KeyPair
+			// throws PlatformNotSupportedException even when handed a null pair.
+			if (IsAssemblySigningRequested())
+				Warnings.Add(CompilerWarningFactory.CustomWarning(
+					"assembly signing is not supported on .NET; the key was ignored"));
+
 			return assemblyName;
 		}
 
-		StrongNameKeyPair GetAssemblyKeyPair(string outputFile)
+		/// <summary>
+		/// The name to emit under, kept clear of the names this compilation
+		/// references.
+		/// </summary>
+		/// <remarks>
+		/// .NET matches an assembly without a strong name on its simple name
+		/// alone, so a generated assembly sharing a name with one it references
+		/// resolves that reference to itself and cannot find the types it was
+		/// compiled against. The old backend never had to care: it referenced the
+		/// assembly builders themselves rather than images loaded by name.
+		/// </remarks>
+		string UncollidedAssemblyName(string name)
 		{
-			var attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyNameAttribute");
-			if (Parameters.KeyContainer != null)
-			{
-				if (attribute != null)
-					Warnings.Add(CompilerWarningFactory.HaveBothKeyNameAndAttribute(attribute));
-				if (Parameters.KeyContainer.Length != 0)
-					return new StrongNameKeyPair(Parameters.KeyContainer);
-			}
-			else if (attribute != null)
-			{
-				var asmName = ((StringLiteralExpression)attribute.Arguments[0]).Value;
-				if (asmName.Length != 0) //ignore empty AssemblyKeyName values, like C# does
-					return new StrongNameKeyPair(asmName);
-			}
+			var taken = new List<string>();
+			foreach (var assembly in ReferencedAssemblies())
+				taken.Add(assembly.GetName().Name);
 
-			string fname = null;
-			string srcFile = null;
-			attribute = GetAssemblyAttribute("System.Reflection.AssemblyKeyFileAttribute");
+			if (!taken.Contains(name))
+				return name;
 
-			if (Parameters.KeyFile != null)
-			{
-				fname = Parameters.KeyFile;
-				if (attribute != null)
-					Warnings.Add(CompilerWarningFactory.HaveBothKeyFileAndAttribute(attribute));
-			}
-			else if (attribute != null)
-			{
-				fname = ((StringLiteralExpression)attribute.Arguments[0]).Value;
-				if (attribute.LexicalInfo != null)
-					srcFile = attribute.LexicalInfo.FileName;
-			}
+			var unique = name;
+			for (var suffix = 2; taken.Contains(unique); ++suffix)
+				unique = name + "$" + suffix;
+			return unique;
+		}
 
-			if (!string.IsNullOrEmpty(fname))
-			{
-				if (!Path.IsPathRooted(fname))
-					fname = ResolveRelative(outputFile, srcFile, fname);
-				using (FileStream stream = File.OpenRead(fname))
-				{
-					//Parameters.DelaySign is ignored.
-					return new StrongNameKeyPair(stream);
-				}
-			}
-			return null;
+		/// <summary>
+		/// The assemblies this compilation was given.
+		/// </summary>
+		private IEnumerable<Assembly> ReferencedAssemblies()
+		{
+			return Parameters.References
+				.OfType<TypeSystem.Reflection.IAssemblyReference>()
+				.Select(reference => reference.Assembly);
+		}
+
+		bool IsAssemblySigningRequested()
+		{
+			return Parameters.DelaySign
+				|| !string.IsNullOrEmpty(Parameters.KeyFile)
+				|| !string.IsNullOrEmpty(Parameters.KeyContainer)
+				|| GetAssemblyAttribute("System.Reflection.AssemblyKeyNameAttribute") != null
+				|| GetAssemblyAttribute("System.Reflection.AssemblyKeyFileAttribute") != null;
 		}
 
 		string ResolveRelative(string targetFile, string srcFile, string relativeFile)

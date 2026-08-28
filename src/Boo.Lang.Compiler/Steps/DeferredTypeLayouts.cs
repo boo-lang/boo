@@ -1,10 +1,10 @@
-﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) the Boo contributors
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,17 +28,48 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
-	using System.IO;
+	using System.Collections.Generic;
+	using System.Reflection.Emit;
+	using System.Reflection.Metadata;
+	using System.Reflection.Metadata.Ecma335;
 
-	public class SaveAssembly : AbstractCompilerStep
+	/// <summary>
+	/// The size and packing a type asked for, written straight to the metadata.
+	/// </summary>
+	/// <remarks>
+	/// PersistedAssemblyBuilder records a type's layout only when the layout is
+	/// explicit, so a StructLayout naming a Size on an otherwise sequential
+	/// struct is dropped and the struct comes out as wide as its fields. The
+	/// rows are added after GenerateMetadata instead, once the type has a token.
+	/// </remarks>
+	internal static class DeferredTypeLayouts
 	{
-		override public void Run()
+		internal struct Layout
 		{
-			if (Errors.Count > 0)
+			internal TypeBuilder Type;
+			internal int Size;
+			internal int Packing;
+		}
+
+		internal static void Defer(CompilerContext context, TypeBuilder type, int size, int packing)
+		{
+			ContextAnnotations.AddDeferredTypeLayout(context, new Layout { Type = type, Size = size, Packing = packing });
+		}
+
+		internal static void Write(CompilerContext context, MetadataBuilder metadata)
+		{
+			var layouts = ContextAnnotations.GetDeferredTypeLayouts(context);
+			if (layouts == null)
 				return;
 
-			File.WriteAllBytes(Context.GeneratedAssemblyFileName,
-				AssemblyImage.Of(Context, Parameters));
+			// The table is read by row order, so the types go in token order.
+			layouts.Sort((left, right) => left.Type.MetadataToken.CompareTo(right.Type.MetadataToken));
+
+			foreach (var layout in layouts)
+				metadata.AddTypeLayout(
+					MetadataTokens.TypeDefinitionHandle(layout.Type.MetadataToken),
+					(ushort) layout.Packing,
+					(uint) layout.Size);
 		}
 	}
 }
