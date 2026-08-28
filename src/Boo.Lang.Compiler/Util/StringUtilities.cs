@@ -32,6 +32,39 @@ namespace Boo.Lang.Compiler.Util
 {
 	internal sealed class StringUtilities
 	{
+		/// <summary>
+		/// The number of single-character edits between two names, ignoring case.
+		/// </summary>
+		public static int EditDistance(string left, string right)
+		{
+			left = left.ToLowerInvariant();
+			right = right.ToLowerInvariant();
+
+			var previous = new int[right.Length + 1];
+			var current = new int[right.Length + 1];
+
+			for (var j = 0; j <= right.Length; ++j)
+				previous[j] = j;
+
+			for (var i = 1; i <= left.Length; ++i)
+			{
+				current[0] = i;
+				for (var j = 1; j <= right.Length; ++j)
+				{
+					var substitution = previous[j - 1] + (left[i - 1] == right[j - 1] ? 0 : 1);
+					var deletion = previous[j] + 1;
+					var insertion = current[j - 1] + 1;
+					current[j] = Math.Min(substitution, Math.Min(deletion, insertion));
+				}
+
+				var swap = previous;
+				previous = current;
+				current = swap;
+			}
+
+			return previous[right.Length];
+		}
+
 		public static string GetSoundex(string s)
 		{
 			if (s.Length < 2)

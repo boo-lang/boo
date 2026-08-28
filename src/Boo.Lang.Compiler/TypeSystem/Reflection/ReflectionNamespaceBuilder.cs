@@ -55,7 +55,34 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 			{
 				My<CompilerWarningCollection>.Instance.Add(CompilerWarningFactory.CustomWarning("Could not load types from '" + _assembly + "': " + Builtins.join(x.LoaderExceptions, "\n")));
 			}
+			CatalogPublicTypes(ForwardedTypes());
 			return _root;
+		}
+
+		/// <summary>
+		/// The types the assembly forwards elsewhere.
+		/// </summary>
+		/// <remarks>
+		/// System.Xml, System.Drawing and the rest of the framework assemblies
+		/// define no types on .NET; they forward the old names to where the types
+		/// actually live. Without these an import naming one of them finds nothing.
+		/// </remarks>
+		private IEnumerable<Type> ForwardedTypes()
+		{
+			try
+			{
+				return _assembly.GetForwardedTypes();
+			}
+			catch (ReflectionTypeLoadException x)
+			{
+				// Some targets resolved; the rest come back as nulls alongside them.
+				return Array.FindAll(x.Types, type => type != null);
+			}
+			catch (NotSupportedException)
+			{
+				// Assemblies built at run time cannot be asked.
+				return Type.EmptyTypes;
+			}
 		}
 
 		private void CatalogPublicTypes(IEnumerable<Type> types)

@@ -62,7 +62,8 @@ namespace Boo.Lang.Parser
 		
 		public static Expression ParseExpression(int tabSize, string name, string text, ParserErrorHandler errorHandler)
 		{
-			return CreateParser(tabSize, name, new StringReader(text), errorHandler).expression();
+			var settings = new ParserSettings { TabSize = tabSize, ErrorHandler = errorHandler };
+			return CreateParser(settings, name, new StringReader(text)).expression();
 		}
 		
 		public static Expression ParseExpression(string name, string text)

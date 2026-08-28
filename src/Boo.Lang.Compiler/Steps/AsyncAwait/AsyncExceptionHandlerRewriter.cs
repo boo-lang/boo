@@ -37,7 +37,10 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             var exceptionDispatchInfo = tss.Map(typeof(System.Runtime.ExceptionServices.ExceptionDispatchInfo));
             var methods = exceptionDispatchInfo.GetMembers().OfType<IMethod>().ToArray();
             _exceptionDispatchInfoCapture = methods.SingleOrDefault(m => m.Name.Equals("Capture"));
-            _exceptionDispatchInfoThrow = methods.SingleOrDefault(m => m.Name.Equals("Throw"));
+            // .NET added a static Throw(Exception) alongside the instance Throw();
+            // the rewrite wants the instance one, called on a captured info.
+            _exceptionDispatchInfoThrow = methods.SingleOrDefault(
+                m => m.Name.Equals("Throw") && !m.IsStatic && m.GetParameters().Length == 0);
         }
 
         private AsyncExceptionHandlerRewriter(

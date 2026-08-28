@@ -26,13 +26,16 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using Boo.Lang.Environments;
+
 namespace Boo.Lang.Parser
 {
 	public class WSABooParsingStep : BooParsingStep
 	{
-		override protected void ParseModule(string inputName, System.IO.TextReader reader, ParserErrorHandler errorHandler)
+		override protected void ParseModule(string inputName, System.IO.TextReader reader)
 		{
-			WSABooParser.ParseModule(this.TabSize, this.Context.CompileUnit, inputName, reader, errorHandler); 
+			WSABooParser.ParseModule(this.TabSize, this.Context.CompileUnit, inputName, reader,
+				My<ParserSettings>.Instance.ErrorHandler);
 		}
 	}
 }

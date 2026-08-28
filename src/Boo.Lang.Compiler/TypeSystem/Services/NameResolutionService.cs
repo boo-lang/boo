@@ -652,24 +652,36 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 			string expectedSoundex = StringUtilities.GetSoundex(name);
 			string lastMemberName = null;
+			string closest = null;
+			int closestDistance = int.MaxValue;
+
 			foreach (IEntity member in ns.GetMembers())
 			{
 				if (EntityType.Any != elementType && elementType != member.EntityType)
 					continue;
 				if (lastMemberName == member.Name)
 					continue;//no need to check this name again
-				//TODO: try Levenshtein distance or Metaphone instead of Soundex.
-				if (expectedSoundex == StringUtilities.GetSoundex(member.Name))
-				{
-					//return properties without get_/set_ prefix
-					IMethod method = member as IMethod;
-					if (null != method && method.IsSpecialName)
-						return member.Name.Substring(4);
-					return member.Name;
-				}
 				lastMemberName = member.Name;
+
+				if (expectedSoundex != StringUtilities.GetSoundex(member.Name))
+					continue;
+
+				//TODO: try Metaphone instead of Soundex.
+				//several members can sound alike, so the nearest spelling wins
+				//rather than whichever one is enumerated first
+				int distance = StringUtilities.EditDistance(name, member.Name);
+				if (distance >= closestDistance)
+					continue;
+
+				closestDistance = distance;
+				//return properties without get_/set_ prefix
+				IMethod method = member as IMethod;
+				closest = null != method && method.IsSpecialName
+					? member.Name.Substring(4)
+					: member.Name;
 			}
-			return null;
+
+			return closest;
 		}
 
 		public IEntity ResolveQualifiedName(INamespace namespaceToResolveAgainst, string name)
