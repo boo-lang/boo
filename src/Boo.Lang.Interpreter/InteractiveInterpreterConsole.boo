@@ -374,7 +374,9 @@ class InteractiveInterpreterConsole:
 		keyChar = cki.KeyChar
 		control = false
 
-		newLine = keyChar in Environment.NewLine
+		# ReadKey reports Enter as CR on every platform, but Environment.NewLine
+		# is LF off Windows, so testing the char against it never matched there.
+		newLine = key == ConsoleKey.Enter
 
 		if char.IsControl(keyChar):
 			control = true
