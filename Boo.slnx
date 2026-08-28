@@ -7,5 +7,10 @@
     <Project Path="src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
     <Project Path="src/Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
     <Project Path="src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
+    <Project Path="src/Boo.Lang.Interpreter/Boo.Lang.Interpreter.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
+    <Project Path="src/Boo.Lang.CodeDom/Boo.Lang.CodeDom.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
+    <Project Path="src/Boo.Microsoft.Build.Tasks/Boo.Microsoft.Build.Tasks.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
+    <Project Path="src/booi/booi.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
+    <Project Path="src/booish/booish.booproj" Type="{9A19103F-16F7-4668-BE54-9A1E7A4F7556}" />
   </Folder>
 </Solution>

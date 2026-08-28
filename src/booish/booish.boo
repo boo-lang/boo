@@ -38,7 +38,7 @@ for arg in argv:
 	if arg == "--print-modules" or arg == "-print-modules":
 		console.PrintModules = true
 	if arg == "--debug" or arg == "-debug":
-		Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
+		Trace.Listeners.Add(TextWriterTraceListener(Console.Out))
 	if arg == "-w":
 		console.ShowWarnings = true
 	if arg.StartsWith("-r:"):

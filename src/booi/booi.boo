@@ -138,7 +138,8 @@ class Program:
                     path = _cmdline.Output
                     _params.OutputAssembly = Path.Combine(path, 'booi-main.exe')
                 else:
-                    path = Path.GetDirectoryName(_cmdline.Output)
+                    // .NET added a ReadOnlySpan overload alongside the string one.
+                    path = Path.GetDirectoryName(cast(string, _cmdline.Output))
                     _params.OutputAssembly = _cmdline.Output
 
         else:
