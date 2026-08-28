@@ -1,81 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Boo.Lang.Useful</RootNamespace>
     <AssemblyName>Boo.Lang.Useful</AssemblyName>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\boo.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>False</DelaySign>
-    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
-    <UsePartialTypes>false</UsePartialTypes>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace>Boo.Lang.Useful</RootNamespace>
+    <Description>Macros, collections, command line parsing and templating built on Boo.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>Full</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <genwarnings>false</genwarnings>
-    <culture />
-    <ducky>false</ducky>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <genwarnings>false</genwarnings>
-    <culture />
-    <ducky>false</ducky>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="AssemblyInfo.boo" />
-    <Compile Include="Attributes\AutoFlagsAttribute.boo" />
-    <Compile Include="Attributes\OnceAttribute.boo" />
-    <Compile Include="Attributes\SingletonAttribute.boo" />
-    <Compile Include="Attributes\TraceMethodCallsAttribute.boo" />
-    <Compile Include="BooTemplate\ApplyTemplateSemantics.boo" />
-    <Compile Include="BooTemplate\ITemplate.boo" />
-    <Compile Include="BooTemplate\TemplateCompiler.boo" />
-    <Compile Include="BooTemplate\TemplatePreProcessor.boo" />
-    <Compile Include="Collections\AbstractCollection.boo" />
-    <Compile Include="Collections\Cache.boo" />
-    <Compile Include="Collections\CollectionAttribute.boo" />
-    <Compile Include="Collections\Set.boo" />
-    <Compile Include="CommandLine\AbstractCommandLine.boo" />
-    <Compile Include="CommandLine\AbstractParser.boo" />
-    <Compile Include="CommandLine\ArgumentAttribute.boo" />
-    <Compile Include="CommandLine\EventBasedParser.boo" />
-    <Compile Include="CommandLine\OptionAttribute.boo" />
-    <Compile Include="CommandLine\Parser.boo" />
-    <Compile Include="IO\Impl\PreProcessorExpressionEvaluator.boo" />
-    <Compile Include="IO\Impl\PreProcessorExpressionLexer.boo" />
-    <Compile Include="IO\Impl\PreProcessorExpressionParser.boo" />
-    <Compile Include="IO\Impl\PreProcessorExpressionParserTokenTypes.boo" />
-    <Compile Include="IO\PreProcessor.boo" />
-    <Compile Include="IO\walk.boo" />
-    <Compile Include="PlatformInformation.boo" />
-    <Compile Include="Resources\ResourceFu.boo" />
+    <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
+    <ProjectReference Include="../Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />
+    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="IO\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
-      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
-      <Name>Boo.Lang.Parser</Name>
-    </ProjectReference>
-    <!-- <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" /> -->
-  </ItemGroup>
-  <Import Project="$(BooToolPath)\Boo.Microsoft.Build.targets" />
+
+  <Import Project="../../Boo.Boo.targets" />
+
 </Project>

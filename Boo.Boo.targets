@@ -1,0 +1,84 @@
+<Project>
+
+  <!--
+    Builds .boo sources with the stage-1 booc produced from the C# core.
+    Replaces CoreCompile so that references, output paths and project
+    ordering keep coming from the .NET SDK.
+  -->
+
+  <PropertyGroup>
+    <DefaultLanguageSourceExtension>.boo</DefaultLanguageSourceExtension>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <BoocDll Condition="'$(BoocDll)' == ''">$(MSBuildThisFileDirectory)src/booc/bin/$(Configuration)/$(TargetFramework)/booc.dll</BoocDll>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(EnableDefaultBooItems)' != 'false'">
+    <BooCompile Include="**/*.boo" Exclude="$(BaseOutputPath)/**;$(BaseIntermediateOutputPath)/**;bin/**;obj/**" />
+  </ItemGroup>
+
+  <Target Name="BoocTarget" DependsOnTargets="$(CoreCompileDependsOn)">
+    <PropertyGroup>
+      <!--
+        BooTargetKind wins over OutputType. A Boo test project needs it: the
+        test SDK sets OutputType to Exe from its own targets, which import
+        after anything the project file can say, and a test assembly has no
+        entry point for booc to find.
+      -->
+      <_BooTargetKind>$(BooTargetKind)</_BooTargetKind>
+      <_BooTargetKind Condition="'$(_BooTargetKind)' == '' And '$(OutputType)' == 'Exe'">exe</_BooTargetKind>
+      <_BooTargetKind Condition="'$(_BooTargetKind)' == '' And '$(OutputType)' == 'WinExe'">winexe</_BooTargetKind>
+      <_BooTargetKind Condition="'$(_BooTargetKind)' == ''">library</_BooTargetKind>
+      <_BooOutput>$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)</_BooOutput>
+    </PropertyGroup>
+
+    <Error Condition="!Exists('$(BoocDll)')"
+           Text="booc was not found at $(BoocDll). Build src/booc first." />
+
+    <!--
+      booc loads the framework itself from the running runtime's trusted
+      platform assemblies, so the SDK's reference pack must not be passed:
+      the ref assemblies would collide with the implementation ones.
+
+      Package references need the same treatment for a different reason. The
+      SDK resolves them to the ref assembly in the package, which has no
+      method bodies, and booc loads what it references rather than reading its
+      metadata: it runs macros and attributes out of them at compile time.
+      Where a package contributes an implementation assembly, that is what
+      gets passed and the ref assembly is dropped.
+    -->
+    <ItemGroup>
+      <_BooImplementation Include="@(RuntimeCopyLocalItems)" Condition="'%(Extension)' == '.dll'" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_BooImplementationNames>;@(_BooImplementation->'%(Filename)');</_BooImplementationNames>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_BooReference Include="@(ReferencePath)"
+                     Condition="'%(ReferencePath.FrameworkReferenceName)' == '' And !$(_BooImplementationNames.Contains(';%(ReferencePath.Filename);'))" />
+      <_BooReference Include="@(_BooImplementation)" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(ProjectDir)$(IntermediateOutputPath)" />
+
+    <Exec Command="dotnet &quot;$(BoocDll)&quot; -noconfig -target:$(_BooTargetKind) -out:&quot;$(_BooOutput)&quot; @(_BooReference->'-r:&quot;%(FullPath)&quot;', ' ') @(BooCompile->'&quot;%(FullPath)&quot;', ' ')"
+          StandardOutputImportance="normal" />
+
+    <ItemGroup>
+      <FileWrites Include="$(_BooOutput)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Normally supplied by Microsoft.CSharp.targets; nothing to name here. -->
+  <Target Name="CreateManifestResourceNames" />
+
+  <!-- CoreCompile is what the SDK calls; point it at booc. -->
+  <Target Name="CoreCompile" DependsOnTargets="BoocTarget"
+          Inputs="@(BooCompile);@(ReferencePath)"
+          Outputs="$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)" />
+
+</Project>
