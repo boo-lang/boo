@@ -27,49 +27,45 @@
 #endregion
 
 using System;
-using System.Security.Permissions;
 
 namespace Boo.Lang.Compiler.Util
 {
+	/// <summary>
+	/// Runs work that used to be guarded by a code access permission.
+	/// </summary>
+	/// <remarks>
+	/// Code access security was removed from .NET: the permission types throw
+	/// wherever they survive, and there is nothing to demand against. The calls
+	/// stay so the callers read the same, but the work now simply runs, and a
+	/// failure is still swallowed the way a refused permission was.
+	/// </remarks>
 	internal static class Permissions
 	{
 		public static T WithEnvironmentPermission<T>(Func<T> function)
 		{
-			return WithPermission(ref hasEnvironmentPermission, () => new EnvironmentPermission(PermissionState.Unrestricted), function);
+			return Attempt(function);
 		}
 
 		public static T WithDiscoveryPermission<T>(Func<T> function)
 		{
-			return WithPermission(ref hasDiscoveryPermission, () => new FileIOPermission(PermissionState.Unrestricted), function);
+			return Attempt(function);
 		}
 
 		public static void WithAppDomainPermission(Action action)
 		{
-			WithPermission(ref hasAppDomainPermission,
-				() => new SecurityPermission(SecurityPermissionFlag.ControlAppDomain),
-				() => { action(); return false; });
+			Attempt(() => { action(); return false; });
 		}
 
-		static bool? hasAppDomainPermission;
-		static bool? hasEnvironmentPermission;
-		static bool? hasDiscoveryPermission;
-
-		private static TRetVal WithPermission<TPermission, TRetVal>(ref bool? hasPermission, Func<TPermission> permission, Func<TRetVal> function)
+		private static T Attempt<T>(Func<T> function)
 		{
-			if (hasPermission.HasValue && !hasPermission.Value)
-				return default(TRetVal);
-
 			try
 			{
-				permission();
 				return function();
 			}
 			catch (Exception)
 			{
-				hasPermission = false;
-				return default(TRetVal);
+				return default(T);
 			}
 		}
 	}
 }
-

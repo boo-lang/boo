@@ -37,8 +37,11 @@ namespace Boo.Lang.Compiler
 		/// or not (Library).
 		/// </summary>
 		Auto, 
-		Library = PEFileKinds.Dll,
-		ConsoleApplication = PEFileKinds.ConsoleApplication,
-		WindowsApplication = PEFileKinds.WindowApplication,
+
+		// The values came from System.Reflection.Emit.PEFileKinds, which .NET
+		// does not have. They are spelled out to keep the enum's numbering.
+		Library = 1,
+		ConsoleApplication = 2,
+		WindowsApplication = 3,
 	}
 }
