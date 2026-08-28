@@ -1,6 +1,22 @@
-[![Build Status](https://travis-ci.org/boo-lang/boo.svg?branch=master)](https://travis-ci.org/boo-lang/boo)
+[![CI](https://github.com/boo-lang/boo/actions/workflows/ci.yml/badge.svg)](https://github.com/boo-lang/boo/actions/workflows/ci.yml)
 
 The Boo Programming Language (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
+
+Building with the .NET SDK
+==========================
+
+Requires the .NET 10 SDK.
+
+```
+dotnet build Boo.slnx
+dotnet test Boo.slnx
+```
+
+The C# core builds first and produces `booc`, which then compiles the Boo
+libraries. The `booc`, `booi` and `booish` scripts run what it produced; set
+`BOO_CONFIGURATION=Release` for a release build.
+
+The NAnt and Gradle builds below are unchanged.
 
 Prerequisites
 =============
@@ -99,7 +115,7 @@ compiler components.
 
 `tests/` contains all the unit tests.
 
-`testcases/integration` is a good source of information
+`tests/testcases/integration` is a good source of information
 on the language features.
 
 `lib/` contains project dependencies such as antlr.
@@ -116,7 +132,7 @@ To execute a boo script run:
 	
 For instance:
 
-	booi examples/hw.boo	
+	booi examples/misc/now.boo	
 	
 You can also have booi to read from stdin by typing:
 
@@ -125,12 +141,12 @@ You can also have booi to read from stdin by typing:
 You can generate .net assemblies by using `booc` (either
 the `booc.exe` utility or the `booc nant` task):
 
-	booc -output:build/hello.exe examples/hw.boo	
+	booc -output:hello.exe examples/misc/now.boo	
 	
 If you want to simply see the transformations applied to
 your code by the compiler use the boo pipeline, run:
 
-	booc -p:boo examples/replace.boo	
+	booc -p:boo examples/misc/replace.boo	
 	
 More Information
 ================
