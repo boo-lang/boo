@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Boo.Lang/Boo.Lang.csproj" />
+    <Project Path="src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <Project Path="src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <Project Path="src/booc/booc.csproj" />
+  </Folder>
+</Solution>

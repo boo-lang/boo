@@ -1,0 +1,21 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <!-- Every project states its own attributes in AssemblyInfo. -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src/boo.snk</AssemblyOriginatorKeyFile>
+
+    <!-- CA2200 fires on rethrow patterns throughout, and SYSLIB0050/0051 on the
+         [Serializable] surface that outlived BinaryFormatter. Both are cleanup
+         rather than port work, and neither affects what is emitted. -->
+    <NoWarn>$(NoWarn);CA2200;SYSLIB0050;SYSLIB0051</NoWarn>
+  </PropertyGroup>
+
+</Project>
