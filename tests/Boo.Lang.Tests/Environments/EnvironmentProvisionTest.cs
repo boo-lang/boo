@@ -13,7 +13,7 @@ namespace Boo.Lang.Tests.Environments
 		public void ProvisioningHappensOnDemandAndOnlyOnce()
 		{
 			var mock = new Mock<IEnvironment>();
-			mock.Setup(e => e.Provide<Foo>()).Returns(new Foo()).AtMostOnce();
+			mock.Setup(e => e.Provide<Foo>()).Returns(new Foo());
 
 			var foo = new EnvironmentProvision<Foo>();
 			ActiveEnvironment.With(mock.Object, () =>
@@ -25,6 +25,7 @@ namespace Boo.Lang.Tests.Environments
 			});
 
 			mock.VerifyAll();
+			mock.Verify(e => e.Provide<Foo>(), Times.AtMostOnce());
 		}
 	}
 }

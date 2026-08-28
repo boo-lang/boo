@@ -13,7 +13,7 @@ namespace Boo.Lang.Tests.Environments
 			const string instance = "42";
 
 			var mock = new Mock<IEnvironment>();
-			mock.Setup(e => e.Provide<string>()).Returns(instance).AtMostOnce();
+			mock.Setup(e => e.Provide<string>()).Returns(instance);
 
 			var subject = new CachingEnvironment(mock.Object);
 			ActiveEnvironment.With(subject, ()=>
@@ -23,6 +23,7 @@ namespace Boo.Lang.Tests.Environments
 			});
 
 			mock.VerifyAll();
+			mock.Verify(e => e.Provide<string>(), Times.AtMostOnce());
 		}
 
 		[Test]
@@ -31,7 +32,7 @@ namespace Boo.Lang.Tests.Environments
 			const string instance = "42";
 
 			var mock = new Mock<IEnvironment>();
-			mock.Setup(e => e.Provide<string>()).Returns(instance).AtMostOnce();
+			mock.Setup(e => e.Provide<string>()).Returns(instance);
 
 			var subject = new CachingEnvironment(mock.Object);
 			ActiveEnvironment.With(subject, () =>
@@ -41,6 +42,7 @@ namespace Boo.Lang.Tests.Environments
 			});
 
 			mock.VerifyAll();
+			mock.Verify(e => e.Provide<string>(), Times.AtMostOnce());
 		}
 	}
 }

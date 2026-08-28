@@ -1,69 +1,30 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{F8CA4AC3-879C-40C3-9E06-E8192835506A}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Boo.Lang.PatternMatching.Tests</RootNamespace>
     <AssemblyName>Boo.Lang.PatternMatching.Tests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <UsePartialTypes>false</UsePartialTypes>
+    <RootNamespace>Boo.Lang.PatternMatching.Tests</RootNamespace>
+
+    <!-- See Boo.Lang.CodeDom.Tests for why a Boo test project says all this. -->
+    <IsTestProject>true</IsTestProject>
+    <BooTargetKind>library</BooTargetKind>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>Full</DebugType>
-    <Optimize>False</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-    <Optimize>True</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <ducky>false</ducky>
-    <culture />
-    <genwarnings>false</genwarnings>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <ducky>false</ducky>
-    <culture />
-    <genwarnings>false</genwarnings>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="Boo.Lang.Useful, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>nunit</Package>
-    </Reference>
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="CodeMatchingTest.boo" />
-    <Compile Include="Item.boo" />
-    <Compile Include="MatchMacroTest.boo" />
-    <Compile Include="RegexMatchingTest.boo" />
+    <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
+    <ProjectReference Include="../../src/Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />
+    <ProjectReference Include="../../src/booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Boo.Lang.PatternMatching\Boo.Lang.PatternMatching.booproj">
-      <Project>{9B9E8B32-CDBC-4E01-B330-1CA26697CAD9}</Project>
-      <Name>Boo.Lang.PatternMatching</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+
+  <Import Project="../../Boo.Boo.targets" />
+
 </Project>

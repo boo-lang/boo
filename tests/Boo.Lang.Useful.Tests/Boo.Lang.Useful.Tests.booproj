@@ -1,71 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{69186382-466B-4D10-997E-569F3F5FD0FE}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Boo.Lang.Useful.Tests</RootNamespace>
     <AssemblyName>Boo.Lang.Useful.Tests</AssemblyName>
-    <UsePartialTypes>false</UsePartialTypes>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>Boo.Lang.Useful.Tests</RootNamespace>
+
+    <!-- See Boo.Lang.CodeDom.Tests for why a Boo test project says all this. -->
+    <IsTestProject>true</IsTestProject>
+    <BooTargetKind>library</BooTargetKind>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>Full</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <ducky>false</ducky>
-    <culture />
-    <genwarnings>false</genwarnings>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <ducky>false</ducky>
-    <culture />
-    <genwarnings>false</genwarnings>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="Attributes\AbstractAttributeTestFixture.boo" />
-    <Compile Include="Attributes\AutoFlagsAttributeTestFixture.boo" />
-    <Compile Include="Attributes\OnceAttributeTestFixture.boo" />
-    <Compile Include="Attributes\SingletonAttributeSerialization.boo" />
-    <Compile Include="Attributes\SingletonAttributeTestFixture.boo" />
-    <Compile Include="BooTemplate\Globals.boo" />
-    <Compile Include="BooTemplate\TemplateCompilerTestFixture.boo" />
-    <Compile Include="BooTemplate\TemplatePreProcessorTestFixture.boo" />
-    <Compile Include="Collections\CacheTestFixture.boo" />
-    <Compile Include="Collections\CollectionAttributeTestFixture.boo" />
-    <Compile Include="Collections\SetTestFixture.boo" />
-    <Compile Include="CommandLine\AbstractCommandLineTestFixture.boo" />
-    <Compile Include="CommandLine\ParserTestFixture.boo" />
-    <Compile Include="IO\PreprocessorFixture.boo" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Boo.Lang.Useful\Boo.Lang.Useful.booproj">
-      <Project>{C7CA440B-2A76-420D-8B0E-5E5C1676F451}</Project>
-      <Name>Boo.Lang.Useful</Name>
-    </ProjectReference>
-    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>nunit</Package>
-    </Reference>
-    <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
-      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
-      <Name>Boo.Lang.Parser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang.Extensions\Boo.Lang.Extensions.booproj">
-      <Project>{48E18542-C08D-4BAF-99D0-BA2882259F40}</Project>
-      <Name>Boo.Lang.Extensions</Name>
-    </ProjectReference>
+    <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
+    <ProjectReference Include="../../src/booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <Import Project="../../Boo.Boo.targets" />
+
 </Project>

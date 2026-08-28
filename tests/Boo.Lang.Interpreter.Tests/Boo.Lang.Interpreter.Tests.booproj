@@ -1,59 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{6B5F795B-0317-4C25-9115-115965CC78BE}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Boo.Lang.Interpreter.Tests</RootNamespace>
     <AssemblyName>Boo.Lang.Interpreter.Tests</AssemblyName>
-    <ProductVersion>8.0.50727</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <UsePartialTypes>false</UsePartialTypes>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>Boo.Lang.Interpreter.Tests</RootNamespace>
+
+    <!-- See Boo.Lang.CodeDom.Tests for why a Boo test project says all this. -->
+    <IsTestProject>true</IsTestProject>
+    <BooTargetKind>library</BooTargetKind>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>Full</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <ducky>false</ducky>
-    <culture />
-    <genwarnings>false</genwarnings>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <ducky>false</ducky>
-    <culture />
-    <genwarnings>false</genwarnings>
-  </PropertyGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+
   <ItemGroup>
-    <Compile Include="AbstractInterpreterTestFixture.boo" />
-    <Compile Include="InteractiveInterpreterTestFixture.boo" />
-    <Compile Include="InteractiveInterpreterConsoleTest.boo" />
-    <Compile Include="DescribeBuiltinTest.boo" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Boo.Lang.Interpreter\Boo.Lang.Interpreter.booproj">
-      <Project>{5AB9F617-B157-4BFC-B251-EB64C4697FC0}</Project>
-      <Name>Boo.Lang.Interpreter</Name>
-    </ProjectReference>
-    <Reference Include="Boo.Lang.Parser, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang.Compiler, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang.Useful, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="Boo.Lang.Extensions, Version=2.0.9.4, Culture=neutral, PublicKeyToken=32c39770e9a21a67" />
-    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>nunit</Package>
-    </Reference>
+    <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Interpreter/Boo.Lang.Interpreter.booproj" />
+    <ProjectReference Include="../../src/booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <Import Project="../../Boo.Boo.targets" />
+
 </Project>

@@ -35,7 +35,7 @@ abstract class AbstractAttributeTestFixture:
 	
 	_compiler as BooCompiler	
 	
-	[TestFixtureSetUp]
+	[OneTimeSetUp]
 	def SetUpFixture():
 		_compiler = BooCompiler()
 		_compiler.Parameters.Pipeline = Pipelines.ResolveExpressions()

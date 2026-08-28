@@ -49,7 +49,7 @@ namespace Boo.Lang.Runtime.Tests
 			}
 			catch (Exception e)
 			{
-				Assert.IsInstanceOfType(typeof(TException), e);
+				Assert.IsInstanceOf(typeof(TException), e);
 			}
 		}
 
