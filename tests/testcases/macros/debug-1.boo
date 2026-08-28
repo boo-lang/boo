@@ -10,7 +10,7 @@ import System.Diagnostics
 
 debug "You don't see this..."
 
-Debug.Listeners.Add(TextWriterTraceListener(Console.Out))
+Trace.Listeners.Add(TextWriterTraceListener(Console.Out))
 
 debug "But you do see this..."
 debug 1, 2, 3
