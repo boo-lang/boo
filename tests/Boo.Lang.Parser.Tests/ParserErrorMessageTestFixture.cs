@@ -54,15 +54,10 @@ using BooCompiler.Tests;
 public class ParserErrorMessageTestFixture
 {
 	/// <summary>
-	/// Snippets whose message the parser does not produce. Both are a missing
-	/// comma inside a call, which it reports as an unbalanced paren.
+	/// Snippets whose message the parser does not produce.
 	/// </summary>
 	private static readonly Dictionary<string, string> KnownDeviations = new Dictionary<string, string>
 	{
-		["Either separate expressions with commas or make sure your parens are balanced [0]"] =
-			"Unbalanced expression, closing paren not found",
-		["Expressions must be separated by commas [0]"] =
-			"Unbalanced expression, closing paren not found",
 	};
 
 	public static IEnumerable<TestCaseData> Examples

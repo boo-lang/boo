@@ -167,18 +167,15 @@ def fn():
     foo)
 """
 
-error "Either separate expressions with commas or make sure your parens are balanced", """
-foo(bar baz, qux)
-"""
-
 error "Expressions must be separated by commas", """
 foo(bar baz)
 ---
+foo(bar baz, qux)
+---
 a = foo bar
+---
+print foo bar
 """
-# error "Expressions must be separated by commas", """
-# print foo bar
-# """
 
 error "Block must be indented", """
 def foo():

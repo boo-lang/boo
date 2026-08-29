@@ -22,6 +22,9 @@ internal static class BooErrorPatterns
 		public int Token;
 		public int Offending = -1;
 		public bool NoViableAlt;
+
+		/// Null where the state of the parens does not matter.
+		public bool? UnclosedParen;
 	}
 
 	private static readonly Pattern[] Patterns =
@@ -38,7 +41,7 @@ internal static class BooErrorPatterns
 		Mismatch(StringResources.BooParser_BlockMustBeIndented, "class_definition", BooLexer.COLON),
 
 		Alt(StringResources.BooParser_UnbalancedClosingParen, "parse_module", BooLexer.EOL),
-		Alt(StringResources.BooParser_UnbalancedClosingParen, "parse_module", BooLexer.ID),
+		Alt(StringResources.BooParser_UnbalancedClosingParen, "parse_module", BooLexer.ID, unclosedParen: true),
 		Alt(StringResources.BooParser_UnbalancedClosingParen, "stmt", BooLexer.CLASS),
 		Alt(StringResources.BooParser_UnbalancedClosingParen, "stmt", BooLexer.COLON),
 		Alt(StringResources.BooParser_UnbalancedClosingParen, "stmt", BooLexer.DEF),
@@ -55,11 +58,13 @@ internal static class BooErrorPatterns
 		Mismatch(StringResources.BooParser_UnbalancedOpeningParen, "stmt", BooLexer.EOL, BooLexer.ID),
 
 		Alt(StringResources.BooParser_SeparateExpressionsWithCommas, "stmt", BooLexer.ID),
+		Alt(StringResources.BooParser_SeparateExpressionsWithCommas, "parse_module", BooLexer.ID, unclosedParen: false),
 		Mismatch(StringResources.BooParser_SeparateExpressionsWithCommas,
 			"assignment_or_method_invocation_with_block_stmt", BooLexer.EOL, BooLexer.ID),
 	};
 
-	private static Pattern Alt(string message, string rule, int token) => new Pattern { Message = message, Rule = rule, Token = token, NoViableAlt = true };
+	private static Pattern Alt(string message, string rule, int token, bool? unclosedParen = null) =>
+		new Pattern { Message = message, Rule = rule, Token = token, NoViableAlt = true, UnclosedParen = unclosedParen };
 
 	private static Pattern Mismatch(string message, string rule, int token) => new Pattern { Message = message, Rule = rule, Token = token, NoViableAlt = false };
 
@@ -87,14 +92,43 @@ internal static class BooErrorPatterns
 		// it reports a missing token with no exception at all.
 		var expected = e != null ? e.GetExpectedTokens() : parser.GetExpectedTokens();
 
+		bool? unclosedParen = null;
 		var pattern = Patterns.FirstOrDefault(p =>
 			p.Rule == rule
 			&& p.NoViableAlt == noViableAlt
 			&& (p.Offending < 0 || p.Offending == offendingSymbol.Type)
 			&& (p.NoViableAlt
 				? p.Token == offendingSymbol.Type
-				: expected != null && expected.Contains(p.Token)));
+				: expected != null && expected.Contains(p.Token))
+			&& (p.UnclosedParen == null
+				|| p.UnclosedParen == (unclosedParen ??= HasUnclosedParen(parser))));
 
 		return pattern == null ? null : pattern.Message;
+	}
+
+	/// <summary>
+	/// Whether some opening paren is never closed.
+	///
+	/// A missing comma and a missing paren stop the parser in the same place: an
+	/// identifier in parse_module, no viable alternative, identical expected set.
+	/// Only the parens themselves tell the two apart.
+	/// </summary>
+	private static bool HasUnclosedParen(Parser parser)
+	{
+		var tokens = parser.InputStream as BufferedTokenStream;
+		if (tokens == null)
+			return false;
+
+		tokens.Fill();
+		var depth = 0;
+		for (var i = 0; i < tokens.Size; i++)
+		{
+			var type = tokens.Get(i).Type;
+			if (type == BooLexer.LPAREN)
+				depth++;
+			else if (type == BooLexer.RPAREN)
+				depth--;
+		}
+		return depth > 0;
 	}
 }
