@@ -30,48 +30,47 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Boo.Lang.Compiler.Steps
+namespace Boo.Lang.Compiler.Steps;
+
+/// <summary>
+/// Loads the assemblies the compiler generates and keeps them resolvable
+/// by name.
+/// </summary>
+/// <remarks>
+/// An assembly loaded from an image is not bound by name, so a generated
+/// assembly that references another one, which is what compiling from a
+/// macro or from MetaProgramming.compile produces, cannot find it. They are
+/// registered here and handed back from the default load context's
+/// Resolving event. Nothing unloads them; assemblies in the default context
+/// live as long as the process either way.
+/// </remarks>
+internal static class GeneratedAssemblies
 {
-	/// <summary>
-	/// Loads the assemblies the compiler generates and keeps them resolvable
-	/// by name.
-	/// </summary>
-	/// <remarks>
-	/// An assembly loaded from an image is not bound by name, so a generated
-	/// assembly that references another one, which is what compiling from a
-	/// macro or from MetaProgramming.compile produces, cannot find it. They are
-	/// registered here and handed back from the default load context's
-	/// Resolving event. Nothing unloads them; assemblies in the default context
-	/// live as long as the process either way.
-	/// </remarks>
-	internal static class GeneratedAssemblies
+	private static readonly Dictionary<string, Assembly> Loaded = new Dictionary<string, Assembly>();
+
+	private static bool _resolving;
+
+	internal static Assembly Load(byte[] image)
 	{
-		private static readonly Dictionary<string, Assembly> Loaded = new Dictionary<string, Assembly>();
-
-		private static bool _resolving;
-
-		internal static Assembly Load(byte[] image)
+		var assembly = Assembly.Load(image);
+		lock (Loaded)
 		{
-			var assembly = Assembly.Load(image);
-			lock (Loaded)
+			Loaded[assembly.GetName().Name] = assembly;
+			if (!_resolving)
 			{
-				Loaded[assembly.GetName().Name] = assembly;
-				if (!_resolving)
-				{
-					AssemblyLoadContext.Default.Resolving += Resolve;
-					_resolving = true;
-				}
+				AssemblyLoadContext.Default.Resolving += Resolve;
+				_resolving = true;
 			}
-			return assembly;
 		}
+		return assembly;
+	}
 
-		private static Assembly Resolve(AssemblyLoadContext context, AssemblyName name)
+	private static Assembly Resolve(AssemblyLoadContext context, AssemblyName name)
+	{
+		lock (Loaded)
 		{
-			lock (Loaded)
-			{
-				Assembly assembly;
-				return Loaded.TryGetValue(name.Name, out assembly) ? assembly : null;
-			}
+			Loaded.TryGetValue(name.Name, out var assembly);
+			return assembly;
 		}
 	}
 }

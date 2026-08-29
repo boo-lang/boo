@@ -26,59 +26,58 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+
+namespace Boo.Lang.Compiler.Steps;
+
+/// <summary>
+/// Assembly-level attributes whose constructor lives in the assembly being
+/// built, written straight to the metadata rather than through the builder.
+/// </summary>
+/// <remarks>
+/// PersistedAssemblyBuilder writes the assembly's custom attribute rows
+/// before it hands out metadata handles for the module's own types, so a
+/// constructor defined here ends up in the table as a nil MethodDef and the
+/// attribute cannot be read back at runtime. These rows are added after
+/// GenerateMetadata instead, once the token exists.
+/// </remarks>
+internal static class DeferredAssemblyAttributes
 {
-	using System.Reflection;
-	using System.Reflection.Emit;
-	using System.Reflection.Metadata;
-	using System.Reflection.Metadata.Ecma335;
+	private static readonly PropertyInfo ConstructorOf =
+		typeof(CustomAttributeBuilder).GetProperty("Ctor", BindingFlags.Instance | BindingFlags.NonPublic);
+
+	private static readonly PropertyInfo BlobOf =
+		typeof(CustomAttributeBuilder).GetProperty("Data", BindingFlags.Instance | BindingFlags.NonPublic);
 
 	/// <summary>
-	/// Assembly-level attributes whose constructor lives in the assembly being
-	/// built, written straight to the metadata rather than through the builder.
+	/// True when the attribute has to bypass the builder. Reading the
+	/// constructor needs CustomAttributeBuilder's internals, so a runtime
+	/// that no longer exposes them defers nothing and behaves as before.
 	/// </summary>
-	/// <remarks>
-	/// PersistedAssemblyBuilder writes the assembly's custom attribute rows
-	/// before it hands out metadata handles for the module's own types, so a
-	/// constructor defined here ends up in the table as a nil MethodDef and the
-	/// attribute cannot be read back at runtime. These rows are added after
-	/// GenerateMetadata instead, once the token exists.
-	/// </remarks>
-	internal static class DeferredAssemblyAttributes
+	internal static bool Defers(CustomAttributeBuilder attribute)
 	{
-		private static readonly PropertyInfo ConstructorOf =
-			typeof(CustomAttributeBuilder).GetProperty("Ctor", BindingFlags.Instance | BindingFlags.NonPublic);
+		return ConstructorOf != null
+			&& BlobOf != null
+			&& ConstructorOf.GetValue(attribute) is ConstructorBuilder;
+	}
 
-		private static readonly PropertyInfo BlobOf =
-			typeof(CustomAttributeBuilder).GetProperty("Data", BindingFlags.Instance | BindingFlags.NonPublic);
+	internal static void Write(CompilerContext context, MetadataBuilder metadata)
+	{
+		var attributes = ContextAnnotations.GetDeferredAssemblyAttributes(context);
+		if (attributes == null)
+			return;
 
-		/// <summary>
-		/// True when the attribute has to bypass the builder. Reading the
-		/// constructor needs CustomAttributeBuilder's internals, so a runtime
-		/// that no longer exposes them defers nothing and behaves as before.
-		/// </summary>
-		internal static bool Defers(CustomAttributeBuilder attribute)
+		var assembly = MetadataTokens.EntityHandle(TableIndex.Assembly, 1);
+		foreach (var attribute in attributes)
 		{
-			return ConstructorOf != null
-				&& BlobOf != null
-				&& ConstructorOf.GetValue(attribute) is ConstructorBuilder;
-		}
-
-		internal static void Write(CompilerContext context, MetadataBuilder metadata)
-		{
-			var attributes = ContextAnnotations.GetDeferredAssemblyAttributes(context);
-			if (attributes == null)
-				return;
-
-			var assembly = MetadataTokens.EntityHandle(TableIndex.Assembly, 1);
-			foreach (var attribute in attributes)
-			{
-				var constructor = (ConstructorBuilder) ConstructorOf.GetValue(attribute);
-				metadata.AddCustomAttribute(
-					assembly,
-					MetadataTokens.MethodDefinitionHandle(constructor.MetadataToken),
-					metadata.GetOrAddBlob((byte[]) BlobOf.GetValue(attribute)));
-			}
+			var constructor = (ConstructorBuilder) ConstructorOf.GetValue(attribute);
+			metadata.AddCustomAttribute(
+				assembly,
+				MetadataTokens.MethodDefinitionHandle(constructor.MetadataToken),
+				metadata.GetOrAddBlob((byte[]) BlobOf.GetValue(attribute)));
 		}
 	}
 }

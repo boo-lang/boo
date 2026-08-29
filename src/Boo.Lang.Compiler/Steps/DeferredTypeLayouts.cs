@@ -26,50 +26,49 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Compiler.Steps
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+
+namespace Boo.Lang.Compiler.Steps;
+
+/// <summary>
+/// The size and packing a type asked for, written straight to the metadata.
+/// </summary>
+/// <remarks>
+/// PersistedAssemblyBuilder records a type's layout only when the layout is
+/// explicit, so a StructLayout naming a Size on an otherwise sequential
+/// struct is dropped and the struct comes out as wide as its fields. The
+/// rows are added after GenerateMetadata instead, once the type has a token.
+/// </remarks>
+internal static class DeferredTypeLayouts
 {
-	using System.Collections.Generic;
-	using System.Reflection.Emit;
-	using System.Reflection.Metadata;
-	using System.Reflection.Metadata.Ecma335;
-
-	/// <summary>
-	/// The size and packing a type asked for, written straight to the metadata.
-	/// </summary>
-	/// <remarks>
-	/// PersistedAssemblyBuilder records a type's layout only when the layout is
-	/// explicit, so a StructLayout naming a Size on an otherwise sequential
-	/// struct is dropped and the struct comes out as wide as its fields. The
-	/// rows are added after GenerateMetadata instead, once the type has a token.
-	/// </remarks>
-	internal static class DeferredTypeLayouts
+	internal struct Layout
 	{
-		internal struct Layout
-		{
-			internal TypeBuilder Type;
-			internal int Size;
-			internal int Packing;
-		}
+		internal TypeBuilder Type;
+		internal int Size;
+		internal int Packing;
+	}
 
-		internal static void Defer(CompilerContext context, TypeBuilder type, int size, int packing)
-		{
-			ContextAnnotations.AddDeferredTypeLayout(context, new Layout { Type = type, Size = size, Packing = packing });
-		}
+	internal static void Defer(CompilerContext context, TypeBuilder type, int size, int packing)
+	{
+		ContextAnnotations.AddDeferredTypeLayout(context, new Layout { Type = type, Size = size, Packing = packing });
+	}
 
-		internal static void Write(CompilerContext context, MetadataBuilder metadata)
-		{
-			var layouts = ContextAnnotations.GetDeferredTypeLayouts(context);
-			if (layouts == null)
-				return;
+	internal static void Write(CompilerContext context, MetadataBuilder metadata)
+	{
+		var layouts = ContextAnnotations.GetDeferredTypeLayouts(context);
+		if (layouts == null)
+			return;
 
-			// The table is read by row order, so the types go in token order.
-			layouts.Sort((left, right) => left.Type.MetadataToken.CompareTo(right.Type.MetadataToken));
+		// The table is read by row order, so the types go in token order.
+		layouts.Sort((left, right) => left.Type.MetadataToken.CompareTo(right.Type.MetadataToken));
 
-			foreach (var layout in layouts)
-				metadata.AddTypeLayout(
-					MetadataTokens.TypeDefinitionHandle(layout.Type.MetadataToken),
-					(ushort) layout.Packing,
-					(uint) layout.Size);
-		}
+		foreach (var layout in layouts)
+			metadata.AddTypeLayout(
+				MetadataTokens.TypeDefinitionHandle(layout.Type.MetadataToken),
+				(ushort) layout.Packing,
+				(uint) layout.Size);
 	}
 }

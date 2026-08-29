@@ -31,145 +31,144 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 
-namespace Boo.Lang.Runtime
+namespace Boo.Lang.Runtime;
+
+/// <summary>
+/// A callable invoked on another thread, behind BeginInvoke and EndInvoke.
+/// </summary>
+/// <remarks>
+/// The CLR used to implement those two on every delegate, over remoting.
+/// .NET dropped remoting and left them throwing PlatformNotSupportedException,
+/// so the compiler emits bodies that come here instead. The call runs on the
+/// thread pool; EndInvoke waits for it, hands back what it returned and
+/// rethrows what it threw.
+/// </remarks>
+public sealed class AsyncCall : IAsyncResult
 {
-	/// <summary>
-	/// A callable invoked on another thread, behind BeginInvoke and EndInvoke.
-	/// </summary>
-	/// <remarks>
-	/// The CLR used to implement those two on every delegate, over remoting.
-	/// .NET dropped remoting and left them throwing PlatformNotSupportedException,
-	/// so the compiler emits bodies that come here instead. The call runs on the
-	/// thread pool; EndInvoke waits for it, hands back what it returned and
-	/// rethrows what it threw.
-	/// </remarks>
-	public sealed class AsyncCall : IAsyncResult
+	private readonly Delegate _target;
+	private readonly object[] _arguments;
+	private readonly object _state;
+	private readonly AsyncCallback _callback;
+	private readonly ManualResetEvent _done = new ManualResetEvent(false);
+
+	private object _result;
+	private Exception _error;
+	private volatile bool _completed;
+	private volatile bool _endInvokeCalled;
+
+	private AsyncCall(Delegate target, object[] arguments, AsyncCallback callback, object state)
 	{
-		private readonly Delegate _target;
-		private readonly object[] _arguments;
-		private readonly object _state;
-		private readonly AsyncCallback _callback;
-		private readonly ManualResetEvent _done = new ManualResetEvent(false);
+		_target = target;
+		_arguments = arguments;
+		_callback = callback;
+		_state = state;
+	}
 
-		private object _result;
-		private Exception _error;
-		private volatile bool _completed;
-		private volatile bool _endInvokeCalled;
+	public static IAsyncResult Begin(Delegate target, object[] arguments, AsyncCallback callback, object state)
+	{
+		if (null == target)
+			throw new ArgumentNullException("target");
 
-		private AsyncCall(Delegate target, object[] arguments, AsyncCallback callback, object state)
+		var call = new AsyncCall(target, arguments, callback, state);
+		ThreadPool.QueueUserWorkItem(_ => call.Run());
+		return call;
+	}
+
+	/// <summary>
+	/// Waits for the call to finish and returns its result, or rethrows.
+	/// </summary>
+	public static object End(IAsyncResult result)
+	{
+		var call = Expect(result);
+		call._done.WaitOne();
+		call._endInvokeCalled = true;
+		if (null != call._error)
+			ExceptionDispatchInfo.Capture(call._error).Throw();
+		return call._result;
+	}
+
+	/// <summary>
+	/// The callable the call was started on.
+	/// </summary>
+	public static Delegate Target(IAsyncResult result)
+	{
+		return Expect(result)._target;
+	}
+
+	/// <summary>
+	/// The arguments the call was given, with any ref parameters holding the
+	/// values it left behind.
+	/// </summary>
+	public static object[] Arguments(IAsyncResult result)
+	{
+		return Expect(result)._arguments;
+	}
+
+	private static AsyncCall Expect(IAsyncResult result)
+	{
+		if (null == result)
+			throw new ArgumentNullException("result");
+
+		var call = result as AsyncCall;
+		if (null == call)
+			throw new ArgumentException("The result did not come from this callable's BeginInvoke.", "result");
+		return call;
+	}
+
+	private void Run()
+	{
+		try
 		{
-			_target = target;
-			_arguments = arguments;
-			_callback = callback;
-			_state = state;
+			// DynamicInvoke writes ref parameters back into the array.
+			_result = _target.DynamicInvoke(_arguments);
+		}
+		catch (TargetInvocationException x)
+		{
+			_error = x.InnerException ?? x;
+		}
+		catch (Exception x)
+		{
+			_error = x;
+		}
+		finally
+		{
+			_completed = true;
+			_done.Set();
 		}
 
-		public static IAsyncResult Begin(Delegate target, object[] arguments, AsyncCallback callback, object state)
-		{
-			if (null == target)
-				throw new ArgumentNullException("target");
+		if (null != _callback)
+			_callback(this);
+	}
 
-			var call = new AsyncCall(target, arguments, callback, state);
-			ThreadPool.QueueUserWorkItem(_ => call.Run());
-			return call;
-		}
+	// Public rather than explicit implementations: Boo reaches these by name
+	// through duck typing, which only sees a type's own public members. The
+	// remoting AsyncResult these replace exposed them the same way.
 
-		/// <summary>
-		/// Waits for the call to finish and returns its result, or rethrows.
-		/// </summary>
-		public static object End(IAsyncResult result)
-		{
-			var call = Expect(result);
-			call._done.WaitOne();
-			call._endInvokeCalled = true;
-			if (null != call._error)
-				ExceptionDispatchInfo.Capture(call._error).Throw();
-			return call._result;
-		}
+	public object AsyncState
+	{
+		get { return _state; }
+	}
 
-		/// <summary>
-		/// The callable the call was started on.
-		/// </summary>
-		public static Delegate Target(IAsyncResult result)
-		{
-			return Expect(result)._target;
-		}
+	public WaitHandle AsyncWaitHandle
+	{
+		get { return _done; }
+	}
 
-		/// <summary>
-		/// The arguments the call was given, with any ref parameters holding the
-		/// values it left behind.
-		/// </summary>
-		public static object[] Arguments(IAsyncResult result)
-		{
-			return Expect(result)._arguments;
-		}
+	public bool CompletedSynchronously
+	{
+		get { return false; }
+	}
 
-		private static AsyncCall Expect(IAsyncResult result)
-		{
-			if (null == result)
-				throw new ArgumentNullException("result");
+	public bool IsCompleted
+	{
+		get { return _completed; }
+	}
 
-			var call = result as AsyncCall;
-			if (null == call)
-				throw new ArgumentException("The result did not come from this callable's BeginInvoke.", "result");
-			return call;
-		}
-
-		private void Run()
-		{
-			try
-			{
-				// DynamicInvoke writes ref parameters back into the array.
-				_result = _target.DynamicInvoke(_arguments);
-			}
-			catch (TargetInvocationException x)
-			{
-				_error = x.InnerException ?? x;
-			}
-			catch (Exception x)
-			{
-				_error = x;
-			}
-			finally
-			{
-				_completed = true;
-				_done.Set();
-			}
-
-			if (null != _callback)
-				_callback(this);
-		}
-
-		// Public rather than explicit implementations: Boo reaches these by name
-		// through duck typing, which only sees a type's own public members. The
-		// remoting AsyncResult these replace exposed them the same way.
-
-		public object AsyncState
-		{
-			get { return _state; }
-		}
-
-		public WaitHandle AsyncWaitHandle
-		{
-			get { return _done; }
-		}
-
-		public bool CompletedSynchronously
-		{
-			get { return false; }
-		}
-
-		public bool IsCompleted
-		{
-			get { return _completed; }
-		}
-
-		/// <summary>
-		/// Whether the result has been collected with EndInvoke.
-		/// </summary>
-		public bool EndInvokeCalled
-		{
-			get { return _endInvokeCalled; }
-		}
+	/// <summary>
+	/// Whether the result has been collected with EndInvoke.
+	/// </summary>
+	public bool EndInvokeCalled
+	{
+		get { return _endInvokeCalled; }
 	}
 }

@@ -2493,10 +2493,10 @@ namespace Boo.Lang.Compiler.Steps
 		MethodInfo CallTargetFor(MethodInfo mi)
 		{
 			var declaringType = mi.DeclaringType as TypeBuilder;
-			if (declaringType == null || !declaringType.IsGenericTypeDefinition)
+			if (declaringType?.IsGenericTypeDefinition != true)
 				return mi;
 
-			if (!(mi is MethodBuilder))
+			if (mi is not MethodBuilder)
 				return mi;
 
 			return TypeBuilder.GetMethod(SelfInstantiation(declaringType), mi);
@@ -2505,10 +2505,10 @@ namespace Boo.Lang.Compiler.Steps
 		ConstructorInfo CallTargetFor(ConstructorInfo ci)
 		{
 			var declaringType = ci.DeclaringType as TypeBuilder;
-			if (declaringType == null || !declaringType.IsGenericTypeDefinition)
+			if (declaringType?.IsGenericTypeDefinition != true)
 				return ci;
 
-			if (!(ci is ConstructorBuilder))
+			if (ci is not ConstructorBuilder)
 				return ci;
 
 			return TypeBuilder.GetConstructor(SelfInstantiation(declaringType), ci);
