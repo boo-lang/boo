@@ -2,6 +2,9 @@
 build
 ide-build
 test-results
+
+# dotnet test writes trx here; the CI workflow asks for it by name
+TestResults/
 *.pidb
 *.suo
 *.user

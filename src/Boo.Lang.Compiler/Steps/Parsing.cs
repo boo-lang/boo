@@ -86,7 +86,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static Assembly FindParserAssembly()
 		{
-			var thisLocation = Permissions.WithDiscoveryPermission(() => ThisAssembly().Location) ?? "";
+			var thisLocation = ThisAssembly().Location ?? "";
 			if (string.IsNullOrEmpty(thisLocation))
 				return LoadParserAssemblyByName();
 			var parserLocation = thisLocation.EndsWith("Boo.Lang.Compiler.dll", StringComparison.OrdinalIgnoreCase)

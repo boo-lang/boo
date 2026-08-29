@@ -163,7 +163,10 @@ namespace Boo.Lang.Compiler.Steps
 				Context.GetUniqueName("iterator"),
 				CurrentBestEnumeratorType);
 
-			if (CurrentBestEnumeratorType == CurrentEnumeratorType)
+			// An enumerator handed in belongs to the caller, who may keep using it.
+			bool ownsEnumerator = CurrentBestEnumeratorType != CurrentEnumeratorType;
+
+			if (!ownsEnumerator)
 			{
 				//$iterator = <node.Iterator>
 				body.Add(
@@ -223,7 +226,7 @@ namespace Boo.Lang.Compiler.Steps
 			// ensure:
 			//   d = iterator as IDisposable
 			//   d.Dispose() unless d is null
-			if (IsAssignableFrom(TypeSystemServices.IDisposableType, CurrentBestEnumeratorType))
+			if (ownsEnumerator && IsAssignableFrom(TypeSystemServices.IDisposableType, CurrentBestEnumeratorType))
 			{
 				TryStatement tryStatement = new TryStatement();
 				tryStatement.ProtectedBlock.Add(ws);

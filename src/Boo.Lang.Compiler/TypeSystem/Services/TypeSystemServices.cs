@@ -1128,20 +1128,46 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (null != et)
 				return Marshal.SizeOf(et.ActualType);
 
-			int size = 0;
 			var it = type as InternalClass;
 			if (null == it)
 				return 0;
 
-			//FIXME: TODO: warning if no predefined size => StructLayoutAttribute
+			int declared = DeclaredSizeOf(it.TypeDefinition);
+			if (0 != declared)
+				return declared;
+
+			int size = 0;
 			foreach (Field f in it.TypeDefinition.Members.OfType<Field>())
 			{
+				if (f.IsStatic)
+					continue; //statics live apart from the instance
+
 				int fsize = SizeOf(f.Type.Entity as IType);
 				if (0 == fsize)
 					return 0; //cannot be unmanaged
 				size += fsize;
 			}
 			return size;
+		}
+
+		/// <summary>
+		/// The size a StructLayout asks for, or zero when it names none.
+		/// </summary>
+		private static int DeclaredSizeOf(TypeDefinition type)
+		{
+			foreach (Ast.Attribute attribute in type.Attributes)
+			{
+				if (!attribute.Name.EndsWith("StructLayout") && !attribute.Name.EndsWith("StructLayoutAttribute"))
+					continue;
+
+				foreach (ExpressionPair named in attribute.NamedArguments)
+				{
+					var value = named.Second as IntegerLiteralExpression;
+					if (null != value && "Size" == named.First.ToString())
+						return (int) value.Value;
+				}
+			}
+			return 0;
 		}
 
 		public IType MapWildcardType(IType type)

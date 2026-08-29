@@ -66,12 +66,30 @@ namespace Boo.Lang.Parser
 
 		public void Run()
 		{
+			// Parser errors are reported through the ambient settings, which the
+			// deprecated ParseModule overload used to swap in per input.
+			var settings = My<ParserSettings>.Instance;
+			var previousHandler = settings.ErrorHandler;
+			settings.ErrorHandler = OnParserError;
+
+			try
+			{
+				ParseInputs();
+			}
+			finally
+			{
+				settings.ErrorHandler = previousHandler;
+			}
+		}
+
+		private void ParseInputs()
+		{
 			foreach (var input in _context.Parameters.Input)
 			{
 				try
 				{
 					using (var reader = input.Open())
-						ParseModule(input.Name, reader, OnParserError);
+						ParseModule(input.Name, reader);
 				}				
 				catch (CompilerError error)
 				{

@@ -11,7 +11,7 @@ import Boo.Lang.Compiler.IO
 
 def createUIntPtrDelegateAssembly():
 	name = AssemblyName(Name: "UIntPtrDelegateAssembly")
-	assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Save, Path.GetTempPath())
+	assembly = PersistedAssemblyBuilder(name, typeof(object).Assembly, null)
 	module = assembly.DefineDynamicModule("UIntPtrDelegateAssembly.dll")
 	
 	t = module.DefineType("UIntPtrDelegate", TypeAttributes.Public|TypeAttributes.Sealed, MulticastDelegate)
@@ -22,8 +22,10 @@ def createUIntPtrDelegateAssembly():
 	invoke.SetImplementationFlags(MethodImplAttributes.Runtime|MethodImplAttributes.Managed)
 	
 	t.CreateType()
-	assembly.Save("UIntPtrDelegateAssembly.dll")
-	return Assembly.LoadFrom(module.FullyQualifiedName)
+
+	path = Path.Combine(Path.GetTempPath(), "UIntPtrDelegateAssembly.dll")
+	assembly.Save(path)
+	return Assembly.LoadFrom(path)
 
 code = """
 def foo():

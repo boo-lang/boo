@@ -25,12 +25,13 @@ namespace BooCompiler.Tests
 					.Returns("string");
 
 				languageAmbianceMock.Setup(ambience => ambience.DefaultGeneratorTypeFor("string"))
-					.Returns("string*")
-					.AtMostOnce();
+					.Returns("string*");
 
 				CompilerErrorFactory.InvalidGeneratorReturnType(new SimpleTypeReference(), type);
 
 				languageAmbianceMock.VerifyAll();
+				languageAmbianceMock.Verify(
+					ambience => ambience.DefaultGeneratorTypeFor("string"), Times.AtMostOnce());
 			});
 		}
 	}

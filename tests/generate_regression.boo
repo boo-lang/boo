@@ -342,6 +342,8 @@ then return a suitable [CategoryName()] attribute.
 			return "[Ignore(\"${reason[0].Value.Trim()}\")]"
 		case /\s*#\s*category\s+(?<name>.*)/:
 			return "[Category(\"${name[0].Value.Trim()}\")]"
+		case /\s*#\s*platform\s+(?<name>.*)/:
+			return "[Platform(\"${name[0].Value.Trim()}\")]"
 		otherwise:
 			return ""
 			

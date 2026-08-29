@@ -39,6 +39,14 @@ namespace Boo.Lang.Compiler.Steps
 		
 		private static readonly object AssemblyBuilderKey = new object();
 
+		private static readonly object EntryPointBuilderKey = new object();
+
+		private static readonly object AssemblyImageKey = new object();
+
+		private static readonly object DeferredAssemblyAttributesKey = new object();
+
+		private static readonly object DeferredTypeLayoutsKey = new object();
+
         private static readonly object AsyncKey = new object();
 
         private static readonly object AwaitInExceptionHandlerKey = new object();
@@ -90,6 +98,70 @@ namespace Boo.Lang.Compiler.Steps
 				throw new ArgumentNullException("builder");
 			}
 			context.Properties[AssemblyBuilderKey] = builder;
+		}
+
+		/// <summary>
+		/// The emitted entry point, needed by SaveAssembly to fill in the PE header.
+		/// Its metadata token is only assigned once metadata has been generated.
+		/// </summary>
+		public static System.Reflection.Emit.MethodBuilder GetEntryPointBuilder(CompilerContext context)
+		{
+			return (System.Reflection.Emit.MethodBuilder)context.Properties[EntryPointBuilderKey];
+		}
+
+		public static void SetEntryPointBuilder(CompilerContext context, System.Reflection.Emit.MethodBuilder builder)
+		{
+			context.Properties[EntryPointBuilderKey] = builder;
+		}
+
+		internal static byte[] GetAssemblyImage(CompilerContext context)
+		{
+			return (byte[])context.Properties[AssemblyImageKey];
+		}
+
+		internal static void SetAssemblyImage(CompilerContext context, byte[] image)
+		{
+			context.Properties[AssemblyImageKey] = image;
+		}
+
+		/// <summary>
+		/// Type layouts DeferredTypeLayouts writes once metadata has been
+		/// generated.
+		/// </summary>
+		internal static List<DeferredTypeLayouts.Layout> GetDeferredTypeLayouts(CompilerContext context)
+		{
+			return (List<DeferredTypeLayouts.Layout>)context.Properties[DeferredTypeLayoutsKey];
+		}
+
+		internal static void AddDeferredTypeLayout(CompilerContext context, DeferredTypeLayouts.Layout layout)
+		{
+			var layouts = GetDeferredTypeLayouts(context);
+			if (null == layouts)
+			{
+				layouts = new List<DeferredTypeLayouts.Layout>();
+				context.Properties[DeferredTypeLayoutsKey] = layouts;
+			}
+			layouts.Add(layout);
+		}
+
+		/// <summary>
+		/// Assembly attributes DeferredAssemblyAttributes writes once metadata
+		/// has been generated.
+		/// </summary>
+		internal static List<System.Reflection.Emit.CustomAttributeBuilder> GetDeferredAssemblyAttributes(CompilerContext context)
+		{
+			return (List<System.Reflection.Emit.CustomAttributeBuilder>)context.Properties[DeferredAssemblyAttributesKey];
+		}
+
+		internal static void AddDeferredAssemblyAttribute(CompilerContext context, System.Reflection.Emit.CustomAttributeBuilder attribute)
+		{
+			var attributes = GetDeferredAssemblyAttributes(context);
+			if (null == attributes)
+			{
+				attributes = new List<System.Reflection.Emit.CustomAttributeBuilder>();
+				context.Properties[DeferredAssemblyAttributesKey] = attributes;
+			}
+			attributes.Add(attribute);
 		}
 
 		private ContextAnnotations()

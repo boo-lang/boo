@@ -160,7 +160,7 @@ class AbstractCommandLine:
 			parser.AddOption(option) do (value as string):
 				field.SetValue(
 					self,
-					Convert.ChangeType(value, field.FieldType))
+					System.Convert.ChangeType(value, field.FieldType))
 		
 	private def AddArgument(parser as Parser, argument as ArgumentAttribute, member):
 		method = member as MethodInfo

@@ -268,6 +268,10 @@ namespace Boo.Lang.Compiler.Resources
             }
         }
     }
+    // Mirrors the Win32 RESOURCE and RESOURCE_STRING layouts. Nothing populates
+    // them yet: win32 resource emission needs a ResourceSectionBuilder on the PE
+    // writer, which is not wired up. Kept as the reference for that work.
+#pragma warning disable CS0649 // field never assigned
     internal class RESOURCE
     {
         internal RESOURCE_STRING pstringType;
@@ -290,6 +294,7 @@ namespace Boo.Lang.Compiler.Resources
         internal WORD Ordinal;
         internal string theString;
     };
+#pragma warning restore CS0649
 
     internal static class UnamangedResourceHelper
     {

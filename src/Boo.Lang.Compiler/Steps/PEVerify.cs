@@ -28,79 +28,117 @@
 
 namespace Boo.Lang.Compiler.Steps
 {
+	using System;
 	using System.Diagnostics;
-	using System.Text;
 	using System.IO;
-	using Compiler;
 
+	/// <summary>
+	/// Verifies the generated assembly with ilverify.
+	/// </summary>
+	/// <remarks>
+	/// peverify.exe only ships with the .NET Framework SDK and Mono's pedump
+	/// fails every .NET image on System.Private.CoreLib, so neither is usable.
+	/// ilverify comes from the dotnet-ilverify tool:
+	///
+	///     dotnet tool install --global dotnet-ilverify
+	///
+	/// When it is not installed the step warns and passes. BOO_ILVERIFY points
+	/// at a specific executable.
+	/// </remarks>
 	public class PEVerify : AbstractCompilerStep
 	{
 		override public void Run()
-		{			
-#if !NO_SYSTEM_PROCESS
+		{
 			if (Errors.Count > 0)
 				return;
 
-			string command = null;
-			string arguments = string.Empty;
-			
-			switch ((int) System.Environment.OSVersion.Platform)
-			{	
-				case (int)System.PlatformID.Unix:
-				case 128:// mono's PlatformID.Unix workaround on 1.1
-					command = "pedump";
-					arguments = "--verify all \"" + Context.GeneratedAssemblyFileName + "\"";
-					break;
-				default: // Windows
-					command = "peverify.exe";
-					arguments = "\"" + Context.GeneratedAssemblyFileName + "\"";
-					break;					
+			var verifier = FindVerifier();
+			if (verifier == null)
+			{
+				Context.TraceInfo("ilverify was not found; skipping verification");
+				return;
 			}
-			
+
 			try
 			{
-				var p = StartProcess(Path.GetDirectoryName(Parameters.OutputAssembly), command, arguments);
-				p.WaitForExit();
-				if (0 != p.ExitCode)
-					Errors.Add(new CompilerError(Ast.LexicalInfo.Empty, p.StandardOutput.ReadToEnd()));
+				var process = StartVerifier(verifier);
+				var output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd();
+				process.WaitForExit();
+
+				if (0 != process.ExitCode)
+					Errors.Add(new CompilerError(Ast.LexicalInfo.Empty, output));
 			}
-			catch (System.Exception e)
+			catch (Exception e)
 			{
-				Warnings.Add(new CompilerWarning("Could not start " + command));      
-				Context.TraceWarning("Could not start " + command +" : " + e.Message);
+				Warnings.Add(new CompilerWarning("Could not run " + verifier));
+				Context.TraceWarning("Could not run " + verifier + " : " + e.Message);
 			}
-#endif
 		}
-		
-#if !NO_SYSTEM_PROCESS
-		public Process StartProcess(string workingdir, string filename, string arguments)
+
+		private Process StartVerifier(string verifier)
 		{
-			var p = new Process
+			var assembly = Context.GeneratedAssemblyFileName;
+			var startInfo = new ProcessStartInfo
 			{
-				StartInfo =
-				{
-					Arguments = arguments,
-					CreateNoWindow = true,
-					UseShellExecute = false,
-					RedirectStandardOutput = true,
-					RedirectStandardInput = true,
-					RedirectStandardError = true,
-					FileName = filename
-				}
+				FileName = verifier,
+				CreateNoWindow = true,
+				UseShellExecute = false,
+				RedirectStandardOutput = true,
+				RedirectStandardError = true,
 			};
 
-			// Mono's pedump won't find the dependent assemblies if the output 
-			// directory is not in the path. It can also give problems with the 
-			// encoding if it's not forced to one.
-			if (System.Type.GetType("Mono.Runtime") != null)
+			startInfo.ArgumentList.Add(assembly);
+
+			// The verifier resolves references itself, so it needs both the
+			// runtime's assemblies and whatever sits beside the output.
+			startInfo.ArgumentList.Add("-r");
+			startInfo.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "*.dll"));
+
+			var outputDirectory = Path.GetDirectoryName(Path.GetFullPath(assembly));
+			if (!string.IsNullOrEmpty(outputDirectory))
 			{
-				p.StartInfo.EnvironmentVariables["MONO_PATH"] = workingdir;
-				p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
-				p.StartInfo.StandardErrorEncoding = Encoding.UTF8;
+				startInfo.ArgumentList.Add("-r");
+				startInfo.ArgumentList.Add(Path.Combine(outputDirectory, "*.dll"));
 			}
-			p.Start();
-			return p;
+
+			var runtimeDirectory = Path.GetDirectoryName(typeof(object).Assembly.Location);
+			if (!string.IsNullOrEmpty(runtimeDirectory))
+			{
+				startInfo.ArgumentList.Add("-r");
+				startInfo.ArgumentList.Add(Path.Combine(runtimeDirectory, "*.dll"));
+			}
+
+			return Process.Start(startInfo);
 		}
-#endif
+
+		private static string FindVerifier()
+		{
+			var configured = Environment.GetEnvironmentVariable("BOO_ILVERIFY");
+			if (!string.IsNullOrEmpty(configured))
+				return File.Exists(configured) ? configured : null;
+
+			foreach (var candidate in CandidatePaths())
+				if (File.Exists(candidate))
+					return candidate;
+
+			return null;
+		}
+
+		private static System.Collections.Generic.IEnumerable<string> CandidatePaths()
+		{
+			var name = Environment.OSVersion.Platform == PlatformID.Win32NT ? "ilverify.exe" : "ilverify";
+
+			var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+			if (!string.IsNullOrEmpty(home))
+			{
+				yield return Path.Combine(home, ".dotnet", "tools", name);
+				yield return Path.Combine(home, ".local", "share", "dotnet", ".dotnet", "tools", name);
+			}
+
+			var path = Environment.GetEnvironmentVariable("PATH") ?? "";
+			foreach (var dir in path.Split(Path.PathSeparator))
+				if (dir.Length > 0)
+					yield return Path.Combine(dir, name);
+		}
 	}
 }

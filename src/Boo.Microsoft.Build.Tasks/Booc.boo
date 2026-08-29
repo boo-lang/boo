@@ -7,10 +7,44 @@ import System.Text.RegularExpressions
 import Microsoft.Build.Utilities
 import Microsoft.Build.Framework
 import Microsoft.Build.Tasks
-import Microsoft.Win32
 
 
-class Booc(ManagedCompiler):
+// ManagedCompiler has left the public MSBuild API, and ToolTaskExtension below
+// it cannot be derived from outside MSBuild either. Booc derives from ToolTask
+// and declares what it used to inherit, under the names every compiler task
+// shares so that project files keep working.
+class Booc(ToolTask):
+
+    # The source files to compile.
+    property Sources as (ITaskItem)
+    # The assembly to produce.
+    property OutputAssembly as ITaskItem
+    # The assemblies to reference.
+    property References as (ITaskItem)
+    # Response files to pass to the compiler.
+    property ResponseFiles as (ITaskItem)
+    # Resources to embed, tagged Resx or Non-Resx by their Type metadata.
+    property Resources as (ITaskItem)
+    # library, exe or winexe.
+    property TargetType as string
+    # The key file to sign the assembly with.
+    property KeyFile as string
+    # The key container to sign the assembly with.
+    property KeyContainer as string
+    # Turns every warning into an error.
+    property TreatWarningsAsErrors as bool
+    # Writes compiler output as UTF-8.
+    property Utf8Output as bool
+    # Signs the assembly later, leaving room for the signature now.
+    property DelaySign as bool
+    # Emits debugging information.
+    property EmitDebugInformation as bool
+    # Suppresses the compiler banner.
+    property NoLogo as bool
+    # Ignores booc.rsp.
+    property NoConfig as bool
+    # Extra directories to search for references.
+    property AdditionalLibPaths as (string)
 
     # Allows to compile unsafe code.
     property AllowUnsafeBlocks as bool
@@ -45,68 +79,44 @@ class Booc(ManagedCompiler):
     # Gets/sets if we want to use whitespace agnostic mode.
     property WhiteSpaceAgnostic as bool
 
+    # booc.dll to run. Defaults to the copy sitting beside this task assembly.
+    property BoocPath as string
+
+    // booc ships as a managed dll on .NET, so the tool being run is the dotnet
+    // host and booc.dll is its first argument. The old lookup searched for a
+    // booc.exe or a Mono booc script, neither of which is produced any more.
     protected override ToolName:
         get:
-            if null != Type.GetType('Mono.Runtime'):
-                if Environment.OSVersion.VersionString.Contains('Windows'):
-                    return 'booc.bat'
-                else:
-                    return 'booc'
-            return 'booc.exe'
-
-    private def FindPathForNames(path as string):
-    """ Support the case of Mono using directly the managed exe """
-        name = ToolName
-        names = (Path.GetFileNameWithoutExtension(name) + '.exe', name)
-        for name in names:
-            fpath = Path.Combine(path, name)
-            if File.Exists(fpath):
-                return fpath
-        return null
+            return 'dotnet.exe' if Path.DirectorySeparatorChar == char('\\')
+            return 'dotnet'
 
     protected override def GenerateFullPathToTool() as string:
-        path = FindPathForNames(ToolPath)
-        return path if path
+        # ToolPath wins when set; otherwise the host is found on PATH.
+        return Path.Combine(ToolPath, ToolName) if not String.IsNullOrEmpty(ToolPath)
+        return ToolName
 
-        # Check if it's just besides this dll
-        path = FindPathForNames(Path.GetDirectoryName(GetType().Assembly.Location)) 
-        return path if path
+    private def ResolveBoocPath() as string:
+        return BoocPath if not String.IsNullOrEmpty(BoocPath)
 
-        try:
-            # Check with .Net helper
-            path = ToolLocationHelper.GetPathToDotNetFrameworkFile(
-                ToolName,
-                TargetDotNetFrameworkVersion.VersionLatest)
-            return path if File.Exists(path)
-        except ex as NotImplementedException:  # Mono does not support it yet
-            pass
+        beside = Path.Combine(
+            Path.GetDirectoryName(GetType().Assembly.Location), 'booc.dll')
+        return beside if File.Exists(beside)
 
-        try:
-            # Query the shell association
-            regKeyName = 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\' + ToolName
-            regKey = Registry.LocalMachine.OpenSubKey(regKeyName)
-            return regKey.GetValue(null) if regKey != null
-        except ex as Exception:
-            pass
-
-        # Return the tool name itself.
-        # The environment will search common paths for the tool.
-        return ToolName        
+        return 'booc.dll'
 
     protected override def GetResponseFileSwitch(responseFilePath as string):
         return '@"' + responseFilePath + '"'
 
-    protected override def AddResponseFileCommands(commandLine as CommandLineBuilderExtension):
-    """ Ignore standard response file commands """
-        pass
-
-    protected override def AddCommandLineCommands(commandLine as CommandLineBuilderExtension):
-    """ Ignore standard command line commands """
-        pass
+    // ToolTaskExtension's AddResponseFileCommands and AddCommandLineCommands
+    // were overridden here to suppress the standard switches it contributes.
+    // ToolTask contributes none, so there is nothing left to suppress.
 
     protected override def GenerateCommandLineCommands():
     """ Build a totally customized command line """
-        cmdln = CommandLineBuilderExtension()
+        cmdln = CommandLineBuilder()
+
+        # The dotnet host takes booc.dll before any of booc's own switches.
+        cmdln.AppendFileNameIfNotNull(ResolveBoocPath())
 
         cmdln.AppendSwitchIfNotNull("-t:", TargetType.ToLower())
         cmdln.AppendSwitchIfNotNull("-o:", OutputAssembly)
@@ -163,11 +173,12 @@ class Booc(ManagedCompiler):
             elif verbosity == 'info':       cmdln.AppendSwitch("-vv")
             elif verbosity == 'verbose':    cmdln.AppendSwitch("-vvv");
             else:
-                Log.LogErrorWithCodeFromResources(
-                    "Vbc.EnumParameterHasInvalidValue",
-                    "Verbosity",
-                    Verbosity,
-                    "Normal, Warning, Info, Verbose")
+                // The resource-based overload came from ToolTaskExtension and
+                // read MSBuild's own strings.
+                Log.LogError(
+                    "Verbosity has an invalid value '{0}'. It must be one of: "
+                    + "Normal, Warning, Info, Verbose",
+                    Verbosity)
 
         cmdln.AppendFileNamesIfNotNull(Sources, " ")
 

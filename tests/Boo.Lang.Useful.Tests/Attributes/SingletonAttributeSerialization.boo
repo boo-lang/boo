@@ -45,7 +45,12 @@ class SingletonAttributeSerializationFixture:
 		
 		AssertSingletonInvariant(a1, a1)
 
+	// The singleton identity these two check survives serialization is the
+	// ISerializable and IObjectReference contract, which only BinaryFormatter
+	// honours, and BinaryFormatter has been removed from .NET. SingletonInvariant
+	// still covers the attribute itself.
 	[Test]
+	[Ignore("BinaryFormatter has been removed from .NET")]
 	def SerializableSingleton():
 		a1 = (SingletonObject.Instance, SingletonObject.Instance)
 		
@@ -54,6 +59,7 @@ class SingletonAttributeSerializationFixture:
 		AssertSingletonInvariant(a1, a2)
 
 	[Test]
+	[Ignore("BinaryFormatter has been removed from .NET")]
 	def BadSingleton():
 		a1 = (BadSingletonObject.Instance, BadSingletonObject.Instance)
 		a2 = SerializeAndDeserialize(a1)

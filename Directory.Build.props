@@ -1,0 +1,27 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <!-- Every project states its own attributes in AssemblyInfo. -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src/boo.snk</AssemblyOriginatorKeyFile>
+
+    <!-- CA2200 fires on rethrow patterns throughout, and SYSLIB0050/0051 on the
+         [Serializable] surface that outlived BinaryFormatter. Both are cleanup
+         rather than port work, and neither affects what is emitted. CS8981 is
+         the all-lowercase type names Boo.Lang uses by design.
+
+         CS1616 reports that AssemblyOriginatorKeyFile above overrides the
+         AssemblyKeyFile attribute in the AssemblyInfo sources. It does, and
+         should: that attribute names ../src/boo.snk, which resolves to
+         src/src/boo.snk and does not exist. The property is what signs. -->
+    <NoWarn>$(NoWarn);CA2200;SYSLIB0050;SYSLIB0051;CS8981;CS1616</NoWarn>
+  </PropertyGroup>
+
+</Project>

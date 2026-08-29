@@ -1,6 +1,6 @@
 """
 BooCompiler.Tests
-System.Drawing
+System.Drawing.Primitives
 """
 import System
 import System.Drawing from System.Drawing as SD

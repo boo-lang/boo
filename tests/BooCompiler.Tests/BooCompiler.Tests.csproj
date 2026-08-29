@@ -1,274 +1,31 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{A275332A-DE63-4FC3-844E-F765554D26A7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BooCompiler.Tests</RootNamespace>
     <AssemblyName>BooCompiler.Tests</AssemblyName>
-    <NoStdLib>False</NoStdLib>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\build\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,MSBUILD</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <RootNamespace>BooCompiler.Tests</RootNamespace>
+    <!-- SupportingClasses/Pointers.cs exercises the unsafe testcases. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+    <TargetFramework Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0-windows</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Net-1.1|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\build\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,MSBUILD</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug Net-1.1' ">
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <RegisterForComInterop>False</RegisterForComInterop>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <BaseAddress>4194304</BaseAddress>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <FileAlignment>4096</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Micro-Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\build\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;IGNOREKEYFILE,NET_2_0,MSBUILD</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <FileAlignment>4096</FileAlignment>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Micro-Release|AnyCPU' ">
-    <OutputPath>..\build\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <FileAlignment>4096</FileAlignment>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Boo.Lang.Extensions, Version=2.0.9.2, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\Boo.Lang.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang.PatternMatching, Version=2.0.9.2, Culture=neutral, PublicKeyToken=32c39770e9a21a67">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\Boo.Lang.PatternMatching.dll</HintPath>
-    </Reference>
-    <Reference Include="Moq, Version=3.1.416.3, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\moq-3.1.416.3\Moq.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <Package>mono-nunit</Package>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Xml" />
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="AbstractCompilerErrorsTestFixture.cs" />
-    <Compile Include="AbstractCompilerTestCase.cs" />
-    <Compile Include="ArraysIntegrationTestFixture.cs" />
-    <Compile Include="AssemblyEmitterTest.cs" />
-    <Compile Include="Ast\AncestorsTest.cs" />
-    <Compile Include="Ast\AstAssert.cs" />
-    <Compile Include="Ast\CloningTest.cs" />
-    <Compile Include="Ast\EnumMemberTest.cs" />
-    <Compile Include="Ast\GenericParameterDeclarationTest.cs" />
-    <Compile Include="Ast\MethodXmlSerializationTest.cs" />
-    <Compile Include="Ast\NodeMatchingTest.cs" />
-    <Compile Include="Ast\ParameterDeclarationTest.cs" />
-    <Compile Include="Ast\ReferenceExpressionTestFixture.cs" />
-    <Compile Include="Ast\TypeDefinitionTest.cs" />
-    <Compile Include="AsyncTestFixture.cs" />
-    <Compile Include="AttributesIntegrationTestFixture.cs" />
-    <Compile Include="AttributesTestFixture.cs" />
-    <Compile Include="BooCompilerTest.cs" />
-    <Compile Include="BooTestCaseUtil.cs" />
-    <Compile Include="CallablesIntegrationTestFixture.cs" />
-    <Compile Include="ClosuresIntegrationTestFixture.cs" />
-    <Compile Include="ClrExtensionsIntegrationTestFixture.cs" />
-    <Compile Include="ClrIntegrationTestFixture.cs" />
-    <Compile Include="CompilerContextTest.cs" />
-    <Compile Include="CompilerErrorFactoryTest.cs" />
-    <Compile Include="CompilerErrorsTestFixture.cs" />
-    <Compile Include="CompilerErrorTest.cs" />
-    <Compile Include="CompilerPipelineTest.cs" />
-    <Compile Include="CompilerWarningCollectionTest.cs" />
-    <Compile Include="CompilerWarningsTestFixture.cs" />
-    <Compile Include="DuckTypingIntegrationTestFixture.cs" />
-    <Compile Include="DuckyTestFixture.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="ExtensionsCompilationTest.cs" />
-    <Compile Include="ExtensionsIntegrationTestFixture.cs" />
-    <Compile Include="GeneratorsIntegrationTestFixture.cs" />
-    <Compile Include="GenericsTestFixture.cs" />
-    <Compile Include="LinqIntegrationTestFixture.cs" />
-    <Compile Include="LocalizationTest.cs" />
-    <Compile Include="MacrosTestFixture.cs" />
-    <Compile Include="MetaMethodsTest.cs" />
-    <Compile Include="MetaProgrammingIntegrationTestFixture.cs" />
-    <Compile Include="ModulesIntegrationTestFixture.cs" />
-    <Compile Include="MyTest.cs" />
-    <Compile Include="Net2ErrorsTestFixture.cs" />
-    <Compile Include="OperatorsIntegrationTestFixture.cs" />
-    <Compile Include="Pipeline\AllParametersRequiredAttribute.cs" />
-    <Compile Include="Pipeline\ViewStateAttribute.cs" />
-    <Compile Include="PrimitivesIntegrationTestFixture.cs" />
-    <Compile Include="RegressionTestFixture.cs" />
-    <Compile Include="SemanticsTestFixture.cs" />
-    <Compile Include="SmokeTest.cs" />
-    <Compile Include="StatementsIntegrationTestFixture.cs" />
-    <Compile Include="StdlibTestFixture.cs" />
-    <Compile Include="Steps\InjectImplicitBooleanConversionsTest.cs" />
-    <Compile Include="Steps\MacroProcessing\MacroExpanderTest.cs" />
-    <Compile Include="StringExtensions.cs" />
-    <Compile Include="SupportingClasses\AbstractClass.cs" />
-    <Compile Include="SupportingClasses\BaseInterface.cs" />
-    <Compile Include="SupportingClasses\BOO313BaseClass.cs" />
-    <Compile Include="SupportingClasses\ByRef.cs" />
-    <Compile Include="SupportingClasses\ByteEnum.cs" />
-    <Compile Include="SupportingClasses\ClassHierarchy.cs" />
-    <Compile Include="SupportingClasses\Clickable.cs" />
-    <Compile Include="SupportingClasses\ConditionalClass.cs" />
-    <Compile Include="SupportingClasses\Constants.cs" />
-    <Compile Include="SupportingClasses\Disposable.cs" />
-    <Compile Include="SupportingClasses\ExtendsOverridenBoolOperator.cs" />
-    <Compile Include="SupportingClasses\Generics.cs" />
-    <Compile Include="SupportingClasses\ImplicitConversionToDouble.cs" />
-    <Compile Include="SupportingClasses\NoParameterlessConstructor.cs" />
-    <Compile Include="SupportingClasses\ObsoleteClass.cs" />
-    <Compile Include="SupportingClasses\OutterClass.cs" />
-    <Compile Include="SupportingClasses\OverrideBoolOperator.cs" />
-    <Compile Include="SupportingClasses\OverrideEqualityOperators.cs" />
-    <Compile Include="SupportingClasses\Person.cs" />
-    <Compile Include="SupportingClasses\PersonCollection.cs" />
-    <Compile Include="SupportingClasses\Point.cs" />
-    <Compile Include="SupportingClasses\Pointers.cs" />
-    <Compile Include="SupportingClasses\Rectangle.cs" />
-    <Compile Include="SupportingClasses\ReturnDucks.cs" />
-    <Compile Include="SupportingClasses\SByteEnum.cs" />
-    <Compile Include="SupportingClasses\TestEnum.cs" />
-    <Compile Include="SupportingClasses\ThisReturnTypeIsAttribute.cs" />
-    <Compile Include="SupportingClasses\Transform.cs" />
-    <Compile Include="SupportingClasses\ValueTypeOverrideBoolOperator.cs" />
-    <Compile Include="SupportingClasses\VarArgs.cs" />
-    <Compile Include="SupportingClasses\Vector3.cs" />
-    <Compile Include="SystemDrawingPoint.cs" />
-    <Compile Include="TypesIntegrationTestFixture.cs" />
-    <Compile Include="TypeSystem\AbstractTypeSystemTest.cs" />
-    <Compile Include="TypeSystem\Core\GlobalNamespaceTest.cs" />
-    <Compile Include="TypeSystem\Core\NamespaceAssert.cs" />
-    <Compile Include="TypeSystem\EntityFormatterTestBase.cs" />
-    <Compile Include="TypeSystem\Generics\GenericTypeTest.cs" />
-    <Compile Include="TypeSystem\Internal\EntityFormatterTest.cs" />
-    <Compile Include="TypeSystem\Internal\InternalCompileUnitTest.cs" />
-    <Compile Include="TypeSystem\Reflection\BeanPropertyFinder.cs" />
-    <Compile Include="TypeSystem\Reflection\EntityFormatterTest.cs" />
-    <Compile Include="TypeSystem\Reflection\NullableImplicitConversionOperatorsTest.cs" />
-    <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderExtensionTest.cs" />
-    <Compile Include="TypeSystem\Reflection\ReflectionTypeSystemProviderTest.cs" />
-    <Compile Include="TypeSystem\Services\BooCodeBuilderTest.cs" />
-    <Compile Include="TypeSystem\Services\CodeReifierTest.cs" />
-    <Compile Include="TypeSystem\Services\DowncastPermissionsTest.cs" />
-    <Compile Include="TypeSystem\Services\InvocationTypeInferenceRulesTest.cs" />
-    <Compile Include="TypeSystem\Services\MemberCollectorTest.cs" />
-    <Compile Include="TypeSystem\Services\NameResolutionServiceTest.cs" />
-    <Compile Include="UnsafeErrorsTestFixture.cs" />
-    <Compile Include="UnsafeTestFixture.cs" />
-    <Compile Include="Util\ArrayEqualityComparerTest.cs" />
-    <Compile Include="Util\MethodsTest.cs" />
-    <Compile Include="Util\PropertiesTest.cs" />
+    <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
+    <ProjectReference Include="../../src/Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />
+    <ProjectReference Include="../BooSupportingClasses/BooSupportingClasses.booproj" />
+    <ProjectReference Include="../BooModules/BooModules.booproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-      <Visible>False</Visible>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-      <Visible>False</Visible>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-      <Visible>False</Visible>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-    </BootstrapperPackage>
+    <!-- interfaces-22 needs a concrete IDbCommand. -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Boo.Lang.Compiler\Boo.Lang.Compiler.csproj">
-      <Project>{7EAC855C-AB70-4CEB-9B9A-8B60712277E2}</Project>
-      <Name>Boo.Lang.Compiler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang.Parser\Boo.Lang.Parser.csproj">
-      <Project>{BA0306B9-A10B-4D29-B219-0DFBE24741E8}</Project>
-      <Name>Boo.Lang.Parser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\Boo.Lang\Boo.Lang.csproj">
-      <Project>{A359E52E-5E90-40F3-A5F0-257FE2D545EE}</Project>
-      <Name>Boo.Lang</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

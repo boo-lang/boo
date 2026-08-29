@@ -1,8 +1,8 @@
 import System
 import System.Data
-import System.Data.SqlClient
+import Microsoft.Data.Sqlite from Microsoft.Data.Sqlite
 
-sql = SqlCommand() as IDbCommand
+sql = SqliteCommand() as IDbCommand
 
 try:
 	reader = sql.ExecuteReader()

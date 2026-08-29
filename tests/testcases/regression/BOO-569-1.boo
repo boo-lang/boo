@@ -1,4 +1,4 @@
-#category FailsOnMono
+#platform Win
 """
 100
 100

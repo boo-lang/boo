@@ -49,7 +49,7 @@ class TypeSystemFixture:
 	def IntAsBool2(i as int) as bool:
 		pass
 	
-	[TestFixtureSetUp]
+	[OneTimeSetUp]
 	def SetUpFixture():
 		_context = CompilerContext()
 		_context.Environment.Run:

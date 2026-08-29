@@ -42,12 +42,12 @@ namespace BooCompiler.Tests.TypeSystem
 			var mock = new Mock<EntityFormatter>();
 			ActiveEnvironment.With(new ClosedEnvironment(mock.Object), () => {
          		mock.Setup(formatter => formatter.FormatType(entity))
-         			.Returns("")
-         			.AtMostOnce();
+         			.Returns("");
 
          		entity.DisplayName();
 
          		mock.VerifyAll();
+         		mock.Verify(formatter => formatter.FormatType(entity), Times.AtMostOnce());
          	});
 		}
 	}

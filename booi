@@ -1,2 +1,10 @@
 #!/bin/sh
-env mono build/booi.exe "$@"
+# Runs the booi built from source. Set BOO_CONFIGURATION=Release for that build.
+config=${BOO_CONFIGURATION:-Debug}
+root=$(dirname "$0")
+exe="$root/src/booi/bin/$config/net10.0/booi"
+if [ ! -x "$exe" ]; then
+	echo "booi is not built. Run: dotnet build Boo.slnx" >&2
+	exit 1
+fi
+exec "$exe" "$@"
