@@ -1,10 +1,10 @@
-﻿#region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) the Boo contributors
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,50 +26,52 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+namespace Boo.Lang.ParserA4;
 
-using Boo.Lang.Compiler.Ast;
+using System.Collections.Generic;
 
-namespace Boo.Lang.Parser
+/// <summary>
+/// The helpers BooLexer.g4's actions call.
+/// </summary>
+partial class BooLexer
 {
-	public class SourceLocationFactory
+	protected int _skipWhitespaceRegion = 0;
+
+	private readonly Stack<int> _beginInterpolationType = new();
+	private readonly Stack<int> _endInterpolationType = new();
+
+	private bool SkipWhitespace => _skipWhitespaceRegion > 0;
+
+	private static bool IsDigit(int ch) => ch >= '0' && ch <= '9';
+
+	private void EnterSkipWhitespaceRegion() => _skipWhitespaceRegion++;
+
+	private void LeaveSkipWhitespaceRegion() => _skipWhitespaceRegion--;
+
+	private void HandleInterpolatedExpression(int beginInterpolationType, int endTokenType)
 	{
-		public static LexicalInfo ToLexicalInfo(antlr.IToken token)
+		_beginInterpolationType.Push(beginInterpolationType);
+		_endInterpolationType.Push(endTokenType);
+		PushMode(DEFAULT_MODE);
+	}
+
+	private void HandleInterpolationToken(int type)
+	{
+		if (_beginInterpolationType.Count == 0)
+			return;
+
+		if (_beginInterpolationType.Peek() == type)
 		{
-			return new LexicalInfo(token.getFilename(), token.getLine(), token.getColumn());
+			PushMode(DEFAULT_MODE);
 		}
-
-		public static LexicalInfo ToLexicalInfo(Antlr4.Runtime.IToken token)
+		else if (_endInterpolationType.Peek() == type)
 		{
-			return new LexicalInfo(token.InputStream.SourceName, token.Line, token.Column);
-		}
-
-		public static SourceLocation ToSourceLocation(Antlr4.Runtime.IToken token)
-		{
-			return new SourceLocation(token.Line, token.Column);
-		}
-
-		public static SourceLocation ToSourceLocation(antlr.IToken token)
-		{
-			return new SourceLocation(token.getLine(), token.getColumn());
-		}
-
-		public static SourceLocation ToEndSourceLocation(antlr.IToken token)
-		{
-			string text = token.getText() ?? "";
-			return new SourceLocation(token.getLine(), token.getColumn() + text.Length - 1);
-		}
-
-		public static SourceLocation ToEndSourceLocation(Antlr4.Runtime.IToken token)
-		{
-			// EOF and the manufactured tokens report a Text they did not consume.
-			if (token.Type == Antlr4.Runtime.TokenConstants.EOF)
-				return new SourceLocation(token.Line, token.Column);
-
-			string text = token.Text ?? "";
-			var booToken = token as Boo.Lang.ParserA4.BooTokenA4;
-			if (booToken != null && booToken.MagicToken)
-				text = "";
-			return new SourceLocation(token.Line, token.Column + text.Length - 1);
+			PopMode();
+			if (CurrentMode != DEFAULT_MODE)
+			{
+				_beginInterpolationType.Pop();
+				_endInterpolationType.Pop();
+			}
 		}
 	}
 }

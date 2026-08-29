@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,50 +26,12 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+namespace Boo.Lang.ParserA4;
 
-using Boo.Lang.Compiler.Ast;
-
-namespace Boo.Lang.Parser
+public class WSABooParsingStep : BooParsingStep
 {
-	public class SourceLocationFactory
+	override protected void ParseModule(string inputName, System.IO.TextReader reader)
 	{
-		public static LexicalInfo ToLexicalInfo(antlr.IToken token)
-		{
-			return new LexicalInfo(token.getFilename(), token.getLine(), token.getColumn());
-		}
-
-		public static LexicalInfo ToLexicalInfo(Antlr4.Runtime.IToken token)
-		{
-			return new LexicalInfo(token.InputStream.SourceName, token.Line, token.Column);
-		}
-
-		public static SourceLocation ToSourceLocation(Antlr4.Runtime.IToken token)
-		{
-			return new SourceLocation(token.Line, token.Column);
-		}
-
-		public static SourceLocation ToSourceLocation(antlr.IToken token)
-		{
-			return new SourceLocation(token.getLine(), token.getColumn());
-		}
-
-		public static SourceLocation ToEndSourceLocation(antlr.IToken token)
-		{
-			string text = token.getText() ?? "";
-			return new SourceLocation(token.getLine(), token.getColumn() + text.Length - 1);
-		}
-
-		public static SourceLocation ToEndSourceLocation(Antlr4.Runtime.IToken token)
-		{
-			// EOF and the manufactured tokens report a Text they did not consume.
-			if (token.Type == Antlr4.Runtime.TokenConstants.EOF)
-				return new SourceLocation(token.Line, token.Column);
-
-			string text = token.Text ?? "";
-			var booToken = token as Boo.Lang.ParserA4.BooTokenA4;
-			if (booToken != null && booToken.MagicToken)
-				text = "";
-			return new SourceLocation(token.Line, token.Column + text.Length - 1);
-		}
+		WSABooParser.ParseModule(this.TabSize, this.Context.CompileUnit, inputName, reader, this.OnParserError);
 	}
 }

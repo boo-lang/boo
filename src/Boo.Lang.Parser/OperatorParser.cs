@@ -48,6 +48,20 @@ namespace Boo.Lang.Parser
 			throw new ArgumentException(op, "op");
 		}
 
+		public static BinaryOperatorType ParseCondAssignment(string op)
+		{
+			switch (op)
+			{
+				case "=": return BinaryOperatorType.Assign;
+				case "|=": return BinaryOperatorType.InPlaceBitwiseOr;
+				case "^=": return BinaryOperatorType.InPlaceExclusiveOr;
+				case "&=": return BinaryOperatorType.InPlaceBitwiseAnd;
+				case "<<=": return BinaryOperatorType.InPlaceShiftLeft;
+				case ">>=": return BinaryOperatorType.InPlaceShiftRight;
+			}
+			throw new ArgumentException(op, "op");
+		}
+
 		public static BinaryOperatorType ParseAssignment(string op)
 		{
 			switch (op)

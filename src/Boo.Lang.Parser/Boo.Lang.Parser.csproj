@@ -3,7 +3,17 @@
   <PropertyGroup>
     <AssemblyName>Boo.Lang.Parser</AssemblyName>
     <RootNamespace>Boo.Lang.Parser</RootNamespace>
+    <!-- ANTLR marks its generated types CLSCompliant but the assembly is not,
+         so the compiler warns on every one of them. -->
+    <NoWarn>$(NoWarn);CS3021</NoWarn>
   </PropertyGroup>
+
+  <!-- Generated/ is the ANTLR output for BooLexer.g4 and BooParser.g4, committed
+       so that a build needs neither Java nor a network fetch. After editing a
+       grammar, run scripts/regenerate-parser.sh, which needs both. -->
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />

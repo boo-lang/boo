@@ -268,5 +268,14 @@ namespace Boo.Lang.Resources
 		public const string boo_CommandLine_header = "boo command line utility";
 		public const string boo_CommandLine_usage = "Usage: boo [options] [source files]";
 
+		// What the parser says about malformed syntax. These are reported through
+		// BCE0044, whose text is "{0}.", so none should end with a period.
+		public const string BooParser_BlockMustBeIndented = "Block must be indented";
+		public const string BooParser_UnbalancedClosingParen = "Unbalanced expression, closing paren not found";
+		public const string BooParser_UnbalancedOpeningParen = "Unbalanced expression, opening paren not found";
+		public const string BooParser_SeparateExpressionsWithCommas = "Expressions must be separated by commas";
+		public const string BooParser_MixedIndentation = "Mixed indentation, expected the use of {0}";
+		public const string BooParser_DuplicateAccessor = "A property can only state one {0}";
+
 	}
 }
