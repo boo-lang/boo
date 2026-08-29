@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Migration scaffolding: everything here compares the ANTLR 4 parser against
+       the 2.7 one. It is a separate project so that dropping the 2.7 parser means
+       deleting this directory and its entry in Boo.slnx, and nothing else. -->
+  <PropertyGroup>
+    <AssemblyName>Boo.Lang.Parser.Migration.Tests</AssemblyName>
+    <RootNamespace>Boo.Lang.Parser.Tests</RootNamespace>
+    <!-- Follows BooCompiler.Tests, which it references for BooTestCaseUtil. -->
+    <TargetFramework Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0-windows</TargetFramework>
+    <!-- Comparing against the snapshots parses the corpus once per fixture, so
+         it is left out of an ordinary run. A filter given on the command line
+         replaces this one, so "TestCategory=Snapshots" asks for it. -->
+    <VSTestTestCaseFilter>TestCategory!=Snapshots</VSTestTestCaseFilter>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../BooCompiler.Tests/BooCompiler.Tests.csproj" />
+    <ProjectReference Include="../Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.csproj" />
+  </ItemGroup>
+
+</Project>
