@@ -5,7 +5,12 @@
     <RootNamespace>BooCompiler.Tests</RootNamespace>
     <!-- SupportingClasses/Pointers.cs exercises the unsafe testcases. -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0-windows</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />

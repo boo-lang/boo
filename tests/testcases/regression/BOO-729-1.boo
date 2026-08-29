@@ -1,4 +1,4 @@
-#ignore System.Windows.Forms needs a net10.0-windows target; this one is net10.0
+#platform Win
 """
 ok
 """

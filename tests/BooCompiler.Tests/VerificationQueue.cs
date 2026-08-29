@@ -142,9 +142,34 @@ internal static class VerificationQueue
 			         BooTestCaseUtil.TestCasesPath, "*.dll", SearchOption.AllDirectories))
 			yield return Path.GetDirectoryName(assembly);
 
-		var runtime = Path.GetDirectoryName(typeof(object).Assembly.Location);
-		if (!string.IsNullOrEmpty(runtime))
-			yield return runtime;
+		foreach (var directory in RuntimeDirectories())
+			yield return directory;
+	}
+
+	/// <summary>
+	/// The shared framework directories the host is running on.
+	/// </summary>
+	private static IEnumerable<string> RuntimeDirectories()
+	{
+		var seen = new List<string>();
+
+		var core = Path.GetDirectoryName(typeof(object).Assembly.Location);
+		if (!string.IsNullOrEmpty(core))
+		{
+			seen.Add(core);
+			yield return core;
+		}
+
+		var trusted = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
+		foreach (var path in (trusted ?? string.Empty).Split(Path.PathSeparator))
+		{
+			var directory = path.Length == 0 ? null : Path.GetDirectoryName(path);
+			if (string.IsNullOrEmpty(directory) || seen.Contains(directory))
+				continue;
+
+			seen.Add(directory);
+			yield return directory;
+		}
 	}
 
 	/// <summary>

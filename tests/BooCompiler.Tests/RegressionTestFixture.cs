@@ -806,7 +806,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-549-1.boo");
 		}
 		
-		[Ignore("System.Windows.Forms needs a net10.0-windows target; this one is net10.0")][Test]
+		[Platform("Win")][Test]
 		public void BOO_569_1()
 		{
 			RunCompilerTestCase(@"BOO-569-1.boo");
@@ -986,7 +986,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"BOO-725-1.boo");
 		}
 		
-		[Ignore("System.Windows.Forms needs a net10.0-windows target; this one is net10.0")][Test]
+		[Platform("Win")][Test]
 		public void BOO_729_1()
 		{
 			RunCompilerTestCase(@"BOO-729-1.boo");
