@@ -1,0 +1,21 @@
+# Line endings.
+#
+# The repository stores text as LF. Working copies get whatever the platform
+# wants, so Windows checkouts still see CRLF without that reaching a commit.
+# Before this file the tree held 2758 LF files, 1769 CRLF files and 314 with
+# both inside a single file, and any editor that rewrote one produced a diff of
+# the whole file that buried the real change.
+#
+# text=auto covers every file, including types nobody has added yet: git decides
+# text or binary by content. Only the pins below need touching again, and only
+# if some new file type has to keep one specific ending.
+
+* text=auto
+
+# Files a tool or platform requires to keep one specific ending wherever they
+# are checked out.
+*.sh    text eol=lf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+*.sln   text eol=crlf
