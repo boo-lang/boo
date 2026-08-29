@@ -19,9 +19,19 @@ namespace Boo.Lang.Parser.Tests
 			_compiler.Parameters.Pipeline = CreatePipeline();
 		}
 		
+		/// <summary>
+		/// The parser under test, chosen by BOO_PARSER. See BooTestCaseUtil.
+		/// </summary>
+		protected virtual Boo.Lang.Compiler.ICompilerStep ParsingStep()
+		{
+			return BooCompiler.Tests.BooTestCaseUtil.ParsingStep();
+		}
+
 		protected virtual Boo.Lang.Compiler.CompilerPipeline CreatePipeline()
 		{
-			return new Boo.Lang.Compiler.Pipelines.ParseAndPrint();
+			var pipeline = new Boo.Lang.Compiler.Pipelines.ParseAndPrint();
+			pipeline.Replace(typeof(Parsing), ParsingStep());
+			return pipeline;
 		}
 		
 		[SetUp]
@@ -45,7 +55,7 @@ namespace Boo.Lang.Parser.Tests
 		
 		protected virtual Boo.Lang.Compiler.Ast.Module ParseTestCase(string fname)
 		{
-			return BooParser.ParseFile(GetTestCasePath(fname)).Modules[0];
+			return BooCompiler.Tests.BooTestCaseUtil.ParseFile(GetTestCasePath(fname)).Modules[0];
 		}
 		
 		protected virtual Boo.Lang.Compiler.ICompilerInput GetCompilerInput(string testfile)

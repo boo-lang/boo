@@ -177,6 +177,7 @@ namespace BooCompiler.Tests
 				: new CompileToMemory();
 
 			pipeline.Add(new RunAssembly());
+			pipeline.Replace(typeof(Boo.Lang.Compiler.Steps.Parsing), BooTestCaseUtil.ParsingStep());
 			return pipeline;
 		}
 
