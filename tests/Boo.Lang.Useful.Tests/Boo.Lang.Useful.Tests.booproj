@@ -26,6 +26,6 @@
     <ProjectReference Include="../../src/booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <Import Project="../../Boo.Boo.targets" />
+  <Import Project="../../Boo.targets" />
 
 </Project>

@@ -5,7 +5,7 @@
     repository. It replaces CoreCompile so that references, output paths and
     project ordering keep coming from the .NET SDK.
 
-    Boo.Boo.targets in the repository root does the same job by running booc
+    Boo.targets in the repository root does the same job by running booc
     directly. It has to: the projects it builds come before this task assembly
     in the build order, so the task does not exist yet when they compile.
 
