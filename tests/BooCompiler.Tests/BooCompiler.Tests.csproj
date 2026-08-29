@@ -19,11 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- interfaces-22 needs a concrete IDbCommand. The native SQLite package is
-         pinned forward: the one Microsoft.Data.Sqlite asks for carries a high
-         severity advisory. -->
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
+    <!-- interfaces-22 needs a concrete IDbCommand. -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
   </ItemGroup>
 
 </Project>
