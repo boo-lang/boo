@@ -53,6 +53,15 @@ java -jar "$jar" \
 	-o Generated \
 	BooLexer.g4 BooParser.g4
 
+# The preprocessor's #if conditions are their own small language.
+java -jar "$jar" \
+	-Dlanguage=CSharp \
+	-package Boo.Lang.Parser.PreProcessor \
+	-visitor \
+	-no-listener \
+	-o Generated \
+	PreProcessorExpressions.g4
+
 # The tool also writes .interp and .tokens beside the sources; they describe the
 # grammar it just read and are not compiled.
 rm -f Generated/*.interp Generated/*.tokens
