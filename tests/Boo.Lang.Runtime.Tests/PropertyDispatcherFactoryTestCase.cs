@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 using Boo.Lang.Compiler.MetaProgramming;
-using Boo.Lang.Parser;
+using Boo.Lang.ParserA4;
 using Boo.Lang.Runtime.DynamicDispatching;
 using NUnit.Framework;
 

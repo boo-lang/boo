@@ -28,6 +28,7 @@
 
 using NUnit.Framework;
 using Boo.Lang.Compiler.Ast;
+using Boo.Lang.ParserA4;
 
 namespace Boo.Lang.Parser.Tests
 {

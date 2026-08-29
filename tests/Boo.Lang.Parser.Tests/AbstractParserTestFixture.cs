@@ -19,9 +19,6 @@ namespace Boo.Lang.Parser.Tests
 			_compiler.Parameters.Pipeline = CreatePipeline();
 		}
 		
-		/// <summary>
-		/// The parser under test, chosen by BOO_PARSER. See BooTestCaseUtil.
-		/// </summary>
 		protected virtual Boo.Lang.Compiler.ICompilerStep ParsingStep()
 		{
 			return BooCompiler.Tests.BooTestCaseUtil.ParsingStep();

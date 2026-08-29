@@ -27,48 +27,42 @@
 #endregion
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using Antlr4.Runtime;
 using Boo.Lang.Parser.Util;
 using NUnit.Framework;
-using antlr;
 
 namespace Boo.Lang.Parser.Tests.Util
 {
-	class FakeStream : antlr.TokenStream
+	/// Hands the filter a fixed sequence, so each case states its own input.
+	class FakeStream : ITokenSource
 	{
-		protected Queue _tokens;
+		private readonly Queue<IToken> _tokens;
 
-		public FakeStream(Queue tokens)
+		public FakeStream(Queue<IToken> tokens)
 		{
 			_tokens = tokens;
 		}
 
-		public antlr.IToken nextToken()
-		{
-			if (_tokens.Count > 0)
-			{
-				return _tokens.Dequeue() as antlr.IToken;
-			}
-			return null;
-		}
+		public IToken NextToken() => _tokens.Count > 0 ? _tokens.Dequeue() : null;
+
+		public int Line => 0;
+		public int Column => 0;
+		public ICharStream InputStream => null;
+		public string SourceName => "fake";
+		public ITokenFactory TokenFactory { get; set; } = CommonTokenFactory.Default;
 	}
-	
-	public class SimpleToken : antlr.Token
+
+	/// The filter builds INDENT, DEDENT and EOS tokens from whichever token it
+	/// was looking at, so these need a real stream behind them.
+	public class SimpleToken : CommonToken
 	{
-		protected string _buffer;
+		private static readonly ICharStream Source = new AntlrInputStream(string.Empty) { name = "fake" };
 
-		public SimpleToken(int type, string txt) : base(type, txt)
+		public SimpleToken(int type, string txt)
+			: base(Tuple.Create((ITokenSource)null, Source), type, TokenConstants.DefaultChannel, 0, 0)
 		{
-		}
-
-		override public void setText(string txt)
-		{
-			_buffer = txt;
-		}
-
-		override public string getText()
-		{
-			return _buffer;
+			Text = txt;
 		}
 	}
 
@@ -95,7 +89,7 @@ namespace Boo.Lang.Parser.Tests.Util
 		[Test]
 		public void TestClass()
 		{			
-			Token[] tokens = new Token[]
+			IToken[] tokens = new IToken[]
 			{
 				new SimpleToken(TEXT, "class"),
 				new SimpleToken(WS, "   \t"),
@@ -108,7 +102,7 @@ namespace Boo.Lang.Parser.Tests.Util
 				new SimpleToken(TEXT, "def bar():"),
 				new SimpleToken(WS, "\n\t\t"), // i
 				new SimpleToken(TEXT, "pass"),
-				new Token(Token.EOF_TYPE) // eos, d, d
+				new SimpleToken(TokenConstants.EOF, "<EOF>") // eos, d, d
 			};
 			
 			AssertTokenSequence(tokens,
@@ -126,27 +120,27 @@ namespace Boo.Lang.Parser.Tests.Util
 							EOS,
 							DEDENT,
 							DEDENT,
-							Token.EOF_TYPE);			
+							TokenConstants.EOF);			
 		}
 
 		[Test]
 		public void TestTrailingWhiteSpace()
 		{			
-			Token[] tokens = new Token[] {
+			IToken[] tokens = new IToken[] {
 				new SimpleToken(TEXT, "package"),
 				new SimpleToken(WS, " "),
 				new SimpleToken(TEXT, "Empty"),
 				new SimpleToken(WS, "\n\n\n"), // 1
-				new Token(Token.EOF_TYPE) // 2
+				new SimpleToken(TokenConstants.EOF, "<EOF>") // 2
 			};
 			
-			AssertTokenSequence(tokens, TEXT, TEXT, EOS, EOS, Token.EOF_TYPE);
+			AssertTokenSequence(tokens, TEXT, TEXT, EOS, EOS, TokenConstants.EOF);
 		}
 
 		[Test]
 		public void TestMultipleDedent()
 		{
-			Token[] tokens = new Token[] {
+			IToken[] tokens = new IToken[] {
 				new SimpleToken(TEXT, "class Math:"),
 				new SimpleToken(WS, "\n\t"),
 				new SimpleToken(TEXT, "def foo:"),
@@ -154,12 +148,12 @@ namespace Boo.Lang.Parser.Tests.Util
 				new SimpleToken(TEXT, "pass"),
 				new SimpleToken(WS, "\n"),
 				new SimpleToken(TEXT, "print(3)"),
-				new Token(Token.EOF_TYPE)
+				new SimpleToken(TokenConstants.EOF, "<EOF>")
 			};
 			
 			AssertTokenSequence(tokens,
 					TEXT, INDENT, TEXT, INDENT, TEXT,
-					EOS, DEDENT, DEDENT, TEXT, EOS, Token.EOF_TYPE);
+					EOS, DEDENT, DEDENT, TEXT, EOS, TokenConstants.EOF);
 		}
 		
 		[Test]
@@ -172,7 +166,7 @@ namespace Boo.Lang.Parser.Tests.Util
 			// comment
 				d
 			*/
-			Token[] tokens = new Token[] {
+			IToken[] tokens = new IToken[] {
 				new SimpleToken(TEXT, "a:"),
 				new SimpleToken(WS, "\n\t"),
 				new SimpleToken(TEXT, "b:"),
@@ -182,30 +176,40 @@ namespace Boo.Lang.Parser.Tests.Util
 				new SimpleToken(WS, "\n\t"),
 				new SimpleToken(TEXT, "d"),
 				new SimpleToken(WS, "\n"),
-				new Token(Token.EOF_TYPE)
+				new SimpleToken(TokenConstants.EOF, "<EOF>")
 			};
 			
 			AssertTokenSequence(tokens,
 							TEXT, INDENT, TEXT,
 							INDENT, TEXT, EOS,
-							DEDENT, TEXT, EOS, DEDENT, EOS, Token.EOF_TYPE);
+							DEDENT, TEXT, EOS, DEDENT, EOS, TokenConstants.EOF);
 			
 		}
 		
-		void AssertTokenSequence(Token[] tokens, params int[] expectedSequence)
+		void AssertTokenSequence(IToken[] tokens, params int[] expectedSequence)
 		{
-			Queue queue = new Queue();
-			foreach (Token token in tokens)
-			{
+			var queue = new Queue<IToken>();
+			foreach (var token in tokens)
 				queue.Enqueue(token);
-			}
-			
-			IndentTokenStreamFilter stream = new IndentTokenStreamFilter(new FakeStream(queue), WS, INDENT, DEDENT, EOS, END, ID);
-			
-			int index=0;
-			foreach (int expected in expectedSequence)
+
+			// These cases carry the newline inside the whitespace token, as the 2.7
+			// lexer did, so the filter is told both types are the same one.
+			var stream = new IndentTokenStreamFilterA4(new FakeStream(queue), WS, WS, INDENT, DEDENT, EOS, END, ID);
+
+			// The filter keeps whitespace on the hidden channel rather than dropping
+			// it, and a CommonTokenStream hides that from the parser. Assert what
+			// the parser is given.
+			var index = 0;
+			foreach (var expected in expectedSequence)
 			{
-				Assert.AreEqual(expected, stream.nextToken().Type, "sequence item: " + (index++));
+				IToken actual;
+				do
+				{
+					actual = stream.NextToken();
+				}
+				while (actual.Channel != TokenConstants.DefaultChannel);
+
+				Assert.AreEqual(expected, actual.Type, "sequence item: " + (index++));
 			}
 		}
 	}

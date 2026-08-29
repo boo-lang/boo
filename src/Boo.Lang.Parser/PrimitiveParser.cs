@@ -29,7 +29,6 @@
 
 using System;
 using System.Globalization;
-using antlr;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Environments;
@@ -38,11 +37,6 @@ namespace Boo.Lang.Parser
 {
 	public class PrimitiveParser
 	{
-		public static TimeSpan ParseTimeSpan(antlr.IToken token, string text)
-		{
-			return ParseTimeSpan(ToLexicalInfo(token), text);
-		}
-
 		public static TimeSpan ParseTimeSpan(LexicalInfo sourceLocation, string text)
 		{
 			try
@@ -77,19 +71,9 @@ namespace Boo.Lang.Parser
 			throw new ArgumentException(text, "text");
 		}
 
-		public static double ParseDouble(antlr.IToken token, string s)
-		{
-			return ParseDouble(ToLexicalInfo(token), s, false);
-		}
-
 		public static double ParseDouble(LexicalInfo sourceLocation, string s)
 		{
 			return ParseDouble(sourceLocation, s, false);
-		}
-
-		public static double ParseDouble(antlr.IToken token, string s, bool isSingle)
-		{
-			return ParseDouble(ToLexicalInfo(token), s, isSingle);
 		}
 
 		public static double ParseDouble(LexicalInfo sourceLocation, string s, bool isSingle)
@@ -118,11 +102,6 @@ namespace Boo.Lang.Parser
 				val = double.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture);
 			}
 			return val;
-		}
-
-		public static IntegerLiteralExpression ParseIntegerLiteralExpression(antlr.IToken token, string text, bool asLong)
-		{
-			return ParseIntegerLiteralExpression(ToLexicalInfo(token), text, asLong);
 		}
 
 		public static IntegerLiteralExpression ParseIntegerLiteralExpression(LexicalInfo sourceLocation, string text, bool asLong)
@@ -173,16 +152,6 @@ namespace Boo.Lang.Parser
 			if (s.EndsWith("l") || s.EndsWith("L"))
 				return s.Substring(0, s.Length - 1);
 			return s;
-		}
-
-		private static LexicalInfo ToLexicalInfo(IToken token)
-		{
-			return SourceLocationFactory.ToLexicalInfo(token);
-		}
-
-		public static int ParseInt(antlr.IToken token)
-		{
-			return (int) ParseIntegerLiteralExpression(ToLexicalInfo(token), token.getText(), false).Value;
 		}
 
 		public static int ParseInt(Antlr4.Runtime.Tree.ITerminalNode node)

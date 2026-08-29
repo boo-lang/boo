@@ -67,34 +67,19 @@ namespace BooCompiler.Tests
 				"could not locate tests/testcases above " + AppContext.BaseDirectory);
 		}
 
-		/// <summary>
-		/// Which parser the suite runs against. The ANTLR 4 parser is the default;
-		/// set BOO_PARSER=2.7 to run everything through the older one.
-		/// </summary>
-		public static bool UseAntlr27
-		{
-			get { return Environment.GetEnvironmentVariable("BOO_PARSER") == "2.7"; }
-		}
-
 		public static Boo.Lang.Compiler.ICompilerStep ParsingStep()
 		{
-			return UseAntlr27
-				? (Boo.Lang.Compiler.ICompilerStep)new Boo.Lang.Compiler.Steps.Parsing()
-				: new Boo.Lang.ParserA4.BooParsingStep();
+			return new Boo.Lang.ParserA4.BooParsingStep();
 		}
 
 		public static Boo.Lang.Compiler.ICompilerStep WsaParsingStep()
 		{
-			return UseAntlr27
-				? (Boo.Lang.Compiler.ICompilerStep)new Boo.Lang.Parser.WSABooParsingStep()
-				: new Boo.Lang.ParserA4.WSABooParsingStep();
+			return new Boo.Lang.ParserA4.WSABooParsingStep();
 		}
 
 		public static Boo.Lang.Compiler.Ast.CompileUnit ParseFile(string fname)
 		{
-			return UseAntlr27
-				? Boo.Lang.Parser.BooParser.ParseFile(fname)
-				: Boo.Lang.ParserA4.BooParser.ParseFile(fname);
+			return Boo.Lang.ParserA4.BooParser.ParseFile(fname);
 		}
 
 		public static string GetTestCasePath(string sample)

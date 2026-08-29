@@ -4,14 +4,14 @@
     <Project Path="src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
     <Project Path="src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
     <Project Path="src/booc/booc.csproj" />
-    <Project Path="src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" Type="Common C#" />
-    <Project Path="src/Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" Type="Common C#" />
-    <Project Path="src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" Type="Common C#" />
-    <Project Path="src/Boo.Lang.Interpreter/Boo.Lang.Interpreter.booproj" Type="Common C#" />
-    <Project Path="src/Boo.Lang.CodeDom/Boo.Lang.CodeDom.booproj" Type="Common C#" />
-    <Project Path="src/Boo.Microsoft.Build.Tasks/Boo.Microsoft.Build.Tasks.booproj" Type="Common C#" />
-    <Project Path="src/booi/booi.booproj" Type="Common C#" />
-    <Project Path="src/booish/booish.booproj" Type="Common C#" />
+    <Project Path="src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" Type="C#" />
+    <Project Path="src/Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" Type="C#" />
+    <Project Path="src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" Type="C#" />
+    <Project Path="src/Boo.Lang.Interpreter/Boo.Lang.Interpreter.booproj" Type="C#" />
+    <Project Path="src/Boo.Lang.CodeDom/Boo.Lang.CodeDom.booproj" Type="C#" />
+    <Project Path="src/Boo.Microsoft.Build.Tasks/Boo.Microsoft.Build.Tasks.booproj" Type="C#" />
+    <Project Path="src/booi/booi.booproj" Type="C#" />
+    <Project Path="src/booish/booish.booproj" Type="C#" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Boo.Lang.Tests/Boo.Lang.Tests.csproj" />
@@ -19,12 +19,11 @@
     <Project Path="tests/booc.Tests/booc.Tests.csproj" />
     <Project Path="tests/BooCompiler.Tests/BooCompiler.Tests.csproj" />
     <Project Path="tests/Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.csproj" />
-    <Project Path="tests/Boo.Lang.Parser.Migration.Tests/Boo.Lang.Parser.Migration.Tests.csproj" />
-    <Project Path="tests/BooSupportingClasses/BooSupportingClasses.booproj" Type="Common C#" />
-    <Project Path="tests/BooModules/BooModules.booproj" Type="Common C#" />
-    <Project Path="tests/Boo.Lang.CodeDom.Tests/Boo.Lang.CodeDom.Tests.booproj" Type="Common C#" />
-    <Project Path="tests/Boo.Lang.PatternMatching.Tests/Boo.Lang.PatternMatching.Tests.booproj" Type="Common C#" />
-    <Project Path="tests/Boo.Lang.Interpreter.Tests/Boo.Lang.Interpreter.Tests.booproj" Type="Common C#" />
-    <Project Path="tests/Boo.Lang.Useful.Tests/Boo.Lang.Useful.Tests.booproj" Type="Common C#" />
+    <Project Path="tests/BooSupportingClasses/BooSupportingClasses.booproj" Type="C#" />
+    <Project Path="tests/BooModules/BooModules.booproj" Type="C#" />
+    <Project Path="tests/Boo.Lang.CodeDom.Tests/Boo.Lang.CodeDom.Tests.booproj" Type="C#" />
+    <Project Path="tests/Boo.Lang.PatternMatching.Tests/Boo.Lang.PatternMatching.Tests.booproj" Type="C#" />
+    <Project Path="tests/Boo.Lang.Interpreter.Tests/Boo.Lang.Interpreter.Tests.booproj" Type="C#" />
+    <Project Path="tests/Boo.Lang.Useful.Tests/Boo.Lang.Useful.Tests.booproj" Type="C#" />
   </Folder>
 </Solution>

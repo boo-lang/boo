@@ -4,7 +4,7 @@ using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.MetaProgramming;
 using Boo.Lang.Compiler.TypeSystem;
 using Boo.Lang.Environments;
-using Boo.Lang.Parser;
+using Boo.Lang.ParserA4;
 using NUnit.Framework;
 
 namespace BooCompiler.Tests

@@ -33,11 +33,6 @@ namespace Boo.Lang.Parser
 {
 	public class SourceLocationFactory
 	{
-		public static LexicalInfo ToLexicalInfo(antlr.IToken token)
-		{
-			return new LexicalInfo(token.getFilename(), token.getLine(), token.getColumn());
-		}
-
 		public static LexicalInfo ToLexicalInfo(Antlr4.Runtime.IToken token)
 		{
 			return new LexicalInfo(token.InputStream.SourceName, token.Line, token.Column);
@@ -48,16 +43,6 @@ namespace Boo.Lang.Parser
 			return new SourceLocation(token.Line, token.Column);
 		}
 
-		public static SourceLocation ToSourceLocation(antlr.IToken token)
-		{
-			return new SourceLocation(token.getLine(), token.getColumn());
-		}
-
-		public static SourceLocation ToEndSourceLocation(antlr.IToken token)
-		{
-			string text = token.getText() ?? "";
-			return new SourceLocation(token.getLine(), token.getColumn() + text.Length - 1);
-		}
 
 		public static SourceLocation ToEndSourceLocation(Antlr4.Runtime.IToken token)
 		{
