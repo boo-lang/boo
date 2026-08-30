@@ -194,7 +194,7 @@ namespace Boo.Lang.Parser.Tests.Util
 
 			// These cases carry the newline inside the whitespace token, as the 2.7
 			// lexer did, so the filter is told both types are the same one.
-			var stream = new IndentTokenStreamFilterA4(new FakeStream(queue), WS, WS, INDENT, DEDENT, EOS, END, ID);
+			var stream = new IndentTokenStreamFilter(new FakeStream(queue), WS, WS, INDENT, DEDENT, EOS, END, ID);
 
 			// The filter keeps whitespace on the hidden channel rather than dropping
 			// it, and a CommonTokenStream hides that from the parser. Assert what

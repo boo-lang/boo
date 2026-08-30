@@ -72,7 +72,7 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			get
 			{
-				var parserType = My<CompilerParameters>.Instance.WhiteSpaceAgnostic ? "Boo.Lang.ParserA4.WSABooParsingStep" : "Boo.Lang.ParserA4.BooParsingStep";
+				var parserType = My<CompilerParameters>.Instance.WhiteSpaceAgnostic ? "Boo.Lang.Parser.WSABooParsingStep" : "Boo.Lang.Parser.BooParsingStep";
 				return ParserAssembly().GetType(parserType, true);
 			}
 		}

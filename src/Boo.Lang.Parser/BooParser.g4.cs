@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.ParserA4;
+namespace Boo.Lang.Parser;
 
 using System;
 using System.IO;
@@ -55,7 +55,7 @@ partial class BooParser
 
 	public static CompileUnit ParseReader(string readerName, TextReader reader, ParserErrorHandler eh)
 	{
-		var settings = new Boo.Lang.Parser.ParserSettings { ErrorHandlerA4 = eh };
+		var settings = new Boo.Lang.Parser.ParserSettings { ErrorHandler = eh };
 		return ParseReader(settings, readerName, reader);
 	}
 	
@@ -82,7 +82,7 @@ partial class BooParser
 		catch (ParseCanceledException)
 		{
 			stream.Seek(0);
-			var parser = CreateParser(settings.TabSize, readerName, stream, false, settings.ErrorHandlerA4);
+			var parser = CreateParser(settings.TabSize, readerName, stream, false, settings.ErrorHandler);
 			tree = parser.start();
 		}
 
@@ -98,7 +98,7 @@ partial class BooParser
 
 	public static BooParser CreateParser(int tabSize, string readerName, ICharStream stream, bool firstStage, ParserErrorHandler eh)
 	{
-		var booLexer = new BooLexer(stream) { TokenFactory = BooTokenA4.CreateTokenFactory(tabSize) };
+		var booLexer = new BooLexer(stream) { TokenFactory = BooToken.CreateTokenFactory(tabSize) };
 		// A lexer of its own reports to the console, so an unterminated string
 		// would never reach the compiler.
 		if (eh != null)
@@ -106,7 +106,7 @@ partial class BooParser
 			booLexer.RemoveErrorListeners();
 			booLexer.AddErrorListener(new BooLexerErrorListener(eh, readerName));
 		}
-		var filter = new IndentTokenStreamFilterA4(booLexer, BooLexer.WS, BooLexer.NEWLINE, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
+		var filter = new IndentTokenStreamFilter(booLexer, BooLexer.WS, BooLexer.NEWLINE, BooLexer.INDENT, BooLexer.DEDENT, BooLexer.EOL, BooLexer.END, BooLexer.ID);
 		var parser = new BooParser(new CommonTokenStream(filter));
 
 		// Two stage parsing. SLL is the faster prediction mode but rejects some

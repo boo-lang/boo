@@ -104,7 +104,7 @@ public class ParserErrorMessageTestFixture
 		compiler.Parameters.OutputWriter = new StringWriter();
 		var pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
 		pipeline.Replace(typeof(Boo.Lang.Compiler.Steps.Parsing),
-			new Boo.Lang.ParserA4.BooParsingStep());
+			new Boo.Lang.Parser.BooParsingStep());
 		compiler.Parameters.Pipeline = pipeline;
 		compiler.Parameters.Input.Add(new StringInput("error-example", code));
 

@@ -1,4 +1,4 @@
-namespace Boo.Lang.ParserA4;
+namespace Boo.Lang.Parser;
 
 using Antlr4.Runtime;
 using System;

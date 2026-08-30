@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Boo.Lang.ParserA4 {
+namespace Boo.Lang.Parser {
 using System;
 using System.IO;
 using System.Text;
@@ -720,4 +720,4 @@ public partial class BooLexer : Lexer {
 
 
 }
-} // namespace Boo.Lang.ParserA4
+} // namespace Boo.Lang.Parser

@@ -35,7 +35,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 
-namespace Boo.Lang.ParserA4;
+namespace Boo.Lang.Parser;
 
 /// <summary>
 /// Step 1. Parses any input fed to the compiler.
@@ -66,8 +66,8 @@ public class BooParsingStep : ICompilerStep
 		// Parser errors are reported through the ambient settings, so the handler
 		// that was there before this step ran has to come back afterwards.
 		var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
-		var previousHandler = settings.ErrorHandlerA4;
-		settings.ErrorHandlerA4 = OnParserError;
+		var previousHandler = settings.ErrorHandler;
+		settings.ErrorHandler = OnParserError;
 
 		try
 		{
@@ -75,7 +75,7 @@ public class BooParsingStep : ICompilerStep
 		}
 		finally
 		{
-			settings.ErrorHandlerA4 = previousHandler;
+			settings.ErrorHandler = previousHandler;
 		}
 	}
 

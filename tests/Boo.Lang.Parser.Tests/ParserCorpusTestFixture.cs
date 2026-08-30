@@ -121,9 +121,9 @@ public class ParserCorpusTestFixture
 			Assert.Fail(relativePath + " did not parse:\n" + errors);
 	}
 
-	private static ICompilerStep Parser() => new Boo.Lang.ParserA4.BooParsingStep();
+	private static ICompilerStep Parser() => new Boo.Lang.Parser.BooParsingStep();
 
-	private static ICompilerStep WsaParser() => new Boo.Lang.ParserA4.WSABooParsingStep();
+	private static ICompilerStep WsaParser() => new Boo.Lang.Parser.WSABooParsingStep();
 
 	/// <summary>
 	/// The source the printer produces for this input, or null if it does not parse.

@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
-using Boo.Lang.ParserA4;
+using Boo.Lang.Parser;
 
 namespace Boo.Lang.Parser.Util;
 
@@ -37,7 +37,7 @@ namespace Boo.Lang.Parser.Util;
 /// Process whitespace tokens and generate INDENT, DEDENT
 /// virtual tokens as needed.
 /// </summary>
-public class IndentTokenStreamFilterA4 : Antlr4.Runtime.ITokenSource
+public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 {
 	static readonly char[] NewLineCharArray = new char[] { '\r', '\n' };
 	
@@ -103,7 +103,7 @@ public class IndentTokenStreamFilterA4 : Antlr4.Runtime.ITokenSource
 
 	System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
-	public IndentTokenStreamFilterA4(ITokenSource source, int wsType, int newlineTokenType, int indentType, int dedentType, int eosType, int endType, int idType)
+	public IndentTokenStreamFilter(ITokenSource source, int wsType, int newlineTokenType, int indentType, int dedentType, int eosType, int endType, int idType)
 	{
 		if (null == source)
 		{
@@ -292,7 +292,7 @@ public class IndentTokenStreamFilterA4 : Antlr4.Runtime.ITokenSource
 
 	IToken CreateToken(IToken prototype, int newTokenType, string newTokenText)
 	{
-		return new BooTokenA4(Tuple.Create(prototype.TokenSource, prototype.InputStream), newTokenType, newTokenText,
+		return new BooToken(Tuple.Create(prototype.TokenSource, prototype.InputStream), newTokenType, newTokenText,
 			prototype.InputStream.SourceName,
 			prototype.StartIndex,
 			prototype.StartIndex - 1,

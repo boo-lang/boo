@@ -48,7 +48,7 @@ namespace Boo.Lang.Parser
 			}
 		}
 
-		public ParserA4.ParserErrorHandler ErrorHandlerA4 { get; set; }
+		public ParserErrorHandler ErrorHandler { get; set; }
 
 	}
 }

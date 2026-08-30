@@ -47,7 +47,7 @@ echo "regenerate-parser: using $jar"
 cd "$parser"
 java -jar "$jar" \
 	-Dlanguage=CSharp \
-	-package Boo.Lang.ParserA4 \
+	-package Boo.Lang.Parser \
 	-visitor \
 	-no-listener \
 	-o Generated \

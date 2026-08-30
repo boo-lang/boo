@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.ParserA4;
+namespace Boo.Lang.Parser;
 
 using System;
 using Antlr4.Runtime;
@@ -34,7 +34,7 @@ using Antlr4.Runtime;
 /// <summary>
 /// A token that stores filename information.
 /// </summary>
-public class BooTokenA4 : Antlr4.Runtime.CommonToken
+public class BooToken : Antlr4.Runtime.CommonToken
 {
 	public static Antlr4.Runtime.ITokenFactory CreateTokenFactory(int tabSize)
 	{
@@ -45,19 +45,19 @@ public class BooTokenA4 : Antlr4.Runtime.CommonToken
 
 	private bool _magic;
 
-	public BooTokenA4(int type) : base(type)
+	public BooToken(int type) : base(type)
 	{
 	}
 
-	public BooTokenA4(int type, string text) : base(type, text)
+	public BooToken(int type, string text) : base(type, text)
 	{
 	}
 
-	public BooTokenA4(Tuple<ITokenSource, ICharStream> source, int type, int channel, int start, int stop): base(source, type, channel, start, stop)
+	public BooToken(Tuple<ITokenSource, ICharStream> source, int type, int channel, int start, int stop): base(source, type, channel, start, stop)
 	{
 	}
 
-	public BooTokenA4(Tuple<ITokenSource, ICharStream> source, int type, string text, string fname, int start, int stop, int line, int column, bool magic)
+	public BooToken(Tuple<ITokenSource, ICharStream> source, int type, string text, string fname, int start, int stop, int line, int column, bool magic)
 		: base(type, text)
 	{
 		setFilename(fname);
@@ -92,7 +92,7 @@ public class BooTokenA4 : Antlr4.Runtime.CommonToken
 
 		override public CommonToken Create(Tuple<ITokenSource, ICharStream> source, int type, string text, int channel, int start, int stop, int line, int charPositionInLine)
 		{
-			var result = new BooTokenA4(source, type, channel, start, stop);
+			var result = new BooToken(source, type, channel, start, stop);
 			result.Line = line;
 			result.Column = ColumnOf(source.Item2, start, charPositionInLine);
 			if (text != null)
@@ -133,7 +133,7 @@ public class BooTokenA4 : Antlr4.Runtime.CommonToken
 
 		override public CommonToken Create(int type, string text)
 		{
-			return new BooTokenA4(type, text);
+			return new BooToken(type, text);
 		}
 	}
 }

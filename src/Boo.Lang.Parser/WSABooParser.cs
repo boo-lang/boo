@@ -36,7 +36,7 @@ using Boo.Lang.Environments;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
 
-namespace Boo.Lang.ParserA4;
+namespace Boo.Lang.Parser;
 
 /// <summary>
 /// With this parser indentation is not used as
@@ -107,14 +107,14 @@ public class WSABooParser : BooParser
 
 	public static ITokenSource CreateBooLexer(int tabSize, string readerName, TextReader reader, ParserErrorHandler eh)
 	{
-		var lexer = new BooLexer(new AntlrInputStream(reader)) { TokenFactory = BooTokenA4.CreateTokenFactory(tabSize) } ;
+		var lexer = new BooLexer(new AntlrInputStream(reader)) { TokenFactory = BooToken.CreateTokenFactory(tabSize) } ;
 		if (eh != null)
 		{
 			lexer.RemoveErrorListeners();
 			lexer.AddErrorListener(new BooLexerErrorListener(eh, readerName));
 		}
 
-		var filter = new WSATokenStreamFilterA4(lexer);
+		var filter = new WSATokenStreamFilter(lexer);
 
 		return filter;
 	}

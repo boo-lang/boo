@@ -67,7 +67,7 @@ public class ParsingStepStateTestFixture
 		var compiler = new BooCompiler();
 		var pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
 		pipeline.Replace(typeof(Boo.Lang.Compiler.Steps.Parsing),
-			new Boo.Lang.ParserA4.BooParsingStep());
+			new Boo.Lang.Parser.BooParsingStep());
 		compiler.Parameters.Pipeline = pipeline;
 		foreach (var input in inputs)
 			compiler.Parameters.Input.Add(input);

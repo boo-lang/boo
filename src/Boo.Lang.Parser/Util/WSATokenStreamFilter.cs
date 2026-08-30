@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
-using Boo.Lang.ParserA4;
+using Boo.Lang.Parser;
 
 namespace Boo.Lang.Parser.Util;
 
@@ -37,7 +37,7 @@ namespace Boo.Lang.Parser.Util;
 /// Process white space agnostic tokens to generate INDENT, DEDENT
 /// virtual tokens as expected by the standard grammar.
 /// </summary>
-public class WSATokenStreamFilterA4 : ITokenSource
+public class WSATokenStreamFilter : ITokenSource
 {
 	static readonly char[] NewLineCharArray = new char[] { '\r', '\n' };
 	
@@ -65,7 +65,7 @@ public class WSATokenStreamFilterA4 : ITokenSource
 	System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
 
-	public WSATokenStreamFilterA4(ITokenSource source)
+	public WSATokenStreamFilter(ITokenSource source)
 	{
 		if (source == null)
 		{
@@ -128,7 +128,7 @@ public class WSATokenStreamFilterA4 : ITokenSource
 			EnqueueEOS(token);
 		}
 
-		if (token.Type == Boo.Lang.ParserA4.BooLexer.COLON) {
+		if (token.Type == Boo.Lang.Parser.BooLexer.COLON) {
 
 			Enqueue(token);
 
@@ -136,8 +136,8 @@ public class WSATokenStreamFilterA4 : ITokenSource
 			var next = BufferUntilNextNonWhiteSpaceToken();
 			if (_buffer.Length > 0) {
 				// Special case for docstrings
-				if (next.Type == Boo.Lang.ParserA4.BooLexer.TRIPLE_QUOTED_STRING) {
-					while (next.Type != Boo.Lang.ParserA4.BooLexer.TQS_END && next.Type != TokenConstants.EOF)
+				if (next.Type == Boo.Lang.Parser.BooLexer.TRIPLE_QUOTED_STRING) {
+					while (next.Type != Boo.Lang.Parser.BooLexer.TQS_END && next.Type != TokenConstants.EOF)
 					{
 						ProcessNextToken(next);
 						next = BufferUntilNextNonWhiteSpaceToken();
@@ -159,7 +159,7 @@ public class WSATokenStreamFilterA4 : ITokenSource
 			// Dissambiguate OR/ELSE
 			if (IsAmbiguous(token.Type)) {
 				next = BufferUntilNextNonWhiteSpaceToken();
-				if (next.Type != Boo.Lang.ParserA4.BooLexer.COLON) {
+				if (next.Type != Boo.Lang.Parser.BooLexer.COLON) {
 					// Not an ending keyword, just process it as normal
 					Enqueue(token);
 					ProcessNextToken(next);
@@ -169,14 +169,14 @@ public class WSATokenStreamFilterA4 : ITokenSource
 
 			// Inject a `pass` if there are no statements in a block
 			if (IsLastIndent()) {
-				Enqueue(CreateToken(token, Boo.Lang.ParserA4.BooLexer.PASS, "pass"));
+				Enqueue(CreateToken(token, Boo.Lang.Parser.BooLexer.PASS, "pass"));
 			}
 
 			// Dedent the block
 			EnqueueEOS(token);
 			EnqueueDedent(token);
 
-			if (token.Type != Boo.Lang.ParserA4.BooLexer.END)
+			if (token.Type != Boo.Lang.Parser.BooLexer.END)
 				Enqueue(token);
 
 			// Process the look-ahead token we used to disambiguate
@@ -184,7 +184,7 @@ public class WSATokenStreamFilterA4 : ITokenSource
 				ProcessNextToken(next);
 
 		}
-		else if (token.Type == Boo.Lang.ParserA4.BooLexer.QQ_BEGIN)
+		else if (token.Type == Boo.Lang.Parser.BooLexer.QQ_BEGIN)
 		{
 			Enqueue(token);
 
@@ -198,7 +198,7 @@ public class WSATokenStreamFilterA4 : ITokenSource
 			ProcessNextToken(next);
 
 		} 
-		else if (token.Type == Boo.Lang.ParserA4.BooLexer.QQ_END)
+		else if (token.Type == Boo.Lang.Parser.BooLexer.QQ_END)
 		{
 			if (_lastQQIndented)
 				EnqueueDedent(token);
@@ -218,28 +218,28 @@ public class WSATokenStreamFilterA4 : ITokenSource
 
 	bool IsLastIndent()
 	{
-		return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == Boo.Lang.ParserA4.BooLexer.INDENT;
+		return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == Boo.Lang.Parser.BooLexer.INDENT;
 	}
 
 	bool IsLastDot()
 	{
-		return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == Boo.Lang.ParserA4.BooLexer.DOT;
+		return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == Boo.Lang.Parser.BooLexer.DOT;
 	}
 
 	static bool IsAmbiguous(int type)
 	{
-		return type == Boo.Lang.ParserA4.BooLexer.OR || type == Boo.Lang.ParserA4.BooLexer.ELSE;
+		return type == Boo.Lang.Parser.BooLexer.OR || type == Boo.Lang.Parser.BooLexer.ELSE;
 	}
 
 	static bool IsEnding(int type)
 	{
-		return type == Boo.Lang.ParserA4.BooLexer.END || 
-			   type == Boo.Lang.ParserA4.BooLexer.ELSE ||
-			   type == Boo.Lang.ParserA4.BooLexer.ELIF ||
-			   type == Boo.Lang.ParserA4.BooLexer.EXCEPT ||
-			   type == Boo.Lang.ParserA4.BooLexer.ENSURE ||
-			   type == Boo.Lang.ParserA4.BooLexer.THEN ||
-			   type == Boo.Lang.ParserA4.BooLexer.OR;
+		return type == Boo.Lang.Parser.BooLexer.END || 
+			   type == Boo.Lang.Parser.BooLexer.ELSE ||
+			   type == Boo.Lang.Parser.BooLexer.ELIF ||
+			   type == Boo.Lang.Parser.BooLexer.EXCEPT ||
+			   type == Boo.Lang.Parser.BooLexer.ENSURE ||
+			   type == Boo.Lang.Parser.BooLexer.THEN ||
+			   type == Boo.Lang.Parser.BooLexer.OR;
 	}
 
 	IToken BufferUntilNextNonWhiteSpaceToken()
@@ -255,7 +255,7 @@ public class WSATokenStreamFilterA4 : ITokenSource
 			{
 				Enqueue(token);
 			}
-			else if (token.Type == Boo.Lang.ParserA4.BooLexer.WS || token.Type == Boo.Lang.ParserA4.BooLexer.NEWLINE)
+			else if (token.Type == Boo.Lang.Parser.BooLexer.WS || token.Type == Boo.Lang.Parser.BooLexer.NEWLINE)
 			{
 				_buffer.Append(token.Text);
 			}
@@ -272,22 +272,22 @@ public class WSATokenStreamFilterA4 : ITokenSource
 
 	void EnqueueIndent(IToken prototype)
 	{
-		Enqueue(CreateToken(prototype, Boo.Lang.ParserA4.BooLexer.INDENT, "<INDENT>"));
+		Enqueue(CreateToken(prototype, Boo.Lang.Parser.BooLexer.INDENT, "<INDENT>"));
 	}
 
 	void EnqueueDedent(IToken prototype)
 	{
-		Enqueue(CreateToken(prototype, Boo.Lang.ParserA4.BooLexer.DEDENT, "<DEDENT>"));
+		Enqueue(CreateToken(prototype, Boo.Lang.Parser.BooLexer.DEDENT, "<DEDENT>"));
 	}		
 
 	void EnqueueEOS(IToken prototype)
 	{
-		Enqueue(CreateToken(prototype, Boo.Lang.ParserA4.BooLexer.EOL, "<EOL>"));
+		Enqueue(CreateToken(prototype, Boo.Lang.Parser.BooLexer.EOL, "<EOL>"));
 	}
 			
 	static IToken CreateToken(IToken prototype, int newTokenType, string newTokenText)
 	{
-		return new BooTokenA4(Tuple.Create(prototype.TokenSource, prototype.InputStream), newTokenType, newTokenText,
+		return new BooToken(Tuple.Create(prototype.TokenSource, prototype.InputStream), newTokenType, newTokenText,
 			prototype.InputStream.SourceName,
 			prototype.StartIndex,
 			prototype.StartIndex - 1,

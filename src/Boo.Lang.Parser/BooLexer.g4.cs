@@ -26,7 +26,7 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.ParserA4;
+namespace Boo.Lang.Parser;
 
 using System.Collections.Generic;
 

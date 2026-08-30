@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Boo.Lang.ParserA4 {
+namespace Boo.Lang.Parser {
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IToken = Antlr4.Runtime.IToken;
@@ -1023,4 +1023,4 @@ public interface IBooParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitIdentifier([NotNull] BooParser.IdentifierContext context);
 }
-} // namespace Boo.Lang.ParserA4
+} // namespace Boo.Lang.Parser

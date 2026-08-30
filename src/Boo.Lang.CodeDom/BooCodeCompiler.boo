@@ -95,7 +95,7 @@ internal class BooCodeCompiler(ICodeCompiler, BooCodeGenerator):
 		if params.CompilerOptions:
 			extra_options = params.CompilerOptions.Split()
 			if "-wsa" in extra_options:
-				compiler.Parameters.Pipeline[0] = Boo.Lang.ParserA4.WSABooParsingStep()
+				compiler.Parameters.Pipeline[0] = Boo.Lang.Parser.WSABooParsingStep()
 			if "-ducky" in extra_options:
 				compiler.Parameters.Ducky = true
 				

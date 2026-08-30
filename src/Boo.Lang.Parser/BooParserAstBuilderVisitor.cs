@@ -1,4 +1,4 @@
-namespace Boo.Lang.ParserA4;
+namespace Boo.Lang.Parser;
 
 using System;
 using System.Collections.Generic;
@@ -10,10 +10,6 @@ using Antlr4.Runtime.Tree;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Environments;
-using DocStringFormatter = Boo.Lang.Parser.DocStringFormatter;
-using CodeFactory = Boo.Lang.Parser.CodeFactory;
-using OperatorParser = Boo.Lang.Parser.OperatorParser;
-using PrimitiveParser = Boo.Lang.Parser.PrimitiveParser;
 
 internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBooParserVisitor<Node>
 {
