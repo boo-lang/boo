@@ -913,6 +913,18 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void pass_among_statements_1()
+		{
+			RunCompilerTestCase(@"pass-among-statements-1.boo");
+		}
+		
+		[Test]
+		public void pass_single_line_1()
+		{
+			RunCompilerTestCase(@"pass-single-line-1.boo");
+		}
+		
+		[Test]
 		public void regex_literals_1()
 		{
 			RunCompilerTestCase(@"regex-literals-1.boo");

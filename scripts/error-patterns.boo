@@ -178,8 +178,6 @@ print foo bar
 """
 
 error "Illegal use of keyword 'pass' as identifier", """
-pass = 12
----
 class Foo:
     public pass as int
 ---

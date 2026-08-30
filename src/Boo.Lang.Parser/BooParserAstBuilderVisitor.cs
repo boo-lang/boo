@@ -1973,6 +1973,8 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context == null)
 			return null;
 
+		if (context.pass_stmt() != null)
+			return null;
 		if (context.for_stmt() != null)
 			return VisitFor_stmt(context.for_stmt());
 		if (context.while_stmt() != null)
@@ -2013,6 +2015,13 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		return result;
 	}
 
+	// pass says a block does nothing, so it leaves no node behind. The printer
+	// writes it back from Block.IsEmpty.
+	Node IBooParserVisitor<Node>.VisitPass_stmt(BooParser.Pass_stmtContext context)
+	{
+		return null;
+	}
+
 	Node IBooParserVisitor<Node>.VisitStmt(BooParser.StmtContext context)
 	{
 		return VisitStmt(context);
@@ -2023,6 +2032,8 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context == null)
 			return null;
 
+		if (context.pass_stmt() != null)
+			return null;
 		if (context.closure_macro_stmt() != null)
 			return VisitClosure_macro_stmt(context.closure_macro_stmt());
 		if (context.assignment_or_method_invocation() != null)
