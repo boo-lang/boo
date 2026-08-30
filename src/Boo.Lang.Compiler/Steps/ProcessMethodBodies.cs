@@ -1686,6 +1686,14 @@ namespace Boo.Lang.Compiler.Steps
 			IMethod getter = null;
 			if (member.IsAmbiguous())
 			{
+				// A method group has no properties to index, so there is no
+				// candidate set to resolve against.
+				if (GetGetMethods(((Ambiguous)member).Entities).Length == 0)
+				{
+					Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, node.Target.ToCodeString()));
+					return;
+				}
+
 				IEntity result = ResolveAmbiguousPropertyReference((ReferenceExpression)node.Target, (Ambiguous)member, mie.Arguments);
 				IProperty found = result as IProperty;
 				if (null != found)
@@ -4860,7 +4868,14 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			else if (lhs.IsAmbiguous())
 			{
-				setter = (IMethod)GetCorrectCallableReference(node.Left, mie.Arguments, GetSetMethods(lhs));
+				var setters = GetSetMethods(lhs);
+				if (setters.Length == 0)
+				{
+					Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(slice.Target, slice.Target.ToCodeString()));
+					return;
+				}
+
+				setter = (IMethod)GetCorrectCallableReference(node.Left, mie.Arguments, setters);
 				if (setter == null)
 				{
 					Error(node.Left);
@@ -5739,6 +5754,9 @@ namespace Boo.Lang.Compiler.Steps
 				Error(CompilerErrorFactory.CannotInferGenericMethodArguments(sourceNode, genericMethod));
 				return;
 			}
+
+			if (candidates.Length == 0)
+				throw new CompilerError(sourceNode.LexicalInfo, "no candidates to resolve against");
 
 			if (CallableResolutionService.ValidCandidates.Count > 1)
 			{

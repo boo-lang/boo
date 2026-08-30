@@ -301,6 +301,13 @@ namespace Boo.Lang.Compiler
 		{
 			return Instantiate("BCE0048", node, fullName);
 		}
+
+		/// For a target with no type to name, such as a method group, where the
+		/// expression the user wrote is what identifies it.
+		public static CompilerError TypeDoesNotSupportSlicing(Node node, string name)
+		{
+			return Instantiate("BCE0048", node, name);
+		}
 		
 		public static CompilerError LValueExpected(Node node)
 		{
