@@ -309,9 +309,12 @@ event_declaration
 	;
 
 explicit_member_info
-	:	ID DOT
-		(	ID DOT
+	:	ID
+		(	DOT ID
 		)*
+		(	LBRACK OF? type_reference_list RBRACK
+		)?
+		DOT
 	;
 
 method

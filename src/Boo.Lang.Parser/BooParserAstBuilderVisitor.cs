@@ -1110,8 +1110,20 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 			_sbuilder.Append('.');
 			_sbuilder.Append(ids[i].GetText());
 		}
-		result.InterfaceType = new SimpleTypeReference(result.LexicalInfo);
-		result.InterfaceType.Name = _sbuilder.ToString();
+		var interfaceName = _sbuilder.ToString();
+		if (context.LBRACK() != null)
+		{
+			// An explicitly implemented generic interface names its arguments,
+			// as in `def IFoo[of int].Bar()`.
+			var generic = new GenericTypeReference(result.LexicalInfo, interfaceName);
+			AddTypeReferences(generic.GenericArguments, context.type_reference_list());
+			result.InterfaceType = generic;
+		}
+		else
+		{
+			result.InterfaceType = new SimpleTypeReference(result.LexicalInfo);
+			result.InterfaceType.Name = interfaceName;
+		}
 		return result;
 	}
 
