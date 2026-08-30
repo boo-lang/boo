@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) the Boo contributors
+// Copyright (c) 2003-2026, Rodrigo B. de Oliveira (rbo@acm.org) and the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,

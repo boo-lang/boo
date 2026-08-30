@@ -51,8 +51,7 @@ namespace Boo.Lang.Parser
 				return new SourceLocation(token.Line, token.Column);
 
 			string text = token.Text ?? "";
-			var booToken = token as Boo.Lang.Parser.BooToken;
-			if (booToken != null && booToken.MagicToken)
+			if (token is BooToken { MagicToken: true })
 				text = "";
 			return new SourceLocation(token.Line, token.Column + text.Length - 1);
 		}

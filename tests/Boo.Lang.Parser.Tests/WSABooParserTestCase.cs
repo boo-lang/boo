@@ -30,7 +30,6 @@ namespace WSABoo.Parser.Tests
 	using NUnit.Framework;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
-using Boo.Lang.Parser;
 	using Boo.Lang.Compiler.IO;
 	using Boo.Lang.Parser;
 

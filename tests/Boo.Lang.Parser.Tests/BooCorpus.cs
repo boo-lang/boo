@@ -50,7 +50,7 @@ public static class BooCorpus
 	/// </summary>
 	public const string WsaPath = "tests/testcases/parser/wsa";
 
-	private static readonly string[] SkippedDirectories = { "bin", "obj", ".git", "packages" };
+	private static readonly string[] SkippedDirectories = { "bin", "obj", ".git", ".vs", "packages" };
 
 	private static string Root => BooTestCaseUtil.BasePath;
 
