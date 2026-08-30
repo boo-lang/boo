@@ -2041,7 +2041,17 @@ namespace Boo.Lang.Compiler.Steps
 			else if (IsInteger(type))
 			{
 				if (IsLong(type) || TypeSystemServices.ULongType == type)
-					_il.Emit(OpCodes.Conv_I4);
+				{
+					// Conv_I4 would keep only the low word, so every long with
+					// nothing set below bit 32 would test as false. Compare
+					// against zero instead, the way the floating point types do.
+					EmitDefaultValue(type);
+					_il.Emit(OpCodes.Ceq);
+					if (!inNotContext)
+						EmitIntNot();
+					else
+						notContext = true;
+				}
 				return true;
 			}
 			else if (TypeSystemServices.SingleType == type)

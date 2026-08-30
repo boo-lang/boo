@@ -157,6 +157,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void long_truth_1()
+		{
+			RunCompilerTestCase(@"long-truth-1.boo");
+		}
+		
+		[Test]
 		public void promotion_1()
 		{
 			RunCompilerTestCase(@"promotion-1.boo");
