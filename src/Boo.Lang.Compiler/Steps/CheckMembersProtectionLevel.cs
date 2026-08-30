@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.Steps
 
 			OnExpression(node);
 		}
-		
+
 		override public void OnReferenceExpression(ReferenceExpression node)
 		{
 			OnExpression(node);

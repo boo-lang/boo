@@ -2870,6 +2870,316 @@ namespace Boo.Lang.Compiler.Ast
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnFromClauseExpression(Boo.Lang.Compiler.Ast.FromClauseExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.FromClauseExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
+			if (ShouldSerialize(node.Identifier))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Identifier"),
+						Serialize(node.Identifier)));
+			}
+			if (ShouldSerialize(node.DeclaredType))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "DeclaredType"),
+						Serialize(node.DeclaredType)));
+			}
+			if (ShouldSerialize(node.Container))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Container"),
+						Serialize(node.Container)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnQueryContinuationExpression(Boo.Lang.Compiler.Ast.QueryContinuationExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.QueryContinuationExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.Ident))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Ident"),
+						Serialize(node.Ident)));
+			}
+			if (ShouldSerialize(node.Body))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Body"),
+						Serialize(node.Body)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnSelectClauseExpression(Boo.Lang.Compiler.Ast.SelectClauseExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.SelectClauseExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
+			if (ShouldSerialize(node.BaseExpr))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "BaseExpr"),
+						Serialize(node.BaseExpr)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnLetClauseExpression(Boo.Lang.Compiler.Ast.LetClauseExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.LetClauseExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
+			if (ShouldSerialize(node.Identifier))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Identifier"),
+						Serialize(node.Identifier)));
+			}
+			if (ShouldSerialize(node.Value))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Value"),
+						Serialize(node.Value)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnWhereClauseExpression(Boo.Lang.Compiler.Ast.WhereClauseExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.WhereClauseExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
+			if (ShouldSerialize(node.Cond))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Cond"),
+						Serialize(node.Cond)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnJoinClauseExpression(Boo.Lang.Compiler.Ast.JoinClauseExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.JoinClauseExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
+			if (ShouldSerialize(node.Identifier))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Identifier"),
+						Serialize(node.Identifier)));
+			}
+			if (ShouldSerialize(node.DeclaredType))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "DeclaredType"),
+						Serialize(node.DeclaredType)));
+			}
+			if (ShouldSerialize(node.Container))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Container"),
+						Serialize(node.Container)));
+			}
+			if (ShouldSerialize(node.Left))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Left"),
+						Serialize(node.Left)));
+			}
+			if (ShouldSerialize(node.Right))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Right"),
+						Serialize(node.Right)));
+			}
+			if (ShouldSerialize(node.Into))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Into"),
+						Serialize(node.Into)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnGroupClauseExpression(Boo.Lang.Compiler.Ast.GroupClauseExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.GroupClauseExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
+			if (ShouldSerialize(node.BaseExpr))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "BaseExpr"),
+						Serialize(node.BaseExpr)));
+			}
+			if (ShouldSerialize(node.Criterion))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Criterion"),
+						Serialize(node.Criterion)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnOrderByClauseExpression(Boo.Lang.Compiler.Ast.OrderByClauseExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.OrderByClauseExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.TupleSize))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "TupleSize"),
+						Serialize(node.TupleSize)));
+			}
+			if (ShouldSerialize(node.Orderings))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Orderings"),
+						SerializeCollection(node, "Boo.Lang.Compiler.Ast.OrderingExpressionCollection", node.Orderings)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnOrderingExpression(Boo.Lang.Compiler.Ast.OrderingExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.OrderingExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.Descending))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Descending"),
+						Serialize(node.Descending)));
+			}
+			if (ShouldSerialize(node.BaseExpr))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "BaseExpr"),
+						Serialize(node.BaseExpr)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		override public void OnQueryExpression(Boo.Lang.Compiler.Ast.QueryExpression node)
+		{
+			MethodInvocationExpression mie = new MethodInvocationExpression(
+					node.LexicalInfo,
+					CreateReference(node, "Boo.Lang.Compiler.Ast.QueryExpression"));
+			mie.Arguments.Add(Serialize(node.LexicalInfo));
+			if (ShouldSerialize(node.Clauses))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Clauses"),
+						SerializeCollection(node, "Boo.Lang.Compiler.Ast.ExpressionCollection", node.Clauses)));
+			}
+			if (ShouldSerialize(node.Ending))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Ending"),
+						Serialize(node.Ending)));
+			}
+			if (ShouldSerialize(node.Cont))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "Cont"),
+						Serialize(node.Cont)));
+			}
+			Push(mie);
+		}
+
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		override public void OnStatementTypeMember(Boo.Lang.Compiler.Ast.StatementTypeMember node)
 		{
 			MethodInvocationExpression mie = new MethodInvocationExpression(
