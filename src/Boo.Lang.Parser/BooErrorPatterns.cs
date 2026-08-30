@@ -103,7 +103,35 @@ internal static class BooErrorPatterns
 			&& (p.UnclosedParen == null
 				|| p.UnclosedParen == (unclosedParen ??= HasUnclosedParen(parser))));
 
+		var keyword = KeywordText(parser, offendingSymbol);
+		if (keyword != null)
+		{
+			// The table reads a keyword the parser could not start a statement
+			// with as a dangling paren the source never had.
+			if (pattern != null && pattern.Message == StringResources.BooParser_UnbalancedOpeningParen)
+				return string.Format(StringResources.BooParser_KeywordAsIdentifier, keyword);
+
+			// A keyword where a name belongs, in a rule the table has no entry for.
+			if (pattern == null && expected != null && expected.Contains(BooLexer.ID))
+				return string.Format(StringResources.BooParser_KeywordAsIdentifier, keyword);
+		}
+
 		return pattern == null ? null : pattern.Message;
+	}
+
+	/// <summary>
+	/// The keyword a token spells, or null where it is not one. Reading the
+	/// grammar's literal names keeps this in step with BooLexer.g4; operators
+	/// have literal names too, and are told apart by not being all letters.
+	/// </summary>
+	private static string KeywordText(Parser parser, IToken token)
+	{
+		var literal = parser.Vocabulary.GetLiteralName(token.Type);
+		if (literal == null || literal.Length < 3)
+			return null;
+
+		var word = literal.Trim('\'');
+		return word.All(char.IsLetter) ? word : null;
 	}
 
 	/// <summary>

@@ -177,6 +177,20 @@ a = foo bar
 print foo bar
 """
 
+error "Illegal use of keyword 'pass' as identifier", """
+pass = 12
+---
+class Foo:
+    public pass as int
+---
+def foo(pass as int):
+    print 1
+"""
+
+error "Illegal use of keyword 'and' as identifier", """
+and = 12
+"""
+
 error "Block must be indented", """
 def foo():
 return

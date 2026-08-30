@@ -276,6 +276,7 @@ namespace Boo.Lang.Resources
 		public const string BooParser_SeparateExpressionsWithCommas = "Expressions must be separated by commas";
 		public const string BooParser_MixedIndentation = "Mixed indentation, expected the use of {0}";
 		public const string BooParser_DuplicateAccessor = "A property can only state one {0}";
+		public const string BooParser_KeywordAsIdentifier = "Illegal use of keyword '{0}' as identifier";
 
 	}
 }
