@@ -76,7 +76,26 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 
 		protected bool ResolveMember(ICollection<IEntity> resolvedSet, string name, EntityType typesToConsider)
 		{
-			return My<NameResolutionService>.Instance.Resolve(name, GetMembers(), typesToConsider, resolvedSet);
+			return My<NameResolutionService>.Instance.Resolve(name, MembersResolvableByName(), typesToConsider, resolvedSet);
+		}
+
+		/// <summary>
+		/// An explicitly implemented member is reached through its interface and
+		/// never by its own name, so it takes no part in ordinary resolution. It
+		/// would otherwise be ambiguous with the member it exists to sit beside.
+		/// </summary>
+		private IEnumerable<IEntity> MembersResolvableByName()
+		{
+			return GetMembers().Where(member => !IsExplicitlyImplemented(member));
+		}
+
+		private static bool IsExplicitlyImplemented(IEntity member)
+		{
+			var internalEntity = member as IInternalEntity;
+			if (null == internalEntity)
+				return false;
+			var explicitMember = internalEntity.Node as IExplicitMember;
+			return null != explicitMember && null != explicitMember.ExplicitInfo;
 		}
 
 		protected bool ResolveGenericParameter(ICollection<IEntity> targetList, string name, EntityType flags)
