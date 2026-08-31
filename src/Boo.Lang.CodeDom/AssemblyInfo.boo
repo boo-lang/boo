@@ -39,4 +39,4 @@ import System.Reflection
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyVersion("2.0.9.5")]
+[assembly: AssemblyVersion("2.0.9.7")]
