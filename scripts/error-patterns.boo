@@ -167,18 +167,29 @@ def fn():
     foo)
 """
 
-error "Either separate expressions with commas or make sure your parens are balanced", """
-foo(bar baz, qux)
-"""
-
 error "Expressions must be separated by commas", """
 foo(bar baz)
 ---
+foo(bar baz, qux)
+---
 a = foo bar
+---
+print foo bar
 """
-# error "Expressions must be separated by commas", """
-# print foo bar
-# """
+
+error "Illegal use of keyword 'pass' as identifier", """
+pass = 12
+---
+class Foo:
+    public pass as int
+---
+def foo(pass as int):
+    print 1
+"""
+
+error "Illegal use of keyword 'and' as identifier", """
+and = 12
+"""
 
 error "Block must be indented", """
 def foo():

@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2003-2026, Rodrigo B. de Oliveira (rbo@acm.org) and the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -33,113 +33,89 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Parser.Util;
 using Boo.Lang.Environments;
+using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
 
-namespace Boo.Lang.Parser
-{
-	/// <summary>
-	/// With this parser indentation is not used as
-	/// a block delimiter but COLON end.
-	///
-	/// class Foo:
-	/// def foo():
-	///    print 'Hello'
-	/// end
-	/// end
-	/// </summary>
-	public class WSABooParser : BooParserBase
-	{	
-		protected Boo.Lang.Parser.ParserErrorHandler Error;
+namespace Boo.Lang.Parser;
 
-		public WSABooParser(antlr.TokenStream lexer) : base(lexer)
+/// <summary>
+/// With this parser indentation is not used as
+/// a block delimiter but COLON end.
+///
+/// class Foo:
+/// def foo():
+///    print 'Hello'
+/// end
+/// end
+/// </summary>
+public class WSABooParser : BooParser
+{	
+	public WSABooParser(ITokenStream lexer) : base(lexer)
+	{
+	}
+
+	public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader)
+	{
+		return ParseModule(tabSize, cu, readerName, reader, null);
+	}
+
+	public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler eh)
+	{
+		if (Readers.IsEmpty(reader))
 		{
+			Module emptyModule = new Module(new LexicalInfo(readerName), ModuleNameFrom(readerName));
+			cu.Modules.Add(emptyModule);
+			return emptyModule;
 		}
 
-		public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler errorHandler)
-		{
-			if (Readers.IsEmpty(reader))
-			{
-				Module emptyModule = new Module(new LexicalInfo(readerName), ModuleNameFrom(readerName));
-				cu.Modules.Add(emptyModule);
-				return emptyModule;
-			}
+		var parser = CreateParser(tabSize, readerName, reader, eh);
+		parser.BuildParseTree = true;
+		var tree = parser.start();
+		var visitor = new BooParserAstBuilderVisitor(cu, readerName);
+		var module = visitor.VisitStart(tree);
+		module.Name = ModuleNameFrom(readerName);
+		return module;
+	}
 
-			Module module = CreateParser(tabSize, readerName, reader, errorHandler).start(cu);
-			module.Name = ModuleNameFrom(readerName);
-			return module;
+	private static string ModuleNameFrom(string readerName)
+	{
+		return Boo.Lang.Parser.CodeFactory.ModuleNameFrom(readerName);
+	}
+
+	public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader)
+	{
+		return CreateParser(tabSize, readerName, reader, null);
+	}
+
+	public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader, ParserErrorHandler eh)
+	{
+		var lexer = CreateBooLexer(tabSize, readerName, reader, eh);
+		var parser = new WSABooParser(new CommonTokenStream(lexer));
+		parser.Interpreter.PredictionMode = PredictionMode.LL;
+		// Without a listener of its own the parser reports to the console and
+		// the compiler never learns the parse failed.
+		parser.RemoveErrorListeners();
+		if (eh != null)
+			parser.AddErrorListener(new BooErrorListener(eh, readerName));
+		return parser;
+	}
+	
+	public static ITokenSource CreateBooLexer(int tabSize, string readerName, TextReader reader)
+	{
+		return CreateBooLexer(tabSize, readerName, reader, null);
+	}
+
+	public static ITokenSource CreateBooLexer(int tabSize, string readerName, TextReader reader, ParserErrorHandler eh)
+	{
+		var lexer = new BooLexer(new AntlrInputStream(reader)) { TokenFactory = BooToken.CreateTokenFactory(tabSize) } ;
+		if (eh != null)
+		{
+			lexer.RemoveErrorListeners();
+			lexer.AddErrorListener(new BooLexerErrorListener(eh, readerName));
 		}
 
-		private static string ModuleNameFrom(string readerName)
-		{
-			return CodeFactory.ModuleNameFrom(readerName);
-		}
+		var filter = new WSATokenStreamFilter(lexer);
 
-		public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader, Boo.Lang.Parser.ParserErrorHandler errorHandler)
-		{
-			var parser = new WSABooParser(CreateBooLexer(tabSize, readerName, reader));
-			parser.setFilename(readerName);
-			parser.Error += errorHandler;
-			return parser;
-		}
-		
-		public static antlr.TokenStream CreateBooLexer(int tabSize, string readerName, TextReader reader)
-		{
-			var selector = new antlr.TokenStreamSelector();		
-			var lexer = new BooLexer(reader);
-			lexer.setFilename(readerName);
-			lexer.Initialize(selector, tabSize, BooToken.TokenCreator);		
-
-			var filter = new WSATokenStreamFilter(lexer);
-			selector.select(filter);
-
-			return selector;
-		}
-
-		override public void reportError(antlr.RecognitionException x)
-		{
-			if (null != Error)
-				Error(x);
-			else
-				base.reportError(x);
-		}
-
-		
-		protected override void EmitIndexedPropertyDeprecationWarning(Property deprecated)
-		{
-			if (OutsideCompilationEnvironment())
-				return;
-			EmitWarning(
-				CompilerWarningFactory.ObsoleteSyntax(
-				deprecated,
-				FormatPropertyWithDelimiters(deprecated, "(", ")"),
-				FormatPropertyWithDelimiters(deprecated, "[", "]")));
-		}
-
-		protected override void EmitTransientKeywordDeprecationWarning(LexicalInfo location)
-		{
-			if (OutsideCompilationEnvironment())
-				return;
-			EmitWarning(
-				CompilerWarningFactory.ObsoleteSyntax(
-				location,
-				"transient keyword",
-				"[Transient] attribute"));
-		}
-
-		
-		private void EmitWarning(CompilerWarning warning)
-		{
-			My<CompilerWarningCollection>.Instance.Add(warning);
-		}
-
-		private bool OutsideCompilationEnvironment()
-		{
-			return ActiveEnvironment.Instance == null;
-		}
-
-		private string FormatPropertyWithDelimiters(Property deprecated, string leftDelimiter, string rightDelimiter)
-		{
-			return deprecated.Name + leftDelimiter + Builtins.join(deprecated.Parameters, ", ") + rightDelimiter;
-		}
-
+		return filter;
 	}
 }

@@ -29,7 +29,6 @@
 
 using System;
 using System.Globalization;
-using antlr;
 using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Environments;
@@ -38,31 +37,30 @@ namespace Boo.Lang.Parser
 {
 	public class PrimitiveParser
 	{
-		public static TimeSpan ParseTimeSpan(antlr.IToken token, string text)
+		public static TimeSpan ParseTimeSpan(LexicalInfo sourceLocation, string text)
 		{
 			try
 			{
-				return TryParseTimeSpan(token, text);
+				return TryParseTimeSpan(sourceLocation, text);
 			}
 			catch (System.OverflowException x)
 			{
-				LexicalInfo sourceLocation = ToLexicalInfo(token);
 				GenericParserError(sourceLocation, x);
 				// let the parser continue
 				return TimeSpan.Zero;
 			}
 		}
 
-		private static TimeSpan TryParseTimeSpan(antlr.IToken token, string text)
+		private static TimeSpan TryParseTimeSpan(LexicalInfo sourceLocation, string text)
 		{
 			if (text.EndsWith("ms"))
 			{
 				return TimeSpan.FromMilliseconds(
-					ParseDouble(token, text.Substring(0, text.Length - 2)));
+					ParseDouble(sourceLocation, text.Substring(0, text.Length - 2)));
 			}
 
 			char last = text[text.Length - 1];
-			double value = ParseDouble(token, text.Substring(0, text.Length - 1));
+			double value = ParseDouble(sourceLocation, text.Substring(0, text.Length - 1));
 			switch (last)
 			{
 				case 's': return TimeSpan.FromSeconds(value);
@@ -73,12 +71,12 @@ namespace Boo.Lang.Parser
 			throw new ArgumentException(text, "text");
 		}
 
-		public static double ParseDouble(antlr.IToken token, string s)
+		public static double ParseDouble(LexicalInfo sourceLocation, string s)
 		{
-			return ParseDouble(token, s, false);
+			return ParseDouble(sourceLocation, s, false);
 		}
 
-		public static double ParseDouble(antlr.IToken token, string s, bool isSingle)
+		public static double ParseDouble(LexicalInfo sourceLocation, string s, bool isSingle)
 		{
 			try
 			{
@@ -86,7 +84,6 @@ namespace Boo.Lang.Parser
 			}
 			catch (Exception x)
 			{
-				LexicalInfo sourceLocation = ToLexicalInfo(token);
 				GenericParserError(sourceLocation, x);
 				// let the parser continue
 				return double.NaN;
@@ -107,15 +104,14 @@ namespace Boo.Lang.Parser
 			return val;
 		}
 
-		public static IntegerLiteralExpression ParseIntegerLiteralExpression(antlr.IToken token, string text, bool asLong)
+		public static IntegerLiteralExpression ParseIntegerLiteralExpression(LexicalInfo sourceLocation, string text, bool asLong)
 		{
 			try
 			{
-				return TryParseIntegerLiteralExpression(token, text, asLong);
+				return TryParseIntegerLiteralExpression(sourceLocation, text, asLong);
 			}
 			catch (System.OverflowException x)
 			{	
-				LexicalInfo sourceLocation = ToLexicalInfo(token);
 				GenericParserError(sourceLocation, x);
 				// let the parser continue
 				return new IntegerLiteralExpression(sourceLocation);
@@ -127,7 +123,7 @@ namespace Boo.Lang.Parser
 			My<CompilerErrorCollection>.Instance.Add(CompilerErrorFactory.GenericParserError(sourceLocation, x));
 		}
 
-		private static IntegerLiteralExpression TryParseIntegerLiteralExpression(IToken token, string text, bool asLong)
+		private static IntegerLiteralExpression TryParseIntegerLiteralExpression(LexicalInfo sourceLocation, string text, bool asLong)
 		{
 			const string hexPrefix = "0x";
 			
@@ -148,7 +144,7 @@ namespace Boo.Lang.Parser
 			{
 				value *= -1;
 			}
-			return new IntegerLiteralExpression(ToLexicalInfo(token), value, asLong || (value > int.MaxValue || value < int.MinValue));
+			return new IntegerLiteralExpression(sourceLocation, value, asLong || (value > int.MaxValue || value < int.MinValue));
 		}
 
 		private static string RemoveLongSuffix(string s)
@@ -158,14 +154,10 @@ namespace Boo.Lang.Parser
 			return s;
 		}
 
-		private static LexicalInfo ToLexicalInfo(IToken token)
+		public static int ParseInt(Antlr4.Runtime.Tree.ITerminalNode node)
 		{
-			return SourceLocationFactory.ToLexicalInfo(token);
-		}
-
-		public static int ParseInt(antlr.IToken token)
-		{
-			return (int) ParseIntegerLiteralExpression(token, token.getText(), false).Value;
+			return (int) ParseIntegerLiteralExpression(
+				SourceLocationFactory.ToLexicalInfo(node.Symbol), node.GetText(), false).Value;
 		}
 
 	}

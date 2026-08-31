@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2004-2026, Rodrigo B. de Oliveira (rbo@acm.org) and the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -27,263 +27,296 @@
 #endregion
 
 using System;
-using System.Collections;
-using antlr;
+using System.Collections.Generic;
+using Antlr4.Runtime;
+using Boo.Lang.Parser;
 
-namespace Boo.Lang.Parser.Util
+namespace Boo.Lang.Parser.Util;
+
+/// <summary>
+/// Process whitespace tokens and generate INDENT, DEDENT
+/// virtual tokens as needed.
+/// </summary>
+public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 {
+	static readonly char[] NewLineCharArray = new char[] { '\r', '\n' };
+	
 	/// <summary>
-	/// Process whitespace tokens and generate INDENT, DEDENT
-	/// virtual tokens as needed.
+	/// token input stream.
 	/// </summary>
-	public class IndentTokenStreamFilter : antlr.TokenStream
+	protected ITokenSource _source;
+
+	/// <summary>
+	/// whitespace token type.
+	/// </summary>
+	protected int _wsTokenType;
+
+	/// <summary>
+	/// newline token type.
+	/// </summary>
+	protected int _newlineTokenType;
+
+	/// <summary>
+	/// singleton indent token.
+	/// </summary>
+	protected int _indentTokenType;
+
+	/// <summary>
+	/// singleton dedent token.
+	/// </summary>
+	protected int _dedentTokenType;
+
+	/// <summary>
+	/// singleton EOS token.
+	/// </summary>
+	protected int _eosTokenType;
+
+	/// <summary>
+	/// singleton END token.
+	/// </summary>
+	protected int _endTokenType;
+
+	/// <summary>
+	/// singleton ID token.
+	/// </summary>
+	protected int _idTokenType;
+
+	/// <summary>
+	/// stack of indent levels.
+	/// </summary>
+	protected Stack<int> _indentStack = new Stack<int> ();
+
+	/// <summary>
+	/// tokens waiting to be consumed
+	/// </summary>
+	protected Queue<IToken> _pendingTokens = new Queue<IToken>();
+	
+	/// <summary>
+	/// last non whitespace token for accurate location information
+	/// </summary>
+	protected IToken _lastNonWsToken;
+
+	/// <summary>
+	/// first detected indentation character
+	/// </sumary>
+	protected string _expectedIndent;
+
+	System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
+
+	public IndentTokenStreamFilter(ITokenSource source, int wsType, int newlineTokenType, int indentType, int dedentType, int eosType, int endType, int idType)
 	{
-		static readonly char[] NewLineCharArray = new char[] { '\r', '\n' };
-		
-		/// <summary>
-		/// token input stream.
-		/// </summary>
-		protected antlr.TokenStream _istream;
-
-		/// <summary>
-		/// whitespace token type.
-		/// </summary>
-		protected int _wsTokenType;
-
-		/// <summary>
-		/// singleton indent token.
-		/// </summary>
-		protected int _indentTokenType;
-
-		/// <summary>
-		/// singleton dedent token.
-		/// </summary>
-		protected int _dedentTokenType;
-
-		/// <summary>
-		/// singleton EOS token.
-		/// </summary>
-		protected int _eosTokenType;
-
-		/// <summary>
-		/// singleton END token.
-		/// </summary>
-		protected int _endTokenType;
-
-		/// <summary>
-		/// singleton ID token.
-		/// </summary>
-		protected int _idTokenType;
-
-		/// <summary>
-		/// stack of indent levels.
-		/// </summary>
-		protected Stack _indentStack;
-
-		/// <summary>
-		/// tokens waiting to be consumed
-		/// </summary>
-		protected Queue _pendingTokens;
-		
-		/// <summary>
-		/// last non whitespace token for accurate location information
-		/// </summary>
-		protected antlr.IToken _lastNonWsToken;
-
-		/// <summary>
-		/// first detected indentation character
-		/// </sumary>
-		protected string _expectedIndent;
-
-		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
-
-		public IndentTokenStreamFilter(antlr.TokenStream istream, int wsType, int indentType, int dedentType, int eosType, int endType, int idType)
+		if (null == source)
 		{
-			if (null == istream)
-			{
-				throw new ArgumentNullException("istream");
-			}
-
-			_istream = istream;
-			_wsTokenType = wsType;
-			_indentTokenType = indentType;
-			_dedentTokenType = dedentType;
-			_eosTokenType = eosType;
-			_endTokenType = endType;
-			_idTokenType = idType;
-			_indentStack = new Stack();
-			_pendingTokens = new Queue();
-
-			_indentStack.Push(0); // current indent level is zero
-		}
-		
-		public antlr.TokenStream InnerStream
-		{
-			get { return _istream; }
+			throw new ArgumentNullException(nameof(source));
 		}
 
-		protected int CurrentIndentLevel
-		{
-			get { return (int)_indentStack.Peek(); }
-		}
+		_source = source;
+		_wsTokenType = wsType;
+		_newlineTokenType = newlineTokenType;
+		_indentTokenType = indentType;
+		_dedentTokenType = dedentType;
+		_eosTokenType = eosType;
+		_endTokenType = endType;
+		_idTokenType = idType;
 
-		public antlr.IToken nextToken()
-		{
-			if (_pendingTokens.Count == 0)
-				ProcessNextTokens();
-			IToken token = (IToken)_pendingTokens.Dequeue();
-			// In non-wsa mode `end` is just another identifier
-			if (token.Type == _endTokenType) {
-				token.Type = _idTokenType;
-			}
-			return token;
-		}
-		
-		void ResetBuffer()
-		{
-			_buffer.Length = 0;
-		}
-		
-		antlr.IToken BufferUntilNextNonWhiteSpaceToken()
-		{
-			antlr.IToken token = null;
-			while (true)
-			{	
-				token = _istream.nextToken();
-				
-				int ttype = token.Type;
-				if (antlr.Token.SKIP == ttype)
-					continue;
+		_indentStack.Push(0); // current indent level is zero
+	}
 
-				if (_wsTokenType == ttype)
-				{			
-					_buffer.Append(token.getText());
-					continue;
-				}
+	public ITokenSource InnerStream => _source;
 
-				break;
-			}
-			return token;
+	ITokenFactory ITokenSource.TokenFactory
+	{
+		get => _source.TokenFactory;
+		set => _source.TokenFactory = value;
+	}
+
+	int ITokenSource.Line => _source.Line;
+
+	int ITokenSource.Column => _source.Column;
+
+	public ICharStream InputStream => _source.InputStream;
+
+	string ITokenSource.SourceName => _source.SourceName;
+
+	protected int CurrentIndentLevel => _indentStack.Peek();
+
+	public IToken NextToken()
+	{
+		if (_pendingTokens.Count == 0)
+			ProcessNextTokens();
+		IToken token = _pendingTokens.Dequeue();
+		// In non-wsa mode `end` is just another identifier
+		if (token.Type == _endTokenType) {
+			((IWritableToken)token).Type = _idTokenType;
 		}
-		
-		void FlushBuffer(antlr.IToken token)
-		{
-			if (0 == _buffer.Length) return;
+		return token;
+	}
+	
+	void ResetBuffer()
+	{
+		_buffer.Length = 0;
+	}
+
+	IToken BufferUntilNextNonWhiteSpaceToken()
+	{
+		IToken token = null;
+		while (true)
+		{	
+			token = _source.NextToken();
 			
-			string text = _buffer.ToString();
-			string[] lines = text.Split(NewLineCharArray);					
-
-			if (lines.Length > 1)
+			int ttype = token.Type;
+			if (token.Channel != TokenConstants.DefaultChannel)
 			{
-				string lastLine = lines[lines.Length-1];
+				Enqueue(token);
+				continue;
+			}
 
-				// Protect against mixed indentation issues
-				if (String.Empty != lastLine) {
-					if (null == _expectedIndent) {
-						_expectedIndent = lastLine.Substring(0, 1);
-					}
+			if (ttype == _wsTokenType || ttype == _newlineTokenType)
+			{
+				Enqueue(new CommonToken(new Tuple<ITokenSource,ICharStream>(token.TokenSource, token.InputStream), token.Type, token.Channel, token.StartIndex, token.StopIndex) { Line = token.Line, Column = token.Column, Channel = TokenConstants.HiddenChannel });
+				_buffer.Append(token.Text);
+				continue;
+			}
 
-					if (String.Empty != lastLine.Replace(_expectedIndent, String.Empty))
-					{
-						string literal = _expectedIndent == "\t"
-						               ? "tabs"
-						               : _expectedIndent == "\f"
-						               ? "form feeds"  // The lexer allows them :p
-						               : "spaces";
+			break;
+		}
+		return token;
+	}
+	
+	void FlushBuffer(IToken token)
+	{
+		if (0 == _buffer.Length) return;
+		
+		string text = _buffer.ToString();
+		string[] lines = text.Split(NewLineCharArray);					
 
-						throw new TokenStreamRecognitionException(
-							new RecognitionException(
-								"Mixed indentation, expected the use of " + literal,
-								token.getFilename(),
-								token.getLine(),
-								// Point exactly to the first invalid char
-								lastLine.Length - lastLine.TrimStart(_expectedIndent[0]).Length + 1
-							)
-						);
-					}
+		if (lines.Length > 1)
+		{
+			string lastLine = lines[lines.Length-1];
+
+			// Protect against mixed indentation issues
+			if (String.Empty != lastLine) {
+				if (null == _expectedIndent) {
+					_expectedIndent = lastLine.Substring(0, 1);
 				}
 
-				if (lastLine.Length > CurrentIndentLevel)
+				if (lastLine.Replace(_expectedIndent, String.Empty) != String.Empty)
 				{
-					EnqueueIndent(token);
-					_indentStack.Push(lastLine.Length);
-				}
-				else if (lastLine.Length < CurrentIndentLevel)
-				{
-					EnqueueEOS(token);
-					do 
-					{
-						EnqueueDedent();
-						_indentStack.Pop();
-					}
-					while (lastLine.Length < CurrentIndentLevel);
-				}
-				else
-				{
-					EnqueueEOS(token);
+					string literal = _expectedIndent == "\t"
+					               ? "tabs"
+					               : _expectedIndent == "\f"
+					               ? "form feeds"  // The lexer allows them :p
+					               : "spaces";
+
+					// Reported the way boo.g reports it: a parser error naming the
+					// indentation in use, pointing at the first character that
+					// breaks it.
+					throw Boo.Lang.Compiler.CompilerErrorFactory.GenericParserError(
+						new Boo.Lang.Compiler.Ast.LexicalInfo(
+							token.InputStream.SourceName,
+							token.Line,
+							lastLine.Length - lastLine.TrimStart(_expectedIndent[0]).Length + 1),
+						new Exception(string.Format(Boo.Lang.Resources.StringResources.BooParser_MixedIndentation, literal)));
 				}
 			}
+
+			if (lastLine.Length > CurrentIndentLevel)
+			{
+				EnqueueIndent(token);
+				_indentStack.Push(lastLine.Length);
+			}
+			else if (lastLine.Length < CurrentIndentLevel)
+			{
+				EnqueueEOS(token);
+				do 
+				{
+					EnqueueDedent();
+					_indentStack.Pop();
+				}
+				while (lastLine.Length < CurrentIndentLevel);
+			}
+			else
+			{
+				EnqueueEOS(token);
+			}
 		}
+	}
+	
+	void CheckForEOF(IToken token)
+	{
+		if (token.Type != TokenConstants.EOF) return;
 		
-		void CheckForEOF(antlr.IToken token)
+		EnqueueEOS(token);	
+		while (CurrentIndentLevel > 0)
 		{
-			if (antlr.Token.EOF_TYPE != token.Type) return;
+			EnqueueDedent();
+			_indentStack.Pop();					
+		}
+	}
+	
+	void ProcessNextNonWhiteSpaceToken(IToken token)
+	{
+		_lastNonWsToken = token;
+		Enqueue(token);
+	}
+	
+	void ProcessNextTokens()
+	{		
+		ResetBuffer();
 			
-			EnqueueEOS(token);	
-			while (CurrentIndentLevel > 0)
-			{
-				EnqueueDedent();
-				_indentStack.Pop();					
-			}
-		}
-		
-		void ProcessNextNonWhiteSpaceToken(antlr.IToken token)
-		{
-			_lastNonWsToken = token;
-			Enqueue(token);
-		}
-		
-		void ProcessNextTokens()
-		{		
-			ResetBuffer();
-				
-			antlr.IToken token = BufferUntilNextNonWhiteSpaceToken();
-			FlushBuffer(token);			
-			CheckForEOF(token);
-			ProcessNextNonWhiteSpaceToken(token);
-		}
-		
-		void Enqueue(antlr.IToken token)
-		{
-			_pendingTokens.Enqueue(token);
-		}
+		IToken token = BufferUntilNextNonWhiteSpaceToken();
+		FlushBuffer(token);			
+		CheckForEOF(token);
+		ProcessNextNonWhiteSpaceToken(token);
+	}
+	
+	void Enqueue(IToken token)
+	{
+		_pendingTokens.Enqueue(token);
+	}
 
-		void EnqueueIndent(antlr.IToken prototype)
-		{
-			_pendingTokens.Enqueue(CreateToken(prototype, _indentTokenType, "<INDENT>"));
-		}
+	void EnqueueIndent(IToken prototype)
+	{
+		_pendingTokens.Enqueue(CreateToken(prototype, _indentTokenType, "<INDENT>"));
+	}
 
-		void EnqueueDedent()
-		{
-			_pendingTokens.Enqueue(CreateToken(_lastNonWsToken, _dedentTokenType, "<DEDENT>"));
-		}		
+	void EnqueueDedent()
+	{
+		_pendingTokens.Enqueue(CreateToken(_lastNonWsToken, _dedentTokenType, "<DEDENT>"));
+	}		
 
-		void EnqueueEOS(antlr.IToken prototype)
-		{
-			_pendingTokens.Enqueue(CreateToken(prototype, _eosTokenType, "<EOL>"));
-		}
+	void EnqueueEOS(IToken prototype)
+	{
+		_pendingTokens.Enqueue(CreateToken(prototype, _eosTokenType, "<EOL>"));
+	}
 
-		antlr.IToken CreateToken(antlr.IToken prototype, int newTokenType, string newTokenText)
+	IToken CreateToken(IToken prototype, int newTokenType, string newTokenText)
+	{
+		return new BooToken(Tuple.Create(prototype.TokenSource, prototype.InputStream), newTokenType, newTokenText,
+			prototype.InputStream.SourceName,
+			prototype.StartIndex,
+			prototype.StartIndex - 1,
+			prototype.Line,
+			ColumnAfter(prototype),
+			true);
+	}
+
+	/// <summary>
+	/// Where a token manufactured from this one sits: just past its text.
+	/// </summary>
+	int ColumnAfter(IToken prototype)
+	{
+		switch (prototype.Type)
 		{
-			return new BooToken(newTokenType, newTokenText,
-				prototype.getFilename(),
-				prototype.getLine(),
-				prototype.getColumn()+SafeGetLength(prototype.getText()));
+			case Antlr4.Runtime.TokenConstants.EOF:
+				return prototype.Column;
+			default:
+				return prototype.Column + SafeGetLength(prototype.Text);
 		}
-		
-		int SafeGetLength(string s)
-		{
-			return s == null ? 0 : s.Length;
-		}
+	}
+	
+	int SafeGetLength(string s)
+	{
+		return s == null ? 0 : s.Length;
 	}
 }

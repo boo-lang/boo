@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2004-2026, Rodrigo B. de Oliveira (rbo@acm.org) and the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -27,128 +27,140 @@
 #endregion
 
 using System;
-using antlr;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
 using Boo.Lang.Environments;
+using Boo.Lang.Parser.Util;
+using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
 
-namespace Boo.Lang.Parser
+namespace Boo.Lang.Parser;
+
+/// <summary>
+/// Step 1. Parses any input fed to the compiler.
+/// 
+/// Parsing behaviour can be customized by providing a specific <see cref="ParserSettings"/> instance through
+/// <see cref="CompilerParameters.Environment" />.
+/// </summary>
+public class BooParsingStep : ICompilerStep
 {
-	/// <summary>
-	/// Step 1. Parses any input fed to the compiler.
-	/// 
-	/// Parsing behaviour can be customized by providing a specific <see cref="ParserSettings"/> instance through
-	/// <see cref="CompilerParameters.Environment" />.
-	/// </summary>
-	public class BooParsingStep : ICompilerStep
+	CompilerContext _context;
+	
+	protected CompilerContext Context => _context;
+	
+	public void Initialize(CompilerContext context)
 	{
-		CompilerContext _context;
-		
-		protected CompilerContext Context
-		{
-			get { return _context; }
-		}
-		
-		public void Initialize(CompilerContext context)
-		{
-			_context = context;
-		}
-		
-		public void Dispose()
-		{
-			_context = null;
-		}
+		_context = context;
+	}
+	
+	public void Dispose()
+	{
+		_context = null;
+	}
 
-		protected int TabSize
-		{
-			get { return My<ParserSettings>.Instance.TabSize;  }
-		}
+	protected int TabSize => My<Boo.Lang.Parser.ParserSettings>.Instance.TabSize;
 
-		public void Run()
+	public void Run()
+	{
+		// Parser errors are reported through the ambient settings, so the handler
+		// that was there before this step ran has to come back afterwards.
+		var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
+		var previousHandler = settings.ErrorHandler;
+		settings.ErrorHandler = OnParserError;
+
+		try
 		{
-			// Parser errors are reported through the ambient settings, which the
-			// deprecated ParseModule overload used to swap in per input.
-			var settings = My<ParserSettings>.Instance;
-			var previousHandler = settings.ErrorHandler;
-			settings.ErrorHandler = OnParserError;
+			ParseInputs();
+		}
+		finally
+		{
+			settings.ErrorHandler = previousHandler;
+		}
+	}
+
+	private void ParseInputs()
+	{
+		foreach (var input in _context.Parameters.Input)
+		{
+			// Each input is its own run of errors. WSABooParsingStep overrides
+			// ParseModule, so the reset belongs here rather than in it.
+			_lastErrorLine = -1;
 
 			try
 			{
-				ParseInputs();
-			}
-			finally
+				using (var reader = input.Open())
+					ParseModule(input.Name, reader);
+			}				
+			catch (CompilerError error)
 			{
-				settings.ErrorHandler = previousHandler;
+				_context.Errors.Add(error);
 			}
-		}
-
-		private void ParseInputs()
-		{
-			foreach (var input in _context.Parameters.Input)
+			catch (Exception x)
 			{
-				try
-				{
-					using (var reader = input.Open())
-						ParseModule(input.Name, reader);
-				}				
-				catch (CompilerError error)
-				{
-					_context.Errors.Add(error);
-				}
-				catch (antlr.TokenStreamRecognitionException x)
-				{
-					OnParserError(x.recog);
-				}
-				catch (Exception x)
-				{
-					_context.Errors.Add(CompilerErrorFactory.InputError(input.Name, x));
-				}
+				_context.Errors.Add(CompilerErrorFactory.InputError(input.Name, x));
 			}
 		}
+	}
 
-		[Obsolete]
-		protected virtual void ParseModule(string inputName, System.IO.TextReader reader, ParserErrorHandler errorHandler)
+	protected virtual void ParseModule(string inputName, System.IO.TextReader reader)
+	{
+		var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
+		var stream = new AntlrInputStream(reader);
+		BooParser.StartContext tree;
+
+		// SLL first, as BooParser.ParseModule does. It reports nothing, because it
+		// still calls the listener before bailing and the LL retry repeats it.
+		try
 		{
-			// We need to replace and later restore the error handler in the settings
-			var settings = My<ParserSettings>.Instance;
-			var prevHandler = settings.ErrorHandler;
-			settings.ErrorHandler = errorHandler;
-
-			try
-			{
-				ParseModule(inputName, reader);
-			} 
-			finally 
-			{
-				settings.ErrorHandler = prevHandler;
-			}
+			tree = BooParser.CreateParser(settings.TabSize, inputName, stream, true, null).start();
 		}
-
-		protected virtual void ParseModule(string inputName, System.IO.TextReader reader)
+		catch (ParseCanceledException)
 		{
-			var settings = My<ParserSettings>.Instance;
-			BooParser.ParseModule(settings, _context.CompileUnit, inputName, reader);
+			stream.Seek(0);
+			tree = BooParser.CreateParser(settings.TabSize, inputName, stream, false, OnParserError).start();
 		}
 
-		void OnParserError(antlr.RecognitionException error)
-		{			
-			var location = new LexicalInfo(error.getFilename(), error.getLine(), error.getColumn());
-			var nvae = error as antlr.NoViableAltException;
-			if (null != nvae)
-				ParserError(location, nvae);
-			else
-				GenericParserError(location, error);
-		}
+		var visitor = new BooParserAstBuilderVisitor(_context.CompileUnit, inputName);
+		visitor.VisitStart(tree);
+	}
 
-		private void GenericParserError(LexicalInfo data, RecognitionException error)
+	private int _lastErrorLine = -1;
+
+	/// <summary>
+	/// ANTLR 4 reports a missing or extraneous token with no exception at all,
+	/// so an error is not conditional on there being one.
+	/// </summary>
+	protected void OnParserError(IRecognizer recognizer, IToken offendingSymbol, string filename, int line, int charPositionInLine, string msg, RecognitionException e)
+	{
+		// Errors close behind another are ANTLR 4 resynchronising, not separate
+		// problems. boo.g never emitted the cascade, so it needed no such check.
+		if (_lastErrorLine != -1 && line - _lastErrorLine < 3)
 		{
-			_context.Errors.Add(CompilerErrorFactory.GenericParserError(data, error));
+			_lastErrorLine = line;
+			return;
+		}
+		_lastErrorLine = line;
+
+		var location = new LexicalInfo(filename, line, charPositionInLine);
+		var friendly = BooErrorPatterns.Match(recognizer, offendingSymbol, e);
+		if (friendly != null)
+		{
+			_context.Errors.Add(CompilerErrorFactory.GenericParserError(location, new Exception(friendly)));
+			return;
 		}
 
-		void ParserError(LexicalInfo data, antlr.NoViableAltException error)
-		{			
-			_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(data, error, error.token.getText()));
-		}
+		// Name the token, as boo.g did. ANTLR's own text describes its recovery
+		// rather than the problem, so it is the last resort.
+		if (offendingSymbol != null)
+			_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(location, e, offendingSymbol.Text));
+		else
+			_context.Errors.Add(CompilerErrorFactory.GenericParserError(location, new Exception(msg)));
+	}
 
+
+	void ParserError(LexicalInfo data, NoViableAltException error, IToken offendingSymbol)
+	{
+		_context.Errors.Add(CompilerErrorFactory.UnexpectedToken(data, error, offendingSymbol.Text));
 	}
 }

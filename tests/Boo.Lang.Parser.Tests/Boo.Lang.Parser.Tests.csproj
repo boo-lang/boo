@@ -5,6 +5,9 @@
     <RootNamespace>Boo.Lang.Parser.Tests</RootNamespace>
     <!-- Follows BooCompiler.Tests, which it references for BooTestCaseUtil. -->
     <TargetFramework Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0-windows</TargetFramework>
+    <!-- The corpus fixture parses every .boo in the repository, which is slow.
+         CI asks for it by category; an ordinary run does not pay for it. -->
+    <VSTestTestCaseFilter>TestCategory!=Corpus</VSTestTestCaseFilter>
   </PropertyGroup>
 
   <ItemGroup>

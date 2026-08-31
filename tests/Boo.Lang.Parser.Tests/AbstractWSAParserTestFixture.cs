@@ -2,17 +2,11 @@ using Boo.Lang.Compiler.Steps;
 
 namespace Boo.Lang.Parser.Tests
 {
-	using System;
-	using Boo.Lang.Compiler;	
-	using Boo.Lang.Parser;
-
 	public class AbstractWSAParserTestFixture : AbstractParserTestFixture
 	{	
-		override protected CompilerPipeline CreatePipeline()
+		override protected Boo.Lang.Compiler.ICompilerStep ParsingStep()
 		{
-			CompilerPipeline pipeline = base.CreatePipeline();
-			pipeline.Replace(typeof(Parsing), new WSABooParsingStep());
-			return pipeline;
+			return BooCompiler.Tests.BooTestCaseUtil.WsaParsingStep();
 		}
 	}
 }

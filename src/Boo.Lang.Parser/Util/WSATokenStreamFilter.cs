@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+// Copyright (c) 2004-2026, Rodrigo B. de Oliveira (rbo@acm.org) and the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -28,258 +28,290 @@
 
 using System;
 using System.Collections.Generic;
-using antlr;
+using Antlr4.Runtime;
+using Boo.Lang.Parser;
 
-namespace Boo.Lang.Parser.Util
+namespace Boo.Lang.Parser.Util;
+
+/// <summary>
+/// Process white space agnostic tokens to generate INDENT, DEDENT
+/// virtual tokens as expected by the standard grammar.
+/// </summary>
+public class WSATokenStreamFilter : ITokenSource
 {
-	/// <summary>
-	/// Process white space agnostic tokens to generate INDENT, DEDENT
-	/// virtual tokens as expected by the standard grammar.
-	/// </summary>
-	public class WSATokenStreamFilter : TokenStream
-	{
-		static readonly char[] NewLineCharArray = new char[] { '\r', '\n' };
-		
-		/// <summary>
-		/// token input stream.
-		/// </summary>
-		protected TokenStream _istream;
-
-		/// <summary>
-		/// last non whitespace token for accurate location information
-		/// </summary>
-		protected IToken _lastEnqueuedToken;
-
-		/// <summary>
-		/// Flags the current QQ expression to need a DEDENT when closing it.
-		/// </summary>
-		protected bool _lastQQIndented;
-
-		/// <summary>
-		/// tokens waiting to be consumed
-		/// </summary>
-		protected Queue<IToken> _pendingTokens;
-
+	static readonly char[] NewLineCharArray = new char[] { '\r', '\n' };
 	
-		System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
+	/// <summary>
+	/// token input stream.
+	/// </summary>
+	protected ITokenSource _source;
+
+	/// <summary>
+	/// last non whitespace token for accurate location information
+	/// </summary>
+	protected IToken _lastEnqueuedToken;
+
+	/// <summary>
+	/// Flags the current QQ expression to need a DEDENT when closing it.
+	/// </summary>
+	protected bool _lastQQIndented;
+
+	/// <summary>
+	/// tokens waiting to be consumed
+	/// </summary>
+	protected Queue<IToken> _pendingTokens;
 
 
-		public WSATokenStreamFilter(TokenStream istream)
+	System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
+
+
+	public WSATokenStreamFilter(ITokenSource source)
+	{
+		if (source == null)
 		{
-			if (null == istream)
-			{
-				throw new ArgumentNullException("istream");
-			}
-
-			_istream = istream;
-			_pendingTokens = new Queue<IToken>();
+			throw new ArgumentNullException("source");
 		}
 
-		public TokenStream InnerStream
+		_source = source;
+		_pendingTokens = new Queue<IToken>();
+	}
+
+	ITokenFactory ITokenSource.TokenFactory
+	{
+		get => _source.TokenFactory;
+		set => _source.TokenFactory = value;
+	}
+
+	int ITokenSource.Line => _source.Line;
+
+	int ITokenSource.Column => _source.Column;
+
+	public ICharStream InputStream => _source.InputStream;
+
+	string ITokenSource.SourceName => _source.SourceName;
+
+	public ITokenSource Source => _source;
+	
+	void ResetBuffer()
+	{
+		_buffer.Length = 0;
+	}
+
+	public IToken NextToken()
+	{
+		IToken token;
+		if (_pendingTokens.Count == 0)
 		{
-			get { return _istream; }
+			token = BufferUntilNextNonWhiteSpaceToken();
+			ProcessNextToken(token);
 		}
-		
-		void ResetBuffer()
+		token = _pendingTokens.Dequeue();
+		return token;
+	}
+
+	bool BufferHasNewLine()
+	{
+		if (_buffer.Length == 0)
+			return false;
+
+		var text = _buffer.ToString();
+		string[] lines = text.Split(NewLineCharArray);
+		return lines.Length > 1;
+	}
+
+	void ProcessNextToken(IToken token)
+	{
+		// New lines are converted to EOS unless they come after 
+		// indents or a dot (member reference)
+		if (!IsLastIndent() && !IsLastDot() && BufferHasNewLine())
 		{
-			_buffer.Length = 0;
+			EnqueueEOS(token);
 		}
 
-		public IToken nextToken()
-		{
-			IToken token;
-			if (_pendingTokens.Count == 0)
-			{
-				token = BufferUntilNextNonWhiteSpaceToken();
-				ProcessNextToken(token);
-			}
-			token = _pendingTokens.Dequeue();
-			return token;
-		}
+		if (token.Type == Boo.Lang.Parser.BooLexer.COLON) {
 
-		bool BufferHasNewLine()
-		{
-			if (_buffer.Length == 0)
-				return false;
+			Enqueue(token);
 
-			var text = _buffer.ToString();
-			string[] lines = text.Split(NewLineCharArray);
-			return lines.Length > 1;
-		}
-
-		void ProcessNextToken(IToken token)
-		{
-			// New lines are converted to EOS unless they come after 
-			// indents or a dot (member reference)
-			if (!IsLastIndent() && !IsLastDot() && BufferHasNewLine())
-			{
-				EnqueueEOS(token);
-			}
-
-			if (token.Type == BooLexer.COLON) {
-
-				Enqueue(token);
-
-				// If whitespace is not being skiped assume it's a block
-				var next = BufferUntilNextNonWhiteSpaceToken();
-				if (_buffer.Length > 0) {
-					// Special case for docstrings
-					if (next.Type == BooLexer.TRIPLE_QUOTED_STRING) {
+			// If whitespace is not being skiped assume it's a block
+			var next = BufferUntilNextNonWhiteSpaceToken();
+			if (_buffer.Length > 0) {
+				// Special case for docstrings
+				if (next.Type == Boo.Lang.Parser.BooLexer.TRIPLE_QUOTED_STRING) {
+					while (next.Type != Boo.Lang.Parser.BooLexer.TQS_END && next.Type != TokenConstants.EOF)
+					{
 						ProcessNextToken(next);
-						EnqueueIndent(next);
-						return;
+						next = BufferUntilNextNonWhiteSpaceToken();
 					}
-					EnqueueIndent(token);
-				}
-
-				ProcessNextToken(next);
-
-			} else if (IsEnding(token.Type)) {
-
-				IToken next = null;
-
-				// Dissambiguate OR/ELSE
-				if (IsAmbiguous(token.Type)) {
-					next = BufferUntilNextNonWhiteSpaceToken();
-					if (next.Type != BooLexer.COLON) {
-						// Not an ending keyword, just process it as normal
-						Enqueue(token);
-						ProcessNextToken(next);
-						return;
-					}
-				}
-
-				// Inject a `pass` if there are no statements in a block
-				if (IsLastIndent()) {
-					Enqueue(CreateToken(token, BooLexer.PASS, "pass"));
-				}
-
-				// Dedent the block
-				EnqueueEOS(token);
-				EnqueueDedent(token);
-
-				if (token.Type != BooLexer.END)
-					Enqueue(token);
-
-				// Process the look-ahead token we used to disambiguate
-				if (null != next)
 					ProcessNextToken(next);
-
+					if (next.Type != TokenConstants.EOF)
+						EnqueueIndent(next);
+					return;
+				}
+				EnqueueIndent(token);
 			}
-			else if (token.Type == BooLexer.QQ_BEGIN)
-			{
+
+			ProcessNextToken(next);
+
+		} else if (IsEnding(token.Type)) {
+
+			IToken next = null;
+
+			// Dissambiguate OR/ELSE
+			if (IsAmbiguous(token.Type)) {
+				next = BufferUntilNextNonWhiteSpaceToken();
+				if (next.Type != Boo.Lang.Parser.BooLexer.COLON) {
+					// Not an ending keyword, just process it as normal
+					Enqueue(token);
+					ProcessNextToken(next);
+					return;
+				}
+			}
+
+			// Inject a `pass` if there are no statements in a block
+			if (IsLastIndent()) {
+				Enqueue(CreateToken(token, Boo.Lang.Parser.BooLexer.PASS, "pass"));
+			}
+
+			// Dedent the block
+			EnqueueEOS(token);
+			EnqueueDedent(token);
+
+			if (token.Type != Boo.Lang.Parser.BooLexer.END)
 				Enqueue(token);
 
-				// If follows a new line we handle it as a block
-				var next = BufferUntilNextNonWhiteSpaceToken();
-				_lastQQIndented = BufferHasNewLine();
-				if (_lastQQIndented) {
-					EnqueueIndent(token);
-				}
-
+			// Process the look-ahead token we used to disambiguate
+			if (null != next)
 				ProcessNextToken(next);
 
-			} 
-			else if (token.Type == BooLexer.QQ_END)
-			{
-				if (_lastQQIndented)
-					EnqueueDedent(token);
-				Enqueue(token);
+		}
+		else if (token.Type == Boo.Lang.Parser.BooLexer.QQ_BEGIN)
+		{
+			Enqueue(token);
+
+			// If follows a new line we handle it as a block
+			var next = BufferUntilNextNonWhiteSpaceToken();
+			_lastQQIndented = BufferHasNewLine();
+			if (_lastQQIndented) {
+				EnqueueIndent(token);
 			}
-			else if (token.Type == Token.EOF_TYPE)
-			{
-				// EOF also signals the end of any running statement 
-				EnqueueEOS(token);
-				Enqueue(token);
-			}
-			else
-			{
-				Enqueue(token);
-			}
+
+			ProcessNextToken(next);
+
+		} 
+		else if (token.Type == Boo.Lang.Parser.BooLexer.QQ_END)
+		{
+			if (_lastQQIndented)
+				EnqueueDedent(token);
+			Enqueue(token);
 		}
-
-		bool IsLastIndent()
+		else if (token.Type == TokenConstants.EOF)
 		{
-			return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == BooLexer.INDENT;
+			// EOF also signals the end of any running statement 
+			EnqueueEOS(token);
+			Enqueue(token);
 		}
-
-		bool IsLastDot()
+		else
 		{
-			return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == BooLexer.DOT;
-		}
-
-		static bool IsAmbiguous(int type)
-		{
-			return type == BooLexer.OR || type == BooLexer.ELSE;
-		}
-
-		static bool IsEnding(int type)
-		{
-			return type == BooLexer.END || 
-				   type == BooLexer.ELSE ||
-				   type == BooLexer.ELIF ||
-				   type == BooLexer.EXCEPT ||
-				   type == BooLexer.ENSURE ||
-				   type == BooLexer.THEN ||
-				   type == BooLexer.OR;
-		}
-
-		IToken BufferUntilNextNonWhiteSpaceToken()
-		{
-			ResetBuffer();
-
-			IToken token = null;
-			while (true)
-			{	
-				token = _istream.nextToken();
-
-				if (token.Type == Token.SKIP)
-					continue;
-
-				if (token.Type == BooLexer.WS)
-				{
-					_buffer.Append(token.getText());
-					continue;
-				}
-
-				break;
-			}
-			return token;
-		}
-
-		void Enqueue(IToken token)
-		{
-			_pendingTokens.Enqueue(token);
-			_lastEnqueuedToken = token;
-		}
-
-		void EnqueueIndent(IToken prototype)
-		{
-			Enqueue(CreateToken(prototype, BooLexer.INDENT, "<INDENT>"));
-		}
-
-		void EnqueueDedent(IToken prototype)
-		{
-			Enqueue(CreateToken(prototype, BooLexer.DEDENT, "<DEDENT>"));
-		}		
-
-		void EnqueueEOS(IToken prototype)
-		{
-			Enqueue(CreateToken(prototype, BooLexer.EOL, "<EOL>"));
-		}
-				
-		static IToken CreateToken(IToken prototype, int newTokenType, string newTokenText)
-		{
-			return new BooToken(newTokenType, newTokenText,
-			                    prototype.getFilename(),
-			                    prototype.getLine(),
-			                    prototype.getColumn()+SafeGetLength(prototype.getText()));
-		}
-
-		static int SafeGetLength(string s)
-		{
-			return s == null ? 0 : s.Length;
+			Enqueue(token);
 		}
 	}
-}
 
+	bool IsLastIndent()
+	{
+		return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == Boo.Lang.Parser.BooLexer.INDENT;
+	}
+
+	bool IsLastDot()
+	{
+		return _lastEnqueuedToken != null && _lastEnqueuedToken.Type == Boo.Lang.Parser.BooLexer.DOT;
+	}
+
+	static bool IsAmbiguous(int type)
+	{
+		return type == Boo.Lang.Parser.BooLexer.OR || type == Boo.Lang.Parser.BooLexer.ELSE;
+	}
+
+	static bool IsEnding(int type)
+	{
+		return type == Boo.Lang.Parser.BooLexer.END || 
+			   type == Boo.Lang.Parser.BooLexer.ELSE ||
+			   type == Boo.Lang.Parser.BooLexer.ELIF ||
+			   type == Boo.Lang.Parser.BooLexer.EXCEPT ||
+			   type == Boo.Lang.Parser.BooLexer.ENSURE ||
+			   type == Boo.Lang.Parser.BooLexer.THEN ||
+			   type == Boo.Lang.Parser.BooLexer.OR;
+	}
+
+	IToken BufferUntilNextNonWhiteSpaceToken()
+	{
+		ResetBuffer();
+
+		IToken token = null;
+		while (true)
+		{	
+			token = _source.NextToken();
+
+			if (token.Channel != TokenConstants.DefaultChannel)
+			{
+				Enqueue(token);
+			}
+			else if (token.Type == Boo.Lang.Parser.BooLexer.WS || token.Type == Boo.Lang.Parser.BooLexer.NEWLINE)
+			{
+				_buffer.Append(token.Text);
+			}
+			else break;
+		}
+		return token;
+	}
+
+	void Enqueue(IToken token)
+	{
+		_pendingTokens.Enqueue(token);
+		_lastEnqueuedToken = token;
+	}
+
+	void EnqueueIndent(IToken prototype)
+	{
+		Enqueue(CreateToken(prototype, Boo.Lang.Parser.BooLexer.INDENT, "<INDENT>"));
+	}
+
+	void EnqueueDedent(IToken prototype)
+	{
+		Enqueue(CreateToken(prototype, Boo.Lang.Parser.BooLexer.DEDENT, "<DEDENT>"));
+	}		
+
+	void EnqueueEOS(IToken prototype)
+	{
+		Enqueue(CreateToken(prototype, Boo.Lang.Parser.BooLexer.EOL, "<EOL>"));
+	}
+			
+	static IToken CreateToken(IToken prototype, int newTokenType, string newTokenText)
+	{
+		return new BooToken(Tuple.Create(prototype.TokenSource, prototype.InputStream), newTokenType, newTokenText,
+			prototype.InputStream.SourceName,
+			prototype.StartIndex,
+			prototype.StartIndex - 1,
+			prototype.Line,
+			ColumnAfter(prototype),
+			true);
+	}
+
+	/// <summary>
+	/// Where a token manufactured from this one sits: just past its text.
+	/// </summary>
+	static int ColumnAfter(IToken prototype)
+	{
+		switch (prototype.Type)
+		{
+			case Antlr4.Runtime.TokenConstants.EOF:
+				return prototype.Column;
+			default:
+				return prototype.Column + SafeGetLength(prototype.Text);
+		}
+	}
+
+	static int SafeGetLength(string s)
+	{
+		return s == null ? 0 : s.Length;
+	}
+}

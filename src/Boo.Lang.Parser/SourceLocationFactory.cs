@@ -33,20 +33,27 @@ namespace Boo.Lang.Parser
 {
 	public class SourceLocationFactory
 	{
-		public static LexicalInfo ToLexicalInfo(antlr.IToken token)
+		public static LexicalInfo ToLexicalInfo(Antlr4.Runtime.IToken token)
 		{
-			return new LexicalInfo(token.getFilename(), token.getLine(), token.getColumn());
+			return new LexicalInfo(token.InputStream.SourceName, token.Line, token.Column);
 		}
 
-		public static SourceLocation ToSourceLocation(antlr.IToken token)
+		public static SourceLocation ToSourceLocation(Antlr4.Runtime.IToken token)
 		{
-			return new SourceLocation(token.getLine(), token.getColumn());
+			return new SourceLocation(token.Line, token.Column);
 		}
 
-		public static SourceLocation ToEndSourceLocation(antlr.IToken token)
+
+		public static SourceLocation ToEndSourceLocation(Antlr4.Runtime.IToken token)
 		{
-			string text = token.getText() ?? "";
-			return new SourceLocation(token.getLine(), token.getColumn() + text.Length - 1);
+			// EOF and the manufactured tokens report a Text they did not consume.
+			if (token.Type == Antlr4.Runtime.TokenConstants.EOF)
+				return new SourceLocation(token.Line, token.Column);
+
+			string text = token.Text ?? "";
+			if (token is BooToken { MagicToken: true })
+				text = "";
+			return new SourceLocation(token.Line, token.Column + text.Length - 1);
 		}
 	}
 }

@@ -1,10 +1,9 @@
-#region license
-// Copyright (c) 2004-2026, Rodrigo B. de Oliveira (rbo@acm.org) and the Boo contributors
+// Copyright (c) the Boo contributors
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +12,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,14 +23,42 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#endregion
 
-namespace Boo.Lang.Parser;
+// The condition language of Boo.Lang.Useful's #if preprocessor: symbols
+// combined with &&, || and !. It is not Boo, which is why it has a grammar of
+// its own rather than going through BooParser.
+//
+// Ported from PreProcessorExpressions.g, the ANTLR 2.7 grammar. Kept faithful
+// to it, including that ! applies to a symbol rather than to a parenthesised
+// expression, so !(A && B) is as invalid now as it was before.
 
-public class WSABooParsingStep : BooParsingStep
-{
-	override protected void ParseModule(string inputName, System.IO.TextReader reader)
-	{
-		WSABooParser.ParseModule(this.TabSize, this.Context.CompileUnit, inputName, reader, this.OnParserError);
-	}
-}
+grammar PreProcessorExpressions;
+
+start_
+	:	expression EOF
+	;
+
+expression
+	:	conjunction (OR conjunction)*
+	;
+
+conjunction
+	:	atom (AND atom)*
+	;
+
+atom
+	:	NOT ID					# negatedSymbol
+	|	ID						# symbol
+	|	LPAREN expression RPAREN	# group
+	;
+
+AND		:	'&&' ;
+OR		:	'||' ;
+NOT		:	'!' ;
+LPAREN	:	'(' ;
+RPAREN	:	')' ;
+
+ID		:	[a-zA-Z_] [a-zA-Z_0-9]* ;
+
+COMMENT	:	'//' ~[\r\n]* -> skip ;
+WS		:	[ \t\r\n]+ -> skip ;

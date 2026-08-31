@@ -67,6 +67,21 @@ namespace BooCompiler.Tests
 				"could not locate tests/testcases above " + AppContext.BaseDirectory);
 		}
 
+		public static Boo.Lang.Compiler.ICompilerStep ParsingStep()
+		{
+			return new Boo.Lang.Parser.BooParsingStep();
+		}
+
+		public static Boo.Lang.Compiler.ICompilerStep WsaParsingStep()
+		{
+			return new Boo.Lang.Parser.WSABooParsingStep();
+		}
+
+		public static Boo.Lang.Compiler.Ast.CompileUnit ParseFile(string fname)
+		{
+			return Boo.Lang.Parser.BooParser.ParseFile(fname);
+		}
+
 		public static string GetTestCasePath(string sample)
 		{
 			return Path.Combine(TestCasesPath, sample);

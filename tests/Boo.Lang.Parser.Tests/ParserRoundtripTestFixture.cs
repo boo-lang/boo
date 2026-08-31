@@ -1051,6 +1051,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void yield_as_member_name()
+		{
+			RunCompilerTestCase(@"yield-as-member-name.boo");
+		}
+		
+		[Test]
 		public void yield_1()
 		{
 			RunCompilerTestCase(@"yield-1.boo");

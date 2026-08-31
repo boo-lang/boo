@@ -1,5 +1,5 @@
-﻿#region license
-// Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2004-2026, Rodrigo B. de Oliveira (rbo@acm.org) and the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -26,51 +26,114 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Parser
+namespace Boo.Lang.Parser;
+
+using System;
+using Antlr4.Runtime;
+
+/// <summary>
+/// A token that stores filename information.
+/// </summary>
+public class BooToken : Antlr4.Runtime.CommonToken
 {
-	/// <summary>
-	/// A token that stores filename information.
-	/// </summary>
-	public class BooToken : antlr.CommonToken
+	public static Antlr4.Runtime.ITokenFactory CreateTokenFactory(int tabSize)
 	{
-		public static readonly antlr.TokenCreator TokenCreator = new BooTokenCreator();
-		
-		protected string _fname;
+		return new BooTokenCreator(tabSize);
+	}
+	
+	protected string _fname;
 
-		public BooToken()
+	private bool _magic;
+
+	public BooToken(int type) : base(type)
+	{
+	}
+
+	public BooToken(int type, string text) : base(type, text)
+	{
+	}
+
+	public BooToken(Tuple<ITokenSource, ICharStream> source, int type, int channel, int start, int stop): base(source, type, channel, start, stop)
+	{
+	}
+
+	public BooToken(Tuple<ITokenSource, ICharStream> source, int type, string text, string fname, int start, int stop, int line, int column, bool magic)
+		: base(type, text)
+	{
+		setFilename(fname);
+		this.source = source;
+		this.StartIndex = start;
+		this.StopIndex = stop;
+		this.Line = line;
+		this.Column = column;
+		this._magic = magic;
+	}
+
+	public void setFilename(string name)
+	{
+		_fname = name;
+	}
+
+	public string getFilename()
+	{
+		return _fname;
+	}
+	
+	public bool MagicToken => _magic;
+	
+	public class BooTokenCreator : CommonTokenFactory
+	{
+		private readonly int _tabSize;
+
+		public BooTokenCreator(int tabSize)
 		{
+			_tabSize = tabSize;
 		}
 
-		public BooToken(int type, string text, string fname, int line, int column)
+		override public CommonToken Create(Tuple<ITokenSource, ICharStream> source, int type, string text, int channel, int start, int stop, int line, int charPositionInLine)
 		{
-			setType(type);
-			setText(text);
-			setFilename(fname);
-			setLine(line);
-			setColumn(column);
-		}
-
-		override public void setFilename(string name)
-		{
-			_fname = name;
-		}
-
-		override public string getFilename()
-		{
-			return _fname;
-		}
-		
-		public class BooTokenCreator : antlr.TokenCreator
-		{
-			override public string TokenTypeName
+			var result = new BooToken(source, type, channel, start, stop);
+			result.Line = line;
+			result.Column = ColumnOf(source.Item2, start, charPositionInLine);
+			if (text != null)
 			{
-				get { return typeof(BooToken).FullName; }
+				result.Text = text;
 			}
-			
-			override public antlr.IToken Create()
+			else
 			{
-				return new BooToken();
+				if (this.copyText && source.Item2 != null)
+				{
+					result.Text = source.Item2.GetText(Antlr4.Runtime.Misc.Interval.Of(start, stop));
+				}
 			}
+			return result;
+		}
+		
+		/// <summary>
+		/// The 1 based column of a token, counting a tab as a jump to the next
+		/// tab stop. ANTLR 4 counts characters, so the text before the token on
+		/// its line has to be measured again here.
+		/// </summary>
+		private int ColumnOf(ICharStream input, int start, int charPositionInLine)
+		{
+			if (input == null || charPositionInLine <= 0)
+				return charPositionInLine + 1;
+
+			var lineStart = start - charPositionInLine;
+			if (lineStart < 0)
+				return charPositionInLine + 1;
+
+			var prefix = input.GetText(Antlr4.Runtime.Misc.Interval.Of(lineStart, start - 1));
+			var column = 1;
+			foreach (var c in prefix)
+				column = c == '\t' ? ((column - 1) / _tabSize + 1) * _tabSize + 1 : column + 1;
+
+			return column;
+		}
+
+		override public CommonToken Create(int type, string text)
+		{
+			return new BooToken(type, text);
 		}
 	}
 }

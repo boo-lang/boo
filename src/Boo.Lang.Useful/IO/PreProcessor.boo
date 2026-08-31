@@ -30,7 +30,7 @@ namespace Boo.Lang.Useful.IO
 
 import System.IO
 import System.Collections
-import Boo.Lang.Useful.IO.Impl
+import Boo.Lang.Parser.PreProcessor
 
 class PreProcessor:
 """
@@ -79,11 +79,11 @@ Example:
 		
 		_reader as TextReader
 		_writer as TextWriter
-		_evaluator = PreProcessorExpressionEvaluator()
+		_symbolTable as IDictionary
 		_preserveLines as bool
 		
-		def constructor(symbolTable, reader, writer, preserveLines as bool):
-			_evaluator.SymbolTable = symbolTable
+		def constructor(symbolTable as IDictionary, reader, writer, preserveLines as bool):
+			_symbolTable = symbolTable
 			_reader = reader
 			_writer = writer
 			_preserveLines = preserveLines
@@ -124,13 +124,5 @@ Example:
 				else:
 					ParseLine(localContext, line)
 					
-		private def Evaluate(expression as string):
-			return _evaluator.expr(ParseExpression(expression))
-			
-		private def ParseExpression(expression as string) as antlr.CommonAST:
-			lexer = PreProcessorExpressionLexer(antlr.CharBuffer(StringReader(expression)))
-			lexer.setFilename("<expression>")
-			parser = PreProcessorExpressionParser(lexer)
-			parser.setFilename("<expression>")
-			parser.expr()
-			return parser.getAST()
+		private def Evaluate(expression as string) as bool:
+			return PreProcessorExpression.Evaluate(expression, _symbolTable)

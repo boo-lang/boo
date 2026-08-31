@@ -42,6 +42,11 @@ jobs:
       - name: Test
         run: dotnet test Boo.slnx --configuration Release --no-build --logger "trx;LogFileName=${{ matrix.os }}.trx"
 
+      # Excluded from the run above by VSTestTestCaseFilter: it parses every .boo
+      # in the repository, which is too slow for an ordinary local build.
+      - name: Test parser corpus
+        run: dotnet test tests/Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.csproj --configuration Release --no-build --filter "TestCategory=Corpus" --logger "trx;LogFileName=corpus-${{ matrix.os }}.trx"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
