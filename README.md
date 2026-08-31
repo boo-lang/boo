@@ -118,11 +118,6 @@ compiler components.
 `tests/testcases/integration` is a good source of information
 on the language features.
 
-`lib/` contains project dependencies such as antlr.
-
-`bin/` contains the latest version that passed all the tests
-and could be successfully used to rebuild the system.
-
 Running and compiling code
 ==========================
 

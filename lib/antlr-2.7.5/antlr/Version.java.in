@@ -1,9 +1,0 @@
-package antlr;
-
-public class Version {  
-	public static final String version    = "@VERSION@";
-	public static final String subversion = "@SUBVERSION@";
-	public static final String patchlevel = "@PATCHLEVEL@";
-	public static final String datestamp  = "@TIMESTAMP@";
-	public static final String project_version = "@PACKAGE_VERSION@ (@TIMESTAMP@)";
-}
