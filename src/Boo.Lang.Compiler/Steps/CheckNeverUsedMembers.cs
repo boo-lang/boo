@@ -87,11 +87,26 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			if (NodeType.Constructor == node.NodeType && node.IsStatic) return;
 
-			if (!IsVisible(node) && node.ContainsAnnotation("PrivateMemberNeverUsed"))
+			if (!IsVisible(node) && node.ContainsAnnotation("PrivateMemberNeverUsed") && !IsUsedThroughAccessor(node))
 			{
 				Warnings.Add(
 					CompilerWarningFactory.PrivateMemberNeverUsed(node) );
 			}
+		}
+
+		// Reading a property resolves to its getter, so the annotation comes off
+		// the accessor and the property itself still looks unused.
+		private static bool IsUsedThroughAccessor(TypeMember node)
+		{
+			var property = node as Property;
+			if (null == property)
+				return false;
+			return WasUsed(property.Getter) || WasUsed(property.Setter);
+		}
+
+		private static bool WasUsed(Method accessor)
+		{
+			return null != accessor && !accessor.ContainsAnnotation("PrivateMemberNeverUsed");
 		}
 
 		protected void WarnIfProtectedMemberInSealedClass(TypeMember member)

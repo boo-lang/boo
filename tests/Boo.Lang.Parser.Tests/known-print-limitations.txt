@@ -120,6 +120,8 @@ tests/testcases/integration/types/enums-13.boo
 tests/testcases/integration/types/enums-14.boo
 tests/testcases/integration/types/explicit-interface-1.boo
 tests/testcases/integration/types/explicit-interface-2.boo
+tests/testcases/integration/types/explicit-interface-5.boo
+tests/testcases/integration/types/explicit-interface-6.boo
 tests/testcases/integration/types/explicit-value-type-conversion-operator.boo
 tests/testcases/integration/types/implicit-bool-with-shortcircuited-and-condition.boo
 tests/testcases/integration/types/interface-implementation-inheritance-4.boo

@@ -309,9 +309,12 @@ event_declaration
 	;
 
 explicit_member_info
-	:	ID DOT
-		(	ID DOT
+	:	ID
+		(	DOT ID
 		)*
+		(	LBRACK OF? type_reference_list RBRACK
+		)?
+		DOT
 	;
 
 method
@@ -396,9 +399,7 @@ globals
 
 block
 	:	eos?
-		(	PASS eos
-		|	stmt_or_nested_function+
-		)
+		stmt_or_nested_function+
 	; 
 
 modifiers
@@ -548,14 +549,16 @@ begin
 
 begin_with_doc
 	:	COLON
-		(eos docstring)?
+		(eos outer=docstring)?
 		INDENT
+		inner=docstring
 	;
 
 begin_block_with_doc
 	:	COLON
-		(eos docstring)?
+		(eos outer=docstring)?
 		INDENT
+		inner=docstring
 	;
 
 end
@@ -570,11 +573,9 @@ compound_stmt
 
 single_line_block
 	:	COLON
-		(	PASS
-		|	simple_stmt
-			(	EOS simple_stmt?
-			)*
-		)
+		simple_stmt
+		(	EOS simple_stmt?
+		)*
 		EOL+
 	;
 
@@ -590,9 +591,7 @@ any_macro_stmt
 
 macro_block
 	:	eos?
-		(	PASS eos
-		|	any_macro_stmt+
-		)
+		any_macro_stmt+
 	;
 
 type_member_stmt
@@ -618,6 +617,10 @@ macro_stmt
 macro_name
 	:	ID
 	|	THEN
+	;
+
+pass_stmt
+	:	PASS
 	;
 
 goto_stmt
@@ -653,6 +656,7 @@ stmt
 	|	return_stmt
 	|	unpack_stmt
 	|	declaration_stmt
+	|	pass_stmt eos
 	|	(	goto_stmt
 		|	label_stmt
 		|	yield_stmt
@@ -671,6 +675,7 @@ simple_stmt
 	|	return_expression_stmt
 	|	unpack
 	|	declaration_stmt
+	|	pass_stmt
 	|	(	goto_stmt
 		|	label_stmt
 		|	yield_stmt

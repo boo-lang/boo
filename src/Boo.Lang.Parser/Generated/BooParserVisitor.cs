@@ -465,6 +465,12 @@ public interface IBooParserVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitMacro_name([NotNull] BooParser.Macro_nameContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="BooParser.pass_stmt"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPass_stmt([NotNull] BooParser.Pass_stmtContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="BooParser.goto_stmt"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

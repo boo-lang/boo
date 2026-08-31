@@ -31,29 +31,41 @@ namespace Boo.Lang.Parser
 {
 	public class DocStringFormatter
 	{
-		// every new line is transformed to '\n'
-		// trailing and leading newlines are removed
+		// Every newline becomes '\n', the blank lines at either end go, and the
+		// indentation the body was written at is removed. The first line is left
+		// as written: the opening quotes sit before it, so it has no indentation
+		// of its own and any space there was meant.
 		public static string Format(string s)
 		{
 			if (s.Length == 0) return string.Empty;
 
-			s = s.Replace("\r\n", "\n");
+			var lines = new System.Collections.Generic.List<string>(
+				s.Replace("\r\n", "\n").Split('\n'));
 
-			int length = s.Length;
-			int startIndex = 0;
-			if ('\n' == s[0])
+			int indent = CommonIndent(lines);
+			for (int i = 1; i < lines.Count; ++i)
+				lines[i] = lines[i].Length < indent ? lines[i].TrimStart() : lines[i].Substring(indent);
+
+			while (lines.Count > 0 && lines[0].Length == 0)
+				lines.RemoveAt(0);
+			while (lines.Count > 0 && lines[lines.Count - 1].Length == 0)
+				lines.RemoveAt(lines.Count - 1);
+
+			return string.Join("\n", lines);
+		}
+
+		// The narrowest indentation any line under the first is written at.
+		private static int CommonIndent(System.Collections.Generic.List<string> lines)
+		{
+			int indent = int.MaxValue;
+			for (int i = 1; i < lines.Count; ++i)
 			{
-				// assumes '\n'
-				startIndex++;
-				length--;
+				string text = lines[i].TrimStart();
+				if (text.Length == 0) continue;
+				int width = lines[i].Length - text.Length;
+				if (width < indent) indent = width;
 			}
-			if ('\n' == s[s.Length - 1])
-			{
-				length--;
-			}
-			
-			if (length > 0) return s.Substring(startIndex, length);
-			return string.Empty;
+			return indent == int.MaxValue ? 0 : indent;
 		}
 	}
 }

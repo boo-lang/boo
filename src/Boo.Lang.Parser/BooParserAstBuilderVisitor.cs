@@ -220,6 +220,16 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 				new Exception(string.Format(Boo.Lang.Resources.StringResources.BooParser_DuplicateAccessor, accessor))));
 	}
 
+	protected virtual void EmitDuplicateDocstringError(LexicalInfo location)
+	{
+		if (OutsideCompilationEnvironment())
+			return;
+		EmitError(
+			CompilerErrorFactory.GenericParserError(
+				location,
+				new Exception(Boo.Lang.Resources.StringResources.BooParser_DuplicateDocstring)));
+	}
+
 	protected virtual void EmitParamAfterVarargsError(LexicalInfo location)
 	{
 		if (OutsideCompilationEnvironment())
@@ -333,6 +343,33 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 	Node IBooParserVisitor<Node>.VisitDocstring(BooParser.DocstringContext context)
 	{
 		throw new NotImplementedException("Should not see this");
+	}
+
+	private BooParser.DocstringContext Documentation(BooParser.Begin_with_docContext context)
+	{
+		return Documentation(context.outer, context.inner);
+	}
+
+	private BooParser.DocstringContext Documentation(BooParser.Begin_block_with_docContext context)
+	{
+		return Documentation(context.outer, context.inner);
+	}
+
+	// Only one of the two positions may be written. The outer one is kept when
+	// both are, since that is the position older sources use.
+	private BooParser.DocstringContext Documentation(BooParser.DocstringContext outer, BooParser.DocstringContext inner)
+	{
+		var written = Present(outer);
+		if (written == null)
+			return Present(inner);
+		if (Present(inner) != null)
+			EmitDuplicateDocstringError(GetLexicalInfo(inner));
+		return written;
+	}
+
+	private static BooParser.DocstringContext Present(BooParser.DocstringContext context)
+	{
+		return context != null && context.ChildCount > 0 ? context : null;
 	}
 
 	void CheckDocumentation(Node node, BooParser.DocstringContext context)
@@ -656,7 +693,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 			return null;
 
 		var result = new EnumDefinition(GetLexicalInfo(context.ID())) { Name = context.ID().GetText() };
-		CheckDocumentation(result, context.begin_with_doc().docstring());
+		CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		if (context.PASS() == null)
 			foreach (var em in context.any_enum_member())
 			{
@@ -820,7 +857,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		AddGenericParameters(result, context.generic_parameter_declaration_list());
 		AddBaseTypes(result, context.base_types());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		if (context.PASS() == null)
 		{
 			foreach (var tdm in context.any_type_definition_member())
@@ -946,7 +983,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		AddGenericParameters(result, context.generic_parameter_declaration_list());
 		AddBaseTypes(result, context.base_types());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		if (context.PASS() == null)
 		{
 			foreach (var tdm in context.any_intf_type_member())
@@ -1028,7 +1065,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context.AS() != null)
 			result.Type = VisitType_reference(context.type_reference());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		foreach (var pa in context.interface_property_accessor())
 		{
 			if (pa.GET() != null)
@@ -1110,8 +1147,20 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 			_sbuilder.Append('.');
 			_sbuilder.Append(ids[i].GetText());
 		}
-		result.InterfaceType = new SimpleTypeReference(result.LexicalInfo);
-		result.InterfaceType.Name = _sbuilder.ToString();
+		var interfaceName = _sbuilder.ToString();
+		if (context.LBRACK() != null)
+		{
+			// An explicitly implemented generic interface names its arguments,
+			// as in `def IFoo[of int].Bar()`.
+			var generic = new GenericTypeReference(result.LexicalInfo, interfaceName);
+			AddTypeReferences(generic.GenericArguments, context.type_reference_list());
+			result.InterfaceType = generic;
+		}
+		else
+		{
+			result.InterfaceType = new SimpleTypeReference(result.LexicalInfo);
+			result.InterfaceType.Name = interfaceName;
+		}
 		return result;
 	}
 
@@ -1161,7 +1210,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context.AS() != null)
 			result.ReturnType = VisitType_reference(context.type_reference());
 		if (context.begin_block_with_doc() != null)
-			CheckDocumentation(result, context.begin_block_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_block_with_doc()));
 		result.Body = VisitBlock(context.block()) ?? result.Body;
 		if (context.begin_block_with_doc() != null)
 			result.Body.LexicalInfo = GetLexicalInfo(context.begin_block_with_doc().INDENT());
@@ -1210,7 +1259,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context.AS() != null)
 			result.Type = VisitType_reference(context.type_reference());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		foreach (var pa in context.property_accessor())
 		{
 			if (pa.GET() != null)
@@ -1859,7 +1908,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		GetExpressionList(result.Arguments, context.expression_list());
 		if (context.begin_with_doc() != null)
 		{
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 			GetMacroBlock(result.Body.Statements, context.macro_block());
 			SetEndSourceLocation(result.Body, context.end());
 			result.Annotate("compound");
@@ -1973,6 +2022,8 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context == null)
 			return null;
 
+		if (context.pass_stmt() != null)
+			return null;
 		if (context.for_stmt() != null)
 			return VisitFor_stmt(context.for_stmt());
 		if (context.while_stmt() != null)
@@ -2013,6 +2064,13 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		return result;
 	}
 
+	// pass says a block does nothing, so it leaves no node behind. The printer
+	// writes it back from Block.IsEmpty.
+	Node IBooParserVisitor<Node>.VisitPass_stmt(BooParser.Pass_stmtContext context)
+	{
+		return null;
+	}
+
 	Node IBooParserVisitor<Node>.VisitStmt(BooParser.StmtContext context)
 	{
 		return VisitStmt(context);
@@ -2023,6 +2081,8 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context == null)
 			return null;
 
+		if (context.pass_stmt() != null)
+			return null;
 		if (context.closure_macro_stmt() != null)
 			return VisitClosure_macro_stmt(context.closure_macro_stmt());
 		if (context.assignment_or_method_invocation() != null)
@@ -3760,9 +3820,15 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 
 	string TqsUnquote(string value)
 	{
-		if (value.StartsWith("\"\"\"") && value.EndsWith("\"\"\""))
+		if (IsTripleQuoted(value, '"') || IsTripleQuoted(value, '\''))
 			return value.Substring(3, value.Length - 6).Replace("\\$", "$");
 		throw new FormatException(string.Format("[{0}] is not a triple-quoted string.", value));
+	}
+
+	private static bool IsTripleQuoted(string value, char quote)
+	{
+		var fence = new string(quote, 3);
+		return value.Length >= 6 && value.StartsWith(fence) && value.EndsWith(fence);
 	}
 
 	string BqsUnquote(string value)

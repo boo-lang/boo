@@ -263,6 +263,11 @@ TRIPLE_QUOTED_STRING
 		-> pushMode(TQS)
 	;
 
+TRIPLE_SQUOTED_STRING
+	:	'\'\'\''
+		-> type(TRIPLE_QUOTED_STRING), pushMode(TSQS)
+	;
+
 DOUBLE_QUOTED_STRING
 	:	'"'
 		-> pushMode(DQS)
@@ -511,6 +516,40 @@ mode TQS;
 	TQS_END
 		:	'"""'
 			-> popMode
+		;
+
+mode TSQS;
+
+	TSQS_TEXT
+		:	(	~['\\$]
+			|	'\\' .
+			)+
+			-> type(TEXT)
+		;
+
+	TSQS_INTERPOLATED_REFERENCE
+		:	'$' ID -> type(INTERPOLATED_REFERENCE)
+		;
+
+	TSQS_INTERPOLATED_EXPRESSION_LBRACE
+		:	'${' {EnterSkipWhitespaceRegion(); HandleInterpolatedExpression(LBRACE, RBRACE);} -> type(INTERPOLATED_EXPRESSION_LBRACE)
+		;
+
+	TSQS_INTERPOLATED_EXPRESSION_LPAREN
+		:	'$(' {EnterSkipWhitespaceRegion(); HandleInterpolatedExpression(LPAREN, RPAREN);} -> type(INTERPOLATED_EXPRESSION_LPAREN)
+		;
+
+	TSQS_STRAY_DOLLAR
+		:	'$' -> type(TEXT)
+		;
+
+	TSQS_SQUOTE
+		:	'\'' -> type(TEXT)
+		;
+
+	TSQS_END
+		:	'\'\'\''
+			-> type(TQS_END), popMode
 		;
 
 mode DQS;

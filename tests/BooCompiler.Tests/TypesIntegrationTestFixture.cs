@@ -319,6 +319,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void explicit_interface_5()
+		{
+			RunCompilerTestCase(@"explicit-interface-5.boo");
+		}
+		
+		[Test]
+		public void explicit_interface_6()
+		{
+			RunCompilerTestCase(@"explicit-interface-6.boo");
+		}
+		
+		[Test]
 		public void explicit_value_type_conversion_operator()
 		{
 			RunCompilerTestCase(@"explicit-value-type-conversion-operator.boo");

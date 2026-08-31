@@ -46,7 +46,14 @@ partial class BooLexer
 
 	private void EnterSkipWhitespaceRegion() => _skipWhitespaceRegion++;
 
-	private void LeaveSkipWhitespaceRegion() => _skipWhitespaceRegion--;
+	// A closer with no opener stops at zero. Left to go negative, the next
+	// opener would only bring the count back to zero, and line continuation
+	// would stay off for the rest of the file.
+	private void LeaveSkipWhitespaceRegion()
+	{
+		if (_skipWhitespaceRegion > 0)
+			_skipWhitespaceRegion--;
+	}
 
 	private void HandleInterpolatedExpression(int beginInterpolationType, int endTokenType)
 	{

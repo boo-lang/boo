@@ -62,11 +62,12 @@ public class ParserCorpusTestFixture
 {
 	/// <summary>
 	/// Sources the parser is supposed to reject. The first mixes tabs and spaces;
-	/// the other two are testcases for the errors they raise.
+	/// the rest are testcases for the errors they raise.
 	/// </summary>
 	private static readonly HashSet<string> Unparseable = new HashSet<string>
 	{
 		"tests/testcases/compilation/defaultmember.boo",
+		"tests/testcases/errors/docstring-written-twice.boo",
 		"tests/testcases/errors/single-error-on-missing-import-namespace.boo",
 		"tests/testcases/regression/BOO-779-3.boo",
 	};
