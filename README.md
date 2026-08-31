@@ -28,6 +28,17 @@ scripts/regenerate-ast.sh        # after ast.model.boo or scripts/Templates
 scripts/regenerate-parser.sh     # after BooLexer.g4 or BooParser.g4, needs java
 ```
 
+Testing against musl
+====================
+
+CI covers Ubuntu, macOS and Windows, all glibc. To check Alpine as well:
+
+```
+scripts/test-alpine.sh
+```
+
+It runs the suite in a dotnet 10 Alpine container through podman.
+
 How to Start
 ============
 
