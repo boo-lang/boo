@@ -23,3 +23,6 @@ build-tools/.config-mono
 # Recorded parser output. Regenerate with BOO_PARSER_SNAPSHOT_REGENERATE=1;
 # see tests/Boo.Lang.Parser.Tests/ParserSnapshotTestFixture.cs.
 /tests/parser-snapshots/
+
+# A global ignore of dot-directories would otherwise hide the tool manifest.
+!.config/

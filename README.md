@@ -142,6 +142,13 @@ If you want to simply see the transformations applied to
 your code by the compiler use the boo pipeline, run:
 
 	booc -p:boo examples/misc/replace.boo	
+
+To see the IL a source file compiles to, run:
+
+	./il examples/misc/now.boo
+
+On Windows use `il.cmd`. Disassembly uses ilspycmd, restored from
+`.config/dotnet-tools.json` on first run.
 	
 More Information
 ================
