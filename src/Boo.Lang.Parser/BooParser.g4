@@ -549,14 +549,16 @@ begin
 
 begin_with_doc
 	:	COLON
-		(eos docstring)?
+		(eos outer=docstring)?
 		INDENT
+		inner=docstring
 	;
 
 begin_block_with_doc
 	:	COLON
-		(eos docstring)?
+		(eos outer=docstring)?
 		INDENT
+		inner=docstring
 	;
 
 end

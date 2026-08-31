@@ -335,6 +335,22 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		throw new NotImplementedException("Should not see this");
 	}
 
+	// The outer docstring wins, since that is the position older sources use.
+	private static BooParser.DocstringContext Documentation(BooParser.Begin_with_docContext context)
+	{
+		return Present(context.outer) ?? context.inner;
+	}
+
+	private static BooParser.DocstringContext Documentation(BooParser.Begin_block_with_docContext context)
+	{
+		return Present(context.outer) ?? context.inner;
+	}
+
+	private static BooParser.DocstringContext Present(BooParser.DocstringContext context)
+	{
+		return context != null && context.ChildCount > 0 ? context : null;
+	}
+
 	void CheckDocumentation(Node node, BooParser.DocstringContext context)
 	{
 		if (context != null && context.ChildCount > 0)
@@ -656,7 +672,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 			return null;
 
 		var result = new EnumDefinition(GetLexicalInfo(context.ID())) { Name = context.ID().GetText() };
-		CheckDocumentation(result, context.begin_with_doc().docstring());
+		CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		if (context.PASS() == null)
 			foreach (var em in context.any_enum_member())
 			{
@@ -820,7 +836,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		AddGenericParameters(result, context.generic_parameter_declaration_list());
 		AddBaseTypes(result, context.base_types());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		if (context.PASS() == null)
 		{
 			foreach (var tdm in context.any_type_definition_member())
@@ -946,7 +962,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		AddGenericParameters(result, context.generic_parameter_declaration_list());
 		AddBaseTypes(result, context.base_types());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		if (context.PASS() == null)
 		{
 			foreach (var tdm in context.any_intf_type_member())
@@ -1028,7 +1044,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context.AS() != null)
 			result.Type = VisitType_reference(context.type_reference());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		foreach (var pa in context.interface_property_accessor())
 		{
 			if (pa.GET() != null)
@@ -1173,7 +1189,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context.AS() != null)
 			result.ReturnType = VisitType_reference(context.type_reference());
 		if (context.begin_block_with_doc() != null)
-			CheckDocumentation(result, context.begin_block_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_block_with_doc()));
 		result.Body = VisitBlock(context.block()) ?? result.Body;
 		if (context.begin_block_with_doc() != null)
 			result.Body.LexicalInfo = GetLexicalInfo(context.begin_block_with_doc().INDENT());
@@ -1222,7 +1238,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		if (context.AS() != null)
 			result.Type = VisitType_reference(context.type_reference());
 		if (context.begin_with_doc() != null)
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 		foreach (var pa in context.property_accessor())
 		{
 			if (pa.GET() != null)
@@ -1871,7 +1887,7 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		GetExpressionList(result.Arguments, context.expression_list());
 		if (context.begin_with_doc() != null)
 		{
-			CheckDocumentation(result, context.begin_with_doc().docstring());
+			CheckDocumentation(result, Documentation(context.begin_with_doc()));
 			GetMacroBlock(result.Body.Statements, context.macro_block());
 			SetEndSourceLocation(result.Body, context.end());
 			result.Annotate("compound");
@@ -3783,9 +3799,15 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 
 	string TqsUnquote(string value)
 	{
-		if (value.StartsWith("\"\"\"") && value.EndsWith("\"\"\""))
+		if (IsTripleQuoted(value, '"') || IsTripleQuoted(value, '\''))
 			return value.Substring(3, value.Length - 6).Replace("\\$", "$");
 		throw new FormatException(string.Format("[{0}] is not a triple-quoted string.", value));
+	}
+
+	private static bool IsTripleQuoted(string value, char quote)
+	{
+		var fence = new string(quote, 3);
+		return value.Length >= 6 && value.StartsWith(fence) && value.EndsWith(fence);
 	}
 
 	string BqsUnquote(string value)

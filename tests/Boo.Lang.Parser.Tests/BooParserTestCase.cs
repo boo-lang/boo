@@ -523,6 +523,82 @@ foo = def():
 			Assert.AreEqual(1, fs.Block.Statements.Count);
 		}
 		
+		/// <summary>
+		/// Three single quotes open a triple-quoted string, as three double
+		/// quotes do.
+		/// </summary>
+		[Test]
+		public void TripleSingleQuotedStrings()
+		{
+			// Written with \n rather than a verbatim string: a triple-quoted
+			// string keeps the newlines it was given, and this file is checked
+			// out with CRLF on Windows.
+			const string code =
+				"def Foo():\n" +
+				"\t'''describe foo'''\n" +
+				"\tpass\n" +
+				"s = '''hello\nworld'''\n" +
+				"d = '''a \"\"\" inside'''\n" +
+				"i = '''one $(1 + 1) two'''\n";
+
+			var module = BooParser.ParseString("tsq", code);
+			var globals = module.Modules[0].Globals.Statements;
+			Assert.AreEqual("hello\nworld", Value(globals[0]));
+			Assert.AreEqual("a \"\"\" inside", Value(globals[1]));
+			Assert.IsInstanceOf<ExpressionInterpolationExpression>(Assigned(globals[2]));
+			Assert.AreEqual("describe foo", module.Modules[0].Members[0].Documentation);
+		}
+
+		private static Expression Assigned(Statement stmt)
+		{
+			return ((BinaryExpression)((ExpressionStatement)stmt).Expression).Right;
+		}
+
+		private static string Value(Statement stmt)
+		{
+			return ((StringLiteralExpression)Assigned(stmt)).Value;
+		}
+
+		/// <summary>
+		/// A docstring may sit with the body, the way Python writes one. The
+		/// older unindented position still works.
+		/// </summary>
+		[Test]
+		public void IndentedDocstrings()
+		{
+			var module = BooParser.ParseString("indented", @"
+def Foo():
+	""""""describe foo""""""
+	pass
+
+class Bar:
+	""""""describe bar""""""
+	pass
+");
+			Assert.AreEqual("describe foo", module.Modules[0].Members[0].Documentation);
+			Assert.AreEqual("describe bar", module.Modules[0].Members[1].Documentation);
+		}
+
+		[Test]
+		public void IndentedDocstringSpanningLines()
+		{
+			var module = BooParser.ParseString("indented", @"
+def Foo():
+	""""""
+	describe foo
+	more lines
+	""""""
+	pass
+
+def Bar():
+	""""""describe bar
+	more lines""""""
+	pass
+");
+			Assert.AreEqual("describe foo\nmore lines", module.Modules[0].Members[0].Documentation);
+			Assert.AreEqual("describe bar\nmore lines", module.Modules[0].Members[1].Documentation);
+		}
+
 		[Test]
 		public void Docstrings()
 		{
@@ -577,7 +653,7 @@ enum AnEnum:
 			ClassDefinition person = (ClassDefinition)module.Members[0];
 			Assert.AreEqual("A class can have it.\nWith multiple lines.", person.Documentation);
 			Assert.AreEqual("Fields can have one.", person.Members[0].Documentation);
-			Assert.AreEqual("\tAnd so can a method or constructor.\n\t", person.Members[1].Documentation);
+			Assert.AreEqual("And so can a method or constructor.", person.Members[1].Documentation);
 			Assert.AreEqual("And why couldn't a property?", person.Members[2].Documentation);
 			
 			InterfaceDefinition customer = (InterfaceDefinition)module.Members[1];
