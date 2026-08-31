@@ -1,5 +1,5 @@
 """
-BCE0048-3.boo(8,20): BCE0048: Type 'Console.WriteLine' does not support slicing.
+BCE0183-3.boo(8,20): BCE0183: Expression 'Console.WriteLine' does not support slicing.
 """
 import System
 

@@ -1690,7 +1690,7 @@ namespace Boo.Lang.Compiler.Steps
 				// candidate set to resolve against.
 				if (GetGetMethods(((Ambiguous)member).Entities).Length == 0)
 				{
-					Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(node.Target, node.Target.ToCodeString()));
+					Error(node, CompilerErrorFactory.ExpressionDoesNotSupportSlicing(node.Target, node.Target.ToCodeString()));
 					return;
 				}
 
@@ -4871,7 +4871,7 @@ namespace Boo.Lang.Compiler.Steps
 				var setters = GetSetMethods(lhs);
 				if (setters.Length == 0)
 				{
-					Error(node, CompilerErrorFactory.TypeDoesNotSupportSlicing(slice.Target, slice.Target.ToCodeString()));
+					Error(node, CompilerErrorFactory.ExpressionDoesNotSupportSlicing(slice.Target, slice.Target.ToCodeString()));
 					return;
 				}
 
@@ -5756,7 +5756,10 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			if (candidates.Length == 0)
-				throw new CompilerError(sourceNode.LexicalInfo, "no candidates to resolve against");
+			{
+				Error(CompilerErrorFactory.InternalError(sourceNode, "no candidates to resolve against", null));
+				return;
+			}
 
 			if (CallableResolutionService.ValidCandidates.Count > 1)
 			{
