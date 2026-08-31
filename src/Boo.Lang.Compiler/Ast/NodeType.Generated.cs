@@ -129,16 +129,6 @@ namespace Boo.Lang.Compiler.Ast
 		AwaitExpression,
 		CustomStatement,
 		CustomExpression,
-		FromClauseExpression,
-		QueryContinuationExpression,
-		SelectClauseExpression,
-		LetClauseExpression,
-		WhereClauseExpression,
-		JoinClauseExpression,
-		GroupClauseExpression,
-		OrderByClauseExpression,
-		OrderingExpression,
-		QueryExpression,
 		StatementTypeMember
 	}
 }

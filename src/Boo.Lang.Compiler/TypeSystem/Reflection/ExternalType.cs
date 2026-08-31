@@ -255,16 +255,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 		private void BuildCache()
 		{
 			_cache = new Dictionary<string, List<IEntity>>();
-			foreach (var member in _members)
-			{
-				List<IEntity> list;
-				if (!_cache.TryGetValue(member.Name, out list))
-				{
-					list = new List<IEntity>();
-					_cache.Add(member.Name, list);
-				}
-				list.Add(member);
-			}
 		}
 
 		public virtual IEnumerable<IEntity> GetMembers()
@@ -344,7 +334,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Reflection
 
 	    public virtual bool Resolve(ICollection<IEntity> resultingSet, string name, EntityType typesToConsider)
 		{
-
 			bool found = CachedResolve(name, typesToConsider, resultingSet);
 			
 			//bool found = My<NameResolutionService>.Instance.Resolve(name, GetMembers(), typesToConsider, resultingSet);
