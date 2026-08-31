@@ -220,6 +220,16 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 				new Exception(string.Format(Boo.Lang.Resources.StringResources.BooParser_DuplicateAccessor, accessor))));
 	}
 
+	protected virtual void EmitDuplicateDocstringError(LexicalInfo location)
+	{
+		if (OutsideCompilationEnvironment())
+			return;
+		EmitError(
+			CompilerErrorFactory.GenericParserError(
+				location,
+				new Exception(Boo.Lang.Resources.StringResources.BooParser_DuplicateDocstring)));
+	}
+
 	protected virtual void EmitParamAfterVarargsError(LexicalInfo location)
 	{
 		if (OutsideCompilationEnvironment())
@@ -335,15 +345,26 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		throw new NotImplementedException("Should not see this");
 	}
 
-	// The outer docstring wins, since that is the position older sources use.
-	private static BooParser.DocstringContext Documentation(BooParser.Begin_with_docContext context)
+	private BooParser.DocstringContext Documentation(BooParser.Begin_with_docContext context)
 	{
-		return Present(context.outer) ?? context.inner;
+		return Documentation(context.outer, context.inner);
 	}
 
-	private static BooParser.DocstringContext Documentation(BooParser.Begin_block_with_docContext context)
+	private BooParser.DocstringContext Documentation(BooParser.Begin_block_with_docContext context)
 	{
-		return Present(context.outer) ?? context.inner;
+		return Documentation(context.outer, context.inner);
+	}
+
+	// Only one of the two positions may be written. The outer one is kept when
+	// both are, since that is the position older sources use.
+	private BooParser.DocstringContext Documentation(BooParser.DocstringContext outer, BooParser.DocstringContext inner)
+	{
+		var written = Present(outer);
+		if (written == null)
+			return Present(inner);
+		if (Present(inner) != null)
+			EmitDuplicateDocstringError(GetLexicalInfo(inner));
+		return written;
 	}
 
 	private static BooParser.DocstringContext Present(BooParser.DocstringContext context)
