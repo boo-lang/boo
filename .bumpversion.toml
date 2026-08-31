@@ -1,0 +1,32 @@
+[bumpversion]
+current_version = "0.9.7"
+
+[[file]]
+path = "version.txt"
+search = "{current_version}"
+replace = "{new_version}"
+
+[[file]]
+path = "src/Boo.Lang/Builtins.cs"
+search = 'new System.Version("{current_version}.0")'
+replace = 'new System.Version("{new_version}.0")'
+
+[[file]]
+path = "Directory.Build.props"
+search = "<VersionPrefix>{current_version}</VersionPrefix>"
+replace = "<VersionPrefix>{new_version}</VersionPrefix>"
+
+# AssemblyVersion is the binding version and carries a fixed 2. That 2 will
+# need to prefix ahead of the product version forever or else every new
+# release will look like an old one.
+[[file]]
+root = "src"
+pattern = "AssemblyInfo.*"
+search = 'AssemblyVersion("2.{current_version}")'
+replace = 'AssemblyVersion("2.{new_version}")'
+
+[[file]]
+root = "extras"
+pattern = "AssemblyInfo.*"
+search = 'AssemblyVersion("2.{current_version}")'
+replace = 'AssemblyVersion("2.{new_version}")'
