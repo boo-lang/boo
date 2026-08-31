@@ -1,6 +1,0 @@
-/** a javadoc comment
-  * @param foo
-  * @exception IOException
-  * blah blah
-  */
-int abc;
