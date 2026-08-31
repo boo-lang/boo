@@ -21,3 +21,4 @@ gradle.properties
 
 # A global ignore of dot-directories would otherwise hide the tool manifest.
 !.config/
+artifacts/

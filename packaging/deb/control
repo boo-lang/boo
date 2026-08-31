@@ -1,0 +1,16 @@
+Package: boo
+Version: @VERSION@
+Architecture: @ARCH@
+Section: devel
+Priority: optional
+Installed-Size: @SIZE@
+Maintainer: The Boo contributors <boolang@googlegroups.com>
+Homepage: https://github.com/boo-lang/boo
+Depends: libc6, libgcc-s1, libstdc++6, zlib1g, libicu74 | libicu72 | libicu70
+Description: Boo programming language
+ Boo is an object oriented statically typed language for the CLI, with a
+ Python inspired syntax and a focus on language and compiler extensibility.
+ .
+ This package carries the compiler (booc), the interpreter (booi) and the
+ interactive shell (booish). Each is self contained: the .NET runtime they
+ need is included, so no separate runtime package is required.

@@ -39,6 +39,17 @@ scripts/test-alpine.sh
 
 It runs the suite in a dotnet 10 Alpine container through podman.
 
+Building a Debian package
+=========================
+
+```
+scripts/build-deb.sh
+```
+
+Writes a self contained .deb to `artifacts/`, built in a container through
+podman. It carries the .NET runtime, so it depends only on the C library and
+ICU, and is built for whichever architecture podman is running.
+
 How to Start
 ============
 
