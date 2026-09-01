@@ -335,8 +335,6 @@
 			</fileset>
 		</copy>
 		
-		<copy todir="build" file="../lib/moq-3.1.416.3/Moq.dll" />
-			
 		<copy todir="${path::get-temp-path()}" overwrite="true">
 			<fileset basedir="${test-bin-dir}">
 				<include name="*.dll" />
