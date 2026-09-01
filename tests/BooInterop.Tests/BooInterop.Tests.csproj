@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- C# on purpose, unlike the test projects that have moved to Boo. What
+       these tests check is that Roslyn resolves Boo metadata, and only a C#
+       compilation checks it. Converting this would invalidate the test. -->
+
+  <PropertyGroup>
+    <AssemblyName>BooInterop.Tests</AssemblyName>
+    <RootNamespace>BooInterop.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../BooInteropLib/BooInteropLib.booproj" />
+  </ItemGroup>
+
+</Project>
