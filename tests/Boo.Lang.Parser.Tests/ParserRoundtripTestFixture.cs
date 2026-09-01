@@ -817,6 +817,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void macro_argument_parens_1()
+		{
+			RunCompilerTestCase(@"macro-argument-parens-1.boo");
+		}
+		
+		[Test]
 		public void macros_1()
 		{
 			RunCompilerTestCase(@"macros-1.boo");
