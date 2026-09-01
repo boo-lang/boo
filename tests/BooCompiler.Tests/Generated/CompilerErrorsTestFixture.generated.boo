@@ -818,6 +818,10 @@ class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 		RunCompilerTestCase("BCE0153-2.boo")
 
 	[Test]
+	def @BCE0153_3():
+		RunCompilerTestCase("BCE0153-3.boo")
+
+	[Test]
 	def @BCE0154_1():
 		RunCompilerTestCase("BCE0154-1.boo")
 
