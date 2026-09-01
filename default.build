@@ -917,7 +917,6 @@
 				<include name="tests/**/*.cs" />
 				<include name="tests/**/*.txt" />
 				<include name="tests/**/*.build" />
-				<include name="tests/**/*.prjx" />
 			</fileset>
 		</copy>
 	</target>
