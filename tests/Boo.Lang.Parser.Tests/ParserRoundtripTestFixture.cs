@@ -229,6 +229,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void closure_printing_1()
+		{
+			RunCompilerTestCase(@"closure-printing-1.boo");
+		}
+		
+		[Test]
 		public void closures_1()
 		{
 			RunCompilerTestCase(@"closures-1.boo");

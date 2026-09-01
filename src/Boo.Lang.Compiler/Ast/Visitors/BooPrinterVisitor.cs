@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Boo.Lang.Compiler.Ast.Visitors
 {
@@ -372,6 +373,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 							return false;
 						case NodeType.TryStatement:
 							return false;
+						case NodeType.UnlessStatement:
+							return false;
+						// print and the like are macros too, so go by whether the
+						// macro carries a block the brace form cannot hold.
+						case NodeType.MacroStatement:
+							return ((MacroStatement)node.Body.Statements[0]).Body.IsEmpty;
 					}
 					return true;
 
@@ -775,11 +782,34 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine();
 		}
 
+		/// <summary>
+		/// A multi statement closure the printer cannot write inline, sitting in
+		/// the last argument of a call that is itself a statement. Boo writes that
+		/// as a trailing block, and nothing else parses.
+		/// </summary>
+		private BlockExpression TrailingBlockArgument(MethodInvocationExpression e)
+		{
+			if (!(e.ParentNode is ExpressionStatement))
+				return null;
+			if (e.NamedArguments.Count > 0 || e.Arguments.Count == 0)
+				return null;
+
+			var last = e.Arguments[e.Arguments.Count - 1] as BlockExpression;
+			if (null == last || last.Parameters.Count > 0 || IsSimpleClosure(last))
+				return null;
+			return last;
+		}
+
 		override public void OnMethodInvocationExpression(MethodInvocationExpression e)
 		{
+			var trailing = TrailingBlockArgument(e);
+
 			Visit(e.Target);
 			Write("(");
-			WriteCommaSeparatedList(e.Arguments);
+			IEnumerable<Expression> args = e.Arguments;
+			if (trailing != null)
+				args = e.Arguments.Take(e.Arguments.Count - 1);
+			WriteCommaSeparatedList(args);
 			if (e.NamedArguments.Count > 0)
 			{
 				if (e.Arguments.Count > 0)
@@ -789,6 +819,12 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 				WriteCommaSeparatedList(e.NamedArguments);
 			}
 			Write(")");
+
+			if (trailing != null)
+			{
+				WriteLine(":");
+				WriteBlock(trailing.Body);
+			}
 		}
 		
 		override public void OnArrayLiteralExpression(ArrayLiteralExpression node)
