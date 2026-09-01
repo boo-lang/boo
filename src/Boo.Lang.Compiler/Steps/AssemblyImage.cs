@@ -26,10 +26,14 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
 
 namespace Boo.Lang.Compiler.Steps;
 
@@ -80,6 +84,17 @@ internal static class AssemblyImage
 	}
 
 	/// <summary>
+	/// The symbols are embedded, so the path only names them.
+	/// </summary>
+	private static string PdbPathFor(CompilerParameters parameters)
+	{
+		var output = parameters.OutputAssembly;
+		return string.IsNullOrEmpty(output)
+			? "boo.pdb"
+			: Path.GetFileNameWithoutExtension(output) + ".pdb";
+	}
+
+	/// <summary>
 	/// The debug directory carrying the symbols, embedded in the image.
 	/// </summary>
 	/// <remarks>
@@ -96,12 +111,39 @@ internal static class AssemblyImage
 		if (!parameters.Debug)
 			return null;
 
+		// One hash of the symbols serves as both their identity and the
+		// checksum a reader matches them against.
+		var checksum = ImmutableArray<byte>.Empty;
+		BlobContentId Identity(IEnumerable<Blob> content)
+		{
+			checksum = Sha256Of(content);
+			return BlobContentId.FromHash(checksum);
+		}
+
 		var pdb = new BlobBuilder();
-		new PortablePdbBuilder(pdbMetadata, metadata.GetRowCounts(), entryPoint).Serialize(pdb);
+		var id = new PortablePdbBuilder(pdbMetadata, metadata.GetRowCounts(), entryPoint, Identity)
+			.Serialize(pdb);
 
 		var directory = new DebugDirectoryBuilder();
+
+		// The embedded entry carries the symbols, but a reader looks for the
+		// CodeView entry to find out that they are there and which they are.
+		// Emitting only the former leaves them undiscoverable.
+		directory.AddCodeViewEntry(PdbPathFor(parameters), id, portablePdbVersion: 0x0100);
+		directory.AddPdbChecksumEntry("SHA256", checksum);
 		directory.AddEmbeddedPortablePdbEntry(pdb, portablePdbVersion: 0x0100);
 		return directory;
+	}
+
+	private static ImmutableArray<byte> Sha256Of(IEnumerable<Blob> content)
+	{
+		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+		foreach (var blob in content)
+		{
+			var bytes = blob.GetBytes();
+			hash.AppendData(bytes.Array, bytes.Offset, bytes.Count);
+		}
+		return ImmutableArray.Create(hash.GetHashAndReset());
 	}
 
 	private static MethodDefinitionHandle EntryPointHandle(CompilerContext context)
