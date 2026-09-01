@@ -47,10 +47,13 @@ namespace Boo.Lang.Compiler.Steps;
 internal sealed class ReferenceAssemblyIndex
 {
 	private readonly Dictionary<string, AssemblyName> _exporters;
+	private readonly HashSet<string> _implementations;
 
-	private ReferenceAssemblyIndex(Dictionary<string, AssemblyName> exporters)
+	private ReferenceAssemblyIndex(
+		Dictionary<string, AssemblyName> exporters, HashSet<string> implementations)
 	{
 		_exporters = exporters;
+		_implementations = implementations;
 	}
 
 	/// <summary>
@@ -80,7 +83,48 @@ internal sealed class ReferenceAssemblyIndex
 		foreach (var path in paths)
 			Read(path, exporters);
 
-		return exporters.Count == 0 ? null : new ReferenceAssemblyIndex(exporters);
+		return exporters.Count == 0
+			? null
+			: new ReferenceAssemblyIndex(exporters, ImplementationNames(coreLibrary, directory));
+	}
+
+	/// <summary>
+	/// The assemblies beside the running core library that the reference pack
+	/// does not publish, which are the ones an emitted image must not name.
+	/// </summary>
+	/// <remarks>
+	/// Where an assembly lives is what tells it apart, not what its types are
+	/// called. An ordinary assembly is free to declare a type whose full name
+	/// the framework also uses, and repointing that would send it somewhere it
+	/// was never defined.
+	/// </remarks>
+	private static HashSet<string> ImplementationNames(string coreLibrary, string reference)
+	{
+		// Ordinal everywhere else, because type names are case sensitive. An
+		// assembly name is not, and these come off a file system that may
+		// disagree with the metadata about case.
+		var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+		var runtime = Path.GetDirectoryName(coreLibrary);
+		if (runtime == null)
+			return names;
+
+		foreach (var path in Directory.GetFiles(runtime, "*.dll"))
+			names.Add(Path.GetFileNameWithoutExtension(path));
+
+		foreach (var path in Directory.GetFiles(reference, "*.dll"))
+			names.Remove(Path.GetFileNameWithoutExtension(path));
+
+		return names;
+	}
+
+	/// <summary>
+	/// Whether an assembly is one the running framework implements but does
+	/// not publish.
+	/// </summary>
+	internal bool IsImplementation(string assembly)
+	{
+		return _implementations.Contains(assembly);
 	}
 
 	/// <summary>

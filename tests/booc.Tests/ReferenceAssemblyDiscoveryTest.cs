@@ -81,7 +81,7 @@ public class ReferenceAssemblyDiscoveryTest
 		var context = new CompilerContext();
 		var metadata = new MetadataBuilder();
 
-		Assert.AreSame(metadata, CoreLibraryReferences.Resolved(context, metadata, null),
+		Assert.AreSame(metadata, ImplementationReferences.Resolved(context, metadata, null),
 			"with nothing to rewrite the image goes out as it was generated");
 		Assert.AreEqual(1, context.Warnings.Count);
 		Assert.AreEqual("BCW0032", context.Warnings[0].Code);

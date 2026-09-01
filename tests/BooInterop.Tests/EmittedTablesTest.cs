@@ -71,9 +71,11 @@ public class EmittedTablesTest
 	public void NamesNoImplementationAssembly()
 	{
 		foreach (var handle in _metadata.AssemblyReferences)
-			Assert.AreNotEqual("System.Private.CoreLib",
-				_metadata.GetString(_metadata.GetAssemblyReference(handle).Name),
-				"C# cannot resolve a type through the implementation assembly");
+		{
+			var name = _metadata.GetString(_metadata.GetAssemblyReference(handle).Name);
+			Assert.IsFalse(name.StartsWith("System.Private.", System.StringComparison.Ordinal),
+				$"C# cannot resolve a type through {name}");
+		}
 	}
 
 	[Test]

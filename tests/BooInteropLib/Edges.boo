@@ -3,6 +3,7 @@ namespace BooInteropLib
 import System
 import System.Collections.Generic
 import System.Runtime.InteropServices
+import System.Xml
 import System.Threading.Tasks
 
 public enum Kind:
@@ -73,6 +74,16 @@ public class Edges:
 			if value.CompareTo(best) > 0:
 				best = value
 		return best
+
+	# Uri and XmlDocument are defined by System.Private.Uri and
+	# System.Private.Xml, not by the core implementation assembly.
+	public def HostOf(address as Uri) as string:
+		return address.Host
+
+	public def Document() as XmlDocument:
+		document = XmlDocument()
+		document.LoadXml("<root/>")
+		return document
 
 	public def Countdown(n as int) as IEnumerable[of int]:
 		while n > 0:

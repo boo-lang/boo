@@ -64,7 +64,7 @@ internal static class AssemblyImage
 		DeferredAssemblyAttributes.Write(context, metadata);
 		DeferredTypeLayouts.Write(context, metadata);
 
-		metadata = CoreLibraryReferences.Resolved(context, metadata);
+		metadata = ImplementationReferences.Resolved(context, metadata);
 
 		var peBuilder = new ManagedPEBuilder(
 			PEHeader(parameters),

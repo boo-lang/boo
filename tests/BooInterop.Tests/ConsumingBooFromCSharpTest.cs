@@ -117,6 +117,18 @@ public class ConsumingBooFromCSharpTest
 	}
 
 	[Test]
+	public void CallsBooMembersTypedByOtherImplementationAssemblies()
+	{
+		// Uri is defined by System.Private.Uri and XmlDocument by
+		// System.Private.Xml. Naming either in a signature is enough to make
+		// the member unusable from C# when the references are not repointed.
+		var edges = new Edges();
+
+		Assert.AreEqual("example.com", edges.HostOf(new Uri("https://example.com/x")));
+		Assert.AreEqual("root", edges.Document().DocumentElement.Name);
+	}
+
+	[Test]
 	public void EnumeratesABooGenerator()
 	{
 		Assert.AreEqual(new[] { 3, 2, 1 }, new Edges().Countdown(3).ToArray());
