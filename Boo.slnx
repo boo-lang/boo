@@ -15,7 +15,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Boo.Lang.Tests/Boo.Lang.Tests.booproj" Type="C#" />
-    <Project Path="tests/Boo.Lang.Runtime.Tests/Boo.Lang.Runtime.Tests.csproj" />
+    <Project Path="tests/Boo.Lang.Runtime.Tests/Boo.Lang.Runtime.Tests.booproj" Type="C#" />
     <Project Path="tests/booc.Tests/booc.Tests.csproj" />
     <Project Path="tests/BooCompiler.Tests/BooCompiler.Tests.csproj" />
     <Project Path="tests/Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.csproj" />

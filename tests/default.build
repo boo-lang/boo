@@ -132,13 +132,13 @@
 			</references>
 		</booc>
 
-		<csc
+		<booc
 			target="library"
 			output="build/Boo.Lang.Runtime.Tests.dll"
-			unsafe="true" if="${fixture == '' or fixture == 'Boo.Lang.Runtime'}">
+			if="${fixture == '' or fixture == 'Boo.Lang.Runtime'}">
 
 			<sources basedir="Boo.Lang.Runtime.Tests">
-				<include name="**/*.cs" />
+				<include name="**/*.boo" />
 			</sources>
 
 			<references basedir="build">
@@ -146,9 +146,8 @@
 				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
-				<include name="Moq.dll" />
 			</references>
-		</csc>
+		</booc>
 
 		<csc
 			target="library"

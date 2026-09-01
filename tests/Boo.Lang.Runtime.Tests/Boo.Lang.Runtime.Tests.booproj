@@ -9,6 +9,9 @@
     <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
     <ProjectReference Include="../../src/Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
     <ProjectReference Include="../../src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../../src/booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <Import Project="../../Boo.targets" />
 
 </Project>
