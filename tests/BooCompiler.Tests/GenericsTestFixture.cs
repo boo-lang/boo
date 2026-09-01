@@ -573,6 +573,12 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"naked-type-constraints-1.boo");
 		}
 		
+		[Test]
+		public void self_constrained_base_1()
+		{
+			RunCompilerTestCase(@"self-constrained-base-1.boo");
+		}
+		
 		[Ignore("generics with nested types not supported yet")][Test]
 		public void nested_generic_type_1()
 		{

@@ -112,11 +112,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		}
 
 		IType _definition;
+		TypeMapper _constraintMapper;
 
 		private bool MaintainsParameterConstraints(IEntity definition)
 		{
 			IGenericParameter[] parameters = GenericsServices.GetGenericParameters(definition);
 			_definition = definition as IType;
+			// Constraints are declared against the definition's own parameters, so
+			// they must be substituted before asking whether an argument fits.
+			var constraintMapper = new TypeReplacer();
+			for (int i = 0; i < parameters.Length && i < TypeArguments.Length; ++i)
+				constraintMapper.Replace(parameters[i], TypeArguments[i]);
+			_constraintMapper = constraintMapper;
 
 			bool valid = true;
 			for (int i = 0; i < parameters.Length; i++)
@@ -163,11 +170,14 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 			IType[] baseTypes = parameter.GetTypeConstraints();
 			if (baseTypes != null)
 			{
-				foreach (IType baseType in baseTypes)
+				foreach (IType declaredBaseType in baseTypes)
 				{
-					// Foo<T> where T : Foo<T>
+					var baseType = _constraintMapper.MapType(declaredBaseType);
+
+					// Foo<T> where T : Foo<T>, asked while the type being
+					// declared is still binding its own base.
 					if (null != _definition
-					    && TypeCompatibilityRules.IsAssignableFrom(baseType, _definition)
+					    && TypeCompatibilityRules.IsAssignableFrom(declaredBaseType, _definition)
 					    && argument == _constructionNode.ParentNode.Entity)
 						continue;
 
