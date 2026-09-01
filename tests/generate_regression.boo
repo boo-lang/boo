@@ -135,33 +135,27 @@ def Main(argv as (string)):
 			}
 	""")
 	
-	GenerateTestFixture("parser/roundtrip", "Boo.Lang.Parser.Tests/ParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
+	GenerateTestFixture("parser/roundtrip", "Boo.Lang.Parser.Tests/ParserRoundtripTestFixture.boo", "Boo.Lang.Parser", """
 	namespace Boo.Lang.Parser.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class ParserRoundtripTestFixture : AbstractParserTestFixture
-		{
-			void RunCompilerTestCase(string fname)
-			{
-				RunParserTestCase(fname);
-			}
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class ParserRoundtripTestFixture(AbstractParserTestFixture):
+		def RunCompilerTestCase(fname as string):
+			RunParserTestCase(fname)
 	""")
 	
 	PortParserTestCases()
-	GenerateTestFixture("parser/wsa", "Boo.Lang.Parser.Tests/WSAParserRoundtripTestFixture.cs", "Boo.Lang.Parser", """
+	GenerateTestFixture("parser/wsa", "Boo.Lang.Parser.Tests/WSAParserRoundtripTestFixture.boo", "Boo.Lang.Parser", """
 	namespace Boo.Lang.Parser.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class WSAParserRoundtripTestFixture : AbstractWSAParserTestFixture
-		{
-			void RunCompilerTestCase(string fname)
-			{
-				RunParserTestCase(fname);
-			}
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
+		def RunCompilerTestCase(fname as string):
+			RunParserTestCase(fname)
 	""")
 	
 	GenerateTestFixture("semantics", "BooCompiler.Tests/SemanticsTestFixture.cs", "BooCompiler.Semantics", """
@@ -311,23 +305,32 @@ def MapPath(path):
 #	return Path.Combine(Project.BaseDirectory, path)
 	return Path.GetFullPath(path)
 
-def WriteTestCases(writer as TextWriter, baseDir as string):
+def WriteTestCases(writer as TextWriter, baseDir as string, boo as bool):
 	count, ignored = 0, 0;
 	testCasePath = MapPath("testcases/${baseDir}");
 	System.IO.Directory.CreateDirectory(testCasePath);
 	for fname as string in Directory.GetFiles(testCasePath):
 		continue unless fname.EndsWith(".boo")
 		attribute = CategoryAttributeFor(fname)
-		
+
 		ignore = attribute.StartsWith("[Ignore")
 		++count unless ignore
 		++ignored if ignore
-		
-		writer.Write("""
+
+		name = GetTestCaseName(fname)
+		testCase = NormalizePath(Path.GetFileName(fname))
+		if boo:
+			writer.Write("""
+	${attribute}[Test]
+	def ${name}():
+		RunCompilerTestCase("${testCase}")
+""")
+		else:
+			writer.Write("""
 		${attribute}[Test]
-		public void ${GetTestCaseName(fname)}()
+		public void ${name}()
 		{
-			RunCompilerTestCase(@"${NormalizePath(Path.GetFileName(fname))}");
+			RunCompilerTestCase(@"${testCase}");
 		}
 		""")
 	print "{0,5} {1,7}  {2}" % (count, ignored, baseDir)
@@ -352,10 +355,22 @@ def FirstLineOf(fname as string):
 		return reader.ReadLine()
 
 def GenerateTestFixture(srcDir as string, targetFile as string, fixtureAssembly as string, header as string):
+	boo = targetFile.EndsWith(".boo")
 	using writer=StreamWriter(MapPath(targetFile)):
-		writer.Write(ReIndent(header))
-		WriteTestCases(writer, srcDir)
-		writer.Write("""
+		# Boo has no closing braces to indent against, so the header stands on
+		# its own rather than carrying the blank lines ReIndent leaves around it.
+		if boo:
+			writer.Write(ReIndent(header).Trim() + "\n")
+		else:
+			writer.Write(ReIndent(header))
+		WriteTestCases(writer, srcDir, boo)
+		if boo:
+			writer.Write("""
+	override protected def GetRelativeTestCasesPath() as string:
+		return "${NormalizePath(srcDir)}"
+""")
+		else:
+			writer.Write("""
 
 		override protected string GetRelativeTestCasesPath()
 		{

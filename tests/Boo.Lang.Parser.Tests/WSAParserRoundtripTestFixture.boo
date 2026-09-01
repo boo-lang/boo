@@ -540,6 +540,10 @@ class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
 		RunCompilerTestCase("macro-doc.boo")
 
 	[Test]
+	def macro_argument_parens_1():
+		RunCompilerTestCase("macro-argument-parens-1.boo")
+
+	[Test]
 	def macros_1():
 		RunCompilerTestCase("macros-1.boo")
 
@@ -610,6 +614,14 @@ class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
 	[Test]
 	def ones_complement_1():
 		RunCompilerTestCase("ones-complement-1.boo")
+
+	[Test]
+	def pass_among_statements_1():
+		RunCompilerTestCase("pass-among-statements-1.boo")
+
+	[Test]
+	def pass_single_line_1():
+		RunCompilerTestCase("pass-single-line-1.boo")
 
 	[Test]
 	def regex_literals_1():
