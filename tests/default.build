@@ -299,13 +299,13 @@
 			</references>
 		</booc>
 
-		<csc
+		<booc
 			target="library"
 			output="build/Boo.Lang.Parser.Tests.dll"
 			if="${fixture == '' or fixture == 'Boo.Lang.Parser'}">
 
 			<sources>
-				<include name="Boo.Lang.Parser.Tests/**/*.cs" />
+				<include name="Boo.Lang.Parser.Tests/**/*.boo" />
 			</sources>
 
 			<references basedir="build">
@@ -315,7 +315,7 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 			</references>
-		</csc>
+		</booc>
 		
 		
 	</target>

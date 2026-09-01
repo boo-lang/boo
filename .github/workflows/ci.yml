@@ -45,7 +45,7 @@ jobs:
       # Excluded from the run above by VSTestTestCaseFilter: it parses every .boo
       # in the repository, which is too slow for an ordinary local build.
       - name: Test parser corpus
-        run: dotnet test tests/Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.csproj --configuration Release --no-build --filter "TestCategory=Corpus" --logger "trx;LogFileName=corpus-${{ matrix.os }}.trx"
+        run: dotnet test tests/Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.booproj --configuration Release --no-build --filter "TestCategory=Corpus" --logger "trx;LogFileName=corpus-${{ matrix.os }}.trx"
 
       - name: Upload test results
         if: always()

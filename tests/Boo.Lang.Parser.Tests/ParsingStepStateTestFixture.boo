@@ -26,56 +26,49 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace Boo.Lang.Parser.Tests;
+namespace Boo.Lang.Parser.Tests
 
-using System.Linq;
-using NUnit.Framework;
-using Boo.Lang.Compiler;
-using Boo.Lang.Compiler.IO;
+import System.Linq
+import NUnit.Framework
+import Boo.Lang.Compiler
+import Boo.Lang.Compiler.IO
 
-/// <summary>
-/// The parsing step runs once over every input, so nothing it remembers from
-/// one file may change what it reports about the next.
-/// </summary>
 [TestFixture]
-public class ParsingStepStateTestFixture
-{
+public class ParsingStepStateTestFixture:
+	"""
+	The parsing step runs once over every input, so nothing it remembers from
+	one file may change what it reports about the next.
+	"""
 	// The suppression that swallows resync noise keys on line number alone, so a
 	// later file whose error sits on an earlier line looks like a repeat.
-	private const string ErrorOnLineThree = "a = 1\nb = 2\nc = = 3\n";
-	private const string ErrorOnLineTwo = "d = 4\ne = = 5\n";
+	private static final ErrorOnLineThree = "a = 1\nb = 2\nc = = 3\n"
+	private static final ErrorOnLineTwo = "d = 4\ne = = 5\n"
 
 	[Test]
-	public void ReportsAnErrorInEveryInput()
-	{
-		Assert.IsNotEmpty(Errors("first.boo", ErrorOnLineThree), "the first input alone");
-		Assert.IsNotEmpty(Errors("second.boo", ErrorOnLineTwo), "the second input alone");
+	public def ReportsAnErrorInEveryInput():
+		Assert.IsNotEmpty(Errors("first.boo", ErrorOnLineThree), "the first input alone")
+		Assert.IsNotEmpty(Errors("second.boo", ErrorOnLineTwo), "the second input alone")
 
-		var both = Parse(
-			new StringInput("first.boo", ErrorOnLineThree),
-			new StringInput("second.boo", ErrorOnLineTwo));
+		both = Parse(
+			StringInput("first.boo", ErrorOnLineThree),
+			StringInput("second.boo", ErrorOnLineTwo))
 
-		Assert.IsTrue(both.Any(error => error.LexicalInfo.FileName == "second.boo"),
-			"the second input's error was dropped: " + Describe(both));
-	}
+		Assert.IsTrue(both.Any({ error as CompilerError | error.LexicalInfo.FileName == "second.boo" }),
+			"the second input's error was dropped: " + Describe(both))
 
-	private static CompilerError[] Errors(string name, string code) =>
-		Parse(new StringInput(name, code));
+	private static def Errors(name as string, code as string) as (CompilerError):
+		return Parse(StringInput(name, code))
 
-	private static CompilerError[] Parse(params ICompilerInput[] inputs)
-	{
-		var compiler = new BooCompiler();
-		var pipeline = new Boo.Lang.Compiler.Pipelines.Parse();
-		pipeline.Replace(typeof(Boo.Lang.Compiler.Steps.Parsing),
-			new Boo.Lang.Parser.BooParsingStep());
-		compiler.Parameters.Pipeline = pipeline;
-		foreach (var input in inputs)
-			compiler.Parameters.Input.Add(input);
-		return compiler.Run().Errors.ToArray();
-	}
+	private static def Parse(*inputs as (Boo.Lang.Compiler.ICompilerInput)) as (CompilerError):
+		compiler = BooCompiler()
+		pipeline = Boo.Lang.Compiler.Pipelines.Parse()
+		pipeline.Replace(Boo.Lang.Compiler.Steps.Parsing, Boo.Lang.Parser.BooParsingStep())
+		compiler.Parameters.Pipeline = pipeline
+		for input in inputs:
+			compiler.Parameters.Input.Add(input)
+		return compiler.Run().Errors.ToArray()
 
-	private static string Describe(CompilerError[] errors) =>
-		errors.Length == 0
-			? "no errors at all"
-			: string.Join(", ", errors.Select(e => e.LexicalInfo.FileName + ":" + e.LexicalInfo.Line));
-}
+	private static def Describe(errors as (CompilerError)) as string:
+		if errors.Length == 0:
+			return "no errors at all"
+		return string.Join(", ", errors.Select({ e as CompilerError | e.LexicalInfo.FileName + ":" + e.LexicalInfo.Line }))
