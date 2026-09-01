@@ -209,21 +209,20 @@
 			</do>
 		</foreach>
 
-		<csc
+		<booc
 			target="library"
 			output="build/Boo.Lang.Tests.dll"
 			if="${fixture == '' or fixture == 'Boo.Lang'}">
 
 			<sources basedir="Boo.Lang.Tests">
-				<include name="**/*.cs" />
+				<include name="**/*.boo" />
 			</sources>
 
 			<references basedir="build">
 				<include name="Boo.Lang.dll" />
 				<include name="${nunit.framework.dll}" />
-				<include name="Moq.dll" />
 			</references>
-		</csc>
+		</booc>
 
 		<booc
 			target="library"

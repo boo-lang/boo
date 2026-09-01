@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../../src/booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <Import Project="../../Boo.targets" />
 
 </Project>

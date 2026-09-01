@@ -14,7 +14,7 @@
     <Project Path="src/booish/booish.booproj" Type="C#" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/Boo.Lang.Tests/Boo.Lang.Tests.csproj" />
+    <Project Path="tests/Boo.Lang.Tests/Boo.Lang.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.Runtime.Tests/Boo.Lang.Runtime.Tests.csproj" />
     <Project Path="tests/booc.Tests/booc.Tests.csproj" />
     <Project Path="tests/BooCompiler.Tests/BooCompiler.Tests.csproj" />
