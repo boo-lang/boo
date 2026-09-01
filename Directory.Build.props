@@ -23,6 +23,11 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src/boo.snk</AssemblyOriginatorKeyFile>
 
+    <!-- The public half of src/boo.snk. InternalsVisibleTo needs it spelled
+         out, because a strong named assembly can only befriend another by
+         full key. -->
+    <PublicKey>0024000004800000940000000602000000240000525341310004000001000100e11641c04ff3cfd9f3daa8f56c6a29a1f3f034d2cd05f3d7ead5b9d4890054e03fb89b0d33924143b76880d88c6046ec70aebdb46f68ae8962f21badf6b867076296cf4661e629a69a9d2d8fa98f10b9d46242681eb69636647ac3f5ffda3d3ebfd9391c612a2189455a3c352fc7309b4e39f22eb761d2a198696ffb09252ed7</PublicKey>
+
     <!-- CA2200 fires on rethrow patterns throughout, and SYSLIB0050/0051 on the
          [Serializable] surface that outlived BinaryFormatter. Both are cleanup
          rather than port work, and neither affects what is emitted. CS8981 is

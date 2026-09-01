@@ -13,4 +13,8 @@
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="booc.Tests" />
+  </ItemGroup>
+
 </Project>

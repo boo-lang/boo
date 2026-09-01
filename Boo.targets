@@ -78,7 +78,7 @@
 
   <!-- CoreCompile is what the SDK calls; point it at booc. -->
   <Target Name="CoreCompile" DependsOnTargets="BoocTarget"
-          Inputs="@(BooCompile);@(ReferencePath)"
+          Inputs="@(BooCompile);@(ReferencePath);$(BoocDll)"
           Outputs="$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)" />
 
 </Project>

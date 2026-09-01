@@ -21,6 +21,8 @@
     <Project Path="tests/Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.csproj" />
     <Project Path="tests/BooSupportingClasses/BooSupportingClasses.booproj" Type="C#" />
     <Project Path="tests/BooModules/BooModules.booproj" Type="C#" />
+    <Project Path="tests/BooInteropLib/BooInteropLib.booproj" Type="C#" />
+    <Project Path="tests/BooInterop.Tests/BooInterop.Tests.csproj" />
     <Project Path="tests/Boo.Lang.CodeDom.Tests/Boo.Lang.CodeDom.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.PatternMatching.Tests/Boo.Lang.PatternMatching.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.Interpreter.Tests/Boo.Lang.Interpreter.Tests.booproj" Type="C#" />

@@ -232,6 +232,11 @@ namespace Boo.Lang.Compiler
             return Instantiate("BCW0031", LexicalInfo.Empty, filename);
         }
 
+		public static CompilerWarning ReferenceAssembliesNotFound()
+		{
+			return Instantiate("BCW0032", LexicalInfo.Empty);
+		}
+
 		private static CompilerWarning Instantiate(string code, LexicalInfo location, params object[] args)
 		{
 			return new CompilerWarning(code, location, Array.ConvertAll<object, string>(args, CompilerErrorFactory.DisplayStringFor));
