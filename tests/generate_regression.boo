@@ -299,7 +299,13 @@ def WriteTestCases(writer as TextWriter, baseDir as string, boo as bool):
 	count, ignored = 0, 0;
 	testCasePath = MapPath("testcases/${baseDir}");
 	System.IO.Directory.CreateDirectory(testCasePath);
-	for fname as string in Directory.GetFiles(testCasePath):
+
+	# Directory order is whatever the filesystem says, so it differs between
+	# machines. Sort ordinally to keep a regenerated fixture stable everywhere.
+	testCaseFiles = Directory.GetFiles(testCasePath)
+	Array.Sort(testCaseFiles, StringComparer.Ordinal)
+
+	for fname as string in testCaseFiles:
 		continue unless fname.EndsWith(".boo")
 		attribute = CategoryAttributeFor(fname)
 

@@ -109,14 +109,14 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"generator-with-type-constraint-1.boo");
 		}
-
-        [Test]
-        public void generator_with_type_constraint_manually_expanded()
-        {
-            RunCompilerTestCase(@"generator-with-type-constraint-manually-expanded.boo");
-        }
-
-        [Test]
+		
+		[Test]
+		public void generator_with_type_constraint_manually_expanded()
+		{
+			RunCompilerTestCase(@"generator-with-type-constraint-manually-expanded.boo");
+		}
+		
+		[Test]
 		public void generators_1()
 		{
 			RunCompilerTestCase(@"generators-1.boo");
@@ -175,26 +175,26 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"generic-array-3.boo");
 		}
-
-	    [Test]
-	    public void generic_closures()
-	    {
-	        RunCompilerTestCase(@"generic-closures.boo");
-	    }
-
-        [Test]
-        public void generic_closures_2()
-        {
-            RunCompilerTestCase(@"generic-closures-2.boo");
-        }
-
-        [Test]
-        public void generic_closures_3()
-        {
-            RunCompilerTestCase(@"generic-closures-3.boo");
-        }
-
-        [Test]
+		
+		[Test]
+		public void generic_closures_2()
+		{
+			RunCompilerTestCase(@"generic-closures-2.boo");
+		}
+		
+		[Test]
+		public void generic_closures_3()
+		{
+			RunCompilerTestCase(@"generic-closures-3.boo");
+		}
+		
+		[Test]
+		public void generic_closures()
+		{
+			RunCompilerTestCase(@"generic-closures.boo");
+		}
+		
+		[Test]
 		public void generic_extension_1()
 		{
 			RunCompilerTestCase(@"generic-extension-1.boo");
@@ -230,7 +230,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"generic-instance-overload.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void generic_list_of_callable()
 		{
 			RunCompilerTestCase(@"generic-list-of-callable.boo");
@@ -319,14 +319,13 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"generic-overload-6.boo");
 		}
-
-        [Test]
-        public void generic_overload_7()
-        {
-            RunCompilerTestCase(@"generic-overload-7.boo");
-        }
-	        
-
+		
+		[Test]
+		public void generic_overload_7()
+		{
+			RunCompilerTestCase(@"generic-overload-7.boo");
+		}
+		
 		[Test]
 		public void generic_ref_parameter()
 		{
@@ -573,12 +572,6 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"naked-type-constraints-1.boo");
 		}
 		
-		[Test]
-		public void self_constrained_base_1()
-		{
-			RunCompilerTestCase(@"self-constrained-base-1.boo");
-		}
-		
 		[Ignore("generics with nested types not supported yet")][Test]
 		public void nested_generic_type_1()
 		{
@@ -620,13 +613,13 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"nullable-6.boo");
 		}
-
+		
 		[Test]
 		public void nullable_7()
 		{
 			RunCompilerTestCase(@"nullable-7.boo");
 		}
-
+		
 		[Test]
 		public void override_1()
 		{
@@ -655,6 +648,12 @@ namespace BooCompiler.Tests
 		public void override_5()
 		{
 			RunCompilerTestCase(@"override-5.boo");
+		}
+		
+		[Test]
+		public void self_constrained_base_1()
+		{
+			RunCompilerTestCase(@"self-constrained-base-1.boo");
 		}
 		
 		[Test]

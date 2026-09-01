@@ -536,12 +536,12 @@ class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
 		RunCompilerTestCase("long-literals-1.boo")
 
 	[Test]
-	def macro_doc():
-		RunCompilerTestCase("macro-doc.boo")
-
-	[Test]
 	def macro_argument_parens_1():
 		RunCompilerTestCase("macro-argument-parens-1.boo")
+
+	[Test]
+	def macro_doc():
+		RunCompilerTestCase("macro-doc.boo")
 
 	[Test]
 	def macros_1():
@@ -720,12 +720,12 @@ class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
 		RunCompilerTestCase("xor-1.boo")
 
 	[Test]
-	def yield_as_member_name():
-		RunCompilerTestCase("yield-as-member-name.boo")
-
-	[Test]
 	def yield_1():
 		RunCompilerTestCase("yield-1.boo")
+
+	[Test]
+	def yield_as_member_name():
+		RunCompilerTestCase("yield-as-member-name.boo")
 
 	override protected def GetRelativeTestCasesPath() as string:
 		return "parser/wsa"

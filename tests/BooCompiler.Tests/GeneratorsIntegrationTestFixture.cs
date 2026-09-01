@@ -96,7 +96,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"generators-16.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void generators_17()
 		{
 			RunCompilerTestCase(@"generators-17.boo");
@@ -174,19 +174,19 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"generators-9.boo");
 		}
 		
-		[Test]
+		[Ignore("BOO-759 - generic generator methods are not supported")][Test]
 		public void generic_generator_1()
 		{
 			RunCompilerTestCase(@"generic-generator-1.boo");
 		}
-
-        [Test]
-        public void generic_generator_2()
-        {
-            RunCompilerTestCase(@"generic-generator-2.boo");
-        }
-
-        [Test]
+		
+		[Test]
+		public void generic_generator_2()
+		{
+			RunCompilerTestCase(@"generic-generator-2.boo");
+		}
+		
+		[Test]
 		public void label_issue_1()
 		{
 			RunCompilerTestCase(@"label-issue-1.boo");

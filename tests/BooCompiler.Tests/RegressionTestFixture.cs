@@ -9,12 +9,6 @@ namespace BooCompiler.Tests
 
 
 		[Test]
-		public void array_ldelem()
-		{
-			RunCompilerTestCase(@"array_ldelem.boo");
-		}
-		
-		[Test]
 		public void BOO_1005_1()
 		{
 			RunCompilerTestCase(@"BOO-1005-1.boo");
@@ -99,18 +93,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void boo_1032_1()
-		{
-			RunCompilerTestCase(@"boo-1032-1.boo");
-		}
-		
-		[Test]
-		public void boo_1032_2()
-		{
-			RunCompilerTestCase(@"boo-1032-2.boo");
-		}
-		
-		[Test]
 		public void BOO_1035_1()
 		{
 			RunCompilerTestCase(@"BOO-1035-1.boo");
@@ -132,12 +114,6 @@ namespace BooCompiler.Tests
 		public void BOO_1047()
 		{
 			RunCompilerTestCase(@"BOO-1047.boo");
-		}
-		
-		[Test]
-		public void boo_1051()
-		{
-			RunCompilerTestCase(@"boo-1051.boo");
 		}
 		
 		[Test]
@@ -1383,9 +1359,45 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void BOO_GH94_1()
+		{
+			RunCompilerTestCase(@"BOO-GH94-1.boo");
+		}
+		
+		[Test]
+		public void array_ldelem()
+		{
+			RunCompilerTestCase(@"array_ldelem.boo");
+		}
+		
+		[Test]
+		public void boo_1032_1()
+		{
+			RunCompilerTestCase(@"boo-1032-1.boo");
+		}
+		
+		[Test]
+		public void boo_1032_2()
+		{
+			RunCompilerTestCase(@"boo-1032-2.boo");
+		}
+		
+		[Test]
+		public void boo_1051()
+		{
+			RunCompilerTestCase(@"boo-1051.boo");
+		}
+		
+		[Test]
 		public void complex_iterators_1()
 		{
 			RunCompilerTestCase(@"complex-iterators-1.boo");
+		}
+		
+		[Test]
+		public void delegate_overload()
+		{
+			RunCompilerTestCase(@"delegate-overload.boo");
 		}
 		
 		[Test]
@@ -1413,6 +1425,18 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void linq_filter_error_2()
+		{
+			RunCompilerTestCase(@"linq-filter-error-2.boo");
+		}
+		
+		[Test]
+		public void linq_filter_error()
+		{
+			RunCompilerTestCase(@"linq-filter-error.boo");
+		}
+		
+		[Test]
 		public void method_with_type_inference_rule_as_statement()
 		{
 			RunCompilerTestCase(@"method-with-type-inference-rule-as-statement.boo");
@@ -1429,25 +1453,7 @@ namespace BooCompiler.Tests
 		{
 			RunCompilerTestCase(@"override-inference.boo");
 		}
-
-		[Test]
-		public void linq_filter_error()
-		{
-			RunCompilerTestCase(@"linq-filter-error.boo");
-		}
-
-		[Test]
-		public void linq_filter_error_2()
-		{
-			RunCompilerTestCase(@"linq-filter-error-2.boo");
-		}
-
-		[Test]
-		public void delegate_overload()
-		{
-			RunCompilerTestCase(@"delegate-overload.boo");
-		}
-
+		
 
 		override protected string GetRelativeTestCasesPath()
 		{

@@ -357,24 +357,6 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void BCE0183_1()
-		{
-			RunCompilerTestCase(@"BCE0183-1.boo");
-		}
-		
-		[Test]
-		public void BCE0183_2()
-		{
-			RunCompilerTestCase(@"BCE0183-2.boo");
-		}
-		
-		[Test]
-		public void BCE0183_3()
-		{
-			RunCompilerTestCase(@"BCE0183-3.boo");
-		}
-		
-		[Test]
 		public void BCE0049_1()
 		{
 			RunCompilerTestCase(@"BCE0049-1.boo");
@@ -1335,15 +1317,39 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
-		public void cannot_convert_enum_to_single()
+		public void BCE0183_1()
 		{
-			RunCompilerTestCase(@"cannot-convert-enum-to-single.boo");
+			RunCompilerTestCase(@"BCE0183-1.boo");
+		}
+		
+		[Test]
+		public void BCE0183_2()
+		{
+			RunCompilerTestCase(@"BCE0183-2.boo");
+		}
+		
+		[Test]
+		public void BCE0183_3()
+		{
+			RunCompilerTestCase(@"BCE0183-3.boo");
 		}
 		
 		[Test]
 		public void CannotConvertFooToInt()
 		{
 			RunCompilerTestCase(@"CannotConvertFooToInt.boo");
+		}
+		
+		[Test]
+		public void cannot_convert_enum_to_single()
+		{
+			RunCompilerTestCase(@"cannot-convert-enum-to-single.boo");
+		}
+		
+		[Test]
+		public void docstring_written_twice()
+		{
+			RunCompilerTestCase(@"docstring-written-twice.boo");
 		}
 		
 		[Test]
@@ -1398,12 +1404,6 @@ namespace BooCompiler.Tests
 		public void selective_import()
 		{
 			RunCompilerTestCase(@"selective-import.boo");
-		}
-		
-		[Test]
-		public void docstring_written_twice()
-		{
-			RunCompilerTestCase(@"docstring-written-twice.boo");
 		}
 		
 		[Test]

@@ -7,42 +7,6 @@ namespace BooCompiler.Tests
 	{
 	
 		[Test]
-		public void auto_lift_1()
-		{
-			RunCompilerTestCase(@"auto-lift-1.boo");
-		}
-		
-		[Test]
-		public void auto_lift_2()
-		{
-			RunCompilerTestCase(@"auto-lift-2.boo");
-		}
-		
-		[Test]
-		public void block_lift()
-		{
-			RunCompilerTestCase(@"block-lift.boo");
-		}
-		
-		[Test]
-		public void class_body_splicing_1()
-		{
-			RunCompilerTestCase(@"class-body-splicing-1.boo");
-		}
-		
-		[Test]
-		public void class_name_splicing_1()
-		{
-			RunCompilerTestCase(@"class-name-splicing-1.boo");
-		}
-		
-		[Test]
-		public void class_name_splicing_2()
-		{
-			RunCompilerTestCase(@"class-name-splicing-2.boo");
-		}
-		
-		[Test]
 		public void CodeReifierMergeIntoWithEmptyArrayLiteral()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithEmptyArrayLiteral.boo");
@@ -106,6 +70,42 @@ namespace BooCompiler.Tests
 		public void CodeReifierMergeIntoWithStatementModifiers()
 		{
 			RunCompilerTestCase(@"CodeReifierMergeIntoWithStatementModifiers.boo");
+		}
+		
+		[Test]
+		public void auto_lift_1()
+		{
+			RunCompilerTestCase(@"auto-lift-1.boo");
+		}
+		
+		[Test]
+		public void auto_lift_2()
+		{
+			RunCompilerTestCase(@"auto-lift-2.boo");
+		}
+		
+		[Test]
+		public void block_lift()
+		{
+			RunCompilerTestCase(@"block-lift.boo");
+		}
+		
+		[Test]
+		public void class_body_splicing_1()
+		{
+			RunCompilerTestCase(@"class-body-splicing-1.boo");
+		}
+		
+		[Test]
+		public void class_name_splicing_1()
+		{
+			RunCompilerTestCase(@"class-name-splicing-1.boo");
+		}
+		
+		[Test]
+		public void class_name_splicing_2()
+		{
+			RunCompilerTestCase(@"class-name-splicing-2.boo");
 		}
 		
 		[Test]

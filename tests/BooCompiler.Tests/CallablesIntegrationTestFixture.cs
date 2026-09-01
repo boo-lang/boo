@@ -132,7 +132,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"callables-15.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void callables_16()
 		{
 			RunCompilerTestCase(@"callables-16.boo");
@@ -282,7 +282,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"callables-38.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void callables_39()
 		{
 			RunCompilerTestCase(@"callables-39.boo");
@@ -300,7 +300,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"callables-40.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void callables_41()
 		{
 			RunCompilerTestCase(@"callables-41.boo");
@@ -312,7 +312,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"callables-42.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void callables_43()
 		{
 			RunCompilerTestCase(@"callables-43.boo");
@@ -606,7 +606,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"params-6.boo");
 		}
 		
-		[Test]
+		[Category("FailsOnMono4")][Test]
 		public void params_7()
 		{
 			RunCompilerTestCase(@"params-7.boo");
