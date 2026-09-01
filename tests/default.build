@@ -87,12 +87,12 @@
 			</references>
 		</boo>
 		
-		<csc
+		<booc
 			target="library"
 			output="build/booc.Tests.dll">
 			
 			<sources basedir="booc.Tests">
-				<include name="**/*.cs" />
+				<include name="**/*.boo" />
 			</sources>
 			
 			<references basedir="build">
@@ -101,7 +101,7 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="booc.exe" />
 			</references>
-		</csc>
+		</booc>
 
 		<booc
 			target="library"
@@ -354,4 +354,3 @@
 	</target>
 
 </project>
-

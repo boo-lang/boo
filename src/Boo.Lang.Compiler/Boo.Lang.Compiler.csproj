@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="booc.Tests" />
+    <InternalsVisibleTo Include="BooCompiler.Tests" />
   </ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@ using Boo.Lang.Compiler;
 using Boo.Lang.Compiler.Steps;
 using NUnit.Framework;
 
-namespace booc.Tests;
+namespace BooCompiler.Tests;
 
 /// <summary>
 /// Finding the reference pack, and what emission does without one.
