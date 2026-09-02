@@ -1,4 +1,7 @@
-# a lone name in a closure is its value, not a macro to invoke
+"""
+called
+"""
+# a lone name closing a closure is its value, unless it names a macro
 x = 42
 byName = { x }
 assert 42 == byName()
@@ -11,6 +14,10 @@ assert "boo" == untyped("boo")
 
 separated = { x; }
 assert 42 == separated()
+
+# a name that does resolve to a macro is still the macro
+callsMacro = { print "called" }
+callsMacro()
 
 # a name with an argument after it is still a macro
 calls = []

@@ -215,8 +215,38 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			ExpandChildrenOf(node);
 			if (IsTypeMemberMacro(node))
 				UnknownTypeMemberMacro(node);
+			else if (IsClosureValue(node))
+				TreatMacroAsReference(node);
 			else
 				TreatMacroAsMethodInvocation(node);
+		}
+
+		/// <summary>
+		/// The whole body of a closure being a bare name, as in { x }. The parser
+		/// cannot tell that from a macro invoked without arguments, so it hands
+		/// both here as a MacroStatement. A name that resolved to a macro never
+		/// reaches this point, which is what keeps { print } a call.
+		/// </summary>
+		private static bool IsClosureValue(MacroStatement node)
+		{
+			if (node.Arguments.Count > 0 || !IsNullOrEmpty(node.Body))
+				return false;
+
+			var block = node.ParentNode as Block;
+			if (block == null || block.ParentNode is not BlockExpression)
+				return false;
+
+			// Only a single expression closure yields its expression. Give a
+			// longer body the invocation it has always had.
+			return block.Statements.Count == 1;
+		}
+
+		private void TreatMacroAsReference(MacroStatement node)
+		{
+			ReplaceCurrentNode(new ExpressionStatement(
+				node.LexicalInfo,
+				new ReferenceExpression(node.LexicalInfo, node.Name),
+				node.Modifier));
 		}
 
 		private static bool IsTypeMemberMacro(MacroStatement node)
