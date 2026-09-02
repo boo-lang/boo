@@ -446,6 +446,8 @@ parameter_declaration
 			)
 			(	AS type_reference
 			)?
+			(	ASSIGN expression
+			)?
 		)
 	;
 

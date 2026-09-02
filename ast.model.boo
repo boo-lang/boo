@@ -192,6 +192,7 @@ class ParameterDeclaration(Node, INodeWithAttributes):
 	Type as TypeReference
 	Modifiers as ParameterModifiers
 	Attributes as AttributeCollection
+	DefaultValue as Expression
 
 [collection(ParameterDeclaration)]
 class ParameterDeclarationCollection:

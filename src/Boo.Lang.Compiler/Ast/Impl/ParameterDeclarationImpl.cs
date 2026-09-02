@@ -47,6 +47,8 @@ namespace Boo.Lang.Compiler.Ast
 
 		protected AttributeCollection _attributes;
 
+		protected Expression _defaultValue;
+
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		new public ParameterDeclaration CloneNode()
@@ -85,6 +87,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (!Node.Matches(_type, other._type)) return NoMatch("ParameterDeclaration._type");
 			if (_modifiers != other._modifiers) return NoMatch("ParameterDeclaration._modifiers");
 			if (!Node.AllMatch(_attributes, other._attributes)) return NoMatch("ParameterDeclaration._attributes");
+			if (!Node.Matches(_defaultValue, other._defaultValue)) return NoMatch("ParameterDeclaration._defaultValue");
 			return true;
 		}
 
@@ -112,6 +115,11 @@ namespace Boo.Lang.Compiler.Ast
 					}
 				}
 			}
+			if (_defaultValue == existing)
+			{
+				this.DefaultValue = (Expression)newNode;
+				return true;
+			}
 			return false;
 		}
 
@@ -138,6 +146,11 @@ namespace Boo.Lang.Compiler.Ast
 				clone._attributes = _attributes.Clone() as AttributeCollection;
 				clone._attributes.InitializeParent(clone);
 			}
+			if (null != _defaultValue)
+			{
+				clone._defaultValue = _defaultValue.Clone() as Expression;
+				clone._defaultValue.InitializeParent(clone);
+			}
 			return clone;
 
 
@@ -155,6 +168,10 @@ namespace Boo.Lang.Compiler.Ast
 			if (null != _attributes)
 			{
 				_attributes.ClearTypeSystemBindings();
+			}
+			if (null != _defaultValue)
+			{
+				_defaultValue.ClearTypeSystemBindings();
 			}
 
 		}
@@ -220,6 +237,27 @@ namespace Boo.Lang.Compiler.Ast
 					if (null != _attributes)
 					{
 						_attributes.InitializeParent(this);
+					}
+				}
+			}
+
+		}
+		
+
+		[System.Xml.Serialization.XmlElement]
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public Expression DefaultValue
+		{
+			
+			get { return _defaultValue; }
+			set
+			{
+				if (_defaultValue != value)
+				{
+					_defaultValue = value;
+					if (null != _defaultValue)
+					{
+						_defaultValue.InitializeParent(this);
 					}
 				}
 			}

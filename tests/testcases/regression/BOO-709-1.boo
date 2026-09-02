@@ -47,12 +47,15 @@ def assertAttribute(member as System.Reflection.MemberInfo):
 	
 assertAttribute(TestClass)
 assertAttribute(typeof(TestClass).GetField("thingy"))
-assertAttribute(m = typeof(TestClass).GetMethod("foo"))
+m = typeof(TestClass).GetMethod("foo")
+assertAttribute(m)
 assertParameterAttribute(m.GetParameters()[0])
-assertAttribute(p = typeof(TestClass).GetProperty("identity"))
+p = typeof(TestClass).GetProperty("identity")
+assertAttribute(p)
 assertParameterAttribute(p.GetGetMethod().GetParameters()[0])
 assertAttribute(typeof(TestClass).GetEvent("yeah"))
-assertAttribute(c = typeof(TestClass).GetConstructors()[0])
+c = typeof(TestClass).GetConstructors()[0]
+assertAttribute(c)
 assertParameterAttribute(c.GetParameters()[0])
 assertAttribute(TestInterface)
 assertAttribute(TestEnum)

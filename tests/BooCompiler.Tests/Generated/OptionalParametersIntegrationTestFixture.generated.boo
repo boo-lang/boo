@@ -6,6 +6,10 @@ import NUnit.Framework
 class OptionalParametersIntegrationTestFixture(AbstractCompilerTestCase):
 
 	[Test]
+	def @boo_declared_defaults():
+		RunCompilerTestCase("boo-declared-defaults.boo")
+
+	[Test]
 	def @corelib_omitted_argument():
 		RunCompilerTestCase("corelib-omitted-argument.boo")
 

@@ -1490,6 +1490,8 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		}
 		if (context.parameter_modifier() != null && context.parameter_modifier().REF() != null)
 			result.Modifiers = ParameterModifiers.Ref;
+		if (context.ASSIGN() != null)
+			result.DefaultValue = (Expression)Visit(context.expression());
 		AddAttributes(result, context.attributes());
 		if (nameSplice != null)
 			return new SpliceParameterDeclaration(result, nameSplice);
@@ -4272,7 +4274,13 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		else {
 			var added = VisitExpression(context.expression());
 			if (added != null)
+			{
+				// A literal shares this path, and an assignment in one is an
+				// ordinary element rather than an argument naming anything.
+				if (node is MethodInvocationExpression)
+					Boo.Lang.Compiler.TypeSystem.Services.NamedArgumentsServices.MarkNamedArgument(added);
 				node.Arguments.Add(added);
+			}
 		}
 	}
 

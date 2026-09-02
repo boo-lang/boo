@@ -30,6 +30,10 @@ class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 		RunCompilerTestCase("BCE0005-2.boo")
 
 	[Test]
+	def @BCE0005_named_argument():
+		RunCompilerTestCase("BCE0005-named-argument.boo")
+
+	[Test]
 	def @BCE0006_1():
 		RunCompilerTestCase("BCE0006-1.boo")
 
@@ -888,6 +892,18 @@ class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 	[Test]
 	def @BCE0183_3():
 		RunCompilerTestCase("BCE0183-3.boo")
+
+	[Test]
+	def @BCE0184_1():
+		RunCompilerTestCase("BCE0184-1.boo")
+
+	[Test]
+	def @BCE0185_1():
+		RunCompilerTestCase("BCE0185-1.boo")
+
+	[Test]
+	def @BCE0185_2():
+		RunCompilerTestCase("BCE0185-2.boo")
 
 	[Test]
 	def @CannotConvertFooToInt():

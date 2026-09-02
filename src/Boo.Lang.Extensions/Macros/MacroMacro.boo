@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -240,7 +240,8 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 				|].ToBlock()
 			elif ArgumentsPattern.Count > 0:
 				case = CaseStatement()
-				case.Pattern = QuasiquoteExpression(pattern = MacroStatement(_name))
+				pattern = MacroStatement(_name)
+				case.Pattern = QuasiquoteExpression(pattern)
 				pattern.Arguments = ArgumentsPattern
 				if ArgumentsPrologue:
 					case.Body = [|

@@ -1304,6 +1304,13 @@ namespace Boo.Lang.Compiler.Ast
 						CreateReference(node, "Attributes"),
 						SerializeCollection(node, "Boo.Lang.Compiler.Ast.AttributeCollection", node.Attributes)));
 			}
+			if (ShouldSerialize(node.DefaultValue))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "DefaultValue"),
+						Serialize(node.DefaultValue)));
+			}
 			Push(mie);
 		}
 
@@ -2495,6 +2502,13 @@ namespace Boo.Lang.Compiler.Ast
 					new ExpressionPair(
 						CreateReference(node, "Attributes"),
 						SerializeCollection(node, "Boo.Lang.Compiler.Ast.AttributeCollection", node.Attributes)));
+			}
+			if (ShouldSerialize(node.DefaultValue))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "DefaultValue"),
+						Serialize(node.DefaultValue)));
 			}
 			if (ShouldSerialize(node.ParameterDeclaration))
 			{

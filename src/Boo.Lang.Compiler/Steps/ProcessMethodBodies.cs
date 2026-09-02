@@ -3272,8 +3272,45 @@ namespace Boo.Lang.Compiler.Steps
 			IType expressionType = MapWildcardType(GetConcreteExpressionType(node.Right));
 			IEntity local = DeclareLocal(reference, reference.Name, expressionType);
 			reference.Entity = local;
+			MarkDeadWhenNamedArgument(node, local);
 			BindExpressionType(reference, expressionType);
 			BindExpressionType(node, expressionType);
+		}
+
+		/// <summary>
+		/// A named argument still parses as an assignment, so a local gets
+		/// declared before anyone knows the argument names a parameter. It is
+		/// remembered here and withdrawn once that is settled.
+		/// </summary>
+		private static void MarkDeadWhenNamedArgument(BinaryExpression node, IEntity local)
+		{
+			if (!NamedArgumentsServices.IsNamedArgument(node))
+				return;
+
+			var internalLocal = local as InternalLocal;
+			if (internalLocal != null && internalLocal.Local != null)
+			{
+				internalLocal.Local.IsSynthetic = true;
+				NamedArgumentsServices.RememberDeclaredLocal(node, internalLocal);
+			}
+		}
+
+		/// <summary>
+		/// Takes back the local an argument declared before it was known to
+		/// name a parameter. It stays in the method, so nothing that walks the
+		/// locals is disturbed, but the name it took is released.
+		/// </summary>
+		private void WithdrawLocalsDeclaredByNamedArguments(MethodInvocationExpression node)
+		{
+			foreach (var argument in node.Arguments)
+			{
+				var declared = NamedArgumentsServices.DeclaredLocal(argument);
+				if (declared == null)
+					continue;
+
+				declared.IsPrivateScope = true;
+				ClearResolutionCacheFor(declared.Name);
+			}
 		}
 
 		bool IsInaccessible(IEntity info)
@@ -4252,6 +4289,7 @@ namespace Boo.Lang.Compiler.Steps
 			var targetMethod = InferGenericMethodInvocation(node, method);
 			if (targetMethod == null) return;
 
+			LayOutNamedArguments(node, targetMethod);
 			FillOmittedArguments(node, targetMethod);
 
 			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
@@ -4269,6 +4307,68 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+		}
+
+		/// <summary>
+		/// A name the callee has no parameter for is a mistake, not a value to
+		/// pass by position. False when one was found, so the call is left
+		/// alone rather than laid out against a name that means nothing.
+		/// </summary>
+		private bool RejectUnknownParameterNames(MethodInvocationExpression node, IMethodBase method, IParameter[] parameters)
+		{
+			var sound = true;
+			foreach (var argument in node.Arguments)
+			{
+				var name = NamedArgumentsServices.NameOf(argument);
+				if (name == null || NamedArgumentsServices.NamedParameter(argument, parameters) != null)
+					continue;
+
+				// A constructor is named for the type it builds, not "constructor".
+				var callee = method.EntityType == EntityType.Constructor
+					? method.DeclaringType.Name
+					: method.Name;
+
+				var suggestion = NamedArgumentsServices.ClosestParameter(name, parameters);
+				Errors.Add(suggestion == null
+					? CompilerErrorFactory.NoSuchParameter(argument, callee, name)
+					: CompilerErrorFactory.NoSuchParameter(argument, callee, name, suggestion));
+				sound = false;
+			}
+			return sound;
+		}
+
+		/// <summary>
+		/// Moves an argument that names a parameter to that parameter's place,
+		/// so that every step after this one sees an ordinary positional call.
+		/// Holes left behind are for the defaults to fill.
+		/// </summary>
+		private void LayOutNamedArguments(MethodInvocationExpression node, IMethodBase method)
+		{
+			var parameters = method.GetParameters();
+			if (!RejectUnknownParameterNames(node, method, parameters))
+				return;
+
+			if (!NamedArgumentsServices.HasNamedArgument(node.Arguments, parameters))
+				return;
+
+			Expression[] positional;
+			string conflict;
+			if (!NamedArgumentsServices.LayOut(node.Arguments, parameters, out positional, out conflict))
+			{
+				if (conflict != null)
+					Errors.Add(CompilerErrorFactory.ArgumentGivenMoreThanOnce(node, conflict));
+				return;
+			}
+
+			WithdrawLocalsDeclaredByNamedArguments(node);
+
+			node.Arguments.Clear();
+			foreach (var argument in positional)
+			{
+				if (argument == null)
+					break;
+				node.Arguments.Add(argument);
+			}
 		}
 
 		/// <summary>
@@ -4679,6 +4779,7 @@ namespace Boo.Lang.Compiler.Steps
             var ctor = GetCorrectConstructor(node, type, node.Arguments);
 			if (ctor != null)
 			{
+				LayOutNamedArguments(node, ctor);
 				BindConstructorInvocation(node, ctor);
 				if (node.NamedArguments.Count > 0)
 					ReplaceTypeInvocationByEval(type, node);
