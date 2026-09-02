@@ -3,8 +3,6 @@
   <PropertyGroup>
     <AssemblyName>BooCompiler.Tests</AssemblyName>
     <RootNamespace>BooCompiler.Tests</RootNamespace>
-    <!-- SupportingClasses/Pointers.cs exercises the unsafe testcases. -->
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFramework Condition="$([MSBuild]::IsOSPlatform('Windows'))">net10.0-windows</TargetFramework>
   </PropertyGroup>
 
@@ -18,6 +16,7 @@
     <ProjectReference Include="../../src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
     <ProjectReference Include="../../src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
     <ProjectReference Include="../../src/Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />
+    <ProjectReference Include="../BooCompilerSupportingClasses/BooCompilerSupportingClasses.csproj" />
     <ProjectReference Include="../BooSupportingClasses/BooSupportingClasses.booproj" />
     <ProjectReference Include="../BooModules/BooModules.booproj" />
     <ProjectReference Include="../../src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
