@@ -230,7 +230,7 @@ namespace BooCompiler.Tests
 			RunCompilerTestCase(@"generic-instance-overload.boo");
 		}
 		
-		[Category("FailsOnMono4")][Test]
+		[Test]
 		public void generic_list_of_callable()
 		{
 			RunCompilerTestCase(@"generic-list-of-callable.boo");

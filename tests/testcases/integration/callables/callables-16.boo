@@ -1,4 +1,3 @@
-#category FailsOnMono4
 
 def foo():
 	return "foo"

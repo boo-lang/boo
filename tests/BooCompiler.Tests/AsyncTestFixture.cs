@@ -10,7 +10,7 @@ namespace BooCompiler.Tests
 	{
 
 
-		[Category("FailsOnMono4")][Test]
+		[Test]
 		public void async_conformance_awaiting_indexer()
 		{
 			RunCompilerTestCase(@"async-conformance-awaiting-indexer.boo");
