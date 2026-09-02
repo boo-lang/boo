@@ -152,6 +152,10 @@ class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
 		RunCompilerTestCase("class-3.boo")
 
 	[Test]
+	def closure_printing_1():
+		RunCompilerTestCase("closure-printing-1.boo")
+
+	[Test]
 	def closures_1():
 		RunCompilerTestCase("closures-1.boo")
 
