@@ -1,5 +1,7 @@
 """
 called
+
+end
 """
 # a lone name closing a closure is its value, unless it names a macro
 x = 42
@@ -18,6 +20,12 @@ assert 42 == separated()
 # a name that does resolve to a macro is still the macro
 callsMacro = { print "called" }
 callsMacro()
+
+# and with no argument at all, which no token after the name can
+# tell apart from { x }
+bareMacro = { print }
+bareMacro()
+print "end"
 
 # a name with an argument after it is still a macro
 calls = []
