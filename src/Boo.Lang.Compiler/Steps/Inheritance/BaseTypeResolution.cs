@@ -64,6 +64,16 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 			}
 		}
 
+		// A constraint can name the base this type extends, so bind constraints
+		// first: base type binding asks whether they are satisfied.
+		private void ResolveGenericParameterConstraints()
+		{
+			foreach (var parameter in _typeDefinition.GenericParameters)
+				foreach (var constraint in parameter.BaseTypes.ToArray())
+					if (constraint.Entity == null)
+						NameResolutionService.ResolveTypeReference(constraint);
+		}
+
 		private INamespace ParentNamespaceOf(TypeDefinition typeDefinition)
 		{
 			return (INamespace) GetEntity(typeDefinition.ParentNode);
@@ -89,6 +99,8 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 				visitedInterfaces = new List<TypeDefinition>();
 			}
 			
+			ResolveGenericParameterConstraints();
+
 			foreach (var baseTypeRef in _typeDefinition.BaseTypes.ToArray())
 			{
 				NameResolutionService.ResolveTypeReference(baseTypeRef);

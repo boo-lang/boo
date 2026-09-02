@@ -199,6 +199,12 @@ namespace BooCompiler.Tests
 		}
 		
 		[Test]
+		public void closures_32()
+		{
+			RunCompilerTestCase(@"closures-32.boo");
+		}
+		
+		[Test]
 		public void closures_4()
 		{
 			RunCompilerTestCase(@"closures-4.boo");

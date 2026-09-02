@@ -43,8 +43,12 @@ partial class BooParser
 	private static bool IsValidMacroArgument(int tokenType) =>
 		LPAREN != tokenType && LBRACK != tokenType && DOT != tokenType && MULTIPLY != tokenType;
 
+	// A name that runs straight into the end of the closure or the end of the
+	// statement has no argument after it, so it is the value the closure
+	// yields rather than a macro to invoke.
 	protected bool IsValidClosureMacroArgument(int tokenType) =>
-		IsValidMacroArgument(tokenType) && SUBTRACT != tokenType;
+		IsValidMacroArgument(tokenType) && SUBTRACT != tokenType
+		&& RBRACE != tokenType && EOS != tokenType;
 
 	public static CompileUnit ParseReader(Boo.Lang.Parser.ParserSettings settings, string readerName, TextReader reader)
 	{

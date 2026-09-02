@@ -229,6 +229,12 @@ namespace Boo.Lang.Parser.Tests
 		}
 		
 		[Test]
+		public void closure_printing_1()
+		{
+			RunCompilerTestCase(@"closure-printing-1.boo");
+		}
+		
+		[Test]
 		public void closures_1()
 		{
 			RunCompilerTestCase(@"closures-1.boo");
@@ -808,6 +814,12 @@ namespace Boo.Lang.Parser.Tests
 		public void macro_doc()
 		{
 			RunCompilerTestCase(@"macro-doc.boo");
+		}
+		
+		[Test]
+		public void macro_argument_parens_1()
+		{
+			RunCompilerTestCase(@"macro-argument-parens-1.boo");
 		}
 		
 		[Test]
