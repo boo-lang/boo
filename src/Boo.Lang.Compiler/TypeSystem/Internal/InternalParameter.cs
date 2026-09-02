@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -85,6 +85,18 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public bool IsByRef
 		{
 			get { return _parameter.IsByRef; }
+		}
+
+		// Boo cannot declare a default yet, so one never stands in for a
+		// parameter written in Boo.
+		public bool HasDefaultValue
+		{
+			get { return false; }
+		}
+
+		public object DefaultValue
+		{
+			get { return null; }
 		}
 	}
 }

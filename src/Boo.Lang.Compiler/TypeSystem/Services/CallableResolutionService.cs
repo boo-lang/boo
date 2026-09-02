@@ -107,6 +107,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 				set { _expanded = value; }
 			}
 
+			/// <summary>
+			/// Did the call leave trailing parameters out for their defaults to
+			/// fill? Such a candidate loses to one that needs no filling in.
+			/// </summary>
+			public bool OmitsArguments
+			{
+				get { return _omitsArguments; }
+				set { _omitsArguments = value; }
+			}
+
+			bool _omitsArguments;
+
 			public int Score(int argumentIndex)
 			{
 				var score = _crs.CalculateArgumentScore(
@@ -298,11 +310,16 @@ namespace Boo.Lang.Compiler.TypeSystem
 				(expand ? candidate.Parameters.Length - 1 : candidate.Parameters.Length);
 
 			// Validate number of parameters against number of arguments
-			if (_arguments.Count < fixedParams) return false;
+			if (_arguments.Count < fixedParams && !DefaultsCoverOmittedArguments(candidate, fixedParams))
+				return false;
 			if (_arguments.Count > fixedParams && !expand) return false;
 
-			// Score each argument against a fixed parameter
-			for (int i = 0; i < fixedParams; i++)
+			candidate.OmitsArguments = _arguments.Count < fixedParams;
+
+			// Score each argument against a fixed parameter. A parameter left
+			// out has nothing to score against.
+			int suppliedParams = Math.Min(fixedParams, _arguments.Count);
+			for (int i = 0; i < suppliedParams; i++)
 				if (candidate.Score(i) < 0)
 					return false;
 
@@ -316,6 +333,19 @@ namespace Boo.Lang.Compiler.TypeSystem
 						return false;
 			}
 
+			return true;
+		}
+
+		/// <summary>
+		/// A call may leave trailing parameters out only when every one of them
+		/// carries a default to stand in.
+		/// </summary>
+		private bool DefaultsCoverOmittedArguments(Candidate candidate, int fixedParams)
+		{
+			var parameters = candidate.Parameters;
+			for (int i = _arguments.Count; i < fixedParams; ++i)
+				if (!parameters[i].HasDefaultValue)
+					return false;
 			return true;
 		}
 
@@ -366,6 +396,11 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// Non-expanded methods are better than expanded ones
 			if (!c1.Expanded && c2.Expanded) return 1;
 			if (c1.Expanded && !c2.Expanded) return -1;
+
+			// A method taking the arguments as written is better than one
+			// leaning on its defaults
+			if (!c1.OmitsArguments && c2.OmitsArguments) return 1;
+			if (c1.OmitsArguments && !c2.OmitsArguments) return -1;
 
 			// An expanded method with more fixed parameters is better
 			result = c1.Parameters.Length - c2.Parameters.Length;

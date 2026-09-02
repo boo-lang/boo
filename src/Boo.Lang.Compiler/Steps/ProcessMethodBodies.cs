@@ -4252,6 +4252,8 @@ namespace Boo.Lang.Compiler.Steps
 			var targetMethod = InferGenericMethodInvocation(node, method);
 			if (targetMethod == null) return;
 
+			FillOmittedArguments(node, targetMethod);
+
 			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
 			{
 				if (!ResolvedAsExtension(node) && TryToProcessAsExtensionInvocation(node)) return;
@@ -4267,6 +4269,83 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+		}
+
+		/// <summary>
+		/// Writes out the arguments the call left for the parameters' defaults
+		/// to supply, so that every step after this one sees an ordinary call
+		/// with nothing missing.
+		/// </summary>
+		private void FillOmittedArguments(MethodInvocationExpression node, IMethod method)
+		{
+			var parameters = method.GetParameters();
+			if (node.Arguments.Count >= parameters.Length)
+				return;
+
+			for (var i = node.Arguments.Count; i < parameters.Length; ++i)
+			{
+				if (!parameters[i].HasDefaultValue)
+					return;
+
+				var value = CreateDefaultValueLiteral(node.LexicalInfo, parameters[i]);
+				if (value == null)
+					return;
+
+				node.Arguments.Add(value);
+			}
+		}
+
+		/// <summary>
+		/// The literal standing in for a parameter's default. An enum default
+		/// arrives as its underlying integral value, so the parameter's own
+		/// type is what the literal has to claim.
+		/// </summary>
+		private Expression CreateDefaultValueLiteral(LexicalInfo lexicalInfo, IParameter parameter)
+		{
+			var value = parameter.DefaultValue;
+			if (value == null)
+			{
+				if (parameter.Type.IsValueType)
+					return CodeBuilder.CreateDefaultInvocation(lexicalInfo, parameter.Type);
+
+				var nullLiteral = CodeBuilder.CreateNullLiteral();
+				nullLiteral.LexicalInfo = lexicalInfo;
+				return nullLiteral;
+			}
+
+			var literal = LiteralForDefaultValue(value);
+			if (literal == null)
+				return null;
+
+			literal.LexicalInfo = lexicalInfo;
+			BindExpressionType(literal, parameter.Type);
+			return literal;
+		}
+
+		/// <summary>
+		/// Anything not spelled out here is left alone, so an unrecognized
+		/// default reports the call as unresolved rather than passing a value
+		/// nobody asked for.
+		/// </summary>
+		private static Expression LiteralForDefaultValue(object value)
+		{
+			// An enum default arrives as the enum itself; the literal carries
+			// its numeric value and the parameter type says what it means.
+			if (value.GetType().IsEnum)
+				return new IntegerLiteralExpression(Convert.ToInt64(value));
+
+			if (value is bool) return new BoolLiteralExpression((bool)value);
+			if (value is string) return new StringLiteralExpression((string)value);
+			if (value is char) return new CharLiteralExpression((char)value);
+
+			if (value is sbyte || value is short || value is int || value is long
+				|| value is byte || value is ushort || value is uint || value is ulong)
+				return new IntegerLiteralExpression(Convert.ToInt64(value));
+
+			if (value is float || value is double)
+				return new DoubleLiteralExpression(Convert.ToDouble(value));
+
+			return null;
 		}
 
 		private void FixAmbiguousSignatures(MethodInvocationExpression node)
