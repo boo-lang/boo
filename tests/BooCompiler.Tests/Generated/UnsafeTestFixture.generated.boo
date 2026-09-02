@@ -2,13 +2,7 @@ namespace BooCompiler.Tests
 
 import NUnit.Framework
 
-[TestFixture]
-class UnsafeTestFixture(AbstractCompilerTestCase):
-	protected override def CustomizeCompilerParameters():
-		_parameters.Unsafe = true
-
-	protected override VerifyGeneratedAssemblies as bool:
-		get: return false
+partial class UnsafeTestFixture:
 
 	[Test]
 	def @sizeof_1():

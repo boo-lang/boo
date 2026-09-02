@@ -40,186 +40,36 @@ def Main(argv as (string)):
 	
 	GenerateIntegrationTestFixtures()
 	
-	GenerateTestFixture("regression", "BooCompiler.Tests/RegressionTestFixture.generated.boo", "BooCompiler.Regression", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class RegressionTestFixture(AbstractCompilerTestCase):
-	""")
+	GenerateTestFixture("regression", "BooCompiler.Tests", "RegressionTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("errors", "BooCompiler.Tests/CompilerErrorsTestFixture.generated.boo", "BooCompiler.CompilerErrors", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
-	""")
+	GenerateTestFixture("errors", "BooCompiler.Tests", "CompilerErrorsTestFixture", "AbstractCompilerErrorsTestFixture")
 	
-	GenerateTestFixture("warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.generated.boo", "BooCompiler.CompilerWarnings", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-	import Boo.Lang.Compiler
-
-	[TestFixture]
-	class CompilerWarningsTestFixture(AbstractCompilerTestCase):
-		protected override def SetUpCompilerPipeline() as CompilerPipeline:
-			pipeline as CompilerPipeline = Boo.Lang.Compiler.Pipelines.Compile()
-			pipeline.Add(Boo.Lang.Compiler.Steps.PrintWarnings())
-			return pipeline
-	""")
+	GenerateTestFixture("warnings", "BooCompiler.Tests", "CompilerWarningsTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("macros", "BooCompiler.Tests/MacrosTestFixture.generated.boo", "BooCompiler.Macros", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class MacrosTestFixture(AbstractCompilerTestCase):
-	""")
+	GenerateTestFixture("macros", "BooCompiler.Tests", "MacrosTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("stdlib", "BooCompiler.Tests/StdlibTestFixture.generated.boo", "BooCompiler.Stdlib", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class StdlibTestFixture(AbstractCompilerTestCase):
-	""")
+	GenerateTestFixture("stdlib", "BooCompiler.Tests", "StdlibTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("async", "BooCompiler.Tests/AsyncTestFixture.generated.boo", "BooCompiler.Async", """
-	// Test suite ported from Roslyn tests found at
-	// https://github.com/dotnet/roslyn/blob/master/src/Compilers/CSharp/Test/Emit/CodeGen/CodeGenAsyncTests.cs
-	namespace BooCompiler.Tests
+	GenerateTestFixture("async", "BooCompiler.Tests", "AsyncTestFixture", "AbstractCompilerTestCase")
 
-	import NUnit.Framework
-
-	[TestFixture]
-	class AsyncTestFixture(AbstractCompilerTestCase):
-	""")
-
-	GenerateTestFixture("attributes", "BooCompiler.Tests/AttributesTestFixture.generated.boo", "BooCompiler.Attributes", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-	import Boo.Lang.Compiler
-	import Boo.Lang.Compiler.Steps
-
-	[TestFixture]
-	class AttributesTestFixture(AbstractCompilerTestCase):
-		override protected def SetUpCompilerPipeline() as CompilerPipeline:
-			pipeline as CompilerPipeline = Boo.Lang.Compiler.Pipelines.ExpandMacros()
-			pipeline.Add(PrintBoo())
-			return pipeline
-	""")
+	GenerateTestFixture("attributes", "BooCompiler.Tests", "AttributesTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("parser/roundtrip", "Boo.Lang.Parser.Tests/ParserRoundtripTestFixture.generated.boo", "Boo.Lang.Parser", """
-	namespace Boo.Lang.Parser.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class ParserRoundtripTestFixture(AbstractParserTestFixture):
-		def RunCompilerTestCase(fname as string):
-			RunParserTestCase(fname)
-	""")
+	GenerateTestFixture("parser/roundtrip", "Boo.Lang.Parser.Tests", "ParserRoundtripTestFixture", "AbstractParserTestFixture")
 	
 	PortParserTestCases()
-	GenerateTestFixture("parser/wsa", "Boo.Lang.Parser.Tests/WSAParserRoundtripTestFixture.generated.boo", "Boo.Lang.Parser", """
-	namespace Boo.Lang.Parser.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
-		def RunCompilerTestCase(fname as string):
-			RunParserTestCase(fname)
-	""")
+	GenerateTestFixture("parser/wsa", "Boo.Lang.Parser.Tests", "WSAParserRoundtripTestFixture", "AbstractWSAParserTestFixture")
 	
-	GenerateTestFixture("semantics", "BooCompiler.Tests/SemanticsTestFixture.generated.boo", "BooCompiler.Semantics", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-	import Boo.Lang.Compiler
-	import Boo.Lang.Compiler.Pipelines
-
-	[TestFixture]
-	class SemanticsTestFixture(AbstractCompilerTestCase):
-		protected override def SetUpCompilerPipeline() as CompilerPipeline:
-			return CompileToBoo()
-	""")
+	GenerateTestFixture("semantics", "BooCompiler.Tests", "SemanticsTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("ducky", "BooCompiler.Tests/DuckyTestFixture.generated.boo", "BooCompiler.Ducky", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-	import Boo.Lang.Compiler
-	import Boo.Lang.Compiler.Pipelines
-
-	[TestFixture]
-	class DuckyTestFixture(AbstractCompilerTestCase):
-		protected override def CustomizeCompilerParameters():
-			_parameters.Ducky = true
-	""")
+	GenerateTestFixture("ducky", "BooCompiler.Tests", "DuckyTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("net2/generics", "BooCompiler.Tests/GenericsTestFixture.generated.boo", "BooCompiler.Generics", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class GenericsTestFixture(AbstractCompilerTestCase):
-		override protected def RunCompilerTestCase(name as string):
-			Assert.Ignore("Test requires .net 2.") if System.Environment.Version.Major < 2
-			resolver as System.ResolveEventHandler = InstallAssemblyResolver(BaseTestCasesPath)
-			try:
-				super.RunCompilerTestCase(name)
-			ensure:
-				RemoveAssemblyResolver(resolver)
-
-		override protected def CopyDependencies():
-			CopyAssembliesFromTestCasePath()
-	""")
+	GenerateTestFixture("net2/generics", "BooCompiler.Tests", "GenericsTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.generated.boo", "BooCompiler.Net2Errors", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class Net2ErrorsTestFixture(AbstractCompilerErrorsTestFixture):
-		override protected def RunCompilerTestCase(name as string):
-			Assert.Ignore("Test requires .net 2.") if System.Environment.Version.Major < 2
-			super.RunCompilerTestCase(name)
-	""")
+	GenerateTestFixture("net2/errors", "BooCompiler.Tests", "Net2ErrorsTestFixture", "AbstractCompilerErrorsTestFixture")
 	
-	GenerateTestFixture("unsafe", "BooCompiler.Tests/UnsafeTestFixture.generated.boo", "BooCompiler.Unsafe", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class UnsafeTestFixture(AbstractCompilerTestCase):
-		protected override def CustomizeCompilerParameters():
-			_parameters.Unsafe = true
-
-		protected override VerifyGeneratedAssemblies as bool:
-			get: return false
-	""")
+	GenerateTestFixture("unsafe", "BooCompiler.Tests", "UnsafeTestFixture", "AbstractCompilerTestCase")
 	
-	GenerateTestFixture("unsafe/errors", "BooCompiler.Tests/UnsafeErrorsTestFixture.generated.boo", "BooCompiler.UnsafeErrors", """
-	namespace BooCompiler.Tests
-
-	import NUnit.Framework
-
-	[TestFixture]
-	class UnsafeErrorsTestFixture(AbstractCompilerErrorsTestFixture):
-		protected override def CustomizeCompilerParameters():
-			_parameters.Unsafe = true
-	""")
+	GenerateTestFixture("unsafe/errors", "BooCompiler.Tests", "UnsafeErrorsTestFixture", "AbstractCompilerErrorsTestFixture")
 	
 
 def PortParserTestCases():
@@ -260,7 +110,7 @@ def MapPath(path):
 #	return Path.Combine(Project.BaseDirectory, path)
 	return Path.GetFullPath(path)
 
-def WriteTestCases(writer as TextWriter, baseDir as string, boo as bool):
+def WriteTestCases(writer as TextWriter, baseDir as string):
 	count, ignored = 0, 0;
 	testCasePath = MapPath("testcases/${baseDir}");
 	System.IO.Directory.CreateDirectory(testCasePath);
@@ -280,25 +130,16 @@ def WriteTestCases(writer as TextWriter, baseDir as string, boo as bool):
 
 		name = GetTestCaseName(fname)
 		testCase = NormalizePath(Path.GetFileName(fname))
-		if boo:
-			# A testcase is free to be named for a Boo keyword, so the method
-			# it generates is always written escaped. The name it compiles to
-			# is the same either way.
-			writer.Write("""
+		# A testcase is free to be named for a Boo keyword, so the method it
+		# generates is always written escaped. The name it compiles to is the
+		# same either way.
+		writer.Write("""
 	${attribute}[Test]
 	def @${name}():
 		RunCompilerTestCase("${testCase}")
 """)
-		else:
-			writer.Write("""
-		${attribute}[Test]
-		public void ${name}()
-		{
-			RunCompilerTestCase(@"${testCase}");
-		}
-		""")
 	print "{0,5} {1,7}  {2}" % (count, ignored, baseDir)
-	
+
 def CategoryAttributeFor(testFile as string):
 """
 If the first line of the test case file starts with // category CategoryName 
@@ -318,30 +159,33 @@ def FirstLineOf(fname as string):
 	using reader=File.OpenText(fname):
 		return reader.ReadLine()
 
-def GenerateTestFixture(srcDir as string, targetFile as string, fixtureAssembly as string, header as string):
-	boo = targetFile.EndsWith(".boo")
-	using writer=StreamWriter(MapPath(targetFile)):
-		# Boo has no closing braces to indent against, so the header stands on
-		# its own rather than carrying the blank lines ReIndent leaves around it.
-		if boo:
-			writer.Write(ReIndent(header).Trim() + "\n")
-		else:
-			writer.Write(ReIndent(header))
-		WriteTestCases(writer, srcDir, boo)
-		if boo:
-			writer.Write("""
+def GenerateTestFixture(srcDir as string, project as string, fixtureName as string, baseClass as string):
+	"""
+	Writes one test per testcase file.
+
+	A fixture with nothing to say beyond its testcases is written whole. One
+	that overrides something keeps a hand written half declaring the class,
+	and this becomes the other half of the partial, so what is said by hand
+	survives a regeneration.
+	"""
+	handWritten = File.Exists(MapPath("${project}/${fixtureName}.boo"))
+
+	declaration = "partial class ${fixtureName}:"
+	unless handWritten:
+		declaration = "[TestFixture]\nclass ${fixtureName}(${baseClass}):"
+
+	System.IO.Directory.CreateDirectory(MapPath("${project}/Generated"))
+	using writer=StreamWriter(MapPath("${project}/Generated/${fixtureName}.generated.boo")):
+		writer.Write("""namespace ${project}
+
+import NUnit.Framework
+
+${declaration}
+""")
+		WriteTestCases(writer, srcDir)
+		writer.Write("""
 	override protected def GetRelativeTestCasesPath() as string:
 		return "${NormalizePath(srcDir)}"
-""")
-		else:
-			writer.Write("""
-
-		override protected string GetRelativeTestCasesPath()
-		{
-			return "${NormalizePath(srcDir)}";
-		}
-	}
-}
 """)
 
 def NormalizePath(path as string):
@@ -360,29 +204,6 @@ def IntegrationTestFixtureName(dir as string):
 	return "${baseName}IntegrationTestFixture"
 
 def GenerateIntegrationTestFixture(dir as string):
-	fixtureName = IntegrationTestFixtureName(dir)
-	header = """
-	namespace BooCompiler.Tests
+	GenerateTestFixture(dir, "BooCompiler.Tests", IntegrationTestFixtureName(dir), "AbstractCompilerTestCase")
 
-	import NUnit.Framework
-
-	[TestFixture]
-	class ${fixtureName}(AbstractCompilerTestCase):
-	"""
-	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.generated.boo", "BooCompiler.$(fixtureName.Replace('TestFixture', ''))", header)
-
-def ReIndent(code as string):	
-	lines = code.Replace("\r\n", "\n").Split(char('\n'))
-	nonEmptyLines = line for line in lines if len(line.Trim())
-
-	indentation = /(\s*)/.Match(nonEmptyLines.First()).Groups[0].Value
-	return code if len(indentation) == 0
-
-	buffer = System.Text.StringBuilder()
-	for line in lines:
-		if line.StartsWith(indentation):
-			buffer.AppendLine(line[len(indentation):])
-		else:
-			buffer.AppendLine(line)
-	return buffer.ToString()
 	

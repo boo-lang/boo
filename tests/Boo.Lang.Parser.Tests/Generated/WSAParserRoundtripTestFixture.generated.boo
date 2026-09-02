@@ -2,10 +2,7 @@ namespace Boo.Lang.Parser.Tests
 
 import NUnit.Framework
 
-[TestFixture]
-class WSAParserRoundtripTestFixture(AbstractWSAParserTestFixture):
-	def RunCompilerTestCase(fname as string):
-		RunParserTestCase(fname)
+partial class WSAParserRoundtripTestFixture:
 
 	[Test]
 	def @and_or_1():

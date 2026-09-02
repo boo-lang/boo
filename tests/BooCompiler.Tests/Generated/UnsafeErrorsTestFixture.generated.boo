@@ -2,10 +2,7 @@ namespace BooCompiler.Tests
 
 import NUnit.Framework
 
-[TestFixture]
-class UnsafeErrorsTestFixture(AbstractCompilerErrorsTestFixture):
-	protected override def CustomizeCompilerParameters():
-		_parameters.Unsafe = true
+partial class UnsafeErrorsTestFixture:
 
 	[Test]
 	def @BCE0168_1():

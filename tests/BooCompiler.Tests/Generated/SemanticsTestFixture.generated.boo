@@ -1,13 +1,8 @@
 namespace BooCompiler.Tests
 
 import NUnit.Framework
-import Boo.Lang.Compiler
-import Boo.Lang.Compiler.Pipelines
 
-[TestFixture]
-class SemanticsTestFixture(AbstractCompilerTestCase):
-	protected override def SetUpCompilerPipeline() as CompilerPipeline:
-		return CompileToBoo()
+partial class SemanticsTestFixture:
 
 	[Test]
 	def @abstract_method0():
