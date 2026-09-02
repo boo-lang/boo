@@ -209,6 +209,24 @@ public class ConsumingBooFromCSharpTest
 	}
 
 	[Test]
+	public void OmitsABooDeclaredOptionalArgument()
+	{
+		// The default has to reach metadata, not just Boo's own call sites, or
+		// no other language can leave the argument out.
+		Assert.AreEqual("Hi, Jude!", Defaults.Greet("Jude"));
+		Assert.AreEqual("Hey, Jude!", Defaults.Greet("Jude", "Hey"));
+		Assert.AreEqual(6, Defaults.Sum(1));
+		Assert.AreEqual(9, Defaults.Sum(1, 5));
+	}
+
+	[Test]
+	public void NamesABooDeclaredParameter()
+	{
+		Assert.AreEqual("Yo, Jude!", Defaults.Greet(greeting: "Yo", name: "Jude"));
+		Assert.AreEqual(8, Defaults.Sum(1, c: 5));
+	}
+
+	[Test]
 	public void CallsThroughABooPInvokeDeclaration()
 	{
 		// The marshalling descriptor is the whole point: lose it and the string
