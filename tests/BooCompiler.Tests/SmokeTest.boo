@@ -307,6 +307,10 @@ print [| 42 |]"""
 		RunCompilerTestCase("enumeratoritemtype2.boo")
 
 	[Test]
+	def EnumeratorItemTypeForOverloadedGetEnumerator():
+		RunCompilerTestCase("enumeratoritemtype3.boo")
+
+	[Test]
 	def UnaryMinusWithLocal():
 		RunCompilerTestCase("unary0.boo")
 

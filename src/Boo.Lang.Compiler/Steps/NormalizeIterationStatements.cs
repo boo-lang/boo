@@ -434,24 +434,14 @@ namespace Boo.Lang.Compiler.Steps
 				return CurrentEnumeratorType;
 
 			IType bestEnumeratorType = null;
-			_candidates.Clear();
 
 			//resolution order:
 			//1) type contains an applicable GetEnumerator() [whether or not type implements IEnumerator (as C# does)]
-			CurrentEnumeratorType.Resolve(_candidates, "GetEnumerator", EntityType.Method);
-			foreach (IEntity candidate in _candidates)
+			IMethod getEnumerator = TypeSystemServices.FindGetEnumerator(CurrentEnumeratorType);
+			if (null != getEnumerator)
 			{
-				IMethod m = (IMethod) candidate;
-				if (null != m.GenericInfo || 0 != m.GetParameters().Length || !m.IsPublic)
-					continue; //only check public non-generic GetEnumerator with no argument
-
-				if (!IsAssignableFrom(TypeSystemServices.IEnumeratorGenericType, m.ReturnType)
-				    && !IsAssignableFrom(TypeSystemServices.IEnumeratorType, m.ReturnType))
-					continue; //GetEnumerator does not return an IEnumerator or IEnumerator[of T]
-
-				bestEnumeratorType = m.ReturnType;
-				_bestGetEnumerator = m;
-				break;
+				bestEnumeratorType = getEnumerator.ReturnType;
+				_bestGetEnumerator = getEnumerator;
 			}
 
 			//2) type explicitly implements IEnumerable[of T]

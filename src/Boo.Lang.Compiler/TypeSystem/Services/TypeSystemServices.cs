@@ -488,17 +488,42 @@ namespace Boo.Lang.Compiler.TypeSystem
 			return ObjectType;
 		}
 
-		private static IType GetExplicitEnumeratorItemType(IType iteratorType)
+		private IType GetExplicitEnumeratorItemType(IType iteratorType)
 		{
-			var ge = iteratorType.GetMembers().OfType<IMethod>().FirstOrDefault(m => m.Name == "GetEnumerator");
-			if (ge == null) return null;
-			var eType = ge.ReturnType;
-			var current = eType.GetMembers().OfType<IProperty>().FirstOrDefault(p => p.Name == "Current");
-			var itemType = current?.Type;
+			var getEnumerator = FindGetEnumerator(iteratorType);
+			if (null == getEnumerator) return null;
+
+			var current = getEnumerator.ReturnType.GetMembers()
+				.OfType<IProperty>().FirstOrDefault(p => p.Name == "Current");
+			if (null == current) return null;
 
 			// An enumerator handing back 'ref T' still fills the loop variable
 			// with a value
-			return itemType != null && itemType.IsByRef ? itemType.ElementType : itemType;
+			return current.Type.IsByRef ? current.Type.ElementType : current.Type;
+		}
+
+		/// <summary>
+		/// The GetEnumerator a for statement would call on the type: public,
+		/// taking no arguments, not generic, and returning an enumerator.
+		/// Whoever asks what the loop variable holds and whoever emits the loop
+		/// have to agree on which one that is.
+		/// </summary>
+		public IMethod FindGetEnumerator(IType type)
+		{
+			var candidates = new List<IEntity>();
+			type.Resolve(candidates, "GetEnumerator", EntityType.Method);
+
+			foreach (IMethod candidate in candidates.OfType<IMethod>())
+			{
+				if (null != candidate.GenericInfo || 0 != candidate.GetParameters().Length || !candidate.IsPublic)
+					continue;
+
+				if (IsAssignableFrom(IEnumeratorGenericType, candidate.ReturnType)
+					|| IsAssignableFrom(IEnumeratorType, candidate.ReturnType))
+					return candidate;
+			}
+
+			return null;
 		}
 
 		public static IType GetExpressionType(Expression node)
