@@ -40,94 +40,83 @@ def Main(argv as (string)):
 	
 	GenerateIntegrationTestFixtures()
 	
-	GenerateTestFixture("regression", "BooCompiler.Tests/RegressionTestFixture.cs", "BooCompiler.Regression", """
+	GenerateTestFixture("regression", "BooCompiler.Tests/RegressionTestFixture.generated.boo", "BooCompiler.Regression", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class RegressionTestFixture : AbstractCompilerTestCase
-		{
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class RegressionTestFixture(AbstractCompilerTestCase):
 	""")
 	
-	GenerateTestFixture("errors", "BooCompiler.Tests/CompilerErrorsTestFixture.cs", "BooCompiler.CompilerErrors", """
+	GenerateTestFixture("errors", "BooCompiler.Tests/CompilerErrorsTestFixture.generated.boo", "BooCompiler.CompilerErrors", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class CompilerErrorsTestFixture : AbstractCompilerErrorsTestFixture
-		{
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 	""")
 	
-	GenerateTestFixture("warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.cs", "BooCompiler.CompilerWarnings", """
+	GenerateTestFixture("warnings", "BooCompiler.Tests/CompilerWarningsTestFixture.generated.boo", "BooCompiler.CompilerWarnings", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-		using Boo.Lang.Compiler;
-	
-		[TestFixture]
-		public class CompilerWarningsTestFixture : AbstractCompilerTestCase
-		{
-			protected override CompilerPipeline SetUpCompilerPipeline()
-			{
-				CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.Compile();
-				pipeline.Add(new Boo.Lang.Compiler.Steps.PrintWarnings());
-				return pipeline;
-			}
+
+	import NUnit.Framework
+	import Boo.Lang.Compiler
+
+	[TestFixture]
+	class CompilerWarningsTestFixture(AbstractCompilerTestCase):
+		protected override def SetUpCompilerPipeline() as CompilerPipeline:
+			pipeline as CompilerPipeline = Boo.Lang.Compiler.Pipelines.Compile()
+			pipeline.Add(Boo.Lang.Compiler.Steps.PrintWarnings())
+			return pipeline
 	""")
 	
-	GenerateTestFixture("macros", "BooCompiler.Tests/MacrosTestFixture.cs", "BooCompiler.Macros", """
+	GenerateTestFixture("macros", "BooCompiler.Tests/MacrosTestFixture.generated.boo", "BooCompiler.Macros", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class MacrosTestFixture : AbstractCompilerTestCase
-		{
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class MacrosTestFixture(AbstractCompilerTestCase):
 	""")
 	
-	GenerateTestFixture("stdlib", "BooCompiler.Tests/StdlibTestFixture.cs", "BooCompiler.Stdlib", """
+	GenerateTestFixture("stdlib", "BooCompiler.Tests/StdlibTestFixture.generated.boo", "BooCompiler.Stdlib", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class StdlibTestFixture : AbstractCompilerTestCase
-		{
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class StdlibTestFixture(AbstractCompilerTestCase):
 	""")
 	
-	GenerateTestFixture("async", "BooCompiler.Tests/AsyncTestFixture.cs", "BooCompiler.Async", """
+	GenerateTestFixture("async", "BooCompiler.Tests/AsyncTestFixture.generated.boo", "BooCompiler.Async", """
 	// Test suite ported from Roslyn tests found at
 	// https://github.com/dotnet/roslyn/blob/master/src/Compilers/CSharp/Test/Emit/CodeGen/CodeGenAsyncTests.cs
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
 
-		[TestFixture]
-		public class AsyncTestFixture : AbstractCompilerTestCase
-		{
+	import NUnit.Framework
+
+	[TestFixture]
+	class AsyncTestFixture(AbstractCompilerTestCase):
 	""")
 
-	GenerateTestFixture("attributes", "BooCompiler.Tests/AttributesTestFixture.cs", "BooCompiler.Attributes", """
+	GenerateTestFixture("attributes", "BooCompiler.Tests/AttributesTestFixture.generated.boo", "BooCompiler.Attributes", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-		using Boo.Lang.Compiler;
-		using Boo.Lang.Compiler.Steps;
-	
-		[TestFixture]
-		public class AttributesTestFixture : AbstractCompilerTestCase
-		{
-			override protected CompilerPipeline SetUpCompilerPipeline()
-			{
-				CompilerPipeline pipeline = new Boo.Lang.Compiler.Pipelines.ExpandMacros();
-				pipeline.Add(new PrintBoo());
-				return pipeline;
-			}
+
+	import NUnit.Framework
+	import Boo.Lang.Compiler
+	import Boo.Lang.Compiler.Steps
+
+	[TestFixture]
+	class AttributesTestFixture(AbstractCompilerTestCase):
+		override protected def SetUpCompilerPipeline() as CompilerPipeline:
+			pipeline as CompilerPipeline = Boo.Lang.Compiler.Pipelines.ExpandMacros()
+			pipeline.Add(PrintBoo())
+			return pipeline
 	""")
 	
-	GenerateTestFixture("parser/roundtrip", "Boo.Lang.Parser.Tests/ParserRoundtripTestFixture.boo", "Boo.Lang.Parser", """
+	GenerateTestFixture("parser/roundtrip", "Boo.Lang.Parser.Tests/ParserRoundtripTestFixture.generated.boo", "Boo.Lang.Parser", """
 	namespace Boo.Lang.Parser.Tests
 
 	import NUnit.Framework
@@ -139,7 +128,7 @@ def Main(argv as (string)):
 	""")
 	
 	PortParserTestCases()
-	GenerateTestFixture("parser/wsa", "Boo.Lang.Parser.Tests/WSAParserRoundtripTestFixture.boo", "Boo.Lang.Parser", """
+	GenerateTestFixture("parser/wsa", "Boo.Lang.Parser.Tests/WSAParserRoundtripTestFixture.generated.boo", "Boo.Lang.Parser", """
 	namespace Boo.Lang.Parser.Tests
 
 	import NUnit.Framework
@@ -150,112 +139,86 @@ def Main(argv as (string)):
 			RunParserTestCase(fname)
 	""")
 	
-	GenerateTestFixture("semantics", "BooCompiler.Tests/SemanticsTestFixture.cs", "BooCompiler.Semantics", """
+	GenerateTestFixture("semantics", "BooCompiler.Tests/SemanticsTestFixture.generated.boo", "BooCompiler.Semantics", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-		using Boo.Lang.Compiler;
-		using Boo.Lang.Compiler.Pipelines;
-	
-		[TestFixture]
-		public class SemanticsTestFixture : AbstractCompilerTestCase
-		{
-			protected override CompilerPipeline SetUpCompilerPipeline()
-			{
-				return new CompileToBoo();
-			}
+
+	import NUnit.Framework
+	import Boo.Lang.Compiler
+	import Boo.Lang.Compiler.Pipelines
+
+	[TestFixture]
+	class SemanticsTestFixture(AbstractCompilerTestCase):
+		protected override def SetUpCompilerPipeline() as CompilerPipeline:
+			return CompileToBoo()
 	""")
 	
-	GenerateTestFixture("ducky", "BooCompiler.Tests/DuckyTestFixture.cs", "BooCompiler.Ducky", """
+	GenerateTestFixture("ducky", "BooCompiler.Tests/DuckyTestFixture.generated.boo", "BooCompiler.Ducky", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-		using Boo.Lang.Compiler;
-		using Boo.Lang.Compiler.Pipelines;
-	
-		[TestFixture]
-		public class DuckyTestFixture : AbstractCompilerTestCase
-		{
-			protected override void CustomizeCompilerParameters()
-			{
-				_parameters.Ducky = true;
-			}
+
+	import NUnit.Framework
+	import Boo.Lang.Compiler
+	import Boo.Lang.Compiler.Pipelines
+
+	[TestFixture]
+	class DuckyTestFixture(AbstractCompilerTestCase):
+		protected override def CustomizeCompilerParameters():
+			_parameters.Ducky = true
 	""")
 	
-	GenerateTestFixture("net2/generics", "BooCompiler.Tests/GenericsTestFixture.cs", "BooCompiler.Generics", """
+	GenerateTestFixture("net2/generics", "BooCompiler.Tests/GenericsTestFixture.generated.boo", "BooCompiler.Generics", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class GenericsTestFixture : AbstractCompilerTestCase
-		{
-			override protected void RunCompilerTestCase(string name)
-			{
-				if (System.Environment.Version.Major < 2) Assert.Ignore("Test requires .net 2.");
-				System.ResolveEventHandler resolver = InstallAssemblyResolver(BaseTestCasesPath);
-				try
-				{
-					base.RunCompilerTestCase(name);
-				}
-				finally
-				{
-					RemoveAssemblyResolver(resolver);
-				}
-			}
-	
-			override protected void CopyDependencies()
-			{
-				CopyAssembliesFromTestCasePath();
-			}
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class GenericsTestFixture(AbstractCompilerTestCase):
+		override protected def RunCompilerTestCase(name as string):
+			Assert.Ignore("Test requires .net 2.") if System.Environment.Version.Major < 2
+			resolver as System.ResolveEventHandler = InstallAssemblyResolver(BaseTestCasesPath)
+			try:
+				super.RunCompilerTestCase(name)
+			ensure:
+				RemoveAssemblyResolver(resolver)
+
+		override protected def CopyDependencies():
+			CopyAssembliesFromTestCasePath()
 	""")
 	
-	GenerateTestFixture("net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.cs", "BooCompiler.Net2Errors", """
+	GenerateTestFixture("net2/errors", "BooCompiler.Tests/Net2ErrorsTestFixture.generated.boo", "BooCompiler.Net2Errors", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class Net2ErrorsTestFixture : AbstractCompilerErrorsTestFixture
-		{
-			override protected void RunCompilerTestCase(string name)
-			{
-				if (System.Environment.Version.Major < 2) Assert.Ignore("Test requires .net 2.");
-				base.RunCompilerTestCase(name);
-			}
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class Net2ErrorsTestFixture(AbstractCompilerErrorsTestFixture):
+		override protected def RunCompilerTestCase(name as string):
+			Assert.Ignore("Test requires .net 2.") if System.Environment.Version.Major < 2
+			super.RunCompilerTestCase(name)
 	""")
 	
-	GenerateTestFixture("unsafe", "BooCompiler.Tests/UnsafeTestFixture.cs", "BooCompiler.Unsafe", """
+	GenerateTestFixture("unsafe", "BooCompiler.Tests/UnsafeTestFixture.generated.boo", "BooCompiler.Unsafe", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class UnsafeTestFixture : AbstractCompilerTestCase
-		{
-			protected override void CustomizeCompilerParameters()
-			{
-				_parameters.Unsafe = true;
-			}
-			
-			protected override bool VerifyGeneratedAssemblies
-			{
-				get { return false; }
-			}
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class UnsafeTestFixture(AbstractCompilerTestCase):
+		protected override def CustomizeCompilerParameters():
+			_parameters.Unsafe = true
+
+		protected override VerifyGeneratedAssemblies as bool:
+			get: return false
 	""")
 	
-	GenerateTestFixture("unsafe/errors", "BooCompiler.Tests/UnsafeErrorsTestFixture.cs", "BooCompiler.UnsafeErrors", """
+	GenerateTestFixture("unsafe/errors", "BooCompiler.Tests/UnsafeErrorsTestFixture.generated.boo", "BooCompiler.UnsafeErrors", """
 	namespace BooCompiler.Tests
-	{
-		using NUnit.Framework;
-	
-		[TestFixture]
-		public class UnsafeErrorsTestFixture : AbstractCompilerErrorsTestFixture
-		{
-			protected override void CustomizeCompilerParameters()
-			{
-				_parameters.Unsafe = true;
-			}
+
+	import NUnit.Framework
+
+	[TestFixture]
+	class UnsafeErrorsTestFixture(AbstractCompilerErrorsTestFixture):
+		protected override def CustomizeCompilerParameters():
+			_parameters.Unsafe = true
 	""")
 	
 
@@ -318,9 +281,12 @@ def WriteTestCases(writer as TextWriter, baseDir as string, boo as bool):
 		name = GetTestCaseName(fname)
 		testCase = NormalizePath(Path.GetFileName(fname))
 		if boo:
+			# A testcase is free to be named for a Boo keyword, so the method
+			# it generates is always written escaped. The name it compiles to
+			# is the same either way.
 			writer.Write("""
 	${attribute}[Test]
-	def ${name}():
+	def @${name}():
 		RunCompilerTestCase("${testCase}")
 """)
 		else:
@@ -395,15 +361,15 @@ def IntegrationTestFixtureName(dir as string):
 
 def GenerateIntegrationTestFixture(dir as string):
 	fixtureName = IntegrationTestFixtureName(dir)
-	header = """namespace BooCompiler.Tests
-{
-	using NUnit.Framework;
+	header = """
+	namespace BooCompiler.Tests
+
+	import NUnit.Framework
 
 	[TestFixture]
-	public class ${fixtureName} : AbstractCompilerTestCase
-	{
+	class ${fixtureName}(AbstractCompilerTestCase):
 	"""
-	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.cs", "BooCompiler.$(fixtureName.Replace('TestFixture', ''))", header)
+	GenerateTestFixture(dir, "BooCompiler.Tests/${fixtureName}.generated.boo", "BooCompiler.$(fixtureName.Replace('TestFixture', ''))", header)
 
 def ReIndent(code as string):	
 	lines = code.Replace("\r\n", "\n").Split(char('\n'))
