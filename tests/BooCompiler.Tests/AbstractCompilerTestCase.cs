@@ -78,6 +78,7 @@ namespace BooCompiler.Tests
 			_parameters.OutputWriter = _output = new StringWriter();
 			_parameters.Pipeline = SetUpCompilerPipeline();
 			_parameters.References.Add(typeof(AbstractCompilerTestCase).Assembly);
+			_parameters.References.Add(typeof(SupportingClasses.ByRef).Assembly);
 			_parameters.References.Add(typeof(BooCompiler).Assembly);
 			Directory.CreateDirectory(TestOutputPath);
 			_parameters.OutputAssembly = Path.Combine(TestOutputPath, "testcase.exe");
@@ -108,6 +109,7 @@ namespace BooCompiler.Tests
 			CopyAssembly(typeof(Boo.Lang.Extensions.MacroMacro).Assembly);
 			CopyAssembly(GetType().Assembly);
 			CopyAssembly(Assembly.Load("BooSupportingClasses"));
+			CopyAssembly(typeof(SupportingClasses.ByRef).Assembly);
 #if !MSBUILD
 			CopyAssembly(System.Reflection.Assembly.Load("BooModules"));
 #endif
