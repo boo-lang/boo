@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -31,21 +31,14 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Environments
 
 class CustomTypeSystem(TypeSystemServices):
-	def constructor(context as CompilerContext):
-		super(context)
-		
 	override def PreparePrimitives():
 		self.AddPrimitiveType("string", self.StringType)
 		self.AddPrimitiveType("void", self.VoidType)
-		
-class InitializeCustomTypeSystem(AbstractCompilerStep):
-	override def Run():
-		self.Context.TypeSystemServices = CustomTypeSystem(self.Context)
 
 pipeline = Pipelines.CompileToMemory()
-pipeline.Replace(InitializeTypeSystemServices, InitializeCustomTypeSystem())
 pipeline.RemoveAt(pipeline.Find(IntroduceGlobalNamespaces))
 
 code = """
@@ -58,6 +51,7 @@ compiler = BooCompiler()
 compiler.Parameters.Input.Add(IO.StringInput("code.boo", code))
 compiler.Parameters.Pipeline = pipeline
 compiler.Parameters.OutputType = CompilerOutputType.Library
+compiler.Parameters.Environment = DeferredEnvironment() { TypeSystemServices: { CustomTypeSystem() } }
 
 result = compiler.Run()
 print result.Errors.ToString(true)

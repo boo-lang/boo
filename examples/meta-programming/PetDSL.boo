@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -28,13 +28,13 @@
 
 
 
-import Compiler.MetaProgramming
+import Boo.Lang.Compiler.MetaProgramming
 
 dsl = [|
 
 	namespace PetDSL
 
-	import Compiler.MetaProgramming
+	import Boo.Lang.Compiler.MetaProgramming
 	import Compiler.Ast
 	
 	class Pet:

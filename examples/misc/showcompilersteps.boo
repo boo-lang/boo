@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -152,12 +152,12 @@ printed if binding information is available.
 class BooSyntheticPrinterVisitor(BooPrinterVisitor):
 	def constructor(writer as TextWriter):
 		super(writer)
-	override def Visit(node as Node) as bool:
+	override def Visit(node as Node):
 		if node is not null and node.IsSynthetic:
 			WriteIndented("// synthetic")
 			WriteLine()
 			WriteIndented("")
-		return super(node)
+		super(node)
 			
 class BooTypePrinterVisitor(BooPrinterVisitor):
 	_showexp = false
@@ -171,8 +171,8 @@ class BooTypePrinterVisitor(BooPrinterVisitor):
 		_shorten = shorten
 		_showbindings = showbindings
 
-	override def Visit(node as Node) as bool:
-		return true if node is null
+	override def Visit(node as Node):
+		return if node is null
 		if node.IsSynthetic:
 			WriteIndented("// synthetic")
 			WriteLine()
@@ -197,10 +197,9 @@ class BooTypePrinterVisitor(BooPrinterVisitor):
 				s = "<_${junk}>"
 				Write(s)
 				
-		result = super(node)
+		super(node)
 		if tagname != "":
 			WriteIndented("</"+tagname+">")
-		return result
 
 	def ShortName(t as object):
 		t2 = t.ToString(). \

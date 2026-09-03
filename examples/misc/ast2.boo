@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -27,11 +27,11 @@
 #endregion
 
 import System
-import Boo.Lang.Ast
-import Boo.Lang.Ast.Visitors
+import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.Ast.Visitors
 
 def printNode(node as Node):
-	BooPrinterVisitor(Console.Out).Switch(node)
+	node.Accept(BooPrinterVisitor(Console.Out))
 
 be = BinaryExpression(BinaryOperatorType.Assign,
 						ReferenceExpression("foo"),

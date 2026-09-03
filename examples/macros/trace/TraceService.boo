@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -39,21 +39,22 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 
 
-class TraceService (IDisposable):
-	context as CompilerContext
+class TraceService(AbstractCompilerComponent):
 	locations = List[of string]()
 
-	def constructor(context as CompilerContext):
-		.context = context
+	#the environment hands a service its context as soon as it instantiates one
+	override def Initialize(context as CompilerContext):
+		super(context)
+		context.Parameters.Pipeline.After += OnPipelineFinished
 
 	def AddLocation(lexicalInfo as LexicalInfo, method as Method):
 		locations.Add("${lexicalInfo.ToString()} : ${method.ToString()}")
 
-	def Dispose():
-		if len(context.Errors):
+	private def OnPipelineFinished(sender, args as CompilerPipelineEventArgs):
+		if len(Context.Errors):
 			return #do not write file if there was an error during compilation
 
-		output = context.Parameters.OutputAssembly
+		output = Context.Parameters.OutputAssembly
 		return unless output #do not write file if there no output assembly (eg. compilation in memory)
 
 		print "NOTICE: writing trace locations to file `${output}.traces`"

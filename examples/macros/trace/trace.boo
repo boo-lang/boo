@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -48,14 +48,12 @@ Exercise:
 """
 
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.Environments
 import Boo.Lang.PatternMatching
 
 
 macro trace(message as string):
-	try:
-		service = Context.GetService[of TraceService]()
-	except as System.ArgumentException:
-		Context.RegisterService[of TraceService](service = TraceService(Context))
+	service = My[of TraceService].Instance
 
 	service.AddLocation(trace.LexicalInfo, trace.GetAncestor[of Method]())
 	yield [| System.Diagnostics.Trace.WriteLine($message) |]

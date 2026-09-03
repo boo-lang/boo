@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -31,10 +31,10 @@ import Boo.Lang.Compiler.Ast.Visitors
 import System
 
 def print(node as Node):
-	BooPrinterVisitor(Console.Out).Switch(node)
+	node.Accept(BooPrinterVisitor(Console.Out))
 	
 def CreateNotExpression(e as Expression):
-	return UnaryExpression(Operand: e, Operator: UnaryOperatorType.Not)
+	return UnaryExpression(Operand: e, Operator: UnaryOperatorType.LogicalNot)
 
 e = ExpressionStatement(
 			Expression: be = BinaryExpression(BinaryOperatorType.Assign,

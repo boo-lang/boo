@@ -10,8 +10,9 @@ date. A file git does not know about is new, and gets the current year.
 Nothing already carrying a header is touched.
 
 Given files, it stamps those. Given directories, it walks them. Given nothing,
-it looks at src and examples, which is what the NAnt target it replaces did. tests is left out on purpose: nearly everything under
-it is a test case a few lines long, and a BSD block on each would be absurd.
+it looks at src and examples. tests is left out on purpose: nearly everything
+under it is a test case a few lines long, and a BSD block on each would be
+absurd.
 
 A leading byte order mark is removed from any file it touches. Files it does
 not touch keep theirs.

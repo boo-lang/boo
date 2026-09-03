@@ -51,9 +51,8 @@ library, then invoke `booc -p:` with it.
 ./il examples/misc/now.boo
 ```
 
-## A note on these examples
+## When an example does not build
 
-They were built with NAnt, through a `default.build` in each directory that
-called a `booc` task. NAnt is gone and those files with it; the commands above
-replace them. The examples themselves are old, and not all of them have been
-run against a current build.
+Not every example here has been checked against a current build. Run it
+through `booi` and read the error; a missing type usually means the file needs
+a `-r:` that the commands above do not pass.
