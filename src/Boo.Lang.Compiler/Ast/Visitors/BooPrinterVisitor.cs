@@ -719,7 +719,7 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		private MacroStatement _macroBeingPrinted;
 
 		// A paren opening a macro's arguments reads back as its argument list,
-		// leaving what follows dangling: "assert (-1) == 1" returns as a call.
+		// leaving what follows dangling: "assert (-1) == (-1)" returns as a call.
 		// Unary only: NeedParensAround is precedence blind, so dropping a
 		// binary's parens here would reassociate what it printed.
 		private bool StartsMacroArguments(UnaryExpression e)
@@ -807,11 +807,8 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 			WriteLine();
 		}
 
-		/// <summary>
-		/// A multi statement closure the printer cannot write inline, sitting in
-		/// the last argument of a call that is itself a statement. Boo writes that
-		/// as a trailing block, and nothing else parses.
-		/// </summary>
+		// The last argument of a call statement, when it is a closure too long to
+		// write inline. Only the trailing block form reparses.
 		private BlockExpression TrailingBlockArgument(MethodInvocationExpression e)
 		{
 			if (!(e.ParentNode is ExpressionStatement))

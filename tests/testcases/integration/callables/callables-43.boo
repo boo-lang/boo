@@ -1,4 +1,3 @@
-#category FailsOnMono4
 
 a = { item | return item.ToString() }, { item as string | return item.ToUpper() }
 

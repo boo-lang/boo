@@ -1,5 +1,4 @@
-import BooCompiler.Tests.SupportingClasses from BooCompiler.Tests
-
+import BooCompiler.Tests.SupportingClasses from BooCompilerSupportingClasses
 
 class Foo:
 	public static value = 0
@@ -8,7 +7,6 @@ class Foo:
 for i in -1, 0, 5:
 	ByRef.SetValue(i, Foo.value)
 	assert i == Foo.value
-	
 
 for o in object(), "", object():
 	ByRef.SetRef(o, Foo.reference)

@@ -1,4 +1,3 @@
-#ignore BOO-759 - generic generator methods are not supported
 """
 2
 4

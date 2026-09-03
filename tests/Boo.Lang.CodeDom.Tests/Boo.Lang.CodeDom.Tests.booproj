@@ -3,27 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Boo.Lang.CodeDom.Tests</AssemblyName>
     <RootNamespace>Boo.Lang.CodeDom.Tests</RootNamespace>
-
-    <!--
-      A Boo test project opts into the test SDK by hand: tests/Directory.Build.props
-      hands it only to the C# projects, because the other .booproj files under
-      tests/ are support libraries the testcases compile against.
-
-      The test SDK forces OutputType to Exe and generates an entry point in C#,
-      neither of which suits booc, so the target kind is stated outright and
-      the generated entry point turned off.
-    -->
-    <IsTestProject>true</IsTestProject>
-    <BooTargetKind>library</BooTargetKind>
-    <GenerateProgramFile>false</GenerateProgramFile>
-    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="NUnit" Version="3.14.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />

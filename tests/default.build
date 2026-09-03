@@ -87,12 +87,12 @@
 			</references>
 		</boo>
 		
-		<csc
+		<booc
 			target="library"
 			output="build/booc.Tests.dll">
 			
 			<sources basedir="booc.Tests">
-				<include name="**/*.cs" />
+				<include name="**/*.boo" />
 			</sources>
 			
 			<references basedir="build">
@@ -101,7 +101,7 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="booc.exe" />
 			</references>
-		</csc>
+		</booc>
 
 		<booc
 			target="library"
@@ -132,13 +132,13 @@
 			</references>
 		</booc>
 
-		<csc
+		<booc
 			target="library"
 			output="build/Boo.Lang.Runtime.Tests.dll"
-			unsafe="true" if="${fixture == '' or fixture == 'Boo.Lang.Runtime'}">
+			if="${fixture == '' or fixture == 'Boo.Lang.Runtime'}">
 
 			<sources basedir="Boo.Lang.Runtime.Tests">
-				<include name="**/*.cs" />
+				<include name="**/*.boo" />
 			</sources>
 
 			<references basedir="build">
@@ -146,9 +146,8 @@
 				<include name="Boo.Lang.dll" />
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
-				<include name="Moq.dll" />
 			</references>
-		</csc>
+		</booc>
 
 		<csc
 			target="library"
@@ -170,7 +169,6 @@
 				<include name="Boo.Lang.Parser.dll" />
 				<include name="BooModules.dll" />
 				<include name="BooSupportingClasses.dll" />
-				<include name="Moq.dll" />
 			</references>
 		</csc>
 
@@ -209,21 +207,20 @@
 			</do>
 		</foreach>
 
-		<csc
+		<booc
 			target="library"
 			output="build/Boo.Lang.Tests.dll"
 			if="${fixture == '' or fixture == 'Boo.Lang'}">
 
 			<sources basedir="Boo.Lang.Tests">
-				<include name="**/*.cs" />
+				<include name="**/*.boo" />
 			</sources>
 
 			<references basedir="build">
 				<include name="Boo.Lang.dll" />
 				<include name="${nunit.framework.dll}" />
-				<include name="Moq.dll" />
 			</references>
-		</csc>
+		</booc>
 
 		<booc
 			target="library"
@@ -301,13 +298,13 @@
 			</references>
 		</booc>
 
-		<csc
+		<booc
 			target="library"
 			output="build/Boo.Lang.Parser.Tests.dll"
 			if="${fixture == '' or fixture == 'Boo.Lang.Parser'}">
 
 			<sources>
-				<include name="Boo.Lang.Parser.Tests/**/*.cs" />
+				<include name="Boo.Lang.Parser.Tests/**/*.boo" />
 			</sources>
 
 			<references basedir="build">
@@ -317,7 +314,7 @@
 				<include name="Boo.Lang.Compiler.dll" />
 				<include name="Boo.Lang.Parser.dll" />
 			</references>
-		</csc>
+		</booc>
 		
 		
 	</target>
@@ -337,8 +334,6 @@
 			</fileset>
 		</copy>
 		
-		<copy todir="build" file="../lib/moq-3.1.416.3/Moq.dll" />
-			
 		<copy todir="${path::get-temp-path()}" overwrite="true">
 			<fileset basedir="${test-bin-dir}">
 				<include name="*.dll" />
@@ -356,4 +351,3 @@
 	</target>
 
 </project>
-

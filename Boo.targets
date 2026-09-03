@@ -12,11 +12,28 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-    <BoocDll Condition="'$(BoocDll)' == ''">$(MSBuildThisFileDirectory)src/booc/bin/$(Configuration)/$(TargetFramework)/booc.dll</BoocDll>
+    <!--
+      booc is a tool here, not a reference, so it is built once against the
+      plain framework however the project consuming it is targeted. A project
+      that follows BooCompiler.Tests onto net10.0-windows must still look for
+      booc under net10.0.
+    -->
+    <BoocTargetFramework Condition="'$(BoocTargetFramework)' == ''">$(TargetFramework)</BoocTargetFramework>
+    <BoocTargetFramework Condition="$(BoocTargetFramework.Contains('-'))">$(BoocTargetFramework.Substring(0, $(BoocTargetFramework.IndexOf('-'))))</BoocTargetFramework>
+
+    <BoocDll Condition="'$(BoocDll)' == ''">$(MSBuildThisFileDirectory)src/booc/bin/$(Configuration)/$(BoocTargetFramework)/booc.dll</BoocDll>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableDefaultBooItems)' != 'false'">
     <BooCompile Include="**/*.boo" Exclude="$(BaseOutputPath)/**;$(BaseIntermediateOutputPath)/**;bin/**;obj/**" />
+
+    <!--
+      The SDK's own glob is off above and booc is only ever handed .boo, so a
+      C# file here belongs to no item group at all. It would be left out with
+      no error and no warning, which is how a converted test project loses a
+      fixture without anything noticing.
+    -->
+    <BooForeignSource Include="**/*.cs" Exclude="$(BaseOutputPath)/**;$(BaseIntermediateOutputPath)/**;bin/**;obj/**" />
   </ItemGroup>
 
   <Target Name="BoocTarget" DependsOnTargets="$(CoreCompileDependsOn)">
@@ -36,6 +53,9 @@
 
     <Error Condition="!Exists('$(BoocDll)')"
            Text="booc was not found at $(BoocDll). Build src/booc first." />
+
+    <Error Condition="'@(BooForeignSource)' != ''"
+           Text="A Boo project compiles only .boo, so these would be dropped without a word: @(BooForeignSource, ', '). Move them to a C# project, or set EnableDefaultBooItems=false and list the sources by hand." />
 
     <!--
       booc loads the framework itself from the running runtime's trusted

@@ -1,4 +1,3 @@
-#category FailsOnMono4
 """
 Boo.Lang.List`1[TestFuncs.MyCallable]
 """
