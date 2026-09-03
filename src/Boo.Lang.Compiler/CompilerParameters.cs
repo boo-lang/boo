@@ -333,6 +333,18 @@ namespace Boo.Lang.Compiler
 					fullLog += ff.FusionLog;
 					continue;
 				}
+				// A file of that name that will not load is no more an answer
+				// than no file at all, and throwing here ignores throwOnError.
+				catch (FileLoadException fl)
+				{
+					fullLog += fl.FusionLog;
+					continue;
+				}
+				catch (BadImageFormatException bf)
+				{
+					fullLog += bf.FusionLog;
+					continue;
+				}
 			}
 			if (throwOnError)
 			{
