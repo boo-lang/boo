@@ -379,6 +379,12 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
+			if (node.DefaultValue != null && node.IsByRef)
+			{
+				Errors.Add(CompilerErrorFactory.ByRefParameterCannotHaveDefault(node, node.Name));
+				return;
+			}
+
 			if (node.DefaultValue != null || node.IsParamArray)
 				return;
 

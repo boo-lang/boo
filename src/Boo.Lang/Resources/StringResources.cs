@@ -191,6 +191,7 @@ namespace Boo.Lang.Resources
 		public const string BCE0186 = "'{0}' has no parameter named '{1}'. Did you mean '{2}'?";
 		public const string BCE0187 = "Parameter '{0}' has no default, so it cannot follow one that has.";
 		public const string BCE0188 = "The default for '{0}' must be a constant.";
+		public const string BCE0189 = "'{0}' is passed by reference, so it cannot declare a default.";
         public const string BCW0000 = "WARNING: {0}";
 		public const string BCW0001 = "WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.";
 		public const string BCW0002 = "WARNING: Statement modifiers have no effect in labels.";
