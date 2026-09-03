@@ -451,9 +451,13 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (!c1.OmitsArguments && c2.OmitsArguments) return 1;
 			if (c1.OmitsArguments && !c2.OmitsArguments) return -1;
 
-			// An expanded method with more fixed parameters is better
-			result = c1.Parameters.Length - c2.Parameters.Length;
-			if (result != 0) return result;
+			// An expanded method with more fixed parameters is better. Candidates
+			// that fill defaults are not ranked this way.
+			if (c1.Expanded && c2.Expanded)
+			{
+				result = c1.Parameters.Length - c2.Parameters.Length;
+				if (result != 0) return result;
+			}
 
 			// As a last means of breaking this desperate tie, we select the
 			// "more specific" candidate, if one exists

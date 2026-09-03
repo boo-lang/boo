@@ -22,6 +22,10 @@ class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 		RunCompilerTestCase("BCE0004-3.boo")
 
 	[Test]
+	def @BCE0004_optional_overload():
+		RunCompilerTestCase("BCE0004-optional-overload.boo")
+
+	[Test]
 	def @BCE0005_1():
 		RunCompilerTestCase("BCE0005-1.boo")
 

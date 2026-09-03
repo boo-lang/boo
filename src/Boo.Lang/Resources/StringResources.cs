@@ -224,6 +224,7 @@ namespace Boo.Lang.Resources
 		public const string BCW0030 = "WARNING: This async method lacks \'await\' operators and will run synchronously. Consider using the \'await\' operator to await non-blocking API calls, or \'await Task.Run(...)\' to do CPU-bound work on a background thread.";
         public const string BCW0031 = "WARNING: Resource file '{0}' could not be found.";
         public const string BCW0032 = "WARNING: The reference assemblies for the running runtime were not found, so framework types are named by the implementation assembly. The output will not be usable from C#.";
+		public const string BCW0033 = "WARNING: A {2}-argument call cannot tell '{0}' from '{1}', since defaults fill the parameters it leaves out.";
         public const string BCE0500 = "Response file '{0}' listed more than once.";
 		public const string BCE0501 = "Response file '{0}' could not be found.";
 		public const string BCE0502 = "An error occurred while loading response file '{0}'.";

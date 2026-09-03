@@ -241,6 +241,14 @@ partial class CompilerWarningsTestFixture:
 		RunCompilerTestCase("BCW0029-1.boo")
 
 	[Test]
+	def @BCW0033_1():
+		RunCompilerTestCase("BCW0033-1.boo")
+
+	[Test]
+	def @BCW0033_2():
+		RunCompilerTestCase("BCW0033-2.boo")
+
+	[Test]
 	def @no_unreacheable_code_warning_for_compiler_generated_code():
 		RunCompilerTestCase("no-unreacheable-code-warning-for-compiler-generated-code.boo")
 

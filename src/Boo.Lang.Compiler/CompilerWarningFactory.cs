@@ -237,6 +237,11 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCW0032", LexicalInfo.Empty);
 		}
 
+		public static CompilerWarning AmbiguousOptionalOverloads(Node anchor, string first, string second, int argumentCount)
+		{
+			return Instantiate("BCW0033", AstUtil.SafeLexicalInfo(anchor), first, second, argumentCount);
+		}
+
 		private static CompilerWarning Instantiate(string code, LexicalInfo location, params object[] args)
 		{
 			return new CompilerWarning(code, location, Array.ConvertAll<object, string>(args, CompilerErrorFactory.DisplayStringFor));

@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -129,8 +129,59 @@ namespace Boo.Lang.Compiler.Steps
 
 					if (IsConflictingOverload(member, existingMember))
 						MemberConflict(member, TypeSystemServices.GetSignature((IEntityWithParameters) member.Entity));
+					else
+						CheckOptionalOverloadAmbiguity(existingMember, member);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Reports two overloads that share an argument count only because both fill a default there.
+		/// </summary>
+		private void CheckOptionalOverloadAmbiguity(TypeMember first, TypeMember second)
+		{
+			var lhsEntity = first.Entity as IEntityWithParameters;
+			var rhsEntity = second.Entity as IEntityWithParameters;
+			if (lhsEntity == null || rhsEntity == null)
+				return;
+
+			// Expansion does its own tie breaking and stays out of this.
+			if (lhsEntity.AcceptVarArgs || rhsEntity.AcceptVarArgs)
+				return;
+
+			IParameter[] lhs = lhsEntity.GetParameters();
+			IParameter[] rhs = rhsEntity.GetParameters();
+
+			// At the shorter list's own count it is an exact match, which always wins.
+			int last = Math.Min(lhs.Length, rhs.Length);
+			for (int count = Math.Max(RequiredCount(lhs), RequiredCount(rhs)); count < last; ++count)
+			{
+				if (!AreSameLeadingParameters(lhs, rhs, count))
+					continue;
+
+				Warnings.Add(CompilerWarningFactory.AmbiguousOptionalOverloads(
+					second,
+					TypeSystemServices.GetSignature(lhsEntity),
+					TypeSystemServices.GetSignature(rhsEntity),
+					count));
+				return;
+			}
+		}
+
+		private static int RequiredCount(IParameter[] parameters)
+		{
+			int count = parameters.Length;
+			while (count > 0 && parameters[count - 1].HasDefaultValue)
+				--count;
+			return count;
+		}
+
+		private static bool AreSameLeadingParameters(IParameter[] lhs, IParameter[] rhs, int count)
+		{
+			for (int i = 0; i < count; ++i)
+				if (!lhs[i].Type.Equals(rhs[i].Type) || lhs[i].IsByRef != rhs[i].IsByRef)
+					return false;
+			return true;
 		}
 
 		private bool IsConflictingOverload(TypeMember member, TypeMember existingMember)
