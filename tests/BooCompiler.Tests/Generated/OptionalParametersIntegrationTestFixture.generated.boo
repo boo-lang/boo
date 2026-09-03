@@ -33,5 +33,9 @@ class OptionalParametersIntegrationTestFixture(AbstractCompilerTestCase):
 	def @partially_supplied_defaults():
 		RunCompilerTestCase("partially-supplied-defaults.boo")
 
+	[Test]
+	def @ref_parameter_with_trailing_default():
+		RunCompilerTestCase("ref-parameter-with-trailing-default.boo")
+
 	override protected def GetRelativeTestCasesPath() as string:
 		return "integration/optional-parameters"

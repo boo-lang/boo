@@ -1,4 +1,3 @@
-#category FailsOnMono
 """
 before first
 1
@@ -16,7 +15,7 @@ print "before first"
 for item in e:
 	print item
 	break
-	
+
 print "before second"
 for item in e:
 	print item
@@ -24,7 +23,7 @@ for item in e:
 		print another
 		break
 	break
-	
+
 print "before third"
 for item in e:
 	print item

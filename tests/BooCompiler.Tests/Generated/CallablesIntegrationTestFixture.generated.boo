@@ -9,7 +9,7 @@ class CallablesIntegrationTestFixture(AbstractCompilerTestCase):
 	def @byref_1():
 		RunCompilerTestCase("byref-1.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @byref_10():
 		RunCompilerTestCase("byref-10.boo")
 

@@ -389,7 +389,7 @@ class TypesIntegrationTestFixture(AbstractCompilerTestCase):
 	def @interface_implementation_inheritance_4():
 		RunCompilerTestCase("interface-implementation-inheritance-4.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @interface_implementation_inheritance_5():
 		RunCompilerTestCase("interface-implementation-inheritance-5.boo")
 
@@ -829,7 +829,7 @@ class TypesIntegrationTestFixture(AbstractCompilerTestCase):
 	def @value_types_14():
 		RunCompilerTestCase("value-types-14.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @value_types_15():
 		RunCompilerTestCase("value-types-15.boo")
 

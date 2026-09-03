@@ -89,7 +89,7 @@ class ExtensionsIntegrationTestFixture(AbstractCompilerTestCase):
 	def @linq_operator():
 		RunCompilerTestCase("linq-operator.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @per_module_extensions():
 		RunCompilerTestCase("per-module-extensions.boo")
 

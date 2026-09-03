@@ -1,4 +1,3 @@
-#category FailsOnMono
 """
 foo called
 """
@@ -13,14 +12,14 @@ def createUIntPtrDelegateAssembly():
 	name = AssemblyName(Name: "UIntPtrDelegateAssembly")
 	assembly = PersistedAssemblyBuilder(name, typeof(object).Assembly, null)
 	module = assembly.DefineDynamicModule("UIntPtrDelegateAssembly.dll")
-	
+
 	t = module.DefineType("UIntPtrDelegate", TypeAttributes.Public|TypeAttributes.Sealed, MulticastDelegate)
 	ctor = t.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, (object, System.UIntPtr))
 	ctor.SetImplementationFlags(MethodImplAttributes.Runtime|MethodImplAttributes.Managed)
-	
+
 	invoke = t.DefineMethod("Invoke", MethodAttributes.Public, CallingConventions.HasThis, void, array(Type, 0))
 	invoke.SetImplementationFlags(MethodImplAttributes.Runtime|MethodImplAttributes.Managed)
-	
+
 	t.CreateType()
 
 	path = Path.Combine(Path.GetTempPath(), "UIntPtrDelegateAssembly.dll")
@@ -30,10 +29,10 @@ def createUIntPtrDelegateAssembly():
 code = """
 def foo():
 	print 'foo called'
-	
+
 d as UIntPtrDelegate = foo
 d()
-"""	
+"""
 
 compiler = BooCompiler()
 compiler.Parameters.References.Add(createUIntPtrDelegateAssembly())
