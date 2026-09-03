@@ -14,4 +14,13 @@
 
   <Import Project="../../Boo.targets" />
 
+  <!-- booc needs this beside Boo.Lang to resolve assert, using and the
+       attributes. It cannot reference the project it compiles, so the copy
+       goes here. -->
+  <Target Name="CopyToBooc" AfterTargets="Build" Condition="Exists('$(BoocDll)')">
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="$([System.IO.Path]::GetDirectoryName($(BoocDll)))"
+          SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

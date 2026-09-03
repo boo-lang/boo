@@ -59,6 +59,8 @@ namespace booc
 		readonly List<string> _references = new List<string>();
 		readonly List<string> _packages = new List<string>();
 		bool _noConfig;
+
+		bool _noExtensions;
 		string _pipelineName;
 		bool _debugSteps;
 
@@ -77,7 +79,7 @@ namespace booc
 			_options.LibPaths.Extend(tempLibPaths);
 
 			if (_options.StdLib)
-				_options.LoadDefaultReferences();
+				_options.LoadDefaultReferences(!_noExtensions);
 			else if (!_noConfig)
 				_references.Insert(0, "mscorlib");
 
@@ -226,6 +228,8 @@ namespace booc
 								noLogo = true;
 							else if (arg == "-noconfig")
 								_noConfig = true;
+							else if (arg == "-noextensions")
+								_noExtensions = true;
 							else if (arg == "-nostdlib")
 								_options.StdLib = false;
 							else if (arg == "-nowarn")
@@ -574,6 +578,7 @@ namespace booc
 					" -keyfile:FILE        The strongname key file used to strongname the assembly\n" +
 					" -lib:DIRS            Adds the comma-separated DIRS to the assembly search path\n" +
 					" -noconfig            Does not load the standard configuration\n" +
+					" -noextensions        Does not reference Boo.Lang.Extensions\n" +
 					" -nologo              Does not display the compiler logo\n" +
 					" -nostdlib            Does not reference any of the default libraries\n" +
 					" -nowarn[:W1,Wn]      Suppress all or a list of compiler warnings\n" +
