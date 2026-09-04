@@ -107,6 +107,8 @@ public class BooParsingStep : ICompilerStep
 	{
 		var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
 		var stream = new AntlrInputStream(reader);
+		// Without this a token reports <unknown> and its error lands on no file.
+		stream.name = inputName;
 		BooParser.StartContext tree;
 
 		// SLL first, as BooParser.ParseModule does. It reports nothing, because it
@@ -142,9 +144,8 @@ public class BooParsingStep : ICompilerStep
 		}
 		_lastErrorLine = line;
 
-		// An indentation token stands at the end of the line it closes, which
-		// points past the text. What is wrong is the layout, so say where it
-		// starts.
+		// An indentation token sits past the end of the line it closes, so
+		// point at the start of the line instead.
 		if (offendingSymbol != null
 			&& (offendingSymbol.Type == BooLexer.INDENT || offendingSymbol.Type == BooLexer.DEDENT))
 			charPositionInLine = 1;

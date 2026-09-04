@@ -64,3 +64,28 @@ Naming the token says nothing in a language where the layout is the syntax.
 		error = compiler.Run().Errors[0]
 		Assert.AreEqual(2, error.LexicalInfo.Line)
 		Assert.AreEqual(1, error.LexicalInfo.Column)
+
+	private def Errors(code as string):
+		compiler = Boo.Lang.Compiler.BooCompiler()
+		compiler.Parameters.Input.Add(Boo.Lang.Compiler.IO.StringInput("testcase", code))
+		compiler.Parameters.Pipeline = Boo.Lang.Compiler.Pipelines.Parse()
+		return compiler.Run().Errors
+
+	[Test]
+	def AcceptsAFileIndentedThroughout():
+		Assert.AreEqual(0, Errors("def f():\n\tx = 1\n\ty = 2\n").Count, "tabs")
+		Assert.AreEqual(0, Errors("def f():\n    x = 1\n    y = 2\n").Count, "spaces")
+
+	[Test]
+	def RefusesTabsAndSpacesOnTheSameLine():
+		Assert.AreEqual("Mixed indentation, expected the use of tabs.", Errors("def f():\n\t  x = 1\n")[0].Message)
+
+	[Test]
+	def RefusesOneKindOfIndentAfterAnother():
+		Assert.AreEqual("Mixed indentation, expected the use of tabs.", Errors("def f():\n\tx = 1\n    y = 2\n")[0].Message)
+		Assert.AreEqual("Mixed indentation, expected the use of spaces.", Errors("def f():\n    x = 1\n\ty = 2\n")[0].Message)
+
+	[Test]
+	def NamesTheFileTheIndentationIsIn():
+	"""An error on no file is one the editor cannot put anywhere."""
+		Assert.AreEqual("testcase", Errors("def f():\n\tx = 1\n    y = 2\n")[0].LexicalInfo.FileName)
