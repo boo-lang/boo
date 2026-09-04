@@ -277,6 +277,8 @@ namespace Boo.Lang.Resources
 		public const string BooParser_UnbalancedOpeningParen = "Unbalanced expression, opening paren not found";
 		public const string BooParser_SeparateExpressionsWithCommas = "Expressions must be separated by commas";
 		public const string BooParser_MixedIndentation = "Mixed indentation, expected the use of {0}";
+		public const string BooParser_UnexpectedIndent = "Unexpected indentation, nothing here opens a block";
+		public const string BooParser_UnexpectedDedent = "Indentation does not line up with any block that is open";
 		public const string BooParser_DuplicateAccessor = "A property can only state one {0}";
 		public const string BooParser_KeywordAsIdentifier = "Illegal use of keyword '{0}' as identifier";
 		public const string BooParser_DuplicateDocstring = "A docstring can only be written once, either above the body or within it";

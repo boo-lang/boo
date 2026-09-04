@@ -116,6 +116,16 @@ internal static class BooErrorPatterns
 				return string.Format(StringResources.BooParser_KeywordAsIdentifier, keyword);
 		}
 
+		if (pattern == null)
+		{
+			// Naming the token says nothing in a language where the layout is
+			// the syntax. What went wrong is the indentation, so say that.
+			if (offendingSymbol.Type == BooLexer.INDENT)
+				return StringResources.BooParser_UnexpectedIndent;
+			if (offendingSymbol.Type == BooLexer.DEDENT)
+				return StringResources.BooParser_UnexpectedDedent;
+		}
+
 		return pattern == null ? null : pattern.Message;
 	}
 

@@ -142,6 +142,13 @@ public class BooParsingStep : ICompilerStep
 		}
 		_lastErrorLine = line;
 
+		// An indentation token stands at the end of the line it closes, which
+		// points past the text. What is wrong is the layout, so say where it
+		// starts.
+		if (offendingSymbol != null
+			&& (offendingSymbol.Type == BooLexer.INDENT || offendingSymbol.Type == BooLexer.DEDENT))
+			charPositionInLine = 1;
+
 		var location = new LexicalInfo(filename, line, charPositionInLine);
 		var friendly = BooErrorPatterns.Match(recognizer, offendingSymbol, e);
 		if (friendly != null)
