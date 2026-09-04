@@ -161,7 +161,7 @@ class StatementsIntegrationTestFixture(AbstractCompilerTestCase):
 	def @for_7():
 		RunCompilerTestCase("for-7.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @for_8():
 		RunCompilerTestCase("for-8.boo")
 

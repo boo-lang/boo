@@ -159,3 +159,11 @@ public class Native:
 		if OperatingSystem.IsWindows():
 			return lstrlenA(text)
 		return strlen(text)
+
+public class Defaults:
+	"""A Boo declared optional parameter, for C# to leave out."""
+	public static def Greet(name as string, greeting as string = "Hi") as string:
+		return "${greeting}, ${name}!"
+
+	public static def Sum(a as int, b as int = 2, c as int = 3) as int:
+		return a + b + c

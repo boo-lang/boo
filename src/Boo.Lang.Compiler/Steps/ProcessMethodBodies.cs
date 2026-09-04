@@ -3272,8 +3272,45 @@ namespace Boo.Lang.Compiler.Steps
 			IType expressionType = MapWildcardType(GetConcreteExpressionType(node.Right));
 			IEntity local = DeclareLocal(reference, reference.Name, expressionType);
 			reference.Entity = local;
+			MarkDeadWhenNamedArgument(node, local);
 			BindExpressionType(reference, expressionType);
 			BindExpressionType(node, expressionType);
+		}
+
+		/// <summary>
+		/// A named argument still parses as an assignment, so a local gets
+		/// declared before anyone knows the argument names a parameter. It is
+		/// remembered here and withdrawn once that is settled.
+		/// </summary>
+		private static void MarkDeadWhenNamedArgument(BinaryExpression node, IEntity local)
+		{
+			if (!NamedArgumentsServices.IsNamedArgument(node))
+				return;
+
+			var internalLocal = local as InternalLocal;
+			if (internalLocal != null && internalLocal.Local != null)
+			{
+				internalLocal.Local.IsSynthetic = true;
+				NamedArgumentsServices.RememberDeclaredLocal(node, internalLocal);
+			}
+		}
+
+		/// <summary>
+		/// Takes back the local an argument declared before it was known to
+		/// name a parameter. It stays in the method, so nothing that walks the
+		/// locals is disturbed, but the name it took is released.
+		/// </summary>
+		private void WithdrawLocalsDeclaredByNamedArguments(MethodInvocationExpression node)
+		{
+			foreach (var argument in node.Arguments)
+			{
+				var declared = NamedArgumentsServices.DeclaredLocal(argument);
+				if (declared == null)
+					continue;
+
+				declared.IsPrivateScope = true;
+				ClearResolutionCacheFor(declared.Name);
+			}
 		}
 
 		bool IsInaccessible(IEntity info)
@@ -4252,6 +4289,9 @@ namespace Boo.Lang.Compiler.Steps
 			var targetMethod = InferGenericMethodInvocation(node, method);
 			if (targetMethod == null) return;
 
+			LayOutNamedArguments(node, targetMethod);
+			FillOmittedArguments(node, targetMethod);
+
 			if (!CheckParameters(targetMethod.CallableType, node.Arguments, false))
 			{
 				if (!ResolvedAsExtension(node) && TryToProcessAsExtensionInvocation(node)) return;
@@ -4267,6 +4307,145 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+		}
+
+		/// <summary>
+		/// A name the callee has no parameter for is a mistake, not a value to
+		/// pass by position. False when one was found, so the call is left
+		/// alone rather than laid out against a name that means nothing.
+		/// </summary>
+		private bool RejectUnknownParameterNames(MethodInvocationExpression node, IMethodBase method, IParameter[] parameters)
+		{
+			var sound = true;
+			foreach (var argument in node.Arguments)
+			{
+				var name = NamedArgumentsServices.NameOf(argument);
+				if (name == null || NamedArgumentsServices.NamedParameter(argument, parameters) != null)
+					continue;
+
+				// A constructor is named for the type it builds, not "constructor".
+				var callee = method.EntityType == EntityType.Constructor
+					? method.DeclaringType.Name
+					: method.Name;
+
+				var suggestion = NamedArgumentsServices.ClosestParameter(name, parameters);
+				Errors.Add(suggestion == null
+					? CompilerErrorFactory.NoSuchParameter(argument, callee, name)
+					: CompilerErrorFactory.NoSuchParameter(argument, callee, name, suggestion));
+				sound = false;
+			}
+			return sound;
+		}
+
+		/// <summary>
+		/// Moves an argument that names a parameter to that parameter's place,
+		/// so that every step after this one sees an ordinary positional call.
+		/// Holes left behind are for the defaults to fill.
+		/// </summary>
+		private void LayOutNamedArguments(MethodInvocationExpression node, IMethodBase method)
+		{
+			var parameters = method.GetParameters();
+			if (!RejectUnknownParameterNames(node, method, parameters))
+				return;
+
+			if (!NamedArgumentsServices.HasNamedArgument(node.Arguments, parameters))
+				return;
+
+			Expression[] positional;
+			string conflict;
+			if (!NamedArgumentsServices.LayOut(node.Arguments, parameters, out positional, out conflict))
+			{
+				if (conflict != null)
+					Errors.Add(CompilerErrorFactory.ArgumentGivenMoreThanOnce(node, conflict));
+				return;
+			}
+
+			WithdrawLocalsDeclaredByNamedArguments(node);
+
+			node.Arguments.Clear();
+			foreach (var argument in positional)
+			{
+				if (argument == null)
+					break;
+				node.Arguments.Add(argument);
+			}
+		}
+
+		/// <summary>
+		/// Writes out the arguments the call left for the parameters' defaults
+		/// to supply, so that every step after this one sees an ordinary call
+		/// with nothing missing.
+		/// </summary>
+		private void FillOmittedArguments(MethodInvocationExpression node, IMethod method)
+		{
+			var parameters = method.GetParameters();
+			if (node.Arguments.Count >= parameters.Length)
+				return;
+
+			for (var i = node.Arguments.Count; i < parameters.Length; ++i)
+			{
+				if (!parameters[i].HasDefaultValue)
+					return;
+
+				var value = CreateDefaultValueLiteral(node.LexicalInfo, parameters[i]);
+				if (value == null)
+					return;
+
+				node.Arguments.Add(value);
+			}
+		}
+
+		/// <summary>
+		/// The literal standing in for a parameter's default. An enum default
+		/// arrives as its underlying integral value, so the parameter's own
+		/// type is what the literal has to claim.
+		/// </summary>
+		private Expression CreateDefaultValueLiteral(LexicalInfo lexicalInfo, IParameter parameter)
+		{
+			var value = parameter.DefaultValue;
+			if (value == null)
+			{
+				if (parameter.Type.IsValueType)
+					return CodeBuilder.CreateDefaultInvocation(lexicalInfo, parameter.Type);
+
+				var nullLiteral = CodeBuilder.CreateNullLiteral();
+				nullLiteral.LexicalInfo = lexicalInfo;
+				return nullLiteral;
+			}
+
+			var literal = LiteralForDefaultValue(value);
+			if (literal == null)
+				return null;
+
+			literal.LexicalInfo = lexicalInfo;
+			BindExpressionType(literal, parameter.Type);
+			return literal;
+		}
+
+		/// <summary>
+		/// Anything not spelled out here is left alone, so an unrecognized
+		/// default reports the call as unresolved rather than passing a value
+		/// nobody asked for.
+		/// </summary>
+		private static Expression LiteralForDefaultValue(object value)
+		{
+			// An enum default arrives as the enum itself; the literal carries
+			// its numeric value and the parameter type says what it means.
+			if (value.GetType().IsEnum)
+				return new IntegerLiteralExpression(Convert.ToInt64(value));
+
+			if (value is bool) return new BoolLiteralExpression((bool)value);
+			if (value is string) return new StringLiteralExpression((string)value);
+			if (value is char) return new CharLiteralExpression((char)value);
+
+			if (value is sbyte || value is short || value is int || value is long
+				|| value is byte || value is ushort || value is uint || value is ulong)
+				return new IntegerLiteralExpression(Convert.ToInt64(value));
+
+			if (value is float || value is double)
+				return new DoubleLiteralExpression(Convert.ToDouble(value));
+
+			return null;
 		}
 
 		private void FixAmbiguousSignatures(MethodInvocationExpression node)
@@ -4600,6 +4779,7 @@ namespace Boo.Lang.Compiler.Steps
             var ctor = GetCorrectConstructor(node, type, node.Arguments);
 			if (ctor != null)
 			{
+				LayOutNamedArguments(node, ctor);
 				BindConstructorInvocation(node, ctor);
 				if (node.NamedArguments.Count > 0)
 					ReplaceTypeInvocationByEval(type, node);

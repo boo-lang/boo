@@ -20,7 +20,7 @@ partial class UnsafeTestFixture:
 	def @unsafe_3():
 		RunCompilerTestCase("unsafe-3.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @unsafe_4():
 		RunCompilerTestCase("unsafe-4.boo")
 

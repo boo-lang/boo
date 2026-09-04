@@ -311,6 +311,36 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0183", node, expression);
 		}
 		
+		public static CompilerError ArgumentGivenMoreThanOnce(Node node, string name)
+		{
+			return Instantiate("BCE0184", node, name);
+		}
+
+		public static CompilerError NoSuchParameter(Node node, string method, string name)
+		{
+			return Instantiate("BCE0185", node, method, name);
+		}
+
+		public static CompilerError NoSuchParameter(Node node, string method, string name, string suggestion)
+		{
+			return Instantiate("BCE0186", node, method, name, suggestion);
+		}
+
+		public static CompilerError RequiredParameterAfterOptional(Node node, string name)
+		{
+			return Instantiate("BCE0187", node, name);
+		}
+
+		public static CompilerError DefaultValueMustBeConstant(Node node, string name)
+		{
+			return Instantiate("BCE0188", node, name);
+		}
+
+		public static CompilerError ByRefParameterCannotHaveDefault(Node node, string name)
+		{
+			return Instantiate("BCE0189", node, name);
+		}
+
 		public static CompilerError LValueExpected(Node node)
 		{
 			return Instantiate("BCE0049", node, StripSurroundingParens(node.ToCodeString()));

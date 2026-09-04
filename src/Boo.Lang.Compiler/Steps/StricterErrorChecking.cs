@@ -364,6 +364,46 @@ namespace Boo.Lang.Compiler.Steps
 				&& (node is ReferenceExpression || node is GenericReferenceExpression);
 		}
 
+		/// <summary>
+		/// A default only stands in for arguments the caller stops writing, so
+		/// every parameter after one must have its own, and the value has to be
+		/// something metadata can carry.
+		/// </summary>
+		public override void OnParameterDeclaration(ParameterDeclaration node)
+		{
+			base.OnParameterDeclaration(node);
+
+			if (node.DefaultValue != null && !(node.DefaultValue is LiteralExpression))
+			{
+				Errors.Add(CompilerErrorFactory.DefaultValueMustBeConstant(node, node.Name));
+				return;
+			}
+
+			if (node.DefaultValue != null && node.IsByRef)
+			{
+				Errors.Add(CompilerErrorFactory.ByRefParameterCannotHaveDefault(node, node.Name));
+				return;
+			}
+
+			if (node.DefaultValue != null || node.IsParamArray)
+				return;
+
+			var parameters = node.ParentNode as INodeWithParameters;
+			if (parameters == null)
+				return;
+
+			foreach (var earlier in parameters.Parameters)
+			{
+				if (earlier == node)
+					return;
+				if (earlier.DefaultValue != null)
+				{
+					Errors.Add(CompilerErrorFactory.RequiredParameterAfterOptional(node, node.Name));
+					return;
+				}
+			}
+		}
+
 		override public void OnGotoStatement(GotoStatement node)
 		{			
 			LabelStatement target = ((InternalLabel)node.Label.Entity).LabelStatement; 

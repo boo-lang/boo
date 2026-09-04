@@ -22,12 +22,20 @@ class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 		RunCompilerTestCase("BCE0004-3.boo")
 
 	[Test]
+	def @BCE0004_optional_overload():
+		RunCompilerTestCase("BCE0004-optional-overload.boo")
+
+	[Test]
 	def @BCE0005_1():
 		RunCompilerTestCase("BCE0005-1.boo")
 
 	[Test]
 	def @BCE0005_2():
 		RunCompilerTestCase("BCE0005-2.boo")
+
+	[Test]
+	def @BCE0005_named_argument():
+		RunCompilerTestCase("BCE0005-named-argument.boo")
 
 	[Test]
 	def @BCE0006_1():
@@ -888,6 +896,26 @@ class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 	[Test]
 	def @BCE0183_3():
 		RunCompilerTestCase("BCE0183-3.boo")
+
+	[Test]
+	def @BCE0184_1():
+		RunCompilerTestCase("BCE0184-1.boo")
+
+	[Test]
+	def @BCE0185_1():
+		RunCompilerTestCase("BCE0185-1.boo")
+
+	[Test]
+	def @BCE0185_2():
+		RunCompilerTestCase("BCE0185-2.boo")
+
+	[Test]
+	def @BCE0187_1():
+		RunCompilerTestCase("BCE0187-1.boo")
+
+	[Test]
+	def @BCE0188_1():
+		RunCompilerTestCase("BCE0188-1.boo")
 
 	[Test]
 	def @CannotConvertFooToInt():

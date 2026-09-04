@@ -5022,7 +5022,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		ParameterAttributes GetParameterAttributes(ParameterDeclaration param)
 		{
-			return ParameterAttributes.None;
+			return param.DefaultValue == null
+				? ParameterAttributes.None
+				: ParameterAttributes.Optional | ParameterAttributes.HasDefault;
 		}
 
 		void DefineEvent(TypeBuilder typeBuilder, Event node)
@@ -5102,8 +5104,28 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					SetParamArrayAttribute(paramBuilder);
 				}
+				SetDefaultValue(paramBuilder, parameters[i]);
 				SetBuilder(parameters[i], paramBuilder);
 			}
+		}
+
+		/// <summary>
+		/// Writes the declared default into metadata so that every language
+		/// reading the assembly sees an ordinary optional parameter.
+		/// </summary>
+		void SetDefaultValue(ParameterBuilder builder, ParameterDeclaration parameter)
+		{
+			var literal = parameter.DefaultValue as LiteralExpression;
+			if (literal == null)
+				return;
+
+			// A null for a value type is default(T), which metadata spells as
+			// no value rather than as null.
+			var value = literal.ValueObject;
+			if (value == null && GetType(parameter.Type).IsValueType)
+				return;
+
+			builder.SetConstant(value);
 		}
 
 		void SetParamArrayAttribute(ParameterBuilder builder)

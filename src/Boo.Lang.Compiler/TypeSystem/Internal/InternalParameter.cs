@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -85,6 +85,21 @@ namespace Boo.Lang.Compiler.TypeSystem.Internal
 		public bool IsByRef
 		{
 			get { return _parameter.IsByRef; }
+		}
+
+		public bool HasDefaultValue
+		{
+			get { return _parameter.DefaultValue != null; }
+		}
+
+		// The declared expression, folded to a value by the time anyone asks.
+		public object DefaultValue
+		{
+			get
+			{
+				var literal = _parameter.DefaultValue as LiteralExpression;
+				return literal == null ? null : literal.ValueObject;
+			}
 		}
 	}
 }

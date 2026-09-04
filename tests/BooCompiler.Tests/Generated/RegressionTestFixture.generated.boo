@@ -601,11 +601,11 @@ class RegressionTestFixture(AbstractCompilerTestCase):
 	def @BOO_705_1():
 		RunCompilerTestCase("BOO-705-1.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @BOO_707_1():
 		RunCompilerTestCase("BOO-707-1.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @BOO_709_1():
 		RunCompilerTestCase("BOO-709-1.boo")
 

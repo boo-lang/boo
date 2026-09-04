@@ -201,7 +201,7 @@ class ArraysIntegrationTestFixture(AbstractCompilerTestCase):
 	def @empty_array_inference_as_object():
 		RunCompilerTestCase("empty-array-inference-as-object.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @empty_array_inference_in_closure():
 		RunCompilerTestCase("empty-array-inference-in-closure.boo")
 

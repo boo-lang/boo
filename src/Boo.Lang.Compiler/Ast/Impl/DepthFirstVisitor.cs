@@ -570,6 +570,7 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				Visit(node.Type);
 				Visit(node.Attributes);
+				Visit(node.DefaultValue);
 				LeaveParameterDeclaration(node);
 			}
 		}
@@ -1415,6 +1416,7 @@ namespace Boo.Lang.Compiler.Ast
 			{
 				Visit(node.Type);
 				Visit(node.Attributes);
+				Visit(node.DefaultValue);
 				Visit(node.ParameterDeclaration);
 				Visit(node.NameExpression);
 				LeaveSpliceParameterDeclaration(node);

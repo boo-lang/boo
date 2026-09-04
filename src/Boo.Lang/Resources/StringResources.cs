@@ -186,6 +186,12 @@ namespace Boo.Lang.Resources
         public const string BCE0181 = "Unsafe method calls returning a pointer are not valid in an async method";
 		public const string BCE0182 = "Type {0} does not contain a valid GetAwaiter method";
 		public const string BCE0183 = "Expression '{0}' does not support slicing.";
+		public const string BCE0184 = "Argument '{0}' is given more than once.";
+		public const string BCE0185 = "'{0}' has no parameter named '{1}'.";
+		public const string BCE0186 = "'{0}' has no parameter named '{1}'. Did you mean '{2}'?";
+		public const string BCE0187 = "Parameter '{0}' has no default, so it cannot follow one that has.";
+		public const string BCE0188 = "The default for '{0}' must be a constant.";
+		public const string BCE0189 = "'{0}' is passed by reference, so it cannot declare a default.";
         public const string BCW0000 = "WARNING: {0}";
 		public const string BCW0001 = "WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.";
 		public const string BCW0002 = "WARNING: Statement modifiers have no effect in labels.";
@@ -219,6 +225,7 @@ namespace Boo.Lang.Resources
 		public const string BCW0030 = "WARNING: This async method lacks \'await\' operators and will run synchronously. Consider using the \'await\' operator to await non-blocking API calls, or \'await Task.Run(...)\' to do CPU-bound work on a background thread.";
         public const string BCW0031 = "WARNING: Resource file '{0}' could not be found.";
         public const string BCW0032 = "WARNING: The reference assemblies for the running runtime were not found, so framework types are named by the implementation assembly. The output will not be usable from C#.";
+		public const string BCW0033 = "WARNING: A {2}-argument call cannot tell '{0}' from '{1}', since defaults fill the parameters it leaves out.";
         public const string BCE0500 = "Response file '{0}' listed more than once.";
 		public const string BCE0501 = "Response file '{0}' could not be found.";
 		public const string BCE0502 = "An error occurred while loading response file '{0}'.";

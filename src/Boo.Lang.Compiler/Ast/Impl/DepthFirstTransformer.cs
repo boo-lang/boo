@@ -871,6 +871,15 @@ namespace Boo.Lang.Compiler.Ast
 					}
 				}
 				Visit(node.Attributes);
+				Expression currentDefaultValueValue = node.DefaultValue;
+				if (null != currentDefaultValueValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentDefaultValueValue);
+					if (!object.ReferenceEquals(newValue, currentDefaultValueValue))
+					{
+						node.DefaultValue = newValue;
+					}
+				}
 
 				LeaveParameterDeclaration(node);
 			}
@@ -2279,6 +2288,15 @@ namespace Boo.Lang.Compiler.Ast
 					}
 				}
 				Visit(node.Attributes);
+				Expression currentDefaultValueValue = node.DefaultValue;
+				if (null != currentDefaultValueValue)
+				{			
+					Expression newValue = (Expression)VisitNode(currentDefaultValueValue);
+					if (!object.ReferenceEquals(newValue, currentDefaultValueValue))
+					{
+						node.DefaultValue = newValue;
+					}
+				}
 				ParameterDeclaration currentParameterDeclarationValue = node.ParameterDeclaration;
 				if (null != currentParameterDeclarationValue)
 				{			

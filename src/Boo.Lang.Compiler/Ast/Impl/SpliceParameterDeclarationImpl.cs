@@ -81,6 +81,7 @@ namespace Boo.Lang.Compiler.Ast
 			if (!Node.Matches(_type, other._type)) return NoMatch("SpliceParameterDeclaration._type");
 			if (_modifiers != other._modifiers) return NoMatch("SpliceParameterDeclaration._modifiers");
 			if (!Node.AllMatch(_attributes, other._attributes)) return NoMatch("SpliceParameterDeclaration._attributes");
+			if (!Node.Matches(_defaultValue, other._defaultValue)) return NoMatch("SpliceParameterDeclaration._defaultValue");
 			if (!Node.Matches(_parameterDeclaration, other._parameterDeclaration)) return NoMatch("SpliceParameterDeclaration._parameterDeclaration");
 			if (!Node.Matches(_nameExpression, other._nameExpression)) return NoMatch("SpliceParameterDeclaration._nameExpression");
 			return true;
@@ -109,6 +110,11 @@ namespace Boo.Lang.Compiler.Ast
 						return true;
 					}
 				}
+			}
+			if (_defaultValue == existing)
+			{
+				this.DefaultValue = (Expression)newNode;
+				return true;
 			}
 			if (_parameterDeclaration == existing)
 			{
@@ -146,6 +152,11 @@ namespace Boo.Lang.Compiler.Ast
 				clone._attributes = _attributes.Clone() as AttributeCollection;
 				clone._attributes.InitializeParent(clone);
 			}
+			if (null != _defaultValue)
+			{
+				clone._defaultValue = _defaultValue.Clone() as Expression;
+				clone._defaultValue.InitializeParent(clone);
+			}
 			if (null != _parameterDeclaration)
 			{
 				clone._parameterDeclaration = _parameterDeclaration.Clone() as ParameterDeclaration;
@@ -173,6 +184,10 @@ namespace Boo.Lang.Compiler.Ast
 			if (null != _attributes)
 			{
 				_attributes.ClearTypeSystemBindings();
+			}
+			if (null != _defaultValue)
+			{
+				_defaultValue.ClearTypeSystemBindings();
 			}
 			if (null != _parameterDeclaration)
 			{

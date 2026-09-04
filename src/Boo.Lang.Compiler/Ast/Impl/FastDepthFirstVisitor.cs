@@ -858,6 +858,11 @@ namespace Boo.Lang.Compiler.Ast
 						innerList.FastAt(i).Accept(this);
 				}
 			}
+			{
+				var defaultValue = node.DefaultValue;
+				if (defaultValue != null)
+					defaultValue.Accept(this);
+			}
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
@@ -1567,6 +1572,11 @@ namespace Boo.Lang.Compiler.Ast
 					for (var i=0; i<count; ++i)
 						innerList.FastAt(i).Accept(this);
 				}
+			}
+			{
+				var defaultValue = node.DefaultValue;
+				if (defaultValue != null)
+					defaultValue.Accept(this);
 			}
 			{
 				var parameterDeclaration = node.ParameterDeclaration;

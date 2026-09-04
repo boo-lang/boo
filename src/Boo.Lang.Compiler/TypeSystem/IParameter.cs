@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -35,6 +35,23 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// Is the parameter out or ref?
 		/// </summary>
 		bool IsByRef
+		{
+			get;
+		}
+
+		/// <summary>
+		/// Can a call leave this parameter out and let its default stand in?
+		/// </summary>
+		bool HasDefaultValue
+		{
+			get;
+		}
+
+		/// <summary>
+		/// The value a call that leaves this parameter out gets, meaningful
+		/// only when HasDefaultValue says so.
+		/// </summary>
+		object DefaultValue
 		{
 			get;
 		}

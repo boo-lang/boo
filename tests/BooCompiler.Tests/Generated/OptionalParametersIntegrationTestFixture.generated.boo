@@ -1,0 +1,41 @@
+namespace BooCompiler.Tests
+
+import NUnit.Framework
+
+[TestFixture]
+class OptionalParametersIntegrationTestFixture(AbstractCompilerTestCase):
+
+	[Test]
+	def @boo_declared_defaults():
+		RunCompilerTestCase("boo-declared-defaults.boo")
+
+	[Test]
+	def @corelib_omitted_argument():
+		RunCompilerTestCase("corelib-omitted-argument.boo")
+
+	[Test]
+	def @declared_defaults():
+		RunCompilerTestCase("declared-defaults.boo")
+
+	[Test]
+	def @enum_default_reaches_callee():
+		RunCompilerTestCase("enum-default-reaches-callee.boo")
+
+	[Test]
+	def @exact_overload_preferred():
+		RunCompilerTestCase("exact-overload-preferred.boo")
+
+	[Test]
+	def @omitted_argument_still_runs():
+		RunCompilerTestCase("omitted-argument-still-runs.boo")
+
+	[Test]
+	def @partially_supplied_defaults():
+		RunCompilerTestCase("partially-supplied-defaults.boo")
+
+	[Test]
+	def @ref_parameter_with_trailing_default():
+		RunCompilerTestCase("ref-parameter-with-trailing-default.boo")
+
+	override protected def GetRelativeTestCasesPath() as string:
+		return "integration/optional-parameters"

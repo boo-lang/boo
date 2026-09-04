@@ -88,7 +88,7 @@ namespace Boo.Lang.Compiler.TypeSystem
 			{
 				_crs = crs;
 				Method = entity;
-				_scores = new int[crs._arguments.Count];
+				_scores = new int[Math.Max(crs._arguments.Count, entity.GetParameters().Length)];
 			}
 
 			public IParameter[] Parameters
@@ -107,12 +107,48 @@ namespace Boo.Lang.Compiler.TypeSystem
 				set { _expanded = value; }
 			}
 
+			/// <summary>
+			/// Did the call leave trailing parameters out for their defaults to
+			/// fill? Such a candidate loses to one that needs no filling in.
+			/// </summary>
+			public bool OmitsArguments
+			{
+				get { return _omitsArguments; }
+				set { _omitsArguments = value; }
+			}
+
+			bool _omitsArguments;
+
+			/// <summary>
+			/// The call laid out against this candidate's parameters, with any
+			/// argument that named one moved to its place. Null when the call
+			/// named none, so an ordinary call costs nothing.
+			/// </summary>
+			public Expression[] Positional
+			{
+				get { return _positional; }
+				set { _positional = value; }
+			}
+
+			Expression[] _positional;
+
+			/// <summary>
+			/// The argument at a parameter's place, or null when the call left
+			/// that place for a default to fill.
+			/// </summary>
+			public Expression Argument(int index)
+			{
+				if (_positional != null)
+					return index < _positional.Length ? _positional[index] : null;
+				return index < _crs._arguments.Count ? _crs.GetArgument(index) : null;
+			}
+
 			public int Score(int argumentIndex)
 			{
 				var score = _crs.CalculateArgumentScore(
 					Parameters[argumentIndex],
 					Parameters[argumentIndex].Type,
-					_crs.GetArgument(argumentIndex));
+					Argument(argumentIndex));
 				_scores[argumentIndex] = score;
 				return score;
 			}
@@ -220,7 +256,8 @@ namespace Boo.Lang.Compiler.TypeSystem
         private static IMethod CheckCandidate(Candidate value, ExpressionCollection args)
 	    {
 	        var scores = value.ArgumentScores;
-            for (var i = 0; i < scores.Length; ++i)
+            // The score array can outrun the arguments actually written.
+            for (var i = 0; i < scores.Length && i < args.Count; ++i)
 	        {
                 if (scores[i] == GenericInstantiateScore)
                 {
@@ -272,7 +309,12 @@ namespace Boo.Lang.Compiler.TypeSystem
 
 		private static bool DoesNotRequireConversions(Candidate candidate)
 		{
-			return !Array.Exists(candidate.ArgumentScores, RequiresConversion);
+			// An unscored place is not a conversion.
+			var scores = candidate.ArgumentScores;
+			for (var i = 0; i < scores.Length; ++i)
+				if (candidate.Argument(i) != null && RequiresConversion(scores[i]))
+					return false;
+			return true;
 		}
 
 		private static bool RequiresConversion(int score)
@@ -297,13 +339,31 @@ namespace Boo.Lang.Compiler.TypeSystem
 			int fixedParams =
 				(expand ? candidate.Parameters.Length - 1 : candidate.Parameters.Length);
 
-			// Validate number of parameters against number of arguments
-			if (_arguments.Count < fixedParams) return false;
-			if (_arguments.Count > fixedParams && !expand) return false;
+			// An argument naming a parameter belongs at that parameter.
+			int suppliedCount = _arguments.Count;
+			if (NamedArgumentsServices.HasNamedArgument(_arguments, candidate.Parameters))
+			{
+				if (expand)
+					return false;
 
-			// Score each argument against a fixed parameter
+				Expression[] positional;
+				if (!NamedArgumentsServices.LayOut(_arguments, candidate.Parameters, out positional))
+					return false;
+
+				candidate.Positional = positional;
+				suppliedCount = NamedArgumentsServices.SuppliedCount(positional);
+			}
+
+			// Validate number of parameters against number of arguments
+			if (suppliedCount < fixedParams && !DefaultsCoverOmittedArguments(candidate, fixedParams))
+				return false;
+			if (suppliedCount > fixedParams && !expand) return false;
+
+			candidate.OmitsArguments = suppliedCount < fixedParams;
+
+			// A parameter left out has nothing to score against.
 			for (int i = 0; i < fixedParams; i++)
-				if (candidate.Score(i) < 0)
+				if (candidate.Argument(i) != null && candidate.Score(i) < 0)
 					return false;
 
 			// If method should be expanded, match remaining arguments against
@@ -316,6 +376,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 						return false;
 			}
 
+			return true;
+		}
+
+		/// <summary>
+		/// A call may leave trailing parameters out only when every one of them
+		/// carries a default to stand in.
+		/// </summary>
+		private bool DefaultsCoverOmittedArguments(Candidate candidate, int fixedParams)
+		{
+			var parameters = candidate.Parameters;
+			for (int i = 0; i < fixedParams; ++i)
+			{
+				var supplied = candidate.Positional != null
+					? candidate.Positional[i] != null
+					: i < _arguments.Count;
+
+				if (!supplied && !parameters[i].HasDefaultValue)
+					return false;
+			}
 			return true;
 		}
 
@@ -367,9 +446,18 @@ namespace Boo.Lang.Compiler.TypeSystem
 			if (!c1.Expanded && c2.Expanded) return 1;
 			if (c1.Expanded && !c2.Expanded) return -1;
 
-			// An expanded method with more fixed parameters is better
-			result = c1.Parameters.Length - c2.Parameters.Length;
-			if (result != 0) return result;
+			// A method taking the arguments as written is better than one
+			// leaning on its defaults
+			if (!c1.OmitsArguments && c2.OmitsArguments) return 1;
+			if (c1.OmitsArguments && !c2.OmitsArguments) return -1;
+
+			// An expanded method with more fixed parameters is better. Candidates
+			// that fill defaults are not ranked this way.
+			if (c1.Expanded && c2.Expanded)
+			{
+				result = c1.Parameters.Length - c2.Parameters.Length;
+				if (result != 0) return result;
+			}
 
 			// As a last means of breaking this desperate tie, we select the
 			// "more specific" candidate, if one exists

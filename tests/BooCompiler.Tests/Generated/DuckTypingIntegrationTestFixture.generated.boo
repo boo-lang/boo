@@ -89,39 +89,39 @@ class DuckTypingIntegrationTestFixture(AbstractCompilerTestCase):
 	def @duck_9():
 		RunCompilerTestCase("duck-9.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_1():
 		RunCompilerTestCase("exceptions-1.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_2():
 		RunCompilerTestCase("exceptions-2.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_3():
 		RunCompilerTestCase("exceptions-3.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_4():
 		RunCompilerTestCase("exceptions-4.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_5():
 		RunCompilerTestCase("exceptions-5.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_6():
 		RunCompilerTestCase("exceptions-6.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_7():
 		RunCompilerTestCase("exceptions-7.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_8():
 		RunCompilerTestCase("exceptions-8.boo")
 
-	[Category("FailsOnMono")][Test]
+	[Test]
 	def @exceptions_9():
 		RunCompilerTestCase("exceptions-9.boo")
 
