@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -42,13 +42,13 @@ class EverybodyLovesDucks(ProcessMethodBodiesWithDuckTyping):
 			super(node)
 		else:
 			mie = CodeBuilder.CreateMethodInvocation(
-					CodeBuilder.CreateSelfReference(self._currentMethod.DeclaringType),
+					CodeBuilder.CreateSelfReference(CurrentMethod.DeclaringType.Entity as IType),
 					_getInRuntime)
 			mie.Arguments.Add(CodeBuilder.CreateStringLiteral(node.Name))
 			node.ParentNode.Replace(node, mie)
 			
-	override def InitializeMemberCache():
-		super()
+	override def Initialize(context as CompilerContext):
+		super(context)
 		_getInRuntime = TypeSystemServices.Map(typeof(BaseTemplate).GetMethod("GetInRuntime"))
 
 class ProcessTemplate(AbstractVisitorCompilerStep):
@@ -76,7 +76,7 @@ print name
 """
 
 pipeline = Pipelines.CompileToMemory()
-pipeline.InsertAfter(InitializeTypeSystemServices, ProcessTemplate())
+pipeline.InsertBefore(IntroduceModuleClasses, ProcessTemplate())
 pipeline.Replace(ProcessMethodBodiesWithDuckTyping, EverybodyLovesDucks())
 
 compiler = BooCompiler()

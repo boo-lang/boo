@@ -1,9 +1,0 @@
-prefix=@prefix@
-exec_prefix=${prefix}
-libdir=${prefix}/lib
-
-
-Name: Boo
-Description: A wrist friendly language for the CLI
-Version: @VERSION@
-Libs: -r:${libdir}/boo/Boo.Lang.dll -r:${libdir}/boo/Boo.Lang.Useful.dll -r:${libdir}/boo/Boo.Lang.CodeDom.dll -r:${libdir}/boo/Boo.Lang.Compiler.dll -r:${libdir}/boo/Boo.Lang.Parser.dll -r:${libdir}/boo/Boo.Lang.Interpreter.dll

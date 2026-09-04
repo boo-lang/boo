@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -81,6 +81,8 @@ import System.Collections.Generic
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Compiler.TypeSystem.Internal
+import Boo.Lang.Compiler.TypeSystem.Services
 
 
 [AttributeUsage(AttributeTargets.Method)]
@@ -167,7 +169,7 @@ public class CoroutineAttribute(AbstractAstAttribute):
 		for parameter in _m.Parameters:
 			gInvoc.Arguments.Add(ReferenceExpression(parameter.Name))
 
-		facade = _m.Clone() as Method
+		facade = _m.CleanClone() as Method
 		facade.IsSynthetic = true
 
 		if not _future:
@@ -298,7 +300,7 @@ public class CoroutineAttribute(AbstractAstAttribute):
 								block:
 									lock $lRef:
 										$b
-							|].Block
+							|].Body
 				facade.Body.Add(lockBlock)
 			else:
 				facade.Body.Add(b)
@@ -361,10 +363,6 @@ public class CoroutineAttribute(AbstractAstAttribute):
 
 		return true
 		
-
-	#HACK: should be a simple way to restart the bind attribute step (?)
-	public def SetCompilerContext(context as CompilerContext):
-		_context = context
 
 
 
@@ -485,7 +483,7 @@ def GetSpawnable(spawnable as MethodInvocationExpression, nss as NameResolutionS
 		YieldInserter().Visit(execute)
 		execute.ToCodeString()
 		astAttr = CoroutineAttribute(Looping: BoolLiteralExpression(false))
-		astAttr.SetCompilerContext(context)#HACK: should restart the step somehow
+		astAttr.Initialize(context)#HACK: should restart the step somehow
 		astAttr.Apply(execute)
 
 	return spawnable
@@ -517,7 +515,7 @@ macro spawn:
 		return [|
 					block:
 						CoroutineSchedulerManager.Scheduler.JoinStart()
-				|].Block
+				|].Body
 	if 1 <= len(spawn.Arguments):
 		spawnable = GetSpawnable(spawn.Arguments[0], NameResolutionService, Context)
 	if 2 <= len(spawn.Arguments):
@@ -531,5 +529,5 @@ macro spawn:
 					tmp = $spawnable
 					CoroutineSchedulerManager.Coroutines.Add(tmp)
 					CoroutineSchedulerManager.Slices.Add(tmp, $slices)
-			|].Block
+			|].Body
 

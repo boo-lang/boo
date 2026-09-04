@@ -11,7 +11,7 @@
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
     <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
     <ProjectReference Include="../Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
-    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained;PublishDir" Private="false" ExcludeAssets="all" />
   </ItemGroup>
 
   <Import Project="../../Boo.targets" />

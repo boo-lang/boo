@@ -13,93 +13,42 @@ dotnet test Boo.slnx
 ```
 
 The C# core builds first and produces `booc`, which then compiles the Boo
-libraries. The `booc`, `booi` and `booish` scripts run what it produced; set
-`BOO_CONFIGURATION=Release` for a release build.
+libraries. The `booc`, `booi` and `booish` scripts run what it produced, with
+`.cmd` versions of each for Windows; set `BOO_CONFIGURATION=Release` for a
+release build.
 
-The NAnt and Gradle builds below are unchanged.
+Regenerating generated sources
+==============================
 
-Prerequisites
-=============
-
-## Windows
-
-- .NET 4.5
-- [Visual C++ Build Tools*](http://landinghub.visualstudio.com/visual-cpp-build-tools)
-
-\* Boo is built with NAnt, which must be built from sources, which requires NMake, which comes with the Visual C++ Build Tools.
-
-## Mac/Linux
-
-- Mono 4.2.x (4.2.4 is the latest and recommended)
-- Bash
-
-Build Tools
-==============
-
-You can install compatible versions of the required tools into the ```build-tools``` directory, where the build scripts will execute them from, by running the bootstrap script.
-
-## Windows
-The bootstrap script is a PowerShell script; however, it must be run from a x86 Native Tools Command Prompt:
-```
-# FROM A x86 NATIVE TOOLS COMMAND PROMPT
-powershell .\build-tools\bootstrap
-```
-
-## Mac/Linux
+Both generators write files that are committed, so this is only needed after
+editing their inputs.
 
 ```
-./build-tools/bootstrap
+scripts/regenerate-ast.sh        # after ast.model.boo or scripts/Templates
+scripts/regenerate-parser.sh     # after BooLexer.g4 or BooParser.g4, needs java
 ```
 
-### Mac
+Testing against musl
+====================
 
-Building Boo requires Mono 4.2.x, which is not likely to be your "Current" version of Mono. To avoid having to switch your current version every time you want to work on Boo, you can specify the version to use when you run the bootstrap script. The build scripts will then use that version of Mono, regardless of your current version.
+CI covers Ubuntu, macOS and Windows, all glibc. To check Alpine as well:
 
 ```
-./build-tools/bootstrap [<mono version>]
+scripts/test-alpine.sh
 ```
 
-Building
-========
+It runs the suite in a dotnet 10 Alpine container through podman.
 
-To build the repository, run the ```nant``` script:
+Building a Debian package
+=========================
 
-```PowerShell
-# Windows (PowerShell)
-.\nant [<target>]
+```
+scripts/build-deb.sh
 ```
 
-```sh
-# Mac/Linux
-./nant [<target>]
-```
-
-With no target specified, this will build the repository (code and tests) incrementally. To clean and build the repository from scratch, run the "rebuild" target. This will also cause the ast classes and parser
-to be regenerated (needs a java vm)
-
-To run the unit tests that have already been built with ```nant```, run the ```nunit``` script:
-
-```PowerShell
-# Windows (PowerShell)
-.\nunit
-```
-
-```sh
-# Mac/Linux
-./nunit
-```
-
-To build and test the entire repository, the same way the CI build does, run the ```ci``` script:
-
-```PowerShell
-# Windows (PowerShell)
-.\ci
-```
-
-```sh
-# Mac/Linux
-./ci
-```
+Writes a self contained .deb to `artifacts/`, built in a container through
+podman. It carries the .NET runtime, so it depends only on the C library and
+ICU, and is built for whichever architecture podman is running.
 
 How to Start
 ============
@@ -133,8 +82,7 @@ You can also have booi to read from stdin by typing:
 
 	booi -
 	
-You can generate .net assemblies by using `booc` (either
-the `booc.exe` utility or the `booc nant` task):
+You can generate .net assemblies by using `booc`:
 
 	booc -output:hello.exe examples/misc/now.boo	
 	
@@ -142,6 +90,13 @@ If you want to simply see the transformations applied to
 your code by the compiler use the boo pipeline, run:
 
 	booc -p:boo examples/misc/replace.boo	
+
+To see the IL a source file compiles to, run:
+
+	./il examples/misc/now.boo
+
+On Windows use `il.cmd`. Disassembly uses ilspycmd, restored from
+`.config/dotnet-tools.json` on first run.
 	
 More Information
 ================

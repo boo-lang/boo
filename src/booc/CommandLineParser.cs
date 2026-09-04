@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -535,7 +535,8 @@ namespace booc
 
 		private void ParseLib(string arg)
 		{
-			var paths = TrimAdditionalQuote(ValueOf(arg)); // TrimAdditionalQuote to work around nant bug with spaces on lib path
+			// a path ending in a separator escapes the closing quote, so -lib:"c:\foo\" reaches us with a stray one
+			var paths = TrimAdditionalQuote(ValueOf(arg));
 			if (string.IsNullOrEmpty(paths))
 			{
 				Console.Error.WriteLine(string.Format(Boo.Lang.Resources.StringResources.BooC_BadLibPath, arg));

@@ -1,7 +1,4 @@
-/build.properties
-build
 ide-build
-test-results
 
 # dotnet test writes trx here; the CI workflow asks for it by name
 TestResults/
@@ -15,11 +12,13 @@ _ReSharper*
 .gradle
 .DS_Store
 gradle.properties
-build-tools/tools
-build-tools/.config-mono
 
 /src/.vs
 
 # Recorded parser output. Regenerate with BOO_PARSER_SNAPSHOT_REGENERATE=1;
 # see tests/Boo.Lang.Parser.Tests/ParserSnapshotTestFixture.cs.
 /tests/parser-snapshots/
+
+# A global ignore of dot-directories would otherwise hide the tool manifest.
+!.config/
+artifacts/

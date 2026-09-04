@@ -1,7 +1,0 @@
-#!/bin/sh
-if [ -x @prefix@/bin/cli ]; then
-    env @prefix@/bin/cli $MONO_OPTIONS @libdir@/boo/booi.exe $BOOI_OPTIONS "$@"
-else
-    env @RUNTIME@ $MONO_OPTIONS @libdir@/boo/booi.exe $BOOI_OPTIONS "$@"
-fi
-

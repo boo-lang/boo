@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -32,12 +32,12 @@ import Boo.Lang.Compiler.IO
 def run(pipelineName as string, code):
 	compiler = BooCompiler()
 	compiler.Parameters.Input.Add(StringInput("<code>", code))
-	compiler.Parameters.Pipeline = BooCompiler.GetStandardPipeline(pipelineName)
+	compiler.Parameters.Pipeline = CompilerPipeline.GetPipeline(pipelineName)
 	result = compiler.Run()
 	print(join(result.Errors, "\n")) if len(result.Errors)
 
 code = "print('Hello!')"
 
 run("boo", code)
-run("booi", code)
+run("run", code)
 			

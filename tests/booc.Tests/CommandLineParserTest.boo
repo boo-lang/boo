@@ -25,7 +25,7 @@ class CommandLineParserTest:
 		Assert.AreEqual(libPath, compilerParameters.LibPaths[0])
 
 	[Test]
-	def WorkaroundForNAntBugCausingAdditionalDoubleQuoteSuffixOnLibValue():
+	def LibValueToleratesAnUnbalancedTrailingQuote():
 		libPath = Path.GetTempPath()
 		compilerParameters = CompilerParameters()
 		booc.CommandLineParser.ParseInto(compilerParameters, string.Format('-lib:{0}"', libPath))

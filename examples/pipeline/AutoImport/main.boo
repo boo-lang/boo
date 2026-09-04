@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -72,7 +72,7 @@ result = compile("client.boo", CompilerOutputType.ConsoleApplication)
 if len(result.Errors):
 	print(result.Errors.ToString(true))
 else:
-	result.GeneratedAssemblyEntryPoint.Invoke(null, (null,))
+	result.GeneratedAssembly.EntryPoint.Invoke(null, (null,))
 		
 	
 	 
