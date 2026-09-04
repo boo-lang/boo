@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Boo.Lang.Decompiler</AssemblyName>
+    <RootNamespace>Boo.Lang.Decompiler</RootNamespace>
+    <Description>Writes what an assembly holds as Boo.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ICSharpCode.Decompiler" Version="9.1.0.7988" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Import Project="../../Boo.targets" />
+
+</Project>
