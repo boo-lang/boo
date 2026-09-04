@@ -89,3 +89,18 @@ Naming the token says nothing in a language where the layout is the syntax.
 	def NamesTheFileTheIndentationIsIn():
 	"""An error on no file is one the editor cannot put anywhere."""
 		Assert.AreEqual("testcase", Errors("def f():\n\tx = 1\n    y = 2\n")[0].LexicalInfo.FileName)
+
+	[Test]
+	def NamesTheLineIndentedFurtherThanItsBlock():
+	"""
+	The line that opened the block is the one to fix, not the line that
+	closed it by lining up with the rest.
+	"""
+		errors = Errors("class C:\n\tdef f(a as int) as int:\n\t\t\tns = a\n\t\treturn ns\n")
+		Assert.AreEqual("Inconsistent indentation, this line does not line up with the rest of its block.", errors[0].Message)
+		Assert.AreEqual(3, errors[0].LexicalInfo.Line)
+
+	[Test]
+	def AcceptsAQuotationThatClosesOnItsOwnLevel():
+	"""A quasi quotation ends where it likes, and the compiler's own macros do."""
+		Assert.AreEqual(0, Errors("def f():\n\treturn [|\n\t\t\tclass C:\n\t\t\t\tpass\n\t\t|]\n").Count)
