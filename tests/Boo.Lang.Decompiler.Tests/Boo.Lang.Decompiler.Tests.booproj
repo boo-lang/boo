@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Boo.Lang.Decompiler.Tests</AssemblyName>
+    <RootNamespace>Boo.Lang.Decompiler.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
+    <ProjectReference Include="../../src/Boo.Lang.Decompiler/Boo.Lang.Decompiler.booproj" />
+    <ProjectReference Include="../../src/booc/booc.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Import Project="../../Boo.targets" />
+
+</Project>

@@ -8,6 +8,7 @@
     <Project Path="src/Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" Type="C#" />
     <Project Path="src/Boo.Lang.Useful/Boo.Lang.Useful.booproj" Type="C#" />
     <Project Path="src/Boo.Lang.Interpreter/Boo.Lang.Interpreter.booproj" Type="C#" />
+    <Project Path="src/Boo.Lang.Decompiler/Boo.Lang.Decompiler.booproj" Type="C#" />
     <Project Path="src/Boo.Lang.CodeDom/Boo.Lang.CodeDom.booproj" Type="C#" />
     <Project Path="src/Boo.Microsoft.Build.Tasks/Boo.Microsoft.Build.Tasks.booproj" Type="C#" />
     <Project Path="src/booi/booi.booproj" Type="C#" />
@@ -27,6 +28,7 @@
     <Project Path="tests/Boo.Lang.CodeDom.Tests/Boo.Lang.CodeDom.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.PatternMatching.Tests/Boo.Lang.PatternMatching.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.Interpreter.Tests/Boo.Lang.Interpreter.Tests.booproj" Type="C#" />
+    <Project Path="tests/Boo.Lang.Decompiler.Tests/Boo.Lang.Decompiler.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.Useful.Tests/Boo.Lang.Useful.Tests.booproj" Type="C#" />
   </Folder>
 </Solution>

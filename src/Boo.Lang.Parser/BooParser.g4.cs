@@ -72,6 +72,8 @@ partial class BooParser
 		}
 
 		var stream = new AntlrInputStream(reader);
+		// Without this a token reports <unknown> and its error lands on no file.
+		stream.name = readerName;
 		BooParser.StartContext tree;
 
 		try

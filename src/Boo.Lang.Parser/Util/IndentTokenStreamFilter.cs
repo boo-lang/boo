@@ -103,6 +103,12 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 
 	System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
+	/// The line each open indent level was opened on.
+	Stack<int> _indentLines = new Stack<int>();
+
+	/// Depth of the quasi quotations in hand, which close on their own level.
+	int _quoted;
+
 	public IndentTokenStreamFilter(ITokenSource source, int wsType, int newlineTokenType, int indentType, int dedentType, int eosType, int endType, int idType)
 	{
 		if (null == source)
@@ -180,6 +186,7 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 
 			break;
 		}
+
 		return token;
 	}
 	
@@ -224,16 +231,27 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 			{
 				EnqueueIndent(token);
 				_indentStack.Push(lastLine.Length);
+				_indentLines.Push(token.Line);
 			}
 			else if (lastLine.Length < CurrentIndentLevel)
 			{
 				EnqueueEOS(token);
+				var opened = token.Line;
 				do 
 				{
 					EnqueueDedent();
 					_indentStack.Pop();
+					if (_indentLines.Count > 0)
+						opened = _indentLines.Pop();
 				}
 				while (lastLine.Length < CurrentIndentLevel);
+
+				// Landing between two levels means the block that just closed was
+				// opened further in than the rest, so name that line, not this one.
+				if (lastLine.Length != CurrentIndentLevel && _quoted == 0)
+					throw Boo.Lang.Compiler.CompilerErrorFactory.GenericParserError(
+						new Boo.Lang.Compiler.Ast.LexicalInfo(token.InputStream.SourceName, opened, 1),
+						new Exception(Boo.Lang.Resources.StringResources.BooParser_InconsistentIndentation));
 			}
 			else
 			{
@@ -265,7 +283,11 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 		ResetBuffer();
 			
 		IToken token = BufferUntilNextNonWhiteSpaceToken();
-		FlushBuffer(token);			
+		FlushBuffer(token);
+		if (token.Type == Boo.Lang.Parser.BooLexer.QQ_BEGIN)
+			_quoted++;
+		else if (token.Type == Boo.Lang.Parser.BooLexer.QQ_END && _quoted > 0)
+			_quoted--;
 		CheckForEOF(token);
 		ProcessNextNonWhiteSpaceToken(token);
 	}

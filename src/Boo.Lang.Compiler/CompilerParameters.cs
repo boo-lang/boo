@@ -132,13 +132,25 @@ namespace Boo.Lang.Compiler
 
 		public void LoadDefaultReferences()
 		{
+			LoadDefaultReferences(true);
+		}
+
+		/// <summary>
+		/// Loads the standard references, optionally without Boo.Lang.Extensions.
+		/// </summary>
+		/// <remarks>
+		/// Compiling Boo.Lang.Extensions itself has to leave it out: the loaded
+		/// copy's macros collide with the ones being compiled.
+		/// </remarks>
+		public void LoadDefaultReferences(bool loadExtensions)
+		{
 			//boo.lang.dll
 			_booAssembly = typeof(Builtins).Assembly;
 			_compilerReferences.Add(_booAssembly);
 
 			//boo.lang.extensions.dll
 			//try loading extensions next to Boo.Lang (in the same directory)
-			var extensionsAssembly = TryToLoadExtensionsAssembly();
+			var extensionsAssembly = loadExtensions ? TryToLoadExtensionsAssembly() : null;
 			if (extensionsAssembly != null)
 				_compilerReferences.Add(extensionsAssembly);
 
@@ -319,6 +331,18 @@ namespace Boo.Lang.Compiler
 				catch (FileNotFoundException ff)
 				{
 					fullLog += ff.FusionLog;
+					continue;
+				}
+				// A file of that name that will not load is no more an answer
+				// than no file at all, and throwing here ignores throwOnError.
+				catch (FileLoadException fl)
+				{
+					fullLog += fl.FusionLog;
+					continue;
+				}
+				catch (BadImageFormatException bf)
+				{
+					fullLog += bf.FusionLog;
 					continue;
 				}
 			}

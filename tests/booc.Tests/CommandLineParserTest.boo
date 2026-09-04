@@ -50,6 +50,23 @@ class CommandLineParserTest:
 			m = Methods.Of[of object](MethodWithCustomTypeInferenceRule)
 			Assert.AreEqual("custom", My[of TypeInferenceRuleProvider].Instance.TypeInferenceRuleFor(m))
 
+	private def ReferencesExtensions(args as (string)) as bool:
+		# False, as booc does it: the parser loads the defaults itself.
+		parameters = CompilerParameters(false)
+		booc.CommandLineParser.ParseInto(parameters, *args)
+		for reference in parameters.References:
+			return true if reference.Name == "Boo.Lang.Extensions"
+		return false
+
+	[Test]
+	def ExtensionsAreReferencedByDefault():
+		Assert.IsTrue(ReferencesExtensions((of string: "foo.boo")))
+
+	[Test]
+	def NoExtensionsLeavesThemOut():
+	"""Compiling Boo.Lang.Extensions needs this: the loaded copy collides."""
+		Assert.IsFalse(ReferencesExtensions(("-noextensions", "foo.boo")))
+
 	[CommandLineParserTest.CustomAttribute]
 	public static def MethodWithCustomTypeInferenceRule() as object:
 		return null

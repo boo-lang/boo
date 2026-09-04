@@ -85,7 +85,9 @@
 
     <MakeDir Directories="$(ProjectDir)$(IntermediateOutputPath)" />
 
-    <Exec Command="dotnet &quot;$(BoocDll)&quot; -noconfig -target:$(_BooTargetKind) -out:&quot;$(_BooOutput)&quot; @(_BooReference->'-r:&quot;%(FullPath)&quot;', ' ') @(BooCompile->'&quot;%(FullPath)&quot;', ' ')"
+    <!-- Every reference is passed below, so the implicit Boo.Lang.Extensions
+         is only in the way: it collides when compiling Extensions itself. -->
+    <Exec Command="dotnet &quot;$(BoocDll)&quot; -noconfig -noextensions -target:$(_BooTargetKind) -out:&quot;$(_BooOutput)&quot; @(_BooReference->'-r:&quot;%(FullPath)&quot;', ' ') @(BooCompile->'&quot;%(FullPath)&quot;', ' ')"
           StandardOutputImportance="normal" />
 
     <ItemGroup>
