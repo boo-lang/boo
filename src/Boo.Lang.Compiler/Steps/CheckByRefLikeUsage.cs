@@ -42,9 +42,14 @@ namespace Boo.Lang.Compiler.Steps
 		// One array type shows up at several nodes on its way through a method:
 		// the literal that mints it, the local it lands in, the parameter it is
 		// passed as. They are all the same mistake, so only the first is worth
-		// reporting.
+		// reporting. Cleared per method; a field is reported once per type.
 		private readonly List<IType> _reportedArrayTypes = new List<IType>();
 
+		/// <summary>
+		/// Nothing to say about a compilation that is already broken: the
+		/// earlier error is the one worth reading, and the boxing it rejected
+		/// has been reported by the type checker already.
+		/// </summary>
 		public override void Run()
 		{
 			if (Errors.Count > 0)
@@ -109,6 +114,10 @@ namespace Boo.Lang.Compiler.Steps
 				CheckForByRefLikeArray(node, local.Type);
 		}
 
+		/// <summary>
+		/// The parameter's own type covers what its type reference would say,
+		/// so the children are left unvisited rather than reported twice.
+		/// </summary>
 		public override void OnParameterDeclaration(ParameterDeclaration node)
 		{
 			var parameter = node.Entity as IParameter;

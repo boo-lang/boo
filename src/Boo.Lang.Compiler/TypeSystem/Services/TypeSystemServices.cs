@@ -134,6 +134,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private readonly MemoizedFunction<IType, IType, bool> _canBeReachedByPromotion;
 		private readonly AnonymousCallablesManager _anonymousCallablesManager;
 		private readonly CompilerContext _context;
+		private static readonly string ByRefLikeAttributeName =
+			typeof(System.Runtime.CompilerServices.IsByRefLikeAttribute).FullName;
 
 		public TypeSystemServices() : this(CompilerContext.Current)
 		{
@@ -655,12 +657,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 			// A Boo struct carries the marker as an ordinary attribute
 			var internalType = type as AbstractInternalType;
 			return internalType != null
-				&& internalType.TypeDefinition.Attributes.Count > 0
 				&& internalType.TypeDefinition.Attributes.Any(IsByRefLikeAttribute);
 		}
-
-		private static readonly string ByRefLikeAttributeName =
-			typeof(System.Runtime.CompilerServices.IsByRefLikeAttribute).FullName;
 
 		private static bool IsByRefLikeAttribute(Ast.Attribute attribute)
 		{
@@ -671,6 +669,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		/// <summary>
 		/// A member returning 'ref readonly T', such as the ReadOnlySpan indexer,
 		/// marks its return with an In modifier. The address is not assignable.
+		/// Only external members are asked, which is enough while Boo has no
+		/// syntax for declaring one.
 		/// </summary>
 		public static bool IsReadOnlyByRef(IMethod method)
 		{

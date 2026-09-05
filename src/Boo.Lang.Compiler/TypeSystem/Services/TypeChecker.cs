@@ -24,7 +24,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			{
 				// CanBeReachedFrom has already said why a byreflike value cannot
 				// get there, and it is not that the types are incompatible.
-				if (!WouldBoxByRefLikeType(expectedType, actualType))
+				if (!TypeSystemServices.WouldBoxByRefLikeType(expectedType, actualType))
 					_errors.Instance.Add(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType, actualType));
 				return false;
 			}
@@ -43,7 +43,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 		/// </summary>
 		public bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType, bool reportErrors)
 		{
-			if (WouldBoxByRefLikeType(expectedType, actualType))
+			if (TypeSystemServices.WouldBoxByRefLikeType(expectedType, actualType))
 			{
 				if (reportErrors)
 					_errors.Instance.Add(CompilerErrorFactory.CannotBoxByRefLikeType(anchor, actualType, expectedType));
@@ -56,11 +56,6 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			if (byDowncast)
 				_warnings.Instance.Add(CompilerWarningFactory.ImplicitDowncast(anchor, expectedType, actualType));
 			return true;
-		}
-
-		private static bool WouldBoxByRefLikeType(IType expectedType, IType actualType)
-		{
-			return TypeSystemServices.WouldBoxByRefLikeType(expectedType, actualType);
 		}
 
 		private static bool IsError(IEntity entity)
