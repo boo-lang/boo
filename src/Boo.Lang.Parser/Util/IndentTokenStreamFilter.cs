@@ -103,6 +103,16 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 
 	System.Text.StringBuilder _buffer = new System.Text.StringBuilder();
 
+	/// <summary>
+	/// An `end` to drop, held until the next token tells it from a name.
+	/// </summary>
+	IToken _heldEnd;
+
+	/// <summary>
+	/// Whether the layout before the token in hand closed a block.
+	/// </summary>
+	bool _dedented;
+
 	public IndentTokenStreamFilter(ITokenSource source, int wsType, int newlineTokenType, int indentType, int dedentType, int eosType, int endType, int idType)
 	{
 		if (null == source)
@@ -228,6 +238,7 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 			else if (lastLine.Length < CurrentIndentLevel)
 			{
 				EnqueueEOS(token);
+				_dedented = true;
 				do 
 				{
 					EnqueueDedent();
@@ -257,7 +268,35 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 	void ProcessNextNonWhiteSpaceToken(IToken token)
 	{
 		_lastNonWsToken = token;
+		// A lone `end` is dropped, so hold it until the next token tells it
+		// from a name being assigned or read.
+		if (token.Type == _endTokenType && _dedented)
+		{
+			_heldEnd = token;
+			return;
+		}
 		Enqueue(token);
+	}
+
+	/// <summary>
+	/// Settle the `end` in hand now that the next token is known: alone on its
+	/// line it is dropped, anywhere else it is a name.
+	/// </summary>
+	void ReleaseHeldEnd(IToken token)
+	{
+		if (null == _heldEnd) return;
+
+		IToken held = _heldEnd;
+		_heldEnd = null;
+		if (token.Type == TokenConstants.EOF || BufferHasNewLine()) return;
+
+		((IWritableToken)held).Type = _idTokenType;
+		Enqueue(held);
+	}
+
+	bool BufferHasNewLine()
+	{
+		return _buffer.Length > 0 && _buffer.ToString().IndexOfAny(NewLineCharArray) >= 0;
 	}
 	
 	void ProcessNextTokens()
@@ -265,6 +304,8 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 		ResetBuffer();
 			
 		IToken token = BufferUntilNextNonWhiteSpaceToken();
+		ReleaseHeldEnd(token);
+		_dedented = false;
 		FlushBuffer(token);			
 		CheckForEOF(token);
 		ProcessNextNonWhiteSpaceToken(token);
