@@ -195,9 +195,10 @@ namespace Boo.Lang.Compiler.Steps
 
 			if (null == CurrentBestGetCurrent)
 				return; //error
-			Expression current = CodeBuilder.CreateMethodInvocation(
-				CodeBuilder.CreateReference(iterator),
-				CurrentBestGetCurrent);
+			Expression current = CodeBuilder.CreateDereferenceIfNeeded(
+				CodeBuilder.CreateMethodInvocation(
+					CodeBuilder.CreateReference(iterator),
+					CurrentBestGetCurrent));
 
 			if (1 == declarations.Count)
 			{
@@ -224,20 +225,30 @@ namespace Boo.Lang.Compiler.Steps
 			// try:
 			//   while...
 			// ensure:
-			//   d = iterator as IDisposable
-			//   d.Dispose() unless d is null
+			//   iterator.Dispose()
 			if (ownsEnumerator && IsAssignableFrom(TypeSystemServices.IDisposableType, CurrentBestEnumeratorType))
 			{
 				TryStatement tryStatement = new TryStatement();
 				tryStatement.ProtectedBlock.Add(ws);
 				tryStatement.EnsureBlock = new Block();
 			
-				CastExpression castExpression = new CastExpression();
-				castExpression.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.IDisposableType);
-				castExpression.Target = CodeBuilder.CreateReference(iterator);
-				castExpression.ExpressionType = TypeSystemServices.IDisposableType;
+				// A byreflike enumerator cannot be cast to the interface, since
+				// that is a box. It is disposed through a constrained call on the
+				// enumerator itself instead.
+				Expression disposeTarget;
+				if (TypeSystemServices.IsByRefLike(CurrentBestEnumeratorType))
+					disposeTarget = CodeBuilder.CreateReference(iterator);
+				else
+				{
+					CastExpression castExpression = new CastExpression();
+					castExpression.Type = CodeBuilder.CreateTypeReference(TypeSystemServices.IDisposableType);
+					castExpression.Target = CodeBuilder.CreateReference(iterator);
+					castExpression.ExpressionType = TypeSystemServices.IDisposableType;
+					disposeTarget = castExpression;
+				}
+
 				tryStatement.EnsureBlock.Add(
-					CodeBuilder.CreateMethodInvocation(castExpression, IDisposable_Dispose));
+					CodeBuilder.CreateMethodInvocation(disposeTarget, IDisposable_Dispose));
 
 				body.Add(tryStatement);
 			}
@@ -423,24 +434,14 @@ namespace Boo.Lang.Compiler.Steps
 				return CurrentEnumeratorType;
 
 			IType bestEnumeratorType = null;
-			_candidates.Clear();
 
 			//resolution order:
 			//1) type contains an applicable GetEnumerator() [whether or not type implements IEnumerator (as C# does)]
-			CurrentEnumeratorType.Resolve(_candidates, "GetEnumerator", EntityType.Method);
-			foreach (IEntity candidate in _candidates)
+			IMethod getEnumerator = TypeSystemServices.FindGetEnumerator(CurrentEnumeratorType);
+			if (null != getEnumerator)
 			{
-				IMethod m = (IMethod) candidate;
-				if (null != m.GenericInfo || 0 != m.GetParameters().Length || !m.IsPublic)
-					continue; //only check public non-generic GetEnumerator with no argument
-
-				if (!IsAssignableFrom(TypeSystemServices.IEnumeratorGenericType, m.ReturnType)
-				    && !IsAssignableFrom(TypeSystemServices.IEnumeratorType, m.ReturnType))
-					continue; //GetEnumerator does not return an IEnumerator or IEnumerator[of T]
-
-				bestEnumeratorType = m.ReturnType;
-				_bestGetEnumerator = m;
-				break;
+				bestEnumeratorType = getEnumerator.ReturnType;
+				_bestGetEnumerator = getEnumerator;
 			}
 
 			//2) type explicitly implements IEnumerable[of T]

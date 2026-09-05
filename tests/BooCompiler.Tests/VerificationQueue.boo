@@ -78,6 +78,11 @@ internal static class VerificationQueue:
 			startInfo.ArgumentList.Add("-r")
 			startInfo.ArgumentList.Add(Path.Combine(directory, "*.dll"))
 
+		# ilverify does not model ref safety for byreflike types, so it rejects
+		# any method handing back a Span whatever compiler emitted it.
+		startInfo.ArgumentList.Add("-g")
+		startInfo.ArgumentList.Add("ReturnPtrToStack")
+
 		using process = Process.Start(startInfo):
 			output = process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd()
 			process.WaitForExit()

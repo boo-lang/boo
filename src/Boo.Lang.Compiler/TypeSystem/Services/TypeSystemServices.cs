@@ -134,6 +134,8 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private readonly MemoizedFunction<IType, IType, bool> _canBeReachedByPromotion;
 		private readonly AnonymousCallablesManager _anonymousCallablesManager;
 		private readonly CompilerContext _context;
+		private static readonly string ByRefLikeAttributeName =
+			typeof(System.Runtime.CompilerServices.IsByRefLikeAttribute).FullName;
 
 		public TypeSystemServices() : this(CompilerContext.Current)
 		{
@@ -480,8 +482,50 @@ namespace Boo.Lang.Compiler.TypeSystem
 			IType genericItemType = GetGenericEnumerableItemType(iteratorType);
 			if (null != genericItemType) return genericItemType;
 
+			// Try to find a GetEnumerator method
+			IType explicitEnumeratorType = GetExplicitEnumeratorItemType(iteratorType);
+			if (null != explicitEnumeratorType) return explicitEnumeratorType;
+
 			// If none of these work, the type is an enumerator of object
 			return ObjectType;
+		}
+
+		private IType GetExplicitEnumeratorItemType(IType iteratorType)
+		{
+			var getEnumerator = FindGetEnumerator(iteratorType);
+			if (null == getEnumerator) return null;
+
+			var current = getEnumerator.ReturnType.GetMembers()
+				.OfType<IProperty>().FirstOrDefault(p => p.Name == "Current");
+			if (null == current) return null;
+
+			// An enumerator handing back 'ref T' still fills the loop variable
+			// with a value
+			return current.Type.IsByRef ? current.Type.ElementType : current.Type;
+		}
+
+		/// <summary>
+		/// The GetEnumerator a for statement would call on the type: public,
+		/// taking no arguments, not generic, and returning an enumerator.
+		/// Whoever asks what the loop variable holds and whoever emits the loop
+		/// have to agree on which one that is.
+		/// </summary>
+		public IMethod FindGetEnumerator(IType type)
+		{
+			var candidates = new List<IEntity>();
+			type.Resolve(candidates, "GetEnumerator", EntityType.Method);
+
+			foreach (IMethod candidate in candidates.OfType<IMethod>())
+			{
+				if (null != candidate.GenericInfo || 0 != candidate.GetParameters().Length || !candidate.IsPublic)
+					continue;
+
+				if (IsAssignableFrom(IEnumeratorGenericType, candidate.ReturnType)
+					|| IsAssignableFrom(IEnumeratorType, candidate.ReturnType))
+					return candidate;
+			}
+
+			return null;
 		}
 
 		public static IType GetExpressionType(Expression node)
@@ -569,6 +613,9 @@ namespace Boo.Lang.Compiler.TypeSystem
 		public bool CanBeReachedFrom(IType expectedType, IType actualType, bool considerExplicitConversionOperators, out bool byDowncast)
 		{
 			byDowncast = false;
+			if (WouldBoxByRefLikeType(expectedType, actualType))
+				return false;
+
 			return IsAssignableFrom(expectedType, actualType)
 			       || CanBeReachedByPromotion(expectedType, actualType)
 			       || FindImplicitConversionOperator(actualType, expectedType) != null
@@ -579,6 +626,58 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private DowncastPermissions DowncastPermissions()
 		{
 			return _downcastPermissions ?? (_downcastPermissions = My<DowncastPermissions>.Instance);
+		}
+
+		/// <summary>
+		/// A byreflike value reaches a reference type only by being boxed, which
+		/// is the one thing the runtime will not do with it.
+		/// </summary>
+		public static bool WouldBoxByRefLikeType(IType expectedType, IType actualType)
+		{
+			return null != expectedType && !expectedType.IsValueType && IsByRefLike(actualType);
+		}
+
+		/// <summary>
+		/// A byreflike type is one the runtime keeps on the stack, such as Span.
+		/// </summary>
+		public static bool IsByRefLike(IType type)
+		{
+			// Every byreflike type is a struct, and most types asked about are
+			// not, so this settles it without looking any further.
+			if (null == type || !type.IsValueType)
+				return false;
+
+			if (type is ExternalType external)
+				return external.ActualType.IsByRefLike;
+
+			// A constructed type is byreflike when the definition behind it is
+			if (null != type.ConstructedInfo)
+				return IsByRefLike(type.ConstructedInfo.GenericDefinition);
+
+			// A Boo struct carries the marker as an ordinary attribute
+			var internalType = type as AbstractInternalType;
+			return internalType != null
+				&& internalType.TypeDefinition.Attributes.Any(IsByRefLikeAttribute);
+		}
+
+		private static bool IsByRefLikeAttribute(Ast.Attribute attribute)
+		{
+			var constructor = GetEntity(attribute) as IConstructor;
+			return constructor != null && constructor.DeclaringType.FullName == ByRefLikeAttributeName;
+		}
+
+		/// <summary>
+		/// A member returning 'ref readonly T', such as the ReadOnlySpan indexer,
+		/// marks its return with an In modifier. The address is not assignable.
+		/// Only external members are asked, which is enough while Boo has no
+		/// syntax for declaring one.
+		/// </summary>
+		public static bool IsReadOnlyByRef(IMethod method)
+		{
+			var mi = (method as ExternalMethod)?.MethodInfo as System.Reflection.MethodInfo;
+			return mi != null
+				&& mi.ReturnParameter.GetRequiredCustomModifiers()
+					.Any(m => m.FullName == "System.Runtime.InteropServices.InAttribute");
 		}
 
 		private bool InStrictMode()

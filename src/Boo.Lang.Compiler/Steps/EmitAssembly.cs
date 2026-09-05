@@ -1706,6 +1706,22 @@ namespace Boo.Lang.Compiler.Steps
 			FlushAssignmentOperand(elementType, temp);
 		}
 
+		void SetIndirect(BinaryExpression node, IType elementType)
+		{
+			Visit(node.Left);
+			PopType();
+
+			var opcode = GetStoreRefParamCode(elementType);
+			var temp = LoadAssignmentOperand(elementType, node);
+
+			if (IsStobj(opcode))
+				_il.Emit(opcode, GetSystemType(elementType));
+			else
+				_il.Emit(opcode);
+
+			FlushAssignmentOperand(elementType, temp);
+		}
+
 		private void FlushAssignmentOperand(IType elementType, LocalBuilder temp)
 		{
 			if (temp != null)
@@ -1777,6 +1793,15 @@ namespace Boo.Lang.Compiler.Steps
 			if (NodeType.SlicingExpression == node.Left.NodeType)
 			{
 				OnAssignmentToSlice(node);
+				return;
+			}
+
+			// a byref-returning member, such as Span's indexer, is stored
+			// through the address it leaves on the stack
+			if (NodeType.MethodInvocationExpression == node.Left.NodeType
+				&& node.Left.ExpressionType != null && node.Left.ExpressionType.IsByRef)
+			{
+				SetIndirect(node, node.Left.ExpressionType.ElementType);
 				return;
 			}
 
@@ -2598,6 +2623,13 @@ namespace Boo.Lang.Compiler.Steps
 			{
 				if (methodToBeInvoked.DeclaringType.IsValueType)
 					LoadAddress(target);
+				else if (TypeSystemServices.IsByRefLike(targetType))
+				{
+					// Never boxed. The interface member is reached by a
+					// constrained call on the address instead.
+					LoadAddress(target);
+					EmitConstrained(targetType);
+				}
 				else
 				{
 					Visit(target);
@@ -3490,6 +3522,15 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 			}
 
+			// Reading through an address to take its address again is a round
+			// trip; the operand already is the address.
+			if (IsDereferencedByRef(expression))
+			{
+				Visit(((UnaryExpression)expression).Operand);
+				PopType();
+				return;
+			}
+
 			Visit(expression);
 			if (!AstUtil.IsIndirection(expression))
 			{
@@ -3498,6 +3539,15 @@ namespace Boo.Lang.Compiler.Steps
 				_il.Emit(OpCodes.Stloc, temp);
 				_il.Emit(OpCodes.Ldloca, temp);
 			}
+		}
+
+		private static bool IsDereferencedByRef(Expression expression)
+		{
+			if (!AstUtil.IsIndirection(expression))
+				return false;
+
+			var operandType = ((UnaryExpression)expression).Operand.ExpressionType;
+			return operandType != null && operandType.IsByRef;
 		}
 
 		private void LoadArrayElementAddress(SlicingExpression slicing)
@@ -4392,6 +4442,8 @@ namespace Boo.Lang.Compiler.Steps
 				|| (actualType is IGenericParameter && !(expectedType is IGenericParameter)))
 				EmitBox(actualType);
 		}
+
+		private void EmitConstrained(IType type) => _il.Emit(OpCodes.Constrained, GetSystemType(type));
 
 		void EmitBox(IType type)
 		{

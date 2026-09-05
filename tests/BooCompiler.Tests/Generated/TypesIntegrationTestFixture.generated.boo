@@ -762,6 +762,10 @@ class TypesIntegrationTestFixture(AbstractCompilerTestCase):
 		RunCompilerTestCase("properties-9.boo")
 
 	[Test]
+	def @refreturn_1():
+		RunCompilerTestCase("refreturn-1.boo")
+
+	[Test]
 	def @reserved_keywords_1():
 		RunCompilerTestCase("reserved-keywords-1.boo")
 

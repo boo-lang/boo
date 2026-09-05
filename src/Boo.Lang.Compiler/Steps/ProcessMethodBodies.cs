@@ -1720,7 +1720,7 @@ namespace Boo.Lang.Compiler.Steps
 					mie.Target = CodeBuilder.CreateMemberReference(target, getter);
 					BindExpressionType(mie, getter.ReturnType);
 
-					node.ParentNode.Replace(node, mie);
+					node.ParentNode.Replace(node, CodeBuilder.CreateDereferenceIfNeeded(mie));
 				}
 				else
 				{
@@ -2407,7 +2407,16 @@ namespace Boo.Lang.Compiler.Steps
 				}
 
 				if (EntityType.Method != member.EntityType)
-					BindExpressionType(node, GetInferredType(member));
+				{
+					var memberType = GetInferredType(member);
+
+					// A byref-returning property is read for its value; the
+					// expansion step loads through the address its getter returns
+					if (memberType.IsByRef && !node.IsTargetOfAssignment())
+						memberType = memberType.ElementType;
+
+					BindExpressionType(node, memberType);
+				}
 				else
 					BindExpressionType(node, member.Type);
 			}
@@ -4267,6 +4276,29 @@ namespace Boo.Lang.Compiler.Steps
 			EnsureRelatedNodeWasVisited(node.Target, targetMethod);
 			BindExpressionType(node, GetInferredType(targetMethod));
 			ApplyBuiltinMethodTypeInference(node, targetMethod);
+			DereferenceByRefReturn(node);
+		}
+
+		/// <summary>
+		/// A method returning 'ref T' hands back an address; the call reads it
+		/// for its value. The operand is attached after the swap so that
+		/// building the indirection does not reparent the node first.
+		/// </summary>
+		private void DereferenceByRefReturn(MethodInvocationExpression node)
+		{
+			var type = node.ExpressionType;
+			if (type == null || !type.IsByRef || node.ParentNode == null)
+				return;
+
+			// Assigning to the call stores through the address, so the address
+			// is what the left hand side wants to keep.
+			if (node.IsTargetOfAssignment())
+				return;
+
+			var indirection = new UnaryExpression(node.LexicalInfo) { Operator = UnaryOperatorType.Indirection };
+			BindExpressionType(indirection, type.ElementType);
+			node.ParentNode.Replace(node, indirection);
+			indirection.Operand = node;
 		}
 
 		private void FixAmbiguousSignatures(MethodInvocationExpression node)
@@ -4847,6 +4879,17 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsError(lhs))
 				return;
 
+			// A byref-returning indexer, such as Span's, has no setter; it is
+			// assigned through the address its getter hands back. A readonly
+			// ref, as ReadOnlySpan returns, stays read only.
+			var indexer = lhs as IProperty;
+			if (indexer != null && indexer.GetSetMethod() == null && indexer.Type.IsByRef
+				&& !TypeSystemServices.IsReadOnlyByRef(indexer.GetGetMethod()))
+			{
+				BindIndirectAssignmentToSliceProperty(node, slice, indexer);
+				return;
+			}
+
 			var mie = new MethodInvocationExpression(node.Left.LexicalInfo);
 			foreach (var index in slice.Indices)
 				mie.Arguments.Add(index.Begin);
@@ -4895,6 +4938,22 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
+		void BindIndirectAssignmentToSliceProperty(BinaryExpression node, SlicingExpression slice, IProperty property)
+		{
+			var getter = property.GetGetMethod();
+			var mie = new MethodInvocationExpression(node.Left.LexicalInfo);
+			foreach (var index in slice.Indices)
+				mie.Arguments.Add(index.Begin);
+
+			mie.Target = CodeBuilder.CreateMemberReference(
+				GetIndexedPropertySlicingTarget(slice),
+				getter);
+			BindExpressionType(mie, getter.ReturnType);
+
+			node.Left = mie;
+			BindExpressionType(node, property.Type.ElementType);
+		}
+
 		private IEntity[] GetSetMethods(IEntity candidates)
 		{
 			return GetSetMethods(((Ambiguous)candidates).Entities);
@@ -4907,7 +4966,33 @@ namespace Boo.Lang.Compiler.Steps
 			if (NodeType.SlicingExpression == node.Left.NodeType)
 				BindAssignmentToSlice(node);
 			else
+			{
+				RewriteByRefPropertyAssignment(node);
 				ProcessAssignment(node);
+			}
+		}
+
+		/// <summary>
+		/// A byref-returning property has no setter, as Span's enumerator shows.
+		/// It is written through the address its getter hands back.
+		/// </summary>
+		private void RewriteByRefPropertyAssignment(BinaryExpression node)
+		{
+			var member = node.Left as MemberReferenceExpression;
+			if (member == null)
+				return;
+
+			var property = member.Entity as IProperty;
+			if (property == null || !property.Type.IsByRef || property.GetSetMethod() != null)
+				return;
+
+			var getter = property.GetGetMethod();
+			if (getter == null || TypeSystemServices.IsReadOnlyByRef(getter))
+				return;
+
+			var mie = CodeBuilder.CreateMethodInvocation(member.Target, getter);
+			BindExpressionType(mie, getter.ReturnType);
+			node.Left = mie;
 		}
 
 		virtual protected void ProcessAssignment(BinaryExpression node)
@@ -4924,7 +5009,11 @@ namespace Boo.Lang.Compiler.Steps
 			if (!AssertLValue(node.Left))
 				return false;
 
+			// Storing through an address is storing into what it points at.
 			IType lhsType = GetExpressionType(node.Left);
+			if (lhsType.IsByRef)
+				lhsType = lhsType.ElementType;
+
 			IType rhsType = GetExpressionType(node.Right);
 			if (!AssertTypeCompatibility(node.Right, lhsType, rhsType))
 				return false;
@@ -5548,6 +5637,11 @@ namespace Boo.Lang.Compiler.Steps
 			return TypeChecker.CanBeReachedFrom(anchor, expectedType, actualType);
 		}
 
+		bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType, bool reportErrors)
+		{
+			return TypeChecker.CanBeReachedFrom(anchor, expectedType, actualType, reportErrors);
+		}
+
 		private TypeChecker TypeChecker
 		{
 			get { return _typeChecker.Instance; }
@@ -5594,6 +5688,7 @@ namespace Boo.Lang.Compiler.Steps
 				{
 					if (!(args[i] is ReferenceExpression
 						|| args[i] is SlicingExpression
+						|| IsDereferencedByRef(args[i])
 						|| (args[i] is SelfLiteralExpression && argumentType.IsValueType)))
 					{
 						if (reportErrors)
@@ -5607,7 +5702,7 @@ namespace Boo.Lang.Compiler.Steps
 				}
 				else
 				{
-					if (!CanBeReachedFrom(args[i], parameterType, argumentType))
+					if (!CanBeReachedFrom(args[i], parameterType, argumentType, reportErrors))
 						return false;
 				}
 			}
@@ -5629,10 +5724,24 @@ namespace Boo.Lang.Compiler.Steps
 			if (CheckParameters(method, args, true))
 				return true;
 
+			// An argument that cannot be boxed has already named the problem;
+			// the signature mismatch would only repeat it.
+			if (HasUnboxableByRefLikeArgument(method, args))
+				return false;
+
 			if (IsLikelyMacroExtensionMethodInvocation(sourceEntity))
 				Error(CompilerErrorFactory.MacroExpansionError(sourceNode));
 			else
 				Error(CompilerErrorFactory.MethodSignature(sourceNode, sourceEntity, GetSignature(args)));
+			return false;
+		}
+
+		bool HasUnboxableByRefLikeArgument(ICallableType method, ExpressionCollection args)
+		{
+			var parameters = method.GetSignature().Parameters;
+			for (var i = 0; i < parameters.Length && i < args.Count; ++i)
+				if (TypeSystemServices.WouldBoxByRefLikeType(parameters[i].Type, GetExpressionType(args[i])))
+					return true;
 			return false;
 		}
 
@@ -6213,6 +6322,9 @@ namespace Boo.Lang.Compiler.Steps
 			if (IsError(GetExpressionType(node)))
 				return false;
 
+			if (IsWritableByRef(node))
+				return true;
+
 			var entity = node.Entity;
 			if (null != entity)
 				return AssertLValue(node, entity);
@@ -6222,6 +6334,49 @@ namespace Boo.Lang.Compiler.Steps
 
 			LValueExpected(node);
 			return false;
+		}
+
+		/// <summary>
+		/// An expression of type 'ref T' is the address of a real location, and
+		/// as assignable as the location itself. A 'ref readonly T' is not.
+		/// </summary>
+		private static bool IsWritableByRef(Expression node)
+		{
+			var type = node.ExpressionType;
+			if (type == null || !type.IsByRef)
+				return false;
+
+			var method = ByRefMemberOf(node);
+			return method == null || !TypeSystemServices.IsReadOnlyByRef(method);
+		}
+
+		/// <summary>
+		/// A byref-returning member read for its value, as span[i] is. The
+		/// address behind it is what a ref argument wants.
+		/// </summary>
+		private static bool IsDereferencedByRef(Expression node)
+		{
+			if (!AstUtil.IsIndirection(node))
+				return false;
+
+			var operand = ((UnaryExpression)node).Operand;
+			return operand.ExpressionType != null
+				&& operand.ExpressionType.IsByRef
+				&& IsWritableByRef(operand);
+		}
+
+		/// <summary>
+		/// The member that handed back the address, whether the source spelled
+		/// it as a call or as a property.
+		/// </summary>
+		private static IMethod ByRefMemberOf(Expression node)
+		{
+			var invocation = node as MethodInvocationExpression;
+			if (invocation != null)
+				return invocation.Target.Entity as IMethod;
+
+			var property = node.Entity as IProperty;
+			return property == null ? null : property.GetGetMethod();
 		}
 
 		private void LValueExpected(Node node)

@@ -145,6 +145,12 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 				return false;
 			}
 
+			if (TypeSystemServices.IsByRefLike(argument))
+			{
+				Errors.Add(CompilerErrorFactory.ByRefLikeGenericArgument(ConstructionNode, argument));
+				return false;
+			}
+
 			bool valid = true;
 
 			// Check type semantics constraints

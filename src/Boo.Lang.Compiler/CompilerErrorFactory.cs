@@ -311,6 +311,35 @@ namespace Boo.Lang.Compiler
 			return Instantiate("BCE0183", node, expression);
 		}
 		
+		/// <summary>
+		/// For a byreflike value asked to reach a reference type, which it can
+		/// only do by being boxed.
+		/// </summary>
+		public static CompilerError CannotBoxByRefLikeType(Node node, IType actualType, IType expectedType)
+		{
+			return Instantiate("BCE0190", node, actualType, expectedType);
+		}
+
+		public static CompilerError ByRefLikeFieldType(Node node, IType actualType, IType declaringType)
+		{
+			return Instantiate("BCE0191", node, actualType, declaringType);
+		}
+
+		public static CompilerError ByRefLikeTypeCaptured(Node node, IType actualType)
+		{
+			return Instantiate("BCE0192", node, actualType);
+		}
+
+		public static CompilerError ByRefLikeArrayElementType(Node node, IType actualType)
+		{
+			return Instantiate("BCE0193", node, actualType);
+		}
+
+		public static CompilerError ByRefLikeGenericArgument(Node node, IType actualType)
+		{
+			return Instantiate("BCE0194", node, actualType);
+		}
+
 		public static CompilerError LValueExpected(Node node)
 		{
 			return Instantiate("BCE0049", node, StripSurroundingParens(node.ToCodeString()));

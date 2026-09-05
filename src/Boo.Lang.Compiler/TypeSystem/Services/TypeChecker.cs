@@ -22,7 +22,10 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 			if (!CanBeReachedFrom(sourceNode, expectedType, actualType))
 			{
-				_errors.Instance.Add(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType, actualType));
+				// CanBeReachedFrom has already said why a byreflike value cannot
+				// get there, and it is not that the types are incompatible.
+				if (!TypeSystemServices.WouldBoxByRefLikeType(expectedType, actualType))
+					_errors.Instance.Add(CompilerErrorFactory.IncompatibleExpressionType(sourceNode, expectedType, actualType));
 				return false;
 			}
 			return true;
@@ -30,6 +33,23 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		public bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType)
 		{
+			return CanBeReachedFrom(anchor, expectedType, actualType, true);
+		}
+
+		/// <summary>
+		/// Overload resolution asks the same question twice, once to pick a
+		/// candidate and once to complain about the one it picked. Only the
+		/// second time is anyone listening.
+		/// </summary>
+		public bool CanBeReachedFrom(Node anchor, IType expectedType, IType actualType, bool reportErrors)
+		{
+			if (TypeSystemServices.WouldBoxByRefLikeType(expectedType, actualType))
+			{
+				if (reportErrors)
+					_errors.Instance.Add(CompilerErrorFactory.CannotBoxByRefLikeType(anchor, actualType, expectedType));
+				return false;
+			}
+
 			bool byDowncast;
 			if (!_typeSystemServices.Instance.CanBeReachedFrom(expectedType, actualType, out byDowncast))
 				return false;

@@ -134,9 +134,21 @@ namespace Boo.Lang.Compiler.Steps
 
 			AttributeTargets target;
 			if (NodeUsageTargets().TryGetValue(node.ParentNode.GetType(), out target))
+			{
+				// BindTypeDefinitions rewrites every struct into a class over
+				// ValueType, so a struct arrives here looking like a class.
+				if (target == AttributeTargets.Class && IsValueTypeDefinition(node.ParentNode))
+					return AttributeTargets.Struct;
 				return target;
+			}
 
 			return null;
+		}
+
+		private static bool IsValueTypeDefinition(Node node)
+		{
+			var type = ((TypeDefinition)node).Entity as IType;
+			return type != null && type.IsValueType;
 		}
 
 		private static bool IsValid(AttributeTargets target, AttributeTargets validAttributeTargets)
