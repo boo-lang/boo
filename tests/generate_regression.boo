@@ -71,6 +71,10 @@ def Main(argv as (string)):
 	
 	GenerateTestFixture("unsafe/errors", "BooCompiler.Tests", "UnsafeErrorsTestFixture", "AbstractCompilerErrorsTestFixture")
 	
+	GenerateTestFixture("byreflike", "BooCompiler.Tests", "RefStructsTestFixture", "AbstractCompilerTestCase")
+	
+	GenerateTestFixture("byreflike/errors", "BooCompiler.Tests", "RefStructsErrorsTestFixture", "AbstractCompilerErrorsTestFixture")
+	
 
 def PortParserTestCases():
 """

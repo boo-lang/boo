@@ -68,6 +68,8 @@ namespace Boo.Lang.Compiler.Pipelines
             Add(new DetectNotImplementedFeatureUsage());
 
 			Add(new ExpandVarArgsMethodInvocations());
+
+			Add(new CheckByRefLikeUsage());
 			
 			Add(new InjectCallableConversions());
 			Add(new CallableTypeElision());

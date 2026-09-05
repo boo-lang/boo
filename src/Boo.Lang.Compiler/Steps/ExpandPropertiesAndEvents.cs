@@ -57,7 +57,7 @@ namespace Boo.Lang.Compiler.Steps
     				CodeBuilder.CreateCast(
     					TypeSystemServices.DuckType, getter));
     		else
-    			ReplaceCurrentNode(getter);
+    			ReplaceCurrentNode(CodeBuilder.CreateDereferenceIfNeeded(getter));
     	}
 
     	public override void LeaveBinaryExpression(BinaryExpression node)

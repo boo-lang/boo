@@ -682,6 +682,25 @@ namespace Boo.Lang.Compiler.TypeSystem
 			       	};
 		}
 
+		/// <summary>
+		/// Loads through the address a byref-returning member hands back, for a
+		/// reader that wants the value rather than the location.
+		/// </summary>
+		public Expression CreateDereferenceIfNeeded(Expression node)
+		{
+			var type = node.ExpressionType;
+			if (type == null || !type.IsByRef)
+				return node;
+
+			return new UnaryExpression
+			       	{
+			       		LexicalInfo = node.LexicalInfo,
+			       		Operand = node,
+			       		Operator = UnaryOperatorType.Indirection,
+			       		ExpressionType = type.ElementType
+			       	};
+		}
+
 		public UnaryExpression CreateNotExpression(Expression node)
 		{
 			return new UnaryExpression
