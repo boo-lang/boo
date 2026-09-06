@@ -47,6 +47,9 @@ jobs:
       - name: Test parser corpus
         run: dotnet test tests/Boo.Lang.Parser.Tests/Boo.Lang.Parser.Tests.booproj --configuration Release --no-build --filter "TestCategory=Corpus" --logger "trx;LogFileName=corpus-${{ matrix.os }}.trx"
 
+      - name: Test language server corpus
+        run: dotnet test tests/Boo.Lang.Lsp.Tests/Boo.Lang.Lsp.Tests.booproj --configuration Release --no-build --filter "TestCategory=Corpus" --logger "trx;LogFileName=lsp-corpus-${{ matrix.os }}.trx"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7

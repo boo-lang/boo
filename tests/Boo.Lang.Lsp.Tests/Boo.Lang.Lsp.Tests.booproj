@@ -3,6 +3,9 @@
   <PropertyGroup>
     <AssemblyName>Boo.Lang.Lsp.Tests</AssemblyName>
     <RootNamespace>Boo.Lang.Lsp.Tests</RootNamespace>
+    <!-- The corpus fixture reads every .boo in the repository, which is slow.
+         CI asks for it by category; an ordinary run does not pay for it. -->
+    <VSTestTestCaseFilter>TestCategory!=Corpus</VSTestTestCaseFilter>
   </PropertyGroup>
 
   <ItemGroup>
