@@ -7,12 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ICSharpCode.Decompiler" Version="9.1.0.7988" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
     <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../Boo.Lang.Decompiler/Boo.Lang.Decompiler.booproj" />
     <ProjectReference Include="../Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
     <ProjectReference Include="../Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
     <ProjectReference Include="../Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />

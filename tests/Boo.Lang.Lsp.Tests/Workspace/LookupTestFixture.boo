@@ -195,7 +195,7 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		# "print Console.Out", Console starts at character 6.
 		found = At(9, 6)
 		assert found.HasDeclaration
-		assert found.DeclarationUri.EndsWith("System.Console.cs"), found.DeclarationUri
+		assert "System.Console" in found.DeclarationUri, found.DeclarationUri
 		assert found.Declaration.Line >= 0
 
 	[Test]
@@ -205,7 +205,7 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		document = TextDocument("file:///external.boo", "boo", 1, text)
 		found = Lookup.At(document, analyzer.Bound(document), Position(2, 19))
 		assert found.Name == "GetFiles"
-		assert found.DeclarationUri.EndsWith("System.IO.Directory.cs"), found.DeclarationUri
+		assert "System.IO.Directory" in found.DeclarationUri, found.DeclarationUri
 		lines = File.ReadAllLines(Uri(found.DeclarationUri).LocalPath)
 		assert "GetFiles" in lines[found.Declaration.Line], lines[found.Declaration.Line]
 
@@ -228,7 +228,7 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		assert found is not null, "nothing found on the attribute"
 		assert found.Name == "Obsolete", found.Name
 		assert found.HasDeclaration
-		assert found.DeclarationUri.EndsWith("System.ObsoleteAttribute.cs"), found.DeclarationUri
+		assert "System.ObsoleteAttribute" in found.DeclarationUri, found.DeclarationUri
 
 	[Test]
 	def PointsATypeAnnotationAtWhatItNames():
@@ -243,36 +243,7 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		assert found is not null, "nothing found on the type"
 		assert found.Name == "Path", found.Name
 		assert found.HasDeclaration
-		assert found.DeclarationUri.EndsWith("System.IO.Path.cs"), found.DeclarationUri
-	[Test]
-	def FindsTheNameWithTheCursorAtItsEnd():
-	"""
-	Clicking a name leaves the caret after it, which for a name of one
-	character is the only position the editor ever asks about.
-	"""
-		text = "s = 1\ns.ToString()\n"
-		document = TextDocument("file:///edge.boo", "boo", 1, text)
-		found = Lookup.At(document, analyzer.Bound(document), Position(1, 1))
-		assert found is not null, "nothing found at the end of the name"
-		assert found.Name == "s", found.Name
-		assert found.HasDeclaration
-		assert found.Declaration.Line == 0
-
-	[Test]
-	def PointsAtAValueTypeBuiltWithNoArguments():
-	"""
-	The construction is replaced by an eval over a temp local, which carries
-	neither the type's entity nor the column the type was written at.
-	"""
-		text = "struct Wrapper:\n\tpublic n as int\n\nw = Wrapper()\n"
-		document = TextDocument("file:///wrapper.boo", "boo", 1, text)
-		# "w = Wrapper()", Wrapper starts at character 4.
-		found = Lookup.At(document, analyzer.Bound(document), Position(3, 4))
-		assert found is not null, "nothing found"
-		assert found.Name == "Wrapper"
-		assert found.Signature == "struct Wrapper", found.Signature
-		assert found.HasDeclaration
-		assert found.Declaration.Line == 0
+		assert "System.IO.Path" in found.DeclarationUri, found.DeclarationUri
 
 	[Test]
 	def FindsEveryOccurrenceOfTheNameUnderTheCursor():
@@ -292,7 +263,6 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		document = TextDocument("file:///occ2.boo", "boo", 1, text)
 		spans = Lookup.Occurrences(document, analyzer.Bound(document), Position(0, 1))
 		assert spans.Count == 2, "found ${spans.Count}"
-
 
 	[Test]
 	def FindsTheNameWithTheCursorAtItsEnd():
@@ -317,3 +287,61 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		assert spans[0].Written, "line 0 assigns"
 		assert spans[1].Written, "line 1 assigns"
 		assert not spans[2].Written, "line 2 reads"
+
+	[Test]
+	def FindsEveryReferenceToTheNameUnderTheCursor():
+		text = "def add(a as int):\n\treturn a\n\nsum = add(1)\nprint sum\n"
+		document = TextDocument("file:///refs.boo", "boo", 1, text)
+		spans = Lookup.References(document, analyzer.Bound(document), Position(3, 1))
+		assert spans.Count == 2, "found ${spans.Count}"
+		assert spans[0].Uri == document.Uri
+
+	[Test]
+	def RenamesEveryOccurrenceOfALocal():
+		text = "sum = 1\nprint sum\n"
+		document = TextDocument("file:///rename.boo", "boo", 1, text)
+		edits = Lookup.Rename(document, analyzer.Bound(document), Position(0, 1))
+		assert edits is not null
+		assert edits.Count == 2, "found ${edits.Count}"
+
+	[Test]
+	def RefusesToRenameSomethingAnAssemblyOwns():
+	"""Only what the sources declare can be rewritten by editing them."""
+		text = "import System\nprint Console.Out\n"
+		document = TextDocument("file:///external.boo", "boo", 1, text)
+		assert Lookup.Rename(document, analyzer.Bound(document), Position(1, 7)) is null
+
+	[Test]
+	def DescribesAByRefLikeTypeAsARefStruct():
+	"""A byreflike type is a value type too, and `struct` alone misnames it."""
+		text = "import System\n\nprint ReadOnlySpan[of int].Empty\n"
+		document = TextDocument("file:///span.boo", "boo", 1, text)
+		# "print ReadOnlySpan", ReadOnlySpan starts at character 6.
+		found = Lookup.At(document, analyzer.Bound(document), Position(2, 6))
+		assert found is not null
+		assert found.Signature == "ref struct System.ReadOnlySpan[of T]", found.Signature
+
+	[Test]
+	def PointsAtAValueTypeBuiltWithNoArguments():
+	"""
+	The construction is replaced by an eval over a temp local, which carries
+	neither the type's entity nor the column the type was written at.
+	"""
+		text = "struct Wrapper:\n\tpublic n as int\n\nw = Wrapper()\n"
+		document = TextDocument("file:///wrapper.boo", "boo", 1, text)
+		# "w = Wrapper()", Wrapper starts at character 4.
+		found = Lookup.At(document, analyzer.Bound(document), Position(3, 4))
+		assert found is not null, "nothing found"
+		assert found.Name == "Wrapper"
+		assert found.Signature == "struct Wrapper", found.Signature
+		assert found.HasDeclaration
+		assert found.Declaration.Line == 0
+
+	[Test]
+	def PointsAtARefStructBuiltWithNoArguments():
+		text = "ref struct Wrapper:\n\tpublic n as int\n\nw = Wrapper()\n"
+		document = TextDocument("file:///refwrapper.boo", "boo", 1, text)
+		found = Lookup.At(document, analyzer.Bound(document), Position(3, 4))
+		assert found is not null, "nothing found"
+		assert found.Signature == "ref struct Wrapper", found.Signature
+		assert found.Declaration.Line == 0

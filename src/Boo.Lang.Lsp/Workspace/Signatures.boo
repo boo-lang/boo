@@ -30,6 +30,7 @@ namespace Boo.Lang.Lsp.Workspace
 
 import System.Collections.Generic
 import Boo.Lang.Compiler.TypeSystem
+import Boo.Lang.Compiler.TypeSystem.Services
 
 class Signatures:
 """How an entity is written for a person to read."""
@@ -91,8 +92,11 @@ class Signatures:
 	private static def Parameters(method as IMethod) as string:
 		return string.Join(", ", ParametersOf(method).ToArray())
 
-	private static def KindOf(type as IType) as string:
+	static def KindOf(type as IType) as string:
 		return "interface" if type.IsInterface
 		return "enum" if type.IsEnum
+		# Byreflike first: it is a value type too, and `struct` alone is not
+		# what the parser takes back.
+		return "ref struct" if TypeSystemServices.IsByRefLike(type)
 		return "struct" if type.IsValueType
 		return "class"

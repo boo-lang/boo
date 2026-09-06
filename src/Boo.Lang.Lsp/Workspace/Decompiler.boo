@@ -33,8 +33,7 @@ import System.IO
 import System.Reflection
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Compiler.TypeSystem.Reflection
-import ICSharpCode.Decompiler
-import ICSharpCode.Decompiler.CSharp
+import Boo.Lang.Decompiler
 
 class Decompiler:
 """
@@ -53,7 +52,25 @@ request for anything in the same type reads it back instead.
 		public Uri as string
 		public Line as int
 
-	static Cache = Path.Combine(Path.GetTempPath(), "boo-ls", "metadata")
+	# Stamped with this build: what a server writes out is only as good as
+	# the version that wrote it, and a stale file would outlive the fix.
+	public static final Boo = "boo"
+	public static final CSharp = "csharp"
+
+	# Which language go to definition shows a type an assembly owns in.
+	# C# is what the decompiler reads back most faithfully.
+	[property(Language)]
+	static _language = CSharp
+
+	static Cache = Path.Combine(Path.GetTempPath(), "boo-ls", "metadata", Build())
+
+	private static def Build() as string:
+		try:
+			location = typeof(Decompiler).Assembly.Location
+			return "0" if string.IsNullOrEmpty(location)
+			return File.GetLastWriteTimeUtc(location).Ticks.ToString()
+		except:
+			return "0"
 
 	static def Of(entity as IEntity) as Source:
 	"""Where the entity is written, or null if it is not in an assembly."""
@@ -64,9 +81,16 @@ request for anything in the same type reads it back instead.
 		declaring = member.DeclaringType if declaring is null
 		return null if declaring is null
 
-		path = SourceFile(declaring)
+		path = SourceFile(declaring, DeclaringTypeOf(entity))
 		return null if path is null
 		return Source(Uri: Project.UriOf(path), Line: LineOf(path, member))
+
+	private static def DeclaringTypeOf(entity as IEntity) as IType:
+	"""The type this entity belongs to, for the fallback to write."""
+		type = entity as IType
+		return type if type is not null
+		owned = entity as IMember
+		return (owned.DeclaringType if owned is not null else null)
 
 	private static def MemberOf(entity as IEntity) as MemberInfo:
 	"""
@@ -82,18 +106,26 @@ request for anything in the same type reads it back instead.
 		return external.MemberInfo if external is not null
 		return null
 
-	private static def SourceFile(type as Type) as string:
-	"""The decompiled type on disk, decompiling it first if need be."""
+	private static def SourceFile(type as Type, declared as IType) as string:
+	"""The cached file for a type, writing it the first time."""
 		definition = type
 		definition = type.GetGenericTypeDefinition() if type.IsConstructedGenericType
 		assembly = definition.Assembly.Location
 		return null if string.IsNullOrEmpty(assembly)
 
-		target = Path.Combine(Cache, Path.GetFileNameWithoutExtension(assembly), FileName(definition))
+		# Kept apart by language, so a change of mind does not read a file
+		# written for the other one.
+		target = Path.Combine(Cache, _language, Path.GetFileNameWithoutExtension(assembly), FileName(definition))
 		return target if File.Exists(target)
 
-		text = Decompile(assembly, definition)
-		return null if text is null
+		# Fall back to the type system if the decompiler fails or is absent.
+		text as string
+		try:
+			text = (Decompiled.AsCSharp(assembly, definition.FullName) if _language == CSharp else Decompiled.Of(assembly, definition.FullName))
+		except e as Exception:
+			Console.Error.WriteLine("boo-ls: reading ${definition.FullName} failed: ${e.Message}")
+		text = Stub.Of(declared) if string.IsNullOrEmpty(text) and _language != CSharp
+		return null if string.IsNullOrEmpty(text)
 		Directory.CreateDirectory(Path.GetDirectoryName(target))
 		File.WriteAllText(target, text)
 		return target
@@ -108,17 +140,7 @@ request for anything in the same type reads it back instead.
 		name = type.FullName.Replace("+", ".")
 		tick = name.IndexOf(char('`'))
 		name = name.Substring(0, tick) if tick >= 0
-		return name + ".cs"
-
-	private static def Decompile(assembly as string, type as Type) as string:
-		try:
-			decompiler = CSharpDecompiler(assembly, DecompilerSettings())
-			return decompiler.DecompileTypeAsString(ICSharpCode.Decompiler.TypeSystem.FullTypeName(type.FullName))
-		except e as Exception:
-			# A type that will not decompile is worth saying out loud, but it
-			# is not worth failing the request the editor asked for.
-			Console.Error.WriteLine("boo-ls: decompiling ${type.FullName} failed: ${e.Message}")
-			return null
+		return name + (".cs" if _language == CSharp else ".boo")
 
 	private static def LineOf(path as string, member as MemberInfo) as int:
 	"""

@@ -58,6 +58,15 @@ declarations can be walked and rewritten in another language.
 		return null if written.Length == 0
 		return written.ToString()
 
+	static def AsCSharp(assembly as string, fullName as string) as string:
+	"""The type as the decompiler writes it, for a reader who wants C#."""
+		try:
+			decompiler = CSharpDecompiler(assembly, DecompilerSettings())
+			return decompiler.DecompileTypeAsString(Metadata.FullTypeName(fullName))
+		except e as Exception:
+			# A caller gets null and decides what to say about it.
+			return null
+
 	private static def TreeOf(assembly as string, fullName as string) as SyntaxTree:
 		try:
 			decompiler = CSharpDecompiler(assembly, DecompilerSettings())
