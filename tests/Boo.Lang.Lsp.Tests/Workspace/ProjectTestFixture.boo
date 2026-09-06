@@ -22,7 +22,9 @@ class ProjectTestFixture:
 		Directory.Delete(root, true) if Directory.Exists(root)
 
 	private def Write(relative as string, text as string) as string:
-		path = Path.Combine(root, relative)
+		# Combine leaves a forward slash alone on Windows, and what the code
+		# under test returns comes back with the platform's own separator.
+		path = Path.Combine(root, relative.Replace(char('/'), Path.DirectorySeparatorChar))
 		Directory.CreateDirectory(Path.GetDirectoryName(path))
 		File.WriteAllText(path, text)
 		return path

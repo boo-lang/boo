@@ -27,6 +27,15 @@ src/Boo.Lang.Useful/CommandLine/AbstractCommandLine.boo
 tests/Boo.Lang.Compiler.Tests/AstFixture.boo
 tests/Boo.Lang.Compiler.Tests/CallableSignatureFixture.boo
 tests/Boo.Lang.Compiler.Tests/TestMacro.boo
+tests/Boo.Lang.Lsp.Tests/Protocol/ConnectionTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Server/PublishDiagnosticsTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Server/SemanticTokensTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Server/SignatureHelpTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Workspace/CompletionTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Workspace/ConcurrentCompileTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Workspace/DiagnosticsTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Workspace/LookupTestFixture.boo
+tests/Boo.Lang.Lsp.Tests/Workspace/StubTestFixture.boo
 tests/Boo.Lang.PatternMatching.Tests/CodeMatchingTest.boo
 tests/Boo.Lang.Useful.Tests/Attributes/AutoFlagsAttributeTestFixture.boo
 tests/testcases/async/async-conformance-awaiting-indexer.boo
@@ -70,7 +79,6 @@ tests/testcases/integration/generators/generator-calling-external-super-with-arg
 tests/testcases/integration/generators/yield-10.boo
 tests/testcases/integration/generators/yield-11.boo
 tests/testcases/integration/generators/yield-12.boo
-tests/testcases/integration/meta-programming/block-lift.boo
 tests/testcases/integration/meta-programming/CodeReifierMergeIntoWithEmptyArrayLiteral.boo
 tests/testcases/integration/meta-programming/CodeReifierMergeIntoWithEvent.boo
 tests/testcases/integration/meta-programming/CodeReifierMergeIntoWithGenerators.boo
@@ -82,6 +90,7 @@ tests/testcases/integration/meta-programming/CodeReifierMergeIntoWithNestedTypes
 tests/testcases/integration/meta-programming/CodeReifierMergeIntoWithNestedTypesInDifferentOrder.boo
 tests/testcases/integration/meta-programming/CodeReifierMergeIntoWithProperties.boo
 tests/testcases/integration/meta-programming/CodeReifierMergeIntoWithStatementModifiers.boo
+tests/testcases/integration/meta-programming/block-lift.boo
 tests/testcases/integration/meta-programming/compile-2.boo
 tests/testcases/integration/meta-programming/field-splicing-1.boo
 tests/testcases/integration/meta-programming/macro-yielding-selective-import.boo
