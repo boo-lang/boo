@@ -26,36 +26,26 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Workspace
 
 import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class Position:
+"""A place in a document, counted from zero, in UTF-16 code units."""
 
-	directory as string
+	public final Line as int
+	public final Character as int
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	def constructor(line as int, character as int):
+		Line = line
+		Character = character
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	override def ToString():
+		return "${Line}:${Character}"
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	override def Equals(other as object):
+		that = other as Position
+		return that is not null and that.Line == Line and that.Character == Character
+
+	override def GetHashCode():
+		return Line * 397 + Character

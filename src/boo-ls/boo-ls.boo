@@ -26,36 +26,32 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
-
 import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import Boo.Lang.Lsp.Protocol
+import Boo.Lang.Lsp.Server
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+def Usage():
+	print "usage: boo-ls [--version] [--help]"
+	print ""
+	print "Speaks the Language Server Protocol over stdin and stdout."
+	print "Started by an editor, not usually by hand."
 
-	directory as string
+def Serve() as int:
+	# Console.In and Console.Out would decode; the protocol is framed in bytes.
+	stream = MessageStream(Console.OpenStandardInput(), Console.OpenStandardOutput())
+	return LanguageServer(stream).Run()
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+def Run(args as (string)) as int:
+	for arg in args:
+		if arg == "--version" or arg == "-version":
+			print "${ServerInfo.Name} ${ServerInfo.Version}"
+			return 0
+		if arg == "--help" or arg == "-help" or arg == "-h":
+			Usage()
+			return 0
+		Console.Error.WriteLine("boo-ls: unknown option ${arg}")
+		return 2
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	return Serve()
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+Environment.ExitCode = Run(argv)

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>boo-ls</AssemblyName>
+    <RootNamespace>Boo.Lang.Lsp.Cli</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <Description>Language server for Boo, spoken over stdio.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../Boo.Lang.Lsp/Boo.Lang.Lsp.booproj" />
+    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Import Project="../../Boo.targets" />
+
+</Project>

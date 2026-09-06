@@ -26,36 +26,39 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Json
 
 import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import System.Collections.Generic
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class Fields:
+"""
+Reads values out of a parsed message.
 
-	directory as string
+A client may leave out anything the protocol marks optional, so every reader
+answers with a default rather than raising when a field is missing or is not
+of the type asked for.
+"""
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	static def Map(value as object, name as string) as Dictionary[of string, object]:
+		return Of(value, name) as Dictionary[of string, object]
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	static def Items(value as object, name as string) as List[of object]:
+		found = Of(value, name) as List[of object]
+		return List[of object]() if found is null
+		return found
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	static def Text(value as object, name as string) as string:
+		return Of(value, name) as string
+
+	static def Number(value as object, name as string, fallback as int) as int:
+		found = Of(value, name)
+		return fallback if found is null
+		return System.Convert.ToInt32(found)
+
+	static def Of(value as object, name as string) as object:
+		map = value as IDictionary[of string, object]
+		return null if map is null
+		found as object
+		return null unless map.TryGetValue(name, found)
+		return found

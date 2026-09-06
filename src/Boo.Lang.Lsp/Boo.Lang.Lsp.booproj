@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Boo.Lang.Lsp</AssemblyName>
+    <RootNamespace>Boo.Lang.Lsp</RootNamespace>
+    <Description>Language Server Protocol implementation for Boo.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
+    <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
+    <ProjectReference Include="../Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
+    <ProjectReference Include="../Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
+    <ProjectReference Include="../Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />
+    <ProjectReference Include="../Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
+    <ProjectReference Include="../Boo.Lang.Interpreter/Boo.Lang.Interpreter.booproj" />
+    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Import Project="../../Boo.targets" />
+
+</Project>

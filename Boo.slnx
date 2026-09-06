@@ -13,6 +13,8 @@
     <Project Path="src/Boo.Microsoft.Build.Tasks/Boo.Microsoft.Build.Tasks.booproj" Type="C#" />
     <Project Path="src/booi/booi.booproj" Type="C#" />
     <Project Path="src/booish/booish.booproj" Type="C#" />
+    <Project Path="src/Boo.Lang.Lsp/Boo.Lang.Lsp.booproj" Type="C#" />
+    <Project Path="src/boo-ls/boo-ls.booproj" Type="C#" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/BooSupportingClasses/BooSupportingClasses.booproj" Type="C#" />
@@ -30,5 +32,6 @@
     <Project Path="tests/Boo.Lang.Interpreter.Tests/Boo.Lang.Interpreter.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.Decompiler.Tests/Boo.Lang.Decompiler.Tests.booproj" Type="C#" />
     <Project Path="tests/Boo.Lang.Useful.Tests/Boo.Lang.Useful.Tests.booproj" Type="C#" />
+    <Project Path="tests/Boo.Lang.Lsp.Tests/Boo.Lang.Lsp.Tests.booproj" Type="C#" />
   </Folder>
 </Solution>

@@ -1,0 +1,10 @@
+#!/bin/sh
+# Runs the boo-ls built from source. Set BOO_CONFIGURATION=Release for that build.
+config=${BOO_CONFIGURATION:-Debug}
+root=$(dirname "$0")
+exe="$root/src/boo-ls/bin/$config/net10.0/boo-ls"
+if [ ! -x "$exe" ]; then
+	echo "boo-ls is not built. Run: dotnet build Boo.slnx" >&2
+	exit 1
+fi
+exec "$exe" "$@"

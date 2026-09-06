@@ -26,36 +26,54 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Protocol
 
-import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import System.Collections.Generic
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class JsonRpc:
+"""The JSON-RPC vocabulary the protocol defines, and the shapes of a reply."""
 
-	directory as string
+	public static final Version = "2.0"
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	public static final ParseError = -32700
+	public static final InvalidRequest = -32600
+	public static final MethodNotFound = -32601
+	public static final InvalidParams = -32602
+	public static final InternalError = -32603
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	# LSP adds these to the codes JSON-RPC reserves.
+	public static final ServerNotInitialized = -32002
+	public static final RequestCancelled = -32800
+	public static final ContentModified = -32801
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	static def Result(id as object, result as object):
+		message = Envelope(id)
+		message["result"] = result
+		return message
+
+	static def Error(id as object, code as int, description as string):
+		return ErrorReply(id, ErrorBody(code, description))
+
+	static def Notification(method as string, params as object):
+		message = Dictionary[of string, object]()
+		message["jsonrpc"] = Version
+		message["method"] = method
+		message["params"] = params
+		return message
+
+	static def ErrorBody(code as int, description as string):
+		error = Dictionary[of string, object]()
+		error["code"] = code
+		error["message"] = description
+		return error
+
+	static def ErrorReply(id as object, body as Dictionary[of string, object]):
+		message = Envelope(id)
+		message["error"] = body
+		return message
+
+	private static def Envelope(id as object):
+		message = Dictionary[of string, object]()
+		message["jsonrpc"] = Version
+		message["id"] = id
+		return message
