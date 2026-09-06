@@ -97,3 +97,17 @@ the range is worked out from the document.
 		diagnostic = Diagnostic.FromError(Document("Application.Run(f)\n"), error)
 		span = diagnostic["range"] as Dictionary[of string, object]
 		assert End(span)["character"] == 11L, diagnostic["message"]
+
+	[Test]
+	def MarksSomethingNeverUsedAsUnnecessary():
+	"""The client fades what it is told is unnecessary rather than drawing it."""
+		warning = CompilerWarning("BCW0016", LexicalInfo("file:///a.boo", 1, 8), "System.Xml")
+		diagnostic = Diagnostic.FromWarning(Document("import System.Xml\n"), warning)
+		tags = diagnostic["tags"] as List[of object]
+		assert tags is not null and tags.Count == 1
+		assert tags[0] == Diagnostic.Unnecessary
+
+	[Test]
+	def LeavesAnOrdinaryReportUntagged():
+		error = CompilerError("BCE0005", LexicalInfo("file:///a.boo", 1, 7), "nosuchname")
+		assert not Diagnostic.FromError(Document("print nosuchname\n"), error).ContainsKey("tags")

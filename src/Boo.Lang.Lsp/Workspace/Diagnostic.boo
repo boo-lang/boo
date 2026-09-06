@@ -45,6 +45,12 @@ end of the range is the end of the word the client would see under the squiggle.
 	public static final Error = 1
 	public static final Warning = 2
 
+	# A client fades what it is told is unnecessary rather than drawing it.
+	public static final Unnecessary = 1
+
+	# What the compiler reports about something nothing uses.
+	static final NeverUsed = ("BCW0014", "BCW0016")
+
 	static def FromError(document as TextDocument, error as CompilerError):
 		return Build(document, error.LexicalInfo, Error, error.Code, error.Message)
 
@@ -73,6 +79,10 @@ end of the range is the end of the word the client would see under the squiggle.
 		diagnostic["code"] = code
 		diagnostic["source"] = Source
 		diagnostic["message"] = message
+		if code in NeverUsed:
+			tags = List[of object]()
+			tags.Add(Unnecessary)
+			diagnostic["tags"] = tags
 		return diagnostic
 
 	private static def EndOfWord(document as TextDocument, location as LexicalInfo, start as Position, message as string) as Position:

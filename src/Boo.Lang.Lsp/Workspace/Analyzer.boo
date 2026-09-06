@@ -34,6 +34,7 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
+import Boo.Lang.Compiler.Steps as Steps
 
 class Analyzer:
 """
@@ -44,9 +45,8 @@ about twenty milliseconds and can run on every keystroke; binding costs tens
 of milliseconds for one file and grows with the size of the project, so it
 belongs behind a longer debounce.
 
-Binding reports errors only. Warnings such as an unused import come out of the
-full Compile pipeline, which emits IL; whether the server pays that to report
-them is a question for later.
+Binding also reports what nothing uses, which costs a walk of the imports
+rather than the full Compile pipeline and the IL it emits.
 
 The compiler is not reentrant, so one analyzer serves one caller at a time.
 """
@@ -95,7 +95,7 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 			if _bound is not null and _boundUri == document.Uri and _boundText == document.Text and _boundInputs == inputs:
 				return _bound
 
-		context = Compile(document, Pipelines.ResolveExpressions(BreakOnErrors: false), true)
+		context = Compile(document, BindingPipeline(), true)
 
 		lock CompilerLock.Gate:
 			_boundUri = document.Uri
@@ -124,6 +124,12 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 				stamp.Append('?')
 			stamp.Append(';')
 		return stamp.ToString()
+
+	private static def BindingPipeline() as CompilerPipeline:
+	"""Names resolved, plus the check for what nothing ends up using."""
+		pipeline = Pipelines.ResolveExpressions(BreakOnErrors: false)
+		pipeline.Add(Steps.CheckNeverUsedMembers())
+		return pipeline
 
 	private def Run(document as TextDocument, pipeline as CompilerPipeline, withProject as bool) as List[of object]:
 		context = Compile(document, pipeline, withProject)
@@ -192,8 +198,18 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 		for error in context.Errors:
 			diagnostics.Add(Diagnostic.FromError(document, error)) if Belongs(document, error.LexicalInfo)
 		for warning in context.Warnings:
+			continue unless Trustworthy(warning)
 			diagnostics.Add(Diagnostic.FromWarning(document, warning)) if Belongs(document, warning.LexicalInfo)
 		return diagnostics
+
+	private static def Trustworthy(warning as CompilerWarning) as bool:
+	"""
+	Whether binding knows enough to have made this report.
+
+	Whether a private member is used is settled by steps this pipeline
+	stops short of, so it reports the ones that are used as well.
+	"""
+		return warning.Code != "BCW0014"
 
 	private def Belongs(document as TextDocument, location as LexicalInfo) as bool:
 	"""

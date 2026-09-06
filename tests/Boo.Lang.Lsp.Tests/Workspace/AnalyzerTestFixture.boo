@@ -47,12 +47,6 @@ class AnalyzerTestFixture:
 		assert "BCE0005" in Codes(analyzer.Bind(Document("print nosuchname\n")))
 
 	[Test]
-	def SaysNothingAboutAnUnusedImportWhenBinding():
-		# BCW0016 and its kind come out of the full Compile pipeline, which
-		# emits IL. Binding alone reports errors and no warnings at all.
-		assert analyzer.Bind(Document("import System.Collections\nx = 1\nprint x\n")).Count == 0
-
-	[Test]
 	def SurvivesAnUnclosedBracket():
 		# The parser loses the rest of the file here, which is the M5 problem;
 		# what matters now is that it still answers.
@@ -77,3 +71,21 @@ class AnalyzerTestFixture:
 		first = analyzer.Bound(document)
 		assert first is not null
 		assert analyzer.Bound(document) is first
+
+	[Test]
+	def ReportsAnImportNothingUses():
+		assert "BCW0016" in Codes(analyzer.Bind(Document("import System.Xml\n\nprint 1\n")))
+
+	[Test]
+	def SaysNothingAboutAnImportInUse():
+		codes = Codes(analyzer.Bind(Document("import System.IO\n\nprint Path.GetTempPath()\n")))
+		assert "BCW0016" not in codes, string.Join(",", codes.ToArray())
+
+	[Test]
+	def SaysNothingAboutAPrivateMemberInUse():
+	"""
+	Whether a member is used is not settled by the time names are bound,
+	so the report on one is not worth passing on.
+	"""
+		text = "class Greeter:\n\tdef Hello():\n\t\treturn Twice()\n\n\tprivate def Twice():\n\t\treturn 2\n"
+		assert "BCW0014" not in Codes(analyzer.Bind(Document(text)))
