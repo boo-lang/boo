@@ -138,6 +138,7 @@ here so that no feature handler has to think about them.
 		capabilities["signatureHelpProvider"] = SignatureHelp.Capability()
 		capabilities["hoverProvider"] = true
 		capabilities["definitionProvider"] = true
+		capabilities["documentHighlightProvider"] = true
 		capabilities["semanticTokensProvider"] = SemanticTokenHandler.Capability()
 		return capabilities
 

@@ -99,3 +99,14 @@ class ProjectAnalysisTestFixture:
 		WriteSource("Helper.boo", "print NotDefinedAnywhere\n")
 		diagnostics = Analyzer().Bind(Document("print 1\n"))
 		assert diagnostics.Count == 0, Messages(diagnostics)
+
+	[Test]
+	def FindsAReferenceInAnotherFileOfTheProject():
+		WriteSource("Helper.boo", "class Sibling:\n\n\tdef Greet() as string:\n\t\treturn \"hi\"\n")
+		document = Document("print Sibling().Greet()\n")
+		spans = Lookup.References(document, Analyzer().Bound(document), Position(0, 7))
+		uris = List[of string]()
+		for span in spans:
+			uris.Add(span.Uri)
+		assert spans.Count >= 2, "found ${spans.Count}"
+		assert uris.Contains(Uri(Path.Combine(root, "app", "Helper.boo")).AbsoluteUri), string.Join(",", uris.ToArray())

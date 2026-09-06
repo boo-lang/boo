@@ -43,6 +43,14 @@ is what the cached context in M8 is meant to replace.
 
 	public static final Hover = "textDocument/hover"
 	public static final Definition = "textDocument/definition"
+	public static final Highlight = "textDocument/documentHighlight"
+	public static final References = "textDocument/references"
+	public static final Rename = "textDocument/rename"
+
+	# Text is drawn as an outline; read and write get the softer background
+	# an editor uses for occurrences of a name.
+	public static final Read = 2
+	public static final Write = 3
 
 	_documents as DocumentStore
 	_analyzer = Analyzer()
@@ -51,6 +59,9 @@ is what the cached context in M8 is meant to replace.
 		_documents = documents
 		connection.OnRequest(Hover, Describe)
 		connection.OnRequest(Definition, Locate)
+		connection.OnRequest(Highlight, Occurrences)
+		connection.OnRequest(References, Referring)
+		connection.OnRequest(Rename, Renaming)
 
 	private def Describe(params as object) as object:
 		found = At(params)
@@ -81,6 +92,73 @@ is what the cached context in M8 is meant to replace.
 		location["uri"] = found.DeclarationUri
 		location["range"] = Diagnostic.Range(found.Declaration, found.Declaration)
 		return location
+
+	private def Occurrences(params as object) as object:
+		document = _documents.Get(Fields.Text(Fields.Map(params, "textDocument"), "uri"))
+		return null if document is null
+
+		position = Fields.Map(params, "position")
+		return null if position is null
+
+		spans = Lookup.Occurrences(
+			document,
+			_analyzer.Bound(document),
+			Position(Fields.Number(position, "line", 0), Fields.Number(position, "character", 0)))
+
+		highlights = List[of object]()
+		for span in spans:
+			highlight = Dictionary[of string, object]()
+			highlight["range"] = Diagnostic.Range(span.Start, span.End)
+			highlight["kind"] = (Write if span.Written else Read)
+			highlights.Add(highlight)
+		return highlights
+
+	private def Referring(params as object) as object:
+		document = Documented(params)
+		return null if document is null
+		locations = List[of object]()
+		for span in Lookup.References(document, _analyzer.Bound(document), Where(params)):
+			location = Dictionary[of string, object]()
+			location["uri"] = span.Uri
+			location["range"] = Diagnostic.Range(span.Start, span.End)
+			locations.Add(location)
+		return locations
+
+	private def Renaming(params as object) as object:
+		document = Documented(params)
+		return null if document is null
+		name = Fields.Text(params, "newName")
+		return null if string.IsNullOrEmpty(name)
+
+		spans = Lookup.Rename(document, _analyzer.Bound(document), Where(params))
+		# Nothing the sources declare is named there, so there is no edit to
+		# offer and the client says so itself.
+		return null if spans is null
+
+		changes = Dictionary[of string, object]()
+		for span in spans:
+			held as object
+			edits as List[of object]
+			edits = held as List[of object] if changes.TryGetValue(span.Uri, held)
+			if edits is null:
+				edits = List[of object]()
+				changes[span.Uri] = edits
+			edit = Dictionary[of string, object]()
+			edit["range"] = Diagnostic.Range(span.Start, span.End)
+			edit["newText"] = name
+			edits.Add(edit)
+
+		workspace = Dictionary[of string, object]()
+		workspace["changes"] = changes
+		return workspace
+
+	private def Documented(params as object) as TextDocument:
+		return _documents.Get(Fields.Text(Fields.Map(params, "textDocument"), "uri"))
+
+	private def Where(params as object) as Position:
+		position = Fields.Map(params, "position")
+		return Position(0, 0) if position is null
+		return Position(Fields.Number(position, "line", 0), Fields.Number(position, "character", 0))
 
 	private def At(params as object) as Lookup.Result:
 		document = _documents.Get(Fields.Text(Fields.Map(params, "textDocument"), "uri"))
