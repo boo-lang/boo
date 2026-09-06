@@ -54,8 +54,16 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 	def Parse(document as TextDocument) as List[of object]:
 		return Run(document, Pipelines.Parse(BreakOnErrors: false), false)
 
+	# The last bind, kept for whoever asks about the same document next.
+	static _boundUri as string
+	static _boundText as string
+	static _boundInputs as string
+	static _bound as CompilerContext
+
 	def Bind(document as TextDocument) as List[of object]:
-		return Run(document, Pipelines.ResolveExpressions(BreakOnErrors: false), true)
+		context = Bound(document)
+		return List[of object]() if context is null
+		return Report(document, context)
 
 	def ParseTree(document as TextDocument) as Module:
 	"""
@@ -74,9 +82,48 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 	"""
 	The document bound far enough to carry entities, or null.
 
-	Every caller pays a full bind. Caching one per document is what M8 is for.
+	Kept until the text changes. Diagnostics, hover, go to definition and
+	highlight all ask about the same state between edits, and highlight
+	alone asks on every move of the cursor.
+
+	Held against the text rather than the version, since a caller may hand
+	over new text without moving the version on.
 	"""
-		return Compile(document, Pipelines.ResolveExpressions(BreakOnErrors: false), true)
+		inputs = InputStamp(document)
+
+		lock CompilerLock.Gate:
+			if _bound is not null and _boundUri == document.Uri and _boundText == document.Text and _boundInputs == inputs:
+				return _bound
+
+		context = Compile(document, Pipelines.ResolveExpressions(BreakOnErrors: false), true)
+
+		lock CompilerLock.Gate:
+			_boundUri = document.Uri
+			_boundText = document.Text
+			_boundInputs = inputs
+			_bound = context
+		return context
+
+	private static def InputStamp(document as TextDocument) as string:
+	"""
+	What the bind was made from besides the document's own text.
+
+	A file beside it edited on disk changes the answer while the document
+	itself sits still, so the files and when they were last written are
+	part of what the bind is kept against.
+	"""
+		path = Project.PathOf(document.Uri)
+		project = Project.Find(path)
+		files = (Project.SourceFiles(project) if project is not null else Project.LooseSiblings(path, document.Text))
+		stamp = System.Text.StringBuilder()
+		for file in files:
+			stamp.Append(file).Append(':')
+			try:
+				stamp.Append(System.IO.File.GetLastWriteTimeUtc(file).Ticks)
+			except:
+				stamp.Append('?')
+			stamp.Append(';')
+		return stamp.ToString()
 
 	private def Run(document as TextDocument, pipeline as CompilerPipeline, withProject as bool) as List[of object]:
 		context = Compile(document, pipeline, withProject)

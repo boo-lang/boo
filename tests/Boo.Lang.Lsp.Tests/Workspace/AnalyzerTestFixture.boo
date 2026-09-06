@@ -61,3 +61,19 @@ class AnalyzerTestFixture:
 	[Test]
 	def SurvivesAnEmptyDocument():
 		assert analyzer.Parse(Document("")).Count == 0
+
+	[Test]
+	def BindsAgainWhenTheTextChangesUnderTheSameVersion():
+	"""
+	A bind is kept between requests, and the text is part of what it is
+	kept against: an editor need not have moved the version on.
+	"""
+		assert analyzer.Bind(Document("x = 1\nprint x\n")).Count == 0
+		assert analyzer.Bind(Document("print nosuchname\n")).Count > 0
+
+	[Test]
+	def KeepsTheSameBindForTheSameDocument():
+		document = Document("y = 2\nprint y\n")
+		first = analyzer.Bound(document)
+		assert first is not null
+		assert analyzer.Bound(document) is first
