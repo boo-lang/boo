@@ -89,3 +89,51 @@ class AnalyzerTestFixture:
 	"""
 		text = "class Greeter:\n\tdef Hello():\n\t\treturn Twice()\n\n\tprivate def Twice():\n\t\treturn 2\n"
 		assert "BCW0014" not in Codes(analyzer.Bind(Document(text)))
+
+	private def Severities(diagnostics as List[of object]) as List[of int]:
+		found = List[of int]()
+		for diagnostic in diagnostics:
+			found.Add(cast(int, cast(Dictionary[of string, object], diagnostic)["severity"]))
+		return found
+
+	private def MessageOf(diagnostic as object) as string:
+		return cast(string, cast(Dictionary[of string, object], diagnostic)["message"])
+
+	[Test]
+	def StopsReportingPastTheLimit():
+	"""
+	One unresolved type can leave the compiler repeating itself thousands of
+	times, which costs memory here and is unreadable at the other end.
+	"""
+		text = System.Text.StringBuilder()
+		for i in range(Analyzer.Limit + 60):
+			text.Append("print nosuchname").Append(i).Append("\n")
+		diagnostics = analyzer.Bind(Document(text.ToString()))
+		assert diagnostics.Count == Analyzer.Limit + 1, "reported ${diagnostics.Count}"
+
+	[Test]
+	def SaysHowManyItLeftOut():
+		text = System.Text.StringBuilder()
+		for i in range(Analyzer.Limit + 60):
+			text.Append("print nosuchname").Append(i).Append("\n")
+		diagnostics = analyzer.Bind(Document(text.ToString()))
+		last = diagnostics[diagnostics.Count - 1]
+		assert "60 more problems here are not shown." == MessageOf(last), MessageOf(last)
+		assert Diagnostic.Information == cast(int, cast(Dictionary[of string, object], last)["severity"])
+
+	[Test]
+	def SaysNothingAboutWhatItDidNotLeaveOut():
+		diagnostics = analyzer.Bind(Document("print nosuchname\n"))
+		for diagnostic in diagnostics:
+			assert "not shown" not in MessageOf(diagnostic), MessageOf(diagnostic)
+
+	[Test]
+	def SaysWhatItCanWhenAStepFallsOver():
+	"""
+	A step that raises is reported with its exception text, which names an
+	array index and a class nobody reading Boo has heard of.
+	"""
+		built = cast(Dictionary[of string, object], Diagnostic.Internal("BCE0011"))
+		assert "Boo could not analyse this file together with the files beside it." == built["message"], built["message"]
+		assert "BCE0011" == built["code"]
+		assert Diagnostic.Error == cast(int, built["severity"])

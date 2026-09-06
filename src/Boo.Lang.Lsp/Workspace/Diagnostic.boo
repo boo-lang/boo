@@ -44,6 +44,7 @@ end of the range is the end of the word the client would see under the squiggle.
 	public static final Source = "boo"
 	public static final Error = 1
 	public static final Warning = 2
+	public static final Information = 3
 
 	# A client fades what it is told is unnecessary rather than drawing it.
 	public static final Unnecessary = 1
@@ -56,6 +57,27 @@ end of the range is the end of the word the client would see under the squiggle.
 
 	static def FromWarning(document as TextDocument, warning as CompilerWarning):
 		return Build(document, warning.LexicalInfo, Warning, warning.Code, warning.Message)
+
+	static def Internal(code as string):
+	"""A step that fell over, which is about the compilation, not one line."""
+		start = Position(0, 0)
+		diagnostic = Dictionary[of string, object]()
+		diagnostic["range"] = Range(start, start)
+		diagnostic["severity"] = Error
+		diagnostic["code"] = code
+		diagnostic["source"] = Source
+		diagnostic["message"] = "Boo could not analyse this file together with the files beside it."
+		return diagnostic
+
+	static def Withheld(held as int):
+	"""What a document had too many reports to send, counted at its top."""
+		start = Position(0, 0)
+		diagnostic = Dictionary[of string, object]()
+		diagnostic["range"] = Range(start, start)
+		diagnostic["severity"] = Information
+		diagnostic["source"] = Source
+		diagnostic["message"] = "${held} more problems here are not shown."
+		return diagnostic
 
 	static def Range(start as Position, finish as Position):
 		# Not named range: that name is an overloaded builtin method, so

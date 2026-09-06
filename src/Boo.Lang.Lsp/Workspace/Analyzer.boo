@@ -193,13 +193,34 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 		for source in Project.SourceFiles(project):
 			compiler.Parameters.Input.Add(FileInput(source)) unless source == open
 
+	# A step that fell over. Its message is exception text, which a reader
+	# cannot act on.
+	static final InternalError = "BCE0011"
+
+	# What one document may report. One unresolved type can produce thousands.
+	public static final Limit = 200
+
 	private def Report(document as TextDocument, context as CompilerContext) as List[of object]:
 		diagnostics = List[of object]()
+		held = 0
 		for error in context.Errors:
-			diagnostics.Add(Diagnostic.FromError(document, error)) if Belongs(document, error.LexicalInfo)
+			continue unless Belongs(document, error.LexicalInfo)
+			if diagnostics.Count >= Limit:
+				held++
+				continue
+			if error.Code == InternalError:
+				Console.Error.WriteLine("boo-ls: ${document.Uri}: ${error.Message}")
+				diagnostics.Add(Diagnostic.Internal(error.Code))
+				continue
+			diagnostics.Add(Diagnostic.FromError(document, error))
 		for warning in context.Warnings:
 			continue unless Trustworthy(warning)
-			diagnostics.Add(Diagnostic.FromWarning(document, warning)) if Belongs(document, warning.LexicalInfo)
+			continue unless Belongs(document, warning.LexicalInfo)
+			if diagnostics.Count < Limit:
+				diagnostics.Add(Diagnostic.FromWarning(document, warning))
+			else:
+				held++
+		diagnostics.Add(Diagnostic.Withheld(held)) if held > 0
 		return diagnostics
 
 	private static def Trustworthy(warning as CompilerWarning) as bool:
