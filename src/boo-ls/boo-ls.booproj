@@ -5,7 +5,24 @@
     <RootNamespace>Boo.Lang.Lsp.Cli</RootNamespace>
     <OutputType>Exe</OutputType>
     <Description>Language server for Boo, spoken over stdio.</Description>
+
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>boo-ls</ToolCommandName>
+    <PackageId>boo-ls</PackageId>
+    <Authors>The Boo Contributors</Authors>
+    <PackageTags>boo;lsp;language-server;dotnet-tool;editor</PackageTags>
+    <PackageLicenseFile>license.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/boo-dotnet/boo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/boo-dotnet/boo</PackageProjectUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../license.txt" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
