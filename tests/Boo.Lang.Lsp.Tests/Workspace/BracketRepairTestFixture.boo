@@ -83,6 +83,12 @@ outline; what the client sees and what diagnostics report is the real text.
 		assert BracketRepair.Repair(text) == text
 
 	[Test]
+	def IgnoresBracketsInANestedBlockComment():
+		# Boo block comments nest, so the first close does not end the outer one.
+		text = "x = 1 /* a /* b ( */ c */\ny = 2\n"
+		assert BracketRepair.Repair(text) == text
+
+	[Test]
 	def ClosesAnUnterminatedStringSoTheRestIsNotSwallowed():
 		# An unterminated quote would otherwise hide every bracket below it.
 		assert BracketRepair.Repair("x = 'oops\ny = f(\n") == "x = 'oops'\ny = f()\n"

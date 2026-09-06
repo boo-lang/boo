@@ -101,9 +101,7 @@ the repaired text therefore still describe the real document.
 		if c == char('/') and Peek(text, i + 1) == char('/'):
 			return EndOfLine(text, i)
 		if c == char('/') and Peek(text, i + 1) == char('*'):
-			closed = text.IndexOf("*/", i + 2)
-			return text.Length if closed < 0
-			return closed + 2
+			return EndOfBlockComment(text, i)
 
 		return i unless c == char('"') or c == char('\'')
 
@@ -115,6 +113,23 @@ the repaired text therefore still describe the real document.
 			result.CloseAtEndOfLine(LineOf(text, i), quote)
 			return EndOfLine(text, i)
 		return finish
+
+	private static def EndOfBlockComment(text as string, i as int) as int:
+	"""Block comments nest, so the first close does not always end one."""
+		depth = 0
+		at = i
+		while at < text.Length - 1:
+			if text[at] == char('/') and text[at + 1] == char('*'):
+				depth++
+				at += 2
+				continue
+			if text[at] == char('*') and text[at + 1] == char('/'):
+				depth--
+				at += 2
+				return at if depth == 0
+				continue
+			at++
+		return text.Length
 
 	private static def QuoteAt(text as string, i as int) as string:
 		c = text[i].ToString()

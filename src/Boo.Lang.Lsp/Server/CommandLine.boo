@@ -26,38 +26,34 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-import System
-import Boo.Lang.Lsp.Protocol
-import Boo.Lang.Lsp.Server
+namespace Boo.Lang.Lsp.Server
 
-def Usage():
-	print "usage: boo-ls [--stdio] [--version] [--help]"
-	print ""
-	print "Speaks the Language Server Protocol over stdin and stdout."
-	print "Started by an editor, not usually by hand."
+class CommandLine:
+"""
+What the arguments asked for.
 
-def Serve() as int:
-	# Named on the way in, so a log says which build answered it.
-	Console.Error.WriteLine("boo-ls: serving as ${ServerInfo.Banner}")
-	# Console.In and Console.Out would decode; the protocol is framed in bytes.
-	stream = MessageStream(Console.OpenStandardInput(), Console.OpenStandardOutput())
-	return LanguageServer(stream).Run()
+--stdio is not an option so much as a fact: it is what every client built on
+vscode-languageclient appends, and stdio is the only transport this server
+speaks, so it is accepted and ignored. Refusing it means exiting before the
+client has been answered, which the client reports as a crash.
+"""
 
-def Run(args as (string)) as int:
-	parsed = CommandLine.Parse(args)
+	public static final Serve = 0
+	public static final ShowVersion = 1
+	public static final ShowHelp = 2
+	public static final Unknown = 3
 
-	if parsed.Action == CommandLine.ShowVersion:
-		print "${ServerInfo.Name} ${ServerInfo.Version}"
-		return 0
+	public final Action as int
+	public final UnknownOption as string
 
-	if parsed.Action == CommandLine.ShowHelp:
-		Usage()
-		return 0
+	def constructor(action as int, unknownOption as string):
+		Action = action
+		UnknownOption = unknownOption
 
-	if parsed.Action == CommandLine.Unknown:
-		Console.Error.WriteLine("boo-ls: unknown option ${parsed.UnknownOption}")
-		return 2
-
-	return Serve()
-
-Environment.ExitCode = Run(argv)
+	static def Parse(args as (string)) as CommandLine:
+		for arg in args:
+			continue if arg == "--stdio" or arg == "-stdio"
+			return CommandLine(ShowVersion, null) if arg == "--version" or arg == "-version"
+			return CommandLine(ShowHelp, null) if arg == "--help" or arg == "-help" or arg == "-h"
+			return CommandLine(Unknown, arg)
+		return CommandLine(Serve, null)
