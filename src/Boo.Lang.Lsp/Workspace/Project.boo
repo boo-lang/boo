@@ -117,6 +117,10 @@ the first step out of that.
 		head = relative.Split(Path.DirectorySeparatorChar)[0]
 		return head == "bin" or head == "obj"
 
+	# How many files a loose script pulls in. Name resolution gives out
+	# somewhere past a few hundred modules.
+	public static final SiblingLimit = 50
+
 	static def LooseSiblings(sourcePath as string, text as string) as List[of string]:
 	"""
 	The .boo files beside this one that belong in its compilation.
@@ -130,6 +134,9 @@ the first step out of that.
 	A file with top level statements is a program of its own, and a
 	directory of those is a directory of unrelated scripts. Compiling those
 	together reports collisions that are in none of them.
+
+	At most SiblingLimit files are taken. A file an import names comes first:
+	the import says it is wanted, where proximity only guesses.
 	"""
 		siblings = List[of string]()
 		return siblings if string.IsNullOrEmpty(sourcePath)
@@ -138,14 +145,23 @@ the first step out of that.
 
 		wanted = ImportedNamespaces(text)
 		open = Path.GetFullPath(sourcePath)
+		named = List[of string]()
+		nearby = List[of string]()
 		for file in Directory.GetFiles(directory, "*.boo"):
 			continue if Path.GetFullPath(file) == open
-			if IsModule(file):
-				siblings.Add(file)
-				continue
 			declared = DeclaredNamespace(file)
-			continue if declared is null
-			siblings.Add(file) if wanted.Contains(declared)
+			if declared is not null and wanted.Contains(declared):
+				named.Add(file)
+				continue
+			nearby.Add(file) if IsModule(file)
+		named.Sort()
+		nearby.Sort()
+		for file in named:
+			break if siblings.Count >= SiblingLimit
+			siblings.Add(file)
+		for file in nearby:
+			break if siblings.Count >= SiblingLimit
+			siblings.Add(file)
 		siblings.Sort()
 		return siblings
 

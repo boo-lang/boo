@@ -343,3 +343,25 @@ class ProjectTestFixture:
 		reference = WriteAssembly("packages/fake/1.0.0/ref/net10.0/Fake.dll", 1)
 		WriteAssets("ref/net10.0/Fake.dll")
 		assert Joined(Project.References(project)) == reference
+
+	[Test]
+	def TakesOnlySoManyFilesFromABigDirectory():
+	"""
+	A directory of hundreds compiled as one program is slow, and the
+	compiler's name resolution gives out somewhere past a few hundred.
+	"""
+		source = Write("loose/Main.boo", "print 1\n")
+		for i in range(Project.SiblingLimit + 40):
+			Write("loose/module${i}.boo", "def helper${i}() as int:\n\treturn ${i}\n")
+		assert Project.LooseSiblings(source, "print 1\n").Count == Project.SiblingLimit
+
+	[Test]
+	def KeepsWhatAnImportNamesAheadOfWhatMerelySitsThere():
+	"""An import says the file is wanted; being in the same directory guesses it."""
+		source = Write("mixed/Main.boo", "import Wanted\n\nprint 1\n")
+		asked = Write("mixed/wanted.boo", "namespace Wanted\n\nclass Thing:\n\tpass\n")
+		for i in range(Project.SiblingLimit + 10):
+			Write("mixed/module${i}.boo", "def helper${i}() as int:\n\treturn ${i}\n")
+		siblings = Project.LooseSiblings(source, "import Wanted\n\nprint 1\n")
+		assert siblings.Count == Project.SiblingLimit
+		assert siblings.Contains(asked), "the imported file was crowded out"
