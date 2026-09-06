@@ -56,9 +56,15 @@ is what the cached context in M8 is meant to replace.
 		found = At(params)
 		return null if found is null
 
+		# The signature reads as Boo, what it documents reads as prose, and
+		# the blank line between them is what keeps markdown from running the
+		# two together.
+		value = "```boo\n${found.Signature}\n```"
+		value += "\n\n" + found.Documentation unless string.IsNullOrEmpty(found.Documentation)
+
 		contents = Dictionary[of string, object]()
 		contents["kind"] = "markdown"
-		contents["value"] = "```boo\n${found.Signature}\n```"
+		contents["value"] = value
 
 		hover = Dictionary[of string, object]()
 		hover["contents"] = contents

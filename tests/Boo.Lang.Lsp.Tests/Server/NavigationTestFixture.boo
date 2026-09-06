@@ -38,6 +38,9 @@ class NavigationTestFixture:
 	# class Greeter / def Hello(who as string) / g = Greeter() / print g.Hello('x')
 	private static final Opened = '{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///a.boo","languageId":"boo","version":1,"text":"class Greeter:\\n\\tdef Hello(who as string) as string:\\n\\t\\treturn who\\n\\ng = Greeter()\\nprint g.Hello(\'x\')\\n"}}}'
 
+	# The same, with a doc string on Hello.
+	private static final Documented = '{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///a.boo","languageId":"boo","version":1,"text":"class Greeter:\\n\\tdef Hello(who as string) as string:\\n\\t\\"\\"\\"Says hello to who.\\"\\"\\"\\n\\t\\treturn who\\n\\ng = Greeter()\\nprint g.Hello(\'x\')\\n"}}}'
+
 	private def Asking(method as string, line as int, character as int):
 		return '{"jsonrpc":"2.0","id":2,"method":"' + method + '","params":{"textDocument":{"uri":"file:///a.boo"},"position":{"line":' + line + ',"character":' + character + '}}}'
 
@@ -64,6 +67,15 @@ class NavigationTestFixture:
 		Serve(Opened, Asking("textDocument/hover", 5, 6))
 		contents = (ReplyTo(2L)["result"] as Dictionary[of string, object])["contents"] as Dictionary[of string, object]
 		assert "g as Greeter" in cast(string, contents["value"])
+
+	[Test]
+	def HoversWithWhatTheDeclarationDocuments():
+		# "print g.Hello('x')" is line 6 once the doc string is in.
+		Serve(Documented, Asking("textDocument/hover", 6, 8))
+		contents = (ReplyTo(2L)["result"] as Dictionary[of string, object])["contents"] as Dictionary[of string, object]
+		value = cast(string, contents["value"])
+		assert "def Hello(who as string) as string" in value
+		assert "Says hello to who." in value
 
 	[Test]
 	def AnswersNothingWhereThereIsNothing():
