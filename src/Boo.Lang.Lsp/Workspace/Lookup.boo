@@ -91,7 +91,7 @@ than handed out as entities.
 		if declared is not null and declared.Node is not null:
 			location = declared.Node.LexicalInfo
 			if location.Line > 0:
-				result.DeclarationUri = location.FileName
+				result.DeclarationUri = Project.UriOf(location.FileName)
 				result.Declaration = Positions.FromSourceLocation(location)
 
 		return result

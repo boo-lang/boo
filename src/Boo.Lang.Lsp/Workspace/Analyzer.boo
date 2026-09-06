@@ -52,10 +52,10 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 """
 
 	def Parse(document as TextDocument) as List[of object]:
-		return Run(document, Pipelines.Parse(BreakOnErrors: false))
+		return Run(document, Pipelines.Parse(BreakOnErrors: false), false)
 
 	def Bind(document as TextDocument) as List[of object]:
-		return Run(document, Pipelines.ResolveExpressions(BreakOnErrors: false))
+		return Run(document, Pipelines.ResolveExpressions(BreakOnErrors: false), true)
 
 	def ParseTree(document as TextDocument) as Module:
 	"""
@@ -65,7 +65,7 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 	structure below them, and an outline is wanted most while the file is
 	still being written. Only the parse sees the repaired text.
 	"""
-		context = CompileText(document.Uri, BracketRepair.Repair(document.Text), Pipelines.Parse(BreakOnErrors: false))
+		context = CompileText(document.Uri, BracketRepair.Repair(document.Text), Pipelines.Parse(BreakOnErrors: false), false)
 		return null if context is null
 		return null if context.CompileUnit.Modules.Count == 0
 		return context.CompileUnit.Modules[0]
@@ -76,21 +76,25 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 
 	Every caller pays a full bind. Caching one per document is what M8 is for.
 	"""
-		return Compile(document, Pipelines.ResolveExpressions(BreakOnErrors: false))
+		return Compile(document, Pipelines.ResolveExpressions(BreakOnErrors: false), true)
 
-	private def Run(document as TextDocument, pipeline as CompilerPipeline) as List[of object]:
-		context = Compile(document, pipeline)
+	private def Run(document as TextDocument, pipeline as CompilerPipeline, withProject as bool) as List[of object]:
+		context = Compile(document, pipeline, withProject)
 		return List[of object]() if context is null
 		return Report(document, context)
 
-	private def Compile(document as TextDocument, pipeline as CompilerPipeline) as CompilerContext:
-		return CompileText(document.Uri, document.Text, pipeline)
+	private def Compile(document as TextDocument, pipeline as CompilerPipeline, withProject as bool) as CompilerContext:
+		return CompileText(document.Uri, document.Text, pipeline, withProject)
 
-	private def CompileText(uri as string, text as string, pipeline as CompilerPipeline) as CompilerContext:
+	private def CompileText(uri as string, text as string, pipeline as CompilerPipeline, withProject as bool) as CompilerContext:
 		try:
 			lock CompilerLock.Gate:
 				compiler = BooCompiler()
 				compiler.Parameters.Pipeline = pipeline
+				# Nothing is emitted, and a project of loose scripts would
+				# otherwise be told it has more than one entry point.
+				compiler.Parameters.OutputType = CompilerOutputType.Library
+				AddProject(compiler, uri, text) if withProject
 				compiler.Parameters.Input.Add(StringInput(uri, text))
 				return compiler.Run()
 		except e as Exception:
@@ -99,10 +103,58 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 			Console.Error.WriteLine("boo-ls: analyzing ${uri} failed: ${e.Message}")
 			return null
 
+	static def AddProject(compiler as BooCompiler, uri as string, text as string):
+	"""
+	Give the compiler the project the document belongs to.
+
+	Shared with completion, which needs the same references and the same
+	files beside the document: a name only completes against what the
+	compilation can see.
+
+	On its own a document sees the default assemblies and nothing else, so
+	every type it takes from a reference or from a file beside it reads as
+	undefined. Only the binding tier pays for this: parsing runs on every
+	keystroke and wants the one file.
+
+	A document in no project falls back to the files its own imports name,
+	which is as much as can be known about a loose script without guessing.
+
+	Both the reference set and the file list are read from disk each time,
+	which M8 will want to cache along with the bind they belong to.
+	"""
+		project = Project.FindForDocument(uri)
+		if project is null:
+			for sibling in Project.LooseSiblings(Project.PathOf(uri), text):
+				compiler.Parameters.Input.Add(FileInput(sibling))
+			return
+
+		for reference in Project.References(project):
+			# Loading it only reads it; the collection is what the compiler sees.
+			loaded = compiler.Parameters.LoadAssembly(reference, false)
+			compiler.Parameters.References.Add(loaded) if loaded is not null
+
+		# The open document is added from the client's text, not from disk:
+		# what was saved is behind what is being typed, and compiling both
+		# reports every type in the file as defined twice.
+		open = Project.PathOf(uri)
+		for source in Project.SourceFiles(project):
+			compiler.Parameters.Input.Add(FileInput(source)) unless source == open
+
 	private def Report(document as TextDocument, context as CompilerContext) as List[of object]:
 		diagnostics = List[of object]()
 		for error in context.Errors:
-			diagnostics.Add(Diagnostic.FromError(document, error))
+			diagnostics.Add(Diagnostic.FromError(document, error)) if Belongs(document, error.LexicalInfo)
 		for warning in context.Warnings:
-			diagnostics.Add(Diagnostic.FromWarning(document, warning))
+			diagnostics.Add(Diagnostic.FromWarning(document, warning)) if Belongs(document, warning.LexicalInfo)
 		return diagnostics
+
+	private def Belongs(document as TextDocument, location as LexicalInfo) as bool:
+	"""
+	Whether a report is about this document.
+
+	The project's other files are compiled alongside it, and what they get
+	wrong belongs on them, not here. A report with no location at all is kept:
+	it is about the compilation, and this document is what asked for it.
+	"""
+		return true if location is null or string.IsNullOrEmpty(location.FileName)
+		return location.FileName == document.Uri
