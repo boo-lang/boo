@@ -152,6 +152,19 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		assert found.Signature == "def Hello(who as string) as string"
 
 	[Test]
+	def ListsTheOnlyWayAMethodCanBeCalled():
+		# "print g.Hello('x')", Hello starts at character 8.
+		found = At(8, 8)
+		assert found.Overloads.Count == 1
+		assert found.Overloads[0].Label == "def Hello(who as string) as string"
+		assert found.Overloads[0].Parameters[0] == "who as string"
+
+	[Test]
+	def ListsNoWayOfCallingSomethingThatIsNotAMethod():
+		found = At(4, 2)
+		assert found.Overloads.Count == 0
+
+	[Test]
 	def DescribesAType():
 		# "print Console.Out", Console starts at character 6.
 		found = At(9, 6)

@@ -48,6 +48,7 @@ than handed out as entities.
 		public Name as string
 		public Signature as string
 		public Documentation as string
+		public Overloads as List[of Signatures.Overload]
 		public Start as Position
 		public End as Position
 		public Declaration as Position
@@ -113,6 +114,7 @@ than handed out as entities.
 		result = Result(
 			Name: name,
 			Signature: Signatures.Of(name, entity),
+			Overloads: Signatures.OverloadsOf(name, entity),
 			Start: start,
 			End: Position(start.Line, start.Character + name.Length))
 
