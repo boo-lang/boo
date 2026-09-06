@@ -87,11 +87,12 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 		return CompileText(document.Uri, document.Text, pipeline)
 
 	private def CompileText(uri as string, text as string, pipeline as CompilerPipeline) as CompilerContext:
-		compiler = BooCompiler()
-		compiler.Parameters.Pipeline = pipeline
-		compiler.Parameters.Input.Add(StringInput(uri, text))
 		try:
-			return compiler.Run()
+			lock CompilerLock.Gate:
+				compiler = BooCompiler()
+				compiler.Parameters.Pipeline = pipeline
+				compiler.Parameters.Input.Add(StringInput(uri, text))
+				return compiler.Run()
 		except e as Exception:
 			# A compiler that fell over is a bug, but a server that stops
 			# answering because of one is worse.

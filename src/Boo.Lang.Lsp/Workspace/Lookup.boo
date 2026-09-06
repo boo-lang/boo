@@ -60,9 +60,11 @@ than handed out as entities.
 
 		found as Result
 		# Reading a type or a declaration off an entity needs the environment
-		# the compile ran in.
-		ActiveEnvironment.With(context.Environment) do:
-			found = Describe(document, Find(document, context, position))
+		# the compile ran in, and resolves lazily through the same shared state
+		# a compile uses, so it waits its turn like one.
+		lock CompilerLock.Gate:
+			ActiveEnvironment.With(context.Environment) do:
+				found = Describe(document, Find(document, context, position))
 		return found
 
 	private static def Find(document as TextDocument, context as CompilerContext, position as Position) as Expression:
@@ -81,7 +83,7 @@ than handed out as entities.
 
 		result = Result(
 			Name: name,
-			Signature: SignatureOf(name, entity),
+			Signature: Signatures.Of(name, entity),
 			Start: start,
 			End: Position(start.Line, start.Character + name.Length))
 
@@ -93,31 +95,6 @@ than handed out as entities.
 				result.Declaration = Positions.FromSourceLocation(location)
 
 		return result
-
-	private static def SignatureOf(name as string, entity as IEntity) as string:
-		method = entity as IMethod
-		return "def ${name}(${Parameters(method)}) as ${method.ReturnType}" if method is not null
-
-		type = entity as IType
-		return "${KindOf(type)} ${type}" if type is not null
-
-		typed = entity as ITypedEntity
-		return "${name} as ${typed.Type}" if typed is not null
-
-		return "namespace ${name}" if entity.EntityType == EntityType.Namespace
-		return name
-
-	private static def Parameters(method as IMethod) as string:
-		written = List[of string]()
-		for parameter in method.GetParameters():
-			written.Add("${parameter.Name} as ${parameter.Type}")
-		return string.Join(", ", written.ToArray())
-
-	private static def KindOf(type as IType) as string:
-		return "interface" if type.IsInterface
-		return "enum" if type.IsEnum
-		return "struct" if type.IsValueType
-		return "class"
 
 	private static def NameOf(node as Expression) as string:
 		reference = node as ReferenceExpression

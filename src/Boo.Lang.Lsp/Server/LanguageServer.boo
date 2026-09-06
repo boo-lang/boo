@@ -49,6 +49,7 @@ here so that no feature handler has to think about them.
 	_worker as AnalysisWorker
 	_symbols as DocumentSymbols
 	_navigation as Navigation
+	_completions as Completions
 	_initialized = false
 	_shuttingDown = false
 	_exited = false
@@ -76,6 +77,7 @@ here so that no feature handler has to think about them.
 		_worker = AnalysisWorker(_diagnostics.PublishSemantic, debounceMilliseconds)
 		_symbols = DocumentSymbols(_documents, _connection)
 		_navigation = Navigation(_documents, _connection)
+		_completions = Completions(_documents, _connection)
 		_sync.Changed = Changed
 		_sync.Closed = Closed
 
@@ -128,6 +130,7 @@ here so that no feature handler has to think about them.
 		capabilities = Dictionary[of string, object]()
 		capabilities["textDocumentSync"] = TextDocumentSync.Capability()
 		capabilities["documentSymbolProvider"] = true
+		capabilities["completionProvider"] = Completions.Capability()
 		capabilities["hoverProvider"] = true
 		capabilities["definitionProvider"] = true
 		return capabilities
