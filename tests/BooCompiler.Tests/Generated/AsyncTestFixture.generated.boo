@@ -33,6 +33,38 @@ partial class AsyncTestFixture:
 		RunCompilerTestCase("await-in-delegate-constructor.boo")
 
 	[Test]
+	def @await_in_filtered_catch_declined():
+		RunCompilerTestCase("await-in-filtered-catch-declined.boo")
+
+	[Test]
+	def @await_in_filtered_catch_shared_local():
+		RunCompilerTestCase("await-in-filtered-catch-shared-local.boo")
+
+	[Test]
+	def @await_in_filtered_catch_siblings():
+		RunCompilerTestCase("await-in-filtered-catch-siblings.boo")
+
+	[Test]
+	def @await_in_filtered_catch():
+		RunCompilerTestCase("await-in-filtered-catch.boo")
+
+	[Ignore("break and continue out of an awaiting finally skip the finally body")][Test]
+	def @await_in_finally_loop_branch():
+		RunCompilerTestCase("await-in-finally-loop-branch.boo")
+
+	[Test]
+	def @await_in_finally_nested():
+		RunCompilerTestCase("await-in-finally-nested.boo")
+
+	[Test]
+	def @await_in_finally_return():
+		RunCompilerTestCase("await-in-finally-return.boo")
+
+	[Test]
+	def @await_in_finally():
+		RunCompilerTestCase("await-in-finally.boo")
+
+	[Test]
 	def @await_in_obj_initializer():
 		RunCompilerTestCase("await-in-obj-initializer.boo")
 
@@ -41,12 +73,12 @@ partial class AsyncTestFixture:
 		RunCompilerTestCase("await-in-using-and-for.boo")
 
 	[Test]
-	def @await_in_while_condition():
-		RunCompilerTestCase("await-in-while-condition.boo")
-
-	[Test]
 	def @await_in_while_condition_or_then():
 		RunCompilerTestCase("await-in-while-condition-or-then.boo")
+
+	[Test]
+	def @await_in_while_condition():
+		RunCompilerTestCase("await-in-while-condition.boo")
 
 	[Test]
 	def @await_switch():
