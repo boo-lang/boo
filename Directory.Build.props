@@ -9,6 +9,8 @@
     <!-- Written by scripts/bumpversion.boo. -->
     <VersionPrefix>0.9.7</VersionPrefix>
 
+    <IsPackable>false</IsPackable>
+
     <!-- AssemblyInfo declares every attribute except the version ones. -->
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>

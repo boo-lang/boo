@@ -14,6 +14,7 @@
     <Project Path="src/booi/booi.booproj" Type="C#" />
     <Project Path="src/booish/booish.booproj" Type="C#" />
     <Project Path="src/Boo.Lang.Lsp/Boo.Lang.Lsp.booproj" Type="C#" />
+    <Project Path="src/boo-ls/boo-ls.booproj" Type="C#" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/BooSupportingClasses/BooSupportingClasses.booproj" Type="C#" />

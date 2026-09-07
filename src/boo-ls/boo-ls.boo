@@ -26,36 +26,39 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
-
 import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import Boo.Lang.Lsp.Protocol
+import Boo.Lang.Lsp.Server
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+def Usage():
+	print "usage: boo-ls [--stdio] [--version] [--help]"
+	print ""
+	print "Speaks the Language Server Protocol over stdin and stdout."
+	print "Started by an editor, not usually by hand."
 
-	directory as string
+def Serve() as int:
+	# Named on the way in, so a log says which build answered it.
+	Console.Error.WriteLine("boo-ls: serving as ${ServerInfo.Banner}")
+	# Console.In and Console.Out would decode; the protocol is framed in bytes.
+	stream = MessageStream(Console.OpenStandardInput(), Console.OpenStandardOutput())
+	# The one place the server blocks: a process has to have somewhere to stand.
+	return LanguageServer(stream).RunAsync().GetAwaiter().GetResult()
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+def Run(args as (string)) as int:
+	parsed = CommandLineOptions.Parse(args)
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	if parsed.Action == CommandLineOptions.ShowVersion:
+		print "${ServerInfo.Name} ${ServerInfo.Version}"
+		return 0
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	if parsed.Action == CommandLineOptions.ShowHelp:
+		Usage()
+		return 0
+
+	if parsed.Action == CommandLineOptions.Unknown:
+		Console.Error.WriteLine("boo-ls: unknown option ${parsed.UnknownOption}")
+		return 2
+
+	return Serve()
+
+Environment.ExitCode = Run(argv)
