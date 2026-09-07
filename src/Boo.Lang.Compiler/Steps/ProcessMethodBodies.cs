@@ -4502,9 +4502,9 @@ namespace Boo.Lang.Compiler.Steps
 		/// to supply, so that every step after this one sees an ordinary call
 		/// with nothing missing.
 		/// </summary>
-		private void FillOmittedArguments(MethodInvocationExpression node, IMethod method)
+		private void FillOmittedArguments(MethodInvocationExpression node, IEntityWithParameters callable)
 		{
-			var parameters = method.GetParameters();
+			var parameters = callable.GetParameters();
 			if (node.Arguments.Count >= parameters.Length)
 				return;
 
@@ -4917,6 +4917,9 @@ namespace Boo.Lang.Compiler.Steps
 
 		void BindConstructorInvocation(MethodInvocationExpression node, IConstructor ctor)
 		{
+			// A constructor takes its defaults the same way a method does.
+			FillOmittedArguments(node, ctor);
+
 			// rebind the target now we know
 			// it is a constructor call
 			Bind(node.Target, ctor);
@@ -5510,7 +5513,9 @@ namespace Boo.Lang.Compiler.Steps
 				return;
 
 			IParameter[] parameters = target.GetSignature().Parameters;
-			for (int i = 0; i < parameters.Length; ++i) {
+			// Only the arguments the caller wrote are here to wrap.
+			var supplied = Math.Min(parameters.Length, args.Count);
+			for (int i = 0; i < supplied; ++i) {
 				if (!TypeSystemServices.IsNullable(parameters[i].Type))
 					continue;
 				if (TypeSystemServices.IsNullable(GetExpressionType(args[i])))

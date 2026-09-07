@@ -39,8 +39,17 @@ public class OptionalParameters
 	// A struct default arrives as null rather than a value.
 	public static string Token(CancellationToken token = default) => token.CanBeCanceled.ToString();
 
+	public static string Nullable(int a, int? b = null) => $"{a},{b?.ToString() ?? "none"}";
+
 	// An exact overload must beat one that needs a default filled in.
 	public static string Prefer(int a) => "exact";
 
 	public static string Prefer(int a, int b = 2) => "default";
+}
+
+public class OptionalNullableConstructor
+{
+	public string Description { get; }
+
+	public OptionalNullableConstructor(int a, int? b = null) => Description = $"{a},{b?.ToString() ?? "none"}";
 }

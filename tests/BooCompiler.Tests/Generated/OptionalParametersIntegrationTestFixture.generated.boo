@@ -30,6 +30,10 @@ class OptionalParametersIntegrationTestFixture(AbstractCompilerTestCase):
 		RunCompilerTestCase("omitted-argument-still-runs.boo")
 
 	[Test]
+	def @nullable_omitted_argument():
+		RunCompilerTestCase("nullable-omitted-argument.boo")
+
+	[Test]
 	def @partially_supplied_defaults():
 		RunCompilerTestCase("partially-supplied-defaults.boo")
 
