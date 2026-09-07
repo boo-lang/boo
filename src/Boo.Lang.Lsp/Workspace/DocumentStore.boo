@@ -26,36 +26,42 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Workspace
 
-import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import System.Collections.Generic
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class DocumentStore:
+"""
+The documents the client has open, keyed by URI.
 
-	directory as string
+What is here is what the client is showing, which is not what is on disk. The
+server answers from these and reads the disk only for files nobody has open.
+"""
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	_documents = Dictionary[of string, TextDocument]()
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	Count as int:
+		get: return _documents.Count
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	Uris as IEnumerable[of string]:
+		get: return _documents.Keys
+
+	def Open(uri as string, languageId as string, version as int, text as string) as TextDocument:
+		document = TextDocument(uri, languageId, version, text)
+		_documents[uri] = document
+		return document
+
+	def Change(uri as string, version as int, text as string) as TextDocument:
+	"""Returns null for a document the client never opened."""
+		document = Get(uri)
+		return null if document is null
+		document.Update(version, text)
+		return document
+
+	def Close(uri as string):
+		_documents.Remove(uri)
+
+	def Get(uri as string) as TextDocument:
+		document as TextDocument
+		return document if _documents.TryGetValue(uri, document)
+		return null

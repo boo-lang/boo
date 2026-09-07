@@ -26,36 +26,43 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Server
 
 import System
 import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class ServerInfo:
+"""Identifies this server to a client during initialize."""
 
-	directory as string
+	public static final Name = "boo-ls"
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	static Version as string:
+		get:
+			return typeof(ServerInfo).Assembly.GetName().Version.ToString(3)
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
-
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
+	static Build as string:
 	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
+	Which executable is answering and when its code was built.
+
+	The version alone does not say: several checkouts of the same version
+	can serve one editor, and a server goes on running the build it started
+	from however many times the tree is rebuilt under it.
 	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+		get:
+			running = Environment.ProcessPath
+			running = typeof(ServerInfo).Assembly.Location if string.IsNullOrEmpty(running)
+			return "location unknown" if string.IsNullOrEmpty(running)
+			return "${running}, code built ${Written()}"
+
+	private static def Written() as string:
+		try:
+			location = typeof(ServerInfo).Assembly.Location
+			return "unknown" if string.IsNullOrEmpty(location)
+			return File.GetLastWriteTime(location).ToString("yyyy-MM-dd HH:mm:ss")
+		except:
+			return "unknown"
+
+	static Banner as string:
+	"""One line naming this build, for the log a client shows."""
+		get:
+			return "${Name} ${Version} (${Build})"

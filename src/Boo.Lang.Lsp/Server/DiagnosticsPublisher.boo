@@ -26,36 +26,49 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Server
 
-import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import Boo.Lang.Lsp.Protocol
+import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class DiagnosticsPublisher:
+"""
+Tells the client what is wrong with a document, and what no longer is.
 
-	directory as string
+Every publish carries the whole list for that document, so an empty list is
+how a fixed file gets its squiggles taken away. A closed document is cleared
+for the same reason.
+"""
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	public static final Method = "textDocument/publishDiagnostics"
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	_connection as Connection
+	_analyzer = Analyzer()
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
+	def constructor(connection as Connection):
+		_connection = connection
+
+	def PublishSyntax(document as TextDocument):
 	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
+	The fast tier, run on the message loop for every change.
+
+	It publishes only when parsing found something. A clean parse says nothing,
+	because saying nothing keeps the semantic diagnostics already on screen
+	from flickering off and back on between keystrokes.
 	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+		diagnostics = _analyzer.Parse(document)
+		Send(document.Uri, diagnostics) if diagnostics.Count > 0
+
+	def PublishSemantic(document as TextDocument):
+	"""The slow tier, run on the worker. Its answer is the whole truth."""
+		Send(document.Uri, _analyzer.Bind(document))
+
+	def Clear(uri as string):
+		Send(uri, JsonArray())
+
+	private def Send(uri as string, diagnostics as JsonArray):
+		params = JsonObject()
+		params["uri"] = uri
+		params["diagnostics"] = diagnostics
+		_connection.Notify(Method, params)

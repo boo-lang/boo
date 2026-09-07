@@ -80,3 +80,14 @@ class DecompiledTestFixture:
 				BooParser.ParseFile(path)
 			ensure:
 				File.Delete(path)
+
+	[Test]
+	def WritesCSharpWhenAskedFor():
+		written = Decompiled.AsCSharp(CoreLib, "System.IO.Path")
+		assert written is not null, "nothing written"
+		assert "public static class Path" in written, written.Split(char('\n'))[0]
+		assert "def " not in written, "that is Boo, not C#"
+
+	[Test]
+	def SaysNothingInCSharpForATypeTheAssemblyLacks():
+		assert Decompiled.AsCSharp(CoreLib, "No.Such.Type") is null

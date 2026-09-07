@@ -26,36 +26,58 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Server
 
-import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import System.Collections.Generic
+import Boo.Lang.Lsp.Json
+import Boo.Lang.Lsp.Protocol
+import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class SignatureHelp:
+"""Answers textDocument/signatureHelp."""
 
-	directory as string
+	public static final Method = "textDocument/signatureHelp"
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	_documents as DocumentStore
+	_help = CallSignature()
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	def constructor(documents as DocumentStore, connection as Connection):
+		_documents = documents
+		connection.OnRequest(Method, Describe)
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	static def Capability():
+		return Json({ "triggerCharacters": ["(", ","], "retriggerCharacters": [","] })
+
+	private def Describe(params as object) as JsonNode:
+		document = _documents.Get(Fields.Text(Fields.Map(params, "textDocument"), "uri"))
+		return null if document is null
+
+		position = Fields.Map(params, "position")
+		return null if position is null
+
+		found = _help.At(
+			document,
+			Position(Fields.Number(position, "line", 0), Fields.Number(position, "character", 0)))
+		return null if found is null
+
+		return Json({
+			"signatures": Written(found.Overloads),
+			"activeSignature": found.ActiveOverload,
+			"activeParameter": found.ActiveParameter
+		})
+
+	private static def Written(overloads as List[of Signatures.Overload]) as JsonArray:
+		written = JsonArray()
+		for overload in overloads:
+			parameters = JsonArray()
+			for parameter in overload.Parameters:
+				labelled = JsonObject()
+				labelled["label"] = parameter
+				parameters.Add(labelled)
+
+			signature = JsonObject()
+			signature["label"] = overload.Label
+			signature["parameters"] = parameters
+			written.Add(signature)
+		return written

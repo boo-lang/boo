@@ -26,36 +26,31 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Server
 
-import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+import Boo.Lang.Lsp.Json
+import Boo.Lang.Lsp.Protocol
+import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+class DocumentSymbols:
+"""
+Answers textDocument/documentSymbol from a parse of the open document.
 
-	directory as string
+Parsing rather than binding, so a file that does not compile still has an
+outline: a broken line costs the symbols below it, not all of them.
+"""
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
+	public static final Method = "textDocument/documentSymbol"
 
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
+	_documents as DocumentStore
+	_analyzer = Analyzer()
 
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	def constructor(documents as DocumentStore, connection as Connection):
+		_documents = documents
+		connection.OnRequest(Method, Answer)
+
+	private def Answer(params as object) as JsonNode:
+		document = _documents.Get(Fields.Text(Fields.Map(params, "textDocument"), "uri"))
+		return JsonArray() if document is null
+		return Symbols.Of(document, _analyzer.ParseTree(document))

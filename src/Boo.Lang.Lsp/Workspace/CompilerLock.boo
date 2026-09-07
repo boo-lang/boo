@@ -26,36 +26,20 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
-namespace BooCompiler.Tests
+namespace Boo.Lang.Lsp.Workspace
 
-import System
-import System.IO
-import Boo.Lang.Compiler
-import NUnit.Framework
+class CompilerLock:
+"""
+Every compile the server runs passes through here.
 
-[TestFixture]
-class LoadAssemblyTest:
-"""Loading a reference that will not load."""
+The compiler keeps state that is not per instance, so two BooCompiler runs at
+once corrupt each other: the second one throws on a reference the first has
+already registered. The server genuinely does compile from two threads, since
+the analysis worker binds for diagnostics while the message loop answers
+hover, definition, symbols and completion.
 
-	directory as string
+One at a time costs latency on a request that arrives mid-bind. It is the
+price of a compiler that was written for batch use.
+"""
 
-	[SetUp]
-	def Setup():
-		directory = Path.Combine(Path.GetTempPath(), "boo-lib-" + Guid.NewGuid().ToString("N"))
-		Directory.CreateDirectory(directory)
-
-	[TearDown]
-	def Teardown():
-		Directory.Delete(directory, true) if Directory.Exists(directory)
-
-	[Test]
-	def ReturnsNullForAnUnloadableAssemblyInALibPath():
-	"""
-	A reference that will not load is an answer, not a reason to abandon the
-	compilation. boo-ls analyses against whatever a project last built, and
-	a half written output would otherwise take the whole analysis down.
-	"""
-		File.WriteAllText(Path.Combine(directory, "NotReally.dll"), "not an assembly")
-		parameters = CompilerParameters(false)
-		parameters.LibPaths.Add(directory)
-		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+	public static final Gate = object()
