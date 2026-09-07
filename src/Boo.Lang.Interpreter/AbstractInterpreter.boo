@@ -162,29 +162,7 @@ class AbstractInterpreter:
 			compiler.Parameters.Input.Clear()
 			
 	private def FilterSuggestions(code as string, entity as IEntity) as (IEntity):
-		ns = entity as INamespace
-		return array(IEntity, 0) if ns is null
-		return GetChildNamespaces(ns) if code.StartsWith("import ")
-		return FilteredMembers(Boo.Lang.Compiler.TypeSystem.Services.MemberCollector.CollectAllMembers(ns))
-		
-	private def FilteredMembers(members as (IEntity)):
-		return array(
-				item
-				for item in members
-				unless IsSpecial(item) or not IsPublic(item))
-
-	private def IsSpecial(entity as IEntity):
-		for prefix in ".", "___", "add_", "remove_", "raise_", "get_", "set_":
-			return true if entity.Name.StartsWith(prefix)
-			
-	private def IsPublic(entity as IEntity):
-		member = entity as IMember
-		return member is null or member.IsPublic
-		
-	private def GetChildNamespaces(parent as INamespace):
-		return array(member
-					for member in parent.GetMembers()
-					if member.EntityType == EntityType.Namespace)
+		return CodeCompletion.SuggestionsFor(entity, code.StartsWith("import "))
 			
 	private def PreProcessImportLine(code as string):
 		match = @/^\s*import\s+((\w|\.)+)\s*$/.Match(code)
@@ -600,20 +578,3 @@ class AbstractInterpreter:
 		override def Run():
 			CompileUnit.Modules[0].Imports.ExtendWithClones(_imports)
 
-	class FindCodeCompleteSuggestion(Steps.AbstractVisitorCompilerStep):
-		
-		override def Run():
-			Visit(CompileUnit)
-		
-		override def LeaveMemberReferenceExpression(node as MemberReferenceExpression):
-			if "__codecomplete__" == node.Name:
-				suggestion as IEntity
-				target = node.Target
-				if target.ExpressionType is not null:									
-					suggestion = target.ExpressionType
-				else:
-					suggestion = GetOptionalEntity(target)
-				if suggestion is not null and suggestion.EntityType != EntityType.Error:
-					_context["suggestion"] = suggestion
-					// TODO: use target to display static members only for type reference expressions
-					_context["target"] = target
