@@ -472,7 +472,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             _currentAwaitCatchFrame = null;
 
             Visit(node.ExceptionHandlers);
-            Statement tryWithCatches = new TryStatement{EnsureBlock = rewrittenTry};
+            Statement tryWithCatches = new TryStatement{ProtectedBlock = rewrittenTry};
             ((TryStatement)tryWithCatches).ExceptionHandlers = node.ExceptionHandlers;
 
             var currentAwaitCatchFrame = _currentAwaitCatchFrame;
@@ -518,10 +518,29 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 var result = Visit(node);
                 _currentAwaitCatchFrame = origCurrentAwaitCatchFrame;
                 ReplaceCurrentNode(result);
+                return;
             }
 
             var currentAwaitCatchFrame = _currentAwaitCatchFrame ??
                 (_currentAwaitCatchFrame = new AwaitCatchFrame(_tss, _F, _containingMethod));
+
+            // The handler body moves out of the catch, so the declared exception is an
+            // ordinary local from here on and has to survive the awaits in that body.
+            if (node.FilterCondition == null && node.Declaration != null)
+            {
+                var declaredException = node.Declaration.Entity as InternalLocal;
+                if (declaredException != null)
+                    declaredException.OriginalDeclaration = null;
+            }
+            // A filtered handler keeps its exception on the frame, where an await in
+            // the body does not preserve it.
+            else if (node.FilterCondition != null && node.Declaration != null
+                     && !string.IsNullOrEmpty(node.Declaration.Name))
+            {
+                CompilerContext.Current.Errors.Add(
+                    CompilerErrorFactory.AwaitInFilteredCatchWithExceptionVariable(
+                        node.Declaration, node.Declaration.Name));
+            }
 
             var catchType = node.Declaration != null ? (IType)node.Declaration.Type.Entity : _tss.ObjectType;
             var catchTemp = _F.DeclareTempLocal(_containingMethod, catchType);
@@ -554,6 +573,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                         new ExpressionStatement(storePending),
                         new ExpressionStatement(setPendingCatchNum))
                 };
+                catchTemp.OriginalDeclaration = catchAndPend.Declaration;
                 // catch locals live on the synthetic catch handler block
             }
             else
@@ -587,6 +607,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     FilterCondition = newFilter,
                     Block = new Block(new ExpressionStatement(setPendingCatchNum))
                 };
+                catchTemp.OriginalDeclaration = catchAndPend.Declaration;
             }
             if (node.ContainsAnnotation("isSynthesizedAsyncCatchAll"))
                 catchAndPend.Annotate("isSynthesizedAsyncCatchAll");
@@ -644,6 +665,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             if (catchFrame == null || !catchFrame.TryGetHoistedLocal((InternalLocal)node.Entity, out hoistedLocal))
             {
                 base.OnDeclaration(node);
+                return;
             }
 
             ReplaceCurrentNode(new Declaration(node.Name, _F.CreateTypeReference(hoistedLocal.Type)) {Entity = hoistedLocal});
@@ -654,6 +676,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             if (node.Exception != null || _currentAwaitCatchFrame == null)
             {
                 base.OnRaiseStatement(node);
+                return;
             }
 
             ReplaceCurrentNode(Rethrow(_currentAwaitCatchFrame.pendingCaughtException));

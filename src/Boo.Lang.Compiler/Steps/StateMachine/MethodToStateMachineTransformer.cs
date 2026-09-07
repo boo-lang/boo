@@ -296,6 +296,7 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
         public override void OnReferenceExpression(ReferenceExpression node)
         {
             InternalField mapped;
+            IEntity remapped;
             if (_mapping.TryGetValue(node.Entity, out mapped))
             {
                 ReplaceCurrentNode(
@@ -303,6 +304,12 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
                         node.LexicalInfo,
                         CodeBuilder.CreateSelfReference(_stateMachineClass.Entity),
                         mapped));
+            }
+            // Handler variables stay locals of MoveNext, so their references follow
+            // the same map their declaration does.
+            else if (_entityMapper.TryGetValue(node.Entity, out remapped))
+            {
+                node.Entity = remapped;
             }
 			else if (node.Entity is IGenericMappedMember || node.Entity is IGenericParameter || node.Entity is InternalLocal)
 			{
@@ -504,8 +511,15 @@ namespace Boo.Lang.Compiler.Steps.StateMachine
 				ContextAnnotations.AddFieldInvocation(node);
 			else if (node.Target.Entity.EntityType == EntityType.BuiltinFunction)
 			{
+				// default's type comes from the typeof argument, not that argument's own System.Type.
 				if (node.Target.Entity == BuiltinFunction.Default)
-					node.ExpressionType = node.Arguments[0].ExpressionType;
+				{
+					var typeofArgument = node.Arguments.Count > 0
+						? node.Arguments[0] as TypeofExpression
+						: null;
+					if (typeofArgument != null)
+						node.ExpressionType = (IType)typeofArgument.Type.Entity;
+				}
 			}
 			if (et != null && 
 				((et.GenericInfo != null || 

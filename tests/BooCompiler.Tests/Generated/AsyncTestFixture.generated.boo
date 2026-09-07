@@ -41,6 +41,14 @@ partial class AsyncTestFixture:
 		RunCompilerTestCase("await-in-using-and-for.boo")
 
 	[Test]
+	def @await_in_while_condition():
+		RunCompilerTestCase("await-in-while-condition.boo")
+
+	[Test]
+	def @await_in_while_condition_or_then():
+		RunCompilerTestCase("await-in-while-condition-or-then.boo")
+
+	[Test]
 	def @await_switch():
 		RunCompilerTestCase("await-switch.boo")
 

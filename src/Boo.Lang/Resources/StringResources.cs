@@ -197,6 +197,7 @@ namespace Boo.Lang.Resources
 		public const string BCE0192 = "Byref-like type '{0}' cannot be captured by a closure, a generator or an async method.";
 		public const string BCE0193 = "Byref-like type '{0}' cannot be the element type of an array.";
 		public const string BCE0194 = "Byref-like type '{0}' cannot be used as a generic argument.";
+		public const string BCE0195 = "Exception variable '{0}' cannot be used in a filtered catch block that awaits.";
         public const string BCW0000 = "WARNING: {0}";
 		public const string BCW0001 = "WARNING: Type '{0}' does not provide an implementation for '{1}' and will be marked abstract.";
 		public const string BCW0002 = "WARNING: Statement modifiers have no effect in labels.";

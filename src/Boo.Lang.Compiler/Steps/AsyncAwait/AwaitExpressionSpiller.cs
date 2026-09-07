@@ -508,6 +508,44 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 			    UpdateConditionalStatement(node);
 	    }
 
+		public override void OnWhileStatement(WhileStatement node)
+		{
+			base.OnWhileStatement(node);
+			if (node.Condition.NodeType != SpillSequenceBuilder)
+				return;
+
+			// A while condition is evaluated on every pass, so what it spills
+			// belongs at the top of the body rather than ahead of the loop.
+			var builder = (BoundSpillSequenceBuilder) node.Condition;
+			var body = new Block(node.Block.LexicalInfo);
+			foreach (var spilled in builder.GetStatements())
+				body.Add(spilled);
+
+			// or and then run when the condition fails, so they move to the branch
+			// that replaces it.
+			var orBlock = node.OrBlock;
+			var thenBlock = node.ThenBlock;
+			node.OrBlock = null;
+			node.ThenBlock = null;
+			var conditionFailed = new Block(node.LexicalInfo);
+			if (orBlock != null)
+				conditionFailed.Add(orBlock);
+			if (thenBlock != null)
+				conditionFailed.Add(thenBlock);
+			conditionFailed.Add(new BreakStatement(node.LexicalInfo));
+
+			body.Add(new IfStatement(
+				node.LexicalInfo,
+				_F.CreateNotExpression(builder.Value),
+				conditionFailed,
+				null));
+			foreach (var statement in node.Block.Statements)
+				body.Add(statement);
+
+			node.Condition = _F.CreateBoolLiteral(true);
+			node.Block = body;
+		}
+
 	    #endregion
 
         #region Expression Visitors
