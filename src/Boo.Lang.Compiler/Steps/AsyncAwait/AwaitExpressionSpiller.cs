@@ -477,8 +477,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 awaitExpression.BaseExpression = VisitExpression(ref builder, awaitExpression.BaseExpression);
                 expr = awaitExpression;
             }
-			else if (node.Expression.NodeType == NodeType.MethodInvocationExpression && 
-				((MethodInvocationExpression)node.Expression).Target.Entity == BuiltinFunction.Switch) 
+			else if (node.Expression.NodeType == NodeType.MethodInvocationExpression &&
+				((MethodInvocationExpression)node.Expression).Target.Entity == BuiltinFunction.Switch)
 			{
 				OnSwitch((MethodInvocationExpression)node.Expression, ref builder);
 				expr = node.Expression;
@@ -504,6 +504,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 	    public override void OnIfStatement(IfStatement node)
 	    {
 			base.OnIfStatement(node);
+			if (node.Condition.NodeType == SpillSequenceBuilder)
+			    UpdateConditionalStatement(node);
+	    }
+
+	    // unless keeps its own node rather than becoming a negated if.
+	    public override void OnUnlessStatement(UnlessStatement node)
+	    {
+			base.OnUnlessStatement(node);
 			if (node.Condition.NodeType == SpillSequenceBuilder)
 			    UpdateConditionalStatement(node);
 	    }
@@ -682,8 +690,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     trueBlock.Add(UpdateExpression(builder, _F.CreateAssignment(_F.CreateLocalReference(tmp), right)));
                     leftBuilder.AddStatement(
                         new IfStatement(left.LexicalInfo,
-                            node.Operator == BinaryOperatorType.And ? 
-                                _F.CreateLocalReference(tmp) : 
+                            node.Operator == BinaryOperatorType.And ?
+                                _F.CreateLocalReference(tmp) :
                                 (Expression)_F.CreateNotExpression(_F.CreateLocalReference(tmp)),
                             trueBlock,
                             null));
