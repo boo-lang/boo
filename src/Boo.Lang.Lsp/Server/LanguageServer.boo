@@ -53,6 +53,7 @@ here so that no feature handler has to think about them.
 	_navigation as Navigation
 	_completions as Completions
 	_signatures as SignatureHelp
+	_semanticTokens as SemanticTokenHandler
 	_initialized = false
 	_shuttingDown = false
 	_exited = false
@@ -83,6 +84,7 @@ here so that no feature handler has to think about them.
 		_navigation = Navigation(_documents, _connection)
 		_completions = Completions(_documents, _connection)
 		_signatures = SignatureHelp(_documents, _connection)
+		_semanticTokens = SemanticTokenHandler(_documents, _connection)
 		_sync.Changed = Changed
 		_sync.Closed = Closed
 
@@ -153,7 +155,8 @@ here so that no feature handler has to think about them.
 			"definitionProvider": true,
 			"documentHighlightProvider": true,
 			"referencesProvider": true,
-			"renameProvider": true
+			"renameProvider": true,
+			"semanticTokensProvider": SemanticTokenHandler.Capability()
 		})
 
 	private def Initialized(params as object):
