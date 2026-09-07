@@ -20,9 +20,9 @@ class SignatureHelpTestFixture(ServerFixture):
 		result = ReplyTo(1L)["result"] as JsonObject
 		capabilities = Fields.Map(result, "capabilities")
 		provider = Fields.Map(capabilities, "signatureHelpProvider")
-		triggers = Fields.Items(provider, "triggerCharacters")
-		assert "(" in Fields.Texts(triggers)
-		assert "," in Fields.Texts(triggers)
+		triggers = [Fields.Value[of string](item) for item in Fields.Items(provider, "triggerCharacters")]
+		assert "(" in triggers
+		assert "," in triggers
 
 	[Test]
 	def AnswersWithTheOverloadsAndTheArgument():

@@ -146,3 +146,14 @@ so each case reads as the text someone had typed.
 		text = "class Base:\n\tprotected def Shared():\n\t\tpass\n\nclass Derived(Base):\n\tdef Say():\n\t\tself.|\n"
 		labels = Labels(Suggest(text))
 		assert "Shared" in labels
+
+	[Test]
+	def MarksAStructAsAStruct():
+		items = Suggest("print System.|\n")
+		assert Completion.Struct == Fields.Number(Find(items, "DateTime"), "kind", -1)
+		assert Completion.Class == Fields.Number(Find(items, "Console"), "kind", -1)
+
+	[Test]
+	def MarksATypeParameterAsATypeParameter():
+		items = Suggest("class Box[of T]:\n\tdef Put(item as T):\n\t\tprint |\n")
+		assert Completion.TypeParameter == Fields.Number(Find(items, "T"), "kind", -1)

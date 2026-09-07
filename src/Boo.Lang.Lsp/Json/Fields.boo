@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Lsp.Json
 
-import System.Collections.Generic
 import System.Text.Json.Nodes
 
 class Fields:
@@ -54,21 +53,17 @@ of the type asked for.
 	static def Number(value as object, name as string, fallback as int) as int:
 		found = Of(value, name)
 		return fallback if found is null
-		return Value[of int](found)
+		try:
+			return found.GetValue[of int]()
+		except:
+			# The caller's fallback, not zero, which is a line like any other.
+			return fallback
 
 	static def Of(value as object, name as string) as JsonNode:
 		owner = value as JsonObject
 		return null if owner is null
 		found as JsonNode
 		return null unless owner.TryGetPropertyValue(name, found)
-		return found
-
-	static def Texts(items as JsonArray) as List[of string]:
-	"""An array of strings as the strings it holds."""
-		found = List[of string]()
-		return found if items is null
-		for item in items:
-			found.Add(Value[of string](item))
 		return found
 
 	static def Value[of T](node as JsonNode) as T:

@@ -62,7 +62,9 @@ and is not answered here.
 	public static final Module = 9
 	public static final Property = 10
 	public static final Enum = 13
+	public static final Struct = 22
 	public static final Event = 23
+	public static final TypeParameter = 25
 
 	static final Nothing = JsonArray()
 
@@ -150,8 +152,11 @@ and is not answered here.
 	private static def TypeKindOf(entity as IEntity) as int:
 		type = entity as IType
 		return Class if type is null
+		return TypeParameter if type isa IGenericParameter
 		return Interface if type.IsInterface
+		# Enum before struct: an enum is a value type too.
 		return Enum if type.IsEnum
+		return Struct if type.IsValueType
 		return Class
 
 	private class Bare:
