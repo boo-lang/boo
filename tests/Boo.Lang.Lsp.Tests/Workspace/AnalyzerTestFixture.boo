@@ -3,6 +3,8 @@ namespace Boo.Lang.Lsp.Tests.Workspace
 import System.Collections.Generic
 import NUnit.Framework(TestFixtureAttribute, TestAttribute, SetUpAttribute, Assert)
 import Boo.Lang.Lsp.Workspace
+import Boo.Lang.Lsp.Json
+import System.Text.Json.Nodes
 
 [TestFixture]
 class AnalyzerTestFixture:
@@ -16,10 +18,10 @@ class AnalyzerTestFixture:
 	private def Document(text as string):
 		return TextDocument("file:///a.boo", "boo", 1, text)
 
-	private def Codes(diagnostics as List[of object]):
+	private def Codes(diagnostics as JsonArray):
 		codes = List[of string]()
 		for diagnostic in diagnostics:
-			codes.Add(cast(string, (diagnostic as Dictionary[of string, object])["code"]))
+			codes.Add(Fields.Text(diagnostic, "code"))
 		return codes
 
 	[Test]
@@ -30,12 +32,12 @@ class AnalyzerTestFixture:
 	def ReportsASyntaxError():
 		diagnostics = analyzer.Parse(Document("x = 1\nclass = 2\n"))
 		assert diagnostics.Count > 0
-		first = diagnostics[0] as Dictionary[of string, object]
-		span = first["range"] as Dictionary[of string, object]
-		start = span["start"] as Dictionary[of string, object]
-		assert start["line"] == 1L
-		assert first["severity"] == 1L
-		assert first["source"] == "boo"
+		first = diagnostics[0] as JsonObject
+		span = Fields.Map(first, "range")
+		start = Fields.Map(span, "start")
+		assert Fields.Number(start, "line", 0) == 1
+		assert Fields.Number(first, "severity", 0) == 1
+		assert Fields.Text(first, "source") == "boo"
 
 	[Test]
 	def SaysNothingAboutTypesWhenOnlyParsing():
@@ -90,14 +92,14 @@ class AnalyzerTestFixture:
 		text = "class Greeter:\n\tdef Hello():\n\t\treturn Twice()\n\n\tprivate def Twice():\n\t\treturn 2\n"
 		assert "BCW0014" not in Codes(analyzer.Bind(Document(text)))
 
-	private def Severities(diagnostics as List[of object]) as List[of int]:
+	private def Severities(diagnostics as JsonArray) as List[of int]:
 		found = List[of int]()
 		for diagnostic in diagnostics:
-			found.Add(cast(int, cast(Dictionary[of string, object], diagnostic)["severity"]))
+			found.Add(Fields.Number(diagnostic, "severity", 0))
 		return found
 
 	private def MessageOf(diagnostic as object) as string:
-		return cast(string, cast(Dictionary[of string, object], diagnostic)["message"])
+		return Fields.Text(diagnostic, "message")
 
 	[Test]
 	def StopsReportingPastTheLimit():
@@ -119,7 +121,7 @@ class AnalyzerTestFixture:
 		diagnostics = analyzer.Bind(Document(text.ToString()))
 		last = diagnostics[diagnostics.Count - 1]
 		assert "60 more problems here are not shown." == MessageOf(last), MessageOf(last)
-		assert Diagnostic.Information == cast(int, cast(Dictionary[of string, object], last)["severity"])
+		assert Diagnostic.Information == Fields.Number(last, "severity", 0)
 
 	[Test]
 	def SaysNothingAboutWhatItDidNotLeaveOut():
@@ -133,7 +135,7 @@ class AnalyzerTestFixture:
 	A step that raises is reported with its exception text, which names an
 	array index and a class nobody reading Boo has heard of.
 	"""
-		built = cast(Dictionary[of string, object], Diagnostic.Internal("BCE0011"))
-		assert "Boo could not analyse this file together with the files beside it." == built["message"], built["message"]
-		assert "BCE0011" == built["code"]
-		assert Diagnostic.Error == cast(int, built["severity"])
+		built = cast(JsonObject, Diagnostic.Internal("BCE0011"))
+		assert "Boo could not analyse this file together with the files beside it." == Fields.Text(built, "message"), Fields.Text(built, "message")
+		assert "BCE0011" == Fields.Text(built, "code")
+		assert Diagnostic.Error == Fields.Number(built, "severity", 0)

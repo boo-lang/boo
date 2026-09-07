@@ -28,7 +28,9 @@
 
 namespace Boo.Lang.Lsp.Server
 
-class CommandLine:
+import System.CommandLine
+
+class CommandLineOptions:
 """
 What the arguments asked for.
 
@@ -43,6 +45,9 @@ client has been answered, which the client reports as a crash.
 	public static final ShowHelp = 2
 	public static final Unknown = 3
 
+	static final VersionNames = ("--version", "-version")
+	static final HelpNames = ("--help", "-help", "-h")
+
 	public final Action as int
 	public final UnknownOption as string
 
@@ -50,10 +55,29 @@ client has been answered, which the client reports as a crash.
 		Action = action
 		UnknownOption = unknownOption
 
-	static def Parse(args as (string)) as CommandLine:
+	private static def Parser() as Command:
+	"""A RootCommand would answer for --help and --version itself."""
+		command = Command("boo-ls", "Language server for Boo, spoken over stdio.")
+		command.Add(Option[of bool]("--stdio", "-stdio"))
+		command.Add(Option[of bool]("--version", "-version"))
+		command.Add(Option[of bool]("--help", "-help", "-h"))
+		return command
+
+	static def Parse(args as (string)) as CommandLineOptions:
+		parsed = Parser().Parse(args)
+		for error in parsed.Errors:
+			return CommandLineOptions(Unknown, Offending(parsed, args))
+
+		# Whichever was written first is what was asked for.
 		for arg in args:
-			continue if arg == "--stdio" or arg == "-stdio"
-			return CommandLine(ShowVersion, null) if arg == "--version" or arg == "-version"
-			return CommandLine(ShowHelp, null) if arg == "--help" or arg == "-help" or arg == "-h"
-			return CommandLine(Unknown, arg)
-		return CommandLine(Serve, null)
+			return CommandLineOptions(ShowVersion, null) if arg in VersionNames
+			return CommandLineOptions(ShowHelp, null) if arg in HelpNames
+		return CommandLineOptions(Serve, null)
+
+	private static def Offending(parsed as ParseResult, args as (string)) as string:
+	"""The argument the parser could not place, as the caller wrote it."""
+		for token in parsed.UnmatchedTokens:
+			return token
+		for arg in args:
+			return arg unless arg in VersionNames or arg in HelpNames or arg == "--stdio" or arg == "-stdio"
+		return null

@@ -28,9 +28,9 @@
 
 namespace Boo.Lang.Lsp.Server
 
-import System.Collections.Generic
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 class DiagnosticsPublisher:
 """
@@ -65,10 +65,10 @@ for the same reason.
 		Send(document.Uri, _analyzer.Bind(document))
 
 	def Clear(uri as string):
-		Send(uri, List[of object]())
+		Send(uri, JsonArray())
 
-	private def Send(uri as string, diagnostics as List[of object]):
-		params = Dictionary[of string, object]()
+	private def Send(uri as string, diagnostics as JsonArray):
+		params = JsonObject()
 		params["uri"] = uri
 		params["diagnostics"] = diagnostics
 		_connection.Notify(Method, params)

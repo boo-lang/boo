@@ -37,6 +37,7 @@ import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Environments
 import Boo.Lang.Interpreter
+import System.Text.Json.Nodes
 
 class Completion:
 """
@@ -63,25 +64,26 @@ and is not answered here.
 	public static final Enum = 13
 	public static final Event = 23
 
-	static final Nothing = List[of object]()
+	static final Nothing = JsonArray()
 
-	def At(document as TextDocument, position as Position) as List[of object]:
+	def At(document as TextDocument, position as Position) as JsonArray:
 		request = Request.For(document, position)
 		return Bare.At(document, position) if request is null
 
 		context = Bind(document.Uri, request.Text)
-		return List[of object]() if context is null
+		return JsonArray() if context is null
 
-		items = List[of object]()
+		items = JsonArray()
 		# Collecting members resolves types lazily, so it shares the gate.
 		lock CompilerLock.Gate:
 			ActiveEnvironment.With(context.Environment) do:
 				suggestion = context["suggestion"] as IEntity
 				return if suggestion is null
-				items = Gather(CodeCompletion.SuggestionsFor(suggestion, request.NamespacesOnly))
+				scope = context["scope"] as TypeDefinition
+				items = Gather(CodeCompletion.SuggestionsFor(suggestion, request.NamespacesOnly, scope))
 		return items
 
-	private static def Gather(entities as (IEntity)) as List[of object]:
+	private static def Gather(entities as (IEntity)) as JsonArray:
 	"""
 	One entry per name.
 
@@ -101,7 +103,7 @@ and is not answered here.
 				order.Add(name)
 			counts[name] = counts[name] + 1
 
-		items = List[of object]()
+		items = JsonArray()
 		for name in order:
 			items.Add(Item(first[name], counts[name]))
 		return items
@@ -124,11 +126,11 @@ and is not answered here.
 			Console.Error.WriteLine("boo-ls: completing ${uri} failed: ${e.Message}")
 			return null
 
-	private static def Item(entity as IEntity, sharing as int) as Dictionary[of string, object]:
+	private static def Item(entity as IEntity, sharing as int) as JsonObject:
 		detail = Signatures.Of(entity.Name, entity)
 		detail += "  (${sharing} overloads)" if sharing > 1
 
-		item = Dictionary[of string, object]()
+		item = JsonObject()
 		item["label"] = entity.Name
 		item["kind"] = KindOf(entity)
 		item["detail"] = detail
@@ -153,12 +155,12 @@ and is not answered here.
 		return Class
 
 	private class Bare:
-		static def At(document as TextDocument, position as Position) as List[of object]:
+		static def At(document as TextDocument, position as Position) as JsonArray:
 			prefix = PrefixAt(document, position)
-			return List[of object]() if prefix is null
+			return JsonArray() if prefix is null
 
 			context = Analyzer().Bound(document)
-			return List[of object]() if context is null
+			return JsonArray() if context is null
 
 			collector = Collector(document, position, prefix)
 			lock CompilerLock.Gate:
@@ -179,7 +181,7 @@ and is not answered here.
 			_document as TextDocument
 			_position as Position
 			_prefix as string
-			_items = List[of object]()
+			_items = JsonArray()
 			_seen = Dictionary[of string, bool]()
 
 			def constructor(document as TextDocument, position as Position, prefix as string):
@@ -187,7 +189,7 @@ and is not answered here.
 				_position = position
 				_prefix = prefix
 
-			Items as List[of object]:
+			Items as JsonArray:
 				get: return _items
 
 			override def OnReferenceExpression(node as ReferenceExpression):

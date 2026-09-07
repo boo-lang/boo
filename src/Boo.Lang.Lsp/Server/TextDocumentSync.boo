@@ -28,7 +28,6 @@
 
 namespace Boo.Lang.Lsp.Server
 
-import System.Collections.Generic
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Workspace
@@ -63,10 +62,7 @@ content change in the batch is the new text.
 		connection.OnNotification("textDocument/didSave", DidSave)
 
 	static def Capability():
-		capability = Dictionary[of string, object]()
-		capability["openClose"] = true
-		capability["change"] = Full
-		return capability
+		return Json({ "openClose": true, "change": Full })
 
 	private def DidOpen(params as object):
 		document = Fields.Map(params, "textDocument")

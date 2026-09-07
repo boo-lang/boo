@@ -1,9 +1,9 @@
 namespace Boo.Lang.Lsp.Tests.Workspace
 
-import System.Collections.Generic
 import NUnit.Framework(TestFixtureAttribute, TestAttribute, SetUpAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 [TestFixture]
 class SymbolsTestFixture:
@@ -18,13 +18,13 @@ class SymbolsTestFixture:
 		document = TextDocument("file:///a.boo", "boo", 1, text)
 		return Symbols.Of(document, analyzer.ParseTree(document))
 
-	private def Named(symbols as List[of object], name as string) as Dictionary[of string, object]:
-		for symbol as Dictionary[of string, object] in symbols:
-			return symbol if symbol["name"] == name
+	private def Named(symbols as JsonArray, name as string) as JsonObject:
+		for symbol as JsonObject in symbols:
+			return symbol if Fields.Text(symbol, "name") == name
 		return null
 
-	private def Children(symbol as Dictionary[of string, object]):
-		return symbol["children"] as List[of object]
+	private def Children(symbol as JsonObject):
+		return Fields.Items(symbol, "children")
 
 	[Test]
 	def ReportsNothingForAnEmptyDocument():
@@ -34,19 +34,19 @@ class SymbolsTestFixture:
 	def ReportsAClass():
 		greeter = Named(SymbolsOf("class Greeter:\n\tpass\n"), "Greeter")
 		assert greeter is not null
-		assert greeter["kind"] == Symbols.Class
+		assert Fields.Number(greeter, "kind", 0) == Symbols.Class
 
 	[Test]
 	def NestsMembersUnderTheirType():
 		symbols = SymbolsOf("class Greeter:\n\tdef Hello():\n\t\tpass\n")
 		hello = Named(Children(Named(symbols, "Greeter")), "Hello")
 		assert hello is not null
-		assert hello["kind"] == Symbols.Method
+		assert Fields.Number(hello, "kind", 0) == Symbols.Method
 
 	[Test]
 	def ReportsAModuleLevelDefAsAFunction():
 		top = Named(SymbolsOf("def Hello():\n\tpass\n"), "Hello")
-		assert top["kind"] == Symbols.Function
+		assert Fields.Number(top, "kind", 0) == Symbols.Function
 
 	[Test]
 	def ReportsADefThatFollowsModuleLevelCode():
@@ -55,57 +55,57 @@ class SymbolsTestFixture:
 		symbols = SymbolsOf("def Before():\n\tpass\n\nx = 1\n\ndef After():\n\tpass\n")
 		assert Named(symbols, "Before") is not null
 		assert Named(symbols, "After") is not null
-		assert Named(symbols, "After")["kind"] == Symbols.Function
+		assert Fields.Number(Named(symbols, "After"), "kind", 0) == Symbols.Function
 
 	[Test]
 	def SelectsTheNameOfADefBelowModuleLevelCode():
 		# Such a def is pointed at its keyword, not its name.
 		symbols = SymbolsOf("x = 1\n\ndef After():\n\tpass\n")
-		selection = Named(symbols, "After")["selectionRange"] as Dictionary[of string, object]
-		start = selection["start"] as Dictionary[of string, object]
-		finish = selection["end"] as Dictionary[of string, object]
-		assert start["character"] == 4L
-		assert finish["character"] == 9L
+		selection = Named(symbols, "After")["selectionRange"] as JsonObject
+		start = Fields.Map(selection, "start")
+		finish = Fields.Map(selection, "end")
+		assert Fields.Number(start, "character", 0) == 4
+		assert Fields.Number(finish, "character", 0) == 9
 
 	[Test]
 	def ReportsFieldsAndProperties():
 		symbols = SymbolsOf("class Greeter:\n\tname as string\n\n\tGreeting:\n\t\tget: return 'hi'\n")
 		members = Children(Named(symbols, "Greeter"))
-		assert Named(members, "name")["kind"] == Symbols.Field
-		assert Named(members, "Greeting")["kind"] == Symbols.Property
+		assert Fields.Number(Named(members, "name"), "kind", 0) == Symbols.Field
+		assert Fields.Number(Named(members, "Greeting"), "kind", 0) == Symbols.Property
 
 	[Test]
 	def ReportsAnEnumAndItsMembers():
 		symbols = SymbolsOf("enum Colour:\n\tRed\n\tGreen\n")
 		colour = Named(symbols, "Colour")
-		assert colour["kind"] == Symbols.Enum
-		assert Named(Children(colour), "Red")["kind"] == Symbols.EnumMember
+		assert Fields.Number(colour, "kind", 0) == Symbols.Enum
+		assert Fields.Number(Named(Children(colour), "Red"), "kind", 0) == Symbols.EnumMember
 
 	[Test]
 	def ReportsAnInterfaceAndAStruct():
 		symbols = SymbolsOf("interface IGreeter:\n\tpass\n\nstruct Point:\n\tx as int\n")
-		assert Named(symbols, "IGreeter")["kind"] == Symbols.Interface
-		assert Named(symbols, "Point")["kind"] == Symbols.Struct
+		assert Fields.Number(Named(symbols, "IGreeter"), "kind", 0) == Symbols.Interface
+		assert Fields.Number(Named(symbols, "Point"), "kind", 0) == Symbols.Struct
 
 	[Test]
 	def NestsAClassInsideAClass():
 		symbols = SymbolsOf("class Outer:\n\tclass Inner:\n\t\tpass\n")
-		assert Named(Children(Named(symbols, "Outer")), "Inner")["kind"] == Symbols.Class
+		assert Fields.Number(Named(Children(Named(symbols, "Outer")), "Inner"), "kind", 0) == Symbols.Class
 
 	[Test]
 	def SelectsTheNameAndCoversTheBody():
 		greeter = Named(SymbolsOf("class Greeter:\n\tdef Hello():\n\t\tpass\n"), "Greeter")
-		span = greeter["range"] as Dictionary[of string, object]
-		selection = greeter["selectionRange"] as Dictionary[of string, object]
-		start = selection["start"] as Dictionary[of string, object]
-		finish = selection["end"] as Dictionary[of string, object]
+		span = Fields.Map(greeter, "range")
+		selection = Fields.Map(greeter, "selectionRange")
+		start = Fields.Map(selection, "start")
+		finish = Fields.Map(selection, "end")
 		# "class Greeter:" puts the name at character 6.
-		assert start["line"] == 0L
-		assert start["character"] == 6L
-		assert finish["character"] == 13L
+		assert Fields.Number(start, "line", 0) == 0
+		assert Fields.Number(start, "character", 0) == 6
+		assert Fields.Number(finish, "character", 0) == 13
 		# The whole definition reaches the last line.
-		lastLine = cast(long, (span["end"] as Dictionary[of string, object])["line"])
-		assert lastLine >= 2L
+		lastLine = Fields.Number(Fields.Map(span, "end"), "line", 0)
+		assert lastLine >= 2
 
 	[Test]
 	def KeepsTheOutlineBelowAHalfTypedCall():

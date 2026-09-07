@@ -304,6 +304,12 @@ than handed out as entities.
 			_document = document
 			_position = position
 
+		override def OnModule(node as Module):
+		"""The project's other files are compiled alongside this one, and their
+		positions mean nothing here."""
+			return unless node.LexicalInfo.FileName == _document.Uri
+			super(node)
+
 		override def OnReferenceExpression(node as ReferenceExpression):
 			Consider(node, node.Name)
 

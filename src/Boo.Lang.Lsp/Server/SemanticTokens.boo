@@ -28,10 +28,10 @@
 
 namespace Boo.Lang.Lsp.Server
 
-import System.Collections.Generic
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 class SemanticTokenHandler:
 """Answers full-document semantic token requests."""
@@ -45,7 +45,7 @@ class SemanticTokenHandler:
 		_documents = documents
 		connection.OnRequest(FullMethod, AnswerFull)
 
-	static def Capability() as Dictionary[of string, object]:
+	static def Capability() as JsonObject:
 		return Boo.Lang.Lsp.Workspace.SemanticTokens.Capability()
 
 	private def AnswerFull(params as object) as object:
@@ -53,7 +53,5 @@ class SemanticTokenHandler:
 		return Empty() if document is null
 		return Boo.Lang.Lsp.Workspace.SemanticTokens.Of(document, _analyzer.Bound(document))
 
-	private static def Empty() as Dictionary[of string, object]:
-		result = Dictionary[of string, object]()
-		result["data"] = List[of long]()
-		return result
+	private static def Empty() as JsonObject:
+		return Json({ "data": [] })

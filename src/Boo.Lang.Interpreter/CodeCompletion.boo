@@ -59,21 +59,34 @@ the suggestions come from.
 				_context["suggestion"] = suggestion
 				// TODO: use target to display static members only for type reference expressions
 				_context["target"] = target
+				// What the cursor sits inside decides which members it may reach.
+				_context["scope"] = node.GetAncestor[of TypeDefinition]()
 
 static class CodeCompletion:
 """What is worth offering for an entity the marker resolved to."""
 
-	def SuggestionsFor(entity as IEntity, namespacesOnly as bool) as (IEntity):
+	def SuggestionsFor(entity as IEntity, namespacesOnly as bool, scope as TypeDefinition) as (IEntity):
 		ns = entity as INamespace
 		return array(IEntity, 0) if ns is null
 		return ChildNamespaces(ns) if namespacesOnly
-		return Members(MemberCollector.CollectAllMembers(ns))
+		return Members(MemberCollector.CollectAllMembers(ns), Checker(scope))
 
-	def Members(members as (IEntity)) as (IEntity):
+	def SuggestionsFor(entity as IEntity, namespacesOnly as bool) as (IEntity):
+		return SuggestionsFor(entity, namespacesOnly, null)
+
+	def Checker(scope as TypeDefinition) as IAccessibilityChecker:
+	"""Without a scope, only the public surface is reachable."""
+		return AccessibilityChecker.Global if scope is null or not scope.Entity isa IType
+		return AccessibilityChecker(scope)
+
+	def Members(members as (IEntity), checker as IAccessibilityChecker) as (IEntity):
 		return array(
 				item
 				for item in members
-				unless IsSpecial(item) or not IsPublic(item))
+				unless IsSpecial(item) or not IsVisible(item, checker))
+
+	def Members(members as (IEntity)) as (IEntity):
+		return Members(members, AccessibilityChecker.Global)
 
 	def ChildNamespaces(parent as INamespace) as (IEntity):
 		return array(member
@@ -84,6 +97,11 @@ static class CodeCompletion:
 		for prefix in ".", "___", "add_", "remove_", "raise_", "get_", "set_", "<":
 			return true if entity.Name.StartsWith(prefix)
 		return false
+
+	def IsVisible(entity as IEntity, checker as IAccessibilityChecker) as bool:
+		accessible = entity as IAccessibleMember
+		return checker.IsAccessible(accessible) if accessible is not null
+		return IsPublic(entity)
 
 	def IsPublic(entity as IEntity) as bool:
 		member = entity as IMember

@@ -30,6 +30,7 @@ using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Builders;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.Util;
+using System;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler.TypeSystem;
 	
@@ -264,7 +265,9 @@ namespace Boo.Lang.Compiler.Steps
 		private void ConvertMethodInvocation(MethodInvocationExpression node, IParameter[] parameters)
 		{
 			ExpressionCollection arguments = node.Arguments;
-			for (int i=0; i<parameters.Length; ++i)
+			// A call may leave an optional parameter out.
+			var supplied = Math.Min(parameters.Length, arguments.Count);
+			for (int i=0; i<supplied; ++i)
 			{
 				Expression newArgument = Convert(parameters[i].Type, arguments[i]);
 				if (null != newArgument)

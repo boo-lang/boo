@@ -30,13 +30,15 @@ namespace Boo.Lang.Lsp.Server
 
 import System
 import System.Threading
+import System.Threading.Channels
+import System.Threading.Tasks
 import Boo.Lang.Lsp.Workspace
 
 callable AnalysisRequested(document as TextDocument)
 
 class AnalysisWorker:
 """
-Runs compilation on one background thread, off the message loop.
+Runs compilation on one background task, off the message loop.
 
 Binding a project costs hundreds of milliseconds once it is large enough, and
 the compiler is not reentrant, so compilation happens here, one document at a
@@ -49,57 +51,73 @@ keystrokes costs one compile rather than one per character.
 	_analyze as AnalysisRequested
 	_debounce as int
 	_queue = AnalysisQueue()
-	_wakeup = AutoResetEvent(false)
-	_idle = ManualResetEvent(true)
-	_thread as Thread
-	_running = false
+
+	# The channel only says work is waiting; the queue says which.
+	_wakeup = Channel.CreateBounded[of bool](
+		BoundedChannelOptions(1, FullMode: BoundedChannelFullMode.DropOldest, SingleReader: true))
+	_idle = ManualResetEventSlim(true)
+	_stopping as CancellationTokenSource
+	_loop as Task
 
 	def constructor(analyze as AnalysisRequested, debounceMilliseconds as int):
 		_analyze = analyze
 		_debounce = debounceMilliseconds
 
 	IsRunning as bool:
-		get: return _running
+		get: return _loop is not null
 
 	def Start():
-		return if _running
-		_running = true
-		_thread = Thread(Loop)
-		_thread.IsBackground = true
-		_thread.Name = "boo-ls analysis"
-		_thread.Start()
+		return if _loop is not null
+		_stopping = CancellationTokenSource()
+		_loop = Task.Run({ Loop(_stopping.Token) })
 
 	def Stop():
-		return unless _running
-		_running = false
-		_wakeup.Set()
-		_thread.Join(2000)
+		return if _loop is null
+		_stopping.Cancel()
+		_wakeup.Writer.TryComplete()
+		try:
+			_loop.Wait(2000)
+		except as AggregateException:
+			# Cancelling is how it is asked to stop; that is not a failure.
+			pass
+		ensure:
+			_stopping.Dispose()
+			_stopping = null
+			_loop = null
 
 	def Submit(document as TextDocument):
 		_idle.Reset()
 		_queue.Submit(document)
-		_wakeup.Set()
+		_wakeup.Writer.TryWrite(true)
 
 	def Withdraw(uri as string):
 		_queue.Withdraw(uri)
 
 	def WaitForIdle(timeoutMilliseconds as int) as bool:
-	"""Waits for the queue to empty. For tests; nothing in the server waits."""
-		return _idle.WaitOne(timeoutMilliseconds)
+	"""Waits for the queue to empty, which shutting down does before it stops."""
+		return _idle.Wait(timeoutMilliseconds)
 
-	private def Loop():
-		while _running:
-			_wakeup.WaitOne()
-			break unless _running
+	private def Loop(stopping as CancellationToken):
+		try:
+			while _wakeup.Reader.WaitToReadAsync(stopping).AsTask().Result:
+				bool_ as bool
+				while _wakeup.Reader.TryRead(bool_):
+					pass
 
-			# Let a burst of keystrokes settle before paying for a compile.
-			Thread.Sleep(_debounce)
+				# Let a burst of keystrokes settle before paying for a compile.
+				Task.Delay(_debounce, stopping).Wait()
 
-			for document in _queue.Drain():
-				break unless _running
-				Analyze(document)
+				for document in _queue.Drain():
+					break if stopping.IsCancellationRequested
+					Analyze(document)
 
-			_idle.Set() if _queue.Count == 0
+				_idle.Set() if _queue.Count == 0
+		except as OperationCanceledException:
+			pass
+		except as AggregateException:
+			pass
+		ensure:
+			_idle.Set()
 
 	private def Analyze(document as TextDocument):
 		try:

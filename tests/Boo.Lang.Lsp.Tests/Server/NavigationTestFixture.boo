@@ -8,6 +8,7 @@ import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Server
+import System.Text.Json.Nodes
 
 [TestFixture]
 class NavigationTestFixture:
@@ -25,14 +26,14 @@ class NavigationTestFixture:
 		input = MemoryStream(UTF8Encoding(false).GetBytes(wire.ToString()))
 		LanguageServer(MessageStream(input, _output), 20).Run()
 
-	private def ReplyTo(id as long) as Dictionary[of string, object]:
+	private def ReplyTo(id as long) as JsonObject:
 		stream = MessageStream(MemoryStream(_output.ToArray()), MemoryStream())
 		while true:
 			message = stream.Read()
 			break if message is null
-			parsed = JsonCodec.Parse(message) as Dictionary[of string, object]
+			parsed = JsonCodec.Parse(message) as JsonObject
 			continue unless parsed.ContainsKey("id")
-			return parsed if cast(long, parsed["id"]) == id
+			return parsed if Fields.Number(parsed, "id", 0) == id
 		return null
 
 	# class Greeter / def Hello(who as string) / g = Greeter() / print g.Hello('x')
@@ -47,33 +48,33 @@ class NavigationTestFixture:
 	[Test]
 	def AdvertisesBothCapabilities():
 		Serve()
-		result = ReplyTo(1L)["result"] as Dictionary[of string, object]
-		capabilities = result["capabilities"] as Dictionary[of string, object]
-		assert capabilities["hoverProvider"] == true
-		assert capabilities["definitionProvider"] == true
+		result = ReplyTo(1L)["result"] as JsonObject
+		capabilities = Fields.Map(result, "capabilities")
+		assert Fields.Value[of bool](Fields.Of(capabilities, "hoverProvider")) == true
+		assert Fields.Value[of bool](Fields.Of(capabilities, "definitionProvider")) == true
 
 	[Test]
 	def HoversOverAMethodCall():
 		# "print g.Hello('x')", Hello starts at character 8.
 		Serve(Opened, Asking("textDocument/hover", 5, 8))
-		hover = ReplyTo(2L)["result"] as Dictionary[of string, object]
-		contents = hover["contents"] as Dictionary[of string, object]
-		assert contents["kind"] == "markdown"
-		assert "def Hello(who as string) as string" in cast(string, contents["value"])
+		hover = ReplyTo(2L)["result"] as JsonObject
+		contents = Fields.Map(hover, "contents")
+		assert Fields.Text(contents, "kind") == "markdown"
+		assert "def Hello(who as string) as string" in Fields.Text(contents, "value")
 
 	[Test]
 	def HoversOverALocal():
 		# "print g.Hello('x')", g is at character 6.
 		Serve(Opened, Asking("textDocument/hover", 5, 6))
-		contents = (ReplyTo(2L)["result"] as Dictionary[of string, object])["contents"] as Dictionary[of string, object]
-		assert "g as Greeter" in cast(string, contents["value"])
+		contents = (ReplyTo(2L)["result"] as JsonObject)["contents"] as JsonObject
+		assert "g as Greeter" in Fields.Text(contents, "value")
 
 	[Test]
 	def HoversWithWhatTheDeclarationDocuments():
 		# "print g.Hello('x')" is line 6 once the doc string is in.
 		Serve(Documented, Asking("textDocument/hover", 6, 8))
-		contents = (ReplyTo(2L)["result"] as Dictionary[of string, object])["contents"] as Dictionary[of string, object]
-		value = cast(string, contents["value"])
+		contents = (ReplyTo(2L)["result"] as JsonObject)["contents"] as JsonObject
+		value = Fields.Text(contents, "value")
 		assert "def Hello(who as string) as string" in value
 		assert "Says hello to who." in value
 
@@ -85,18 +86,18 @@ class NavigationTestFixture:
 	[Test]
 	def GoesToTheDefinitionOfAMethod():
 		Serve(Opened, Asking("textDocument/definition", 5, 8))
-		location = ReplyTo(2L)["result"] as Dictionary[of string, object]
-		assert location["uri"] == "file:///a.boo"
-		span = location["range"] as Dictionary[of string, object]
-		start = span["start"] as Dictionary[of string, object]
-		assert start["line"] == 1L
+		location = ReplyTo(2L)["result"] as JsonObject
+		assert Fields.Text(location, "uri") == "file:///a.boo"
+		span = Fields.Map(location, "range")
+		start = Fields.Map(span, "start")
+		assert Fields.Number(start, "line", 0) == 1
 
 	[Test]
 	def GoesToTheDefinitionOfALocal():
 		Serve(Opened, Asking("textDocument/definition", 5, 6))
-		span = (ReplyTo(2L)["result"] as Dictionary[of string, object])["range"] as Dictionary[of string, object]
-		start = span["start"] as Dictionary[of string, object]
-		assert start["line"] == 4L
+		span = (ReplyTo(2L)["result"] as JsonObject)["range"] as JsonObject
+		start = Fields.Map(span, "start")
+		assert Fields.Number(start, "line", 0) == 4
 
 	[Test]
 	def AnswersNothingForADocumentThatIsNotOpen():
@@ -108,7 +109,7 @@ class NavigationTestFixture:
 	def AnswersReferencesWithEveryPlaceTheNameIsUsed():
 		# Greeter is declared on line 0 and used on line 4.
 		Serve(Opened, Asking("textDocument/references", 4, 5))
-		found = ReplyTo(2)["result"] as List[of object]
+		found = ReplyTo(2)["result"] as JsonArray
 		assert found.Count == 2, JsonCodec.Stringify(found)
 
 	[Test]
@@ -117,11 +118,11 @@ class NavigationTestFixture:
 		Serve(Opened, renaming)
 		reply = ReplyTo(2)
 		assert not reply.ContainsKey("error"), JsonCodec.Stringify(reply)
-		changes = (reply["result"] as Dictionary[of string, object])["changes"] as Dictionary[of string, object]
-		edits = changes["file:///a.boo"] as List[of object]
+		changes = (Fields.Map(reply, "result"))["changes"] as JsonObject
+		edits = Fields.Items(changes, "file:///a.boo")
 		assert edits.Count == 2, JsonCodec.Stringify(edits)
-		first = edits[0] as Dictionary[of string, object]
-		assert first["newText"] == "Welcomer"
+		first = edits[0] as JsonObject
+		assert Fields.Text(first, "newText") == "Welcomer"
 
 	[Test]
 	def RefusesToRenameWhatAnAssemblyOwns():

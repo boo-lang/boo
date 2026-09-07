@@ -7,6 +7,7 @@ import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Server
+import System.Text.Json.Nodes
 
 [TestFixture]
 class SignatureHelpTestFixture:
@@ -24,14 +25,14 @@ class SignatureHelpTestFixture:
 		input = MemoryStream(UTF8Encoding(false).GetBytes(wire.ToString()))
 		LanguageServer(MessageStream(input, _output), 20).Run()
 
-	private def ReplyTo(id as long) as Dictionary[of string, object]:
+	private def ReplyTo(id as long) as JsonObject:
 		stream = MessageStream(MemoryStream(_output.ToArray()), MemoryStream())
 		while true:
 			message = stream.Read()
 			break if message is null
-			parsed = JsonCodec.Parse(message) as Dictionary[of string, object]
+			parsed = JsonCodec.Parse(message) as JsonObject
 			continue unless parsed.ContainsKey("id")
-			return parsed if cast(long, parsed["id"]) == id
+			return parsed if Fields.Number(parsed, "id", 0) == id
 		return null
 
 	# s = 'hello' / print s.Replace('a',
@@ -43,26 +44,26 @@ class SignatureHelpTestFixture:
 	[Test]
 	def AdvertisesTheCapability():
 		Serve()
-		result = ReplyTo(1L)["result"] as Dictionary[of string, object]
-		capabilities = result["capabilities"] as Dictionary[of string, object]
-		provider = capabilities["signatureHelpProvider"] as Dictionary[of string, object]
-		triggers = provider["triggerCharacters"] as List[of object]
-		assert "(" in triggers
-		assert "," in triggers
+		result = ReplyTo(1L)["result"] as JsonObject
+		capabilities = Fields.Map(result, "capabilities")
+		provider = Fields.Map(capabilities, "signatureHelpProvider")
+		triggers = Fields.Items(provider, "triggerCharacters")
+		assert "(" in Fields.Texts(triggers)
+		assert "," in Fields.Texts(triggers)
 
 	[Test]
 	def AnswersWithTheOverloadsAndTheArgument():
 		# "print s.Replace('a', ", the cursor sits after the comma and space.
 		Serve(Opened, Asking(1, 21))
-		result = ReplyTo(2L)["result"] as Dictionary[of string, object]
+		result = ReplyTo(2L)["result"] as JsonObject
 		assert result is not null
-		signatures = result["signatures"] as List[of object]
+		signatures = Fields.Items(result, "signatures")
 		assert signatures.Count > 0
-		first = signatures[0] as Dictionary[of string, object]
-		assert cast(string, first["label"]).StartsWith("def Replace(")
-		parameters = first["parameters"] as List[of object]
+		first = signatures[0] as JsonObject
+		assert Fields.Text(first, "label").StartsWith("def Replace(")
+		parameters = Fields.Items(first, "parameters")
 		assert parameters.Count > 0
-		assert result["activeParameter"] == 1
+		assert Fields.Number(result, "activeParameter", 0) == 1
 
 	[Test]
 	def AnswersNothingOutsideACall():

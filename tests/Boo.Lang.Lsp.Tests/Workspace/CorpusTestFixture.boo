@@ -8,6 +8,8 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Lsp.Workspace
+import Boo.Lang.Lsp.Json
+import System.Text.Json.Nodes
 
 // Reading every source in the repository is slow enough to keep out of an
 // ordinary run. Ask for it with --filter "TestCategory=Corpus".
@@ -71,16 +73,16 @@ does not choose, so what they report says nothing about the analyser.
 		compiler.Parameters.Input.Add(StringInput(uri, text))
 		return compiler.Run().Errors.Count > 0
 
-	private static def Errors(diagnostics as List[of object]) as List[of Dictionary[of string, object]]:
-		found = List[of Dictionary[of string, object]]()
+	private static def Errors(diagnostics as JsonArray) as List[of JsonObject]:
+		found = List[of JsonObject]()
 		for diagnostic in diagnostics:
-			entry = cast(Dictionary[of string, object], diagnostic)
-			found.Add(entry) if cast(int, entry["severity"]) == Diagnostic.Error
+			entry = cast(JsonObject, diagnostic)
+			found.Add(entry) if Fields.Number(entry, "severity", 0) == Diagnostic.Error
 		return found
 
-	private static def Describe(entry as Dictionary[of string, object]) as string:
-		span = cast(Dictionary[of string, object], entry["range"])
-		start = cast(Dictionary[of string, object], span["start"])
+	private static def Describe(entry as JsonObject) as string:
+		span = Fields.Map(entry, "range")
+		start = Fields.Map(span, "start")
 		return "${entry['code']} at ${start['line']}:${start['character']} ${entry['message']}"
 
 	[Test]
@@ -125,10 +127,10 @@ does not choose, so what they report says nothing about the analyser.
 			text = File.ReadAllText(path)
 			document = TextDocument(Uri(path).AbsoluteUri, "boo", 1, text)
 			for entry in Errors(analyzer.Parse(document)):
-				span = cast(Dictionary[of string, object], entry["range"])
-				start = cast(Dictionary[of string, object], span["start"])
-				line = cast(int, start["line"])
-				character = cast(int, start["character"])
+				span = Fields.Map(entry, "range")
+				start = Fields.Map(span, "start")
+				line = Fields.Number(start, "line", 0)
+				character = Fields.Number(start, "character", 0)
 				if line < 0 or line >= document.LineCount or character < 0 or character > document.LineText(line).Length:
 					outside.Add("${Relative(root, path)}: ${Describe(entry)}")
 		Assert.IsEmpty(outside, string.Join("\n", outside.ToArray()))

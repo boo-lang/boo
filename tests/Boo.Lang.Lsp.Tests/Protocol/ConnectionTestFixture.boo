@@ -8,6 +8,7 @@ import System.Threading
 import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
+import System.Text.Json.Nodes
 
 [TestFixture]
 class ConnectionTestFixture:
@@ -27,12 +28,12 @@ class ConnectionTestFixture:
 		return _connection
 
 	private def Replies():
-		replies = List[of Dictionary[of string, object]]()
+		replies = List[of JsonObject]()
 		stream = MessageStream(MemoryStream(_output.ToArray()), MemoryStream())
 		while true:
 			message = stream.Read()
 			break if message is null
-			replies.Add(JsonCodec.Parse(message) as Dictionary[of string, object])
+			replies.Add(JsonCodec.Parse(message) as JsonObject)
 		return replies
 
 	private def OnlyReply():
@@ -40,8 +41,8 @@ class ConnectionTestFixture:
 		assert replies.Count == 1
 		return replies[0]
 
-	private def ErrorOf(reply as Dictionary[of string, object]):
-		return reply["error"] as Dictionary[of string, object]
+	private def ErrorOf(reply as JsonObject):
+		return Fields.Map(reply, "error")
 
 	[Test]
 	def AnswersARequestWithAResult():
@@ -49,9 +50,9 @@ class ConnectionTestFixture:
 		connection.OnRequest("ping", { params as object | return "pong" })
 		connection.Listen()
 		reply = OnlyReply()
-		assert reply["jsonrpc"] == "2.0"
-		assert reply["id"] == 1L
-		assert reply["result"] == "pong"
+		assert Fields.Text(reply, "jsonrpc") == "2.0"
+		assert Fields.Number(reply, "id", 0) == 1
+		assert Fields.Text(reply, "result") == "pong"
 		assert not reply.ContainsKey("error")
 
 	[Test]
@@ -59,7 +60,7 @@ class ConnectionTestFixture:
 		connection = Given('{"jsonrpc":"2.0","id":"abc","method":"ping"}')
 		connection.OnRequest("ping", { params as object | return "pong" })
 		connection.Listen()
-		assert OnlyReply()["id"] == "abc"
+		assert Fields.Text(OnlyReply(), "id") == "abc"
 
 	[Test]
 	def PassesTheParamsToTheHandler():
@@ -70,8 +71,8 @@ class ConnectionTestFixture:
 		connection = Given('{"jsonrpc":"2.0","id":1,"method":"ping","params":{"n":3}}')
 		connection.OnRequest("ping", remember)
 		connection.Listen()
-		received = seen as Dictionary[of string, object]
-		assert received["n"] == 3L
+		received = seen as JsonObject
+		assert Fields.Number(received, "n", 0) == 3
 
 	[Test]
 	def AnswersNothingToANotification():
@@ -91,20 +92,20 @@ class ConnectionTestFixture:
 	def ReportsAnUnknownMethod():
 		Given('{"jsonrpc":"2.0","id":1,"method":"nope"}').Listen()
 		reply = OnlyReply()
-		assert reply["id"] == 1L
-		assert ErrorOf(reply)["code"] == cast(long, JsonRpc.MethodNotFound)
+		assert Fields.Number(reply, "id", 0) == 1
+		assert Fields.Number(ErrorOf(reply), "code", 0) == JsonRpc.MethodNotFound
 
 	[Test]
 	def ReportsMalformedJson():
 		Given('{"jsonrpc":').Listen()
 		reply = OnlyReply()
 		assert reply["id"] is null
-		assert ErrorOf(reply)["code"] == cast(long, JsonRpc.ParseError)
+		assert Fields.Number(ErrorOf(reply), "code", 0) == JsonRpc.ParseError
 
 	[Test]
 	def ReportsARequestWithoutAMethod():
 		Given('{"jsonrpc":"2.0","id":1}').Listen()
-		assert ErrorOf(OnlyReply())["code"] == cast(long, JsonRpc.InvalidRequest)
+		assert Fields.Number(ErrorOf(OnlyReply()), "code", 0) == JsonRpc.InvalidRequest
 
 	[Test]
 	def ReportsAHandlerThatRaises():
@@ -112,8 +113,8 @@ class ConnectionTestFixture:
 		connection.OnRequest("boom", { params as object | raise InvalidOperationException("no") })
 		connection.Listen()
 		error = ErrorOf(OnlyReply())
-		assert error["code"] == cast(long, JsonRpc.InternalError)
-		assert "no" in cast(string, error["message"])
+		assert Fields.Number(error, "code", 0) == JsonRpc.InternalError
+		assert "no" in Fields.Text(error, "message")
 
 	[Test]
 	def KeepsGoingAfterAFailedRequest():
@@ -123,7 +124,7 @@ class ConnectionTestFixture:
 		connection.Listen()
 		replies = Replies()
 		assert replies.Count == 2
-		assert replies[1]["result"] == "pong"
+		assert Fields.Text(replies[1], "result") == "pong"
 
 	[Test]
 	def AnswersRequestsInOrder():
@@ -131,8 +132,8 @@ class ConnectionTestFixture:
 		connection.OnRequest("ping", { params as object | return "pong" })
 		connection.Listen()
 		replies = Replies()
-		assert replies[0]["id"] == 1L
-		assert replies[1]["id"] == 2L
+		assert Fields.Number(replies[0], "id", 0) == 1
+		assert Fields.Number(replies[1], "id", 0) == 2
 
 	[Test]
 	def CancelsARequestStillInTheQueue():
@@ -142,8 +143,8 @@ class ConnectionTestFixture:
 		connection.OnRequest("ping", { params as object | return "pong" })
 		connection.Listen()
 		reply = OnlyReply()
-		assert reply["id"] == 2L
-		assert ErrorOf(reply)["code"] == cast(long, JsonRpc.RequestCancelled)
+		assert Fields.Number(reply, "id", 0) == 2
+		assert Fields.Number(ErrorOf(reply), "code", 0) == JsonRpc.RequestCancelled
 
 	[Test]
 	def IgnoresAResponseSentByTheClient():
@@ -165,5 +166,5 @@ class ConnectionTestFixture:
 		connection.Listen()
 		replies = Replies()
 		assert replies.Count == 2, "got ${replies.Count} replies"
-		assert replies[1]["id"] == 2L
-		assert ErrorOf(replies[1])["code"] == cast(long, JsonRpc.RequestCancelled)
+		assert Fields.Number(replies[1], "id", 0) == 2
+		assert Fields.Number(ErrorOf(replies[1]), "code", 0) == JsonRpc.RequestCancelled

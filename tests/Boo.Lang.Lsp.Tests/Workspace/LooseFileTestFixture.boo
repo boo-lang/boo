@@ -4,7 +4,9 @@ import System
 import System.Collections.Generic
 import System.IO
 import NUnit.Framework(TestFixtureAttribute, TestAttribute, SetUpAttribute, TearDownAttribute, Assert)
+import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 [TestFixture]
 class LooseFileTestFixture:
@@ -29,10 +31,10 @@ those together invents errors that are not in the file.
 	def Teardown():
 		Directory.Delete(root, true) if Directory.Exists(root)
 
-	private def Messages(diagnostics as List[of object]) as string:
+	private def Messages(diagnostics as JsonArray) as string:
 		lines = List[of string]()
 		for diagnostic in diagnostics:
-			lines.Add(cast(string, (diagnostic as Dictionary[of string, object])["message"]))
+			lines.Add(Fields.Text(diagnostic, "message"))
 		return string.Join(" | ", lines.ToArray())
 
 	private def Document(text as string) as TextDocument:

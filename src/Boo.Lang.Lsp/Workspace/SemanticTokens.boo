@@ -34,6 +34,7 @@ import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Environments
+import System.Text.Json.Nodes
 
 class SemanticTokens:
 """
@@ -68,27 +69,29 @@ is.
 	public static final Regexp = 20
 	public static final Operator = 21
 
-	static def Legend() as Dictionary[of string, object]:
-		legend = Dictionary[of string, object]()
-		legend["tokenTypes"] = (
-			"namespace", "type", "class", "enum", "interface", "struct",
-			"typeParameter", "parameter", "variable", "property", "enumMember",
-			"event", "function", "method", "macro", "keyword", "modifier",
-			"comment", "string", "number", "regexp", "operator")
-		legend["tokenModifiers"] = (,)
-		return legend
+	static def Legend() as JsonObject:
+		# The order is the wire encoding: a token names its type by index here.
+		return Json({
+			"tokenTypes": [
+				"namespace", "type", "class", "enum", "interface", "struct",
+				"typeParameter", "parameter", "variable", "property", "enumMember",
+				"event", "function", "method", "macro", "keyword", "modifier",
+				"comment", "string", "number", "regexp", "operator"],
+			"tokenModifiers": []
+		})
 
-	static def Capability() as Dictionary[of string, object]:
-		capability = Dictionary[of string, object]()
-		capability["legend"] = Legend()
-		capability["full"] = true
-		capability["range"] = false
-		return capability
+	static def Capability() as JsonObject:
+		return Json({ "legend": Legend(), "full": true, "range": false })
 
-	static def Of(document as TextDocument, context as CompilerContext) as Dictionary[of string, object]:
-		result = Dictionary[of string, object]()
-		result["data"] = Encoded(document, context)
-		return result
+	static def Of(document as TextDocument, context as CompilerContext) as JsonObject:
+		return Json({ "data": Numbers(Encoded(document, context)) })
+
+	static def Numbers(values as List[of long]) as JsonArray:
+	"""The encoding, as the array of numbers the protocol asks for."""
+		written = JsonArray()
+		for value in values:
+			written.Add(JsonValue.Create(value))
+		return written
 
 	private static def Encoded(document as TextDocument, context as CompilerContext) as List[of long]:
 		tokens = List[of Token]()

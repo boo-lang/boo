@@ -34,6 +34,7 @@ import System.IO
 import System.Xml
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Parser
+import System.Text.Json.Nodes
 
 class Project:
 """
@@ -386,43 +387,42 @@ the first step out of that.
 		folder = First(Section(assets, "packageFolders"))
 		return assemblies if folder is null
 		libraries = Section(assets, "libraries")
-		for framework in Section(assets, "targets").Values:
-			for entry in (framework as Dictionary[of string, object]):
-				package = entry.Value as Dictionary[of string, object]
-				continue if package is null or package["type"] as string != "package"
-				path = (libraries[entry.Key] as Dictionary[of string, object])["path"] as string
+		for framework in Section(assets, "targets"):
+			for entry in (framework.Value as JsonObject):
+				package = entry.Value as JsonObject
+				continue if package is null or Fields.Text(package, "type") != "package"
+				path = Fields.Text(Fields.Map(libraries, entry.Key), "path")
 				continue if path is null
 				chosen = Assets(package, "runtime", folder, path)
 				chosen = Assets(package, "compile", folder, path) if chosen.Count == 0
 				assemblies.AddRange(chosen)
 		return assemblies
 
-	private static def Assets(package as Dictionary[of string, object], section as string, folder as string, path as string) as List[of string]:
+	private static def Assets(package as JsonObject, section as string, folder as string, path as string) as List[of string]:
 	"""The assemblies of one kind the package has on disk."""
 		found = List[of string]()
-		for asset in Section(package, section).Keys:
+		for entry in Section(package, section):
+			asset = entry.Key
 			continue if Path.GetFileName(asset) == "_._"
 			full = Path.Combine(folder, Relative(path), Relative(asset))
 			found.Add(full) if File.Exists(full)
 		return found
 
-	private static def Read(path as string) as Dictionary[of string, object]:
+	private static def Read(path as string) as JsonObject:
 	"""The file as a JSON object, or null if it is missing or malformed."""
 		return null if not File.Exists(path)
 		try:
-			return JsonCodec.Parse(File.ReadAllText(path)) as Dictionary[of string, object]
+			return JsonCodec.Parse(File.ReadAllText(path)) as JsonObject
 		except:
 			return null
 
-	private static def Section(owner as Dictionary[of string, object], name as string) as Dictionary[of string, object]:
+	private static def Section(owner as JsonObject, name as string) as JsonObject:
 	"""One nested object, or an empty one so callers need not check."""
-		value as object
-		if owner.TryGetValue(name, value):
-			nested = value as Dictionary[of string, object]
-			return nested if nested is not null
-		return Dictionary[of string, object]()
+		nested = Fields.Map(owner, name)
+		return nested if nested is not null
+		return JsonObject()
 
-	private static def First(owner as Dictionary[of string, object]) as string:
-		for key in owner.Keys:
-			return key
+	private static def First(owner as JsonObject) as string:
+		for entry in owner:
+			return entry.Key
 		return null

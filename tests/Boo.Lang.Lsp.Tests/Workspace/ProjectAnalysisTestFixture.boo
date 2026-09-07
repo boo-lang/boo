@@ -5,6 +5,8 @@ import System.Collections.Generic
 import System.IO
 import NUnit.Framework(TestFixtureAttribute, TestAttribute, SetUpAttribute, TearDownAttribute, Assert)
 import Boo.Lang.Lsp.Workspace
+import Boo.Lang.Lsp.Json
+import System.Text.Json.Nodes
 
 [TestFixture]
 class ProjectAnalysisTestFixture:
@@ -37,10 +39,10 @@ class ProjectAnalysisTestFixture:
 		name = "testcentric.engine.metadata.dll"
 		File.Copy(Path.Combine(AppContext.BaseDirectory, name), Path.Combine(output, name))
 
-	private def Messages(diagnostics as List[of object]) as string:
+	private def Messages(diagnostics as JsonArray) as string:
 		lines = List[of string]()
 		for diagnostic in diagnostics:
-			lines.Add(cast(string, (diagnostic as Dictionary[of string, object])["message"]))
+			lines.Add(Fields.Text(diagnostic, "message"))
 		return string.Join(" | ", lines.ToArray())
 
 	private def Document(text as string) as TextDocument:
@@ -75,10 +77,10 @@ class ProjectAnalysisTestFixture:
 		assert found.HasDeclaration
 		assert found.DeclarationUri == Uri(Path.Combine(root, "app", "Helper.boo")).AbsoluteUri
 
-	private def Labels(items as List[of object]) as string:
+	private def Labels(items as JsonArray) as string:
 		labels = List[of string]()
-		for item as Dictionary[of string, object] in items:
-			labels.Add(cast(string, item["label"]))
+		for item as JsonObject in items:
+			labels.Add(Fields.Text(item, "label"))
 		return string.Join(",", labels.ToArray())
 
 	[Test]
@@ -110,3 +112,17 @@ class ProjectAnalysisTestFixture:
 			uris.Add(span.Uri)
 		assert spans.Count >= 2, "found ${spans.Count}"
 		assert uris.Contains(Uri(Path.Combine(root, "app", "Helper.boo")).AbsoluteUri), string.Join(",", uris.ToArray())
+
+	[Test]
+	def SaysNothingAboutANameWrittenInAnotherFile():
+	"""
+	Every file of the project is compiled together, and a name in one of them
+	sits at a line and column that means nothing in this one. Prose is where
+	it shows: a one letter name lands on a letter of an ordinary word.
+	"""
+		# The e of this helper is at line 2, column 5.
+		WriteSource("Helper.boo", "def g():\n    e = 1\n    print e\n")
+		# The e of Writes is at line 2, column 5 of this one.
+		document = Document('"""\nWrites a thing.\n"""\nprint 1\n')
+		found = Lookup.At(document, Analyzer().Bound(document), Position(1, 4))
+		assert found is null, "found ${found.Name} : ${found.Signature}"

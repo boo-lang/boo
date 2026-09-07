@@ -28,8 +28,8 @@
 
 namespace Boo.Lang.Lsp.Json
 
-import System
 import System.Collections.Generic
+import System.Text.Json.Nodes
 
 class Fields:
 """
@@ -40,25 +40,42 @@ answers with a default rather than raising when a field is missing or is not
 of the type asked for.
 """
 
-	static def Map(value as object, name as string) as Dictionary[of string, object]:
-		return Of(value, name) as Dictionary[of string, object]
+	static def Map(value as object, name as string) as JsonObject:
+		return Of(value, name) as JsonObject
 
-	static def Items(value as object, name as string) as List[of object]:
-		found = Of(value, name) as List[of object]
-		return List[of object]() if found is null
+	static def Items(value as object, name as string) as JsonArray:
+		found = Of(value, name) as JsonArray
+		return JsonArray() if found is null
 		return found
 
 	static def Text(value as object, name as string) as string:
-		return Of(value, name) as string
+		return Value[of string](Of(value, name))
 
 	static def Number(value as object, name as string, fallback as int) as int:
 		found = Of(value, name)
 		return fallback if found is null
-		return System.Convert.ToInt32(found)
+		return Value[of int](found)
 
-	static def Of(value as object, name as string) as object:
-		map = value as IDictionary[of string, object]
-		return null if map is null
-		found as object
-		return null unless map.TryGetValue(name, found)
+	static def Of(value as object, name as string) as JsonNode:
+		owner = value as JsonObject
+		return null if owner is null
+		found as JsonNode
+		return null unless owner.TryGetPropertyValue(name, found)
 		return found
+
+	static def Texts(items as JsonArray) as List[of string]:
+	"""An array of strings as the strings it holds."""
+		found = List[of string]()
+		return found if items is null
+		for item in items:
+			found.Add(Value[of string](item))
+		return found
+
+	static def Value[of T](node as JsonNode) as T:
+	"""What the node holds, where a field of the wrong kind reads as a missing one."""
+		empty as T
+		return empty if node is null
+		try:
+			return node.GetValue[of T]()
+		except:
+			return empty

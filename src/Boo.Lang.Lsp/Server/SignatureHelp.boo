@@ -32,6 +32,7 @@ import System.Collections.Generic
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 class SignatureHelp:
 """Answers textDocument/signatureHelp."""
@@ -46,10 +47,7 @@ class SignatureHelp:
 		connection.OnRequest(Method, Describe)
 
 	static def Capability():
-		capability = Dictionary[of string, object]()
-		capability["triggerCharacters"] = List[of object](("(" as object, "," as object))
-		capability["retriggerCharacters"] = List[of object](("," as object,))
-		return capability
+		return Json({ "triggerCharacters": ["(", ","], "retriggerCharacters": [","] })
 
 	private def Describe(params as object) as object:
 		document = _documents.Get(Fields.Text(Fields.Map(params, "textDocument"), "uri"))
@@ -63,22 +61,22 @@ class SignatureHelp:
 			Position(Fields.Number(position, "line", 0), Fields.Number(position, "character", 0)))
 		return null if found is null
 
-		result = Dictionary[of string, object]()
-		result["signatures"] = Written(found.Overloads)
-		result["activeSignature"] = found.ActiveOverload
-		result["activeParameter"] = found.ActiveParameter
-		return result
+		return Json({
+			"signatures": Written(found.Overloads),
+			"activeSignature": found.ActiveOverload,
+			"activeParameter": found.ActiveParameter
+		})
 
-	private static def Written(overloads as List[of Signatures.Overload]) as List[of object]:
-		written = List[of object]()
+	private static def Written(overloads as List[of Signatures.Overload]) as JsonArray:
+		written = JsonArray()
 		for overload in overloads:
-			parameters = List[of object]()
+			parameters = JsonArray()
 			for parameter in overload.Parameters:
-				labelled = Dictionary[of string, object]()
+				labelled = JsonObject()
 				labelled["label"] = parameter
 				parameters.Add(labelled)
 
-			signature = Dictionary[of string, object]()
+			signature = JsonObject()
 			signature["label"] = overload.Label
 			signature["parameters"] = parameters
 			written.Add(signature)

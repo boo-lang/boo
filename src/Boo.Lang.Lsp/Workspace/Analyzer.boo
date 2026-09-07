@@ -29,12 +29,11 @@
 namespace Boo.Lang.Lsp.Workspace
 
 import System
-import System.Collections.Generic
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.Compiler.IO
-import Boo.Lang.Compiler.Pipelines
 import Boo.Lang.Compiler.Steps as Steps
+import System.Text.Json.Nodes
 
 class Analyzer:
 """
@@ -51,7 +50,7 @@ rather than the full Compile pipeline and the IL it emits.
 The compiler is not reentrant, so one analyzer serves one caller at a time.
 """
 
-	def Parse(document as TextDocument) as List[of object]:
+	def Parse(document as TextDocument) as JsonArray:
 		return Run(document, Pipelines.Parse(BreakOnErrors: false), false)
 
 	# The last bind, kept for whoever asks about the same document next.
@@ -60,9 +59,9 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 	static _boundInputs as string
 	static _bound as CompilerContext
 
-	def Bind(document as TextDocument) as List[of object]:
+	def Bind(document as TextDocument) as JsonArray:
 		context = Bound(document)
-		return List[of object]() if context is null
+		return JsonArray() if context is null
 		return Report(document, context)
 
 	def ParseTree(document as TextDocument) as Module:
@@ -131,9 +130,9 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 		pipeline.Add(Steps.CheckNeverUsedMembers())
 		return pipeline
 
-	private def Run(document as TextDocument, pipeline as CompilerPipeline, withProject as bool) as List[of object]:
+	private def Run(document as TextDocument, pipeline as CompilerPipeline, withProject as bool) as JsonArray:
 		context = Compile(document, pipeline, withProject)
-		return List[of object]() if context is null
+		return JsonArray() if context is null
 		return Report(document, context)
 
 	private def Compile(document as TextDocument, pipeline as CompilerPipeline, withProject as bool) as CompilerContext:
@@ -200,8 +199,8 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 	# What one document may report. One unresolved type can produce thousands.
 	public static final Limit = 200
 
-	private def Report(document as TextDocument, context as CompilerContext) as List[of object]:
-		diagnostics = List[of object]()
+	private def Report(document as TextDocument, context as CompilerContext) as JsonArray:
+		diagnostics = JsonArray()
 		held = 0
 		for error in context.Errors:
 			continue unless Belongs(document, error.LexicalInfo)

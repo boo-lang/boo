@@ -8,6 +8,7 @@ import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Server
+import System.Text.Json.Nodes
 
 [TestFixture]
 class SemanticTokensTestFixture:
@@ -30,9 +31,9 @@ class SemanticTokensTestFixture:
 		while true:
 			message = stream.Read()
 			break if message is null
-			parsed = JsonCodec.Parse(message) as Dictionary[of string, object]
+			parsed = JsonCodec.Parse(message) as JsonObject
 			continue unless parsed.ContainsKey("id")
-			return parsed if cast(long, parsed["id"]) == id
+			return parsed if Fields.Number(parsed, "id", 0) == id
 		return null
 
 	private static final Opened = '{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///a.boo","languageId":"boo","version":1,"text":"class Greeter:\\n\\tdef Hello(who as string) as string:\\n\\t\\treturn who\\n\\ng = Greeter()\\nprint g.Hello(\'x\')\\n"}}}'
@@ -41,20 +42,20 @@ class SemanticTokensTestFixture:
 	[Test]
 	def AdvertisesTheCapability():
 		Serve()
-		result = ReplyTo(1L)["result"] as Dictionary[of string, object]
-		capabilities = result["capabilities"] as Dictionary[of string, object]
-		provider = capabilities["semanticTokensProvider"] as Dictionary[of string, object]
-		assert provider["full"] == true
-		legend = provider["legend"] as Dictionary[of string, object]
-		types = legend["tokenTypes"] as List[of object]
-		assert types[2] == "class"
-		assert types[13] == "method"
+		result = ReplyTo(1L)["result"] as JsonObject
+		capabilities = Fields.Map(result, "capabilities")
+		provider = Fields.Map(capabilities, "semanticTokensProvider")
+		assert Fields.Value[of bool](Fields.Of(provider, "full")) == true
+		legend = Fields.Map(provider, "legend")
+		types = Fields.Items(legend, "tokenTypes")
+		assert Fields.Value[of string](types[2]) == "class"
+		assert Fields.Value[of string](types[13]) == "method"
 
 	[Test]
 	def AnswersWithEncodedTokens():
 		Serve(Opened, Asked)
-		result = ReplyTo(2L)["result"] as Dictionary[of string, object]
-		data = result["data"] as List[of object]
+		result = ReplyTo(2L)["result"] as JsonObject
+		data = Fields.Items(result, "data")
 		assert data.Count > 0
 		assert data.Count % 5 == 0
 		assert Contains(data, 0, 6, 7, 2)  # Greeter class declaration
@@ -65,11 +66,11 @@ class SemanticTokensTestFixture:
 	def AnswersEmptyForDocumentThatIsNotOpen():
 		asked = '{"jsonrpc":"2.0","id":2,"method":"textDocument/semanticTokens/full","params":{"textDocument":{"uri":"file:///gone.boo"}}}'
 		Serve(asked)
-		result = ReplyTo(2L)["result"] as Dictionary[of string, object]
-		data = result["data"] as List[of object]
+		result = ReplyTo(2L)["result"] as JsonObject
+		data = Fields.Items(result, "data")
 		assert data.Count == 0
 
-	private static def Contains(data as List[of object], line as int, character as int, length as int, kind as int) as bool:
+	private static def Contains(data as JsonArray, line as int, character as int, length as int, kind as int) as bool:
 		currentLine = 0
 		currentCharacter = 0
 		i = 0

@@ -8,6 +8,7 @@ import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Server
+import System.Text.Json.Nodes
 
 [TestFixture]
 class DocumentSymbolTestFixture:
@@ -30,9 +31,9 @@ class DocumentSymbolTestFixture:
 		while true:
 			message = stream.Read()
 			break if message is null
-			parsed = JsonCodec.Parse(message) as Dictionary[of string, object]
+			parsed = JsonCodec.Parse(message) as JsonObject
 			continue unless parsed.ContainsKey("id")
-			return parsed if cast(long, parsed["id"]) == id
+			return parsed if Fields.Number(parsed, "id", 0) == id
 		return null
 
 	private static final Opened = '{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///a.boo","languageId":"boo","version":1,"text":"class Greeter:\\n\\tdef Hello():\\n\\t\\tpass\\n"}}}'
@@ -41,23 +42,23 @@ class DocumentSymbolTestFixture:
 	[Test]
 	def AdvertisesTheCapability():
 		Serve()
-		result = ReplyTo(1L)["result"] as Dictionary[of string, object]
-		capabilities = result["capabilities"] as Dictionary[of string, object]
-		assert capabilities["documentSymbolProvider"] == true
+		result = ReplyTo(1L)["result"] as JsonObject
+		capabilities = Fields.Map(result, "capabilities")
+		assert Fields.Value[of bool](Fields.Of(capabilities, "documentSymbolProvider")) == true
 
 	[Test]
 	def AnswersWithTheOutline():
 		Serve(Opened, Asked)
-		symbols = ReplyTo(2L)["result"] as List[of object]
+		symbols = ReplyTo(2L)["result"] as JsonArray
 		assert symbols.Count == 1
-		greeter = symbols[0] as Dictionary[of string, object]
-		assert greeter["name"] == "Greeter"
-		children = greeter["children"] as List[of object]
+		greeter = symbols[0] as JsonObject
+		assert Fields.Text(greeter, "name") == "Greeter"
+		children = Fields.Items(greeter, "children")
 		assert children.Count == 1
 
 	[Test]
 	def AnswersWithAnEmptyListForADocumentThatIsNotOpen():
 		asked = '{"jsonrpc":"2.0","id":2,"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file:///gone.boo"}}}'
 		Serve(asked)
-		symbols = ReplyTo(2L)["result"] as List[of object]
+		symbols = ReplyTo(2L)["result"] as JsonArray
 		assert symbols.Count == 0

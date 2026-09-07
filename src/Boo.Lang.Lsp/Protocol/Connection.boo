@@ -32,12 +32,13 @@ import System
 import System.Threading
 import System.Collections.Generic
 import Boo.Lang.Lsp.Json
+import System.Text.Json.Nodes
 
 callable RequestHandler(params as object) as object
 
 callable NotificationHandler(params as object)
 
-callable RequestGuard(method as string) as Dictionary[of string, object]
+callable RequestGuard(method as string) as JsonObject
 
 class Connection:
 """
@@ -110,13 +111,10 @@ a client sends the cancellation second.
 	private def TakenAsCancel(message as string) as bool:
 	"""Whether this was a cancellation, which is answered by noting it."""
 		try:
-			parsed = JsonCodec.Parse(message) as Dictionary[of string, object]
+			parsed = JsonCodec.Parse(message) as JsonObject
 			return false if parsed is null
-			return false unless parsed.ContainsKey("method")
-			return false unless parsed["method"] as string == CancelRequest
-			params as object
-			parsed.TryGetValue("params", params)
-			Cancel(params)
+			return false unless Fields.Text(parsed, "method") == CancelRequest
+			Cancel(Fields.Of(parsed, "params"))
 			return true
 		except:
 			# Whatever it is, let the handler report it in turn.
@@ -133,9 +131,9 @@ a client sends the cancellation second.
 			return _incoming.Dequeue()
 
 	private def Handle(message as string):
-		parsed as Dictionary[of string, object]
+		parsed as JsonObject
 		try:
-			parsed = JsonCodec.Parse(message) as Dictionary[of string, object]
+			parsed = JsonCodec.Parse(message) as JsonObject
 		except e as Exception:
 			Reply(JsonRpc.Error(null, JsonRpc.ParseError, e.Message))
 			return
@@ -144,22 +142,18 @@ a client sends the cancellation second.
 			Reply(JsonRpc.Error(null, JsonRpc.ParseError, "message is not a JSON object"))
 			return
 
-		id as object
-		hasId = parsed.TryGetValue("id", id)
-		method = parsed["method"] as string if parsed.ContainsKey("method")
+		id = Fields.Of(parsed, "id")
+		method = Fields.Text(parsed, "method")
 
 		if method is null:
 			# A reply to something the server asked for. Nothing wants it yet.
 			return if parsed.ContainsKey("result") or parsed.ContainsKey("error")
-			replyTo as object
-			replyTo = id if hasId
-			Reply(JsonRpc.Error(replyTo, JsonRpc.InvalidRequest, "message has no method"))
+			Reply(JsonRpc.Error(id, JsonRpc.InvalidRequest, "message has no method"))
 			return
 
-		params as object
-		parsed.TryGetValue("params", params)
+		params = Fields.Of(parsed, "params")
 
-		if hasId:
+		if id is not null:
 			HandleRequest(id, method, params)
 		else:
 			HandleNotification(method, params)
@@ -199,10 +193,10 @@ a client sends the cancellation second.
 			Log("${method} failed: ${e.Message}")
 
 	private def Cancel(params as object):
-		map = params as Dictionary[of string, object]
+		map = params as JsonObject
 		return if map is null
-		id as object
-		return unless map.TryGetValue("id", id)
+		id as JsonNode
+		return unless map.TryGetPropertyValue("id", id)
 		# Noted by the reading thread, read by the answering one.
 		lock _cancelled:
 			_cancelled.Add(KeyOf(id))
@@ -215,7 +209,7 @@ a client sends the cancellation second.
 		return "" if id is null
 		return id.ToString()
 
-	private def Reply(message as Dictionary[of string, object]):
+	private def Reply(message as JsonObject):
 		_stream.Write(JsonCodec.Stringify(message))
 
 	private def Log(message as string):

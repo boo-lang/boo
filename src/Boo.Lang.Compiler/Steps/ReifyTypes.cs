@@ -106,8 +106,12 @@ namespace Boo.Lang.Compiler.Steps
 					TryToReify(node.Arguments[i], varArgArrayType);
 			}
 			else
-				for (int i = 0; i < parameters.Length; i++)
+			{
+				// A call may leave an optional parameter out.
+				var supplied = Math.Min(parameters.Length, node.Arguments.Count);
+				for (int i = 0; i < supplied; i++)
 					TryToReify(node.Arguments[i], parameters[i].Type);
+			}
 
 		}
 

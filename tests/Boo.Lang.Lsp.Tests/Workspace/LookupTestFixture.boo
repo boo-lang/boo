@@ -345,3 +345,13 @@ Finds what the cursor is on. Hover and go to definition both come from this.
 		assert found is not null, "nothing found"
 		assert found.Signature == "ref struct Wrapper", found.Signature
 		assert found.Declaration.Line == 0
+
+	[Test]
+	def DescribesACallableAsACallable():
+	"""A callable is not a class, and saying class of one says nothing true."""
+		text = "callable Handler(n as int) as string\n\ndef take(h as Handler):\n\tpass\n"
+		document = TextDocument("file:///callable.boo", "boo", 1, text)
+		# "def take(h as Handler)", Handler starts at character 14.
+		found = Lookup.At(document, analyzer.Bound(document), Position(2, 14))
+		assert found is not null, "nothing found on the type"
+		assert found.Signature == "callable Handler", found.Signature

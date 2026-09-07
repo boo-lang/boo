@@ -29,24 +29,23 @@
 namespace Boo.Lang.Lsp.Json
 
 import System
-import System.Collections.Generic
 import System.IO
 import System.Text
 import System.Text.Json
+import System.Text.Json.Nodes
+import System.Collections.Generic
 
 class JsonCodec:
 """
-Converts between JSON text and plain Boo values.
+Converts between JSON text and the System.Text.Json tree.
 
-An object becomes a Dictionary[of string, object], an array a List[of object],
-a string a string, an integral number a long, any other number a double, and
-null a null reference. Every optional argument to System.Text.Json is passed
-outright, because Boo does not apply the default values C# declares.
+Reading answers with a JsonNode, so a message is navigated where it lies
+instead of being copied into dictionaries first. Writing still takes the
+plain Boo values the server builds its replies from.
 """
 
-	static def Parse(text as string) as object:
-		using doc = JsonDocument.Parse(text, JsonDocumentOptions()):
-			return ToValue(doc.RootElement)
+	static def Parse(text as string) as JsonNode:
+		return JsonNode.Parse(text, JsonNodeOptions(), JsonDocumentOptions())
 
 	static def Stringify(value as object) as string:
 		stream = MemoryStream()
@@ -54,33 +53,14 @@ outright, because Boo does not apply the default values C# declares.
 			Write(writer, value)
 		return Encoding.UTF8.GetString(stream.ToArray())
 
-	private static def ToValue(element as JsonElement) as object:
-		kind = element.ValueKind
-		if kind == JsonValueKind.Object:
-			result = Dictionary[of string, object]()
-			for property in element.EnumerateObject():
-				result[property.Name] = ToValue(property.Value)
-			return result
-		if kind == JsonValueKind.Array:
-			items = List[of object]()
-			for item in element.EnumerateArray():
-				items.Add(ToValue(item))
-			return items
-		if kind == JsonValueKind.String:
-			return element.GetString()
-		if kind == JsonValueKind.Number:
-			asLong as long
-			return asLong if element.TryGetInt64(asLong)
-			return element.GetDouble()
-		if kind == JsonValueKind.True:
-			return true
-		if kind == JsonValueKind.False:
-			return false
-		return null
-
 	private static def Write(writer as Utf8JsonWriter, value as object):
 		if value is null:
 			writer.WriteNullValue()
+			return
+
+		node = value as JsonNode
+		if node is not null:
+			node.WriteTo(writer, JsonSerializerOptions())
 			return
 
 		map = value as IDictionary[of string, object]

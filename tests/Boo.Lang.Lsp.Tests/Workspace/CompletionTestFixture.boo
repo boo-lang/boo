@@ -3,6 +3,8 @@ namespace Boo.Lang.Lsp.Tests.Workspace
 import System.Collections.Generic
 import NUnit.Framework(TestFixtureAttribute, TestAttribute, SetUpAttribute, Assert)
 import Boo.Lang.Lsp.Workspace
+import Boo.Lang.Lsp.Json
+import System.Text.Json.Nodes
 
 [TestFixture]
 class CompletionTestFixture:
@@ -17,21 +19,21 @@ so each case reads as the text someone had typed.
 	def Setup():
 		completion = Completion()
 
-	private def Suggest(text as string) as List[of object]:
+	private def Suggest(text as string) as JsonArray:
 		cursor = text.IndexOf(char('|'))
 		source = text.Remove(cursor, 1)
 		document = TextDocument("file:///a.boo", "boo", 1, source)
 		return completion.At(document, document.PositionAt(cursor))
 
-	private def Labels(items as List[of object]):
+	private def Labels(items as JsonArray):
 		labels = List[of string]()
-		for item as Dictionary[of string, object] in items:
-			labels.Add(cast(string, item["label"]))
+		for item as JsonObject in items:
+			labels.Add(Fields.Text(item, "label"))
 		return labels
 
-	private def Find(items as List[of object], label as string) as Dictionary[of string, object]:
-		for item as Dictionary[of string, object] in items:
-			return item if item["label"] == label
+	private def Find(items as JsonArray, label as string) as JsonObject:
+		for item as JsonObject in items:
+			return item if Fields.Text(item, "label") == label
 		return null
 
 	[Test]
@@ -89,20 +91,20 @@ so each case reads as the text someone had typed.
 	[Test]
 	def MarksAMethodAsAMethod():
 		item = Find(Suggest("s = 'hello'\nprint s.|\n"), "ToUpper")
-		assert item["kind"] == Completion.Method
+		assert Fields.Number(item, "kind", 0) == Completion.Method
 
 	[Test]
 	def MarksAPropertyAsAProperty():
-		assert Find(Suggest("s = 'hello'\nprint s.|\n"), "Length")["kind"] == Completion.Property
+		assert Fields.Number(Find(Suggest("s = 'hello'\nprint s.|\n"), "Length"), "kind", 0) == Completion.Property
 
 	[Test]
 	def MarksANamespaceAsAModule():
-		assert Find(Suggest("import System.|\n"), "Collections")["kind"] == Completion.Module
+		assert Fields.Number(Find(Suggest("import System.|\n"), "Collections"), "kind", 0) == Completion.Module
 
 	[Test]
 	def DescribesWhatItSuggests():
 		item = Find(Suggest("s = 'hello'\nprint s.|\n"), "Length")
-		assert cast(string, item["detail"]).Length > 0
+		assert Fields.Text(item, "detail").Length > 0
 
 	[Test]
 	def OffersEachNameOnce():
@@ -115,7 +117,7 @@ so each case reads as the text someone had typed.
 	[Test]
 	def SaysHowManyOverloadsAMethodHas():
 		item = Find(Suggest("s = 'hello'\nprint s.|\n"), "Compare")
-		assert "overloads" in cast(string, item["detail"])
+		assert "overloads" in Fields.Text(item, "detail")
 
 	[Test]
 	def LeavesOutCompilerGeneratedNames():
@@ -126,3 +128,21 @@ so each case reads as the text someone had typed.
 	[Test]
 	def SurvivesACursorOnTheFirstCharacter():
 		assert Suggest("|x = 1\n").Count == 0
+
+	[Test]
+	def SuggestsAPrivateMemberOfTheEnclosingType():
+		text = "class Greeter:\n\tprivate def Secret():\n\t\tpass\n\tdef Say():\n\t\tself.|\n"
+		labels = Labels(Suggest(text))
+		assert "Secret" in labels
+
+	[Test]
+	def LeavesOutAPrivateMemberOfAnotherType():
+		text = "class Greeter:\n\tprivate def Secret():\n\t\tpass\n\nclass Caller:\n\tdef Say(g as Greeter):\n\t\tg.|\n"
+		labels = Labels(Suggest(text))
+		assert "Secret" not in labels
+
+	[Test]
+	def SuggestsAProtectedMemberOfABaseType():
+		text = "class Base:\n\tprotected def Shared():\n\t\tpass\n\nclass Derived(Base):\n\tdef Say():\n\t\tself.|\n"
+		labels = Labels(Suggest(text))
+		assert "Shared" in labels

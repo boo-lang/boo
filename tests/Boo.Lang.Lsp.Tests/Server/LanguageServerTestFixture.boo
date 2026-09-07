@@ -8,6 +8,7 @@ import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Server
+import System.Text.Json.Nodes
 
 [TestFixture]
 class LanguageServerTestFixture:
@@ -24,12 +25,12 @@ class LanguageServerTestFixture:
 		return LanguageServer(MessageStream(input, _output)).Run()
 
 	private def Replies():
-		replies = List[of Dictionary[of string, object]]()
+		replies = List[of JsonObject]()
 		stream = MessageStream(MemoryStream(_output.ToArray()), MemoryStream())
 		while true:
 			message = stream.Read()
 			break if message is null
-			replies.Add(JsonCodec.Parse(message) as Dictionary[of string, object])
+			replies.Add(JsonCodec.Parse(message) as JsonObject)
 		return replies
 
 	private static final Initialize = '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"capabilities":{}}}'
@@ -40,10 +41,10 @@ class LanguageServerTestFixture:
 	[Test]
 	def AnswersInitializeWithItsNameAndCapabilities():
 		Serve(Initialize)
-		result = Replies()[0]["result"] as Dictionary[of string, object]
-		info = result["serverInfo"] as Dictionary[of string, object]
-		assert info["name"] == ServerInfo.Name
-		assert info["version"] == ServerInfo.Version
+		result = Replies()[0]["result"] as JsonObject
+		info = Fields.Map(result, "serverInfo")
+		assert Fields.Text(info, "name") == ServerInfo.Name
+		assert Fields.Text(info, "version") == ServerInfo.Version
 		assert result.ContainsKey("capabilities")
 
 	[Test]
@@ -51,8 +52,8 @@ class LanguageServerTestFixture:
 		exitCode = Serve(Initialize, Initialized, Shutdown, Exit)
 		replies = Replies()
 		assert replies.Count == 2
-		assert replies[0]["id"] == 1L
-		assert replies[1]["id"] == 2L
+		assert Fields.Number(replies[0], "id", 0) == 1
+		assert Fields.Number(replies[1], "id", 0) == 2
 		assert replies[1]["result"] is null
 		assert exitCode == 0
 
@@ -63,20 +64,20 @@ class LanguageServerTestFixture:
 	[Test]
 	def RefusesWorkBeforeInitialize():
 		Serve('{"jsonrpc":"2.0","id":1,"method":"shutdown"}')
-		error = Replies()[0]["error"] as Dictionary[of string, object]
-		assert error["code"] == cast(long, JsonRpc.ServerNotInitialized)
+		error = Replies()[0]["error"] as JsonObject
+		assert Fields.Number(error, "code", 0) == JsonRpc.ServerNotInitialized
 
 	[Test]
 	def RefusesASecondInitialize():
 		Serve(Initialize, Initialize)
-		error = Replies()[1]["error"] as Dictionary[of string, object]
-		assert error["code"] == cast(long, JsonRpc.InvalidRequest)
+		error = Replies()[1]["error"] as JsonObject
+		assert Fields.Number(error, "code", 0) == JsonRpc.InvalidRequest
 
 	[Test]
 	def RefusesWorkAfterShutdown():
 		Serve(Initialize, Shutdown, '{"jsonrpc":"2.0","id":3,"method":"shutdown"}')
-		error = Replies()[2]["error"] as Dictionary[of string, object]
-		assert error["code"] == cast(long, JsonRpc.InvalidRequest)
+		error = Replies()[2]["error"] as JsonObject
+		assert Fields.Number(error, "code", 0) == JsonRpc.InvalidRequest
 
 	[Test]
 	def StopsReadingAfterExit():

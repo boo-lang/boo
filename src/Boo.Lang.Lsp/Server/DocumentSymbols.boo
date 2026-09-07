@@ -28,10 +28,10 @@
 
 namespace Boo.Lang.Lsp.Server
 
-import System.Collections.Generic
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 class DocumentSymbols:
 """
@@ -52,5 +52,5 @@ outline: a broken line costs the symbols below it, not all of them.
 
 	private def Answer(params as object) as object:
 		document = _documents.Get(Fields.Text(Fields.Map(params, "textDocument"), "uri"))
-		return List[of object]() if document is null
+		return JsonArray() if document is null
 		return Symbols.Of(document, _analyzer.ParseTree(document))

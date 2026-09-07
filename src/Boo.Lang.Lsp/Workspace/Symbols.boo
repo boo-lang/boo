@@ -28,7 +28,7 @@
 
 namespace Boo.Lang.Lsp.Workspace
 
-import System.Collections.Generic
+import System.Text.Json.Nodes
 
 class Symbols:
 """
@@ -53,8 +53,8 @@ members loses every function below the first statement in a script.
 	public static final Struct = 23
 	public static final Event = 24
 
-	static def Of(document as TextDocument, module as Boo.Lang.Compiler.Ast.Module) as List[of object]:
-		symbols = List[of object]()
+	static def Of(document as TextDocument, module as Boo.Lang.Compiler.Ast.Module) as JsonArray:
+		symbols = JsonArray()
 		return symbols if module is null
 
 		for member in module.Members:
@@ -67,21 +67,21 @@ members loses every function below the first statement in a script.
 
 		return symbols
 
-	private static def FromGlobal(document as TextDocument, statement as Boo.Lang.Compiler.Ast.Statement) as Dictionary[of string, object]:
+	private static def FromGlobal(document as TextDocument, statement as Boo.Lang.Compiler.Ast.Statement) as JsonObject:
 	"""A def below module level code, which parses as a closure declaration."""
 		declaration = statement as Boo.Lang.Compiler.Ast.DeclarationStatement
 		return null if declaration is null
 		return null unless declaration.Initializer isa Boo.Lang.Compiler.Ast.BlockExpression
 		return Build(document, declaration.Declaration.Name, Function, statement, null)
 
-	private static def FromMember(document as TextDocument, member as Boo.Lang.Compiler.Ast.TypeMember, methodKind as int) as Dictionary[of string, object]:
+	private static def FromMember(document as TextDocument, member as Boo.Lang.Compiler.Ast.TypeMember, methodKind as int) as JsonObject:
 		kind = KindOf(member, methodKind)
 		return null if kind == 0
 
 		type = member as Boo.Lang.Compiler.Ast.TypeDefinition
-		children as List[of object]
+		children as JsonArray
 		if type is not null:
-			children = List[of object]()
+			children = JsonArray()
 			for nested in type.Members:
 				# A method on a type is a method; only module level defs are
 				# free functions.
@@ -103,9 +103,9 @@ members loses every function below the first statement in a script.
 		return Event if member isa Boo.Lang.Compiler.Ast.Event
 		return 0
 
-	private static def Build(document as TextDocument, name as string, kind as int, node as Boo.Lang.Compiler.Ast.Node, children as List[of object]) as Dictionary[of string, object]:
+	private static def Build(document as TextDocument, name as string, kind as int, node as Boo.Lang.Compiler.Ast.Node, children as JsonArray) as JsonObject:
 		start = Positions.FromLexicalInfo(document, node.LexicalInfo)
-		symbol = Dictionary[of string, object]()
+		symbol = JsonObject()
 		symbol["name"] = name
 		symbol["kind"] = kind
 		symbol["range"] = Diagnostic.Range(start, EndOf(document, node, start))
@@ -118,7 +118,7 @@ members loses every function below the first statement in a script.
 		return Position(start.Line, document.LineText(start.Line).Length) unless finish.IsValid
 		return Positions.FromLexicalInfo(document, finish)
 
-	private static def SelectionOf(document as TextDocument, name as string, start as Position) as Dictionary[of string, object]:
+	private static def SelectionOf(document as TextDocument, name as string, start as Position) as JsonObject:
 	"""
 	The range covering the name itself.
 

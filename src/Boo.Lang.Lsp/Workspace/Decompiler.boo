@@ -37,8 +37,6 @@ import Boo.Lang.Decompiler
 
 class Decompiler:
 """
-Where something that lives in an assembly was written.
-
 A member of a referenced assembly has no syntax tree to point at, so the
 type it belongs to is decompiled to C# once, written under the cache
 directory, and go to definition answers with a place in that file.
@@ -49,11 +47,10 @@ request for anything in the same type reads it back instead.
 """
 
 	class Source:
+	"""Where something that lives in an assembly was written."""
 		public Uri as string
 		public Line as int
 
-	# Stamped with this build: what a server writes out is only as good as
-	# the version that wrote it, and a stale file would outlive the fix.
 	public static final Boo = "boo"
 	public static final CSharp = "csharp"
 
@@ -62,6 +59,7 @@ request for anything in the same type reads it back instead.
 	[property(Language)]
 	static _language = CSharp
 
+	# Stamped with this build, so a file an older one wrote is not read back.
 	static Cache = Path.Combine(Path.GetTempPath(), "boo-ls", "metadata", Build())
 
 	private static def Build() as string:

@@ -8,6 +8,7 @@ import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Server
+import System.Text.Json.Nodes
 
 [TestFixture]
 class PublishDiagnosticsTestFixture:
@@ -26,29 +27,29 @@ class PublishDiagnosticsTestFixture:
 		LanguageServer(MessageStream(input, _output), 20).Run()
 
 	private def Published():
-		published = List[of Dictionary[of string, object]]()
+		published = List[of JsonObject]()
 		stream = MessageStream(MemoryStream(_output.ToArray()), MemoryStream())
 		while true:
 			message = stream.Read()
 			break if message is null
-			parsed = JsonCodec.Parse(message) as Dictionary[of string, object]
+			parsed = JsonCodec.Parse(message) as JsonObject
 			continue unless Fields.Text(parsed, "method") == "textDocument/publishDiagnostics"
-			published.Add(parsed["params"] as Dictionary[of string, object])
+			published.Add(Fields.Map(parsed, "params"))
 		return published
 
 	private def Opening(text as string):
 		escaped = text.Replace("\\", "\\\\").Replace('"', '\\"').Replace("\n", "\\n").Replace("\t", "\\t")
 		return '{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///a.boo","languageId":"boo","version":1,"text":"' + escaped + '"}}}'
 
-	private def DiagnosticsIn(params as Dictionary[of string, object]):
-		return params["diagnostics"] as List[of object]
+	private def DiagnosticsIn(params as JsonObject):
+		return Fields.Items(params, "diagnostics")
 
 	[Test]
 	def PublishesOnOpen():
 		Serve(Opening("print nosuchname\n"))
 		published = Published()
 		assert published.Count == 1
-		assert published[0]["uri"] == "file:///a.boo"
+		assert Fields.Text(published[0], "uri") == "file:///a.boo"
 		assert DiagnosticsIn(published[0]).Count > 0
 
 	[Test]
@@ -97,6 +98,6 @@ class PublishDiagnosticsTestFixture:
 	def ReportsASyntaxErrorAndATypeErrorTogether():
 		Serve(Opening("print nosuchname\n"))
 		diagnostics = DiagnosticsIn(Published()[0])
-		first = diagnostics[0] as Dictionary[of string, object]
-		assert first["source"] == "boo"
-		assert cast(string, first["code"]).StartsWith("BC")
+		first = diagnostics[0] as JsonObject
+		assert Fields.Text(first, "source") == "boo"
+		assert Fields.Text(first, "code").StartsWith("BC")

@@ -29,10 +29,10 @@
 namespace Boo.Lang.Lsp.Server
 
 import System
-import System.Collections.Generic
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 class LanguageServer:
 """
@@ -111,7 +111,7 @@ here so that no feature handler has to think about them.
 		_worker.Withdraw(uri)
 		_diagnostics.Clear(uri)
 
-	private def CheckLifecycle(method as string) as Dictionary[of string, object]:
+	private def CheckLifecycle(method as string) as JsonObject:
 		if method == "initialize":
 			return JsonRpc.ErrorBody(JsonRpc.InvalidRequest, "the server is already initialized") if _initialized
 			return null
@@ -123,14 +123,10 @@ here so that no feature handler has to think about them.
 		_initialized = true
 		Configure(Fields.Map(params, "initializationOptions"))
 
-		info = Dictionary[of string, object]()
-		info["name"] = ServerInfo.Name
-		info["version"] = ServerInfo.Version
-
-		result = Dictionary[of string, object]()
-		result["capabilities"] = Capabilities()
-		result["serverInfo"] = info
-		return result
+		return Json({
+			"capabilities": Capabilities(),
+			"serverInfo": { "name": ServerInfo.Name, "version": ServerInfo.Version }
+		})
 
 	private def Configure(options as object):
 	"""What the client asked for, where it is something we offer."""
@@ -146,19 +142,18 @@ here so that no feature handler has to think about them.
 		Decompiler.Language = language if language in (Decompiler.Boo, Decompiler.CSharp)
 
 	private def Capabilities():
-		# Filled in as the features land; diagnostics arrive in M4.
-		capabilities = Dictionary[of string, object]()
-		capabilities["textDocumentSync"] = TextDocumentSync.Capability()
-		capabilities["documentSymbolProvider"] = true
-		capabilities["completionProvider"] = Completions.Capability()
-		capabilities["signatureHelpProvider"] = SignatureHelp.Capability()
-		capabilities["hoverProvider"] = true
-		capabilities["definitionProvider"] = true
-		capabilities["documentHighlightProvider"] = true
-		capabilities["referencesProvider"] = true
-		capabilities["renameProvider"] = true
-		capabilities["semanticTokensProvider"] = SemanticTokenHandler.Capability()
-		return capabilities
+		return Json({
+			"textDocumentSync": TextDocumentSync.Capability(),
+			"documentSymbolProvider": true,
+			"completionProvider": Completions.Capability(),
+			"signatureHelpProvider": SignatureHelp.Capability(),
+			"hoverProvider": true,
+			"definitionProvider": true,
+			"documentHighlightProvider": true,
+			"referencesProvider": true,
+			"renameProvider": true,
+			"semanticTokensProvider": SemanticTokenHandler.Capability()
+		})
 
 	private def Initialized(params as object):
 		pass

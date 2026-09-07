@@ -44,17 +44,17 @@ def Serve() as int:
 	return LanguageServer(stream).Run()
 
 def Run(args as (string)) as int:
-	parsed = CommandLine.Parse(args)
+	parsed = CommandLineOptions.Parse(args)
 
-	if parsed.Action == CommandLine.ShowVersion:
+	if parsed.Action == CommandLineOptions.ShowVersion:
 		print "${ServerInfo.Name} ${ServerInfo.Version}"
 		return 0
 
-	if parsed.Action == CommandLine.ShowHelp:
+	if parsed.Action == CommandLineOptions.ShowHelp:
 		Usage()
 		return 0
 
-	if parsed.Action == CommandLine.Unknown:
+	if parsed.Action == CommandLineOptions.Unknown:
 		Console.Error.WriteLine("boo-ls: unknown option ${parsed.UnknownOption}")
 		return 2
 

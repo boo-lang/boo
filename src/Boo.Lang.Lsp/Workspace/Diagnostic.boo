@@ -29,9 +29,9 @@
 namespace Boo.Lang.Lsp.Workspace
 
 import System
-import System.Collections.Generic
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+import System.Text.Json.Nodes
 
 class Diagnostic:
 """
@@ -61,7 +61,7 @@ end of the range is the end of the word the client would see under the squiggle.
 	static def Internal(code as string):
 	"""A step that fell over, which is about the compilation, not one line."""
 		start = Position(0, 0)
-		diagnostic = Dictionary[of string, object]()
+		diagnostic = JsonObject()
 		diagnostic["range"] = Range(start, start)
 		diagnostic["severity"] = Error
 		diagnostic["code"] = code
@@ -72,7 +72,7 @@ end of the range is the end of the word the client would see under the squiggle.
 	static def Withheld(held as int):
 	"""What a document had too many reports to send, counted at its top."""
 		start = Position(0, 0)
-		diagnostic = Dictionary[of string, object]()
+		diagnostic = JsonObject()
 		diagnostic["range"] = Range(start, start)
 		diagnostic["severity"] = Information
 		diagnostic["source"] = Source
@@ -82,27 +82,27 @@ end of the range is the end of the word the client would see under the squiggle.
 	static def Range(start as Position, finish as Position):
 		# Not named range: that name is an overloaded builtin method, so
 		# assigning to it and indexing it does not reach a local.
-		span = Dictionary[of string, object]()
+		span = JsonObject()
 		span["start"] = Place(start)
 		span["end"] = Place(finish)
 		return span
 
 	private static def Place(position as Position):
-		place = Dictionary[of string, object]()
+		place = JsonObject()
 		place["line"] = position.Line
 		place["character"] = position.Character
 		return place
 
 	private static def Build(document as TextDocument, location as LexicalInfo, severity as int, code as string, message as string):
 		start = Positions.FromLexicalInfo(document, location)
-		diagnostic = Dictionary[of string, object]()
+		diagnostic = JsonObject()
 		diagnostic["range"] = Range(start, EndOfWord(document, location, start, message))
 		diagnostic["severity"] = severity
 		diagnostic["code"] = code
 		diagnostic["source"] = Source
 		diagnostic["message"] = message
 		if code in NeverUsed:
-			tags = List[of object]()
+			tags = JsonArray()
 			tags.Add(Unnecessary)
 			diagnostic["tags"] = tags
 		return diagnostic

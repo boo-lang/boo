@@ -28,10 +28,10 @@
 
 namespace Boo.Lang.Lsp.Server
 
-import System.Collections.Generic
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Workspace
+import System.Text.Json.Nodes
 
 class Navigation:
 """
@@ -73,11 +73,11 @@ is what the cached context in M8 is meant to replace.
 		value = "```boo\n${found.Signature}\n```"
 		value += "\n\n" + found.Documentation unless string.IsNullOrEmpty(found.Documentation)
 
-		contents = Dictionary[of string, object]()
+		contents = JsonObject()
 		contents["kind"] = "markdown"
 		contents["value"] = value
 
-		hover = Dictionary[of string, object]()
+		hover = JsonObject()
 		hover["contents"] = contents
 		hover["range"] = Diagnostic.Range(found.Start, found.End)
 		return hover
@@ -88,7 +88,7 @@ is what the cached context in M8 is meant to replace.
 
 		# A name is what is jumped to, and its length is not recorded, so the
 		# range is empty and the editor lands on the first character.
-		location = Dictionary[of string, object]()
+		location = JsonObject()
 		location["uri"] = found.DeclarationUri
 		location["range"] = Diagnostic.Range(found.Declaration, found.Declaration)
 		return location
@@ -105,9 +105,9 @@ is what the cached context in M8 is meant to replace.
 			_analyzer.Bound(document),
 			Position(Fields.Number(position, "line", 0), Fields.Number(position, "character", 0)))
 
-		highlights = List[of object]()
+		highlights = JsonArray()
 		for span in spans:
-			highlight = Dictionary[of string, object]()
+			highlight = JsonObject()
 			highlight["range"] = Diagnostic.Range(span.Start, span.End)
 			highlight["kind"] = (Write if span.Written else Read)
 			highlights.Add(highlight)
@@ -116,9 +116,9 @@ is what the cached context in M8 is meant to replace.
 	private def Referring(params as object) as object:
 		document = Documented(params)
 		return null if document is null
-		locations = List[of object]()
+		locations = JsonArray()
 		for span in Lookup.References(document, _analyzer.Bound(document), Where(params)):
-			location = Dictionary[of string, object]()
+			location = JsonObject()
 			location["uri"] = span.Uri
 			location["range"] = Diagnostic.Range(span.Start, span.End)
 			locations.Add(location)
@@ -135,20 +135,20 @@ is what the cached context in M8 is meant to replace.
 		# offer and the client says so itself.
 		return null if spans is null
 
-		changes = Dictionary[of string, object]()
+		changes = JsonObject()
 		for span in spans:
-			held as object
-			edits as List[of object]
-			edits = held as List[of object] if changes.TryGetValue(span.Uri, held)
+			held as JsonNode
+			edits as JsonArray
+			edits = held as JsonArray if changes.TryGetPropertyValue(span.Uri, held)
 			if edits is null:
-				edits = List[of object]()
+				edits = JsonArray()
 				changes[span.Uri] = edits
-			edit = Dictionary[of string, object]()
+			edit = JsonObject()
 			edit["range"] = Diagnostic.Range(span.Start, span.End)
 			edit["newText"] = name
 			edits.Add(edit)
 
-		workspace = Dictionary[of string, object]()
+		workspace = JsonObject()
 		workspace["changes"] = changes
 		return workspace
 

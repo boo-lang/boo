@@ -1,6 +1,5 @@
 namespace Boo.Lang.Lsp.Tests.Workspace
 
-import System.Collections.Generic
 import NUnit.Framework(TestFixtureAttribute, TestAttribute, SetUpAttribute, Assert)
 import Boo.Lang.Lsp.Workspace
 

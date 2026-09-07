@@ -8,6 +8,7 @@ import NUnit.Framework(TestFixtureAttribute, TestAttribute, Assert)
 import Boo.Lang.Lsp.Json
 import Boo.Lang.Lsp.Protocol
 import Boo.Lang.Lsp.Server
+import System.Text.Json.Nodes
 
 [TestFixture]
 class TextDocumentSyncTestFixture:
@@ -68,9 +69,9 @@ class TextDocumentSyncTestFixture:
 		message = '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
 		input = MemoryStream(UTF8Encoding(false).GetBytes("Content-Length: ${UTF8Encoding(false).GetByteCount(message)}\r\n\r\n" + message))
 		LanguageServer(MessageStream(input, output)).Run()
-		reply = JsonCodec.Parse(MessageStream(MemoryStream(output.ToArray()), MemoryStream()).Read()) as Dictionary[of string, object]
-		result = reply["result"] as Dictionary[of string, object]
-		capabilities = result["capabilities"] as Dictionary[of string, object]
-		sync = capabilities["textDocumentSync"] as Dictionary[of string, object]
-		assert sync["openClose"] == true
-		assert sync["change"] == 1L
+		reply = JsonCodec.Parse(MessageStream(MemoryStream(output.ToArray()), MemoryStream()).Read()) as JsonObject
+		result = Fields.Map(reply, "result")
+		capabilities = Fields.Map(result, "capabilities")
+		sync = Fields.Map(capabilities, "textDocumentSync")
+		assert Fields.Value[of bool](Fields.Of(sync, "openClose")) == true
+		assert Fields.Number(sync, "change", 0) == 1
