@@ -69,6 +69,10 @@ partial class AsyncTestFixture:
 		RunCompilerTestCase("await-in-obj-initializer.boo")
 
 	[Test]
+	def @await_in_unless():
+		RunCompilerTestCase("await-in-unless.boo")
+
+	[Test]
 	def @await_in_using_and_for():
 		RunCompilerTestCase("await-in-using-and-for.boo")
 
