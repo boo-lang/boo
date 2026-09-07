@@ -1,6 +1,7 @@
 namespace Boo.Lang.Lsp.Tests
 
 import Boo.Lang.Lsp.Protocol
+import Boo.Lang.Lsp.Server
 
 # NUnit wants an answer rather than a task, so a test waits here and nowhere
 # else. GetResult rather than Wait, so what surfaces is the exception the
@@ -16,3 +17,9 @@ import Boo.Lang.Lsp.Protocol
 	this.ListenAsync().GetAwaiter().GetResult()
 	# Both phases, the same two a session runs.
 	this.DrainAsync().GetAwaiter().GetResult()
+
+[Extension] def Run(this as LanguageServer) as int:
+	return this.RunAsync().GetAwaiter().GetResult()
+
+[Extension] def Stop(this as AnalysisWorker):
+	this.StopAsync().GetAwaiter().GetResult()
