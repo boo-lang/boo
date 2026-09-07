@@ -206,7 +206,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     pendingBranchVar,
                     pendingExceptionLocal));
 
-            // DeclareTempLocal already put these on the method.
             var statements = new Block();
 
             statements.Add(_F.CreateAssignment(
