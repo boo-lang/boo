@@ -49,6 +49,7 @@ here so that no feature handler has to think about them.
 	_sync as TextDocumentSync
 	_diagnostics as DiagnosticsPublisher
 	_worker as AnalysisWorker
+	_symbols as DocumentSymbols
 	_navigation as Navigation
 	_completions as Completions
 	_signatures as SignatureHelp
@@ -78,6 +79,7 @@ here so that no feature handler has to think about them.
 		_sync = TextDocumentSync(_documents, _connection)
 		_diagnostics = DiagnosticsPublisher(_connection)
 		_worker = AnalysisWorker(_diagnostics.PublishSemantic, debounceMilliseconds)
+		_symbols = DocumentSymbols(_documents, _connection)
 		_navigation = Navigation(_documents, _connection)
 		_completions = Completions(_documents, _connection)
 		_signatures = SignatureHelp(_documents, _connection)
@@ -144,10 +146,14 @@ here so that no feature handler has to think about them.
 	private def Capabilities():
 		return Json({
 			"textDocumentSync": TextDocumentSync.Capability(),
+			"documentSymbolProvider": true,
 			"completionProvider": Completions.Capability(),
 			"signatureHelpProvider": SignatureHelp.Capability(),
 			"hoverProvider": true,
-			"definitionProvider": true
+			"definitionProvider": true,
+			"documentHighlightProvider": true,
+			"referencesProvider": true,
+			"renameProvider": true
 		})
 
 	private def Initialized(params as object):
