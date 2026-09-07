@@ -49,6 +49,7 @@ here so that no feature handler has to think about them.
 	_sync as TextDocumentSync
 	_diagnostics as DiagnosticsPublisher
 	_worker as AnalysisWorker
+	_navigation as Navigation
 	_completions as Completions
 	_initialized = false
 	_shuttingDown = false
@@ -70,11 +71,13 @@ here so that no feature handler has to think about them.
 		_connection.OnRequest("initialize", Initialize)
 		_connection.OnRequest("shutdown", Shutdown)
 		_connection.OnNotification("initialized", Initialized)
+		_connection.OnNotification("workspace/didChangeConfiguration", Reconfigure)
 		_connection.OnNotification("exit", Exit)
 		_connection.Guard(CheckLifecycle)
 		_sync = TextDocumentSync(_documents, _connection)
 		_diagnostics = DiagnosticsPublisher(_connection)
 		_worker = AnalysisWorker(_diagnostics.PublishSemantic, debounceMilliseconds)
+		_navigation = Navigation(_documents, _connection)
 		_completions = Completions(_documents, _connection)
 		_sync.Changed = Changed
 		_sync.Closed = Closed
@@ -116,15 +119,32 @@ here so that no feature handler has to think about them.
 
 	private def Initialize(params as object) as JsonNode:
 		_initialized = true
+		Configure(Fields.Map(params, "initializationOptions"))
+
 		return Json({
 			"capabilities": Capabilities(),
 			"serverInfo": { "name": ServerInfo.Name, "version": ServerInfo.Version }
 		})
 
+	private def Configure(options as object):
+	"""What the client asked for, where it is something we offer."""
+		return if options is null
+		Language(Fields.Text(options, "decompiler"))
+
+	private def Reconfigure(params as object):
+	"""The same settings again, so a change of mind costs no restart."""
+		settings = Fields.Map(Fields.Map(params, "settings"), "boo")
+		Language(Fields.Text(Fields.Map(settings, "decompiler"), "language"))
+
+	private def Language(language as string):
+		Decompiler.Language = language if language in (Decompiler.Boo, Decompiler.CSharp)
+
 	private def Capabilities():
 		return Json({
 			"textDocumentSync": TextDocumentSync.Capability(),
-			"completionProvider": Completions.Capability()
+			"completionProvider": Completions.Capability(),
+			"hoverProvider": true,
+			"definitionProvider": true
 		})
 
 	private def Initialized(params as object):
