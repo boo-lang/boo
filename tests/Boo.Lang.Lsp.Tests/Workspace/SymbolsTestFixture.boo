@@ -128,3 +128,23 @@ class SymbolsTestFixture:
 	def StillReportsWhatParsedFromABrokenFile():
 		symbols = SymbolsOf("class Greeter:\n\tdef Hello():\n\t\tpass\n\nclass = 2\n")
 		assert Named(symbols, "Greeter") is not null
+
+	[Test]
+	def ReportsACallable():
+		handler = Named(SymbolsOf("callable Handler(x as int) as bool\n"), "Handler")
+		assert handler is not null
+		assert Fields.Number(handler, "kind", 0) == Symbols.Class
+
+	[Test]
+	def ReportsAConstructor():
+		symbols = SymbolsOf("class Greeter:\n\tdef constructor():\n\t\tpass\n")
+		created = Named(Children(Named(symbols, "Greeter")), "constructor")
+		assert created is not null
+		assert Fields.Number(created, "kind", 0) == Symbols.Constructor
+
+	[Test]
+	def ReportsAnEvent():
+		symbols = SymbolsOf("import System\n\nclass Greeter:\n\tevent Changed as EventHandler\n")
+		changed = Named(Children(Named(symbols, "Greeter")), "Changed")
+		assert changed is not null
+		assert Fields.Number(changed, "kind", 0) == Symbols.Event

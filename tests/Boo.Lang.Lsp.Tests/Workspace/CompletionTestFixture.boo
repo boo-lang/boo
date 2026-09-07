@@ -157,3 +157,9 @@ so each case reads as the text someone had typed.
 	def MarksATypeParameterAsATypeParameter():
 		items = Suggest("class Box[of T]:\n\tdef Put(item as T):\n\t\tprint |\n")
 		assert Completion.TypeParameter == Fields.Number(Find(items, "T"), "kind", -1)
+
+	[Test]
+	def MarksACallableAsAClass():
+	"""The protocol has no delegate kind, so a callable reads as a type."""
+		items = Suggest("callable Handler(x as int) as bool\n\nprint |\n")
+		assert Completion.Class == Fields.Number(Find(items, "Handler"), "kind", -1)
