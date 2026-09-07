@@ -51,6 +51,7 @@ here so that no feature handler has to think about them.
 	_worker as AnalysisWorker
 	_navigation as Navigation
 	_completions as Completions
+	_signatures as SignatureHelp
 	_initialized = false
 	_shuttingDown = false
 	_exited = false
@@ -79,6 +80,7 @@ here so that no feature handler has to think about them.
 		_worker = AnalysisWorker(_diagnostics.PublishSemantic, debounceMilliseconds)
 		_navigation = Navigation(_documents, _connection)
 		_completions = Completions(_documents, _connection)
+		_signatures = SignatureHelp(_documents, _connection)
 		_sync.Changed = Changed
 		_sync.Closed = Closed
 
@@ -143,6 +145,7 @@ here so that no feature handler has to think about them.
 		return Json({
 			"textDocumentSync": TextDocumentSync.Capability(),
 			"completionProvider": Completions.Capability(),
+			"signatureHelpProvider": SignatureHelp.Capability(),
 			"hoverProvider": true,
 			"definitionProvider": true
 		})
