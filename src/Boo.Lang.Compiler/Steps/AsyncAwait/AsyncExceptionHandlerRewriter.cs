@@ -169,18 +169,30 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             var finallyLabel = _F.CreateLabel(node.EnsureBlock, context.GetUniqueName("finallyLabel"), _tryDepth);
             var pendingBranchVar =_F.DeclareTempLocal(_containingMethod, _tss.IntType);
 
+            var caughtTemp = _F.DeclareTempLocal(_containingMethod, exceptionType);
+
             var catchAll = new ExceptionHandler
             {
-                Declaration = new Declaration(pendingExceptionLocal.Name, _F.CreateTypeReference(exceptionType))
-                    {Entity = pendingExceptionLocal},
-                Block = new Block(),
+                Declaration = new Declaration(caughtTemp.Name, _F.CreateTypeReference(exceptionType))
+                    {Entity = caughtTemp},
+                Block = new Block(
+                    new ExpressionStatement(
+                        _F.CreateAssignment(
+                            _F.CreateLocalReference(pendingExceptionLocal),
+                            _F.CreateLocalReference(caughtTemp)))),
                 IsSynthetic = true
             };
+            // The pending exception is read after the finally body, so it has to
+            // survive the awaits in there while the catch variable stays a local.
+            caughtTemp.OriginalDeclaration = catchAll.Declaration;
 
+            // Everything in the synthetic try is a try deeper than the label it
+            // branches to, which is what makes the emitter use leave over br.
+            var pendedDepth = _tryDepth + 1;
             var tryBlock = new Block(
                     finalizedRegion,
-                    _F.CreateGoto(finallyLabel, _tryDepth),
-                    PendBranches(frame, pendingBranchVar, finallyLabel))
+                    _F.CreateGoto(finallyLabel, pendedDepth),
+                    PendBranches(frame, pendingBranchVar, finallyLabel, pendedDepth))
             ;
             var catchAndPendException = new TryStatement {ProtectedBlock = tryBlock};
             catchAndPendException.ExceptionHandlers.Add(catchAll);
@@ -194,23 +206,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     pendingBranchVar,
                     pendingExceptionLocal));
 
-            var locals = _containingMethod.Locals;
             var statements = new Block();
 
-            locals.Add(pendingExceptionLocal.Local);
             statements.Add(_F.CreateAssignment(
                 _F.CreateLocalReference(pendingExceptionLocal),
                 _F.CreateDefaultInvocation(LexicalInfo.Empty, pendingExceptionLocal.Type)));
-            locals.Add(pendingBranchVar.Local);
             statements.Add(_F.CreateAssignment(
                 _F.CreateLocalReference(pendingBranchVar),
                 _F.CreateDefaultInvocation(LexicalInfo.Empty, pendingBranchVar.Type)));
-
-            var returnLocal = frame.returnValue;
-            if (returnLocal != null)
-            {
-                locals.Add(returnLocal.Local);
-            }
 
             statements.Add(catchAndPendException);
             statements.Add(syntheticFinally);
@@ -221,7 +224,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
         private Block PendBranches(
             AwaitFinallyFrame frame,
             InternalLocal pendingBranchVar,
-            InternalLabel finallyLabel)
+            InternalLabel finallyLabel,
+            int pendedDepth)
         {
             var bodyStatements = new Block();
 
@@ -238,14 +242,14 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     var proxied = proxiedLabels[i - 1];
                     var proxy = proxyLabels[proxied];
 
-                    PendBranch(bodyStatements, proxy, i, pendingBranchVar, finallyLabel);
+                    PendBranch(bodyStatements, proxy, i, pendingBranchVar, finallyLabel, pendedDepth);
                 }
             }
 
             var returnProxy = frame.returnProxyLabel;
             if (returnProxy != null)
             {
-                PendBranch(bodyStatements, returnProxy, i, pendingBranchVar, finallyLabel);
+                PendBranch(bodyStatements, returnProxy, i, pendingBranchVar, finallyLabel, pendedDepth);
             }
 
             return bodyStatements;
@@ -256,7 +260,8 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             InternalLabel proxy,
             int i,
             InternalLocal pendingBranchVar,
-            InternalLabel finallyLabel)
+            InternalLabel finallyLabel,
+            int pendedDepth)
         {
             // branch lands here
             bodyStatements.Add(proxy.LabelStatement);
@@ -267,7 +272,7 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 _F.CreateIntegerLiteral(i)));
 
             // skip other proxies
-			bodyStatements.Add(_F.CreateGoto(finallyLabel, _tryDepth));
+			bodyStatements.Add(_F.CreateGoto(finallyLabel, pendedDepth));
         }
 
         private Statement UnpendBranches(
@@ -309,7 +314,9 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
                 if (returnLabel == null)
                 {
-                    unpendReturn = new ReturnStatement(_F.CreateLocalReference((InternalLocal)pendingValue.Entity));
+                    unpendReturn = pendingValue == null
+                        ? new ReturnStatement()
+                        : new ReturnStatement(_F.CreateLocalReference((InternalLocal)pendingValue.Entity));
                 }
                 else
                 {
@@ -490,10 +497,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 							_F.CreateGoto(handledLabel, _tryDepth)));
                 }
 
-                _containingMethod.Locals.Add(currentAwaitCatchFrame.pendingCaughtException.Local);
-                _containingMethod.Locals.Add(currentAwaitCatchFrame.pendingCatch.Local);
-                _containingMethod.Locals.AddRange(currentAwaitCatchFrame.GetHoistedLocals().Select(l => l.Local));
-
                 tryWithCatches = new Block(
                     new ExpressionStatement(
                         _F.CreateAssignment(
@@ -515,9 +518,9 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 var origCurrentAwaitCatchFrame = _currentAwaitCatchFrame;
                 _currentAwaitCatchFrame = null;
 
-                var result = Visit(node);
+                // Visiting the handler itself here would re-enter this method.
+                base.OnExceptionHandler(node);
                 _currentAwaitCatchFrame = origCurrentAwaitCatchFrame;
-                ReplaceCurrentNode(result);
                 return;
             }
 
@@ -526,20 +529,11 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
             // The handler body moves out of the catch, so the declared exception is an
             // ordinary local from here on and has to survive the awaits in that body.
-            if (node.FilterCondition == null && node.Declaration != null)
+            if (node.Declaration != null)
             {
                 var declaredException = node.Declaration.Entity as InternalLocal;
                 if (declaredException != null)
                     declaredException.OriginalDeclaration = null;
-            }
-            // A filtered handler keeps its exception on the frame, where an await in
-            // the body does not preserve it.
-            else if (node.FilterCondition != null && node.Declaration != null
-                     && !string.IsNullOrEmpty(node.Declaration.Name))
-            {
-                CompilerContext.Current.Errors.Add(
-                    CompilerErrorFactory.AwaitInFilteredCatchWithExceptionVariable(
-                        node.Declaration, node.Declaration.Name));
             }
 
             var catchType = node.Declaration != null ? (IType)node.Declaration.Type.Entity : _tss.ObjectType;
@@ -605,7 +599,9 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 {
                     Declaration = new Declaration(catchTemp.Name, _F.CreateTypeReference(catchType)) { Entity = catchTemp },
                     FilterCondition = newFilter,
-                    Block = new Block(new ExpressionStatement(setPendingCatchNum))
+                    Block = new Block(new ExpressionStatement(setPendingCatchNum)),
+                    // The emitter keys off this flag to emit the filter.
+                    Flags = ExceptionHandlerFlags.Filter
                 };
                 catchTemp.OriginalDeclaration = catchAndPend.Declaration;
             }
@@ -669,6 +665,23 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             }
 
             ReplaceCurrentNode(new Declaration(node.Name, _F.CreateTypeReference(hoistedLocal.Type)) {Entity = hoistedLocal});
+        }
+
+        public override void OnReferenceExpression(ReferenceExpression node)
+        {
+            var catchFrame = _currentAwaitCatchFrame;
+            if (catchFrame == null)
+                return;
+
+            var local = node.Entity as InternalLocal;
+            if (local == null)
+                return;
+
+            // A sibling catch that reuses the name got a fresh local, and the
+            // references have to follow the declaration onto it.
+            InternalLocal hoistedLocal;
+            if (catchFrame.TryGetHoistedLocal(local, out hoistedLocal) && hoistedLocal != local)
+                node.Entity = hoistedLocal;
         }
 
         public override void OnRaiseStatement(RaiseStatement node)
@@ -927,9 +940,13 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                     if (retVal == null)
                     {
                         Debug.Assert(_tryStatementOpt != null);
+                        // A returned literal has no entity to take the type from.
+                        var typedValue = valueOpt.Entity as ITypedEntity;
                         returnValue = retVal = _builder.DeclareTempLocal(
                             containingMethod,
-                            ((ITypedEntity)valueOpt.Entity).Type);
+                            typedValue != null
+                                ? typedValue.Type
+                                : ((Expression)valueOpt).ExpressionType);
                     }
                 }
 
@@ -959,7 +976,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
             //       The difference would be observable if filter mutates the variable
             //       or/and if a variable gets lifted into a closure.
             private readonly Dictionary<InternalLocal, InternalLocal> _hoistedLocals;
-            private readonly List<InternalLocal> _orderedHoistedLocals;
 
             private readonly Method _currentMethod;
 
@@ -970,16 +986,19 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
 
                 handlers = new List<Block>();
                 _hoistedLocals = new Dictionary<InternalLocal, InternalLocal>();
-                _orderedHoistedLocals = new List<InternalLocal>();
                 _currentMethod = currentMethod;
             }
 
             public void HoistLocal(InternalLocal local, BooCodeBuilder F)
             {
+                // Sibling handlers can both close over an outer local, and they
+                // have to keep sharing the one variable.
+                if (_hoistedLocals.ContainsKey(local))
+                    return;
+
                 if (!_hoistedLocals.Keys.Any(l => l.Name == local.Name && l.Type == local.Type))
                 {
                     _hoistedLocals.Add(local, local);
-                    _orderedHoistedLocals.Add(local);
                     return;
                 }
 
@@ -991,12 +1010,6 @@ namespace Boo.Lang.Compiler.Steps.AsyncAwait
                 var newLocal = F.DeclareTempLocal(_currentMethod, local.Type);
 
                 _hoistedLocals.Add(local, newLocal);
-                _orderedHoistedLocals.Add(newLocal);
-            }
-
-            public IEnumerable<InternalLocal> GetHoistedLocals()
-            {
-                return _orderedHoistedLocals;
             }
 
             public bool TryGetHoistedLocal(InternalLocal originalLocal, out InternalLocal hoistedLocal)
