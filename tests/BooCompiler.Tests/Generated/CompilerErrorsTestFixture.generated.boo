@@ -926,6 +926,10 @@ class CompilerErrorsTestFixture(AbstractCompilerErrorsTestFixture):
 		RunCompilerTestCase("BCE0188-1.boo")
 
 	[Test]
+	def @BCE0195_1():
+		RunCompilerTestCase("BCE0195-1.boo")
+
+	[Test]
 	def @CannotConvertFooToInt():
 		RunCompilerTestCase("CannotConvertFooToInt.boo")
 

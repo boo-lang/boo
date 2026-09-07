@@ -1050,6 +1050,11 @@ namespace Boo.Lang.Compiler
             return Instantiate("BCE0180", n, t);
         }
 
+        public static CompilerError AwaitInFilteredCatchWithExceptionVariable(Node anchor, string name)
+        {
+            return Instantiate("BCE0195", anchor, name);
+        }
+
 	    public static CompilerError UnsafeReturnInAsync(Expression e)
 	    {
 	        return Instantiate("BCE0181", e);
