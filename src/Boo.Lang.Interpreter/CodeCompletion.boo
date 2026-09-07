@@ -91,7 +91,7 @@ static class CodeCompletion:
 					if member.EntityType == EntityType.Namespace)
 
 	def IsSpecial(entity as IEntity) as bool:
-		for prefix in ".", "___", "add_", "remove_", "raise_", "get_", "set_":
+		for prefix in ".", "___", "add_", "remove_", "raise_", "get_", "set_", "<":
 			return true if entity.Name.StartsWith(prefix)
 		return false
 

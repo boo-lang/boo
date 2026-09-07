@@ -49,6 +49,7 @@ here so that no feature handler has to think about them.
 	_sync as TextDocumentSync
 	_diagnostics as DiagnosticsPublisher
 	_worker as AnalysisWorker
+	_completions as Completions
 	_initialized = false
 	_shuttingDown = false
 	_exited = false
@@ -74,6 +75,7 @@ here so that no feature handler has to think about them.
 		_sync = TextDocumentSync(_documents, _connection)
 		_diagnostics = DiagnosticsPublisher(_connection)
 		_worker = AnalysisWorker(_diagnostics.PublishSemantic, debounceMilliseconds)
+		_completions = Completions(_documents, _connection)
 		_sync.Changed = Changed
 		_sync.Closed = Closed
 
@@ -121,7 +123,8 @@ here so that no feature handler has to think about them.
 
 	private def Capabilities():
 		return Json({
-			"textDocumentSync": TextDocumentSync.Capability()
+			"textDocumentSync": TextDocumentSync.Capability(),
+			"completionProvider": Completions.Capability()
 		})
 
 	private def Initialized(params as object):
