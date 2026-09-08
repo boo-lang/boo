@@ -7,10 +7,6 @@ def includeSrcProject(String name) {
   includeFromDir 'src', name
 }
 
-def includeToolProject(String name) {
-  includeFromDir 'tools', name
-}
-
 def srcProjects = [
 	'Boo.Lang',
 	'Boo.Lang.Compiler',
@@ -27,6 +23,4 @@ def srcProjects = [
 srcProjects.each {
   includeSrcProject it
 }
-
-includeToolProject 'RetargetAssembly'
 

@@ -163,19 +163,3 @@ dependencies {
 		'default' project(it.path)
 	}
 }
-
-project(':Boo.Lang') {
-	def retargetAssemblyTask = project(':RetargetAssembly').tasks.compileDefault
-	tasks.compileWindowsPhone8 {
-		inputs.file retargetAssemblyTask.assemblyFile
-		dependsOn retargetAssemblyTask
-		doLast {
-			project.exec {
-				executable rootProject.extensions.unity.monoBleedingEdge.cli
-				args retargetAssemblyTask.assemblyFile
-				args "-keyfile:${rootProject.file('src/boo.snk')}"
-				args assemblyFile
-			}
-		}
-	}
-}
