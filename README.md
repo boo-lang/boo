@@ -56,9 +56,6 @@ How to Start
 For a brief description of the project and its goals
 take a look at `docs/BooManifesto.sxw`.
 
-`extras/boox` contains a sweet little tool you can use
-to get yourself acquainted with the language.
-
 `src/` contains all the source code for the runtime and
 compiler components.
 
