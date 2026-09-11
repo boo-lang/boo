@@ -1,7 +1,0 @@
-<settings>
-  <language>boo</language>
-  <outputType>library</outputType>
-  <references/>
-  <outputFolder>/boo/build</outputFolder>
-  <additionalOptions></additionalOptions>
-</settings>

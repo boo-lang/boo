@@ -9,9 +9,7 @@ _ReSharper*
 *.iml
 *.ipr
 *.iws
-.gradle
 .DS_Store
-gradle.properties
 
 /src/.vs
 
