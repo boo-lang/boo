@@ -4488,11 +4488,20 @@ namespace Boo.Lang.Compiler.Steps
 
 			WithdrawLocalsDeclaredByNamedArguments(node);
 
+			var last = positional.Length - 1;
+			while (last >= 0 && positional[last] == null)
+				--last;
+
 			node.Arguments.Clear();
-			foreach (var argument in positional)
+			for (var i = 0; i <= last; ++i)
 			{
+				// A hole before a supplied argument takes its default here; one
+				// after the last is left to FillOmittedArguments.
+				var argument = positional[i];
+				if (argument == null && parameters[i].HasDefaultValue)
+					argument = CreateDefaultValueLiteral(node.LexicalInfo, parameters[i]);
 				if (argument == null)
-					break;
+					return;
 				node.Arguments.Add(argument);
 			}
 		}
