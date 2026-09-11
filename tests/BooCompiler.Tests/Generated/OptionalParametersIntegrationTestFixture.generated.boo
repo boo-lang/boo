@@ -26,6 +26,10 @@ class OptionalParametersIntegrationTestFixture(AbstractCompilerTestCase):
 		RunCompilerTestCase("exact-overload-preferred.boo")
 
 	[Test]
+	def @named_argument_skips_default():
+		RunCompilerTestCase("named-argument-skips-default.boo")
+
+	[Test]
 	def @omitted_argument_still_runs():
 		RunCompilerTestCase("omitted-argument-still-runs.boo")
 
