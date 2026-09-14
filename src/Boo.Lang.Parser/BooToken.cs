@@ -123,7 +123,14 @@ public class BooToken : Antlr4.Runtime.CommonToken
 			if (lineStart < 0)
 				return charPositionInLine + 1;
 
-			var prefix = input.GetText(Antlr4.Runtime.Misc.Interval.Of(lineStart, start - 1));
+			return ColumnAfter(input.GetText(Antlr4.Runtime.Misc.Interval.Of(lineStart, start - 1)));
+		}
+
+		/// <summary>
+		/// The 1 based column just past text that starts a line.
+		/// </summary>
+		internal int ColumnAfter(string prefix)
+		{
 			var column = 1;
 			foreach (var c in prefix)
 				column = c == '\t' ? ((column - 1) / _tabSize + 1) * _tabSize + 1 : column + 1;

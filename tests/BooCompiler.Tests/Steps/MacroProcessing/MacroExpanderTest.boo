@@ -62,6 +62,33 @@ class MacroExpanderTest:
 		Assert.AreEqual(1, compiler.AskedIfCompiled)
 		Assert.AreEqual(1, compiler.AskedToCompile)
 
+	[Test]
+	def UnknownMacroWithVerbatimBodyIsAnError():
+		ActiveEnvironment.With(CompilerContext(CompilerParameters(false)).Environment):
+			module = CreateModule()
+			macroApplication = MacroStatement(LexicalInfo("file.boo", 1, 1), "sql", VerbatimBody: StringLiteralExpression("select 1"))
+			module.Globals.Add(macroApplication)
+
+			Assert.IsFalse(My[of MacroExpander].Instance.ExpandAll())
+
+			errors = CompilerErrors()
+			Assert.AreEqual(1, errors.Count)
+			Assert.AreEqual(CompilerErrorFactory.UnknownMacro(macroApplication, "sql").ToString(), errors[0].ToString())
+			Assert.IsTrue(module.Globals.IsEmpty)
+
+	[Test]
+	def CommandLineOutsideItsBlockIsAnError():
+		ActiveEnvironment.With(CompilerContext(CompilerParameters(false)).Environment):
+			module = CreateModule()
+			command = MacroStatement(LexicalInfo("file.boo", 1, 1), "", VerbatimBody: StringLiteralExpression("git status"), IsVerbatimLine: true)
+			module.Globals.Add(command)
+
+			Assert.IsFalse(My[of MacroExpander].Instance.ExpandAll())
+
+			errors = CompilerErrors()
+			Assert.AreEqual(1, errors.Count)
+			StringAssert.Contains("git status", errors[0].Message)
+
 	private def CompilerErrors() as CompilerErrorCollection:
 		return My[of CompilerErrorCollection].Instance
 

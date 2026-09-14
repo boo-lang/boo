@@ -1013,6 +1013,11 @@ namespace Boo.Lang.Compiler.Ast
 				if (body != null)
 					body.Accept(this);
 			}
+			{
+				var verbatimBody = node.VerbatimBody;
+				if (verbatimBody != null)
+					verbatimBody.Accept(this);
+			}
 		}
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]

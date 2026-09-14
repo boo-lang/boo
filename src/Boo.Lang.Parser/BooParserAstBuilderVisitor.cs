@@ -1956,6 +1956,15 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 		{
 			result.Body = VisitMacro_compound_stmt(context.macro_compound_stmt());
 			result.Annotate("compound");
+		}
+		else if (context.VERBATIM_BLOCK() != null)
+		{
+			result.VerbatimBody = VerbatimBody(context.VERBATIM_BLOCK().Symbol);
+		}
+		else if (context.VERBATIM_LINE() != null)
+		{
+			result.VerbatimBody = VerbatimLine(context.VERBATIM_LINE().Symbol);
+			result.IsVerbatimLine = true;
 		} else {
 			if (context.stmt_modifier() != null)
 				result.Modifier = VisitStmt_modifier(context.stmt_modifier());
@@ -1967,6 +1976,60 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 	Node IBooParserVisitor<Node>.VisitMacro_stmt(BooParser.Macro_stmtContext context)
 	{
 		return VisitMacro_stmt(context);
+	}
+
+	/// <summary>
+	/// A command line in a command block: a verbatim line with no macro name.
+	/// </summary>
+	MacroStatement VisitCommand_stmt(BooParser.Command_stmtContext context)
+	{
+		var line = context.VERBATIM_LINE().Symbol;
+		return new MacroStatement(GetLexicalInfo(line), "")
+		{
+			VerbatimBody = VerbatimLine(line),
+			IsVerbatimLine = true
+		};
+	}
+
+	Node IBooParserVisitor<Node>.VisitCommand_stmt(BooParser.Command_stmtContext context)
+	{
+		return VisitCommand_stmt(context);
+	}
+
+	StringLiteralExpression VerbatimLine(IToken token)
+	{
+		return new StringLiteralExpression(GetLexicalInfo(token), token.Text.TrimEnd(Blanks));
+	}
+
+	/// <summary>
+	/// The lines of a verbatim block without their common indentation, joined by \n,
+	/// located where the text of its first line starts. The token starts just
+	/// after the colon, so its first line is dropped.
+	/// </summary>
+	StringLiteralExpression VerbatimBody(IToken token)
+	{
+		var lines = token.Text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None).Skip(1)
+			.Select(line => line.TrimStart(Blanks).Length == 0 ? "" : line)
+			.ToList();
+		var indent = lines.Where(line => line.Length > 0).Select(LeadingBlanks).Aggregate(CommonPrefix);
+		var value = string.Join("\n", lines.Select(line => line.Length == 0 ? line : line.Substring(indent.Length)));
+		return new StringLiteralExpression(new LexicalInfo(FileName, token.Line + 1, IndentColumn(token, indent)), value);
+	}
+
+	// Every line of the block starts with the indentation, so its width is the column.
+	static int IndentColumn(IToken token, string indent) =>
+		token.TokenSource.TokenFactory is BooToken.BooTokenCreator creator ? creator.ColumnAfter(indent) : indent.Length + 1;
+
+	static readonly char[] Blanks = { ' ', '\t', '\f' };
+
+	static string LeadingBlanks(string line) => line.Substring(0, line.Length - line.TrimStart(Blanks).Length);
+
+	static string CommonPrefix(string a, string b)
+	{
+		var n = 0;
+		while (n < a.Length && n < b.Length && a[n] == b[n])
+			n++;
+		return a.Substring(0, n);
 	}
 
 	string GetMacroName(BooParser.Macro_nameContext context)
@@ -2073,6 +2136,8 @@ internal class BooParserAstBuilderVisitor : AbstractParseTreeVisitor<Node>, IBoo
 			return VisitUnless_stmt(context.unless_stmt());
 		if (context.try_stmt() != null)
 			return VisitTry_stmt(context.try_stmt());
+		if (context.command_stmt() != null)
+			return VisitCommand_stmt(context.command_stmt());
 		if (context.macro_stmt() != null)
 			return VisitMacro_stmt(context.macro_stmt());
 		if (context.assignment_or_method_invocation_with_block_stmt() != null)

@@ -767,6 +767,7 @@ namespace Boo.Lang.Compiler.Ast
 				Visit(node.Modifier);
 				Visit(node.Arguments);
 				Visit(node.Body);
+				Visit(node.VerbatimBody);
 				LeaveMacroStatement(node);
 			}
 		}

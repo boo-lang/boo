@@ -359,9 +359,16 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 			prototype.InputStream.SourceName,
 			prototype.StartIndex,
 			prototype.StartIndex - 1,
-			prototype.Line,
+			LineAfter(prototype),
 			ColumnAfter(prototype),
 			true);
+	}
+
+	int LineAfter(IToken prototype)
+	{
+		if (prototype.Type != BooLexer.VERBATIM_BLOCK)
+			return prototype.Line;
+		return prototype.Line + prototype.Text.Replace("\r\n", "\n").Split(NewLineCharArray).Length - 1;
 	}
 
 	/// <summary>
@@ -373,6 +380,8 @@ public class IndentTokenStreamFilter : Antlr4.Runtime.ITokenSource
 		{
 			case Antlr4.Runtime.TokenConstants.EOF:
 				return prototype.Column;
+			case BooLexer.VERBATIM_BLOCK:
+				return prototype.Text.Length - prototype.Text.LastIndexOfAny(NewLineCharArray);
 			default:
 				return prototype.Column + SafeGetLength(prototype.Text);
 		}

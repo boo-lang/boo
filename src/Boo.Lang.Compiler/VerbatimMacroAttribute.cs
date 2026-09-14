@@ -1,10 +1,10 @@
-﻿#region license
-// Copyright (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
+#region license
+// Copyright (c) 2026 the Boo contributors
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -13,7 +13,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,46 +26,53 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endregion
 
+namespace Boo.Lang.Compiler;
 
 using System;
-using System.Collections.Generic;
 
-namespace Boo.Lang.Parser;
-
-public class ParserSettings
+/// <summary>
+/// Marks a macro that takes verbatim text: the parser keeps the text as
+/// written instead of parsing it as Boo, and hands it to the macro in
+/// <see cref="Ast.MacroStatement.VerbatimBody"/>. The use decides the form, the
+/// rest of the macro's line or the indented block after its colon. A macro
+/// nested in another macro's class takes verbatim text only inside that
+/// macro's block. It applies in any module that imports the macro's namespace.
+/// </summary>
+/// <remarks>
+/// The macro macro adds this attribute to a macro with a verbatim parameter,
+/// so a macro written in Boo does not need it:
+/// <code>
+/// macro foo(text as verbatim):
+///     ...
+///
+/// foo any text at all
+/// foo:
+///     any lines at all
+/// </code>
+/// </remarks>
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public sealed class VerbatimMacroAttribute : Attribute
 {
-	public const int DefaultTabSize = 4;
-
-	private int _tabSize = DefaultTabSize;
-
-	public int TabSize
+	public VerbatimMacroAttribute()
 	{
-		get { return _tabSize; }
-
-		set
-		{
-			if (value < 1) throw new ArgumentOutOfRangeException("TabSize");
-			_tabSize = value;
-		}
 	}
 
-	public ParserErrorHandler ErrorHandler { get; set; }
+	/// <summary>
+	/// A macro whose source a Boo.Lang.Parser.ReaderMacro subclass reads instead,
+	/// deciding line by line what is text, as Boo.Lang.Parser.CommandBlockReader
+	/// does. It needs a public parameterless constructor.
+	/// </summary>
+	public VerbatimMacroAttribute(Type readerMacro)
+	{
+		ReaderMacro = readerMacro;
+	}
+
+	/// <summary>The Boo.Lang.Parser.ReaderMacro subclass that reads the macro, if any.</summary>
+	public Type ReaderMacro { get; }
 
 	/// <summary>
-	/// Reader macros by the name of the macro they read for. What they keep as
-	/// verbatim text reaches the macro as
-	/// <see cref="Boo.Lang.Compiler.Ast.MacroStatement.VerbatimBody"/>.
+	/// Whether only the block form takes verbatim text, as for a macro that also
+	/// takes Boo arguments before its colon. Its line is then parsed as Boo.
 	/// </summary>
-	public IDictionary<string, ReaderMacro> ReaderMacros { get; } = new Dictionary<string, ReaderMacro>(StringComparer.Ordinal);
-
-	/// <summary>
-	/// Reader macros by namespace, then by macro name. They apply in a module
-	/// once it imports their namespace or declares it as its own, and anywhere
-	/// for the namespaces every module sees.
-	/// </summary>
-	public IDictionary<string, IDictionary<string, ReaderMacro>> ReaderMacrosByNamespace { get; set; } = new Dictionary<string, IDictionary<string, ReaderMacro>>(StringComparer.Ordinal);
-
-	// Where the parsing step hears of verbatim macros defined in the modules it parses.
-	internal Action<string, string, ReaderMacro> SyntaxDeclared { get; set; }
-	internal Action<Boo.Lang.Compiler.Ast.LexicalInfo, string> SyntaxDeclarationWarning { get; set; }
+	public bool BlockOnly { get; set; }
 }

@@ -59,7 +59,7 @@ public class WSABooParser : BooParser
 		return ParseModule(tabSize, cu, readerName, reader, null);
 	}
 
-	public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler eh)
+	public static Module ParseModule(int tabSize, CompileUnit cu, string readerName, TextReader reader, ParserErrorHandler eh, ParserSettings settings = null)
 	{
 		if (Readers.IsEmpty(reader))
 		{
@@ -68,7 +68,7 @@ public class WSABooParser : BooParser
 			return emptyModule;
 		}
 
-		var parser = CreateParser(tabSize, readerName, reader, eh);
+		var parser = CreateParser(tabSize, readerName, reader, eh, settings);
 		parser.BuildParseTree = true;
 		var tree = parser.start();
 		var visitor = new BooParserAstBuilderVisitor(cu, readerName);
@@ -87,9 +87,9 @@ public class WSABooParser : BooParser
 		return CreateParser(tabSize, readerName, reader, null);
 	}
 
-	public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader, ParserErrorHandler eh)
+	public static WSABooParser CreateParser(int tabSize, string readerName, TextReader reader, ParserErrorHandler eh, ParserSettings settings = null)
 	{
-		var lexer = CreateBooLexer(tabSize, readerName, reader, eh);
+		var lexer = CreateBooLexer(tabSize, readerName, reader, eh, settings);
 		var parser = new WSABooParser(new CommonTokenStream(lexer));
 		parser.Interpreter.PredictionMode = PredictionMode.LL;
 		// Without a listener of its own the parser reports to the console and
@@ -105,9 +105,17 @@ public class WSABooParser : BooParser
 		return CreateBooLexer(tabSize, readerName, reader, null);
 	}
 
-	public static ITokenSource CreateBooLexer(int tabSize, string readerName, TextReader reader, ParserErrorHandler eh)
+	public static ITokenSource CreateBooLexer(int tabSize, string readerName, TextReader reader, ParserErrorHandler eh, ParserSettings settings = null)
 	{
-		var lexer = new BooLexer(new AntlrInputStream(reader)) { TokenFactory = BooToken.CreateTokenFactory(tabSize) } ;
+		var lexer = new BooLexer(new AntlrInputStream(reader))
+		{
+			TokenFactory = BooToken.CreateTokenFactory(tabSize),
+			ReaderMacros = settings?.ReaderMacros,
+			ReaderMacrosByNamespace = settings?.ReaderMacrosByNamespace,
+			SyntaxDeclared = settings?.SyntaxDeclared,
+			SyntaxDeclarationWarning = settings?.SyntaxDeclarationWarning,
+			WhitespaceAgnostic = true
+		};
 		if (eh != null)
 		{
 			lexer.RemoveErrorListeners();

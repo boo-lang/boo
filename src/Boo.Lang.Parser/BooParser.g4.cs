@@ -1,5 +1,5 @@
 #region license
-// Copyright (c) the Boo contributors
+// Copyright (c) 2026 the Boo contributors
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -78,13 +78,13 @@ partial class BooParser
 
 		try
 		{
-			var parser = CreateParser(settings.TabSize, readerName, stream, true, null);
+			var parser = CreateParser(settings.TabSize, readerName, stream, true, null, settings);
 			tree = parser.start();
 		}
 		catch (ParseCanceledException)
 		{
 			stream.Seek(0);
-			var parser = CreateParser(settings.TabSize, readerName, stream, false, settings.ErrorHandler);
+			var parser = CreateParser(settings.TabSize, readerName, stream, false, settings.ErrorHandler, settings);
 			tree = parser.start();
 		}
 
@@ -98,9 +98,9 @@ partial class BooParser
 	public static BooParser CreateParser(string readerName, ICharStream stream, bool firstStage, ParserErrorHandler eh) =>
 		CreateParser(Boo.Lang.Parser.ParserSettings.DefaultTabSize, readerName, stream, firstStage, eh);
 
-	public static BooParser CreateParser(int tabSize, string readerName, ICharStream stream, bool firstStage, ParserErrorHandler eh)
+	public static BooParser CreateParser(int tabSize, string readerName, ICharStream stream, bool firstStage, ParserErrorHandler eh, ParserSettings settings = null)
 	{
-		var booLexer = new BooLexer(stream) { TokenFactory = BooToken.CreateTokenFactory(tabSize) };
+		var booLexer = new BooLexer(stream) { TokenFactory = BooToken.CreateTokenFactory(tabSize), ReaderMacros = settings?.ReaderMacros, ReaderMacrosByNamespace = settings?.ReaderMacrosByNamespace, SyntaxDeclared = settings?.SyntaxDeclared, SyntaxDeclarationWarning = settings?.SyntaxDeclarationWarning };
 		// A lexer of its own reports to the console, so an unterminated string
 		// would never reach the compiler.
 		if (eh != null)

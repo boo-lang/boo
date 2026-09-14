@@ -1117,13 +1117,37 @@ namespace Boo.Lang.Compiler.Ast.Visitors
 		
 		override public void OnMacroStatement(MacroStatement node)
 		{
+			if (node.IsVerbatimLine)
+			{
+				WriteIndented(node.Name);
+				if (node.Name.Length > 0 && node.VerbatimBody.Value.Length > 0)
+					Write(" ");
+				Write(node.VerbatimBody.Value);
+				WriteLine();
+				return;
+			}
 			WriteIndented(node.Name);
 			Write(" ");
 			var enclosing = _macroBeingPrinted;
 			_macroBeingPrinted = node;
 			WriteCommaSeparatedList(node.Arguments);
 			_macroBeingPrinted = enclosing;
-			if (!node.Body.IsEmpty)
+			if (node.VerbatimBody != null)
+			{
+				WriteLine(":");
+				BeginBlock();
+				foreach (var line in node.VerbatimBody.Value.Split('\n'))
+				{
+					if (line.Length > 0)
+					{
+						WriteIndented();
+						Write(line);
+					}
+					WriteLine();
+				}
+				EndBlock();
+			}
+			else if (!node.Body.IsEmpty)
 			{
 				WriteLine(":");
 				WriteBlock(node.Body);

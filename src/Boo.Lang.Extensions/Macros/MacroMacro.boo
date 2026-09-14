@@ -178,6 +178,9 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			continue if method is null
 			method.Accept(sme)
 
+		if _apb and _apb.HasVerbatim:
+			AddVerbatimMacroAttribute(macroType)
+
 		#add parent macro(s) accessor(s)
 		for parent in parents:
 			if not macroType.Members[parent]:
@@ -185,6 +188,14 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 					macroType.Members.Add(accessor)
 		return macroType
 
+
+	# Tells the parser to keep the macro's text, from its line alone only when
+	# the verbatim argument is the only one.
+	private def AddVerbatimMacroAttribute(macroType as ClassDefinition):
+		attribute = Boo.Lang.Compiler.Ast.Attribute("Boo.Lang.Compiler.VerbatimMacroAttribute")
+		if ArgumentsPattern.Count > 0:
+			attribute.NamedArguments.Add(ExpressionPair(ReferenceExpression("BlockOnly"), BoolLiteralExpression(true)))
+		macroType.Attributes.Add(attribute)
 
 	#BOO-1077 style
 	private def CreateGeneratorMacroType(typeName as string) as ClassDefinition:
@@ -231,7 +242,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		body = _macro.Body
 
 		if ArgumentsPattern:
-			if 0 == ArgumentsPattern.Count and not ArgumentsPrologue:
+			if 0 == ArgumentsPattern.Count and (not ArgumentsPrologue or _apb.HasVerbatim):
 				body = [|
 					if __macro.Arguments.Count == 0:
 						$body
@@ -401,6 +412,7 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 		_arg as ReferenceExpression
 		_argIndex = 0
 		_enumerable = false
+		_verbatim = false
 
 		def constructor(input as ExpressionCollection):
 			_input = input
@@ -414,6 +426,11 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			get:
 				Build() if not _pattern
 				return _prologue
+
+		HasVerbatim:
+			get:
+				Build() if not _pattern
+				return _verbatim
 
 		def Build():
 			_pattern = ExpressionCollection()
@@ -449,6 +466,11 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			re = e.Target as ReferenceExpression
 			raise "Invalid macro argument name: `${e.Target}`" unless re
 
+			if (e.Type as SimpleTypeReference)?.Name == "verbatim":
+				_arg = re
+				AppendVerbatim()
+				return
+
 			NameResolutionService.ResolveTypeReference(e.Type)
 			type = TypeSystemServices.GetType(e.Type)
 			_arg = cast(ReferenceExpression, re)
@@ -475,6 +497,14 @@ class MacroMacro(LexicalInfoPreservingGeneratorMacro):
 			else:
 				raise "Unsupported type `${type.FullName}` for argument `${_arg.Name}`, a macro argument type must be a literal-able primitive or an AST node"
 				
+		# The text the parser kept for the macro, or an empty string.
+		private def AppendVerbatim():
+			raise "`${_arg.Name}` verbatim argument must be the last argument" unless IsLastArgument
+			raise "A macro cannot take both a verbatim argument and a `body` argument" if IsBodyArgument
+			_verbatim = true
+			_prologue = Block()
+			_prologue.Add([| $_arg = ($(MacroField).VerbatimBody.Value if $(MacroField).VerbatimBody is not null else "") |])
+
 		private def IsAstNode(type as IType):
 			return type.IsSubclassOf(TypeSystemServices.Map(Boo.Lang.Compiler.Ast.Node))
 

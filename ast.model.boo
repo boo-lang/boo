@@ -259,6 +259,8 @@ class MacroStatement(Statement, INodeWithBody):
 	Arguments as ExpressionCollection
 	[auto]
 	Body as Block
+	VerbatimBody as StringLiteralExpression
+	IsVerbatimLine as bool
 
 class TryStatement(Statement):
 	[auto]

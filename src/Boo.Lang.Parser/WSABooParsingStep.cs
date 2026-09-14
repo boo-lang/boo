@@ -32,6 +32,6 @@ public class WSABooParsingStep : BooParsingStep
 {
 	override protected void ParseModule(string inputName, System.IO.TextReader reader)
 	{
-		WSABooParser.ParseModule(this.TabSize, this.Context.CompileUnit, inputName, reader, this.OnParserError);
+		WSABooParser.ParseModule(this.TabSize, this.Context.CompileUnit, inputName, reader, this.OnParserError, this.Settings);
 	}
 }

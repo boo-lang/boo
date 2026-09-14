@@ -45,6 +45,10 @@ namespace Boo.Lang.Compiler.Ast
 
 		protected Block _body;
 
+		protected StringLiteralExpression _verbatimBody;
+
+		protected bool _isVerbatimLine;
+
 
 		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
 		new public MacroStatement CloneNode()
@@ -83,6 +87,8 @@ namespace Boo.Lang.Compiler.Ast
 			if (_name != other._name) return NoMatch("MacroStatement._name");
 			if (!Node.AllMatch(_arguments, other._arguments)) return NoMatch("MacroStatement._arguments");
 			if (!Node.Matches(_body, other._body)) return NoMatch("MacroStatement._body");
+			if (!Node.Matches(_verbatimBody, other._verbatimBody)) return NoMatch("MacroStatement._verbatimBody");
+			if (_isVerbatimLine != other._isVerbatimLine) return NoMatch("MacroStatement._isVerbatimLine");
 			return true;
 		}
 
@@ -115,6 +121,11 @@ namespace Boo.Lang.Compiler.Ast
 				this.Body = (Block)newNode;
 				return true;
 			}
+			if (_verbatimBody == existing)
+			{
+				this.VerbatimBody = (StringLiteralExpression)newNode;
+				return true;
+			}
 			return false;
 		}
 
@@ -145,6 +156,12 @@ namespace Boo.Lang.Compiler.Ast
 				clone._body = _body.Clone() as Block;
 				clone._body.InitializeParent(clone);
 			}
+			if (null != _verbatimBody)
+			{
+				clone._verbatimBody = _verbatimBody.Clone() as StringLiteralExpression;
+				clone._verbatimBody.InitializeParent(clone);
+			}
+			clone._isVerbatimLine = _isVerbatimLine;
 			return clone;
 
 
@@ -166,6 +183,10 @@ namespace Boo.Lang.Compiler.Ast
 			if (null != _body)
 			{
 				_body.ClearTypeSystemBindings();
+			}
+			if (null != _verbatimBody)
+			{
+				_verbatimBody.ClearTypeSystemBindings();
 			}
 
 		}
@@ -230,6 +251,38 @@ namespace Boo.Lang.Compiler.Ast
 					}
 				}
 			}
+
+		}
+		
+
+		[System.Xml.Serialization.XmlElement]
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public StringLiteralExpression VerbatimBody
+		{
+			
+			get { return _verbatimBody; }
+			set
+			{
+				if (_verbatimBody != value)
+				{
+					_verbatimBody = value;
+					if (null != _verbatimBody)
+					{
+						_verbatimBody.InitializeParent(this);
+					}
+				}
+			}
+
+		}
+		
+
+		[System.Xml.Serialization.XmlElement]
+		[System.CodeDom.Compiler.GeneratedCodeAttribute("astgen.boo", "1")]
+		public bool IsVerbatimLine
+		{
+			
+			get { return _isVerbatimLine; }
+			set { _isVerbatimLine = value; }
 
 		}
 		

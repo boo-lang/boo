@@ -1,4 +1,4 @@
-// Copyright (c) the Boo contributors
+// Copyright (c) 2026 the Boo contributors
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without modification,
@@ -35,7 +35,9 @@ tokens {
 	DLIST,
 	// expression separator (imaginary token)
 	ESEPARATOR,
-	EOL
+	EOL,
+	VERBATIM_BLOCK,
+	VERBATIM_LINE
 }
 
 ABSTRACT	:	'abstract';

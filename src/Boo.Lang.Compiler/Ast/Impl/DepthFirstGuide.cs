@@ -1150,6 +1150,11 @@ namespace Boo.Lang.Compiler.Ast
 				if (body != null)
 					body.Accept(this);
 			}
+			{
+				var verbatimBody = node.VerbatimBody;
+				if (verbatimBody != null)
+					verbatimBody.Accept(this);
+			}
 			var handler = OnMacroStatement;
 			if (handler != null)
 				handler(node);

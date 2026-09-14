@@ -29,66 +29,75 @@
 using System;
 using System.Collections.Generic;
 
-namespace Boo.Lang.Compiler.Ast
+namespace Boo.Lang.Compiler.Ast;
+
+public partial class MacroStatement
 {
-	public partial class MacroStatement
+	private static int _constructionCount = 0;
+
+	public MacroStatement()
 	{
-		private static int _constructionCount = 0;
-		
-		public MacroStatement()
-		{
-			++_constructionCount;
- 		}
-		
-		public MacroStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
-		{
-			++_constructionCount;
-		}
-		
-		public MacroStatement(LexicalInfo lexicalInfoProvider, string name) : base(lexicalInfoProvider)
-		{
-			++_constructionCount;
-			this.Name = name;
-		}
+		++_constructionCount;
+	}
 
-		public MacroStatement(string name) : this(LexicalInfo.Empty, name)
-		{
-			++_constructionCount;
-		}
+	public MacroStatement(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
+	{
+		++_constructionCount;
+	}
 
-		override public string ToString()
-		{
-			if (Arguments.Count == 0)
-				return _name;
-			return _name + " " + Builtins.join(Arguments, ", ");
-		}
+	public MacroStatement(LexicalInfo lexicalInfoProvider, string name) : base(lexicalInfoProvider)
+	{
+		++_constructionCount;
+		this.Name = name;
+	}
 
-		[Obsolete("Use Body property instead of Block.")]
-		[System.Xml.Serialization.XmlIgnoreAttribute] //do not duplicate Body
-		public Block Block
-		{
-			get { return Body; }
-			set { Body = value; }
-		}
+	public MacroStatement(string name) : this(LexicalInfo.Empty, name)
+	{
+		++_constructionCount;
+	}
 
-		public MacroStatement GetParentMacroByName(string name)
+	override public string ToString()
+	{
+		if (Arguments.Count == 0)
+			return _name;
+		return _name + " " + Builtins.join(Arguments, ", ");
+	}
+
+	[Obsolete("Use Body property instead of Block.")]
+	[System.Xml.Serialization.XmlIgnoreAttribute] //do not duplicate Body
+	public Block Block
+	{
+		get { return Body; }
+		set { Body = value; }
+	}
+
+	public MacroStatement GetParentMacroByName(string name)
+	{
+		MacroStatement parent = GetAncestor<MacroStatement>();
+		while (null != parent)
 		{
-			MacroStatement parent = GetAncestor<MacroStatement>();
-			while (null != parent) {
-				if (parent.Name == name)
+			if (parent.Name == name)
+				return parent;
+			else if (parent.Name == "macro") //macro macro
+				if (name == (parent.Arguments[0] as ReferenceExpression).Name)
 					return parent;
-				else if (parent.Name == "macro") //macro macro
-					if (name == (parent.Arguments[0] as ReferenceExpression).Name)
-						return parent;
-				parent = parent.GetAncestor<MacroStatement>();
-			}
-			return null;
+			parent = parent.GetAncestor<MacroStatement>();
 		}
-		
-		public static int ConstructionCount
-		{
-			get { return _constructionCount; }
-		}
+		return null;
+	}
 
+	/// <summary>
+	/// Where a character of <see cref="VerbatimBody"/> sits in the source, given its
+	/// 0 based line and column within the text.
+	/// </summary>
+	public LexicalInfo VerbatimBodyLocation(int line, int column)
+	{
+		var start = VerbatimBody.LexicalInfo;
+		return new LexicalInfo(start.FileName, start.Line + line, start.Column + column);
+	}
+
+	public static int ConstructionCount
+	{
+		get { return _constructionCount; }
 	}
 }

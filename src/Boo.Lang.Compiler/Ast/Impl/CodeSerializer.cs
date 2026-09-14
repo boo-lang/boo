@@ -1562,6 +1562,20 @@ namespace Boo.Lang.Compiler.Ast
 						CreateReference(node, "Body"),
 						Serialize(node.Body)));
 			}
+			if (ShouldSerialize(node.VerbatimBody))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "VerbatimBody"),
+						Serialize(node.VerbatimBody)));
+			}
+			if (ShouldSerialize(node.IsVerbatimLine))
+			{
+				mie.NamedArguments.Add(
+					new ExpressionPair(
+						CreateReference(node, "IsVerbatimLine"),
+						Serialize(node.IsVerbatimLine)));
+			}
 			Push(mie);
 		}
 

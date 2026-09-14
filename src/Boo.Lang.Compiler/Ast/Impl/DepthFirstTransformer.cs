@@ -1173,6 +1173,15 @@ namespace Boo.Lang.Compiler.Ast
 						node.Body = newValue;
 					}
 				}
+				StringLiteralExpression currentVerbatimBodyValue = node.VerbatimBody;
+				if (null != currentVerbatimBodyValue)
+				{			
+					StringLiteralExpression newValue = (StringLiteralExpression)VisitNode(currentVerbatimBodyValue);
+					if (!object.ReferenceEquals(newValue, currentVerbatimBodyValue))
+					{
+						node.VerbatimBody = newValue;
+					}
+				}
 
 				LeaveMacroStatement(node);
 			}

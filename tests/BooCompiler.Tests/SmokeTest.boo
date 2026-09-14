@@ -37,6 +37,10 @@ class SmokeTest(AbstractCompilerTestCase):
 		CopyAssembly(typeof(Boo.Lang.PatternMatching.MatchMacro).Assembly)
 
 	[Test]
+	def VerbatimMacroCanImplementACommandLanguage():
+		RunCompilerTestCase("VerbatimMacro.boo")
+
+	[Test]
 	def ExternalModuleWithNoNamespace():
 		RunCompilerTestCase("ExternalModuleWithNoNamespace.boo")
 

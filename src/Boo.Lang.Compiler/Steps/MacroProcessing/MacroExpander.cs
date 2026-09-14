@@ -157,6 +157,15 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 			if (node[MacroExpansion.DeferredMacroType] != null)
 				return;
 
+			// A verbatim line with no name is rewritten by the macro holding it,
+			// which expands after its children.
+			if (node.IsVerbatimLine && node.Name.Length == 0)
+			{
+				if (node.GetAncestor<MacroStatement>() == null)
+					ProcessingError(CompilerErrorFactory.CustomError(node, $"'{node.VerbatimBody.Value}' is a verbatim line outside the macro that reads it."));
+				return;
+			}
+
 			var macroType = ResolveMacroName(node) as IType;
 			if (null != macroType)
 			{
@@ -217,7 +226,9 @@ namespace Boo.Lang.Compiler.Steps.MacroProcessing
 		private void ExpandUnknownMacro(MacroStatement node)
 		{
 			ExpandChildrenOf(node);
-			if (IsTypeMemberMacro(node))
+			if (node.VerbatimBody != null)
+				ProcessingError(CompilerErrorFactory.UnknownMacro(node, node.Name));
+			else if (IsTypeMemberMacro(node))
 				UnknownTypeMemberMacro(node);
 			else if (IsClosureValue(node))
 				TreatMacroAsReference(node);

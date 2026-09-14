@@ -1,9 +1,9 @@
-// Copyright (c) the Boo contributors
+// Copyright (c) 2026 the Boo contributors
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification,
 // are permitted provided that the following conditions are met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above copyright notice,
@@ -12,7 +12,7 @@
 //     * Neither the name of Rodrigo B. de Oliveira nor the names of its
 //     contributors may be used to endorse or promote products derived from this
 //     software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -125,7 +125,7 @@ type_definition
 		|	callable_definition
 		)
 	;
-	
+
 callable_definition
 	:	CALLABLE ID
 		(	LBRACK OF? generic_parameter_declaration_list RBRACK
@@ -402,7 +402,7 @@ globals
 block
 	:	eos?
 		stmt_or_nested_function+
-	; 
+	;
 
 modifiers
 	:	type_member_modifier*
@@ -472,7 +472,7 @@ generic_parameter_declaration_list
 	;
 
 generic_parameter_declaration
-	:	ID 
+	:	ID
 		(	LPAREN generic_parameter_constraints RPAREN
 		)?
 	;
@@ -611,6 +611,8 @@ macro_stmt
 	:	macro_name expression_list
 		(	begin_with_doc macro_block end
 		|	macro_compound_stmt
+		|	COLON VERBATIM_BLOCK eos
+		|	VERBATIM_LINE eos
 		|	(	eos
 			|	stmt_modifier eos
 			)
@@ -634,7 +636,7 @@ goto_stmt
 label_stmt
 	:	COLON ID
 	;
-	
+
 nested_function
 	:	DEF ID
 		(	LPAREN parameter_declaration_list RPAREN
@@ -655,6 +657,7 @@ stmt
 	|	if_stmt
 	|	unless_stmt
 	|	try_stmt
+	|	command_stmt
 	|	{IsValidMacroArgument(InputStream.LA(2))}? macro_stmt
 	|	assignment_or_method_invocation_with_block_stmt
 	|	return_stmt
@@ -671,6 +674,10 @@ stmt
 		)
 		stmt_modifier?
 		eos
+	;
+
+command_stmt
+	:	VERBATIM_LINE eos
 	;
 
 simple_stmt

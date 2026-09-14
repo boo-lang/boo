@@ -27,8 +27,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Boo.Lang.Compiler.Ast;
 using Boo.Lang.Compiler;
+using Boo.Lang.Compiler.TypeSystem.Reflection;
 using Boo.Lang.Environments;
 using Boo.Lang.Parser.Util;
 using Antlr4.Runtime;
@@ -61,13 +65,34 @@ public class BooParsingStep : ICompilerStep
 
 	protected int TabSize => My<Boo.Lang.Parser.ParserSettings>.Instance.TabSize;
 
+	protected Boo.Lang.Parser.ParserSettings Settings => My<Boo.Lang.Parser.ParserSettings>.Instance;
+
 	public void Run()
 	{
 		// Parser errors are reported through the ambient settings, so the handler
 		// that was there before this step ran has to come back afterwards.
 		var settings = My<Boo.Lang.Parser.ParserSettings>.Instance;
 		var previousHandler = settings.ErrorHandler;
+		var previousReaderMacros = settings.ReaderMacrosByNamespace;
+		var previousSyntaxDeclared = settings.SyntaxDeclared;
+		var previousSyntaxDeclarationWarning = settings.SyntaxDeclarationWarning;
+		var readerMacros = WithDeclaredReaderMacros(previousReaderMacros);
 		settings.ErrorHandler = OnParserError;
+		settings.ReaderMacrosByNamespace = readerMacros;
+		// A module's own verbatim macros carry over to the modules parsed after it.
+		settings.SyntaxDeclared = (ns, name, macro) =>
+		{
+			if (!readerMacros.TryGetValue(ns, out var names))
+				readerMacros.Add(ns, names = new Dictionary<string, ReaderMacro>(StringComparer.Ordinal));
+			names.TryAdd(name, macro);
+		};
+		// Both parsing stages lex the module, so each warning comes twice.
+		var reported = new HashSet<string>();
+		settings.SyntaxDeclarationWarning = (location, message) =>
+		{
+			if (reported.Add($"{location}: {message}"))
+				_context.Warnings.Add(CompilerWarningFactory.CustomWarning(location, message));
+		};
 
 		try
 		{
@@ -76,7 +101,124 @@ public class BooParsingStep : ICompilerStep
 		finally
 		{
 			settings.ErrorHandler = previousHandler;
+			settings.ReaderMacrosByNamespace = previousReaderMacros;
+			settings.SyntaxDeclared = previousSyntaxDeclared;
+			settings.SyntaxDeclarationWarning = previousSyntaxDeclarationWarning;
 		}
+	}
+
+	/// <summary>
+	/// The given reader macros plus those for the macros referenced assemblies
+	/// mark with <see cref="VerbatimMacroAttribute"/>, by the namespace of each macro.
+	/// </summary>
+	IDictionary<string, IDictionary<string, ReaderMacro>> WithDeclaredReaderMacros(IDictionary<string, IDictionary<string, ReaderMacro>> given)
+	{
+		var all = new Dictionary<string, IDictionary<string, ReaderMacro>>(StringComparer.Ordinal);
+		foreach (var ns in given ?? Enumerable.Empty<KeyValuePair<string, IDictionary<string, ReaderMacro>>>())
+			all.Add(ns.Key, new Dictionary<string, ReaderMacro>(ns.Value, StringComparer.Ordinal));
+
+		// The assembly each verbatim macro came from, to report a second one.
+		var declaredBy = new Dictionary<string, string>(StringComparer.Ordinal);
+		// The macros nested in each parent macro type, which is made to read them.
+		var nestedByParent = new Dictionary<string, IDictionary<string, ReaderMacro>>(StringComparer.Ordinal);
+		foreach (var reference in _context.Parameters.References.OfType<IAssemblyReference>())
+		{
+			var assembly = reference.Assembly.GetName().Name;
+			foreach (var (macro, attribute) in VerbatimMacroTypes(reference.Assembly))
+			{
+				var reader = ReaderMacroFor(macro, attribute, assembly);
+				if (reader == null)
+					continue;
+
+				if (declaredBy.TryGetValue(macro.FullName, out var first))
+				{
+					_context.Warnings.Add(CompilerWarningFactory.CustomWarning($"The verbatim macro '{macro.FullName}' is defined by both '{first}' and '{assembly}'; the one from '{first}' is used."));
+					continue;
+				}
+				declaredBy.Add(macro.FullName, assembly);
+
+				var names = macro.DeclaringType == null
+					? NamesIn(all, macro.Namespace)
+					: NestedMacrosOf(macro.DeclaringType, all, nestedByParent);
+				foreach (var name in ReaderMacro.MacroNames(macro.Name))
+					names.TryAdd(name, reader);
+			}
+		}
+		return all;
+	}
+
+	static IDictionary<string, ReaderMacro> NamesIn(Dictionary<string, IDictionary<string, ReaderMacro>> all, string ns)
+	{
+		if (!all.TryGetValue(ns ?? "", out var names))
+			all.Add(ns ?? "", names = new Dictionary<string, ReaderMacro>(StringComparer.Ordinal));
+		return names;
+	}
+
+	static IDictionary<string, ReaderMacro> NestedMacrosOf(Type parent, Dictionary<string, IDictionary<string, ReaderMacro>> all, Dictionary<string, IDictionary<string, ReaderMacro>> nestedByParent)
+	{
+		if (nestedByParent.TryGetValue(parent.FullName, out var nested))
+			return nested;
+		nested = new Dictionary<string, ReaderMacro>(StringComparer.Ordinal);
+		nestedByParent.Add(parent.FullName, nested);
+		var reader = ReaderMacro.Nesting(nested);
+		var names = NamesIn(all, parent.Namespace);
+		foreach (var name in ReaderMacro.MacroNames(parent.Name))
+			names.TryAdd(name, reader);
+		return nested;
+	}
+
+	static IEnumerable<(Type, CustomAttributeData)> VerbatimMacroTypes(Assembly assembly)
+	{
+		// Only an assembly built against the compiler can mark a macro.
+		if (assembly.IsDynamic || !assembly.GetReferencedAssemblies().Any(name => name.Name == typeof(VerbatimMacroAttribute).Assembly.GetName().Name))
+			yield break;
+
+		Type[] types;
+		try
+		{
+			types = assembly.GetTypes();
+		}
+		catch (ReflectionTypeLoadException e)
+		{
+			types = e.Types.Where(type => type != null).ToArray();
+		}
+		foreach (var type in types)
+			foreach (var data in type.GetCustomAttributesData())
+				if (data.AttributeType.FullName == typeof(VerbatimMacroAttribute).FullName)
+					yield return (type, data);
+	}
+
+	ReaderMacro ReaderMacroFor(Type macro, CustomAttributeData attribute, string assembly)
+	{
+		if (attribute.ConstructorArguments.Count == 1)
+			return attribute.ConstructorArguments[0].Value is Type readerType
+				? CreateReaderMacro(readerType, assembly)
+				: DeclarationError(assembly, $"The verbatim macro '{macro}' names no reader macro type.");
+
+		var blockOnly = attribute.NamedArguments.Any(argument => argument.MemberName == nameof(VerbatimMacroAttribute.BlockOnly) && argument.TypedValue.Value is true);
+		return blockOnly ? ReaderMacro.VerbatimBlock : ReaderMacro.Verbatim;
+	}
+
+	ReaderMacro CreateReaderMacro(Type type, string assembly)
+	{
+		object created;
+		try
+		{
+			created = Activator.CreateInstance(type);
+		}
+		catch (Exception e)
+		{
+			var cause = e is TargetInvocationException { InnerException: not null } ? e.InnerException : e;
+			return DeclarationError(assembly, $"The reader macro '{type}' could not be created: {cause.Message}");
+		}
+		return created as ReaderMacro
+			?? DeclarationError(assembly, $"'{type}' is not a {typeof(ReaderMacro)}.");
+	}
+
+	ReaderMacro DeclarationError(string assembly, string message)
+	{
+		_context.Errors.Add(CompilerErrorFactory.CustomError(LexicalInfo.Empty, $"{message} (in '{assembly}')"));
+		return null;
 	}
 
 	private void ParseInputs()
@@ -115,12 +257,12 @@ public class BooParsingStep : ICompilerStep
 		// still calls the listener before bailing and the LL retry repeats it.
 		try
 		{
-			tree = BooParser.CreateParser(settings.TabSize, inputName, stream, true, null).start();
+			tree = BooParser.CreateParser(settings.TabSize, inputName, stream, true, null, settings).start();
 		}
 		catch (ParseCanceledException)
 		{
 			stream.Seek(0);
-			tree = BooParser.CreateParser(settings.TabSize, inputName, stream, false, OnParserError).start();
+			tree = BooParser.CreateParser(settings.TabSize, inputName, stream, false, OnParserError, settings).start();
 		}
 
 		var visitor = new BooParserAstBuilderVisitor(_context.CompileUnit, inputName);
