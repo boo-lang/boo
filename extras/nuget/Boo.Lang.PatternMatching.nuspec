@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Boo.Lang.PatternMatching</id>
+    <version>@version@</version>
+    <title>Pattern Matching macros for Boo</title>
+    <authors>Boo Community</authors>
+    <owners>Boo Community</owners>
+    <iconUrl>http://oi41.tinypic.com/2usy2js.jpg</iconUrl>
+    <licenseUrl>http://raw.github.com/bamboo/boo/master/license.txt</licenseUrl>
+    <projectUrl>http://boo.codehaus.org/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Pattern Matching macros for Boo.</description>
+    <summary>Pattern Matching macros for Boo.</summary>
+    <tags>boo pattern-matching</tags>
+    <dependencies>
+      <dependency id="Boo.Lang" version="@version@" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Boo.Lang.PatternMatching.dll" target="lib/net40" />
+  </files>  
+</package>
