@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    An MSBuild SDK: a project that says <Project Sdk="Boo.Sdk/x.y.z"> gets the
+    .NET SDK plus Boo.targets and a booc to run it.
+  -->
+
+  <PropertyGroup>
+    <PackageId>Boo.Sdk</PackageId>
+    <Description>MSBuild SDK for building Boo projects.</Description>
+    <Authors>The Boo Contributors</Authors>
+    <PackageTags>boo;msbuild;sdk</PackageTags>
+    <PackageType>MSBuildSdk</PackageType>
+    <PackageLicenseFile>license.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/boo-lang/boo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/boo-lang/boo</PackageProjectUrl>
+
+    <IsPackable>true</IsPackable>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoWarn>$(NoWarn);NU5128;NU5100;CS2008</NoWarn>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SignAssembly>false</SignAssembly>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Built only for their output: this project has no code that uses them. -->
+    <ProjectReference Include="../booc/booc.csproj" />
+    <ProjectReference Include="../Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
+    <ProjectReference Include="../Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
+    <ProjectReference Include="../Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The parser's runtime. It is not copied here through booc, so name it
+         again, at the version Boo.Lang.Parser uses. -->
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../license.txt" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="Sdk/Sdk.props;Sdk/Sdk.targets" Pack="true" PackagePath="Sdk/" />
+    <!-- The one copy of the build logic, so the SDK cannot drift from what the
+         repository builds itself with. -->
+    <None Include="../../Boo.targets" Pack="true" PackagePath="Sdk/" Link="Sdk/Boo.targets" />
+  </ItemGroup>
+
+  <Target Name="CollectBooTools" BeforeTargets="_GetPackageFiles" DependsOnTargets="Build">
+    <ItemGroup>
+      <_BooTool Include="$(OutDir)*.dll;$(OutDir)booc.deps.json;$(OutDir)booc.runtimeconfig.json;$(OutDir)booc.dll.config"
+                Exclude="$(OutDir)Boo.Sdk.dll" />
+      <None Include="@(_BooTool)" Pack="true" PackagePath="tools/$(TargetFramework)/" />
+    </ItemGroup>
+  </Target>
+
+</Project>
