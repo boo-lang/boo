@@ -1,0 +1,128 @@
+name: Release
+
+# Releasing is manual up to the tag:
+#
+#   1. booi scripts/bumpversion.boo minor     (commit and merge the result)
+#   2. git tag v<version> && git push origin v<version>
+#
+# Pushing the tag runs this workflow. It checks the tag against version.txt,
+# runs the CI suite, builds a tarball and a zip of a self contained build per platform, and
+# publishes them to a GitHub release along with checksums and build provenance.
+#
+# Run by hand from the Actions tab, it builds and smoke tests the archives
+# without publishing anything.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  verify:
+    name: Verify tag
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Read version.txt
+        id: version
+        run: |
+          version=$(tr -d '[:space:]' < version.txt)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.ref_type }}" = tag ] && [ "${{ github.ref_name }}" != "v$version" ]; then
+            echo "::error::Tag ${{ github.ref_name }} does not match version.txt ($version). Run scripts/bumpversion.boo before tagging."
+            exit 1
+          fi
+
+  test:
+    name: Test
+    needs: verify
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    name: ${{ matrix.rid }}
+    needs: verify
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: linux-x64,   os: ubuntu-latest }
+          - { rid: linux-arm64, os: ubuntu-24.04-arm }
+          - { rid: osx-x64,     os: macos-15-intel }
+          - { rid: osx-arm64,   os: macos-latest }
+          - { rid: win-x64,     os: windows-latest }
+          - { rid: win-arm64,   os: windows-11-arm }
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Package
+        shell: bash
+        run: scripts/package-release.sh ${{ matrix.rid }} artifacts
+
+      # What a user gets is the archive, not the build tree, so test that.
+      - name: Unpack the archive
+        shell: bash
+        run: |
+          install="$RUNNER_TEMP/boo"
+          mkdir -p "$install"
+          archive=$(ls artifacts/boo-*-${{ matrix.rid }}.tar.gz)
+          case "${{ matrix.rid }}" in
+            win-*) tar --force-local -xzf "$archive" -C "$install" ;;
+            *) tar -xzf "$archive" -C "$install" ;;
+          esac
+          echo "$install" >> "$GITHUB_PATH"
+
+      - name: Smoke test the archive
+        shell: bash
+        run: scripts/smoke-test-release.sh "$RUNNER_TEMP/boo" artifacts/boo-*-${{ matrix.rid }}.zip
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: boo-${{ matrix.rid }}
+          path: artifacts/boo-*
+          if-no-files-found: error
+
+  publish:
+    name: Publish
+    if: github.ref_type == 'tag'
+    needs: [verify, test, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: boo-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: artifacts
+        run: sha256sum boo-* > SHA256SUMS
+
+      - uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: artifacts/boo-*
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" artifacts/* \
+            --repo "${{ github.repository }}" \
+            --title "Boo ${{ needs.verify.outputs.version }}" \
+            --generate-notes \
+            --verify-tag
