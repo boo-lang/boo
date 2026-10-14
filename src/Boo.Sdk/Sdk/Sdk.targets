@@ -1,0 +1,22 @@
+<Project>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <!-- Where the package keeps booc and the libraries it compiles against. -->
+    <BooToolsDirectory Condition="'$(BooToolsDirectory)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'tools', 'net10.0'))</BooToolsDirectory>
+    <BoocDll Condition="'$(BoocDll)' == ''">$(BooToolsDirectory)booc.dll</BoocDll>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Boo.Lang" HintPath="$(BooToolsDirectory)Boo.Lang.dll" />
+    <Reference Include="Boo.Lang.Extensions" HintPath="$(BooToolsDirectory)Boo.Lang.Extensions.dll" />
+  </ItemGroup>
+
+  <Import Project="Boo.targets" />
+
+  <ItemGroup>
+    <Compile Include="@(BooCompile)" />
+  </ItemGroup>
+
+</Project>

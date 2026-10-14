@@ -1,0 +1,16 @@
+<Project>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <BooSdkDirectory>$(MSBuildThisFileDirectory)</BooSdkDirectory>
+
+    <!--
+      booc embeds its symbols in the assembly as a portable PDB, so embedded
+      is the only option for the moment.
+    -->
+    <DebugType>none</DebugType>
+    <DebugType Condition="'$(Configuration)' == '' Or '$(Configuration)' == 'Debug'">embedded</DebugType>
+  </PropertyGroup>
+
+</Project>
