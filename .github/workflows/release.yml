@@ -71,7 +71,7 @@ jobs:
 
       - name: Package
         shell: bash
-        run: scripts/package-release.sh ${{ matrix.rid }} artifacts
+        run: sh scripts/package-release.sh ${{ matrix.rid }} artifacts
 
       # What a user gets is the archive, not the build tree, so test that.
       - name: Unpack the archive
@@ -88,7 +88,7 @@ jobs:
 
       - name: Smoke test the archive
         shell: bash
-        run: scripts/smoke-test-release.sh "$RUNNER_TEMP/boo" artifacts/boo-*-${{ matrix.rid }}.zip
+        run: sh scripts/smoke-test-release.sh "$RUNNER_TEMP/boo" artifacts/boo-*-${{ matrix.rid }}.zip
 
       - uses: actions/upload-artifact@v7
         with:
@@ -145,7 +145,7 @@ jobs:
         run: dotnet pack src/Boo.Sdk/Boo.Sdk.csproj --configuration Release --output sdk-package
 
       - name: Smoke test the package
-        run: scripts/smoke-test-sdk.sh sdk-package "${{ needs.verify.outputs.version }}"
+        run: sh scripts/smoke-test-sdk.sh sdk-package "${{ needs.verify.outputs.version }}"
 
       - uses: actions/upload-artifact@v7
         with:

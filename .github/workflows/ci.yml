@@ -83,4 +83,4 @@ jobs:
 
       - name: Smoke test the package
         shell: bash
-        run: scripts/smoke-test-sdk.sh sdk-package "$BOO_VERSION"
+        run: sh scripts/smoke-test-sdk.sh sdk-package "$BOO_VERSION"
