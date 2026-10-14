@@ -5,6 +5,7 @@ on:
     branches: [main, master]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 # A newer push to the same ref makes the running job irrelevant.
 concurrency:
