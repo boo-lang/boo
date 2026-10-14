@@ -71,38 +71,21 @@ jobs:
         run: scripts/package-release.sh ${{ matrix.rid }} artifacts
 
       # What a user gets is the archive, not the build tree, so test that.
-      - name: Smoke test the archive
+      - name: Unpack the archive
         shell: bash
         run: |
           install="$RUNNER_TEMP/boo"
           mkdir -p "$install"
           archive=$(ls artifacts/boo-*-${{ matrix.rid }}.tar.gz)
-          zip=$(ls artifacts/boo-*-${{ matrix.rid }}.zip)
           case "${{ matrix.rid }}" in
             win-*) tar --force-local -xzf "$archive" -C "$install" ;;
             *) tar -xzf "$archive" -C "$install" ;;
           esac
+          echo "$install" >> "$GITHUB_PATH"
 
-          # The zip has to hold the same files, whichever platform it is for.
-          python=python3
-          "$python" -c pass 2>/dev/null || python=python
-          "$python" - "$zip" "$install" <<'PY'
-          import os, sys, zipfile
-          with zipfile.ZipFile(sys.argv[1]) as z:
-              assert z.testzip() is None
-              names = {n for n in z.namelist() if not n.endswith("/")}
-          disk = {os.path.relpath(os.path.join(d, f), sys.argv[2]).replace(os.sep, "/")
-                  for d, _, fs in os.walk(sys.argv[2]) for f in fs}
-          assert names == disk, sorted(names ^ disk)[:10]
-          PY
-
-          export PATH="$install:$PATH"
-
-          printf 'print "hello from boo"\n' > hello.boo
-          [ "$(booi hello.boo)" = "hello from boo" ]
-          booc -out:hello.exe hello.boo
-          [ -f hello.exe ]
-          booc -help > /dev/null
+      - name: Smoke test the archive
+        shell: bash
+        run: scripts/smoke-test-release.sh "$RUNNER_TEMP/boo" artifacts/boo-*-${{ matrix.rid }}.zip
 
       - uses: actions/upload-artifact@v7
         with:
@@ -130,7 +113,7 @@ jobs:
         working-directory: artifacts
         run: sha256sum boo-* > SHA256SUMS
 
-      - uses: actions/attest-build-provenance@v3
+      - uses: actions/attest-build-provenance@v4
         with:
           subject-path: artifacts/boo-*
 
