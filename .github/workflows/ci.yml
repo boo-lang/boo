@@ -58,3 +58,29 @@ jobs:
           name: test-results-${{ matrix.os }}
           path: '**/TestResults/*.trx'
           if-no-files-found: ignore
+
+  # The package a Boo project is built with, on each platform it will be used on.
+  sdk:
+    name: Boo.Sdk ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pack
+        shell: bash
+        run: |
+          dotnet pack src/Boo.Sdk/Boo.Sdk.csproj --configuration Release --output sdk-package
+          echo "BOO_VERSION=$(tr -d '[:space:]' < version.txt)" >> "$GITHUB_ENV"
+
+      - name: Smoke test the package
+        shell: bash
+        run: scripts/smoke-test-sdk.sh sdk-package "$BOO_VERSION"

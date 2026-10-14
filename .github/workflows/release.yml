@@ -9,8 +9,11 @@ name: Release
 # runs the CI suite, builds a tarball and a zip of a self contained build per platform, and
 # publishes them to a GitHub release along with checksums and build provenance.
 #
-# Run by hand from the Actions tab, it builds and smoke tests the archives
-# without publishing anything.
+# The Boo.Sdk package is packed and tested here too, and published to nuget.org
+# once the release exists using the Trusted Publishing workflow.
+#
+# Run by hand from the Actions tab, it builds and smoke tests the archives and
+# the package without publishing anything.
 
 on:
   push:
@@ -126,3 +129,69 @@ jobs:
             --title "Boo ${{ needs.verify.outputs.version }}" \
             --generate-notes \
             --verify-tag
+
+  pack-sdk:
+    name: Boo.Sdk package
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Pack
+        run: dotnet pack src/Boo.Sdk/Boo.Sdk.csproj --configuration Release --output sdk-package
+
+      - name: Smoke test the package
+        run: scripts/smoke-test-sdk.sh sdk-package "${{ needs.verify.outputs.version }}"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sdk-package
+          path: sdk-package/*.nupkg
+          if-no-files-found: error
+
+  publish-sdk:
+    name: Publish Boo.Sdk
+    if: github.ref_type == 'tag'
+    needs: [verify, test, pack-sdk, publish]
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: sdk-package
+          path: sdk-package
+
+      - name: Check the NuGet account is named
+        env:
+          NUGET_USER: ${{ vars.NUGET_USER }}
+        run: |
+          if [ -z "$NUGET_USER" ]; then
+            echo "::error::Set the NUGET_USER repository variable to the nuget.org account that owns Boo.Sdk and has the trusted publishing policy."
+            exit 1
+          fi
+
+      # Trades this run's identity for an API key that lasts a few minutes.
+      - name: NuGet login
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      - name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "sdk-package/Boo.Sdk.${{ needs.verify.outputs.version }}.nupkg" \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
