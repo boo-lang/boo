@@ -28,7 +28,6 @@
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
     <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
     <ProjectReference Include="../Boo.Lang.Lsp/Boo.Lang.Lsp.booproj" />
-    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Import Project="../../Boo.targets" />
