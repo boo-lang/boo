@@ -739,9 +739,47 @@ namespace Boo.Lang.Compiler.TypeSystem
 		private static bool IsConversionOperator(IMethod method, IType fromType, IType toType)
 		{
 			if (!method.IsStatic) return false;
+			if (!CanReadSignature(method)) return false;
 			if (method.ReturnType != toType) return false;
 			IParameter[] parameters = method.GetParameters();
 			return (1 == parameters.Length && fromType == parameters[0].Type);
+		}
+
+		/// <summary>
+		/// Whether the types in a method's signature can be loaded.
+		/// </summary>
+		/// <remarks>
+		/// A library can offer a method taking a type from an assembly the program
+		/// has no reference to, because it only matters to programs that use that
+		/// method. Reading such a signature fails, and looking at every overload or
+		/// conversion operator a type has should not fail because of the ones that
+		/// have nothing to do with the code being compiled.
+		/// </remarks>
+		public static bool CanReadSignature(IMethod method)
+		{
+			try
+			{
+				if (method.ReturnType == null) return false;
+				foreach (var parameter in method.GetParameters())
+					if (parameter.Type == null) return false;
+				return true;
+			}
+			catch (System.IO.FileNotFoundException)
+			{
+				return false;
+			}
+			catch (System.IO.FileLoadException)
+			{
+				return false;
+			}
+			catch (System.BadImageFormatException)
+			{
+				return false;
+			}
+			catch (System.TypeLoadException)
+			{
+				return false;
+			}
 		}
 
 		public bool IsCallableTypeAssignableFrom(ICallableType lhs, IType rhs)

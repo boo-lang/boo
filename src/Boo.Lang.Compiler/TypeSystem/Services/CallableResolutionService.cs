@@ -572,6 +572,10 @@ namespace Boo.Lang.Compiler.TypeSystem
 				IMethod method = entity as IMethod;
 				if (null == method) continue;
 
+				// Assume that an overload that takes a type from an unavailable
+				// assembly was not be what the call means.
+				if (!TypeSystemServices.CanReadSignature(method)) continue;
+
 				Candidate candidate = new Candidate(this, method);
 
 				_candidates.Add(candidate);

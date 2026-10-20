@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2009 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -103,6 +103,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 
 			foreach (var baseTypeRef in _typeDefinition.BaseTypes.ToArray())
 			{
+				ResolveBaseTypesOfGenericArguments(baseTypeRef, _visited);
 				NameResolutionService.ResolveTypeReference(baseTypeRef);
 
 				++_index;
@@ -126,6 +127,33 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 			}
 
 			LeaveGenericParametersNamespace(type);
+		}
+
+		// Extending Foo[of T] asks whether T satisfies Foo's constraints. T may 
+		// be declared further on, with its own base types not yet bound, so
+		// bind them first.
+		private void ResolveBaseTypesOfGenericArguments(TypeReference typeRef, List<TypeDefinition> visited)
+		{
+			if (typeRef is not GenericTypeReference generic)
+				return;
+
+			foreach (var argument in generic.GenericArguments.ToArray())
+			{
+				ResolveBaseTypesOfGenericArguments(argument, visited);
+
+				NameResolutionService.ResolveTypeReference(argument);
+				if (argument.Entity is not AbstractInternalType argumentType)
+					continue;
+
+				// A type already being resolved is further up the chain. It
+				// cannot be resolved again from here, and it is the one case a
+				// constraint on itself is allowed to see unfinished.
+				var definition = argumentType.TypeDefinition;
+				if (visited.Contains(definition) || definition == _typeDefinition)
+					continue;
+
+				_ = new BaseTypeResolution(Context, definition, new List<TypeDefinition>(visited));
+			}
 		}
 
 		private bool IsEnclosingType(TypeDefinition node)

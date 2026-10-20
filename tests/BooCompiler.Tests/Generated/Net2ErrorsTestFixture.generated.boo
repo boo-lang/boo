@@ -61,6 +61,10 @@ partial class Net2ErrorsTestFixture:
 		RunCompilerTestCase("BCE0149-5.boo")
 
 	[Test]
+	def @BCE0149_6():
+		RunCompilerTestCase("BCE0149-6.boo")
+
+	[Test]
 	def @BCE0159():
 		RunCompilerTestCase("BCE0159.boo")
 

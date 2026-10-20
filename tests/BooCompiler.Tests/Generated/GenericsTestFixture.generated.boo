@@ -21,6 +21,10 @@ partial class GenericsTestFixture:
 		RunCompilerTestCase("automatic-generic-method-stub.boo")
 
 	[Test]
+	def @base_type_argument_declared_later_1():
+		RunCompilerTestCase("base-type-argument-declared-later-1.boo")
+
+	[Test]
 	def @callable_1():
 		RunCompilerTestCase("callable-1.boo")
 
