@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
     <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
-    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained;PublishDir" Publish="false" Private="false" ExcludeAssets="all" />
   </ItemGroup>
 
   <Import Project="../../Boo.targets" />

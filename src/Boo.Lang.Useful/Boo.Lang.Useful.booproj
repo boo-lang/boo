@@ -12,7 +12,6 @@
     <ProjectReference Include="../Boo.Lang.Parser/Boo.Lang.Parser.csproj" />
     <ProjectReference Include="../Boo.Lang.Extensions/Boo.Lang.Extensions.booproj" />
     <ProjectReference Include="../Boo.Lang.PatternMatching/Boo.Lang.PatternMatching.booproj" />
-    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Import Project="../../Boo.targets" />

@@ -10,7 +10,6 @@
     <ProjectReference Include="../Boo.Lang/Boo.Lang.csproj" />
     <ProjectReference Include="../Boo.Lang.Compiler/Boo.Lang.Compiler.csproj" />
     <ProjectReference Include="../Boo.Lang.Useful/Boo.Lang.Useful.booproj" />
-    <ProjectReference Include="../booc/booc.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Import Project="../../Boo.targets" />
