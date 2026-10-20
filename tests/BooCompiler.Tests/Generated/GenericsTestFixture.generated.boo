@@ -277,6 +277,14 @@ partial class GenericsTestFixture:
 		RunCompilerTestCase("interface-1.boo")
 
 	[Test]
+	def @interface_constraint_argument_1():
+		RunCompilerTestCase("interface-constraint-argument-1.boo")
+
+	[Test]
+	def @interface_constraint_argument_2():
+		RunCompilerTestCase("interface-constraint-argument-2.boo")
+
+	[Test]
 	def @interface_with_generic_method():
 		RunCompilerTestCase("interface-with-generic-method.boo")
 

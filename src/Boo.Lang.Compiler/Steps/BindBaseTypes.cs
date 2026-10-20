@@ -71,6 +71,12 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			// skip method bodies
 		}
+
+		public override void OnTypeMemberStatement(TypeMemberStatement node)
+		{
+			// A type declared inside a macro's body is no member of anything yet.
+			// Defer binding until after macro expansion.
+		}
 		
 		void CheckBaseTypes(ClassDefinition node)
 		{

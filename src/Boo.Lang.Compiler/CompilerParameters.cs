@@ -294,12 +294,12 @@ namespace Boo.Lang.Compiler
 			catch (BadImageFormatException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_BadFormat, e.FusionLog), e);
+					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_BadFormat, DescribeLoadFailure(assembly, e, e.FusionLog)), e);
 			}
 			catch (FileLoadException e)
 			{
 				if (throwOnError)
-					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_UnableToLoadAssembly, e.FusionLog), e);
+					throw new ApplicationException(string.Format(Boo.Lang.Resources.StringResources.BooC_UnableToLoadAssembly, DescribeLoadFailure(assembly, e, e.FusionLog)), e);
 			}
 			catch (ArgumentNullException e)
 			{
@@ -308,6 +308,9 @@ namespace Boo.Lang.Compiler
 			}
 			return a ?? LoadAssemblyFromLibPaths(assembly, false);
 		}
+
+		private static string DescribeLoadFailure(string assembly, Exception failure, string fusionLog)
+			=> string.IsNullOrEmpty(fusionLog) ? $"{assembly} ({failure.Message})" : fusionLog;
 
 		private Assembly LoadAssemblyFromLibPaths(string assembly, bool throwOnError)
 		{

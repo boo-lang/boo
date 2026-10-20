@@ -59,3 +59,14 @@ class LoadAssemblyTest:
 		parameters = CompilerParameters(false)
 		parameters.LibPaths.Add(directory)
 		Assert.IsNull(parameters.LoadAssembly("NotReally.dll", false))
+
+	[Test]
+	def SaysWhichAssemblyItCouldNotLoad():
+	"""
+	The message used to end after its colon: the name was taken from the
+	fusion log, which only the .NET Framework has.
+	"""
+		path = Path.Combine(directory, "Broken.dll")
+		File.WriteAllText(path, "not an assembly")
+		e = Assert.Throws[of ApplicationException]({ CompilerParameters(false).LoadAssembly(path) })
+		Assert.That(e.Message, Does.Contain(path))

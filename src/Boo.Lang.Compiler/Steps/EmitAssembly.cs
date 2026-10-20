@@ -366,52 +366,62 @@ namespace Boo.Lang.Compiler.Steps
 
 		delegate void CustomAttributeSetter(CustomAttributeBuilder attribute);
 
-		void EmitAttributes(INodeWithAttributes node, CustomAttributeSetter setCustomAttribute)
+		delegate void CustomAttributeBlobSetter(ConstructorInfo constructor, byte[] data);
+
+		void EmitAttributes(INodeWithAttributes node, CustomAttributeSetter setCustomAttribute, CustomAttributeBlobSetter setCustomAttributeBlob)
 		{
 			foreach (Attribute attribute in node.Attributes)
-				setCustomAttribute(GetCustomAttributeBuilder(attribute));
+			{
+				// CustomAttributeBuilder cannot take a value for a parameter whose
+				// type is an enum still being built, so those attributes are
+				// written out as the bytes the metadata holds.
+				if (TakesInternalEnum(attribute))
+					setCustomAttributeBlob(GetConstructorInfo((IConstructor)GetEntity(attribute)), EncodeAttribute(attribute));
+				else
+					setCustomAttribute(GetCustomAttributeBuilder(attribute));
+			}
 		}
 
 		void EmitPropertyAttributes(Property node)
 		{
 			PropertyBuilder builder = GetPropertyBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, builder.SetCustomAttribute);
 		}
 
 		void EmitParameterAttributes(ParameterDeclaration node)
 		{
 			ParameterBuilder builder = (ParameterBuilder)GetBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, builder.SetCustomAttribute);
 		}
 
 		void EmitEventAttributes(Event node)
 		{
 			EventBuilder builder = (EventBuilder)GetBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, builder.SetCustomAttribute);
 		}
 
 		void EmitConstructorAttributes(Constructor node)
 		{
 			ConstructorBuilder builder = (ConstructorBuilder)GetBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, builder.SetCustomAttribute);
 		}
 
 		void EmitMethodAttributes(Method node)
 		{
 			MethodBuilder builder = GetMethodBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, builder.SetCustomAttribute);
 		}
 
 		void EmitTypeAttributes(TypeDefinition node)
 		{
 			TypeBuilder builder = GetTypeBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, builder.SetCustomAttribute);
 		}
 
 		void EmitFieldAttributes(TypeMember node)
 		{
 			FieldBuilder builder = GetFieldBuilder(node);
-			EmitAttributes(node, builder.SetCustomAttribute);
+			EmitAttributes(node, builder.SetCustomAttribute, builder.SetCustomAttribute);
 		}
 
 		void EmitAttributes()
@@ -5531,6 +5541,211 @@ namespace Boo.Lang.Compiler.Steps
 					namedFields, fieldValues);
 			}
 			return new CustomAttributeBuilder(constructorInfo, constructorArgs);
+		}
+
+		private static bool IsInternalEnum(IType type)
+		{
+			while (type?.IsArray == true)
+			{
+				type = type.ElementType;
+			}
+			return type != null && type.IsEnum && type is IInternalEntity;
+		}
+
+		private bool TakesInternalEnum(Attribute node)
+		{
+			var constructor = (IConstructor)GetEntity(node);
+			if (constructor.GetParameters().Any(p => IsInternalEnum(p.Type)))
+			{
+				return true;
+			}
+			foreach (ExpressionPair pair in node.NamedArguments)
+			{
+				if (IsInternalEnum(((ITypedEntity)GetEntity(pair.First)).Type))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// The custom attribute blob of ECMA-335 II.23.3, for the attributes
+		// CustomAttributeBuilder cannot encode.
+		private byte[] EncodeAttribute(Attribute node)
+		{
+			var constructor = (IConstructor)GetEntity(node);
+			var parameters = constructor.GetParameters();
+			var arguments = ArgumentsForAttributeConstructor(constructor, node.Arguments);
+
+			using var stream = new MemoryStream();
+			using var writer = new BinaryWriter(stream);
+			writer.Write((ushort)1);
+			for (var i = 0; i < parameters.Length; ++i)
+			{
+				WriteAttributeValue(writer, parameters[i].Type, arguments[i]);
+			}
+
+			var named = node.NamedArguments;
+			writer.Write((ushort)named.Count);
+			foreach (ExpressionPair pair in named)
+			{
+				var entity = (ITypedEntity)GetEntity(pair.First);
+				writer.Write((byte)(entity.EntityType == EntityType.Property ? 0x54 : 0x53));
+				WriteAttributeValueType(writer, entity.Type);
+				WriteSerString(writer, entity.Name);
+				WriteAttributeValue(writer, entity.Type, GetValue(entity.Type, pair.Second));
+			}
+			writer.Flush();
+			return stream.ToArray();
+		}
+
+		private static void WriteSerString(BinaryWriter writer, string value)
+		{
+			if (value == null)
+			{
+				writer.Write((byte)0xFF);
+				return;
+			}
+			var bytes = Encoding.UTF8.GetBytes(value);
+			var length = bytes.Length;
+			if (length < 0x80)
+			{
+				writer.Write((byte)length);
+			}
+			else if (length < 0x4000)
+			{
+				writer.Write((byte)(0x80 | (length >> 8)));
+				writer.Write((byte)length);
+			}
+			else
+			{
+				writer.Write((byte)(0xC0 | (length >> 24)));
+				writer.Write((byte)(length >> 16));
+				writer.Write((byte)(length >> 8));
+				writer.Write((byte)length);
+			}
+			writer.Write(bytes);
+		}
+
+		private static byte ElementTypeOf(TypeCode code) => code switch
+		{
+			TypeCode.Boolean => 0x02,
+			TypeCode.Char => 0x03,
+			TypeCode.SByte => 0x04,
+			TypeCode.Byte => 0x05,
+			TypeCode.Int16 => 0x06,
+			TypeCode.UInt16 => 0x07,
+			TypeCode.Int32 => 0x08,
+			TypeCode.UInt32 => 0x09,
+			TypeCode.Int64 => 0x0A,
+			TypeCode.UInt64 => 0x0B,
+			TypeCode.Single => 0x0C,
+			TypeCode.Double => 0x0D,
+			TypeCode.String => 0x0E,
+			_ => throw new NotSupportedException("attribute value of type " + code),
+		};
+
+		private static string AttributeTypeName(Type type) 
+			=> type is TypeBuilder ? type.FullName : type.AssemblyQualifiedName;
+
+		// FieldOrPropType, as a named argument states it.
+		private void WriteAttributeValueType(BinaryWriter writer, IType type)
+		{
+			if (type.IsArray)
+			{
+				writer.Write((byte)0x1D);
+				WriteAttributeValueType(writer, type.ElementType);
+			}
+			else if (type.IsEnum)
+			{
+				writer.Write((byte)0x55);
+				WriteSerString(writer, AttributeTypeName(GetSystemType(type)));
+			}
+			else if (type == TypeSystemServices.ObjectType)
+			{
+				writer.Write((byte)0x51);
+			}
+			else if (type == TypeSystemServices.TypeType)
+			{
+				writer.Write((byte)0x50);
+			}
+			else
+			{
+				writer.Write(ElementTypeOf(Type.GetTypeCode(GetSystemType(type))));
+			}
+		}
+
+		private void WriteAttributeValue(BinaryWriter writer, IType type, object value)
+		{
+			if (type.IsArray)
+			{
+				if (value is not IEnumerable elements)
+				{
+					writer.Write(-1);
+					return;
+				}
+				var items = elements.Cast<object>().ToArray();
+				writer.Write(items.Length);
+				foreach (var item in items)
+				{
+					WriteAttributeValue(writer, type.ElementType, item);
+				}
+				return;
+			}
+
+			if (type.IsEnum)
+			{
+				WritePrimitive(writer, Type.GetTypeCode(GetEnumUnderlyingType(type)), value);
+				return;
+			}
+
+			if (type == TypeSystemServices.TypeType)
+			{
+				WriteSerString(writer, value == null ? null : AttributeTypeName((Type)value));
+				return;
+			}
+
+			if (type == TypeSystemServices.ObjectType)
+			{
+				if (value == null)
+				{
+					throw new NotSupportedException("a null attribute argument of type object");
+				}
+				var valueType = value as Type;
+				if (valueType != null)
+				{
+					writer.Write((byte)0x50);
+					WriteSerString(writer, AttributeTypeName(valueType));
+					return;
+				}
+				var code = Type.GetTypeCode(value.GetType());
+				writer.Write(ElementTypeOf(code));
+				WritePrimitive(writer, code, value);
+				return;
+			}
+
+			WritePrimitive(writer, Type.GetTypeCode(GetSystemType(type)), value);
+		}
+
+		private static void WritePrimitive(BinaryWriter writer, TypeCode code, object value)
+		{
+			switch (code)
+			{
+				case TypeCode.Boolean: writer.Write(Convert.ToBoolean(value) ? (byte)1 : (byte)0); break;
+				case TypeCode.Char: writer.Write((ushort)Convert.ToChar(value)); break;
+				case TypeCode.SByte: writer.Write(Convert.ToSByte(value)); break;
+				case TypeCode.Byte: writer.Write(Convert.ToByte(value)); break;
+				case TypeCode.Int16: writer.Write(Convert.ToInt16(value)); break;
+				case TypeCode.UInt16: writer.Write(Convert.ToUInt16(value)); break;
+				case TypeCode.Int32: writer.Write(Convert.ToInt32(value)); break;
+				case TypeCode.UInt32: writer.Write(Convert.ToUInt32(value)); break;
+				case TypeCode.Int64: writer.Write(Convert.ToInt64(value)); break;
+				case TypeCode.UInt64: writer.Write(Convert.ToUInt64(value)); break;
+				case TypeCode.Single: writer.Write(Convert.ToSingle(value)); break;
+				case TypeCode.Double: writer.Write(Convert.ToDouble(value)); break;
+				case TypeCode.String: WriteSerString(writer, (string)value); break;
+				default: throw new NotSupportedException("attribute value of type " + code);
+			}
 		}
 
 		void GetNamedValues(ExpressionPairCollection values,

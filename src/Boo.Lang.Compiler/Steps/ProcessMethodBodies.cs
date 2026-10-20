@@ -893,6 +893,11 @@ namespace Boo.Lang.Compiler.Steps
 
 		private void ProcessClosureInMethodInvocation(GenericParameterInferrer inferrer, BlockExpression closure, ICallableType formalType)
 		{
+			if (WasVisited(closure))
+			{
+				return;
+			}
+
 			var sig = formalType.GetSignature();
 
 			var replacer = new TypeReplacer();
@@ -1127,7 +1132,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		static void SetPropertyAccessorOverride(Method accessor)
 		{
-			if (null == accessor) return;
+			if (null == accessor || accessor.IsNew) return;
 			accessor.Modifiers |= TypeMemberModifiers.Override;
 		}
 
@@ -1152,16 +1157,22 @@ namespace Boo.Lang.Compiler.Steps
 
 		void ResolvePropertyOverride(Property property)
 		{
+			if (property.IsNew)
+			{
+				return;
+			}
+
 			var overriden = FindPropertyOverridenBy(property);
 			if (overriden == null)
+			{
 				return;
+			}
 
 			EntityFor(property).Overriden = overriden;
 			EnsureRelatedNodeWasVisited(property, overriden);
 			PropagateOverrideToAccessors(property);
 
-			if (property.Type == null)
-				property.Type = CodeBuilder.CreateTypeReference(EntityFor(property).Overriden.Type);
+			property.Type ??= CodeBuilder.CreateTypeReference(EntityFor(property).Overriden.Type);
 		}
 
 		private void PropagateOverrideToAccessors(Property property)
@@ -2010,9 +2021,9 @@ namespace Boo.Lang.Compiler.Steps
 			BindExpressionType(node, toType);
 		}
 
-		protected Expression CreateMemberReferenceTarget(Node sourceNode, IMember member)
+		protected virtual Expression CreateMemberReferenceTarget(Node sourceNode, IMember member)
 		{
-			Expression target = null;
+			Expression target;
 
 			if (member.IsStatic)
 			{
@@ -6244,7 +6255,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		protected virtual void VisitMemberPreservingContext(TypeMember node)
 		{
-			INamespace saved = NameResolutionService.CurrentNamespace;
+			var saved = NameResolutionService.SaveScope();
 			try
 			{
 				NameResolutionService.EnterNamespace((INamespace)node.DeclaringType.Entity);
@@ -6252,7 +6263,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 			finally
 			{
-				NameResolutionService.EnterNamespace(saved);
+				NameResolutionService.RestoreScope(saved);
 			}
 		}
 

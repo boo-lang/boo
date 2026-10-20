@@ -204,7 +204,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 
 		private void ForEachReifier<T>(Action<T> action) where T: class
 		{
-			var currentScope = NameResolutionService.CurrentNamespace;
+			var currentScope = NameResolutionService.SaveScope();
 			try
 			{
 				var pipeline = Parameters.Pipeline;
@@ -223,7 +223,7 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			}
 			finally
 			{
-				NameResolutionService.EnterNamespace(currentScope);
+				NameResolutionService.RestoreScope(currentScope);
 			}
 		}
 		

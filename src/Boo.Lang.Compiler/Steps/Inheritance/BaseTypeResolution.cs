@@ -52,7 +52,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 			_index = -1;
 
 			NameResolutionService nameResolution = NameResolutionService;
-			INamespace previous = nameResolution.CurrentNamespace;
+			var previous = nameResolution.SaveScope();
 			nameResolution.EnterNamespace(ParentNamespaceOf(_typeDefinition));
 			try
 			{
@@ -60,7 +60,7 @@ namespace Boo.Lang.Compiler.Steps.Inheritance
 			}
 			finally
 			{
-				nameResolution.EnterNamespace(previous);
+				nameResolution.RestoreScope(previous);
 			}
 		}
 
