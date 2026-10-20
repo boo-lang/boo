@@ -171,21 +171,13 @@ jobs:
           name: sdk-package
           path: sdk-package
 
-      - name: Check the NuGet account is named
-        env:
-          NUGET_USER: ${{ vars.NUGET_USER }}
-        run: |
-          if [ -z "$NUGET_USER" ]; then
-            echo "::error::Set the NUGET_USER repository variable to the nuget.org account that owns Boo.Sdk and has the trusted publishing policy."
-            exit 1
-          fi
-
       # Trades this run's identity for an API key that lasts a few minutes.
       - name: NuGet login
         id: login
         uses: NuGet/login@v1
         with:
-          user: ${{ vars.NUGET_USER }}
+          # Mason Wheeler's NuGet ID
+          user: Pansynchro
 
       - name: Push to nuget.org
         env:
