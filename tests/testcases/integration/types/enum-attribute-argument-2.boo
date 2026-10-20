@@ -1,7 +1,7 @@
 """
 Kind B True
 Small Y True
-7 B
+B True
 """
 import System
 import System.Reflection
@@ -39,6 +39,6 @@ for t in (One, Two):
 	print a.Value.GetType().Name, a.Value, a.Value isa Enum
 
 mark as MarkAttribute = Attribute.GetCustomAttribute(typeof(One).Assembly, MarkAttribute)
-print cast(int, mark.Kind), mark.Kind
+print mark.Kind, mark.Kind == Kind.B
 
 [assembly: Mark(Kind.B)]
