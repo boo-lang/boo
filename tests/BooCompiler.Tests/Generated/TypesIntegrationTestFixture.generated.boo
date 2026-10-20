@@ -102,6 +102,10 @@ class TypesIntegrationTestFixture(AbstractCompilerTestCase):
 		RunCompilerTestCase("enum-attribute-argument-1.boo")
 
 	[Test]
+	def @enum_attribute_argument_2():
+		RunCompilerTestCase("enum-attribute-argument-2.boo")
+
+	[Test]
 	def @enum_cast_to_single():
 		RunCompilerTestCase("enum-cast-to-single.boo")
 

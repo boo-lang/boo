@@ -891,6 +891,9 @@ namespace Boo.Lang.Compiler.Steps
 			get { return _currentMethod.Method; }
 		}
 
+		private const string PristineClosureAnnotation = "$PristineClosure";
+		private const string ClosureBinderAnnotation = "$ClosureBinder";
+
 		private void ProcessClosureInMethodInvocation(GenericParameterInferrer inferrer, BlockExpression closure, ICallableType formalType)
 		{
 			if (WasVisited(closure))
@@ -916,6 +919,10 @@ namespace Boo.Lang.Compiler.Steps
 					replacer.Replace(typeParameter, inferredType);
 			}
 
+			// Binding the closure changes it, and another overload of the same call
+			// may need it in its original form.
+			closure[PristineClosureAnnotation] = closure.CloneNode();
+
 			for (var i = 0; i < sig.Parameters.Length; i++)
 			{
 				var pd = closure.Parameters[i];
@@ -924,6 +931,58 @@ namespace Boo.Lang.Compiler.Steps
 			}
 
 			ProcessClosureBody(closure);
+			closure[ClosureBinderAnnotation] = inferrer.GenericMethod;
+		}
+
+		/// <summary>
+		/// Puts back the original form of the closures among the arguments that the
+		/// inference for some other overload bound, so that this one can bind them
+		/// to its own parameter types.
+		/// </summary>
+		/// <returns>true if any closure is not bound for this candidate.</returns>
+		private bool ResetClosuresBoundByOtherCandidates(ExpressionCollection arguments, IMethod candidate)
+		{
+			var needsBinding = false;
+			foreach (var closure in arguments.OfType<BlockExpression>())
+			{
+				var pristine = closure[PristineClosureAnnotation] as BlockExpression;
+				if (pristine == null) continue;
+
+				var binder = closure[ClosureBinderAnnotation] as IMethod;
+				if (binder == candidate) continue;
+				needsBinding = true;
+				if (binder == null) continue;
+
+				var previous = closure.Entity as InternalMethod;
+				if (previous != null)
+					previous.Method.DeclaringType.Members.Remove(previous.Method);
+
+				var fresh = (BlockExpression)pristine.CloneNode();
+				closure.Parameters = fresh.Parameters;
+				closure.Body = fresh.Body;
+				closure.Entity = null;
+				closure.ExpressionType = null;
+				closure.RemoveAnnotation(ClosureBinderAnnotation);
+				UnmarkVisited(closure);
+			}
+			return needsBinding;
+		}
+
+		private static bool ClosuresAreBound(MethodInvocationExpression node)
+		{
+			return node.Arguments.OfType<BlockExpression>()
+				.All(c => c[PristineClosureAnnotation] == null || c[ClosureBinderAnnotation] != null);
+		}
+
+		private void BindClosuresFor(MethodInvocationExpression node, Dictionary<IMethod, IMethod> definitions, IMethod candidate)
+		{
+			IMethod definition;
+			if (candidate == null || !definitions.TryGetValue(candidate, out definition)) return;
+			if (!ResetClosuresBoundByOtherCandidates(node.Arguments, definition)) return;
+
+			var inferrer = new GenericParameterInferrer(Context, definition, node.Arguments);
+			inferrer.ResolveClosure += ProcessClosureInMethodInvocation;
+			inferrer.Run();
 		}
 
 		private TypeMemberModifiers ClosureModifiers()
@@ -4083,12 +4142,14 @@ namespace Boo.Lang.Compiler.Steps
 		private IEntity ResolveCallableReference(MethodInvocationExpression node, Ambiguous entity)
 		{
 			var genericService = My<GenericsServices>.Instance;
+			var definitions = new Dictionary<IMethod, IMethod>();
 			var methods = entity.Entities
 				.OfType<IMethod>()
 				.Select(m => {
 					if (m.GenericInfo == null)
 						return m;
 
+					ResetClosuresBoundByOtherCandidates(node.Arguments, m);
 					var inferrer = new GenericParameterInferrer(Context, m, node.Arguments);
 					inferrer.ResolveClosure += ProcessClosureInMethodInvocation;
 					if (!inferrer.Run())
@@ -4096,8 +4157,17 @@ namespace Boo.Lang.Compiler.Steps
 					var arguments = inferrer.GetInferredTypes();
 					if (arguments == null || !genericService.CheckGenericConstruction(m, arguments))
 						return null;
-					return m.GenericInfo.ConstructMethod(arguments);
+					var constructed = m.GenericInfo.ConstructMethod(arguments);
+					definitions[constructed] = m;
+					return constructed;
 				}).Where(m => m != null).ToArray();
+
+			// A candidate that cannot take the closures leaves them unbound.
+			for (var i = methods.Length - 1; i >= 0; --i)
+			{
+				BindClosuresFor(node, definitions, methods[i]);
+				if (ClosuresAreBound(node)) break;
+			}
 
             //check for unprocessed deferred closures
             var orphanClosures = node.Arguments
@@ -4114,6 +4184,9 @@ namespace Boo.Lang.Compiler.Steps
 			var resolved = CallableResolutionService.ResolveCallableReference(node.Arguments, methods);
 			if (null == resolved)
 				return null;
+
+			// The closures may have last been bound for a different candidate.
+			BindClosuresFor(node, definitions, resolved as IMethod);
 
 			IMember member = (IMember)resolved;
 			if (NodeType.ReferenceExpression == node.Target.NodeType)

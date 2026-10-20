@@ -4571,9 +4571,21 @@ namespace Boo.Lang.Compiler.Steps
 		{
 			foreach (Attribute attribute in _assemblyAttributes)
 			{
+				if (TakesInternalEnum(attribute))
+				{
+					// The builder cannot take these (see EmitAttributes).
+					var constructor = GetConstructorInfo((IConstructor)GetEntity(attribute));
+					var blob = EncodeAttribute(attribute);
+					if (constructor is ConstructorBuilder builtHere && DeferredAssemblyAttributes.CanDefer)
+						DeferredAssemblyAttributes.Defer(Context, builtHere, blob);
+					else
+						_asmBuilder.SetCustomAttribute(constructor, blob);
+					continue;
+				}
+
 				var builder = GetCustomAttributeBuilder(attribute);
 				if (DeferredAssemblyAttributes.Defers(builder))
-					ContextAnnotations.AddDeferredAssemblyAttribute(Context, builder);
+					DeferredAssemblyAttributes.Defer(Context, builder);
 				else
 					_asmBuilder.SetCustomAttribute(builder);
 			}
@@ -5552,16 +5564,27 @@ namespace Boo.Lang.Compiler.Steps
 			return type != null && type.IsEnum && type is IInternalEntity;
 		}
 
+		// An enum of this assembly passed where an object is expected.
+		private bool HoldsInternalEnum(IType parameterType, Expression argument)
+		{
+			return parameterType == TypeSystemServices.ObjectType && IsInternalEnum(argument.ExpressionType);
+		}
+
 		private bool TakesInternalEnum(Attribute node)
 		{
 			var constructor = (IConstructor)GetEntity(node);
-			if (constructor.GetParameters().Any(p => IsInternalEnum(p.Type)))
+			var parameters = constructor.GetParameters();
+			for (var i = 0; i < parameters.Length && i < node.Arguments.Count; ++i)
 			{
-				return true;
+				if (IsInternalEnum(parameters[i].Type) || HoldsInternalEnum(parameters[i].Type, node.Arguments[i]))
+				{
+					return true;
+				}
 			}
 			foreach (ExpressionPair pair in node.NamedArguments)
 			{
-				if (IsInternalEnum(((ITypedEntity)GetEntity(pair.First)).Type))
+				var type = ((ITypedEntity)GetEntity(pair.First)).Type;
+				if (IsInternalEnum(type) || HoldsInternalEnum(type, pair.Second))
 				{
 					return true;
 				}
@@ -5582,7 +5605,7 @@ namespace Boo.Lang.Compiler.Steps
 			writer.Write((ushort)1);
 			for (var i = 0; i < parameters.Length; ++i)
 			{
-				WriteAttributeValue(writer, parameters[i].Type, arguments[i]);
+				WriteAttributeValue(writer, parameters[i].Type, arguments[i], i < node.Arguments.Count ? node.Arguments[i] : null);
 			}
 
 			var named = node.NamedArguments;
@@ -5593,7 +5616,7 @@ namespace Boo.Lang.Compiler.Steps
 				writer.Write((byte)(entity.EntityType == EntityType.Property ? 0x54 : 0x53));
 				WriteAttributeValueType(writer, entity.Type);
 				WriteSerString(writer, entity.Name);
-				WriteAttributeValue(writer, entity.Type, GetValue(entity.Type, pair.Second));
+				WriteAttributeValue(writer, entity.Type, GetValue(entity.Type, pair.Second), pair.Second);
 			}
 			writer.Flush();
 			return stream.ToArray();
@@ -5675,7 +5698,7 @@ namespace Boo.Lang.Compiler.Steps
 			}
 		}
 
-		private void WriteAttributeValue(BinaryWriter writer, IType type, object value)
+		private void WriteAttributeValue(BinaryWriter writer, IType type, object value, Expression source)
 		{
 			if (type.IsArray)
 			{
@@ -5688,7 +5711,7 @@ namespace Boo.Lang.Compiler.Steps
 				writer.Write(items.Length);
 				foreach (var item in items)
 				{
-					WriteAttributeValue(writer, type.ElementType, item);
+					WriteAttributeValue(writer, type.ElementType, item, null);
 				}
 				return;
 			}
@@ -5710,6 +5733,15 @@ namespace Boo.Lang.Compiler.Steps
 				if (value == null)
 				{
 					throw new NotSupportedException("a null attribute argument of type object");
+				}
+				// An enum travels as its own type, which the value alone no longer says.
+				var enumType = source?.ExpressionType;
+				if (enumType != null && enumType.IsEnum)
+				{
+					writer.Write((byte)0x55);
+					WriteSerString(writer, AttributeTypeName(GetSystemType(enumType)));
+					WritePrimitive(writer, Type.GetTypeCode(GetEnumUnderlyingType(enumType)), value);
+					return;
 				}
 				var valueType = value as Type;
 				if (valueType != null)

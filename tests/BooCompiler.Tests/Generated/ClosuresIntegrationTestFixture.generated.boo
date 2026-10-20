@@ -189,5 +189,9 @@ class ClosuresIntegrationTestFixture(AbstractCompilerTestCase):
 	def @overloaded_generic_call_2():
 		RunCompilerTestCase("overloaded-generic-call-2.boo")
 
+	[Test]
+	def @overloaded_generic_call_3():
+		RunCompilerTestCase("overloaded-generic-call-3.boo")
+
 	override protected def GetRelativeTestCasesPath() as string:
 		return "integration/closures"

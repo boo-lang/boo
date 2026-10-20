@@ -456,6 +456,8 @@ the first step out of that.
 	"""Where the runtimes are installed, or null if they cannot be found."""
 		candidates = List[of string]()
 		candidates.Add(Environment.GetEnvironmentVariable("DOTNET_ROOT"))
+		# The running runtime is <root>/shared/<framework>/<version>/, wherever it was installed.
+		candidates.Add(Path.GetFullPath(Path.Combine(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "..", "..", "..")))
 		candidates.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet"))
 		candidates.Add("/usr/share/dotnet")
 		candidates.Add("/usr/lib/dotnet")
