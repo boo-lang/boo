@@ -21,6 +21,10 @@ partial class GenericsTestFixture:
 		RunCompilerTestCase("automatic-generic-method-stub.boo")
 
 	[Test]
+	def @base_type_argument_declared_later_1():
+		RunCompilerTestCase("base-type-argument-declared-later-1.boo")
+
+	[Test]
 	def @callable_1():
 		RunCompilerTestCase("callable-1.boo")
 
@@ -275,6 +279,14 @@ partial class GenericsTestFixture:
 	[Test]
 	def @interface_1():
 		RunCompilerTestCase("interface-1.boo")
+
+	[Test]
+	def @interface_constraint_argument_1():
+		RunCompilerTestCase("interface-constraint-argument-1.boo")
+
+	[Test]
+	def @interface_constraint_argument_2():
+		RunCompilerTestCase("interface-constraint-argument-2.boo")
 
 	[Test]
 	def @interface_with_generic_method():

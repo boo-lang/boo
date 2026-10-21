@@ -346,6 +346,54 @@ class ProjectTestFixture:
 		WriteAssets("ref/net10.0/Fake.dll")
 		assert Joined(Project.References(project)) == reference
 
+	private def WriteFrameworkAssets():
+	"""An assets file for a project that asked for the Windows Forms framework."""
+		Write("app/obj/project.assets.json", """
+		{
+		  "version": 3,
+		  "targets": { "net10.0-windows7.0": {} },
+		  "libraries": {},
+		  "packageFolders": {},
+		  "project": {
+		    "frameworks": {
+		      "net10.0-windows7.0": {
+		        "frameworkReferences": {
+		          "Microsoft.NETCore.App": { "privateAssets": "all" },
+		          "Microsoft.WindowsDesktop.App.WindowsForms": { "privateAssets": "none" }
+		        }
+		      }
+		    }
+		  }
+		}
+		""")
+
+	private def WithDotnetRoot(action as callable()):
+		saved = Environment.GetEnvironmentVariable("DOTNET_ROOT")
+		Environment.SetEnvironmentVariable("DOTNET_ROOT", Path.Combine(root, "dotnet"))
+		try:
+			action()
+		ensure:
+			Environment.SetEnvironmentVariable("DOTNET_ROOT", saved)
+
+	[Test]
+	def ReferencesTheSharedFrameworkTheProjectAskedFor():
+	"""The compiler's own runtime has only the base framework, so Windows Forms has to be added."""
+		project = Write("app/App.booproj", "<Project />")
+		WriteFrameworkAssets()
+		old = WriteAssembly("dotnet/shared/Microsoft.WindowsDesktop.App/9.0.2/System.Windows.Forms.dll", 1)
+		current = WriteAssembly("dotnet/shared/Microsoft.WindowsDesktop.App/10.0.1/System.Windows.Forms.dll", 1)
+		WriteAssembly("dotnet/shared/Microsoft.WindowsDesktop.App/99.0.0/System.Windows.Forms.dll", 1)
+		WithDotnetRoot:
+			assert Joined(Project.References(project)) == current
+
+	[Test]
+	def LeavesTheSharedFrameworkAloneWhenTheProjectDidNotAskForIt():
+		project = Write("app/App.booproj", "<Project />")
+		Write("app/obj/project.assets.json", """{ "version": 3, "targets": {}, "libraries": {}, "packageFolders": {} }""")
+		WriteAssembly("dotnet/shared/Microsoft.WindowsDesktop.App/10.0.1/System.Windows.Forms.dll", 1)
+		WithDotnetRoot:
+			assert Project.References(project).Count == 0
+
 	[Test]
 	def TakesOnlySoManyFilesFromABigDirectory():
 	"""

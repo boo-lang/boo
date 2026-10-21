@@ -9,6 +9,13 @@
     directly. It has to: the projects it builds come before this task assembly
     in the build order, so the task does not exist yet when they compile.
 
+    The task assembly is a .NET assembly and only the .NET (dotnet build)
+    MSBuild can load it. Visual Studio builds with the .NET Framework MSBuild,
+    so there the same switches go to booc through a response file written to the
+    intermediate folder (booc.rsp), and its output is read back by an inline
+    task. The two paths are meant to produce the same command line; a switch
+    added to the Booc task call has to be added to the response file too.
+
     Import it from an SDK-style project:
 
       <Project Sdk="Microsoft.NET.Sdk">
@@ -34,12 +41,95 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 
+    <!--
+      Set to true to build without booc's default libraries. This is not
+      NoStandardLib: the SDK turns that on for every project, because it compiles
+      against reference assemblies, and booc loads the framework from the
+      running runtime instead.
+    -->
+    <BooNoStdLib Condition=" '$(BooNoStdLib)' == '' ">false</BooNoStdLib>
+
     <!-- booc emits no reference assembly. -->
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
 
+  <!--
+    Visual Studio's project system takes what it needs to treat a project as
+    managed code (property interception, the dependencies tree, NuGet and so on)
+    from the design-time targets that C#, VB and F# import through their
+    language targets. Without them the project opens with limited functionality.
+  -->
+  <PropertyGroup>
+    <ManagedDesignTimeTargetsPath Condition=" '$(ManagedDesignTimeTargetsPath)' == '' ">$(MSBuildExtensionsPath)/Microsoft/VisualStudio/Managed/Microsoft.Managed.DesignTime.targets</ManagedDesignTimeTargetsPath>
+  </PropertyGroup>
+
+  <Import Project="$(ManagedDesignTimeTargetsPath)" Condition="Exists('$(ManagedDesignTimeTargetsPath)')" />
+
+  <ItemGroup>
+    <ProjectCapability Include="Boo" />
+    <ProjectCapability Include="Managed" />
+
+    <!-- Tells the project system that .boo files are Compile items. -->
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ProjectItemsSchema.Boo.xaml" />
+  </ItemGroup>
+
   <UsingTask TaskName="Boo.Microsoft.Build.Tasks.Booc"
              AssemblyFile="$(BooToolPath)/Boo.Microsoft.Build.Tasks.dll" />
+
+  <!--
+    Reads booc's output when it is run as a plain tool and reports each
+    diagnostic against its own file, line and column, which is what puts it in
+    the right place in the error list. It is an inline task because the
+    assembly above cannot be loaded by the .NET Framework MSBuild, which is
+    the one case that needs it.
+  -->
+  <UsingTask TaskName="BooLogDiagnostics" TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Lines ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+      <ExitCode ParameterType="System.Int32" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Method" Language="cs"><![CDATA[
+        public override bool Execute()
+        {
+            var located = new Regex(@"^(?<file>.*?)\((?<line>\d+),(?<column>\d+)\): (?<code>BC[EW]\d{4}): (?<warning>WARNING: )?(?<message>.*)$");
+            var bare = new Regex(@"^(?:(?<code>BC[EW]\d{4}): (?<warning>WARNING: )?|Fatal error: )(?<message>.*)$");
+            if (Lines != null)
+            {
+                foreach (var item in Lines)
+                {
+                    string text = item.ItemSpec.TrimEnd();
+                    var m = located.Match(text);
+                    if (m.Success)
+                    {
+                        int line = int.Parse(m.Groups["line"].Value);
+                        int column = int.Parse(m.Groups["column"].Value);
+                        if (m.Groups["warning"].Success)
+                            Log.LogWarning(null, m.Groups["code"].Value, null, m.Groups["file"].Value, line, column, 0, 0, m.Groups["message"].Value);
+                        else
+                            Log.LogError(null, m.Groups["code"].Value, null, m.Groups["file"].Value, line, column, 0, 0, m.Groups["message"].Value);
+                        continue;
+                    }
+                    m = bare.Match(text);
+                    if (m.Success)
+                    {
+                        string code = m.Groups["code"].Success ? m.Groups["code"].Value : "BCE0000";
+                        if (m.Groups["warning"].Success || code.StartsWith("BCW"))
+                            Log.LogWarning(null, code, null, "booc", 0, 0, 0, 0, m.Groups["message"].Value);
+                        else
+                            Log.LogError(null, code, null, "booc", 0, 0, 0, 0, m.Groups["message"].Value);
+                    }
+                }
+            }
+            if (ExitCode != 0 && !Log.HasLoggedErrors)
+                Log.LogError(null, "BOO0002", null, "booc", 0, 0, 0, 0, "booc exited with code " + ExitCode + " without reporting an error.");
+            return !Log.HasLoggedErrors;
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
 
   <ItemGroup Condition="'$(EnableDefaultBooItems)' != 'false'">
     <Compile Include="**/*.boo" Exclude="$(BaseOutputPath)/**;$(BaseIntermediateOutputPath)/**;bin/**;obj/**" />
@@ -59,6 +149,14 @@
 
   <!-- Normally supplied by Microsoft.CSharp.targets; nothing to name here. -->
   <Target Name="CreateManifestResourceNames" />
+
+  <!--
+    Visual Studio's design-time targets hang the reference and analyzer queries
+    off this one, and get the compiler's command line from it. There is no
+    in-process compiler to describe, so it only has to exist and resolve
+    references.
+  -->
+  <Target Name="CompileDesignTime" DependsOnTargets="ResolveReferences" />
 
   <Target Name="CoreCompile" DependsOnTargets="$(CoreCompileDependsOn)"
           Inputs="@(Compile);@(ReferencePath)"
@@ -93,9 +191,29 @@
       <_BooReference Include="@(_BooImplementation)" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_BooDesktopRef Include="@(ReferencePath)"
+                      Condition="$([System.String]::new('%(ReferencePath.FrameworkReferenceName)').StartsWith('Microsoft.WindowsDesktop.App'))" />
+      <_BooDesktopImpl Include="$([System.Text.RegularExpressions.Regex]::Replace('%(_BooDesktopRef.FullPath)', '[\\/]packs[\\/]Microsoft\.WindowsDesktop\.App\.Ref[\\/]([^\\/]+)[\\/]ref[\\/][^\\/]+[\\/]', '/shared/Microsoft.WindowsDesktop.App/$1/'))">
+        <Core>$([System.Text.RegularExpressions.Regex]::Replace('%(_BooDesktopRef.FullPath)', '[\\/]packs[\\/]Microsoft\.WindowsDesktop\.App\.Ref[\\/]([^\\/]+)[\\/]ref[\\/][^\\/]+[\\/]', '/shared/Microsoft.NETCore.App/$1/'))</Core>
+      </_BooDesktopImpl>
+      <_BooReference Include="@(_BooDesktopImpl)" Condition="Exists('%(_BooDesktopImpl.FullPath)') And !Exists('%(_BooDesktopImpl.Core)')" />
+      <_BooDesktopMissing Include="@(_BooDesktopImpl)" Condition="!Exists('%(_BooDesktopImpl.FullPath)') And !Exists('%(_BooDesktopImpl.Core)')" />
+    </ItemGroup>
+
+    <!--
+      The implementation assemblies are looked for in the installed runtime of
+      the version the reference pack is. When only another version is installed
+      they are not found, and what they provide goes missing from the build.
+    -->
+    <Warning Condition="'@(_BooDesktopMissing)' != ''"
+             Code="BOO0003"
+             Text="No Windows Desktop runtime assembly was found for '%(_BooDesktopMissing.Filename)' where the matching reference pack expects it ('%(_BooDesktopMissing.FullPath)'), so it was left out of the references. Install the runtime that matches the SDK, or reference the framework from a different version of the reference pack." />
+
     <MakeDir Directories="$(ProjectDir)$(IntermediateOutputPath)" />
 
-    <Booc
+    <!-- NoStdLib is not passed on, see BooNoStdLib above. -->
+    <Booc Condition="'$(MSBuildRuntimeType)' == 'Core' And '$(SkipCompilerExecution)' != 'true'"
         BoocPath="$(BoocPath)"
         Sources="@(Compile)"
         OutputAssembly="@(IntermediateAssembly)"
@@ -105,7 +223,7 @@
         TargetType="$(OutputType)"
         NoConfig="true"
         NoLogo="$(NoLogo)"
-        NoStandardLib="$(NoStdLib)"
+        NoStandardLib="$(BooNoStdLib)"
         Culture="$(AssemblyCulture)"
         DefineSymbols="$(DefineConstants)"
         DisabledWarnings="$(NoWarn)"
@@ -127,6 +245,76 @@
         SourceDirectory="$(SourceDirectory)"
         Utf8Output="$(Utf8Output)"
         Verbosity="$(BoocVerbosity)" />
+
+
+    <!--
+      Visual Studio builds with the .NET Framework MSBuild, which cannot load
+      the task assembly: it targets modern .NET. There booc is run as a tool
+      instead, with the same switches the task would have produced. The
+      arguments go through a response file because the reference list alone can
+      outrun the command line limit.
+    -->
+    <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core' And '$(SkipCompilerExecution)' != 'true'">
+      <_BooOutputFull>@(IntermediateAssembly->'%(FullPath)')</_BooOutputFull>
+      <_BooKind>$(OutputType.ToLower())</_BooKind>
+      <_BooRsp>$(ProjectDir)$(IntermediateOutputPath)booc.rsp</_BooRsp>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(MSBuildRuntimeType)' != 'Core' And '$(SkipCompilerExecution)' != 'true'">
+      <_BooResponseFile Include="$(CompilerResponseFile)" Condition="'$(CompilerResponseFile)' != ''" />
+      <_BooResource Include="@(_CoreCompileResourceInputs);@(ManifestResourceWithNoCulture);@(ManifestNonResxWithNoCultureOnDisk)" />
+      <_BooRsp Include="-t:$(_BooKind)" />
+      <_BooRsp Include="-o:&quot;$(_BooOutputFull)&quot;" />
+      <_BooRsp Include="-noconfig" />
+      <_BooRsp Include="-nologo" Condition="'$(NoLogo)' == 'true'" />
+      <_BooRsp Include="-c:$(AssemblyCulture)" Condition="'$(AssemblyCulture)' != ''" />
+      <_BooRsp Include="-srcdir:$(SourceDirectory)" Condition="'$(SourceDirectory)' != ''" />
+      <_BooRsp Include="-keyfile:&quot;$(AssemblyOriginatorKeyFile)&quot;" Condition="'$(AssemblyOriginatorKeyFile)' != ''" />
+      <_BooRsp Include="-keycontainer:$(AssemblyKeyContainerName)" Condition="'$(AssemblyKeyContainerName)' != ''" />
+      <_BooRsp Include="-p:$(Pipeline)" Condition="'$(Pipeline)' != ''" />
+      <_BooRsp Include="-define:$([MSBuild]::Escape('$(DefineConstants)'))" Condition="'$(DefineConstants)' != ''" />
+      <_BooRsp Include="-nostdlib" Condition="'$(BooNoStdLib)' == 'true'" />
+      <_BooRsp Include="-v" Condition="'$(BoocVerbosity)' == 'Warning'" />
+      <_BooRsp Include="-vv" Condition="'$(BoocVerbosity)' == 'Info'" />
+      <_BooRsp Include="-vvv" Condition="'$(BoocVerbosity)' == 'Verbose'" />
+      <_BooRsp Include="-nowarn:$([MSBuild]::Escape('$(NoWarn)'))" Condition="'$(NoWarn)' != ''" />
+      <_BooRsp Include="-warn:$([MSBuild]::Escape('$(OptionalWarnings)'))" Condition="'$(OptionalWarnings)' != ''" />
+      <_BooRsp Include="-platform:$(PlatformTarget)" Condition="'$(PlatformTarget)' != ''" />
+      <_BooRsp Include="-warnaserror" Condition="'$(TreatWarningsAsErrors)' == 'true'" />
+      <_BooRsp Include="-warnaserror:$([MSBuild]::Escape('$(WarningsAsErrors)'))" Condition="'$(TreatWarningsAsErrors)' != 'true' And '$(WarningsAsErrors)' != ''" />
+      <_BooRsp Include="-delaysign" Condition="'$(DelaySign)' == 'true'" />
+      <_BooRsp Include="-wsa" Condition="'$(WhiteSpaceAgnostic)' == 'true'" />
+      <_BooRsp Include="-ducky" Condition="'$(Ducky)' == 'true'" />
+      <_BooRsp Include="-utf8" Condition="'$(Utf8Output)' == 'true'" />
+      <_BooRsp Include="-strict" Condition="'$(Strict)' == 'true'" />
+      <_BooRsp Include="-unsafe" Condition="'$(AllowUnsafeBlocks)' == 'true'" />
+      <_BooRsp Include="-debug+" Condition="'$(DebugSymbols)' == 'true'" />
+      <_BooRsp Include="-debug-" Condition="'$(DebugSymbols)' != 'true'" />
+      <_BooRsp Include="-checked+" Condition="'$(CheckForOverflowUnderflow)' == 'true'" />
+      <_BooRsp Include="-checked-" Condition="'$(CheckForOverflowUnderflow)' != 'true'" />
+      <_BooRsp Include="@(_BooReference->'-r:&quot;%(FullPath)&quot;')" />
+      <_BooRsp Include="@(_BooResource->'-resource:&quot;%(FullPath),%(LogicalName)&quot;')" Condition="'%(_BooResource.Type)' == 'Resx'" />
+      <_BooRsp Include="@(_BooResource->'-embedres:&quot;%(FullPath),%(LogicalName)&quot;')" Condition="'%(_BooResource.Type)' != 'Resx'" />
+      <_BooRsp Include="@(Compile->'&quot;%(FullPath)&quot;')" />
+    </ItemGroup>
+
+    <WriteLinesToFile Condition="'$(MSBuildRuntimeType)' != 'Core' And '$(SkipCompilerExecution)' != 'true'"
+                      File="$(_BooRsp)" Lines="@(_BooRsp)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+
+    <Exec Condition="'$(MSBuildRuntimeType)' != 'Core' And '$(SkipCompilerExecution)' != 'true'"
+          Command="dotnet &quot;$(BoocPath)&quot; @&quot;$(_BooRsp)&quot; @(_BooResponseFile->'@&quot;%(FullPath)&quot;', ' ')"
+          IgnoreExitCode="true"
+          IgnoreStandardErrorWarningFormat="true"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="low"
+          StandardErrorImportance="low">
+      <Output TaskParameter="ExitCode" PropertyName="_BooExitCode" />
+      <Output TaskParameter="ConsoleOutput" ItemName="_BooConsole" />
+    </Exec>
+
+    <!-- Fails the build, with nothing added to what booc itself reported. -->
+    <BooLogDiagnostics Condition="'$(MSBuildRuntimeType)' != 'Core' And '$(SkipCompilerExecution)' != 'true'"
+                       Lines="@(_BooConsole)" ExitCode="$(_BooExitCode)" />
 
     <ItemGroup>
       <FileWrites Include="@(IntermediateAssembly)" />

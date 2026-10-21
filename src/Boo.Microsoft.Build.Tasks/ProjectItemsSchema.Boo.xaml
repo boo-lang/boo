@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions
+    xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <ContentType
+      Name="BooFile"
+      DisplayName="Boo file"
+      ItemType="Compile">
+  </ContentType>
+
+  <ItemType Name="Compile" DisplayName="Boo compiler"/>
+
+  <FileExtension Name=".boo" ContentType="BooFile"/>
+</ProjectSchemaDefinitions>

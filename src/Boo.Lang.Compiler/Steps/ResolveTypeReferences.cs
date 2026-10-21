@@ -43,6 +43,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (node.GenericParameters.Count != 0)
 			{
 				EnterNamespace((INamespace)TypeSystemServices.GetEntity(node));
+				Visit(node.GenericParameters);
 				base.OnMethod(node);
 				LeaveNamespace();
 			}

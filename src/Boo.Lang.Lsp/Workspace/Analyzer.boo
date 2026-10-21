@@ -182,7 +182,7 @@ The compiler is not reentrant, so one analyzer serves one caller at a time.
 
 		for reference in Project.References(project):
 			# Loading it only reads it; the collection is what the compiler sees.
-			loaded = compiler.Parameters.LoadAssembly(reference, false)
+			loaded = compiler.Parameters.LoadAssembly(Shadow.For(reference), false)
 			compiler.Parameters.References.Add(loaded) if loaded is not null
 
 		# The open document is added from the client's text, not from disk:

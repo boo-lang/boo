@@ -148,20 +148,20 @@ namespace Boo.Lang.Compiler.Steps
 		/// Assembly attributes DeferredAssemblyAttributes writes once metadata
 		/// has been generated.
 		/// </summary>
-		internal static List<System.Reflection.Emit.CustomAttributeBuilder> GetDeferredAssemblyAttributes(CompilerContext context)
+		internal static List<(System.Reflection.Emit.ConstructorBuilder Constructor, byte[] Blob)> GetDeferredAssemblyAttributes(CompilerContext context)
 		{
-			return (List<System.Reflection.Emit.CustomAttributeBuilder>)context.Properties[DeferredAssemblyAttributesKey];
+			return (List<(System.Reflection.Emit.ConstructorBuilder, byte[])>)context.Properties[DeferredAssemblyAttributesKey];
 		}
 
-		internal static void AddDeferredAssemblyAttribute(CompilerContext context, System.Reflection.Emit.CustomAttributeBuilder attribute)
+		internal static void AddDeferredAssemblyAttribute(CompilerContext context, System.Reflection.Emit.ConstructorBuilder constructor, byte[] blob)
 		{
 			var attributes = GetDeferredAssemblyAttributes(context);
 			if (null == attributes)
 			{
-				attributes = new List<System.Reflection.Emit.CustomAttributeBuilder>();
+				attributes = new List<(System.Reflection.Emit.ConstructorBuilder, byte[])>();
 				context.Properties[DeferredAssemblyAttributesKey] = attributes;
 			}
-			attributes.Add(attribute);
+			attributes.Add((constructor, blob));
 		}
 
 		private ContextAnnotations()
