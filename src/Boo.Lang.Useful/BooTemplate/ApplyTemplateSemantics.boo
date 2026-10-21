@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2003, 2004, 2005 Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -51,11 +51,14 @@ class ApplyTemplateSemantics(AbstractCompilerStep):
 		template.BaseTypes.Add(CodeBuilder.CreateTypeReference(_compiler.TemplateBaseClass))
 		template.Members.AddRange(module.Members)
 		
-		execute = [|
-			override public def Execute() as void:
-				$(module.Globals)
-		|]
-		template.Members.Add(execute)
+		if _compiler.AddExecute:
+			execute = [|
+				override public def Execute() as void:
+					$(module.Globals)
+			|]
+			template.Members.Add(execute)
+		else:
+			template.Members.AddRange(StatementTypeMember(stmt) for stmt in module.Globals.Statements)
 		
 		module.Globals = Block()
 		module.Members.Clear()

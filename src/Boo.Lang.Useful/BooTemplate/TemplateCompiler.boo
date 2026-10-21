@@ -39,6 +39,11 @@ class TemplateCompiler:
 	[property(TemplateBaseClass, ValidateBaseClass(value))]
 	_baseClass = AbstractTemplate
 	
+	# A base class that supplies Execute itself has no use for the one generated
+	# from the template's top-level code.
+	[property(AddExecute)]
+	_addExecute = true
+	
 	[getter(DefaultImports)]
 	_imports = List of string()
 	

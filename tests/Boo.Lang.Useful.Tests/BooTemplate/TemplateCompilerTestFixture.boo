@@ -9,8 +9,25 @@ abstract class MyBaseClass(AbstractTemplate):
 	def GetRange():
 		return range(1, 4)
 
+class ProvidedExecuteBaseClass(AbstractTemplate):
+	override def Execute():
+		Output.Write("provided")
+
 [TestFixture]
 class TemplateCompilerTestFixture:
+
+	[Test]
+	def TestExecuteIsGeneratedByDefault():
+		Assert.IsTrue(TemplateCompiler().AddExecute)
+
+	[Test]
+	def TestBaseClassExecuteIsUsedWhenNoneIsAdded():
+		compiler = TemplateCompiler(
+						TemplateClassName: 'MyTemplate',
+						TemplateBaseClass: ProvidedExecuteBaseClass,
+						AddExecute: false)
+		# The template's own text never runs: the base class decides what Execute does.
+		CheckTemplate("provided", compiler, "ignored")
 
 	[Test]
 	def TestSimpleTemplate():
