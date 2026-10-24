@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -97,7 +97,26 @@ namespace Boo.Lang.Compiler.TypeSystem.Services
 			_resolveExtensionFor = _resolveExtensionFor.Clone();
 			CurrentNamespace = ns;
 		}
-		
+
+		public record struct SavedScope(INamespace Namespace, int Depth,
+			MemoizedFunction<string, EntityType, IEntity> Names,
+			MemoizedFunction<string, IType, IEntity> Extensions);
+
+		public SavedScope SaveScope()
+			=> new(CurrentNamespace, _stackNameCaches.Count, _resolveName, _resolveExtensionFor);
+
+		public void RestoreScope(SavedScope saved)
+		{
+			while (_stackNameCaches.Count > saved.Depth)
+			{
+				_stackNameCaches.Pop();
+				_stackExtensionCaches.Pop();
+			}
+			CurrentNamespace = saved.Namespace;
+			_resolveName = saved.Names;
+			_resolveExtensionFor = saved.Extensions;
+		}
+
 		public INamespace CurrentNamespace
 		{
 			get { return _current.Value; }

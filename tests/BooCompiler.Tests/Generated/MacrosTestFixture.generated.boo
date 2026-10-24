@@ -10,6 +10,10 @@ class MacrosTestFixture(AbstractCompilerTestCase):
 		RunCompilerTestCase("assert-1.boo")
 
 	[Test]
+	def @class_in_macro_body_1():
+		RunCompilerTestCase("class-in-macro-body-1.boo")
+
+	[Test]
 	def @custom_class_macro_as_generic_argument():
 		RunCompilerTestCase("custom-class-macro-as-generic-argument.boo")
 

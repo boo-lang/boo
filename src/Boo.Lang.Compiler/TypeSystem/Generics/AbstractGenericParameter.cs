@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Boo.Lang.Compiler.TypeSystem.Core;
 using Boo.Lang.Compiler.TypeSystem.Services;
 using Boo.Lang.Compiler.Util;
@@ -136,9 +137,8 @@ namespace Boo.Lang.Compiler.TypeSystem.Generics
 		}
 
 		public bool IsSubclassOf(IType other)
-		{
-			return (other == BaseType || BaseType.IsSubclassOf(other));
-		}
+			=> other == BaseType || BaseType.IsSubclassOf(other) 
+					|| GetTypeConstraints().Any(c => c == other || c.IsSubclassOf(other));
 		
 		public virtual bool IsAssignableFrom(IType other)
 		{

@@ -230,7 +230,7 @@ namespace Boo.Lang.Compiler.Steps
 
 		private IEntity ResolveImportOnParentNamespace(Import import)
 		{	
-			var current = NameResolutionService.CurrentNamespace;
+			var current = NameResolutionService.SaveScope();
 			INamespace parentNamespace = NameResolutionService.CurrentNamespace.ParentNamespace;
 			if (parentNamespace != null)
 			{
@@ -245,7 +245,7 @@ namespace Boo.Lang.Compiler.Steps
 					}
 					finally
 					{
-						NameResolutionService.EnterNamespace(current);
+						NameResolutionService.RestoreScope(current);
 					}
 				}
 				return result;

@@ -57,11 +57,27 @@ internal static class DeferredAssemblyAttributes
 	/// constructor needs CustomAttributeBuilder's internals, so a runtime
 	/// that no longer exposes them defers nothing and behaves as before.
 	/// </summary>
+	internal static bool CanDefer => ConstructorOf != null && BlobOf != null;
+
 	internal static bool Defers(CustomAttributeBuilder attribute)
 	{
 		return ConstructorOf != null
 			&& BlobOf != null
 			&& ConstructorOf.GetValue(attribute) is ConstructorBuilder;
+	}
+
+	/// <summary>
+	/// Holds an attribute back until the metadata exists, taking the
+	/// constructor and the encoded arguments from a builder.
+	/// </summary>
+	internal static void Defer(CompilerContext context, CustomAttributeBuilder attribute)
+	{
+		Defer(context, (ConstructorBuilder) ConstructorOf.GetValue(attribute), (byte[]) BlobOf.GetValue(attribute));
+	}
+
+	internal static void Defer(CompilerContext context, ConstructorBuilder constructor, byte[] blob)
+	{
+		ContextAnnotations.AddDeferredAssemblyAttribute(context, constructor, blob);
 	}
 
 	internal static void Write(CompilerContext context, MetadataBuilder metadata)
@@ -71,13 +87,12 @@ internal static class DeferredAssemblyAttributes
 			return;
 
 		var assembly = MetadataTokens.EntityHandle(TableIndex.Assembly, 1);
-		foreach (var attribute in attributes)
+		foreach (var (constructor, blob) in attributes)
 		{
-			var constructor = (ConstructorBuilder) ConstructorOf.GetValue(attribute);
 			metadata.AddCustomAttribute(
 				assembly,
 				MetadataTokens.MethodDefinitionHandle(constructor.MetadataToken),
-				metadata.GetOrAddBlob((byte[]) BlobOf.GetValue(attribute)));
+				metadata.GetOrAddBlob(blob));
 		}
 	}
 }

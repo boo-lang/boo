@@ -369,6 +369,9 @@ the first step out of that.
 		for package in PackageAssemblies(projectPath):
 			Take(references, seen, package)
 
+		for framework in FrameworkAssemblies(projectPath):
+			Take(references, seen, framework)
+
 		references.Sort()
 		return references
 
@@ -405,6 +408,85 @@ the first step out of that.
 				chosen = Assets(package, "compile", folder, path) if chosen.Count == 0
 				assemblies.AddRange(chosen)
 		return assemblies
+
+	private static def FrameworkAssemblies(projectPath as string) as List[of string]:
+	"""
+	The assemblies of the shared frameworks the project asks for besides the
+	base one.
+
+	For example, a project that sets UseWindowsForms gets the Windows desktop
+	framework from restore, and nothing is written next to the output for it;
+	it is found in the installed runtime at run time. The compiler's own
+	runtime has only the base framework, so without these System.Windows.Forms
+	reads as an unknown namespace.
+
+	The newest installed copy no newer than the running runtime is used, and
+	assemblies already loaded into the runtime are left to it; a second copy
+	of System.Drawing, for example, will not load.
+	"""
+		assemblies = List[of string]()
+		directory = Path.GetDirectoryName(Path.GetFullPath(projectPath))
+		assets = Read(Path.Combine(directory, "obj", "project.assets.json"))
+		return assemblies if assets is null
+
+		wanted = HashSet[of string]()
+		for framework in Section(Section(assets, "project"), "frameworks"):
+			for reference in Section(framework.Value as JsonObject, "frameworkReferences"):
+				name = SharedFramework(reference.Key)
+				wanted.Add(name) unless name == "Microsoft.NETCore.App"
+		return assemblies if wanted.Count == 0
+
+		root = DotnetRoot()
+		return assemblies if root is null
+		own = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
+		for name in wanted:
+			folder = NewestRuntime(Path.Combine(Path.Combine(root, "shared"), name))
+			continue if folder is null
+			for file in Directory.GetFiles(folder, "*.dll"):
+				assemblies.Add(file) unless File.Exists(Path.Combine(own, Path.GetFileName(file)))
+		return assemblies
+
+	private static def SharedFramework(reference as string) as string:
+	"""The runtime folder a framework reference lives in."""
+		for known in ("Microsoft.WindowsDesktop.App", "Microsoft.AspNetCore.App"):
+			return known if reference.StartsWith(known)
+		return reference
+
+	private static def DotnetRoot() as string:
+	"""Where the runtimes are installed, or null if they cannot be found."""
+		candidates = List[of string]()
+		candidates.Add(Environment.GetEnvironmentVariable("DOTNET_ROOT"))
+		# The running runtime is <root>/shared/<framework>/<version>/, wherever it was installed.
+		candidates.Add(Path.GetFullPath(Path.Combine(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "..", "..", "..")))
+		candidates.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet"))
+		candidates.Add("/usr/share/dotnet")
+		candidates.Add("/usr/lib/dotnet")
+		candidates.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".dotnet"))
+		for candidate in candidates:
+			continue if string.IsNullOrEmpty(candidate)
+			return candidate if Directory.Exists(Path.Combine(candidate, "shared"))
+		return null
+
+	private static def NewestRuntime(frameworkFolder as string) as string:
+	"""The newest version folder no newer than the running runtime, a release over a preview of it."""
+		return null unless Directory.Exists(frameworkFolder)
+		best as string = null
+		bestVersion as Version = null
+		bestIsRelease = false
+		for candidate in Directory.GetDirectories(frameworkFolder):
+			name = Path.GetFileName(candidate)
+			dash = name.IndexOf(char('-'))
+			numeric = (name if dash < 0 else name.Substring(0, dash))
+			version as Version
+			continue unless Version.TryParse(numeric, version)
+			continue if version.Major > Environment.Version.Major
+			isRelease = (dash < 0)
+			better = (best is null or version > bestVersion or (version == bestVersion and isRelease and not bestIsRelease))
+			if better:
+				best = candidate
+				bestVersion = version
+				bestIsRelease = isRelease
+		return best
 
 	private static def Assets(package as JsonObject, section as string, folder as string, path as string) as List[of string]:
 	"""The assemblies of one kind the package has on disk."""

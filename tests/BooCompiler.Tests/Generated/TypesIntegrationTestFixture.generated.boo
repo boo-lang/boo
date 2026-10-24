@@ -98,6 +98,14 @@ class TypesIntegrationTestFixture(AbstractCompilerTestCase):
 		RunCompilerTestCase("constructors-1.boo")
 
 	[Test]
+	def @enum_attribute_argument_1():
+		RunCompilerTestCase("enum-attribute-argument-1.boo")
+
+	[Test]
+	def @enum_attribute_argument_2():
+		RunCompilerTestCase("enum-attribute-argument-2.boo")
+
+	[Test]
 	def @enum_cast_to_single():
 		RunCompilerTestCase("enum-cast-to-single.boo")
 
@@ -556,6 +564,14 @@ class TypesIntegrationTestFixture(AbstractCompilerTestCase):
 	[Test]
 	def @negative_enum_value():
 		RunCompilerTestCase("negative-enum-value.boo")
+
+	[Test]
+	def @new_property_1():
+		RunCompilerTestCase("new-property-1.boo")
+
+	[Test]
+	def @new_property_2():
+		RunCompilerTestCase("new-property-2.boo")
 
 	[Test]
 	def @overloading_1():

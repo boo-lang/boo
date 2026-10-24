@@ -1,6 +1,7 @@
 namespace BooCompiler.Tests.TypeSystem.Services
 
 import System
+import System.Collections.Generic
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.IO
 import Boo.Lang.Compiler.Pipelines
@@ -48,6 +49,91 @@ print JOIN(l, ", ")
 
 			builtinsType = ResolveQualifiedName("Boo.Lang.Builtins") as IType
 			Assert.IsNotNull(builtinsType)
+
+	private class Named(IEntity):
+		[Getter(Name)]
+		_name as string
+
+		def constructor(name as string):
+			_name = name
+
+		FullName as string:
+			get: return _name
+
+		EntityType as EntityType:
+			get: return EntityType.Local
+
+	private class Scope(INamespace):
+		_parent as INamespace
+		_names = Dictionary[of string, IEntity]()
+
+		def constructor(parent as INamespace, *names as (string)):
+			_parent = parent
+			for name in names:
+				_names[name] = Named("${name} of ${GetHashCode()}")
+
+		Name as string:
+			get: return "scope"
+
+		FullName as string:
+			get: return "scope"
+
+		EntityType as EntityType:
+			get: return EntityType.Namespace
+
+		ParentNamespace as INamespace:
+			get: return _parent
+
+		def Resolve(resultingSet as ICollection[of IEntity], name as string, typesToConsider as EntityType) as bool:
+			entity as IEntity
+			return false unless _names.TryGetValue(name, entity)
+			resultingSet.Add(entity)
+			return true
+
+		def GetMembers() as IEnumerable[of IEntity]:
+			return _names.Values
+
+		def Of(name as string) as IEntity:
+			return _names[name]
+
+	[Test]
+	def RestoringAScopeLeavesTheNamesOfTheScopeBehindOutOfTheNextLeave():
+		// A scope entered, and left by entering the one before it again, used to
+		// leave its cache on the stack for the next LeaveNamespace to take for the
+		// cache of the namespace it was returning to.
+		RunInCompilerContextEnvironment() do:
+			subject = Subject()
+			outer = Scope(My[of GlobalNamespace].Instance, "x")
+			block = Scope(outer)
+			nested = Scope(My[of GlobalNamespace].Instance, "x")
+			subject.EnterNamespace(outer)
+			subject.EnterNamespace(block)
+			Assert.AreSame(outer.Of("x"), subject.Resolve("x"))
+
+			saved = subject.SaveScope()
+			subject.EnterNamespace(nested)
+			Assert.AreSame(nested.Of("x"), subject.Resolve("x"))
+			subject.RestoreScope(saved)
+			Assert.AreSame(block, subject.CurrentNamespace)
+			Assert.AreSame(outer.Of("x"), subject.Resolve("x"))
+
+			subject.LeaveNamespace()
+			Assert.AreSame(outer, subject.CurrentNamespace)
+			Assert.AreSame(outer.Of("x"), subject.Resolve("x"))
+
+	[Test]
+	def RestoringAScopeAlsoDropsWhatWasEnteredAndNeverLeft():
+		RunInCompilerContextEnvironment() do:
+			subject = Subject()
+			outer = Scope(My[of GlobalNamespace].Instance, "x")
+			stray = Scope(My[of GlobalNamespace].Instance, "x")
+			subject.EnterNamespace(outer)
+			saved = subject.SaveScope()
+			subject.EnterNamespace(stray)
+			subject.EnterNamespace(Scope(stray))
+			subject.RestoreScope(saved)
+			Assert.AreSame(outer, subject.CurrentNamespace)
+			Assert.AreSame(outer.Of("x"), subject.Resolve("x"))
 
 	private def RunInCompilerContextEnvironment(action as Action):
 		ActiveEnvironment.With(CompilerContext().Environment):

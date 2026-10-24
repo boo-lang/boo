@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static readonly object AssemblyImageKey = new object();
 
+		private static readonly object EmbeddedResourcesKey = new object();
+
 		private static readonly object DeferredAssemblyAttributesKey = new object();
 
 		private static readonly object DeferredTypeLayoutsKey = new object();
@@ -119,6 +121,16 @@ namespace Boo.Lang.Compiler.Steps
 			return (byte[])context.Properties[AssemblyImageKey];
 		}
 
+		internal static EmbeddedResources GetEmbeddedResources(CompilerContext context)
+		{
+			return (EmbeddedResources)context.Properties[EmbeddedResourcesKey];
+		}
+
+		internal static void SetEmbeddedResources(CompilerContext context, EmbeddedResources resources)
+		{
+			context.Properties[EmbeddedResourcesKey] = resources;
+		}
+
 		internal static void SetAssemblyImage(CompilerContext context, byte[] image)
 		{
 			context.Properties[AssemblyImageKey] = image;
@@ -148,20 +160,20 @@ namespace Boo.Lang.Compiler.Steps
 		/// Assembly attributes DeferredAssemblyAttributes writes once metadata
 		/// has been generated.
 		/// </summary>
-		internal static List<System.Reflection.Emit.CustomAttributeBuilder> GetDeferredAssemblyAttributes(CompilerContext context)
+		internal static List<(System.Reflection.Emit.ConstructorBuilder Constructor, byte[] Blob)> GetDeferredAssemblyAttributes(CompilerContext context)
 		{
-			return (List<System.Reflection.Emit.CustomAttributeBuilder>)context.Properties[DeferredAssemblyAttributesKey];
+			return (List<(System.Reflection.Emit.ConstructorBuilder, byte[])>)context.Properties[DeferredAssemblyAttributesKey];
 		}
 
-		internal static void AddDeferredAssemblyAttribute(CompilerContext context, System.Reflection.Emit.CustomAttributeBuilder attribute)
+		internal static void AddDeferredAssemblyAttribute(CompilerContext context, System.Reflection.Emit.ConstructorBuilder constructor, byte[] blob)
 		{
 			var attributes = GetDeferredAssemblyAttributes(context);
 			if (null == attributes)
 			{
-				attributes = new List<System.Reflection.Emit.CustomAttributeBuilder>();
+				attributes = new List<(System.Reflection.Emit.ConstructorBuilder, byte[])>();
 				context.Properties[DeferredAssemblyAttributesKey] = attributes;
 			}
-			attributes.Add(attribute);
+			attributes.Add((constructor, blob));
 		}
 
 		private ContextAnnotations()

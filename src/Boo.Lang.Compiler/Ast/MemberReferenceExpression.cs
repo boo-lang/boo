@@ -1,4 +1,4 @@
-﻿#region license
+#region license
 // Copyright (c) 2004, Rodrigo B. de Oliveira (rbo@acm.org)
 // All rights reserved.
 // 
@@ -27,6 +27,7 @@
 #endregion
 
 using System;
+using System.Linq;
 
 namespace Boo.Lang.Compiler.Ast
 {
@@ -42,14 +43,34 @@ namespace Boo.Lang.Compiler.Ast
 			this.Name = name;
 		}
 		
-		public MemberReferenceExpression(Expression target, string name)
+		public MemberReferenceExpression(Expression target, string name) : this(target.LexicalInfo, target, name)
 		{
-			this.Target = target;
-			this.Name = name;
 		}
 		
 		public MemberReferenceExpression(LexicalInfo lexicalInfoProvider) : base(lexicalInfoProvider)
 		{
+		}
+
+		public static Expression Combine(Expression left, string right)
+			=> new MemberReferenceExpression(left, right);
+
+		public static Expression Combine(Expression left, Expression right)
+			=> right switch {
+				MemberReferenceExpression mre => new MemberReferenceExpression(Combine(left, mre.Target), mre.Name),
+				ReferenceExpression re => new MemberReferenceExpression(left, re.Name),
+				SlicingExpression sl => new SlicingExpression(Combine(left, sl.Target), [.. sl.Indices.Select(i => i.CloneNode())]) { LexicalInfo = left.LexicalInfo },
+				MethodInvocationExpression mie => CombineInvocation(left, mie),
+				GenericReferenceExpression gr => new GenericReferenceExpression() { LexicalInfo = left.LexicalInfo, Target = Combine(left, gr.Target), GenericArguments = [.. gr.GenericArguments.Select(a => a.CloneNode())] },
+				_ => throw new CompilerError(right.LexicalInfo, $"unable to combine RHS of type {right.GetType().Name} into a MemberReferenceExpression")
+			};
+
+		private static MethodInvocationExpression CombineInvocation(Expression left, MethodInvocationExpression call)
+		{
+			var result = new MethodInvocationExpression(left.LexicalInfo, Combine(left, call.Target),
+				[.. call.Arguments.Select(a => a.CloneNode())]);
+			foreach (var named in call.NamedArguments)
+				result.NamedArguments.Add(named.CloneNode());
+			return result;
 		}
 	}
 }

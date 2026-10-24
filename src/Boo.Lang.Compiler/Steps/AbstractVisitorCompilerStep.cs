@@ -183,6 +183,11 @@ namespace Boo.Lang.Compiler.Steps
 			_context.TraceInfo("{0}: node '{1}' mark visited.", node.LexicalInfo, node);
 		}
 
+		protected void UnmarkVisited(Node node)
+		{
+			node.RemoveAnnotation(VisitedAnnotationKey);
+		}
+
 		protected virtual void EnsureRelatedNodeWasVisited(Node sourceNode, IEntity entity)
 		{
 			IInternalEntity internalEntity = GetConstructedInternalEntity(entity);
