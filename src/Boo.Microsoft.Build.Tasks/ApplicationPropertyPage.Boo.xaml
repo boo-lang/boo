@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Rule Name="Application"
+      OverrideMode="Extend"
+      xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <DynamicEnumProperty Name="StartupObject" Visible="False" />
+  <StringProperty Name="ApplicationIcon" Visible="False" />
+  <StringProperty Name="AssemblyTitle" Visible="False" />
+  <EnumProperty Name="ResourceSpecificationKind" Visible="False" />
+</Rule>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Boo's additions to the Build page of the project properties. The page itself,
+  with the options every .NET project has, comes from Visual Studio's managed
+  project system; this adds what booc takes and hides what it has no use for.
+  The properties are the ones Boo.Microsoft.Build.targets passes on to booc.
+-->
+<Rule Name="Build"
+      OverrideMode="Extend"
+      xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <Rule.Categories>
+    <Category Name="Language"
+              DisplayName="Language"
+              Description="How Boo source code is read." />
+
+    <Category Name="Compiler"
+              DisplayName="Compiler"
+              Description="How booc is run." />
+  </Rule.Categories>
+
+  <!-- Language -->
+
+  <BoolProperty Name="Ducky"
+                DisplayName="Duck typing"
+                Description="Treat a name with no known type as 'duck', which looks its members up when the program runs, instead of reporting an error."
+                Category="Language">
+    <BoolProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </BoolProperty.DataSource>
+    <BoolProperty.Metadata>
+      <NameValuePair Name="SearchTerms" Value="ducky;dynamic" />
+    </BoolProperty.Metadata>
+  </BoolProperty>
+
+  <BoolProperty Name="Strict"
+                DisplayName="Strict mode"
+                Description="Require declared types, no implicit duck typing, and the other checks of strict mode."
+                Category="Language">
+    <BoolProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </BoolProperty.DataSource>
+  </BoolProperty>
+
+  <BoolProperty Name="WhiteSpaceAgnostic"
+                DisplayName="Whitespace agnostic"
+                Description="Read blocks from begin/end keywords instead of indentation."
+                Category="Language">
+    <BoolProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </BoolProperty.DataSource>
+    <BoolProperty.Metadata>
+      <NameValuePair Name="SearchTerms" Value="wsa;indentation" />
+    </BoolProperty.Metadata>
+  </BoolProperty>
+
+  <!-- Compiler -->
+
+  <StringProperty Name="OptionalWarnings"
+                  DisplayName="Optional warnings"
+                  Description="Optional warnings to turn on, such as BCW0016 for an unused namespace. Separate them with semicolons."
+                  Category="Compiler">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
+  <StringProperty Name="Pipeline"
+                  DisplayName="Compiler pipeline"
+                  Description="The name of a compiler pipeline to run in place of the default. Leave empty for the default."
+                  Category="Compiler">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
+  <EnumProperty Name="BoocVerbosity"
+                DisplayName="Compiler output"
+                Description="How much booc says about what it does."
+                Category="Compiler">
+    <EnumProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </EnumProperty.DataSource>
+    <EnumValue Name="Normal" DisplayName="Normal" />
+    <EnumValue Name="Warning" DisplayName="Warnings about the compiler itself" />
+    <EnumValue Name="Info" DisplayName="Information" />
+    <EnumValue Name="Verbose" DisplayName="Everything" />
+  </EnumProperty>
+
+  <BoolProperty Name="BooNoStdLib"
+                DisplayName="Leave out the default libraries"
+                Description="Do not reference the libraries booc references on its own (such as Boo.Lang), only those the project lists."
+                Category="Compiler">
+    <BoolProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </BoolProperty.DataSource>
+  </BoolProperty>
+
+  <BoolProperty Name="Utf8Output"
+                DisplayName="UTF-8 compiler output"
+                Description="Write booc's messages in UTF-8."
+                Category="Compiler">
+    <BoolProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext"
+                  HasConfigurationCondition="False" />
+    </BoolProperty.DataSource>
+  </BoolProperty>
+
+  <!-- What booc has no use for, or what these targets set themselves. -->
+
+  <EnumProperty Name="Nullable" Visible="False" />
+  <StringProperty Name="LangVersion" Visible="False" />
+  <BoolProperty Name="Prefer32Bit" Visible="False" />
+  <BoolProperty Name="PreferNativeArm64" Visible="False" />
+  <BoolProperty Name="Optimize" Visible="False" />
+  <EnumProperty Name="DebugType" Visible="False" />
+  <BoolProperty Name="GenerateAssemblyInfo" Visible="False" />
+  <BoolProperty Name="ProduceReferenceAssembly" Visible="False" />
+  <BoolProperty Name="Deterministic" Visible="False" />
+  <BoolProperty Name="WarningLevelOverridden" Visible="False" />
+  <EnumProperty Name="WarningLevel" Visible="False" />
+  <StringProperty Name="WarningsNotAsErrors" Visible="False" />
+  <BoolProperty Name="GenerateDocumentationFile" Visible="False" />
+  <StringProperty Name="DocumentationFile" Visible="False" />
+  <EnumProperty Name="ErrorReport" Visible="False" />
+  <EnumProperty Name="FileAlignment" Visible="False" />
+</Rule>

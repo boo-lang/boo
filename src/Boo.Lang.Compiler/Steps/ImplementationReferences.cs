@@ -78,18 +78,38 @@ internal static class ImplementationReferences
 		return Resolved(context, metadata, Index.Value);
 	}
 
+	internal static MetadataBuilder ResolvedInspecting(
+		CompilerContext context, MetadataBuilder metadata, Action<MetadataReader> inspect)
+	{
+		return Resolved(context, metadata, Index.Value, inspect);
+	}
+
 	internal static MetadataBuilder Resolved(
 		CompilerContext context, MetadataBuilder metadata, ReferenceAssemblyIndex index)
+	{
+		return Resolved(context, metadata, index, null);
+	}
+
+	/// <param name="inspect">
+	/// Given the metadata as it is read for copying. A builder can be written out only
+	/// once, so this is the one chance to ask the image about itself.
+	/// </param>
+	internal static MetadataBuilder Resolved(
+		CompilerContext context, MetadataBuilder metadata, ReferenceAssemblyIndex index,
+		Action<MetadataReader> inspect)
 	{
 		if (index == null)
 		{
 			// Nothing to rewrite the image with, so it goes out as generated.
 			context.Warnings.Add(CompilerWarningFactory.ReferenceAssembliesNotFound());
-			return metadata;
+			return inspect == null
+				? metadata
+				: MetadataCopier.Copy(metadata, copier => inspect(copier.Source));
 		}
 
 		return MetadataCopier.Copy(metadata, copier =>
 		{
+			inspect?.Invoke(copier.Source);
 			var implementations = ImplementationsIn(copier.Source, index);
 			if (implementations.Count == 0)
 				return;

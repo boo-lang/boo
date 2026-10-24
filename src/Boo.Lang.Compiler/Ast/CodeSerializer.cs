@@ -262,9 +262,9 @@ namespace Boo.Lang.Compiler.Ast
 				SerializeSpliceMemberReferenceExpression(node);
 				return;
 			}
-			var ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression");
+			var ctor = CreateInvocation(node, "Boo.Lang.Compiler.Ast.MemberReferenceExpression.Combine");
 			ctor.Arguments.Add(Serialize(node.Target));
-			ctor.Arguments.Add(LiftMemberName(node.NameExpression));
+			ctor.Arguments.Add(node.NameExpression.CloneNode());
 			Push(ctor);
 		}
 

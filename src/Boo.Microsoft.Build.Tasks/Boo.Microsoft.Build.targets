@@ -65,12 +65,32 @@
 
   <Import Project="$(ManagedDesignTimeTargetsPath)" Condition="Exists('$(ManagedDesignTimeTargetsPath)')" />
 
+  <!--
+    Where launch profiles (the Debug page: command line arguments, working
+    directory and so on) are kept: Properties/launchSettings.json.
+  -->
+  <PropertyGroup>
+    <AppDesignerFolder Condition=" '$(AppDesignerFolder)' == '' ">Properties</AppDesignerFolder>
+    <AppDesignerFolderContentsVisibleOnlyInShowAllFiles Condition=" '$(AppDesignerFolderContentsVisibleOnlyInShowAllFiles)' == '' ">false</AppDesignerFolderContentsVisibleOnlyInShowAllFiles>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectCapability Include="Boo" />
     <ProjectCapability Include="Managed" />
 
+    <ProjectCapability Include="ProjectPropertiesEditor" />
+
     <!-- Tells the project system that .boo files are Compile items. -->
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ProjectItemsSchema.Boo.xaml" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(DefineCommonManagedItemSchemas)' == 'true' ">
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ApplicationPropertyPage.Boo.xaml">
+      <Context>Project</Context>
+    </PropertyPageSchema>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)BuildPropertyPage.Boo.xaml">
+      <Context>Project</Context>
+    </PropertyPageSchema>
   </ItemGroup>
 
   <UsingTask TaskName="Boo.Microsoft.Build.Tasks.Booc"
@@ -212,6 +232,11 @@
 
     <MakeDir Directories="$(ProjectDir)$(IntermediateOutputPath)" />
 
+    <PropertyGroup>
+      <_BooTargetType>$(BooTargetKind)</_BooTargetType>
+      <_BooTargetType Condition=" '$(_BooTargetType)' == '' ">$(OutputType)</_BooTargetType>
+    </PropertyGroup>
+
     <!-- NoStdLib is not passed on, see BooNoStdLib above. -->
     <Booc Condition="'$(MSBuildRuntimeType)' == 'Core' And '$(SkipCompilerExecution)' != 'true'"
         BoocPath="$(BoocPath)"
@@ -220,7 +245,7 @@
         References="@(_BooReference)"
         Resources="@(_CoreCompileResourceInputs);@(ManifestResourceWithNoCulture);@(ManifestNonResxWithNoCultureOnDisk)"
         ResponseFiles="$(CompilerResponseFile)"
-        TargetType="$(OutputType)"
+        TargetType="$(_BooTargetType)"
         NoConfig="true"
         NoLogo="$(NoLogo)"
         NoStandardLib="$(BooNoStdLib)"
@@ -256,7 +281,7 @@
     -->
     <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core' And '$(SkipCompilerExecution)' != 'true'">
       <_BooOutputFull>@(IntermediateAssembly->'%(FullPath)')</_BooOutputFull>
-      <_BooKind>$(OutputType.ToLower())</_BooKind>
+      <_BooKind>$(_BooTargetType.ToLower())</_BooKind>
       <_BooRsp>$(ProjectDir)$(IntermediateOutputPath)booc.rsp</_BooRsp>
     </PropertyGroup>
 

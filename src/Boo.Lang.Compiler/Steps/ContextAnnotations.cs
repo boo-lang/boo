@@ -43,6 +43,8 @@ namespace Boo.Lang.Compiler.Steps
 
 		private static readonly object AssemblyImageKey = new object();
 
+		private static readonly object EmbeddedResourcesKey = new object();
+
 		private static readonly object DeferredAssemblyAttributesKey = new object();
 
 		private static readonly object DeferredTypeLayoutsKey = new object();
@@ -117,6 +119,16 @@ namespace Boo.Lang.Compiler.Steps
 		internal static byte[] GetAssemblyImage(CompilerContext context)
 		{
 			return (byte[])context.Properties[AssemblyImageKey];
+		}
+
+		internal static EmbeddedResources GetEmbeddedResources(CompilerContext context)
+		{
+			return (EmbeddedResources)context.Properties[EmbeddedResourcesKey];
+		}
+
+		internal static void SetEmbeddedResources(CompilerContext context, EmbeddedResources resources)
+		{
+			context.Properties[EmbeddedResourcesKey] = resources;
 		}
 
 		internal static void SetAssemblyImage(CompilerContext context, byte[] image)

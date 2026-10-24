@@ -6025,20 +6025,28 @@ namespace Boo.Lang.Compiler.Steps
 			AssemblyBuilder _asmBuilder;
 			ModuleBuilder _moduleBuilder;
 
-			public SREResourceService (AssemblyBuilder asmBuilder, ModuleBuilder modBuilder)
+			CompilerContext _context;
+
+			public SREResourceService (CompilerContext context, AssemblyBuilder asmBuilder, ModuleBuilder modBuilder)
 			{
+				_context = context;
 				_asmBuilder = asmBuilder;
 				_moduleBuilder = modBuilder;
 			}
 
+			// A persisted builder cannot define resources: they are collected here
+			// and written into the image by AssemblyImage.
 			public bool EmbedFile(string resourceName, string fname)
 			{
-				throw new NotSupportedException("embedding resources is not implemented on this backend yet");
+				if (!File.Exists(fname))
+					return false;
+				EmbeddedResources.Of(_context).AddFile(resourceName, fname);
+				return true;
 			}
 
 			public IResourceWriter DefineResource(string resourceName, string resourceDescription)
 			{
-				throw new NotSupportedException("managed resources are not implemented on this backend yet");
+				return EmbeddedResources.Of(_context).DefineWriter(resourceName);
 			}
 		}
 
@@ -6064,7 +6072,7 @@ namespace Boo.Lang.Compiler.Steps
 			if (Parameters.Unsafe)
 				_moduleBuilder.SetCustomAttribute(CreateUnverifiableCodeAttribute());
 
-			_sreResourceService = new SREResourceService (_asmBuilder, _moduleBuilder);
+			_sreResourceService = new SREResourceService (Context, _asmBuilder, _moduleBuilder);
 			ContextAnnotations.SetAssemblyBuilder(Context, _asmBuilder);
 
 			Context.GeneratedAssemblyFileName = outputFile;

@@ -64,13 +64,22 @@ internal static class AssemblyImage
 		DeferredAssemblyAttributes.Write(context, metadata);
 		DeferredTypeLayouts.Write(context, metadata);
 
-		metadata = ImplementationReferences.Resolved(context, metadata);
+		PdbAlignment.MethodTracker tracker = null;
+		metadata = ImplementationReferences.ResolvedInspecting(context, metadata,
+			reader => tracker = PdbAlignment.MethodTracker.In(reader));
+
+		// The symbols are matched to methods by row number, which they have to be given the right ones for.
+		if (pdbMetadata != null && parameters.Debug)
+			pdbMetadata = PdbAlignment.Aligned(tracker, metadata, pdbMetadata);
+
+		var resources = EmbeddedResources.WriteInto(context, metadata);
 
 		var peBuilder = new ManagedPEBuilder(
 			PEHeader(parameters),
 			new MetadataRootBuilder(metadata),
 			ilStream,
 			mappedFieldData,
+			managedResources: resources,
 			debugDirectoryBuilder: DebugDirectory(parameters, metadata, pdbMetadata, entryPoint),
 			entryPoint: entryPoint,
 			flags: CorFlagsFor(parameters),
